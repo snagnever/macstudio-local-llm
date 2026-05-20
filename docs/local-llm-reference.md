@@ -80,7 +80,7 @@ Verified against `lms ls` / `GET /v1/models` on 2026-05-18. All MLX models below
 
 | Pros | Cons |
 |---|---|
-| Same family as upstream's knowledge winner (Gemma 4 26B-A4B avg 83.6% across MMLU/HumanEval/MATH/DROP/GPQA) | Quality numbers not yet re-verified on this rig — see [`local-llm-bench-m4-32gb/TESTING_PLAN.md`](local-llm-bench-m4-32gb/TESTING_PLAN.md#current-status-2026-05-18) (Phase 2 #4–#5) |
+| Same family as upstream's knowledge winner (Gemma 4 26B-A4B avg 83.6% across MMLU/HumanEval/MATH/DROP/GPQA) | Quality numbers not yet re-verified on this rig — see [`testing-plan.md`](testing-plan.md#current-status-2026-05-19-phase-1-complete) (Phase 2 #4–#5) |
 | Available in both **4-bit (15.64 GB)** and **6-bit (21.81 GB)** — enables a same-weights quant A/B | 4-bit quant; precision-sensitive code may prefer the 6-bit variant or the 6-bit Qwens |
 | 4B active params → fast | |
 | Vision + tools | |
@@ -89,7 +89,7 @@ Verified against `lms ls` / `GET /v1/models` on 2026-05-18. All MLX models below
 
 | Pros | Cons |
 |---|---|
-| Dense 31B at 8-bit (33.80 GB) — fills the dense-Gemma slot above 26B-A4B | Unbenched on this rig — Phase 2 #6 in [TESTING_PLAN.md](local-llm-bench-m4-32gb/TESTING_PLAN.md#current-status-2026-05-18) |
+| Dense 31B at 8-bit (33.80 GB) — fills the dense-Gemma slot above 26B-A4B | Unbenched on this rig — Phase 2 #6 in [testing-plan.md](testing-plan.md#current-status-2026-05-19-phase-1-complete) |
 | Vision + tools per metadata | Dense → all 31B params active every token; expect ~half the throughput of the 26B-A4B MoE |
 
 **`gemma-4-e4b-it-mlx` — Tiny Fast**
@@ -340,7 +340,7 @@ Numbers depend on context size, prompt length, and concurrent activity. Use as a
 
 ## Benchmark Results (verified on this rig)
 
-Headline accuracy + tool-calling scores from [`local-llm-bench-m4-32gb/benchmarks/runs/`](local-llm-bench-m4-32gb/benchmarks/runs/) (n=100 per knowledge bench, 40/12 per tool suite; `temp=0, seed=42`). Full matrix in [`TESTING_PLAN.md#current-status-2026-05-18`](local-llm-bench-m4-32gb/TESTING_PLAN.md#current-status-2026-05-18).
+Headline accuracy + tool-calling scores from [`../tools/local-llm-bench-m4-32gb/benchmarks/runs/`](../tools/local-llm-bench-m4-32gb/benchmarks/runs/) (n=100 per knowledge bench, 40/12 per tool suite; `temp=0, seed=42`). Full matrix in [`testing-plan.md`](testing-plan.md#current-status-2026-05-19-phase-1-complete).
 
 | Model | HumanEval | LCB v6 | MMLU | MATH | DROP | GPQA | jdhodges | veerman |
 |---|---|---|---|---|---|---|---|---|

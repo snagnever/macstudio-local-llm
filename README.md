@@ -11,7 +11,8 @@ results** they produce, the **dashboards** that visualise them, and the
 .
 ├── docs/                          Reference & hardware docs
 │   ├── machine-configuration.md   Chip, RAM, OS
-│   └── local-llm-reference.md     Which model to reach for, per task
+│   ├── local-llm-reference.md     Which model to reach for, per task
+│   └── testing-plan.md            Master benchmarking plan (phases, status, next steps)
 │
 ├── tools/                         Benchmarking tools (git submodules)
 │   ├── local-llm-bench-m4-32gb/   Knowledge + tool-calling (MMLU, HE, MATH, DROP, GPQA, LCB)
@@ -66,6 +67,12 @@ After a run, refresh the dashboards from `reports/` (see `reports/README.md`).
 coding, tool-calling, reasoning, vision, etc. — based on the Phase 1
 results currently summarised in
 `tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md`.
+
+## Master plan
+
+`docs/testing-plan.md` is the orchestration document: model phases, current
+status across all the benches, per-model run order, operational rules,
+and what's next. Update it as facts change.
 
 ## Updating submodules
 

@@ -189,4 +189,4 @@ ls local-llm-bench-m4-32gb/results/speed_probe/*_results.json
 - `../docs/local-llm-reference.md` — model lineup, params, quant, disk size, context window, vision/tool support. The "Models benchmarked" table in the HTML mirrors this.
 - `../docs/machine-configuration.md` — chip, RAM, OS. The "System" card mirrors this.
 - `../tools/local-llm-bench-m4-32gb/results/reference_scores.md` — older third-party comparison notes (Claude 3.x / GPT-4o era). Useful for context but the inline `REF_MODELS` in the HTML is fresher.
-- `../tools/local-llm-bench-m4-32gb/TESTING_PLAN.md` — what's intended to run, what's pending.
+- `../docs/testing-plan.md` — what's intended to run, what's pending.
