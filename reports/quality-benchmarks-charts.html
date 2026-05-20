@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Local LLM Quality Benchmarks vs Frontier — M4 Max / 128GB</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --border: #262a33;
+    --text: #e6e6e6;
+    --muted: #9aa0a6;
+    --accent: #5aa9ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+  }
+  header { border-bottom: 1px solid var(--border); }
+  .header-inner {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  header h1 { margin: 0 0 4px; font-size: 20px; font-weight: 600; }
+  header p { margin: 0; color: var(--muted); font-size: 13px; }
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    user-select: none;
+    cursor: pointer;
+  }
+  .toggle input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  main {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 24px 32px 64px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+  @media (max-width: 1100px) { main { grid-template-columns: minmax(0, 1fr); } }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .card.wide { grid-column: 1 / -1; }
+  .card h2 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .card .sub { margin: 0 0 16px; font-size: 12px; color: var(--muted); }
+  .chart-wrap { position: relative; height: 320px; }
+  .chart-wrap.tall { height: 420px; }
+  .chart-wrap.ref-sm { height: 380px; }
+  .chart-wrap.ref-md { height: 460px; }
+  .chart-wrap.ref-lg { height: 560px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 0;
+  }
+  th, td {
+    padding: 7px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th { color: var(--muted); font-weight: 500; white-space: nowrap; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .specs {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 16px;
+    font-size: 13px;
+  }
+  .specs dt { color: var(--muted); }
+  .specs dd { margin: 0; color: var(--text); }
+  .swatch {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: baseline;
+  }
+  .pill {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+    background: #262a33;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+  .legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .legend-row span { display: inline-flex; align-items: center; }
+  .caveat-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .caveat-list li { margin-bottom: 8px; }
+  .caveat-list code { background: #0d1018; padding: 1px 5px; border-radius: 3px; color: #cdd1d6; font-size: 12px; }
+  .verdict-table td:first-child { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd1d6; white-space: nowrap; }
+  footer {
+    color: var(--muted);
+    font-size: 12px;
+    padding: 16px 32px 32px;
+    text-align: center;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>Local LLM Quality vs Frontier</h1>
+      <p>Apple M4 Max · 128 GB · LM Studio / MLX · published-benchmark comparison · 2026-05-17</p>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="toggleLabels" checked />
+      Show data labels on bars
+    </label>
+  </div>
+</header>
+
+<main>
+
+  <!-- 0. Scope / sources -->
+  <section class="card">
+    <h2>Scope</h2>
+    <p class="sub">What this page shows and what to ignore.</p>
+    <dl class="specs">
+      <dt>Source</dt>             <dd>Upstream model cards / blogs (base un-quantized weights)</dd>
+      <dt>Local quants</dt>       <dd>MLX 6-bit / 4-bit / 2-bit-DQ, GGUF Q4_K_M (see model table)</dd>
+      <dt>Frontier baselines</dt> <dd>GPT-5 (Aug '25), Opus 4.5 (Nov '25), Sonnet 4.6 (Feb '26), Gemini 3 Pro (Nov '25)</dd>
+      <dt>Top open-weight</dt>    <dd>Kimi K2.6 (Apr '26); DeepSeek V4 family inline where applicable</dd>
+      <dt>Caveat</dt>             <dd>Anthropic does not publish exact MMLU/AIME numbers; those rows use Vellum / Morph / llm-stats transcriptions.</dd>
+      <dt>What this is not</dt>   <dd>Not a measurement of the on-disk quant on this rig — it's the published BF16/FP8 numbers with quant-delta notes.</dd>
+    </dl>
+  </section>
+
+  <!-- 0b. Local model table -->
+  <section class="card">
+    <h2>Local models in this comparison</h2>
+    <p class="sub">On-disk identifiers & quantizations.</p>
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Model</th>
+          <th>Arch</th>
+          <th class="num">Params</th>
+          <th>Quant</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="swatch" style="background:#5aa9ff"></span></td><td><code>qwen/qwen3-coder-next</code></td><td>MoE</td><td class="num">80B / 3B</td><td>MLX 6-bit</td><td>Agentic coder</td></tr>
+        <tr><td><span class="swatch" style="background:#ff8a5a"></span></td><td><code>qwen3.6-27b</code></td><td>Dense</td><td class="num">27B</td><td>MLX 6-bit</td><td>Reasoning specialist</td></tr>
+        <tr><td><span class="swatch" style="background:#7ee787"></span></td><td><code>qwen3.6-35b-a3b</code></td><td>MoE</td><td class="num">35B / 3B</td><td>MLX 6-bit</td><td>Fast generalist</td></tr>
+        <tr><td><span class="swatch" style="background:#ffd166"></span></td><td><code>gemma-4-26b-a4b-it-mlx</code></td><td>MoE</td><td class="num">26B / 4B</td><td>MLX 4-bit ⚠</td><td>Knowledge + vision</td></tr>
+        <tr><td><span class="swatch" style="background:#ef476f"></span></td><td><code>nvidia/nemotron-3-nano-omni</code></td><td>MoE</td><td class="num">30B / 3B</td><td>GGUF Q4_K_M</td><td>Multimodal omni</td></tr>
+        <tr><td><span class="swatch" style="background:#c77dff"></span></td><td><code>google/gemma-4-e4b</code></td><td>Dense</td><td class="num">~7.5B</td><td>GGUF Q4_K_M</td><td>Tiny / vision / fast</td></tr>
+        <tr><td><span class="swatch" style="background:#06d6a0"></span></td><td><code>deepseek-v4-flash-dq</code></td><td>MoE</td><td class="num">284B / 13B</td><td>MLX 2-bit DQ ⚠⚠</td><td>Frontier reasoning</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Legend -->
+  <section class="card wide">
+    <div class="legend-row">
+      <span><span class="swatch" style="background:#5aa9ff"></span> Local (this rig)</span>
+      <span><span class="swatch" style="background:#b86bff"></span> Frontier (GPT-5, Opus 4.5, Sonnet 4.6, Gemini 3 Pro)</span>
+      <span><span class="swatch" style="background:#888c94"></span> Open-weight reference (Kimi K2.6)</span>
+    </div>
+    <p class="sub" style="margin:0">All bars are <strong>published</strong> first-party scores from the upstream model card / announcement (or the most-cited third-party transcription, where the vendor doesn't publish). They are NOT measurements on the user's on-disk quant — see the quant-caveat panel at the bottom for expected quant-vs-base deltas.</p>
+  </section>
+
+  <!-- 1. Headline overview: local models on the three most universal benchmarks -->
+  <section class="card wide">
+    <h2>Local models — headline benchmarks side-by-side</h2>
+    <p class="sub">MMLU-Pro / GPQA Diamond / SWE-bench Verified — the three benchmarks every relevant model reports. Bars are upstream-card scores.</p>
+    <div class="chart-wrap tall"><canvas id="chartHeadline"></canvas></div>
+  </section>
+
+  <!-- 2. Per-benchmark deep dives (horizontal bars, ranked, all models) -->
+  <section class="card"><h2>MMLU-Pro</h2><p class="sub">Broad academic knowledge. GPT-5 number is the AA-Intelligence-Index input range (~85–87).</p><div class="chart-wrap ref-md"><canvas id="chartMMLU"></canvas></div></section>
+  <section class="card"><h2>GPQA Diamond</h2><p class="sub">Graduate-level science — the benchmark every modern model reports.</p><div class="chart-wrap ref-md"><canvas id="chartGPQA"></canvas></div></section>
+
+  <section class="card"><h2>AIME — competition math</h2><p class="sub">⚠ Mixed years: Qwen3.6 family & Gemma 4 report AIME 2026; GPT-5 / Sonnet 4.6 / DeepSeek V4 report AIME 2025; Kimi K2.6 reports AIME 2026.</p><div class="chart-wrap ref-md"><canvas id="chartAIME"></canvas></div></section>
+  <section class="card"><h2>SWE-bench Verified</h2><p class="sub">Agentic code editing. The single most-cited coder benchmark.</p><div class="chart-wrap ref-md"><canvas id="chartSWE"></canvas></div></section>
+
+  <section class="card"><h2>LiveCodeBench v6</h2><p class="sub">Recent competitive-programming problems. qwen3-coder-next number is community-measured (~80).</p><div class="chart-wrap ref-sm"><canvas id="chartLCB"></canvas></div></section>
+  <section class="card"><h2>Terminal-Bench 2.0</h2><p class="sub">Multi-turn shell agent. GPT-5.5 (post-this report) reports 82.7 — original GPT-5 has no published number.</p><div class="chart-wrap ref-sm"><canvas id="chartTBench"></canvas></div></section>
+
+  <section class="card wide"><h2>MMMU / MMMU-Pro — vision &amp; multimodal</h2><p class="sub">MMMU and MMMU-Pro are different (Pro is harder). Bars are labelled (P) when Pro. Compare within the same metric only.</p><div class="chart-wrap ref-md"><canvas id="chartMMMU"></canvas></div></section>
+
+  <!-- 3. Quant caveats panel -->
+  <section class="card wide">
+    <h2>Quantization caveats — how the on-disk quant compares to the published base</h2>
+    <p class="sub">All charts above are base-weight numbers. These are the expected deltas for the user's actual on-disk quants, per community measurements.</p>
+    <ul class="caveat-list">
+      <li><strong><code>qwen3-coder-next</code> (MLX 6-bit):</strong> essentially lossless. Awni Hannun's Qwen3 perplexity sweep + Unsloth's Q4_K_M analysis show ≥99% retention of BF16 SWE-bench/HumanEval at Q4-class; 6-bit lands within ≤1pt of base.</li>
+      <li><strong><code>qwen3.6-27b</code> (MLX 6-bit):</strong> tracks card numbers within ~0.5pt. Mixed-precision oQ6 vs RTN-6bit shows ~13% lower mean KLD but both are excellent.</li>
+      <li><strong><code>qwen3.6-35b-a3b</code> (MLX 6-bit):</strong> ≤1pt loss on static evals. <em>But</em> documented MoE-MLX issue: multi-turn tool-calling degrades on mlx-community 4-bit/8-bit Qwen3.x-A3B checkpoints (not yet seen on 6-bit; tool-heavy workloads may be more fragile than static evals suggest).</li>
+      <li><strong>⚠ <code>gemma-4-26b-a4b</code> (MLX 4-bit):</strong> the weakest quant on disk. Uniform MLX 4-bit RTN runs <strong>~4.7× worse perplexity</strong> than llama.cpp K-quants for Gemma 4. Expect 1–3pt loss on MMLU-Pro/GPQA, 3–5pt on hard math/code. <strong>Recommendation:</strong> switch to GGUF Q4_K_M or MLX-DWQ-4bit.</li>
+      <li><strong><code>nemotron-3-nano-omni</code> (GGUF Q4_K_M):</strong> NVIDIA publishes BF16 → FP8 → NVFP4 deltas (mean of 9 multimodal benches: 65.80 → 65.40 → 65.43). Q4_K_M typically sits between FP8 and FP4 — expect ≤1pt loss on most non-ASR multimodal tasks; ASR (WER) essentially unchanged.</li>
+      <li><strong><code>gemma-4-e4b</code> (GGUF Q4_K_M):</strong> small dense models are quant-sensitive. No published Q4_K_M number for E4B specifically — expect ~2–4pt loss on hard reasoning, minimal on chat/RAG. Q8 GGUF would close most of the gap.</li>
+      <li><strong>⚠⚠ <code>deepseek-v4-flash-dq</code> (MLX 2-bit DQ):</strong> heaviest asterisk. V4 Flash ships natively at FP4+FP8 — dropping experts to 2-bit is destructive recompression of an already-quantized model, not a clean post-train quant. The mlx-community card explicitly warns Q4_K_M is the floor for "most of the source quality". <strong>No public benchmark deltas exist.</strong> Expect 3–8pt drop on hard reasoning, more on long-context. Treat the chart numbers as a ceiling.</li>
+    </ul>
+  </section>
+
+  <!-- 4. Verdict table -->
+  <section class="card wide">
+    <h2>Verdict — where each local model lands vs frontier</h2>
+    <p class="sub">One-line takeaway per model.</p>
+    <table class="verdict-table">
+      <thead><tr><th>Model</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td><span class="swatch" style="background:#5aa9ff"></span>qwen3-coder-next (MLX 6-bit)</td><td>Sonnet-4.5-class coding at 3B active. ~6–10pt behind Opus 4.5 / Sonnet 4.6 / GPT-5 on SWE-bench Verified, ~20–30pt behind GPT-5.5 on Terminal-Bench. Pound-for-active-parameter, the best agentic coder you can run locally.</td></tr>
+        <tr><td><span class="swatch" style="background:#ff8a5a"></span>qwen3.6-27b (MLX 6-bit)</td><td>Best all-rounder on disk. Within 1–3pt of Opus 4.5 on GPQA, ~4pt behind on SWE-Verified, <strong>beats Sonnet 4.6</strong> on GPQA (87.8 vs 74.1) and AIME. Loses to Gemini 3 Pro by 4–6pt.</td></tr>
+        <tr><td><span class="swatch" style="background:#7ee787"></span>qwen3.6-35b-a3b (MLX 6-bit)</td><td>Near-tie with the 27B dense on most evals; lighter to run. ~7pt behind frontier on SWE-Verified, ~5pt on GPQA. Watch the MoE-MLX tool-call regression.</td></tr>
+        <tr><td><span class="swatch" style="background:#ffd166"></span>gemma-4-26b-a4b (MLX 4-bit)</td><td>Knowledge generalist mid-tier. ~7pt below Opus 4.5 on MMLU-Pro, ~5pt on GPQA; uniquely strong on long-context vision. <strong>The MLX 4-bit penalty here is the largest of any quant on disk.</strong></td></tr>
+        <tr><td><span class="swatch" style="background:#ef476f"></span>nemotron-3-nano-omni (GGUF Q4_K_M)</td><td>Multimodal specialist, not a general reasoner. Below frontier on every text benchmark. SOTA among small models on OCR / long-doc / audio / video. AA Intelligence Index 21 vs frontier ~60+.</td></tr>
+        <tr><td><span class="swatch" style="background:#c77dff"></span>gemma-4-e4b (GGUF Q4_K_M)</td><td>Edge-tier. 20–30pt below frontier on every hard benchmark. Useful as a drafter / vision toy, not a quality reasoning option.</td></tr>
+        <tr><td><span class="swatch" style="background:#06d6a0"></span>deepseek-v4-flash 2-bit-DQ (MLX)</td><td>The only "frontier-class" model on disk, asterisked. Base Flash matches GPT-5 / Opus 4.5 (88.1 GPQA, 91.6 LiveCodeBench, 79.0 SWE-Verified) — but 2-bit-DQ has no published deltas and the model is already QAT-FP4. Expect non-trivial degradation.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>
+  Source: <code>research/quality-benchmarks-2026-05.md</code>. Citations on each benchmark number live in the source report.
+</footer>
+
+<script>
+Chart.defaults.color = '#9aa0a6';
+Chart.defaults.borderColor = '#262a33';
+Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif';
+Chart.register(ChartDataLabels);
+
+const charts = [];
+let labelsOn = true;
+
+const datalabelsConfig = {
+  color: '#e6e6e6',
+  anchor: 'end',
+  align: 'end',
+  offset: 2,
+  clamp: true,
+  font: { size: 10, weight: '600' },
+  formatter: (v) => (v === null || v === undefined) ? '' : (Number.isInteger(v) ? v : v.toFixed(1)),
+  display: () => labelsOn
+};
+
+// Per-local-model colors (used everywhere a local model appears)
+const LOCAL_COLOR = {
+  'qwen3-coder-next':    '#5aa9ff',
+  'qwen3.6-27b':         '#ff8a5a',
+  'qwen3.6-35b-a3b':     '#7ee787',
+  'gemma-4-26b-a4b':     '#ffd166',
+  'nemotron-3-nano-omni':'#ef476f',
+  'gemma-4-e4b':         '#c77dff',
+  'deepseek-v4-flash':   '#06d6a0',
+};
+const FRONTIER_COLOR = '#b86bff';
+const OPEN_COLOR     = '#888c94';
+
+function registerChart(c) { charts.push(c); return c; }
+
+// ---------- 1. Headline grouped bar — locals on three universal benchmarks ----------
+registerChart(new Chart(document.getElementById('chartHeadline'), {
+  type: 'bar',
+  data: {
+    labels: ['MMLU-Pro', 'GPQA Diamond', 'SWE-bench Verified'],
+    datasets: [
+      { label: 'qwen3-coder-next (MLX 6-bit)',  backgroundColor: LOCAL_COLOR['qwen3-coder-next'],     data: [null, null, 70.9] },
+      { label: 'qwen3.6-27b (MLX 6-bit)',       backgroundColor: LOCAL_COLOR['qwen3.6-27b'],          data: [86.2, 87.8, 77.2] },
+      { label: 'qwen3.6-35b-a3b (MLX 6-bit)',   backgroundColor: LOCAL_COLOR['qwen3.6-35b-a3b'],      data: [85.2, 86.0, 73.4] },
+      { label: 'gemma-4-26b-a4b (MLX 4-bit)',   backgroundColor: LOCAL_COLOR['gemma-4-26b-a4b'],      data: [82.6, 82.3, null] },
+      { label: 'nemotron-3-nano-omni (Q4_K_M)', backgroundColor: LOCAL_COLOR['nemotron-3-nano-omni'], data: [78.3, 73.0, null] },
+      { label: 'gemma-4-e4b (Q4_K_M)',          backgroundColor: LOCAL_COLOR['gemma-4-e4b'],          data: [69.4, 58.6, null] },
+      { label: 'deepseek-v4-flash (2-bit DQ)',  backgroundColor: LOCAL_COLOR['deepseek-v4-flash'],    data: [86.4, 88.1, 79.0] },
+      // Frontier reference line — Opus 4.5 (typical "best frontier" for these three)
+      { label: 'Claude Opus 4.5 (reference)',   backgroundColor: FRONTIER_COLOR,                     data: [89.75, 87.0, 80.9] }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: { padding: { top: 20 } },
+    plugins: {
+      legend: { labels: { color: '#e6e6e6', boxWidth: 12, font: { size: 11 } } },
+      tooltip: { mode: 'index', intersect: false },
+      datalabels: { ...datalabelsConfig, font: { size: 9, weight: '600' } }
+    },
+    scales: {
+      x: { grid: { color: '#262a33' }, ticks: { color: '#e6e6e6' } },
+      y: { grid: { color: '#262a33' }, ticks: { color: '#9aa0a6' }, title: { display: true, text: 'Score (%)', color: '#9aa0a6' }, suggestedMax: 100, beginAtZero: true }
+    }
+  }
+}));
+
+// ---------- Generic per-benchmark horizontal-bar chart builder ----------
+// rows: [{name, value, tier: 'local'|'frontier'|'open', colorKey?, note?}]
+function buildBenchChart(canvasId, axisLabel, rows) {
+  const sorted = rows.filter(r => r.value != null).sort((a,b) => b.value - a.value);
+  return registerChart(new Chart(document.getElementById(canvasId), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(r => r.name + (r.note ? ' ' + r.note : '')),
+      datasets: [{
+        label: axisLabel,
+        data: sorted.map(r => r.value),
+        backgroundColor: sorted.map(r => {
+          if (r.tier === 'local')    return LOCAL_COLOR[r.colorKey];
+          if (r.tier === 'frontier') return FRONTIER_COLOR;
+          return OPEN_COLOR;
+        }),
+        borderWidth: 0
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { right: 36 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { mode: 'nearest', intersect: false },
+        datalabels: { ...datalabelsConfig, anchor: 'end', align: 'end', offset: 4, color: '#e6e6e6' }
+      },
+      scales: {
+        x: { grid: { color: '#262a33' }, ticks: { color: '#9aa0a6' }, suggestedMax: 100, title: { display: true, text: axisLabel + ' (%)', color: '#9aa0a6' } },
+        y: { grid: { display: false }, ticks: { color: '#e6e6e6', font: { size: 11 } } }
+      }
+    }
+  }));
+}
+
+// ---------- 2a. MMLU-Pro ----------
+buildBenchChart('chartMMLU', 'MMLU-Pro', [
+  { name: 'qwen3.6-27b',          value: 86.2, tier: 'local',    colorKey: 'qwen3.6-27b' },
+  { name: 'qwen3.6-35b-a3b',      value: 85.2, tier: 'local',    colorKey: 'qwen3.6-35b-a3b' },
+  { name: 'gemma-4-26b-a4b',      value: 82.6, tier: 'local',    colorKey: 'gemma-4-26b-a4b' },
+  { name: 'nemotron-3-nano-omni', value: 78.3, tier: 'local',    colorKey: 'nemotron-3-nano-omni' },
+  { name: 'gemma-4-e4b',          value: 69.4, tier: 'local',    colorKey: 'gemma-4-e4b' },
+  { name: 'deepseek-v4-flash',    value: 86.4, tier: 'local',    colorKey: 'deepseek-v4-flash' },
+  { name: 'GPT-5',                value: 86.0, tier: 'frontier', note: '(~85–87)' },
+  { name: 'Claude Opus 4.5',      value: 89.75,tier: 'frontier', note: '(89.5–90.0)' },
+  { name: 'Claude Sonnet 4.6',    value: 79.2, tier: 'frontier' },
+  { name: 'Gemini 3 Pro',         value: 91.0, tier: 'frontier' }
+]);
+
+// ---------- 2b. GPQA Diamond ----------
+buildBenchChart('chartGPQA', 'GPQA Diamond', [
+  { name: 'qwen3.6-27b',          value: 87.8, tier: 'local',    colorKey: 'qwen3.6-27b' },
+  { name: 'qwen3.6-35b-a3b',      value: 86.0, tier: 'local',    colorKey: 'qwen3.6-35b-a3b' },
+  { name: 'gemma-4-26b-a4b',      value: 82.3, tier: 'local',    colorKey: 'gemma-4-26b-a4b' },
+  { name: 'nemotron-3-nano-omni', value: 73.0, tier: 'local',    colorKey: 'nemotron-3-nano-omni' },
+  { name: 'gemma-4-e4b',          value: 58.6, tier: 'local',    colorKey: 'gemma-4-e4b' },
+  { name: 'deepseek-v4-flash',    value: 88.1, tier: 'local',    colorKey: 'deepseek-v4-flash' },
+  { name: 'GPT-5',                value: 89.4, tier: 'frontier' },
+  { name: 'Claude Opus 4.5',      value: 87.0, tier: 'frontier' },
+  { name: 'Claude Sonnet 4.6',    value: 74.1, tier: 'frontier' },
+  { name: 'Gemini 3 Pro',         value: 91.9, tier: 'frontier' },
+  { name: 'Kimi K2.6',            value: 90.5, tier: 'open' }
+]);
+
+// ---------- 2c. AIME (mixed years — noted in subtitle) ----------
+buildBenchChart('chartAIME', 'AIME', [
+  { name: 'qwen3.6-27b',          value: 94.1, tier: 'local',    colorKey: 'qwen3.6-27b',          note: "'26" },
+  { name: 'qwen3.6-35b-a3b',      value: 92.7, tier: 'local',    colorKey: 'qwen3.6-35b-a3b',      note: "'26" },
+  { name: 'gemma-4-26b-a4b',      value: 88.3, tier: 'local',    colorKey: 'gemma-4-26b-a4b',      note: "'26" },
+  { name: 'nemotron-3-nano-omni', value: 89.1, tier: 'local',    colorKey: 'nemotron-3-nano-omni', note: "'25 no-tools" },
+  { name: 'gemma-4-e4b',          value: 42.5, tier: 'local',    colorKey: 'gemma-4-e4b',          note: "'26" },
+  { name: 'deepseek-v4-flash',    value: 87.5, tier: 'local',    colorKey: 'deepseek-v4-flash',    note: "'25 est." },
+  { name: 'GPT-5',                value: 100,  tier: 'frontier', note: "'25" },
+  { name: 'Claude Sonnet 4.6',    value: 98.0, tier: 'frontier', note: "'25" },
+  { name: 'Kimi K2.6',            value: 96.4, tier: 'open',     note: "'26" }
+]);
+
+// ---------- 2d. SWE-bench Verified ----------
+buildBenchChart('chartSWE', 'SWE-bench Verified', [
+  { name: 'qwen3-coder-next',     value: 70.9, tier: 'local',    colorKey: 'qwen3-coder-next' },
+  { name: 'qwen3.6-27b',          value: 77.2, tier: 'local',    colorKey: 'qwen3.6-27b' },
+  { name: 'qwen3.6-35b-a3b',      value: 73.4, tier: 'local',    colorKey: 'qwen3.6-35b-a3b' },
+  { name: 'deepseek-v4-flash',    value: 79.0, tier: 'local',    colorKey: 'deepseek-v4-flash' },
+  { name: 'GPT-5',                value: 74.9, tier: 'frontier' },
+  { name: 'Claude Opus 4.5',      value: 80.9, tier: 'frontier' },
+  { name: 'Claude Sonnet 4.6',    value: 79.6, tier: 'frontier' },
+  { name: 'Gemini 3 Pro',         value: 76.2, tier: 'frontier' },
+  { name: 'Kimi K2.6',            value: 80.2, tier: 'open' }
+]);
+
+// ---------- 2e. LiveCodeBench v6 ----------
+buildBenchChart('chartLCB', 'LiveCodeBench v6', [
+  { name: 'qwen3-coder-next',     value: 80.0, tier: 'local',    colorKey: 'qwen3-coder-next', note: '(community)' },
+  { name: 'qwen3.6-27b',          value: 83.9, tier: 'local',    colorKey: 'qwen3.6-27b' },
+  { name: 'qwen3.6-35b-a3b',      value: 80.4, tier: 'local',    colorKey: 'qwen3.6-35b-a3b' },
+  { name: 'gemma-4-26b-a4b',      value: 77.1, tier: 'local',    colorKey: 'gemma-4-26b-a4b' },
+  { name: 'gemma-4-e4b',          value: 52.0, tier: 'local',    colorKey: 'gemma-4-e4b' },
+  { name: 'deepseek-v4-flash',    value: 91.6, tier: 'local',    colorKey: 'deepseek-v4-flash' },
+  { name: 'Claude Sonnet 4.6',    value: 80.0, tier: 'frontier', note: '(~80)' },
+  { name: 'Kimi K2.6',            value: 89.6, tier: 'open' }
+]);
+
+// ---------- 2f. Terminal-Bench 2.0 ----------
+buildBenchChart('chartTBench', 'Terminal-Bench 2.0', [
+  { name: 'qwen3-coder-next',     value: 36.2, tier: 'local',    colorKey: 'qwen3-coder-next' },
+  { name: 'qwen3.6-35b-a3b',      value: 51.5, tier: 'local',    colorKey: 'qwen3.6-35b-a3b' },
+  { name: 'deepseek-v4-flash',    value: 56.9, tier: 'local',    colorKey: 'deepseek-v4-flash' },
+  { name: 'Claude Opus 4.5',      value: 59.3, tier: 'frontier' },
+  { name: 'Claude Sonnet 4.6',    value: 59.1, tier: 'frontier' },
+  { name: 'Gemini 3 Pro',         value: 54.2, tier: 'frontier' },
+  { name: 'Kimi K2.6',            value: 66.7, tier: 'open' }
+]);
+
+// ---------- 2g. MMMU / MMMU-Pro ----------
+// (P) = MMMU-Pro, others = MMMU
+buildBenchChart('chartMMMU', 'MMMU / MMMU-Pro', [
+  { name: 'qwen3.6-27b',          value: 82.9, tier: 'local',    colorKey: 'qwen3.6-27b' },
+  { name: 'gemma-4-26b-a4b',      value: 73.8, tier: 'local',    colorKey: 'gemma-4-26b-a4b',      note: '(P)' },
+  { name: 'gemma-4-e4b',          value: 52.6, tier: 'local',    colorKey: 'gemma-4-e4b',          note: '(P)' },
+  { name: 'GPT-5',                value: 84.2, tier: 'frontier' },
+  { name: 'Claude Opus 4.5',      value: 80.7, tier: 'frontier' },
+  { name: 'Gemini 3 Pro',         value: 81.0, tier: 'frontier', note: '(P)' },
+  { name: 'Kimi K2.6',            value: 79.4, tier: 'open',     note: '(P)' }
+]);
+
+// Toggle wiring
+document.getElementById('toggleLabels').addEventListener('change', (e) => {
+  labelsOn = e.target.checked;
+  charts.forEach(c => c.update());
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Local LLM Benchmarks — M4 Max / 128GB</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --border: #262a33;
+    --text: #e6e6e6;
+    --muted: #9aa0a6;
+    --accent: #5aa9ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+  }
+  header {
+    border-bottom: 1px solid var(--border);
+  }
+  .header-inner {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  header h1 { margin: 0 0 4px; font-size: 20px; font-weight: 600; }
+  header p { margin: 0; color: var(--muted); font-size: 13px; }
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    user-select: none;
+    cursor: pointer;
+  }
+  .toggle input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  main {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 24px 32px 64px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+  @media (max-width: 1100px) {
+    main { grid-template-columns: minmax(0, 1fr); }
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .card.wide { grid-column: 1 / -1; }
+  .card h2 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .card .sub {
+    margin: 0 0 16px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .chart-wrap { position: relative; height: 320px; }
+  .chart-wrap.tall { height: 420px; }
+  .chart-wrap.ref-sm { height: 380px; }
+  .chart-wrap.ref-md { height: 480px; }
+  .chart-wrap.ref-lg { height: 560px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 0;
+  }
+  th, td {
+    padding: 7px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th { color: var(--muted); font-weight: 500; white-space: nowrap; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .specs {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 16px;
+    font-size: 13px;
+  }
+  .specs dt { color: var(--muted); }
+  .specs dd { margin: 0; color: var(--text); }
+  .swatch {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: baseline;
+  }
+  .pill {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+    background: #262a33;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+  footer {
+    color: var(--muted);
+    font-size: 12px;
+    padding: 16px 32px 32px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>Local LLM Benchmarks</h1>
+      <p>Apple M4 Max · 128 GB · LM Studio / MLX · runs through 2026-05-19 (Phase 1 complete)</p>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="toggleLabels" checked />
+      Show data labels on bars
+    </label>
+  </div>
+</header>
+
+<main>
+
+  <!-- 0. System & Models -->
+  <section class="card">
+    <h2>System</h2>
+    <p class="sub">Apple Mac Studio · macOS 26.3 (Sequoia) · ARM64</p>
+    <dl class="specs">
+      <dt>Chip</dt>             <dd>Apple M4 Max (T6041)</dd>
+      <dt>CPU</dt>              <dd>16-core (12P + 4E)</dd>
+      <dt>GPU</dt>              <dd>40-core integrated</dd>
+      <dt>Neural Engine</dt>    <dd>16-core ANE</dd>
+      <dt>Memory</dt>           <dd>128 GB unified (LPDDR5X, ~546 GB/s)</dd>
+      <dt>Storage</dt>          <dd>1.8 TB SSD</dd>
+      <dt>OS / kernel</dt>      <dd>macOS 26.3 · Darwin 25.3.0</dd>
+      <dt>Inference backend</dt><dd>LM Studio · MLX (Apple Silicon)</dd>
+      <dt>API endpoint</dt>     <dd><code>http://192.168.68.124:1234/v1</code></dd>
+    </dl>
+  </section>
+
+  <section class="card">
+    <h2>Models benchmarked</h2>
+    <p class="sub">All MLX safetensors, 6-bit quantization, run via LM Studio. Verified against <code>GET /v1/models</code> on 2026-05-19.</p>
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Model</th>
+          <th>Author / provider</th>
+          <th>Architecture</th>
+          <th class="num">Total params</th>
+          <th class="num">Active</th>
+          <th>Quant</th>
+          <th class="num">Disk</th>
+          <th>Context</th>
+          <th>Vision</th>
+          <th>Tools</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="swatch" style="background:#5aa9ff"></span></td>
+          <td><code>qwen/qwen3-coder-next</code></td>
+          <td>Qwen (Alibaba) · mlx-community<span class="pill">via LM Studio</span></td>
+          <td>MoE</td>
+          <td class="num">80 B</td>
+          <td class="num">3 B</td>
+          <td>6-bit MLX</td>
+          <td class="num">64.76 GB</td>
+          <td>256K (1M w/ YaRN)</td>
+          <td>—</td>
+          <td>✓</td>
+          <td>Agentic coder</td>
+        </tr>
+        <tr>
+          <td><span class="swatch" style="background:#ff8a5a"></span></td>
+          <td><code>qwen3.6-27b</code></td>
+          <td>Qwen (Alibaba) · mlx-community<span class="pill">via LM Studio</span></td>
+          <td>Dense</td>
+          <td class="num">27 B</td>
+          <td class="num">27 B</td>
+          <td>6-bit MLX</td>
+          <td class="num">22.80 GB</td>
+          <td>128K</td>
+          <td>✓</td>
+          <td>✓</td>
+          <td>Reasoning specialist</td>
+        </tr>
+        <tr>
+          <td><span class="swatch" style="background:#7ee787"></span></td>
+          <td><code>qwen3.6-35b-a3b</code></td>
+          <td>Qwen (Alibaba) · mlx-community<span class="pill">via LM Studio</span></td>
+          <td>MoE</td>
+          <td class="num">35 B</td>
+          <td class="num">3 B</td>
+          <td>6-bit MLX</td>
+          <td class="num">29.09 GB</td>
+          <td>128K</td>
+          <td>✓</td>
+          <td>✓</td>
+          <td>Fast generalist</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 1. Accuracy by benchmark -->
+  <section class="card wide">
+    <h2>Accuracy — 100-question benchmarks</h2>
+    <p class="sub">Pass rate across reasoning/coding/knowledge suites. Phase 1 complete (3 models × 6 benches). GPQA truncation caveat: 27b had 15/100 and 35b-a3b had 23/100 hard-capped at <code>max_tokens=32 768</code> (counted as wrong); true GPQA likely 78–85 % and 75–83 % respectively — see <code>results/M4_MAX_128GB_NOTES.md</code>.</p>
+    <div class="chart-wrap"><canvas id="chartAccuracy"></canvas></div>
+  </section>
+
+  <!-- 1b. Frontier comparison -->
+  <section class="card wide">
+    <h2>Local vs frontier — published scores</h2>
+    <p class="sub">
+      Local runs (this rig, n=100, seed=42, temp=0) plotted against published first-party scores for frontier &amp; notable open-weight models.
+      Caveats: many newer frontier models no longer publish HumanEval/DROP; MATH often means MATH-500 or AIME 2025 (noted per-model);
+      GPQA is Diamond throughout. Reasoning models (o3, R1, Claude 4.x with thinking, Gemini 2.5/3, GPT-5) report with test-time compute.
+      Use for ranking, not absolute deltas — ±5pp noise at n=100.
+    </p>
+  </section>
+
+  <section class="card"><h2>MMLU</h2><p class="sub">General knowledge. Anthropic 4.x reports MMMLU (multilingual) — marked *</p><div class="chart-wrap ref-md"><canvas id="chartRefMMLU"></canvas></div></section>
+  <section class="card"><h2>HumanEval</h2><p class="sub">Python coding. Largely deprecated by frontier providers post-2024.</p><div class="chart-wrap ref-sm"><canvas id="chartRefHumanEval"></canvas></div></section>
+  <section class="card"><h2>MATH</h2><p class="sub">Original MATH for local/legacy; MATH-500 for DeepSeek (†); AIME 2025 for frontier (‡).</p><div class="chart-wrap ref-md"><canvas id="chartRefMATH"></canvas></div></section>
+  <section class="card"><h2>DROP (F1)</h2><p class="sub">Reading comprehension. Mostly dropped by frontier providers — small field.</p><div class="chart-wrap ref-sm"><canvas id="chartRefDROP"></canvas></div></section>
+  <section class="card wide"><h2>GPQA Diamond</h2><p class="sub">Graduate-level science. The one benchmark still universally reported.</p><div class="chart-wrap ref-lg"><canvas id="chartRefGPQA"></canvas></div></section>
+
+  <!-- 2. Tool calling -->
+  <section class="card">
+    <h2>Tool calling — score</h2>
+    <p class="sub">jdhodges (40 q) and veerman (12 q) suites.</p>
+    <div class="chart-wrap"><canvas id="chartToolScore"></canvas></div>
+  </section>
+
+  <section class="card">
+    <h2>Tool calling — throughput</h2>
+    <p class="sub">Fresh token-weighted tok/s during each tool-call suite.</p>
+    <div class="chart-wrap"><canvas id="chartToolTps"></canvas></div>
+  </section>
+
+  <!-- 3. Throughput by scenario -->
+  <section class="card wide">
+    <h2>Generation throughput by scenario</h2>
+    <p class="sub">Average generation tok/s — pure decode speed, excludes prefill.</p>
+    <div class="chart-wrap"><canvas id="chartGenTps"></canvas></div>
+  </section>
+
+  <section class="card wide">
+    <h2>Effective throughput by scenario</h2>
+    <p class="sub">End-to-end tok/s including prefill — what the user actually feels.</p>
+    <div class="chart-wrap"><canvas id="chartEffectiveTps"></canvas></div>
+  </section>
+
+  <!-- 4. Prefill degradation -->
+  <section class="card wide">
+    <h2>Effective throughput vs context length (prefill-test)</h2>
+    <p class="sub">How fast the model still feels at growing context. The dense 27b collapses to ~2 t/s at 8.5k.</p>
+    <div class="chart-wrap tall"><canvas id="chartPrefill"></canvas></div>
+  </section>
+
+  <!-- 5. Speed probe -->
+  <section class="card">
+    <h2>Speed probe — total wall-clock</h2>
+    <p class="sub">3-prompt cold start (2+2, MMLU atmosphere, code).</p>
+    <div class="chart-wrap"><canvas id="chartProbeTotal"></canvas></div>
+  </section>
+
+  <section class="card">
+    <h2>Speed probe — reasoning tokens emitted</h2>
+    <p class="sub">Why 27b is slow: it thinks heavily even for trivial prompts.</p>
+    <div class="chart-wrap"><canvas id="chartProbeReason"></canvas></div>
+  </section>
+
+  <!-- 6. Wall-clock per 100-question run -->
+  <section class="card wide">
+    <h2>Elapsed time per 100-question benchmark</h2>
+    <p class="sub">Wall-clock minutes per suite. 27b GPQA includes 15 max-token spirals at ~29 min each — the dominant time sink of Phase 1.</p>
+    <div class="chart-wrap"><canvas id="chartElapsed"></canvas></div>
+  </section>
+
+</main>
+
+<footer>
+  Sources: <code>local-llm-bench-m4-32gb/benchmarks/runs/</code>, <code>local-llm-bench-m4-32gb/results/speed_probe/</code>, <code>benchmarking/local-llm-bench/results/</code>
+</footer>
+
+<script>
+Chart.defaults.color = '#9aa0a6';
+Chart.defaults.borderColor = '#262a33';
+Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif';
+
+// Register datalabels globally
+Chart.register(ChartDataLabels);
+
+const charts = [];
+let labelsOn = true;
+
+const datalabelsConfig = {
+  color: '#e6e6e6',
+  anchor: 'end',
+  align: 'end',
+  offset: 2,
+  clamp: true,
+  font: { size: 10, weight: '600' },
+  formatter: (v) => (v === null || v === undefined) ? '' : (Number.isInteger(v) ? v : v.toFixed(1)),
+  display: () => labelsOn
+};
+
+const COLOR = {
+  coder:  '#5aa9ff',   // qwen3-coder-next (80B MoE)
+  d27b:   '#ff8a5a',   // qwen3.6-27b dense
+  a3b35:  '#7ee787',   // qwen3.6-35b-a3b MoE
+};
+
+function gridOpts(yLabel, suggestedMax) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: { padding: { top: 20 } },
+    plugins: {
+      legend: { labels: { color: '#e6e6e6', boxWidth: 14 } },
+      tooltip: { mode: 'index', intersect: false },
+      datalabels: datalabelsConfig
+    },
+    scales: {
+      x: { grid: { color: '#262a33' }, ticks: { color: '#9aa0a6' } },
+      y: {
+        grid: { color: '#262a33' },
+        ticks: { color: '#9aa0a6' },
+        title: { display: !!yLabel, text: yLabel, color: '#9aa0a6' },
+        suggestedMax
+      }
+    }
+  };
+}
+
+function registerChart(c) { charts.push(c); return c; }
+
+// --- 1. Accuracy by benchmark ---
+registerChart(new Chart(document.getElementById('chartAccuracy'), {
+  type: 'bar',
+  data: {
+    labels: ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA'],
+    datasets: [
+      { label: 'qwen3-coder-next (80B 6-bit)',  backgroundColor: COLOR.coder, data: [89, 76, 84, 83, 37] },
+      { label: 'qwen3.6-27b (dense 6-bit)',     backgroundColor: COLOR.d27b,  data: [93, 88, 88, 90, 70] },
+      { label: 'qwen3.6-35b-a3b (MoE 6-bit)',   backgroundColor: COLOR.a3b35, data: [87, 83, 89, 89, 65] }
+    ]
+  },
+  options: gridOpts('Pass rate (%)', 100)
+}));
+
+// --- 2. Tool calling score ---
+registerChart(new Chart(document.getElementById('chartToolScore'), {
+  type: 'bar',
+  data: {
+    labels: ['jdhodges (40q)', 'veerman (12q)'],
+    datasets: [
+      { label: 'qwen3-coder-next',   backgroundColor: COLOR.coder, data: [90.0, 83.3] },
+      { label: 'qwen3.6-27b',        backgroundColor: COLOR.d27b,  data: [95.0, 83.3] },
+      { label: 'qwen3.6-35b-a3b',    backgroundColor: COLOR.a3b35, data: [97.5, 75.0] }
+    ]
+  },
+  options: gridOpts('Score (%)', 100)
+}));
+
+// --- 3. Tool calling tok/s ---
+registerChart(new Chart(document.getElementById('chartToolTps'), {
+  type: 'bar',
+  data: {
+    labels: ['jdhodges', 'veerman'],
+    datasets: [
+      { label: 'qwen3-coder-next',  backgroundColor: COLOR.coder, data: [18.55, 35.38] },
+      { label: 'qwen3.6-27b',       backgroundColor: COLOR.d27b,  data: [14.47, 18.40] },
+      { label: 'qwen3.6-35b-a3b',   backgroundColor: COLOR.a3b35, data: [72.35, 85.81] }
+    ]
+  },
+  options: gridOpts('tok/s (token-weighted)')
+}));
+
+// --- 4. Generation throughput by scenario ---
+registerChart(new Chart(document.getElementById('chartGenTps'), {
+  type: 'bar',
+  data: {
+    labels: ['creative-writing', 'doc-summary', 'ops-agent', 'prefill-test'],
+    datasets: [
+      { label: 'qwen3-coder-next (80B MoE)',  backgroundColor: COLOR.coder, data: [70.2, 69.9, 67.9, 68.0] },
+      { label: 'qwen3.6-27b (dense)',          backgroundColor: COLOR.d27b,  data: [20.7, 20.2, 20.0, 20.4] },
+      { label: 'qwen3.6-35b-a3b (MoE, MLX)',   backgroundColor: COLOR.a3b35, data: [91.6, 91.7, 85.5, 85.5] }
+    ]
+  },
+  options: gridOpts('Avg generation tok/s')
+}));
+
+// --- 5. Effective throughput by scenario ---
+registerChart(new Chart(document.getElementById('chartEffectiveTps'), {
+  type: 'bar',
+  data: {
+    labels: ['creative-writing', 'doc-summary', 'ops-agent', 'prefill-test'],
+    datasets: [
+      { label: 'qwen3-coder-next', backgroundColor: COLOR.coder, data: [67.8, 45.6, 55.8, 20.6] },
+      { label: 'qwen3.6-27b',      backgroundColor: COLOR.d27b,  data: [19.9, 11.2, 16.2, 4.0]  },
+      { label: 'qwen3.6-35b-a3b',  backgroundColor: COLOR.a3b35, data: [86.9, 55.9, 71.4, 22.9] }
+    ]
+  },
+  options: gridOpts('Avg effective tok/s')
+}));
+
+// --- 6. Prefill degradation ---
+registerChart(new Chart(document.getElementById('chartPrefill'), {
+  type: 'line',
+  data: {
+    labels: [655, 1453, 3015, 8496],
+    datasets: [
+      { label: 'qwen3-coder-next', borderColor: COLOR.coder, backgroundColor: COLOR.coder, data: [40.8, 39.8, 28.3, 9.0],  tension: 0.25, datalabels: { align: 'top', color: COLOR.coder } },
+      { label: 'qwen3.6-27b',      borderColor: COLOR.d27b,  backgroundColor: COLOR.d27b,  data: [10.6, 9.5,  5.0,  1.9],  tension: 0.25, datalabels: { align: 'bottom', color: COLOR.d27b } },
+      { label: 'qwen3.6-35b-a3b',  borderColor: COLOR.a3b35, backgroundColor: COLOR.a3b35, data: [54.1, 48.6, 31.2, 9.0],  tension: 0.25, datalabels: { align: 'top', color: COLOR.a3b35 } }
+    ]
+  },
+  options: {
+    ...gridOpts('Effective tok/s'),
+    scales: {
+      x: {
+        type: 'linear',
+        grid: { color: '#262a33' },
+        ticks: { color: '#9aa0a6' },
+        title: { display: true, text: 'Context length (tokens)', color: '#9aa0a6' }
+      },
+      y: {
+        grid: { color: '#262a33' },
+        ticks: { color: '#9aa0a6' },
+        title: { display: true, text: 'Effective tok/s', color: '#9aa0a6' },
+        beginAtZero: true
+      }
+    }
+  }
+}));
+
+// --- 7. Speed probe total ---
+registerChart(new Chart(document.getElementById('chartProbeTotal'), {
+  type: 'bar',
+  data: {
+    labels: ['2+2', 'MMLU atmos.', 'code 2nd-largest', 'Total'],
+    datasets: [
+      { label: 'qwen3-coder-next',  backgroundColor: COLOR.coder, data: [0.25, 0.37, 0.89, 1.51] },
+      { label: 'qwen3.6-27b',       backgroundColor: COLOR.d27b,  data: [6.5,  16.4, 51.5, 74.4] },
+      { label: 'qwen3.6-35b-a3b',   backgroundColor: COLOR.a3b35, data: [2.0,  2.96, 10.87, 15.83] }
+    ]
+  },
+  options: gridOpts('Seconds')
+}));
+
+// --- 8. Speed probe reasoning tokens ---
+registerChart(new Chart(document.getElementById('chartProbeReason'), {
+  type: 'bar',
+  data: {
+    labels: ['2+2', 'MMLU atmos.', 'code 2nd-largest'],
+    datasets: [
+      { label: 'qwen3-coder-next',  backgroundColor: COLOR.coder, data: [0, 0, 0] },
+      { label: 'qwen3.6-27b',       backgroundColor: COLOR.d27b,  data: [116, 311, 1023] },
+      { label: 'qwen3.6-35b-a3b',   backgroundColor: COLOR.a3b35, data: [165, 256, 1023] }
+    ]
+  },
+  options: gridOpts('Reasoning tokens emitted')
+}));
+
+// --- Frontier reference data (first-party where possible, as of 2026-05-17) ---
+// Tags on names: * = MMMLU not MMLU; † = MATH-500; ‡ = AIME 2025
+const REF_MODELS = [
+  // Local (this rig)
+  { name: 'qwen3-coder-next (local 80B)',    tier: 'local', color: '#5aa9ff',
+    MMLU: 76, HumanEval: 89, MATH: 84, DROP: 83, GPQA: 37 },
+  { name: 'qwen3.6-27b (local dense)',       tier: 'local', color: '#ff8a5a',
+    MMLU: 88, HumanEval: 93, MATH: 88, DROP: 90, GPQA: 70, note: 'GPQA: 15/100 truncated at 32k; true ≈78-85%' },
+  { name: 'qwen3.6-35b-a3b (local MoE)',     tier: 'local', color: '#7ee787',
+    MMLU: 83, HumanEval: 87, MATH: 89, DROP: 89, GPQA: 65, note: 'GPQA: 23/100 truncated at 32k; true ≈75-83%' },
+
+  // Anthropic
+  { name: 'Claude Opus 4.7',  tier: 'frontier', GPQA: 94.2 },
+  { name: 'Claude Opus 4.6',  tier: 'frontier', MMLU: 91.1, MATH: 100.0, GPQA: 91.3, note: '*‡' },
+  { name: 'Claude Opus 4.5',  tier: 'frontier', MMLU: 90.8, GPQA: 87.0, note: '*' },
+  { name: 'Claude Sonnet 4.6',tier: 'frontier', MMLU: 89.3, MATH: 95.6, GPQA: 89.9, note: '*‡' },
+  { name: 'Claude Sonnet 4.5',tier: 'frontier', MMLU: 89.5, MATH: 87.0, GPQA: 83.4, note: '*‡' },
+
+  // OpenAI
+  { name: 'GPT-5.2',   tier: 'frontier', MMLU: 89.6, GPQA: 93.2, note: '*' },
+  { name: 'GPT-5',     tier: 'frontier', MATH: 100.0, GPQA: 89.4, note: '‡' },
+  { name: 'o3',        tier: 'frontier', MMLU: 91.6, HumanEval: 81.3, MATH: 96.7, GPQA: 87.7 },
+  { name: 'o4-mini',   tier: 'frontier', MATH: 99.5, GPQA: 81.4, note: '‡' },
+  { name: 'GPT-4o',    tier: 'frontier', MMLU: 88.7, HumanEval: 90.2, MATH: 76.6, DROP: 83.4, GPQA: 53.6 },
+
+  // Google
+  { name: 'Gemini 3 Pro',   tier: 'frontier', MMLU: 91.8, MATH: 95.0, GPQA: 91.9, note: '*‡' },
+  { name: 'Gemini 2.5 Pro', tier: 'frontier', MATH: 86.7, GPQA: 84.0, note: '‡' },
+
+  // DeepSeek
+  { name: 'DeepSeek-R1',     tier: 'open', MMLU: 90.8, MATH: 97.3, DROP: 92.2, GPQA: 71.5, note: '†' },
+  { name: 'DeepSeek-V3',     tier: 'open', MMLU: 88.5, HumanEval: 65.2, MATH: 90.2, DROP: 89.0, GPQA: 59.1, note: '†' },
+  { name: 'DeepSeek-V3.2-Exp',tier: 'open', GPQA: 79.9 },
+
+  // Meta
+  { name: 'Llama 4 Maverick',  tier: 'open', MATH: 61.2, GPQA: 65.1 },
+  { name: 'Llama 3.3 70B',     tier: 'open', HumanEval: 88.4, MATH: 77.0, GPQA: 50.5 },
+
+  // Qwen
+  { name: 'Qwen3-235B Thinking', tier: 'open', GPQA: 81.1 },
+  { name: 'Qwen2.5-72B',         tier: 'open', MMLU: 86.1, HumanEval: 86.6, MATH: 83.1, GPQA: 49.0 }
+];
+
+const TIER_COLOR = {
+  local:    null,       // per-model override
+  frontier: '#b86bff',  // purple
+  open:     '#888c94'   // gray
+};
+
+function buildRefChart(canvasId, metric, axisLabel) {
+  const rows = REF_MODELS
+    .filter(m => m[metric] != null)
+    .map(m => ({
+      label: m.name + (m.note ? ' ' + m.note : ''),
+      value: m[metric],
+      color: m.tier === 'local' ? m.color : TIER_COLOR[m.tier]
+    }))
+    .sort((a, b) => b.value - a.value);
+
+  return registerChart(new Chart(document.getElementById(canvasId), {
+    type: 'bar',
+    data: {
+      labels: rows.map(r => r.label),
+      datasets: [{
+        label: axisLabel,
+        data: rows.map(r => r.value),
+        backgroundColor: rows.map(r => r.color),
+        borderWidth: 0
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { right: 28 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { mode: 'nearest', intersect: false },
+        datalabels: {
+          ...datalabelsConfig,
+          anchor: 'end',
+          align: 'end',
+          offset: 4,
+          color: '#e6e6e6'
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: '#262a33' },
+          ticks: { color: '#9aa0a6' },
+          suggestedMax: 100,
+          title: { display: true, text: axisLabel + ' (%)', color: '#9aa0a6' }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: '#e6e6e6', font: { size: 11 } }
+        }
+      }
+    }
+  }));
+}
+
+buildRefChart('chartRefMMLU',      'MMLU',      'MMLU');
+buildRefChart('chartRefHumanEval', 'HumanEval', 'HumanEval');
+buildRefChart('chartRefMATH',      'MATH',      'MATH');
+buildRefChart('chartRefDROP',      'DROP',      'DROP F1');
+buildRefChart('chartRefGPQA',      'GPQA',      'GPQA Diamond');
+
+// Toggle wiring
+document.getElementById('toggleLabels').addEventListener('change', (e) => {
+  labelsOn = e.target.checked;
+  charts.forEach(c => c.update());
+});
+
+// --- 9. Elapsed per 100-question run ---
+registerChart(new Chart(document.getElementById('chartElapsed'), {
+  type: 'bar',
+  data: {
+    labels: ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA'],
+    datasets: [
+      { label: 'qwen3-coder-next', backgroundColor: COLOR.coder, data: [16.6, 13.6, 45.1, 13.7, 13.9] },
+      { label: 'qwen3.6-27b',      backgroundColor: COLOR.d27b,  data: [186.3, 99.1, 603.6, 88.3, 1332.4] },
+      { label: 'qwen3.6-35b-a3b',  backgroundColor: COLOR.a3b35, data: [58.1, 56.9, 206.6, 27.1, 388.6] }
+    ]
+  },
+  options: gridOpts('Minutes')
+}));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+
+# Node / Next.js
+**/node_modules/
+**/.next/
+
+# Python
+**/.venv/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/.pytest_cache/
+
+# Environment / secrets
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Archives (we keep source, not zipped builds)
+*.zip
+
+# Model weights (defensive — these belong in LM Studio, not git)
+*.gguf
+*.safetensors
+*.mlx
+
+# Editor / tool noise
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Claude Code local state (per-user; never share)
+**/.claude/settings.local.json
+**/.claude/*.lock

@@ -1,0 +1,7 @@
+[submodule "tools/local-llm-bench-m4-32gb"]
+	path = tools/local-llm-bench-m4-32gb
+	url = https://github.com/snagnever/local-llm-bench-m4-32gb.git
+[submodule "tools/local-llm-bench"]
+	path = tools/local-llm-bench
+	url = https://github.com/snagnever/local-llm-bench.git
+	branch = results/m4-max-128gb-40gpu
