@@ -83,8 +83,8 @@ Verified against `lms ls` / `GET /v1/models` on 2026-05-18. All MLX models below
 | Pros | Cons |
 |---|---|
 | **HumanEval 98 %, jdhodges 98 %, Veerman 83 %** — coding + tool-calling parity with the best Phase 1 model | Knowledge ceiling **below `qwen3.6-27b`** by 10pp MMLU, 5pp MATH, 11pp DROP, 17pp GPQA — Phase 2 confirmed |
-| **`@4bit` is the fastest model on this rig** (100 t/s ops-agent gen, 15.64 GB) | LCB on hard problems can truncate at 32 768 cap — raise `--max-tokens` to 65 536 if running LCB |
-| **`@6bit` is the family flagship** — LCB 78 %, MATH 83 %, GPQA 53 %; 80.8 t/s gen at 21.81 GB | |
+| **`@4bit` is the fastest model on this rig** (100 t/s ops-agent gen, 15.64 GB) | LCB **66 %** (post-Step-B): 8 of 9 32k truncations are real model limits at 65k, not cap-too-tight |
+| **`@6bit` is the family flagship and the rig's LCB ceiling at 80 %** (post-Step-B, +18pp over best Qwen 27b 62 %) — MATH 83 %, GPQA 53 %; 80.8 t/s gen at 21.81 GB | |
 | Vision + tools advertised on both quants | |
 | Knowledge avg 78.0 % (@6bit), 76.4 % (@4bit) — between coder-next and 35b-a3b | |
 
@@ -344,17 +344,24 @@ Numbers depend on context size, prompt length, and concurrent activity. Use as a
 
 ## Benchmark Results (verified on this rig)
 
-Headline accuracy + tool-calling scores from [`../tools/local-llm-bench-m4-32gb/benchmarks/runs/`](../tools/local-llm-bench-m4-32gb/benchmarks/runs/) (n=100 per knowledge bench, 40/12 per tool suite; `temp=0, seed=42`). Full matrix in [`testing-plan.md`](testing-plan.md#current-status-2026-05-19-phase-1-complete).
+Headline accuracy + tool-calling scores from [`../tools/local-llm-bench-m4-32gb/benchmarks/runs/`](../tools/local-llm-bench-m4-32gb/benchmarks/runs/) (n=100 per knowledge bench except LCB n=50, 40/12 per tool suite; `temp=0, seed=42`). Full matrix in [`testing-plan.md`](testing-plan.md). Updated 2026-05-24 after Phase 1 LCB backfill + Step B Gemma reruns.
 
 | Model | HumanEval | LCB v6 | MMLU | MATH | DROP | GPQA | jdhodges | veerman |
 |---|---|---|---|---|---|---|---|---|
-| `qwen/qwen3-coder-next` (6-bit) | 89 % | — | 76 % | 84 % | 83 % | 37 % | 90 % | 83.3 % |
-| `qwen3.6-27b` (6-bit dense) | 93 % | — | 88 % | 88 % | — | — | 95 % | 83.3 % |
-| `qwen3.6-35b-a3b@6bit` | — | — | — | — | — | — | — | — |
+| `qwen/qwen3-coder-next` (6-bit) | 89 % | 56 % | 76 % | 84 % | 83 % | 37 % | 90 % | 83.3 % |
+| `qwen3.6-27b` (6-bit dense) | 93 % | **62 %** | 88 % | 88 % | 90 % | 70 % † | 95 % | 83.3 % |
+| `qwen3.6-35b-a3b@6bit` | 87 % | 54 % | 83 % | 89 % | 89 % | 65 % † | 97.5 % | 75.0 % |
+| `gemma-4-26b-a4b@4bit` | 98 % | 66 % | 78 % | 80 % | 79 % | 47 % | 97.5 % | 83.3 % |
+| `gemma-4-26b-a4b@6bit` | 97 % | **80 %** | 78 % | 83 % | 79 % | 53 % | 97.5 % | 83.3 % |
+| `gemma-4-31b-it-mlx` (8-bit dense) | 95 % | 76 % | 77 % | 79 % | 85 % | 48 % | 97.5 % | 83.3 % |
+| `gemma-4-e4b-it-mlx` (4B/8-bit) | 91 % | 68 % | 65 % | 14 % | 65 % | 34 % | 87.5 % | 66.7 % |
 
-- **LiveCodeBench (v6)** support was added to the harness on 2026-05-18 — see [`local-llm-bench-m4-32gb/scripts/bench2.py`](local-llm-bench-m4-32gb/scripts/bench2.py) (`livecodebench` benchmark choice, `--lcb-version release_v6` default). Contamination-resistant rolling-window coding suite; supersedes HumanEval as the primary frontier-comparable coding metric.
-- **GPQA gap** on `qwen3-coder-next` (37 %) reflects the reasoning-model vs single-pass divide — coder-next emits zero thinking tokens by design. The 27b dense, with its CoT default, will likely score 60–75 % when run.
-- **Tool calling** ranks ahead of knowledge for daily-driver decisions (per upstream finding): both Phase 1 daily-drivers exceed 80 % on both suites with identical veerman scores, but jdhodges separates them (27b: 95 %, coder-next: 90 %).
+† = GPQA at 32 768 cap, raw scores under-count due to thinking spirals. Corrected ceilings: 27b ≈ 78–85 %, 35b-a3b ≈ 75–83 %. See [testing-plan.md truncation finding](testing-plan.md#truncation-finding-gpqa--thinking-models).
+
+- **`gemma-4-26b-a4b@6bit` is the rig's LCB ceiling at 80 %** (+18 pp over the best Qwen). Knowledge generalist slot is still `qwen3.6-27b`; LCB-specific recommendation has diverged from knowledge after Phase 2 + Step B.
+- **LiveCodeBench (v6)** support was added to the harness on 2026-05-18 — see [`local-llm-bench-m4-32gb/scripts/bench2.py`](local-llm-bench-m4-32gb/scripts/bench2.py). Contamination-resistant rolling-window coding suite; supersedes HumanEval as the primary frontier-comparable coding metric. Run with `--max-tokens 65536` for any thinking model or Gemma 4.
+- **GPQA gap** on `qwen3-coder-next` (37 %) reflects the reasoning-model vs single-pass divide — coder-next emits zero thinking tokens by design.
+- **Tool calling** ranks ahead of knowledge for daily-driver decisions (per upstream finding): both Phase 1 daily-drivers exceed 80 % on both suites with identical veerman scores, but jdhodges separates them (35b-a3b: 97.5 %, 27b: 95 %, coder-next: 90 %).
 
 ---
 
