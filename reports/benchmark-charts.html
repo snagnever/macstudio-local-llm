@@ -135,7 +135,7 @@
   <div class="header-inner">
     <div>
       <h1>Local LLM Benchmarks</h1>
-      <p>Apple M4 Max · 128 GB · LM Studio / MLX · runs through 2026-05-19 (Phase 1 complete)</p>
+      <p>Apple M4 Max · 128 GB · LM Studio / MLX · runs through 2026-05-22 (Phase 1 complete · Phase 2 in progress: Gemma 4 26B-A4B@4bit/@6bit done, 31B-dense partial)</p>
     </div>
     <label class="toggle">
       <input type="checkbox" id="toggleLabels" checked />
@@ -165,7 +165,7 @@
 
   <section class="card">
     <h2>Models benchmarked</h2>
-    <p class="sub">All MLX safetensors, 6-bit quantization, run via LM Studio. Verified against <code>GET /v1/models</code> on 2026-05-19.</p>
+    <p class="sub">All MLX safetensors, run via LM Studio. Phase 1 (Qwen) verified 2026-05-19; Phase 2 (Gemma 4) verified 2026-05-20. 31B-dense partial — MATH/DROP/GPQA still pending.</p>
     <table>
       <thead>
         <tr>
@@ -226,6 +226,48 @@
           <td>✓</td>
           <td>Fast generalist</td>
         </tr>
+        <tr>
+          <td><span class="swatch" style="background:#ffd166"></span></td>
+          <td><code>gemma-4-26b-a4b-it-mlx@4bit</code></td>
+          <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
+          <td>MoE</td>
+          <td class="num">26 B</td>
+          <td class="num">4 B</td>
+          <td>4-bit MLX</td>
+          <td class="num">14.6 GB</td>
+          <td>65K</td>
+          <td>✓</td>
+          <td>✓</td>
+          <td>Knowledge / vision (light)</td>
+        </tr>
+        <tr>
+          <td><span class="swatch" style="background:#f59e0b"></span></td>
+          <td><code>gemma-4-26b-a4b-it-mlx@6bit</code></td>
+          <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
+          <td>MoE</td>
+          <td class="num">26 B</td>
+          <td class="num">4 B</td>
+          <td>6-bit MLX</td>
+          <td class="num">21.81 GB</td>
+          <td>65K</td>
+          <td>✓</td>
+          <td>✓</td>
+          <td>Knowledge / vision (mid)</td>
+        </tr>
+        <tr>
+          <td><span class="swatch" style="background:#fb7185"></span></td>
+          <td><code>gemma-4-31b-it-mlx</code></td>
+          <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
+          <td>Dense</td>
+          <td class="num">31 B</td>
+          <td class="num">31 B</td>
+          <td>8-bit MLX</td>
+          <td class="num">33.80 GB</td>
+          <td>65K</td>
+          <td>✓</td>
+          <td>✓</td>
+          <td>Dense knowledge (partial run)</td>
+        </tr>
       </tbody>
     </table>
   </section>
@@ -233,8 +275,14 @@
   <!-- 1. Accuracy by benchmark -->
   <section class="card wide">
     <h2>Accuracy — 100-question benchmarks</h2>
-    <p class="sub">Pass rate across reasoning/coding/knowledge suites. Phase 1 complete (3 models × 6 benches). GPQA truncation caveat: 27b had 15/100 and 35b-a3b had 23/100 hard-capped at <code>max_tokens=32 768</code> (counted as wrong); true GPQA likely 78–85 % and 75–83 % respectively — see <code>results/M4_MAX_128GB_NOTES.md</code>.</p>
+    <p class="sub">Pass rate across reasoning/coding/knowledge suites. Phase 1 (Qwen ×3) complete; Phase 2 (Gemma 4) — 26B-A4B@4bit/@6bit complete, 31B-dense partial (MATH/DROP/GPQA still running). GPQA caveats: Qwen 27b had 15/100 and 35b-a3b had 23/100 hard-capped at <code>max_tokens=32 768</code> (counted as wrong); true GPQA likely 78–85 % / 75–83 %. Gemma 4 runs used the doubled <code>max_tokens=65 536</code> rule and truncated only 1–2 questions — those scores are not affected.</p>
     <div class="chart-wrap"><canvas id="chartAccuracy"></canvas></div>
+  </section>
+
+  <section class="card wide">
+    <h2>LiveCodeBench v6 — local (n=50)</h2>
+    <p class="sub">All 7 daily-driver candidates now characterized (Qwen Phase 1 backfill landed 2026-05-24). 27b dense leads the Qwen trio at 62 % — same rank order as knowledge benches. Gemma 4 26B-A4B @6bit at 78 % is the rig's LCB ceiling. After single-question reruns: <code>qwen/qwen3-coder-next</code> 56 % clean (0 truncations after Q19 rerun at 65 k confirmed Q19 is a real failure, not a cap artifact), <code>qwen3.6-27b</code> 62 % with 1 trunc at 65 k (Q3 abc365_c, hardest across the trio), <code>qwen3.6-35b-a3b@6bit</code> 54 % with 6 truncs at 65 k (raw % is the floor; ceiling ≈ 60–66 % if all six recover at a higher cap).</p>
+    <div class="chart-wrap"><canvas id="chartLCB"></canvas></div>
   </section>
 
   <!-- 1b. Frontier comparison -->
@@ -253,6 +301,7 @@
   <section class="card"><h2>MATH</h2><p class="sub">Original MATH for local/legacy; MATH-500 for DeepSeek (†); AIME 2025 for frontier (‡).</p><div class="chart-wrap ref-md"><canvas id="chartRefMATH"></canvas></div></section>
   <section class="card"><h2>DROP (F1)</h2><p class="sub">Reading comprehension. Mostly dropped by frontier providers — small field.</p><div class="chart-wrap ref-sm"><canvas id="chartRefDROP"></canvas></div></section>
   <section class="card wide"><h2>GPQA Diamond</h2><p class="sub">Graduate-level science. The one benchmark still universally reported.</p><div class="chart-wrap ref-lg"><canvas id="chartRefGPQA"></canvas></div></section>
+  <section class="card wide"><h2>LiveCodeBench v6</h2><p class="sub">Coding pass@1 against the rolling contamination-resistant set. Anthropic Opus 4.x, Gemini 3 Pro, GPT-5.2, o-series and Llama 4 don't publish LCB; bars are limited to providers who do. Sonnet 4.5 is reported as LCB-<strong>Pro</strong>, not directly comparable to v6 pass@1 — kept with caveat.</p><div class="chart-wrap ref-md"><canvas id="chartRefLCB"></canvas></div></section>
 
   <!-- 2. Tool calling -->
   <section class="card">
@@ -302,8 +351,8 @@
 
   <!-- 6. Wall-clock per 100-question run -->
   <section class="card wide">
-    <h2>Elapsed time per 100-question benchmark</h2>
-    <p class="sub">Wall-clock minutes per suite. 27b GPQA includes 15 max-token spirals at ~29 min each — the dominant time sink of Phase 1.</p>
+    <h2>Elapsed time per benchmark</h2>
+    <p class="sub">Wall-clock minutes per suite (n=100 except LiveCodeBench n=50). 27b GPQA includes 15 max-token spirals at ~29 min each — the dominant time sink of Phase 1. Gemma 4 31B dense runs at ~13 t/s vs Gemma 26B-A4B's ~100 t/s — the dense tax shows up as ~7× longer wall-clock per bench.</p>
     <div class="chart-wrap"><canvas id="chartElapsed"></canvas></div>
   </section>
 
@@ -339,6 +388,10 @@ const COLOR = {
   coder:  '#5aa9ff',   // qwen3-coder-next (80B MoE)
   d27b:   '#ff8a5a',   // qwen3.6-27b dense
   a3b35:  '#7ee787',   // qwen3.6-35b-a3b MoE
+  g26_4:  '#ffd166',   // gemma-4-26b-a4b @ 4bit
+  g26_6:  '#f59e0b',   // gemma-4-26b-a4b @ 6bit
+  g31:    '#fb7185',   // gemma-4-31b dense @ 8bit
+  ge4b:   '#c084fc',   // gemma-4-e4b @ 8bit (4B small)
 };
 
 function gridOpts(yLabel, suggestedMax) {
@@ -371,9 +424,31 @@ registerChart(new Chart(document.getElementById('chartAccuracy'), {
   data: {
     labels: ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA'],
     datasets: [
-      { label: 'qwen3-coder-next (80B 6-bit)',  backgroundColor: COLOR.coder, data: [89, 76, 84, 83, 37] },
-      { label: 'qwen3.6-27b (dense 6-bit)',     backgroundColor: COLOR.d27b,  data: [93, 88, 88, 90, 70] },
-      { label: 'qwen3.6-35b-a3b (MoE 6-bit)',   backgroundColor: COLOR.a3b35, data: [87, 83, 89, 89, 65] }
+      { label: 'qwen3-coder-next (80B 6-bit)',      backgroundColor: COLOR.coder, data: [89, 76, 84, 83, 37] },
+      { label: 'qwen3.6-27b (dense 6-bit)',         backgroundColor: COLOR.d27b,  data: [93, 88, 88, 90, 70] },
+      { label: 'qwen3.6-35b-a3b (MoE 6-bit)',       backgroundColor: COLOR.a3b35, data: [87, 83, 89, 89, 65] },
+      { label: 'gemma-4-26b-a4b (MoE 4-bit)',       backgroundColor: COLOR.g26_4, data: [98, 78, 80, 79, 47] },
+      { label: 'gemma-4-26b-a4b (MoE 6-bit)',       backgroundColor: COLOR.g26_6, data: [97, 78, 83, 79, 53] },
+      { label: 'gemma-4-31b (dense 8-bit)',         backgroundColor: COLOR.g31,   data: [95, 77, 79, 85, 48] },
+      { label: 'gemma-4-e4b (4B 8-bit)',            backgroundColor: COLOR.ge4b,  data: [91, 65, 14, 65, 34] }
+    ]
+  },
+  options: gridOpts('Pass rate (%)', 100)
+}));
+
+// --- 1b. LiveCodeBench v6 (all 7 daily-driver candidates) ---
+registerChart(new Chart(document.getElementById('chartLCB'), {
+  type: 'bar',
+  data: {
+    labels: ['LiveCodeBench v6 (n=50)'],
+    datasets: [
+      { label: 'qwen3-coder-next (80B 6-bit)',      backgroundColor: COLOR.coder, data: [56] },
+      { label: 'qwen3.6-27b (dense 6-bit)',         backgroundColor: COLOR.d27b,  data: [62] },
+      { label: 'qwen3.6-35b-a3b (MoE 6-bit)',       backgroundColor: COLOR.a3b35, data: [54] },
+      { label: 'gemma-4-26b-a4b (MoE 4-bit)',       backgroundColor: COLOR.g26_4, data: [64] },
+      { label: 'gemma-4-26b-a4b (MoE 6-bit)',       backgroundColor: COLOR.g26_6, data: [78] },
+      { label: 'gemma-4-31b (dense 8-bit)',         backgroundColor: COLOR.g31,   data: [76] },
+      { label: 'gemma-4-e4b (4B 8-bit)',            backgroundColor: COLOR.ge4b,  data: [68] }
     ]
   },
   options: gridOpts('Pass rate (%)', 100)
@@ -385,9 +460,13 @@ registerChart(new Chart(document.getElementById('chartToolScore'), {
   data: {
     labels: ['jdhodges (40q)', 'veerman (12q)'],
     datasets: [
-      { label: 'qwen3-coder-next',   backgroundColor: COLOR.coder, data: [90.0, 83.3] },
-      { label: 'qwen3.6-27b',        backgroundColor: COLOR.d27b,  data: [95.0, 83.3] },
-      { label: 'qwen3.6-35b-a3b',    backgroundColor: COLOR.a3b35, data: [97.5, 75.0] }
+      { label: 'qwen3-coder-next',         backgroundColor: COLOR.coder, data: [90.0, 83.3] },
+      { label: 'qwen3.6-27b',              backgroundColor: COLOR.d27b,  data: [95.0, 83.3] },
+      { label: 'qwen3.6-35b-a3b',          backgroundColor: COLOR.a3b35, data: [97.5, 75.0] },
+      { label: 'gemma-4-26b-a4b @4bit',    backgroundColor: COLOR.g26_4, data: [97.5, 83.3] },
+      { label: 'gemma-4-26b-a4b @6bit',    backgroundColor: COLOR.g26_6, data: [97.5, 83.3] },
+      { label: 'gemma-4-31b dense',        backgroundColor: COLOR.g31,   data: [97.5, 83.3] },
+      { label: 'gemma-4-e4b (4B)',         backgroundColor: COLOR.ge4b,  data: [87.5, 66.7] }
     ]
   },
   options: gridOpts('Score (%)', 100)
@@ -399,9 +478,13 @@ registerChart(new Chart(document.getElementById('chartToolTps'), {
   data: {
     labels: ['jdhodges', 'veerman'],
     datasets: [
-      { label: 'qwen3-coder-next',  backgroundColor: COLOR.coder, data: [18.55, 35.38] },
-      { label: 'qwen3.6-27b',       backgroundColor: COLOR.d27b,  data: [14.47, 18.40] },
-      { label: 'qwen3.6-35b-a3b',   backgroundColor: COLOR.a3b35, data: [72.35, 85.81] }
+      { label: 'qwen3-coder-next',         backgroundColor: COLOR.coder, data: [18.55, 35.38] },
+      { label: 'qwen3.6-27b',              backgroundColor: COLOR.d27b,  data: [14.47, 18.40] },
+      { label: 'qwen3.6-35b-a3b',          backgroundColor: COLOR.a3b35, data: [72.35, 85.81] },
+      { label: 'gemma-4-26b-a4b @4bit',    backgroundColor: COLOR.g26_4, data: [73.36, 82.08] },
+      { label: 'gemma-4-26b-a4b @6bit',    backgroundColor: COLOR.g26_6, data: [57.85, 66.58] },
+      { label: 'gemma-4-31b dense',        backgroundColor: COLOR.g31,   data: [11.39, 12.33] },
+      { label: 'gemma-4-e4b (4B)',         backgroundColor: COLOR.ge4b,  data: [42.50, 60.30] }
     ]
   },
   options: gridOpts('tok/s (token-weighted)')
@@ -413,9 +496,13 @@ registerChart(new Chart(document.getElementById('chartGenTps'), {
   data: {
     labels: ['creative-writing', 'doc-summary', 'ops-agent', 'prefill-test'],
     datasets: [
-      { label: 'qwen3-coder-next (80B MoE)',  backgroundColor: COLOR.coder, data: [70.2, 69.9, 67.9, 68.0] },
-      { label: 'qwen3.6-27b (dense)',          backgroundColor: COLOR.d27b,  data: [20.7, 20.2, 20.0, 20.4] },
-      { label: 'qwen3.6-35b-a3b (MoE, MLX)',   backgroundColor: COLOR.a3b35, data: [91.6, 91.7, 85.5, 85.5] }
+      { label: 'qwen3-coder-next (80B MoE)',       backgroundColor: COLOR.coder, data: [70.2, 69.9, 67.9, 68.0] },
+      { label: 'qwen3.6-27b (dense)',              backgroundColor: COLOR.d27b,  data: [20.7, 20.2, 20.0, 20.4] },
+      { label: 'qwen3.6-35b-a3b (MoE, MLX)',       backgroundColor: COLOR.a3b35, data: [91.6, 91.7, 85.5, 85.5] },
+      { label: 'gemma-4-26b-a4b @4bit (MoE)',      backgroundColor: COLOR.g26_4, data: [106.0, 107.6, 100.3, 99.2] },
+      { label: 'gemma-4-26b-a4b @6bit (MoE)',      backgroundColor: COLOR.g26_6, data: [85.3, 85.9, 80.8, 80.9] },
+      { label: 'gemma-4-31b @8bit (dense)',        backgroundColor: COLOR.g31,   data: [13.9, 14.3, 13.7, 13.6] },
+      { label: 'gemma-4-e4b @8bit (4B)',           backgroundColor: COLOR.ge4b,  data: [73.7, 75.4, 70.9, 69.3] }
     ]
   },
   options: gridOpts('Avg generation tok/s')
@@ -427,9 +514,13 @@ registerChart(new Chart(document.getElementById('chartEffectiveTps'), {
   data: {
     labels: ['creative-writing', 'doc-summary', 'ops-agent', 'prefill-test'],
     datasets: [
-      { label: 'qwen3-coder-next', backgroundColor: COLOR.coder, data: [67.8, 45.6, 55.8, 20.6] },
-      { label: 'qwen3.6-27b',      backgroundColor: COLOR.d27b,  data: [19.9, 11.2, 16.2, 4.0]  },
-      { label: 'qwen3.6-35b-a3b',  backgroundColor: COLOR.a3b35, data: [86.9, 55.9, 71.4, 22.9] }
+      { label: 'qwen3-coder-next',         backgroundColor: COLOR.coder, data: [67.8, 45.6, 55.8, 20.6] },
+      { label: 'qwen3.6-27b',              backgroundColor: COLOR.d27b,  data: [19.9, 11.2, 16.2, 4.0]  },
+      { label: 'qwen3.6-35b-a3b',          backgroundColor: COLOR.a3b35, data: [86.9, 55.9, 71.4, 22.9] },
+      { label: 'gemma-4-26b-a4b @4bit',    backgroundColor: COLOR.g26_4, data: [99.9, 55.8, 80.7, 17.9] },
+      { label: 'gemma-4-26b-a4b @6bit',    backgroundColor: COLOR.g26_6, data: [80.5, 46.9, 66.6, 20.5] },
+      { label: 'gemma-4-31b dense',        backgroundColor: COLOR.g31,   data: [13.6, 8.0,  10.3, 3.3]  },
+      { label: 'gemma-4-e4b (4B)',         backgroundColor: COLOR.ge4b,  data: [69.5, 46.1, 62.9, 29.1] }
     ]
   },
   options: gridOpts('Avg effective tok/s')
@@ -441,9 +532,13 @@ registerChart(new Chart(document.getElementById('chartPrefill'), {
   data: {
     labels: [655, 1453, 3015, 8496],
     datasets: [
-      { label: 'qwen3-coder-next', borderColor: COLOR.coder, backgroundColor: COLOR.coder, data: [40.8, 39.8, 28.3, 9.0],  tension: 0.25, datalabels: { align: 'top', color: COLOR.coder } },
-      { label: 'qwen3.6-27b',      borderColor: COLOR.d27b,  backgroundColor: COLOR.d27b,  data: [10.6, 9.5,  5.0,  1.9],  tension: 0.25, datalabels: { align: 'bottom', color: COLOR.d27b } },
-      { label: 'qwen3.6-35b-a3b',  borderColor: COLOR.a3b35, backgroundColor: COLOR.a3b35, data: [54.1, 48.6, 31.2, 9.0],  tension: 0.25, datalabels: { align: 'top', color: COLOR.a3b35 } }
+      { label: 'qwen3-coder-next',      borderColor: COLOR.coder, backgroundColor: COLOR.coder, data: [40.8, 39.8, 28.3, 9.0],  tension: 0.25, datalabels: { align: 'top', color: COLOR.coder } },
+      { label: 'qwen3.6-27b',           borderColor: COLOR.d27b,  backgroundColor: COLOR.d27b,  data: [10.6, 9.5,  5.0,  1.9],  tension: 0.25, datalabels: { align: 'bottom', color: COLOR.d27b } },
+      { label: 'qwen3.6-35b-a3b',       borderColor: COLOR.a3b35, backgroundColor: COLOR.a3b35, data: [54.1, 48.6, 31.2, 9.0],  tension: 0.25, datalabels: { align: 'top', color: COLOR.a3b35 } },
+      { label: 'gemma-4-26b-a4b @4bit', borderColor: COLOR.g26_4, backgroundColor: COLOR.g26_4, data: [53.2, 49.3, 32.2, 7.4],  tension: 0.25, datalabels: { align: 'top', color: COLOR.g26_4 } },
+      { label: 'gemma-4-26b-a4b @6bit', borderColor: COLOR.g26_6, backgroundColor: COLOR.g26_6, data: [45.2, 43.1, 29.3, 9.8],  tension: 0.25, datalabels: { align: 'bottom', color: COLOR.g26_6 } },
+      { label: 'gemma-4-31b dense',     borderColor: COLOR.g31,   backgroundColor: COLOR.g31,   data: [8.1,  7.3,  4.6,  1.5],  tension: 0.25, datalabels: { align: 'bottom', color: COLOR.g31 } },
+      { label: 'gemma-4-e4b (4B)',      borderColor: COLOR.ge4b,  backgroundColor: COLOR.ge4b,  data: [52.0, 47.7, 36.1, 15.5], tension: 0.25, datalabels: { align: 'top', color: COLOR.ge4b } }
     ]
   },
   options: {
@@ -503,17 +598,25 @@ const REF_MODELS = [
     MMLU: 88, HumanEval: 93, MATH: 88, DROP: 90, GPQA: 70, note: 'GPQA: 15/100 truncated at 32k; true ≈78-85%' },
   { name: 'qwen3.6-35b-a3b (local MoE)',     tier: 'local', color: '#7ee787',
     MMLU: 83, HumanEval: 87, MATH: 89, DROP: 89, GPQA: 65, note: 'GPQA: 23/100 truncated at 32k; true ≈75-83%' },
+  { name: 'gemma-4-26b-a4b @4bit (local)',   tier: 'local', color: '#ffd166',
+    MMLU: 78, HumanEval: 98, MATH: 80, DROP: 79, GPQA: 47, LiveCodeBench: 64, note: 'LCB: 9/50 truncated at 32k; corrected ≈80' },
+  { name: 'gemma-4-26b-a4b @6bit (local)',   tier: 'local', color: '#f59e0b',
+    MMLU: 78, HumanEval: 97, MATH: 83, DROP: 79, GPQA: 53, LiveCodeBench: 78, note: 'LCB: 4/50 truncated at 32k; corrected ≈86' },
+  { name: 'gemma-4-31b dense @8bit (local)', tier: 'local', color: '#fb7185',
+    MMLU: 77, HumanEval: 95, MATH: 79, DROP: 85, GPQA: 48, LiveCodeBench: 76 },
+  { name: 'gemma-4-e4b @8bit (local 4B)',    tier: 'local', color: '#c084fc',
+    MMLU: 65, HumanEval: 91, MATH: 14, DROP: 65, GPQA: 34, LiveCodeBench: 68, note: 'MATH collapses at 4B — FIM/quick-call only' },
 
   // Anthropic
   { name: 'Claude Opus 4.7',  tier: 'frontier', GPQA: 94.2 },
   { name: 'Claude Opus 4.6',  tier: 'frontier', MMLU: 91.1, MATH: 100.0, GPQA: 91.3, note: '*‡' },
   { name: 'Claude Opus 4.5',  tier: 'frontier', MMLU: 90.8, GPQA: 87.0, note: '*' },
-  { name: 'Claude Sonnet 4.6',tier: 'frontier', MMLU: 89.3, MATH: 95.6, GPQA: 89.9, note: '*‡' },
-  { name: 'Claude Sonnet 4.5',tier: 'frontier', MMLU: 89.5, MATH: 87.0, GPQA: 83.4, note: '*‡' },
+  { name: 'Claude Sonnet 4.6',tier: 'frontier', MMLU: 89.3, MATH: 95.6, GPQA: 89.9, LiveCodeBench: 80, note: '*‡ · LCB community ~80' },
+  { name: 'Claude Sonnet 4.5',tier: 'frontier', MMLU: 89.5, MATH: 87.0, GPQA: 83.4, LiveCodeBench: 70, note: '*‡ · LCB-Pro variant' },
 
   // OpenAI
   { name: 'GPT-5.2',   tier: 'frontier', MMLU: 89.6, GPQA: 93.2, note: '*' },
-  { name: 'GPT-5',     tier: 'frontier', MATH: 100.0, GPQA: 89.4, note: '‡' },
+  { name: 'GPT-5',     tier: 'frontier', MATH: 100.0, GPQA: 89.4, LiveCodeBench: 80, note: '‡ · LCB aggregator' },
   { name: 'o3',        tier: 'frontier', MMLU: 91.6, HumanEval: 81.3, MATH: 96.7, GPQA: 87.7 },
   { name: 'o4-mini',   tier: 'frontier', MATH: 99.5, GPQA: 81.4, note: '‡' },
   { name: 'GPT-4o',    tier: 'frontier', MMLU: 88.7, HumanEval: 90.2, MATH: 76.6, DROP: 83.4, GPQA: 53.6 },
@@ -523,8 +626,9 @@ const REF_MODELS = [
   { name: 'Gemini 2.5 Pro', tier: 'frontier', MATH: 86.7, GPQA: 84.0, note: '‡' },
 
   // DeepSeek
-  { name: 'DeepSeek-R1',     tier: 'open', MMLU: 90.8, MATH: 97.3, DROP: 92.2, GPQA: 71.5, note: '†' },
-  { name: 'DeepSeek-V3',     tier: 'open', MMLU: 88.5, HumanEval: 65.2, MATH: 90.2, DROP: 89.0, GPQA: 59.1, note: '†' },
+  { name: 'DeepSeek-V4 Flash',tier: 'open', LiveCodeBench: 91.6, note: 'LCB v6 from research note 2026-05-17' },
+  { name: 'DeepSeek-R1',     tier: 'open', MMLU: 90.8, MATH: 97.3, DROP: 92.2, GPQA: 71.5, LiveCodeBench: 65.9, note: '†' },
+  { name: 'DeepSeek-V3',     tier: 'open', MMLU: 88.5, HumanEval: 65.2, MATH: 90.2, DROP: 89.0, GPQA: 59.1, LiveCodeBench: 65.9, note: '†' },
   { name: 'DeepSeek-V3.2-Exp',tier: 'open', GPQA: 79.9 },
 
   // Meta
@@ -532,8 +636,12 @@ const REF_MODELS = [
   { name: 'Llama 3.3 70B',     tier: 'open', HumanEval: 88.4, MATH: 77.0, GPQA: 50.5 },
 
   // Qwen
+  { name: 'Qwen3-Coder-480B',    tier: 'open', LiveCodeBench: 70.7 },
   { name: 'Qwen3-235B Thinking', tier: 'open', GPQA: 81.1 },
-  { name: 'Qwen2.5-72B',         tier: 'open', MMLU: 86.1, HumanEval: 86.6, MATH: 83.1, GPQA: 49.0 }
+  { name: 'Qwen2.5-72B',         tier: 'open', MMLU: 86.1, HumanEval: 86.6, MATH: 83.1, GPQA: 49.0 },
+
+  // Moonshot
+  { name: 'Kimi K2.6',           tier: 'open', LiveCodeBench: 89.6 }
 ];
 
 const TIER_COLOR = {
@@ -595,11 +703,12 @@ function buildRefChart(canvasId, metric, axisLabel) {
   }));
 }
 
-buildRefChart('chartRefMMLU',      'MMLU',      'MMLU');
-buildRefChart('chartRefHumanEval', 'HumanEval', 'HumanEval');
-buildRefChart('chartRefMATH',      'MATH',      'MATH');
-buildRefChart('chartRefDROP',      'DROP',      'DROP F1');
-buildRefChart('chartRefGPQA',      'GPQA',      'GPQA Diamond');
+buildRefChart('chartRefMMLU',      'MMLU',         'MMLU');
+buildRefChart('chartRefHumanEval', 'HumanEval',    'HumanEval');
+buildRefChart('chartRefMATH',      'MATH',         'MATH');
+buildRefChart('chartRefDROP',      'DROP',         'DROP F1');
+buildRefChart('chartRefGPQA',      'GPQA',         'GPQA Diamond');
+buildRefChart('chartRefLCB',       'LiveCodeBench','LiveCodeBench v6');
 
 // Toggle wiring
 document.getElementById('toggleLabels').addEventListener('change', (e) => {
@@ -611,11 +720,14 @@ document.getElementById('toggleLabels').addEventListener('change', (e) => {
 registerChart(new Chart(document.getElementById('chartElapsed'), {
   type: 'bar',
   data: {
-    labels: ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA'],
+    labels: ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA', 'LiveCodeBench (n=50)'],
     datasets: [
-      { label: 'qwen3-coder-next', backgroundColor: COLOR.coder, data: [16.6, 13.6, 45.1, 13.7, 13.9] },
-      { label: 'qwen3.6-27b',      backgroundColor: COLOR.d27b,  data: [186.3, 99.1, 603.6, 88.3, 1332.4] },
-      { label: 'qwen3.6-35b-a3b',  backgroundColor: COLOR.a3b35, data: [58.1, 56.9, 206.6, 27.1, 388.6] }
+      { label: 'qwen3-coder-next',         backgroundColor: COLOR.coder, data: [16.6,  13.6, 45.1,  13.7, 13.9,  42.0] },
+      { label: 'qwen3.6-27b',              backgroundColor: COLOR.d27b,  data: [186.3, 99.1, 603.6, 88.3, 1332.4, 969.9] },
+      { label: 'qwen3.6-35b-a3b',          backgroundColor: COLOR.a3b35, data: [58.1,  56.9, 206.6, 27.1, 388.6, 275.3] },
+      { label: 'gemma-4-26b-a4b @4bit',    backgroundColor: COLOR.g26_4, data: [15.7,  12.5, 36.2,  12.4, 37.3,  74.9] },
+      { label: 'gemma-4-26b-a4b @6bit',    backgroundColor: COLOR.g26_6, data: [16.1,  12.3, 25.5,  12.4, 54.1,  49.7] },
+      { label: 'gemma-4-31b dense',        backgroundColor: COLOR.g31,   data: [37.7,  14.5, null,  null, null,  73.5] }
     ]
   },
   options: gridOpts('Minutes')

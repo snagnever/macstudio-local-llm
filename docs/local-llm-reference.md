@@ -13,13 +13,15 @@
 |---|---|
 | Agentic coding (OpenCode, Cline, OpenClaw) | `qwen/qwen3-coder-next` |
 | Hard reasoning, code review, careful single-file edits | `qwen3.6-27b` |
-| Fast general chat, light coding, fast iteration | `qwen3.6-35b-a3b` |
-| Knowledge-heavy Q&A, broad-domain quality | `gemma-4-26b-a4b-it-mlx` |
-| Tiny / fast turnaround, vision-enabled | `gemma-4-e4b-it-mlx` |
-| Inline tab-completion (FIM) | *Qwen 2.5 Coder 7B — to add* |
-| Vision / OCR / screenshots | Built-in on all current MLX/Gemma models; reach for `gemma-4-26b-a4b-it-mlx` first |
+| Knowledge-heavy Q&A, broad-domain quality | `qwen3.6-27b` (still the knowledge king post-Phase-2) |
+| Fast general chat, light coding, fast iteration | `qwen3.6-35b-a3b@6bit` or `gemma-4-26b-a4b-it-mlx@6bit` |
+| Fast coder (raw decode + tool-calling, no reasoning) | **`gemma-4-26b-a4b-it-mlx@4bit`** — 100 t/s gen, HE 98 %, jdhodges 98 % |
+| Vision tasks needing 26B-class quality | `gemma-4-26b-a4b-it-mlx@6bit` |
+| Tiny / FIM / quick tool-calls | `gemma-4-e4b-it-mlx` — useful for autocomplete & call-and-format only; **don't ask it MATH** (14 %) |
+| Inline tab-completion (FIM) | *Qwen 2.5 Coder 7B — to add*; interim: `gemma-4-e4b-it-mlx` |
+| Vision / OCR / screenshots | Built-in on all current MLX models; reach for `gemma-4-26b-a4b-it-mlx@6bit` first |
 
-**Default for OpenCode:** `qwen/qwen3-coder-next`
+**Default for OpenCode:** `qwen/qwen3-coder-next` (unchanged after Phase 2 — no Gemma beat it on the combined coding + tool-calling + knowledge profile).
 
 > **Model ID note:** the IDs above are exactly what `GET /v1/models` returns from the LM Studio server. Use these strings verbatim in client configs — the older `mlx-community/...` paths will 404.
 
@@ -76,29 +78,31 @@ Verified against `lms ls` / `GET /v1/models` on 2026-05-18. All MLX models below
 | Good middle option when coder-next feels overkill and dense feels slow | |
 | Wide-domain knowledge, vision + tools | |
 
-**`gemma-4-26b-a4b-it-mlx` — Knowledge / Quality Generalist**
+**`gemma-4-26b-a4b-it-mlx` — Fast Coder + Vision Generalist (post-Phase-2)**
 
 | Pros | Cons |
 |---|---|
-| Same family as upstream's knowledge winner (Gemma 4 26B-A4B avg 83.6% across MMLU/HumanEval/MATH/DROP/GPQA) | Quality numbers not yet re-verified on this rig — see [`testing-plan.md`](testing-plan.md#current-status-2026-05-19-phase-1-complete) (Phase 2 #4–#5) |
-| Available in both **4-bit (15.64 GB)** and **6-bit (21.81 GB)** — enables a same-weights quant A/B | 4-bit quant; precision-sensitive code may prefer the 6-bit variant or the 6-bit Qwens |
-| 4B active params → fast | |
-| Vision + tools | |
+| **HumanEval 98 %, jdhodges 98 %, Veerman 83 %** — coding + tool-calling parity with the best Phase 1 model | Knowledge ceiling **below `qwen3.6-27b`** by 10pp MMLU, 5pp MATH, 11pp DROP, 17pp GPQA — Phase 2 confirmed |
+| **`@4bit` is the fastest model on this rig** (100 t/s ops-agent gen, 15.64 GB) | LCB on hard problems can truncate at 32 768 cap — raise `--max-tokens` to 65 536 if running LCB |
+| **`@6bit` is the family flagship** — LCB 78 %, MATH 83 %, GPQA 53 %; 80.8 t/s gen at 21.81 GB | |
+| Vision + tools advertised on both quants | |
+| Knowledge avg 78.0 % (@6bit), 76.4 % (@4bit) — between coder-next and 35b-a3b | |
 
-**`gemma-4-31b-it-mlx` — Dense Knowledge (new on disk)**
-
-| Pros | Cons |
-|---|---|
-| Dense 31B at 8-bit (33.80 GB) — fills the dense-Gemma slot above 26B-A4B | Unbenched on this rig — Phase 2 #6 in [testing-plan.md](testing-plan.md#current-status-2026-05-19-phase-1-complete) |
-| Vision + tools per metadata | Dense → all 31B params active every token; expect ~half the throughput of the 26B-A4B MoE |
-
-**`gemma-4-e4b-it-mlx` — Tiny Fast**
+**`gemma-4-31b-it-mlx` — Dense Knowledge (benched, demote)**
 
 | Pros | Cons |
 |---|---|
-| MLX 8-bit / 8.97 GB — loads in seconds, can coexist with any other model | 4B params — won't match the larger models on hard tasks |
-| Vision + tools | |
-| Useful for quick tool calls, summarization, low-stakes work | |
+| Dense 31B at 8-bit (33.80 GB); DROP **85 %** is its only standout (vs `@6bit`'s 79 %) | **6× slower decode than `@6bit`** (13.7 vs 80.8 gen t/s) for indistinguishable quality on every other bench |
+| Vision + tools per metadata | HumanEval −2, LCB −2, MMLU −1, MATH −4, GPQA −5 vs `@6bit` — pays the dense tax for no return |
+| | Keep on disk only as a reproducibility reference; not for daily rotation |
+
+**`gemma-4-e4b-it-mlx` — Tiny / FIM / quick-call only (benched)**
+
+| Pros | Cons |
+|---|---|
+| MLX 8-bit / 8.97 GB — loads in seconds, can coexist with any other model | **MATH collapses to 14 %** at this size — do not use for math/reasoning |
+| HumanEval 91 %, jdhodges 88 % — useful for autocomplete and call-and-format work | Veerman 67 % (−16pp vs the larger Gemmas); MMLU 65 %, GPQA 34 % |
+| Vision + tools | Throughput **not** dramatically faster than `@4bit` MoE (70 vs 100 ops-agent gen t/s) — MLX optimises MoE A3B routing well |
 
 **`deepseek-v4-flash-dq` — Frontier Reasoning (constrained)**
 

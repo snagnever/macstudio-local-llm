@@ -101,9 +101,10 @@ From [`docs/local-llm-reference.md`](local-llm-reference.md):
 - `mlx-community/Kimi-K2.6-Thinking-*` distilled — watch for a fitting distillation size.
 - `0xSero/Gemma-4-21B-REAP` (GGUF) — optional reproducibility check now that the un-pruned 26B-A4B is local.
 
-## Current status (2026-05-19, Phase 1 complete)
+## Current status (2026-05-22, Phase 1 + Phase 2 complete)
 
 Full write-up: [`tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md).
+Phase 2 plan: [`docs/benchmark-plans/2026-05-20-gemma-4-phase-2.md`](benchmark-plans/2026-05-20-gemma-4-phase-2.md).
 Raw data: [`tools/local-llm-bench-m4-32gb/benchmarks/runs/`](../tools/local-llm-bench-m4-32gb/benchmarks/runs/),
 [`tools/local-llm-bench/results/`](../tools/local-llm-bench/results/).
 
@@ -111,15 +112,35 @@ Raw data: [`tools/local-llm-bench-m4-32gb/benchmarks/runs/`](../tools/local-llm-
 
 | Phase | Model | HumanEval | LCB v6 | MMLU | MATH | DROP | GPQA (raw) | jdhodges (40) | veerman (12) |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 #1 | `qwen/qwen3-coder-next` (6-bit) | **89 %** | — | **76 %** | **84 %** | **83 %** | **37 %** | **90 %** (18.6 t/s) | **83.3 %** (35.4 t/s) |
-| 1 #2 | `qwen3.6-27b` (6-bit dense) | **93 %** | — | **88 %** | **88 %** | **90 %** | **70 %** ⚠ 15 trunc | **95 %** (14.5 t/s) | **83.3 %** (18.4 t/s) |
-| 1 #3 | `qwen3.6-35b-a3b@6bit` | **87 %** | — | **83 %** ⚠ 2 trunc | **89 %** ⚠ 2 trunc | **89 %** | **65 %** ⚠ 23 trunc | **97.5 %** (72.4 t/s) | **75.0 %** (85.8 t/s) |
-| 2 #4–9, 3 #10 | (not yet run) | — | — | — | — | — | — | — | — |
+| 1 #1 | `qwen/qwen3-coder-next` (6-bit) | **89 %** | **56 %** (clean) | **76 %** | **84 %** | **83 %** | **37 %** | **90 %** (18.6 t/s) | **83.3 %** (35.4 t/s) |
+| 1 #2 | `qwen3.6-27b` (6-bit dense) | **93 %** | **62 %** † 1 trunc | **88 %** | **88 %** | **90 %** | **70 %** ⚠ 15 trunc | **95 %** (14.5 t/s) | **83.3 %** (18.4 t/s) |
+| 1 #3 | `qwen3.6-35b-a3b@6bit` | **87 %** | 54 % ⚠ 6 trunc | **83 %** ⚠ 2 trunc | **89 %** ⚠ 2 trunc | **89 %** | **65 %** ⚠ 23 trunc | **97.5 %** (72.4 t/s) | **75.0 %** (85.8 t/s) |
+| 2 #4 | `gemma-4-26b-a4b@4bit` | **98 %** | 64 % ⚠ 9 trunc | 78 % | 80 % ⚠ 1 trunc | 79 % | **47 %** † 1 trunc | **97.5 %** (73.4 t/s) | **83.3 %** (82.1 t/s) |
+| 2 #5 | `gemma-4-26b-a4b@6bit` | **97 %** | **78 %** ⚠ 4 trunc | 78 % | **83 %** | 79 % | **53 %** † 2 trunc | **97.5 %** (57.8 t/s) | **83.3 %** (66.6 t/s) |
+| 2 #6 | `gemma-4-31b-it-mlx` (8-bit dense) | 95 % | 76 % | 77 % | 79 % | **85 %** | 48 % | **97.5 %** (11.4 t/s) | **83.3 %** (12.3 t/s) |
+| 2 #7 | `gemma-4-e4b-it-mlx` (4B/8-bit) | 91 % | 68 % | 65 % | 14 % ⚠ | 65 % | 34 % | **87.5 %** (42.5 t/s) | **66.7 %** (60.3 t/s) |
+| 2 #8, 2 #9, 3 #10 | (not yet run) | — | — | — | — | — | — | — | — |
 
-⚠ = truncated runs — model hit `max_tokens=32 768` before emitting the final
-answer letter and was counted as wrong. **Raw GPQA scores under-count true
-ability**: 27b corrected ceiling ≈ 78–85 %, 35b-a3b ≈ 75–83 %. See
-[Truncation finding](#truncation-finding-gpqa--thinking-models) below.
+⚠ = truncation observed at the harness cap. For GPQA on thinking Qwen models
+the cap was 32 768; raw scores under-count true ability (27b ceiling ≈ 78–85 %,
+35b-a3b ≈ 75–83 %). For LCB on Gemma the cap was also 32 768; Gemma `@6bit`
+LCB ceiling ≈ 86 %.
+† = bench was run at the raised cap (`--max-tokens 65536`); remaining
+truncations form the "unanswerable at this scale" floor:
+- **GPQA on Gemma** — `@4bit` Q1, `@6bit` Q60/Q78. See [Truncation finding](#truncation-finding-gpqa--thinking-models)
+  and the Phase 2 sub-finding in `M4_MAX_128GB_NOTES.md`.
+- **LCB on Phase 1 Qwen** (added 2026-05-24) — `qwen3.6-27b` Q3
+  (atcoder/medium abc365_c) is the only `†` survivor: at 65 536 still
+  truncated, but only that one question. `qwen/qwen3-coder-next` finished
+  clean after Q19 (atcoder/hard abc354_d) was reran at 65 536 — the
+  rerun completed in 36 k tokens without truncation but the answer was
+  still wrong, so Q19 is a genuine model failure not a cap artifact.
+  `qwen3.6-35b-a3b@6bit` ran the whole bench at 65 536 and still spiraled
+  on six questions (Q3, Q4, Q23, Q33, Q39, Q44); originally one of those
+  showed as an HTTP 400 cascade, but rerunning Q4 alone on a clean LM Studio
+  state confirmed it's a real spiral. With a budget past 1 h or a cap past
+  65 k the ceiling for 35b-a3b could land near ~66 %, but the published 54 %
+  is the conservatively defensible floor at this rig's standard cap.
 
 ### Effective throughput (scenario harness)
 
@@ -128,7 +149,11 @@ ability**: 27b corrected ceiling ≈ 78–85 %, 35b-a3b ≈ 75–83 %. See
 | 1 #1 | `qwen/qwen3-coder-next` (6-bit) | 1.5 s total | **67.8 eff t/s** / 70.2 gen | **45.6** / 69.9 | **55.8** / 67.9 | **20.6** / 68.0 |
 | 1 #2 | `qwen3.6-27b` (6-bit dense) | 74.4 s total | **19.9 eff t/s** / 20.7 gen | **11.2** / 20.2 | **16.2** / 20.0 | **4.0** / 20.4 |
 | 1 #3 | `qwen3.6-35b-a3b@6bit` | 15.8 s total (~90 t/s sustained) | **86.9 eff t/s** / 91.6 gen | **55.9** / 91.7 | **71.4** / 85.5 | **22.9** / 85.5 |
-| 2/3 | (not yet run) | — | — | — | — | — |
+| 2 #4 | `gemma-4-26b-a4b@4bit` | (covered by sweep) | **99.9 eff t/s** / 106.0 gen | **55.8** / 107.6 | **80.7** / 100.3 | **17.9** / 99.2 |
+| 2 #5 | `gemma-4-26b-a4b@6bit` | (covered by sweep) | **80.5 eff t/s** / 85.3 gen | **46.9** / 85.9 | **66.6** / 80.8 | **20.5** / 80.9 |
+| 2 #6 | `gemma-4-31b-it-mlx` (8-bit dense) | (covered by sweep) | **13.6 eff t/s** / 13.9 gen | **8.0** / 14.3 | **10.3** / 13.7 | **3.3** / 13.6 |
+| 2 #7 | `gemma-4-e4b-it-mlx` (4B/8-bit) | (covered by sweep) | **69.5 eff t/s** / 73.7 gen | **46.1** / 75.4 | **62.9** / 70.9 | **29.1** / 69.3 |
+| 2/3 (#8–10) | (not yet run) | — | — | — | — | — |
 
 ### Qualitative coding artifacts
 
@@ -143,10 +168,21 @@ To add a third: same brief, run it, drop the source in a new
 
 ### Phase 1 outcomes
 
-- **`qwen3.6-27b` is the quality king.** Leads or ties every accuracy bench; knowledge avg 85.8 % is the highest in scope. Cost: dense → ~20 tok/s → 37.6 h full suite, dominated by GPQA.
-- **`qwen3-coder-next` is the speed / agentic king.** Knowledge avg 73.8 % is the lowest, but it shipped the full suite in **1.9 h** (19× faster than 27b). Daily-driver slot confirmed: default for OpenCode / Cline / agentic loops.
-- **`qwen3.6-35b-a3b` is the MoE-thinking middle.** Best jdhodges (97.5 %), best MATH (89 %), ~3× faster than 27b for ~3 pp less knowledge.
+- **`qwen3.6-27b` is the quality king** — and the LCB backfill confirms it on contamination-resistant coding too (LCB 62 %, +6pp over coder-next, +8pp over 35b-a3b). Leads or ties every accuracy bench; knowledge avg 85.8 % is the highest in scope. Cost: dense → ~20 tok/s → 37.6 h full suite + 16.2 h LCB alone, dominated by thinking-spirals on hard problems.
+- **`qwen3-coder-next` is the speed / agentic king.** Knowledge avg 73.8 % is the lowest, but it shipped the full suite in **1.9 h** (19× faster than 27b) and LCB at **56 %** in 42 min. HumanEval 89 % held up — LCB 56 % is in the same coding tier as 35b-a3b 54 %. Daily-driver slot confirmed: default for OpenCode / Cline / agentic loops.
+- **`qwen3.6-35b-a3b` is the MoE-thinking middle.** Best jdhodges (97.5 %), best MATH (89 %), ~3× faster than 27b for ~3 pp less knowledge. LCB **54 %** with **5 truncations + 1 HTTP 400 cascade** — most spiral-prone of the trio on hard coding problems.
 - **Knowledge rank ≠ tool-calling rank.** 35b-a3b leads jdhodges, trails Veerman; 27b ties both but is slow.
+- **HumanEval saturation confirmed.** HE spread was 87–93 (6pp). LCB spread is 54–62 (8pp) and rerank-preserves: 27b > coder-next > 35b-a3b. LCB is now the canonical coding signal for Phase 1 going forward.
+
+### Phase 2 outcomes
+
+- **`gemma-4-26b-a4b@6bit` is the Gemma flagship.** Knowledge avg 78.0 % is the best in the Gemma family but still 7.8pp below `qwen3.6-27b`. Wins or ties every Gemma A/B; ops-agent 80.8 gen t/s — 4× faster than 27b for ~8pp less knowledge.
+- **`@4bit` is the new throughput king on this rig** (ops-agent 100.3 gen t/s, beats every Phase 1 model). HumanEval 98 % and jdhodges 98 % match `@6bit` — quant cost shows on the hard benches only (LCB −14, GPQA −6).
+- **`gemma-4-31b-it-mlx` is a cost-trap.** 6× slower decode (13.7 vs 80.8 gen t/s) for indistinguishable quality vs `@6bit`; DROP +6pp is its only standout win. Demote / skip in normal rotation.
+- **`gemma-4-e4b-it-mlx` is FIM / quick-call only.** HumanEval 91 % and jdhodges 88 % are usable; MATH **collapses to 14 %**, MMLU −13pp, Veerman −16pp vs `@6bit`. Not a daily-driver fallback.
+- **No Gemma beats `qwen3.6-27b` on knowledge.** Best Gemma trails 27b by MMLU −10, MATH −5, DROP −11, GPQA −17pp (raw). 27b retains the "knowledge generalist" slot.
+- **Gemma 4 truncation profile differs from Qwen thinking models.** Gemma emits zero thinking tokens but writes long exhaustive code → truncates LCB on hard problems (18 % at `@4bit`, 8 % at `@6bit`). Operational rule: raise `--max-tokens` on **LCB**, not just GPQA, for Gemma 4 going forward.
+- **Phase 2 wall-clock: ~13.5 h across 4 models** — far under the 2-4 day forward estimate. No thinking spirals → predictable per-question times.
 
 ## Truncation finding (GPQA + thinking models)
 
@@ -175,11 +211,15 @@ thinking models.
 **Implication for ranks**: 27b's recorded 70 % is the floor — corrected
 ceiling ≈ 78–85 %. 35b-a3b similar: raw 65 %, ceiling ≈ 75–83 %.
 
-## Next steps — prioritized
+## Next steps — prioritized (post-Phase-2)
 
-Ranked by **(value × confidence) / cost**.
+Ranked by **(value × confidence) / cost**. Phase 2 done; the Step A/B/C/D/E
+list below is the carry-over set.
 
-### Step A — rerun truncated GPQA questions with `--max-tokens 65536`
+### Step A — rerun truncated GPQA questions with `--max-tokens 65536` (Qwen Phase 1)
+
+Carried over from the original plan. Phase 2 Gemma GPQA was already run at
+65 536 so this step still only applies to the two Qwen 3.6 thinking models.
 
 ```bash
 # 27b — 15 questions
@@ -193,56 +233,68 @@ python3 scripts/bench2.py gpqa --examples 100 --model "qwen3.6-35b-a3b@6bit" \
   --max-tokens 65536
 ```
 
-- **Cost:** ~7–10 h on 27b dense, ~3–5 h on 35b-a3b MoE (worst-case if every question spirals up to 65k tokens).
-- **Expected outcome:** corrected GPQA scores. Either confirms 27b ≈ 80 % / 35b-a3b ≈ 78 %, or reveals questions truly unsolvable at this scale.
-- **Risk:** 65 536 is also the loaded context length. Residual truncations would form the floor of "unanswerable at this scale" — publish them explicitly.
-- **Harness check first:** confirm `bench2.py` merges `--only` re-runs into the existing summary rather than writing a separate run. If it writes a fresh summary, the chart script + `M4_MAX_128GB_NOTES.md` need to point at the merged result.
+- **Cost:** ~7–10 h on 27b dense, ~3–5 h on 35b-a3b MoE (worst-case).
+- **Risk:** residual truncations at 65 536 form the floor of "unanswerable at this scale" — publish explicitly.
+- **Harness gotcha (confirmed in Phase 2):** `bench2.py` writes a *fresh* summary per run; it does **not** merge `--only` reruns. To produce a canonical corrected score, the per-question JSONLs need to be reconciled manually (or by a small post-hoc script).
 
-### Step B — patch `max_tokens` default for GPQA before Phase 2
+### Step B — Gemma LCB truncation reruns at `--max-tokens 65536`
 
-For any future thinking-model GPQA run (Phase 2 Gemmas, anything in Phase 4),
-use `--max-tokens 65536` by default. Either patch the default in
-`scripts/bench2.py`, or pass it explicitly in every run command. **Don't**
-let Phase 2 inherit the silent 32k cap.
-
-### Step C — add LiveCodeBench to the Phase 1 daily drivers
+New post-Phase-2 follow-up. Gemma 4 truncates LCB (not GPQA) on hard problems.
 
 ```bash
 cd tools/local-llm-bench-m4-32gb
-for m in qwen/qwen3-coder-next qwen3.6-27b qwen3.6-35b-a3b@6bit; do
-  python3 scripts/bench2.py livecodebench --examples 50 --lcb-version release_v6 --model "$m"
-done
+# @4bit — 9 questions
+python3 scripts/bench2.py livecodebench --examples 50 --lcb-version release_v6 \
+  --model "gemma-4-26b-a4b-it-mlx@4bit" \
+  --only 2,8,11,19,28,39,44,45,46 --max-tokens 65536
+
+# @6bit — 4 questions
+python3 scripts/bench2.py livecodebench --examples 50 --lcb-version release_v6 \
+  --model "gemma-4-26b-a4b-it-mlx@6bit" \
+  --only 8,15,19,28 --max-tokens 65536
 ```
 
-- **Cost:** ~30–90 min per model. Total ~5 h.
-- **Value:** contamination-resistant coding signal comparable across the rig and every current frontier provider. HumanEval is largely saturated.
+- **Cost:** ~1–3 h total (worst-case if every spiral goes to 65 536 again).
+- **Expected outcome:** corrected LCB scores. `@4bit` likely lands near 80 %, `@6bit` near 86 % — currently published as 64 % and 78 % raw.
 
-### Step D — start Phase 2 with Gemma 4 26B-A4B
+### Step C — add LiveCodeBench to the Phase 1 daily drivers ✅ **DONE 2026-05-24**
 
-Already on disk in both 4-bit (15.64 GB) and 6-bit (21.81 GB). Upstream's
-knowledge-quality winner.
+Plan: [`docs/benchmark-plans/2026-05-22-livecodebench-phase-1.md`](benchmark-plans/2026-05-22-livecodebench-phase-1.md).
+Results in the table above (LCB v6 column). Headline: **27b dense 62 %**
+leads, **coder-next 56 %** second, **35b-a3b 54 %** third — same rank order
+as knowledge benches; HumanEval saturation was real (89/93/87 collapsed to a
+14-point spread on LCB). Costs ran far over the plan's ~5 h estimate:
+27b alone took 16.2 h wall-clock (mostly thinking budget for 50 LCB
+problems at ~20 t/s), 35b-a3b 4.6 h, coder-next 42 min.
 
-- **Cost:** ~12–20 h per quant per full suite (thinking model — apply the Step B GPQA rule).
-- **Decision point:** does it beat or tie 27b on knowledge at a fraction of the wall-clock? If yes, the 6-bit becomes the new "knowledge generalist" slot in `local-llm-reference.md`.
+Two harness improvements landed during execution:
+1. `bench2.py` now honors `BENCH_TIMEOUT` (seconds) for per-request urlopen
+   timeout — the hardcoded 1800 s caused a request-queue cascade on
+   slow-thinking 27b at 65 k cap. Set `BENCH_TIMEOUT=3600` for any future
+   ≤ 20 t/s thinking-model run at the raised cap.
+2. Detached driver pattern (`nohup`/PPID=1 wrapper) for any run longer than
+   ~2 h — `Bash run_in_background` was silently killing python processes
+   around the 2–3 h mark regardless of timeout flag. See
+   [LCB backfill plan §"What broke"](benchmark-plans/2026-05-22-livecodebench-phase-1.md)
+   and `.bench-logs/run-27b-lcb-remaining.sh`.
 
-### Step E — pre-Phase-2 throughput sweep (decoupled from knowledge)
+### Step D — Phase 2 quant-A/B variants
 
-Run the scenario harness for every Phase 2/3 candidate before the multi-day
-knowledge runs start. See [Effective-throughput run plan](#effective-throughput-run-plan)
-below for the table + commands. ~15–25 min per model, **~2–3 h total** for
-all 7 to-do entries. Fills the speed table early so the operator has a
-"is X usable day-to-day?" answer without waiting for accuracy data.
+The two outstanding "same weights, different quant" comparisons (#8 / #9):
+
+- `qwen/qwen3-coder-next@4bit` vs already-done `@6bit` — does 4-bit hold up on tool-calling + MATH?
+- `qwen3.6-35b-a3b@8bit` vs already-done `@6bit` — does the heavier quant close the gap to 27b on knowledge?
+
+Cost: ~2–3 days combined per the Phase 2 forward estimate.
+
+### Step E — Phase 3 fit-test for `deepseek-v4-flash-dq`
+
+Same brief as before: only worth doing if a Phase 2 model demonstrated a quality ceiling. **Phase 2 outcome confirms it does** — best Gemma still trails 27b by ~10pp MMLU. So this step is now warranted if you want to push the knowledge frontier further. Cap context at 32 768 on load; tool-calling only as the first signal.
 
 ### Step F — defer
 
-- `deepseek-v4-flash-dq` fit-test (Phase 3): only worth it if a Phase 2 model demonstrates a quality ceiling. Otherwise it's a 96 GB resident that locks out everything else.
-- Engine A/B (LM Studio MLX vs llama.cpp GGUF): needs a GGUF pulled first. Pair it with whichever model has both formats available when the moment is right (likely Gemma 4 26B-A4B).
+- Engine A/B (LM Studio MLX vs llama.cpp GGUF): still needs a GGUF pulled first. The post-Phase-2 candidate is Gemma 4 26B-A4B since the MLX numbers are now in.
 - Phase 4 watchlist: nothing to do until something lands.
-
-### Recommended next session
-
-- **Interactive day:** Step E (throughput sweep, ~2–3 h) → Step A 35b-a3b leg only (~3–5 h). Confirms 35b-a3b's true GPQA before committing to the longer 27b rerun; fills the speed table in the same day. Save Step A 27b for an unattended overnight block.
-- **Headless overnight:** Step A both legs back-to-back (~10–15 h). Single decision point at end-of-day; leaves the morning clean for Step C (LCB) or starting Phase 2.
 
 ## Per-model run order
 

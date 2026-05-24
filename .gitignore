@@ -34,3 +34,7 @@
 # Claude Code local state (per-user; never share)
 **/.claude/settings.local.json
 **/.claude/*.lock
+
+# Bench run logs — noisy, large, reproducible from JSONLs.
+# Driver scripts (.sh) under .bench-logs/ ARE tracked.
+.bench-logs/*.log

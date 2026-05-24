@@ -146,7 +146,7 @@
   <div class="header-inner">
     <div>
       <h1>Local LLM Quality vs Frontier</h1>
-      <p>Apple M4 Max · 128 GB · LM Studio / MLX · published-benchmark comparison · 2026-05-17</p>
+      <p>Apple M4 Max · 128 GB · LM Studio / MLX · published-benchmark comparison · 2026-05-17 (Gemma quant-delta panel refreshed 2026-05-22 with on-rig measurements)</p>
     </div>
     <label class="toggle">
       <input type="checkbox" id="toggleLabels" checked />
@@ -190,7 +190,9 @@
         <tr><td><span class="swatch" style="background:#5aa9ff"></span></td><td><code>qwen/qwen3-coder-next</code></td><td>MoE</td><td class="num">80B / 3B</td><td>MLX 6-bit</td><td>Agentic coder</td></tr>
         <tr><td><span class="swatch" style="background:#ff8a5a"></span></td><td><code>qwen3.6-27b</code></td><td>Dense</td><td class="num">27B</td><td>MLX 6-bit</td><td>Reasoning specialist</td></tr>
         <tr><td><span class="swatch" style="background:#7ee787"></span></td><td><code>qwen3.6-35b-a3b</code></td><td>MoE</td><td class="num">35B / 3B</td><td>MLX 6-bit</td><td>Fast generalist</td></tr>
-        <tr><td><span class="swatch" style="background:#ffd166"></span></td><td><code>gemma-4-26b-a4b-it-mlx</code></td><td>MoE</td><td class="num">26B / 4B</td><td>MLX 4-bit ⚠</td><td>Knowledge + vision</td></tr>
+        <tr><td><span class="swatch" style="background:#ffd166"></span></td><td><code>gemma-4-26b-a4b-it-mlx@4bit</code></td><td>MoE</td><td class="num">26B / 4B</td><td>MLX 4-bit ⚠</td><td>Knowledge + vision</td></tr>
+        <tr><td><span class="swatch" style="background:#f59e0b"></span></td><td><code>gemma-4-26b-a4b-it-mlx@6bit</code></td><td>MoE</td><td class="num">26B / 4B</td><td>MLX 6-bit</td><td>Knowledge + vision (heavier quant)</td></tr>
+        <tr><td><span class="swatch" style="background:#fb7185"></span></td><td><code>gemma-4-31b-it-mlx</code></td><td>Dense</td><td class="num">31B</td><td>MLX 8-bit</td><td>Dense Gemma — Phase 2 complete; demoted (6× slower than @6bit for no gain)</td></tr>
         <tr><td><span class="swatch" style="background:#ef476f"></span></td><td><code>nvidia/nemotron-3-nano-omni</code></td><td>MoE</td><td class="num">30B / 3B</td><td>GGUF Q4_K_M</td><td>Multimodal omni</td></tr>
         <tr><td><span class="swatch" style="background:#c77dff"></span></td><td><code>google/gemma-4-e4b</code></td><td>Dense</td><td class="num">~7.5B</td><td>GGUF Q4_K_M</td><td>Tiny / vision / fast</td></tr>
         <tr><td><span class="swatch" style="background:#06d6a0"></span></td><td><code>deepseek-v4-flash-dq</code></td><td>MoE</td><td class="num">284B / 13B</td><td>MLX 2-bit DQ ⚠⚠</td><td>Frontier reasoning</td></tr>
@@ -222,7 +224,7 @@
   <section class="card"><h2>AIME — competition math</h2><p class="sub">⚠ Mixed years: Qwen3.6 family & Gemma 4 report AIME 2026; GPT-5 / Sonnet 4.6 / DeepSeek V4 report AIME 2025; Kimi K2.6 reports AIME 2026.</p><div class="chart-wrap ref-md"><canvas id="chartAIME"></canvas></div></section>
   <section class="card"><h2>SWE-bench Verified</h2><p class="sub">Agentic code editing. The single most-cited coder benchmark.</p><div class="chart-wrap ref-md"><canvas id="chartSWE"></canvas></div></section>
 
-  <section class="card"><h2>LiveCodeBench v6</h2><p class="sub">Recent competitive-programming problems. qwen3-coder-next number is community-measured (~80).</p><div class="chart-wrap ref-sm"><canvas id="chartLCB"></canvas></div></section>
+  <section class="card"><h2>LiveCodeBench v6</h2><p class="sub">Recent competitive-programming problems. Phase 1 Qwen values are <strong>our local n=50 measurements</strong> (added 2026-05-24); they sit ~20pp below the vendor / community-published numbers (coder-next ~80, 27b ~84, 35b-a3b ~80). Among local models, Gemma 4 26B-A4B @6bit (78 %) still tops the rig and the only Qwen above 60 % is 27b dense.</p><div class="chart-wrap ref-sm"><canvas id="chartLCB"></canvas></div></section>
   <section class="card"><h2>Terminal-Bench 2.0</h2><p class="sub">Multi-turn shell agent. GPT-5.5 (post-this report) reports 82.7 — original GPT-5 has no published number.</p><div class="chart-wrap ref-sm"><canvas id="chartTBench"></canvas></div></section>
 
   <section class="card wide"><h2>MMMU / MMMU-Pro — vision &amp; multimodal</h2><p class="sub">MMMU and MMMU-Pro are different (Pro is harder). Bars are labelled (P) when Pro. Compare within the same metric only.</p><div class="chart-wrap ref-md"><canvas id="chartMMMU"></canvas></div></section>
@@ -235,9 +237,11 @@
       <li><strong><code>qwen3-coder-next</code> (MLX 6-bit):</strong> essentially lossless. Awni Hannun's Qwen3 perplexity sweep + Unsloth's Q4_K_M analysis show ≥99% retention of BF16 SWE-bench/HumanEval at Q4-class; 6-bit lands within ≤1pt of base.</li>
       <li><strong><code>qwen3.6-27b</code> (MLX 6-bit):</strong> tracks card numbers within ~0.5pt. Mixed-precision oQ6 vs RTN-6bit shows ~13% lower mean KLD but both are excellent.</li>
       <li><strong><code>qwen3.6-35b-a3b</code> (MLX 6-bit):</strong> ≤1pt loss on static evals. <em>But</em> documented MoE-MLX issue: multi-turn tool-calling degrades on mlx-community 4-bit/8-bit Qwen3.x-A3B checkpoints (not yet seen on 6-bit; tool-heavy workloads may be more fragile than static evals suggest).</li>
-      <li><strong>⚠ <code>gemma-4-26b-a4b</code> (MLX 4-bit):</strong> the weakest quant on disk. Uniform MLX 4-bit RTN runs <strong>~4.7× worse perplexity</strong> than llama.cpp K-quants for Gemma 4. Expect 1–3pt loss on MMLU-Pro/GPQA, 3–5pt on hard math/code. <strong>Recommendation:</strong> switch to GGUF Q4_K_M or MLX-DWQ-4bit.</li>
+      <li><strong>⚠ <code>gemma-4-26b-a4b</code> (MLX 4-bit):</strong> the weakest quant on disk. Uniform MLX 4-bit RTN runs <strong>~4.7× worse perplexity</strong> than llama.cpp K-quants for Gemma 4. Expect 1–3pt loss on MMLU-Pro/GPQA, 3–5pt on hard math/code. <strong>Recommendation:</strong> switch to GGUF Q4_K_M or MLX-DWQ-4bit. <em>On-rig measurement (2026-05-21, n=100):</em> the 4-bit vs 6-bit A/B on this rig confirms the penalty — MATH 80 vs 83, GPQA 47 vs 53 (+6pt), DROP unchanged at 79, HumanEval 98 vs 97. The 6-bit lift on GPQA is the biggest single quant-driven score swing observed in Phase 2.</li>
+      <li><strong><code>gemma-4-26b-a4b</code> (MLX 6-bit):</strong> the recommended quant for this MoE on this rig — sits ~1pt under the BF16 published numbers on most evals, beats 4-bit on every reasoning bench, and still runs at ~85 t/s generation. Tool-calling is essentially lossless vs 4-bit (jdhodges 97.5/40, veerman 83.3/12 on both quants).</li>
+      <li><strong><code>gemma-4-31b</code> (MLX 8-bit, dense):</strong> Phase 2 complete (2026-05-22, n=100). HumanEval 95, MMLU 77, MATH 79, DROP 85, GPQA 48, LiveCodeBench 76. The 8-bit dense **ties or loses** to 26B-A4B@6bit on every bench except DROP (+6pt). Decode 13.7 t/s vs @6bit's 80.8 — 6× wall-clock for indistinguishable quality. <strong>Verdict: demote / skip in normal rotation.</strong></li>
       <li><strong><code>nemotron-3-nano-omni</code> (GGUF Q4_K_M):</strong> NVIDIA publishes BF16 → FP8 → NVFP4 deltas (mean of 9 multimodal benches: 65.80 → 65.40 → 65.43). Q4_K_M typically sits between FP8 and FP4 — expect ≤1pt loss on most non-ASR multimodal tasks; ASR (WER) essentially unchanged.</li>
-      <li><strong><code>gemma-4-e4b</code> (GGUF Q4_K_M):</strong> small dense models are quant-sensitive. No published Q4_K_M number for E4B specifically — expect ~2–4pt loss on hard reasoning, minimal on chat/RAG. Q8 GGUF would close most of the gap.</li>
+      <li><strong><code>gemma-4-e4b</code> (MLX 8-bit, 4B):</strong> Phase 2 complete (2026-05-22, n=100). HumanEval 91, MMLU 65, MATH <strong>14</strong>, DROP 65, GPQA 34, LiveCodeBench 68, jdhodges 88, Veerman 67. <strong>MATH collapses to 14 %</strong> — 4B is too small for hard symbolic math. Useful as a FIM / quick-call slot only; not a daily-driver fallback.</li>
       <li><strong>⚠⚠ <code>deepseek-v4-flash-dq</code> (MLX 2-bit DQ):</strong> heaviest asterisk. V4 Flash ships natively at FP4+FP8 — dropping experts to 2-bit is destructive recompression of an already-quantized model, not a clean post-train quant. The mlx-community card explicitly warns Q4_K_M is the floor for "most of the source quality". <strong>No public benchmark deltas exist.</strong> Expect 3–8pt drop on hard reasoning, more on long-context. Treat the chart numbers as a ceiling.</li>
     </ul>
   </section>
@@ -427,12 +431,15 @@ buildBenchChart('chartSWE', 'SWE-bench Verified', [
 ]);
 
 // ---------- 2e. LiveCodeBench v6 ----------
+// Phase 1 Qwen values updated 2026-05-24 from local n=50 runs. Vendor /
+// community LCB claims are notably higher (coder-next ~80, 27b ~84,
+// 35b-a3b ~80) — local 6-bit MLX measurement is the reality on this rig.
 buildBenchChart('chartLCB', 'LiveCodeBench v6', [
-  { name: 'qwen3-coder-next',     value: 80.0, tier: 'local',    colorKey: 'qwen3-coder-next', note: '(community)' },
-  { name: 'qwen3.6-27b',          value: 83.9, tier: 'local',    colorKey: 'qwen3.6-27b' },
-  { name: 'qwen3.6-35b-a3b',      value: 80.4, tier: 'local',    colorKey: 'qwen3.6-35b-a3b' },
-  { name: 'gemma-4-26b-a4b',      value: 77.1, tier: 'local',    colorKey: 'gemma-4-26b-a4b' },
-  { name: 'gemma-4-e4b',          value: 52.0, tier: 'local',    colorKey: 'gemma-4-e4b' },
+  { name: 'qwen3-coder-next',     value: 56.0, tier: 'local',    colorKey: 'qwen3-coder-next',    note: '(measured; comm ~80)' },
+  { name: 'qwen3.6-27b',          value: 62.0, tier: 'local',    colorKey: 'qwen3.6-27b',         note: '(measured; comm ~84)' },
+  { name: 'qwen3.6-35b-a3b',      value: 54.0, tier: 'local',    colorKey: 'qwen3.6-35b-a3b',     note: '(measured; comm ~80)' },
+  { name: 'gemma-4-26b-a4b',      value: 78.0, tier: 'local',    colorKey: 'gemma-4-26b-a4b',     note: '(@6bit measured)' },
+  { name: 'gemma-4-e4b',          value: 68.0, tier: 'local',    colorKey: 'gemma-4-e4b',         note: '(measured)' },
   { name: 'deepseek-v4-flash',    value: 91.6, tier: 'local',    colorKey: 'deepseek-v4-flash' },
   { name: 'Claude Sonnet 4.6',    value: 80.0, tier: 'frontier', note: '(~80)' },
   { name: 'Kimi K2.6',            value: 89.6, tier: 'open' }
