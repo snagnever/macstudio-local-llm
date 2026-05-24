@@ -281,7 +281,7 @@
 
   <section class="card wide">
     <h2>LiveCodeBench v6 — local (n=50)</h2>
-    <p class="sub">All 7 daily-driver candidates now characterized (Qwen Phase 1 backfill landed 2026-05-24). 27b dense leads the Qwen trio at 62 % — same rank order as knowledge benches. Gemma 4 26B-A4B @6bit at 78 % is the rig's LCB ceiling. After single-question reruns: <code>qwen/qwen3-coder-next</code> 56 % clean (0 truncations after Q19 rerun at 65 k confirmed Q19 is a real failure, not a cap artifact), <code>qwen3.6-27b</code> 62 % with 1 trunc at 65 k (Q3 abc365_c, hardest across the trio), <code>qwen3.6-35b-a3b@6bit</code> 54 % with 6 truncs at 65 k (raw % is the floor; ceiling ≈ 60–66 % if all six recover at a higher cap).</p>
+    <p class="sub">All 7 daily-driver candidates fully characterized after Phase 1 backfill + Step B reruns (2026-05-24). <strong>Gemma 4 26B-A4B @6bit at 80 % is the rig's LCB ceiling</strong>, +18 pp over the best Qwen (27b at 62 %). Numbers are post-rerun MERGED canonical: <code>qwen/qwen3-coder-next</code> 56 % clean (0 trunc), <code>qwen3.6-27b</code> 62 % (1 trunc, Q3 abc365_c — hardest across the trio), <code>qwen3.6-35b-a3b@6bit</code> 54 % (6 trunc, all 65 k spirals), <code>gemma-4-26b-a4b@4bit</code> 66 % (8 trunc — Q2 recovered at 65 k, rest are real model limits), <code>gemma-4-26b-a4b@6bit</code> 80 % (1 trunc — Q19 still spirals at 65 k).</p>
     <div class="chart-wrap"><canvas id="chartLCB"></canvas></div>
   </section>
 
@@ -445,8 +445,8 @@ registerChart(new Chart(document.getElementById('chartLCB'), {
       { label: 'qwen3-coder-next (80B 6-bit)',      backgroundColor: COLOR.coder, data: [56] },
       { label: 'qwen3.6-27b (dense 6-bit)',         backgroundColor: COLOR.d27b,  data: [62] },
       { label: 'qwen3.6-35b-a3b (MoE 6-bit)',       backgroundColor: COLOR.a3b35, data: [54] },
-      { label: 'gemma-4-26b-a4b (MoE 4-bit)',       backgroundColor: COLOR.g26_4, data: [64] },
-      { label: 'gemma-4-26b-a4b (MoE 6-bit)',       backgroundColor: COLOR.g26_6, data: [78] },
+      { label: 'gemma-4-26b-a4b (MoE 4-bit)',       backgroundColor: COLOR.g26_4, data: [66] },
+      { label: 'gemma-4-26b-a4b (MoE 6-bit)',       backgroundColor: COLOR.g26_6, data: [80] },
       { label: 'gemma-4-31b (dense 8-bit)',         backgroundColor: COLOR.g31,   data: [76] },
       { label: 'gemma-4-e4b (4B 8-bit)',            backgroundColor: COLOR.ge4b,  data: [68] }
     ]

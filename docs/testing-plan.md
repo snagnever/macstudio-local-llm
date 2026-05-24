@@ -115,8 +115,8 @@ Raw data: [`tools/local-llm-bench-m4-32gb/benchmarks/runs/`](../tools/local-llm-
 | 1 #1 | `qwen/qwen3-coder-next` (6-bit) | **89 %** | **56 %** (clean) | **76 %** | **84 %** | **83 %** | **37 %** | **90 %** (18.6 t/s) | **83.3 %** (35.4 t/s) |
 | 1 #2 | `qwen3.6-27b` (6-bit dense) | **93 %** | **62 %** † 1 trunc | **88 %** | **88 %** | **90 %** | **70 %** ⚠ 15 trunc | **95 %** (14.5 t/s) | **83.3 %** (18.4 t/s) |
 | 1 #3 | `qwen3.6-35b-a3b@6bit` | **87 %** | 54 % ⚠ 6 trunc | **83 %** ⚠ 2 trunc | **89 %** ⚠ 2 trunc | **89 %** | **65 %** ⚠ 23 trunc | **97.5 %** (72.4 t/s) | **75.0 %** (85.8 t/s) |
-| 2 #4 | `gemma-4-26b-a4b@4bit` | **98 %** | 64 % ⚠ 9 trunc | 78 % | 80 % ⚠ 1 trunc | 79 % | **47 %** † 1 trunc | **97.5 %** (73.4 t/s) | **83.3 %** (82.1 t/s) |
-| 2 #5 | `gemma-4-26b-a4b@6bit` | **97 %** | **78 %** ⚠ 4 trunc | 78 % | **83 %** | 79 % | **53 %** † 2 trunc | **97.5 %** (57.8 t/s) | **83.3 %** (66.6 t/s) |
+| 2 #4 | `gemma-4-26b-a4b@4bit` | **98 %** | 66 % † 8 trunc | 78 % | 80 % ⚠ 1 trunc | 79 % | **47 %** † 1 trunc | **97.5 %** (73.4 t/s) | **83.3 %** (82.1 t/s) |
+| 2 #5 | `gemma-4-26b-a4b@6bit` | **97 %** | **80 %** † 1 trunc | 78 % | **83 %** | 79 % | **53 %** † 2 trunc | **97.5 %** (57.8 t/s) | **83.3 %** (66.6 t/s) |
 | 2 #6 | `gemma-4-31b-it-mlx` (8-bit dense) | 95 % | 76 % | 77 % | 79 % | **85 %** | 48 % | **97.5 %** (11.4 t/s) | **83.3 %** (12.3 t/s) |
 | 2 #7 | `gemma-4-e4b-it-mlx` (4B/8-bit) | 91 % | 68 % | 65 % | 14 % ⚠ | 65 % | 34 % | **87.5 %** (42.5 t/s) | **66.7 %** (60.3 t/s) |
 | 2 #8, 2 #9, 3 #10 | (not yet run) | — | — | — | — | — | — | — | — |
@@ -127,6 +127,13 @@ the cap was 32 768; raw scores under-count true ability (27b ceiling ≈ 78–85
 LCB ceiling ≈ 86 %.
 † = bench was run at the raised cap (`--max-tokens 65536`); remaining
 truncations form the "unanswerable at this scale" floor:
+- **LCB on Gemma 4 26B-A4B** (Step B, 2026-05-24) — original `⚠` truncations
+  at 32 k were reran at 65 k. `@4bit` recovered Q2 only (8 of 9 still
+  truncated at 65k → real model limits, not cap artifacts); score
+  64 % → **66 %**. `@6bit` recovered Q28 (FAIL→OK), Q8 and Q15 now answer
+  cleanly under 10 k tokens but still wrong, Q19 still truncates at 65k;
+  score 78 % → **80 %**. Q19 (atcoder/hard abc354_d) is the canonical
+  "hard for 26B-A4B at any cap" case across the Gemma family.
 - **GPQA on Gemma** — `@4bit` Q1, `@6bit` Q60/Q78. See [Truncation finding](#truncation-finding-gpqa--thinking-models)
   and the Phase 2 sub-finding in `M4_MAX_128GB_NOTES.md`.
 - **LCB on Phase 1 Qwen** (added 2026-05-24) — `qwen3.6-27b` Q3
@@ -170,18 +177,19 @@ To add a third: same brief, run it, drop the source in a new
 
 - **`qwen3.6-27b` is the quality king** — and the LCB backfill confirms it on contamination-resistant coding too (LCB 62 %, +6pp over coder-next, +8pp over 35b-a3b). Leads or ties every accuracy bench; knowledge avg 85.8 % is the highest in scope. Cost: dense → ~20 tok/s → 37.6 h full suite + 16.2 h LCB alone, dominated by thinking-spirals on hard problems.
 - **`qwen3-coder-next` is the speed / agentic king.** Knowledge avg 73.8 % is the lowest, but it shipped the full suite in **1.9 h** (19× faster than 27b) and LCB at **56 %** in 42 min. HumanEval 89 % held up — LCB 56 % is in the same coding tier as 35b-a3b 54 %. Daily-driver slot confirmed: default for OpenCode / Cline / agentic loops.
-- **`qwen3.6-35b-a3b` is the MoE-thinking middle.** Best jdhodges (97.5 %), best MATH (89 %), ~3× faster than 27b for ~3 pp less knowledge. LCB **54 %** with **5 truncations + 1 HTTP 400 cascade** — most spiral-prone of the trio on hard coding problems.
+- **`qwen3.6-35b-a3b` is the MoE-thinking middle.** Best jdhodges (97.5 %), best MATH (89 %), ~3× faster than 27b for ~3 pp less knowledge. LCB **54 %** with **6 truncations** at 65 k — most spiral-prone of the trio on hard coding problems.
 - **Knowledge rank ≠ tool-calling rank.** 35b-a3b leads jdhodges, trails Veerman; 27b ties both but is slow.
 - **HumanEval saturation confirmed.** HE spread was 87–93 (6pp). LCB spread is 54–62 (8pp) and rerank-preserves: 27b > coder-next > 35b-a3b. LCB is now the canonical coding signal for Phase 1 going forward.
 
 ### Phase 2 outcomes
 
 - **`gemma-4-26b-a4b@6bit` is the Gemma flagship.** Knowledge avg 78.0 % is the best in the Gemma family but still 7.8pp below `qwen3.6-27b`. Wins or ties every Gemma A/B; ops-agent 80.8 gen t/s — 4× faster than 27b for ~8pp less knowledge.
-- **`@4bit` is the new throughput king on this rig** (ops-agent 100.3 gen t/s, beats every Phase 1 model). HumanEval 98 % and jdhodges 98 % match `@6bit` — quant cost shows on the hard benches only (LCB −14, GPQA −6).
+- **`@4bit` is the new throughput king on this rig** (ops-agent 100.3 gen t/s, beats every Phase 1 model). HumanEval 98 % and jdhodges 98 % match `@6bit` — quant cost shows on the hard benches only (LCB −14, GPQA −6 after Step B reruns).
+- **`gemma-4-26b-a4b@6bit` is the rig's LCB ceiling at 80 %** (after Step B). +12 pp over the best Qwen Phase 1 result (27b 62 %). The quant tax on LCB stays material (`@4bit` 66 % vs `@6bit` 80 % = 14 pp).
 - **`gemma-4-31b-it-mlx` is a cost-trap.** 6× slower decode (13.7 vs 80.8 gen t/s) for indistinguishable quality vs `@6bit`; DROP +6pp is its only standout win. Demote / skip in normal rotation.
 - **`gemma-4-e4b-it-mlx` is FIM / quick-call only.** HumanEval 91 % and jdhodges 88 % are usable; MATH **collapses to 14 %**, MMLU −13pp, Veerman −16pp vs `@6bit`. Not a daily-driver fallback.
-- **No Gemma beats `qwen3.6-27b` on knowledge.** Best Gemma trails 27b by MMLU −10, MATH −5, DROP −11, GPQA −17pp (raw). 27b retains the "knowledge generalist" slot.
-- **Gemma 4 truncation profile differs from Qwen thinking models.** Gemma emits zero thinking tokens but writes long exhaustive code → truncates LCB on hard problems (18 % at `@4bit`, 8 % at `@6bit`). Operational rule: raise `--max-tokens` on **LCB**, not just GPQA, for Gemma 4 going forward.
+- **No Gemma beats `qwen3.6-27b` on knowledge.** Best Gemma trails 27b by MMLU −10, MATH −5, DROP −11, GPQA −17pp (raw). 27b retains the "knowledge generalist" slot. But Gemma `@6bit` **does** beat 27b on LCB (80 vs 62) — coding-specific recommendation now diverges from knowledge.
+- **Gemma 4 truncation profile differs from Qwen thinking models.** Gemma emits zero thinking tokens but writes long exhaustive code → truncates LCB on hard problems (18 % at `@4bit`, 8 % at `@6bit`). Step B reruns confirmed most of those are real model limits, not cap-too-tight artifacts — only Q2 (`@4bit`) and Q28 (`@6bit`) recovered at 65 k. Operational rule: still worth raising `--max-tokens` on LCB for Gemma 4, but expect modest score lift (~+2 pp), not the +10–15 pp the Phase 2 estimate suggested.
 - **Phase 2 wall-clock: ~13.5 h across 4 models** — far under the 2-4 day forward estimate. No thinking spirals → predictable per-question times.
 
 ## Truncation finding (GPQA + thinking models)
@@ -237,25 +245,25 @@ python3 scripts/bench2.py gpqa --examples 100 --model "qwen3.6-35b-a3b@6bit" \
 - **Risk:** residual truncations at 65 536 form the floor of "unanswerable at this scale" — publish explicitly.
 - **Harness gotcha (confirmed in Phase 2):** `bench2.py` writes a *fresh* summary per run; it does **not** merge `--only` reruns. To produce a canonical corrected score, the per-question JSONLs need to be reconciled manually (or by a small post-hoc script).
 
-### Step B — Gemma LCB truncation reruns at `--max-tokens 65536`
+### Step B — Gemma LCB truncation reruns at `--max-tokens 65536` ✅ **DONE 2026-05-24**
 
-New post-Phase-2 follow-up. Gemma 4 truncates LCB (not GPQA) on hard problems.
+Both reruns landed; canonical MERGED summaries written:
 
-```bash
-cd tools/local-llm-bench-m4-32gb
-# @4bit — 9 questions
-python3 scripts/bench2.py livecodebench --examples 50 --lcb-version release_v6 \
-  --model "gemma-4-26b-a4b-it-mlx@4bit" \
-  --only 2,8,11,19,28,39,44,45,46 --max-tokens 65536
+- `@4bit` 9 reruns (Q2, 8, 11, 19, 28, 39, 44, 45, 46): only Q2 recovered;
+  the other 8 still truncated at 65 k → real model limits, not cap artifacts.
+  Score 64 % → **66 %** (+2 pp). Truncations 9 → 8.
+- `@6bit` 4 reruns (Q8, 15, 19, 28): Q28 recovered (FAIL → OK); Q8 and
+  Q15 now answer cleanly under 10 k tokens but still wrong (real model
+  limits); Q19 still spirals at 65 k. Score 78 % → **80 %** (+2 pp).
+  Truncations 4 → 1.
 
-# @6bit — 4 questions
-python3 scripts/bench2.py livecodebench --examples 50 --lcb-version release_v6 \
-  --model "gemma-4-26b-a4b-it-mlx@6bit" \
-  --only 8,15,19,28 --max-tokens 65536
-```
-
-- **Cost:** ~1–3 h total (worst-case if every spiral goes to 65 536 again).
-- **Expected outcome:** corrected LCB scores. `@4bit` likely lands near 80 %, `@6bit` near 86 % — currently published as 64 % and 78 % raw.
+Both reruns came in well under the original ~1–3 h estimate (116 min for
+`@4bit`, 21 min for `@6bit`). The big surprise vs the testing-plan's
+~80 %/~86 % projections: most of Gemma 4's LCB failures at 32 k are not
+"too thinky for the cap" — they're genuine answers-but-wrong or
+spiral-past-65k cases. The raised cap recovers the marginal "almost done
+at the buzzer" cases (1 of 9, 1 of 4), not the deep failures. Useful
+calibration for any future "raise the cap" plan.
 
 ### Step C — add LiveCodeBench to the Phase 1 daily drivers ✅ **DONE 2026-05-24**
 

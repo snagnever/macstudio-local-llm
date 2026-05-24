@@ -224,7 +224,7 @@
   <section class="card"><h2>AIME — competition math</h2><p class="sub">⚠ Mixed years: Qwen3.6 family & Gemma 4 report AIME 2026; GPT-5 / Sonnet 4.6 / DeepSeek V4 report AIME 2025; Kimi K2.6 reports AIME 2026.</p><div class="chart-wrap ref-md"><canvas id="chartAIME"></canvas></div></section>
   <section class="card"><h2>SWE-bench Verified</h2><p class="sub">Agentic code editing. The single most-cited coder benchmark.</p><div class="chart-wrap ref-md"><canvas id="chartSWE"></canvas></div></section>
 
-  <section class="card"><h2>LiveCodeBench v6</h2><p class="sub">Recent competitive-programming problems. Phase 1 Qwen values are <strong>our local n=50 measurements</strong> (added 2026-05-24); they sit ~20pp below the vendor / community-published numbers (coder-next ~80, 27b ~84, 35b-a3b ~80). Among local models, Gemma 4 26B-A4B @6bit (78 %) still tops the rig and the only Qwen above 60 % is 27b dense.</p><div class="chart-wrap ref-sm"><canvas id="chartLCB"></canvas></div></section>
+  <section class="card"><h2>LiveCodeBench v6</h2><p class="sub">Recent competitive-programming problems. Phase 1 Qwen values are <strong>our local n=50 measurements</strong>; they sit ~20pp below the vendor / community-published numbers (coder-next ~80, 27b ~84, 35b-a3b ~80). Gemma 4 26B-A4B @6bit tops the rig at <strong>80 %</strong> (after Step B reruns at 65 k cap, 2026-05-24) — the only local model above the Sonnet 4.6 reference. 27b dense at 62 % is the best Qwen.</p><div class="chart-wrap ref-sm"><canvas id="chartLCB"></canvas></div></section>
   <section class="card"><h2>Terminal-Bench 2.0</h2><p class="sub">Multi-turn shell agent. GPT-5.5 (post-this report) reports 82.7 — original GPT-5 has no published number.</p><div class="chart-wrap ref-sm"><canvas id="chartTBench"></canvas></div></section>
 
   <section class="card wide"><h2>MMMU / MMMU-Pro — vision &amp; multimodal</h2><p class="sub">MMMU and MMMU-Pro are different (Pro is harder). Bars are labelled (P) when Pro. Compare within the same metric only.</p><div class="chart-wrap ref-md"><canvas id="chartMMMU"></canvas></div></section>
@@ -438,7 +438,7 @@ buildBenchChart('chartLCB', 'LiveCodeBench v6', [
   { name: 'qwen3-coder-next',     value: 56.0, tier: 'local',    colorKey: 'qwen3-coder-next',    note: '(measured; comm ~80)' },
   { name: 'qwen3.6-27b',          value: 62.0, tier: 'local',    colorKey: 'qwen3.6-27b',         note: '(measured; comm ~84)' },
   { name: 'qwen3.6-35b-a3b',      value: 54.0, tier: 'local',    colorKey: 'qwen3.6-35b-a3b',     note: '(measured; comm ~80)' },
-  { name: 'gemma-4-26b-a4b',      value: 78.0, tier: 'local',    colorKey: 'gemma-4-26b-a4b',     note: '(@6bit measured)' },
+  { name: 'gemma-4-26b-a4b',      value: 80.0, tier: 'local',    colorKey: 'gemma-4-26b-a4b',     note: '(@6bit measured, Step B reruns)' },
   { name: 'gemma-4-e4b',          value: 68.0, tier: 'local',    colorKey: 'gemma-4-e4b',         note: '(measured)' },
   { name: 'deepseek-v4-flash',    value: 91.6, tier: 'local',    colorKey: 'deepseek-v4-flash' },
   { name: 'Claude Sonnet 4.6',    value: 80.0, tier: 'frontier', note: '(~80)' },
