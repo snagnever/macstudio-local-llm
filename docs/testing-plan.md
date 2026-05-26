@@ -36,7 +36,7 @@ below), and neither predicts code quality on a real brief.
 ## Model inventory (LM Studio, verified 2026-05-18)
 
 Source: `lms ls`, `lms ps`, `GET /v1/models` against
-`http://192.168.68.124:1234/v1`. Sizes are on-disk weights.
+`http://<lm-studio-host>:1234/v1`. Sizes are on-disk weights.
 
 ### Daily-driver candidates (in scope)
 
@@ -379,7 +379,7 @@ definition.
 cd tools/local-llm-bench
 python3 bench.py \
   --backend lmstudio \
-  --base-url http://192.168.68.124:1234/v1 \
+  --base-url http://<lm-studio-host>:1234/v1 \
   --model <model-id-from-table> \
   --model-label <label-from-table>
 ```

@@ -55,7 +55,7 @@ the new LCB numbers land.
 ## Pre-flight (each session)
 
 ```bash
-cd /Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb
+cd $REPO/tools/local-llm-bench-m4-32gb
 python3 scripts/lms.py check
 ```
 
@@ -67,7 +67,7 @@ assuming.
 ## Commands
 
 ```bash
-cd /Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb
+cd $REPO/tools/local-llm-bench-m4-32gb
 
 # --- #1: qwen3-coder-next (non-thinking, default cap) ---
 python3 scripts/bench2.py livecodebench \

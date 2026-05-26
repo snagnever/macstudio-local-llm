@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
-source /Users/vitor/LocalProjects/local-llms/.venv/bin/activate
-cd /Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source $REPO/.venv/bin/activate
+cd $REPO/tools/local-llm-bench-m4-32gb
 export LMSTUDIO_URL="http://127.0.0.1:1234/v1"
 
 MODEL="gemma-4-26b-a4b-it-mlx@4bit"
-LOG=/Users/vitor/LocalProjects/local-llms/.bench-logs
+LOG=$REPO/.bench-logs
 mkdir -p "$LOG"
 
 echo "=== HumanEval n=100 ===" | tee -a "$LOG/gemma-4bit-knowledge.log"

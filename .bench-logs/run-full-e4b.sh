@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
-source /Users/vitor/LocalProjects/local-llms/.venv/bin/activate
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source $REPO/.venv/bin/activate
 export LMSTUDIO_URL="http://127.0.0.1:1234/v1"
 
 MODEL="gemma-4-e4b-it-mlx"
 LABEL="gemma-4-e4b-mlx-8bit"
-LOG=/Users/vitor/LocalProjects/local-llms/.bench-logs/gemma-e4b-full.log
-M4=/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb
-BENCH=/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench
+LOG=$REPO/.bench-logs/gemma-e4b-full.log
+M4=$REPO/tools/local-llm-bench-m4-32gb
+BENCH=$REPO/tools/local-llm-bench
 
 echo "=== Step 1: throughput sweep ($LABEL) ===" | tee -a "$LOG"
 cd "$BENCH" && python3 bench.py --backend lmstudio --base-url http://127.0.0.1:1234 --model "$MODEL" --model-label "$LABEL" 2>&1 | tee -a "$LOG"

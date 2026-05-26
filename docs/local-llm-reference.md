@@ -2,8 +2,8 @@
 
 **Hardware:** Mac Studio M4 Max, 128 GB unified memory
 **Backend:** LM Studio + MLX
-**Server:** `http://192.168.68.124:1234/v1` (OpenAI-compatible)
-**Anthropic-compat endpoint:** `http://192.168.68.124:1234/v1/messages`
+**Server:** `http://<lm-studio-host>:1234/v1` (OpenAI-compatible)
+**Anthropic-compat endpoint:** `http://<lm-studio-host>:1234/v1/messages`
 
 ---
 
@@ -181,7 +181,7 @@ Config: `~/.config/opencode/opencode.json`
       "npm": "@ai-sdk/openai-compatible",
       "name": "LM Studio (Mac Studio)",
       "options": {
-        "baseURL": "http://192.168.68.124:1234/v1"
+        "baseURL": "http://<lm-studio-host>:1234/v1"
       },
       "models": {
         "qwen/qwen3-coder-next": {
@@ -218,7 +218,7 @@ llm:
   name: mac-studio-local
   type: openai-compatible
   api: openai-responses
-  base_url: http://192.168.68.124:1234/v1
+  base_url: http://<lm-studio-host>:1234/v1
   api_key: <your-lm-studio-key>
   model: qwen/qwen3-coder-next
   timeout_ms: 120000
@@ -227,14 +227,14 @@ llm:
 
 ### Cline / Roo Code (VS Code)
 
-Settings → API Provider → **LM Studio** → Base URL: `http://192.168.68.124:1234`
+Settings → API Provider → **LM Studio** → Base URL: `http://<lm-studio-host>:1234`
 Select `qwen/qwen3-coder-next` from the model list.
 
 ### Aider
 
 ```bash
 aider \
-  --openai-api-base http://192.168.68.124:1234/v1 \
+  --openai-api-base http://<lm-studio-host>:1234/v1 \
   --openai-api-key dummy \
   --model openai/qwen/qwen3-coder-next
 ```
@@ -242,7 +242,7 @@ aider \
 ### Claude Code (uses Anthropic-compat endpoint)
 
 ```bash
-export ANTHROPIC_BASE_URL=http://192.168.68.124:1234
+export ANTHROPIC_BASE_URL=http://<lm-studio-host>:1234
 export ANTHROPIC_AUTH_TOKEN=<your-lm-studio-key>
 claude
 ```
@@ -257,13 +257,13 @@ claude
     "title": "Qwen3 Coder Next (chat)",
     "provider": "openai",
     "model": "qwen/qwen3-coder-next",
-    "apiBase": "http://192.168.68.124:1234/v1"
+    "apiBase": "http://<lm-studio-host>:1234/v1"
   }],
   "tabAutocompleteModel": {
     "title": "Qwen 2.5 Coder 7B (FIM)",
     "provider": "openai",
     "model": "mlx-community/Qwen2.5-Coder-7B-Instruct-4bit",
-    "apiBase": "http://192.168.68.124:1234/v1"
+    "apiBase": "http://<lm-studio-host>:1234/v1"
   }
 }
 ```
@@ -274,10 +274,10 @@ claude
 
 ```bash
 # Check server is alive and list loaded models
-curl -s http://192.168.68.124:1234/v1/models | jq '.data[].id'
+curl -s http://<lm-studio-host>:1234/v1/models | jq '.data[].id'
 
 # Quick chat test
-curl -s http://192.168.68.124:1234/v1/chat/completions \
+curl -s http://<lm-studio-host>:1234/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "qwen/qwen3-coder-next",
@@ -320,7 +320,7 @@ lms server start    # start the server
 
 **Symptom: 404 on model name from API**
 - Model identifier must match exactly what `/v1/models` returns
-- Verify with: `curl http://192.168.68.124:1234/v1/models | jq '.data[].id'`
+- Verify with: `curl http://<lm-studio-host>:1234/v1/models | jq '.data[].id'`
 
 ---
 
@@ -367,10 +367,10 @@ Headline accuracy + tool-calling scores from [`../tools/local-llm-bench-m4-32gb/
 
 ## Network Access from Other Devices
 
-LM Studio is exposed on the LAN at `http://192.168.68.124:1234`. To use from another machine on the network:
+LM Studio is exposed on the LAN at `http://<lm-studio-host>:1234`. To use from another machine on the network:
 
 1. Confirm LM Studio's **Server Settings → Serve on Local Network** is ON
-2. From the other machine: `curl http://192.168.68.124:1234/v1/models`
+2. From the other machine: `curl http://<lm-studio-host>:1234/v1/models`
 3. If blocked: check macOS firewall (System Settings → Network → Firewall → allow LM Studio)
 
 For access from outside the LAN, install **Tailscale** on both ends — gives each device a stable `100.x` IP without exposing port 1234 publicly.

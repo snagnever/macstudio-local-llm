@@ -38,3 +38,4 @@
 # Bench run logs — noisy, large, reproducible from JSONLs.
 # Driver scripts (.sh) under .bench-logs/ ARE tracked.
 .bench-logs/*.log
+.bench-logs/tbench-runs/

@@ -6,11 +6,12 @@
 #
 # Each batch writes its own JSONL; merge at end.
 set -u
-source /Users/vitor/LocalProjects/local-llms/.venv/bin/activate
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source $REPO/.venv/bin/activate
 export BENCH_TIMEOUT=3600
-cd /Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb
+cd $REPO/tools/local-llm-bench-m4-32gb
 
-LOGDIR=/Users/vitor/LocalProjects/local-llms/.bench-logs
+LOGDIR=$REPO/.bench-logs
 DRIVER_LOG="$LOGDIR/lcb-phase1-27b-driver.log"
 echo "=== Driver start $(date -Iseconds) ===" >> "$DRIVER_LOG"
 

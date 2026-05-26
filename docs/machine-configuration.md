@@ -5,7 +5,6 @@
 |---|---|
 | **OS** | macOS 26.3 (Sequoia) |
 | **Kernel** | Darwin 25.3.0 (RELEASE_ARM64_T6041) |
-| **Hostname** | Mac-Studio-de-Vitor.local |
 | **Shell** | /bin/zsh |
 
 ## Hardware
@@ -22,14 +21,8 @@
 ## User
 | Property | Value |
 |---|---|
-| **Username** | vitor |
 | **UID/GID** | 501 / 20 (staff) |
 | **Groups** | admin, staff, developer, etc. |
-
-## Network
-| Property | Value |
-|---|---|
-| **Public IP** | 179.98.223.171 |
 
 ## Installed Software
 | Tool | Version |
