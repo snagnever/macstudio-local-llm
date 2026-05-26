@@ -138,6 +138,37 @@
     text-align: center;
   }
   footer a { color: var(--accent); text-decoration: none; }
+  /* Wide model table: keep readable on narrow screens */
+  .model-table-wrap { overflow-x: auto; }
+  .model-table-wrap table { min-width: 1080px; }
+  .model-table-wrap td.bestfor { color: #d6dae0; font-size: 12px; max-width: 240px; }
+  .model-table-wrap td.usage   { color: var(--muted); font-size: 12px; max-width: 280px; }
+  /* Sortable scoreboard */
+  .scoreboard-wrap { overflow-x: auto; }
+  table.scoreboard { width: 100%; min-width: 820px; border-collapse: collapse; font-size: 12px; }
+  table.scoreboard th, table.scoreboard td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+  table.scoreboard thead th {
+    color: var(--muted); font-weight: 500; text-align: left;
+    cursor: pointer; user-select: none; position: relative;
+    padding-right: 18px; white-space: nowrap;
+  }
+  table.scoreboard thead th.num { text-align: right; }
+  table.scoreboard thead th:hover { color: var(--text); }
+  table.scoreboard thead th[data-sorted]::after {
+    position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+    color: var(--accent); font-size: 10px;
+  }
+  table.scoreboard thead th[data-sorted="asc"]::after  { content: '▲'; }
+  table.scoreboard thead th[data-sorted="desc"]::after { content: '▼'; }
+  table.scoreboard tbody td { vertical-align: middle; }
+  table.scoreboard tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.scoreboard tbody td.dash { color: #555; text-align: right; }
+  table.scoreboard tbody td.best { color: #7ee787; font-weight: 600; }
+  table.scoreboard tbody tr.tier-frontier td.model-cell { color: #d6b8ff; }
+  table.scoreboard tbody tr.tier-open td.model-cell { color: #c1c4ca; }
+  table.scoreboard tbody tr:hover { background: rgba(255,255,255,0.03); }
+  table.scoreboard td.model-cell { white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd1d6; }
+  .scoreboard-hint { font-size: 11px; color: var(--muted); margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -172,9 +203,10 @@
   </section>
 
   <!-- 0b. Local model table -->
-  <section class="card">
+  <section class="card wide">
     <h2>Local models in this comparison</h2>
-    <p class="sub">On-disk identifiers & quantizations.</p>
+    <p class="sub">On-disk identifiers &amp; quantizations. The two right-most columns capture qualitative strengths and how each model is meant to be used in rotation — full quant deltas live in the caveats panel near the bottom.</p>
+    <div class="model-table-wrap">
     <table>
       <thead>
         <tr>
@@ -183,21 +215,68 @@
           <th>Arch</th>
           <th class="num">Params</th>
           <th>Quant</th>
-          <th>Role</th>
+          <th>Best for</th>
+          <th>Expected usage</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td><span class="swatch" style="background:#5aa9ff"></span></td><td><code>qwen/qwen3-coder-next</code></td><td>MoE</td><td class="num">80B / 3B</td><td>MLX 6-bit</td><td>Agentic coder</td></tr>
-        <tr><td><span class="swatch" style="background:#ff8a5a"></span></td><td><code>qwen3.6-27b</code></td><td>Dense</td><td class="num">27B</td><td>MLX 6-bit</td><td>Reasoning specialist</td></tr>
-        <tr><td><span class="swatch" style="background:#7ee787"></span></td><td><code>qwen3.6-35b-a3b</code></td><td>MoE</td><td class="num">35B / 3B</td><td>MLX 6-bit</td><td>Fast generalist</td></tr>
-        <tr><td><span class="swatch" style="background:#ffd166"></span></td><td><code>gemma-4-26b-a4b-it-mlx@4bit</code></td><td>MoE</td><td class="num">26B / 4B</td><td>MLX 4-bit ⚠</td><td>Knowledge + vision</td></tr>
-        <tr><td><span class="swatch" style="background:#f59e0b"></span></td><td><code>gemma-4-26b-a4b-it-mlx@6bit</code></td><td>MoE</td><td class="num">26B / 4B</td><td>MLX 6-bit</td><td>Knowledge + vision (heavier quant)</td></tr>
-        <tr><td><span class="swatch" style="background:#fb7185"></span></td><td><code>gemma-4-31b-it-mlx</code></td><td>Dense</td><td class="num">31B</td><td>MLX 8-bit</td><td>Dense Gemma — Phase 2 complete; demoted (6× slower than @6bit for no gain)</td></tr>
-        <tr><td><span class="swatch" style="background:#ef476f"></span></td><td><code>nvidia/nemotron-3-nano-omni</code></td><td>MoE</td><td class="num">30B / 3B</td><td>GGUF Q4_K_M</td><td>Multimodal omni</td></tr>
-        <tr><td><span class="swatch" style="background:#c77dff"></span></td><td><code>google/gemma-4-e4b</code></td><td>Dense</td><td class="num">~7.5B</td><td>GGUF Q4_K_M</td><td>Tiny / vision / fast</td></tr>
-        <tr><td><span class="swatch" style="background:#06d6a0"></span></td><td><code>deepseek-v4-flash-dq</code></td><td>MoE</td><td class="num">284B / 13B</td><td>MLX 2-bit DQ ⚠⚠</td><td>Frontier reasoning</td></tr>
+        <tr>
+          <td><span class="swatch" style="background:#5aa9ff"></span></td>
+          <td><code>qwen/qwen3-coder-next</code></td><td>MoE</td><td class="num">80B / 3B</td><td>MLX 6-bit</td>
+          <td class="bestfor">Agentic coder, repo-scale edits, tool-driven workflows.</td>
+          <td class="usage">Primary local coder. Sonnet-4.5-class on SWE-Verified at 3B active; ~6–10 pp behind Opus 4.5 / Sonnet 4.6 on SWE-V. Pound-for-active-parameter the best agentic coder on disk.</td>
+        </tr>
+        <tr>
+          <td><span class="swatch" style="background:#ff8a5a"></span></td>
+          <td><code>qwen3.6-27b</code></td><td>Dense</td><td class="num">27B</td><td>MLX 6-bit</td>
+          <td class="bestfor">Hard reasoning / science Q&amp;A — best all-rounder on disk.</td>
+          <td class="usage">Quality-over-speed slot. <strong>Beats Sonnet 4.6 on GPQA</strong> (87.8 vs 74.1) and AIME; ~4 pp behind on SWE-V. Loses to Gemini 3 Pro by 4–6 pp. Decode is slow (~20 t/s) — reach for it on hard one-shots.</td>
+        </tr>
+        <tr>
+          <td><span class="swatch" style="background:#7ee787"></span></td>
+          <td><code>qwen3.6-35b-a3b</code></td><td>MoE</td><td class="num">35B / 3B</td><td>MLX 6-bit</td>
+          <td class="bestfor">Fast generalist with tool calling.</td>
+          <td class="usage">Daily-driver chat. Near-tie with the 27b dense on most evals, much lighter to run (~85 t/s). ~7 pp behind frontier on SWE-V, ~5 pp on GPQA. Watch the MoE-MLX tool-call regression on 4-bit/8-bit checkpoints.</td>
+        </tr>
+        <tr>
+          <td><span class="swatch" style="background:#ffd166"></span></td>
+          <td><code>gemma-4-26b-a4b-it-mlx@4bit</code></td><td>MoE</td><td class="num">26B / 4B</td><td>MLX 4-bit ⚠</td>
+          <td class="bestfor">Vision + throughput when RAM is tight.</td>
+          <td class="usage">Knowledge generalist mid-tier (~7 pp below Opus 4.5 on MMLU-Pro). <strong>Largest quant penalty of any model on disk</strong> — costs ~6 pp GPQA vs @6bit. Pick only when RAM-constrained or for vision drafts.</td>
+        </tr>
+        <tr>
+          <td><span class="swatch" style="background:#f59e0b"></span></td>
+          <td><code>gemma-4-26b-a4b-it-mlx@6bit</code></td><td>MoE</td><td class="num">26B / 4B</td><td>MLX 6-bit</td>
+          <td class="bestfor">Coding (rig's LCB ceiling at 80 %), vision, knowledge — recommended Gemma quant.</td>
+          <td class="usage">Primary Gemma slot. ~85 t/s, near-lossless vs base, jdhodges 97.5 / veerman 83.3. Only local model above the Sonnet 4.6 LCB reference. Default to this for any Gemma workload unless you specifically need the 4-bit RAM savings.</td>
+        </tr>
+        <tr>
+          <td><span class="swatch" style="background:#fb7185"></span></td>
+          <td><code>gemma-4-31b-it-mlx</code></td><td>Dense</td><td class="num">31B</td><td>MLX 8-bit</td>
+          <td class="bestfor">Nothing distinct — demoted from rotation.</td>
+          <td class="usage">Skip. Ties or loses to 26B-A4B@6bit on every bench except DROP (+6 pp); decode 13.7 t/s vs @6bit's 80.8 = ~6× wall-clock for indistinguishable quality.</td>
+        </tr>
+        <tr>
+          <td><span class="swatch" style="background:#ef476f"></span></td>
+          <td><code>nvidia/nemotron-3-nano-omni</code></td><td>MoE</td><td class="num">30B / 3B</td><td>GGUF Q4_K_M</td>
+          <td class="bestfor">OCR, long-doc, audio, video — multimodal omni specialist.</td>
+          <td class="usage">Use for multimodal pipelines, not general reasoning. SOTA among small models on OCR / long-doc / audio / video. AA Intelligence Index 21 vs frontier ~60+ — below frontier on every pure-text benchmark.</td>
+        </tr>
+        <tr>
+          <td><span class="swatch" style="background:#c77dff"></span></td>
+          <td><code>google/gemma-4-e4b</code></td><td>Dense</td><td class="num">~7.5B</td><td>GGUF Q4_K_M</td>
+          <td class="bestfor">FIM / autocomplete drafter; fast vision toy.</td>
+          <td class="usage">Edge tier. 20–30 pp below frontier on every hard benchmark; MATH collapses to 14 %. Useful as a streaming completion helper, not a quality reasoning option.</td>
+        </tr>
+        <tr>
+          <td><span class="swatch" style="background:#06d6a0"></span></td>
+          <td><code>deepseek-v4-flash-dq</code></td><td>MoE</td><td class="num">284B / 13B</td><td>MLX 2-bit DQ ⚠⚠</td>
+          <td class="bestfor">Only frontier-class model on disk — when you need GPT-5 / Opus-4.5-tier output and can wait.</td>
+          <td class="usage">Base Flash matches GPT-5 / Opus 4.5 (88.1 GPQA, 91.6 LCB, 79.0 SWE-V) — but 2-bit-DQ on an already-QAT-FP4 model has <strong>no published deltas</strong>. Expect 3–8 pp drop on hard reasoning; more on long context. Treat published numbers as a ceiling.</td>
+        </tr>
       </tbody>
     </table>
+    </div>
   </section>
 
   <!-- Legend -->
@@ -208,6 +287,44 @@
       <span><span class="swatch" style="background:#888c94"></span> Open-weight reference (Kimi K2.6)</span>
     </div>
     <p class="sub" style="margin:0">All bars are <strong>published</strong> first-party scores from the upstream model card / announcement (or the most-cited third-party transcription, where the vendor doesn't publish). They are NOT measurements on the user's on-disk quant — see the quant-caveat panel at the bottom for expected quant-vs-base deltas.</p>
+  </section>
+
+  <!-- 0d. Scoreboard — every model × every benchmark in one matrix -->
+  <section class="card wide">
+    <h2>Benchmark scoreboard</h2>
+    <p class="sub">Every model on the page × every benchmark referenced, in one matrix. <strong>Click any column header to sort</strong> ascending/descending (double-click any header to reset). Best value per column is highlighted green; missing values sink to the bottom. Local rows use per-model swatch colors; frontier rows are purple-tinted, open-weight rows gray-tinted.</p>
+    <div class="scoreboard-wrap">
+      <table class="scoreboard" id="scoreboardQuality">
+        <thead>
+          <tr>
+            <th data-sort="str">Model</th>
+            <th data-sort="str">Tier</th>
+            <th class="num" data-sort="num">MMLU-Pro</th>
+            <th class="num" data-sort="num">GPQA</th>
+            <th class="num" data-sort="num">SWE-V</th>
+            <th class="num" data-sort="num">AIME</th>
+            <th class="num" data-sort="num">LCB v6</th>
+            <th class="num" data-sort="num">T-Bench</th>
+            <th class="num" data-sort="num">MMMU</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#5aa9ff"></span>qwen3-coder-next</td><td>local</td><td class="num dash">—</td><td class="num dash">—</td><td class="num">70.9</td><td class="num dash">—</td><td class="num">56.0</td><td class="num">36.2</td><td class="num dash">—</td></tr>
+          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#ff8a5a"></span>qwen3.6-27b</td><td>local</td><td class="num">86.2</td><td class="num">87.8</td><td class="num">77.2</td><td class="num">94.1</td><td class="num">62.0</td><td class="num dash">—</td><td class="num">82.9</td></tr>
+          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#7ee787"></span>qwen3.6-35b-a3b</td><td>local</td><td class="num">85.2</td><td class="num">86.0</td><td class="num">73.4</td><td class="num">92.7</td><td class="num dash">—</td><td class="num">51.5</td><td class="num dash">—</td></tr>
+          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#ffd166"></span>gemma-4-26b-a4b</td><td>local</td><td class="num">82.6</td><td class="num">82.3</td><td class="num dash">—</td><td class="num">88.3</td><td class="num">80.0</td><td class="num dash">—</td><td class="num">73.8</td></tr>
+          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#ef476f"></span>nemotron-3-nano-omni</td><td>local</td><td class="num">78.3</td><td class="num">73.0</td><td class="num dash">—</td><td class="num">89.1</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td></tr>
+          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#c77dff"></span>gemma-4-e4b</td><td>local</td><td class="num">69.4</td><td class="num">58.6</td><td class="num dash">—</td><td class="num">42.5</td><td class="num">68.0</td><td class="num dash">—</td><td class="num">52.6</td></tr>
+          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#06d6a0"></span>deepseek-v4-flash</td><td>local</td><td class="num">86.4</td><td class="num">88.1</td><td class="num">79.0</td><td class="num">87.5</td><td class="num">91.6</td><td class="num">56.9</td><td class="num dash">—</td></tr>
+          <tr class="tier-frontier"><td class="model-cell"><span class="swatch" style="background:#b86bff"></span>GPT-5</td><td>frontier</td><td class="num">86.0</td><td class="num">89.4</td><td class="num">74.9</td><td class="num">100.0</td><td class="num dash">—</td><td class="num dash">—</td><td class="num">84.2</td></tr>
+          <tr class="tier-frontier"><td class="model-cell"><span class="swatch" style="background:#b86bff"></span>Claude Opus 4.5</td><td>frontier</td><td class="num">89.75</td><td class="num">87.0</td><td class="num">80.9</td><td class="num dash">—</td><td class="num dash">—</td><td class="num">59.3</td><td class="num">80.7</td></tr>
+          <tr class="tier-frontier"><td class="model-cell"><span class="swatch" style="background:#b86bff"></span>Claude Sonnet 4.6</td><td>frontier</td><td class="num">79.2</td><td class="num">74.1</td><td class="num">79.6</td><td class="num">98.0</td><td class="num">80.0</td><td class="num">59.1</td><td class="num dash">—</td></tr>
+          <tr class="tier-frontier"><td class="model-cell"><span class="swatch" style="background:#b86bff"></span>Gemini 3 Pro</td><td>frontier</td><td class="num">91.0</td><td class="num">91.9</td><td class="num">76.2</td><td class="num dash">—</td><td class="num dash">—</td><td class="num">54.2</td><td class="num">81.0</td></tr>
+          <tr class="tier-open"><td class="model-cell"><span class="swatch" style="background:#888c94"></span>Kimi K2.6</td><td>open</td><td class="num dash">—</td><td class="num">90.5</td><td class="num">80.2</td><td class="num">96.4</td><td class="num">89.6</td><td class="num">66.7</td><td class="num">79.4</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="scoreboard-hint">AIME years vary (Qwen3.6 / Gemma 4 → '26; GPT-5 / Sonnet 4.6 → '25; Kimi K2.6 → '26) — see the per-bench charts for footnotes. LCB row for <code>gemma-4-26b-a4b</code> is the on-rig @6bit measurement (80 %); other Gemma-4-26b-a4b numbers are published BF16. <code>deepseek-v4-flash</code> values are the base Flash model — the on-disk 2-bit-DQ quant will be lower (see caveats).</p>
   </section>
 
   <!-- 1. Headline overview: local models on the three most universal benchmarks -->
@@ -225,7 +342,7 @@
   <section class="card"><h2>SWE-bench Verified</h2><p class="sub">Agentic code editing. The single most-cited coder benchmark.</p><div class="chart-wrap ref-md"><canvas id="chartSWE"></canvas></div></section>
 
   <section class="card"><h2>LiveCodeBench v6</h2><p class="sub">Recent competitive-programming problems. Phase 1 Qwen values are <strong>our local n=50 measurements</strong>; they sit ~20pp below the vendor / community-published numbers (coder-next ~80, 27b ~84, 35b-a3b ~80). Gemma 4 26B-A4B @6bit tops the rig at <strong>80 %</strong> (after Step B reruns at 65 k cap, 2026-05-24) — the only local model above the Sonnet 4.6 reference. 27b dense at 62 % is the best Qwen.</p><div class="chart-wrap ref-sm"><canvas id="chartLCB"></canvas></div></section>
-  <section class="card"><h2>Terminal-Bench 2.0</h2><p class="sub">Multi-turn shell agent. GPT-5.5 (post-this report) reports 82.7 — original GPT-5 has no published number.</p><div class="chart-wrap ref-sm"><canvas id="chartTBench"></canvas></div></section>
+  <section class="card"><h2>Terminal-Bench 2.0</h2><p class="sub">Multi-turn shell agent. Local rows are <strong>measured on-rig</strong> via Harbor + LiteLLM → LM Studio (Docker linux/amd64, terminus-2 agent, concurrency=1, vanilla T-Bench 2.0 task set with <code>--agent-timeout-multiplier 0.5</code> to bound the 14 tasks declaring >60-min agent budgets — scores are a defensible floor; full-budget would land ≤5 pp higher). GPT-5.5 (post-this report) reports 82.7 — original GPT-5 has no published number.</p><div class="chart-wrap ref-sm"><canvas id="chartTBench"></canvas></div></section>
 
   <section class="card wide"><h2>MMMU / MMMU-Pro — vision &amp; multimodal</h2><p class="sub">MMMU and MMMU-Pro are different (Pro is harder). Bars are labelled (P) when Pro. Compare within the same metric only.</p><div class="chart-wrap ref-md"><canvas id="chartMMMU"></canvas></div></section>
 
@@ -446,10 +563,16 @@ buildBenchChart('chartLCB', 'LiveCodeBench v6', [
 ]);
 
 // ---------- 2f. Terminal-Bench 2.0 ----------
+// Phase A measured 2026-05-25/26 via Harbor + terminus-2 + LiteLLM → LM Studio
+// (Docker linux/amd64), 89 tasks, concurrency=1, --agent-timeout-multiplier 0.5.
+// Phase B reruns the remaining 5 local models (e4b, gemma-26b-a4b@4bit,
+// 35b-a3b@6bit, gemma-31b, qwen3.6-27b) — vendor / community fallbacks shown
+// where measured value not yet in.
 buildBenchChart('chartTBench', 'Terminal-Bench 2.0', [
-  { name: 'qwen3-coder-next',     value: 36.2, tier: 'local',    colorKey: 'qwen3-coder-next' },
-  { name: 'qwen3.6-35b-a3b',      value: 51.5, tier: 'local',    colorKey: 'qwen3.6-35b-a3b' },
-  { name: 'deepseek-v4-flash',    value: 56.9, tier: 'local',    colorKey: 'deepseek-v4-flash' },
+  { name: 'qwen3-coder-next',     value: 32.6, tier: 'local',    colorKey: 'qwen3-coder-next',    note: '(measured; vendor 36.2)' },
+  { name: 'gemma-4-26b-a4b',      value: 21.3, tier: 'local',    colorKey: 'gemma-4-26b-a4b',     note: '(@6bit measured)' },
+  { name: 'qwen3.6-35b-a3b',      value: 51.5, tier: 'local',    colorKey: 'qwen3.6-35b-a3b',     note: '(vendor; Phase B pending)' },
+  { name: 'deepseek-v4-flash',    value: 56.9, tier: 'local',    colorKey: 'deepseek-v4-flash',   note: '(vendor; out of scope)' },
   { name: 'Claude Opus 4.5',      value: 59.3, tier: 'frontier' },
   { name: 'Claude Sonnet 4.6',    value: 59.1, tier: 'frontier' },
   { name: 'Gemini 3 Pro',         value: 54.2, tier: 'frontier' },
@@ -473,6 +596,80 @@ document.getElementById('toggleLabels').addEventListener('change', (e) => {
   labelsOn = e.target.checked;
   charts.forEach(c => c.update());
 });
+
+// --- Sortable scoreboard wiring (shared utility) ---
+function setupSortableTable(tableId, defaultSortCol = null, defaultDir = -1) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const headers = Array.from(table.querySelectorAll('thead th'));
+  const tbody = table.querySelector('tbody');
+  const originalOrder = Array.from(tbody.querySelectorAll('tr'));
+  let state = { col: null, dir: 1 };
+
+  function sortBy(idx, dir) {
+    const th = headers[idx];
+    const sortType = th.dataset.sort;
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.sort((a, b) => {
+      const av = (a.children[idx].dataset.value ?? a.children[idx].textContent).trim();
+      const bv = (b.children[idx].dataset.value ?? b.children[idx].textContent).trim();
+      if (sortType === 'num') {
+        const an = parseFloat(av), bn = parseFloat(bv);
+        const aNaN = isNaN(an), bNaN = isNaN(bn);
+        if (aNaN && bNaN) return 0;
+        if (aNaN) return 1;   // missing values always at the bottom
+        if (bNaN) return -1;
+        return (an - bn) * dir;
+      }
+      return av.localeCompare(bv) * dir;
+    });
+    rows.forEach(r => tbody.appendChild(r));
+    headers.forEach(h => h.removeAttribute('data-sorted'));
+    th.setAttribute('data-sorted', dir === 1 ? 'asc' : 'desc');
+    state = { col: idx, dir };
+  }
+
+  headers.forEach((th, idx) => {
+    if (!th.dataset.sort) return;
+    th.addEventListener('click', () => {
+      let dir;
+      if (state.col === idx) dir = -state.dir;
+      else dir = th.dataset.sort === 'num' ? -1 : 1;
+      sortBy(idx, dir);
+    });
+  });
+
+  headers.forEach(th => th.addEventListener('dblclick', () => {
+    originalOrder.forEach(r => tbody.appendChild(r));
+    headers.forEach(h => h.removeAttribute('data-sorted'));
+    state = { col: null, dir: 1 };
+  }));
+
+  if (defaultSortCol !== null) sortBy(defaultSortCol, defaultDir);
+}
+
+function highlightBestPerColumn(tableId) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const headers = Array.from(table.querySelectorAll('thead th'));
+  const rows = Array.from(table.querySelectorAll('tbody tr'));
+  headers.forEach((th, idx) => {
+    if (th.dataset.sort !== 'num') return;
+    let best = -Infinity;
+    let bestCells = [];
+    rows.forEach(r => {
+      const cell = r.children[idx];
+      const v = parseFloat(cell.textContent.trim());
+      if (isNaN(v)) return;
+      if (v > best) { best = v; bestCells = [cell]; }
+      else if (v === best) bestCells.push(cell);
+    });
+    bestCells.forEach(c => c.classList.add('best'));
+  });
+}
+
+setupSortableTable('scoreboardQuality');
+highlightBestPerColumn('scoreboardQuality');
 </script>
 
 </body>

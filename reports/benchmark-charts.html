@@ -127,6 +127,35 @@
     padding: 16px 32px 32px;
     text-align: center;
   }
+  /* Wide model table: keep readable on narrow screens */
+  .model-table-wrap { overflow-x: auto; }
+  .model-table-wrap table { min-width: 1100px; }
+  .model-table-wrap td.bestfor { color: #d6dae0; font-size: 12px; max-width: 220px; }
+  .model-table-wrap td.usage   { color: var(--muted); font-size: 12px; max-width: 260px; }
+  /* Sortable scoreboard */
+  .scoreboard-wrap { overflow-x: auto; }
+  table.scoreboard { width: 100%; min-width: 880px; border-collapse: collapse; font-size: 12px; }
+  table.scoreboard th, table.scoreboard td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+  table.scoreboard thead th {
+    color: var(--muted); font-weight: 500; text-align: left;
+    cursor: pointer; user-select: none; position: relative;
+    padding-right: 18px; white-space: nowrap;
+  }
+  table.scoreboard thead th.num { text-align: right; }
+  table.scoreboard thead th:hover { color: var(--text); }
+  table.scoreboard thead th[data-sorted]::after {
+    position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+    color: var(--accent); font-size: 10px;
+  }
+  table.scoreboard thead th[data-sorted="asc"]::after  { content: '▲'; }
+  table.scoreboard thead th[data-sorted="desc"]::after { content: '▼'; }
+  table.scoreboard tbody td { vertical-align: middle; }
+  table.scoreboard tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.scoreboard tbody td.dash { color: #555; }
+  table.scoreboard tbody td.best { color: #7ee787; font-weight: 600; }
+  table.scoreboard tbody tr:hover { background: rgba(255,255,255,0.03); }
+  table.scoreboard td.model-cell { white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd1d6; }
+  .scoreboard-hint { font-size: 11px; color: var(--muted); margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -159,28 +188,30 @@
       <dt>Storage</dt>          <dd>1.8 TB SSD</dd>
       <dt>OS / kernel</dt>      <dd>macOS 26.3 · Darwin 25.3.0</dd>
       <dt>Inference backend</dt><dd>LM Studio · MLX (Apple Silicon)</dd>
-      <dt>API endpoint</dt>     <dd><code>http://192.168.68.124:1234/v1</code></dd>
+      <dt>API endpoint</dt>     <dd><code>http://&lt;lm-studio-host&gt;:1234/v1</code></dd>
     </dl>
   </section>
 
-  <section class="card">
+  <section class="card wide">
     <h2>Models benchmarked</h2>
-    <p class="sub">All MLX safetensors, run via LM Studio. Phase 1 (Qwen) verified 2026-05-19; Phase 2 (Gemma 4) verified 2026-05-20. 31B-dense partial — MATH/DROP/GPQA still pending.</p>
+    <p class="sub">All MLX safetensors, run via LM Studio. Phase 1 (Qwen) verified 2026-05-19; Phase 2 (Gemma 4) verified 2026-05-22 (all 7 models, n=100 across HumanEval/MMLU/MATH/DROP/GPQA + n=50 LCB). The two right-most columns capture qualitative strengths and how each model is meant to be used in rotation — the rest is on-disk metadata.</p>
+    <div class="model-table-wrap">
     <table>
       <thead>
         <tr>
           <th></th>
           <th>Model</th>
           <th>Author / provider</th>
-          <th>Architecture</th>
-          <th class="num">Total params</th>
+          <th>Arch</th>
+          <th class="num">Total</th>
           <th class="num">Active</th>
           <th>Quant</th>
           <th class="num">Disk</th>
           <th>Context</th>
           <th>Vision</th>
           <th>Tools</th>
-          <th>Role</th>
+          <th>Best for</th>
+          <th>Expected usage</th>
         </tr>
       </thead>
       <tbody>
@@ -196,7 +227,8 @@
           <td>256K (1M w/ YaRN)</td>
           <td>—</td>
           <td>✓</td>
-          <td>Agentic coder</td>
+          <td class="bestfor">Agentic coding, multi-file edits, tool-driven repo work. Strong jdhodges (90) but weakest GPQA (37) of Phase 1.</td>
+          <td class="usage">Primary local coder. ~68 t/s thanks to 3B active despite 80B total — feels snappy on coding scaffolds. Don't reach for it on hard science Q&amp;A.</td>
         </tr>
         <tr>
           <td><span class="swatch" style="background:#ff8a5a"></span></td>
@@ -210,7 +242,8 @@
           <td>128K</td>
           <td>✓</td>
           <td>✓</td>
-          <td>Reasoning specialist</td>
+          <td class="bestfor">GPQA-tier science, MATH, DROP comprehension. Highest GPQA on the rig (70, &gt;78 if not for 32 k truncation).</td>
+          <td class="usage">Quality-over-speed slot. Decode ~20 t/s and reasoning-heavy — expect long waits, especially past ~3 k context where prefill drops to ~5 t/s. Reserve for hard one-shot questions.</td>
         </tr>
         <tr>
           <td><span class="swatch" style="background:#7ee787"></span></td>
@@ -224,7 +257,8 @@
           <td>128K</td>
           <td>✓</td>
           <td>✓</td>
-          <td>Fast generalist</td>
+          <td class="bestfor">Balanced reasoning + tool calls at MoE speed. Near-27b accuracy at ~4× the throughput.</td>
+          <td class="usage">Daily-driver chat with tools. ~85 t/s generation; jdhodges 97.5 leads Phase 1. Watch the documented MLX MoE tool-call regression on 4-bit/8-bit Qwen3.x-A3B checkpoints (6-bit unaffected so far).</td>
         </tr>
         <tr>
           <td><span class="swatch" style="background:#ffd166"></span></td>
@@ -238,7 +272,8 @@
           <td>65K</td>
           <td>✓</td>
           <td>✓</td>
-          <td>Knowledge / vision (light)</td>
+          <td class="bestfor">Vision + throughput when RAM is tight. Fastest Gemma (~100 t/s) and lightest on disk (14.6 GB).</td>
+          <td class="usage">Pick when RAM-constrained or for vision drafts. 4-bit costs ~6 pp GPQA and ~3 pp MATH vs @6bit — prefer the 6-bit sibling when you have the headroom.</td>
         </tr>
         <tr>
           <td><span class="swatch" style="background:#f59e0b"></span></td>
@@ -252,7 +287,8 @@
           <td>65K</td>
           <td>✓</td>
           <td>✓</td>
-          <td>Knowledge / vision (mid)</td>
+          <td class="bestfor">Coding (LCB ceiling 80 %), vision, knowledge — the rig's best LCB and the best Gemma quant overall.</td>
+          <td class="usage">Recommended Gemma slot. ~80 t/s, near-lossless vs base, jdhodges 97.5 / veerman 83.3. Default to this for any Gemma workload unless you specifically need the 4-bit RAM savings.</td>
         </tr>
         <tr>
           <td><span class="swatch" style="background:#fb7185"></span></td>
@@ -266,10 +302,62 @@
           <td>65K</td>
           <td>✓</td>
           <td>✓</td>
-          <td>Dense knowledge (partial run)</td>
+          <td class="bestfor">DROP comprehension (+6 pp vs A4B@6bit) — and that's it. Demoted from rotation.</td>
+          <td class="usage">Skip in normal use. Decode ~13 t/s = 6× slower than A4B@6bit for indistinguishable accuracy on every other bench. Only reach for it if a specific dense behavior matters.</td>
+        </tr>
+        <tr>
+          <td><span class="swatch" style="background:#c084fc"></span></td>
+          <td><code>gemma-4-e4b-it-mlx</code></td>
+          <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
+          <td>Dense</td>
+          <td class="num">4 B</td>
+          <td class="num">4 B</td>
+          <td>8-bit MLX</td>
+          <td class="num">~7.5 GB</td>
+          <td>32K</td>
+          <td>✓</td>
+          <td>✓</td>
+          <td class="bestfor">FIM / autocomplete / quick-call slot; fast vision drafts.</td>
+          <td class="usage">Tiny utility, ~70 t/s. MATH collapses to 14 % — never use it for hard symbolic work. Useful as a drafter / first-pass under an editor that streams completions.</td>
         </tr>
       </tbody>
     </table>
+    </div>
+  </section>
+
+  <!-- 0c. Scoreboard — accuracy + tool-calling + throughput in one matrix -->
+  <section class="card wide">
+    <h2>Benchmark scoreboard</h2>
+    <p class="sub">All accuracy benches (n=100), tool-calling suites, and creative-writing throughput in one matrix. <strong>Click any column header to sort</strong> ascending/descending; the best score in each numeric column is highlighted green. Hover a row to highlight it. Throughput columns are the creative-writing scenario (the most representative single number for "feels like" decode speed).</p>
+    <div class="scoreboard-wrap">
+      <table class="scoreboard" id="scoreboardMain">
+        <thead>
+          <tr>
+            <th data-sort="str">Model</th>
+            <th class="num" data-sort="num">HumanEval</th>
+            <th class="num" data-sort="num">MMLU</th>
+            <th class="num" data-sort="num">MATH</th>
+            <th class="num" data-sort="num">DROP</th>
+            <th class="num" data-sort="num">GPQA</th>
+            <th class="num" data-sort="num">LCB v6</th>
+            <th class="num" data-sort="num">jdhodges</th>
+            <th class="num" data-sort="num">veerman</th>
+            <th class="num" data-sort="num">Gen t/s</th>
+            <th class="num" data-sort="num">Eff t/s</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="model-cell"><span class="swatch" style="background:#5aa9ff"></span>qwen3-coder-next</td><td class="num">89</td><td class="num">76</td><td class="num">84</td><td class="num">83</td><td class="num">37</td><td class="num">56</td><td class="num">90.0</td><td class="num">83.3</td><td class="num">70.2</td><td class="num">67.8</td></tr>
+          <tr><td class="model-cell"><span class="swatch" style="background:#ff8a5a"></span>qwen3.6-27b</td><td class="num">93</td><td class="num">88</td><td class="num">88</td><td class="num">90</td><td class="num">70</td><td class="num">62</td><td class="num">95.0</td><td class="num">83.3</td><td class="num">20.7</td><td class="num">19.9</td></tr>
+          <tr><td class="model-cell"><span class="swatch" style="background:#7ee787"></span>qwen3.6-35b-a3b</td><td class="num">87</td><td class="num">83</td><td class="num">89</td><td class="num">89</td><td class="num">65</td><td class="num">54</td><td class="num">97.5</td><td class="num">75.0</td><td class="num">91.6</td><td class="num">86.9</td></tr>
+          <tr><td class="model-cell"><span class="swatch" style="background:#ffd166"></span>gemma-4-26b-a4b @4bit</td><td class="num">98</td><td class="num">78</td><td class="num">80</td><td class="num">79</td><td class="num">47</td><td class="num">66</td><td class="num">97.5</td><td class="num">83.3</td><td class="num">106.0</td><td class="num">99.9</td></tr>
+          <tr><td class="model-cell"><span class="swatch" style="background:#f59e0b"></span>gemma-4-26b-a4b @6bit</td><td class="num">97</td><td class="num">78</td><td class="num">83</td><td class="num">79</td><td class="num">53</td><td class="num">80</td><td class="num">97.5</td><td class="num">83.3</td><td class="num">85.3</td><td class="num">80.5</td></tr>
+          <tr><td class="model-cell"><span class="swatch" style="background:#fb7185"></span>gemma-4-31b dense</td><td class="num">95</td><td class="num">77</td><td class="num">79</td><td class="num">85</td><td class="num">48</td><td class="num">76</td><td class="num">97.5</td><td class="num">83.3</td><td class="num">13.9</td><td class="num">13.6</td></tr>
+          <tr><td class="model-cell"><span class="swatch" style="background:#c084fc"></span>gemma-4-e4b</td><td class="num">91</td><td class="num">65</td><td class="num">14</td><td class="num">65</td><td class="num">34</td><td class="num">68</td><td class="num">87.5</td><td class="num">66.7</td><td class="num">73.7</td><td class="num">69.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="scoreboard-hint">Defaults: rows are in the same order as the Models table above. Click headers to re-rank. Accuracy = pass-rate %, tool-calling = score %, throughput = tok/s on the creative-writing scenario.</p>
   </section>
 
   <!-- 1. Accuracy by benchmark -->
@@ -715,6 +803,82 @@ document.getElementById('toggleLabels').addEventListener('change', (e) => {
   labelsOn = e.target.checked;
   charts.forEach(c => c.update());
 });
+
+// --- Sortable scoreboard wiring ---
+function setupSortableTable(tableId, defaultSortCol = null, defaultDir = -1) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const headers = Array.from(table.querySelectorAll('thead th'));
+  const tbody = table.querySelector('tbody');
+  const originalOrder = Array.from(tbody.querySelectorAll('tr'));
+  let state = { col: null, dir: 1 };
+
+  function sortBy(idx, dir) {
+    const th = headers[idx];
+    const sortType = th.dataset.sort;
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.sort((a, b) => {
+      const av = (a.children[idx].dataset.value ?? a.children[idx].textContent).trim();
+      const bv = (b.children[idx].dataset.value ?? b.children[idx].textContent).trim();
+      if (sortType === 'num') {
+        const an = parseFloat(av), bn = parseFloat(bv);
+        const aNaN = isNaN(an), bNaN = isNaN(bn);
+        if (aNaN && bNaN) return 0;
+        if (aNaN) return 1;   // missing values always at the bottom
+        if (bNaN) return -1;
+        return (an - bn) * dir;
+      }
+      return av.localeCompare(bv) * dir;
+    });
+    rows.forEach(r => tbody.appendChild(r));
+    headers.forEach(h => h.removeAttribute('data-sorted'));
+    th.setAttribute('data-sorted', dir === 1 ? 'asc' : 'desc');
+    state = { col: idx, dir };
+  }
+
+  headers.forEach((th, idx) => {
+    if (!th.dataset.sort) return;
+    th.addEventListener('click', () => {
+      // First click on a numeric column: descending (highest first). Subsequent clicks toggle.
+      let dir;
+      if (state.col === idx) dir = -state.dir;
+      else dir = th.dataset.sort === 'num' ? -1 : 1;
+      sortBy(idx, dir);
+    });
+  });
+
+  // Double-click any header to reset to original document order
+  headers.forEach(th => th.addEventListener('dblclick', () => {
+    originalOrder.forEach(r => tbody.appendChild(r));
+    headers.forEach(h => h.removeAttribute('data-sorted'));
+    state = { col: null, dir: 1 };
+  }));
+
+  if (defaultSortCol !== null) sortBy(defaultSortCol, defaultDir);
+}
+
+function highlightBestPerColumn(tableId) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const headers = Array.from(table.querySelectorAll('thead th'));
+  const rows = Array.from(table.querySelectorAll('tbody tr'));
+  headers.forEach((th, idx) => {
+    if (th.dataset.sort !== 'num') return;
+    let best = -Infinity;
+    let bestCells = [];
+    rows.forEach(r => {
+      const cell = r.children[idx];
+      const v = parseFloat(cell.textContent.trim());
+      if (isNaN(v)) return;
+      if (v > best) { best = v; bestCells = [cell]; }
+      else if (v === best) bestCells.push(cell);
+    });
+    bestCells.forEach(c => c.classList.add('best'));
+  });
+}
+
+setupSortableTable('scoreboardMain');
+highlightBestPerColumn('scoreboardMain');
 
 // --- 9. Elapsed per 100-question run ---
 registerChart(new Chart(document.getElementById('chartElapsed'), {
