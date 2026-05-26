@@ -45,6 +45,19 @@
     cursor: pointer;
   }
   .toggle input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  .header-actions { display: inline-flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .report-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #1b1f27;
+    transition: background 0.12s ease, border-color 0.12s ease;
+  }
+  .report-link:hover { background: #232833; border-color: #3a414e; }
+  .report-link.current { color: var(--muted); border-style: dashed; cursor: default; pointer-events: none; }
   main {
     max-width: 1600px;
     margin: 0 auto;
@@ -179,10 +192,16 @@
       <h1>Local LLM Quality vs Frontier</h1>
       <p>Apple M4 Max · 128 GB · LM Studio / MLX · published-benchmark comparison · 2026-05-17 (Gemma quant-delta panel refreshed 2026-05-22 with on-rig measurements)</p>
     </div>
-    <label class="toggle">
-      <input type="checkbox" id="toggleLabels" checked />
-      Show data labels on bars
-    </label>
+    <div class="header-actions">
+      <nav>
+        <a class="report-link" href="benchmark-charts.html">← On-rig measurements</a>
+        <a class="report-link current" aria-current="page" href="quality-benchmarks-charts.html">Quality vs frontier</a>
+      </nav>
+      <label class="toggle">
+        <input type="checkbox" id="toggleLabels" checked />
+        Show data labels on bars
+      </label>
+    </div>
   </div>
 </header>
 
@@ -309,12 +328,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#5aa9ff"></span>qwen3-coder-next</td><td>local</td><td class="num dash">—</td><td class="num dash">—</td><td class="num">70.9</td><td class="num dash">—</td><td class="num">56.0</td><td class="num">36.2</td><td class="num dash">—</td></tr>
+          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#5aa9ff"></span>qwen3-coder-next</td><td>local</td><td class="num dash">—</td><td class="num dash">—</td><td class="num">70.9</td><td class="num dash">—</td><td class="num">56.0</td><td class="num">32.6</td><td class="num dash">—</td></tr>
           <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#ff8a5a"></span>qwen3.6-27b</td><td>local</td><td class="num">86.2</td><td class="num">87.8</td><td class="num">77.2</td><td class="num">94.1</td><td class="num">62.0</td><td class="num dash">—</td><td class="num">82.9</td></tr>
           <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#7ee787"></span>qwen3.6-35b-a3b</td><td>local</td><td class="num">85.2</td><td class="num">86.0</td><td class="num">73.4</td><td class="num">92.7</td><td class="num dash">—</td><td class="num">51.5</td><td class="num dash">—</td></tr>
-          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#ffd166"></span>gemma-4-26b-a4b</td><td>local</td><td class="num">82.6</td><td class="num">82.3</td><td class="num dash">—</td><td class="num">88.3</td><td class="num">80.0</td><td class="num dash">—</td><td class="num">73.8</td></tr>
+          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#ffd166"></span>gemma-4-26b-a4b</td><td>local</td><td class="num">82.6</td><td class="num">82.3</td><td class="num dash">—</td><td class="num">88.3</td><td class="num">80.0</td><td class="num">21.3</td><td class="num">73.8</td></tr>
           <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#ef476f"></span>nemotron-3-nano-omni</td><td>local</td><td class="num">78.3</td><td class="num">73.0</td><td class="num dash">—</td><td class="num">89.1</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td></tr>
-          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#c77dff"></span>gemma-4-e4b</td><td>local</td><td class="num">69.4</td><td class="num">58.6</td><td class="num dash">—</td><td class="num">42.5</td><td class="num">68.0</td><td class="num dash">—</td><td class="num">52.6</td></tr>
+          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#c77dff"></span>gemma-4-e4b</td><td>local</td><td class="num">69.4</td><td class="num">58.6</td><td class="num dash">—</td><td class="num">42.5</td><td class="num">68.0</td><td class="num">4.5</td><td class="num">52.6</td></tr>
           <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#06d6a0"></span>deepseek-v4-flash</td><td>local</td><td class="num">86.4</td><td class="num">88.1</td><td class="num">79.0</td><td class="num">87.5</td><td class="num">91.6</td><td class="num">56.9</td><td class="num dash">—</td></tr>
           <tr class="tier-frontier"><td class="model-cell"><span class="swatch" style="background:#b86bff"></span>GPT-5</td><td>frontier</td><td class="num">86.0</td><td class="num">89.4</td><td class="num">74.9</td><td class="num">100.0</td><td class="num dash">—</td><td class="num dash">—</td><td class="num">84.2</td></tr>
           <tr class="tier-frontier"><td class="model-cell"><span class="swatch" style="background:#b86bff"></span>Claude Opus 4.5</td><td>frontier</td><td class="num">89.75</td><td class="num">87.0</td><td class="num">80.9</td><td class="num dash">—</td><td class="num dash">—</td><td class="num">59.3</td><td class="num">80.7</td></tr>
@@ -324,7 +343,7 @@
         </tbody>
       </table>
     </div>
-    <p class="scoreboard-hint">AIME years vary (Qwen3.6 / Gemma 4 → '26; GPT-5 / Sonnet 4.6 → '25; Kimi K2.6 → '26) — see the per-bench charts for footnotes. LCB row for <code>gemma-4-26b-a4b</code> is the on-rig @6bit measurement (80 %); other Gemma-4-26b-a4b numbers are published BF16. <code>deepseek-v4-flash</code> values are the base Flash model — the on-disk 2-bit-DQ quant will be lower (see caveats).</p>
+    <p class="scoreboard-hint">AIME years vary (Qwen3.6 / Gemma 4 → '26; GPT-5 / Sonnet 4.6 → '25; Kimi K2.6 → '26) — see the per-bench charts for footnotes. LCB row for <code>gemma-4-26b-a4b</code> is the on-rig @6bit measurement (80 %); other Gemma-4-26b-a4b numbers are published BF16. T-Bench local rows are on-rig n=89 (terminus-2, 2026-05-24 → 2026-05-26): coder-next 32.6, gemma-4-26b-a4b 21.3 (@6bit), gemma-4-e4b 4.5; qwen3.6-35b-a3b 51.5 is vendor-claimed (Phase B pending). <code>deepseek-v4-flash</code> values are the base Flash model — the on-disk 2-bit-DQ quant will be lower (see caveats).</p>
   </section>
 
   <!-- 1. Headline overview: local models on the three most universal benchmarks -->
@@ -342,7 +361,7 @@
   <section class="card"><h2>SWE-bench Verified</h2><p class="sub">Agentic code editing. The single most-cited coder benchmark.</p><div class="chart-wrap ref-md"><canvas id="chartSWE"></canvas></div></section>
 
   <section class="card"><h2>LiveCodeBench v6</h2><p class="sub">Recent competitive-programming problems. Phase 1 Qwen values are <strong>our local n=50 measurements</strong>; they sit ~20pp below the vendor / community-published numbers (coder-next ~80, 27b ~84, 35b-a3b ~80). Gemma 4 26B-A4B @6bit tops the rig at <strong>80 %</strong> (after Step B reruns at 65 k cap, 2026-05-24) — the only local model above the Sonnet 4.6 reference. 27b dense at 62 % is the best Qwen.</p><div class="chart-wrap ref-sm"><canvas id="chartLCB"></canvas></div></section>
-  <section class="card"><h2>Terminal-Bench 2.0</h2><p class="sub">Multi-turn shell agent. Local rows are <strong>measured on-rig</strong> via Harbor + LiteLLM → LM Studio (Docker linux/amd64, terminus-2 agent, concurrency=1, vanilla T-Bench 2.0 task set with <code>--agent-timeout-multiplier 0.5</code> to bound the 14 tasks declaring >60-min agent budgets — scores are a defensible floor; full-budget would land ≤5 pp higher). GPT-5.5 (post-this report) reports 82.7 — original GPT-5 has no published number.</p><div class="chart-wrap ref-sm"><canvas id="chartTBench"></canvas></div></section>
+  <section class="card"><h2>Terminal-Bench 2.0</h2><p class="sub">Multi-turn shell agent. Local rows are <strong>measured on-rig 2026-05-24 → 2026-05-26</strong> via Harbor + LiteLLM → LM Studio (Docker linux/amd64, terminus-2 agent, concurrency=1, n=89 vanilla T-Bench 2.0 task set with <code>--agent-timeout-multiplier 0.5</code> to bound the 14 tasks declaring &gt;60-min agent budgets — scores are a defensible floor; full-budget would land ≤5 pp higher). Headline: <code>qwen3-coder-next</code> <strong>32.6 %</strong> (29/89, 16.8 h wall-clock), <code>gemma-4-26b-a4b@6bit</code> <strong>21.3 %</strong> (19/89, 14.4 h), <code>gemma-4-e4b</code> <strong>4.5 %</strong> (4/89, 6.4 h). <code>qwen3.6-35b-a3b</code> 51.5 is vendor-claimed (Phase B pending). The @4bit Gemma run was still in progress at snapshot time and is omitted. GPT-5.5 (post-this report) reports 82.7 — original GPT-5 has no published number.</p><div class="chart-wrap ref-sm"><canvas id="chartTBench"></canvas></div></section>
 
   <section class="card wide"><h2>MMMU / MMMU-Pro — vision &amp; multimodal</h2><p class="sub">MMMU and MMMU-Pro are different (Pro is harder). Bars are labelled (P) when Pro. Compare within the same metric only.</p><div class="chart-wrap ref-md"><canvas id="chartMMMU"></canvas></div></section>
 
@@ -563,14 +582,19 @@ buildBenchChart('chartLCB', 'LiveCodeBench v6', [
 ]);
 
 // ---------- 2f. Terminal-Bench 2.0 ----------
-// Phase A measured 2026-05-25/26 via Harbor + terminus-2 + LiteLLM → LM Studio
-// (Docker linux/amd64), 89 tasks, concurrency=1, --agent-timeout-multiplier 0.5.
-// Phase B reruns the remaining 5 local models (e4b, gemma-26b-a4b@4bit,
-// 35b-a3b@6bit, gemma-31b, qwen3.6-27b) — vendor / community fallbacks shown
-// where measured value not yet in.
+// Phase A measured 2026-05-24 → 2026-05-26 via Harbor + terminus-2 + LiteLLM →
+// LM Studio (Docker linux/amd64), 89 tasks, concurrency=1,
+// --agent-timeout-multiplier 0.5. Canonical summaries at
+// tools/local-llm-bench-m4-32gb/benchmarks/runs/tbench_*_summary.json and raw
+// run dirs at .bench-logs/tbench-runs/<model>/result.json.
+// Phase B reruns the remaining 4 local models (gemma-26b-a4b@4bit still
+// running as of 2026-05-26, 35b-a3b@6bit, gemma-31b, qwen3.6-27b not yet
+// started) — vendor / community fallbacks shown where measured value not yet
+// in.
 buildBenchChart('chartTBench', 'Terminal-Bench 2.0', [
-  { name: 'qwen3-coder-next',     value: 32.6, tier: 'local',    colorKey: 'qwen3-coder-next',    note: '(measured; vendor 36.2)' },
-  { name: 'gemma-4-26b-a4b',      value: 21.3, tier: 'local',    colorKey: 'gemma-4-26b-a4b',     note: '(@6bit measured)' },
+  { name: 'qwen3-coder-next',     value: 32.6, tier: 'local',    colorKey: 'qwen3-coder-next',    note: '(measured 29/89; vendor 36.2)' },
+  { name: 'gemma-4-26b-a4b',      value: 21.3, tier: 'local',    colorKey: 'gemma-4-26b-a4b',     note: '(@6bit measured 19/89)' },
+  { name: 'gemma-4-e4b',          value: 4.5,  tier: 'local',    colorKey: 'gemma-4-e4b',         note: '(measured 4/89)' },
   { name: 'qwen3.6-35b-a3b',      value: 51.5, tier: 'local',    colorKey: 'qwen3.6-35b-a3b',     note: '(vendor; Phase B pending)' },
   { name: 'deepseek-v4-flash',    value: 56.9, tier: 'local',    colorKey: 'deepseek-v4-flash',   note: '(vendor; out of scope)' },
   { name: 'Claude Opus 4.5',      value: 59.3, tier: 'frontier' },

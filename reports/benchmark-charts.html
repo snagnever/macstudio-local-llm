@@ -47,6 +47,19 @@
     cursor: pointer;
   }
   .toggle input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  .header-actions { display: inline-flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .report-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #1b1f27;
+    transition: background 0.12s ease, border-color 0.12s ease;
+  }
+  .report-link:hover { background: #232833; border-color: #3a414e; }
+  .report-link.current { color: var(--muted); border-style: dashed; cursor: default; pointer-events: none; }
   main {
     max-width: 1600px;
     margin: 0 auto;
@@ -166,10 +179,16 @@
       <h1>Local LLM Benchmarks</h1>
       <p>Apple M4 Max · 128 GB · LM Studio / MLX · runs through 2026-05-22 (Phase 1 complete · Phase 2 in progress: Gemma 4 26B-A4B@4bit/@6bit done, 31B-dense partial)</p>
     </div>
-    <label class="toggle">
-      <input type="checkbox" id="toggleLabels" checked />
-      Show data labels on bars
-    </label>
+    <div class="header-actions">
+      <nav>
+        <a class="report-link current" aria-current="page" href="benchmark-charts.html">On-rig measurements</a>
+        <a class="report-link" href="quality-benchmarks-charts.html">Quality vs frontier →</a>
+      </nav>
+      <label class="toggle">
+        <input type="checkbox" id="toggleLabels" checked />
+        Show data labels on bars
+      </label>
+    </div>
   </div>
 </header>
 
@@ -340,6 +359,7 @@
             <th class="num" data-sort="num">DROP</th>
             <th class="num" data-sort="num">GPQA</th>
             <th class="num" data-sort="num">LCB v6</th>
+            <th class="num" data-sort="num">T-Bench</th>
             <th class="num" data-sort="num">jdhodges</th>
             <th class="num" data-sort="num">veerman</th>
             <th class="num" data-sort="num">Gen t/s</th>
@@ -347,17 +367,17 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td class="model-cell"><span class="swatch" style="background:#5aa9ff"></span>qwen3-coder-next</td><td class="num">89</td><td class="num">76</td><td class="num">84</td><td class="num">83</td><td class="num">37</td><td class="num">56</td><td class="num">90.0</td><td class="num">83.3</td><td class="num">70.2</td><td class="num">67.8</td></tr>
-          <tr><td class="model-cell"><span class="swatch" style="background:#ff8a5a"></span>qwen3.6-27b</td><td class="num">93</td><td class="num">88</td><td class="num">88</td><td class="num">90</td><td class="num">70</td><td class="num">62</td><td class="num">95.0</td><td class="num">83.3</td><td class="num">20.7</td><td class="num">19.9</td></tr>
-          <tr><td class="model-cell"><span class="swatch" style="background:#7ee787"></span>qwen3.6-35b-a3b</td><td class="num">87</td><td class="num">83</td><td class="num">89</td><td class="num">89</td><td class="num">65</td><td class="num">54</td><td class="num">97.5</td><td class="num">75.0</td><td class="num">91.6</td><td class="num">86.9</td></tr>
-          <tr><td class="model-cell"><span class="swatch" style="background:#ffd166"></span>gemma-4-26b-a4b @4bit</td><td class="num">98</td><td class="num">78</td><td class="num">80</td><td class="num">79</td><td class="num">47</td><td class="num">66</td><td class="num">97.5</td><td class="num">83.3</td><td class="num">106.0</td><td class="num">99.9</td></tr>
-          <tr><td class="model-cell"><span class="swatch" style="background:#f59e0b"></span>gemma-4-26b-a4b @6bit</td><td class="num">97</td><td class="num">78</td><td class="num">83</td><td class="num">79</td><td class="num">53</td><td class="num">80</td><td class="num">97.5</td><td class="num">83.3</td><td class="num">85.3</td><td class="num">80.5</td></tr>
-          <tr><td class="model-cell"><span class="swatch" style="background:#fb7185"></span>gemma-4-31b dense</td><td class="num">95</td><td class="num">77</td><td class="num">79</td><td class="num">85</td><td class="num">48</td><td class="num">76</td><td class="num">97.5</td><td class="num">83.3</td><td class="num">13.9</td><td class="num">13.6</td></tr>
-          <tr><td class="model-cell"><span class="swatch" style="background:#c084fc"></span>gemma-4-e4b</td><td class="num">91</td><td class="num">65</td><td class="num">14</td><td class="num">65</td><td class="num">34</td><td class="num">68</td><td class="num">87.5</td><td class="num">66.7</td><td class="num">73.7</td><td class="num">69.5</td></tr>
+          <tr><td class="model-cell"><span class="swatch" style="background:#5aa9ff"></span>qwen3-coder-next</td><td class="num">89</td><td class="num">76</td><td class="num">84</td><td class="num">83</td><td class="num">37</td><td class="num">56</td><td class="num">32.6</td><td class="num">90.0</td><td class="num">83.3</td><td class="num">70.2</td><td class="num">67.8</td></tr>
+          <tr><td class="model-cell"><span class="swatch" style="background:#ff8a5a"></span>qwen3.6-27b</td><td class="num">93</td><td class="num">88</td><td class="num">88</td><td class="num">90</td><td class="num">70</td><td class="num">62</td><td class="num dash">—</td><td class="num">95.0</td><td class="num">83.3</td><td class="num">20.7</td><td class="num">19.9</td></tr>
+          <tr><td class="model-cell"><span class="swatch" style="background:#7ee787"></span>qwen3.6-35b-a3b</td><td class="num">87</td><td class="num">83</td><td class="num">89</td><td class="num">89</td><td class="num">65</td><td class="num">54</td><td class="num dash">—</td><td class="num">97.5</td><td class="num">75.0</td><td class="num">91.6</td><td class="num">86.9</td></tr>
+          <tr><td class="model-cell"><span class="swatch" style="background:#ffd166"></span>gemma-4-26b-a4b @4bit</td><td class="num">98</td><td class="num">78</td><td class="num">80</td><td class="num">79</td><td class="num">47</td><td class="num">66</td><td class="num dash">—</td><td class="num">97.5</td><td class="num">83.3</td><td class="num">106.0</td><td class="num">99.9</td></tr>
+          <tr><td class="model-cell"><span class="swatch" style="background:#f59e0b"></span>gemma-4-26b-a4b @6bit</td><td class="num">97</td><td class="num">78</td><td class="num">83</td><td class="num">79</td><td class="num">53</td><td class="num">80</td><td class="num">21.3</td><td class="num">97.5</td><td class="num">83.3</td><td class="num">85.3</td><td class="num">80.5</td></tr>
+          <tr><td class="model-cell"><span class="swatch" style="background:#fb7185"></span>gemma-4-31b dense</td><td class="num">95</td><td class="num">77</td><td class="num">79</td><td class="num">85</td><td class="num">48</td><td class="num">76</td><td class="num dash">—</td><td class="num">97.5</td><td class="num">83.3</td><td class="num">13.9</td><td class="num">13.6</td></tr>
+          <tr><td class="model-cell"><span class="swatch" style="background:#c084fc"></span>gemma-4-e4b</td><td class="num">91</td><td class="num">65</td><td class="num">14</td><td class="num">65</td><td class="num">34</td><td class="num">68</td><td class="num">4.5</td><td class="num">87.5</td><td class="num">66.7</td><td class="num">73.7</td><td class="num">69.5</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="scoreboard-hint">Defaults: rows are in the same order as the Models table above. Click headers to re-rank. Accuracy = pass-rate %, tool-calling = score %, throughput = tok/s on the creative-writing scenario.</p>
+    <p class="scoreboard-hint">Defaults: rows are in the same order as the Models table above. Click headers to re-rank. Accuracy = pass-rate %, tool-calling = score %, throughput = tok/s on the creative-writing scenario. T-Bench is on-rig Terminal-Bench 2.0 n=89 (terminus-2, <code>--agent-timeout-multiplier 0.5</code>, 2026-05-24 → 2026-05-26): only coder-next, gemma-4-26b-a4b@6bit and gemma-4-e4b complete so far; the rest are dashes pending Phase B.</p>
   </section>
 
   <!-- 1. Accuracy by benchmark -->
@@ -371,6 +391,13 @@
     <h2>LiveCodeBench v6 — local (n=50)</h2>
     <p class="sub">All 7 daily-driver candidates fully characterized after Phase 1 backfill + Step B reruns (2026-05-24). <strong>Gemma 4 26B-A4B @6bit at 80 % is the rig's LCB ceiling</strong>, +18 pp over the best Qwen (27b at 62 %). Numbers are post-rerun MERGED canonical: <code>qwen/qwen3-coder-next</code> 56 % clean (0 trunc), <code>qwen3.6-27b</code> 62 % (1 trunc, Q3 abc365_c — hardest across the trio), <code>qwen3.6-35b-a3b@6bit</code> 54 % (6 trunc, all 65 k spirals), <code>gemma-4-26b-a4b@4bit</code> 66 % (8 trunc — Q2 recovered at 65 k, rest are real model limits), <code>gemma-4-26b-a4b@6bit</code> 80 % (1 trunc — Q19 still spirals at 65 k).</p>
     <div class="chart-wrap"><canvas id="chartLCB"></canvas></div>
+  </section>
+
+  <!-- 1c. Terminal-Bench (on-rig Phase A) -->
+  <section class="card wide">
+    <h2>Terminal-Bench 2.0 — local (n=89, Phase A)</h2>
+    <p class="sub">Multi-turn shell-agent benchmark, measured on-rig 2026-05-24 → 2026-05-26 via Harbor + LiteLLM → LM Studio (Docker linux/amd64), terminus-2 agent, concurrency=1, vanilla T-Bench 2.0 task set with <code>--agent-timeout-multiplier 0.5</code> (bounds the 14 tasks declaring &gt;60-min agent budgets — scores are a defensible floor; full-budget would land ≤5 pp higher). <strong>Phase A complete for 3 / 7 candidates:</strong> <code>qwen/qwen3-coder-next</code> <strong>32.6 %</strong> (29/89, 16.8 h wall-clock), <code>gemma-4-26b-a4b@6bit</code> <strong>21.3 %</strong> (19/89, 14.4 h), <code>gemma-4-e4b</code> <strong>4.5 %</strong> (4/89, 6.4 h). <code>gemma-4-26b-a4b@4bit</code> still running at snapshot time (2/89 completed, both errored — bar omitted). Phase B (qwen3.6-27b, qwen3.6-35b-a3b, gemma-4-31b-dense) pending. Canonical summaries: <code>tools/local-llm-bench-m4-32gb/benchmarks/runs/tbench_*_summary.json</code>; raw run dirs at <code>.bench-logs/tbench-runs/&lt;model&gt;/result.json</code>.</p>
+    <div class="chart-wrap"><canvas id="chartTBench"></canvas></div>
   </section>
 
   <!-- 1b. Frontier comparison -->
@@ -537,6 +564,27 @@ registerChart(new Chart(document.getElementById('chartLCB'), {
       { label: 'gemma-4-26b-a4b (MoE 6-bit)',       backgroundColor: COLOR.g26_6, data: [80] },
       { label: 'gemma-4-31b (dense 8-bit)',         backgroundColor: COLOR.g31,   data: [76] },
       { label: 'gemma-4-e4b (4B 8-bit)',            backgroundColor: COLOR.ge4b,  data: [68] }
+    ]
+  },
+  options: gridOpts('Pass rate (%)', 100)
+}));
+
+// --- 1c. Terminal-Bench 2.0 — local Phase A (n=89) ---
+// Source: tools/local-llm-bench-m4-32gb/benchmarks/runs/tbench_*_summary.json
+// + .bench-logs/tbench-runs/<model>/result.json. Models without a bar were
+// not yet run on-rig at snapshot time (2026-05-26).
+registerChart(new Chart(document.getElementById('chartTBench'), {
+  type: 'bar',
+  data: {
+    labels: ['Terminal-Bench 2.0 (n=89)'],
+    datasets: [
+      { label: 'qwen3-coder-next (80B 6-bit) — 29/89',           backgroundColor: COLOR.coder, data: [32.6] },
+      { label: 'gemma-4-26b-a4b (MoE 6-bit) — 19/89',            backgroundColor: COLOR.g26_6, data: [21.3] },
+      { label: 'gemma-4-e4b (4B 8-bit) — 4/89',                  backgroundColor: COLOR.ge4b,  data: [4.5]  },
+      { label: 'qwen3.6-27b (dense 6-bit) — Phase B pending',    backgroundColor: COLOR.d27b,  data: [null] },
+      { label: 'qwen3.6-35b-a3b (MoE 6-bit) — Phase B pending',  backgroundColor: COLOR.a3b35, data: [null] },
+      { label: 'gemma-4-26b-a4b (MoE 4-bit) — in progress',      backgroundColor: COLOR.g26_4, data: [null] },
+      { label: 'gemma-4-31b (dense 8-bit) — Phase B pending',    backgroundColor: COLOR.g31,   data: [null] }
     ]
   },
   options: gridOpts('Pass rate (%)', 100)

@@ -67,6 +67,42 @@ done | column -t
 
 If a run is in progress (no `_summary.json` yet), tail the matching `console_*.log` and read the running score from the last line (format: `... score: NN%`).
 
+### 1b. Terminal-Bench 2.0 (on-rig Phase A)
+
+**Source dirs:**
+- Canonical headline summaries: `tools/local-llm-bench-m4-32gb/benchmarks/runs/tbench_<model>_<timestamp>_summary.json` (same schema as the other accuracy benches — `score`, `score_pct`, `correct`, `total`, `elapsed_min`).
+- Raw run dirs (per-task transcripts, logs, lockfiles): `.bench-logs/tbench-runs/<run-name>/` with a `result.json` at the root.
+- Driver scripts that launched each run: `.bench-logs/run-tbench-<run-name>.sh` — use these as templates when adding new models.
+
+**Harness:** Harbor + LiteLLM proxy → LM Studio, terminus-2 agent in Docker (linux/amd64), `--concurrency 1`, `--agent-timeout-multiplier 0.5` (caps the 14 long-budget tasks; full-budget would land ≤5 pp higher). N=89 vanilla T-Bench 2.0 task set.
+
+**Pass-rate extraction (from `result.json`):**
+
+```bash
+python3 -c "import json,sys; d=json.load(open(sys.argv[1])); ev=next(iter(d['stats']['evals'].values())); print(f\"{ev['metrics'][0]['mean']*100:.1f}% ({len(ev['reward_stats']['reward'].get('1.0',[]))}/{ev['n_trials']})\")" .bench-logs/tbench-runs/<run-name>/result.json
+```
+
+…or just read the `_summary.json` if it exists (the runner writes one once the run finishes).
+
+**Phase A snapshot as of 2026-05-26** (live in `benchmark-charts.html` chartTBench + scoreboard, and `quality-benchmarks-charts.html` chartTBench + scoreboardQuality):
+
+| Run dir | Model | Score | Wall-clock |
+|---|---|---|---|
+| `coder-next` | qwen/qwen3-coder-next | 32.6 % (29/89) | 1009 min ≈ 16.8 h |
+| `gemma-26b-a4b-6bit` | gemma-4-26b-a4b-it-mlx@6bit | 21.3 % (19/89) | 864 min ≈ 14.4 h |
+| `gemma-e4b` | gemma-4-e4b-it-mlx | 4.5 % (4/89) | 383 min ≈ 6.4 h |
+| `gemma-26b-a4b-4bit` | gemma-4-26b-a4b-it-mlx@4bit | **in progress** (2/89, both errored at snapshot) | — |
+
+**Phase B pending** (driver scripts exist but no result dirs yet): `run-tbench-qwen-27b.sh`, `run-tbench-qwen-35b-a3b-6bit.sh`, `run-tbench-gemma-31b.sh`. Each takes 6–17 h on this rig — schedule overnight.
+
+**To refresh after a new run completes:**
+
+1. Confirm the summary JSON exists at `tools/local-llm-bench-m4-32gb/benchmarks/runs/tbench_<model>_<timestamp>_summary.json`. If only the raw `result.json` is available, the score is `stats.evals.<key>.metrics[0].mean`.
+2. Update the scoreboard cells (`#scoreboardMain` row's T-Bench cell in `benchmark-charts.html`; `#scoreboardQuality` row's T-Bench cell in `quality-benchmarks-charts.html`) — drop the `dash` class and set the value.
+3. Update the chartTBench `data: [null]` to `data: [<value>]` in `benchmark-charts.html`, and rewrite the dataset label suffix to match (e.g. `— 35/89`).
+4. Add a row to `buildBenchChart('chartTBench', …)` in `quality-benchmarks-charts.html` if it's a model not already listed, or update the `value:` if it is.
+5. Refresh the subtitle of both T-Bench cards and the scoreboard hints with the new headline numbers.
+
 ### 2. Speed probe (3-prompt cold latency, system metrics)
 
 **Source dir:** `local-llm-bench-m4-32gb/results/speed_probe/`
