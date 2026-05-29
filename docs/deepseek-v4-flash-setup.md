@@ -80,6 +80,19 @@ uv pip install "mlx>=0.31.2" "huggingface_hub" "sentencepiece" "protobuf"
 
 If `mlx-lm` PR #1192's `setup.py` doesn't pull in everything, the import error in the smoke test (step 5) will tell us what's missing.
 
+### 3a. Apply local vendor patch
+
+We carry one one-line patch to `mlx-lm` for a real bug filed upstream as [ml-explore/mlx-lm#1326](https://github.com/ml-explore/mlx-lm/issues/1326): without it, `mlx_lm.server` returns `HTTP 404 {"error": "list index out of range"}` for any chat message whose templated prompt is shorter than 11 tokens (e.g. "hi", "hello"). The patch clamps a negative `start` in `TokenizerWrapper._find`.
+
+Apply it against the installed package:
+
+```bash
+(cd "$VIRTUAL_ENV/lib/python3.12/site-packages" \
+   && patch -p0 < /Users/vitor/LocalProjects/local-llms/patches/mlx-lm-find-negative-start.patch)
+```
+
+When upstream releases the fix: delete [`patches/mlx-lm-find-negative-start.patch`](../patches/mlx-lm-find-negative-start.patch) and remove this step.
+
 ### 4. Patch fallbacks (only if step 5 fails)
 
 Two known footguns from the HF discussion thread:

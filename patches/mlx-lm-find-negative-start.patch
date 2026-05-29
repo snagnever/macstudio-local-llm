@@ -1,0 +1,35 @@
+# Vendor patch carried by this project until upstream lands the fix.
+#
+# Issue:    https://github.com/ml-explore/mlx-lm/issues/1326
+# Source:   https://github.com/snagnever/mlx-lm/tree/fix-find-negative-start
+#
+# Bug:      mlx_lm.server returns HTTP 404 {"error": "list index out of range"}
+#           for any chat message whose templated prompt is shorter than 11
+#           tokens (e.g. "hi", "hello", "ola").
+#
+# Cause:    server.py:609 calls `rfind_think_start(prompt, start=len(prompt)-11)`,
+#           which is negative for short prompts. tokenizer_utils.py:361 did
+#           `start = start or 0`, so a negative `start` passed through, then
+#           Python's negative indexing wrapped around the token list and
+#           eventually over-indexed, raising IndexError.
+#
+# Fix:      Clamp `start` to >= 0 inside `_find` (the canonical bounds check).
+#
+# Apply:    From the activated venv, run
+#               (cd "$VIRTUAL_ENV/lib/python3.12/site-packages" \
+#                  && patch -p0 < /path/to/patches/mlx-lm-find-negative-start.patch)
+#
+# Retire:   Delete this file and remove the `git apply` step from
+#           docs/deepseek-v4-flash-setup.md once upstream releases the fix.
+
+--- mlx_lm/tokenizer_utils.py
++++ mlx_lm/tokenizer_utils.py
+@@ -358,7 +358,7 @@
+         self._eos_token_ids.add(token_id)
+
+     def _find(self, tokens, sequence, start=None, end=None, reverse=False):
+-        start = start or 0
++        start = max(0, start or 0)
+         end = end or len(tokens)
+         outer_loop = (
+             range(end - len(sequence), start - 1, -1)
