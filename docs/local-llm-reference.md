@@ -27,6 +27,30 @@
 
 ---
 
+## Recommended Stack — Planning / Code / Agent
+
+Post-Phase-2 + Terminal-Bench backfill (2026-05-29), each role has a different on-rig winner. No single model leads all three, so the stack is JIT-swapped via LM Studio.
+
+| Role | Model | Why it wins (on-rig numbers) |
+|---|---|---|
+| **Planning** — design, hard reasoning, code review, careful single-file edits | `qwen3.6-27b` (6-bit dense, 22.80 GB) | Knowledge avg **85.8 %** (top of rig). MMLU 88, MATH 88, GPQA 70 (raw, ceiling ~78–85), DROP 90, LCB **62 %** (+6 pp over coder-next on contamination-resistant coding). Slow (~20 t/s gen, 67 s prefill @ 8.5k) but you wait once for a plan. |
+| **Code** — single-shot algorithm problems, isolated edits, code generation peak | `gemma-4-26b-a4b-it-mlx@6bit` (21.81 GB) | **Rig LCB ceiling at 80 %** (+18 pp over best Qwen). HumanEval 97, MATH 83, jdhodges 97.5, Veerman 83.3. **80.8 gen t/s** — quality *and* speed. Use `@4bit` (15.64 GB, **100 gen t/s**) when throughput matters more than the last 14 pp of LCB. |
+| **Agent** — OpenCode / Cline / Claude Code loops, shell, multi-step tool calls | `qwen/qwen3-coder-next` (6-bit MoE, 64.76 GB) | T-Bench 2.0 **32.6 %** — #1 on rig. Trained for Claude Code / Cline scaffolds. 256K native context (1M with YaRN), ~68 t/s effective thanks to 3B active. `qwen3.6-27b` is +0.9 pp behind on T-Bench but 6× slower decode → coder-next wins speed-adjusted. Gemma's LCB lead **does not transfer** to agentic shell (best Gemma 22.5 %, ~10 pp behind). |
+
+### Loading patterns
+
+Three roles cannot all be resident. `coder-next@6bit` (65 GB) + `qwen3.6-27b` (23 GB) = 88 GB, which has historically caused queue stalls — see [Loading Strategy](#loading-strategy) and [Troubleshooting](#troubleshooting).
+
+| Pattern | Models resident | Total | When to pick it |
+|---|---|---|---|
+| **JIT swap (default)** | One at a time | — | Cleanest. ~5–15 s cold-load when switching roles. Matches "use the right tool for the job". |
+| **Two-resident pair** | `coder-next@4bit` (~44 GB) + `qwen3.6-27b` (22.8 GB) | ~67 GB | Bouncing between planning and agent inside one session. Loses ~3–4 pp of coder-next quality at 4-bit; folds the code slot into agent (only −6 pp LCB vs Gemma peak). |
+| **Code-heavy resident** | `gemma-4-26b-a4b@6bit` (21.8 GB) + `qwen3.6-27b` (22.8 GB) | ~44.6 GB | Pure code + planning day, no agent loops. Two always-hot models, both Phase-2 winners. |
+
+Default to JIT swap unless cold-loads start adding up in a session.
+
+---
+
 ## The Model Lineup
 
 Verified against `lms ls` / `GET /v1/models` on 2026-05-18. All MLX models below advertise `vision: true` and `trainedForToolUse: true` in their metadata (per the LM Studio model API), except where noted.
@@ -331,13 +355,14 @@ Headline numbers from [`benchmarking/local-llm-bench/results/`](benchmarking/loc
 | Model | Gen tok/s | Effective tok/s (ops-agent) | Prefill at 8.5k ctx | Status |
 |---|---|---|---|---|
 | `qwen/qwen3-coder-next` (6-bit MoE, 80B/3B) | 68–70 | **55.8** | 13.6 s (eff drops to 9.0 t/s) | ✓ Verified |
-| `qwen3.6-35b-a3b@6bit` (MoE, 35B/3B) | 85–92 | **71.4** | 10.8 s (eff drops to 9.0 t/s) | ✓ Verified — fastest in lineup |
+| `qwen3.6-35b-a3b@6bit` (MoE, 35B/3B) | 85–92 | **71.4** | 10.8 s (eff drops to 9.0 t/s) | ✓ Verified |
 | `qwen3.6-27b` (6-bit dense) | 20 | **16.2** | 67 s (eff collapses to 1.9 t/s) | ✓ Verified — prefill is the killer |
-| `qwen3.6-35b-a3b@8bit` | TBD | TBD | TBD | Pending — Phase 2 #9 |
-| `gemma-4-26b-a4b-it-mlx@4bit` | TBD | TBD | TBD | Pending — Phase 2 #4 |
-| `gemma-4-26b-a4b-it-mlx@6bit` | TBD | TBD | TBD | Pending — Phase 2 #5 |
-| `gemma-4-31b-it-mlx` (8-bit dense) | TBD | TBD | TBD | Pending — Phase 2 #6 |
-| `gemma-4-e4b-it-mlx` (8-bit, 4B) | TBD — expect fastest | TBD | TBD | Pending — Phase 2 #7 |
+| `gemma-4-26b-a4b-it-mlx@4bit` (26B/4B MoE) | 100–106 | **80.7** | — (eff drops to 17.9 t/s) | ✓ Verified — fastest in lineup |
+| `gemma-4-26b-a4b-it-mlx@6bit` | 80–85 | **66.6** | — (eff drops to 20.5 t/s) | ✓ Verified — code quality + speed |
+| `gemma-4-31b-it-mlx` (8-bit dense) | 13.7 | **10.3** | — (eff drops to 3.3 t/s) | ✓ Verified — dense tax, demote |
+| `gemma-4-e4b-it-mlx` (8-bit, 4B) | 70–75 | **62.9** | — (eff drops to 29.1 t/s) | ✓ Verified — not the throughput king MoE-A4B already is |
+| `qwen3.6-35b-a3b@8bit` | TBD | TBD | TBD | Pending — Phase 2 #9 (quant A/B) |
+| `qwen/qwen3-coder-next@4bit` | TBD | TBD | TBD | Pending — Phase 2 #8 (quant A/B) |
 | `deepseek-v4-flash-dq` (2-bit DQ) | TBD | TBD | TBD | Pending — Phase 3 #10 |
 
 Numbers depend on context size, prompt length, and concurrent activity. Use as a sanity check, not a substitute for re-benching.

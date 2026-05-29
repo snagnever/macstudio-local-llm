@@ -59,10 +59,8 @@ abliterated re-quants (`qwen3.6-27b-paro`, `qwen3.6-27b-ud-mlx`,
 **out of scope** here — different workload class.
 
 Keep [`docs/local-llm-reference.md`](local-llm-reference.md) in sync with
-this table. Known stale entries there: `qwen/qwen3-coder-next` should be
-6-bit / 64.76 GB (not 4-bit); `gemma-4-e4b` is MLX 8-bit (not GGUF Q4_K_M);
-the "vision: to add" line is wrong — all MLX models above advertise
-vision + tools per their metadata.
+this table. The reference doc was reconciled with this inventory on
+2026-05-29; flag any new drift here when it appears.
 
 ## Phases — model prioritization
 
@@ -102,7 +100,7 @@ From [`docs/local-llm-reference.md`](local-llm-reference.md):
 - `mlx-community/Kimi-K2.6-Thinking-*` distilled — watch for a fitting distillation size.
 - `0xSero/Gemma-4-21B-REAP` (GGUF) — optional reproducibility check now that the un-pruned 26B-A4B is local.
 
-## Current status (2026-05-22, Phase 1 + Phase 2 complete)
+## Current status (2026-05-29, Phase 1 + Phase 2 + Steps B/C/G complete)
 
 Full write-up: [`tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md).
 Phase 2 plan: [`docs/benchmark-plans/2026-05-20-gemma-4-phase-2.md`](benchmark-plans/2026-05-20-gemma-4-phase-2.md).
@@ -126,8 +124,8 @@ Raw data: [`tools/local-llm-bench-m4-32gb/benchmarks/runs/`](../tools/local-llm-
 outlier tasks declaring >60-min agent budgets; published scores are a
 defensible floor (full-budget would lift ≤5 pp). Plan:
 [`docs/benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md`](benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md).
-Remaining 5 local models are queued in Phase B (this section refreshes as
-each lands).
+All 7 local rows landed 2026-05-29 (Step G done) — see the chartTBench
+panel in [`reports/quality-benchmarks-charts.html`](../reports/quality-benchmarks-charts.html).
 
 ⚠ = truncation observed at the harness cap. For GPQA on thinking Qwen models
 the cap was 32 768; raw scores under-count true ability (27b ceiling ≈ 78–85 %,

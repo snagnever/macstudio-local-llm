@@ -84,16 +84,19 @@ python3 -c "import json,sys; d=json.load(open(sys.argv[1])); ev=next(iter(d['sta
 
 …or just read the `_summary.json` if it exists (the runner writes one once the run finishes).
 
-**Phase A snapshot as of 2026-05-26** (live in `benchmark-charts.html` chartTBench + scoreboard, and `quality-benchmarks-charts.html` chartTBench + scoreboardQuality):
+**Final standings as of 2026-05-29** — Phase A + B both complete, all 7 local models measured (live in `benchmark-charts.html` chartTBench + scoreboard, and `quality-benchmarks-charts.html` chartTBench + scoreboardQuality):
 
-| Run dir | Model | Score | Wall-clock |
-|---|---|---|---|
-| `coder-next` | qwen/qwen3-coder-next | 32.6 % (29/89) | 1009 min ≈ 16.8 h |
-| `gemma-26b-a4b-6bit` | gemma-4-26b-a4b-it-mlx@6bit | 21.3 % (19/89) | 864 min ≈ 14.4 h |
-| `gemma-e4b` | gemma-4-e4b-it-mlx | 4.5 % (4/89) | 383 min ≈ 6.4 h |
-| `gemma-26b-a4b-4bit` | gemma-4-26b-a4b-it-mlx@4bit | **in progress** (2/89, both errored at snapshot) | — |
+| Run dir | Model | Score |
+|---|---|---|
+| `coder-next` | qwen/qwen3-coder-next | **32.6 %** (29/89) |
+| `qwen-27b` | qwen3.6-27b | **31.5 %** (28/89) |
+| `qwen-35b-a3b-6bit` | qwen3.6-35b-a3b@6bit | **28.1 %** (25/89) |
+| `gemma-31b` | gemma-4-31b-it-mlx | **22.5 %** (20/89) |
+| `gemma-26b-a4b-6bit` | gemma-4-26b-a4b-it-mlx@6bit | **21.3 %** (19/89) |
+| `gemma-26b-a4b-4bit` | gemma-4-26b-a4b-it-mlx@4bit | **20.2 %** (18/89) |
+| `gemma-e4b` | gemma-4-e4b-it-mlx | **4.5 %** (4/89) |
 
-**Phase B pending** (driver scripts exist but no result dirs yet): `run-tbench-qwen-27b.sh`, `run-tbench-qwen-35b-a3b-6bit.sh`, `run-tbench-gemma-31b.sh`. Each takes 6–17 h on this rig — schedule overnight.
+Full write-up: [`tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md). For wall-clock per run, see the matching `tbench_<model>_<timestamp>_summary.json`.
 
 **To refresh after a new run completes:**
 
