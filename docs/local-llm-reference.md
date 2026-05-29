@@ -21,7 +21,7 @@
 | Inline tab-completion (FIM) | *Qwen 2.5 Coder 7B — to add*; interim: `gemma-4-e4b-it-mlx` |
 | Vision / OCR / screenshots | Built-in on all current MLX models; reach for `gemma-4-26b-a4b-it-mlx@6bit` first |
 
-**Default for OpenCode:** `qwen/qwen3-coder-next` (unchanged after Phase 2 — no Gemma beat it on the combined coding + tool-calling + knowledge profile).
+**Default for OpenCode:** `qwen/qwen3-coder-next` (unchanged after Phase 2 — no Gemma beat it on the combined coding + tool-calling + knowledge profile). **Now confirmed on Terminal-Bench 2.0 (2026-05-29):** coder-next leads the rig at **32.6 %** (vendor 36.2 %); `qwen3.6-27b` dense is +1.1 pp behind at **31.5 %** but 6× slower decode → coder-next wins on the speed-adjusted agentic-loop trade-off. `qwen3.6-35b-a3b@6bit` lands #3 at **28.1 %**. Best Gemma (`gemma-4-31b` dense) is at **22.5 %**, a full ~10 pp behind — the Gemma LCB top-rank does *not* transfer to agentic shell. All seven local rows are on [`reports/quality-benchmarks-charts.html`](../reports/quality-benchmarks-charts.html#chartTBench).
 
 > **Model ID note:** the IDs above are exactly what `GET /v1/models` returns from the LM Studio server. Use these strings verbatim in client configs — the older `mlx-community/...` paths will 404.
 
@@ -65,7 +65,7 @@ Verified against `lms ls` / `GET /v1/models` on 2026-05-18. All MLX models below
 | Pros | Cons |
 |---|---|
 | Highest raw reasoning quality on the rig | Dense → slower (~20 tok/s), all 27B params active every token |
-| SWE-bench Verified 77.2, Terminal-Bench 2.0 59.3 (Opus 4.5 parity) | Not optimized for long agentic loops |
+| SWE-bench Verified 77.2; T-Bench 2.0 vendor 59.3 (Opus 4.5 parity), but **on this rig 31.5 %** ⌛0.5x cap (2026-05-29 measured) — frontier vendors run more elaborate agent harnesses than terminus-2 | Not optimized for long agentic loops |
 | 6-bit preserves syntax precision | Larger first-token latency |
 | Vision + tool use capable | |
 

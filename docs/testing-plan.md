@@ -114,11 +114,11 @@ Raw data: [`tools/local-llm-bench-m4-32gb/benchmarks/runs/`](../tools/local-llm-
 | Phase | Model | HumanEval | LCB v6 | MMLU | MATH | DROP | GPQA (raw) | jdhodges (40) | veerman (12) | T-Bench 2.0 |
 |---|---|---|---|---|---|---|---|---|---|---|
 | 1 #1 | `qwen/qwen3-coder-next` (6-bit) | **89 %** | **56 %** (clean) | **76 %** | **84 %** | **83 %** | **37 %** | **90 %** (18.6 t/s) | **83.3 %** (35.4 t/s) | **32.6 %** ⌛0.5x cap |
-| 1 #2 | `qwen3.6-27b` (6-bit dense) | **93 %** | **62 %** † 1 trunc | **88 %** | **88 %** | **90 %** | **70 %** ⚠ 15 trunc | **95 %** (14.5 t/s) | **83.3 %** (18.4 t/s) | — |
-| 1 #3 | `qwen3.6-35b-a3b@6bit` | **87 %** | 54 % ⚠ 6 trunc | **83 %** ⚠ 2 trunc | **89 %** ⚠ 2 trunc | **89 %** | **65 %** ⚠ 23 trunc | **97.5 %** (72.4 t/s) | **75.0 %** (85.8 t/s) | ~22 % ⌛ in flight (20/89) |
+| 1 #2 | `qwen3.6-27b` (6-bit dense) | **93 %** | **62 %** † 1 trunc | **88 %** | **88 %** | **90 %** | **70 %** ⚠ 15 trunc | **95 %** (14.5 t/s) | **83.3 %** (18.4 t/s) | **31.5 %** ⌛0.5x cap |
+| 1 #3 | `qwen3.6-35b-a3b@6bit` | **87 %** | 54 % ⚠ 6 trunc | **83 %** ⚠ 2 trunc | **89 %** ⚠ 2 trunc | **89 %** | **65 %** ⚠ 23 trunc | **97.5 %** (72.4 t/s) | **75.0 %** (85.8 t/s) | **28.1 %** ⌛0.5x cap |
 | 2 #4 | `gemma-4-26b-a4b@4bit` | **98 %** | 66 % † 8 trunc | 78 % | 80 % ⚠ 1 trunc | 79 % | **47 %** † 1 trunc | **97.5 %** (73.4 t/s) | **83.3 %** (82.1 t/s) | **20.2 %** ⌛0.5x cap |
 | 2 #5 | `gemma-4-26b-a4b@6bit` | **97 %** | **80 %** † 1 trunc | 78 % | **83 %** | 79 % | **53 %** † 2 trunc | **97.5 %** (57.8 t/s) | **83.3 %** (66.6 t/s) | **21.3 %** ⌛0.5x cap |
-| 2 #6 | `gemma-4-31b-it-mlx` (8-bit dense) | 95 % | 76 % | 77 % | 79 % | **85 %** | 48 % | **97.5 %** (11.4 t/s) | **83.3 %** (12.3 t/s) | — |
+| 2 #6 | `gemma-4-31b-it-mlx` (8-bit dense) | 95 % | 76 % | 77 % | 79 % | **85 %** | 48 % | **97.5 %** (11.4 t/s) | **83.3 %** (12.3 t/s) | **22.5 %** ⌛0.5x cap |
 | 2 #7 | `gemma-4-e4b-it-mlx` (4B/8-bit) | 91 % | 68 % | 65 % | 14 % ⚠ | 65 % | 34 % | **87.5 %** (42.5 t/s) | **66.7 %** (60.3 t/s) | **4.5 %** ⌛0.5x cap |
 | 2 #8, 2 #9, 3 #10 | (not yet run) | — | — | — | — | — | — | — | — | — |
 
@@ -312,15 +312,17 @@ Same brief as before: only worth doing if a Phase 2 model demonstrated a quality
 - Engine A/B (LM Studio MLX vs llama.cpp GGUF): still needs a GGUF pulled first. The post-Phase-2 candidate is Gemma 4 26B-A4B since the MLX numbers are now in.
 - Phase 4 watchlist: nothing to do until something lands.
 
-### Step G — Terminal-Bench 2.0 backfill (in flight, 2026-05-24 →)
+### Step G — Terminal-Bench 2.0 backfill ✅ **DONE 2026-05-29**
 
 Plan: [`docs/benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md`](benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md).
-First on-rig measurements of the agentic shell bench — the missing column in
-the cross-frontier dashboard. **Phase A done** (coder-next 32.6 % vs vendor
-36.2 %; gemma-4-26b-a4b@6bit 21.3 %). **Phase B in progress**: 5 remaining
-local models in cheap-fail-first order (e4b → @4bit → 35b-a3b@6bit (F1
-thinking-format guard) → 31b dense → 27b dense). Strike this step when all
-7 local rows populated.
+All 7 local models measured on-rig — chartTBench in
+[`reports/quality-benchmarks-charts.html`](../reports/quality-benchmarks-charts.html)
+now shows 7 measured rows. Final standings:
+`qwen3-coder-next` **32.6 %** (vendor 36.2) > `qwen3.6-27b` dense **31.5 %** >
+`qwen3.6-35b-a3b@6bit` **28.1 %** > `gemma-4-31b` dense **22.5 %** >
+`gemma-4-26b-a4b@6bit` **21.3 %** > `@4bit` **20.2 %** > `gemma-4-e4b` **4.5 %**.
+Full Phase A + B write-up in
+[`tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md).
 
 ## Per-model run order
 
