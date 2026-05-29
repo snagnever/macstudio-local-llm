@@ -80,18 +80,23 @@ uv pip install "mlx>=0.31.2" "huggingface_hub" "sentencepiece" "protobuf"
 
 If `mlx-lm` PR #1192's `setup.py` doesn't pull in everything, the import error in the smoke test (step 5) will tell us what's missing.
 
-### 3a. Apply local vendor patch
+### 3a. Apply local vendor patches
 
-We carry one one-line patch to `mlx-lm` for a real bug filed upstream as [ml-explore/mlx-lm#1326](https://github.com/ml-explore/mlx-lm/issues/1326): without it, `mlx_lm.server` returns `HTTP 404 {"error": "list index out of range"}` for any chat message whose templated prompt is shorter than 11 tokens (e.g. "hi", "hello"). The patch clamps a negative `start` in `TokenizerWrapper._find`.
+Two patches are carried by this project today:
 
-Apply it against the installed package:
+1. **`patches/mlx-lm-find-negative-start.patch`** — one-line fix for [ml-explore/mlx-lm#1326](https://github.com/ml-explore/mlx-lm/issues/1326): without it, `mlx_lm.server` returns `HTTP 404 {"error": "list index out of range"}` for any chat message whose templated prompt is shorter than 11 tokens (e.g. "hi", "hello"). The patch clamps a negative `start` in `TokenizerWrapper._find`. **Required** — apply unconditionally.
+
+2. **`patches/mlx-lm-deepseek-v4-indexer-chunk.patch`** — chunks the DeepSeek V4 MLA indexer over `n_heads` with `mx.eval` + `mx.clear_cache` between chunks. Addresses Apple Silicon Metal's per-command-buffer `resource_limit: 499000` cap that triggers `RuntimeError: [metal::malloc] Resource limit (499000) exceeded` once the prompt cache warms. **Partial fix** — reduces but doesn't eliminate OOMs (see [`docs/deepseek-v4-flash-metal-oom-investigation.md`](deepseek-v4-flash-metal-oom-investigation.md) and the confidence-ordered [`docs/deepseek-v4-flash-metal-oom-fix-plan.md`](deepseek-v4-flash-metal-oom-fix-plan.md) for next steps). Apply if you need any usability today; expect to still need server restarts on long sessions until the H1 (per-layer eval) fix from the fix plan lands.
+
+Apply both against the installed package:
 
 ```bash
 (cd "$VIRTUAL_ENV/lib/python3.12/site-packages" \
-   && patch -p0 < /Users/vitor/LocalProjects/local-llms/patches/mlx-lm-find-negative-start.patch)
+   && patch -p0 < /Users/vitor/LocalProjects/local-llms/patches/mlx-lm-find-negative-start.patch \
+   && patch -p0 < /Users/vitor/LocalProjects/local-llms/patches/mlx-lm-deepseek-v4-indexer-chunk.patch)
 ```
 
-When upstream releases the fix: delete [`patches/mlx-lm-find-negative-start.patch`](../patches/mlx-lm-find-negative-start.patch) and remove this step.
+When upstream releases the fixes: delete the corresponding `.patch` file and remove its apply step.
 
 ### 4. Patch fallbacks (only if step 5 fails)
 

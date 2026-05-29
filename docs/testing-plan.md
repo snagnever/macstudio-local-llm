@@ -118,7 +118,8 @@ Raw data: [`tools/local-llm-bench-m4-32gb/benchmarks/runs/`](../tools/local-llm-
 | 2 #5 | `gemma-4-26b-a4b@6bit` | **97 %** | **80 %** † 1 trunc | 78 % | **83 %** | 79 % | **53 %** † 2 trunc | **97.5 %** (57.8 t/s) | **83.3 %** (66.6 t/s) | **21.3 %** ⌛0.5x cap |
 | 2 #6 | `gemma-4-31b-it-mlx` (8-bit dense) | 95 % | 76 % | 77 % | 79 % | **85 %** | 48 % | **97.5 %** (11.4 t/s) | **83.3 %** (12.3 t/s) | **22.5 %** ⌛0.5x cap |
 | 2 #7 | `gemma-4-e4b-it-mlx` (4B/8-bit) | 91 % | 68 % | 65 % | 14 % ⚠ | 65 % | 34 % | **87.5 %** (42.5 t/s) | **66.7 %** (60.3 t/s) | **4.5 %** ⌛0.5x cap |
-| 2 #8, 2 #9, 3 #10 | (not yet run) | — | — | — | — | — | — | — | — | — |
+| 3 #10 | `deepseek-v4-flash-dq` (2-bit DQ) | — | — | — | — | — | — | 12.5 % ✗ (5/40, floor only) | — ✗ | — ✗ |
+| 2 #8, 2 #9 | (not yet run) | — | — | — | — | — | — | — | — | — |
 
 ⌛ = T-Bench run with `--agent-timeout-multiplier 0.5` to bound the 14
 outlier tasks declaring >60-min agent budgets; published scores are a
@@ -126,6 +127,14 @@ defensible floor (full-budget would lift ≤5 pp). Plan:
 [`docs/benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md`](benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md).
 All 7 local rows landed 2026-05-29 (Step G done) — see the chartTBench
 panel in [`reports/quality-benchmarks-charts.html`](../reports/quality-benchmarks-charts.html).
+
+✗ = bench did not complete on-rig because of an upstream runtime bug —
+not a model-quality signal. For `deepseek-v4-flash-dq`: mlx-lm PR #1192's
+MLA indexer trips Metal's `resource_limit: 499000` once the prompt cache
+accumulates across requests. Cold-cache speed probe ran (26 t/s code); the
+jdhodges 12.5 % row is recorded as a defensible floor only (the 5 passes
+are all `edge_cases` where the right answer is prose — no tool call).
+Plan + post-mortem: [`docs/benchmark-plans/2026-05-29-deepseek-v4-flash-phase-3.md`](benchmark-plans/2026-05-29-deepseek-v4-flash-phase-3.md).
 
 ⚠ = truncation observed at the harness cap. For GPQA on thinking Qwen models
 the cap was 32 768; raw scores under-count true ability (27b ceiling ≈ 78–85 %,
@@ -166,7 +175,8 @@ truncations form the "unanswerable at this scale" floor:
 | 2 #5 | `gemma-4-26b-a4b@6bit` | (covered by sweep) | **80.5 eff t/s** / 85.3 gen | **46.9** / 85.9 | **66.6** / 80.8 | **20.5** / 80.9 |
 | 2 #6 | `gemma-4-31b-it-mlx` (8-bit dense) | (covered by sweep) | **13.6 eff t/s** / 13.9 gen | **8.0** / 14.3 | **10.3** / 13.7 | **3.3** / 13.6 |
 | 2 #7 | `gemma-4-e4b-it-mlx` (4B/8-bit) | (covered by sweep) | **69.5 eff t/s** / 73.7 gen | **46.1** / 75.4 | **62.9** / 70.9 | **29.1** / 69.3 |
-| 2/3 (#8–10) | (not yet run) | — | — | — | — | — |
+| 3 #10 | `deepseek-v4-flash-dq` (2-bit DQ) | 2.5 s / 3 prompts (26 t/s code) | — ✗ | — ✗ | — ✗ | — ✗ |
+| 2 (#8–9) | (not yet run) | — | — | — | — | — |
 
 ### Qualitative coding artifacts
 
@@ -301,9 +311,40 @@ The two outstanding "same weights, different quant" comparisons (#8 / #9):
 
 Cost: ~2–3 days combined per the Phase 2 forward estimate.
 
-### Step E — Phase 3 fit-test for `deepseek-v4-flash-dq`
+### Step E — Phase 3 fit-test for `deepseek-v4-flash-dq` ⚠ **BLOCKED 2026-05-29**
 
-Same brief as before: only worth doing if a Phase 2 model demonstrated a quality ceiling. **Phase 2 outcome confirms it does** — best Gemma still trails 27b by ~10pp MMLU. So this step is now warranted if you want to push the knowledge frontier further. Cap context at 32 768 on load; tool-calling only as the first signal.
+Plan: [`docs/benchmark-plans/2026-05-29-deepseek-v4-flash-phase-3.md`](benchmark-plans/2026-05-29-deepseek-v4-flash-phase-3.md).
+Full-sweep attempt aborted at Step 3b after the runtime's MLA indexer
+tripped Metal's `resource_limit: 499000` once the prompt cache accumulated
+across requests (`RuntimeError: [metal::malloc] Resource limit (499000)
+exceeded` × 49 in the server log over ~3 h). Cold-cache cases ran fine
+(speed probe 26 t/s, first ~19 tool-call cases produced clean prose);
+warm-cache cases failed with `request_error: Connection error`. **Not a
+memory-size issue** — `resource_limit` is the Metal driver's count of
+resources referenceable in a single command buffer, fixed by the device
+class, not raisable by any `set_memory_limit` / `set_wired_limit` knob.
+
+Partial recorded data (defensible floor only, not comparable):
+- Speed probe: 26 t/s steady-state code, 2.5 s total for 3 prompts.
+- jdhodges tool-call: **12.5 % (5/40)** — all 5 passes are `edge_cases`
+  where the correct answer is plain prose. Categories requiring tool
+  emission scored 0 % across the board (the model is also not a
+  tool-calling fine-tune — `Tools: —` in the inventory above; mlx-lm
+  server logged the warning explicitly).
+- Veerman, knowledge benches (3c–h), throughput (4), T-Bench (5):
+  skipped — same blocker would fire mid-run.
+
+Upstream blocker: [mlx-lm PR #1192](https://github.com/ml-explore/mlx-lm/pull/1192)
+(DeepSeek V4 architecture, still open) needs to chunk the indexer at
+`deepseek_v4.py:557` so no single forward pass references > 499 000 Metal
+resources. Until that lands (or a successor PR with the fix), this model
+cannot complete a >~15-request bench session on this rig. Full write-up
+including the partial jdhodges row is in the Phase 3 #10 section of
+[`tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md).
+
+**Re-prioritized:** with Step E parked, the freed compute time goes to
+Step D (`coder-next@4bit`, `35b-a3b@8bit` quant A/Bs) which now becomes
+the highest-value pending work.
 
 ### Step F — defer
 
@@ -389,7 +430,7 @@ definition.
 | Phase 2 #7 | `gemma-4-e4b-it-mlx` | `gemma-4-e4b-mlx-8bit` | Small model; should top the throughput table. |
 | Phase 2 #8 | `qwen/qwen3-coder-next@4bit` | `qwen3-coder-next-4bit` | Pair with the already-done 6-bit. |
 | Phase 2 #9 | `qwen3.6-35b-a3b@8bit` | `qwen3.6-35b-a3b-8bit` | Pair with the already-done 6-bit. |
-| Phase 3 #10 | `deepseek-v4-flash-dq` | `deepseek-v4-flash-dq-2bit` | **Only if it loads cleanly under the 32 768 context cap.** Skip the 8K prefill-test turn if it OOMs; record what works. |
+| Phase 3 #10 | `deepseek-v4-flash-dq` | `deepseek-v4-flash-dq-2bit` | ⚠ **Blocked 2026-05-29 — see Step E above.** mlx-lm PR #1192's MLA indexer trips Metal `resource_limit: 499000` once the prompt cache warms; bench harnesses cannot complete. Speed probe recorded (26 t/s code), throughput sweep not attempted. |
 
 ### Per-run command
 
