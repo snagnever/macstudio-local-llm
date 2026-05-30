@@ -311,18 +311,35 @@ The two outstanding "same weights, different quant" comparisons (#8 / #9):
 
 Cost: ~2–3 days combined per the Phase 2 forward estimate.
 
-### Step E — Phase 3 fit-test for `deepseek-v4-flash-dq` ⚠ **BLOCKED 2026-05-29**
+### Step E — Phase 3 fit-test for `deepseek-v4-flash-dq` 🟡 **OOM FIXED 2026-05-30, re-validating** (was BLOCKED 2026-05-29)
+
+**2026-05-30 update:** the Metal OOM is **fixed and reproducer-verified.** Root cause was
+an unbounded per-decode-step live-buffer leak in the per-layer caches; the fix
+([`patches/mlx-lm-deepseek-v4-cache-materialize.patch`](../patches/mlx-lm-deepseek-v4-cache-materialize.patch),
+one hunk in `DeepseekV4Model.__call__`) materializes all cache state each forward. The
+forced-generation reproducer now streams **19,989 tokens clean at 31.3 t/s, 0 Metal OOMs**
+(baseline died at 11,314). **Full 40-case jdhodges sweep on a single long-lived server now
+PASSES: 40/40 completed, 0 Metal OOMs, 19.8 min** (vs unpatched 49 OOMs, aborted at case 20)
+— done-bars #1 + #2 green. Tool-call score 8/40 (all `edge_cases`; the checkpoint isn't a
+tool-calling fine-tune — a model property, not a runtime bug). 30-turn chat (#3) pending; a
+full Phase 3 #10 knowledge/throughput sweep can now run on the stable runtime. The BLOCKED
+write-up below is the pre-fix record.
 
 Plan: [`docs/benchmark-plans/2026-05-29-deepseek-v4-flash-phase-3.md`](benchmark-plans/2026-05-29-deepseek-v4-flash-phase-3.md).
-Full-sweep attempt aborted at Step 3b after the runtime's MLA indexer
+Full-sweep attempt (2026-05-29, pre-fix) aborted at Step 3b after the runtime's MLA indexer
 tripped Metal's `resource_limit: 499000` once the prompt cache accumulated
 across requests (`RuntimeError: [metal::malloc] Resource limit (499000)
 exceeded` × 49 in the server log over ~3 h). Cold-cache cases ran fine
 (speed probe 26 t/s, first ~19 tool-call cases produced clean prose);
 warm-cache cases failed with `request_error: Connection error`. **Not a
-memory-size issue** — `resource_limit` is the Metal driver's count of
-resources referenceable in a single command buffer, fixed by the device
-class, not raisable by any `set_memory_limit` / `set_wired_limit` knob.
+memory-size issue** — `resource_limit` is a *count* of resources, fixed by the
+device class, not raisable by any `set_memory_limit` / `set_wired_limit` knob.
+**Root cause identified 2026-05-30** (corrected from the 2026-05-29 framing
+below): it is a count of **live resident** Metal buffers (process-wide), and
+the model leaks **~1 live buffer per layer per decode step** in the
+compressor/indexer — hitting the cap at **~11,300 generated tokens regardless
+of prompt length**, NOT a per-command-buffer / cross-request-cache problem. See
+investigation doc §2/§2.4.
 
 Partial recorded data (defensible floor only, not comparable):
 - Speed probe: 26 t/s steady-state code, 2.5 s total for 3 prompts.
@@ -335,12 +352,14 @@ Partial recorded data (defensible floor only, not comparable):
   skipped — same blocker would fire mid-run.
 
 Upstream blocker: [mlx-lm PR #1192](https://github.com/ml-explore/mlx-lm/pull/1192)
-(DeepSeek V4 architecture, still open) needs to chunk the indexer at
-`deepseek_v4.py:557` so no single forward pass references > 499 000 Metal
-resources. Until that lands (or a successor PR with the fix), this model
-cannot complete a >~15-request bench session on this rig. Full write-up
-including the partial jdhodges row is in the Phase 3 #10 section of
-[`tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md).
+(DeepSeek V4 architecture, still open). The fix is **not** "chunk the indexer"
+(that was tried and does not work — chunking can't reclaim live buffers); it
+needs the compressor/indexer to stop **retaining a live buffer per layer per
+decode step**. Until that lands (or a successor PR / spicyneuron's `fix-ds4`),
+this model cannot complete a sustained session on this rig. Full write-up in the
+Phase 3 #10 section of
+[`tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md)
+and the fix plan's Phase 2-revised.
 
 **Re-prioritized:** with Step E parked, the freed compute time goes to
 Step D (`coder-next@4bit`, `35b-a3b@8bit` quant A/Bs) which now becomes

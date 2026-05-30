@@ -219,9 +219,17 @@ requests then sat in urlopen for 350–960 s each before timing out as
 on a bench projected at ~30 min.
 
 **Not a memory-size issue.** `set_memory_limit` / `set_wired_limit` /
-`set_cache_limit` are byte-size knobs and don't help. The fix has to be in
-the model port — chunk the indexer so no single forward pass references
-more than ~499 000 resources.
+`set_cache_limit` are byte-size knobs and don't help.
+
+> **Root cause CORRECTED 2026-05-30.** The framing above (per-command-buffer
+> count; fix = "chunk the indexer") is **wrong** and was disproved. `resource_limit`
+> counts **live resident** buffers process-wide, not per command buffer. The real
+> bug is an **unbounded per-decode-step leak of ~1 live buffer per layer** in the
+> compressor/indexer, hit at ~11,300 generated tokens regardless of prompt length —
+> not cross-request cache growth. Chunking and per-layer `mx.eval` were both tested
+> and FAILED (can't reclaim live buffers). See
+> [`docs/deepseek-v4-flash-metal-oom-investigation.md`](../deepseek-v4-flash-metal-oom-investigation.md)
+> §2/§2.4/§5(H7) and the fix plan's Phase 2-revised.
 
 ### Side-finding: model is not a tool-calling fine-tune
 
@@ -273,12 +281,22 @@ After the initial sweep was aborted, two follow-ups were attempted: a chunked-in
 - [`docs/deepseek-v4-flash-metal-oom-investigation.md`](../deepseek-v4-flash-metal-oom-investigation.md) — Metal `resource_limit: 499000` analysis, all test runs (49 OOMs un-patched → 3 chunk=8 → 8 chunk=2 → 42 across restart-per-batch), external signals (mlx-lm PR #1192 stalled since 2026-05-01; spicyneuron's 4000-token reproducer & `fix-ds4` fork), six ranked hypotheses.
 - [`docs/deepseek-v4-flash-metal-oom-fix-plan.md`](../deepseek-v4-flash-metal-oom-fix-plan.md) — confidence-ordered hypothesis-application plan, exact code edits and apply commands for each step, pass/fail tests, daily-driver "done" bar.
 
-**Phase 3 #10 re-opens** when the fix plan's Phase 1 Step 1 (H1 — per-layer eval boundaries in the model forward pass) lands and verifies. At that point the sweep can run on a single long-lived server with no wrapper, and the result rows in this plan's tables become real data points.
+**Phase 3 #10 RE-OPENED 2026-05-30 — OOM fixed.** The per-decode-step buffer leak is fixed
+by [`patches/mlx-lm-deepseek-v4-cache-materialize.patch`](../../patches/mlx-lm-deepseek-v4-cache-materialize.patch)
+(one hunk in `DeepseekV4Model.__call__` materializing all cache state each forward). Verified:
+[`leak_probe.py`](../../.bench-logs/leak_probe.py) slope 205 → 7 KB/step and
+[`repro_oom_gen.py`](../../.bench-logs/repro_oom_gen.py) streamed **19,989 tokens clean at
+31.3 t/s, 0 `metal::malloc`** (baseline died at 11,314). The full sweep is now re-running on
+a single long-lived server (no wrapper) to replace the blocked rows below with real data.
+(The "H1 per-layer eval" idea in the older write-up was tested 2026-05-30 and FAILED;
+"chunk the indexer" also does not work — both can't reclaim *live* buffers.)
 
 ### Retry preconditions (re-open this plan when ALL hold)
 
-1. mlx-lm PR #1192 (or successor) has merged with a chunked MLA indexer
-   that keeps per-forward-pass resource count under ~499 000.
+1. mlx-lm PR #1192 (or successor / spicyneuron `fix-ds4`) has merged a fix
+   that stops the compressor/indexer retaining a live buffer per layer per
+   decode step (so the live-resource count stays bounded over a long generation).
+   NOT "chunk the indexer" — that was tried and does not work.
 2. A patched mlx-lm version is installable into the
    `venvs/mlx-v4-flash/` venv (or LM Studio bundles it).
 3. The smoke test in pre-flight runs 30+ requests sequentially against

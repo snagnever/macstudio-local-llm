@@ -40,3 +40,7 @@ venvs/
 # Driver scripts (.sh) under .bench-logs/ ARE tracked.
 .bench-logs/*.log
 .bench-logs/tbench-runs/
+# Metal GPU capture bundles — enormous (~90 GB; dominated by resident weights),
+# regenerable via .bench-logs/metal_capture_probe.py. Never commit.
+*.gputrace/
+.bench-logs/*.gputrace

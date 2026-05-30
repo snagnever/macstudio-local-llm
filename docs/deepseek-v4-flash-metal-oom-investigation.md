@@ -2,7 +2,24 @@
 
 **Goal:** make `deepseek-v4-flash-dq` reliable as a **daily-driver model** on this rig — sustained multi-hour chat / research / long-context sessions without restarts, hangs, or repetition. Benchmarks are a means to that end (a bench sweep is a useful stress test that proves daily reliability), not the goal itself.
 
-**Status (2026-05-29):** mlx-lm PR #1192's DeepSeek V4 port hits Apple Metal's per-command-buffer `resource_limit: 499000` cap once the prompt cache warms. **Today the model is not daily-reliable**: it works for a single fresh session but degrades within ~10-20 requests or ~4000-token prompts, eventually wedging the server into a state only recoverable by a full process restart. Indexer chunking helps but doesn't fully solve it — the resource exhaustion is broader than a single layer. Investigation ongoing; restart-per-N operational wrapper is the current stop-gap.
+**Status (2026-05-30): ROOT CAUSE FIXED — reproducer-verified.** mlx-lm PR #1192's
+DeepSeek V4 port hit Apple Metal's `resource_limit: 499000` cap. The cause (see §2) is
+an **unbounded per-decode-step leak of live Metal buffers**: the per-layer caches
+(compressor/indexer `PoolingCache` concat-grow + `RotatingKVCache` slice-assign, single
+*and* batched variants) build un-detached lazy graphs, retaining **~1 live buffer per
+layer per decode step**, hitting the live-resource *count* cap at **~11,300 generated
+tokens regardless of prompt length**. It is **not** a per-command-buffer / single-forward
+problem and **not** prompt-cache-length driven; `mx.clear_cache`/chunking/per-layer-eval
+all failed because they cannot reclaim *live* buffers.
+
+**The fix** ([`patches/mlx-lm-deepseek-v4-cache-materialize.patch`](../patches/mlx-lm-deepseek-v4-cache-materialize.patch)):
+one hunk in `DeepseekV4Model.__call__` that `mx.eval`s every per-layer cache array once
+per forward pass, cutting the lazy chains so the live-buffer count stays bounded.
+**Verified:** the forced-generation reproducer streamed **19,989 tokens clean at 31.3 t/s
+with 0 `metal::malloc`** (baseline died at 11,314), leak slope 205 → 7 KB/step, **no
+throughput regression**. Done-bar #2 green. Full 40-case bench sweep (#1) and 30-turn
+chat (#3) validation in progress. See [`docs/deepseek-v4-flash-metal-oom-fix-plan.md`](deepseek-v4-flash-metal-oom-fix-plan.md)
+Phase 1.5 + Phase 2-revised (R5 result) for the full path and the two dead ends.
 
 This document captures everything we've learned in case someone (us, an upstream contributor, or a future maintainer) picks the investigation back up.
 
@@ -56,37 +73,51 @@ Apple Silicon Metal device on M4 Max (`applegpu_g16s`) reports the following lim
 | `max_buffer_length` | 86 586 540 032 (~86 GB) | Maximum single MTLBuffer allocation |
 | **`resource_limit`** | **499 000** | **Count of MTLResource references per command buffer** ← the cap being hit |
 
-`resource_limit` is the per-command-buffer count of MTLBuffer / MTLTexture / MTLSampler resources that a single submission can reference. **It's a count, not a byte size**, and it's fixed by the device class — `set_memory_limit`, `set_wired_limit`, `set_cache_limit` (all byte-budget knobs) don't affect it. Verified by inspecting `mx.metal.*` API and by trying small `--prompt-cache-bytes` values without effect.
+`resource_limit` is **a count, not a byte size**, and it's fixed by the device class — `set_memory_limit`, `set_wired_limit`, `set_cache_limit` (all byte-budget knobs) don't affect it (verified: no Python setter exists in `mx.metal`, mlx 0.31.2).
 
-### 2.2 Why DeepSeek V4 hits it (other models don't)
+**Correction (2026-05-30): it is the count of LIVE resident resources, accumulated across the whole process — NOT "per command buffer".** In MLX's Metal backend (`mlx/include/mlx/backend/metal/allocator.h`) the allocator tracks `num_resources_` against `resource_limit_`, alongside a `ResidencySet` (`resident.h`). Every live buffer inserted into the residency set counts; the cap fires when the *cumulative live count* crosses 499000. The earlier "per-command-buffer" reading was wrong and led the original H1–H4 hypotheses astray (see §2.2). Because the cap counts *live* buffers, `mx.clear_cache()` (which only evicts freed-but-cached buffers) and `mx.eval` / `mx.synchronize` (which only cut the lazy graph or add a barrier) cannot lower it.
 
-DeepSeek V4 introduces **Multi-head Latent Attention (MLA)** with an additional `Indexer` component that selects top-k cached positions per query. Per `Indexer.__call__` in [`mlx_lm/models/deepseek_v4.py:524-568`](https://github.com/ml-explore/mlx-lm/pull/1192/files):
+### 2.2 Why DeepSeek V4 hits it (CORRECTED 2026-05-30)
 
-```python
-# Shapes for this checkpoint (config.json):
-#   index_n_heads = 64
-#   index_head_dim = 128
-#   index_topk = 512
-scores = q.astype(mx.float32) @ pooled[:, None].swapaxes(-1, -2).astype(mx.float32)
-#   → (B, n_heads=64, L, pooled_seq)
-scores = mx.maximum(scores, 0) * self.scale
-weights = self.weights_proj(x).astype(mx.float32) * (self.n_heads**-0.5)
-scores = (scores * weights.swapaxes(-1, -2)[..., None]).sum(axis=1)
-#   → (B, L, pooled_seq)
-```
+**The original theory in this section was wrong** and is preserved only as a cautionary note below. The original claim was that `pooled_seq` grows unboundedly and a single un-chunked `(B, n_heads=64, L, pooled_seq)` op in `Indexer.__call__` references too many Metal resources *within one forward pass*. The 2026-05-30 probing **disproved** this:
 
-Two compounding factors:
+- A single forward pass at **60K context is clean** (prefill + a few decode steps never OOM).
+- A **58-token prompt** OOMs after **~11,300 generated tokens** — the trigger is the *number of decode steps*, not prompt/context length and not `pooled_seq` size in any one pass.
 
-1. **`pooled_seq` grows unboundedly** with the cached prefix. For a fresh request it's small; after a few cached sequences it climbs into the thousands.
-2. **The `n_heads × pooled_seq` intermediate** is created in a single un-chunked op chain. With 64 heads and pooled_seq=4000, a single forward pass through this single layer already references many Metal resources — and the model has ~60 such layers.
+**Actual mechanism: an unbounded per-decode-step leak of live Metal buffers.** Each decode step retains **~1 live buffer per layer** (`num_hidden_layers = 43`; observed ~44 buffers/step from 499000 / 11300). Active memory grows **strictly linearly with no plateau** (measured to 2000 steps: ~166–200 KB/step, ~2.3 GB extrapolated at the ~11,300-step OOM — modest bytes, so the *count* cap binds first, not memory). The retained buffers are **live** (referenced), not freeable cache, which is exactly why per-layer `mx.eval`+`mx.clear_cache` (old H1) and chunking (old H3) cannot help.
 
-By contrast, Qwen 3.6 / Qwen3-Coder-Next / Gemma 4 all use standard MHA or GQA attention. There's no Indexer-equivalent component, and their per-layer intermediates are an order of magnitude smaller in resource count. None of them have ever tripped this cap on the same rig.
+DeepSeek V4 introduces Multi-head Latent Attention with a `Compressor` (pooled KV) + `Indexer` (top-k pooled-position selection). Ablation (§2.4) shows the leak lives in this attention machinery. Other models (Qwen 3.6 / Qwen3-Coder-Next / Gemma 4) use standard MHA/GQA with no compressor/indexer and have never tripped the cap on this rig — consistent with the leak being specific to DeepSeek V4's sparse pooled-KV path.
+
+> **Cautionary note (the wrong turn):** reading `resource_limit` as "per-command-buffer" (it's a process-wide *live* count, §2.1) made a single-forward-pass / chunking story look plausible. It cost the entire H1–H4 ladder. Lesson: confirm what a limit *counts* before designing fixes around it.
 
 ### 2.3 Why even `mx.random.seed` fails after the first OOM
 
 Once a Metal command buffer fails to submit, the device's command queue appears to enter a partially-broken state. Subsequent submissions inherit corrupted state until a full reset. There's no MLX API documented for explicit device reset short of a process restart.
 
 This explains why "restart-per-N-requests" is the only robust recovery path — the wedge isn't local to the request that errored.
+
+### 2.4 Localized by ablation to the compressor/indexer (2026-05-30)
+
+Monkeypatching the block / attention forward to bypass sub-modules and measuring the per-step active-memory slope (probes: [`.bench-logs/ablation_probe.py`](../.bench-logs/ablation_probe.py), [`.bench-logs/inner_ablation_probe.py`](../.bench-logs/inner_ablation_probe.py)):
+
+| ablation | slope (KB/step) | vs full |
+|---|---|---|
+| full block | 208 | 100% |
+| bypass MoE-FFN | 201 | 97% (leak stays) |
+| HyperConnections only | 0 | 0% |
+| **bypass attention** | **−3** | **~0% (leak gone)** |
+| attention: core-local only (skip compressor+indexer) | 34.5 | 17% |
+
+→ The leak is **in the attention sub-module**, and **~83% of it is the compressor + indexer** (`SparseCompressedAttention.__call__` at [`deepseek_v4.py:805`](../venvs/mlx-v4-flash/lib/python3.12/site-packages/mlx_lm/models/deepseek_v4.py) → `Compressor.__call__` / `Indexer.__call__` + their two `PoolingCache`s), ~17% the core q/kv/SDPA path. MoE and hyper-connections do not leak.
+
+**Ruled out by direct test** (so the fix surface stays narrow):
+- *Generic MLX runtime:* 20,000 evals of a trivial fresh graph leak **zero** bytes → model-specific.
+- *`@mx.compile` retention:* slope identical with `mx.disable_compile()` (200.1 vs 203.3 KB/step).
+- *RoPE freqs cache:* keyed by `(head_dim, inverse)` → bounded.
+- *KV/Pooling cache bytes:* summed `nbytes` flat (~12 MB); RotatingKVCache is `sliding_window=128` in-place, PoolingCache concat replaces one buffer.
+- *MoE expert paging:* would plateau by ~step 500; growth is linear to 2000 steps.
+
+The fix surface is `Compressor.__call__` / `Indexer.__call__` and their `PoolingCache` update path. Naming the exact retained allocation still needs C++ allocator instrumentation (no Python buffer-count getter) — see §6 next steps.
 
 ---
 
@@ -172,6 +203,18 @@ Consistent with the inventory in [`docs/testing-plan.md:54`](testing-plan.md) ma
 
 This is orthogonal to the Metal OOM but worth recording: a "fix" to the runtime won't help tool-call scores meaningfully. For agentic workflows on this rig, `qwen/qwen3-coder-next` remains the right slot.
 
+### 3.7 Run #6 — root-cause session (2026-05-30): H1 test + capture + leak/ablation probes
+
+The decisive session. Switched from request-level bench probes to a streaming forced-generation probe and direct residency instrumentation. Full detail in [`docs/deepseek-v4-flash-metal-oom-fix-plan.md`](deepseek-v4-flash-metal-oom-fix-plan.md) Phase 0.3 + Step 1 + Phase 1.5.
+
+- **Calibration:** un-patched server, forced generation from a 58-token prompt OOMs at **11,314 tokens** (`metal::malloc` at a decode step). Single 60K-context forward pass: clean. → trigger is decode-step count, not context length.
+- **H1 (per-layer `mx.eval`+`mx.clear_cache` every 10 layers): FAIL.** OOM at ~11,300 tokens (= baseline), fired *inside our own* `mx.eval(h)`. No improvement. Rolled back.
+- **Metal capture:** `mx.metal.start_capture` (needs `MTL_CAPTURE_ENABLED=1`) around 2 decode steps → **90 GB** `.gputrace` (resident weights dominate). Capture is not viable for a model this size.
+- **Residency instrumentation** ([`.bench-logs/leak_probe.py`](../.bench-logs/leak_probe.py)): linear ~166–200 KB/step active-memory growth, no plateau to 2000 steps; ~1 buffer/layer/step; ruled out generic MLX, `mx.compile`, RoPE, cache bytes, expert paging (see §2.2/§2.4).
+- **Ablation** ([`.bench-logs/ablation_probe.py`](../.bench-logs/ablation_probe.py), [`.bench-logs/inner_ablation_probe.py`](../.bench-logs/inner_ablation_probe.py)): leak is in attention; **~83% compressor/indexer**, ~17% core attention (§2.4 table).
+
+**Net:** the original hypothesis set (single-forward-pass resource explosion, fixable by chunking / eval boundaries) is disproved; the real bug is a per-decode-step live-buffer leak in the compressor/indexer. New hypothesis = H7 (§5).
+
 ---
 
 ## 4. External signals
@@ -239,10 +282,26 @@ All from a 2026-05-01 burst; no commits since:
 
 ## 5. Hypotheses, ranked
 
-Ordered by (confidence × leverage), with the cheapest experiment to confirm/refute each.
+> **2026-05-30 update:** H7 below is the current leading hypothesis and supersedes H1–H6. H1 was **tested and FAILED**; H2–H4 are invalidated by the corrected mechanism (§2: the cap counts *live* buffers, so barriers/chunking/cache-size cannot help); H6 is an orthogonal long-shot. H1–H6 are retained verbatim for the record but **do not act on them** — see Phase 1.5 in the fix-plan doc for why each is dead.
+
+### H7. The compressor/indexer retains ~1 live Metal buffer per layer per decode step (current leading hypothesis, 2026-05-30)
+**Confidence: high (mechanism + localization both measured).**
+
+**Reasoning:** §2.2/§2.4. The OOM is a *live-resident-buffer count* cap (499000), reached by an unbounded per-decode-step leak of ~1 buffer/layer/step, localized by ablation to the compressor+indexer (~83%) with a smaller core-attention residual (~17%). Something in `Compressor.__call__` / `Indexer.__call__` (or the `PoolingCache` update path) allocates a buffer each step that stays referenced (not freed, not cached) — `mx.clear_cache`/`mx.eval` provably don't reclaim it.
+
+**Experiments (cheap → authoritative), see fix-plan Phase 2-revised:**
+1. Count live `mlx.core.array` objects via `gc` per decode step — confirms count growth and may name the retained tensor by shape. (~5 min)
+2. Force-eval cache state each step (`mx.eval(*tree_flatten(c.state))`) — if the slope drops, it's an un-evaluated lazy graph held by `PoolingCache`; that is both the mechanism *and* a candidate fix. (~5 min)
+3. Split compressor vs indexer by ablation to divide the 83%. (~2 min)
+4. Diff [spicyneuron/mlx-lm@fix-ds4](https://github.com/spicyneuron/mlx-lm/tree/fix-ds4) + try a newer mlx/mlx-lm — may already be fixed upstream.
+5. C++ allocator instrumentation (log `num_resources_` / `ResidencySet::insert` size + backtrace) — authoritative line-level answer; requires building MLX from source.
+
+**Win condition:** a change (likely in `PoolingCache`/`Indexer`, or forcing per-step cache materialization) that flattens the `leak_probe.py` slope to ~0 and lets the forced-generation probe reach 20K tokens clean.
+
+---
 
 ### H1. The whole forward pass is one Metal command buffer; chunking the indexer is necessary but not sufficient — we need per-LAYER eval boundaries too
-**Confidence: high.**
+**Confidence: high.** — **SUPERSEDED 2026-05-30: TESTED, FAILED.** Per-layer `mx.eval`+`mx.clear_cache` every 10 layers gave zero improvement (OOM at the same ~11,300 tokens, inside our own eval). Live buffers can't be cleared. See fix-plan Step 1.
 
 **Reasoning:** Best explanation for the `mx.random.seed` failure and the device wedge. MLX uses lazy evaluation — the model's `__call__` builds a graph spanning all ~60 layers. Even with indexer chunking, the whole-forward-pass dependencies likely fuse into one Metal command buffer at the final eval. 1800+ MLX ops × multiple resources each = easily 500K resources when prompt cache adds buffer references.
 
@@ -303,21 +362,22 @@ Ordered by (confidence × leverage), with the cheapest experiment to confirm/ref
 
 ## 6. Recommended sequencing for next investigation pass
 
-Cheap-first, ordered by likelihood of being THE fix:
+> **2026-05-30:** the old H4→H2→H1→H3→H6 table is obsolete (all dead, §5). The current plan pursues **H7** (per-step live-buffer leak in compressor/indexer). Detailed apply/test/pass steps live in [`docs/deepseek-v4-flash-metal-oom-fix-plan.md`](deepseek-v4-flash-metal-oom-fix-plan.md) **Phase 2-revised**. Summary, cheap-first:
 
-| Order | Hypothesis | Edit | Cost | Win condition |
+| Order | Step | Edit | Cost | Win condition |
 |---|---|---|---|---|
-| 1 | **H4** | None (server flag) | 20 min | `--prompt-cache-size 1` survives a 20+ request session with 0 OOMs |
-| 2 | **H2** | One-line patch edit | 30 min | chunk=8 + `mx.synchronize()` (instead of `mx.eval`) survives where chunk=2 + `mx.eval()` didn't |
-| 3 | **H1** | Per-N-layer eval in model `__call__` | 1 h | survives 30+ requests on a single server |
-| 4 | **H3** | Add pooled_seq chunking to indexer | 1-2 h | survives 50+ requests regardless of cache state |
-| 5 | **H6** | Test different quant | hours | rules in/out sanitize gap |
+| 1 | Count live `mx.array` objects per step (`gc`) | New probe | ~5 min | count climbs ~44/step; retained arrays' shapes identify the tensor |
+| 2 | Force-eval cache state per step | ~2 lines in probe | ~5 min | slope → ~0 ⇒ lazy-graph retention in `PoolingCache` (mechanism + candidate fix) |
+| 3 | Split compressor vs indexer by ablation | Probe edit | ~2 min | divides the 83% to one sub-module |
+| 4 | Diff spicyneuron `fix-ds4` + try newer mlx/mlx-lm | None | ~30 min | upstream may already fix it ⇒ beat any local patch |
+| 5 | C++ allocator instrumentation (backtrace on residency insert) | Build MLX from source | hours | names the exact allocating line (authoritative) |
 
-**The combined patch we'd likely end up submitting upstream** (if all of 1-4 contribute):
-- Chunk indexer over both `n_heads` AND `pooled_seq`
-- Use `mx.synchronize()` between chunks (not just `mx.eval()`)
-- Add per-N-layer eval boundaries in the model forward
-- Document `--prompt-cache-size 1` as recommended for Apple Silicon
+**The fix we'd likely end up submitting upstream** is no longer "chunk + eval boundaries". Based on H7 it is one of:
+- A `PoolingCache` / `Indexer` change that stops retaining a live buffer per step (e.g., materialize/consolidate per-step state so the residency count stays bounded), **or**
+- Forcing per-step materialization of the compressor/indexer cache state in the generation loop, **or**
+- An upstream MLX residency-set fix if the retention turns out to be in the allocator's handling of the specific op pattern.
+
+Document the winning change against PR #1192 with [`leak_probe.py`](../.bench-logs/leak_probe.py) as the minimal reproducer (linear residency growth, count-cap OOM at ~11.3K decode steps, prompt-independent).
 
 **Definition of done.** A fix qualifies as "this model is now daily-usable" when **all three** hold:
 
@@ -371,11 +431,13 @@ The same pattern (manual server restart before any heavy session, restart-on-sym
 
 ## 9. Open questions
 
-Things we don't yet know that would sharpen the hypotheses:
+Updated 2026-05-30. Several originals are now answered:
 
-1. **What's the actual resource count per forward pass?** If we could instrument MLX to count buffers per `mx.eval`, we'd know exactly where the budget goes. May require a debug build of MLX or `mx.metal.start_capture` introspection.
-2. **Does `--prompt-cache-size 1` survive the 4000-token spicyneuron reproducer?** That would tell us if cache fragmentation is the trigger or just an amplifier.
-3. **Did spicyneuron's fork solve the looping issue?** Worth diffing against PR #1192 head to see what they tried — could short-circuit half our hypothesis ladder.
-4. **Is `mx.eval` actually a command-buffer boundary?** Reading MLX's scheduler source would confirm H2 cheaply.
-5. **Do the 4-bit / 6-bit / 8-bit checkpoints OOM the same way?** Rules sanitize gaps (H6) in or out.
-6. **Is the wedge state truly unrecoverable without a process restart?** If there's an MLX API to fully reset the Metal device state, the recovery story is much cleaner.
+1. ~~What's the actual resource count per forward pass?~~ **Partially answered:** it's a *live-resident-buffer count* cap (499000), and the leak is ~1 buffer/layer/step (~166–200 KB/step, no plateau). The *exact* per-step allocation site still needs C++ allocator instrumentation (no Python buffer-count getter; `start_capture` gives a 90 GB trace dominated by weights).
+2. ~~Does `--prompt-cache-size 1` survive the reproducer?~~ **Moot:** the OOM is decode-step driven, not cache-length driven (a 58-token prompt OOMs after ~11,300 generated tokens). Cross-request cache size is irrelevant to a single long generation.
+3. **Did spicyneuron's `fix-ds4` fork solve it?** Still open — now elevated to a primary next step (diff its compressor/indexer/cache against PR #1192). Could short-circuit the fix.
+4. ~~Is `mx.eval` a command-buffer boundary?~~ **Answered/moot:** `mx.eval` does force evaluation, but the cap counts *live* buffers, so a boundary doesn't lower it (H1 proved this empirically).
+5. **Do other quants OOM the same way?** Still open, low priority — the leak is per-layer-per-step and architecture-driven, so quant is unlikely to change it (old H6).
+6. **Is the wedge state recoverable without a process restart?** Still open — no known MLX device-reset API.
+
+**The sharp remaining question:** *which* allocation in `Compressor.__call__` / `Indexer.__call__` / `PoolingCache` is retained each step, and what holds the reference? §6 steps 1–2 (gc array count + force-eval cache) should answer this without a source build.
