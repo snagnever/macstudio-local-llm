@@ -291,7 +291,33 @@ a single long-lived server (no wrapper) to replace the blocked rows below with r
 (The "H1 per-layer eval" idea in the older write-up was tested 2026-05-30 and FAILED;
 "chunk the indexer" also does not work — both can't reclaim *live* buffers.)
 
-### Retry preconditions (re-open this plan when ALL hold)
+### Outcome (2026-05-30) — partial sweep complete, 0 OOMs
+
+With the fix in place the knowledge sweep ran on a **single long-lived patched server** (no
+restart wrapper), greedy `temp=0`, thinking=OFF, per-request `max_tokens` capped (2048/4096)
+to bound the separate 2-bit degeneration. This doubled as the pre-upstream-submission OOM
+soak: **300 requests, 0 `metal::malloc`, 0 errors, ~2h44m, clean shutdown.**
+
+| Bench | n | Score | TRUNC (degenerate) | Wall-clock | Metal OOMs |
+|---|---|---|---|---|---|
+| MMLU | 100 | **44 %** | 0 | 16 min | 0 |
+| GPQA | 100 | **24 %** | 36 | 96 min | 0 |
+| HumanEval | 100 | **48 %** | 15 | 52 min | 0 |
+| Tool-calling jdhodges (40) | 40 | 8/40 (20 %) | — | 19.8 min | 0 |
+
+- Scores are the **2-bit DQ quality floor** (vs Gemma/Qwen locals at MMLU 65–88 / GPQA 34–70 /
+  HumanEval 87–98), orthogonal to the now-fixed OOM. Degeneration is long-form only (0 % on MMLU).
+- **Upstream submitted:** issue [ml-explore/mlx-lm#1332](https://github.com/ml-explore/mlx-lm/issues/1332),
+  PR [Blaizzy/mlx-lm#25](https://github.com/Blaizzy/mlx-lm/pull/25), comment on
+  [#1192](https://github.com/ml-explore/mlx-lm/pull/1192#issuecomment-4585428668).
+- **Charts/docs updated:** `chart_m4max_phase1_*.png` regenerated with the DeepSeek row;
+  `M4_MAX_128GB_NOTES.md` Phase 3 #10 Addendum 2; `reference_scores.md` local table.
+
+**Still pending** → tracked in a dedicated, ordered runbook:
+[`docs/benchmark-plans/2026-05-30-deepseek-v4-flash-remaining-benches.md`](2026-05-30-deepseek-v4-flash-remaining-benches.md)
+(MATH, DROP, LiveCodeBench v6, tool-calling Veerman, Terminal-Bench 2.0, throughput — shortest→longest, docs updated after each).
+
+### Retry preconditions (historical — satisfied 2026-05-30; kept for record)
 
 1. mlx-lm PR #1192 (or successor / spicyneuron `fix-ds4`) has merged a fix
    that stops the compressor/indexer retaining a live buffer per layer per
