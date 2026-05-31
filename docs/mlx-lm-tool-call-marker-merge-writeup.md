@@ -145,10 +145,13 @@ against the Qwen2.5/Hermes models that rely on `json_tools` today before merging
 - **Multiple / parallel tool calls** are unaffected by this fix and remain a *model* behavior:
   weak checkpoints emit only the first of N calls regardless of parser. (On our 2-bit model this
   was a quant ceiling, not a parser issue.)
-- **Streaming**: the same marker tokens drive streaming tool-call deltas; the prefix change
-  applies equally, but streaming output should be re-checked (the leftover `>` must not leak into
-  the streamed arguments — the brace extractor handles the non-streaming path; streaming may need
-  the same leading-`>` trim).
+- **Streaming**: verified safe. The server generation loop accumulates the *entire* `tool` segment
+  (`tool_text`) while in the tool state and only runs `parse_tool_call` after the transition back to
+  `normal` (`server.py` ~L1462–1466), in both streaming and non-streaming paths. So the leftover
+  `>` never leaks into a streamed delta — it is part of the accumulated segment that brace-extraction
+  strips. Backward-compat unit test: the new parser returns **identical** output to the stock
+  `json.loads(text.strip())` for clean Qwen/Hermes input and for nested-brace/`}`-in-string cases,
+  and additionally parses the merged-`>` and trailing-`</tool_call>` cases the stock parser errors on.
 - **Special-token tokenizers unaffected:** models that register `<tool_call>`/`</tool_call>` as
   atomic special tokens never hit this and need no change.
 - This is **orthogonal** to whether a model *should* do tool calling and to quantization quality —
