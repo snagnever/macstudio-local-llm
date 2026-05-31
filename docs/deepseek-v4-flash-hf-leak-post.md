@@ -37,12 +37,42 @@ have hit it yet if your generations stayed short or you used `mlx_lm.generate`.)
 
 ### 2. The repeating/looping text itself is a *different* thing — the 2-bit quant quality floor
 
-This is **not** a runtime bug. It's stochastic degeneration into repeated tokens on long /
-open-ended generations, inherent to the **2-bit DQ** checkpoint. I ran a full sampling sweep —
-temperature, top_p, top_k, min_p, repetition_penalty, repetition_context_size — and **no setting
-fixes it**; several make it worse. `temp=0.6` reduces it somewhat but doesn't eliminate it. The real
-remedy is a higher-precision quant (4-bit), but 4-bit DeepSeek-V4-Flash exceeds 128 GB, so on this
-2-bit build, expect looping on long-form output regardless of settings. It's the quant, not your setup.
+This is **not** a runtime bug — it's stochastic degeneration into repeated tokens on open-ended
+generations, inherent to the **2-bit DQ** checkpoint. I measured real loop *rates* (8 independent seeds
+per config, after patching two server bugs noted below) on a reliable trigger prompt:
+
+| sampling config | loop rate (8 seeds, 95% CI) |
+|---|---|
+| `temp 0.6`, nothing else | **50%** [22, 78] |
+| `temp 0.7` + `min_p 0.02` + `presence_penalty 1.0` (no XTC) | **37%** [14, 69] |
+| same **+ XTC** (`xtc_probability 0.5, xtc_threshold 0.1`) | **87%** [53, 98] |
+
+Three takeaways:
+
+- **The loop is a coin-flip, not deterministic** — even plain `temp 0.6` self-terminates with a clean,
+  coherent answer about half the time. (So "it always loops" is itself a sampling illusion.)
+- **No setting reliably reduces the rate.** Additive penalties (presence/frequency/repetition) land
+  within noise of baseline.
+- **XTC makes it *worse*, not better** — it roughly **doubles** the loop rate (≈87%). XTC removes the
+  most-probable token, which derails the model into incoherence/looping more often than it rescues it.
+  (A confident *factual* prompt like "capital of France" never loops at baseline — 0/8 — so there's
+  nothing for XTC to "fix" there either.)
+
+And it's **worse on genuinely long-form output**: across an 800-word story and a 50-item list (8 seeds
+each, coherence scored by a separate model), **every config failed 15–16 of 16** — baseline, +presence,
+and +XTC alike. At 2-bit, long generations collapse ~94–100% of the time *regardless of settings*
+(usually the model restarts the story/list from the top; XTC swaps that for word-salad).
+
+So: **there is no sampling setting that fixes the looping**; the most aggressive anti-repetition knob
+the library has (XTC) actively backfires. The robust remedy is a higher-precision quant (4-bit), but
+4-bit DeepSeek-V4-Flash exceeds 128 GB, so on this 2-bit build expect intermittent looping on
+open-ended output regardless of settings. **It's the quant, not your setup.**
+
+*(Methodology note, in case you try to reproduce: `mlx_lm.server` currently has two bugs I had to patch
+first — XTC crashes on a ragged `xtc_special_tokens` list (`ValueError: Initialization encountered extra
+dimension`; both already tracked upstream as #1257 + #1331/#1245), and the compiled sampler ignores the
+per-request `seed`, so without that fix every "different seed" returns byte-identical text — which will
+fool you into thinking the loop is deterministic. Measure rates with the seed fix applied.)*
 
 **So:** the **crash** is a real, fixable runtime bug (patch above, now upstream); the **looping** is
 the quantization. They're orthogonal — fixing one doesn't touch the other.
