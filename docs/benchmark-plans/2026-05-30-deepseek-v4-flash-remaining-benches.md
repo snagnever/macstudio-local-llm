@@ -19,7 +19,7 @@ scores are expected at the 2-bit quality floor.
 
 | # | Bench | Harness | n | max_tok | Est. wall-clock | Why this slot | Done |
 |---|---|---|---|---|---|---|---|
-| 1 | **Tool-calling Veerman** | `tool_call_bench.py` | 12 | server cap | ~10 min | shortest; unlocks the `tool_combined` chart cell | ☐ |
+| 1 | **Tool-calling Veerman** | `tool_call_bench.py` | 12 | server cap | ~10 min | shortest; unlocks the `tool_combined` chart cell | ☑ 2/12 (N/A — no tool template) |
 | 2 | **DROP** | `bench2.py` | 100 | 2048 | ~20–30 min | short extractive answers → low degeneration, fast | ☐ |
 | 3 | **Throughput scenarios** | `local-llm-bench/bench.py` | 4 | per-scenario | ~30 min | bounded token budgets; fills throughput scoreboard | ☐ |
 | 4 | **MATH** | `bench2.py` | 100 | 4096 | ~60–90 min | long reasoning + degeneration, like GPQA | ☐ |
