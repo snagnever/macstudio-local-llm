@@ -110,6 +110,11 @@ calls correctly and reaches **98 % jdhodges — matching the best full-size loca
 82 % suggested. Artifacts: [`assets/deepseek-v4-dsml/`](../../assets/deepseek-v4-dsml/)
 (template + `deepseek_dsml.py` parser + install). This is the configuration to use going forward.
 
+> **✅ Submitted upstream 2026-05-31:** the parser is now a PR to mlx-lm —
+> [ml-explore/mlx-lm#1337](https://github.com/ml-explore/mlx-lm/pull/1337) (`deepseek_dsml`
+> parser + `_infer_tool_parser` auto-detection + tests, 3 files / +120, additive). Pairs with the
+> official DSML template PR [deepseek-ai/DeepSeek-V4-Flash#16](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash/discussions/16).
+
 ## Live-test runbook (run AFTER the benchmark queue completes)
 
 1. Stop the benchmark queue (server + driver): `pkill -f mlx_lm.server; pkill -f bench2.py`.
