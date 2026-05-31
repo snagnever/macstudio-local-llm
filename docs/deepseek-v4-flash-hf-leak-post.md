@@ -47,10 +47,23 @@ remedy is a higher-precision quant (4-bit), but 4-bit DeepSeek-V4-Flash exceeds 
 **So:** the **crash** is a real, fixable runtime bug (patch above, now upstream); the **looping** is
 the quantization. They're orthogonal — fixing one doesn't touch the other.
 
-### Setup footguns (confirming what's in this thread)
+### Setup fixes (the two errors at the top of this thread are one chain)
 
-The `rope_theta` / `compress_rope_theta` int→float coercion and the `KeyError: 'deepseek_v4'`
-(transformers PR #45643) are exactly right. My full reproducible setup — including the
+Both startup errors come from the **same** transformers PR, in sequence:
+
+- **`KeyError: 'deepseek_v4'`** (the thread title) → fixed by transformers
+  **[PR #45643](https://github.com/huggingface/transformers/pull/45643)**, which adds `deepseek_v4`
+  support and **merged into transformers `main` on 2026-05-02**. So today you no longer need to
+  install the PR ref by hash — a recent `transformers` from PyPI (≥ the post-2026-05-02 release) or
+  `git+https://github.com/huggingface/transformers.git@main` resolves it. (`--trust-remote-code` on
+  `mlx_lm.server` / `mlx_lm.generate` is a fallback if your transformers is older.)
+- **`StrictDataclassFieldValidationError` (`rope_theta` expected float, got int)** → this is the
+  *same* PR #45643's stricter config validation kicking in *right after*, which is why it's the very
+  next error once the KeyError clears. Coercing `rope_theta` / `compress_rope_theta` (and any other
+  int field the error names) to float in `config.json`, exactly as done in this thread, clears it.
+
+So the startup sequence is fully solved; the only remaining runtime issues are the two above (the OOM
+crash, fixed + filed; and the quant looping). My full reproducible setup — pinning these + the
 cache-materialize OOM patch as a drop-in `.patch` — is here:
 https://github.com/snagnever/macstudio-local-llm/blob/deepseek-v4-tool-dsml/docs/deepseek-v4-flash-setup.md
 
