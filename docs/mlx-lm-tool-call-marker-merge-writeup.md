@@ -7,6 +7,10 @@ single special tokens and whose tokenizer merges `>` with the following byte).
 **Reproducer:** [`assets/mlx-lm-tool-marker-fix/repro_marker_merge.py`](../assets/mlx-lm-tool-marker-fix/repro_marker_merge.py)
 (tokenizer-only, no GPU, deterministic).
 
+> **✅ Submitted 2026-05-31:** issue [ml-explore/mlx-lm#1335](https://github.com/ml-explore/mlx-lm/issues/1335),
+> PR [ml-explore/mlx-lm#1336](https://github.com/ml-explore/mlx-lm/pull/1336) (against `main`, 2 files,
+> +60/−2; existing tool-parser tests + new merge-case tests pass).
+
 ---
 
 ## Summary
