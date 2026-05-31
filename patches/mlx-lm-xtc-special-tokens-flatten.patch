@@ -1,0 +1,36 @@
+--- mlx_lm/server.py	2026-05-31 13:40:00
++++ mlx_lm/server.py	2026-05-31 14:01:00
+@@ -404,10 +404,10 @@
+         min_p=args.sampling.min_p,
+         xtc_probability=args.sampling.xtc_probability,
+         xtc_threshold=args.sampling.xtc_threshold,
+         xtc_special_tokens=[
+             tokenizer.eos_token_id,
+-            tokenizer.encode("\n"),
++            *tokenizer.encode("\n"),
+         ],
+     )
+
+# XTC is unusable through mlx_lm.server without this fix.
+#
+# NOTE: this is a KNOWN upstream bug, already reported and with fixes in flight (do
+# NOT file a duplicate). Tracked as ml-explore/mlx-lm issue #1257; open fix PRs
+# #1258, #1301 (also fixes int-param validation), and #1176 — none merged as of
+# 2026-05-31. This local one-char patch is just to unblock our own runs until one
+# of those lands. Our flatten is the same approach as #1176/#1258/#1301.
+#
+# tokenizer.encode("\n") returns a LIST of token ids (e.g. [201]), so the stock
+# code builds a RAGGED xtc_special_tokens = [eos_id(int), [201](list)]. When
+# apply_xtc() does `mask[..., xtc_special_tokens] = False`, MLX tries to build an
+# index array from that ragged list and raises:
+#     ValueError: Initialization encountered extra dimension.
+# Every request that sets xtc_probability > 0 with temperature > 0 therefore 500s
+# (the generation thread dies mid-stream -> "Remote end closed connection").
+#
+# This affects EVERY model served via mlx_lm.server, not just DeepSeek-V4 — any
+# tokenizer where encode("\n") returns a list (all of them) hits it. The single
+# `*` (splat) flattens the newline ids into the special-tokens list so it becomes
+# a flat list of ints, which is what apply_xtc() expects (and what protects EOS +
+# newline from being excluded by XTC). Verified on
+# mlx-community/DeepSeek-V4-Flash-2bit-DQ: before -> 100% of XTC requests error;
+# after -> XTC runs and reshapes the distribution as designed.

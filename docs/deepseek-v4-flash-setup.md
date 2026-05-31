@@ -82,18 +82,20 @@ If `mlx-lm` PR #1192's `setup.py` doesn't pull in everything, the import error i
 
 ### 3a. Apply local vendor patches
 
-Two patches are carried by this project today:
+Two patches are **required** for this model; a third is deprecated.
 
 1. **`patches/mlx-lm-find-negative-start.patch`** — one-line fix for [ml-explore/mlx-lm#1326](https://github.com/ml-explore/mlx-lm/issues/1326): without it, `mlx_lm.server` returns `HTTP 404 {"error": "list index out of range"}` for any chat message whose templated prompt is shorter than 11 tokens (e.g. "hi", "hello"). The patch clamps a negative `start` in `TokenizerWrapper._find`. **Required** — apply unconditionally.
 
-2. **`patches/mlx-lm-deepseek-v4-indexer-chunk.patch`** — chunks the DeepSeek V4 MLA indexer over `n_heads` with `mx.eval` + `mx.clear_cache` between chunks. Addresses Apple Silicon Metal's per-command-buffer `resource_limit: 499000` cap that triggers `RuntimeError: [metal::malloc] Resource limit (499000) exceeded` once the prompt cache warms. **Partial fix** — reduces but doesn't eliminate OOMs (see [`docs/deepseek-v4-flash-metal-oom-investigation.md`](deepseek-v4-flash-metal-oom-investigation.md) and the confidence-ordered [`docs/deepseek-v4-flash-metal-oom-fix-plan.md`](deepseek-v4-flash-metal-oom-fix-plan.md) for next steps). Apply if you need any usability today; expect to still need server restarts on long sessions until the H1 (per-layer eval) fix from the fix plan lands.
+2. **`patches/mlx-lm-deepseek-v4-cache-materialize.patch`** — **the Metal OOM fix. Required.** One hunk in `DeepseekV4Model.__call__` that `mx.eval`s every per-layer cache array once per forward pass. Without it the per-layer caches (compressor/indexer `PoolingCache` + `RotatingKVCache`, single and batched) build un-detached lazy graphs that retain ~1 live Metal buffer per layer per decode step, hitting Metal's residency `resource_limit` (499000) at **~11,300 generated tokens regardless of prompt length** → `RuntimeError: [metal::malloc] Resource limit (499000) exceeded`. **Verified 2026-05-30:** forced-gen reproducer streamed 19,989 tokens clean at **31.3 t/s, 0 OOMs** (baseline died at 11,314; no throughput regression). Root cause + fix path in [`docs/deepseek-v4-flash-metal-oom-investigation.md`](deepseek-v4-flash-metal-oom-investigation.md) §2 and [`docs/deepseek-v4-flash-metal-oom-fix-plan.md`](deepseek-v4-flash-metal-oom-fix-plan.md) Phase 2-revised (R5).
 
-Apply both against the installed package:
+3. **`patches/mlx-lm-deepseek-v4-indexer-chunk.patch`** — **DEPRECATED, do NOT apply.** Earlier attempt that chunked the indexer with `mx.eval`+`mx.clear_cache`; it does not fix the OOM (the cap counts *live* buffers, which `clear_cache` can't reclaim) and costs ~3–4× throughput. Superseded by patch 2. Kept only as a record.
+
+Apply the two required patches against the installed package:
 
 ```bash
 (cd "$VIRTUAL_ENV/lib/python3.12/site-packages" \
    && patch -p0 < /Users/vitor/LocalProjects/local-llms/patches/mlx-lm-find-negative-start.patch \
-   && patch -p0 < /Users/vitor/LocalProjects/local-llms/patches/mlx-lm-deepseek-v4-indexer-chunk.patch)
+   && patch -p0 < /Users/vitor/LocalProjects/local-llms/patches/mlx-lm-deepseek-v4-cache-materialize.patch)
 ```
 
 When upstream releases the fixes: delete the corresponding `.patch` file and remove its apply step.

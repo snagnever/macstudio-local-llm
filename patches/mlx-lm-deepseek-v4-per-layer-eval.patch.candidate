@@ -1,0 +1,23 @@
+--- deepseek_v4.py.UNPATCHED.bak	2026-05-29 20:08:46
++++ deepseek_v4.py	2026-05-29 22:20:19
+@@ -969,8 +969,19 @@
+         if pipeline_rank < pipeline_size - 1:
+             h = mx.distributed.recv_like(h, (pipeline_rank + 1))
+ 
+-        for layer, layer_cache in zip(self.pipeline_layers, cache):
++        for i, (layer, layer_cache) in enumerate(zip(self.pipeline_layers, cache)):
+             h = layer(h, mask, layer_cache, inputs)
++            # H1: per-N-layer Metal command-buffer boundary + cache clear.
++            # The whole forward pass is built lazily; without intermediate
++            # boundaries, resources accumulate across decode steps until Apple
++            # Silicon's per-command-buffer resource_limit (499000) is exceeded
++            # (surfaces deep in the graph, e.g. hyper_connection, during a
++            # decode _step). mx.eval forces a boundary; mx.clear_cache releases
++            # the buffer pool each pass. See
++            # docs/deepseek-v4-flash-metal-oom-investigation.md H1.
++            if (i + 1) % 10 == 0:
++                mx.eval(h)
++                mx.clear_cache()
+ 
+         if pipeline_rank != 0:
+             h = mx.distributed.send(h, (pipeline_rank - 1) % pipeline_size)
