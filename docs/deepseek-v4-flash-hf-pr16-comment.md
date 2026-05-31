@@ -1,43 +1,32 @@
 # Paste-ready comment — deepseek-ai/DeepSeek-V4-Flash PR/discussion #16 ("Add chat template")
 
-URL: https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash/discussions/16
-Post under your HF account (no HF token configured locally). A shorter variant for the
-`mlx-community/DeepSeek-V4-Flash-2bit-DQ` repo's Community tab is at the bottom.
+**Post it here:** https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash/discussions/16
+(open the discussion, scroll to the comment box at the bottom, paste, "Comment". Needs your HF account.)
 
 ---
 
-A downstream data point from the MLX side, in support of landing this.
+**A data point from the MLX side, strongly in support of landing this.**
 
-The `mlx-community/DeepSeek-V4-Flash-2bit-DQ` conversion currently ships a minimal
-`chat_template.jinja` with **no tools branch**, so `mlx_lm.server` logs *"model does not support
-tool calling"* and silently drops the `tools` array — tool calling is broken out of the box on
-MLX, consistent with the "load-bearing for the agent ecosystem" note here.
+I tested how this template behaves on the heavily-quantized MLX build (`mlx-community/DeepSeek-V4-Flash-2bit-DQ`, ~96 GB, running under `mlx_lm` on a 128 GB Mac Studio).
 
-To check whether it's even worth wiring up on such a heavily quantized build, I added a tool-aware
-template + parser and benchmarked the **2-bit** model: **33/40 (82%)** on a jdhodges-style tool
-suite and **6/12 (50%)** on Veerman, up from 8/40 and 2/12 with tools dropped. So even the 2-bit
-MLX build is genuinely tool-capable once a template is present — more motivation to land one here
-and propagate it to the conversions.
+**Without a tool template** — the current state of that conversion — `mlx_lm.server` logs `"model does not support tool calling"` and silently drops the `tools` array, so tool calling is fully broken out of the box. This matches the "load-bearing for the agent ecosystem" observation in this thread.
 
-Heads-up for whoever ports this template to MLX: **mlx-lm matches tool-call markers by exact
-token-id sequence**. A marker whose closing bracket merges with the next emitted byte silently
-never matches — I hit this with a Hermes-style `<tool_call>` template (`>` + `\n` tokenize to one
-`>\n` token), and filed a fix for the generic `json_tools` parser: ml-explore/mlx-lm#1335 /
-ml-explore/mlx-lm#1336. The DSML core `｜DSML｜` is a special token in this tokenizer, but the full
-markers (`<｜DSML｜tool_calls>`, `<｜DSML｜invoke …>`) span several tokens, so it's worth confirming
-mlx-lm's matcher catches them cleanly when this template reaches MLX consumers.
+**With this DSML template** (ported into the conversion) **+ a DSML tool parser**, I benchmarked the 2-bit model on two tool-calling suites (greedy, thinking off):
 
-Full write-up + reproducer: https://github.com/snagnever/macstudio-local-llm/blob/deepseek-v4-tool-template/docs/benchmark-plans/2026-05-30-deepseek-v4-flash-tool-template.md
+| Suite | no template | Hermes `<tool_call>` workaround | **native DSML (this template)** |
+|---|---|---|---|
+| jdhodges (40) | 0 (tools dropped) | 33/40 (82 %) | **39/40 (98 %)** |
+| Veerman (12) | 0 | 6/12 (50 %) | **9/12 (75 %)** |
+| parallel multi-tool cases | — | 3/8 | **8/8** |
 
----
+Two takeaways:
 
-## Shorter variant — for `mlx-community/DeepSeek-V4-Flash-2bit-DQ` (Community → New discussion)
+1. **Even the 2-bit build is an excellent tool-caller in its native format** — 98 % on jdhodges, matching the best full-size local model I have on this rig (a 35B-A3B at 98 %). For a 2-bit checkpoint that's a strong argument that the template is what's gating tool use, not the model.
 
-**Title:** Tool calling: conversion ships no tool template (+ an mlx-lm parser gotcha)
+2. **Native DSML materially beats a generic Hermes `<tool_call>` workaround** (82 % → 98 %), and the gap is almost entirely **parallel calls**. DSML's single `<｜DSML｜tool_calls>` block containing multiple `<｜DSML｜invoke>` is what lets the model emit parallel calls reliably; when I coaxed it into emitting *separate* Hermes `<tool_call>` blocks instead, it produced only the first of N every time (3/8 on the parallel cases). I initially mistook that for a quantization ceiling — it wasn't; it was a format mismatch. So this template doesn't just make tool calls "more correct," it unlocks parallel calling.
 
-This conversion's `chat_template.jinja` has no tools branch, so `mlx_lm.server` drops the `tools`
-array ("model does not support tool calling") and tool calling fails out of the box. With a
-tool-aware template the 2-bit model reaches **82% jdhodges / 50% Veerman** tool-calling, so it's
-worth adding once the official template (deepseek-ai/DeepSeek-V4-Flash#16) lands. Note also that
-mlx-lm's `json_tools` parser misses calls when a marker's closing `>` merges with the next token
-(fix: ml-explore/mlx-lm#1335 / #1336) — relevant when wiring up any `<tool_call>`-style template here.
+**For MLX specifically:** `mlx-lm` ships no parser for DSML, so the template alone isn't sufficient there — I wrote one and submitted it upstream: [ml-explore/mlx-lm#1337](https://github.com/ml-explore/mlx-lm/pull/1337). One gotcha for anyone wiring DSML into mlx-lm: it matches tool-call markers by exact **token-id sequence**, and the marker's trailing `>` merges with the next byte on this tokenizer (`...tool_calls>\n` tokenizes as one `>\n` token), so a full-`>` marker silently never matches. I anchor on the `<｜DSML｜tool_calls` prefix instead — the `｜DSML｜` core is a special token, so it's a stable anchor. (Related generic fix for the same issue in the `json_tools` parser: [#1335](https://github.com/ml-explore/mlx-lm/issues/1335) / [#1336](https://github.com/ml-explore/mlx-lm/pull/1336).)
+
+Net: strong +1 to landing this template — it's the enabler, and it's worth propagating into the `mlx-community` conversions too.
+
+Methodology + per-case data: https://github.com/snagnever/macstudio-local-llm/blob/deepseek-v4-tool-dsml/docs/benchmark-plans/2026-05-30-deepseek-v4-flash-tool-template.md
