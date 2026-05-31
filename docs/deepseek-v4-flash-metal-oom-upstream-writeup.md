@@ -164,8 +164,9 @@ All on the environment in §2; patched = the §6 hunk only, `--temp 0.0`.
 | Forced‑gen reproducer (§4) | OOM at **11,314** tokens | **CLEAN to 19,989 tokens** |
 | Throughput (long gen) | ~31 tok/s | **31.3 tok/s** (no regression) |
 | 40‑case tool‑call sweep, single long‑lived server | **49 Metal OOMs**, aborted (first OOM at case 20), 161 min | **0 Metal OOMs, 40/40 complete, 19.8 min** |
+| Knowledge‑bench soak (MMLU+GPQA+HumanEval n=100 each), **300 requests** on a single long‑lived server, ~2h44m | — | **0 Metal OOMs, 300/300, 0 errors, clean shutdown** |
 
-The sweep is the strongest signal for the cross‑request accumulation mode: the exact case that triggered the first OOM unpatched (`multi_email_after_calendar_read`) now completes cleanly, and the server never wedges.
+The sweep is the strongest signal for the cross‑request accumulation mode: the exact case that triggered the first OOM unpatched (`multi_email_after_calendar_read`) now completes cleanly, and the server never wedges. The 300‑request knowledge‑bench soak adds sustained, varied load — including 51 requests that ran the full 4096‑token cap (long/degenerate generations, the hardest case for the leak) — with zero residency errors throughout.
 
 *(Unrelated caveat: this checkpoint loops at `temp=0.0` on some prompts — a separate known issue, mitigated with `--temp 0.6`. It is orthogonal to this OOM; with the fix, a loop merely runs to `max_tokens` instead of crashing.)*
 

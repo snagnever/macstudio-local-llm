@@ -4,6 +4,16 @@ Paste‑ready **issue** and **PR** bodies, condensed from
 [`deepseek-v4-flash-metal-oom-upstream-writeup.md`](deepseek-v4-flash-metal-oom-upstream-writeup.md)
 (link the full writeup, or a gist of it, for depth).
 
+## ✅ Submitted 2026-05-30
+
+- **Issue:** [ml-explore/mlx-lm#1332](https://github.com/ml-explore/mlx-lm/issues/1332)
+- **PR:** [Blaizzy/mlx-lm#25](https://github.com/Blaizzy/mlx-lm/pull/25) (base `pc/add-deepseekv4flash-model`, head `snagnever:fix/deepseek-v4-metal-residency-leak`, 1 file / +22)
+- **Heads-up comment on #1192:** [comment 4585428668](https://github.com/ml-explore/mlx-lm/pull/1192#issuecomment-4585428668) — links both the issue and the PR.
+
+The drafts below are the source the posted bodies were condensed from.
+
+---
+
 ## Targeting note (read first)
 
 DeepSeek‑V4 support is **not merged** — it lives in open PR
@@ -13,9 +23,11 @@ with multiple testers reporting this exact failure. So:
 - **Issue:** file on `ml-explore/mlx-lm` referencing #1192 **and/or** post the same as a comment
   on #1192 (where the affected testers are). The reproducer there is the community signal.
 - **PR:** must target the branch that actually contains `mlx_lm/models/deepseek_v4.py` — i.e.
-  open it against **Blaizzy's `deepseek-v4` branch** (the head of #1192), not `main` (the file
-  doesn't exist in `main` yet). Alternatively, offer the patch as a comment on #1192 if the
-  author prefers to fold it in.
+  open it against **Blaizzy's `pc/add-deepseekv4flash-model` branch** (the head of #1192,
+  @ `5c10538`), not `main` (the file doesn't exist in `main` yet). Mechanically: branch off that
+  head in the `snagnever/mlx-lm` fork, apply the patch, push, then
+  `gh pr create --repo Blaizzy/mlx-lm --base pc/add-deepseekv4flash-model --head snagnever:<branch>`.
+  Alternatively, offer the patch as a comment on #1192 if the author prefers to fold it in.
 - Keep `repetition_penalty`/quant‑quality remarks **out** of the PR — they're unrelated to the
   leak (noted at the end of the PR draft only as a heads‑up).
 
@@ -85,7 +97,9 @@ for s in range(500):
 **It is not** a memory‑size problem, **not** a single‑forward‑pass / per‑command‑buffer
 problem, and **not** prompt‑cache‑length driven (a 58‑token prompt OOMs at the same step count).
 
-Full analysis + the diagnostic path (ablation, force‑eval, ruling out `mx.compile`/RoPE/expert‑paging): **[link to writeup/gist]**. PR with the fix: **[link]**.
+Full analysis + the diagnostic path (ablation, force‑eval, ruling out `mx.compile`/RoPE/expert‑paging):
+**[full writeup](https://github.com/snagnever/macstudio-local-llm/blob/deepseek-v4-metal-oom-fix/docs/deepseek-v4-flash-metal-oom-upstream-writeup.md)**.
+PR with the fix: **[Blaizzy/mlx-lm#25](https://github.com/Blaizzy/mlx-lm/pull/25)**.
 
 ---
 
@@ -143,6 +157,7 @@ per cache), so the cost is negligible.
 | forced 20K‑token generation | OOM at **11,314** | **clean to 19,989**, 0 OOMs |
 | throughput (long gen) | ~31 tok/s | **31.3 tok/s** (no regression) |
 | 40‑request tool‑call sweep, single long‑lived server | **49 OOMs**, aborted at request 20 | **0 OOMs, 40/40, 19.8 min** |
+| knowledge‑bench soak (MMLU+GPQA+HumanEval, **300 requests**), single long‑lived server | — | **0 OOMs, 300/300, 0 errors, ~2h44m** |
 
 ### Notes
 - Walking each leaf cache's array attributes (rather than a `.state` accessor) covers
@@ -157,4 +172,5 @@ per cache), so the cost is negligible.
   open‑ended chat — a quantization‑quality issue independent of this leak.*)*
 
 ### Targeting
-DeepSeek‑V4 isn't in `main`; this targets the #1192 branch (`mlx_lm/models/deepseek_v4.py`).
+DeepSeek‑V4 isn't in `main`; this targets the #1192 head branch
+`Blaizzy:pc/add-deepseekv4flash-model` (which is where `mlx_lm/models/deepseek_v4.py` lives).
