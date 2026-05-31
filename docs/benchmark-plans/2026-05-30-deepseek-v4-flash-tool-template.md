@@ -54,8 +54,31 @@ subsequence. (`>` only survives as token 32 at end-of-string; anything following
   `get_weather({"city":"Paris"})`, `calculator({"expression":"19^2 + 7"})`.
   (With the stock `json_tools` parser the model emitted identical *content* but the server returned
   it as text — `tool_calls` null — due to the token-merge above. The custom parser fixed it.)
-- **Full tool benches (jdhodges 40 + Veerman 12) — running** to quantify vs the prose floor
-  (8/40, 2/12). Results land in `M4_MAX_128GB_NOTES.md` + this section.
+- **Full tool benches — DONE ✅.** With the template + `deepseek_json` parser:
+  **jdhodges 33/40 (82 %)** (was 8/40) and **Veerman 6/12 (50 %)** (was 2/12) — combined
+  **39/52 (75 %)**, 0 OOMs. The model's tool calls are well-formed; every miss is a
+  reasoning/coverage issue, not a format/parse one.
+
+### Failure-pattern analysis (13 misses / 52)
+
+| Mode | # | Notes |
+|---|---|---|
+| Partial multi-tool (1 of N parallel) | 5 | the call made is correct; it just stops after the first |
+| Wrong tool selected | 3 | genuine 2-bit reasoning slips |
+| No call (asked to clarify) | 2 | defensible on ambiguous prompts |
+| Over-called (restraint) | 2 | fired a tool when none was needed |
+| Right tool, missing arg | 1 | dropped `units: celsius` |
+
+### Multi-tool template tweak — TRIED, REVERTED ❌
+
+Hypothesis: the 5 partial-multi-tool misses were a template gap (single-call example). Tweaked the
+instruction to demand "emit ALL parallel calls as consecutive `<tool_call>` blocks" + a two-block
+example, re-ran both suites. **Result: no improvement** — jdhodges **33/40 (identical)**, Veerman
+7/12 (+1 via an unrelated ambiguous case). All 4 genuinely-parallel cases **still emitted only the
+first call**, and one single-call case (`multi_paris`) *regressed* to no-call from the longer
+instruction. **Conclusion: parallel multi-tool emission is a 2-bit capability ceiling, not a
+template gap** — the model understands the instruction, emits a perfect first call, then stops.
+Reverted to the simpler original template (33/40, 6/12 stand as the result).
 
 ## Live-test runbook (run AFTER the benchmark queue completes)
 
