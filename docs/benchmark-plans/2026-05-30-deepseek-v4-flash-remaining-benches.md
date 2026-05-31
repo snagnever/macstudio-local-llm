@@ -23,7 +23,7 @@ scores are expected at the 2-bit quality floor.
 | 2 | **DROP** | `bench2.py` | 100 | 2048 | ~20–30 min | short extractive answers → low degeneration, fast | ☑ 71 % (16 min, 0 OOM) |
 | 3 | **Throughput scenarios** | `local-llm-bench/bench.py` | 4 | per-scenario | ~30 min | bounded token budgets; fills throughput scoreboard | ☐ |
 | 4 | **MATH** | `bench2.py` | 100 | 4096 | ~60–90 min | long reasoning + degeneration, like GPQA | ☑ 47 % (105 min, 41 TRUNC, 0 OOM) |
-| 5 | **LiveCodeBench v6** | `bench2.py` | 50 | 8192 | ~60–120 min | long code-gen + per-test execution; slowest knowledge bench | ☐ |
+| 5 | **LiveCodeBench v6** | `bench2.py` | 50 | 8192 | ~60–120 min | long code-gen + per-test execution; slowest knowledge bench | ☑ 6 % (171 min, 40 TRUNC, 0 OOM) |
 | 6 | **Terminal-Bench 2.0** | `harbor` + docker | 89 tasks | — | multi-hour | multi-turn agent loop; longest + hardest; run last when confident | ☐ |
 
 ## Shared setup (one long-lived patched server for the whole queue)
