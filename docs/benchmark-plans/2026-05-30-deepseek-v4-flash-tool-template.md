@@ -80,6 +80,36 @@ instruction. **Conclusion: parallel multi-tool emission is a 2-bit capability ce
 template gap** — the model understands the instruction, emits a perfect first call, then stops.
 Reverted to the simpler original template (33/40, 6/12 stand as the result).
 
+> **⚠️ CORRECTION (2026-05-31): that "2-bit ceiling" conclusion was WRONG.** It was a *format
+> tax*, not a quant limit — see below.
+
+## Native DSML — the real fix (disproves the "ceiling" above)
+
+The Hermes `<tool_call>` format is **not** what DeepSeek-V4 was trained on. Its native tool format is
+**DSML** (`<｜DSML｜tool_calls>` / `<｜DSML｜invoke name=…>` / `<｜DSML｜parameter name=… string=…>`),
+with multiple `<｜DSML｜invoke>` inside one `<｜DSML｜tool_calls>` block — i.e. **parallel calls are
+native**. The official template is [deepseek-ai/DeepSeek-V4-Flash#16](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash/discussions/16).
+
+Ported that template into the MLX conversion + wrote a `deepseek_dsml` parser (modeled on
+`minimax_m2`), thinking OFF (`thinking_mode=chat`), re-benched:
+
+| Suite | Hermes (workaround) | **Native DSML** | Δ |
+|---|---|---|---|
+| jdhodges | 33/40 (82 %) | **39/40 (98 %)** | +16pp |
+| Veerman | 6/12 (50 %) | **9/12 (75 %)** | +25pp |
+| Combined | 39/52 (75 %) | **48/52 (92 %)** | +17pp |
+| multi_tool category | 3/8 | **8/8** | every parallel case fixed |
+
+jdhodges per-category under DSML: tool_selection 8/8, argument_accuracy 8/8, **multi_tool 8/8**,
+format_compliance 8/8, edge_cases 7/8 (the single miss is one restraint case). 0 OOMs.
+
+**The corrected conclusion:** the partial-multi-tool failures were entirely a **format tax** from
+forcing the model into a non-native format. In its native DSML format the 2-bit model emits parallel
+calls correctly and reaches **98 % jdhodges — matching the best full-size local on this rig**
+(qwen3.6-35b-a3b, also 98 %). The model's true tool-calling ability was far higher than the Hermes
+82 % suggested. Artifacts: [`assets/deepseek-v4-dsml/`](../../assets/deepseek-v4-dsml/)
+(template + `deepseek_dsml.py` parser + install). This is the configuration to use going forward.
+
 ## Live-test runbook (run AFTER the benchmark queue completes)
 
 1. Stop the benchmark queue (server + driver): `pkill -f mlx_lm.server; pkill -f bench2.py`.
