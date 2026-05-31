@@ -20,24 +20,42 @@ this rig, so tool-calling benches measure the *model*, not a template gap.
 mlx-lm *does* ship a generic **`json_tools`** parser (Hermes/Qwen2.5 `<tool_call>{json}</tool_call>`
 format, markers `<tool_call>`/`</tool_call>`). That's the route.
 
-## The fix (two files in the model dir)
+## The fix (three pieces)
 
 1. **`chat_template.jinja`** → [`assets/deepseek-v4-tool-template/chat_template.jinja`](../../assets/deepseek-v4-tool-template/chat_template.jinja):
    DeepSeek turn markers (`<｜User｜>/<｜Assistant｜>/</think>`) **+** a Hermes-style `<tools>` block
    (injects the function schemas + the `<tool_call>` output spec) and `<tool_call>` rendering for
    assistant tool calls / `<tool_response>` for tool results.
-2. **`tokenizer_config.json`** → add `"tool_parser_type": "json_tools"` (robust; doesn't rely on
-   `_infer_tool_parser` substring matching). This flips `has_tool_calling` True and selects the
-   parser that round-trips `<tool_call>…</tool_call>` back into OpenAI `tool_calls`.
+2. **Custom tool parser** → [`assets/deepseek-v4-tool-template/deepseek_json.py`](../../assets/deepseek-v4-tool-template/deepseek_json.py),
+   deployed into `venvs/mlx-v4-flash/.../mlx_lm/tool_parsers/`. **This is the key piece** — see the
+   token-merge finding below. Its start marker is `<tool_call` (no trailing `>`) and it extracts the
+   first brace-balanced JSON object, surviving the BPE merge and the leftover `>`/`</tool_call>`.
+3. **`tokenizer_config.json`** → `"tool_parser_type": "deepseek_json"`. Flips `has_tool_calling`
+   True, selects the custom parser.
+
+### The token-merge finding (why the stock `json_tools` parser fails)
+
+The model emits *perfect* tool calls — `<tool_call>\n{"name": …, "arguments": …}\n</tool_call>` with
+valid JSON. But mlx-lm's state machine detects tool calls by matching the **token sequence** of the
+start marker. Stock `json_tools` uses `"<tool_call>"` → tokens `(30, 72461, 112042, 32)` = `<`,`tool`,
+`_call`,`>`. When the model emits `<tool_call>\n`, BPE **greedily merges `>` + `\n` into one `>\n`
+token (1018)**, so the 4-token marker is never a subsequence of the stream and the machine never
+enters tool-capture mode → the call is returned as plain content, `tool_calls` stays null. The custom
+parser matches on the stable `<tool_call` prefix (`30, 72461, 112042`) instead, which *is* always a
+subsequence. (`>` only survives as token 32 at end-of-string; anything following it merges.)
 
 ## Verification status
 
-- **Plumbing — DONE (in-process, no GPU/server, queue untouched).** Loaded the patched tokenizer
-  on a temp copy: `has_tool_calling=True`, `tool_call_start='<tool_call>'`, and
-  `apply_chat_template(..., tools=[...])` injects the `<tools>` schema + `<tool_call>` spec. Evidence:
-  [`assets/deepseek-v4-tool-template/inprocess-verify.txt`](../../assets/deepseek-v4-tool-template/inprocess-verify.txt).
-- **Live emission — PENDING (needs the server; deferred until the running DROP/MATH/LCB queue
-  finishes so it isn't disrupted).**
+- **Plumbing — DONE (in-process).** Patched tokenizer: `has_tool_calling=True`, tools injected.
+  Evidence: [`inprocess-verify.txt`](../../assets/deepseek-v4-tool-template/inprocess-verify.txt).
+- **Live emission — DONE ✅ (2026-05-30).** With the **custom `deepseek_json` parser**, a 4-prompt
+  probe went from **0/4 → 4/4** tool calls, correct names + arguments, 0 OOMs:
+  `get_weather({"city":"Tokyo"})`, `calculator({"expression":"4827 * 391"})`,
+  `get_weather({"city":"Paris"})`, `calculator({"expression":"19^2 + 7"})`.
+  (With the stock `json_tools` parser the model emitted identical *content* but the server returned
+  it as text — `tool_calls` null — due to the token-merge above. The custom parser fixed it.)
+- **Full tool benches (jdhodges 40 + Veerman 12) — running** to quantify vs the prose floor
+  (8/40, 2/12). Results land in `M4_MAX_128GB_NOTES.md` + this section.
 
 ## Live-test runbook (run AFTER the benchmark queue completes)
 
