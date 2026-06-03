@@ -46,8 +46,13 @@ Three roles cannot all be resident. `coder-next@6bit` (65 GB) + `qwen3.6-27b` (2
 | **JIT swap (default)** | One at a time | — | Cleanest. ~5–15 s cold-load when switching roles. Matches "use the right tool for the job". |
 | **Two-resident pair** | `coder-next@4bit` (~44 GB) + `qwen3.6-27b` (22.8 GB) | ~67 GB | Bouncing between planning and agent inside one session. Loses ~3–4 pp of coder-next quality at 4-bit; folds the code slot into agent (only −6 pp LCB vs Gemma peak). |
 | **Code-heavy resident** | `gemma-4-26b-a4b@6bit` (21.8 GB) + `qwen3.6-27b` (22.8 GB) | ~44.6 GB | Pure code + planning day, no agent loops. Two always-hot models, both Phase-2 winners. |
+| **Coder + fast Gemma** ⭐ | `coder-next@4bit` (~44 GB) + `gemma-4-26b-a4b@6bit` (21.8 GB) | ~66 GB | Agent loops + a fast always-hot generalist/code model in one session. The Gemma slot doubles as the rig's single-shot code-quality ceiling (LCB 80 %, 80 t/s). ~14 GB KV headroom — see [Two-Resident Pair: context math](#two-resident-pair-context-math). |
 
 Default to JIT swap unless cold-loads start adding up in a session.
+
+> **Why pair the coder at 4-bit, not 6-bit?** `coder-next@6bit` (64.76 GB) + `gemma-4-26b-a4b@4bit` (15.64 GB) = 80.4 GB — already at the 80 GB rule *before any KV cache*, and the combo that has historically caused queue stalls. Dropping the coder to 4-bit (~44 GB) costs only ~3–4 pp agentic quality and buys ~14 GB of shared KV headroom. If you must keep the coder at 6-bit, the only fast Gemma that fits alongside it is `gemma-4-e4b` (8.97 GB → 73.7 GB total), which is autocomplete/tool-format-only (MATH collapses to 14 %).
+>
+> ⏳ Caveat: `coder-next@4bit` throughput is still un-benched on this rig (only 6-bit verified at 68–70 t/s); the quality delta is estimated, not measured.
 
 ---
 
@@ -188,6 +193,29 @@ When loading a model in LM Studio, **always set Context Length explicitly**:
 | Short chat / quick tasks | 32,768 |
 
 Don't max out at 262k+ unless actively needed — KV cache reserves memory proportional to this setting, and unbounded growth was the root cause of past stalls.
+
+### Two-Resident Pair: context math
+
+For the **Coder + fast Gemma** pair (`coder-next@4bit` + `gemma-4-26b-a4b@6bit`, ~66 GB weights), the KV-cache cost per token is unusually low because *both* models are architecturally KV-cheap — far cheaper than a dense model like `qwen3.6-27b`:
+
+- **`coder-next` (`qwen3_next`)** is a hybrid: `full_attention_interval: 4`, so only **12 of 48** layers keep a growing KV cache (the other 36 are linear-attention with constant recurrent state), and it uses just **2 KV heads** × head_dim 256.
+- **`gemma-4-26b-a4b`** uses **sliding-window** attention (window 1024) on **25 of 30** layers — those are capped regardless of context — leaving only **5 `full_attention`** layers that grow, at 8 KV heads × head_dim 256.
+
+Combined memory at matched context length (fp16 KV, both models loaded):
+
+| Context (each) | coder KV | gemma KV | Combined KV | + 66 GB weights | vs 80 GB rule |
+|---|---|---|---|---|---|
+| 32,768 | ~0.8 GB | ~1.5 GB | ~2.3 GB | ~68 GB | ✅ tons of room |
+| **65,536** | ~1.6 GB | ~2.9 GB | **~4.5 GB** | **~70.5 GB** | ✅ comfortable — **default** |
+| 131,072 | ~3.3 GB | ~5.6 GB | ~8.9 GB | ~75 GB | ✅ still under |
+| 262,144 | ~6.4 GB | ~11 GB | ~17 GB | ~83 GB | ❌ over the line |
+
+**Recommended: set both to 65,536 (64k).** Pair lands at ~70 GB with ~10 GB of slack under the 80 GB rule for prefill/thinking spikes — and unlike a coder-only resident, you can afford 64k on *both* models.
+
+- **Big repo in the coder's window?** Push `coder-next` to **131,072** and keep Gemma at 32–64k — the coder's hybrid layers make its long context the cheap one (~3.3 GB at 128k). That combo is still only ~74 GB.
+- **Don't set 262k on both** — that single config (~83 GB) breaks the budget and reintroduces the stall risk.
+
+> Numbers assume MLX honors the sliding-window (`RotatingKVCache`) and linear-attention caches and stores KV at fp16 — which mlx-lm does for these architectures. Keep LM Studio's "keep last used JIT model loaded" **OFF** so a swap never tries to hold a third model alongside the pair.
 
 ---
 
