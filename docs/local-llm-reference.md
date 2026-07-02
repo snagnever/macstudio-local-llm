@@ -374,6 +374,23 @@ lms server start    # start the server
 - Model identifier must match exactly what `/v1/models` returns
 - Verify with: `curl http://<lm-studio-host>:1234/v1/models | jq '.data[].id'`
 
+**Symptom: model emits raw `<|channel>thought <channel|>` markers and loops, no answer**
+- Seen on `gemma-4-26b-a4b@6bit` in Hermes. **Not** the quant — it's a chat-template / special-token mismatch
+- Root cause: the client wraps a *no-reasoning* model (Gemma 4 A4B) in a harmony/channel reasoning template it was never trained for → empty `thought` channel loop, markers leak because the tokenizer splits `<|channel|>` into text
+- Fix (most cases): disable the reasoning format for this model in Hermes (plain/none)
+- Confirm the build: `tok.encode("<|channel|>")` must be **one** id, not 4–5; if not, the special tokens are missing from the conversion
+- Localize: if `mlx_lm.generate` on the CLI is clean but Hermes isn't → it's the client wrapper. Full writeup: [`gemma-4-channel-token-leak-writeup.md`](gemma-4-channel-token-leak-writeup.md)
+
+**Symptom: `Error rendering prompt with jinja template: "Cannot perform operation + on undefined values"`**
+- Seen on `hermes-4-70b` (MLX) in LM Studio, on a tool-calling conversation. **Not** the weights or your messages — it's the chat template hitting an undefined variable
+- Root cause: LM Studio's Jinja engine (minja) didn't supply `bos_token`, and the Hermes-4 template opens with `bos_token + '<|start_header_id|>…'` (both the tools branch and plain-chat branch). `undefined + string` → the error. Empty-string `content` on tool-call turns is fine; content is not the problem
+- Diagnose: render the exact payload with `bos_token` defined vs. undefined — undefined reproduces it, defined renders clean (see writeup for the repro script)
+- Fix: add a guarded fallback near the top of `chat_template.jinja`, then eject + reload the model:
+  ```jinja
+  {%- if not bos_token is defined %}{% set bos_token = '<|begin_of_text|>' %}{% endif %}
+  ```
+  The literal matches `special_tokens_map.json` (Llama-3.1 base); the guard is a no-op if LM Studio ever does provide `bos_token`, so no double-BOS risk. Full writeup: [`hermes-4-bos-token-minja-writeup.md`](hermes-4-bos-token-minja-writeup.md)
+
 ---
 
 ## Performance Expectations (verified on this rig)
