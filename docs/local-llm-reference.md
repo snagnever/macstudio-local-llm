@@ -382,14 +382,12 @@ lms server start    # start the server
 - Localize: if `mlx_lm.generate` on the CLI is clean but Hermes isn't → it's the client wrapper. Full writeup: [`gemma-4-channel-token-leak-writeup.md`](gemma-4-channel-token-leak-writeup.md)
 
 **Symptom: `Error rendering prompt with jinja template: "Cannot perform operation + on undefined values"`**
-- Seen on `hermes-4-70b` (MLX) in LM Studio, on a tool-calling conversation. **Not** the weights or your messages — it's the chat template hitting an undefined variable
-- Root cause: LM Studio's Jinja engine (minja) didn't supply `bos_token`, and the Hermes-4 template opens with `bos_token + '<|start_header_id|>…'` (both the tools branch and plain-chat branch). `undefined + string` → the error. Empty-string `content` on tool-call turns is fine; content is not the problem
-- Diagnose: render the exact payload with `bos_token` defined vs. undefined — undefined reproduces it, defined renders clean (see writeup for the repro script)
-- Fix: add a guarded fallback near the top of `chat_template.jinja`, then eject + reload the model:
-  ```jinja
-  {%- if not bos_token is defined %}{% set bos_token = '<|begin_of_text|>' %}{% endif %}
-  ```
-  The literal matches `special_tokens_map.json` (Llama-3.1 base); the guard is a no-op if LM Studio ever does provide `bos_token`, so no double-BOS risk. Full writeup: [`hermes-4-bos-token-minja-writeup.md`](hermes-4-bos-token-minja-writeup.md)
+- Seen on `hermes-4-70b` (MLX) in LM Studio, tool-calling conversation. **Not** the weights, quant, or your messages — it's the chat template doing `+` on an undefined value. minja (LM Studio's Jinja) throws here where Python wouldn't. Two independent causes, same message:
+- **Cause #1 — the one that bites agents (CoT-strip index):** when thinking is on, the template runs `content.split('</think>', 1)[1]` on prior assistant turns. A normal reply with **no `</think>`** → 1-element list → `[1]` out of range → undefined → `+` fails. Thinking is turned on by a **`reasoning_effort`** field in the request (e.g. `hermes-agent` sends `"reasoning_effort": "medium"`), mapped to the jinja `thinking` var via this build's `model.yaml`. Intermittent because it needs thinking=on **and** a prior no-`</think>` turn
+  - Fix (both occurrences in `chat_template.jinja`): `{%- if '</think>' in content %}…the split…{%- endif %}` — only strip when there's a `</think>`
+- **Cause #2 — latent (`bos_token`):** both branches open with `bos_token + '…'`; if the runtime doesn't supply `bos_token` → `undefined + string`. Guard it: `{%- if not bos_token is defined %}{% set bos_token = '<|begin_of_text|>' %}{% endif %}` (no-op when supplied, so no double-BOS)
+- **After editing:** LM Studio caches the parsed template — **eject + reload** the model (or restart the server); a plain regenerate keeps the stale cache
+- Diagnose: render the exact payload with `thinking=True` vs `False` — True reproduces it. Full writeup: [`hermes-4-minja-render-error-writeup.md`](hermes-4-minja-render-error-writeup.md)
 
 ---
 
