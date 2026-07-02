@@ -374,6 +374,13 @@ lms server start    # start the server
 - Model identifier must match exactly what `/v1/models` returns
 - Verify with: `curl http://<lm-studio-host>:1234/v1/models | jq '.data[].id'`
 
+**Symptom: model emits raw `<|channel>thought <channel|>` markers and loops, no answer**
+- Seen on `gemma-4-26b-a4b@6bit` in Hermes. **Not** the quant — it's a chat-template / special-token mismatch
+- Root cause: the client wraps a *no-reasoning* model (Gemma 4 A4B) in a harmony/channel reasoning template it was never trained for → empty `thought` channel loop, markers leak because the tokenizer splits `<|channel|>` into text
+- Fix (most cases): disable the reasoning format for this model in Hermes (plain/none)
+- Confirm the build: `tok.encode("<|channel|>")` must be **one** id, not 4–5; if not, the special tokens are missing from the conversion
+- Localize: if `mlx_lm.generate` on the CLI is clean but Hermes isn't → it's the client wrapper. Full writeup: [`gemma-4-channel-token-leak-writeup.md`](gemma-4-channel-token-leak-writeup.md)
+
 ---
 
 ## Performance Expectations (verified on this rig)
