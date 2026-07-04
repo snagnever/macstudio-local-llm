@@ -90,6 +90,7 @@ Run a phase to completion before starting the next.
 | # | Model | Plan |
 |---|---|---|
 | 10 | `deepseek-v4-flash-dq` (2-bit DQ, 96.53 GB) | Load-test first: cap context at 32 768, confirm it loads and stays under 128 GB with margin. If yes, run **tool-calling only** — cheapest useful signal. Full knowledge suite only if it actually fits long-context workloads. |
+| 11 | `MiniMax-M2.5-3bit` (93 GiB, 256E/8A MoE) | ⛔ **NO-GO — feasibility ABORTED (2026-07-04).** Loads and generates coherently (tool-calling jdhodges 97.5 %, HumanEval 95.8 %, LCB v6 ~68–74 % partial), but under sustained inference it **reproducibly kernel-panics the host ×3** in Apple's GPU driver (`IOGPUGroupMemory`/`AGXG16X`), independent of parallelism, context, memory pressure, and KV quantization. Not viable on this stack (macOS 25D125 + MLX). Do not re-test without an OS/MLX update or a different runtime (GGUF/llama.cpp). Plan: [`benchmark-plans/2026-07-03-minimax-m2.5-feasibility.md`](benchmark-plans/2026-07-03-minimax-m2.5-feasibility.md); data: [`M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md). |
 
 ### Phase 4 — watchlist (not on disk; test on arrival)
 
