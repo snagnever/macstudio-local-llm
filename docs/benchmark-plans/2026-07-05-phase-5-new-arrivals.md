@@ -379,3 +379,28 @@ Kimi-Dev distillation).
 **Harness note:** the machine's Python env had lost the harness deps; stood up a fresh
 `tools/local-llm-bench-m4-32gb/.venv` (uv, py3.11) with `openai`+`datasets`+`pyyaml`+
 `huggingface_hub`. Invoke benches as `.venv/bin/python scripts/…`.
+
+### bonus — `deepseek-v4-flash@iq2_xs` (GGUF) — ✅ GO, ladder in progress (2026-07-05)
+
+Not one of the six committed Phase 5 models (it was parked as "needs the cchuter fork"),
+but tested this session and **the runtime win of the day.** Full recipe + scoreboard in
+`M4_MAX_128GB_NOTES.md` (§ DeepSeek-V4-Flash GGUF). Summary:
+
+- **Feasibility SOLVED without a fork.** llama.cpp **2.24.0** (LM Studio beta runtime)
+  knows `deepseek4`; standalone `llama-server --no-repack -np 1 -ngl 999` on :1235 runs it.
+  **16,384-tok soak, memory flat 82.3 GB, no leak** — clears the MLX `resource_limit` wall
+  that blocked `deepseek-v4-flash-dq` for weeks. LM Studio-native blocked (no repack toggle);
+  MLX blocked (`deepseek_v4` unsupported in mlx-llm 1.9.1).
+- **Non-thinking** (0 reasoning tokens) → effective throughput = raw ~10 t/s.
+- **Cheap signals:** jdhodges **87.5 %** (overturns the MLX 12.5 % crash-floor), Veerman
+  **58.3 %**, HumanEval **88 %** (0 trunc). LCB v6 **stopped at 7/50 (86 %)**; MMLU pending.
+
+**Next steps (deliberately deferred):**
+1. **Finish LCB v6 overnight** — restart server, run `--only 8..50 --max-tokens 32768` then
+   manually merge with Q1–7 (bench2 writes a fresh summary, no auto-merge), or re-run all 50
+   fresh. ~4–6 h; a few hard cases may hit the 32 768 cap (~55 min each). Partial: 7/50, 86 %.
+2. **MMLU (100)** after LCB.
+3. Then charts + `local-llm-reference.md` slot (it's the only runnable large-MoE / DeepSeek-V4
+   on this rig).
+
+**Stopped 2026-07-05** mid-LCB by user request to bank the findings; server unloaded, rig free.

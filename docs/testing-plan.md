@@ -118,9 +118,16 @@ which even load on the current stack — bundled llama.cpp 2.23.1 + mlx-llm 1.9.
 | 16 | `mellum2-12b-a2.5b-thinking-mlx` | MLX bf16 | 24.3 GB | `mellum` | 🔴 verify | Small thinking coder (12B/2.5B, FIM slot). Arch likely needs an mlx-lm fork — load-probe. |
 | 17 | `nousresearch/hermes-4-70b` | MLX 6-bit | 57.3 GB | `llama` | 🔴 blocked | Reasoning/agentic 70B. Parked on the `bos_token` minja chat-template break. |
 
-`deepseek-v4-flash@iq2_xs` / `@q2_k` (GGUF, arch `deepseek4`) also arrived but
-need the `cchuter/llama.cpp` `feat/v4-port-cuda` fork (stock llama.cpp lacks V4)
-— a from-source build tracked separately, not part of Phase 5.
+**`deepseek-v4-flash@iq2_xs` (GGUF, arch `deepseek4`) — ✅ GO / feasibility solved
+2026-07-05.** No fork needed after all: **llama.cpp 2.24.0** (LM Studio beta runtime)
+recognizes `deepseek4`; run the standalone `llama-server` with `--no-repack -np 1`
+(LM Studio-native is blocked — no repack toggle). Runs cleanly where the MLX build
+never could (16k-tok soak, flat 82 GB, no leak). Cheap signals so far: ~10 t/s
+(non-thinking), jdhodges **87.5 %**, Veerman **58.3 %**, HumanEval **88 %**; LCB v6
+**stopped at 7/50 (86 %) — finish overnight**; MMLU pending. Full recipe + verdict in
+[`M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md)
+(§ DeepSeek-V4-Flash GGUF) and the Phase 5 plan Outcome. The MLX `deepseek-v4-flash-dq`
+stays blocked (mlx-llm 1.9.1: `Model type deepseek_v4 not supported`).
 
 **Cheap-signal ladder for Phase 5** (the committed scope; expensive tail gated):
 `speed → tool-calling → HumanEval → LCB → MMLU`. See the
