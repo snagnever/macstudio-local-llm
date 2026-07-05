@@ -109,6 +109,40 @@ From [`docs/local-llm-reference.md`](local-llm-reference.md):
 - `mlx-community/Kimi-K2.6-Thinking-*` distilled — watch for a fitting distillation size.
 - `0xSero/Gemma-4-21B-REAP` (GGUF) — optional reproducibility check now that the un-pruned 26B-A4B is local.
 
+### Phase 5 — new arrivals (Jun–Jul 2026 wave)
+
+Full plan: [`docs/benchmark-plans/2026-07-05-phase-5-new-arrivals.md`](benchmark-plans/2026-07-05-phase-5-new-arrivals.md).
+Six models landed after the 2026-05-18 inventory snapshot. **Gate on runtime
+loadability first** (LM Studio arch badges + model-card runtime notes tell us
+which even load on the current stack — bundled llama.cpp 2.23.1 + mlx-llm 1.9.1)
+*before* committing bench hours. Run order is `(value × confidence) / cost`.
+
+| # | Model (API id) | Fmt / quant | Size | Arch | Loads now? | Role / why |
+|---|---|---|---|---|:---:|---|
+| 12 | `agents-a1-xl-mlx` | MLX 6-bit | 29.9 GB | `qwen3_5_moe` | 🟢 resident | Agentic Qwen3.5-MoE fine-tune → tool-calling signal. Zero load cost. |
+| 13 | `google/gemma-4-31b-qat` | GGUF Q4_0 | 18.9 GB | `gemma4` | 🟢 yes | **Engine A/B** (Step F): GGUF-QAT vs already-benched MLX-8-bit `gemma-4-31b-it`. |
+| 14 | `kimi-dev-72b` | GGUF UD-Q6_K_XL | 67.2 GB | `qwen2` | 🟢 loads | ⛔ **ABORTED 2026-07-05** — speed **~7 t/s** (slowest on rig) + no structured tool-calling + mandatory `◁think▷` spirals → disqualified as daily driver; coding-quality tail not worth ~1–2 rig-days. See NOTES. |
+| 15 | `unsloth/minimax-m2.5` | GGUF Q3_K_S | 98.7 GB | `minimax-m2` | 🟡 gate | **The MiniMax NO-GO retry** via llama.cpp's different Metal path. Feasibility soak first. |
+| 16 | `mellum2-12b-a2.5b-thinking-mlx` | MLX bf16 | 24.3 GB | `mellum` | 🔴 verify | Small thinking coder (12B/2.5B, FIM slot). Arch likely needs an mlx-lm fork — load-probe. |
+| 17 | `nousresearch/hermes-4-70b` | MLX 6-bit | 57.3 GB | `llama` | 🔴 blocked | Reasoning/agentic 70B. Parked on the `bos_token` minja chat-template break. |
+
+**`deepseek-v4-flash@iq2_xs` (GGUF, arch `deepseek4`) — ✅ GO / feasibility solved
+2026-07-05.** No fork needed after all: **llama.cpp 2.24.0** (LM Studio beta runtime)
+recognizes `deepseek4`; run the standalone `llama-server` with `--no-repack -np 1`
+(LM Studio-native is blocked — no repack toggle). Runs cleanly where the MLX build
+never could (16k-tok soak, flat 82 GB, no leak). Cheap signals so far: ~10 t/s
+(non-thinking), jdhodges **87.5 %**, Veerman **58.3 %**, HumanEval **88 %**; LCB v6
+**stopped at 7/50 (86 %) — finish overnight**; MMLU pending. Full recipe + verdict in
+[`M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md)
+(§ DeepSeek-V4-Flash GGUF) and the Phase 5 plan Outcome. The MLX `deepseek-v4-flash-dq`
+stays blocked (mlx-llm 1.9.1: `Model type deepseek_v4 not supported`).
+
+**Cheap-signal ladder for Phase 5** (the committed scope; expensive tail gated):
+`speed → tool-calling → HumanEval → LCB → MMLU`. See the
+[Per-model run order](#per-model-run-order) cut below — steps 1–5 are the
+"cheap signals" for every Phase 5 model; MATH / DROP / GPQA / throughput /
+Terminal-Bench run **only if** a model clears the cheap-signal gate.
+
 ## Current status (2026-05-29, Phase 1 + Phase 2 + Steps B/C/G complete)
 
 Full write-up: [`tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md).
@@ -396,11 +430,17 @@ Full Phase A + B write-up in
 For each model in scope, in this order. Cheap signals first; expensive
 benchmarks only if the cheap signal warrants them.
 
+**Cheap signals (steps 1–5)** — the committed first pass for Phase 5. Run all
+five; a model that floors on tool-calling or LCB can stop before the tail.
+**Expensive tail (steps 6–8, + throughput + Terminal-Bench)** — gated: run only
+if the cheap signals earn it (a model credibly beats a current daily driver on
+at least one axis).
+
 1. **Speed probe** (~10 min) — confirms the model loads and responds, gives a rough tok/s. If broken, stop and fix before committing hours.
 2. **Tool calling** (~15–30 min) — jdhodges + Veerman via `tool_call_bench.py`. Fastest signal for day-to-day usability in OpenCode/Cline/Aider.
 3. **HumanEval** (~30–60 min) — quick sanity check on code generation; backward-comparable to historical numbers.
 4. **LiveCodeBench** (~30–90 min at n=50) — primary coding signal going forward. Use `release_v6` (cutoff ~Apr 2025) or `release_v5` if v6 is suspected to overlap a model's pre-training cutoff.
-5. **MMLU** (~30–60 min) — broad knowledge, fast scoring (single letter).
+5. **MMLU** (~30–60 min) — broad knowledge, fast scoring (single letter). ← cheap-signal gate ends here.
 6. **MATH** (~2–8 h) — slow for thinking models.
 7. **DROP** (~1–2 h) — reading comprehension, generous substring scoring.
 8. **GPQA** (~2–10 h) — hardest, slowest. Skip on first pass if a model has clearly already qualified or disqualified itself.
