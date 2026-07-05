@@ -218,6 +218,7 @@
       <dt>Top open-weight</dt>    <dd>Kimi K2.6 (Apr '26); DeepSeek V4 family inline where applicable</dd>
       <dt>Caveat</dt>             <dd>Anthropic does not publish exact MMLU/AIME numbers; those rows use Vellum / Morph / llm-stats transcriptions.</dd>
       <dt>What this is not</dt>   <dd>Not a measurement of the on-disk quant on this rig — it's the published BF16/FP8 numbers with quant-delta notes.</dd>
+      <dt>Excluded</dt>          <dd><code>agents-a1-xl-mlx</code> (leonsarmiento, Qwen3.5 MoE community fine-tune) was benchmarked on-rig 2026-07-04→05 — see <code>benchmark-charts.html</code> for jdhodges 92.5 / veerman 83.3 / HumanEval 97 / MMLU 82 / LCB v6 64. It is <strong>omitted here</strong>: no published frontier-schema scores exist, and of this page's columns only LCB v6 has comparable data (MMLU-Pro/GPQA/AIME/SWE-V/MMMU not run; T-Bench aborted 2/89). Same rationale as the MiniMax-M2.5 exclusion below.</dd>
     </dl>
   </section>
 

@@ -52,6 +52,14 @@ Source: `lms ls`, `lms ps`, `GET /v1/models` against
 | `gemma-4-31b-it-mlx` | MLX safetensors | 8-bit | gemma4 (31B dense) | 33.80 GB | ✓ | ✓ |
 | `gemma-4-e4b-it-mlx` | MLX safetensors | 8-bit | gemma4 (4B) | 8.97 GB | ✓ | ✓ |
 | `deepseek-v4-flash-dq` | MLX safetensors | 2-bit DQ | deepseek_v4 | 96.53 GB | — | — |
+| `agents-a1-xl-mlx` | MLX safetensors | 6-bit | qwen3_5_moe (Qwen3.5 MoE) | 27.8 GB | — | ✓ |
+
+**`agents-a1-xl-mlx`** benchmarked 2026-07-04→07-05 (cheap tail): tool-calling
+jdhodges **92.5%** / Veerman **83.3%**, HumanEval **97%**, MMLU **82%**, LCB v6
+**64%**; heavy-thinking MoE, ~40 t/s. Well-rounded but doesn't displace a daily
+driver; expensive tail deferred. Full write-up:
+[`docs/benchmark-plans/2026-07-04-agents-a1-xl.md`](benchmark-plans/2026-07-04-agents-a1-xl.md)
+and the `agents-a1-xl-mlx` section in `M4_MAX_128GB_NOTES.md`.
 
 Embeddings (`text-embedding-nomic-embed-text-v1.5`) and community
 abliterated re-quants (`qwen3.6-27b-paro`, `qwen3.6-27b-ud-mlx`,
