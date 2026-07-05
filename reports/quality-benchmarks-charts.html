@@ -218,6 +218,7 @@
       <dt>Top open-weight</dt>    <dd>Kimi K2.6 (Apr '26); DeepSeek V4 family inline where applicable</dd>
       <dt>Caveat</dt>             <dd>Anthropic does not publish exact MMLU/AIME numbers; those rows use Vellum / Morph / llm-stats transcriptions.</dd>
       <dt>What this is not</dt>   <dd>Not a measurement of the on-disk quant on this rig — it's the published BF16/FP8 numbers with quant-delta notes.</dd>
+      <dt>Excluded</dt>          <dd><code>agents-a1-xl-mlx</code> (leonsarmiento, Qwen3.5 MoE community fine-tune) was benchmarked on-rig 2026-07-04→05 — see <code>benchmark-charts.html</code> for jdhodges 92.5 / veerman 83.3 / HumanEval 97 / MMLU 82 / LCB v6 64. It is <strong>omitted here</strong>: no published frontier-schema scores exist, and of this page's columns only LCB v6 has comparable data (MMLU-Pro/GPQA/AIME/SWE-V/MMMU not run; T-Bench aborted 2/89). Same rationale as the MiniMax-M2.5 exclusion below.</dd>
     </dl>
   </section>
 
@@ -292,6 +293,12 @@
           <td><code>deepseek-v4-flash-dq</code></td><td>MoE</td><td class="num">284B / 13B</td><td>MLX 2-bit DQ ⚠⚠</td>
           <td class="bestfor">Only frontier-class model on disk — when you need GPT-5 / Opus-4.5-tier output and can wait.</td>
           <td class="usage">Base Flash matches GPT-5 / Opus 4.5 (88.1 GPQA, 91.6 LCB, 79.0 SWE-V) — but 2-bit-DQ on an already-QAT-FP4 model has <strong>no published deltas</strong>. Expect 3–8 pp drop on hard reasoning; more on long context. Treat published numbers as a ceiling.</td>
+        </tr>
+        <tr>
+          <td>⛔</td>
+          <td><code>MiniMax-M2.5-3bit</code></td><td>MoE</td><td class="num">256E / 8A</td><td>MLX 3-bit ⛔ NO-GO</td>
+          <td class="bestfor"><strong>NO-GO on this rig</strong> (feasibility 2026-07-04). Loads &amp; generates with strong quality, but not deployable — sustained inference crashes the host.</td>
+          <td class="usage">Reproducibly <strong>kernel-panics the Mac Studio ×3</strong> under sustained inference — Apple GPU driver (<code>IOGPUGroupMemory</code> / <code>AGXG16X</code>, macOS 25D125) — independent of parallelism, context, memory pressure &amp; KV-cache quantization. Partial signals only (crashed mid-run): TC 97.5%, HumanEval 95.8%, LCB ~68–74%. <strong>No quality bars</strong> (data incomplete/not comparable). See <code>M4_MAX_128GB_NOTES.md</code>.</td>
         </tr>
       </tbody>
     </table>
@@ -379,6 +386,7 @@
       <li><strong><code>nemotron-3-nano-omni</code> (GGUF Q4_K_M):</strong> NVIDIA publishes BF16 → FP8 → NVFP4 deltas (mean of 9 multimodal benches: 65.80 → 65.40 → 65.43). Q4_K_M typically sits between FP8 and FP4 — expect ≤1pt loss on most non-ASR multimodal tasks; ASR (WER) essentially unchanged.</li>
       <li><strong><code>gemma-4-e4b</code> (MLX 8-bit, 4B):</strong> Phase 2 complete (2026-05-22, n=100). HumanEval 91, MMLU 65, MATH <strong>14</strong>, DROP 65, GPQA 34, LiveCodeBench 68, jdhodges 88, Veerman 67. <strong>MATH collapses to 14 %</strong> — 4B is too small for hard symbolic math. Useful as a FIM / quick-call slot only; not a daily-driver fallback.</li>
       <li><strong>⚠⚠ <code>deepseek-v4-flash-dq</code> (MLX 2-bit DQ):</strong> heaviest asterisk. V4 Flash ships natively at FP4+FP8 — dropping experts to 2-bit is destructive recompression of an already-quantized model, not a clean post-train quant. The mlx-community card explicitly warns Q4_K_M is the floor for "most of the source quality". <strong>No public benchmark deltas exist.</strong> Expect 3–8pt drop on hard reasoning, more on long-context. Treat the chart numbers as a ceiling.</li>
+      <li><strong>⛔ <code>MiniMax-M2.5-3bit</code> (MLX 3-bit) — NO-GO:</strong> loads and generates coherently with strong quality (tool-calling 97.5%, HumanEval 95.8%, LCB ~68–74% — all partial), but reproducibly <strong>kernel-panics the Mac Studio under sustained inference</strong> (Apple GPU driver <code>IOGPUGroupMemory</code> / <code>AGXG16X</code>, macOS 25D125) — three times, independent of parallelism, context, memory pressure, and KV-cache quantization. Not deployable on this stack; only an OS/MLX update or a different runtime (GGUF/llama.cpp) could revisit it. <strong>Excluded from the bars</strong> (no complete, comparable data). Full detail in <code>tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md</code>.</li>
     </ul>
   </section>
 

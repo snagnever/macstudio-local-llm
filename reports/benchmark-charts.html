@@ -339,6 +339,21 @@
           <td class="bestfor">FIM / autocomplete / quick-call slot; fast vision drafts.</td>
           <td class="usage">Tiny utility, ~70 t/s. MATH collapses to 14 % — never use it for hard symbolic work. Useful as a drafter / first-pass under an editor that streams completions.</td>
         </tr>
+        <tr>
+          <td><span class="swatch" style="background:#2dd4bf"></span></td>
+          <td><code>agents-a1-xl-mlx</code></td>
+          <td>leonsarmiento (Qwen3.5 base) · community<span class="pill">via LM Studio</span></td>
+          <td>MoE</td>
+          <td class="num">~40 B</td>
+          <td class="num">~3 B</td>
+          <td>6-bit MLX</td>
+          <td class="num">29.90 GB</td>
+          <td>256K</td>
+          <td>✓*</td>
+          <td>✓</td>
+          <td class="bestfor">Tool-calling generalist. Top-tier jdhodges 92.5 / veerman 83.3, HumanEval 97, LCB 64, MMLU 82. Qwen3.5 MoE (256 experts / 8 active), heavy thinker. *vision tower present but untested on-rig.</td>
+          <td class="usage">Well-rounded but a heavy thinker — ~40 t/s effective under reasoning load, and it can't complete short-output workloads (thinking overruns 150-tok budgets). Doesn't displace coder-next (agentic speed), 27b (knowledge), or gemma@6bit (coding). MATH/DROP/GPQA + T-Bench not run (2026-07-05).</td>
+        </tr>
       </tbody>
     </table>
     </div>
@@ -374,6 +389,7 @@
           <tr><td class="model-cell"><span class="swatch" style="background:#f59e0b"></span>gemma-4-26b-a4b @6bit</td><td class="num">97</td><td class="num">78</td><td class="num">83</td><td class="num">79</td><td class="num">53</td><td class="num">80</td><td class="num">21.3</td><td class="num">97.5</td><td class="num">83.3</td><td class="num">85.3</td><td class="num">80.5</td></tr>
           <tr><td class="model-cell"><span class="swatch" style="background:#fb7185"></span>gemma-4-31b dense</td><td class="num">95</td><td class="num">77</td><td class="num">79</td><td class="num">85</td><td class="num">48</td><td class="num">76</td><td class="num">22.5</td><td class="num">97.5</td><td class="num">83.3</td><td class="num">13.9</td><td class="num">13.6</td></tr>
           <tr><td class="model-cell"><span class="swatch" style="background:#c084fc"></span>gemma-4-e4b</td><td class="num">91</td><td class="num">65</td><td class="num">14</td><td class="num">65</td><td class="num">34</td><td class="num">68</td><td class="num">4.5</td><td class="num">87.5</td><td class="num">66.7</td><td class="num">73.7</td><td class="num">69.5</td></tr>
+          <tr><td class="model-cell"><span class="swatch" style="background:#2dd4bf"></span>agents-a1-xl-mlx</td><td class="num">97</td><td class="num">82</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">64</td><td class="num">—</td><td class="num">92.5</td><td class="num">83.3</td><td class="num">—</td><td class="num">—</td></tr>
         </tbody>
       </table>
     </div>
@@ -507,6 +523,7 @@ const COLOR = {
   g26_6:  '#f59e0b',   // gemma-4-26b-a4b @ 6bit
   g31:    '#fb7185',   // gemma-4-31b dense @ 8bit
   ge4b:   '#c084fc',   // gemma-4-e4b @ 8bit (4B small)
+  a1:     '#2dd4bf',   // agents-a1-xl-mlx (Qwen3.5 MoE 256E/8A, community)
 };
 
 function gridOpts(yLabel, suggestedMax) {
@@ -545,7 +562,8 @@ registerChart(new Chart(document.getElementById('chartAccuracy'), {
       { label: 'gemma-4-26b-a4b (MoE 4-bit)',       backgroundColor: COLOR.g26_4, data: [98, 78, 80, 79, 47] },
       { label: 'gemma-4-26b-a4b (MoE 6-bit)',       backgroundColor: COLOR.g26_6, data: [97, 78, 83, 79, 53] },
       { label: 'gemma-4-31b (dense 8-bit)',         backgroundColor: COLOR.g31,   data: [95, 77, 79, 85, 48] },
-      { label: 'gemma-4-e4b (4B 8-bit)',            backgroundColor: COLOR.ge4b,  data: [91, 65, 14, 65, 34] }
+      { label: 'gemma-4-e4b (4B 8-bit)',            backgroundColor: COLOR.ge4b,  data: [91, 65, 14, 65, 34] },
+      { label: 'agents-a1-xl-mlx (MoE 6-bit)',      backgroundColor: COLOR.a1,    data: [97, 82, null, null, null] }
     ]
   },
   options: gridOpts('Pass rate (%)', 100)
@@ -563,13 +581,15 @@ registerChart(new Chart(document.getElementById('chartLCB'), {
       { label: 'gemma-4-26b-a4b (MoE 4-bit)',       backgroundColor: COLOR.g26_4, data: [66] },
       { label: 'gemma-4-26b-a4b (MoE 6-bit)',       backgroundColor: COLOR.g26_6, data: [80] },
       { label: 'gemma-4-31b (dense 8-bit)',         backgroundColor: COLOR.g31,   data: [76] },
-      { label: 'gemma-4-e4b (4B 8-bit)',            backgroundColor: COLOR.ge4b,  data: [68] }
+      { label: 'gemma-4-e4b (4B 8-bit)',            backgroundColor: COLOR.ge4b,  data: [68] },
+      { label: 'agents-a1-xl-mlx (MoE 6-bit)',      backgroundColor: COLOR.a1,    data: [64] }
     ]
   },
   options: gridOpts('Pass rate (%)', 100)
 }));
 
 // --- 1c. Terminal-Bench 2.0 — local n=89, all 7 candidates measured ---
+//        (agents-a1-xl-mlx: T-Bench aborted at 2/89 on 2026-07-05 — no bar)
 // Source: tools/local-llm-bench-m4-32gb/benchmarks/runs/tbench_*_summary.json
 // + .bench-logs/tbench-runs/<model>/result.json.
 // Bars ordered top-to-bottom by score (legend order).
@@ -602,7 +622,8 @@ registerChart(new Chart(document.getElementById('chartToolScore'), {
       { label: 'gemma-4-26b-a4b @4bit',    backgroundColor: COLOR.g26_4, data: [97.5, 83.3] },
       { label: 'gemma-4-26b-a4b @6bit',    backgroundColor: COLOR.g26_6, data: [97.5, 83.3] },
       { label: 'gemma-4-31b dense',        backgroundColor: COLOR.g31,   data: [97.5, 83.3] },
-      { label: 'gemma-4-e4b (4B)',         backgroundColor: COLOR.ge4b,  data: [87.5, 66.7] }
+      { label: 'gemma-4-e4b (4B)',         backgroundColor: COLOR.ge4b,  data: [87.5, 66.7] },
+      { label: 'agents-a1-xl-mlx',         backgroundColor: COLOR.a1,    data: [92.5, 83.3] }
     ]
   },
   options: gridOpts('Score (%)', 100)
@@ -620,7 +641,8 @@ registerChart(new Chart(document.getElementById('chartToolTps'), {
       { label: 'gemma-4-26b-a4b @4bit',    backgroundColor: COLOR.g26_4, data: [73.36, 82.08] },
       { label: 'gemma-4-26b-a4b @6bit',    backgroundColor: COLOR.g26_6, data: [57.85, 66.58] },
       { label: 'gemma-4-31b dense',        backgroundColor: COLOR.g31,   data: [11.39, 12.33] },
-      { label: 'gemma-4-e4b (4B)',         backgroundColor: COLOR.ge4b,  data: [42.50, 60.30] }
+      { label: 'gemma-4-e4b (4B)',         backgroundColor: COLOR.ge4b,  data: [42.50, 60.30] },
+      { label: 'agents-a1-xl-mlx',         backgroundColor: COLOR.a1,    data: [67.44, 75.10] }
     ]
   },
   options: gridOpts('tok/s (token-weighted)')
@@ -638,7 +660,8 @@ registerChart(new Chart(document.getElementById('chartGenTps'), {
       { label: 'gemma-4-26b-a4b @4bit (MoE)',      backgroundColor: COLOR.g26_4, data: [106.0, 107.6, 100.3, 99.2] },
       { label: 'gemma-4-26b-a4b @6bit (MoE)',      backgroundColor: COLOR.g26_6, data: [85.3, 85.9, 80.8, 80.9] },
       { label: 'gemma-4-31b @8bit (dense)',        backgroundColor: COLOR.g31,   data: [13.9, 14.3, 13.7, 13.6] },
-      { label: 'gemma-4-e4b @8bit (4B)',           backgroundColor: COLOR.ge4b,  data: [73.7, 75.4, 70.9, 69.3] }
+      { label: 'gemma-4-e4b @8bit (4B)',           backgroundColor: COLOR.ge4b,  data: [73.7, 75.4, 70.9, 69.3] },
+      { label: 'agents-a1-xl-mlx (MoE)',           backgroundColor: COLOR.a1,    data: [null, null, 82.1, null] }
     ]
   },
   options: gridOpts('Avg generation tok/s')
@@ -656,7 +679,8 @@ registerChart(new Chart(document.getElementById('chartEffectiveTps'), {
       { label: 'gemma-4-26b-a4b @4bit',    backgroundColor: COLOR.g26_4, data: [99.9, 55.8, 80.7, 17.9] },
       { label: 'gemma-4-26b-a4b @6bit',    backgroundColor: COLOR.g26_6, data: [80.5, 46.9, 66.6, 20.5] },
       { label: 'gemma-4-31b dense',        backgroundColor: COLOR.g31,   data: [13.6, 8.0,  10.3, 3.3]  },
-      { label: 'gemma-4-e4b (4B)',         backgroundColor: COLOR.ge4b,  data: [69.5, 46.1, 62.9, 29.1] }
+      { label: 'gemma-4-e4b (4B)',         backgroundColor: COLOR.ge4b,  data: [69.5, 46.1, 62.9, 29.1] },
+      { label: 'agents-a1-xl-mlx',         backgroundColor: COLOR.a1,    data: [null, null, 35.9, null] }
     ]
   },
   options: gridOpts('Avg effective tok/s')
