@@ -26,6 +26,8 @@
 | `gemma-4-26b-a4b-it-mlx@4bit` | [lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit) | MLX | 4-bit (LM Studio team, `mlx_vlm` conversion) | 15.64 GB | LM Studio MLX | 🟢 **DAILY DRIVER** | Fastest model on rig (100–106 gen t/s); coding/tool-calling ties @6bit, hard-bench tax (LCB −14 pp) |
 | `gemma-4-26b-a4b-it-mlx@6bit` | [lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit) | MLX | 6-bit (LM Studio team, `mlx_vlm` conversion) | 21.81 GB | LM Studio MLX | 🟢 **DAILY DRIVER** | Family flagship; rig LCB ceiling 80 %; Code-role winner in the [recommended stack](../local-llm-reference.md#recommended-stack--planning--code--agent) |
 
+**Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): @4bit: [`3af5252`](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit/tree/3af5252ed1e675e6bba9be8cc3087bc00920799c) (downloaded 2026-05-17) · @6bit: [`fd6c729`](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit/tree/fd6c729deddbd6211b37be13f2a42ef2603b3b56) (downloaded 2026-05-17).
+
 Both quants advertise `vision: true` and `trainedForToolUse: true` in LM Studio model metadata ([reference lineup](../local-llm-reference.md#the-model-lineup)). Model ids above are exactly what `GET /v1/models` returns — use verbatim; `lmstudio-community/...` paths will 404.
 
 ## Architecture & spec notes

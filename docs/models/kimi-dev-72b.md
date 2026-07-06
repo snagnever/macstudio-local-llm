@@ -25,6 +25,8 @@
 |---|---|---|---|---|---|---|---|
 | `kimi-dev-72b` *(no publisher prefix in `/v1/models`)* | [unsloth/Kimi-Dev-72B-GGUF](https://huggingface.co/unsloth/Kimi-Dev-72B-GGUF) | GGUF | UD-Q6_K_XL | 62.55 GiB weights (67.16 GB resident @ ctx 32768 / parallel 1) | LM Studio llama.cpp 2.23.1 (stock — no fork/flags) | 🔴 **NO-GO 2026-07-05** | Loads clean in 36 s; aborted at the speed step (~7 t/s) |
 
+**Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): UD-Q6_K_XL: [`7d0a1f3`](https://huggingface.co/unsloth/Kimi-Dev-72B-GGUF/tree/7d0a1f3ffeae22372b9d5959b5d79199bbba71b6) (downloaded 2026-07-04).
+
 ## Architecture & spec notes
 - GGUF arch is plain `qwen2` — stock llama.cpp 2.23.1 loads it with zero special handling (no fork, no flags). The **red arch badge LM Studio renders is benign** (a `Show warnings` flag, not a loadability problem).
 - Dense 73B at Q6 is the speed story: decode is compute-bound on this rig (see Local performance) — the phenotype the phase-5 plan predicted (~10–14 t/s expected; reality was worse).
