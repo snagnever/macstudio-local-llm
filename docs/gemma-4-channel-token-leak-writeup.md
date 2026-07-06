@@ -1,5 +1,8 @@
 # Gemma 4 26B-A4B leaks raw `<|channel|>thought` markers and loops on Hermes
 
+> Model card: [gemma-4-26b-a4b](models/gemma-4-26b-a4b.md)
+
+
 **Symptom (exact):** `gemma-4-26b-a4b-it-mlx@6bit` on Hermes emits nothing but repeated
 channel headers —
 

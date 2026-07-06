@@ -1,5 +1,8 @@
 # Upstream contribution drafts — DeepSeek‑V4 Metal residency leak
 
+> Model card: [deepseek-v4-flash](models/deepseek-v4-flash.md)
+
+
 Paste‑ready **issue** and **PR** bodies, condensed from
 [`deepseek-v4-flash-metal-oom-upstream-writeup.md`](deepseek-v4-flash-metal-oom-upstream-writeup.md)
 (link the full writeup, or a gist of it, for depth).

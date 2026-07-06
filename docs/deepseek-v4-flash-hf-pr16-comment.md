@@ -1,5 +1,8 @@
 # Paste-ready comment — deepseek-ai/DeepSeek-V4-Flash PR/discussion #16 ("Add chat template")
 
+> Model card: [deepseek-v4-flash](models/deepseek-v4-flash.md)
+
+
 **Post it here:** https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash/discussions/16
 (open the discussion, scroll to the comment box at the bottom, paste, "Comment". Needs your HF account.)
 

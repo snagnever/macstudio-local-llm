@@ -1,5 +1,8 @@
 # DeepSeek‑V4 (Flash/Pro) on Apple Silicon: unbounded Metal residency growth during decode → `[metal::malloc] Resource limit (499000) exceeded`
 
+> Model card: [deepseek-v4-flash](models/deepseek-v4-flash.md)
+
+
 **Audience:** mlx‑lm maintainers / reviewers of [PR #1192](https://github.com/ml-explore/mlx-lm/pull/1192) (DeepSeek‑V4 port). This document is written to be adapted into a GitHub **issue** (symptom + reproducer + root cause, §1–§5) and a **PR** (fix + verification, §6–§8).
 
 ---

@@ -1,5 +1,8 @@
 # Paste-ready post — mlx-community/DeepSeek-V4-Flash-2bit-DQ discussion #1 ("KeyError: 'deepseek_v4'")
 
+> Model card: [deepseek-v4-flash](models/deepseek-v4-flash.md)
+
+
 **Post it here:** https://huggingface.co/mlx-community/DeepSeek-V4-Flash-2bit-DQ/discussions/1
 (this is the thread with the open, unexplained "repeating output in long generations" — our post
 answers it and links the fix). Needs your HF account.
