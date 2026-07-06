@@ -25,6 +25,8 @@
 |---|---|---|---|---|---|---|---|
 | `nousresearch/hermes-4-70b` | [lmstudio-community/Hermes-4-70B-MLX-6bit](https://huggingface.co/lmstudio-community/Hermes-4-70B-MLX-6bit) | MLX | 6-bit (mlx_lm, LM Studio team conversion) | 57.3 GB | LM Studio MLX (mlx-llm 1.9.1) | 🔴 **BLOCKED 2026-07-02** | Loads fine as `llama` arch; the build's own `chat_template.jinja` throws at render on tool-calling requests |
 
+**Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): 6-bit: [`d6da177`](https://huggingface.co/lmstudio-community/Hermes-4-70B-MLX-6bit/tree/d6da177acf05d162c6838acdb12695137567e5eb) (downloaded 2026-07-01).
+
 ## Architecture & spec notes
 - Dense Llama-3.1-70B fine-tune with **hybrid reasoning extensions**: the chat template rewrites prior assistant turns to strip chain-of-thought when `thinking` is on — and that rewrite is exactly where the blocking bug lives (see Known issues).
 - This build's `model.yaml` maps an OpenAI-style **`reasoning_effort`** request field onto the jinja `thinking` variable — so a client sending `"reasoning_effort": "medium"` (e.g. `hermes-agent`) silently flips the buggy template branch on.

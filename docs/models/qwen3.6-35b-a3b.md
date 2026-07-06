@@ -28,6 +28,8 @@
 | `qwen3.6-35b-a3b@6bit` | [mlx-community/Qwen3.6-35B-A3B-6bit](https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-6bit) | MLX safetensors | 6-bit (mlx-vlm 0.4.4 conversion) | 29.09 GB | LM Studio MLX | 🟢 **DAILY DRIVER** | Full Phase 1 suite + LCB backfill + T-Bench 2.0 benched |
 | `qwen3.6-35b-a3b@8bit` | [mlx-community/Qwen3.6-35B-A3B-8bit](https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-8bit) | MLX safetensors | 8-bit (mlx-vlm 0.4.4 conversion) | 37.75 GB | LM Studio MLX | ⏸ **Pending quant A/B (Phase 2 #9)** | Same weights, heavier quant — does it close the knowledge gap to `qwen3.6-27b`? All benches TBD |
 
+**Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): @6bit: [`cb7e092`](https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-6bit/tree/cb7e092ef8efe540bc3672c8929c4adbe5f4f759) (downloaded 2026-05-17) · @8bit: [`e06a74e`](https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-8bit/tree/e06a74e6236a60c8367e1a3214e83d8b61b637b0) (downloaded 2026-05-17).
+
 ## Architecture & spec notes
 - 256-expert MoE with only **3B active per token** → near-dense-7B decode cost at 35B-class quality; MLX optimises the A3B routing well (see the e4b finding: small-dense has no inference edge over this).
 - **Thinking model** — emits `<think>...</think>` reasoning before answers. This is the source of both its MATH/GPQA strength and its truncation/spiral tax (see Known issues).

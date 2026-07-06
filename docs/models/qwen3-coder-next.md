@@ -26,6 +26,8 @@
 | `qwen/qwen3-coder-next` | [lmstudio-community/Qwen3-Coder-Next-MLX-6bit](https://huggingface.co/lmstudio-community/Qwen3-Coder-Next-MLX-6bit) | MLX safetensors | 6-bit | 64.76 GB | LM Studio MLX | 🟢 **Benched — daily driver** | Full Phase 1 suite + LCB backfill + T-Bench A1 all on this variant |
 | `qwen/qwen3-coder-next@4bit` | [lmstudio-community/Qwen3-Coder-Next-MLX-4bit](https://huggingface.co/lmstudio-community/Qwen3-Coder-Next-MLX-4bit) | MLX safetensors | 4-bit | ~44 GB | LM Studio MLX | ⏳ **Un-benched** (pending Phase 2 #8 quant A/B) | Kept on disk for two-resident pairing — see Loading & memory |
 
+**Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): 6-bit: [`6b4712e`](https://huggingface.co/lmstudio-community/Qwen3-Coder-Next-MLX-6bit/tree/6b4712e5519c7a7c5612992c5fca1608f42a14c2) (downloaded 2026-05-16) · 4-bit: [`03cba26`](https://huggingface.co/lmstudio-community/Qwen3-Coder-Next-MLX-4bit/tree/03cba26036330b7553d252c1f3fb899f16cc5ea5) (downloaded 2026-04-28).
+
 ## Architecture & spec notes
 - Hybrid linear-attention design is why its long context is cheap: with `full_attention_interval: 4`, only **12 of 48** layers grow a KV cache (the other 36 are Gated DeltaNet with constant recurrent state), at just **2 KV heads × head_dim 256**. KV at 128k is only ~3.3 GB — far cheaper than any dense model on the rig. Details: [reference doc § Two-Resident Pair context math](../local-llm-reference.md#two-resident-pair-context-math).
 - 512-expert MoE with 10 active + 1 shared expert; 3B active params is why an 80B model decodes at ~68–70 t/s on this rig.

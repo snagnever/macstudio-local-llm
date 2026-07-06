@@ -25,6 +25,8 @@
 | `gemma-4-31b-it-mlx` | [lmstudio-community/gemma-4-31B-it-MLX-8bit](https://huggingface.co/lmstudio-community/gemma-4-31B-it-MLX-8bit) | MLX safetensors | 8-bit (mlx_vlm conversion) | 33.80 GB | LM Studio MLX | 🟡 **DEMOTED 2026-05-22** | Fully benched Phase 2; dense tax, no quality return vs `@6bit` MoE |
 | `google/gemma-4-31b-qat` | [lmstudio-community/gemma-4-31B-it-QAT-GGUF](https://huggingface.co/lmstudio-community/gemma-4-31B-it-QAT-GGUF) | GGUF | **QAT** Q4_0 (quantization-aware trained) | 18.9 GB (LM Studio; HF lists 17.7 GB) | LM Studio llama.cpp 2.23.1 (official catalog model) | ⚪ **PLANNED** | Engine A/B vs the MLX 8-bit numbers ([Phase 5 seq 2](../benchmark-plans/2026-07-05-phase-5-new-arrivals.md)) |
 
+**Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): MLX 8-bit: [`244e29d`](https://huggingface.co/lmstudio-community/gemma-4-31B-it-MLX-8bit/tree/244e29d3b19e7b50e3ddddc33fcc882f24a19399) (downloaded 2026-05-17) · QAT GGUF: [`5f1655e`](https://huggingface.co/lmstudio-community/gemma-4-31B-it-QAT-GGUF/tree/5f1655eb80159b7db3f6feb9ce1a9440ab076261) (downloaded 2026-07-01).
+
 > Out-of-scope sibling on disk: `gemma-4-31b-jang_4m-crack` (dealignai 8-bit, 22.69 GB) — alignment-stripped community re-quant, not a daily-driver candidate ([reference](../local-llm-reference.md)).
 
 ## Architecture & spec notes
