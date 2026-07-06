@@ -19,7 +19,7 @@ Per-model deep dives for every model with local experience on this rig (Mac Stud
 ### Tested, parked
 | Model | Status | Why | Headline | Disk | Runtime |
 |---|---|---|---|---|---|
-| [minimax-m2.5](minimax-m2.5.md) | 🟢 GO via GGUF (MLX 🔴 NO-GO: kernel panic ×3) | MMLU pending; Terminal-Bench NO-GO (memory); ctx ≤64k (60k rec.) | jdhodges 95%, HumanEval 94%, LCB 68%, 36.8 t/s | 98.7 GB | llama.cpp |
+| [minimax-m2.5](minimax-m2.5.md) | 🟢 GO via GGUF (MLX 🔴 NO-GO: kernel panic ×3) | MMLU pending; Terminal-Bench NO-GO (memory); ctx ≤64k (60k rec.) | jdhodges 95%, HumanEval 94%, LCB 72% @60k (68% @32k), 36.8 t/s | 98.7 GB | llama.cpp |
 | [deepseek-v4-flash](deepseek-v4-flash.md) | 🟢 GO via GGUF / 🟡 CONSTRAINED MLX (OOM patched; 2-bit loops) | LCB tail in progress; sole-model only | jdhodges 87.5%, HumanEval 88%, ~10 t/s non-thinking | 81 GB (GGUF) / 96.53 GB (MLX) | llama.cpp 2.24.0 / patched mlx-lm |
 | [agents-a1-xl](agents-a1-xl.md) | 🟡 GO (marginal) | thinking tax; expensive tail deferred | jdhodges 92.5%, HumanEval 97%, LCB 64%, eff 35.9 t/s | 27.8 GB | MLX |
 | [gemma-4-31b](gemma-4-31b.md) | 🟡 DEMOTED (MLX) / ⚪ QAT GGUF planned | dense tax: 6× slower than 26b-a4b@6bit, no quality return | LCB 76%, 13.7 t/s | 33.80 GB | MLX |

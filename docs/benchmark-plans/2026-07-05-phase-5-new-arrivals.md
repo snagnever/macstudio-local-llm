@@ -370,12 +370,12 @@ pattern, not the model. Loaded LM Studio-native (bundled llama.cpp 2.23.1 knows
 | 18:38–19:51 | **HumanEval (100)** @ 32768, detached driver | **94 % (94/100)**, ~73 min, 36 t/s, 1 trunc (Q17 spiral); auto-unloaded on completion |
 | 20:08–00:46 | **LCB v6 (50)** @ 32768 | **68 % (34/50)** — easy 100 %, medium 70 %, hard 25 %; 5 truncations. Above 27b (62 %), below Gemma leaders (80 %) |
 | 00:47–08:12 | **Terminal-Bench 2.0** (89, terminus-2) | ❌ **NO-GO** — 46/46 `EnvironmentStartTimeoutError`, mean 0.0. Memory wall: 98.69 GB model leaves ~3 GB for Docker (peak 134 GB). Stopped + torn down |
-| 08:1x | LCB recovery (Q8,Q19 @ 60k) | ❌ HTTP 400 — LM Studio rejects `max_tokens=60000`; not recovered |
-| 08:2x | Session end | model unloaded, containers torn down, results banked; **MMLU not run** |
+| 09:00–11:39 | LCB recovery (Q8,19,38,44,48 @ ctx 60k, max_tokens 57344) | ✅ **2/5 recovered** (Q38, Q48 → OK); Q19/Q44 real spirals (57k cap), Q8 completes-wrong. **LCB 68 %→72 % (36/50).** (Earlier "HTTP 400" was a 65536-ctx artifact, not a real `max_tokens` limit — reload at 61440 fixed it.) |
+| — | Session end | model left resident at ctx 61440 for the remote-tbench plan; results banked; **MMLU not run** |
 
 **Verdict — GO.** Feasible AND fast (36.8 t/s sustained — 5× Kimi, > `qwen3.6-27b`).
 Reasons internally but LM Studio parses it as structured `reasoning_tokens` (clean
-`content`, unlike Kimi's `◁think▷`). Cheap-signal gate cleared (jdhodges 95 % ≥ 85 %), **HumanEval 94 %** and **LCB v6 68 %**
+`content`, unlike Kimi's `◁think▷`). Cheap-signal gate cleared (jdhodges 95 % ≥ 85 %), **HumanEval 94 %** and **LCB v6 72 %** (68 % raw at 32k, +4 from the ctx-60k recovery)
 confirm strong coding (both beat `qwen3.6-27b`; HumanEval matches MLX pre-crash 95.8 %).
 **Terminal-Bench is a memory NO-GO** — the 98.69 GB model leaves Docker only ~3 GB, so all
 89 tasks time out on container start (a rig limit, not a capability verdict; see notes §
