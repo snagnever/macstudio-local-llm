@@ -60,18 +60,20 @@ Default to JIT swap unless cold-loads start adding up in a session.
 
 Verified against `lms ls` / `GET /v1/models` on 2026-05-18. All MLX models below advertise `vision: true` and `trainedForToolUse: true` in their metadata (per the LM Studio model API), except where noted.
 
-| Model ID | Total / Active | Format | Quant | Disk | Vision | Tools | Role |
-|---|---|---|---|---|:---:|:---:|---|
-| `qwen/qwen3-coder-next` | 80B / 3B (MoE) | MLX safetensors | **6-bit** (4-bit variant also on disk) | **64.76 GB** | ✓ | ✓ | Agentic coder |
-| `qwen3.6-27b` | 27B dense | MLX safetensors | 6-bit | 22.80 GB | ✓ | ✓ | Reasoning specialist |
-| `qwen3.6-35b-a3b@6bit` | 35B / 3B (MoE) | MLX safetensors | 6-bit | 29.09 GB | ✓ | ✓ | Fast generalist |
-| `qwen3.6-35b-a3b@8bit` | 35B / 3B (MoE) | MLX safetensors | 8-bit | 37.75 GB | ✓ | ✓ | Same weights, heavier quant — quant A/B vs @6bit |
-| `gemma-4-26b-a4b-it-mlx@4bit` | 26B / 4B (MoE) | MLX safetensors | 4-bit | 15.64 GB | ✓ | ✓ | Knowledge / quality generalist (compact) |
-| `gemma-4-26b-a4b-it-mlx@6bit` | 26B / 4B (MoE) | MLX safetensors | 6-bit | 21.81 GB | ✓ | ✓ | Same weights, heavier quant — quant A/B vs @4bit |
-| `gemma-4-31b-it-mlx` | 31B dense | MLX safetensors | 8-bit | 33.80 GB | ✓ | ✓ | Dense Gemma 4 above 26B-A4B; new slot to evaluate |
-| `gemma-4-e4b-it-mlx` | 4B dense | MLX safetensors | 8-bit | 8.97 GB | ✓ | ✓ | Tiny fast / quick tool calls |
-| `deepseek-v4-flash-dq` | DeepSeek V4 Flash | MLX safetensors | 2-bit DQ | 96.53 GB | — | — | Frontier reasoning (⚠ tight fit) |
-| `text-embedding-nomic-embed-text-v1.5` | — | GGUF | Q4_K_M | 84 MB | — | — | Embeddings for RAG |
+> **Per-model deep dives:** every model with local experience (including NO-GO and removed ones) has a model card under [`docs/models/`](models/README.md) combining official specs with local benchmarks, quirks, and verdicts.
+
+| Model ID | Total / Active | Format | Quant | Disk | Vision | Tools | Role | Source (HF) |
+|---|---|---|---|---|:---:|:---:|---|---|
+| [`qwen/qwen3-coder-next`](models/qwen3-coder-next.md) | 80B / 3B (MoE) | MLX safetensors | **6-bit** (4-bit variant also on disk) | **64.76 GB** | ✓ | ✓ | Agentic coder | [lmstudio-community/Qwen3-Coder-Next-MLX-6bit](https://huggingface.co/lmstudio-community/Qwen3-Coder-Next-MLX-6bit) ([4bit](https://huggingface.co/lmstudio-community/Qwen3-Coder-Next-MLX-4bit)) |
+| [`qwen3.6-27b`](models/qwen3.6-27b.md) | 27B dense | MLX safetensors | 6-bit | 22.80 GB | ✓ | ✓ | Reasoning specialist | [mlx-community/Qwen3.6-27B-6bit](https://huggingface.co/mlx-community/Qwen3.6-27B-6bit) |
+| [`qwen3.6-35b-a3b@6bit`](models/qwen3.6-35b-a3b.md) | 35B / 3B (MoE) | MLX safetensors | 6-bit | 29.09 GB | ✓ | ✓ | Fast generalist | [mlx-community/Qwen3.6-35B-A3B-6bit](https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-6bit) |
+| [`qwen3.6-35b-a3b@8bit`](models/qwen3.6-35b-a3b.md) | 35B / 3B (MoE) | MLX safetensors | 8-bit | 37.75 GB | ✓ | ✓ | Same weights, heavier quant — quant A/B vs @6bit | [mlx-community/Qwen3.6-35B-A3B-8bit](https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-8bit) |
+| [`gemma-4-26b-a4b-it-mlx@4bit`](models/gemma-4-26b-a4b.md) | 26B / 4B (MoE) | MLX safetensors | 4-bit | 15.64 GB | ✓ | ✓ | Knowledge / quality generalist (compact) | [lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit) |
+| [`gemma-4-26b-a4b-it-mlx@6bit`](models/gemma-4-26b-a4b.md) | 26B / 4B (MoE) | MLX safetensors | 6-bit | 21.81 GB | ✓ | ✓ | Same weights, heavier quant — quant A/B vs @4bit | [lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit) |
+| [`gemma-4-31b-it-mlx`](models/gemma-4-31b.md) | 31B dense | MLX safetensors | 8-bit | 33.80 GB | ✓ | ✓ | Dense Gemma 4 above 26B-A4B; new slot to evaluate | [lmstudio-community/gemma-4-31B-it-MLX-8bit](https://huggingface.co/lmstudio-community/gemma-4-31B-it-MLX-8bit) |
+| [`gemma-4-e4b-it-mlx`](models/gemma-4-e4b.md) | 4B dense | MLX safetensors | 8-bit | 8.97 GB | ✓ | ✓ | Tiny fast / quick tool calls | [lmstudio-community/gemma-4-E4B-it-MLX-8bit](https://huggingface.co/lmstudio-community/gemma-4-E4B-it-MLX-8bit) |
+| [`deepseek-v4-flash-dq`](models/deepseek-v4-flash.md) | DeepSeek V4 Flash | MLX safetensors | 2-bit DQ | 96.53 GB | — | — | Frontier reasoning (⚠ tight fit) | [mlx-community/DeepSeek-V4-Flash-2bit-DQ](https://huggingface.co/mlx-community/DeepSeek-V4-Flash-2bit-DQ) |
+| [`text-embedding-nomic-embed-text-v1.5`](models/nomic-embed-text-v1.5.md) | — | GGUF | Q4_K_M | 84 MB | — | — | Embeddings for RAG | — (not in current LM Studio store; verify repo) |
 
 > **Removed from disk since the previous inventory pass** (2026-05-18): `nvidia/nemotron-3-nano-omni` (GGUF Q4_K_M, 26 GB) and `deepseek-v4-flash` 4-bit (151 GB, never loaded — exceeded 128 GB unified mem). Their `lms`/HF entries are gone; drop them from any client config that still references them. The DQ variant of DeepSeek V4 Flash (96.53 GB) remains.
 
@@ -393,7 +395,7 @@ lms server start    # start the server
 
 ## Performance Expectations (verified on this rig)
 
-Headline numbers from [`benchmarking/local-llm-bench/results/`](benchmarking/local-llm-bench/results/) (LM Studio MLX, M4 Max 128GB / 40-GPU). "Gen tok/s" is pure decode; "Effective tok/s" includes prefill — what you actually wait for in agentic loops. See the per-scenario JSON for context-length curves.
+Headline numbers from [`benchmarking/local-llm-bench/results/`](../tools/local-llm-bench-m4-32gb/results/) (LM Studio MLX, M4 Max 128GB / 40-GPU). "Gen tok/s" is pure decode; "Effective tok/s" includes prefill — what you actually wait for in agentic loops. See the per-scenario JSON for context-length curves.
 
 | Model | Gen tok/s | Effective tok/s (ops-agent) | Prefill at 8.5k ctx | Status |
 |---|---|---|---|---|
@@ -427,7 +429,7 @@ Headline accuracy + tool-calling scores from [`../tools/local-llm-bench-m4-32gb/
 † = GPQA at 32 768 cap, raw scores under-count due to thinking spirals. Corrected ceilings: 27b ≈ 78–85 %, 35b-a3b ≈ 75–83 %. See [testing-plan.md truncation finding](testing-plan.md#truncation-finding-gpqa--thinking-models).
 
 - **`gemma-4-26b-a4b@6bit` is the rig's LCB ceiling at 80 %** (+18 pp over the best Qwen). Knowledge generalist slot is still `qwen3.6-27b`; LCB-specific recommendation has diverged from knowledge after Phase 2 + Step B.
-- **LiveCodeBench (v6)** support was added to the harness on 2026-05-18 — see [`local-llm-bench-m4-32gb/scripts/bench2.py`](local-llm-bench-m4-32gb/scripts/bench2.py). Contamination-resistant rolling-window coding suite; supersedes HumanEval as the primary frontier-comparable coding metric. Run with `--max-tokens 65536` for any thinking model or Gemma 4.
+- **LiveCodeBench (v6)** support was added to the harness on 2026-05-18 — see [`local-llm-bench-m4-32gb/scripts/bench2.py`](../tools/local-llm-bench-m4-32gb/scripts/bench2.py). Contamination-resistant rolling-window coding suite; supersedes HumanEval as the primary frontier-comparable coding metric. Run with `--max-tokens 65536` for any thinking model or Gemma 4.
 - **GPQA gap** on `qwen3-coder-next` (37 %) reflects the reasoning-model vs single-pass divide — coder-next emits zero thinking tokens by design.
 - **Tool calling** ranks ahead of knowledge for daily-driver decisions (per upstream finding): both Phase 1 daily-drivers exceed 80 % on both suites with identical veerman scores, but jdhodges separates them (35b-a3b: 97.5 %, 27b: 95 %, coder-next: 90 %).
 

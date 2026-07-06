@@ -1,5 +1,8 @@
 # Hermes-4-70B on LM Studio: `Cannot perform operation + on undefined values`
 
+> Model card: [hermes-4-70b](models/hermes-4-70b.md)
+
+
 **Symptom (exact):** a tool-calling request to `nousresearch/hermes-4-70b` (the
 `lmstudio-community/Hermes-4-70B-MLX-6bit` build) fails before any tokens are generated:
 

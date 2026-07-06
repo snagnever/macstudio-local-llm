@@ -1,5 +1,8 @@
 # DeepSeek V4 Flash Metal OOM — fix-application plan
 
+> Model card: [deepseek-v4-flash](models/deepseek-v4-flash.md)
+
+
 > **CURRENT PLAN (2026-05-30): see [Phase 2-revised](#phase-2-revised--fix-plan-for-the-per-step-residency-leak-hypothesis-h7).**
 > Phase 0 + Phase 1 + Phase 1.5 are complete and establish the root cause: an unbounded
 > per-decode-step leak of ~1 live Metal buffer per layer, localized to the compressor +

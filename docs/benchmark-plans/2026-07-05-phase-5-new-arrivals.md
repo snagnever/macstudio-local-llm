@@ -31,7 +31,7 @@ is worth more than any single benchmark number.
 | `kimi-dev-72b` | `qwen2` | llama.cpp 2.23.1 | 🟢 **Likely** | Qwen2.5-72B base; card says *"no special fork — standard llama.cpp."* Verify (red arch badge in LM Studio — check `Show warnings`). |
 | `unsloth/minimax-m2.5` | `minimax-m2` | llama.cpp 2.23.1 | 🟡 **Loads, but gate hard** | Arch recognized (`256x4.9B` params shown); card says *stock upstream llama.cpp*. **Real question is the Metal path**, not arch — see below. |
 | `mellum2-12b-a2.5b-thinking-mlx` | `mellum` | mlx-llm **fork** | 🔴 **Verify — probably not** | Card: *"the mellum architecture is not supported by the stock mlx-lm code yet"* → needs the maintainer's fork; bundled mlx-llm 1.9.1 likely can't load it. |
-| `nousresearch/hermes-4-70b` | `llama` | mlx-llm 1.9.1 | 🔴 **Loads, template broken** | Arch fine, but the documented `bos_token` **minja chat-template render error** ([writeup](../hermes-4-bos-token-minja-writeup.md)) breaks `/v1/chat/completions`. Fix template first. |
+| `nousresearch/hermes-4-70b` | `llama` | mlx-llm 1.9.1 | 🔴 **Loads, template broken** | Arch fine, but the documented `bos_token` **minja chat-template render error** ([writeup](../hermes-4-minja-render-error-writeup.md)) breaks `/v1/chat/completions`. Fix template first. |
 
 **Why `minimax-m2.5` GGUF is the marquee experiment.** The MLX build
 (`mlx-community/minimax-m2.5`, 3-bit) is a **NO-GO** — it reproducibly
@@ -247,7 +247,7 @@ where the harness allows. Gate to the expensive tail:
   tool-use + agentic, hybrid thinking mode. Loads as an arch, but…
 - **Loadability:** 🔴 **blocked** — the documented `bos_token` **minja
   chat-template render error** on LM Studio
-  ([writeup](../hermes-4-bos-token-minja-writeup.md)) breaks
+  ([writeup](../hermes-4-minja-render-error-writeup.md)) breaks
   `/v1/chat/completions`. A Claude-Agent-SDK provider for it is in flight
   (git history), which may carry the template fix.
 - **Plan:** **do not bench until the template renders.** Prerequisite task: apply
@@ -350,6 +350,41 @@ After each model completes (or is decisively gated out):
   `docs/testing-plan.md`, `docs/local-llm-reference.md`
 
 ## Outcome
+
+### seq 4 — `unsloth/minimax-m2.5` (GGUF Q3_K_S) — ✅ GO, the NO-GO overturned (2026-07-05)
+
+**Phase 0 feasibility soak PASSED — the marquee experiment succeeded.** The MLX build's
+re-test hypothesis ("GGUF via llama.cpp = a different Metal path") is confirmed: no kernel
+panic across load, probes, or a full 8k sustained soak. The failure was MLX's allocation
+pattern, not the model. Loaded LM Studio-native (bundled llama.cpp 2.23.1 knows
+`minimax-m2`) — **no fork, no repack flag, no standalone server** (simpler than DeepSeek-V4).
+
+| Time | Step | Result |
+|---|---|---|
+| 18:11 | Load sole-model, ctx 32768, `--gpu max --parallel 1` | ✅ clean, no panic; 98.69 GB resident (est. 97.91 GiB) |
+| 18:13 | Timed medium probe | 36.2 t/s, coherent |
+| 18:14–18:16 | **8k sustained soak** | 5038 tok, `finish=stop`, coherent ~4100-word essay, **36.8 t/s sustained**, peak **121.9/128 GB**, swap flat 1.58, **0 Metal errors, no panic** |
+| 18:20 | tool-call **jdhodges** | **95 % (38/40)**, 6.9 min, 28.3 t/s |
+| 18:27 | tool-call **veerman** | **75 % (9/12)**, 2.3 min |
+| 18:30 | Unload | clean → memory back to 12.5 GB baseline, **no leak** |
+| 18:38–19:51 | **HumanEval (100)** @ 32768, detached driver | **94 % (94/100)**, ~73 min, 36 t/s, 1 trunc (Q17 spiral); auto-unloaded on completion |
+| 20:08–00:46 | **LCB v6 (50)** @ 32768 | **68 % (34/50)** — easy 100 %, medium 70 %, hard 25 %; 5 truncations. Above 27b (62 %), below Gemma leaders (80 %) |
+| 00:47–08:12 | **Terminal-Bench 2.0** (89, terminus-2) | ❌ **NO-GO** — 46/46 `EnvironmentStartTimeoutError`, mean 0.0. Memory wall: 98.69 GB model leaves ~3 GB for Docker (peak 134 GB). Stopped + torn down |
+| 09:00–11:39 | LCB recovery (Q8,19,38,44,48 @ ctx 60k, max_tokens 57344) | ✅ **2/5 recovered** (Q38, Q48 → OK); Q19/Q44 real spirals (57k cap), Q8 completes-wrong. **LCB 68 %→72 % (36/50).** (Earlier "HTTP 400" was a 65536-ctx artifact, not a real `max_tokens` limit — reload at 61440 fixed it.) |
+| — | Session end | model left resident at ctx 61440 for the remote-tbench plan; results banked; **MMLU not run** |
+
+**Verdict — GO.** Feasible AND fast (36.8 t/s sustained — 5× Kimi, > `qwen3.6-27b`).
+Reasons internally but LM Studio parses it as structured `reasoning_tokens` (clean
+`content`, unlike Kimi's `◁think▷`). Cheap-signal gate cleared (jdhodges 95 % ≥ 85 %), **HumanEval 94 %** and **LCB v6 72 %** (68 % raw at 32k, +4 from the ctx-60k recovery)
+confirm strong coding (both beat `qwen3.6-27b`; HumanEval matches MLX pre-crash 95.8 %).
+**Terminal-Bench is a memory NO-GO** — the 98.69 GB model leaves Docker only ~3 GB, so all
+89 tasks time out on container start (a rig limit, not a capability verdict; see notes §
+Terminal-Bench). **MMLU was not run** (session stopped after the tbench NO-GO) — MiniMax's
+knowledge tier remains unmeasured, so it can't yet be compared to 27b's knowledge moat.
+Also corrected here: MiniMax's **native context is 196k, usable ~64k** on this rig — the
+plan's "32768 ceiling" was a mis-inherited MLX assumption (see notes § Context length). Full write-up + cheap-signal table in
+`M4_MAX_128GB_NOTES.md` (§ MiniMax-M2.5 GGUF). Telemetry:
+`.bench-logs/minimax-gguf-feasibility-{macmon.jsonl,lmslog.txt}`.
 
 ### seq 3 — `kimi-dev-72b` — ⛔ ABORTED at the speed step (2026-07-05)
 

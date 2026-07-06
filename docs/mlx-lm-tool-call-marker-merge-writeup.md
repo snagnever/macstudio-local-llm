@@ -1,5 +1,8 @@
 # mlx-lm: tool calls silently dropped when the tokenizer merges the `<tool_call>` closing `>`
 
+> Model card: [deepseek-v4-flash](models/deepseek-v4-flash.md) (affects any model with multi-token tool-call markers)
+
+
 **Audience:** mlx-lm maintainers (`ml-explore/mlx-lm`).
 **Environment:** mlx-lm 0.31.3, mlx 0.31.2, Apple M4 Max / macOS 26.3, model
 `mlx-community/DeepSeek-V4-Flash-2bit-DQ` (any model whose `<tool_call>` markers are **not**

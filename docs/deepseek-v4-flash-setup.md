@@ -1,5 +1,8 @@
 # Plan: Run DeepSeek V4 Flash via patched `mlx-lm.server` + Open WebUI / CLI
 
+> Model card: [deepseek-v4-flash](models/deepseek-v4-flash.md)
+
+
 ## Context
 
 `mlx-community/DeepSeek-V4-Flash-2bit-DQ` is already downloaded to `/Users/vitor/.lmstudio/models/mlx-community/DeepSeek-V4-Flash-2bit-DQ` (~93 GB across 19 shards), but it won't load in LM Studio today because:

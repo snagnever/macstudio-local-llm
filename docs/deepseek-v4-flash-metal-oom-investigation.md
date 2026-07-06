@@ -1,5 +1,8 @@
 # DeepSeek V4 Flash on Apple Silicon — Metal `resource_limit` OOM investigation
 
+> Model card: [deepseek-v4-flash](models/deepseek-v4-flash.md)
+
+
 **Goal:** make `deepseek-v4-flash-dq` reliable as a **daily-driver model** on this rig — sustained multi-hour chat / research / long-context sessions without restarts, hangs, or repetition. Benchmarks are a means to that end (a bench sweep is a useful stress test that proves daily reliability), not the goal itself.
 
 **Status (2026-05-30): ROOT CAUSE FIXED — reproducer-verified.** mlx-lm PR #1192's

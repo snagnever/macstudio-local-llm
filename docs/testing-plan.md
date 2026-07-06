@@ -39,6 +39,8 @@ below), and neither predicts code quality on a real brief.
 Source: `lms ls`, `lms ps`, `GET /v1/models` against
 `http://<lm-studio-host>:1234/v1`. Sizes are on-disk weights.
 
+> Per-model deep dives (official specs + all local results/verdicts): [`docs/models/`](models/README.md).
+
 ### Daily-driver candidates (in scope)
 
 | Model ID (use with API) | Format | Quant | Arch | Size | Vision | Tools |
