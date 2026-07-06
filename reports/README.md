@@ -7,16 +7,45 @@ Two self-contained dashboards for local-LLM benchmarks on the Mac Studio (M4 Max
 | `benchmark-charts.html` | On-rig measurements (accuracy n=100, LCB n=50, tool calling, throughput, speed probe, prefill, elapsed) | The local runs themselves — what was actually measured on this rig |
 | `quality-benchmarks-charts.html` | Local-vs-frontier comparison using **published** scores (MMLU-Pro, GPQA, SWE-V, AIME, LCB v6, T-Bench, MMMU) | How the local models rank against frontier / open-weight references |
 
-Both files share the same conventions: inline data, Chart.js via CDN, the same wide Models card layout, and the same sortable scoreboard helper (`setupSortableTable` + `highlightBestPerColumn`). Edits to one usually want a parallel edit to the other.
+Both files share a common runtime, `charts-common.js`, and the same two-array data model (`MODELS` + `RESULTS`). Each page still has its own roster, colors, and prose — they are not merged — but the machinery (filter bar, chart builders, scoreboard, sortable/best-highlight helpers) lives in one place. A fix to the machinery is a single edit to `charts-common.js`; a data change is an edit to the `RESULTS`/`MODELS` arrays inline in one page.
 
-## What the pages are
+## Architecture
 
-Single HTML files with embedded Chart.js charts. No build step. Open in a browser, or attach via the Launch preview panel.
+Three files, no build step, no network beyond the two CDN `<script>` tags:
 
-- Page files: `benchmark-charts.html`, `quality-benchmarks-charts.html` (same directory as this README)
-- Renderer: Chart.js 4.4.1 + chartjs-plugin-datalabels 2.2.0, both via CDN
-- All chart data lives **inline as JS literals** at the bottom of each file — there is no fetch/network beyond the CDN scripts. Updating data = editing the literals.
-- The Models table and the Benchmark scoreboard are **HTML tables** at the top of `<main>`, not Chart.js charts — edit the `<tr>` rows directly.
+- `charts-common.js` — shared runtime, exposes one global `window.ChartsCommon`. Loaded via a plain `<script src="charts-common.js">` (classic script, **not** an ES module — modules would break `file://` opening under CORS). Holds: theme + datalabels + the `Show data labels` toggle, the global filter state + sticky filter bar, chart builders (`buildGroupedChart`, `buildRankedChart`, `buildScatterChart`, `buildRadarChart`), data derivation (`metricValue`, `seriesFor`, `deriveRanked`), and the scoreboard (`buildScoreboard`, `setupSortableTable`, `highlightBestPerColumn`, `applyTableFilter`).
+- `benchmark-charts.html`, `quality-benchmarks-charts.html` — each holds its own `MODELS` + `RESULTS` inline at the bottom of `<main>`'s `<script>`, then a handful of builder calls. Open in a browser or attach via the Launch preview panel.
+- Renderer: Chart.js 4.4.1 + chartjs-plugin-datalabels 2.2.0, both via CDN. Keeping the pages offline-capable would only require vendoring those two files into `reports/vendor/` and repointing the `<script src>` — not done today.
+
+### Data model (`MODELS` + `RESULTS`)
+
+Everything on a page — every chart, the scoreboard, the filter bar, the scatter, the radar — derives from two inline arrays. **Numbers live exactly once, in `RESULTS`.**
+
+- **`MODELS`** — one record per model: `{ id, tier, arch, quant, color, label, chartLabel, ... }`.
+  - `tier` is `'local' | 'frontier' | 'open'`. `arch` (`'dense'|'moe'`) and `quant` are optional — frontier/open reference models omit them (and therefore always pass the arch/quant filters; the tier pill is what hides them).
+  - `label` is the short name (filter checkbox + scoreboard cell). `chartLabel` is the longer legend label for grouped charts. On `benchmark-charts.html`, `refLabel`/`refNote` are the label/footnote used in the ranked "vs frontier" charts; `refExclude:true` keeps a model out of those ranked charts entirely (used for `agents-a1-xl-mlx`).
+  - `diskGB` (benchmark page) feeds the scatter bubble radius. `rankedOnly:true` (quality page) keeps a model out of the scoreboard/headline/checkboxes/radar and only shows it in the ranked charts (used for `gemma-4-31b`, which appears only in T-Bench).
+- **`RESULTS`** — one tidy record per measured value: `{ model, metric, value, ...selector, note? }`. `value:null` means "not run" (renders as a gap / `—`). The extra selector key names the axis:
+  - benchmark page: `metric:'accuracy'|'toolScore'|'toolTps'|'genTps'|'effTps'|'prefillEffTps'|'probeSeconds'|'probeReasonTok'|'elapsedMin'` with `bench` / `suite` / `scenario` / `context` / `prompt` as appropriate.
+  - quality page: `metric:'score'`, `bench` ∈ `{MMLU-Pro, GPQA, SWE-V, AIME, LCB, TBench, MMMU}`.
+  - `note` is a per-record footnote (e.g. `"'26"`, `"(measured; comm ~80)"`, `"(P)"`) appended to that model's label **in the ranked chart for that benchmark only** — so a model can carry a different note per benchmark.
+
+A value is fetched with `ChartsCommon.metricValue(RESULTS, id, query)` where `query` is the metric + selector (e.g. `{metric:'accuracy', bench:'MMLU'}`). `seriesFor(...)` returns an ordered array for grouped/line datasets; `deriveRanked(...)` returns the filtered, sorted rows for a ranked chart.
+
+### Filtering & the sticky filter bar
+
+`createFilterBar(...)` renders a sticky bar under the header with: per-model checkboxes (local models only — frontier/open are governed by the tier pills), **All/None**, and pill toggles for **Tier / Arch / Quant**, plus the section anchor-nav. A model is visible when `checked ∧ tier ∧ arch ∧ quant` all pass. Every chart and the scoreboard react instantly:
+
+- **Grouped bar / line charts** keep every dataset and hide filtered ones in place (`setDatasetVisibility`) — the legend stays complete (struck-through when hidden), and clicking a **local** model's legend entry toggles it globally across all charts + the checkboxes.
+- **Ranked horizontal charts** drop filtered rows and re-rank.
+- **The scoreboard** hides filtered rows and recomputes the green best-per-column highlight over the visible rows.
+- **The radar** has its own separate 2–3 model picker; the global filter only constrains which models the picker offers.
+
+### New visualizations
+
+- **Quality-vs-speed scatter** (`benchmark-charts.html` only — the quality page has no throughput data): benchmark score vs generation tok/s, bubble radius ∝ disk GB. The y-axis `<select>` picks a benchmark; **Composite** averages the six accuracy suites (skipping any that are missing, flagged in the tooltip).
+- **Model radar** (both pages): up to 3 models across the 0–100 benchmark axes. Axes are **fixed 0–100** — every axis is already a percentage, and fixed bounds keep the polygon shapes comparable no matter which models are selected (min-max normalization would silently change a model's shape when the comparison set changes). No throughput axis; the scatter covers that.
+- **Category anchor-nav**: the section links in the filter bar scroll to full-width `<h2 class="category-heading">` headings. These are plain scroll anchors, not show/hide tabs — a `display:none` container renders a Chart.js canvas at 0×0, and anchors also keep Cmd+F / full-page printing working.
 
 ## Where the data comes from
 
@@ -101,10 +130,9 @@ Full write-up: [`tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md`](.
 **To refresh after a new run completes:**
 
 1. Confirm the summary JSON exists at `tools/local-llm-bench-m4-32gb/benchmarks/runs/tbench_<model>_<timestamp>_summary.json`. If only the raw `result.json` is available, the score is `stats.evals.<key>.metrics[0].mean`.
-2. Update the scoreboard cells (`#scoreboardMain` row's T-Bench cell in `benchmark-charts.html`; `#scoreboardQuality` row's T-Bench cell in `quality-benchmarks-charts.html`) — drop the `dash` class and set the value.
-3. Update the chartTBench `data: [null]` to `data: [<value>]` in `benchmark-charts.html`, and rewrite the dataset label suffix to match (e.g. `— 35/89`).
-4. Add a row to `buildBenchChart('chartTBench', …)` in `quality-benchmarks-charts.html` if it's a model not already listed, or update the `value:` if it is.
-5. Refresh the subtitle of both T-Bench cards and the scoreboard hints with the new headline numbers.
+2. In `benchmark-charts.html`, update (or add) the T-Bench `RESULTS` record: `{ model:'<id>', metric:'accuracy', bench:'TBench', value:<n> }`. The scoreboard T-Bench column reads it automatically. For the `chartTBench` bar's `— NN/89` suffix, update the `TB_ORDER` entry for that model (the order + fractions are chart-specific display, so they live in that one array).
+3. In `quality-benchmarks-charts.html`, update (or add) `{ model:'<id>', metric:'score', bench:'TBench', value:<n>, note:'…' }` in `RESULTS`. The scoreboard and the `chartTBench` ranked chart both re-derive from it.
+4. Refresh the subtitle of both T-Bench cards and the scoreboard hints with the new headline numbers (prose is not auto-derived).
 
 ### 2. Speed probe (3-prompt cold latency, system metrics)
 
@@ -135,7 +163,7 @@ The markdown summaries already have the headline numbers — read them, don't re
 
 ### 4. Third-party reference scores (frontier + open-weight)
 
-The reference numbers in the "Local vs frontier" section came from a **research subagent web-search pass on 2026-05-17**. They are inlined into `REF_MODELS` in the HTML.
+The reference numbers in the "Local vs frontier" section came from a **research subagent web-search pass on 2026-05-17**. They are inlined into `RESULTS` in each HTML page: on `benchmark-charts.html` as `{metric:'accuracy', bench:…}` records for the frontier/open `MODELS` entries (which carry a `refNote`), and on `quality-benchmarks-charts.html` as `{metric:'score', bench:…}` records with a per-record `note`.
 
 Refresh procedure:
 
@@ -161,22 +189,21 @@ Refresh procedure:
 
 ## Page structure — where to edit what
 
-`benchmark-charts.html` has these logical sections inside `<main>`, top-to-bottom:
+`benchmark-charts.html` groups its cards under four category headings (the filter-bar nav jumps to them). Charts derive from `RESULTS` unless noted:
 
-| # | Section | Data location | Source |
-|---|---|---|---|
-| 0a | System card | Hard-coded markup at top of `<main>` | Update from `../docs/machine-configuration.md` |
-| 0b | **Models benchmarked** (wide card) | Hard-coded `<table>` with Best for / Expected usage columns | Update from `../docs/local-llm-reference.md` + this README's "Models card" section below |
-| 0c | **Benchmark scoreboard** (wide card, sortable) | Hard-coded `<table id="scoreboardMain">` | See "Sortable scoreboard" section below |
-| 1 | Accuracy + frontier reference | `chartAccuracy` + `REF_MODELS` array + `chartRefMMLU/HumanEval/MATH/DROP/GPQA/LCB` | §1 (local) + §4 (frontier) |
-| 2 | Tool calling | `chartToolScore`, `chartToolTps` | §1 (`toolcall_*_summary.json`) |
-| 3 | Throughput by scenario | `chartGenTps`, `chartEffectiveTps`, `chartPrefill` | §3 (throughput benchmark md headlines) |
-| 4 | Speed probe | `chartProbeTotal`, `chartProbeReason` | §2 (`speed_probe/*_results.json`) |
-| 5 | Elapsed per benchmark | `chartElapsed` | §1 (`elapsed_min` from each summary) |
+| Section (anchor) | Cards | Source |
+|---|---|---|
+| **Overview** (`sec-overview`) | System card (hard-coded markup), **Models benchmarked** (hard-coded `<table id="modelsTable">`, editorial), **Benchmark scoreboard** (`#scoreboardMain`, generated), **Quality-vs-speed scatter** (`chartScatter`) | machine-configuration.md / local-llm-reference.md / `RESULTS` |
+| **Coding** (`sec-coding`) | `chartLCB` (local), `chartRefHumanEval`, `chartRefLCB` | §1 + §4 |
+| **Knowledge & reasoning** (`sec-knowledge`) | `chartAccuracy`, `chartRefMMLU/MATH/DROP/GPQA`, **Model radar** (`chartRadar`) | §1 + §4 |
+| **Tool use & agents** (`sec-tools`) | `chartTBench` (local), `chartToolScore`, `chartToolTps` | §1b + §1 |
+| **Performance** (`sec-performance`) | `chartGenTps`, `chartEffectiveTps`, `chartPrefill`, `chartProbeTotal`, `chartProbeReason`, `chartElapsed` | §3 / §2 |
 
-`quality-benchmarks-charts.html` follows the same shape but is comparison-oriented: a Scope card, a wide Models card (Best for / Expected usage), a Legend card, a wide Benchmark scoreboard (`#scoreboardQuality`, mixes local + frontier + open rows), then Chart.js charts for MMLU-Pro / GPQA / AIME / SWE-V / LCB / T-Bench / MMMU, followed by the quant-caveats panel and verdict table.
+The six `chartRef*` charts are built by `buildRankedChart(...)` over the full `MODELS` list (local + frontier + open), querying `{metric:'accuracy', bench:…}`. Local models supply the same values as the grouped `chartAccuracy`; frontier/open models supply the published `RESULTS` records.
 
-The toggle `Show data labels on bars` (header) flips `labelsOn` which the datalabels plugin reads at draw time. No need to touch when adding charts — registering via `registerChart(...)` auto-wires it. The scoreboard tables are HTML, not Chart.js, so the toggle does not affect them.
+`quality-benchmarks-charts.html` follows the same category shape (Overview / Knowledge / Coding & agents / Caveats & verdict): Scope card, editorial Models card (`#modelsTable`), Legend card, generated scoreboard (`#scoreboardQuality`, mixes local + frontier + open rows), the `chartHeadline` grouped bar, then `buildRankedChart` charts for MMLU-Pro / GPQA / AIME / MMMU / SWE-V / LCB / T-Bench, the Model radar, and finally the quant-caveats panel and verdict table.
+
+The toggle `Show data labels on bars` (header) flips the shared `labelsOn` inside `charts-common.js` via `ChartsCommon.bindLabelToggle(...)`. Every chart built through the helpers is auto-registered, so no wiring is needed when adding one. The scoreboard is an HTML table, so the toggle does not affect it.
 
 ## Models card — Best for / Expected usage
 
@@ -197,68 +224,44 @@ The `.model-table-wrap` div around the table provides horizontal scroll on narro
 
 ## Sortable scoreboard
 
-A single HTML table (`#scoreboardMain` in `benchmark-charts.html`, `#scoreboardQuality` in `quality-benchmarks-charts.html`) that summarizes every model × every benchmark in one matrix. Two small JS helpers do all the work:
+A single HTML table (`#scoreboardMain` in `benchmark-charts.html`, `#scoreboardQuality` in `quality-benchmarks-charts.html`) summarizing every model × every benchmark. The `<thead>` (with `<th data-sort="…">`) is hard-coded; the `<tbody>` is **generated** by `ChartsCommon.buildScoreboard(tableEl, models, results, columns)` from a column spec. Four helpers in `charts-common.js` (not duplicated between pages) do the work:
 
-- **`setupSortableTable(tableId, defaultSortCol?, defaultDir?)`** — wires every `<th data-sort="...">` for click-to-sort. `data-sort="num"` is a numeric sort that pushes NaN/`—` rows to the bottom; `data-sort="str"` is a `localeCompare`. First click on a numeric column sorts **descending** (highest first); subsequent clicks toggle. **Double-click any header to reset to original document order.** Pass `defaultSortCol` (0-based index) if you want a column pre-sorted on load.
-- **`highlightBestPerColumn(tableId)`** — adds class `best` (green, bold) to the cell with the maximum value in every numeric column. Run it once after the DOM is built; it doesn't need to re-run after sorts.
-
-Both helpers are duplicated verbatim in the two files (so each file stays self-contained). If you fix a bug in one, mirror it to the other.
+- **`buildScoreboard(tableEl, models, results, columns)`** — emits one `<tr data-model-id="…" class="tier-…">` per model (in `MODELS` order), with a swatch model cell followed by one cell per `columns` entry: `{kind:'str', get:m=>…}` for a text column (e.g. Tier), or `{kind:'num', query:{…}, fmt?:fn}` for a metric column. `fmt` defaults to `fmt1` (one decimal, but keeps extra precision like `89.75`); pass `C.fmtInt` for integer columns. Missing values render as `<td class="num dash">—</td>`.
+- **`setupSortableTable(tableId, defaultSortCol?, defaultDir?)`** — click-to-sort. `data-sort="num"` pushes NaN/`—` to the bottom; `data-sort="str"` is `localeCompare`. First click on a numeric column sorts **descending**; subsequent clicks toggle; **double-click resets** to `MODELS` order.
+- **`highlightBestPerColumn(tableId)`** — adds `best` (green, bold) to the max cell of every numeric column. It **clears prior highlights and ignores `.filtered-out` rows**, so it re-runs on every filter change.
+- **`applyTableFilter(tableId, state, {highlight})`** — toggles `.filtered-out` on rows by `data-model-id`; wire it via `state.onChange(...)`. It also filters the editorial `#modelsTable` (rows without a `data-model-id` stay visible).
 
 ### Adding a new column
 
 1. Add a `<th class="num" data-sort="num">…</th>` to the `<thead>`.
-2. For every existing `<tr>` in `<tbody>`, add a corresponding `<td class="num">…</td>`. Use `<td class="num dash">—</td>` for missing data — `parseFloat('—')` is NaN, which the sort treats as "bottom".
-3. Save. No JS change needed; the helpers re-scan the table on every sort and on highlight.
-
-### Adding a new row
-
-1. Insert a `<tr>` (with the swatch `<span>` matching the model's color elsewhere on the page).
-2. For `quality-benchmarks-charts.html`, also set the tier class on the row: `tier-local`, `tier-frontier`, or `tier-open` — controls the model-cell color tint.
-3. If the new row beats the current max in any column, `highlightBestPerColumn` will reassign the green pill automatically on next page load.
+2. Add a matching entry to the `columns` array in the page's `buildScoreboard(...)` call (`{kind:'num', query:{metric:…, bench:…}}`). No per-row markup — the cell is generated from `RESULTS`.
 
 ### Changing the displayed metric
 
-The throughput columns (`Gen t/s` / `Eff t/s`) in `benchmark-charts.html` show the **creative-writing** scenario by default — pick a different scenario by editing the cells directly. If you swap scenarios, update the `<p class="sub">` blurb above the table so the reader knows which one.
+The throughput columns (`Gen t/s` / `Eff t/s`) in `benchmark-charts.html` show the **creative-writing** scenario — change the `scenario` in that column's `query`. If you swap scenarios, update the `<p class="sub">` blurb so the reader knows which one.
 
 ## How to add a new model run
 
 1. **Run the benchmarks.** For accuracy: `python local-llm-bench-m4-32gb/scripts/bench2.py <bench> --model <model_id>`. For throughput: see `benchmarking/local-llm-bench/README.md`. For speed probe: `local-llm-bench-m4-32gb/scripts/speed_probe.py`.
 
-2. **Add to the Models card.** Extend the wide model table in the markup. Required cells per row, in order:
-   `swatch | code-tag model id | author | arch | total params | active | quant | disk | context | vision | tools | Best for (td.bestfor) | Expected usage (td.usage)`.
-   Preserve the swatch color so charts and the table agree.
+2. **Add one `MODELS` entry** at the top of the page's inline `<script>`: pick an `id`, `tier`, `arch`/`quant` (omit for frontier/open), a `color`, and `label`/`chartLabel`. On `benchmark-charts.html` add `diskGB` (for the scatter) and, if it's a frontier/open reference, `refNote`.
 
-3. **Add to the Benchmark scoreboard.** Insert a `<tr>` into `#scoreboardMain` (and `#scoreboardQuality` if relevant). One `<td class="num">N</td>` per metric column, `<td class="num dash">—</td>` for unmeasured.
+3. **Add `RESULTS` records** — one per measured value: `{ model:'<id>', metric:'accuracy'|'score', bench:'…', value:<n> }`, plus tool/throughput/etc. records on the benchmark page. Use `value:null` for a run you want to show explicitly as "not run"; omit the record otherwise. That single edit feeds the scoreboard, every chart, the scatter, and the radar.
 
-4. **Pick a chart color** and add it to the `COLOR` map at the top of the `<script>` block.
+4. **Add the editorial Models-table row** (`#modelsTable`) with a `data-model-id="<id>"` matching the new `MODELS` id and the swatch color — this is the one place prose still lives. The Best/Expected-usage cells are not auto-derived (see "Models card" above).
 
-5. **Add data to each chart's `datasets` array.** Use the same label string everywhere so legends stay consistent across charts. Use `null` for benchmarks not yet run — Chart.js renders gaps gracefully and the datalabels plugin's formatter is already `null`-safe.
+5. **Grouped charts only:** the grouped `datasets` arrays (`chartAccuracy`, `chartGenTps`, prefill, …) are still listed explicitly per chart so each keeps its bespoke legend label — add a `dset(...)` line for the new model where you want it to appear. The ranked charts, scoreboard, scatter, and radar pick the model up automatically from `MODELS`/`RESULTS`.
 
-6. **For the frontier-reference charts**, add an entry to `REF_MODELS` if the new model is a frontier/open-weight reference; the per-benchmark charts rebuild themselves from that array (`buildRefChart`).
+6. **Re-read the Best for / Expected usage cells and chart subtitles.** New numbers may invalidate an old assertion (e.g. "highest GPQA on the rig").
 
-7. **Re-read the Best for / Expected usage cells.** New numbers may invalidate an old assertion (e.g. "highest GPQA on the rig"). Update prose to match the new data.
+## How to add a new benchmark
 
-## How to add a new benchmark column
+The pages already plot accuracy (HumanEval/MMLU/MATH/DROP/GPQA/LCB), Terminal-Bench, the two tool-calling suites, throughput, and (quality page) MMLU-Pro/GPQA/SWE-V/AIME/MMMU. To add another benchmark:
 
-Today the page handles MMLU, HumanEval, MATH, DROP, GPQA, and the two tool-calling suites. **LiveCodeBench is wired in the harness but not yet plotted** — see "Next steps" below for the patch. To add a new benchmark (the LCB recipe applies generally):
-
-1. Run it on each local model and produce a `_summary.json` in the same dir & shape (the existing harness already writes that shape).
-2. Add a new chart card to the markup with its own canvas id.
-3. Add a new `registerChart(new Chart(...))` block with the same color convention.
-4. In `REF_MODELS`, extend each model entry with the new metric key (e.g. `LiveCodeBench: 65.9`), and call `buildRefChart('chartRefLCB', 'LiveCodeBench', 'LiveCodeBench')`.
-
-### Next steps for LiveCodeBench specifically
-
-1. Run on each local model: `python3 scripts/bench2.py livecodebench --examples 50 --lcb-version release_v6 --model <model-id>` (n=50 is the LCB convention; full v6 has ~880 problems so n=100 is also fine but ~2× slower).
-2. Pull headline scores from `local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_*_summary.json`.
-3. Frontier references for LCB (refresh via the research-agent procedure above):
-   - DeepSeek-V3: 65.9 (technical report)
-   - DeepSeek-R1: 65.9 (HF model card)
-   - Qwen3-Coder-480B: 70.7 (HF card)
-   - Claude Sonnet 4.5: ~70 (system card, LCB-Pro variant)
-   - GPT-5: ~80 (vellum aggregator — verify against system card)
-   - Verify all against first-party sources before publishing; LCB scores in particular vary by harness configuration (cumulative vs window, output extraction).
-4. Add `LiveCodeBench: <score>` to each entry in `REF_MODELS` and a `chartRefLCB` canvas in the markup; the existing `buildRefChart` helper will sort and color it automatically.
+1. Run it on each local model and produce a `_summary.json` in the usual dir & shape.
+2. Add `{ model:'<id>', metric:'accuracy'|'score', bench:'<NewBench>', value:<n>, note?:'…' }` records to `RESULTS` for every model that has a score.
+3. Add a chart card with its own `<canvas id>`, then one `buildRankedChart('<canvasId>', { state, models: MODELS, results: RESULTS, query:{metric:'…', bench:'<NewBench>'}, axisLabel:'<NewBench>', labelFn })` call — it sorts, colors, and filters itself.
+4. To add it as a scoreboard column, add a `<th data-sort="num">` and a `{kind:'num', query:{…}}` entry (see "Adding a new column"). To add it as a radar axis, add `{ label:'<NewBench>', query:{…} }` to the page's `buildRadarChart` `axes`.
 
 ## Caveats & gotchas
 
@@ -286,6 +289,6 @@ ls local-llm-bench-m4-32gb/results/speed_probe/*_results.json
 
 - `../docs/local-llm-reference.md` — model lineup, params, quant, disk size, context window, vision/tool support. The "Models benchmarked" table in `benchmark-charts.html` and the "Local models in this comparison" table in `quality-benchmarks-charts.html` both mirror this. The Best for / Expected usage columns are editorial and do **not** live in any source-of-truth file — they're maintained inline in the HTML.
 - `../docs/machine-configuration.md` — chip, RAM, OS. The "System" card mirrors this.
-- `../research/quality-benchmarks-2026-05.md` — citations and provenance for every published score plotted on `quality-benchmarks-charts.html`. When refreshing frontier numbers, update there first, then mirror into the inlined chart data and the scoreboard rows.
-- `../tools/local-llm-bench-m4-32gb/results/reference_scores.md` — older third-party comparison notes (Claude 3.x / GPT-4o era). Useful for context but the inline `REF_MODELS` in the HTML is fresher.
+- `../research/quality-benchmarks-2026-05.md` — citations and provenance for every published score plotted on `quality-benchmarks-charts.html`. When refreshing frontier numbers, update there first, then mirror into the inline `RESULTS` records.
+- `../tools/local-llm-bench-m4-32gb/results/reference_scores.md` — older third-party comparison notes (Claude 3.x / GPT-4o era). Useful for context but the inline `RESULTS` records in the HTML are fresher.
 - `../docs/testing-plan.md` — what's intended to run, what's pending.

@@ -5,6 +5,7 @@
 <title>Local LLM Quality Benchmarks vs Frontier — M4 Max / 128GB</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="charts-common.js"></script>
 <style>
   :root {
     --bg: #0f1115;
@@ -205,7 +206,12 @@
   </div>
 </header>
 
+<!-- Global filter bar (sticky). Populated by charts-common.js. -->
+<div class="filter-bar" id="filterBar"></div>
+
 <main>
+
+  <h2 class="category-heading" id="sec-overview">Overview <span class="hint">scope, model roster, the full scoreboard, and the headline benchmarks</span></h2>
 
   <!-- 0. Scope / sources -->
   <section class="card">
@@ -227,7 +233,7 @@
     <h2>Local models in this comparison</h2>
     <p class="sub">On-disk identifiers &amp; quantizations. The two right-most columns capture qualitative strengths and how each model is meant to be used in rotation — full quant deltas live in the caveats panel near the bottom.</p>
     <div class="model-table-wrap">
-    <table>
+    <table id="modelsTable">
       <thead>
         <tr>
           <th></th>
@@ -240,25 +246,25 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
+        <tr data-model-id="coder">
           <td><span class="swatch" style="background:#5aa9ff"></span></td>
           <td><code>qwen/qwen3-coder-next</code></td><td>MoE</td><td class="num">80B / 3B</td><td>MLX 6-bit</td>
           <td class="bestfor">Agentic coder, repo-scale edits, tool-driven workflows.</td>
           <td class="usage">Primary local coder. Sonnet-4.5-class on SWE-Verified at 3B active; ~6–10 pp behind Opus 4.5 / Sonnet 4.6 on SWE-V. Pound-for-active-parameter the best agentic coder on disk.</td>
         </tr>
-        <tr>
+        <tr data-model-id="d27b">
           <td><span class="swatch" style="background:#ff8a5a"></span></td>
           <td><code>qwen3.6-27b</code></td><td>Dense</td><td class="num">27B</td><td>MLX 6-bit</td>
           <td class="bestfor">Hard reasoning / science Q&amp;A — best all-rounder on disk.</td>
           <td class="usage">Quality-over-speed slot. <strong>Beats Sonnet 4.6 on GPQA</strong> (87.8 vs 74.1) and AIME; ~4 pp behind on SWE-V. Loses to Gemini 3 Pro by 4–6 pp. Decode is slow (~20 t/s) — reach for it on hard one-shots.</td>
         </tr>
-        <tr>
+        <tr data-model-id="a3b35">
           <td><span class="swatch" style="background:#7ee787"></span></td>
           <td><code>qwen3.6-35b-a3b</code></td><td>MoE</td><td class="num">35B / 3B</td><td>MLX 6-bit</td>
           <td class="bestfor">Fast generalist with tool calling.</td>
           <td class="usage">Daily-driver chat. Near-tie with the 27b dense on most evals, much lighter to run (~85 t/s). ~7 pp behind frontier on SWE-V, ~5 pp on GPQA. Watch the MoE-MLX tool-call regression on 4-bit/8-bit checkpoints.</td>
         </tr>
-        <tr>
+        <tr data-model-id="g26">
           <td><span class="swatch" style="background:#ffd166"></span></td>
           <td><code>gemma-4-26b-a4b-it-mlx@4bit</code></td><td>MoE</td><td class="num">26B / 4B</td><td>MLX 4-bit ⚠</td>
           <td class="bestfor">Vision + throughput when RAM is tight.</td>
@@ -276,19 +282,19 @@
           <td class="bestfor">Nothing distinct — demoted from rotation.</td>
           <td class="usage">Skip. Ties or loses to 26B-A4B@6bit on every bench except DROP (+6 pp); decode 13.7 t/s vs @6bit's 80.8 = ~6× wall-clock for indistinguishable quality.</td>
         </tr>
-        <tr>
+        <tr data-model-id="nemotron">
           <td><span class="swatch" style="background:#ef476f"></span></td>
           <td><code>nvidia/nemotron-3-nano-omni</code></td><td>MoE</td><td class="num">30B / 3B</td><td>GGUF Q4_K_M</td>
           <td class="bestfor">OCR, long-doc, audio, video — multimodal omni specialist.</td>
           <td class="usage">Use for multimodal pipelines, not general reasoning. SOTA among small models on OCR / long-doc / audio / video. AA Intelligence Index 21 vs frontier ~60+ — below frontier on every pure-text benchmark.</td>
         </tr>
-        <tr>
+        <tr data-model-id="ge4b">
           <td><span class="swatch" style="background:#c77dff"></span></td>
           <td><code>google/gemma-4-e4b</code></td><td>Dense</td><td class="num">~7.5B</td><td>GGUF Q4_K_M</td>
           <td class="bestfor">FIM / autocomplete drafter; fast vision toy.</td>
           <td class="usage">Edge tier. 20–30 pp below frontier on every hard benchmark; MATH collapses to 14 %. Useful as a streaming completion helper, not a quality reasoning option.</td>
         </tr>
-        <tr>
+        <tr data-model-id="dsflash">
           <td><span class="swatch" style="background:#06d6a0"></span></td>
           <td><code>deepseek-v4-flash-dq</code></td><td>MoE</td><td class="num">284B / 13B</td><td>MLX 2-bit DQ ⚠⚠</td>
           <td class="bestfor">Only frontier-class model on disk — when you need GPT-5 / Opus-4.5-tier output and can wait.</td>
@@ -312,7 +318,7 @@
       <span><span class="swatch" style="background:#b86bff"></span> Frontier (GPT-5, Opus 4.5, Sonnet 4.6, Gemini 3 Pro)</span>
       <span><span class="swatch" style="background:#888c94"></span> Open-weight reference (Kimi K2.6)</span>
     </div>
-    <p class="sub" style="margin:0">All bars are <strong>published</strong> first-party scores from the upstream model card / announcement (or the most-cited third-party transcription, where the vendor doesn't publish). They are NOT measurements on the user's on-disk quant — see the quant-caveat panel at the bottom for expected quant-vs-base deltas.</p>
+    <p class="sub" style="margin:0">All bars are <strong>published</strong> first-party scores from the upstream model card / announcement (or the most-cited third-party transcription, where the vendor doesn't publish). They are NOT measurements on the user's on-disk quant — see the quant-caveat panel at the bottom for expected quant-vs-base deltas. The filter bar above toggles models and tiers across every chart and the scoreboard at once.</p>
   </section>
 
   <!-- 0d. Scoreboard — every model × every benchmark in one matrix -->
@@ -334,20 +340,7 @@
             <th class="num" data-sort="num">MMMU</th>
           </tr>
         </thead>
-        <tbody>
-          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#5aa9ff"></span>qwen3-coder-next</td><td>local</td><td class="num dash">—</td><td class="num dash">—</td><td class="num">70.9</td><td class="num dash">—</td><td class="num">56.0</td><td class="num">32.6</td><td class="num dash">—</td></tr>
-          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#ff8a5a"></span>qwen3.6-27b</td><td>local</td><td class="num">86.2</td><td class="num">87.8</td><td class="num">77.2</td><td class="num">94.1</td><td class="num">62.0</td><td class="num">31.5</td><td class="num">82.9</td></tr>
-          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#7ee787"></span>qwen3.6-35b-a3b</td><td>local</td><td class="num">85.2</td><td class="num">86.0</td><td class="num">73.4</td><td class="num">92.7</td><td class="num dash">—</td><td class="num">28.1</td><td class="num dash">—</td></tr>
-          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#ffd166"></span>gemma-4-26b-a4b</td><td>local</td><td class="num">82.6</td><td class="num">82.3</td><td class="num dash">—</td><td class="num">88.3</td><td class="num">80.0</td><td class="num">21.3</td><td class="num">73.8</td></tr>
-          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#ef476f"></span>nemotron-3-nano-omni</td><td>local</td><td class="num">78.3</td><td class="num">73.0</td><td class="num dash">—</td><td class="num">89.1</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td></tr>
-          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#c77dff"></span>gemma-4-e4b</td><td>local</td><td class="num">69.4</td><td class="num">58.6</td><td class="num dash">—</td><td class="num">42.5</td><td class="num">68.0</td><td class="num">4.5</td><td class="num">52.6</td></tr>
-          <tr class="tier-local"><td class="model-cell"><span class="swatch" style="background:#06d6a0"></span>deepseek-v4-flash</td><td>local</td><td class="num">86.4</td><td class="num">88.1</td><td class="num">79.0</td><td class="num">87.5</td><td class="num">91.6</td><td class="num">56.9</td><td class="num dash">—</td></tr>
-          <tr class="tier-frontier"><td class="model-cell"><span class="swatch" style="background:#b86bff"></span>GPT-5</td><td>frontier</td><td class="num">86.0</td><td class="num">89.4</td><td class="num">74.9</td><td class="num">100.0</td><td class="num dash">—</td><td class="num dash">—</td><td class="num">84.2</td></tr>
-          <tr class="tier-frontier"><td class="model-cell"><span class="swatch" style="background:#b86bff"></span>Claude Opus 4.5</td><td>frontier</td><td class="num">89.75</td><td class="num">87.0</td><td class="num">80.9</td><td class="num dash">—</td><td class="num dash">—</td><td class="num">59.3</td><td class="num">80.7</td></tr>
-          <tr class="tier-frontier"><td class="model-cell"><span class="swatch" style="background:#b86bff"></span>Claude Sonnet 4.6</td><td>frontier</td><td class="num">79.2</td><td class="num">74.1</td><td class="num">79.6</td><td class="num">98.0</td><td class="num">80.0</td><td class="num">59.1</td><td class="num dash">—</td></tr>
-          <tr class="tier-frontier"><td class="model-cell"><span class="swatch" style="background:#b86bff"></span>Gemini 3 Pro</td><td>frontier</td><td class="num">91.0</td><td class="num">91.9</td><td class="num">76.2</td><td class="num dash">—</td><td class="num dash">—</td><td class="num">54.2</td><td class="num">81.0</td></tr>
-          <tr class="tier-open"><td class="model-cell"><span class="swatch" style="background:#888c94"></span>Kimi K2.6</td><td>open</td><td class="num dash">—</td><td class="num">90.5</td><td class="num">80.2</td><td class="num">96.4</td><td class="num">89.6</td><td class="num">66.7</td><td class="num">79.4</td></tr>
-        </tbody>
+        <tbody><!-- generated by charts-common.js --></tbody>
       </table>
     </div>
     <p class="scoreboard-hint">AIME years vary (Qwen3.6 / Gemma 4 → '26; GPT-5 / Sonnet 4.6 → '25; Kimi K2.6 → '26) — see the per-bench charts for footnotes. LCB row for <code>gemma-4-26b-a4b</code> is the on-rig @6bit measurement (80 %); other Gemma-4-26b-a4b numbers are published BF16. <strong>All T-Bench local rows are on-rig n=89 (terminus-2, <code>--agent-timeout-multiplier 0.5</code>, 2026-05-24 → 2026-05-29):</strong> coder-next 32.6, qwen3.6-27b 31.5, qwen3.6-35b-a3b 28.1 (@6bit), gemma-4-26b-a4b 21.3 (@6bit), gemma-4-e4b 4.5. <code>deepseek-v4-flash</code> T-Bench value 56.9 is vendor-claimed (Phase 3 fit-test track — not measured here); other deepseek values are the base Flash model — the on-disk 2-bit-DQ quant will be lower (see caveats).</p>
@@ -360,17 +353,29 @@
     <div class="chart-wrap tall"><canvas id="chartHeadline"></canvas></div>
   </section>
 
-  <!-- 2. Per-benchmark deep dives (horizontal bars, ranked, all models) -->
+  <h2 class="category-heading" id="sec-knowledge">Knowledge &amp; reasoning <span class="hint">MMLU-Pro, GPQA, AIME, MMMU — ranked local vs frontier</span></h2>
+
   <section class="card"><h2>MMLU-Pro</h2><p class="sub">Broad academic knowledge. GPT-5 number is the AA-Intelligence-Index input range (~85–87).</p><div class="chart-wrap ref-md"><canvas id="chartMMLU"></canvas></div></section>
   <section class="card"><h2>GPQA Diamond</h2><p class="sub">Graduate-level science — the benchmark every modern model reports.</p><div class="chart-wrap ref-md"><canvas id="chartGPQA"></canvas></div></section>
 
   <section class="card"><h2>AIME — competition math</h2><p class="sub">⚠ Mixed years: Qwen3.6 family & Gemma 4 report AIME 2026; GPT-5 / Sonnet 4.6 / DeepSeek V4 report AIME 2025; Kimi K2.6 reports AIME 2026.</p><div class="chart-wrap ref-md"><canvas id="chartAIME"></canvas></div></section>
-  <section class="card"><h2>SWE-bench Verified</h2><p class="sub">Agentic code editing. The single most-cited coder benchmark.</p><div class="chart-wrap ref-md"><canvas id="chartSWE"></canvas></div></section>
-
-  <section class="card"><h2>LiveCodeBench v6</h2><p class="sub">Recent competitive-programming problems. Phase 1 Qwen values are <strong>our local n=50 measurements</strong>; they sit ~20pp below the vendor / community-published numbers (coder-next ~80, 27b ~84, 35b-a3b ~80). Gemma 4 26B-A4B @6bit tops the rig at <strong>80 %</strong> (after Step B reruns at 65 k cap, 2026-05-24) — the only local model above the Sonnet 4.6 reference. 27b dense at 62 % is the best Qwen.</p><div class="chart-wrap ref-sm"><canvas id="chartLCB"></canvas></div></section>
-  <section class="card"><h2>Terminal-Bench 2.0</h2><p class="sub">Multi-turn shell agent. All 7 local rows <strong>measured on-rig 2026-05-24 → 2026-05-29</strong> via Harbor + LiteLLM → LM Studio (Docker linux/amd64, terminus-2 agent, concurrency=1, n=89 vanilla T-Bench 2.0 task set with <code>--agent-timeout-multiplier 0.5</code> to bound the 14 tasks declaring &gt;60-min agent budgets — scores are a defensible floor; full-budget would land ≤5 pp higher). Headline ranking inverts LCB: <code>qwen3-coder-next</code> <strong>32.6 %</strong> (29/89, 16.8 h) leads, with <code>qwen3.6-27b</code> dense <strong>31.5 %</strong> (28/89, 18.9 h) and <code>qwen3.6-35b-a3b@6bit</code> <strong>28.1 %</strong> (25/89, 15.6 h) close behind — the three Qwen models cluster on top. Gemma slot: <code>gemma-4-31b</code> dense <strong>22.5 %</strong>, <code>gemma-4-26b-a4b@6bit</code> <strong>21.3 %</strong>, <code>@4bit</code> <strong>20.2 %</strong> (quant-A/B within 1.1 pp — 4-bit penalty doesn't bite on agentic shell), <code>gemma-4-e4b</code> <strong>4.5 %</strong> = 4B size floor. GPT-5.5 (post-this report) reports 82.7 — original GPT-5 has no published number.</p><div class="chart-wrap ref-sm"><canvas id="chartTBench"></canvas></div></section>
-
   <section class="card wide"><h2>MMMU / MMMU-Pro — vision &amp; multimodal</h2><p class="sub">MMMU and MMMU-Pro are different (Pro is harder). Bars are labelled (P) when Pro. Compare within the same metric only.</p><div class="chart-wrap ref-md"><canvas id="chartMMMU"></canvas></div></section>
+
+  <h2 class="category-heading" id="sec-coding">Coding &amp; agents <span class="hint">SWE-bench, LiveCodeBench, Terminal-Bench, and the model radar</span></h2>
+
+  <section class="card"><h2>SWE-bench Verified</h2><p class="sub">Agentic code editing. The single most-cited coder benchmark.</p><div class="chart-wrap ref-md"><canvas id="chartSWE"></canvas></div></section>
+  <section class="card"><h2>LiveCodeBench v6</h2><p class="sub">Recent competitive-programming problems. Phase 1 Qwen values are <strong>our local n=50 measurements</strong>; they sit ~20pp below the vendor / community-published numbers (coder-next ~80, 27b ~84, 35b-a3b ~80). Gemma 4 26B-A4B @6bit tops the rig at <strong>80 %</strong> (after Step B reruns at 65 k cap, 2026-05-24) — the only local model above the Sonnet 4.6 reference. 27b dense at 62 % is the best Qwen.</p><div class="chart-wrap ref-sm"><canvas id="chartLCB"></canvas></div></section>
+  <section class="card wide"><h2>Terminal-Bench 2.0</h2><p class="sub">Multi-turn shell agent. All 7 local rows <strong>measured on-rig 2026-05-24 → 2026-05-29</strong> via Harbor + LiteLLM → LM Studio (Docker linux/amd64, terminus-2 agent, concurrency=1, n=89 vanilla T-Bench 2.0 task set with <code>--agent-timeout-multiplier 0.5</code> to bound the 14 tasks declaring &gt;60-min agent budgets — scores are a defensible floor; full-budget would land ≤5 pp higher). Headline ranking inverts LCB: <code>qwen3-coder-next</code> <strong>32.6 %</strong> (29/89, 16.8 h) leads, with <code>qwen3.6-27b</code> dense <strong>31.5 %</strong> (28/89, 18.9 h) and <code>qwen3.6-35b-a3b@6bit</code> <strong>28.1 %</strong> (25/89, 15.6 h) close behind — the three Qwen models cluster on top. Gemma slot: <code>gemma-4-31b</code> dense <strong>22.5 %</strong>, <code>gemma-4-26b-a4b@6bit</code> <strong>21.3 %</strong>, <code>@4bit</code> <strong>20.2 %</strong> (quant-A/B within 1.1 pp — 4-bit penalty doesn't bite on agentic shell), <code>gemma-4-e4b</code> <strong>4.5 %</strong> = 4B size floor. GPT-5.5 (post-this report) reports 82.7 — original GPT-5 has no published number.</p><div class="chart-wrap ref-sm"><canvas id="chartTBench"></canvas></div></section>
+
+  <!-- Model radar -->
+  <section class="card wide">
+    <h2>Model profile — radar</h2>
+    <p class="sub">Head-to-head shape across every 0–100 benchmark axis. Pick up to 3 models (local or frontier). Axes are fixed 0–100 (all are percentages) so shapes stay comparable regardless of selection. Missing axes show as gaps.</p>
+    <div class="radar-picker" id="radarPicker"></div>
+    <div class="chart-wrap tall"><canvas id="chartRadar"></canvas></div>
+  </section>
+
+  <h2 class="category-heading" id="sec-caveats">Caveats &amp; verdict <span class="hint">quant-vs-base deltas and per-model takeaways</span></h2>
 
   <!-- 3. Quant caveats panel -->
   <section class="card wide">
@@ -415,57 +420,152 @@
 </footer>
 
 <script>
-Chart.defaults.color = '#9aa0a6';
-Chart.defaults.borderColor = '#262a33';
-Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif';
-Chart.register(ChartDataLabels);
+const C = ChartsCommon;
+C.initTheme();
 
-const charts = [];
-let labelsOn = true;
+// ---------------------------------------------------------------------------
+// Canonical data model. metric='score', bench ∈ {MMLU-Pro, GPQA, SWE-V, AIME,
+// LCB, TBench, MMMU}. Per-benchmark footnotes ('26, (measured; comm ~80), (P))
+// live on the RESULTS record so a model can carry a different note per bench.
+// rankedOnly:true keeps a model out of the scoreboard / headline / filter
+// checkboxes / radar — used for gemma-4-31b, which appears only in the T-Bench
+// chart (the scoreboard tracks the A4B quant instead).
+// ---------------------------------------------------------------------------
+const MODELS = [
+  // --- local (this rig) ---
+  { id:'coder',    tier:'local', arch:'moe',   quant:'MLX 6-bit', color:'#5aa9ff', label:'qwen3-coder-next',     chartLabel:'qwen3-coder-next (MLX 6-bit)' },
+  { id:'d27b',     tier:'local', arch:'dense', quant:'MLX 6-bit', color:'#ff8a5a', label:'qwen3.6-27b',          chartLabel:'qwen3.6-27b (MLX 6-bit)' },
+  { id:'a3b35',    tier:'local', arch:'moe',   quant:'MLX 6-bit', color:'#7ee787', label:'qwen3.6-35b-a3b',      chartLabel:'qwen3.6-35b-a3b (MLX 6-bit)' },
+  { id:'g26',      tier:'local', arch:'moe',   quant:'MLX 4-bit', color:'#ffd166', label:'gemma-4-26b-a4b',      chartLabel:'gemma-4-26b-a4b (MLX 4-bit)' },
+  { id:'nemotron', tier:'local', arch:'moe',   quant:'Q4_K_M',    color:'#ef476f', label:'nemotron-3-nano-omni', chartLabel:'nemotron-3-nano-omni (Q4_K_M)' },
+  { id:'ge4b',     tier:'local', arch:'dense', quant:'Q4_K_M',    color:'#c77dff', label:'gemma-4-e4b',          chartLabel:'gemma-4-e4b (Q4_K_M)' },
+  { id:'dsflash',  tier:'local', arch:'moe',   quant:'MLX 2-bit', color:'#06d6a0', label:'deepseek-v4-flash',    chartLabel:'deepseek-v4-flash (2-bit DQ)' },
+  // gemma-4-31b: appears only in the Terminal-Bench ranked chart (reuses the A4B color).
+  { id:'g31',      tier:'local', arch:'dense', quant:'MLX 8-bit', color:'#ffd166', label:'gemma-4-31b', rankedOnly:true },
 
-const datalabelsConfig = {
-  color: '#e6e6e6',
-  anchor: 'end',
-  align: 'end',
-  offset: 2,
-  clamp: true,
-  font: { size: 10, weight: '600' },
-  formatter: (v) => (v === null || v === undefined) ? '' : (Number.isInteger(v) ? v : v.toFixed(1)),
-  display: () => labelsOn
-};
+  // --- frontier / open-weight reference ---
+  { id:'gpt5',       tier:'frontier', label:'GPT-5' },
+  { id:'opus45',     tier:'frontier', label:'Claude Opus 4.5' },
+  { id:'sonnet46',   tier:'frontier', label:'Claude Sonnet 4.6' },
+  { id:'gemini3pro', tier:'frontier', label:'Gemini 3 Pro' },
+  { id:'kimi',       tier:'open',     label:'Kimi K2.6' }
+];
 
-// Per-local-model colors (used everywhere a local model appears)
-const LOCAL_COLOR = {
-  'qwen3-coder-next':    '#5aa9ff',
-  'qwen3.6-27b':         '#ff8a5a',
-  'qwen3.6-35b-a3b':     '#7ee787',
-  'gemma-4-26b-a4b':     '#ffd166',
-  'nemotron-3-nano-omni':'#ef476f',
-  'gemma-4-e4b':         '#c77dff',
-  'deepseek-v4-flash':   '#06d6a0',
-};
-const FRONTIER_COLOR = '#b86bff';
-const OPEN_COLOR     = '#888c94';
+const RESULTS = [
+  // ---- local ----
+  { model:'coder', metric:'score', bench:'SWE-V', value:70.9 },
+  { model:'coder', metric:'score', bench:'LCB',   value:56.0, note:'(measured; comm ~80)' },
+  { model:'coder', metric:'score', bench:'TBench',value:32.6, note:'(measured; vendor 36.2)' },
 
-function registerChart(c) { charts.push(c); return c; }
+  { model:'d27b', metric:'score', bench:'MMLU-Pro', value:86.2 },
+  { model:'d27b', metric:'score', bench:'GPQA',     value:87.8 },
+  { model:'d27b', metric:'score', bench:'SWE-V',    value:77.2 },
+  { model:'d27b', metric:'score', bench:'AIME',     value:94.1, note:"'26" },
+  { model:'d27b', metric:'score', bench:'LCB',      value:62.0, note:'(measured; comm ~84)' },
+  { model:'d27b', metric:'score', bench:'TBench',   value:31.5, note:'(measured; dense thinking)' },
+  { model:'d27b', metric:'score', bench:'MMMU',     value:82.9 },
 
-// ---------- 1. Headline grouped bar — locals on three universal benchmarks ----------
-registerChart(new Chart(document.getElementById('chartHeadline'), {
-  type: 'bar',
-  data: {
-    labels: ['MMLU-Pro', 'GPQA Diamond', 'SWE-bench Verified'],
-    datasets: [
-      { label: 'qwen3-coder-next (MLX 6-bit)',  backgroundColor: LOCAL_COLOR['qwen3-coder-next'],     data: [null, null, 70.9] },
-      { label: 'qwen3.6-27b (MLX 6-bit)',       backgroundColor: LOCAL_COLOR['qwen3.6-27b'],          data: [86.2, 87.8, 77.2] },
-      { label: 'qwen3.6-35b-a3b (MLX 6-bit)',   backgroundColor: LOCAL_COLOR['qwen3.6-35b-a3b'],      data: [85.2, 86.0, 73.4] },
-      { label: 'gemma-4-26b-a4b (MLX 4-bit)',   backgroundColor: LOCAL_COLOR['gemma-4-26b-a4b'],      data: [82.6, 82.3, null] },
-      { label: 'nemotron-3-nano-omni (Q4_K_M)', backgroundColor: LOCAL_COLOR['nemotron-3-nano-omni'], data: [78.3, 73.0, null] },
-      { label: 'gemma-4-e4b (Q4_K_M)',          backgroundColor: LOCAL_COLOR['gemma-4-e4b'],          data: [69.4, 58.6, null] },
-      { label: 'deepseek-v4-flash (2-bit DQ)',  backgroundColor: LOCAL_COLOR['deepseek-v4-flash'],    data: [86.4, 88.1, 79.0] },
-      // Frontier reference line — Opus 4.5 (typical "best frontier" for these three)
-      { label: 'Claude Opus 4.5 (reference)',   backgroundColor: FRONTIER_COLOR,                     data: [89.75, 87.0, 80.9] }
-    ]
-  },
+  { model:'a3b35', metric:'score', bench:'MMLU-Pro', value:85.2 },
+  { model:'a3b35', metric:'score', bench:'GPQA',     value:86.0 },
+  { model:'a3b35', metric:'score', bench:'SWE-V',    value:73.4 },
+  { model:'a3b35', metric:'score', bench:'AIME',     value:92.7, note:"'26" },
+  { model:'a3b35', metric:'score', bench:'TBench',   value:28.1, note:'(@6bit measured)' },
+
+  { model:'g26', metric:'score', bench:'MMLU-Pro', value:82.6 },
+  { model:'g26', metric:'score', bench:'GPQA',     value:82.3 },
+  { model:'g26', metric:'score', bench:'AIME',     value:88.3, note:"'26" },
+  { model:'g26', metric:'score', bench:'LCB',      value:80.0, note:'(@6bit measured, Step B reruns)' },
+  { model:'g26', metric:'score', bench:'TBench',   value:21.3, note:'(@6bit measured; @4bit 20.2 — quant-A/B within 1.1 pp)' },
+  { model:'g26', metric:'score', bench:'MMMU',     value:73.8, note:'(P)' },
+
+  { model:'nemotron', metric:'score', bench:'MMLU-Pro', value:78.3 },
+  { model:'nemotron', metric:'score', bench:'GPQA',     value:73.0 },
+  { model:'nemotron', metric:'score', bench:'AIME',     value:89.1, note:"'25 no-tools" },
+
+  { model:'ge4b', metric:'score', bench:'MMLU-Pro', value:69.4 },
+  { model:'ge4b', metric:'score', bench:'GPQA',     value:58.6 },
+  { model:'ge4b', metric:'score', bench:'AIME',     value:42.5, note:"'26" },
+  { model:'ge4b', metric:'score', bench:'LCB',      value:68.0, note:'(measured)' },
+  { model:'ge4b', metric:'score', bench:'TBench',   value:4.5,  note:'(measured; 4B size floor)' },
+  { model:'ge4b', metric:'score', bench:'MMMU',     value:52.6, note:'(P)' },
+
+  { model:'dsflash', metric:'score', bench:'MMLU-Pro', value:86.4 },
+  { model:'dsflash', metric:'score', bench:'GPQA',     value:88.1 },
+  { model:'dsflash', metric:'score', bench:'SWE-V',    value:79.0 },
+  { model:'dsflash', metric:'score', bench:'AIME',     value:87.5, note:"'25 est." },
+  { model:'dsflash', metric:'score', bench:'LCB',      value:91.6 },
+  { model:'dsflash', metric:'score', bench:'TBench',   value:56.9, note:'(vendor; out of scope)' },
+
+  { model:'g31', metric:'score', bench:'TBench', value:22.5, note:'(8-bit dense measured)' },
+
+  // ---- frontier / open ----
+  { model:'gpt5', metric:'score', bench:'MMLU-Pro', value:86.0, note:'(~85–87)' },
+  { model:'gpt5', metric:'score', bench:'GPQA',     value:89.4 },
+  { model:'gpt5', metric:'score', bench:'SWE-V',    value:74.9 },
+  { model:'gpt5', metric:'score', bench:'AIME',     value:100,  note:"'25" },
+  { model:'gpt5', metric:'score', bench:'MMMU',     value:84.2 },
+
+  { model:'opus45', metric:'score', bench:'MMLU-Pro', value:89.75, note:'(89.5–90.0)' },
+  { model:'opus45', metric:'score', bench:'GPQA',     value:87.0 },
+  { model:'opus45', metric:'score', bench:'SWE-V',    value:80.9 },
+  { model:'opus45', metric:'score', bench:'TBench',   value:59.3 },
+  { model:'opus45', metric:'score', bench:'MMMU',     value:80.7 },
+
+  { model:'sonnet46', metric:'score', bench:'MMLU-Pro', value:79.2 },
+  { model:'sonnet46', metric:'score', bench:'GPQA',     value:74.1 },
+  { model:'sonnet46', metric:'score', bench:'SWE-V',    value:79.6 },
+  { model:'sonnet46', metric:'score', bench:'AIME',     value:98.0, note:"'25" },
+  { model:'sonnet46', metric:'score', bench:'LCB',      value:80.0, note:'(~80)' },
+  { model:'sonnet46', metric:'score', bench:'TBench',   value:59.1 },
+
+  { model:'gemini3pro', metric:'score', bench:'MMLU-Pro', value:91.0 },
+  { model:'gemini3pro', metric:'score', bench:'GPQA',     value:91.9 },
+  { model:'gemini3pro', metric:'score', bench:'SWE-V',    value:76.2 },
+  { model:'gemini3pro', metric:'score', bench:'TBench',   value:54.2 },
+  { model:'gemini3pro', metric:'score', bench:'MMMU',     value:81.0, note:'(P)' },
+
+  { model:'kimi', metric:'score', bench:'GPQA',   value:90.5 },
+  { model:'kimi', metric:'score', bench:'SWE-V',  value:80.2 },
+  { model:'kimi', metric:'score', bench:'AIME',   value:96.4, note:"'26" },
+  { model:'kimi', metric:'score', bench:'LCB',    value:89.6 },
+  { model:'kimi', metric:'score', bench:'TBench', value:66.7 },
+  { model:'kimi', metric:'score', bench:'MMMU',   value:79.4, note:'(P)' }
+];
+
+// ---------------------------------------------------------------------------
+const byId    = C.indexModels(MODELS);
+const PICKABLE = MODELS.filter(m => !m.rankedOnly);                 // scoreboard / radar / checkboxes
+const LOCAL    = PICKABLE.filter(m => m.tier === 'local');          // headline datasets + filter checkboxes
+const state   = C.createFilterState(MODELS);
+const val     = (id, q) => C.metricValue(RESULTS, id, q);
+
+C.createFilterBar(document.getElementById('filterBar'), state, {
+  checkboxModels: LOCAL,
+  sections: [
+    { id:'sec-overview',  label:'Overview' },
+    { id:'sec-knowledge', label:'Knowledge' },
+    { id:'sec-coding',    label:'Coding' },
+    { id:'sec-caveats',   label:'Caveats' }
+  ]
+});
+
+// --- Headline grouped bar (locals on three universal benchmarks + Opus 4.5 reference) ---
+const HEAD_BENCHES = ['MMLU-Pro', 'GPQA', 'SWE-V'];
+function headSeries(id) { return C.seriesFor(RESULTS, id, {metric:'score'}, HEAD_BENCHES, 'bench'); }
+function headDset(id, label) { return { modelId:id, label:label, backgroundColor: byId.get(id).color || C.TIER_COLOR[byId.get(id).tier], data: headSeries(id) }; }
+C.buildGroupedChart('chartHeadline', {
+  state: state,
+  labels: ['MMLU-Pro', 'GPQA Diamond', 'SWE-bench Verified'],
+  datasets: [
+    headDset('coder',    'qwen3-coder-next (MLX 6-bit)'),
+    headDset('d27b',     'qwen3.6-27b (MLX 6-bit)'),
+    headDset('a3b35',    'qwen3.6-35b-a3b (MLX 6-bit)'),
+    headDset('g26',      'gemma-4-26b-a4b (MLX 4-bit)'),
+    headDset('nemotron', 'nemotron-3-nano-omni (Q4_K_M)'),
+    headDset('ge4b',     'gemma-4-e4b (Q4_K_M)'),
+    headDset('dsflash',  'deepseek-v4-flash (2-bit DQ)'),
+    headDset('opus45',   'Claude Opus 4.5 (reference)')
+  ],
   options: {
     responsive: true,
     maintainAspectRatio: false,
@@ -473,235 +573,66 @@ registerChart(new Chart(document.getElementById('chartHeadline'), {
     plugins: {
       legend: { labels: { color: '#e6e6e6', boxWidth: 12, font: { size: 11 } } },
       tooltip: { mode: 'index', intersect: false },
-      datalabels: { ...datalabelsConfig, font: { size: 9, weight: '600' } }
+      datalabels: Object.assign({}, C.DATALABELS, { font: { size: 9, weight: '600' } })
     },
     scales: {
       x: { grid: { color: '#262a33' }, ticks: { color: '#e6e6e6' } },
       y: { grid: { color: '#262a33' }, ticks: { color: '#9aa0a6' }, title: { display: true, text: 'Score (%)', color: '#9aa0a6' }, suggestedMax: 100, beginAtZero: true }
     }
   }
-}));
-
-// ---------- Generic per-benchmark horizontal-bar chart builder ----------
-// rows: [{name, value, tier: 'local'|'frontier'|'open', colorKey?, note?}]
-function buildBenchChart(canvasId, axisLabel, rows) {
-  const sorted = rows.filter(r => r.value != null).sort((a,b) => b.value - a.value);
-  return registerChart(new Chart(document.getElementById(canvasId), {
-    type: 'bar',
-    data: {
-      labels: sorted.map(r => r.name + (r.note ? ' ' + r.note : '')),
-      datasets: [{
-        label: axisLabel,
-        data: sorted.map(r => r.value),
-        backgroundColor: sorted.map(r => {
-          if (r.tier === 'local')    return LOCAL_COLOR[r.colorKey];
-          if (r.tier === 'frontier') return FRONTIER_COLOR;
-          return OPEN_COLOR;
-        }),
-        borderWidth: 0
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      layout: { padding: { right: 36 } },
-      plugins: {
-        legend: { display: false },
-        tooltip: { mode: 'nearest', intersect: false },
-        datalabels: { ...datalabelsConfig, anchor: 'end', align: 'end', offset: 4, color: '#e6e6e6' }
-      },
-      scales: {
-        x: { grid: { color: '#262a33' }, ticks: { color: '#9aa0a6' }, suggestedMax: 100, title: { display: true, text: axisLabel + ' (%)', color: '#9aa0a6' } },
-        y: { grid: { display: false }, ticks: { color: '#e6e6e6', font: { size: 11 } } }
-      }
-    }
-  }));
-}
-
-// ---------- 2a. MMLU-Pro ----------
-buildBenchChart('chartMMLU', 'MMLU-Pro', [
-  { name: 'qwen3.6-27b',          value: 86.2, tier: 'local',    colorKey: 'qwen3.6-27b' },
-  { name: 'qwen3.6-35b-a3b',      value: 85.2, tier: 'local',    colorKey: 'qwen3.6-35b-a3b' },
-  { name: 'gemma-4-26b-a4b',      value: 82.6, tier: 'local',    colorKey: 'gemma-4-26b-a4b' },
-  { name: 'nemotron-3-nano-omni', value: 78.3, tier: 'local',    colorKey: 'nemotron-3-nano-omni' },
-  { name: 'gemma-4-e4b',          value: 69.4, tier: 'local',    colorKey: 'gemma-4-e4b' },
-  { name: 'deepseek-v4-flash',    value: 86.4, tier: 'local',    colorKey: 'deepseek-v4-flash' },
-  { name: 'GPT-5',                value: 86.0, tier: 'frontier', note: '(~85–87)' },
-  { name: 'Claude Opus 4.5',      value: 89.75,tier: 'frontier', note: '(89.5–90.0)' },
-  { name: 'Claude Sonnet 4.6',    value: 79.2, tier: 'frontier' },
-  { name: 'Gemini 3 Pro',         value: 91.0, tier: 'frontier' }
-]);
-
-// ---------- 2b. GPQA Diamond ----------
-buildBenchChart('chartGPQA', 'GPQA Diamond', [
-  { name: 'qwen3.6-27b',          value: 87.8, tier: 'local',    colorKey: 'qwen3.6-27b' },
-  { name: 'qwen3.6-35b-a3b',      value: 86.0, tier: 'local',    colorKey: 'qwen3.6-35b-a3b' },
-  { name: 'gemma-4-26b-a4b',      value: 82.3, tier: 'local',    colorKey: 'gemma-4-26b-a4b' },
-  { name: 'nemotron-3-nano-omni', value: 73.0, tier: 'local',    colorKey: 'nemotron-3-nano-omni' },
-  { name: 'gemma-4-e4b',          value: 58.6, tier: 'local',    colorKey: 'gemma-4-e4b' },
-  { name: 'deepseek-v4-flash',    value: 88.1, tier: 'local',    colorKey: 'deepseek-v4-flash' },
-  { name: 'GPT-5',                value: 89.4, tier: 'frontier' },
-  { name: 'Claude Opus 4.5',      value: 87.0, tier: 'frontier' },
-  { name: 'Claude Sonnet 4.6',    value: 74.1, tier: 'frontier' },
-  { name: 'Gemini 3 Pro',         value: 91.9, tier: 'frontier' },
-  { name: 'Kimi K2.6',            value: 90.5, tier: 'open' }
-]);
-
-// ---------- 2c. AIME (mixed years — noted in subtitle) ----------
-buildBenchChart('chartAIME', 'AIME', [
-  { name: 'qwen3.6-27b',          value: 94.1, tier: 'local',    colorKey: 'qwen3.6-27b',          note: "'26" },
-  { name: 'qwen3.6-35b-a3b',      value: 92.7, tier: 'local',    colorKey: 'qwen3.6-35b-a3b',      note: "'26" },
-  { name: 'gemma-4-26b-a4b',      value: 88.3, tier: 'local',    colorKey: 'gemma-4-26b-a4b',      note: "'26" },
-  { name: 'nemotron-3-nano-omni', value: 89.1, tier: 'local',    colorKey: 'nemotron-3-nano-omni', note: "'25 no-tools" },
-  { name: 'gemma-4-e4b',          value: 42.5, tier: 'local',    colorKey: 'gemma-4-e4b',          note: "'26" },
-  { name: 'deepseek-v4-flash',    value: 87.5, tier: 'local',    colorKey: 'deepseek-v4-flash',    note: "'25 est." },
-  { name: 'GPT-5',                value: 100,  tier: 'frontier', note: "'25" },
-  { name: 'Claude Sonnet 4.6',    value: 98.0, tier: 'frontier', note: "'25" },
-  { name: 'Kimi K2.6',            value: 96.4, tier: 'open',     note: "'26" }
-]);
-
-// ---------- 2d. SWE-bench Verified ----------
-buildBenchChart('chartSWE', 'SWE-bench Verified', [
-  { name: 'qwen3-coder-next',     value: 70.9, tier: 'local',    colorKey: 'qwen3-coder-next' },
-  { name: 'qwen3.6-27b',          value: 77.2, tier: 'local',    colorKey: 'qwen3.6-27b' },
-  { name: 'qwen3.6-35b-a3b',      value: 73.4, tier: 'local',    colorKey: 'qwen3.6-35b-a3b' },
-  { name: 'deepseek-v4-flash',    value: 79.0, tier: 'local',    colorKey: 'deepseek-v4-flash' },
-  { name: 'GPT-5',                value: 74.9, tier: 'frontier' },
-  { name: 'Claude Opus 4.5',      value: 80.9, tier: 'frontier' },
-  { name: 'Claude Sonnet 4.6',    value: 79.6, tier: 'frontier' },
-  { name: 'Gemini 3 Pro',         value: 76.2, tier: 'frontier' },
-  { name: 'Kimi K2.6',            value: 80.2, tier: 'open' }
-]);
-
-// ---------- 2e. LiveCodeBench v6 ----------
-// Phase 1 Qwen values updated 2026-05-24 from local n=50 runs. Vendor /
-// community LCB claims are notably higher (coder-next ~80, 27b ~84,
-// 35b-a3b ~80) — local 6-bit MLX measurement is the reality on this rig.
-buildBenchChart('chartLCB', 'LiveCodeBench v6', [
-  { name: 'qwen3-coder-next',     value: 56.0, tier: 'local',    colorKey: 'qwen3-coder-next',    note: '(measured; comm ~80)' },
-  { name: 'qwen3.6-27b',          value: 62.0, tier: 'local',    colorKey: 'qwen3.6-27b',         note: '(measured; comm ~84)' },
-  { name: 'qwen3.6-35b-a3b',      value: 54.0, tier: 'local',    colorKey: 'qwen3.6-35b-a3b',     note: '(measured; comm ~80)' },
-  { name: 'gemma-4-26b-a4b',      value: 80.0, tier: 'local',    colorKey: 'gemma-4-26b-a4b',     note: '(@6bit measured, Step B reruns)' },
-  { name: 'gemma-4-e4b',          value: 68.0, tier: 'local',    colorKey: 'gemma-4-e4b',         note: '(measured)' },
-  { name: 'deepseek-v4-flash',    value: 91.6, tier: 'local',    colorKey: 'deepseek-v4-flash' },
-  { name: 'Claude Sonnet 4.6',    value: 80.0, tier: 'frontier', note: '(~80)' },
-  { name: 'Kimi K2.6',            value: 89.6, tier: 'open' }
-]);
-
-// ---------- 2f. Terminal-Bench 2.0 ----------
-// All 7 local rows measured on-rig 2026-05-24 → 2026-05-29 via Harbor +
-// terminus-2 + LiteLLM → LM Studio (Docker linux/amd64), 89 tasks,
-// concurrency=1, --agent-timeout-multiplier 0.5. Canonical summaries at
-// tools/local-llm-bench-m4-32gb/benchmarks/runs/tbench_*_summary.json and raw
-// run dirs at .bench-logs/tbench-runs/<model>/result.json.
-// deepseek-v4-flash row remains vendor-claimed (96.5 GB 2-bit-DQ, Phase 3
-// fit-test track — not measured here).
-buildBenchChart('chartTBench', 'Terminal-Bench 2.0', [
-  { name: 'qwen3-coder-next',     value: 32.6, tier: 'local',    colorKey: 'qwen3-coder-next',    note: '(measured; vendor 36.2)' },
-  { name: 'qwen3.6-27b',          value: 31.5, tier: 'local',    colorKey: 'qwen3.6-27b',         note: '(measured; dense thinking)' },
-  { name: 'qwen3.6-35b-a3b',      value: 28.1, tier: 'local',    colorKey: 'qwen3.6-35b-a3b',     note: '(@6bit measured)' },
-  { name: 'gemma-4-31b',          value: 22.5, tier: 'local',    colorKey: 'gemma-4-26b-a4b',     note: '(8-bit dense measured)' },
-  { name: 'gemma-4-26b-a4b',      value: 21.3, tier: 'local',    colorKey: 'gemma-4-26b-a4b',     note: '(@6bit measured; @4bit 20.2 — quant-A/B within 1.1 pp)' },
-  { name: 'gemma-4-e4b',          value: 4.5,  tier: 'local',    colorKey: 'gemma-4-e4b',         note: '(measured; 4B size floor)' },
-  { name: 'deepseek-v4-flash',    value: 56.9, tier: 'local',    colorKey: 'deepseek-v4-flash',   note: '(vendor; out of scope)' },
-  { name: 'Claude Opus 4.5',      value: 59.3, tier: 'frontier' },
-  { name: 'Claude Sonnet 4.6',    value: 59.1, tier: 'frontier' },
-  { name: 'Gemini 3 Pro',         value: 54.2, tier: 'frontier' },
-  { name: 'Kimi K2.6',            value: 66.7, tier: 'open' }
-]);
-
-// ---------- 2g. MMMU / MMMU-Pro ----------
-// (P) = MMMU-Pro, others = MMMU
-buildBenchChart('chartMMMU', 'MMMU / MMMU-Pro', [
-  { name: 'qwen3.6-27b',          value: 82.9, tier: 'local',    colorKey: 'qwen3.6-27b' },
-  { name: 'gemma-4-26b-a4b',      value: 73.8, tier: 'local',    colorKey: 'gemma-4-26b-a4b',      note: '(P)' },
-  { name: 'gemma-4-e4b',          value: 52.6, tier: 'local',    colorKey: 'gemma-4-e4b',          note: '(P)' },
-  { name: 'GPT-5',                value: 84.2, tier: 'frontier' },
-  { name: 'Claude Opus 4.5',      value: 80.7, tier: 'frontier' },
-  { name: 'Gemini 3 Pro',         value: 81.0, tier: 'frontier', note: '(P)' },
-  { name: 'Kimi K2.6',            value: 79.4, tier: 'open',     note: '(P)' }
-]);
-
-// Toggle wiring
-document.getElementById('toggleLabels').addEventListener('change', (e) => {
-  labelsOn = e.target.checked;
-  charts.forEach(c => c.update());
 });
 
-// --- Sortable scoreboard wiring (shared utility) ---
-function setupSortableTable(tableId, defaultSortCol = null, defaultDir = -1) {
-  const table = document.getElementById(tableId);
-  if (!table) return;
-  const headers = Array.from(table.querySelectorAll('thead th'));
-  const tbody = table.querySelector('tbody');
-  const originalOrder = Array.from(tbody.querySelectorAll('tr'));
-  let state = { col: null, dir: 1 };
-
-  function sortBy(idx, dir) {
-    const th = headers[idx];
-    const sortType = th.dataset.sort;
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    rows.sort((a, b) => {
-      const av = (a.children[idx].dataset.value ?? a.children[idx].textContent).trim();
-      const bv = (b.children[idx].dataset.value ?? b.children[idx].textContent).trim();
-      if (sortType === 'num') {
-        const an = parseFloat(av), bn = parseFloat(bv);
-        const aNaN = isNaN(an), bNaN = isNaN(bn);
-        if (aNaN && bNaN) return 0;
-        if (aNaN) return 1;   // missing values always at the bottom
-        if (bNaN) return -1;
-        return (an - bn) * dir;
-      }
-      return av.localeCompare(bv) * dir;
-    });
-    rows.forEach(r => tbody.appendChild(r));
-    headers.forEach(h => h.removeAttribute('data-sorted'));
-    th.setAttribute('data-sorted', dir === 1 ? 'asc' : 'desc');
-    state = { col: idx, dir };
-  }
-
-  headers.forEach((th, idx) => {
-    if (!th.dataset.sort) return;
-    th.addEventListener('click', () => {
-      let dir;
-      if (state.col === idx) dir = -state.dir;
-      else dir = th.dataset.sort === 'num' ? -1 : 1;
-      sortBy(idx, dir);
-    });
+// --- Ranked per-benchmark charts (derive from RESULTS; drop & re-rank on filter) ---
+[
+  ['chartMMLU',   'MMLU-Pro', 'MMLU-Pro'],
+  ['chartGPQA',   'GPQA',     'GPQA Diamond'],
+  ['chartAIME',   'AIME',     'AIME'],
+  ['chartSWE',    'SWE-V',    'SWE-bench Verified'],
+  ['chartLCB',    'LCB',      'LiveCodeBench v6'],
+  ['chartTBench', 'TBench',   'Terminal-Bench 2.0'],
+  ['chartMMMU',   'MMMU',     'MMMU / MMMU-Pro']
+].forEach(([canvasId, bench, axisLabel]) => {
+  C.buildRankedChart(canvasId, {
+    state: state, models: MODELS, results: RESULTS,
+    query: { metric:'score', bench:bench }, axisLabel: axisLabel, labelFn: m => m.label
   });
+});
 
-  headers.forEach(th => th.addEventListener('dblclick', () => {
-    originalOrder.forEach(r => tbody.appendChild(r));
-    headers.forEach(h => h.removeAttribute('data-sorted'));
-    state = { col: null, dir: 1 };
-  }));
+// --- Scoreboard (generated; tier row classes; frontier/open included) ---
+C.buildScoreboard(document.getElementById('scoreboardQuality'), PICKABLE, RESULTS, [
+  { kind:'str', get: m => m.tier },
+  { kind:'num', query:{metric:'score', bench:'MMLU-Pro'} },
+  { kind:'num', query:{metric:'score', bench:'GPQA'} },
+  { kind:'num', query:{metric:'score', bench:'SWE-V'} },
+  { kind:'num', query:{metric:'score', bench:'AIME'} },
+  { kind:'num', query:{metric:'score', bench:'LCB'} },
+  { kind:'num', query:{metric:'score', bench:'TBench'} },
+  { kind:'num', query:{metric:'score', bench:'MMMU'} }
+]);
+C.setupSortableTable('scoreboardQuality');
+C.highlightBestPerColumn('scoreboardQuality');
+state.onChange(st => C.applyTableFilter('scoreboardQuality', state, { highlight:true }));
+state.onChange(st => C.applyTableFilter('modelsTable', state, {}));
 
-  if (defaultSortCol !== null) sortBy(defaultSortCol, defaultDir);
-}
+// --- Model radar ---
+C.buildRadarChart('chartRadar', {
+  state: state, models: PICKABLE, results: RESULTS,
+  pickerContainer: document.getElementById('radarPicker'),
+  axes: [
+    { label:'MMLU-Pro', query:{metric:'score', bench:'MMLU-Pro'} },
+    { label:'GPQA',     query:{metric:'score', bench:'GPQA'} },
+    { label:'SWE-V',    query:{metric:'score', bench:'SWE-V'} },
+    { label:'AIME',     query:{metric:'score', bench:'AIME'} },
+    { label:'LCB v6',   query:{metric:'score', bench:'LCB'} },
+    { label:'T-Bench',  query:{metric:'score', bench:'TBench'} },
+    { label:'MMMU',     query:{metric:'score', bench:'MMMU'} }
+  ],
+  defaultSelection: ['d27b', 'dsflash', 'gpt5'],
+  maxSelected: 3
+});
 
-function highlightBestPerColumn(tableId) {
-  const table = document.getElementById(tableId);
-  if (!table) return;
-  const headers = Array.from(table.querySelectorAll('thead th'));
-  const rows = Array.from(table.querySelectorAll('tbody tr'));
-  headers.forEach((th, idx) => {
-    if (th.dataset.sort !== 'num') return;
-    let best = -Infinity;
-    let bestCells = [];
-    rows.forEach(r => {
-      const cell = r.children[idx];
-      const v = parseFloat(cell.textContent.trim());
-      if (isNaN(v)) return;
-      if (v > best) { best = v; bestCells = [cell]; }
-      else if (v === best) bestCells.push(cell);
-    });
-    bestCells.forEach(c => c.classList.add('best'));
-  });
-}
-
-setupSortableTable('scoreboardQuality');
-highlightBestPerColumn('scoreboardQuality');
+// --- Data-label toggle ---
+C.bindLabelToggle(document.getElementById('toggleLabels'));
 </script>
 
 </body>

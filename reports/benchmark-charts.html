@@ -5,6 +5,7 @@
 <title>Local LLM Benchmarks — M4 Max / 128GB</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="charts-common.js"></script>
 <style>
   :root {
     --bg: #0f1115;
@@ -192,7 +193,12 @@
   </div>
 </header>
 
+<!-- Global filter bar (sticky). Populated by charts-common.js. -->
+<div class="filter-bar" id="filterBar"></div>
+
 <main>
+
+  <h2 class="category-heading" id="sec-overview">Overview <span class="hint">system, model roster, the full scoreboard, and the quality-vs-speed trade-off</span></h2>
 
   <!-- 0. System & Models -->
   <section class="card">
@@ -215,7 +221,7 @@
     <h2>Models benchmarked</h2>
     <p class="sub">All MLX safetensors, run via LM Studio. Phase 1 (Qwen) verified 2026-05-19; Phase 2 (Gemma 4) verified 2026-05-22 (all 7 models, n=100 across HumanEval/MMLU/MATH/DROP/GPQA + n=50 LCB). The two right-most columns capture qualitative strengths and how each model is meant to be used in rotation — the rest is on-disk metadata.</p>
     <div class="model-table-wrap">
-    <table>
+    <table id="modelsTable">
       <thead>
         <tr>
           <th></th>
@@ -234,7 +240,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
+        <tr data-model-id="coder">
           <td><span class="swatch" style="background:#5aa9ff"></span></td>
           <td><code>qwen/qwen3-coder-next</code></td>
           <td>Qwen (Alibaba) · mlx-community<span class="pill">via LM Studio</span></td>
@@ -249,7 +255,7 @@
           <td class="bestfor">Agentic coding, multi-file edits, tool-driven repo work. Strong jdhodges (90) but weakest GPQA (37) of Phase 1.</td>
           <td class="usage">Primary local coder. ~68 t/s thanks to 3B active despite 80B total — feels snappy on coding scaffolds. Don't reach for it on hard science Q&amp;A.</td>
         </tr>
-        <tr>
+        <tr data-model-id="d27b">
           <td><span class="swatch" style="background:#ff8a5a"></span></td>
           <td><code>qwen3.6-27b</code></td>
           <td>Qwen (Alibaba) · mlx-community<span class="pill">via LM Studio</span></td>
@@ -264,7 +270,7 @@
           <td class="bestfor">GPQA-tier science, MATH, DROP comprehension. Highest GPQA on the rig (70, &gt;78 if not for 32 k truncation).</td>
           <td class="usage">Quality-over-speed slot. Decode ~20 t/s and reasoning-heavy — expect long waits, especially past ~3 k context where prefill drops to ~5 t/s. Reserve for hard one-shot questions.</td>
         </tr>
-        <tr>
+        <tr data-model-id="a3b35">
           <td><span class="swatch" style="background:#7ee787"></span></td>
           <td><code>qwen3.6-35b-a3b</code></td>
           <td>Qwen (Alibaba) · mlx-community<span class="pill">via LM Studio</span></td>
@@ -279,7 +285,7 @@
           <td class="bestfor">Balanced reasoning + tool calls at MoE speed. Near-27b accuracy at ~4× the throughput.</td>
           <td class="usage">Daily-driver chat with tools. ~85 t/s generation; jdhodges 97.5 leads Phase 1. Watch the documented MLX MoE tool-call regression on 4-bit/8-bit Qwen3.x-A3B checkpoints (6-bit unaffected so far).</td>
         </tr>
-        <tr>
+        <tr data-model-id="g26_4">
           <td><span class="swatch" style="background:#ffd166"></span></td>
           <td><code>gemma-4-26b-a4b-it-mlx@4bit</code></td>
           <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
@@ -294,7 +300,7 @@
           <td class="bestfor">Vision + throughput when RAM is tight. Fastest Gemma (~100 t/s) and lightest on disk (14.6 GB).</td>
           <td class="usage">Pick when RAM-constrained or for vision drafts. 4-bit costs ~6 pp GPQA and ~3 pp MATH vs @6bit — prefer the 6-bit sibling when you have the headroom.</td>
         </tr>
-        <tr>
+        <tr data-model-id="g26_6">
           <td><span class="swatch" style="background:#f59e0b"></span></td>
           <td><code>gemma-4-26b-a4b-it-mlx@6bit</code></td>
           <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
@@ -309,7 +315,7 @@
           <td class="bestfor">Coding (LCB ceiling 80 %), vision, knowledge — the rig's best LCB and the best Gemma quant overall.</td>
           <td class="usage">Recommended Gemma slot. ~80 t/s, near-lossless vs base, jdhodges 97.5 / veerman 83.3. Default to this for any Gemma workload unless you specifically need the 4-bit RAM savings.</td>
         </tr>
-        <tr>
+        <tr data-model-id="g31">
           <td><span class="swatch" style="background:#fb7185"></span></td>
           <td><code>gemma-4-31b-it-mlx</code></td>
           <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
@@ -324,7 +330,7 @@
           <td class="bestfor">DROP comprehension (+6 pp vs A4B@6bit) — and that's it. Demoted from rotation.</td>
           <td class="usage">Skip in normal use. Decode ~13 t/s = 6× slower than A4B@6bit for indistinguishable accuracy on every other bench. Only reach for it if a specific dense behavior matters.</td>
         </tr>
-        <tr>
+        <tr data-model-id="ge4b">
           <td><span class="swatch" style="background:#c084fc"></span></td>
           <td><code>gemma-4-e4b-it-mlx</code></td>
           <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
@@ -339,7 +345,7 @@
           <td class="bestfor">FIM / autocomplete / quick-call slot; fast vision drafts.</td>
           <td class="usage">Tiny utility, ~70 t/s. MATH collapses to 14 % — never use it for hard symbolic work. Useful as a drafter / first-pass under an editor that streams completions.</td>
         </tr>
-        <tr>
+        <tr data-model-id="a1">
           <td><span class="swatch" style="background:#2dd4bf"></span></td>
           <td><code>agents-a1-xl-mlx</code></td>
           <td>leonsarmiento (Qwen3.5 base) · community<span class="pill">via LM Studio</span></td>
@@ -362,7 +368,7 @@
   <!-- 0c. Scoreboard — accuracy + tool-calling + throughput in one matrix -->
   <section class="card wide">
     <h2>Benchmark scoreboard</h2>
-    <p class="sub">All accuracy benches (n=100), tool-calling suites, and creative-writing throughput in one matrix. <strong>Click any column header to sort</strong> ascending/descending; the best score in each numeric column is highlighted green. Hover a row to highlight it. Throughput columns are the creative-writing scenario (the most representative single number for "feels like" decode speed).</p>
+    <p class="sub">All accuracy benches (n=100), tool-calling suites, and creative-writing throughput in one matrix. <strong>Click any column header to sort</strong> ascending/descending; the best score in each numeric column is highlighted green. Hover a row to highlight it. Throughput columns are the creative-writing scenario (the most representative single number for "feels like" decode speed). The filter bar above hides models from every chart and this table at once.</p>
     <div class="scoreboard-wrap">
       <table class="scoreboard" id="scoreboardMain">
         <thead>
@@ -381,19 +387,54 @@
             <th class="num" data-sort="num">Eff t/s</th>
           </tr>
         </thead>
-        <tbody>
-          <tr><td class="model-cell"><span class="swatch" style="background:#5aa9ff"></span>qwen3-coder-next</td><td class="num">89</td><td class="num">76</td><td class="num">84</td><td class="num">83</td><td class="num">37</td><td class="num">56</td><td class="num">32.6</td><td class="num">90.0</td><td class="num">83.3</td><td class="num">70.2</td><td class="num">67.8</td></tr>
-          <tr><td class="model-cell"><span class="swatch" style="background:#ff8a5a"></span>qwen3.6-27b</td><td class="num">93</td><td class="num">88</td><td class="num">88</td><td class="num">90</td><td class="num">70</td><td class="num">62</td><td class="num">31.5</td><td class="num">95.0</td><td class="num">83.3</td><td class="num">20.7</td><td class="num">19.9</td></tr>
-          <tr><td class="model-cell"><span class="swatch" style="background:#7ee787"></span>qwen3.6-35b-a3b</td><td class="num">87</td><td class="num">83</td><td class="num">89</td><td class="num">89</td><td class="num">65</td><td class="num">54</td><td class="num">28.1</td><td class="num">97.5</td><td class="num">75.0</td><td class="num">91.6</td><td class="num">86.9</td></tr>
-          <tr><td class="model-cell"><span class="swatch" style="background:#ffd166"></span>gemma-4-26b-a4b @4bit</td><td class="num">98</td><td class="num">78</td><td class="num">80</td><td class="num">79</td><td class="num">47</td><td class="num">66</td><td class="num">20.2</td><td class="num">97.5</td><td class="num">83.3</td><td class="num">106.0</td><td class="num">99.9</td></tr>
-          <tr><td class="model-cell"><span class="swatch" style="background:#f59e0b"></span>gemma-4-26b-a4b @6bit</td><td class="num">97</td><td class="num">78</td><td class="num">83</td><td class="num">79</td><td class="num">53</td><td class="num">80</td><td class="num">21.3</td><td class="num">97.5</td><td class="num">83.3</td><td class="num">85.3</td><td class="num">80.5</td></tr>
-          <tr><td class="model-cell"><span class="swatch" style="background:#fb7185"></span>gemma-4-31b dense</td><td class="num">95</td><td class="num">77</td><td class="num">79</td><td class="num">85</td><td class="num">48</td><td class="num">76</td><td class="num">22.5</td><td class="num">97.5</td><td class="num">83.3</td><td class="num">13.9</td><td class="num">13.6</td></tr>
-          <tr><td class="model-cell"><span class="swatch" style="background:#c084fc"></span>gemma-4-e4b</td><td class="num">91</td><td class="num">65</td><td class="num">14</td><td class="num">65</td><td class="num">34</td><td class="num">68</td><td class="num">4.5</td><td class="num">87.5</td><td class="num">66.7</td><td class="num">73.7</td><td class="num">69.5</td></tr>
-          <tr><td class="model-cell"><span class="swatch" style="background:#2dd4bf"></span>agents-a1-xl-mlx</td><td class="num">97</td><td class="num">82</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">64</td><td class="num">—</td><td class="num">92.5</td><td class="num">83.3</td><td class="num">—</td><td class="num">—</td></tr>
-        </tbody>
+        <tbody><!-- generated by charts-common.js --></tbody>
       </table>
     </div>
     <p class="scoreboard-hint">Defaults: rows are in the same order as the Models table above. Click headers to re-rank. Accuracy = pass-rate %, tool-calling = score %, throughput = tok/s on the creative-writing scenario. T-Bench is on-rig Terminal-Bench 2.0 n=89 (terminus-2, <code>--agent-timeout-multiplier 0.5</code>, 2026-05-24 → 2026-05-29) — all 7 candidates measured.</p>
+  </section>
+
+  <!-- 0d. Quality vs speed scatter -->
+  <section class="card wide">
+    <h2>Quality vs speed</h2>
+    <p class="sub">Benchmark score against generation throughput — the trade-off the bar charts can't show. Bubble size ∝ on-disk footprint (GB). Pick the y-axis benchmark; "Composite" averages the six accuracy suites (missing suites are skipped and flagged in the tooltip). <code>agents-a1-xl-mlx</code> has no creative-writing throughput sample, so it has no bubble.</p>
+    <div class="scatter-controls">
+      <span class="control-label">Y axis</span>
+      <select id="scatterBench">
+        <option value="composite">Composite (6-bench mean)</option>
+        <option value="HumanEval">HumanEval</option>
+        <option value="MMLU">MMLU</option>
+        <option value="MATH">MATH</option>
+        <option value="DROP">DROP</option>
+        <option value="GPQA">GPQA</option>
+        <option value="LCB">LiveCodeBench v6</option>
+        <option value="TBench">Terminal-Bench 2.0</option>
+      </select>
+    </div>
+    <div class="chart-wrap tall"><canvas id="chartScatter"></canvas></div>
+  </section>
+
+  <h2 class="category-heading" id="sec-coding">Coding <span class="hint">LiveCodeBench &amp; HumanEval — on-rig and vs frontier</span></h2>
+
+  <section class="card wide">
+    <h2>LiveCodeBench v6 — local (n=50)</h2>
+    <p class="sub">All 7 daily-driver candidates fully characterized after Phase 1 backfill + Step B reruns (2026-05-24). <strong>Gemma 4 26B-A4B @6bit at 80 % is the rig's LCB ceiling</strong>, +18 pp over the best Qwen (27b at 62 %). Numbers are post-rerun MERGED canonical: <code>qwen/qwen3-coder-next</code> 56 % clean (0 trunc), <code>qwen3.6-27b</code> 62 % (1 trunc, Q3 abc365_c — hardest across the trio), <code>qwen3.6-35b-a3b@6bit</code> 54 % (6 trunc, all 65 k spirals), <code>gemma-4-26b-a4b@4bit</code> 66 % (8 trunc — Q2 recovered at 65 k, rest are real model limits), <code>gemma-4-26b-a4b@6bit</code> 80 % (1 trunc — Q19 still spirals at 65 k).</p>
+    <div class="chart-wrap"><canvas id="chartLCB"></canvas></div>
+  </section>
+
+  <section class="card"><h2>HumanEval</h2><p class="sub">Python coding. Largely deprecated by frontier providers post-2024.</p><div class="chart-wrap ref-sm"><canvas id="chartRefHumanEval"></canvas></div></section>
+  <section class="card wide"><h2>LiveCodeBench v6</h2><p class="sub">Coding pass@1 against the rolling contamination-resistant set. Anthropic Opus 4.x, Gemini 3 Pro, GPT-5.2, o-series and Llama 4 don't publish LCB; bars are limited to providers who do. Sonnet 4.5 is reported as LCB-<strong>Pro</strong>, not directly comparable to v6 pass@1 — kept with caveat.</p><div class="chart-wrap ref-md"><canvas id="chartRefLCB"></canvas></div></section>
+
+  <h2 class="category-heading" id="sec-knowledge">Knowledge &amp; reasoning <span class="hint">accuracy suites, frontier comparison, and model radar</span></h2>
+
+  <!-- Frontier comparison intro -->
+  <section class="card wide">
+    <h2>Local vs frontier — published scores</h2>
+    <p class="sub">
+      Local runs (this rig, n=100, seed=42, temp=0) plotted against published first-party scores for frontier &amp; notable open-weight models.
+      Caveats: many newer frontier models no longer publish HumanEval/DROP; MATH often means MATH-500 or AIME 2025 (noted per-model);
+      GPQA is Diamond throughout. Reasoning models (o3, R1, Claude 4.x with thinking, Gemini 2.5/3, GPT-5) report with test-time compute.
+      Use for ranking, not absolute deltas — ±5pp noise at n=100. Tier pills in the filter bar toggle the frontier / open-weight reference rows.
+    </p>
   </section>
 
   <!-- 1. Accuracy by benchmark -->
@@ -403,36 +444,27 @@
     <div class="chart-wrap"><canvas id="chartAccuracy"></canvas></div>
   </section>
 
+  <section class="card"><h2>MMLU</h2><p class="sub">General knowledge. Anthropic 4.x reports MMMLU (multilingual) — marked *</p><div class="chart-wrap ref-md"><canvas id="chartRefMMLU"></canvas></div></section>
+  <section class="card"><h2>MATH</h2><p class="sub">Original MATH for local/legacy; MATH-500 for DeepSeek (†); AIME 2025 for frontier (‡).</p><div class="chart-wrap ref-md"><canvas id="chartRefMATH"></canvas></div></section>
+  <section class="card"><h2>DROP (F1)</h2><p class="sub">Reading comprehension. Mostly dropped by frontier providers — small field.</p><div class="chart-wrap ref-sm"><canvas id="chartRefDROP"></canvas></div></section>
+  <section class="card wide"><h2>GPQA Diamond</h2><p class="sub">Graduate-level science. The one benchmark still universally reported.</p><div class="chart-wrap ref-lg"><canvas id="chartRefGPQA"></canvas></div></section>
+
+  <!-- Model radar -->
   <section class="card wide">
-    <h2>LiveCodeBench v6 — local (n=50)</h2>
-    <p class="sub">All 7 daily-driver candidates fully characterized after Phase 1 backfill + Step B reruns (2026-05-24). <strong>Gemma 4 26B-A4B @6bit at 80 % is the rig's LCB ceiling</strong>, +18 pp over the best Qwen (27b at 62 %). Numbers are post-rerun MERGED canonical: <code>qwen/qwen3-coder-next</code> 56 % clean (0 trunc), <code>qwen3.6-27b</code> 62 % (1 trunc, Q3 abc365_c — hardest across the trio), <code>qwen3.6-35b-a3b@6bit</code> 54 % (6 trunc, all 65 k spirals), <code>gemma-4-26b-a4b@4bit</code> 66 % (8 trunc — Q2 recovered at 65 k, rest are real model limits), <code>gemma-4-26b-a4b@6bit</code> 80 % (1 trunc — Q19 still spirals at 65 k).</p>
-    <div class="chart-wrap"><canvas id="chartLCB"></canvas></div>
+    <h2>Model profile — radar</h2>
+    <p class="sub">Head-to-head shape across every 0–100 benchmark axis. Pick up to 3 models. Axes are fixed 0–100 (all are percentages) so shapes stay comparable regardless of selection. Missing axes (e.g. <code>agents-a1-xl-mlx</code> has no MATH/DROP/GPQA/T-Bench) show as gaps.</p>
+    <div class="radar-picker" id="radarPicker"></div>
+    <div class="chart-wrap tall"><canvas id="chartRadar"></canvas></div>
   </section>
 
-  <!-- 1c. Terminal-Bench (on-rig, full backfill) -->
+  <h2 class="category-heading" id="sec-tools">Tool use &amp; agents <span class="hint">Terminal-Bench and tool-calling suites</span></h2>
+
+  <!-- Terminal-Bench (on-rig, full backfill) -->
   <section class="card wide">
     <h2>Terminal-Bench 2.0 — local (n=89)</h2>
     <p class="sub">Multi-turn shell-agent benchmark, measured on-rig 2026-05-24 → 2026-05-29 via Harbor + LiteLLM → LM Studio (Docker linux/amd64), terminus-2 agent, concurrency=1, vanilla T-Bench 2.0 task set with <code>--agent-timeout-multiplier 0.5</code> (bounds the 14 tasks declaring &gt;60-min agent budgets — scores are a defensible floor; full-budget would land ≤5 pp higher). <strong>All 7 candidates complete:</strong> <code>qwen/qwen3-coder-next</code> <strong>32.6 %</strong> (29/89, 16.8 h), <code>qwen3.6-27b</code> <strong>31.5 %</strong> (28/89, 18.9 h), <code>qwen3.6-35b-a3b@6bit</code> <strong>28.1 %</strong> (25/89, 15.6 h), <code>gemma-4-31b</code> dense <strong>22.5 %</strong> (20/89, 17.4 h), <code>gemma-4-26b-a4b@6bit</code> <strong>21.3 %</strong> (19/89, 14.4 h), <code>@4bit</code> <strong>20.2 %</strong> (18/89, 16.0 h), <code>gemma-4-e4b</code> <strong>4.5 %</strong> (4/89, 6.4 h). Total wall-clock ~105 h. <strong>Headline:</strong> T-Bench cleanly inverts LCB at the top — the three Qwen models cluster on top (trained with explicit agentic-loop targets); Gemma — which topped LCB at 80 % — drops to mid-pack. Canonical summaries: <code>tools/local-llm-bench-m4-32gb/benchmarks/runs/tbench_*_summary.json</code>; raw run dirs at <code>.bench-logs/tbench-runs/&lt;model&gt;/result.json</code>.</p>
     <div class="chart-wrap"><canvas id="chartTBench"></canvas></div>
   </section>
-
-  <!-- 1b. Frontier comparison -->
-  <section class="card wide">
-    <h2>Local vs frontier — published scores</h2>
-    <p class="sub">
-      Local runs (this rig, n=100, seed=42, temp=0) plotted against published first-party scores for frontier &amp; notable open-weight models.
-      Caveats: many newer frontier models no longer publish HumanEval/DROP; MATH often means MATH-500 or AIME 2025 (noted per-model);
-      GPQA is Diamond throughout. Reasoning models (o3, R1, Claude 4.x with thinking, Gemini 2.5/3, GPT-5) report with test-time compute.
-      Use for ranking, not absolute deltas — ±5pp noise at n=100.
-    </p>
-  </section>
-
-  <section class="card"><h2>MMLU</h2><p class="sub">General knowledge. Anthropic 4.x reports MMMLU (multilingual) — marked *</p><div class="chart-wrap ref-md"><canvas id="chartRefMMLU"></canvas></div></section>
-  <section class="card"><h2>HumanEval</h2><p class="sub">Python coding. Largely deprecated by frontier providers post-2024.</p><div class="chart-wrap ref-sm"><canvas id="chartRefHumanEval"></canvas></div></section>
-  <section class="card"><h2>MATH</h2><p class="sub">Original MATH for local/legacy; MATH-500 for DeepSeek (†); AIME 2025 for frontier (‡).</p><div class="chart-wrap ref-md"><canvas id="chartRefMATH"></canvas></div></section>
-  <section class="card"><h2>DROP (F1)</h2><p class="sub">Reading comprehension. Mostly dropped by frontier providers — small field.</p><div class="chart-wrap ref-sm"><canvas id="chartRefDROP"></canvas></div></section>
-  <section class="card wide"><h2>GPQA Diamond</h2><p class="sub">Graduate-level science. The one benchmark still universally reported.</p><div class="chart-wrap ref-lg"><canvas id="chartRefGPQA"></canvas></div></section>
-  <section class="card wide"><h2>LiveCodeBench v6</h2><p class="sub">Coding pass@1 against the rolling contamination-resistant set. Anthropic Opus 4.x, Gemini 3 Pro, GPT-5.2, o-series and Llama 4 don't publish LCB; bars are limited to providers who do. Sonnet 4.5 is reported as LCB-<strong>Pro</strong>, not directly comparable to v6 pass@1 — kept with caveat.</p><div class="chart-wrap ref-md"><canvas id="chartRefLCB"></canvas></div></section>
 
   <!-- 2. Tool calling -->
   <section class="card">
@@ -446,6 +478,8 @@
     <p class="sub">Fresh token-weighted tok/s during each tool-call suite.</p>
     <div class="chart-wrap"><canvas id="chartToolTps"></canvas></div>
   </section>
+
+  <h2 class="category-heading" id="sec-performance">Performance <span class="hint">throughput, prefill degradation, speed probes, wall-clock</span></h2>
 
   <!-- 3. Throughput by scenario -->
   <section class="card wide">
@@ -494,480 +528,467 @@
 </footer>
 
 <script>
-Chart.defaults.color = '#9aa0a6';
-Chart.defaults.borderColor = '#262a33';
-Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif';
+const C = ChartsCommon;
+C.initTheme();
 
-// Register datalabels globally
-Chart.register(ChartDataLabels);
+// ---------------------------------------------------------------------------
+// Canonical data model. MODELS = one record per model (metadata + color).
+// RESULTS = one tidy record per measured value. Every chart + the scoreboard
+// derives from these two arrays — numbers live here exactly once.
+//   metric='accuracy'  bench=HumanEval|MMLU|MATH|DROP|GPQA|LCB|TBench   (pass %)
+//   metric='toolScore' suite=jdhodges|veerman                          (score %)
+//   metric='toolTps'   suite=jdhodges|veerman                          (tok/s)
+//   metric='genTps'|'effTps'  scenario=creative-writing|doc-summary|ops-agent|prefill-test
+//   metric='prefillEffTps'    context=655|1453|3015|8496               (tok/s)
+//   metric='probeSeconds'     prompt='2+2'|mmlu|code|total             (s)
+//   metric='probeReasonTok'   prompt='2+2'|mmlu|code                   (tokens)
+//   metric='elapsedMin'       bench=HumanEval|MMLU|MATH|DROP|GPQA|LCB  (min)
+// refExclude:true keeps a model out of the ranked "vs frontier" charts.
+// ---------------------------------------------------------------------------
+const MODELS = [
+  // --- local (this rig) ---
+  { id:'coder', tier:'local', arch:'moe',   quant:'6bit', diskGB:64.76, color:'#5aa9ff',
+    label:'qwen3-coder-next',        chartLabel:'qwen3-coder-next (80B 6-bit)', refLabel:'qwen3-coder-next (local 80B)',
+    refNote:'LCB: clean (0 trunc after Q19 rerun at 65k)' },
+  { id:'d27b', tier:'local', arch:'dense', quant:'6bit', diskGB:22.80, color:'#ff8a5a',
+    label:'qwen3.6-27b',             chartLabel:'qwen3.6-27b (dense 6-bit)', refLabel:'qwen3.6-27b (local dense)',
+    refNote:'GPQA: 15/100 truncated at 32k; true ≈78-85%. LCB: 1 trunc at 65k (Q3)' },
+  { id:'a3b35', tier:'local', arch:'moe',  quant:'6bit', diskGB:29.09, color:'#7ee787',
+    label:'qwen3.6-35b-a3b',         chartLabel:'qwen3.6-35b-a3b (MoE 6-bit)', refLabel:'qwen3.6-35b-a3b (local MoE)',
+    refNote:'GPQA: 23/100 truncated at 32k; true ≈75-83%. LCB: 6 trunc at 65k (floor)' },
+  { id:'g26_4', tier:'local', arch:'moe',  quant:'4bit', diskGB:14.6, color:'#ffd166',
+    label:'gemma-4-26b-a4b @4bit',   chartLabel:'gemma-4-26b-a4b (MoE 4-bit)', refLabel:'gemma-4-26b-a4b @4bit (local)',
+    refNote:'LCB: Step B reruns at 65k recovered Q2; 8 trunc are real model limits' },
+  { id:'g26_6', tier:'local', arch:'moe',  quant:'6bit', diskGB:21.81, color:'#f59e0b',
+    label:'gemma-4-26b-a4b @6bit',   chartLabel:'gemma-4-26b-a4b (MoE 6-bit)', refLabel:'gemma-4-26b-a4b @6bit (local)',
+    refNote:'LCB: Step B reruns at 65k recovered Q28; 1 trunc remains (Q19). Rig LCB ceiling.' },
+  { id:'g31', tier:'local', arch:'dense', quant:'8bit', diskGB:33.80, color:'#fb7185',
+    label:'gemma-4-31b dense',       chartLabel:'gemma-4-31b (dense 8-bit)', refLabel:'gemma-4-31b dense @8bit (local)' },
+  { id:'ge4b', tier:'local', arch:'dense', quant:'8bit', diskGB:7.5, color:'#c084fc',
+    label:'gemma-4-e4b',             chartLabel:'gemma-4-e4b (4B 8-bit)', refLabel:'gemma-4-e4b @8bit (local 4B)',
+    refNote:'MATH collapses at 4B — FIM/quick-call only' },
+  { id:'a1', tier:'local', arch:'moe',   quant:'6bit', diskGB:29.90, color:'#2dd4bf', refExclude:true,
+    label:'agents-a1-xl-mlx',        chartLabel:'agents-a1-xl-mlx (MoE 6-bit)' },
 
-const charts = [];
-let labelsOn = true;
-
-const datalabelsConfig = {
-  color: '#e6e6e6',
-  anchor: 'end',
-  align: 'end',
-  offset: 2,
-  clamp: true,
-  font: { size: 10, weight: '600' },
-  formatter: (v) => (v === null || v === undefined) ? '' : (Number.isInteger(v) ? v : v.toFixed(1)),
-  display: () => labelsOn
-};
-
-const COLOR = {
-  coder:  '#5aa9ff',   // qwen3-coder-next (80B MoE)
-  d27b:   '#ff8a5a',   // qwen3.6-27b dense
-  a3b35:  '#7ee787',   // qwen3.6-35b-a3b MoE
-  g26_4:  '#ffd166',   // gemma-4-26b-a4b @ 4bit
-  g26_6:  '#f59e0b',   // gemma-4-26b-a4b @ 6bit
-  g31:    '#fb7185',   // gemma-4-31b dense @ 8bit
-  ge4b:   '#c084fc',   // gemma-4-e4b @ 8bit (4B small)
-  a1:     '#2dd4bf',   // agents-a1-xl-mlx (Qwen3.5 MoE 256E/8A, community)
-};
-
-function gridOpts(yLabel, suggestedMax) {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    layout: { padding: { top: 20 } },
-    plugins: {
-      legend: { labels: { color: '#e6e6e6', boxWidth: 14 } },
-      tooltip: { mode: 'index', intersect: false },
-      datalabels: datalabelsConfig
-    },
-    scales: {
-      x: { grid: { color: '#262a33' }, ticks: { color: '#9aa0a6' } },
-      y: {
-        grid: { color: '#262a33' },
-        ticks: { color: '#9aa0a6' },
-        title: { display: !!yLabel, text: yLabel, color: '#9aa0a6' },
-        suggestedMax
-      }
-    }
-  };
-}
-
-function registerChart(c) { charts.push(c); return c; }
-
-// --- 1. Accuracy by benchmark ---
-registerChart(new Chart(document.getElementById('chartAccuracy'), {
-  type: 'bar',
-  data: {
-    labels: ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA'],
-    datasets: [
-      { label: 'qwen3-coder-next (80B 6-bit)',      backgroundColor: COLOR.coder, data: [89, 76, 84, 83, 37] },
-      { label: 'qwen3.6-27b (dense 6-bit)',         backgroundColor: COLOR.d27b,  data: [93, 88, 88, 90, 70] },
-      { label: 'qwen3.6-35b-a3b (MoE 6-bit)',       backgroundColor: COLOR.a3b35, data: [87, 83, 89, 89, 65] },
-      { label: 'gemma-4-26b-a4b (MoE 4-bit)',       backgroundColor: COLOR.g26_4, data: [98, 78, 80, 79, 47] },
-      { label: 'gemma-4-26b-a4b (MoE 6-bit)',       backgroundColor: COLOR.g26_6, data: [97, 78, 83, 79, 53] },
-      { label: 'gemma-4-31b (dense 8-bit)',         backgroundColor: COLOR.g31,   data: [95, 77, 79, 85, 48] },
-      { label: 'gemma-4-e4b (4B 8-bit)',            backgroundColor: COLOR.ge4b,  data: [91, 65, 14, 65, 34] },
-      { label: 'agents-a1-xl-mlx (MoE 6-bit)',      backgroundColor: COLOR.a1,    data: [97, 82, null, null, null] }
-    ]
-  },
-  options: gridOpts('Pass rate (%)', 100)
-}));
-
-// --- 1b. LiveCodeBench v6 (all 7 daily-driver candidates) ---
-registerChart(new Chart(document.getElementById('chartLCB'), {
-  type: 'bar',
-  data: {
-    labels: ['LiveCodeBench v6 (n=50)'],
-    datasets: [
-      { label: 'qwen3-coder-next (80B 6-bit)',      backgroundColor: COLOR.coder, data: [56] },
-      { label: 'qwen3.6-27b (dense 6-bit)',         backgroundColor: COLOR.d27b,  data: [62] },
-      { label: 'qwen3.6-35b-a3b (MoE 6-bit)',       backgroundColor: COLOR.a3b35, data: [54] },
-      { label: 'gemma-4-26b-a4b (MoE 4-bit)',       backgroundColor: COLOR.g26_4, data: [66] },
-      { label: 'gemma-4-26b-a4b (MoE 6-bit)',       backgroundColor: COLOR.g26_6, data: [80] },
-      { label: 'gemma-4-31b (dense 8-bit)',         backgroundColor: COLOR.g31,   data: [76] },
-      { label: 'gemma-4-e4b (4B 8-bit)',            backgroundColor: COLOR.ge4b,  data: [68] },
-      { label: 'agents-a1-xl-mlx (MoE 6-bit)',      backgroundColor: COLOR.a1,    data: [64] }
-    ]
-  },
-  options: gridOpts('Pass rate (%)', 100)
-}));
-
-// --- 1c. Terminal-Bench 2.0 — local n=89, all 7 candidates measured ---
-//        (agents-a1-xl-mlx: T-Bench aborted at 2/89 on 2026-07-05 — no bar)
-// Source: tools/local-llm-bench-m4-32gb/benchmarks/runs/tbench_*_summary.json
-// + .bench-logs/tbench-runs/<model>/result.json.
-// Bars ordered top-to-bottom by score (legend order).
-registerChart(new Chart(document.getElementById('chartTBench'), {
-  type: 'bar',
-  data: {
-    labels: ['Terminal-Bench 2.0 (n=89)'],
-    datasets: [
-      { label: 'qwen3-coder-next (80B 6-bit) — 29/89',           backgroundColor: COLOR.coder, data: [32.6] },
-      { label: 'qwen3.6-27b (dense 6-bit) — 28/89',              backgroundColor: COLOR.d27b,  data: [31.5] },
-      { label: 'qwen3.6-35b-a3b (MoE 6-bit) — 25/89',            backgroundColor: COLOR.a3b35, data: [28.1] },
-      { label: 'gemma-4-31b (dense 8-bit) — 20/89',              backgroundColor: COLOR.g31,   data: [22.5] },
-      { label: 'gemma-4-26b-a4b (MoE 6-bit) — 19/89',            backgroundColor: COLOR.g26_6, data: [21.3] },
-      { label: 'gemma-4-26b-a4b (MoE 4-bit) — 18/89',            backgroundColor: COLOR.g26_4, data: [20.2] },
-      { label: 'gemma-4-e4b (4B 8-bit) — 4/89',                  backgroundColor: COLOR.ge4b,  data: [4.5]  }
-    ]
-  },
-  options: gridOpts('Pass rate (%)', 100)
-}));
-
-// --- 2. Tool calling score ---
-registerChart(new Chart(document.getElementById('chartToolScore'), {
-  type: 'bar',
-  data: {
-    labels: ['jdhodges (40q)', 'veerman (12q)'],
-    datasets: [
-      { label: 'qwen3-coder-next',         backgroundColor: COLOR.coder, data: [90.0, 83.3] },
-      { label: 'qwen3.6-27b',              backgroundColor: COLOR.d27b,  data: [95.0, 83.3] },
-      { label: 'qwen3.6-35b-a3b',          backgroundColor: COLOR.a3b35, data: [97.5, 75.0] },
-      { label: 'gemma-4-26b-a4b @4bit',    backgroundColor: COLOR.g26_4, data: [97.5, 83.3] },
-      { label: 'gemma-4-26b-a4b @6bit',    backgroundColor: COLOR.g26_6, data: [97.5, 83.3] },
-      { label: 'gemma-4-31b dense',        backgroundColor: COLOR.g31,   data: [97.5, 83.3] },
-      { label: 'gemma-4-e4b (4B)',         backgroundColor: COLOR.ge4b,  data: [87.5, 66.7] },
-      { label: 'agents-a1-xl-mlx',         backgroundColor: COLOR.a1,    data: [92.5, 83.3] }
-    ]
-  },
-  options: gridOpts('Score (%)', 100)
-}));
-
-// --- 3. Tool calling tok/s ---
-registerChart(new Chart(document.getElementById('chartToolTps'), {
-  type: 'bar',
-  data: {
-    labels: ['jdhodges', 'veerman'],
-    datasets: [
-      { label: 'qwen3-coder-next',         backgroundColor: COLOR.coder, data: [18.55, 35.38] },
-      { label: 'qwen3.6-27b',              backgroundColor: COLOR.d27b,  data: [14.47, 18.40] },
-      { label: 'qwen3.6-35b-a3b',          backgroundColor: COLOR.a3b35, data: [72.35, 85.81] },
-      { label: 'gemma-4-26b-a4b @4bit',    backgroundColor: COLOR.g26_4, data: [73.36, 82.08] },
-      { label: 'gemma-4-26b-a4b @6bit',    backgroundColor: COLOR.g26_6, data: [57.85, 66.58] },
-      { label: 'gemma-4-31b dense',        backgroundColor: COLOR.g31,   data: [11.39, 12.33] },
-      { label: 'gemma-4-e4b (4B)',         backgroundColor: COLOR.ge4b,  data: [42.50, 60.30] },
-      { label: 'agents-a1-xl-mlx',         backgroundColor: COLOR.a1,    data: [67.44, 75.10] }
-    ]
-  },
-  options: gridOpts('tok/s (token-weighted)')
-}));
-
-// --- 4. Generation throughput by scenario ---
-registerChart(new Chart(document.getElementById('chartGenTps'), {
-  type: 'bar',
-  data: {
-    labels: ['creative-writing', 'doc-summary', 'ops-agent', 'prefill-test'],
-    datasets: [
-      { label: 'qwen3-coder-next (80B MoE)',       backgroundColor: COLOR.coder, data: [70.2, 69.9, 67.9, 68.0] },
-      { label: 'qwen3.6-27b (dense)',              backgroundColor: COLOR.d27b,  data: [20.7, 20.2, 20.0, 20.4] },
-      { label: 'qwen3.6-35b-a3b (MoE, MLX)',       backgroundColor: COLOR.a3b35, data: [91.6, 91.7, 85.5, 85.5] },
-      { label: 'gemma-4-26b-a4b @4bit (MoE)',      backgroundColor: COLOR.g26_4, data: [106.0, 107.6, 100.3, 99.2] },
-      { label: 'gemma-4-26b-a4b @6bit (MoE)',      backgroundColor: COLOR.g26_6, data: [85.3, 85.9, 80.8, 80.9] },
-      { label: 'gemma-4-31b @8bit (dense)',        backgroundColor: COLOR.g31,   data: [13.9, 14.3, 13.7, 13.6] },
-      { label: 'gemma-4-e4b @8bit (4B)',           backgroundColor: COLOR.ge4b,  data: [73.7, 75.4, 70.9, 69.3] },
-      { label: 'agents-a1-xl-mlx (MoE)',           backgroundColor: COLOR.a1,    data: [null, null, 82.1, null] }
-    ]
-  },
-  options: gridOpts('Avg generation tok/s')
-}));
-
-// --- 5. Effective throughput by scenario ---
-registerChart(new Chart(document.getElementById('chartEffectiveTps'), {
-  type: 'bar',
-  data: {
-    labels: ['creative-writing', 'doc-summary', 'ops-agent', 'prefill-test'],
-    datasets: [
-      { label: 'qwen3-coder-next',         backgroundColor: COLOR.coder, data: [67.8, 45.6, 55.8, 20.6] },
-      { label: 'qwen3.6-27b',              backgroundColor: COLOR.d27b,  data: [19.9, 11.2, 16.2, 4.0]  },
-      { label: 'qwen3.6-35b-a3b',          backgroundColor: COLOR.a3b35, data: [86.9, 55.9, 71.4, 22.9] },
-      { label: 'gemma-4-26b-a4b @4bit',    backgroundColor: COLOR.g26_4, data: [99.9, 55.8, 80.7, 17.9] },
-      { label: 'gemma-4-26b-a4b @6bit',    backgroundColor: COLOR.g26_6, data: [80.5, 46.9, 66.6, 20.5] },
-      { label: 'gemma-4-31b dense',        backgroundColor: COLOR.g31,   data: [13.6, 8.0,  10.3, 3.3]  },
-      { label: 'gemma-4-e4b (4B)',         backgroundColor: COLOR.ge4b,  data: [69.5, 46.1, 62.9, 29.1] },
-      { label: 'agents-a1-xl-mlx',         backgroundColor: COLOR.a1,    data: [null, null, 35.9, null] }
-    ]
-  },
-  options: gridOpts('Avg effective tok/s')
-}));
-
-// --- 6. Prefill degradation ---
-registerChart(new Chart(document.getElementById('chartPrefill'), {
-  type: 'line',
-  data: {
-    labels: [655, 1453, 3015, 8496],
-    datasets: [
-      { label: 'qwen3-coder-next',      borderColor: COLOR.coder, backgroundColor: COLOR.coder, data: [40.8, 39.8, 28.3, 9.0],  tension: 0.25, datalabels: { align: 'top', color: COLOR.coder } },
-      { label: 'qwen3.6-27b',           borderColor: COLOR.d27b,  backgroundColor: COLOR.d27b,  data: [10.6, 9.5,  5.0,  1.9],  tension: 0.25, datalabels: { align: 'bottom', color: COLOR.d27b } },
-      { label: 'qwen3.6-35b-a3b',       borderColor: COLOR.a3b35, backgroundColor: COLOR.a3b35, data: [54.1, 48.6, 31.2, 9.0],  tension: 0.25, datalabels: { align: 'top', color: COLOR.a3b35 } },
-      { label: 'gemma-4-26b-a4b @4bit', borderColor: COLOR.g26_4, backgroundColor: COLOR.g26_4, data: [53.2, 49.3, 32.2, 7.4],  tension: 0.25, datalabels: { align: 'top', color: COLOR.g26_4 } },
-      { label: 'gemma-4-26b-a4b @6bit', borderColor: COLOR.g26_6, backgroundColor: COLOR.g26_6, data: [45.2, 43.1, 29.3, 9.8],  tension: 0.25, datalabels: { align: 'bottom', color: COLOR.g26_6 } },
-      { label: 'gemma-4-31b dense',     borderColor: COLOR.g31,   backgroundColor: COLOR.g31,   data: [8.1,  7.3,  4.6,  1.5],  tension: 0.25, datalabels: { align: 'bottom', color: COLOR.g31 } },
-      { label: 'gemma-4-e4b (4B)',      borderColor: COLOR.ge4b,  backgroundColor: COLOR.ge4b,  data: [52.0, 47.7, 36.1, 15.5], tension: 0.25, datalabels: { align: 'top', color: COLOR.ge4b } }
-    ]
-  },
-  options: {
-    ...gridOpts('Effective tok/s'),
-    scales: {
-      x: {
-        type: 'linear',
-        grid: { color: '#262a33' },
-        ticks: { color: '#9aa0a6' },
-        title: { display: true, text: 'Context length (tokens)', color: '#9aa0a6' }
-      },
-      y: {
-        grid: { color: '#262a33' },
-        ticks: { color: '#9aa0a6' },
-        title: { display: true, text: 'Effective tok/s', color: '#9aa0a6' },
-        beginAtZero: true
-      }
-    }
-  }
-}));
-
-// --- 7. Speed probe total ---
-registerChart(new Chart(document.getElementById('chartProbeTotal'), {
-  type: 'bar',
-  data: {
-    labels: ['2+2', 'MMLU atmos.', 'code 2nd-largest', 'Total'],
-    datasets: [
-      { label: 'qwen3-coder-next',  backgroundColor: COLOR.coder, data: [0.25, 0.37, 0.89, 1.51] },
-      { label: 'qwen3.6-27b',       backgroundColor: COLOR.d27b,  data: [6.5,  16.4, 51.5, 74.4] },
-      { label: 'qwen3.6-35b-a3b',   backgroundColor: COLOR.a3b35, data: [2.0,  2.96, 10.87, 15.83] }
-    ]
-  },
-  options: gridOpts('Seconds')
-}));
-
-// --- 8. Speed probe reasoning tokens ---
-registerChart(new Chart(document.getElementById('chartProbeReason'), {
-  type: 'bar',
-  data: {
-    labels: ['2+2', 'MMLU atmos.', 'code 2nd-largest'],
-    datasets: [
-      { label: 'qwen3-coder-next',  backgroundColor: COLOR.coder, data: [0, 0, 0] },
-      { label: 'qwen3.6-27b',       backgroundColor: COLOR.d27b,  data: [116, 311, 1023] },
-      { label: 'qwen3.6-35b-a3b',   backgroundColor: COLOR.a3b35, data: [165, 256, 1023] }
-    ]
-  },
-  options: gridOpts('Reasoning tokens emitted')
-}));
-
-// --- Frontier reference data (first-party where possible, as of 2026-05-17) ---
-// Tags on names: * = MMMLU not MMLU; † = MATH-500; ‡ = AIME 2025
-const REF_MODELS = [
-  // Local (this rig)
-  { name: 'qwen3-coder-next (local 80B)',    tier: 'local', color: '#5aa9ff',
-    MMLU: 76, HumanEval: 89, MATH: 84, DROP: 83, GPQA: 37, LiveCodeBench: 56, note: 'LCB: clean (0 trunc after Q19 rerun at 65k)' },
-  { name: 'qwen3.6-27b (local dense)',       tier: 'local', color: '#ff8a5a',
-    MMLU: 88, HumanEval: 93, MATH: 88, DROP: 90, GPQA: 70, LiveCodeBench: 62, note: 'GPQA: 15/100 truncated at 32k; true ≈78-85%. LCB: 1 trunc at 65k (Q3)' },
-  { name: 'qwen3.6-35b-a3b (local MoE)',     tier: 'local', color: '#7ee787',
-    MMLU: 83, HumanEval: 87, MATH: 89, DROP: 89, GPQA: 65, LiveCodeBench: 54, note: 'GPQA: 23/100 truncated at 32k; true ≈75-83%. LCB: 6 trunc at 65k (floor)' },
-  { name: 'gemma-4-26b-a4b @4bit (local)',   tier: 'local', color: '#ffd166',
-    MMLU: 78, HumanEval: 98, MATH: 80, DROP: 79, GPQA: 47, LiveCodeBench: 66, note: 'LCB: Step B reruns at 65k recovered Q2; 8 trunc are real model limits' },
-  { name: 'gemma-4-26b-a4b @6bit (local)',   tier: 'local', color: '#f59e0b',
-    MMLU: 78, HumanEval: 97, MATH: 83, DROP: 79, GPQA: 53, LiveCodeBench: 80, note: 'LCB: Step B reruns at 65k recovered Q28; 1 trunc remains (Q19). Rig LCB ceiling.' },
-  { name: 'gemma-4-31b dense @8bit (local)', tier: 'local', color: '#fb7185',
-    MMLU: 77, HumanEval: 95, MATH: 79, DROP: 85, GPQA: 48, LiveCodeBench: 76 },
-  { name: 'gemma-4-e4b @8bit (local 4B)',    tier: 'local', color: '#c084fc',
-    MMLU: 65, HumanEval: 91, MATH: 14, DROP: 65, GPQA: 34, LiveCodeBench: 68, note: 'MATH collapses at 4B — FIM/quick-call only' },
-
-  // Anthropic
-  { name: 'Claude Opus 4.7',  tier: 'frontier', GPQA: 94.2 },
-  { name: 'Claude Opus 4.6',  tier: 'frontier', MMLU: 91.1, MATH: 100.0, GPQA: 91.3, note: '*‡' },
-  { name: 'Claude Opus 4.5',  tier: 'frontier', MMLU: 90.8, GPQA: 87.0, note: '*' },
-  { name: 'Claude Sonnet 4.6',tier: 'frontier', MMLU: 89.3, MATH: 95.6, GPQA: 89.9, LiveCodeBench: 80, note: '*‡ · LCB community ~80' },
-  { name: 'Claude Sonnet 4.5',tier: 'frontier', MMLU: 89.5, MATH: 87.0, GPQA: 83.4, LiveCodeBench: 70, note: '*‡ · LCB-Pro variant' },
-
-  // OpenAI
-  { name: 'GPT-5.2',   tier: 'frontier', MMLU: 89.6, GPQA: 93.2, note: '*' },
-  { name: 'GPT-5',     tier: 'frontier', MATH: 100.0, GPQA: 89.4, LiveCodeBench: 80, note: '‡ · LCB aggregator' },
-  { name: 'o3',        tier: 'frontier', MMLU: 91.6, HumanEval: 81.3, MATH: 96.7, GPQA: 87.7 },
-  { name: 'o4-mini',   tier: 'frontier', MATH: 99.5, GPQA: 81.4, note: '‡' },
-  { name: 'GPT-4o',    tier: 'frontier', MMLU: 88.7, HumanEval: 90.2, MATH: 76.6, DROP: 83.4, GPQA: 53.6 },
-
-  // Google
-  { name: 'Gemini 3 Pro',   tier: 'frontier', MMLU: 91.8, MATH: 95.0, GPQA: 91.9, note: '*‡' },
-  { name: 'Gemini 2.5 Pro', tier: 'frontier', MATH: 86.7, GPQA: 84.0, note: '‡' },
-
-  // DeepSeek
-  { name: 'DeepSeek-V4 Flash',tier: 'open', LiveCodeBench: 91.6, note: 'LCB v6 from research note 2026-05-17' },
-  { name: 'DeepSeek-R1',     tier: 'open', MMLU: 90.8, MATH: 97.3, DROP: 92.2, GPQA: 71.5, LiveCodeBench: 65.9, note: '†' },
-  { name: 'DeepSeek-V3',     tier: 'open', MMLU: 88.5, HumanEval: 65.2, MATH: 90.2, DROP: 89.0, GPQA: 59.1, LiveCodeBench: 65.9, note: '†' },
-  { name: 'DeepSeek-V3.2-Exp',tier: 'open', GPQA: 79.9 },
-
-  // Meta
-  { name: 'Llama 4 Maverick',  tier: 'open', MATH: 61.2, GPQA: 65.1 },
-  { name: 'Llama 3.3 70B',     tier: 'open', HumanEval: 88.4, MATH: 77.0, GPQA: 50.5 },
-
-  // Qwen
-  { name: 'Qwen3-Coder-480B',    tier: 'open', LiveCodeBench: 70.7 },
-  { name: 'Qwen3-235B Thinking', tier: 'open', GPQA: 81.1 },
-  { name: 'Qwen2.5-72B',         tier: 'open', MMLU: 86.1, HumanEval: 86.6, MATH: 83.1, GPQA: 49.0 },
-
-  // Moonshot
-  { name: 'Kimi K2.6',           tier: 'open', LiveCodeBench: 89.6 }
+  // --- frontier / open-weight reference (published scores; ranked charts only) ---
+  { id:'opus47',     tier:'frontier', label:'Claude Opus 4.7' },
+  { id:'opus46',     tier:'frontier', label:'Claude Opus 4.6',   refNote:'*‡' },
+  { id:'opus45',     tier:'frontier', label:'Claude Opus 4.5',   refNote:'*' },
+  { id:'sonnet46',   tier:'frontier', label:'Claude Sonnet 4.6', refNote:'*‡ · LCB community ~80' },
+  { id:'sonnet45',   tier:'frontier', label:'Claude Sonnet 4.5', refNote:'*‡ · LCB-Pro variant' },
+  { id:'gpt52',      tier:'frontier', label:'GPT-5.2',           refNote:'*' },
+  { id:'gpt5',       tier:'frontier', label:'GPT-5',             refNote:'‡ · LCB aggregator' },
+  { id:'o3',         tier:'frontier', label:'o3' },
+  { id:'o4mini',     tier:'frontier', label:'o4-mini',           refNote:'‡' },
+  { id:'gpt4o',      tier:'frontier', label:'GPT-4o' },
+  { id:'gemini3pro', tier:'frontier', label:'Gemini 3 Pro',      refNote:'*‡' },
+  { id:'gemini25pro',tier:'frontier', label:'Gemini 2.5 Pro',    refNote:'‡' },
+  { id:'dsv4flash',  tier:'open',     label:'DeepSeek-V4 Flash', refNote:'LCB v6 from research note 2026-05-17' },
+  { id:'dsr1',       tier:'open',     label:'DeepSeek-R1',       refNote:'†' },
+  { id:'dsv3',       tier:'open',     label:'DeepSeek-V3',       refNote:'†' },
+  { id:'dsv32',      tier:'open',     label:'DeepSeek-V3.2-Exp' },
+  { id:'llama4mav',  tier:'open',     label:'Llama 4 Maverick' },
+  { id:'llama33',    tier:'open',     label:'Llama 3.3 70B' },
+  { id:'qwen3coder480', tier:'open',  label:'Qwen3-Coder-480B' },
+  { id:'qwen3235',   tier:'open',     label:'Qwen3-235B Thinking' },
+  { id:'qwen2572',   tier:'open',     label:'Qwen2.5-72B' },
+  { id:'kimi',       tier:'open',     label:'Kimi K2.6' }
 ];
 
-const TIER_COLOR = {
-  local:    null,       // per-model override
-  frontier: '#b86bff',  // purple
-  open:     '#888c94'   // gray
-};
+const RESULTS = [
+  // ---- accuracy: local (bench) ----
+  { model:'coder', metric:'accuracy', bench:'HumanEval', value:89 },
+  { model:'coder', metric:'accuracy', bench:'MMLU', value:76 },
+  { model:'coder', metric:'accuracy', bench:'MATH', value:84 },
+  { model:'coder', metric:'accuracy', bench:'DROP', value:83 },
+  { model:'coder', metric:'accuracy', bench:'GPQA', value:37 },
+  { model:'coder', metric:'accuracy', bench:'LCB', value:56 },
+  { model:'coder', metric:'accuracy', bench:'TBench', value:32.6 },
+  { model:'d27b', metric:'accuracy', bench:'HumanEval', value:93 },
+  { model:'d27b', metric:'accuracy', bench:'MMLU', value:88 },
+  { model:'d27b', metric:'accuracy', bench:'MATH', value:88 },
+  { model:'d27b', metric:'accuracy', bench:'DROP', value:90 },
+  { model:'d27b', metric:'accuracy', bench:'GPQA', value:70 },
+  { model:'d27b', metric:'accuracy', bench:'LCB', value:62 },
+  { model:'d27b', metric:'accuracy', bench:'TBench', value:31.5 },
+  { model:'a3b35', metric:'accuracy', bench:'HumanEval', value:87 },
+  { model:'a3b35', metric:'accuracy', bench:'MMLU', value:83 },
+  { model:'a3b35', metric:'accuracy', bench:'MATH', value:89 },
+  { model:'a3b35', metric:'accuracy', bench:'DROP', value:89 },
+  { model:'a3b35', metric:'accuracy', bench:'GPQA', value:65 },
+  { model:'a3b35', metric:'accuracy', bench:'LCB', value:54 },
+  { model:'a3b35', metric:'accuracy', bench:'TBench', value:28.1 },
+  { model:'g26_4', metric:'accuracy', bench:'HumanEval', value:98 },
+  { model:'g26_4', metric:'accuracy', bench:'MMLU', value:78 },
+  { model:'g26_4', metric:'accuracy', bench:'MATH', value:80 },
+  { model:'g26_4', metric:'accuracy', bench:'DROP', value:79 },
+  { model:'g26_4', metric:'accuracy', bench:'GPQA', value:47 },
+  { model:'g26_4', metric:'accuracy', bench:'LCB', value:66 },
+  { model:'g26_4', metric:'accuracy', bench:'TBench', value:20.2 },
+  { model:'g26_6', metric:'accuracy', bench:'HumanEval', value:97 },
+  { model:'g26_6', metric:'accuracy', bench:'MMLU', value:78 },
+  { model:'g26_6', metric:'accuracy', bench:'MATH', value:83 },
+  { model:'g26_6', metric:'accuracy', bench:'DROP', value:79 },
+  { model:'g26_6', metric:'accuracy', bench:'GPQA', value:53 },
+  { model:'g26_6', metric:'accuracy', bench:'LCB', value:80 },
+  { model:'g26_6', metric:'accuracy', bench:'TBench', value:21.3 },
+  { model:'g31', metric:'accuracy', bench:'HumanEval', value:95 },
+  { model:'g31', metric:'accuracy', bench:'MMLU', value:77 },
+  { model:'g31', metric:'accuracy', bench:'MATH', value:79 },
+  { model:'g31', metric:'accuracy', bench:'DROP', value:85 },
+  { model:'g31', metric:'accuracy', bench:'GPQA', value:48 },
+  { model:'g31', metric:'accuracy', bench:'LCB', value:76 },
+  { model:'g31', metric:'accuracy', bench:'TBench', value:22.5 },
+  { model:'ge4b', metric:'accuracy', bench:'HumanEval', value:91 },
+  { model:'ge4b', metric:'accuracy', bench:'MMLU', value:65 },
+  { model:'ge4b', metric:'accuracy', bench:'MATH', value:14 },
+  { model:'ge4b', metric:'accuracy', bench:'DROP', value:65 },
+  { model:'ge4b', metric:'accuracy', bench:'GPQA', value:34 },
+  { model:'ge4b', metric:'accuracy', bench:'LCB', value:68 },
+  { model:'ge4b', metric:'accuracy', bench:'TBench', value:4.5 },
+  { model:'a1', metric:'accuracy', bench:'HumanEval', value:97 },
+  { model:'a1', metric:'accuracy', bench:'MMLU', value:82 },
+  { model:'a1', metric:'accuracy', bench:'MATH', value:null },
+  { model:'a1', metric:'accuracy', bench:'DROP', value:null },
+  { model:'a1', metric:'accuracy', bench:'GPQA', value:null },
+  { model:'a1', metric:'accuracy', bench:'LCB', value:64 },
 
-function buildRefChart(canvasId, metric, axisLabel) {
-  const rows = REF_MODELS
-    .filter(m => m[metric] != null)
-    .map(m => ({
-      label: m.name + (m.note ? ' ' + m.note : ''),
-      value: m[metric],
-      color: m.tier === 'local' ? m.color : TIER_COLOR[m.tier]
-    }))
-    .sort((a, b) => b.value - a.value);
+  // ---- accuracy: frontier / open (published, ranked charts) ----
+  { model:'opus47', metric:'accuracy', bench:'GPQA', value:94.2 },
+  { model:'opus46', metric:'accuracy', bench:'MMLU', value:91.1 },
+  { model:'opus46', metric:'accuracy', bench:'MATH', value:100.0 },
+  { model:'opus46', metric:'accuracy', bench:'GPQA', value:91.3 },
+  { model:'opus45', metric:'accuracy', bench:'MMLU', value:90.8 },
+  { model:'opus45', metric:'accuracy', bench:'GPQA', value:87.0 },
+  { model:'sonnet46', metric:'accuracy', bench:'MMLU', value:89.3 },
+  { model:'sonnet46', metric:'accuracy', bench:'MATH', value:95.6 },
+  { model:'sonnet46', metric:'accuracy', bench:'GPQA', value:89.9 },
+  { model:'sonnet46', metric:'accuracy', bench:'LCB', value:80 },
+  { model:'sonnet45', metric:'accuracy', bench:'MMLU', value:89.5 },
+  { model:'sonnet45', metric:'accuracy', bench:'MATH', value:87.0 },
+  { model:'sonnet45', metric:'accuracy', bench:'GPQA', value:83.4 },
+  { model:'sonnet45', metric:'accuracy', bench:'LCB', value:70 },
+  { model:'gpt52', metric:'accuracy', bench:'MMLU', value:89.6 },
+  { model:'gpt52', metric:'accuracy', bench:'GPQA', value:93.2 },
+  { model:'gpt5', metric:'accuracy', bench:'MATH', value:100.0 },
+  { model:'gpt5', metric:'accuracy', bench:'GPQA', value:89.4 },
+  { model:'gpt5', metric:'accuracy', bench:'LCB', value:80 },
+  { model:'o3', metric:'accuracy', bench:'MMLU', value:91.6 },
+  { model:'o3', metric:'accuracy', bench:'HumanEval', value:81.3 },
+  { model:'o3', metric:'accuracy', bench:'MATH', value:96.7 },
+  { model:'o3', metric:'accuracy', bench:'GPQA', value:87.7 },
+  { model:'o4mini', metric:'accuracy', bench:'MATH', value:99.5 },
+  { model:'o4mini', metric:'accuracy', bench:'GPQA', value:81.4 },
+  { model:'gpt4o', metric:'accuracy', bench:'MMLU', value:88.7 },
+  { model:'gpt4o', metric:'accuracy', bench:'HumanEval', value:90.2 },
+  { model:'gpt4o', metric:'accuracy', bench:'MATH', value:76.6 },
+  { model:'gpt4o', metric:'accuracy', bench:'DROP', value:83.4 },
+  { model:'gpt4o', metric:'accuracy', bench:'GPQA', value:53.6 },
+  { model:'gemini3pro', metric:'accuracy', bench:'MMLU', value:91.8 },
+  { model:'gemini3pro', metric:'accuracy', bench:'MATH', value:95.0 },
+  { model:'gemini3pro', metric:'accuracy', bench:'GPQA', value:91.9 },
+  { model:'gemini25pro', metric:'accuracy', bench:'MATH', value:86.7 },
+  { model:'gemini25pro', metric:'accuracy', bench:'GPQA', value:84.0 },
+  { model:'dsv4flash', metric:'accuracy', bench:'LCB', value:91.6 },
+  { model:'dsr1', metric:'accuracy', bench:'MMLU', value:90.8 },
+  { model:'dsr1', metric:'accuracy', bench:'MATH', value:97.3 },
+  { model:'dsr1', metric:'accuracy', bench:'DROP', value:92.2 },
+  { model:'dsr1', metric:'accuracy', bench:'GPQA', value:71.5 },
+  { model:'dsr1', metric:'accuracy', bench:'LCB', value:65.9 },
+  { model:'dsv3', metric:'accuracy', bench:'MMLU', value:88.5 },
+  { model:'dsv3', metric:'accuracy', bench:'HumanEval', value:65.2 },
+  { model:'dsv3', metric:'accuracy', bench:'MATH', value:90.2 },
+  { model:'dsv3', metric:'accuracy', bench:'DROP', value:89.0 },
+  { model:'dsv3', metric:'accuracy', bench:'GPQA', value:59.1 },
+  { model:'dsv3', metric:'accuracy', bench:'LCB', value:65.9 },
+  { model:'dsv32', metric:'accuracy', bench:'GPQA', value:79.9 },
+  { model:'llama4mav', metric:'accuracy', bench:'MATH', value:61.2 },
+  { model:'llama4mav', metric:'accuracy', bench:'GPQA', value:65.1 },
+  { model:'llama33', metric:'accuracy', bench:'HumanEval', value:88.4 },
+  { model:'llama33', metric:'accuracy', bench:'MATH', value:77.0 },
+  { model:'llama33', metric:'accuracy', bench:'GPQA', value:50.5 },
+  { model:'qwen3coder480', metric:'accuracy', bench:'LCB', value:70.7 },
+  { model:'qwen3235', metric:'accuracy', bench:'GPQA', value:81.1 },
+  { model:'qwen2572', metric:'accuracy', bench:'MMLU', value:86.1 },
+  { model:'qwen2572', metric:'accuracy', bench:'HumanEval', value:86.6 },
+  { model:'qwen2572', metric:'accuracy', bench:'MATH', value:83.1 },
+  { model:'qwen2572', metric:'accuracy', bench:'GPQA', value:49.0 },
+  { model:'kimi', metric:'accuracy', bench:'LCB', value:89.6 },
 
-  return registerChart(new Chart(document.getElementById(canvasId), {
-    type: 'bar',
-    data: {
-      labels: rows.map(r => r.label),
-      datasets: [{
-        label: axisLabel,
-        data: rows.map(r => r.value),
-        backgroundColor: rows.map(r => r.color),
-        borderWidth: 0
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      layout: { padding: { right: 28 } },
-      plugins: {
-        legend: { display: false },
-        tooltip: { mode: 'nearest', intersect: false },
-        datalabels: {
-          ...datalabelsConfig,
-          anchor: 'end',
-          align: 'end',
-          offset: 4,
-          color: '#e6e6e6'
-        }
-      },
-      scales: {
-        x: {
-          grid: { color: '#262a33' },
-          ticks: { color: '#9aa0a6' },
-          suggestedMax: 100,
-          title: { display: true, text: axisLabel + ' (%)', color: '#9aa0a6' }
-        },
-        y: {
-          grid: { display: false },
-          ticks: { color: '#e6e6e6', font: { size: 11 } }
-        }
-      }
-    }
-  }));
-}
+  // ---- tool calling: score (suite) ----
+  { model:'coder', metric:'toolScore', suite:'jdhodges', value:90.0 }, { model:'coder', metric:'toolScore', suite:'veerman', value:83.3 },
+  { model:'d27b', metric:'toolScore', suite:'jdhodges', value:95.0 },  { model:'d27b', metric:'toolScore', suite:'veerman', value:83.3 },
+  { model:'a3b35', metric:'toolScore', suite:'jdhodges', value:97.5 }, { model:'a3b35', metric:'toolScore', suite:'veerman', value:75.0 },
+  { model:'g26_4', metric:'toolScore', suite:'jdhodges', value:97.5 }, { model:'g26_4', metric:'toolScore', suite:'veerman', value:83.3 },
+  { model:'g26_6', metric:'toolScore', suite:'jdhodges', value:97.5 }, { model:'g26_6', metric:'toolScore', suite:'veerman', value:83.3 },
+  { model:'g31', metric:'toolScore', suite:'jdhodges', value:97.5 },   { model:'g31', metric:'toolScore', suite:'veerman', value:83.3 },
+  { model:'ge4b', metric:'toolScore', suite:'jdhodges', value:87.5 },  { model:'ge4b', metric:'toolScore', suite:'veerman', value:66.7 },
+  { model:'a1', metric:'toolScore', suite:'jdhodges', value:92.5 },    { model:'a1', metric:'toolScore', suite:'veerman', value:83.3 },
 
-buildRefChart('chartRefMMLU',      'MMLU',         'MMLU');
-buildRefChart('chartRefHumanEval', 'HumanEval',    'HumanEval');
-buildRefChart('chartRefMATH',      'MATH',         'MATH');
-buildRefChart('chartRefDROP',      'DROP',         'DROP F1');
-buildRefChart('chartRefGPQA',      'GPQA',         'GPQA Diamond');
-buildRefChart('chartRefLCB',       'LiveCodeBench','LiveCodeBench v6');
+  // ---- tool calling: throughput (suite) ----
+  { model:'coder', metric:'toolTps', suite:'jdhodges', value:18.55 }, { model:'coder', metric:'toolTps', suite:'veerman', value:35.38 },
+  { model:'d27b', metric:'toolTps', suite:'jdhodges', value:14.47 },  { model:'d27b', metric:'toolTps', suite:'veerman', value:18.40 },
+  { model:'a3b35', metric:'toolTps', suite:'jdhodges', value:72.35 }, { model:'a3b35', metric:'toolTps', suite:'veerman', value:85.81 },
+  { model:'g26_4', metric:'toolTps', suite:'jdhodges', value:73.36 }, { model:'g26_4', metric:'toolTps', suite:'veerman', value:82.08 },
+  { model:'g26_6', metric:'toolTps', suite:'jdhodges', value:57.85 }, { model:'g26_6', metric:'toolTps', suite:'veerman', value:66.58 },
+  { model:'g31', metric:'toolTps', suite:'jdhodges', value:11.39 },   { model:'g31', metric:'toolTps', suite:'veerman', value:12.33 },
+  { model:'ge4b', metric:'toolTps', suite:'jdhodges', value:42.50 },  { model:'ge4b', metric:'toolTps', suite:'veerman', value:60.30 },
+  { model:'a1', metric:'toolTps', suite:'jdhodges', value:67.44 },    { model:'a1', metric:'toolTps', suite:'veerman', value:75.10 },
 
-// Toggle wiring
-document.getElementById('toggleLabels').addEventListener('change', (e) => {
-  labelsOn = e.target.checked;
-  charts.forEach(c => c.update());
+  // ---- generation throughput (scenario) ----
+  { model:'coder', metric:'genTps', scenario:'creative-writing', value:70.2 }, { model:'coder', metric:'genTps', scenario:'doc-summary', value:69.9 }, { model:'coder', metric:'genTps', scenario:'ops-agent', value:67.9 }, { model:'coder', metric:'genTps', scenario:'prefill-test', value:68.0 },
+  { model:'d27b', metric:'genTps', scenario:'creative-writing', value:20.7 }, { model:'d27b', metric:'genTps', scenario:'doc-summary', value:20.2 }, { model:'d27b', metric:'genTps', scenario:'ops-agent', value:20.0 }, { model:'d27b', metric:'genTps', scenario:'prefill-test', value:20.4 },
+  { model:'a3b35', metric:'genTps', scenario:'creative-writing', value:91.6 }, { model:'a3b35', metric:'genTps', scenario:'doc-summary', value:91.7 }, { model:'a3b35', metric:'genTps', scenario:'ops-agent', value:85.5 }, { model:'a3b35', metric:'genTps', scenario:'prefill-test', value:85.5 },
+  { model:'g26_4', metric:'genTps', scenario:'creative-writing', value:106.0 }, { model:'g26_4', metric:'genTps', scenario:'doc-summary', value:107.6 }, { model:'g26_4', metric:'genTps', scenario:'ops-agent', value:100.3 }, { model:'g26_4', metric:'genTps', scenario:'prefill-test', value:99.2 },
+  { model:'g26_6', metric:'genTps', scenario:'creative-writing', value:85.3 }, { model:'g26_6', metric:'genTps', scenario:'doc-summary', value:85.9 }, { model:'g26_6', metric:'genTps', scenario:'ops-agent', value:80.8 }, { model:'g26_6', metric:'genTps', scenario:'prefill-test', value:80.9 },
+  { model:'g31', metric:'genTps', scenario:'creative-writing', value:13.9 }, { model:'g31', metric:'genTps', scenario:'doc-summary', value:14.3 }, { model:'g31', metric:'genTps', scenario:'ops-agent', value:13.7 }, { model:'g31', metric:'genTps', scenario:'prefill-test', value:13.6 },
+  { model:'ge4b', metric:'genTps', scenario:'creative-writing', value:73.7 }, { model:'ge4b', metric:'genTps', scenario:'doc-summary', value:75.4 }, { model:'ge4b', metric:'genTps', scenario:'ops-agent', value:70.9 }, { model:'ge4b', metric:'genTps', scenario:'prefill-test', value:69.3 },
+  { model:'a1', metric:'genTps', scenario:'ops-agent', value:82.1 },
+
+  // ---- effective throughput (scenario) ----
+  { model:'coder', metric:'effTps', scenario:'creative-writing', value:67.8 }, { model:'coder', metric:'effTps', scenario:'doc-summary', value:45.6 }, { model:'coder', metric:'effTps', scenario:'ops-agent', value:55.8 }, { model:'coder', metric:'effTps', scenario:'prefill-test', value:20.6 },
+  { model:'d27b', metric:'effTps', scenario:'creative-writing', value:19.9 }, { model:'d27b', metric:'effTps', scenario:'doc-summary', value:11.2 }, { model:'d27b', metric:'effTps', scenario:'ops-agent', value:16.2 }, { model:'d27b', metric:'effTps', scenario:'prefill-test', value:4.0 },
+  { model:'a3b35', metric:'effTps', scenario:'creative-writing', value:86.9 }, { model:'a3b35', metric:'effTps', scenario:'doc-summary', value:55.9 }, { model:'a3b35', metric:'effTps', scenario:'ops-agent', value:71.4 }, { model:'a3b35', metric:'effTps', scenario:'prefill-test', value:22.9 },
+  { model:'g26_4', metric:'effTps', scenario:'creative-writing', value:99.9 }, { model:'g26_4', metric:'effTps', scenario:'doc-summary', value:55.8 }, { model:'g26_4', metric:'effTps', scenario:'ops-agent', value:80.7 }, { model:'g26_4', metric:'effTps', scenario:'prefill-test', value:17.9 },
+  { model:'g26_6', metric:'effTps', scenario:'creative-writing', value:80.5 }, { model:'g26_6', metric:'effTps', scenario:'doc-summary', value:46.9 }, { model:'g26_6', metric:'effTps', scenario:'ops-agent', value:66.6 }, { model:'g26_6', metric:'effTps', scenario:'prefill-test', value:20.5 },
+  { model:'g31', metric:'effTps', scenario:'creative-writing', value:13.6 }, { model:'g31', metric:'effTps', scenario:'doc-summary', value:8.0 }, { model:'g31', metric:'effTps', scenario:'ops-agent', value:10.3 }, { model:'g31', metric:'effTps', scenario:'prefill-test', value:3.3 },
+  { model:'ge4b', metric:'effTps', scenario:'creative-writing', value:69.5 }, { model:'ge4b', metric:'effTps', scenario:'doc-summary', value:46.1 }, { model:'ge4b', metric:'effTps', scenario:'ops-agent', value:62.9 }, { model:'ge4b', metric:'effTps', scenario:'prefill-test', value:29.1 },
+  { model:'a1', metric:'effTps', scenario:'ops-agent', value:35.9 },
+
+  // ---- prefill degradation (context length) ----
+  { model:'coder', metric:'prefillEffTps', context:655, value:40.8 }, { model:'coder', metric:'prefillEffTps', context:1453, value:39.8 }, { model:'coder', metric:'prefillEffTps', context:3015, value:28.3 }, { model:'coder', metric:'prefillEffTps', context:8496, value:9.0 },
+  { model:'d27b', metric:'prefillEffTps', context:655, value:10.6 }, { model:'d27b', metric:'prefillEffTps', context:1453, value:9.5 }, { model:'d27b', metric:'prefillEffTps', context:3015, value:5.0 }, { model:'d27b', metric:'prefillEffTps', context:8496, value:1.9 },
+  { model:'a3b35', metric:'prefillEffTps', context:655, value:54.1 }, { model:'a3b35', metric:'prefillEffTps', context:1453, value:48.6 }, { model:'a3b35', metric:'prefillEffTps', context:3015, value:31.2 }, { model:'a3b35', metric:'prefillEffTps', context:8496, value:9.0 },
+  { model:'g26_4', metric:'prefillEffTps', context:655, value:53.2 }, { model:'g26_4', metric:'prefillEffTps', context:1453, value:49.3 }, { model:'g26_4', metric:'prefillEffTps', context:3015, value:32.2 }, { model:'g26_4', metric:'prefillEffTps', context:8496, value:7.4 },
+  { model:'g26_6', metric:'prefillEffTps', context:655, value:45.2 }, { model:'g26_6', metric:'prefillEffTps', context:1453, value:43.1 }, { model:'g26_6', metric:'prefillEffTps', context:3015, value:29.3 }, { model:'g26_6', metric:'prefillEffTps', context:8496, value:9.8 },
+  { model:'g31', metric:'prefillEffTps', context:655, value:8.1 }, { model:'g31', metric:'prefillEffTps', context:1453, value:7.3 }, { model:'g31', metric:'prefillEffTps', context:3015, value:4.6 }, { model:'g31', metric:'prefillEffTps', context:8496, value:1.5 },
+  { model:'ge4b', metric:'prefillEffTps', context:655, value:52.0 }, { model:'ge4b', metric:'prefillEffTps', context:1453, value:47.7 }, { model:'ge4b', metric:'prefillEffTps', context:3015, value:36.1 }, { model:'ge4b', metric:'prefillEffTps', context:8496, value:15.5 },
+
+  // ---- speed probe: total wall-clock (prompt) ----
+  { model:'coder', metric:'probeSeconds', prompt:'2+2', value:0.25 }, { model:'coder', metric:'probeSeconds', prompt:'mmlu', value:0.37 }, { model:'coder', metric:'probeSeconds', prompt:'code', value:0.89 }, { model:'coder', metric:'probeSeconds', prompt:'total', value:1.51 },
+  { model:'d27b', metric:'probeSeconds', prompt:'2+2', value:6.5 }, { model:'d27b', metric:'probeSeconds', prompt:'mmlu', value:16.4 }, { model:'d27b', metric:'probeSeconds', prompt:'code', value:51.5 }, { model:'d27b', metric:'probeSeconds', prompt:'total', value:74.4 },
+  { model:'a3b35', metric:'probeSeconds', prompt:'2+2', value:2.0 }, { model:'a3b35', metric:'probeSeconds', prompt:'mmlu', value:2.96 }, { model:'a3b35', metric:'probeSeconds', prompt:'code', value:10.87 }, { model:'a3b35', metric:'probeSeconds', prompt:'total', value:15.83 },
+
+  // ---- speed probe: reasoning tokens (prompt) ----
+  { model:'coder', metric:'probeReasonTok', prompt:'2+2', value:0 }, { model:'coder', metric:'probeReasonTok', prompt:'mmlu', value:0 }, { model:'coder', metric:'probeReasonTok', prompt:'code', value:0 },
+  { model:'d27b', metric:'probeReasonTok', prompt:'2+2', value:116 }, { model:'d27b', metric:'probeReasonTok', prompt:'mmlu', value:311 }, { model:'d27b', metric:'probeReasonTok', prompt:'code', value:1023 },
+  { model:'a3b35', metric:'probeReasonTok', prompt:'2+2', value:165 }, { model:'a3b35', metric:'probeReasonTok', prompt:'mmlu', value:256 }, { model:'a3b35', metric:'probeReasonTok', prompt:'code', value:1023 },
+
+  // ---- elapsed minutes per bench ----
+  { model:'coder', metric:'elapsedMin', bench:'HumanEval', value:16.6 }, { model:'coder', metric:'elapsedMin', bench:'MMLU', value:13.6 }, { model:'coder', metric:'elapsedMin', bench:'MATH', value:45.1 }, { model:'coder', metric:'elapsedMin', bench:'DROP', value:13.7 }, { model:'coder', metric:'elapsedMin', bench:'GPQA', value:13.9 }, { model:'coder', metric:'elapsedMin', bench:'LCB', value:42.0 },
+  { model:'d27b', metric:'elapsedMin', bench:'HumanEval', value:186.3 }, { model:'d27b', metric:'elapsedMin', bench:'MMLU', value:99.1 }, { model:'d27b', metric:'elapsedMin', bench:'MATH', value:603.6 }, { model:'d27b', metric:'elapsedMin', bench:'DROP', value:88.3 }, { model:'d27b', metric:'elapsedMin', bench:'GPQA', value:1332.4 }, { model:'d27b', metric:'elapsedMin', bench:'LCB', value:969.9 },
+  { model:'a3b35', metric:'elapsedMin', bench:'HumanEval', value:58.1 }, { model:'a3b35', metric:'elapsedMin', bench:'MMLU', value:56.9 }, { model:'a3b35', metric:'elapsedMin', bench:'MATH', value:206.6 }, { model:'a3b35', metric:'elapsedMin', bench:'DROP', value:27.1 }, { model:'a3b35', metric:'elapsedMin', bench:'GPQA', value:388.6 }, { model:'a3b35', metric:'elapsedMin', bench:'LCB', value:275.3 },
+  { model:'g26_4', metric:'elapsedMin', bench:'HumanEval', value:15.7 }, { model:'g26_4', metric:'elapsedMin', bench:'MMLU', value:12.5 }, { model:'g26_4', metric:'elapsedMin', bench:'MATH', value:36.2 }, { model:'g26_4', metric:'elapsedMin', bench:'DROP', value:12.4 }, { model:'g26_4', metric:'elapsedMin', bench:'GPQA', value:37.3 }, { model:'g26_4', metric:'elapsedMin', bench:'LCB', value:74.9 },
+  { model:'g26_6', metric:'elapsedMin', bench:'HumanEval', value:16.1 }, { model:'g26_6', metric:'elapsedMin', bench:'MMLU', value:12.3 }, { model:'g26_6', metric:'elapsedMin', bench:'MATH', value:25.5 }, { model:'g26_6', metric:'elapsedMin', bench:'DROP', value:12.4 }, { model:'g26_6', metric:'elapsedMin', bench:'GPQA', value:54.1 }, { model:'g26_6', metric:'elapsedMin', bench:'LCB', value:49.7 },
+  { model:'g31', metric:'elapsedMin', bench:'HumanEval', value:37.7 }, { model:'g31', metric:'elapsedMin', bench:'MMLU', value:14.5 }, { model:'g31', metric:'elapsedMin', bench:'MATH', value:null }, { model:'g31', metric:'elapsedMin', bench:'DROP', value:null }, { model:'g31', metric:'elapsedMin', bench:'GPQA', value:null }, { model:'g31', metric:'elapsedMin', bench:'LCB', value:73.5 }
+];
+
+// ---------------------------------------------------------------------------
+// Derivation helpers + wiring
+// ---------------------------------------------------------------------------
+const byId  = C.indexModels(MODELS);
+const LOCAL = MODELS.filter(m => m.tier === 'local');
+const state = C.createFilterState(MODELS);
+
+C.createFilterBar(document.getElementById('filterBar'), state, {
+  sections: [
+    { id:'sec-overview',    label:'Overview' },
+    { id:'sec-coding',      label:'Coding' },
+    { id:'sec-knowledge',   label:'Knowledge' },
+    { id:'sec-tools',       label:'Tool use' },
+    { id:'sec-performance', label:'Performance' }
+  ]
 });
 
-// --- Sortable scoreboard wiring ---
-function setupSortableTable(tableId, defaultSortCol = null, defaultDir = -1) {
-  const table = document.getElementById(tableId);
-  if (!table) return;
-  const headers = Array.from(table.querySelectorAll('thead th'));
-  const tbody = table.querySelector('tbody');
-  const originalOrder = Array.from(tbody.querySelectorAll('tr'));
-  let state = { col: null, dir: 1 };
-
-  function sortBy(idx, dir) {
-    const th = headers[idx];
-    const sortType = th.dataset.sort;
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    rows.sort((a, b) => {
-      const av = (a.children[idx].dataset.value ?? a.children[idx].textContent).trim();
-      const bv = (b.children[idx].dataset.value ?? b.children[idx].textContent).trim();
-      if (sortType === 'num') {
-        const an = parseFloat(av), bn = parseFloat(bv);
-        const aNaN = isNaN(an), bNaN = isNaN(bn);
-        if (aNaN && bNaN) return 0;
-        if (aNaN) return 1;   // missing values always at the bottom
-        if (bNaN) return -1;
-        return (an - bn) * dir;
-      }
-      return av.localeCompare(bv) * dir;
-    });
-    rows.forEach(r => tbody.appendChild(r));
-    headers.forEach(h => h.removeAttribute('data-sorted'));
-    th.setAttribute('data-sorted', dir === 1 ? 'asc' : 'desc');
-    state = { col: idx, dir };
-  }
-
-  headers.forEach((th, idx) => {
-    if (!th.dataset.sort) return;
-    th.addEventListener('click', () => {
-      // First click on a numeric column: descending (highest first). Subsequent clicks toggle.
-      let dir;
-      if (state.col === idx) dir = -state.dir;
-      else dir = th.dataset.sort === 'num' ? -1 : 1;
-      sortBy(idx, dir);
-    });
-  });
-
-  // Double-click any header to reset to original document order
-  headers.forEach(th => th.addEventListener('dblclick', () => {
-    originalOrder.forEach(r => tbody.appendChild(r));
-    headers.forEach(h => h.removeAttribute('data-sorted'));
-    state = { col: null, dir: 1 };
-  }));
-
-  if (defaultSortCol !== null) sortBy(defaultSortCol, defaultDir);
+const ACC_BENCHES = ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA'];
+const SCENARIOS   = ['creative-writing', 'doc-summary', 'ops-agent', 'prefill-test'];
+const refLabel    = m => (m.refLabel || m.label) + (m.refNote ? ' ' + m.refNote : '');
+const val         = (id, q) => C.metricValue(RESULTS, id, q);
+function dset(id, label, data, extra) {
+  return Object.assign({ modelId:id, label:label, backgroundColor: byId.get(id).color, data:data }, extra || {});
 }
 
-function highlightBestPerColumn(tableId) {
-  const table = document.getElementById(tableId);
-  if (!table) return;
-  const headers = Array.from(table.querySelectorAll('thead th'));
-  const rows = Array.from(table.querySelectorAll('tbody tr'));
-  headers.forEach((th, idx) => {
-    if (th.dataset.sort !== 'num') return;
-    let best = -Infinity;
-    let bestCells = [];
-    rows.forEach(r => {
-      const cell = r.children[idx];
-      const v = parseFloat(cell.textContent.trim());
-      if (isNaN(v)) return;
-      if (v > best) { best = v; bestCells = [cell]; }
-      else if (v === best) bestCells.push(cell);
-    });
-    bestCells.forEach(c => c.classList.add('best'));
+// --- Accuracy (grouped, 5 benches) ---
+C.buildGroupedChart('chartAccuracy', {
+  state: state,
+  labels: ACC_BENCHES,
+  datasets: [
+    dset('coder', 'qwen3-coder-next (80B 6-bit)', C.seriesFor(RESULTS,'coder',{metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('d27b',  'qwen3.6-27b (dense 6-bit)',     C.seriesFor(RESULTS,'d27b', {metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('a3b35', 'qwen3.6-35b-a3b (MoE 6-bit)',   C.seriesFor(RESULTS,'a3b35',{metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('g26_4', 'gemma-4-26b-a4b (MoE 4-bit)',   C.seriesFor(RESULTS,'g26_4',{metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('g26_6', 'gemma-4-26b-a4b (MoE 6-bit)',   C.seriesFor(RESULTS,'g26_6',{metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('g31',   'gemma-4-31b (dense 8-bit)',     C.seriesFor(RESULTS,'g31',  {metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('ge4b',  'gemma-4-e4b (4B 8-bit)',        C.seriesFor(RESULTS,'ge4b', {metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('a1',    'agents-a1-xl-mlx (MoE 6-bit)',  C.seriesFor(RESULTS,'a1',   {metric:'accuracy'},ACC_BENCHES,'bench'))
+  ],
+  options: C.gridOpts('Pass rate (%)', 100)
+});
+
+// --- LiveCodeBench v6 (grouped, single bench) ---
+C.buildGroupedChart('chartLCB', {
+  state: state,
+  labels: ['LiveCodeBench v6 (n=50)'],
+  datasets: LOCAL.map(m => dset(m.id, m.chartLabel, [val(m.id, {metric:'accuracy', bench:'LCB'})])),
+  options: C.gridOpts('Pass rate (%)', 100)
+});
+
+// --- Terminal-Bench 2.0 (grouped, ranked order, per-model fraction labels) ---
+const TB_ORDER = [['coder','29/89'],['d27b','28/89'],['a3b35','25/89'],['g31','20/89'],['g26_6','19/89'],['g26_4','18/89'],['ge4b','4/89']];
+C.buildGroupedChart('chartTBench', {
+  state: state,
+  labels: ['Terminal-Bench 2.0 (n=89)'],
+  datasets: TB_ORDER.map(([id, frac]) => dset(id, byId.get(id).chartLabel + ' — ' + frac, [val(id, {metric:'accuracy', bench:'TBench'})])),
+  options: C.gridOpts('Pass rate (%)', 100)
+});
+
+// --- Tool calling: score ---
+const TOOL_LABELS = [['coder','qwen3-coder-next'],['d27b','qwen3.6-27b'],['a3b35','qwen3.6-35b-a3b'],['g26_4','gemma-4-26b-a4b @4bit'],['g26_6','gemma-4-26b-a4b @6bit'],['g31','gemma-4-31b dense'],['ge4b','gemma-4-e4b (4B)'],['a1','agents-a1-xl-mlx']];
+C.buildGroupedChart('chartToolScore', {
+  state: state,
+  labels: ['jdhodges (40q)', 'veerman (12q)'],
+  datasets: TOOL_LABELS.map(([id, label]) => dset(id, label, [val(id,{metric:'toolScore',suite:'jdhodges'}), val(id,{metric:'toolScore',suite:'veerman'})])),
+  options: C.gridOpts('Score (%)', 100)
+});
+
+// --- Tool calling: throughput ---
+C.buildGroupedChart('chartToolTps', {
+  state: state,
+  labels: ['jdhodges', 'veerman'],
+  datasets: TOOL_LABELS.map(([id, label]) => dset(id, label, [val(id,{metric:'toolTps',suite:'jdhodges'}), val(id,{metric:'toolTps',suite:'veerman'})])),
+  options: C.gridOpts('tok/s (token-weighted)')
+});
+
+// --- Generation throughput by scenario ---
+const GEN_LABELS = [['coder','qwen3-coder-next (80B MoE)'],['d27b','qwen3.6-27b (dense)'],['a3b35','qwen3.6-35b-a3b (MoE, MLX)'],['g26_4','gemma-4-26b-a4b @4bit (MoE)'],['g26_6','gemma-4-26b-a4b @6bit (MoE)'],['g31','gemma-4-31b @8bit (dense)'],['ge4b','gemma-4-e4b @8bit (4B)'],['a1','agents-a1-xl-mlx (MoE)']];
+C.buildGroupedChart('chartGenTps', {
+  state: state,
+  labels: SCENARIOS,
+  datasets: GEN_LABELS.map(([id, label]) => dset(id, label, C.seriesFor(RESULTS, id, {metric:'genTps'}, SCENARIOS, 'scenario'))),
+  options: C.gridOpts('Avg generation tok/s')
+});
+
+// --- Effective throughput by scenario ---
+C.buildGroupedChart('chartEffectiveTps', {
+  state: state,
+  labels: SCENARIOS,
+  datasets: TOOL_LABELS.map(([id, label]) => dset(id, label, C.seriesFor(RESULTS, id, {metric:'effTps'}, SCENARIOS, 'scenario'))),
+  options: C.gridOpts('Avg effective tok/s')
+});
+
+// --- Prefill degradation (line, linear x) ---
+const PREFILL_CTX = [655, 1453, 3015, 8496];
+const PREFILL = [['coder','qwen3-coder-next','top'],['d27b','qwen3.6-27b','bottom'],['a3b35','qwen3.6-35b-a3b','top'],['g26_4','gemma-4-26b-a4b @4bit','top'],['g26_6','gemma-4-26b-a4b @6bit','bottom'],['g31','gemma-4-31b dense','bottom'],['ge4b','gemma-4-e4b (4B)','top']];
+C.buildGroupedChart('chartPrefill', {
+  state: state,
+  type: 'line',
+  labels: PREFILL_CTX,
+  datasets: PREFILL.map(([id, label, align]) => {
+    const m = byId.get(id);
+    return { modelId:id, label:label, borderColor:m.color, backgroundColor:m.color,
+      data: C.seriesFor(RESULTS, id, {metric:'prefillEffTps'}, PREFILL_CTX, 'context'),
+      tension:0.25, datalabels:{ align:align, color:m.color } };
+  }),
+  options: Object.assign({}, C.gridOpts('Effective tok/s'), {
+    scales: {
+      x: { type:'linear', grid:{ color:'#262a33' }, ticks:{ color:'#9aa0a6' }, title:{ display:true, text:'Context length (tokens)', color:'#9aa0a6' } },
+      y: { grid:{ color:'#262a33' }, ticks:{ color:'#9aa0a6' }, title:{ display:true, text:'Effective tok/s', color:'#9aa0a6' }, beginAtZero:true }
+    }
+  })
+});
+
+// --- Speed probe: total wall-clock ---
+const PROBE = [['coder','qwen3-coder-next'],['d27b','qwen3.6-27b'],['a3b35','qwen3.6-35b-a3b']];
+C.buildGroupedChart('chartProbeTotal', {
+  state: state,
+  labels: ['2+2', 'MMLU atmos.', 'code 2nd-largest', 'Total'],
+  datasets: PROBE.map(([id, label]) => dset(id, label, C.seriesFor(RESULTS, id, {metric:'probeSeconds'}, ['2+2','mmlu','code','total'], 'prompt'))),
+  options: C.gridOpts('Seconds')
+});
+
+// --- Speed probe: reasoning tokens ---
+C.buildGroupedChart('chartProbeReason', {
+  state: state,
+  labels: ['2+2', 'MMLU atmos.', 'code 2nd-largest'],
+  datasets: PROBE.map(([id, label]) => dset(id, label, C.seriesFor(RESULTS, id, {metric:'probeReasonTok'}, ['2+2','mmlu','code'], 'prompt'))),
+  options: C.gridOpts('Reasoning tokens emitted')
+});
+
+// --- Elapsed per bench ---
+const ELAPSED_BENCHES = ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA', 'LCB'];
+const ELAPSED = [['coder','qwen3-coder-next'],['d27b','qwen3.6-27b'],['a3b35','qwen3.6-35b-a3b'],['g26_4','gemma-4-26b-a4b @4bit'],['g26_6','gemma-4-26b-a4b @6bit'],['g31','gemma-4-31b dense']];
+C.buildGroupedChart('chartElapsed', {
+  state: state,
+  labels: ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA', 'LiveCodeBench (n=50)'],
+  datasets: ELAPSED.map(([id, label]) => dset(id, label, C.seriesFor(RESULTS, id, {metric:'elapsedMin'}, ELAPSED_BENCHES, 'bench'))),
+  options: C.gridOpts('Minutes')
+});
+
+// --- Ranked "vs frontier" charts (derive from RESULTS; drop & re-rank on filter) ---
+[
+  ['chartRefMMLU',      'MMLU',      'MMLU'],
+  ['chartRefHumanEval', 'HumanEval', 'HumanEval'],
+  ['chartRefMATH',      'MATH',      'MATH'],
+  ['chartRefDROP',      'DROP',      'DROP F1'],
+  ['chartRefGPQA',      'GPQA',      'GPQA Diamond'],
+  ['chartRefLCB',       'LCB',       'LiveCodeBench v6']
+].forEach(([canvasId, bench, axisLabel]) => {
+  C.buildRankedChart(canvasId, {
+    state: state, models: MODELS, results: RESULTS,
+    query: { metric:'accuracy', bench:bench }, axisLabel: axisLabel, labelFn: refLabel
   });
-}
+});
 
-setupSortableTable('scoreboardMain');
-highlightBestPerColumn('scoreboardMain');
+// --- Scoreboard (generated tbody) ---
+C.buildScoreboard(document.getElementById('scoreboardMain'), LOCAL, RESULTS, [
+  { kind:'num', query:{metric:'accuracy', bench:'HumanEval'}, fmt:C.fmtInt },
+  { kind:'num', query:{metric:'accuracy', bench:'MMLU'},      fmt:C.fmtInt },
+  { kind:'num', query:{metric:'accuracy', bench:'MATH'},      fmt:C.fmtInt },
+  { kind:'num', query:{metric:'accuracy', bench:'DROP'},      fmt:C.fmtInt },
+  { kind:'num', query:{metric:'accuracy', bench:'GPQA'},      fmt:C.fmtInt },
+  { kind:'num', query:{metric:'accuracy', bench:'LCB'},       fmt:C.fmtInt },
+  { kind:'num', query:{metric:'accuracy', bench:'TBench'} },
+  { kind:'num', query:{metric:'toolScore', suite:'jdhodges'} },
+  { kind:'num', query:{metric:'toolScore', suite:'veerman'} },
+  { kind:'num', query:{metric:'genTps', scenario:'creative-writing'} },
+  { kind:'num', query:{metric:'effTps', scenario:'creative-writing'} }
+]);
+C.setupSortableTable('scoreboardMain');
+C.highlightBestPerColumn('scoreboardMain');
+state.onChange(st => C.applyTableFilter('scoreboardMain', state, { highlight:true }));
+state.onChange(st => C.applyTableFilter('modelsTable', state, {}));
 
-// --- 9. Elapsed per 100-question run ---
-registerChart(new Chart(document.getElementById('chartElapsed'), {
-  type: 'bar',
-  data: {
-    labels: ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA', 'LiveCodeBench (n=50)'],
-    datasets: [
-      { label: 'qwen3-coder-next',         backgroundColor: COLOR.coder, data: [16.6,  13.6, 45.1,  13.7, 13.9,  42.0] },
-      { label: 'qwen3.6-27b',              backgroundColor: COLOR.d27b,  data: [186.3, 99.1, 603.6, 88.3, 1332.4, 969.9] },
-      { label: 'qwen3.6-35b-a3b',          backgroundColor: COLOR.a3b35, data: [58.1,  56.9, 206.6, 27.1, 388.6, 275.3] },
-      { label: 'gemma-4-26b-a4b @4bit',    backgroundColor: COLOR.g26_4, data: [15.7,  12.5, 36.2,  12.4, 37.3,  74.9] },
-      { label: 'gemma-4-26b-a4b @6bit',    backgroundColor: COLOR.g26_6, data: [16.1,  12.3, 25.5,  12.4, 54.1,  49.7] },
-      { label: 'gemma-4-31b dense',        backgroundColor: COLOR.g31,   data: [37.7,  14.5, null,  null, null,  73.5] }
-    ]
-  },
-  options: gridOpts('Minutes')
-}));
+// --- Quality-vs-speed scatter ---
+C.buildScatterChart('chartScatter', {
+  state: state, models: LOCAL, results: RESULTS,
+  xQuery: { metric:'genTps', scenario:'creative-writing' },
+  xLabel: 'Generation tok/s (creative-writing)',
+  accuracyMetric: 'accuracy',
+  compositeBenches: ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA', 'LCB'],
+  radiusFn: d => 4 + Math.sqrt(d) * 1.7,
+  selectEl: document.getElementById('scatterBench')
+});
+
+// --- Model radar ---
+C.buildRadarChart('chartRadar', {
+  state: state, models: LOCAL, results: RESULTS,
+  pickerContainer: document.getElementById('radarPicker'),
+  axes: [
+    { label:'HumanEval', query:{metric:'accuracy', bench:'HumanEval'} },
+    { label:'MMLU',      query:{metric:'accuracy', bench:'MMLU'} },
+    { label:'MATH',      query:{metric:'accuracy', bench:'MATH'} },
+    { label:'DROP',      query:{metric:'accuracy', bench:'DROP'} },
+    { label:'GPQA',      query:{metric:'accuracy', bench:'GPQA'} },
+    { label:'LCB',       query:{metric:'accuracy', bench:'LCB'} },
+    { label:'T-Bench',   query:{metric:'accuracy', bench:'TBench'} },
+    { label:'jdhodges',  query:{metric:'toolScore', suite:'jdhodges'} }
+  ],
+  defaultSelection: ['d27b', 'coder', 'g26_6'],
+  maxSelected: 3
+});
+
+// --- Data-label toggle ---
+C.bindLabelToggle(document.getElementById('toggleLabels'));
 </script>
 
 </body>
