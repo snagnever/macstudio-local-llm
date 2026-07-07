@@ -63,7 +63,7 @@ Source: [M4_MAX_128GB_NOTES.md § kimi-dev-72b](../../tools/local-llm-bench-m4-3
 - Disqualified as a daily-driver / agentic model **regardless of coding quality**: too slow, no structured tool calling, and a mandatory unparsed thinking spiral on top.
 - **Revisit only if a faster path appears:** a lighter quant that keeps the SWE quality, a speculative-decoding draft model (LM Studio supports `--speculative-draft-*`), or a smaller Kimi-Dev distillation.
 
-Plans: [2026-07-05-phase-5-new-arrivals.md](../benchmark-plans/2026-07-05-phase-5-new-arrivals.md) (§ seq 3) · verdict recorded in [testing-plan.md](../testing-plan.md) (#14).
+Plans: [2026-07-05-phase-5-new-arrivals.md](../../bench/phase-5-new-arrivals/plan.md) (§ seq 3) · verdict recorded in [testing-plan.md](../testing-plan.md) (#14).
 
 ## Known issues & fixes
 
@@ -91,4 +91,4 @@ Plans: [2026-07-05-phase-5-new-arrivals.md](../benchmark-plans/2026-07-05-phase-
 - GGUF conversion: https://huggingface.co/unsloth/Kimi-Dev-72B-GGUF (UD-Q6_K_XL 67.2 GB; range UD-IQ1_S 23 GB → Q8_0 77.3 GB / UD-Q8_K_XL 84 GB; BF16 145 GB)
 
 ## History
-- **2026-07-05** — Phase-5 seq 3, ran first. Load clean 36 s, pre-flight PASS; 3× speed probes ≈ 7 t/s (compute-bound, memory-invariant); tool-call probe `tool_calls: []`. ⛔ **NO-GO on speed**; coding-quality tail deferred. Verdicts in [testing-plan.md](../testing-plan.md) (#14), [M4 notes](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md), and the [phase-5 plan](../benchmark-plans/2026-07-05-phase-5-new-arrivals.md).
+- **2026-07-05** — Phase-5 seq 3, ran first. Load clean 36 s, pre-flight PASS; 3× speed probes ≈ 7 t/s (compute-bound, memory-invariant); tool-call probe `tool_calls: []`. ⛔ **NO-GO on speed**; coding-quality tail deferred. Verdicts in [testing-plan.md](../testing-plan.md) (#14), [M4 notes](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md), and the [phase-5 plan](../../bench/phase-5-new-arrivals/plan.md).

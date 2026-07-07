@@ -1,38 +1,54 @@
 # macstudio-local-llm
 
 Benchmarking workspace for the local LLMs running on this Mac Studio M4 Max
-(128 GB unified memory). Centralises the benchmarking **tools**, the **raw
-results** they produce, the **dashboards** that visualise them, and the
-**model reference** that maps each model to its best use case.
+(128 GB unified memory). It centralises the benchmarking **tools**, the
+per-campaign **runs** they produce, the **dashboards** that visualise them, the
+**model reference** that maps each model to its best use case, and the
+**fixes** applied to make specific models work on this stack.
+
+> **New here? Read [AGENTS.md](AGENTS.md).** It's the map: what each directory is
+> for and where a new file belongs. Following it keeps the layout coherent.
 
 ## Layout
 
 ```
 .
-├── docs/                          Reference & hardware docs
-│   ├── machine-configuration.md   Chip, RAM, OS
-│   ├── local-llm-reference.md     Which model to reach for, per task
-│   └── testing-plan.md            Master benchmarking plan (phases, status, next steps)
+├── AGENTS.md                     Organization contract — where everything goes
+├── CLAUDE.md                     Pointer to AGENTS.md for Claude Code sessions
 │
-├── tools/                         Benchmarking tools (git submodules)
-│   ├── local-llm-bench-m4-32gb/   Knowledge + tool-calling (MMLU, HE, MATH, DROP, GPQA, LCB)
-│   ├── local-llm-bench/           Scenario / real-workflow (ops-agent, doc-summary, tok/s)
-│   └── scripts/
-│       └── toggle-thinking.py     Toggle Qwen `enable_thinking` for A/B benches
+├── docs/                         Reference & hardware docs (stable, not per-run)
+│   ├── machine-configuration.md  Chip, RAM, OS
+│   ├── local-llm-reference.md    Which model to reach for, per task
+│   ├── testing-plan.md           Master plan: phases, status, per-model verdicts
+│   ├── models/                   One card per model (flat file, or folder when
+│   │                             it has writeups: README.md = card + writeups)
+│   └── mlx-lm/                   Runtime writeups not tied to one model
 │
-├── reports/                       Self-contained Chart.js dashboards
-│   ├── benchmark-charts.html      Local-model scores across all benches
-│   ├── quality-benchmarks-charts.html  Local vs frontier models
-│   └── README.md                  How to refresh the dashboards
+├── bench/                        Benchmark campaigns (one dir per campaign)
+│   └── <campaign>/
+│       ├── plan.md               Runbook (plan-<topic>.md if several)
+│       ├── scripts/              Driver .sh + probe .py            (tracked)
+│       ├── results/              Distilled .jsonl / summaries      (tracked)
+│       └── logs/                 Raw logs, run dirs, GPU traces     (gitignored)
 │
-├── research/                      Deep-dive notes
-│   └── quality-benchmarks-2026-05.md
+├── fixes/                        Things we apply to make models work
+│   ├── mlx-lm/                   Runtime patches + notes
+│   └── <model>/                  Chat-template overrides, install scripts
 │
-├── results/                       Raw model outputs that aren't numeric
-│   └── coding-task/               Qualitative app-build benchmark per model
+├── tools/                        Benchmarking tools (git submodules)
+│   ├── local-llm-bench-m4-32gb/  Knowledge + tool-calling (MMLU, HE, MATH, …)
+│   ├── local-llm-bench/          Scenario / real-workflow (ops-agent, tok/s)
+│   └── scripts/                  Shared helpers (toggle-thinking.py)
 │
-└── vendor/                        Unrelated third-party infra kept locally
+├── reports/                      Self-contained Chart.js dashboards (GitHub Pages)
+├── research/                     Deep-dive notes (cross-model analysis)
+└── vendor/                       Unrelated third-party infra kept locally
 ```
+
+The **canonical per-model scoreboard lives inside the submodules'** own
+`results/` trees (committed with the tool that produced them). `bench/` is this
+rig's orchestration and scratch layer — see [AGENTS.md](AGENTS.md) for the
+boundary and the tracked-vs-ignored split.
 
 ## First-time clone
 
@@ -59,20 +75,24 @@ cd tools/local-llm-bench
 python3 bench.py   # see its README for scenario flags
 ```
 
-After a run, refresh the dashboards from `reports/` (see `reports/README.md`).
+A campaign's driver scripts wrap these runners — e.g.
+`bench/deepseek-v4-flash/scripts/run-deepseek-v4-flash-math.sh`. Each campaign's
+`plan.md` is its runbook. After a run, refresh the dashboards from `reports/`
+(see `reports/README.md`).
 
 ## Picking a model
 
-`docs/local-llm-reference.md` is the quick lookup — which model to use for
-coding, tool-calling, reasoning, vision, etc. — based on the Phase 1
-results currently summarised in
+[`docs/local-llm-reference.md`](docs/local-llm-reference.md) is the quick lookup
+— which model to use for coding, tool-calling, reasoning, vision, etc. Per-model
+detail lives in [`docs/models/`](docs/models/); the headline scores are
+summarised in
 `tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md`.
 
 ## Master plan
 
-`docs/testing-plan.md` is the orchestration document: model phases, current
-status across all the benches, per-model run order, operational rules,
-and what's next. Update it as facts change.
+[`docs/testing-plan.md`](docs/testing-plan.md) is the orchestration document:
+model phases, current status across all benches, per-model run order, and what's
+next. Update it as facts change.
 
 ## Updating submodules
 

@@ -100,15 +100,15 @@ If a run is in progress (no `_summary.json` yet), tail the matching `console_*.l
 
 **Source dirs:**
 - Canonical headline summaries: `tools/local-llm-bench-m4-32gb/benchmarks/runs/tbench_<model>_<timestamp>_summary.json` (same schema as the other accuracy benches — `score`, `score_pct`, `correct`, `total`, `elapsed_min`).
-- Raw run dirs (per-task transcripts, logs, lockfiles): `.bench-logs/tbench-runs/<run-name>/` with a `result.json` at the root.
-- Driver scripts that launched each run: `.bench-logs/run-tbench-<run-name>.sh` — use these as templates when adding new models.
+- Raw run dirs (per-task transcripts, logs, lockfiles): `bench/terminal-bench/logs/tbench-runs<run-name>/` with a `result.json` at the root.
+- Driver scripts that launched each run: `bench/terminal-bench/logs/run-tbench-<run-name>.sh` — use these as templates when adding new models.
 
 **Harness:** Harbor + LiteLLM proxy → LM Studio, terminus-2 agent in Docker (linux/amd64), `--concurrency 1`, `--agent-timeout-multiplier 0.5` (caps the 14 long-budget tasks; full-budget would land ≤5 pp higher). N=89 vanilla T-Bench 2.0 task set.
 
 **Pass-rate extraction (from `result.json`):**
 
 ```bash
-python3 -c "import json,sys; d=json.load(open(sys.argv[1])); ev=next(iter(d['stats']['evals'].values())); print(f\"{ev['metrics'][0]['mean']*100:.1f}% ({len(ev['reward_stats']['reward'].get('1.0',[]))}/{ev['n_trials']})\")" .bench-logs/tbench-runs/<run-name>/result.json
+python3 -c "import json,sys; d=json.load(open(sys.argv[1])); ev=next(iter(d['stats']['evals'].values())); print(f\"{ev['metrics'][0]['mean']*100:.1f}% ({len(ev['reward_stats']['reward'].get('1.0',[]))}/{ev['n_trials']})\")" bench/terminal-bench/logs/tbench-runs<run-name>/result.json
 ```
 
 …or just read the `_summary.json` if it exists (the runner writes one once the run finishes).

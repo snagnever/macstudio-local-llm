@@ -36,11 +36,11 @@ venvs/
 **/.claude/settings.local.json
 **/.claude/*.lock
 
-# Bench run logs — noisy, large, reproducible from JSONLs.
-# Driver scripts (.sh) under .bench-logs/ ARE tracked.
-.bench-logs/*.log
-.bench-logs/tbench-runs/
+# Bench run logs — noisy, large, regenerable. Everything under a campaign's
+# logs/ dir is ignored (raw *.log, driver output, tbench run dirs, GPU traces).
+# Tracked scripts live in bench/<campaign>/scripts/, distilled results in
+# bench/<campaign>/results/ — see AGENTS.md for the tracked/ignored split.
+bench/**/logs/
 # Metal GPU capture bundles — enormous (~90 GB; dominated by resident weights),
-# regenerable via .bench-logs/metal_capture_probe.py. Never commit.
+# regenerable via bench/deepseek-v4-flash/scripts/metal_capture_probe.py. Never commit.
 *.gputrace/
-.bench-logs/*.gputrace

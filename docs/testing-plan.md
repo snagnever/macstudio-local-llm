@@ -26,8 +26,8 @@ them.
 | **Frontier-comparable coding** (LiveCodeBench v5/v6) | Contamination-resistant pass@1; comparable across providers | `bench2.py livecodebench --lcb-version release_v6` |
 | **Tool calling** (jdhodges-40, Veerman-12) | The signal that actually predicts day-to-day usefulness in OpenCode / Cline / Aider | [`tools/local-llm-bench-m4-32gb/scripts/tool_call_bench.py`](../tools/local-llm-bench-m4-32gb/scripts/tool_call_bench.py) |
 | **Effective throughput** (ops-agent, doc-summary, prefill-test, creative-writing) | Tokens/sec including prefill — what we actually wait for in agentic loops | [`tools/local-llm-bench/bench.py`](../tools/local-llm-bench/bench.py) |
-| **Terminal-Bench 2.0** (agentic shell) | Multi-turn agent loop in a Linux container; only end-to-end shell-agent signal on this rig | Harbor 0.8 → LiteLLM → LM Studio (`.bench-logs/run-tbench-*.sh` drivers; adapter [`tools/local-llm-bench-m4-32gb/scripts/harbor_to_summary.py`](../tools/local-llm-bench-m4-32gb/scripts/harbor_to_summary.py)) |
-| **Qualitative coding output** | Subjective code quality, stack choice, completeness — complements pass-rate | [`results/coding-task/`](../results/coding-task/) (one subdir per model) |
+| **Terminal-Bench 2.0** (agentic shell) | Multi-turn agent loop in a Linux container; only end-to-end shell-agent signal on this rig | Harbor 0.8 → LiteLLM → LM Studio (`bench/terminal-bench/logs/run-tbench-*.sh` drivers; adapter [`tools/local-llm-bench-m4-32gb/scripts/harbor_to_summary.py`](../tools/local-llm-bench-m4-32gb/scripts/harbor_to_summary.py)) |
+| **Qualitative coding output** | Subjective code quality, stack choice, completeness — complements pass-rate | [`bench/coding-task/`](../bench/coding-task) (one subdir per model) |
 | **Dashboards** | At-a-glance comparison + frontier overlay | [`reports/benchmark-charts.html`](../reports/benchmark-charts.html), [`reports/quality-benchmarks-charts.html`](../reports/quality-benchmarks-charts.html) |
 
 These signals don't substitute for each other. Knowledge rank does **not**
@@ -60,7 +60,7 @@ Source: `lms ls`, `lms ps`, `GET /v1/models` against
 jdhodges **92.5%** / Veerman **83.3%**, HumanEval **97%**, MMLU **82%**, LCB v6
 **64%**; heavy-thinking MoE, ~40 t/s. Well-rounded but doesn't displace a daily
 driver; expensive tail deferred. Full write-up:
-[`docs/benchmark-plans/2026-07-04-agents-a1-xl.md`](benchmark-plans/2026-07-04-agents-a1-xl.md)
+[`bench/agents-a1-xl/plan.md`](../bench/agents-a1-xl/plan.md)
 and the `agents-a1-xl-mlx` section in `M4_MAX_128GB_NOTES.md`.
 
 Embeddings (`text-embedding-nomic-embed-text-v1.5`) and community
@@ -100,7 +100,7 @@ Run a phase to completion before starting the next.
 | # | Model | Plan |
 |---|---|---|
 | 10 | `deepseek-v4-flash-dq` (2-bit DQ, 96.53 GB) | Load-test first: cap context at 32 768, confirm it loads and stays under 128 GB with margin. If yes, run **tool-calling only** — cheapest useful signal. Full knowledge suite only if it actually fits long-context workloads. |
-| 11 | `MiniMax-M2.5-3bit` (93 GiB, 256E/8A MoE) | ⛔ **NO-GO — feasibility ABORTED (2026-07-04).** Loads and generates coherently (tool-calling jdhodges 97.5 %, HumanEval 95.8 %, LCB v6 ~68–74 % partial), but under sustained inference it **reproducibly kernel-panics the host ×3** in Apple's GPU driver (`IOGPUGroupMemory`/`AGXG16X`), independent of parallelism, context, memory pressure, and KV quantization. Not viable on this stack (macOS 25D125 + MLX). Do not re-test without an OS/MLX update or a different runtime (GGUF/llama.cpp). Plan: [`benchmark-plans/2026-07-03-minimax-m2.5-feasibility.md`](benchmark-plans/2026-07-03-minimax-m2.5-feasibility.md); data: [`M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md). |
+| 11 | `MiniMax-M2.5-3bit` (93 GiB, 256E/8A MoE) | ⛔ **NO-GO — feasibility ABORTED (2026-07-04).** Loads and generates coherently (tool-calling jdhodges 97.5 %, HumanEval 95.8 %, LCB v6 ~68–74 % partial), but under sustained inference it **reproducibly kernel-panics the host ×3** in Apple's GPU driver (`IOGPUGroupMemory`/`AGXG16X`), independent of parallelism, context, memory pressure, and KV quantization. Not viable on this stack (macOS 25D125 + MLX). Do not re-test without an OS/MLX update or a different runtime (GGUF/llama.cpp). Plan: [`benchmark-plans/2026-07-03-minimax-m2.5-feasibility.md`](../bench/minimax-m2.5/plan.md); data: [`M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md). |
 
 ### Phase 4 — watchlist (not on disk; test on arrival)
 
@@ -113,7 +113,7 @@ From [`docs/local-llm-reference.md`](local-llm-reference.md):
 
 ### Phase 5 — new arrivals (Jun–Jul 2026 wave)
 
-Full plan: [`docs/benchmark-plans/2026-07-05-phase-5-new-arrivals.md`](benchmark-plans/2026-07-05-phase-5-new-arrivals.md).
+Full plan: [`bench/phase-5-new-arrivals/plan.md`](../bench/phase-5-new-arrivals/plan.md).
 Six models landed after the 2026-05-18 inventory snapshot. **Gate on runtime
 loadability first** (LM Studio arch badges + model-card runtime notes tell us
 which even load on the current stack — bundled llama.cpp 2.23.1 + mlx-llm 1.9.1)
@@ -148,9 +148,9 @@ Terminal-Bench run **only if** a model clears the cheap-signal gate.
 ## Current status (2026-05-29, Phase 1 + Phase 2 + Steps B/C/G complete)
 
 Full write-up: [`tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md).
-Phase 2 plan: [`docs/benchmark-plans/2026-05-20-gemma-4-phase-2.md`](benchmark-plans/2026-05-20-gemma-4-phase-2.md).
-Raw data: [`tools/local-llm-bench-m4-32gb/benchmarks/runs/`](../tools/local-llm-bench-m4-32gb/benchmarks/runs/),
-[`tools/local-llm-bench/results/`](../tools/local-llm-bench/results/).
+Phase 2 plan: [`bench/gemma-4-phase2/plan.md`](../bench/gemma-4-phase2/plan.md).
+Raw data: [`tools/local-llm-bench-m4-32gb/benchmarks/runs/`](../tools/local-llm-bench-m4-32gb/benchmarks/runs),
+[`tools/local-llm-bench/results/`](../tools/local-llm-bench/results).
 
 ### Accuracy + coding + tool-calling
 
@@ -169,7 +169,7 @@ Raw data: [`tools/local-llm-bench-m4-32gb/benchmarks/runs/`](../tools/local-llm-
 ⌛ = T-Bench run with `--agent-timeout-multiplier 0.5` to bound the 14
 outlier tasks declaring >60-min agent budgets; published scores are a
 defensible floor (full-budget would lift ≤5 pp). Plan:
-[`docs/benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md`](benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md).
+[`bench/terminal-bench/plan.md`](../bench/terminal-bench/plan.md).
 All 7 local rows landed 2026-05-29 (Step G done) — see the chartTBench
 panel in [`reports/quality-benchmarks-charts.html`](../reports/quality-benchmarks-charts.html).
 
@@ -179,7 +179,7 @@ MLA indexer trips Metal's `resource_limit: 499000` once the prompt cache
 accumulates across requests. Cold-cache speed probe ran (26 t/s code); the
 jdhodges 12.5 % row is recorded as a defensible floor only (the 5 passes
 are all `edge_cases` where the right answer is prose — no tool call).
-Plan + post-mortem: [`docs/benchmark-plans/2026-05-29-deepseek-v4-flash-phase-3.md`](benchmark-plans/2026-05-29-deepseek-v4-flash-phase-3.md).
+Plan + post-mortem: [`bench/deepseek-v4-flash/plan-phase-3.md`](../bench/deepseek-v4-flash/plan-phase-3.md).
 
 ⚠ = truncation observed at the harness cap. For GPQA on thinking Qwen models
 the cap was 32 768; raw scores under-count true ability (27b ceiling ≈ 78–85 %,
@@ -226,13 +226,13 @@ truncations form the "unanswerable at this scale" floor:
 ### Qualitative coding artifacts
 
 Two task-manager apps built end-to-end by Phase 1 models, kept for
-side-by-side code-quality comparison. See [`results/coding-task/README.md`](../results/coding-task/README.md).
+side-by-side code-quality comparison. See [`bench/coding-task/README.md`](../bench/coding-task/README.md).
 
 - `qwen3-coder-next-80b-a3b/` — Next.js 16 + Tailwind + SQLite
 - `qwen3.6-27b-mlx-6bit/` — Static HTML/JS, localStorage
 
 To add a third: same brief, run it, drop the source in a new
-`results/coding-task/<model-id>/` and update its README.
+`bench/coding-task/<model-id>/` and update its README.
 
 ### Phase 1 outcomes
 
@@ -328,7 +328,7 @@ calibration for any future "raise the cap" plan.
 
 ### Step C — add LiveCodeBench to the Phase 1 daily drivers ✅ **DONE 2026-05-24**
 
-Plan: [`docs/benchmark-plans/2026-05-22-livecodebench-phase-1.md`](benchmark-plans/2026-05-22-livecodebench-phase-1.md).
+Plan: [`bench/lcb-phase1/plan.md`](../bench/lcb-phase1/plan.md).
 Results in the table above (LCB v6 column). Headline: **27b dense 62 %**
 leads, **coder-next 56 %** second, **35b-a3b 54 %** third — same rank order
 as knowledge benches; HumanEval saturation was real (89/93/87 collapsed to a
@@ -344,8 +344,8 @@ Two harness improvements landed during execution:
 2. Detached driver pattern (`nohup`/PPID=1 wrapper) for any run longer than
    ~2 h — `Bash run_in_background` was silently killing python processes
    around the 2–3 h mark regardless of timeout flag. See
-   [LCB backfill plan §"What broke"](benchmark-plans/2026-05-22-livecodebench-phase-1.md)
-   and `.bench-logs/run-27b-lcb-remaining.sh`.
+   [LCB backfill plan §"What broke"](../bench/lcb-phase1/plan.md)
+   and `bench/lcb-phase1/scripts/run-27b-lcb-remaining.sh`.
 
 ### Step D — Phase 2 quant-A/B variants
 
@@ -360,7 +360,7 @@ Cost: ~2–3 days combined per the Phase 2 forward estimate.
 
 **2026-05-30 update:** the Metal OOM is **fixed and reproducer-verified.** Root cause was
 an unbounded per-decode-step live-buffer leak in the per-layer caches; the fix
-([`patches/mlx-lm-deepseek-v4-cache-materialize.patch`](../patches/mlx-lm-deepseek-v4-cache-materialize.patch),
+([`fixes/mlx-lm/mlx-lm-deepseek-v4-cache-materialize.patch`](../fixes/mlx-lm/mlx-lm-deepseek-v4-cache-materialize.patch),
 one hunk in `DeepseekV4Model.__call__`) materializes all cache state each forward. The
 forced-generation reproducer now streams **19,989 tokens clean at 31.3 t/s, 0 Metal OOMs**
 (baseline died at 11,314). **Full 40-case jdhodges sweep on a single long-lived server now
@@ -370,7 +370,7 @@ tool-calling fine-tune — a model property, not a runtime bug). 30-turn chat (#
 full Phase 3 #10 knowledge/throughput sweep can now run on the stable runtime. The BLOCKED
 write-up below is the pre-fix record.
 
-Plan: [`docs/benchmark-plans/2026-05-29-deepseek-v4-flash-phase-3.md`](benchmark-plans/2026-05-29-deepseek-v4-flash-phase-3.md).
+Plan: [`bench/deepseek-v4-flash/plan-phase-3.md`](../bench/deepseek-v4-flash/plan-phase-3.md).
 Full-sweep attempt (2026-05-29, pre-fix) aborted at Step 3b after the runtime's MLA indexer
 tripped Metal's `resource_limit: 499000` once the prompt cache accumulated
 across requests (`RuntimeError: [metal::malloc] Resource limit (499000)
@@ -417,7 +417,7 @@ the highest-value pending work.
 
 ### Step G — Terminal-Bench 2.0 backfill ✅ **DONE 2026-05-29**
 
-Plan: [`docs/benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md`](benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md).
+Plan: [`bench/terminal-bench/plan.md`](../bench/terminal-bench/plan.md).
 All 7 local models measured on-rig — chartTBench in
 [`reports/quality-benchmarks-charts.html`](../reports/quality-benchmarks-charts.html)
 now shows 7 measured rows. Final standings:
@@ -472,7 +472,7 @@ require pulling a GGUF first.
 
 Separate measurement track from the per-model speed_probe (which only
 confirms "loads and responds"). The scenario harness at
-[`tools/local-llm-bench/`](../tools/local-llm-bench/) measures **effective
+[`tools/local-llm-bench/`](../tools/local-llm-bench) measures **effective
 throughput** — output tokens divided by total wall-clock including prefill —
 across four realistic workloads (ops-agent, doc-summary, prefill-test,
 creative-writing). This is what we actually wait for in agentic loops,
@@ -486,9 +486,9 @@ definition.
 
 | Plan ref | Model | Result folder | Backend label |
 |---|---|---|---|
-| Phase 1 #1 | `qwen/qwen3-coder-next` (6-bit) | [`tools/local-llm-bench/results/qwen3-coder-next-6bit/`](../tools/local-llm-bench/results/qwen3-coder-next-6bit/) | `lmstudio` |
-| Phase 1 #2 | `qwen3.6-27b` (6-bit dense) | [`tools/local-llm-bench/results/qwen3.6-27b-dense-mlx-6bit/`](../tools/local-llm-bench/results/qwen3.6-27b-dense-mlx-6bit/) | `lmstudio` |
-| Phase 1 #3 | `qwen3.6-35b-a3b@6bit` | [`tools/local-llm-bench/results/qwen3.6-35b-a3b/`](../tools/local-llm-bench/results/qwen3.6-35b-a3b/) | `lmstudio-mlx` |
+| Phase 1 #1 | `qwen/qwen3-coder-next` (6-bit) | [`tools/local-llm-bench/results/qwen3-coder-next-6bit/`](../tools/local-llm-bench/results/qwen3-coder-next-6bit) | `lmstudio` |
+| Phase 1 #2 | `qwen3.6-27b` (6-bit dense) | [`tools/local-llm-bench/results/qwen3.6-27b-dense-mlx-6bit/`](../tools/local-llm-bench/results/qwen3.6-27b-dense-mlx-6bit) | `lmstudio` |
+| Phase 1 #3 | `qwen3.6-35b-a3b@6bit` | [`tools/local-llm-bench/results/qwen3.6-35b-a3b/`](../tools/local-llm-bench/results/qwen3.6-35b-a3b) | `lmstudio-mlx` |
 
 ### Still to run
 

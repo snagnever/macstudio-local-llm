@@ -1,0 +1,220 @@
+# 2026-07-04 — agents-a1-xl-mlx cheap-signal + coding/knowledge benchmark
+
+## Context
+
+`agents-a1-xl-mlx` is a new arrival on the Mac Studio M4 Max 128 GB rig. Verified
+on-rig facts (not vendor claims):
+
+- **Arch:** `qwen3_5_moe` (Qwen3.5-family **MoE**), reported by `bench2.py` at load.
+- **Self-ID:** identifies as "Qwen3.5, developed by Alibaba Cloud's Tongyi Lab."
+- **Quant / size:** MLX 6-bit, **27.8 GB** on disk (`lms ps`: 29.90 GB resident).
+- **Context on load:** **131712**, **PARALLEL 4** (as loaded by the user).
+- **Character:** a **heavy thinking model** — emits reasoning tokens on everything
+  (109 reasoning tokens for "2+2", 392 for a single MMLU letter). Predicts
+  GPQA/MATH spirals like the Qwen 3.6 dense (22 h GPQA alone).
+
+It sits in the **comfortable-fit** class (27.8 GB weights): ~48 GB resident with
+KV during the speed probe, no swap. **Not** the sole-model / memory-ceiling class
+that blocked DeepSeek-V4 and crash-looped MiniMax-M2.5 — no memory or GPU-panic
+risk expected, and none observed.
+
+**Scope (user-confirmed 2026-07-04):** cheap signals first (speed + tool-calling),
+then the **coding + knowledge cheap tail** (HumanEval + MMLU + LiveCodeBench v6).
+The expensive thinking-heavy tail (MATH / DROP / GPQA / throughput / Terminal-Bench)
+is **deferred** — not committed by this plan.
+
+## Approach
+
+Drive the existing harnesses only, LM Studio OpenAI endpoint
+(`http://127.0.0.1:1234/v1`), model-major with `agents-a1-xl-mlx` as the **only**
+resident model. Model ID `agents-a1-xl-mlx` verbatim from `GET /v1/models`.
+
+**Residency correction (2026-07-04):** the model arrived co-resident with
+`nousresearch/hermes-4-70b` (57.34 GB) and `qwen3.6-27b` (22.80 GB) — ~110 GB of
+weights, **swap maxed at 19.9/20.5 GB, `Spill=YES`**. Per `testing-plan.md`
+(single-large-model residency for clean/comparable numbers), unloaded the other
+two (user-confirmed). Swap dropped 19.9 GB → 166 MB; clean state confirmed. The
+first (contended) speed probe is discarded; all numbers below are single-model.
+
+## Results
+
+### Speed probe (clean, warm, single-model)
+
+- **~40 tok/s** decode on long thinking outputs (mmlu 390 tok / 9.7 s;
+  code 1023 tok / 24.9 s); **~65–75 tok/s** on short tool-call completions.
+- 48 GB resident, **swap 0.2 GB, `Spill=no`**, GPU 100% @ 76 W.
+- Coherent on all 3 probe prompts (trivial/mmlu correct, code coherent).
+- Note: a cold re-probe immediately after the residency change showed a 120 s
+  warmup + ~11 tok/s (weights reload + Metal graph recompile for the 131712-ctx
+  graph) — discarded as cold-start; the warm numbers above are steady-state.
+
+### Tool-calling (baseline — standard harness system prompt, temp 0, seed 42)
+
+| Suite | Score | Time | Weighted tok/s | Breakdown |
+|---|---|---|---|---|
+| **jdhodges** | **92.5%** (37/40) | 7.4 min | 67.4 | sel 7/8 · args 8/8 · multi 6/8 · edge 8/8 · format 8/8 |
+| **veerman** | **83.3%** (10/12) | 2.1 min | 75.1 | action 6/7 · restraint 2/2 · hard 2/3 |
+
+Both **top-tier** on the scoreboard (jdhodges peer to the 97.5% ceiling group;
+veerman ties the 83.3% leaders coder-next / 27b / gemma). **restraint 2/2** →
+calibrated, not trigger-happy. All 5 misses are `no_tool_called` or
+`turn_1_tool_mismatch` on genuinely ambiguous/hard prompts:
+- jdhodges: `sel_weather_portland` (asked which Portland vs default OR),
+  `multi_usd_eur_sequential` + `multi_search_then_remind` (wrong first tool in a
+  sequential chain).
+- veerman: `p6_multi_step_unknown_city`, `p12_redundant_weather` (agency on
+  ambiguous/redundant prompts).
+
+Mild default conservatism, **not** broken mechanics — dramatically healthier than
+MiniMax's 58.3% veerman baseline. A proactivity-nudge A/B (`TOOLBENCH_SYSTEM_PROMPT`,
+per the MiniMax precedent) is optional here since the baseline already clears the
+bar; not run unless the coding/knowledge tail motivates it.
+
+### Coding + knowledge cheap tail (running 2026-07-04, `--max-tokens 65536`)
+
+Detached driver: `bench/agents-a1-xl/scripts/run-agents-a1-xl-cheaptail.sh` (nohup/disown,
+`BENCH_TIMEOUT=3600`). Order: HumanEval → MMLU → LiveCodeBench v6 (cheapest/safest
+first, spiral-prone LCB last).
+
+| Bench | Score | Trunc | Notes |
+|---|---|---|---|
+| HumanEval n=100 | **97%** (97/100) | 1 | 75.2 min; fails Q21/Q46/Q85 (Q85 spiraled to 10.6k think tok → wrong). Ties gemma@6bit 97%, > 27b 93% / coder-next 89%. |
+| MMLU n=100 | **82%** (82/100) | 3 | 104.6 min; 2 questions spiraled to the 65k cap (~17 min each, e.g. Q58 `got=None`). Peer to 35b-a3b 83%, below 27b 88%, above gemma ~78% / coder-next 76%. |
+| LiveCodeBench v6 n=50 | **64%** (32/50) | 2 | 240.6 min (4 h); heavy thinking — several 15–65k-token chains, 2 spiraled to the cap (~29 min each). Beats coder-next 56% / 27b 62% / 35b-a3b 54%; below gemma@6bit 80% / gemma-31b 76% / gemma@4bit 66%. Solved `abc365_c` (27b's lone unsolved †); failed the universal-hard `abc354_d`. |
+| Terminal-Bench 2.0 | **⏹ ABORTED** (2026-07-05) | — | User-stopped at task 2/89 (`make-mips-interpreter` errored on `EnvironmentStartTimeoutError` — Docker env, not the model; `circuit-fibsqrt` running). No usable score. Driver `bench/terminal-bench/scripts/run-tbench-agents-a1-xl.sh` + job dir `bench/terminal-bench/logs/tbench-runs/agents-a1-xl` retained for a clean resume. |
+
+## Outcome (2026-07-05) — cheap tail ✅ COMPLETE, strong well-rounded MoE
+
+**Verdict: `agents-a1-xl-mlx` is a strong, well-rounded Qwen3.5 MoE — top-tier
+tool-calling + HumanEval, near-top MMLU, solid mid-pack coding — but a *heavy
+thinker* that pays a real wall-clock tax and doesn't cleanly displace a current
+daily driver.** It fits comfortably (27.8 GB, no memory/panic risk) and ran the
+whole cheap tail with zero crashes.
+
+### Final scorecard vs the scoreboard
+
+| Signal | agents-a1-xl-mlx | Where it lands |
+|---|---|---|
+| jdhodges (tool) | **92.5%** | mid-top: > coder-next 90, < the 97.5 cluster (35b-a3b/gemma), < 27b 95 |
+| Veerman (tool) | **83.3%** | **ties the leaders** (coder-next / 27b / gemma) |
+| HumanEval | **97%** | top band (ties gemma@6bit 97, ~gemma@4bit 98) |
+| MMLU | **82%** | 2nd tier: < 27b 88, ≈ 35b-a3b 83, > gemma ~78 / coder-next 76 |
+| LiveCodeBench v6 | **64%** | mid-pack: > 27b 62 / coder-next 56 / 35b-a3b 54, < gemma@6bit 80 / 31b 76 |
+| Speed | ~40 t/s think, ~65–80 short | MoE; heavy reasoning inflates wall-clock |
+
+### The headline caveat — thinking tax
+
+It emits reasoning tokens on *everything* (109 on "2+2", 18k on a "leetcode/easy",
+2× 65k-cap spirals on both MMLU and LCB). Cost: MMLU 100q took **104 min**, LCB
+50q took **4 h** — vastly slower than a non-thinking model of the same size. This
+is the Qwen 3.6-dense phenotype, so a full MATH/DROP/GPQA sweep would be **20–40 h**.
+
+### Gate decision
+
+Pre-registered gate was **LCB ≥ ~62% (beat 27b) OR MMLU ≥ ~85% (near 27b)**. It
+**marginally clears on coding only** (LCB 64% vs 27b 62%, +2 pp; MMLU 82% < 85%).
+That's a *thin* pass — the coding edge over 27b is 2 pp while 27b leads knowledge
+by 6 pp — so a full expensive sweep is **not compelling on its own merits**.
+**Recommendation: defer the MATH/DROP/GPQA tail** (20–40 h for a marginal,
+already-well-characterized model) unless a specific need arises.
+
+### Where it earns a slot
+
+- **Best case:** an agentic/tool-calling generalist — top-tier Veerman + strong
+  jdhodges + 97% HumanEval. But the thinking tax makes it **slower than
+  coder-next** for real agentic loops, where decode speed dominates.
+- **Not a knowledge king** — 27b still leads MMLU by 6 pp (and by more on the
+  harder knowledge benches by extrapolation).
+- **Coding:** genuinely good (LCB 64%, HE 97%), but gemma@6bit (LCB 80%) and
+  gemma-31b (76%) are clearly ahead on contamination-resistant coding, and faster.
+- **Net:** a solid mid-tier all-rounder. Keep as an option; does **not** displace
+  coder-next (agentic speed), 27b (knowledge), or gemma@6bit (coding) from their slots.
+
+## Effective-throughput scenarios (2026-07-05) — thinking tax breaks 3 of 4
+
+Model provenance confirmed: **`leonsarmiento/Agents-A1-6bit-XL-mlx`** (community
+fine-tune; LM Studio serves it as `agents-a1-xl-mlx`).
+
+| Scenario | Budget | Result |
+|---|---|---|
+| **ops-agent** | 500 tok | ✅ **gen 82.1 t/s / effective 35.9 t/s** (8 turns, coherent output) |
+| doc-summary | 150 tok | ❌ reasoning alone > 150 → zero visible output → harness aborts |
+| prefill-test | 150 tok | ❌ same — no visible output in budget |
+| creative-writing | 2000 tok | ❌ spiraled past 2000 in pure reasoning on a turn → no output |
+
+**Finding:** raw decode is competitive (**82 gen t/s**, between gemma@6bit 80.8 and
+35b-a3b 85.5), but **effective throughput is ~half the non-thinking peers** (35.9 vs
+coder-next 55.8 / 35b-a3b 71.4 / gemma@4bit 80.7 on ops-agent) — the reasoning overhead
+is the tax, quantified. And on **short-output workloads (doc-summary/prefill-test, 150-tok
+budgets) it produces no usable output at all** — a genuine unsuitability for latency-
+sensitive short responses, not just a slow one. ops-agent is the only standard scenario
+it can complete because the 500-tok budget fits its per-turn reasoning + answer.
+
+**Two harness bugs found + fixed** (per testing-plan "fix it and credit" rule):
+1. `bench.py check_context_size` false-failed thinking models — the `max_tokens=5`
+   pre-flight probe is fully consumed by reasoning → `output_tokens==0` → bogus
+   "context too small" `sys.exit(1)`. Fixed: when the probe returns *without* a
+   context-length error but only reasoning, treat as pass (bench.py:408).
+2. **base_url gotcha:** `bench.py` appends `/v1/chat/completions` itself, so it needs
+   `--base-url http://host:1234` (NO `/v1`). A trailing `/v1` (the *bench2.py*
+   convention, and what testing-plan's throughput example shows) yields a double
+   `/v1` that hits an endpoint which silently drops `reasoning_content` → reasoning
+   undetected. Driver uses the bare host.
+
+**Not comparable via `--no-think`:** the on-disk dir (`leonsarmiento/Agents-A1-6bit-XL-mlx`)
+≠ the API id, so bench.py's template-patch `--no-think` can't resolve it; inline
+`/no_think` is ignored by the model. Clean no-think throughput would need manual template
+surgery + reload (invasive, unproven) — deferred; ops-agent + the failure pattern already
+tell the throughput story.
+
+## Next steps for agents-a1-xl-mlx (2026-07-05)
+
+Ranked; the model is already well-characterized on the cheap + coding/knowledge axes,
+so remaining work is optional / on-demand.
+
+1. **Terminal-Bench 2.0 — resume (highest-value remaining).** Aborted at 2/89 with no
+   score; it's the only end-to-end agentic-shell signal and the on-brand test for an
+   "agents" model. Re-launch `bench/terminal-bench/scripts/run-tbench-agents-a1-xl.sh` (detached; ~18–30 h
+   given the thinking tax — cf. 27b 18h54m). Expect many `AgentTimeoutError`s from
+   reasoning spirals; `--agent-timeout-multiplier 0.5` already set to bound them. Do this
+   when the machine has a free ~day and no other model is resident.
+2. **No-think throughput A/B (optional).** The 3 failed throughput scenarios
+   (doc-summary/prefill-test/creative-writing) only fail because thinking overruns their
+   output budgets. Getting comparable clean-decode numbers needs manual template surgery on
+   `~/.lmstudio/models/leonsarmiento/Agents-A1-6bit-XL-mlx/chat_template.jinja` (inject the
+   `<think>\n\n</think>` empty block) + model reload — unproven (inline `/no_think` is
+   ignored), invasive. Low value: ops-agent + the failure pattern already tell the story.
+3. **Proactivity-nudge tool-calling A/B (cheap, low value).** `TOOLBENCH_SYSTEM_PROMPT`
+   nudge to recover the few `no_tool_called` misses (Portland, unknown-city). Baseline is
+   already 92.5% jdhodges / 83.3% veerman, so mostly curiosity.
+4. **Expensive knowledge tail (MATH/DROP/GPQA) — DEFERRED, do not run** unless a specific
+   need arises. Marginal gate pass (coding only), 20–40 h of thinking spirals, already
+   well-characterized. See gate decision below.
+
+Broader "what to test next across the whole downloaded stack" (not a1-specific) is a
+separate Phase 5 prioritization — top candidate `gemma-4-31b-it-QAT-GGUF` (unblocks the
+deferred Engine A/B + tests QAT), then the Step D quant-A/Bs, then DeepSeek-V4 GGUF
+feasibility. Captured in the session analysis; fold into `testing-plan.md` when Phase 5 starts.
+
+## Gate to the expensive tail
+
+`agents-a1-xl-mlx` is a thinking model — MATH/GPQA will cost 20–40 h (cf. Qwen 3.6
+dense 37.6 h). Only spin up a full-sweep follow-up plan if the cheap tail shows it
+credibly beats the daily drivers on coding or knowledge, e.g. **LCB v6 ≥ ~62%
+(beat 27b) OR MMLU ≥ ~85% (near 27b's 88%)**. Otherwise record the verdict and stop.
+
+## Deliverables (on completion)
+
+1. `tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md` — append an
+   `agents-a1-xl-mlx` section: arch, speed, tool-calling, coding/knowledge, verdict.
+2. `docs/testing-plan.md` — add to the model inventory + status tables.
+3. `docs/local-llm-reference.md` — only if it earns a daily-driver slot.
+4. This doc — fill the pending cells + a one-paragraph verdict.
+5. Charts/dashboards — refresh only if it produced comparable numbers.
+
+## Critical files / paths
+
+- Harnesses: `tools/local-llm-bench-m4-32gb/scripts/{speed_probe.py,tool_call_bench.py,bench2.py}`
+- Driver: `bench/agents-a1-xl/scripts/run-agents-a1-xl-cheaptail.sh` · log: `bench/agents-a1-xl/logs/agents-a1-xl-cheaptail.log`
+- Outputs: `tools/local-llm-bench-m4-32gb/benchmarks/runs/`, `.../results/speed_probe/`
+- Precedent plan: `bench/minimax-m2.5/plan.md`
