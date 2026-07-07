@@ -8,7 +8,7 @@ clear taxonomy, updated documentation. Everything tracked is moved with `git mv`
 
 ## Problems being solved
 
-1. `.bench-logs/` is a **hidden** directory holding ~70 tracked source files
+1. `.bench-logs/` is a **hidden** directory holding ~75 tracked source files
    (run drivers, probe scripts, result JSONLs) mixed with ~98 GB of untracked
    logs and gputrace bundles. Tracked code in a dotdir is easy to lose and hard
    to discover.
@@ -70,8 +70,12 @@ prefixes in `.bench-logs/`):
 - `gemma-4-phase2/` — `run-full-*`, `run-knowledge-4bit*`, gemma drivers
 - `lcb-phase1/` — `run-27b-lcb-remaining`, LCB phase-1 files
 - `terminal-bench/` — all `run-tbench-*` (cross-model campaign)
+- `degeneration/` — cross-model campaign (started on DeepSeek, extended with
+  Qwen quant controls in PR #17): `degeneration*`, `qwen-*-degeneration*`,
+  `run-qwen-degeneration-control.sh`, sampling sweep, longform-coherence,
+  XTC files; both related runbooks (degeneration-sampling, quant-validation)
 - `deepseek-v4-flash/` — `run-deepseek-v4-flash-*`, `run-ds4-*`, `repro_oom_*`,
-  degeneration/sampling sweep, tool-template tests, jdhodges runs
+  tool-template tests, jdhodges runs
 - `minimax-m2.5/` — `run-minimax-*`, minimax macmon JSONLs
 - `agents-a1-xl/` — agents-a1-xl runs
 - `phase-5-new-arrivals/` — phase-5 runbook (+ future files)
@@ -136,7 +140,8 @@ submodule `results/`; a new rig run's drivers and scratch output → `bench/`.
 
 `docs/benchmark-plans/<date>-<topic>.md` → `bench/<campaign>/plan.md`. The
 dated original filename is preserved in the file's title line so chronology
-isn't lost. Campaigns with multiple runbooks (deepseek-v4-flash has 4) keep
+isn't lost. Campaigns with multiple runbooks (deepseek-v4-flash has 4;
+degeneration gets 2 — degeneration-sampling and quant-validation) keep
 `plan-<topic>.md` files side by side.
 
 ### Documentation deliverables
@@ -179,9 +184,12 @@ isn't lost. Campaigns with multiple runbooks (deepseek-v4-flash has 4) keep
 
 ## Execution
 
-One dedicated PR off `main`, started **after** `docs/minimax-context-limit-and-eval`
-lands (its uncommitted `.bench-logs/` files ride along with that branch and get
-moved afterward). Open stale branches accept the rebase/conflict risk.
+One dedicated PR off `main`. Gate (updated 2026-07-07 — the original gate,
+`docs/minimax-context-limit-and-eval`, landed as PR #14): start **after PR #16
+and PR #17 land**, since both add files to trees this reorg moves (#16 → one
+macmon JSONL in `.bench-logs/`; #17 → four `.bench-logs/` files + a runbook in
+`docs/benchmark-plans/`). PR #18 (submodule pointer bump) is orthogonal and can
+land any time. Open stale branches accept the rebase/conflict risk.
 
 ## Error handling / verification
 
