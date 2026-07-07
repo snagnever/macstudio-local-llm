@@ -156,9 +156,13 @@
     var byId = indexModels(models);
     var archs = new Set();
     var quants = new Set();
+    var providers = new Set();
+    var families = new Set();
     models.forEach(function (m) {
       if (m.arch) archs.add(m.arch);
       if (m.quant) quants.add(m.quant);
+      if (m.provider) providers.add(m.provider);
+      if (m.family) families.add(m.family);
     });
 
     var state = {
@@ -168,12 +172,16 @@
       tiers: new Set(models.map(function (m) { return m.tier; })),
       archs: new Set(archs),
       quants: new Set(quants),
+      providers: new Set(providers),
+      families: new Set(families),
       _listeners: [],
 
       isVisible: function (m) {
         if (!m) return false;
         if (!this.checked.has(m.id)) return false;
         if (!this.tiers.has(m.tier)) return false;
+        if (m.provider && !this.providers.has(m.provider)) return false;
+        if (m.family && !this.families.has(m.family)) return false;
         if (m.arch && !this.archs.has(m.arch)) return false;
         if (m.quant && !this.quants.has(m.quant)) return false;
         return true;
@@ -219,6 +227,8 @@
     var tierVals = opts.tiers || distinct(state.models.map(function (m) { return m.tier; }));
     var archVals = distinct(state.models.map(function (m) { return m.arch; }).filter(Boolean));
     var quantVals = distinct(state.models.map(function (m) { return m.quant; }).filter(Boolean));
+    var providerVals = distinct(state.models.map(function (m) { return m.provider; }).filter(Boolean));
+    var familyVals = distinct(state.models.map(function (m) { return m.family; }).filter(Boolean));
 
     // --- models group ---
     var modelsGroup = el('div', 'filter-group');
@@ -261,6 +271,8 @@
       container.appendChild(g);
     }
     pillGroup('Tier', tierVals, 'tiers');
+    pillGroup('Provider', providerVals, 'providers');
+    pillGroup('Family', familyVals, 'families');
     pillGroup('Arch', archVals, 'archs');
     pillGroup('Quant', quantVals, 'quants');
 

@@ -25,6 +25,9 @@ Everything on a page — every chart, the scoreboard, the filter bar, the scatte
   - `tier` is `'local' | 'frontier' | 'open'`. `arch` (`'dense'|'moe'`) and `quant` are optional — frontier/open reference models omit them (and therefore always pass the arch/quant filters; the tier pill is what hides them).
   - `label` is the short name (filter checkbox + scoreboard cell). `chartLabel` is the longer legend label for grouped charts. On `benchmark-charts.html`, `refLabel`/`refNote` are the label/footnote used in the ranked "vs frontier" charts; `refExclude:true` keeps a model out of those ranked charts entirely (used for `agents-a1-xl-mlx`).
   - `diskGB` (benchmark page) feeds the scatter bubble radius. `rankedOnly:true` (quality page) keeps a model out of the scoreboard/headline/checkboxes/radar and only shows it in the ranked charts (used for `gemma-4-31b`, which appears only in T-Bench).
+  - `provider` and `family` are the identity dimensions surfaced as **filter pills** and as columns in the Models table. `provider` = weights creator/vendor (`Alibaba (Qwen)`, `Google`, `DeepSeek`, `Anthropic`, `OpenAI`, `Meta`, `NVIDIA`, `Moonshot AI`, `InternScience`, `MiniMax`); `family` = model line (`Qwen3-Coder`, `Qwen3.6`, `Gemma 4`, `Agents-A1`, `Claude Opus`, `Claude Sonnet`, `GPT`, `Gemini`, `DeepSeek`, `Llama`, …). Both are optional but should be set on every record so the pills group cleanly.
+  - `hf` is the HuggingFace repo URL for the on-disk quant (from `../docs/models/*.md`). The Models-table row wraps the model name in a link to it. Reference (frontier) models omit `hf`.
+  - **Telemetry fields** (local models with a qualifying speed probe only): `peakRamGB`, `cpuPct`, `gpuPct`, `powerW`, `probeN` (sample count), `probeDate`, and optional `probeNote`. These populate the **Peak RAM** column and the **Resource usage** section. They are hand-entered from the speed-probe artifacts (see "Speed probe" below) and only added when `probeN ≥ 10`; models below the gate or without a probe omit them and render `—`.
 - **`RESULTS`** — one tidy record per measured value: `{ model, metric, value, ...selector, note? }`. `value:null` means "not run" (renders as a gap / `—`). The extra selector key names the axis:
   - benchmark page: `metric:'accuracy'|'toolScore'|'toolTps'|'genTps'|'effTps'|'prefillEffTps'|'probeSeconds'|'probeReasonTok'|'elapsedMin'` with `bench` / `suite` / `scenario` / `context` / `prompt` as appropriate.
   - quality page: `metric:'score'`, `bench` ∈ `{MMLU-Pro, GPQA, SWE-V, AIME, LCB, TBench, MMMU}`.
@@ -34,17 +37,19 @@ A value is fetched with `ChartsCommon.metricValue(RESULTS, id, query)` where `qu
 
 ### Filtering & the sticky filter bar
 
-`createFilterBar(...)` renders a sticky bar under the header with: per-model checkboxes (local models only — frontier/open are governed by the tier pills), **All/None**, and pill toggles for **Tier / Arch / Quant**, plus the section anchor-nav. A model is visible when `checked ∧ tier ∧ arch ∧ quant` all pass. Every chart and the scoreboard react instantly:
+`createFilterBar(...)` renders a sticky bar under the header with: per-model checkboxes (local models only — frontier/open are governed by the tier pills), **All/None**, and pill toggles for **Tier / Provider / Family / Arch / Quant**, plus the section anchor-nav. A model is visible when `checked ∧ tier ∧ provider ∧ family ∧ arch ∧ quant` all pass. Each pill group only renders when the roster has ≥2 distinct values for it, so a page with a single provider simply won't show the Provider pills. Every chart, the scoreboard, the Models table, and the Resource-usage table react instantly:
 
 - **Grouped bar / line charts** keep every dataset and hide filtered ones in place (`setDatasetVisibility`) — the legend stays complete (struck-through when hidden), and clicking a **local** model's legend entry toggles it globally across all charts + the checkboxes.
 - **Ranked horizontal charts** drop filtered rows and re-rank.
 - **The scoreboard** hides filtered rows and recomputes the green best-per-column highlight over the visible rows.
+- **The Models table and the Resource-usage table** hide filtered rows the same way (`applyTableFilter` by `data-model-id`).
 - **The radar** has its own separate 2–3 model picker; the global filter only constrains which models the picker offers.
 
 ### New visualizations
 
 - **Quality-vs-speed scatter** (`benchmark-charts.html` only — the quality page has no throughput data): benchmark score vs generation tok/s, bubble radius ∝ disk GB. The y-axis `<select>` picks a benchmark; **Composite** averages the six accuracy suites (skipping any that are missing, flagged in the tooltip).
 - **Model radar** (both pages): up to 3 models across the 0–100 benchmark axes. Axes are **fixed 0–100** — every axis is already a percentage, and fixed bounds keep the polygon shapes comparable no matter which models are selected (min-max normalization would silently change a model's shape when the comparison set changes). No throughput axis; the scatter covers that.
+- **Resource usage** (both pages): a static, sortable, filter-aware table (`#telemetryTable`) with **Peak RAM / Avg CPU % / Avg GPU % / Peak power / Samples / Probe date** per local model. Unlike the charts it is **not** derived from `RESULTS` — the rows are hand-authored HTML (one `<tr data-model-id="…">` per model, matching the `MODELS` telemetry fields), because telemetry only exists for the subset of models with a speed probe. Models without a qualifying probe (`probeN < 10` or none) still get a row, rendered as `—`, so the filter and the roster stay complete. Wire it with `C.setupSortableTable('telemetryTable')` + `state.onChange(st => C.applyTableFilter('telemetryTable', state, {}))`.
 - **Category anchor-nav**: the section links in the filter bar scroll to full-width `<h2 class="category-heading">` headings. These are plain scroll anchors, not show/hide tabs — a `display:none` container renders a Chart.js canvas at 0×0, and anchors also keep Cmd+F / full-page printing working.
 
 ## Where the data comes from
@@ -143,6 +148,21 @@ Pattern: `<model>_<timestamp>_results.json` + `<model>_<timestamp>_macmon.jsonl`
 The `results.json` has the three prompts (`trivial`, `mmlu_atmosphere`, `code_second_largest`) with per-prompt `elapsed`, `completion_tokens`, `reasoning_tokens` — that last field is what drives the "reasoning tokens emitted" chart.
 
 System metrics block: `peak_ram_gb`, `peak_swap_gb`, `avg_gpu_pct`, `peak_power_w`, `samples`. **Trust nothing under ~10 samples** — that's a known quality issue for short runs (the coder-next probe only has 2 samples and the RAM/power numbers are statistically meaningless).
+
+This block is also the source for the **Resource usage** table and the Models-table **Peak RAM** column (the `MODELS` telemetry fields `peakRamGB` / `gpuPct` / `powerW` / `probeN`). One field is **not** in `results.json`: **Avg CPU %** — `system_metrics` has no CPU aggregate, so compute it as the mean of per-sample `cpu_usage_pct` (a 0–1 fraction) from the matching `*_macmon.jsonl`, ×100. Cross-check: the mean of the macmon `gpu_usage[1]` fractions should match `avg_gpu_pct`. Extraction one-liner (run against the source dir, pick the run with `samples ≥ 10`):
+
+```bash
+python3 - "$STEM" <<'PY'
+import json, sys
+stem = sys.argv[1]  # e.g. qwen3.6-27b_20260517_172229
+sm = json.load(open(stem + "_results.json"))["system_metrics"]
+cpu = [json.loads(l)["cpu_usage_pct"] for l in open(stem + "_macmon.jsonl") if l.strip()]
+print(f"peakRamGB={sm['peak_ram_gb']} gpuPct={sm['avg_gpu_pct']} powerW={sm['peak_power_w']} "
+      f"probeN={sm['samples']} cpuPct={sum(cpu)/len(cpu)*100:.1f}")
+PY
+```
+
+Note that some historical probe filenames (e.g. the 2026-04-08 `google_gemma-4-26b-a4b` run) did not record the quant — attribute those with a `probeNote` rather than guessing a precise quant match.
 
 ### 3. Throughput benchmarks (creative-writing, doc-summary, ops-agent, prefill-test)
 
@@ -244,15 +264,17 @@ The throughput columns (`Gen t/s` / `Eff t/s`) in `benchmark-charts.html` show t
 
 1. **Run the benchmarks.** For accuracy: `python local-llm-bench-m4-32gb/scripts/bench2.py <bench> --model <model_id>`. For throughput: see `benchmarking/local-llm-bench/README.md`. For speed probe: `local-llm-bench-m4-32gb/scripts/speed_probe.py`.
 
-2. **Add one `MODELS` entry** at the top of the page's inline `<script>`: pick an `id`, `tier`, `arch`/`quant` (omit for frontier/open), a `color`, and `label`/`chartLabel`. On `benchmark-charts.html` add `diskGB` (for the scatter) and, if it's a frontier/open reference, `refNote`.
+2. **Add one `MODELS` entry** at the top of the page's inline `<script>`: pick an `id`, `tier`, `arch`/`quant` (omit for frontier/open), a `color`, and `label`/`chartLabel`. Set `provider` and `family` (drives the pills). For local models add `hf` (the on-disk quant's HuggingFace repo, from `../docs/models/*.md`). On `benchmark-charts.html` add `diskGB` (for the scatter) and, if it's a frontier/open reference, `refNote`. If a speed probe with `probeN ≥ 10` exists, add the telemetry fields `peakRamGB` / `cpuPct` / `gpuPct` / `powerW` / `probeN` / `probeDate` (extraction one-liner under "Speed probe" above).
 
 3. **Add `RESULTS` records** — one per measured value: `{ model:'<id>', metric:'accuracy'|'score', bench:'…', value:<n> }`, plus tool/throughput/etc. records on the benchmark page. Use `value:null` for a run you want to show explicitly as "not run"; omit the record otherwise. That single edit feeds the scoreboard, every chart, the scatter, and the radar.
 
-4. **Add the editorial Models-table row** (`#modelsTable`) with a `data-model-id="<id>"` matching the new `MODELS` id and the swatch color — this is the one place prose still lives. The Best/Expected-usage cells are not auto-derived (see "Models card" above).
+4. **Add the editorial Models-table row** (`#modelsTable`) with a `data-model-id="<id>"` matching the new `MODELS` id and the swatch color — this is the one place prose still lives. Include the Provider, Family, and Peak RAM cells and wrap the model name in the `<a class="model-link" href="<hf>">…<span class="ext">↗ HF</span></a>` link. The Best/Expected-usage cells are not auto-derived (see "Models card" above).
 
-5. **Grouped charts only:** the grouped `datasets` arrays (`chartAccuracy`, `chartGenTps`, prefill, …) are still listed explicitly per chart so each keeps its bespoke legend label — add a `dset(...)` line for the new model where you want it to appear. The ranked charts, scoreboard, scatter, and radar pick the model up automatically from `MODELS`/`RESULTS`.
+5. **Add the Resource-usage row** (`#telemetryTable`) with a matching `data-model-id="<id>"`: fill Peak RAM / Avg CPU / Avg GPU / Peak power / Samples / Probe date if you have a qualifying probe, otherwise emit `<td class="num dash">—</td>` cells and a short reason (`n=… (below gate)` / `no probe`) so the row stays in the filterable roster.
 
-6. **Re-read the Best for / Expected usage cells and chart subtitles.** New numbers may invalidate an old assertion (e.g. "highest GPQA on the rig").
+6. **Grouped charts only:** the grouped `datasets` arrays (`chartAccuracy`, `chartGenTps`, prefill, …) are still listed explicitly per chart so each keeps its bespoke legend label — add a `dset(...)` line for the new model where you want it to appear. The ranked charts, scoreboard, scatter, and radar pick the model up automatically from `MODELS`/`RESULTS`.
+
+7. **Re-read the Best for / Expected usage cells and chart subtitles.** New numbers may invalidate an old assertion (e.g. "highest GPQA on the rig").
 
 ## How to add a new benchmark
 
