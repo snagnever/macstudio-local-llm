@@ -33,7 +33,7 @@
 ## Architecture & spec notes
 - 256-expert MoE with only **3B active per token** → near-dense-7B decode cost at 35B-class quality; MLX optimises the A3B routing well (see the e4b finding: small-dense has no inference edge over this).
 - **Thinking model** — emits `<think>...</think>` reasoning before answers. This is the source of both its MATH/GPQA strength and its truncation/spiral tax (see Known issues).
-- Hybrid Gated DeltaNet / Gated Attention layout per vendor card — same `qwen3_5_moe` family as the Phase-5 arrival `agents-a1-xl` ([plan](../benchmark-plans/2026-07-05-phase-5-new-arrivals.md)).
+- Hybrid Gated DeltaNet / Gated Attention layout per vendor card — same `qwen3_5_moe` family as the Phase-5 arrival `agents-a1-xl` ([plan](../../bench/phase-5-new-arrivals/plan.md)).
 - Vision + tools advertised in LM Studio metadata (`vision: true`, `trainedForToolUse: true`).
 - The earlier MoE-MLX tool-call regression seen on `mlx-community` **4-bit** checkpoints of this model does **not** appear on the 6-bit variant (confirmed on T-Bench leg B3).
 
@@ -82,7 +82,7 @@ Raw data: `tools/local-llm-bench-m4-32gb/benchmarks/runs/*_qwen3.6-35b-a3b@6bit_
 - **Serves as the rig's Veerman baseline** (75 % band) for judging new arrivals — MiniMax-M2.5 was scored against it.
 - **Remaining work:** `@8bit` quant A/B (Phase 2 #9); optional GPQA truncation rerun at 65k (`--only 2,4,12,...` — ~3–5 h); optional LCB spiral recovery at cap ≥ 96k.
 
-Plans: [2026-05-22-livecodebench-phase-1.md](../benchmark-plans/2026-05-22-livecodebench-phase-1.md) · [2026-05-24-terminal-bench-phase-a-plus-b.md](../benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md) · [testing-plan.md](../testing-plan.md)
+Plans: [2026-05-22-livecodebench-phase-1.md](../../bench/lcb-phase1/plan.md) · [2026-05-24-terminal-bench-phase-a-plus-b.md](../../bench/terminal-bench/plan.md) · [testing-plan.md](../testing-plan.md)
 
 ## Known issues & fixes
 
@@ -112,6 +112,6 @@ Plans: [2026-05-22-livecodebench-phase-1.md](../benchmark-plans/2026-05-22-livec
 
 ## History
 - **2026-05-17 → 05-19** — Phase 1 full suite (`@6bit`): knowledge avg 82.6 %, jdhodges 97.5 %, MATH 89 % best-in-trio; GPQA truncation finding documented ([M4 notes](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md)).
-- **2026-05-24** — LCB v6 backfill at 65k cap: **54 %**, 6 real spirals ([plan](../benchmark-plans/2026-05-22-livecodebench-phase-1.md)).
-- **2026-05-26 → 05-29** — Terminal-Bench 2.0 Phase B leg B3: **28.1 %**, #3 on rig; thinking-format guard passed ([plan](../benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md)).
+- **2026-05-24** — LCB v6 backfill at 65k cap: **54 %**, 6 real spirals ([plan](../../bench/lcb-phase1/plan.md)).
+- **2026-05-26 → 05-29** — Terminal-Bench 2.0 Phase B leg B3: **28.1 %**, #3 on rig; thinking-format guard passed ([plan](../../bench/terminal-bench/plan.md)).
 - **2026-07-05** — Confirmed as the Veerman 75 %-band baseline in the MiniMax-M2.5 GGUF evaluation ([minimax-m2.5.md](minimax-m2.5.md)). `@8bit` quant A/B still pending (Phase 2 #9).

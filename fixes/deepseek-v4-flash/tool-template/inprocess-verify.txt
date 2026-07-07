@@ -1,0 +1,25 @@
+In-process verification (temp tokenizer copy, no weights/server) — 2026-05-30T23:37:37-03:00
+Template: fixes/deepseek-v4-flash/tool-template/chat_template.jinja + tokenizer_config tool_parser_type=json_tools
+
+[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'attention_factor'}
+has_tool_calling : True
+tool_call_start  : '<tool_call>' | end: '</tool_call>'
+tools injected   : True
+tool_call spec   : True
+
+--- rendered prompt ---
+<｜begin▁of▁sentence｜>
+
+# Tools
+
+You may call one or more functions to assist with the user query.
+
+You are provided with function signatures within <tools></tools> XML tags:
+<tools>
+{"type": "function", "function": {"name": "get_weather", "description": "Get current weather for a city", "parameters": {"type": "object", "properties": {"city": {"type": "string"}}, "required": ["city"]}}}
+</tools>
+
+For each function call, return a json object with the function name and arguments within <tool_call></tool_call> XML tags, like:
+<tool_call>
+{"name": "function_name", "arguments": {"arg": "value"}}
+</tool_call><｜User｜>What's the weather in Paris?<｜Assistant｜></think>

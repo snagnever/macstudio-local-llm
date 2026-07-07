@@ -79,7 +79,7 @@ Raw data: `tools/local-llm-bench-m4-32gb/benchmarks/runs/*_qwen3.6-27b_20260517_
 - **Phase 2 (Gemma family):** **retained the knowledge generalist slot** — no Gemma beats it on knowledge (best Gemma trails by MMLU −10, MATH −5, DROP −11, GPQA −17 pp raw). But the **LCB-specific recommendation diverged**: `gemma-4-26b-a4b@6bit` is the single-shot code ceiling at 80 % (+18 pp).
 - **T-Bench backfill (2026-05-29):** lands #2 (31.5 %), gaining 2 rank spots vs its LCB rank — Qwen's agentic training transfers — but coder-next wins the agent slot speed-adjusted.
 
-Plans: [2026-05-22-livecodebench-phase-1.md](../benchmark-plans/2026-05-22-livecodebench-phase-1.md) · [2026-05-24-terminal-bench-phase-a-plus-b.md](../benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md) · [testing-plan.md](../testing-plan.md)
+Plans: [2026-05-22-livecodebench-phase-1.md](../../bench/lcb-phase1/plan.md) · [2026-05-24-terminal-bench-phase-a-plus-b.md](../../bench/terminal-bench/plan.md) · [testing-plan.md](../testing-plan.md)
 
 ## Known issues & fixes
 
@@ -87,7 +87,7 @@ Plans: [2026-05-22-livecodebench-phase-1.md](../benchmark-plans/2026-05-22-livec
 |---|---|---|
 | GPQA thinking spirals truncate at 32,768 cap (15/100 graded FAIL) | Single-letter answer format forces the full reasoning chain before the answer token | Run GPQA (and any thinking bench) with `--max-tokens 65536`; rerun of the 15 questions queued (~7–10 h). Raw 70 % is a floor; ceiling ~78–85 % |
 | Bench requests wedge / cascade-timeout on spirals | `bench2.py` hardcoded 1800 s urlopen timeout too short — a 65k spiral takes ~55 min at ~20 t/s | Set `BENCH_TIMEOUT=3600` for any ≤ 25 t/s thinking model at the raised cap (fix landed in `bench2.py`) |
-| Long `bench2.py` runs silently die at ~2–3 h under `Bash run_in_background` | Harness limitation, reproduced 3× | Detached driver pattern (`nohup` → PPID=1), e.g. `.bench-logs/run-27b-lcb-remaining.sh` |
+| Long `bench2.py` runs silently die at ~2–3 h under `Bash run_in_background` | Harness limitation, reproduced 3× | Detached driver pattern (`nohup` → PPID=1), e.g. `bench/lcb-phase1/scripts/run-27b-lcb-remaining.sh` |
 | Agentic loops feel glacial despite decent T-Bench score | 67 s prefill @ 8.5k → 1.9 t/s effective, re-paid every turn | Not a bug — role mismatch. Use `coder-next` for loops; keep 27b for one-shot planning |
 
 ## Loading & memory
@@ -110,6 +110,6 @@ Plans: [2026-05-22-livecodebench-phase-1.md](../benchmark-plans/2026-05-22-livec
 ## History
 - **2026-05-17 → 05-19** — Phase 1 (Qwen daily-driver trio): quality king, knowledge avg 85.8 %; full suite 37.6 h ([M4 notes](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md)).
 - **2026-05-22** — Phase 2 concludes: no Gemma displaces it on knowledge; retains the knowledge-generalist slot.
-- **2026-05-24** — LCB v6 backfill: **62 %**, best Qwen, 16.2 h ([plan](../benchmark-plans/2026-05-22-livecodebench-phase-1.md)); LCB-specific recommendation diverges to `gemma-4-26b-a4b@6bit` (80 %).
-- **2026-05-29** — Terminal-Bench 2.0 leg B5: **31.5 %** ⌛0.5x cap, #2 on rig ([plan](../benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md)); agent slot stays with coder-next on speed.
+- **2026-05-24** — LCB v6 backfill: **62 %**, best Qwen, 16.2 h ([plan](../../bench/lcb-phase1/plan.md)); LCB-specific recommendation diverges to `gemma-4-26b-a4b@6bit` (80 %).
+- **2026-05-29** — Terminal-Bench 2.0 leg B5: **31.5 %** ⌛0.5x cap, #2 on rig ([plan](../../bench/terminal-bench/plan.md)); agent slot stays with coder-next on speed.
 - **2026-07-05** — Model card written; still the Planning daily driver post-Phase-5 arrivals (MiniMax-M2.5 GGUF is sole-model only and doesn't contest the slot).

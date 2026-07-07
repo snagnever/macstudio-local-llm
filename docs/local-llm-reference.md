@@ -68,11 +68,11 @@ Verified against `lms ls` / `GET /v1/models` on 2026-05-18. All MLX models below
 | [`qwen3.6-27b`](models/qwen3.6-27b.md) | 27B dense | MLX safetensors | 6-bit | 22.80 GB | ✓ | ✓ | Reasoning specialist | [mlx-community/Qwen3.6-27B-6bit](https://huggingface.co/mlx-community/Qwen3.6-27B-6bit) |
 | [`qwen3.6-35b-a3b@6bit`](models/qwen3.6-35b-a3b.md) | 35B / 3B (MoE) | MLX safetensors | 6-bit | 29.09 GB | ✓ | ✓ | Fast generalist | [mlx-community/Qwen3.6-35B-A3B-6bit](https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-6bit) |
 | [`qwen3.6-35b-a3b@8bit`](models/qwen3.6-35b-a3b.md) | 35B / 3B (MoE) | MLX safetensors | 8-bit | 37.75 GB | ✓ | ✓ | Same weights, heavier quant — quant A/B vs @6bit | [mlx-community/Qwen3.6-35B-A3B-8bit](https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-8bit) |
-| [`gemma-4-26b-a4b-it-mlx@4bit`](models/gemma-4-26b-a4b.md) | 26B / 4B (MoE) | MLX safetensors | 4-bit | 15.64 GB | ✓ | ✓ | Knowledge / quality generalist (compact) | [lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit) |
-| [`gemma-4-26b-a4b-it-mlx@6bit`](models/gemma-4-26b-a4b.md) | 26B / 4B (MoE) | MLX safetensors | 6-bit | 21.81 GB | ✓ | ✓ | Same weights, heavier quant — quant A/B vs @4bit | [lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit) |
+| [`gemma-4-26b-a4b-it-mlx@4bit`](models/gemma-4-26b-a4b/README.md) | 26B / 4B (MoE) | MLX safetensors | 4-bit | 15.64 GB | ✓ | ✓ | Knowledge / quality generalist (compact) | [lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit) |
+| [`gemma-4-26b-a4b-it-mlx@6bit`](models/gemma-4-26b-a4b/README.md) | 26B / 4B (MoE) | MLX safetensors | 6-bit | 21.81 GB | ✓ | ✓ | Same weights, heavier quant — quant A/B vs @4bit | [lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit) |
 | [`gemma-4-31b-it-mlx`](models/gemma-4-31b.md) | 31B dense | MLX safetensors | 8-bit | 33.80 GB | ✓ | ✓ | Dense Gemma 4 above 26B-A4B; new slot to evaluate | [lmstudio-community/gemma-4-31B-it-MLX-8bit](https://huggingface.co/lmstudio-community/gemma-4-31B-it-MLX-8bit) |
 | [`gemma-4-e4b-it-mlx`](models/gemma-4-e4b.md) | 4B dense | MLX safetensors | 8-bit | 8.97 GB | ✓ | ✓ | Tiny fast / quick tool calls | [lmstudio-community/gemma-4-E4B-it-MLX-8bit](https://huggingface.co/lmstudio-community/gemma-4-E4B-it-MLX-8bit) |
-| [`deepseek-v4-flash-dq`](models/deepseek-v4-flash.md) | DeepSeek V4 Flash | MLX safetensors | 2-bit DQ | 96.53 GB | — | — | Frontier reasoning (⚠ tight fit) | [mlx-community/DeepSeek-V4-Flash-2bit-DQ](https://huggingface.co/mlx-community/DeepSeek-V4-Flash-2bit-DQ) |
+| [`deepseek-v4-flash-dq`](models/deepseek-v4-flash/README.md) | DeepSeek V4 Flash | MLX safetensors | 2-bit DQ | 96.53 GB | — | — | Frontier reasoning (⚠ tight fit) | [mlx-community/DeepSeek-V4-Flash-2bit-DQ](https://huggingface.co/mlx-community/DeepSeek-V4-Flash-2bit-DQ) |
 | [`text-embedding-nomic-embed-text-v1.5`](models/nomic-embed-text-v1.5.md) | — | GGUF | Q4_K_M | 84 MB | — | — | Embeddings for RAG | — (not in current LM Studio store; verify repo) |
 
 > **Removed from disk since the previous inventory pass** (2026-05-18): `nvidia/nemotron-3-nano-omni` (GGUF Q4_K_M, 26 GB) and `deepseek-v4-flash` 4-bit (151 GB, never loaded — exceeded 128 GB unified mem). Their `lms`/HF entries are gone; drop them from any client config that still references them. The DQ variant of DeepSeek V4 Flash (96.53 GB) remains.
@@ -381,7 +381,7 @@ lms server start    # start the server
 - Root cause: the client wraps a *no-reasoning* model (Gemma 4 A4B) in a harmony/channel reasoning template it was never trained for → empty `thought` channel loop, markers leak because the tokenizer splits `<|channel|>` into text
 - Fix (most cases): disable the reasoning format for this model in Hermes (plain/none)
 - Confirm the build: `tok.encode("<|channel|>")` must be **one** id, not 4–5; if not, the special tokens are missing from the conversion
-- Localize: if `mlx_lm.generate` on the CLI is clean but Hermes isn't → it's the client wrapper. Full writeup: [`gemma-4-channel-token-leak-writeup.md`](gemma-4-channel-token-leak-writeup.md)
+- Localize: if `mlx_lm.generate` on the CLI is clean but Hermes isn't → it's the client wrapper. Full writeup: [`gemma-4-channel-token-leak-writeup.md`](models/gemma-4-26b-a4b/channel-token-leak-writeup.md)
 
 **Symptom: `Error rendering prompt with jinja template: "Cannot perform operation + on undefined values"`**
 - Seen on `hermes-4-70b` (MLX) in LM Studio, tool-calling conversation. **Not** the weights, quant, or your messages — it's the chat template doing `+` on an undefined value. minja (LM Studio's Jinja) throws here where Python wouldn't. Two independent causes, same message:
@@ -389,13 +389,13 @@ lms server start    # start the server
   - Fix (both occurrences in `chat_template.jinja`): `{%- if '</think>' in content %}…the split…{%- endif %}` — only strip when there's a `</think>`
 - **Cause #2 — latent (`bos_token`):** both branches open with `bos_token + '…'`; if the runtime doesn't supply `bos_token` → `undefined + string`. Guard it: `{%- if not bos_token is defined %}{% set bos_token = '<|begin_of_text|>' %}{% endif %}` (no-op when supplied, so no double-BOS)
 - **After editing:** LM Studio caches the parsed template — **eject + reload** the model (or restart the server); a plain regenerate keeps the stale cache
-- Diagnose: render the exact payload with `thinking=True` vs `False` — True reproduces it. Full writeup: [`hermes-4-minja-render-error-writeup.md`](hermes-4-minja-render-error-writeup.md)
+- Diagnose: render the exact payload with `thinking=True` vs `False` — True reproduces it. Full writeup: [`hermes-4-minja-render-error-writeup.md`](models/hermes-4-70b/minja-render-error-writeup.md)
 
 ---
 
 ## Performance Expectations (verified on this rig)
 
-Headline numbers from [`benchmarking/local-llm-bench/results/`](../tools/local-llm-bench-m4-32gb/results/) (LM Studio MLX, M4 Max 128GB / 40-GPU). "Gen tok/s" is pure decode; "Effective tok/s" includes prefill — what you actually wait for in agentic loops. See the per-scenario JSON for context-length curves.
+Headline numbers from [`benchmarking/local-llm-bench/results/`](../tools/local-llm-bench-m4-32gb/results) (LM Studio MLX, M4 Max 128GB / 40-GPU). "Gen tok/s" is pure decode; "Effective tok/s" includes prefill — what you actually wait for in agentic loops. See the per-scenario JSON for context-length curves.
 
 | Model | Gen tok/s | Effective tok/s (ops-agent) | Prefill at 8.5k ctx | Status |
 |---|---|---|---|---|
@@ -414,7 +414,7 @@ Numbers depend on context size, prompt length, and concurrent activity. Use as a
 
 ## Benchmark Results (verified on this rig)
 
-Headline accuracy + tool-calling scores from [`../tools/local-llm-bench-m4-32gb/benchmarks/runs/`](../tools/local-llm-bench-m4-32gb/benchmarks/runs/) (n=100 per knowledge bench except LCB n=50, 40/12 per tool suite; `temp=0, seed=42`). Full matrix in [`testing-plan.md`](testing-plan.md). Updated 2026-05-24 after Phase 1 LCB backfill + Step B Gemma reruns.
+Headline accuracy + tool-calling scores from [`../tools/local-llm-bench-m4-32gb/benchmarks/runs/`](../tools/local-llm-bench-m4-32gb/benchmarks/runs) (n=100 per knowledge bench except LCB n=50, 40/12 per tool suite; `temp=0, seed=42`). Full matrix in [`testing-plan.md`](testing-plan.md). Updated 2026-05-24 after Phase 1 LCB backfill + Step B Gemma reruns.
 
 | Model | HumanEval | LCB v6 | MMLU | MATH | DROP | GPQA | jdhodges | veerman |
 |---|---|---|---|---|---|---|---|---|

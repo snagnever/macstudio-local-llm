@@ -10,7 +10,7 @@
 |---|---|---|
 | Vendor / base model | JetBrains/Mellum2-12B-A2.5B-Thinking (via the MLX conversion card) | [HF card](https://huggingface.co/jedisct1/Mellum2-12B-A2.5B-Thinking-mlx) |
 | Parameters | 12B total / ~2.5B active MoE — 64 experts, 8 active per token | HF card |
-| Architecture | `mellum`; sliding-window + full-attention layer mix; targets code + FIM | HF card + [phase-5 plan](../benchmark-plans/2026-07-05-phase-5-new-arrivals.md) |
+| Architecture | `mellum`; sliding-window + full-attention layer mix; targets code + FIM | HF card + [phase-5 plan](../../bench/phase-5-new-arrivals/plan.md) |
 | Native context | 131,072 | HF card |
 | Precision | native bf16 ("weights are kept in their native `bfloat16` precision") | HF card |
 | License | Apache 2.0 | HF card |
@@ -33,7 +33,7 @@
 Not measured — load-probe not yet run.
 
 ## Quality benchmarks (measured)
-Not measured. Planned ladder if it loads: speed probe → tool-calling → HumanEval → LCB ([phase-5 plan §5](../benchmark-plans/2026-07-05-phase-5-new-arrivals.md)).
+Not measured. Planned ladder if it loads: speed probe → tool-calling → HumanEval → LCB ([phase-5 plan §5](../../bench/phase-5-new-arrivals/plan.md)).
 
 ## Feasibility & verdict
 - **Gate (planned):** load-probe first —
@@ -62,4 +62,4 @@ Not yet configured — pending the load-probe. Vendor sampling `temp 0.6 / top_p
 
 ## History
 - **2026-06-02 → 07-04** — downloaded in the Phase 5 new-arrivals wave (24.3 GB bf16).
-- **2026-07-05** — queued as Phase 5 seq 5 with a load-probe gate ([plan](../benchmark-plans/2026-07-05-phase-5-new-arrivals.md), [testing-plan #16](../testing-plan.md)).
+- **2026-07-05** — queued as Phase 5 seq 5 with a load-probe gate ([plan](../../bench/phase-5-new-arrivals/plan.md), [testing-plan #16](../testing-plan.md)).

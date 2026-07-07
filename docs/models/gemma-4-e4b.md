@@ -77,7 +77,7 @@ Raw data: `tools/local-llm-bench-m4-32gb/benchmarks/runs/` (label `gemma-4-e4b-m
 - **What it's not for:** math (14 %), reasoning, knowledge lookups (MMLU 65 %, GPQA 34 %), multi-step agentic loops (T-Bench 4.5 %), or anything where Veerman-style holdout tool robustness matters (66.7 %).
 - **Speed caveat:** don't pick it "because small = fast" — `gemma-4-26b-a4b@4bit` decodes ~40 % faster (100 vs 70 gen t/s) with vastly better quality. Pick E4B only when the 8.97 GB footprint is the point.
 
-Plans: [2026-05-20-gemma-4-phase-2.md](../benchmark-plans/2026-05-20-gemma-4-phase-2.md) · [testing-plan.md](../testing-plan.md)
+Plans: [2026-05-20-gemma-4-phase-2.md](../../bench/gemma-4-phase2/plan.md) · [testing-plan.md](../testing-plan.md)
 
 ## Known issues & fixes
 
@@ -85,7 +85,7 @@ Plans: [2026-05-20-gemma-4-phase-2.md](../benchmark-plans/2026-05-20-gemma-4-pha
 |---|---|---|
 | Wrong answers on math / symbolic problems | 4B capability floor — MATH 14 % | **No fix.** Route math to `gemma-4-26b-a4b@6bit` (83 %) or `qwen3.6-27b` (88 %) |
 | Near-zero agentic-loop success | 4B size floor on T-Bench (4.5 %) | Use `qwen/qwen3-coder-next` for agent loops |
-| `<|channel|>` marker leak in Hermes-style clients (seen on sibling `26b-a4b@6bit`) | Client wraps a no-reasoning Gemma 4 in a harmony/channel reasoning template | Family-level caution: use a plain chat template; see [gemma-4-channel-token-leak-writeup.md](../gemma-4-channel-token-leak-writeup.md) |
+| `<|channel|>` marker leak in Hermes-style clients (seen on sibling `26b-a4b@6bit`) | Client wraps a no-reasoning Gemma 4 in a harmony/channel reasoning template | Family-level caution: use a plain chat template; see [gemma-4-channel-token-leak-writeup.md](gemma-4-26b-a4b/channel-token-leak-writeup.md) |
 
 ## Loading & memory
 - 8.97 GB weights — **coexists with anything**: loads in seconds, no eviction needed, no pairing math required.
@@ -104,6 +104,6 @@ Plans: [2026-05-20-gemma-4-phase-2.md](../benchmark-plans/2026-05-20-gemma-4-pha
 - MLX conversion: https://huggingface.co/lmstudio-community/gemma-4-E4B-it-MLX-8bit (LM Studio team, `mlx_vlm`, 8-bit)
 
 ## History
-- **2026-05-20 → 05-22** — Phase 2 full suite as model #7 ([plan](../benchmark-plans/2026-05-20-gemma-4-phase-2.md)); ~2.5 h wall-clock, 0 truncations. Verdict: fills the FIM / quick-call slot, MATH 14 % disqualifies everything else.
+- **2026-05-20 → 05-22** — Phase 2 full suite as model #7 ([plan](../../bench/gemma-4-phase2/plan.md)); ~2.5 h wall-clock, 0 truncations. Verdict: fills the FIM / quick-call slot, MATH 14 % disqualifies everything else.
 - **2026-05-24** — Step B Gemma truncation reruns: E4B unaffected (0 truncations); scores final.
 - **2026-05-29** — Terminal-Bench 2.0 Phase B leg B1: **4.5 %** — confirmed 4B agentic floor; FIM / quick-call verdict unchanged.

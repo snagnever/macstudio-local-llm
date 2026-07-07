@@ -43,7 +43,7 @@
 | Memory | 48 GB resident with KV, swap 0.2 GB `Spill=no`, GPU 100% @ 76 W; zero crashes across the entire tail |
 
 **Thinking tax (the headline caveat):** emits reasoning tokens on *everything* — 109 on "2+2", 18k on a "leetcode/easy", 2× 65k-cap spirals on *both* MMLU and LCB. MMLU 100q took 104 min, LCB 50q took 4 h. This is the Qwen 3.6-dense phenotype; a full MATH/DROP/GPQA sweep would be 20–40 h.
-Source: [M4_MAX_128GB_NOTES.md § agents-a1-xl-mlx](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md), drivers `.bench-logs/run-agents-a1-xl-{cheaptail,throughput}.sh`.
+Source: [M4_MAX_128GB_NOTES.md § agents-a1-xl-mlx](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md), drivers `bench/deepseek-v4-flash/logs/run-agents-a1-xl-{cheaptail,throughput}.sh`.
 
 ## Quality benchmarks (measured)
 
@@ -69,16 +69,16 @@ Config: ctx 131712, temp 0, seed 42, `--max-tokens 65536`, single-model residenc
 
 On short-output workloads (150-tok budgets) it produces **no usable output at all** — a genuine unsuitability for latency-sensitive short responses, not just slowness.
 
-Raw data: `tools/local-llm-bench-m4-32gb/benchmarks/runs/`, `results/speed_probe/`; full write-up in the [plan doc](../benchmark-plans/2026-07-04-agents-a1-xl.md).
+Raw data: `tools/local-llm-bench-m4-32gb/benchmarks/runs/`, `results/speed_probe/`; full write-up in the [plan doc](../../bench/agents-a1-xl/plan.md).
 
 ## Feasibility & verdict
 
 - **2026-07-04 → 07-05 — cheap tail ✅ COMPLETE, 🟡 GO (marginal).** Strong, well-rounded Qwen3.5 MoE — top-tier tool-calling + HumanEval, near-top MMLU, solid mid-pack LCB — with zero crashes. But a heavy thinker that pays a real wall-clock tax.
 - **Gate decision:** pre-registered gate was **LCB ≥ ~62% (beat 27b) OR MMLU ≥ ~85% (near 27b)**. It marginally clears on coding only (LCB 64% vs 27b 62%, +2 pp; MMLU 82% misses 85%). A thin pass — the coding edge is 2 pp while 27b leads knowledge by 6 pp — so the **expensive MATH/DROP/GPQA tail is DEFERRED** (20–40 h of thinking spirals for an already-well-characterized marginal model).
 - **Slot:** does **not** displace `coder-next` (agentic speed — effective 35.9 vs 55.8 t/s), `27b` (knowledge), or `gemma@6bit` (coding). Best fit: **tool-calling generalist** when calibrated restraint matters more than latency.
-- **Remaining work (optional, ranked):** (1) Terminal-Bench 2.0 resume — the on-brand end-to-end agentic-shell signal, ~18–30 h, re-launch `.bench-logs/run-tbench-agents-a1-xl.sh` when the rig has a free day; (2) no-think throughput A/B (invasive template surgery, low value); (3) proactivity-nudge tool-calling A/B (curiosity).
+- **Remaining work (optional, ranked):** (1) Terminal-Bench 2.0 resume — the on-brand end-to-end agentic-shell signal, ~18–30 h, re-launch `bench/terminal-bench/scripts/run-tbench-agents-a1-xl.sh` when the rig has a free day; (2) no-think throughput A/B (invasive template surgery, low value); (3) proactivity-nudge tool-calling A/B (curiosity).
 
-Plans: [2026-07-04-agents-a1-xl.md](../benchmark-plans/2026-07-04-agents-a1-xl.md) · [2026-07-05-phase-5-new-arrivals.md](../benchmark-plans/2026-07-05-phase-5-new-arrivals.md)
+Plans: [2026-07-04-agents-a1-xl.md](../../bench/agents-a1-xl/plan.md) · [2026-07-05-phase-5-new-arrivals.md](../../bench/phase-5-new-arrivals/plan.md)
 
 ## Known issues & fixes
 
@@ -87,7 +87,7 @@ Plans: [2026-07-04-agents-a1-xl.md](../benchmark-plans/2026-07-04-agents-a1-xl.m
 | Short-budget workloads produce zero output; wall-clock 2–13× a non-thinking peer | Mandatory heavy reasoning (109 tok on "2+2" → 65k-cap spirals) | No off switch found: inline `/no_think` is **ignored**; bench.py's template-patch `--no-think` can't resolve it (on-disk dir ≠ API id). Manual `chat_template.jinja` surgery would be needed — deferred. Budget ≥500 output tok per turn |
 | `bench.py check_context_size` false-failed the model | `max_tokens=5` pre-flight probe fully consumed by reasoning → `output_tokens==0` → bogus "context too small" exit | **Fixed** in harness (bench.py:408): probe returning only reasoning without a context-length error = pass |
 | Reasoning silently undetected in throughput runs | `bench.py` needs `--base-url http://host:1234` (no `/v1`); a trailing `/v1` doubles to an endpoint that drops `reasoning_content` | **Fixed** in driver — bare host in `run-agents-a1-xl-throughput.sh` |
-| T-Bench task errored at start | `EnvironmentStartTimeoutError` — Docker env issue, not the model | Resume from retained job dir `.bench-logs/tbench-runs/agents-a1-xl/` |
+| T-Bench task errored at start | `EnvironmentStartTimeoutError` — Docker env issue, not the model | Resume from retained job dir `bench/terminal-bench/logs/tbench-runs/agents-a1-xl` |
 
 ## Loading & memory
 - Comfortable-fit: 29.90 GB resident weights, ~48 GB with KV at ctx 131712 / parallel 4 — pairs fine under the ~80 GB rule, but bench single-model for clean numbers.
@@ -106,5 +106,5 @@ Plans: [2026-07-04-agents-a1-xl.md](../benchmark-plans/2026-07-04-agents-a1-xl.m
 - MLX conversion: https://huggingface.co/leonsarmiento/Agents-A1-6bit-XL-mlx (BaseQuant_XL 6/8-bit mixed, 6.808 bpw, ~28 GB / 6 shards)
 
 ## History
-- **2026-07-04** — New arrival; residency correction (unloaded hermes-4-70b + 27b, swap 19.9 GB → 166 MB); speed probe + tool-calling (jdhodges 92.5%, Veerman 83.3%); cheap tail launched ([plan](../benchmark-plans/2026-07-04-agents-a1-xl.md)).
+- **2026-07-04** — New arrival; residency correction (unloaded hermes-4-70b + 27b, swap 19.9 GB → 166 MB); speed probe + tool-calling (jdhodges 92.5%, Veerman 83.3%); cheap tail launched ([plan](../../bench/agents-a1-xl/plan.md)).
 - **2026-07-05** — Cheap tail complete: HumanEval 97%, MMLU 82%, LCB v6 64%. Throughput scenarios: 3 of 4 fail on thinking tax (effective 35.9 t/s); 2 harness bugs found + fixed. T-Bench attempt aborted at 2/89 (Docker env error). Gate = marginal coding-only pass → 🟡 **GO (marginal)**, expensive tail deferred. Recorded in [testing-plan.md](../testing-plan.md) and [M4 notes](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md).

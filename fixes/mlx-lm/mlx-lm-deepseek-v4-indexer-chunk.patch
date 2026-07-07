@@ -1,0 +1,85 @@
+# Vendor patch carried by this project until upstream lands the fix.
+#
+# Issue:    Not yet filed (TODO: file against ml-explore/mlx-lm PR #1192
+#           reviewers — this is the Apple Silicon side of the V4 port).
+# Context:  bench/deepseek-v4-flash/plan-phase-3.md
+#           (Phase 3 #10 post-mortem)
+#
+# Bug:      Running `mlx_lm.server` against `mlx-community/DeepSeek-V4-Flash-2bit-DQ`
+#           on Apple Silicon (verified M4 Max 128 GB, Metal device class
+#           applegpu_g16s) aborts mid-decode with
+#               RuntimeError: [metal::malloc] Resource limit (499000) exceeded
+#           once the server's prompt cache has accumulated ~10+ cached
+#           sequences. Cold-cache requests succeed; warm-cache requests fail.
+#           Unpatched: ~49 OOM aborts inside ~3 h on jdhodges tool-call bench.
+#
+# Cause:    Apple Metal's device `resource_limit` (count of resources a
+#           single command buffer may reference; checked via
+#           `mx.device_info()`) is a hardware/driver value of 499000 on
+#           this class. The DeepSeek V4 `Indexer.__call__` body produces
+#           a (B, n_heads, L, pooled_seq) intermediate via
+#               scores = q @ pooled_T
+#               scores = relu(scores) * scale
+#               scores = (scores * weights).sum(axis=heads)
+#           pooled_seq grows with the cached prefix; with index_n_heads=64
+#           (from this checkpoint's config.json), the un-chunked intermediate
+#           binds enough Metal resources to exceed the cap.
+#
+# Fix:      Reduce over n_heads in **chunks of 2** with mx.eval + explicit
+#           mx.clear_cache() between chunks to force per-chunk Metal
+#           command-buffer boundaries and release cached buffer state.
+#           Reduction over n_heads is associative, so the chunked form is
+#           mathematically equivalent (verified by cold-cache smoke chat:
+#           same output tokens, same coherence). Chunk size 2 was needed —
+#           chunk size 8 reduced OOMs 49 → 3 but did not eliminate them on
+#           warm-cache requests.
+#
+# Trade-off: ~2x throughput cost on the indexer (was ~22-29 t/s un-patched
+#           cold-cache, ~12-16 t/s chunk=8, expected ~8-12 t/s at chunk=2).
+#           The indexer is one of many model components, so end-to-end
+#           token throughput cost is smaller than the indexer-local cost.
+#
+# Apply:    From the activated venv, run
+#               (cd "$VIRTUAL_ENV/lib/python3.12/site-packages" \
+#                  && patch -p0 < /path/to/patches/mlx-lm-deepseek-v4-indexer-chunk.patch)
+#
+# Retire:   Delete this file and remove the apply step from
+#           docs/deepseek-v4-flash-setup.md once upstream PR #1192 (or a
+#           successor) lands a chunked indexer for Apple Silicon.
+
+--- mlx_lm/models/deepseek_v4.py
++++ mlx_lm/models/deepseek_v4.py
+@@ -551,12 +551,27 @@
+         q = q.transpose(0, 2, 1, 3)
+         q = position_rope(q, offset)
+
+-        scores = q.astype(mx.float32) @ pooled[:, None].swapaxes(-1, -2).astype(
+-            mx.float32
+-        )
+-        scores = mx.maximum(scores, 0) * self.scale
++        # Chunk the indexer's per-forward-pass intermediates over n_heads to
++        # stay under Apple Silicon Metal's per-command-buffer resource_limit
++        # (499000 on M4 Max applegpu_g16s). The un-chunked form aborts with
++        #   RuntimeError: [metal::malloc] Resource limit (499000) exceeded
++        # once the server prompt cache warms. Reduction over n_heads is
++        # associative, so this is mathematically equivalent. mx.eval +
++        # mx.clear_cache between chunks force per-chunk Metal command-buffer
++        # boundaries and release cached buffer state.
++        # See patches/mlx-lm-deepseek-v4-indexer-chunk.patch for the post-mortem.
+         weights = self.weights_proj(x).astype(mx.float32) * (self.n_heads**-0.5)
+-        scores = (scores * weights.swapaxes(-1, -2)[..., None]).sum(axis=1)
++        weights_t = weights.swapaxes(-1, -2)  # (B, n_heads, L)
++        pooled_t = pooled[:, None].swapaxes(-1, -2).astype(mx.float32)
++        chunk = 2
++        scores = None
++        for h in range(0, self.n_heads, chunk):
++            h_end = min(h + chunk, self.n_heads)
++            s = q[:, h:h_end].astype(mx.float32) @ pooled_t
++            s = mx.maximum(s, 0) * self.scale
++            s = (s * weights_t[:, h:h_end, :, None]).sum(axis=1)
++            scores = s if scores is None else scores + s
++            mx.eval(scores)
++            mx.clear_cache()
+         pmask = pool_cache.make_mask(L, offset) if pool_cache is not None else None
+         if pmask is not None:
+             scores = mx.where(

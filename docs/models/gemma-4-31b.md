@@ -1,6 +1,6 @@
 # Gemma-4-31B (dense)
 
-> **Status: 🟡 DEMOTED — MLX 8-bit** (dense tax: 6× slower than `gemma-4-26b-a4b@6bit` for no quality return; kept on disk as a reproducibility reference) / **⚪ QAT GGUF PLANNED** (engine A/B head-to-head, [Phase 5 seq 2](../benchmark-plans/2026-07-05-phase-5-new-arrivals.md)).
+> **Status: 🟡 DEMOTED — MLX 8-bit** (dense tax: 6× slower than `gemma-4-26b-a4b@6bit` for no quality return; kept on disk as a reproducibility reference) / **⚪ QAT GGUF PLANNED** (engine A/B head-to-head, [Phase 5 seq 2](../../bench/phase-5-new-arrivals/plan.md)).
 > The family's MoE sibling `gemma-4-26b-a4b@6bit` matches or beats it on every bench except DROP — see the dense-tax verdict below.
 > Last updated: 2026-07-05
 
@@ -23,7 +23,7 @@
 | API id | Source repo | Format | Quant | Disk | Runtime | Status | Notes |
 |---|---|---|---|---|---|---|---|
 | `gemma-4-31b-it-mlx` | [lmstudio-community/gemma-4-31B-it-MLX-8bit](https://huggingface.co/lmstudio-community/gemma-4-31B-it-MLX-8bit) | MLX safetensors | 8-bit (mlx_vlm conversion) | 33.80 GB | LM Studio MLX | 🟡 **DEMOTED 2026-05-22** | Fully benched Phase 2; dense tax, no quality return vs `@6bit` MoE |
-| `google/gemma-4-31b-qat` | [lmstudio-community/gemma-4-31B-it-QAT-GGUF](https://huggingface.co/lmstudio-community/gemma-4-31B-it-QAT-GGUF) | GGUF | **QAT** Q4_0 (quantization-aware trained) | 18.9 GB (LM Studio; HF lists 17.7 GB) | LM Studio llama.cpp 2.23.1 (official catalog model) | ⚪ **PLANNED** | Engine A/B vs the MLX 8-bit numbers ([Phase 5 seq 2](../benchmark-plans/2026-07-05-phase-5-new-arrivals.md)) |
+| `google/gemma-4-31b-qat` | [lmstudio-community/gemma-4-31B-it-QAT-GGUF](https://huggingface.co/lmstudio-community/gemma-4-31B-it-QAT-GGUF) | GGUF | **QAT** Q4_0 (quantization-aware trained) | 18.9 GB (LM Studio; HF lists 17.7 GB) | LM Studio llama.cpp 2.23.1 (official catalog model) | ⚪ **PLANNED** | Engine A/B vs the MLX 8-bit numbers ([Phase 5 seq 2](../../bench/phase-5-new-arrivals/plan.md)) |
 
 **Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): MLX 8-bit: [`244e29d`](https://huggingface.co/lmstudio-community/gemma-4-31B-it-MLX-8bit/tree/244e29d3b19e7b50e3ddddc33fcc882f24a19399) (downloaded 2026-05-17) · QAT GGUF: [`5f1655e`](https://huggingface.co/lmstudio-community/gemma-4-31B-it-QAT-GGUF/tree/5f1655eb80159b7db3f6feb9ce1a9440ab076261) (downloaded 2026-07-01).
 
@@ -74,7 +74,7 @@ Raw data: `tools/local-llm-bench-m4-32gb/benchmarks/runs/` (Phase 2 + `tbench_*`
 - **2026-05-29 — the verdict generalizes to agentic shell.** Terminal-Bench 2.0: 22.5% — ties-or-loses to `26B-A4B@6bit` (21.3%) there too, and sits ~10 pp behind the agentic leader `qwen/qwen3-coder-next` (32.6%). Its LCB #2 rank (76%) drops to T-Bench #4 (−2 spots) — the Gemma one-shot-training pattern.
 - **Why it stays on disk:** reproducibility reference only — it is the MLX-8-bit baseline for the planned QAT GGUF engine A/B (below). Not for daily rotation.
 
-Plans: [2026-05-20-gemma-4-phase-2.md](../benchmark-plans/2026-05-20-gemma-4-phase-2.md) · [2026-07-05-phase-5-new-arrivals.md](../benchmark-plans/2026-07-05-phase-5-new-arrivals.md)
+Plans: [2026-05-20-gemma-4-phase-2.md](../../bench/gemma-4-phase2/plan.md) · [2026-07-05-phase-5-new-arrivals.md](../../bench/phase-5-new-arrivals/plan.md)
 
 ## Planned — QAT GGUF engine A/B (⚪ Phase 5 seq 2)
 
@@ -115,6 +115,6 @@ The demoted MLX build gets a second life as a **baseline**: `google/gemma-4-31b-
 - QAT GGUF: https://huggingface.co/lmstudio-community/gemma-4-31B-it-QAT-GGUF (Q4_0, 17.7 GB per HF / 18.9 GB per LM Studio; lineage `gemma-4-31B-it` → `gemma-4-31B-it-qat-q4_0-unquantized` → this)
 
 ## History
-- **2026-05-20 → 05-22** — Phase 2 full suite on MLX 8-bit ([plan](../benchmark-plans/2026-05-20-gemma-4-phase-2.md)): HE 95, LCB 76, MMLU 77, MATH 79, DROP 85, GPQA 48; 13.7 gen t/s. 🟡 **Demoted** — dense tax, no quality return vs `@6bit`.
+- **2026-05-20 → 05-22** — Phase 2 full suite on MLX 8-bit ([plan](../../bench/gemma-4-phase2/plan.md)): HE 95, LCB 76, MMLU 77, MATH 79, DROP 85, GPQA 48; 13.7 gen t/s. 🟡 **Demoted** — dense tax, no quality return vs `@6bit`.
 - **2026-05-26 → 05-29** — Terminal-Bench 2.0 Phase B: 22.5% (#4 of 7) — the demotion verdict generalizes to agentic shell.
-- **2026-07-05** — QAT GGUF (`google/gemma-4-31b-qat`, 18.9 GB) queued as seq 2 in the [Phase 5 plan](../benchmark-plans/2026-07-05-phase-5-new-arrivals.md): the deferred Step F engine A/B, with the demoted MLX build as baseline. Not yet run.
+- **2026-07-05** — QAT GGUF (`google/gemma-4-31b-qat`, 18.9 GB) queued as seq 2 in the [Phase 5 plan](../../bench/phase-5-new-arrivals/plan.md): the deferred Step F engine A/B, with the demoted MLX build as baseline. Not yet run.

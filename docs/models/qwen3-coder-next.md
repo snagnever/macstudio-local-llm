@@ -75,7 +75,7 @@ Raw data: `tools/local-llm-bench-m4-32gb/benchmarks/runs/*_qwen_qwen3-coder-next
 - **Vendor honesty check:** 32.6 % measured vs 36.2 % claimed is a 3.6 pp gap, consistent with MLX 6-bit quant cost — the vendor's agentic-default branding is honest.
 - **Remaining work:** Phase 2 #8 quant A/B (`@4bit` vs `@6bit`) — unlocks the ⭐ recommended two-resident pair with measured numbers.
 
-Plans: [2026-05-22-livecodebench-phase-1.md](../benchmark-plans/2026-05-22-livecodebench-phase-1.md) · [2026-05-24-terminal-bench-phase-a-plus-b.md](../benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md) · [testing-plan.md](../testing-plan.md)
+Plans: [2026-05-22-livecodebench-phase-1.md](../../bench/lcb-phase1/plan.md) · [2026-05-24-terminal-bench-phase-a-plus-b.md](../../bench/terminal-bench/plan.md) · [testing-plan.md](../testing-plan.md)
 
 ## Known issues & fixes
 
@@ -147,7 +147,7 @@ aider --openai-api-base http://<lm-studio-host>:1234/v1 \
 
 ## History
 - **2026-05-17** — Phase 1 full suite (n=100, 1.9 h): HumanEval 89 %, MMLU 76 %, MATH 84 %, DROP 83 %, GPQA 37 %, jdhodges 90 %, Veerman 83.3 %. Verdict: speed/agentic-tool king, not the quality king ([M4 notes](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md)).
-- **2026-05-22 → 05-24** — LCB v6 backfill ([plan](../benchmark-plans/2026-05-22-livecodebench-phase-1.md)): 56 %, clean after Q19 rerun at 65k (genuine model failure, not cap artifact).
+- **2026-05-22 → 05-24** — LCB v6 backfill ([plan](../../bench/lcb-phase1/plan.md)): 56 %, clean after Q19 rerun at 65k (genuine model failure, not cap artifact).
 - **2026-05-22** — Phase 2 verdict: agentic-coder slot **unchanged** — no Gemma displaced it on the combined coding + tool-calling + knowledge profile.
-- **2026-05-24 → 05-29** — Terminal-Bench 2.0 Phase A+B ([plan](../benchmark-plans/2026-05-24-terminal-bench-phase-a-plus-b.md)): **32.6 %, #1 on rig** (vendor 36.2 %); LCB rank inverted (+4 spots). Agent role winner confirmed.
+- **2026-05-24 → 05-29** — Terminal-Bench 2.0 Phase A+B ([plan](../../bench/terminal-bench/plan.md)): **32.6 %, #1 on rig** (vendor 36.2 %); LCB rank inverted (+4 spots). Agent role winner confirmed.
 - **Pending** — Phase 2 #8: `@4bit` quant A/B to validate the ⭐ two-resident pair with measured numbers.
