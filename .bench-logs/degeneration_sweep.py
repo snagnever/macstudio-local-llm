@@ -35,6 +35,7 @@ MODEL = os.environ.get(
     "MODEL", "/Users/vitor/.lmstudio/models/mlx-community/DeepSeek-V4-Flash-2bit-DQ"
 )
 MAXTOK = int(os.environ.get("MAXTOK", "1500"))
+CHAT_KWARGS = json.loads(os.environ["CHAT_KWARGS"]) if os.environ.get("CHAT_KWARGS") else None
 
 # Prompts chosen to provoke long-form open-ended generation (where the loop appears).
 PROMPTS = {
@@ -126,6 +127,8 @@ def call(params, prompt, seed):
     body = {"model": MODEL, "messages": [{"role": "user", "content": prompt}],
             "max_tokens": MAXTOK, "stream": False}
     body.update(params)
+    if CHAT_KWARGS:
+        body["chat_template_kwargs"] = CHAT_KWARGS
     if params.get("temperature", 0.0) > 0 and seed is not None:
         body["seed"] = seed
     req = urllib.request.Request(f"{BASE}/chat/completions",
