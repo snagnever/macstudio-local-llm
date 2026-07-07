@@ -124,9 +124,12 @@
 
   // Rows for a ranked horizontal-bar chart: every model that has a value for
   // `query`, is not flagged refExclude, and passes the active filter — sorted
-  // high→low. Row label = labelFn(model) + the matched record's per-row `note`
-  // (footnotes such as "'26" or "(measured; comm ~80)" live on the record so a
-  // model can carry a different note per benchmark).
+  // high→low. `label` is the y-axis tick (model name + compact symbolic markers
+  // only — kept short so it never crowds the bar). Prose caveats live in
+  // `caveat` and surface in the hover tooltip instead: the model-level
+  // `m.caveat` plus the matched record's per-row `note` (footnotes such as
+  // "'26" or "(measured; comm ~80)" live on the record so a model can carry a
+  // different note per benchmark).
   function deriveRanked(models, results, query, state, labelFn) {
     return models
       .filter(function (m) { return !m.refExclude; })
@@ -138,10 +141,11 @@
       .sort(function (a, b) { return b.value - a.value; })
       .map(function (x) {
         return {
-          label: labelFn(x.m) + (x.note ? ' ' + x.note : ''),
+          label: labelFn(x.m),
           value: x.value,
           color: x.m.color || TIER_COLOR[x.m.tier],
-          modelId: x.m.id
+          modelId: x.m.id,
+          caveat: [x.m.caveat, x.note].filter(Boolean).join(' · ')
         };
       });
   }
@@ -374,6 +378,7 @@
     var labelFn = cfg.labelFn || function (m) { return m.label; };
     function rows() { return deriveRanked(cfg.models, cfg.results, cfg.query, state, labelFn); }
     var initial = rows();
+    var current = initial;   // kept in sync so the tooltip can read each bar's caveat
 
     var chart = registerChart(new Chart(document.getElementById(canvasId), {
       type: 'bar',
@@ -394,7 +399,15 @@
         layout: { padding: { right: 34 } },
         plugins: {
           legend: { display: false },
-          tooltip: { mode: 'nearest', intersect: false },
+          tooltip: {
+            mode: 'nearest', intersect: false,
+            callbacks: {
+              afterLabel: function (ctx) {
+                var row = current[ctx.dataIndex];
+                return (row && row.caveat) ? wrapText(row.caveat, 52) : '';
+              }
+            }
+          },
           datalabels: Object.assign({}, DATALABELS, { anchor: 'end', align: 'end', offset: 4, color: '#e6e6e6' })
         },
         scales: {
@@ -409,6 +422,7 @@
 
     state.onChange(function () {
       var r = rows();
+      current = r;
       chart.data.labels = r.map(function (x) { return x.label; });
       chart.data.datasets[0].data = r.map(function (x) { return x.value; });
       chart.data.datasets[0].backgroundColor = r.map(function (x) { return x.color; });
@@ -757,6 +771,19 @@
   function divider() { return el('span', 'filter-divider'); }
   function distinct(arr) { var out = []; arr.forEach(function (x) { if (out.indexOf(x) === -1) out.push(x); }); return out; }
   function round1(v) { return Math.round(v * 10) / 10; }
+
+  // Greedy word-wrap to <= `max` chars/line. Returns an array of lines, which
+  // Chart.js tooltip callbacks render as multiple lines (a single long string
+  // would otherwise blow out the tooltip width).
+  function wrapText(s, max) {
+    var lines = [], cur = '';
+    String(s).split(/\s+/).forEach(function (w) {
+      if (cur && (cur.length + 1 + w.length) > max) { lines.push(cur); cur = w; }
+      else { cur = cur ? cur + ' ' + w : w; }
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
 
   // Show one decimal by default, but keep extra precision when the source
   // value has it (e.g. 89.75 stays 89.75, 56.0 stays "56.0").
