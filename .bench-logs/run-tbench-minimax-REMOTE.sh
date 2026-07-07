@@ -15,7 +15,7 @@ set -u
 
 RIG=http://macstudio.local:1234/v1          # LM Studio on the 128 GB model rig
 MODEL=unsloth/minimax-m2.5
-REPO="$HOME/LocalProjects/local-llms"      # <-- EDIT to this Mac's checkout path
+REPO="$HOME/LocalProjects/macstudio-local-llm"  # <-- EDIT to this Mac's checkout path
 NCONC=1                                     # concurrent trials. 1 per ~16-24 GB free Docker RAM.
                                             #   32 GB free → 1 ; 64 GB → 2 ; 96 GB+ → 3-4
 export OPENAI_API_BASE="$RIG"
@@ -45,8 +45,8 @@ harbor run \
   -n "$NCONC" \
   -y \
   --quiet \
-  --timeout-multiplier 1.0 \
-  --environment-build-timeout 3.0 \
+  --agent-timeout-multiplier 0.5 \
+  --environment-build-timeout-multiplier 3.0 \
   --jobs-dir .bench-logs/tbench-runs \
   --job-name minimax-m2.5-remote \
   > "$TBLOG" 2>&1
