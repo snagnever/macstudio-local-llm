@@ -26,6 +26,8 @@
 |---|---|---|---|---|---|---|---|
 | `gemma-4-e4b-it-mlx` | [lmstudio-community/gemma-4-E4B-it-MLX-8bit](https://huggingface.co/lmstudio-community/gemma-4-E4B-it-MLX-8bit) | MLX safetensors | 8-bit (LM Studio team, `mlx_vlm` conversion) | 8.97 GB (HF card lists 8.94 GB) | LM Studio MLX | 🟡 **NICHE 2026-05-22** | Vision + tools flags set; fills the FIM / quick-call slot |
 
+**Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): 8-bit: [`c63b2f9`](https://huggingface.co/lmstudio-community/gemma-4-E4B-it-MLX-8bit/tree/c63b2f9519d800e591cb331e5c19c021f66bf79a) (downloaded 2026-05-17).
+
 ## Architecture & spec notes
 - Dense 4B-class — the smallest model in the lineup by far. No MoE routing; its throughput story is therefore *worse* relative to the MoE siblings than the size suggests (see Local performance).
 - 512-token sliding-window on most layers keeps KV growth cheap; combined with the 8.97 GB footprint it coexists with any resident model under the ~80 GB weights+KV rule.

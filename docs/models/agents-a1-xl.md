@@ -24,6 +24,8 @@
 |---|---|---|---|---|---|---|---|
 | `agents-a1-xl-mlx` | [leonsarmiento/Agents-A1-6bit-XL-mlx](https://huggingface.co/leonsarmiento/Agents-A1-6bit-XL-mlx) | MLX | 6-bit ("BaseQuant_XL" 6/8-bit mixed, 6.808 bpw avg; routing-critical layers kept bf16) | 27.8 GB (29.90 GB resident) | LM Studio MLX (mlx-llm 1.9.1) | 🟡 **GO (marginal) 2026-07-05** | Cheap tail complete, zero crashes; expensive tail + T-Bench deferred |
 
+**Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): 6-bit XL: [`f0decd3`](https://huggingface.co/leonsarmiento/Agents-A1-6bit-XL-mlx/tree/f0decd3fa41a35f532f2628bc6af661f04e218a6) (downloaded 2026-07-03).
+
 ## Architecture & spec notes
 - Qwen3.5 MoE family (`qwen3_5_moe`) — same arch as the already-benched `qwen3.6-35b-a3b`; loaded on stock LM Studio MLX with no special handling.
 - 256 experts / 8 active + 1 shared expert; hybrid full + linear (Gated DeltaNet) attention per the HF card.

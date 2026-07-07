@@ -23,6 +23,8 @@
 |---|---|---|---|---|---|---|---|
 | `mellum2-12b-a2.5b-thinking-mlx` | [jedisct1/Mellum2-12B-A2.5B-Thinking-mlx](https://huggingface.co/jedisct1/Mellum2-12B-A2.5B-Thinking-mlx) | MLX | bf16 | 24.3 GB | LM Studio MLX (🔴 verify) / mlx-lm fork | ⚪ PLANNED | Card: "the mellum architecture is not supported by the stock mlx-lm code yet" |
 
+**Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): bf16: [`463ddb6`](https://huggingface.co/jedisct1/Mellum2-12B-A2.5B-Thinking-mlx/tree/463ddb634c4d805c87ff71f7ded88ef3e4d55d21) (downloaded 2026-06-02).
+
 ## Architecture & spec notes
 - MoE with only 2.5B active — cheap and fast to bench if it loads.
 - Downloaded conversion is un-quantized bf16 (24.3 GB) — unusual for this rig's lineup (everything else is 3–8-bit).

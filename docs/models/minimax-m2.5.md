@@ -26,6 +26,8 @@
 | `mlx-community/minimax-m2.5` | [mlx-community/MiniMax-M2.5-3bit](https://huggingface.co/mlx-community/MiniMax-M2.5-3bit) | MLX | 3-bit (mlx-lm 0.30.7 conversion) | 93 GiB | LM Studio MLX | 🔴 **NO-GO 2026-07-04** | Reproducible host kernel panic ×3 under sustained inference |
 | `unsloth/minimax-m2.5` | [unsloth/MiniMax-M2.5-GGUF](https://huggingface.co/unsloth/MiniMax-M2.5-GGUF) | GGUF | Q3_K_S | 98.7 GB (98.69 GB resident) | LM Studio llama.cpp 2.23.1 (native — no fork/flags) | 🟢 **GO 2026-07-05** | Soak passed; cheap-signal gate cleared |
 
+**Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): MLX 3-bit: [`a583b88`](https://huggingface.co/mlx-community/MiniMax-M2.5-3bit/tree/a583b889bd59a5335e0ba5f3c74bb25ed7f01aaf) (downloaded 2026-07-03) · GGUF Q3_K_S: [`7c50dca`](https://huggingface.co/unsloth/MiniMax-M2.5-GGUF/tree/7c50dca0e5592483ad308ecffc876aecac725660) (downloaded 2026-07-04).
+
 ### Quant roadmap (ranked 2026-07-06)
 
 Every candidate must answer a question we'd act on; ranked by the value of that question. Sizes from the unsloth repo; fit math assumes ~23 GB inference overhead on top of weights at ctx 32k (measured: Q3_K_S 98.69 GB → 121.9 GB peak). Pairing rule: weights+KV < 80 GB to co-exist with other models ([testing-plan.md § memory](../testing-plan.md)).

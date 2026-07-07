@@ -26,6 +26,8 @@
 |---|---|---|---|---|---|---|---|
 | `qwen3.6-27b` | [mlx-community/Qwen3.6-27B-6bit](https://huggingface.co/mlx-community/Qwen3.6-27B-6bit) | MLX safetensors | 6-bit | 22.80 GB | LM Studio MLX | 🟢 **DAILY DRIVER** | Planning / hard-reasoning slot; sole benched variant |
 
+**Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): 6-bit: [`9bf9761`](https://huggingface.co/mlx-community/Qwen3.6-27B-6bit/tree/9bf976157e09080fbc11ccd971d4e9c57554889d) (downloaded 2026-05-16).
+
 > Out-of-scope community re-quants on disk (alignment-stripped — not daily-driver candidates): `qwen3.6-27b-paro` (z-lab, 18.80 GB), `qwen3.6-27b-ud-mlx` (unsloth 4-bit, 26.21 GB), `qwen3.6-27b-jang_4m-crack` (dealignai 4-bit, 17.55 GB). See [local-llm-reference.md](../local-llm-reference.md).
 
 ## Architecture & spec notes
