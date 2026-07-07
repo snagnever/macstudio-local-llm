@@ -124,7 +124,7 @@ which even load on the current stack — bundled llama.cpp 2.23.1 + mlx-llm 1.9.
 | 12 | `agents-a1-xl-mlx` | MLX 6-bit | 29.9 GB | `qwen3_5_moe` | 🟢 resident | Agentic Qwen3.5-MoE fine-tune → tool-calling signal. Zero load cost. |
 | 13 | `google/gemma-4-31b-qat` | GGUF Q4_0 | 18.9 GB | `gemma4` | 🟢 yes | **Engine A/B** (Step F): GGUF-QAT vs already-benched MLX-8-bit `gemma-4-31b-it`. |
 | 14 | `kimi-dev-72b` | GGUF UD-Q6_K_XL | 67.2 GB | `qwen2` | 🟢 loads | ⛔ **ABORTED 2026-07-05** — speed **~7 t/s** (slowest on rig) + no structured tool-calling + mandatory `◁think▷` spirals → disqualified as daily driver; coding-quality tail not worth ~1–2 rig-days. See NOTES. |
-| 15 | `unsloth/minimax-m2.5` | GGUF Q3_K_S | 98.7 GB | `minimax-m2` | 🟡 gate | **The MiniMax NO-GO retry** via llama.cpp's different Metal path. Feasibility soak first. |
+| 15 | `unsloth/minimax-m2.5` | GGUF Q3_K_S | 98.7 GB | `minimax-m2` | 🟢 **GO — benched** | GGUF revives the MLX NO-GO. jdhodges 95%, HumanEval 94%, LCB v6 72%, **Terminal-Bench 25.8% (23/89, 4th on rig)**. Full card: [models/minimax-m2.5.md](models/minimax-m2.5.md). Open: MMLU tail, UD-Q3_K_XL quant A/B. |
 | 16 | `mellum2-12b-a2.5b-thinking-mlx` | MLX bf16 | 24.3 GB | `mellum` | 🔴 verify | Small thinking coder (12B/2.5B, FIM slot). Arch likely needs an mlx-lm fork — load-probe. |
 | 17 | `nousresearch/hermes-4-70b` | MLX 6-bit | 57.3 GB | `llama` | 🔴 blocked | Reasoning/agentic 70B. Parked on the `bos_token` minja chat-template break. |
 
