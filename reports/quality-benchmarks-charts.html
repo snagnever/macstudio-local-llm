@@ -416,17 +416,23 @@
 
   <h2 class="category-heading" id="sec-knowledge">Knowledge &amp; reasoning <span class="hint">MMLU-Pro, GPQA, AIME, MMMU — ranked local vs frontier</span></h2>
 
-  <section class="card"><h2>MMLU-Pro</h2><p class="sub">Broad academic knowledge. GPT-5 number is the AA-Intelligence-Index input range (~85–87).</p><div class="chart-wrap ref-md"><canvas id="chartMMLU"></canvas></div></section>
-  <section class="card"><h2>GPQA Diamond</h2><p class="sub">Graduate-level science — the benchmark every modern model reports.</p><div class="chart-wrap ref-md"><canvas id="chartGPQA"></canvas></div></section>
+  <section class="card"><h2>MMLU-Pro — published scores</h2><p class="sub">Broad academic knowledge. GPT-5 number is the AA-Intelligence-Index input range (~85–87).</p><div class="chart-wrap ref-md"><canvas id="chartMMLU"></canvas></div></section>
+  <section class="card"><h2>GPQA Diamond — published scores</h2><p class="sub">Graduate-level science — the benchmark every modern model reports.</p><div class="chart-wrap ref-md"><canvas id="chartGPQA"></canvas></div></section>
 
-  <section class="card"><h2>AIME — competition math</h2><p class="sub">⚠ Mixed years: Qwen3.6 family & Gemma 4 report AIME 2026; GPT-5 / Sonnet 4.6 / DeepSeek V4 report AIME 2025; Kimi K2.6 reports AIME 2026.</p><div class="chart-wrap ref-md"><canvas id="chartAIME"></canvas></div></section>
-  <section class="card wide"><h2>MMMU / MMMU-Pro — vision &amp; multimodal</h2><p class="sub">MMMU and MMMU-Pro are different (Pro is harder). Bars are labelled (P) when Pro. Compare within the same metric only.</p><div class="chart-wrap ref-md"><canvas id="chartMMMU"></canvas></div></section>
+  <section class="card"><h2>AIME — competition math (published)</h2><p class="sub">⚠ Mixed years: Qwen3.6 family & Gemma 4 report AIME 2026; GPT-5 / Sonnet 4.6 / DeepSeek V4 report AIME 2025; Kimi K2.6 reports AIME 2026.</p><div class="chart-wrap ref-md"><canvas id="chartAIME"></canvas></div></section>
+  <section class="card wide"><h2>MMMU / MMMU-Pro — vision &amp; multimodal (published)</h2><p class="sub">MMMU and MMMU-Pro are different (Pro is harder). Bars are labelled (P) when Pro. Compare within the same metric only.</p><div class="chart-wrap ref-md"><canvas id="chartMMMU"></canvas></div></section>
 
   <h2 class="category-heading" id="sec-coding">Coding &amp; agents <span class="hint">SWE-bench, LiveCodeBench, Terminal-Bench, and the model radar</span></h2>
 
-  <section class="card"><h2>SWE-bench Verified</h2><p class="sub">Agentic code editing. The single most-cited coder benchmark.</p><div class="chart-wrap ref-md"><canvas id="chartSWE"></canvas></div></section>
-  <section class="card"><h2>LiveCodeBench v6</h2><p class="sub">Recent competitive-programming problems. Phase 1 Qwen values are <strong>our local n=50 measurements</strong>; they sit ~20pp below the vendor / community-published numbers (coder-next ~80, 27b ~84, 35b-a3b ~80). Gemma 4 26B-A4B @6bit tops the rig at <strong>80 %</strong> (after Step B reruns at 65 k cap, 2026-05-24) — the only local model above the Sonnet 4.6 reference. 27b dense at 62 % is the best Qwen.</p><div class="chart-wrap ref-sm"><canvas id="chartLCB"></canvas></div></section>
-  <section class="card wide"><h2>Terminal-Bench 2.0</h2><p class="sub">Multi-turn shell agent. All 7 local rows <strong>measured on-rig 2026-05-24 → 2026-05-29</strong> via Harbor + LiteLLM → LM Studio (Docker linux/amd64, terminus-2 agent, concurrency=1, n=89 vanilla T-Bench 2.0 task set with <code>--agent-timeout-multiplier 0.5</code> to bound the 14 tasks declaring &gt;60-min agent budgets — scores are a defensible floor; full-budget would land ≤5 pp higher). Headline ranking inverts LCB: <code>qwen3-coder-next</code> <strong>32.6 %</strong> (29/89, 16.8 h) leads, with <code>qwen3.6-27b</code> dense <strong>31.5 %</strong> (28/89, 18.9 h) and <code>qwen3.6-35b-a3b@6bit</code> <strong>28.1 %</strong> (25/89, 15.6 h) close behind — the three Qwen models cluster on top. Gemma slot: <code>gemma-4-31b</code> dense <strong>22.5 %</strong>, <code>gemma-4-26b-a4b@6bit</code> <strong>21.3 %</strong>, <code>@4bit</code> <strong>20.2 %</strong> (quant-A/B within 1.1 pp — 4-bit penalty doesn't bite on agentic shell), <code>gemma-4-e4b</code> <strong>4.5 %</strong> = 4B size floor. GPT-5.5 (post-this report) reports 82.7 — original GPT-5 has no published number.</p><div class="chart-wrap ref-sm"><canvas id="chartTBench"></canvas></div></section>
+  <section class="card"><h2>SWE-bench Verified — published scores</h2><p class="sub">Agentic code editing. The single most-cited coder benchmark.</p><div class="chart-wrap ref-md"><canvas id="chartSWE"></canvas></div></section>
+  <section class="card"><h2>LiveCodeBench v6 — local measured vs frontier published</h2>
+    <p class="sub">Recent competitive-programming problems. Local bars are <strong>our n=50 on-rig measurements</strong>; Gemma 4 26B-A4B @6bit tops the rig at <strong>80 %</strong> — the only local model above the Sonnet 4.6 reference.</p>
+    <details class="sub-more"><summary>More detail</summary><p>Phase 1 Qwen values sit ~20 pp below the vendor / community-published numbers (coder-next ~80, 27b ~84, 35b-a3b ~80). The Gemma 80 % result came from the Step B reruns at 65 k cap (2026-05-24). 27b dense at 62 % is the best Qwen.</p></details>
+    <div class="chart-wrap ref-sm"><canvas id="chartLCB"></canvas></div></section>
+  <section class="card wide"><h2>Terminal-Bench 2.0 — measured on-rig (n=89)</h2>
+    <p class="sub">Multi-turn shell agent, all 7 local rows <strong>measured on-rig 2026-05-24 → 2026-05-29</strong>. The ranking inverts LCB: <code>qwen3-coder-next</code> leads at <strong>32.6 %</strong> and the three Qwen models cluster on top.</p>
+    <details class="sub-more"><summary>More detail — harness &amp; per-model scores</summary><p>Harness: Harbor + LiteLLM → LM Studio (Docker linux/amd64, terminus-2 agent, concurrency=1, n=89 vanilla T-Bench 2.0 task set with <code>--agent-timeout-multiplier 0.5</code> to bound the 14 tasks declaring &gt;60-min agent budgets — scores are a defensible floor; full-budget would land ≤5 pp higher). Per model: <code>qwen3-coder-next</code> <strong>32.6 %</strong> (29/89, 16.8 h), <code>qwen3.6-27b</code> dense <strong>31.5 %</strong> (28/89, 18.9 h), <code>qwen3.6-35b-a3b@6bit</code> <strong>28.1 %</strong> (25/89, 15.6 h). Gemma slot: <code>gemma-4-31b</code> dense <strong>22.5 %</strong>, <code>gemma-4-26b-a4b@6bit</code> <strong>21.3 %</strong>, <code>@4bit</code> <strong>20.2 %</strong> (quant-A/B within 1.1 pp — 4-bit penalty doesn't bite on agentic shell), <code>gemma-4-e4b</code> <strong>4.5 %</strong> = 4B size floor. GPT-5.5 (post-this report) reports 82.7 — original GPT-5 has no published number.</p></details>
+    <div class="chart-wrap ref-sm"><canvas id="chartTBench"></canvas></div></section>
 
   <!-- Model radar -->
   <section class="card wide">
@@ -675,6 +681,8 @@ C.buildGroupedChart('chartHeadline', {
     state: state, models: MODELS, results: RESULTS,
     query: { metric:'score', bench:bench }, axisLabel: axisLabel, labelFn: m => m.label
   });
+  // Static color key (these charts have no legend — colors are per-row).
+  C.tierKey(document.getElementById(canvasId).closest('.card'));
 });
 
 // --- Scoreboard (generated; tier row classes; frontier/open included) ---

@@ -211,6 +211,21 @@
         var s = this[setName];
         if (s.has(value)) s.delete(value); else s.add(value);
         this.notify();
+      },
+      // Back to "everything on": every model checked, every pill active.
+      resetAll: function () {
+        var self = this;
+        this.checked = new Set(this.models.map(function (m) { return m.id; }));
+        this.tiers = new Set(this.models.map(function (m) { return m.tier; }));
+        this.archs = new Set(); this.quants = new Set();
+        this.providers = new Set(); this.families = new Set();
+        this.models.forEach(function (m) {
+          if (m.arch) self.archs.add(m.arch);
+          if (m.quant) self.quants.add(m.quant);
+          if (m.provider) self.providers.add(m.provider);
+          if (m.family) self.families.add(m.family);
+        });
+        this.notify();
       }
     };
     return state;
@@ -218,7 +233,12 @@
 
   // ---- filter bar UI ------------------------------------------------------
 
-  // Renders the sticky filter bar into `container`. opts:
+  // Renders the sticky filter bar into `container`, split into two rows:
+  //   - a slim always-visible top row: section nav + "N filters active" badge
+  //     + Reset + a Filters toggle that collapses the row below. Collapse is
+  //     manual only — the bar keeps whatever state the user set.
+  //   - the collapsible body: model checkboxes + the pill groups.
+  // opts:
   //   checkboxModels : models to show individual checkboxes for (default: tier==='local')
   //   tiers          : tier values to expose as pills (default: distinct tiers, only if >1)
   //   sections       : [{id,label}] anchor-nav links (optional)
@@ -234,7 +254,40 @@
     var providerVals = distinct(state.models.map(function (m) { return m.provider; }).filter(Boolean));
     var familyVals = distinct(state.models.map(function (m) { return m.family; }).filter(Boolean));
 
-    // --- models group ---
+    // --- slim always-visible row: nav + badge + Reset + collapse toggle ---
+    var topRow = el('div', 'filter-bar-top');
+    container.appendChild(topRow);
+
+    if (opts.sections && opts.sections.length) {
+      var nav = el('nav', 'section-nav');
+      opts.sections.forEach(function (s) {
+        var a = document.createElement('a');
+        a.href = '#' + s.id;
+        a.textContent = s.label;
+        a.dataset.section = s.id;
+        nav.appendChild(a);
+      });
+      topRow.appendChild(nav);
+      setupSectionNav(nav, opts.sections);
+    }
+
+    var controls = el('div', 'filter-bar-controls');
+    var badge = el('span', 'filter-badge');
+    badge.style.display = 'none';                // hidden while nothing is filtered
+    controls.appendChild(badge);
+    controls.appendChild(button('Reset', function () { state.resetAll(); }));
+    var toggleBtn = button('Filters ▾', function () {
+      var collapsed = container.classList.toggle('collapsed');
+      toggleBtn.textContent = collapsed ? 'Filters ▸' : 'Filters ▾';
+    });
+    controls.appendChild(toggleBtn);
+    topRow.appendChild(controls);
+
+    // --- collapsible body ---
+    var body = el('div', 'filter-bar-body');
+    container.appendChild(body);
+
+    // models group
     var modelsGroup = el('div', 'filter-group');
     modelsGroup.appendChild(labelSpan('Models'));
     var checkboxes = [];
@@ -255,13 +308,13 @@
     var noneBtn = button('None', function () { state.setModelsChecked(checkIds, false); });
     modelsGroup.appendChild(allBtn);
     modelsGroup.appendChild(noneBtn);
-    container.appendChild(modelsGroup);
+    body.appendChild(modelsGroup);
 
-    // --- pill groups ---
+    // pill groups
     var pillRefs = [];
     function pillGroup(title, values, setName) {
       if (values.length < 2) return;             // nothing to filter
-      container.appendChild(divider());
+      body.appendChild(divider());
       var g = el('div', 'filter-group');
       g.appendChild(labelSpan(title));
       values.forEach(function (v) {
@@ -272,7 +325,7 @@
         g.appendChild(p);
         pillRefs.push({ el: p, setName: setName, value: v });
       });
-      container.appendChild(g);
+      body.appendChild(g);
     }
     pillGroup('Tier', tierVals, 'tiers');
     pillGroup('Provider', providerVals, 'providers');
@@ -280,25 +333,25 @@
     pillGroup('Arch', archVals, 'archs');
     pillGroup('Quant', quantVals, 'quants');
 
-    // --- section nav ---
-    if (opts.sections && opts.sections.length) {
-      container.appendChild(divider());
-      var nav = el('nav', 'section-nav');
-      opts.sections.forEach(function (s) {
-        var a = document.createElement('a');
-        a.href = '#' + s.id;
-        a.textContent = s.label;
-        a.dataset.section = s.id;
-        nav.appendChild(a);
+    // Each unchecked model box and each disabled pill counts as one active
+    // filter — so the badge still warns about a filtered view when collapsed.
+    function activeFilterCount(st) {
+      var n = 0;
+      checkIds.forEach(function (id) { if (!st.checked.has(id)) n++; });
+      [['tiers', tierVals], ['providers', providerVals], ['families', familyVals],
+       ['archs', archVals], ['quants', quantVals]].forEach(function (pair) {
+        pair[1].forEach(function (v) { if (!st[pair[0]].has(v)) n++; });
       });
-      container.appendChild(nav);
-      setupSectionNav(nav, opts.sections);
+      return n;
     }
 
     // Keep the bar's controls in sync with state (e.g. legend clicks, All/None).
     state.onChange(function (st) {
       checkboxes.forEach(function (cb) { cb.checked = st.checked.has(cb.dataset.modelId); });
       pillRefs.forEach(function (p) { p.el.classList.toggle('active', st[p.setName].has(p.value)); });
+      var n = activeFilterCount(st);
+      badge.textContent = n + (n === 1 ? ' filter active' : ' filters active');
+      badge.style.display = n ? '' : 'none';
     });
   }
 
@@ -431,6 +484,31 @@
     return chart;
   }
 
+  // Static color key for ranked charts, where the Chart.js legend is disabled
+  // because colors are per-row: local bars carry each model's own color,
+  // reference bars the tier fallback. Appends the key to `containerOrId`
+  // (typically the chart's parent .card).
+  function tierKey(containerOrId) {
+    var container = (typeof containerOrId === 'string')
+      ? document.getElementById(containerOrId) : containerOrId;
+    if (!container) return;
+    var key = el('div', 'tier-key');
+    function item(color, text) {
+      var s = el('span', 'tier-key-item');
+      var sw = swatch(color);
+      s.appendChild(sw);
+      s.appendChild(document.createTextNode(text));
+      key.appendChild(s);
+      return sw;
+    }
+    // Locals have no single color — show a small multi-color swatch instead.
+    var localSw = item('', 'local (per-model color)');
+    localSw.style.background = 'linear-gradient(90deg,#57d9a3 0 33%,#5aa9ff 33% 67%,#f2cc60 67% 100%)';
+    item(TIER_COLOR.frontier, 'frontier (closed)');
+    item(TIER_COLOR.open, 'open weights');
+    container.appendChild(key);
+  }
+
   // Quality-vs-speed bubble scatter: one dataset per (local) model, single
   // point each. x from xQuery, y from a selectable benchmark, radius from disk
   // size. `benchOptions` populates the <select>; a `composite` option averages
@@ -495,7 +573,8 @@
                 var suffix = (currentKey() === 'composite' && d._n < cfg.compositeBenches.length)
                   ? ' (' + d._n + '/' + cfg.compositeBenches.length + ' benches)' : '';
                 return ctx.dataset.label + ': ' + round1(d.y) + ' pts' + suffix +
-                  ' @ ' + round1(d.x) + ' tok/s · ' + d._diskGB + ' GB';
+                  ' @ ' + round1(d.x) + ' tok/s · ' + d._diskGB + ' GB' +
+                  (ctx.dataset._pareto ? ' · Pareto frontier' : '');
               }
             }
           },
@@ -514,6 +593,35 @@
       }
     }));
 
+    // Pareto frontier: a visible model is on the frontier when no other
+    // visible model matches-or-beats it on BOTH axes (and beats it on one).
+    // Frontier bubbles get a bright outline + a tooltip note; recomputed on
+    // every filter or benchmark change.
+    function paretoIds(key) {
+      var pts = [];
+      models.forEach(function (m) {
+        if (!state.isVisible(m)) return;
+        var p = pointFor(m, key);
+        if (p) pts.push({ id: m.id, x: p.x, y: p.y });
+      });
+      return pts.filter(function (a) {
+        return !pts.some(function (b) {
+          return b !== a && b.x >= a.x && b.y >= a.y && (b.x > a.x || b.y > a.y);
+        });
+      }).map(function (p) { return p.id; });
+    }
+    function applyPareto() {
+      var ids = paretoIds(currentKey());
+      chart.data.datasets.forEach(function (ds) {
+        var m = state.byId.get(ds.modelId);
+        var on = ids.indexOf(ds.modelId) !== -1;
+        ds._pareto = on;
+        ds.borderColor = on ? '#e6e6e6' : (m.color || TIER_COLOR[m.tier]);
+        ds.borderWidth = on ? 2 : 1;
+      });
+      chart.update('none');
+    }
+
     function refreshPoints() {
       var key = currentKey();
       chart.data.datasets.forEach(function (ds) {
@@ -522,9 +630,12 @@
         ds.data = p ? [p] : [];
       });
       chart.update();
+      applyPareto();
     }
     if (selectEl) selectEl.addEventListener('change', refreshPoints);
     registerGroupedVisibility(chart, state);
+    state.onChange(applyPareto);
+    applyPareto();
     return chart;
   }
 
@@ -796,8 +907,12 @@
   function injectStyles() {
     if (document.getElementById('charts-common-styles')) return;
     var css = [
-      '.filter-bar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--border);',
-      'padding:10px 32px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;}',
+      '.filter-bar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--border);}',
+      '.filter-bar-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:8px 32px;}',
+      '.filter-bar-controls{display:inline-flex;align-items:center;gap:8px;margin-left:auto;}',
+      '.filter-badge{font-size:11px;font-weight:600;color:#0f1115;background:var(--accent);border-radius:10px;padding:1px 8px;}',
+      '.filter-bar-body{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:0 32px 10px;}',
+      '.filter-bar.collapsed .filter-bar-body{display:none;}',
       '.filter-group{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px;}',
       '.filter-label{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-right:2px;}',
       '.model-check{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text);cursor:pointer;',
@@ -826,6 +941,12 @@
       '.scatter-controls select{background:#1b1f27;color:var(--text);border:1px solid var(--border);border-radius:5px;',
       'padding:3px 8px;font-size:12px;}',
       '.control-label{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}',
+      '.sub-more{font-size:12px;color:var(--muted);margin:-8px 0 14px;}',
+      '.sub-more summary{cursor:pointer;color:var(--accent);user-select:none;}',
+      '.sub-more p{margin:6px 0 0;}',
+      '.tier-key{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;margin-top:8px;font-size:11px;color:var(--muted);}',
+      '.tier-key-item{display:inline-flex;align-items:center;gap:5px;}',
+      '.tier-key-item .swatch{margin-right:0;}',
       'tr.filtered-out{display:none;}'
     ].join('');
     var style = document.createElement('style');
@@ -855,6 +976,7 @@
 
     buildGroupedChart: buildGroupedChart,
     buildRankedChart: buildRankedChart,
+    tierKey: tierKey,
     buildScatterChart: buildScatterChart,
     buildRadarChart: buildRadarChart,
 

@@ -476,7 +476,7 @@
   <!-- 0d. Quality vs speed scatter -->
   <section class="card wide">
     <h2>Quality vs speed</h2>
-    <p class="sub">Benchmark score against generation throughput — the trade-off the bar charts can't show. Bubble size ∝ on-disk footprint (GB). Pick the y-axis benchmark; "Composite" averages the six accuracy suites (missing suites are skipped and flagged in the tooltip). <code>agents-a1-xl-mlx</code> has no creative-writing throughput sample, so it has no bubble.</p>
+    <p class="sub">Benchmark score against generation throughput — the trade-off the bar charts can't show. Bubble size ∝ on-disk footprint (GB); a bright outline marks the Pareto frontier — models no other visible model beats on both axes. Pick the y-axis benchmark; "Composite" averages the six accuracy suites (missing suites are skipped and flagged in the tooltip). <code>agents-a1-xl-mlx</code> has no creative-writing throughput sample, so it has no bubble.</p>
     <div class="scatter-controls">
       <span class="control-label">Y axis</span>
       <select id="scatterBench">
@@ -496,13 +496,13 @@
   <h2 class="category-heading" id="sec-coding">Coding <span class="hint">LiveCodeBench &amp; HumanEval — on-rig and vs frontier</span></h2>
 
   <section class="card wide">
-    <h2>LiveCodeBench v6 — local (n=50)</h2>
+    <h2>LiveCodeBench v6 — measured on-rig (n=50)</h2>
     <p class="sub">All 7 daily-driver candidates fully characterized after Phase 1 backfill + Step B reruns (2026-05-24). <strong>Gemma 4 26B-A4B @6bit at 80 % is the rig's LCB ceiling</strong>, +18 pp over the best Qwen (27b at 62 %). Numbers are post-rerun MERGED canonical: <code>qwen/qwen3-coder-next</code> 56 % clean (0 trunc), <code>qwen3.6-27b</code> 62 % (1 trunc, Q3 abc365_c — hardest across the trio), <code>qwen3.6-35b-a3b@6bit</code> 54 % (6 trunc, all 65 k spirals), <code>gemma-4-26b-a4b@4bit</code> 66 % (8 trunc — Q2 recovered at 65 k, rest are real model limits), <code>gemma-4-26b-a4b@6bit</code> 80 % (1 trunc — Q19 still spirals at 65 k).</p>
     <div class="chart-wrap"><canvas id="chartLCB"></canvas></div>
   </section>
 
-  <section class="card"><h2>HumanEval</h2><p class="sub">Python coding. Largely deprecated by frontier providers post-2024.</p><div class="chart-wrap ref-sm"><canvas id="chartRefHumanEval"></canvas></div></section>
-  <section class="card wide"><h2>LiveCodeBench v6</h2><p class="sub">Coding pass@1 against the rolling contamination-resistant set. Anthropic Opus 4.x, Gemini 3 Pro, GPT-5.2, o-series and Llama 4 don't publish LCB; bars are limited to providers who do. Sonnet 4.5 is reported as LCB-<strong>Pro</strong>, not directly comparable to v6 pass@1 — kept with caveat.</p><div class="chart-wrap ref-md"><canvas id="chartRefLCB"></canvas></div></section>
+  <section class="card"><h2>HumanEval — local vs frontier</h2><p class="sub">Python coding. Largely deprecated by frontier providers post-2024.</p><div class="chart-wrap ref-sm"><canvas id="chartRefHumanEval"></canvas></div></section>
+  <section class="card wide"><h2>LiveCodeBench v6 — local vs frontier</h2><p class="sub">Coding pass@1 against the rolling contamination-resistant set. Anthropic Opus 4.x, Gemini 3 Pro, GPT-5.2, o-series and Llama 4 don't publish LCB; bars are limited to providers who do. Sonnet 4.5 is reported as LCB-<strong>Pro</strong>, not directly comparable to v6 pass@1 — kept with caveat.</p><div class="chart-wrap ref-md"><canvas id="chartRefLCB"></canvas></div></section>
 
   <h2 class="category-heading" id="sec-knowledge">Knowledge &amp; reasoning <span class="hint">accuracy suites, frontier comparison, and model radar</span></h2>
 
@@ -519,15 +519,15 @@
 
   <!-- 1. Accuracy by benchmark -->
   <section class="card wide">
-    <h2>Accuracy — 100-question benchmarks</h2>
+    <h2>Accuracy suites — measured on-rig (n=100 each)</h2>
     <p class="sub">Pass rate across reasoning/coding/knowledge suites. Phase 1 (Qwen ×3) complete; Phase 2 (Gemma 4) — 26B-A4B@4bit/@6bit complete, 31B-dense partial (MATH/DROP/GPQA still running). GPQA caveats: Qwen 27b had 15/100 and 35b-a3b had 23/100 hard-capped at <code>max_tokens=32 768</code> (counted as wrong); true GPQA likely 78–85 % / 75–83 %. Gemma 4 runs used the doubled <code>max_tokens=65 536</code> rule and truncated only 1–2 questions — those scores are not affected.</p>
     <div class="chart-wrap"><canvas id="chartAccuracy"></canvas></div>
   </section>
 
-  <section class="card"><h2>MMLU</h2><p class="sub">General knowledge. Anthropic 4.x reports MMMLU (multilingual) — marked *</p><div class="chart-wrap ref-md"><canvas id="chartRefMMLU"></canvas></div></section>
-  <section class="card"><h2>MATH</h2><p class="sub">Original MATH for local/legacy; MATH-500 for DeepSeek (†); AIME 2025 for frontier (‡).</p><div class="chart-wrap ref-md"><canvas id="chartRefMATH"></canvas></div></section>
-  <section class="card"><h2>DROP (F1)</h2><p class="sub">Reading comprehension. Mostly dropped by frontier providers — small field.</p><div class="chart-wrap ref-sm"><canvas id="chartRefDROP"></canvas></div></section>
-  <section class="card wide"><h2>GPQA Diamond</h2><p class="sub">Graduate-level science. The one benchmark still universally reported.</p><div class="chart-wrap ref-lg"><canvas id="chartRefGPQA"></canvas></div></section>
+  <section class="card"><h2>MMLU — local vs frontier</h2><p class="sub">General knowledge. Anthropic 4.x reports MMMLU (multilingual) — marked *</p><div class="chart-wrap ref-md"><canvas id="chartRefMMLU"></canvas></div></section>
+  <section class="card"><h2>MATH — local vs frontier</h2><p class="sub">Original MATH for local/legacy; MATH-500 for DeepSeek (†); AIME 2025 for frontier (‡).</p><div class="chart-wrap ref-md"><canvas id="chartRefMATH"></canvas></div></section>
+  <section class="card"><h2>DROP (F1) — local vs frontier</h2><p class="sub">Reading comprehension. Mostly dropped by frontier providers — small field.</p><div class="chart-wrap ref-sm"><canvas id="chartRefDROP"></canvas></div></section>
+  <section class="card wide"><h2>GPQA Diamond — local vs frontier</h2><p class="sub">Graduate-level science. The one benchmark still universally reported.</p><div class="chart-wrap ref-lg"><canvas id="chartRefGPQA"></canvas></div></section>
 
   <!-- Model radar -->
   <section class="card wide">
@@ -541,7 +541,7 @@
 
   <!-- Terminal-Bench (on-rig, full backfill) -->
   <section class="card wide">
-    <h2>Terminal-Bench 2.0 — local (n=89)</h2>
+    <h2>Terminal-Bench 2.0 — measured on-rig (n=89)</h2>
     <p class="sub">Multi-turn shell-agent benchmark, measured on-rig 2026-05-24 → 2026-05-29 via Harbor + LiteLLM → LM Studio (Docker linux/amd64), terminus-2 agent, concurrency=1, vanilla T-Bench 2.0 task set with <code>--agent-timeout-multiplier 0.5</code> (bounds the 14 tasks declaring &gt;60-min agent budgets — scores are a defensible floor; full-budget would land ≤5 pp higher). <strong>All 7 candidates complete:</strong> <code>qwen/qwen3-coder-next</code> <strong>32.6 %</strong> (29/89, 16.8 h), <code>qwen3.6-27b</code> <strong>31.5 %</strong> (28/89, 18.9 h), <code>qwen3.6-35b-a3b@6bit</code> <strong>28.1 %</strong> (25/89, 15.6 h), <code>gemma-4-31b</code> dense <strong>22.5 %</strong> (20/89, 17.4 h), <code>gemma-4-26b-a4b@6bit</code> <strong>21.3 %</strong> (19/89, 14.4 h), <code>@4bit</code> <strong>20.2 %</strong> (18/89, 16.0 h), <code>gemma-4-e4b</code> <strong>4.5 %</strong> (4/89, 6.4 h). Total wall-clock ~105 h. <strong>Headline:</strong> T-Bench cleanly inverts LCB at the top — the three Qwen models cluster on top (trained with explicit agentic-loop targets); Gemma — which topped LCB at 80 % — drops to mid-pack. Canonical summaries: <code>tools/local-llm-bench-m4-32gb/benchmarks/runs/tbench_*_summary.json</code>; raw run dirs at <code>bench/terminal-bench/logs/tbench-runs/&lt;model&gt;/result.json</code>.</p>
     <div class="chart-wrap"><canvas id="chartTBench"></canvas></div>
   </section>
@@ -1036,6 +1036,8 @@ C.buildGroupedChart('chartElapsed', {
     state: state, models: MODELS, results: RESULTS,
     query: { metric:'accuracy', bench:bench }, axisLabel: axisLabel, labelFn: refLabel
   });
+  // Static color key (these charts have no legend — colors are per-row).
+  C.tierKey(document.getElementById(canvasId).closest('.card'));
 });
 
 // --- Scoreboard (generated tbody) ---

@@ -41,7 +41,12 @@ A value is fetched with `ChartsCommon.metricValue(RESULTS, id, query)` where `qu
 
 ### Filtering & the sticky filter bar
 
-`createFilterBar(...)` renders a sticky bar under the header with: per-model checkboxes (local models only — frontier/open are governed by the tier pills), **All/None**, and pill toggles for **Tier / Provider / Family / Arch / Quant**, plus the section anchor-nav. A model is visible when `checked ∧ tier ∧ provider ∧ family ∧ arch ∧ quant` all pass. Each pill group only renders when the roster has ≥2 distinct values for it, so a page with a single provider simply won't show the Provider pills. Every chart, the scoreboard, the Models table, and the Resource-usage table react instantly:
+`createFilterBar(...)` renders a sticky bar under the header, split into **two rows**:
+
+- a **slim always-visible top row** (`.filter-bar-top`): the section anchor-nav on the left; on the right an **"N filters active" badge**, a **Reset** button, and a **`Filters ▾/▸` toggle** that collapses the row below. Collapse is **manual only** (no auto-collapse on scroll, no persistence) — the bar keeps whatever state the user set, and defaults to expanded on load. The badge counts every unchecked model box plus every disabled pill, so a collapsed bar can never silently hide an active filter; it disappears when nothing is filtered. Reset calls `state.resetAll()` (everything back on).
+- a **collapsible body** (`.filter-bar-body`): per-model checkboxes (local models only — frontier/open are governed by the tier pills), **All/None**, and pill toggles for **Tier / Provider / Family / Arch / Quant**.
+
+A model is visible when `checked ∧ tier ∧ provider ∧ family ∧ arch ∧ quant` all pass. Each pill group only renders when the roster has ≥2 distinct values for it, so a page with a single provider simply won't show the Provider pills. Every chart, the scoreboard, the Models table, and the Resource-usage table react instantly:
 
 - **Grouped bar / line charts** keep every dataset and hide filtered ones in place (`setDatasetVisibility`) — the legend stays complete (struck-through when hidden), and clicking a **local** model's legend entry toggles it globally across all charts + the checkboxes.
 - **Ranked horizontal charts** drop filtered rows and re-rank.
@@ -51,10 +56,16 @@ A value is fetched with `ChartsCommon.metricValue(RESULTS, id, query)` where `qu
 
 ### New visualizations
 
-- **Quality-vs-speed scatter** (`benchmark-charts.html` only — the quality page has no throughput data): benchmark score vs generation tok/s, bubble radius ∝ disk GB. The y-axis `<select>` picks a benchmark; **Composite** averages the six accuracy suites (skipping any that are missing, flagged in the tooltip).
+- **Quality-vs-speed scatter** (`benchmark-charts.html` only — the quality page has no throughput data): benchmark score vs generation tok/s, bubble radius ∝ disk GB. The y-axis `<select>` picks a benchmark; **Composite** averages the six accuracy suites (skipping any that are missing, flagged in the tooltip). Bubbles on the **Pareto frontier** — visible models that no other visible model matches-or-beats on both axes (and beats on one) — get a bright `#e6e6e6` outline and a "Pareto frontier" note in the tooltip; the set recomputes on every filter or benchmark change.
 - **Model radar** (both pages): up to 3 models across the 0–100 benchmark axes. Axes are **fixed 0–100** — every axis is already a percentage, and fixed bounds keep the polygon shapes comparable no matter which models are selected (min-max normalization would silently change a model's shape when the comparison set changes). No throughput axis; the scatter covers that.
 - **Resource usage** (both pages): a static, sortable, filter-aware table (`#telemetryTable`) with **Peak RAM / Avg CPU % / Avg GPU % / Peak power / Samples / Probe date** per local model. Unlike the charts it is **not** derived from `RESULTS` — the rows are hand-authored HTML (one `<tr data-model-id="…">` per model, matching the `MODELS` telemetry fields), because telemetry only exists for the subset of models with a speed probe. Models without a qualifying probe (`probeN < 10` or none) still get a row, rendered as `—`, so the filter and the roster stay complete. Wire it with `C.setupSortableTable('telemetryTable')` + `state.onChange(st => C.applyTableFilter('telemetryTable', state, {}))`.
 - **Category anchor-nav**: the section links in the filter bar scroll to full-width `<h2 class="category-heading">` headings. These are plain scroll anchors, not show/hide tabs — a `display:none` container renders a Chart.js canvas at 0×0, and anchors also keep Cmd+F / full-page printing working.
+- **Tier color key** (`C.tierKey(containerOrId)`): ranked charts disable the Chart.js legend (colors are per-row), so every ranked "vs frontier" card appends a static key — *local (per-model color) · frontier (closed) · open weights* — via `C.tierKey(document.getElementById(canvasId).closest('.card'))` in the same loop that builds the charts. Add the call for any new ranked chart; skip it on grouped charts (they have a real legend).
+
+### Card titles & captions
+
+- **Title convention** — every card `<h2>` says where its numbers come from, so it stays self-describing when the category heading has scrolled away: on-rig cards get `— measured on-rig (n=…)`; reference comparisons get `— local vs frontier` (benchmark page) or `— published scores` (quality page); mixed cards spell it out (e.g. `LiveCodeBench v6 — local measured vs frontier published`). Follow the pattern when adding a card.
+- **Long captions** — keep `.sub` to one or two summary sentences; move harness details / per-model breakdowns into a `<details class="sub-more"><summary>More detail…</summary><p>…</p></details>` right after it (styling is injected by `charts-common.js`). Used today on the quality page's Terminal-Bench and LCB cards.
 
 ## Where the data comes from
 
