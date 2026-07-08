@@ -154,9 +154,15 @@
   footer a { color: var(--accent); text-decoration: none; }
   /* Wide model table: keep readable on narrow screens */
   .model-table-wrap { overflow-x: auto; }
-  .model-table-wrap table { min-width: 1080px; }
+  .model-table-wrap table { min-width: 1240px; }
   .model-table-wrap td.bestfor { color: #d6dae0; font-size: 12px; max-width: 240px; }
   .model-table-wrap td.usage   { color: var(--muted); font-size: 12px; max-width: 280px; }
+  /* Model → HuggingFace link + inline telemetry footnote flag */
+  a.model-link { color: inherit; text-decoration: none; }
+  a.model-link:hover { text-decoration: underline; }
+  a.model-link .ext { color: var(--muted); font-size: 10px; white-space: nowrap; }
+  a.model-link:hover .ext { color: var(--accent); }
+  .tele-flag { color: var(--muted); cursor: help; }
   /* Sortable scoreboard */
   .scoreboard-wrap { overflow-x: auto; }
   table.scoreboard { width: 100%; min-width: 820px; border-collapse: collapse; font-size: 12px; }
@@ -231,16 +237,19 @@
   <!-- 0b. Local model table -->
   <section class="card wide">
     <h2>Local models in this comparison</h2>
-    <p class="sub">On-disk identifiers &amp; quantizations. The two right-most columns capture qualitative strengths and how each model is meant to be used in rotation — full quant deltas live in the caveats panel near the bottom.</p>
+    <p class="sub">On-disk identifiers &amp; quantizations. Model names link to the HuggingFace quant repo. <strong>Peak RAM</strong> is the loaded footprint from speed-probe telemetry (<code>—</code> where no qualifying probe — see Resource usage below). The two right-most columns capture qualitative strengths and how each model is meant to be used in rotation — full quant deltas live in the caveats panel near the bottom.</p>
     <div class="model-table-wrap">
     <table id="modelsTable">
       <thead>
         <tr>
           <th></th>
           <th>Model</th>
+          <th>Provider</th>
+          <th>Family</th>
           <th>Arch</th>
           <th class="num">Params</th>
           <th>Quant</th>
+          <th class="num">Peak RAM</th>
           <th>Best for</th>
           <th>Expected usage</th>
         </tr>
@@ -248,61 +257,61 @@
       <tbody>
         <tr data-model-id="coder">
           <td><span class="swatch" style="background:#5aa9ff"></span></td>
-          <td><code>qwen/qwen3-coder-next</code></td><td>MoE</td><td class="num">80B / 3B</td><td>MLX 6-bit</td>
+          <td><a class="model-link" href="https://huggingface.co/lmstudio-community/Qwen3-Coder-Next-MLX-6bit" target="_blank" rel="noopener"><code>qwen/qwen3-coder-next</code> <span class="ext">↗ HF</span></a></td><td>Alibaba (Qwen)</td><td>Qwen3-Coder</td><td>MoE</td><td class="num">80B / 3B</td><td>MLX 6-bit</td><td class="num dash">—</td>
           <td class="bestfor">Agentic coder, repo-scale edits, tool-driven workflows.</td>
           <td class="usage">Primary local coder. Sonnet-4.5-class on SWE-Verified at 3B active; ~6–10 pp behind Opus 4.5 / Sonnet 4.6 on SWE-V. Pound-for-active-parameter the best agentic coder on disk.</td>
         </tr>
         <tr data-model-id="d27b">
           <td><span class="swatch" style="background:#ff8a5a"></span></td>
-          <td><code>qwen3.6-27b</code></td><td>Dense</td><td class="num">27B</td><td>MLX 6-bit</td>
+          <td><a class="model-link" href="https://huggingface.co/mlx-community/Qwen3.6-27B-6bit" target="_blank" rel="noopener"><code>qwen3.6-27b</code> <span class="ext">↗ HF</span></a></td><td>Alibaba (Qwen)</td><td>Qwen3.6</td><td>Dense</td><td class="num">27B</td><td>MLX 6-bit</td><td class="num">48.8 GB</td>
           <td class="bestfor">Hard reasoning / science Q&amp;A — best all-rounder on disk.</td>
           <td class="usage">Quality-over-speed slot. <strong>Beats Sonnet 4.6 on GPQA</strong> (87.8 vs 74.1) and AIME; ~4 pp behind on SWE-V. Loses to Gemini 3 Pro by 4–6 pp. Decode is slow (~20 t/s) — reach for it on hard one-shots.</td>
         </tr>
         <tr data-model-id="a3b35">
           <td><span class="swatch" style="background:#7ee787"></span></td>
-          <td><code>qwen3.6-35b-a3b</code></td><td>MoE</td><td class="num">35B / 3B</td><td>MLX 6-bit</td>
+          <td><a class="model-link" href="https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-6bit" target="_blank" rel="noopener"><code>qwen3.6-35b-a3b</code> <span class="ext">↗ HF</span></a></td><td>Alibaba (Qwen)</td><td>Qwen3.6</td><td>MoE</td><td class="num">35B / 3B</td><td>MLX 6-bit</td><td class="num">56.0 GB</td>
           <td class="bestfor">Fast generalist with tool calling.</td>
           <td class="usage">Daily-driver chat. Near-tie with the 27b dense on most evals, much lighter to run (~85 t/s). ~7 pp behind frontier on SWE-V, ~5 pp on GPQA. Watch the MoE-MLX tool-call regression on 4-bit/8-bit checkpoints.</td>
         </tr>
         <tr data-model-id="g26">
           <td><span class="swatch" style="background:#ffd166"></span></td>
-          <td><code>gemma-4-26b-a4b-it-mlx@4bit</code></td><td>MoE</td><td class="num">26B / 4B</td><td>MLX 4-bit ⚠</td>
+          <td><a class="model-link" href="https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit" target="_blank" rel="noopener"><code>gemma-4-26b-a4b-it-mlx@4bit</code> <span class="ext">↗ HF</span></a></td><td>Google</td><td>Gemma 4</td><td>MoE</td><td class="num">26B / 4B</td><td>MLX 4-bit ⚠</td><td class="num">30.3 GB<span class="tele-flag" title="probe filename did not record quant (2026-04-08 run)">*</span></td>
           <td class="bestfor">Vision + throughput when RAM is tight.</td>
           <td class="usage">Knowledge generalist mid-tier (~7 pp below Opus 4.5 on MMLU-Pro). <strong>Largest quant penalty of any model on disk</strong> — costs ~6 pp GPQA vs @6bit. Pick only when RAM-constrained or for vision drafts.</td>
         </tr>
         <tr>
           <td><span class="swatch" style="background:#f59e0b"></span></td>
-          <td><code>gemma-4-26b-a4b-it-mlx@6bit</code></td><td>MoE</td><td class="num">26B / 4B</td><td>MLX 6-bit</td>
+          <td><a class="model-link" href="https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit" target="_blank" rel="noopener"><code>gemma-4-26b-a4b-it-mlx@6bit</code> <span class="ext">↗ HF</span></a></td><td>Google</td><td>Gemma 4</td><td>MoE</td><td class="num">26B / 4B</td><td>MLX 6-bit</td><td class="num dash">—</td>
           <td class="bestfor">Coding (rig's LCB ceiling at 80 %), vision, knowledge — recommended Gemma quant.</td>
           <td class="usage">Primary Gemma slot. ~85 t/s, near-lossless vs base, jdhodges 97.5 / veerman 83.3. Only local model above the Sonnet 4.6 LCB reference. Default to this for any Gemma workload unless you specifically need the 4-bit RAM savings.</td>
         </tr>
         <tr>
           <td><span class="swatch" style="background:#fb7185"></span></td>
-          <td><code>gemma-4-31b-it-mlx</code></td><td>Dense</td><td class="num">31B</td><td>MLX 8-bit</td>
+          <td><a class="model-link" href="https://huggingface.co/lmstudio-community/gemma-4-31B-it-MLX-8bit" target="_blank" rel="noopener"><code>gemma-4-31b-it-mlx</code> <span class="ext">↗ HF</span></a></td><td>Google</td><td>Gemma 4</td><td>Dense</td><td class="num">31B</td><td>MLX 8-bit</td><td class="num dash">—</td>
           <td class="bestfor">Nothing distinct — demoted from rotation.</td>
           <td class="usage">Skip. Ties or loses to 26B-A4B@6bit on every bench except DROP (+6 pp); decode 13.7 t/s vs @6bit's 80.8 = ~6× wall-clock for indistinguishable quality.</td>
         </tr>
         <tr data-model-id="nemotron">
           <td><span class="swatch" style="background:#ef476f"></span></td>
-          <td><code>nvidia/nemotron-3-nano-omni</code></td><td>MoE</td><td class="num">30B / 3B</td><td>GGUF Q4_K_M</td>
+          <td><a class="model-link" href="https://huggingface.co/nvidia" target="_blank" rel="noopener"><code>nvidia/nemotron-3-nano-omni</code> <span class="ext">↗ HF</span></a></td><td>NVIDIA</td><td>Nemotron</td><td>MoE</td><td class="num">30B / 3B</td><td>GGUF Q4_K_M</td><td class="num dash">—</td>
           <td class="bestfor">OCR, long-doc, audio, video — multimodal omni specialist.</td>
           <td class="usage">Use for multimodal pipelines, not general reasoning. SOTA among small models on OCR / long-doc / audio / video. AA Intelligence Index 21 vs frontier ~60+ — below frontier on every pure-text benchmark.</td>
         </tr>
         <tr data-model-id="ge4b">
           <td><span class="swatch" style="background:#c77dff"></span></td>
-          <td><code>google/gemma-4-e4b</code></td><td>Dense</td><td class="num">~7.5B</td><td>GGUF Q4_K_M</td>
+          <td><a class="model-link" href="https://huggingface.co/google/gemma-4-e4b-it" target="_blank" rel="noopener"><code>google/gemma-4-e4b</code> <span class="ext">↗ HF</span></a></td><td>Google</td><td>Gemma 4</td><td>Dense</td><td class="num">~7.5B</td><td>GGUF Q4_K_M</td><td class="num dash">—</td>
           <td class="bestfor">FIM / autocomplete drafter; fast vision toy.</td>
           <td class="usage">Edge tier. 20–30 pp below frontier on every hard benchmark; MATH collapses to 14 %. Useful as a streaming completion helper, not a quality reasoning option.</td>
         </tr>
         <tr data-model-id="dsflash">
           <td><span class="swatch" style="background:#06d6a0"></span></td>
-          <td><code>deepseek-v4-flash-dq</code></td><td>MoE</td><td class="num">284B / 13B</td><td>MLX 2-bit DQ ⚠⚠</td>
+          <td><a class="model-link" href="https://huggingface.co/mlx-community/DeepSeek-V4-Flash-2bit-DQ" target="_blank" rel="noopener"><code>deepseek-v4-flash-dq</code> <span class="ext">↗ HF</span></a></td><td>DeepSeek</td><td>DeepSeek</td><td>MoE</td><td class="num">284B / 13B</td><td>MLX 2-bit DQ ⚠⚠</td><td class="num">104.4 GB</td>
           <td class="bestfor">Only frontier-class model on disk — when you need GPT-5 / Opus-4.5-tier output and can wait.</td>
           <td class="usage">Base Flash matches GPT-5 / Opus 4.5 (88.1 GPQA, 91.6 LCB, 79.0 SWE-V) — but 2-bit-DQ on an already-QAT-FP4 model has <strong>no published deltas</strong>. Expect 3–8 pp drop on hard reasoning; more on long context. Treat published numbers as a ceiling.</td>
         </tr>
         <tr>
           <td>⛔</td>
-          <td><code>MiniMax-M2.5-3bit</code></td><td>MoE</td><td class="num">256E / 8A</td><td>MLX 3-bit ⛔ NO-GO</td>
+          <td><a class="model-link" href="https://huggingface.co/MiniMaxAI/MiniMax-M2.5" target="_blank" rel="noopener"><code>MiniMax-M2.5-3bit</code> <span class="ext">↗ HF</span></a></td><td>MiniMax</td><td>MiniMax</td><td>MoE</td><td class="num">256E / 8A</td><td>MLX 3-bit ⛔ NO-GO</td><td class="num dash">—</td>
           <td class="bestfor"><strong>MLX 3-bit is NO-GO on this rig</strong> (feasibility 2026-07-04) — but the <strong>GGUF build is GO</strong>. Loads &amp; generates with strong quality; the MLX quant just isn't deployable (sustained inference crashes the host).</td>
           <td class="usage">MLX 3-bit reproducibly <strong>kernel-panics the Mac Studio ×3</strong> under sustained inference — Apple GPU driver (<code>IOGPUGroupMemory</code> / <code>AGXG16X</code>, macOS 25D125) — independent of parallelism, context, memory pressure &amp; KV-cache quantization. <strong>GGUF works</strong>: <strong>UD-IQ2_M (78 GB) is now the preferred quant</strong> (cleared the 2-bit gate, LCB 76% &gt; Q3_K_S, under the 80 GB co-residency line); Q3_K_S (98.69 GB) measures T-Bench 25.8% and appears on the T-Bench chart. Still off the frontier-schema radar bars (no MMLU-Pro/GPQA/AIME/SWE-V/MMMU). See <code>M4_MAX_128GB_NOTES.md</code>.</td>
         </tr>
@@ -344,6 +353,58 @@
       </table>
     </div>
     <p class="scoreboard-hint">AIME years vary (Qwen3.6 / Gemma 4 → '26; GPT-5 / Sonnet 4.6 → '25; Kimi K2.6 → '26) — see the per-bench charts for footnotes. LCB row for <code>gemma-4-26b-a4b</code> is the on-rig @6bit measurement (80 %); other Gemma-4-26b-a4b numbers are published BF16. <strong>All T-Bench local rows are on-rig n=89 (terminus-2, <code>--agent-timeout-multiplier 0.5</code>, 2026-05-24 → 2026-05-29):</strong> coder-next 32.6, qwen3.6-27b 31.5, qwen3.6-35b-a3b 28.1 (@6bit), gemma-4-26b-a4b 21.3 (@6bit), gemma-4-e4b 4.5. <code>deepseek-v4-flash</code> T-Bench value 56.9 is vendor-claimed (Phase 3 fit-test track — not measured here); other deepseek values are the base Flash model — the on-disk 2-bit-DQ quant will be lower (see caveats).</p>
+  </section>
+
+  <!-- Resource usage (speed-probe telemetry) -->
+  <section class="card wide">
+    <h2>Resource usage <span class="hint">CPU · GPU · memory · power, from speed-probe telemetry</span></h2>
+    <p class="sub">Per-model resource draw captured by <code>macmon</code> during the <strong>speed-probe</strong> runs (local models only — the published quality scores above are <em>not</em> on-rig measurements, and frontier models are not instrumented). <strong>Peak RAM</strong> is peak unified-memory footprint (weights + KV cache + runtime); <strong>Avg CPU/GPU</strong> are mean per-sample utilisation; <strong>Peak power</strong> is the package total. Only runs with <strong>n ≥ 10</strong> telemetry samples are shown — noisier runs are gated out and appear as <code>—</code> (<code>qwen3-coder-next</code> n=2, <code>nemotron</code> n=1, <code>gemma-4-e4b</code> has no qualifying probe). The filter bar hides rows here too.</p>
+    <div class="scoreboard-wrap">
+      <table class="scoreboard" id="telemetryTable">
+        <thead>
+          <tr>
+            <th data-sort="str">Model</th>
+            <th class="num" data-sort="num">Peak RAM (GB)</th>
+            <th class="num" data-sort="num">Avg CPU %</th>
+            <th class="num" data-sort="num">Avg GPU %</th>
+            <th class="num" data-sort="num">Peak power (W)</th>
+            <th class="num" data-sort="num">Samples</th>
+            <th>Probe date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-model-id="d27b">
+            <td class="model-cell"><span class="swatch" style="background:#ff8a5a"></span> qwen3.6-27b</td>
+            <td class="num">48.8</td><td class="num">10.6</td><td class="num">99.1</td><td class="num">43.0</td><td class="num">70</td><td>2026-05-17</td>
+          </tr>
+          <tr data-model-id="a3b35">
+            <td class="model-cell"><span class="swatch" style="background:#7ee787"></span> qwen3.6-35b-a3b</td>
+            <td class="num">56.0</td><td class="num">10.1</td><td class="num">93.7</td><td class="num">27.4</td><td class="num">15</td><td>2026-05-19</td>
+          </tr>
+          <tr data-model-id="g26">
+            <td class="model-cell"><span class="swatch" style="background:#ffd166"></span> gemma-4-26b-a4b<span class="tele-flag" title="probe filename did not record quant (2026-04-08 run)">*</span></td>
+            <td class="num">30.3</td><td class="num">23.6</td><td class="num">94.6</td><td class="num">16.0</td><td class="num">26</td><td>2026-04-08</td>
+          </tr>
+          <tr data-model-id="dsflash">
+            <td class="model-cell"><span class="swatch" style="background:#06d6a0"></span> deepseek-v4-flash</td>
+            <td class="num">104.4</td><td class="num">10.4</td><td class="num">97.4</td><td class="num">45.7</td><td class="num">40</td><td>2026-07-05</td>
+          </tr>
+          <tr data-model-id="coder">
+            <td class="model-cell"><span class="swatch" style="background:#5aa9ff"></span> qwen3-coder-next</td>
+            <td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td>n=2 (below gate)</td>
+          </tr>
+          <tr data-model-id="nemotron">
+            <td class="model-cell"><span class="swatch" style="background:#ef476f"></span> nemotron-3-nano-omni</td>
+            <td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td>n=1 (below gate)</td>
+          </tr>
+          <tr data-model-id="ge4b">
+            <td class="model-cell"><span class="swatch" style="background:#c77dff"></span> gemma-4-e4b</td>
+            <td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td>no probe</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="scoreboard-hint">Source: <code>tools/local-llm-bench-m4-32gb/results/speed_probe/*_results.json</code> (peak RAM / avg GPU / peak power / samples) + <code>*_macmon.jsonl</code> (per-sample <code>cpu_usage_pct</code> for Avg CPU). Rig: Apple M4 Max, 128 GB unified. <span class="tele-flag">*</span> Gemma probe filename did not record the quant.</p>
   </section>
 
   <!-- 1. Headline overview: local models on the three most universal benchmarks -->
@@ -431,26 +492,44 @@ C.initTheme();
 // checkboxes / radar — used for gemma-4-31b, which appears only in the T-Bench
 // chart (the scoreboard tracks the A4B quant instead).
 // ---------------------------------------------------------------------------
+// provider = weights creator/vendor; family = model line (both drive the filter pills).
+// hf = HuggingFace repo for the on-disk quant. peakRamGB/cpuPct/gpuPct/powerW/probeN = speed-probe
+// telemetry (macmon), local only, quality-gated to runs with probeN >= 10; models without a
+// qualifying run omit these fields.
 const MODELS = [
   // --- local (this rig) ---
-  { id:'coder',    tier:'local', arch:'moe',   quant:'MLX 6-bit', color:'#5aa9ff', label:'qwen3-coder-next',     chartLabel:'qwen3-coder-next (MLX 6-bit)' },
-  { id:'d27b',     tier:'local', arch:'dense', quant:'MLX 6-bit', color:'#ff8a5a', label:'qwen3.6-27b',          chartLabel:'qwen3.6-27b (MLX 6-bit)' },
-  { id:'a3b35',    tier:'local', arch:'moe',   quant:'MLX 6-bit', color:'#7ee787', label:'qwen3.6-35b-a3b',      chartLabel:'qwen3.6-35b-a3b (MLX 6-bit)' },
-  { id:'g26',      tier:'local', arch:'moe',   quant:'MLX 4-bit', color:'#ffd166', label:'gemma-4-26b-a4b',      chartLabel:'gemma-4-26b-a4b (MLX 4-bit)' },
-  { id:'nemotron', tier:'local', arch:'moe',   quant:'Q4_K_M',    color:'#ef476f', label:'nemotron-3-nano-omni', chartLabel:'nemotron-3-nano-omni (Q4_K_M)' },
-  { id:'ge4b',     tier:'local', arch:'dense', quant:'Q4_K_M',    color:'#c77dff', label:'gemma-4-e4b',          chartLabel:'gemma-4-e4b (Q4_K_M)' },
-  { id:'dsflash',  tier:'local', arch:'moe',   quant:'MLX 2-bit', color:'#06d6a0', label:'deepseek-v4-flash',    chartLabel:'deepseek-v4-flash (2-bit DQ)' },
+  { id:'coder',    tier:'local', arch:'moe',   quant:'MLX 6-bit', color:'#5aa9ff', label:'qwen3-coder-next',     chartLabel:'qwen3-coder-next (MLX 6-bit)',
+    provider:'Alibaba (Qwen)', family:'Qwen3-Coder', hf:'https://huggingface.co/lmstudio-community/Qwen3-Coder-Next-MLX-6bit' },
+  { id:'d27b',     tier:'local', arch:'dense', quant:'MLX 6-bit', color:'#ff8a5a', label:'qwen3.6-27b',          chartLabel:'qwen3.6-27b (MLX 6-bit)',
+    provider:'Alibaba (Qwen)', family:'Qwen3.6', hf:'https://huggingface.co/mlx-community/Qwen3.6-27B-6bit',
+    peakRamGB:48.8, cpuPct:10.6, gpuPct:99.1, powerW:43.0, probeN:70, probeDate:'2026-05-17' },
+  { id:'a3b35',    tier:'local', arch:'moe',   quant:'MLX 6-bit', color:'#7ee787', label:'qwen3.6-35b-a3b',      chartLabel:'qwen3.6-35b-a3b (MLX 6-bit)',
+    provider:'Alibaba (Qwen)', family:'Qwen3.6', hf:'https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-6bit',
+    peakRamGB:56.0, cpuPct:10.1, gpuPct:93.7, powerW:27.4, probeN:15, probeDate:'2026-05-19' },
+  { id:'g26',      tier:'local', arch:'moe',   quant:'MLX 4-bit', color:'#ffd166', label:'gemma-4-26b-a4b',      chartLabel:'gemma-4-26b-a4b (MLX 4-bit)',
+    provider:'Google', family:'Gemma 4', hf:'https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit',
+    peakRamGB:30.3, cpuPct:23.6, gpuPct:94.6, powerW:16.0, probeN:26, probeDate:'2026-04-08',
+    probeNote:'probe filename did not record quant (2026-04-08 run)' },
+  { id:'nemotron', tier:'local', arch:'moe',   quant:'Q4_K_M',    color:'#ef476f', label:'nemotron-3-nano-omni', chartLabel:'nemotron-3-nano-omni (Q4_K_M)',
+    provider:'NVIDIA', family:'Nemotron', hf:'https://huggingface.co/nvidia' },
+  { id:'ge4b',     tier:'local', arch:'dense', quant:'Q4_K_M',    color:'#c77dff', label:'gemma-4-e4b',          chartLabel:'gemma-4-e4b (Q4_K_M)',
+    provider:'Google', family:'Gemma 4', hf:'https://huggingface.co/google/gemma-4-e4b-it' },
+  { id:'dsflash',  tier:'local', arch:'moe',   quant:'MLX 2-bit', color:'#06d6a0', label:'deepseek-v4-flash',    chartLabel:'deepseek-v4-flash (2-bit DQ)',
+    provider:'DeepSeek', family:'DeepSeek', hf:'https://huggingface.co/mlx-community/DeepSeek-V4-Flash-2bit-DQ',
+    peakRamGB:104.4, cpuPct:10.4, gpuPct:97.4, powerW:45.7, probeN:40, probeDate:'2026-07-05' },
   // gemma-4-31b: appears only in the Terminal-Bench ranked chart (reuses the A4B color).
-  { id:'g31',      tier:'local', arch:'dense', quant:'MLX 8-bit', color:'#ffd166', label:'gemma-4-31b', rankedOnly:true },
+  { id:'g31',      tier:'local', arch:'dense', quant:'MLX 8-bit', color:'#ffd166', label:'gemma-4-31b', rankedOnly:true,
+    provider:'Google', family:'Gemma 4', hf:'https://huggingface.co/lmstudio-community/gemma-4-31B-it-MLX-8bit' },
   // minimax-m2.5 Q3_K_S: T-Bench-only (no frontier-schema scores) — GGUF GO; MLX 3-bit NO-GO.
-  { id:'mmq3',     tier:'local', arch:'moe',   quant:'Q3_K_S GGUF', color:'#a78bfa', label:'MiniMax-M2.5 (Q3_K_S)', rankedOnly:true },
+  { id:'mmq3',     tier:'local', arch:'moe',   quant:'Q3_K_S GGUF', color:'#a78bfa', label:'MiniMax-M2.5 (Q3_K_S)', rankedOnly:true,
+    provider:'MiniMax', family:'MiniMax-M2.5', hf:'https://huggingface.co/MiniMaxAI/MiniMax-M2.5' },
 
   // --- frontier / open-weight reference ---
-  { id:'gpt5',       tier:'frontier', label:'GPT-5' },
-  { id:'opus45',     tier:'frontier', label:'Claude Opus 4.5' },
-  { id:'sonnet46',   tier:'frontier', label:'Claude Sonnet 4.6' },
-  { id:'gemini3pro', tier:'frontier', label:'Gemini 3 Pro' },
-  { id:'kimi',       tier:'open',     label:'Kimi K2.6' }
+  { id:'gpt5',       tier:'frontier', provider:'OpenAI',      family:'GPT',          label:'GPT-5' },
+  { id:'opus45',     tier:'frontier', provider:'Anthropic',   family:'Claude Opus',  label:'Claude Opus 4.5' },
+  { id:'sonnet46',   tier:'frontier', provider:'Anthropic',   family:'Claude Sonnet',label:'Claude Sonnet 4.6' },
+  { id:'gemini3pro', tier:'frontier', provider:'Google',      family:'Gemini',       label:'Gemini 3 Pro' },
+  { id:'kimi',       tier:'open',     provider:'Moonshot AI', family:'Kimi',         label:'Kimi K2.6' }
 ];
 
 const RESULTS = [
@@ -617,6 +696,10 @@ C.setupSortableTable('scoreboardQuality');
 C.highlightBestPerColumn('scoreboardQuality');
 state.onChange(st => C.applyTableFilter('scoreboardQuality', state, { highlight:true }));
 state.onChange(st => C.applyTableFilter('modelsTable', state, {}));
+
+// --- Resource-usage telemetry table (sortable + filterable) ---
+C.setupSortableTable('telemetryTable');
+state.onChange(st => C.applyTableFilter('telemetryTable', state, {}));
 
 // --- Model radar ---
 C.buildRadarChart('chartRadar', {
