@@ -224,7 +224,7 @@
       <dt>Top open-weight</dt>    <dd>Kimi K2.6 (Apr '26); DeepSeek V4 family inline where applicable</dd>
       <dt>Caveat</dt>             <dd>Anthropic does not publish exact MMLU/AIME numbers; those rows use Vellum / Morph / llm-stats transcriptions.</dd>
       <dt>What this is not</dt>   <dd>Not a measurement of the on-disk quant on this rig — it's the published BF16/FP8 numbers with quant-delta notes.</dd>
-      <dt>Excluded</dt>          <dd><code>agents-a1-xl-mlx</code> (leonsarmiento, Qwen3.5 MoE community fine-tune) was benchmarked on-rig 2026-07-04→05 — see <code>benchmark-charts.html</code> for jdhodges 92.5 / veerman 83.3 / HumanEval 97 / MMLU 82 / LCB v6 64. It is <strong>omitted here</strong>: no published frontier-schema scores exist, and of this page's columns only LCB v6 has comparable data (MMLU-Pro/GPQA/AIME/SWE-V/MMMU not run; T-Bench aborted 2/89). Same rationale as the MiniMax-M2.5 exclusion below.</dd>
+      <dt>Excluded</dt>          <dd><code>agents-a1-xl-mlx</code> (leonsarmiento, Qwen3.5 MoE community fine-tune) was benchmarked on-rig 2026-07-04→05 — see <code>benchmark-charts.html</code> for jdhodges 92.5 / veerman 83.3 / HumanEval 97 / MMLU 82 / LCB v6 64. It is <strong>omitted here</strong>: no published frontier-schema scores exist, and of this page's columns only LCB v6 has comparable data (MMLU-Pro/GPQA/AIME/SWE-V/MMMU not run; T-Bench aborted 2/89). Same rationale as the MiniMax-M2.5 radar-bar exclusion below (MiniMax-M2.5 Q3_K_S <em>is</em> now on the T-Bench chart at 25.8%, but stays off the frontier-schema bars).</dd>
     </dl>
   </section>
 
@@ -303,8 +303,8 @@
         <tr>
           <td>⛔</td>
           <td><code>MiniMax-M2.5-3bit</code></td><td>MoE</td><td class="num">256E / 8A</td><td>MLX 3-bit ⛔ NO-GO</td>
-          <td class="bestfor"><strong>NO-GO on this rig</strong> (feasibility 2026-07-04). Loads &amp; generates with strong quality, but not deployable — sustained inference crashes the host.</td>
-          <td class="usage">Reproducibly <strong>kernel-panics the Mac Studio ×3</strong> under sustained inference — Apple GPU driver (<code>IOGPUGroupMemory</code> / <code>AGXG16X</code>, macOS 25D125) — independent of parallelism, context, memory pressure &amp; KV-cache quantization. Partial signals only (crashed mid-run): TC 97.5%, HumanEval 95.8%, LCB ~68–74%. <strong>No quality bars</strong> (data incomplete/not comparable). See <code>M4_MAX_128GB_NOTES.md</code>.</td>
+          <td class="bestfor"><strong>MLX 3-bit is NO-GO on this rig</strong> (feasibility 2026-07-04) — but the <strong>GGUF build is GO</strong>. Loads &amp; generates with strong quality; the MLX quant just isn't deployable (sustained inference crashes the host).</td>
+          <td class="usage">MLX 3-bit reproducibly <strong>kernel-panics the Mac Studio ×3</strong> under sustained inference — Apple GPU driver (<code>IOGPUGroupMemory</code> / <code>AGXG16X</code>, macOS 25D125) — independent of parallelism, context, memory pressure &amp; KV-cache quantization. <strong>GGUF works</strong>: <strong>UD-IQ2_M (78 GB) is now the preferred quant</strong> (cleared the 2-bit gate, LCB 76% &gt; Q3_K_S, under the 80 GB co-residency line); Q3_K_S (98.69 GB) measures T-Bench 25.8% and appears on the T-Bench chart. Still off the frontier-schema radar bars (no MMLU-Pro/GPQA/AIME/SWE-V/MMMU). See <code>M4_MAX_128GB_NOTES.md</code>.</td>
         </tr>
       </tbody>
     </table>
@@ -391,7 +391,7 @@
       <li><strong><code>nemotron-3-nano-omni</code> (GGUF Q4_K_M):</strong> NVIDIA publishes BF16 → FP8 → NVFP4 deltas (mean of 9 multimodal benches: 65.80 → 65.40 → 65.43). Q4_K_M typically sits between FP8 and FP4 — expect ≤1pt loss on most non-ASR multimodal tasks; ASR (WER) essentially unchanged.</li>
       <li><strong><code>gemma-4-e4b</code> (MLX 8-bit, 4B):</strong> Phase 2 complete (2026-05-22, n=100). HumanEval 91, MMLU 65, MATH <strong>14</strong>, DROP 65, GPQA 34, LiveCodeBench 68, jdhodges 88, Veerman 67. <strong>MATH collapses to 14 %</strong> — 4B is too small for hard symbolic math. Useful as a FIM / quick-call slot only; not a daily-driver fallback.</li>
       <li><strong>⚠⚠ <code>deepseek-v4-flash-dq</code> (MLX 2-bit DQ):</strong> heaviest asterisk. V4 Flash ships natively at FP4+FP8 — dropping experts to 2-bit is destructive recompression of an already-quantized model, not a clean post-train quant. The mlx-community card explicitly warns Q4_K_M is the floor for "most of the source quality". <strong>No public benchmark deltas exist.</strong> Expect 3–8pt drop on hard reasoning, more on long-context. Treat the chart numbers as a ceiling.</li>
-      <li><strong>⛔ <code>MiniMax-M2.5-3bit</code> (MLX 3-bit) — NO-GO:</strong> loads and generates coherently with strong quality (tool-calling 97.5%, HumanEval 95.8%, LCB ~68–74% — all partial), but reproducibly <strong>kernel-panics the Mac Studio under sustained inference</strong> (Apple GPU driver <code>IOGPUGroupMemory</code> / <code>AGXG16X</code>, macOS 25D125) — three times, independent of parallelism, context, memory pressure, and KV-cache quantization. Not deployable on this stack; only an OS/MLX update or a different runtime (GGUF/llama.cpp) could revisit it. <strong>Excluded from the bars</strong> (no complete, comparable data). Full detail in <code>tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md</code>.</li>
+      <li><strong>⚠️ <code>MiniMax-M2.5</code> — MLX 3-bit NO-GO, but <span style="color:#a78bfa">GGUF is GO</span>:</strong> the MLX 3-bit build reproducibly <strong>kernel-panics the Mac Studio under sustained inference</strong> (Apple GPU driver <code>IOGPUGroupMemory</code> / <code>AGXG16X</code>, macOS 25D125) — three times, independent of parallelism, context, memory pressure, and KV-cache quantization. As predicted, a different runtime revisited it: the <strong>GGUF build runs</strong>, and <strong>UD-IQ2_M (78 GB) is now the preferred quant</strong> — it cleared the 2-bit gate (no collapse), lands LCB 76% (&gt; Q3_K_S 72%), and sits under the 80 GB co-residency line. GGUF Q3_K_S (98.69 GB) measured T-Bench 25.8% (23/89) and <strong>now appears on the T-Bench chart</strong>; IQ2_M T-Bench is pending. Still <strong>excluded from the frontier-schema radar bars</strong> — no MMLU-Pro/GPQA/AIME/SWE-V/MMMU scores exist for it. Full detail in <code>tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md</code>.</li>
     </ul>
   </section>
 
@@ -442,6 +442,8 @@ const MODELS = [
   { id:'dsflash',  tier:'local', arch:'moe',   quant:'MLX 2-bit', color:'#06d6a0', label:'deepseek-v4-flash',    chartLabel:'deepseek-v4-flash (2-bit DQ)' },
   // gemma-4-31b: appears only in the Terminal-Bench ranked chart (reuses the A4B color).
   { id:'g31',      tier:'local', arch:'dense', quant:'MLX 8-bit', color:'#ffd166', label:'gemma-4-31b', rankedOnly:true },
+  // minimax-m2.5 Q3_K_S: T-Bench-only (no frontier-schema scores) — GGUF GO; MLX 3-bit NO-GO.
+  { id:'mmq3',     tier:'local', arch:'moe',   quant:'Q3_K_S GGUF', color:'#a78bfa', label:'MiniMax-M2.5 (Q3_K_S)', rankedOnly:true },
 
   // --- frontier / open-weight reference ---
   { id:'gpt5',       tier:'frontier', label:'GPT-5' },
@@ -497,6 +499,8 @@ const RESULTS = [
   { model:'dsflash', metric:'score', bench:'TBench',   value:56.9, note:'(vendor; out of scope)' },
 
   { model:'g31', metric:'score', bench:'TBench', value:22.5, note:'(8-bit dense measured)' },
+
+  { model:'mmq3', metric:'score', bench:'TBench', value:25.8, note:'(GGUF Q3_K_S measured; IQ2_M pending)' },
 
   // ---- frontier / open ----
   { model:'gpt5', metric:'score', bench:'MMLU-Pro', value:86.0, note:'(~85–87)' },
