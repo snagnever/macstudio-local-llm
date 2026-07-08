@@ -252,7 +252,7 @@
           <td><span class="swatch" style="background:#5aa9ff"></span></td>
           <td><a class="model-link" href="https://huggingface.co/lmstudio-community/Qwen3-Coder-Next-MLX-6bit" target="_blank" rel="noopener"><code>qwen/qwen3-coder-next</code> <span class="ext">↗ HF</span></a></td>
           <td>Qwen (Alibaba) · mlx-community<span class="pill">via LM Studio</span></td>
-          <td>Qwen3-Coder</td>
+          <td>Qwen</td>
           <td>MoE</td>
           <td class="num">80 B</td>
           <td class="num">3 B</td>
@@ -269,7 +269,7 @@
           <td><span class="swatch" style="background:#ff8a5a"></span></td>
           <td><a class="model-link" href="https://huggingface.co/mlx-community/Qwen3.6-27B-6bit" target="_blank" rel="noopener"><code>qwen3.6-27b</code> <span class="ext">↗ HF</span></a></td>
           <td>Qwen (Alibaba) · mlx-community<span class="pill">via LM Studio</span></td>
-          <td>Qwen3.6</td>
+          <td>Qwen</td>
           <td>Dense</td>
           <td class="num">27 B</td>
           <td class="num">27 B</td>
@@ -286,7 +286,7 @@
           <td><span class="swatch" style="background:#7ee787"></span></td>
           <td><a class="model-link" href="https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-6bit" target="_blank" rel="noopener"><code>qwen3.6-35b-a3b</code> <span class="ext">↗ HF</span></a></td>
           <td>Qwen (Alibaba) · mlx-community<span class="pill">via LM Studio</span></td>
-          <td>Qwen3.6</td>
+          <td>Qwen</td>
           <td>MoE</td>
           <td class="num">35 B</td>
           <td class="num">3 B</td>
@@ -303,7 +303,7 @@
           <td><span class="swatch" style="background:#ffd166"></span></td>
           <td><a class="model-link" href="https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit" target="_blank" rel="noopener"><code>gemma-4-26b-a4b-it-mlx@4bit</code> <span class="ext">↗ HF</span></a></td>
           <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
-          <td>Gemma 4</td>
+          <td>Gemma</td>
           <td>MoE</td>
           <td class="num">26 B</td>
           <td class="num">4 B</td>
@@ -320,7 +320,7 @@
           <td><span class="swatch" style="background:#f59e0b"></span></td>
           <td><a class="model-link" href="https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit" target="_blank" rel="noopener"><code>gemma-4-26b-a4b-it-mlx@6bit</code> <span class="ext">↗ HF</span></a></td>
           <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
-          <td>Gemma 4</td>
+          <td>Gemma</td>
           <td>MoE</td>
           <td class="num">26 B</td>
           <td class="num">4 B</td>
@@ -337,7 +337,7 @@
           <td><span class="swatch" style="background:#fb7185"></span></td>
           <td><a class="model-link" href="https://huggingface.co/lmstudio-community/gemma-4-31B-it-MLX-8bit" target="_blank" rel="noopener"><code>gemma-4-31b-it-mlx</code> <span class="ext">↗ HF</span></a></td>
           <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
-          <td>Gemma 4</td>
+          <td>Gemma</td>
           <td>Dense</td>
           <td class="num">31 B</td>
           <td class="num">31 B</td>
@@ -354,7 +354,7 @@
           <td><span class="swatch" style="background:#c084fc"></span></td>
           <td><a class="model-link" href="https://huggingface.co/lmstudio-community/gemma-4-E4B-it-MLX-8bit" target="_blank" rel="noopener"><code>gemma-4-e4b-it-mlx</code> <span class="ext">↗ HF</span></a></td>
           <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
-          <td>Gemma 4</td>
+          <td>Gemma</td>
           <td>Dense</td>
           <td class="num">4 B</td>
           <td class="num">4 B</td>
@@ -632,34 +632,34 @@ C.initTheme();
 const MODELS = [
   // --- local (this rig) ---
   { id:'coder', tier:'local', arch:'moe',   quant:'6bit', diskGB:64.76, color:'#5aa9ff',
-    provider:'Alibaba (Qwen)', family:'Qwen3-Coder', hf:'https://huggingface.co/lmstudio-community/Qwen3-Coder-Next-MLX-6bit',
+    provider:'Alibaba (Qwen)', family:'Qwen', hf:'https://huggingface.co/lmstudio-community/Qwen3-Coder-Next-MLX-6bit',
     label:'qwen3-coder-next',        chartLabel:'qwen3-coder-next (80B 6-bit)', refLabel:'qwen3-coder-next (local 80B)',
     caveat:'LCB: clean (0 trunc after Q19 rerun at 65k)' },
   { id:'d27b', tier:'local', arch:'dense', quant:'6bit', diskGB:22.80, color:'#ff8a5a',
-    provider:'Alibaba (Qwen)', family:'Qwen3.6', hf:'https://huggingface.co/mlx-community/Qwen3.6-27B-6bit',
+    provider:'Alibaba (Qwen)', family:'Qwen', hf:'https://huggingface.co/mlx-community/Qwen3.6-27B-6bit',
     peakRamGB:48.8, cpuPct:10.6, gpuPct:99.1, powerW:43.0, probeN:70, probeDate:'2026-05-17',
     label:'qwen3.6-27b',             chartLabel:'qwen3.6-27b (dense 6-bit)', refLabel:'qwen3.6-27b (local dense)',
     caveat:'GPQA: 15/100 truncated at 32k; true ≈78-85%. LCB: 1 trunc at 65k (Q3)' },
   { id:'a3b35', tier:'local', arch:'moe',  quant:'6bit', diskGB:29.09, color:'#7ee787',
-    provider:'Alibaba (Qwen)', family:'Qwen3.6', hf:'https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-6bit',
+    provider:'Alibaba (Qwen)', family:'Qwen', hf:'https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-6bit',
     peakRamGB:56.0, cpuPct:10.1, gpuPct:93.7, powerW:27.4, probeN:15, probeDate:'2026-05-19',
     label:'qwen3.6-35b-a3b',         chartLabel:'qwen3.6-35b-a3b (MoE 6-bit)', refLabel:'qwen3.6-35b-a3b (local MoE)',
     caveat:'GPQA: 23/100 truncated at 32k; true ≈75-83%. LCB: 6 trunc at 65k (floor)' },
   { id:'g26_4', tier:'local', arch:'moe',  quant:'4bit', diskGB:14.6, color:'#ffd166',
-    provider:'Google', family:'Gemma 4', hf:'https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit',
+    provider:'Google', family:'Gemma', hf:'https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit',
     label:'gemma-4-26b-a4b @4bit',   chartLabel:'gemma-4-26b-a4b (MoE 4-bit)', refLabel:'gemma-4-26b-a4b @4bit (local)',
     caveat:'LCB: Step B reruns at 65k recovered Q2; 8 trunc are real model limits' },
   { id:'g26_6', tier:'local', arch:'moe',  quant:'6bit', diskGB:21.81, color:'#f59e0b',
-    provider:'Google', family:'Gemma 4', hf:'https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit',
+    provider:'Google', family:'Gemma', hf:'https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit',
     peakRamGB:30.3, cpuPct:23.6, gpuPct:94.6, powerW:16.0, probeN:26, probeDate:'2026-04-08',
     probeNote:'probe filename did not record quant; attributed to @6bit (primary Gemma slot)',
     label:'gemma-4-26b-a4b @6bit',   chartLabel:'gemma-4-26b-a4b (MoE 6-bit)', refLabel:'gemma-4-26b-a4b @6bit (local)',
     caveat:'LCB: Step B reruns at 65k recovered Q28; 1 trunc remains (Q19). Rig LCB ceiling.' },
   { id:'g31', tier:'local', arch:'dense', quant:'8bit', diskGB:33.80, color:'#fb7185',
-    provider:'Google', family:'Gemma 4', hf:'https://huggingface.co/lmstudio-community/gemma-4-31B-it-MLX-8bit',
+    provider:'Google', family:'Gemma', hf:'https://huggingface.co/lmstudio-community/gemma-4-31B-it-MLX-8bit',
     label:'gemma-4-31b dense',       chartLabel:'gemma-4-31b (dense 8-bit)', refLabel:'gemma-4-31b dense @8bit (local)' },
   { id:'ge4b', tier:'local', arch:'dense', quant:'8bit', diskGB:7.5, color:'#c084fc',
-    provider:'Google', family:'Gemma 4', hf:'https://huggingface.co/lmstudio-community/gemma-4-E4B-it-MLX-8bit',
+    provider:'Google', family:'Gemma', hf:'https://huggingface.co/lmstudio-community/gemma-4-E4B-it-MLX-8bit',
     label:'gemma-4-e4b',             chartLabel:'gemma-4-e4b (4B 8-bit)', refLabel:'gemma-4-e4b @8bit (local 4B)',
     caveat:'MATH collapses at 4B — FIM/quick-call only' },
   { id:'a1', tier:'local', arch:'moe',   quant:'6bit', diskGB:29.90, color:'#2dd4bf', refExclude:true,
@@ -668,28 +668,30 @@ const MODELS = [
     label:'agents-a1-xl-mlx',        chartLabel:'agents-a1-xl-mlx (MoE 6-bit)' },
 
   // --- frontier / open-weight reference (published scores; ranked charts only) ---
-  { id:'opus47',     tier:'frontier', provider:'Anthropic', family:'Claude Opus',   label:'Claude Opus 4.7' },
-  { id:'opus46',     tier:'frontier', provider:'Anthropic', family:'Claude Opus',   label:'Claude Opus 4.6',   refNote:'*‡' },
-  { id:'opus45',     tier:'frontier', provider:'Anthropic', family:'Claude Opus',   label:'Claude Opus 4.5',   refNote:'*' },
-  { id:'sonnet46',   tier:'frontier', provider:'Anthropic', family:'Claude Sonnet', label:'Claude Sonnet 4.6', refNote:'*‡', caveat:'LCB community ~80' },
-  { id:'sonnet45',   tier:'frontier', provider:'Anthropic', family:'Claude Sonnet', label:'Claude Sonnet 4.5', refNote:'*‡', caveat:'LCB-Pro variant' },
-  { id:'gpt52',      tier:'frontier', provider:'OpenAI',    family:'GPT',            label:'GPT-5.2',           refNote:'*' },
-  { id:'gpt5',       tier:'frontier', provider:'OpenAI',    family:'GPT',            label:'GPT-5',             refNote:'‡', caveat:'LCB aggregator' },
-  { id:'o3',         tier:'frontier', provider:'OpenAI',    family:'o-series',       label:'o3' },
-  { id:'o4mini',     tier:'frontier', provider:'OpenAI',    family:'o-series',       label:'o4-mini',           refNote:'‡' },
-  { id:'gpt4o',      tier:'frontier', provider:'OpenAI',    family:'GPT',            label:'GPT-4o' },
-  { id:'gemini3pro', tier:'frontier', provider:'Google',    family:'Gemini',         label:'Gemini 3 Pro',      refNote:'*‡' },
-  { id:'gemini25pro',tier:'frontier', provider:'Google',    family:'Gemini',         label:'Gemini 2.5 Pro',    refNote:'‡' },
-  { id:'dsv4flash',  tier:'open',     provider:'DeepSeek',  family:'DeepSeek',       label:'DeepSeek-V4 Flash', caveat:'LCB v6 from research note 2026-05-17' },
-  { id:'dsr1',       tier:'open',     provider:'DeepSeek',  family:'DeepSeek',       label:'DeepSeek-R1',       refNote:'†' },
-  { id:'dsv3',       tier:'open',     provider:'DeepSeek',  family:'DeepSeek',       label:'DeepSeek-V3',       refNote:'†' },
-  { id:'dsv32',      tier:'open',     provider:'DeepSeek',  family:'DeepSeek',       label:'DeepSeek-V3.2-Exp' },
-  { id:'llama4mav',  tier:'open',     provider:'Meta',      family:'Llama',          label:'Llama 4 Maverick' },
-  { id:'llama33',    tier:'open',     provider:'Meta',      family:'Llama',          label:'Llama 3.3 70B' },
-  { id:'qwen3coder480', tier:'open',  provider:'Alibaba (Qwen)', family:'Qwen3-Coder', label:'Qwen3-Coder-480B' },
-  { id:'qwen3235',   tier:'open',     provider:'Alibaba (Qwen)', family:'Qwen3',    label:'Qwen3-235B Thinking' },
-  { id:'qwen2572',   tier:'open',     provider:'Alibaba (Qwen)', family:'Qwen2.5',  label:'Qwen2.5-72B' },
-  { id:'kimi',       tier:'open',     provider:'Moonshot AI', family:'Kimi',         label:'Kimi K2.6' }
+  // provider is bucketed for the filter: closed-weight references -> 'Frontier',
+  // open-weight references -> 'Open Frontier'. Only local models keep a specific vendor.
+  { id:'opus47',     tier:'frontier', provider:'Frontier',      family:'Claude',   label:'Claude Opus 4.7' },
+  { id:'opus46',     tier:'frontier', provider:'Frontier',      family:'Claude',   label:'Claude Opus 4.6',   refNote:'*‡' },
+  { id:'opus45',     tier:'frontier', provider:'Frontier',      family:'Claude',   label:'Claude Opus 4.5',   refNote:'*' },
+  { id:'sonnet46',   tier:'frontier', provider:'Frontier',      family:'Claude',   label:'Claude Sonnet 4.6', refNote:'*‡', caveat:'LCB community ~80' },
+  { id:'sonnet45',   tier:'frontier', provider:'Frontier',      family:'Claude',   label:'Claude Sonnet 4.5', refNote:'*‡', caveat:'LCB-Pro variant' },
+  { id:'gpt52',      tier:'frontier', provider:'Frontier',      family:'GPT',      label:'GPT-5.2',           refNote:'*' },
+  { id:'gpt5',       tier:'frontier', provider:'Frontier',      family:'GPT',      label:'GPT-5',             refNote:'‡', caveat:'LCB aggregator' },
+  { id:'o3',         tier:'frontier', provider:'Frontier',      family:'o-series', label:'o3' },
+  { id:'o4mini',     tier:'frontier', provider:'Frontier',      family:'o-series', label:'o4-mini',           refNote:'‡' },
+  { id:'gpt4o',      tier:'frontier', provider:'Frontier',      family:'GPT',      label:'GPT-4o' },
+  { id:'gemini3pro', tier:'frontier', provider:'Frontier',      family:'Gemini',   label:'Gemini 3 Pro',      refNote:'*‡' },
+  { id:'gemini25pro',tier:'frontier', provider:'Frontier',      family:'Gemini',   label:'Gemini 2.5 Pro',    refNote:'‡' },
+  { id:'dsv4flash',  tier:'open',     provider:'Open Frontier', family:'DeepSeek', label:'DeepSeek-V4 Flash', caveat:'LCB v6 from research note 2026-05-17' },
+  { id:'dsr1',       tier:'open',     provider:'Open Frontier', family:'DeepSeek', label:'DeepSeek-R1',       refNote:'†' },
+  { id:'dsv3',       tier:'open',     provider:'Open Frontier', family:'DeepSeek', label:'DeepSeek-V3',       refNote:'†' },
+  { id:'dsv32',      tier:'open',     provider:'Open Frontier', family:'DeepSeek', label:'DeepSeek-V3.2-Exp' },
+  { id:'llama4mav',  tier:'open',     provider:'Open Frontier', family:'Llama',    label:'Llama 4 Maverick' },
+  { id:'llama33',    tier:'open',     provider:'Open Frontier', family:'Llama',    label:'Llama 3.3 70B' },
+  { id:'qwen3coder480', tier:'open',  provider:'Open Frontier', family:'Qwen',     label:'Qwen3-Coder-480B' },
+  { id:'qwen3235',   tier:'open',     provider:'Open Frontier', family:'Qwen',     label:'Qwen3-235B Thinking' },
+  { id:'qwen2572',   tier:'open',     provider:'Open Frontier', family:'Qwen',     label:'Qwen2.5-72B' },
+  { id:'kimi',       tier:'open',     provider:'Open Frontier', family:'Kimi',     label:'Kimi K2.6' }
 ];
 
 const RESULTS = [
