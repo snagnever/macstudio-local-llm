@@ -6,6 +6,7 @@ Two self-contained dashboards for local-LLM benchmarks on the Mac Studio (M4 Max
 |---|---|---|
 | `benchmark-charts.html` | On-rig measurements (accuracy n=100, LCB n=50, tool calling, throughput, speed probe, prefill, elapsed) | The local runs themselves — what was actually measured on this rig |
 | `quality-benchmarks-charts.html` | Local-vs-frontier comparison using **published** scores (MMLU-Pro, GPQA, SWE-V, AIME, LCB v6, T-Bench, MMMU) | How the local models rank against frontier / open-weight references |
+| `terminal-bench-scoreboard.html` | **Dedicated Terminal-Bench 2.0 page** — 8-model ranking + interactive 89-task × 8-model pass/fail matrix (per-question descriptions, category/difficulty/budget, solve-rate column, MiniMax budget-recovery markers) | Task-by-task T-Bench detail: who solved what, where the local frontier sits |
 
 Both files share a common runtime, `charts-common.js`, and the same two-array data model (`MODELS` + `RESULTS`). Each page still has its own roster, colors, and prose — they are not merged — but the machinery (filter bar, chart builders, scoreboard, sortable/best-highlight helpers) lives in one place. A fix to the machinery is a single edit to `charts-common.js`; a data change is an edit to the `RESULTS`/`MODELS` arrays inline in one page.
 
@@ -134,7 +135,9 @@ python3 -c "import json,sys; d=json.load(open(sys.argv[1])); ev=next(iter(d['sta
 
 The two MiniMax-M2.5 quants **tie exactly at 25.8 % (23/89)** — the 78 GB UD-IQ2_M matches the 98.69 GB Q3_K_S on the agentic-shell loop, so the 2-bit quant costs nothing measurable on T-Bench. The IQ2_M run's initial 16 `EnvironmentStartTimeoutError` trials (a Docker LinuxKit VM wedge, not model failures) were recovered on a clean-Docker resume before scoring.
 
-Full write-up (Phase A/B cohort): [`tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md). MiniMax-M2.5 T-Bench detail (both quants + the IQ2_M Docker-wedge recovery): [`bench/minimax-m2.5/plan-iq2m-envfail-retry.md`](../bench/minimax-m2.5/plan-iq2m-envfail-retry.md). For wall-clock per run, see the matching `tbench_<model>_<timestamp>_summary.json`.
+> **Budget diagnostic (why 25.8 % and not vendor's 51.7 %).** IQ2_M logged **46 `AgentTimeoutError`** at our standard `--agent-timeout-multiplier 0.5`, and `46/89 = 51.7 %` — tempting to blame the clock. Re-running timeout tasks at full (`1.0×`) and generous (`1.5×`) budget recovers only **~25–33 %** of them: the tight budget cost a few real points (verified-recoverable ≈ **27/89 = 30.3 %**, budget-boosted — not comparable to the `0.5×` cohort), but the rest of the gap is **structural** — throughput (2-bit @ ~40 t/s over LAN), tool-call JSON-format instability, and genuine capability misses; vendor's number is full-precision on datacenter GPUs. More budget mostly lets it *finish and be wrong*. Full analysis + failure taxonomy: [`bench/minimax-m2.5/iq2m-tbench-budget-diagnostic.md`](../bench/minimax-m2.5/iq2m-tbench-budget-diagnostic.md).
+
+Full write-up (Phase A/B cohort): [`tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md`](../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md). MiniMax-M2.5 T-Bench detail: the [budget diagnostic](../bench/minimax-m2.5/iq2m-tbench-budget-diagnostic.md) (both quants tie; the timeout-budget probes) and the [Docker-wedge recovery](../bench/minimax-m2.5/plan-iq2m-envfail-retry.md). For wall-clock per run, see the matching `tbench_<model>_<timestamp>_summary.json`.
 
 **To refresh after a new run completes:**
 
