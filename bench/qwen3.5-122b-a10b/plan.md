@@ -207,6 +207,44 @@ expensive one (thinking-on, multi-hour) → run via detached driver, not foregro
 - `tools/local-llm-bench-m4-32gb/scripts/speed_probe.py`: same env-gated prefill,
   mirroring bench.py, so the probe can run clean no-think.
 
+## Second-session results (2026-07-11, quality ladder, THINKING ON)
+
+Detached driver (`scripts/run-122b-full-ladder.sh`, `nohup` + Python `os.setsid()`
+— macOS lacks `setsid`), sole-model, ctx 65k, `max-tokens 65536`,
+`BENCH_TIMEOUT=3600`, thinking ON (no prefill). Decode held ~35–37 t/s, swap 0,
+no spill throughout.
+
+| Bench | 122B (Q4_K_S) | 27B (6-bit) | Δ |
+|---|---|---|---|
+| HumanEval (100) | **96 %** | 93 % | **+3** |
+| MMLU (100) | 87 % | 88 % | −1 |
+| DROP (100) | 89 % | 90 % | −1 |
+| MATH | ~87 % (60/69, **skipped** at Q69) | 88 % | ~−1 |
+| **LiveCodeBench-50** | **62 % (31/50)** | 62 % (31/50) | **0 — exact tie** |
+
+**LCB is a statistical dead heat — identical per difficulty:** easy 10/15=10/15,
+medium 14/23=14/23, hard 7/12=7/12. Same-question head-to-head traded **3 wins
+each way**; net identical. Full 50-question table reproducible from the matched
+`lcb_question_id` join of the two runs' jsonl logs.
+
+**The 122B's one real weakness: truncation.** 4 of its LCB questions spiralled
+past the 65k cap (Q8, Q23, Q44, +1) — 30–36 min / ~65k thinking tokens each,
+graded fail. Its longer reasoning chains convert would-be passes into fails; at a
+tighter output budget its LCB would drop below the 27B's. Same failure mode the
+27B shows on GPQA, but here it bites coding. LCB leg wall-clock ~8 h; MATH was
+the other slow leg (deep reasoning, some Qs 10 min) and was cut at Q69 by user
+request to reach LCB sooner.
+
+**Verdict (quality, pre-Terminal-Bench): quality TIE, ~2× faster.** HumanEval a
+hair up, knowledge a hair down (−1 pp across MMLU/DROP/MATH), hard-coding signal
+(LCB) exactly even. Combined with the first-session ~2× speed win, the 122B is a
+**faster sidegrade, not an upgrade** — not enough quality gain to justify evicting
+`coder-next` for a sole-model 75 GB planner, but a legitimate **fast planning
+alternate** when raw speed beats the 27B's 22.8 GB pairing flexibility. Leaning
+🟡 **marginal — 27B keeps the Planning slot** pending the Terminal-Bench agentic leg.
+
+Terminal-Bench 2.0 (terminus-2, Docker, thinking ON) running as the final leg.
+
 ## History
 
 - **2026-07-10** — Plan written; candidate staged on disk. **First session:**
