@@ -153,8 +153,64 @@ DROP 90, HumanEval 93, **LCB 62**, jdhodges 95 / Veerman 83.3.
 | 73.4 GB + KV creeps past ~80 GB under parallel-slot prefill spikes | Soak at ctx 65k in Gate 2 before any bench; fall back to ctx 32,768 for the knowledge subset (they don't need 65k prompt room, only output cap) |
 | Sole-model residency blocks the rig for the whole ladder | Run model-major and overnight; nothing else scheduled on the rig during the campaign |
 
+## First-session results (2026-07-10, MTP OFF baseline)
+
+Model already staged on disk (`qwen3.5-122b-a10b-mtp`, 75.23 GB, arch
+`qwen35moe`) → Gate 0 done, Gate 1 confirmed on load.
+
+**Gate 1–2 — load + memory + speed.** Loaded sole-model (evicted
+`qwen3.6-27b-ud-mlx@6bit`) at ctx 65,536, parallel 4, `--no-speculative-draft-mtp`.
+Cold load **20.9 s**, resident **75.23 GB**, IDLE. Estimate at load: 75.14 GiB
+total (KV ~5 GiB over weights — the cheap hybrid-attention KV, as predicted).
+Soak: **swap 0, no spill, GPU 97 %**, RAM ~107 GB total during gen.
+
+Scenario throughput (`tools/local-llm-bench/bench.py`, no-think via
+`BENCH_NOTHINK_PREFILL=1`, gen t/s / eff t/s) vs the `qwen3.6-27b` MLX-6bit
+baseline:
+
+| Scenario | 27B gen / eff | 122B gen / eff | speedup |
+|---|---:|---:|---:|
+| creative-writing | 20.7 / 19.9 | **37.8 / 36.1** | ~1.8× |
+| doc-summary | 20.2 / 11.2 | **39.6 / 23.2** | ~2× |
+| ops-agent | 20.0 / 16.2 | **35.6 / 20.1** | ~1.8× |
+| prefill-test | 20.4 / 4.0 | **35.8 / 7.5** | ~1.8× |
+
+**A 122B model serves ~2× faster than the 27B incumbent** — the 10B-active MoE
+payoff. Prefill (eff on prefill-test) is also ~2× better; no prefill-collapse
+tarpit. speed_probe sustained-gen (thinking ON) ≈ 36–37 t/s; no-think probe
+answers are too short (2–67 tok) to measure sustained decode — the scenario
+bench is the authoritative speed source.
+
+**Gate 3 (partial) — fast signals: tool-calling (thinking ON, model default).**
+
+| Suite | 122B | 27B incumbent |
+|---|---|---|
+| jdhodges (40) | **95 % (38/40)**, 9.6 min, 26.2 t/s | 95 % (38/40) |
+| veerman (12) | **83 % (10/12)**, 3.1 min, 30.0 t/s | 83.3 % |
+
+Tool-calling is a **dead tie** — saturated; scale adds nothing here (expected).
+
+**Interim read:** challenger wins decisively on speed (~2× on both decode and
+prefill) and matches on tool-calling. The slot decision now rests entirely on the
+**knowledge + LCB ladder** (MMLU/MATH/DROP/HumanEval/LCB-50, thinking ON) — the
+`+2 pp knowledge` or `LCB ≥ 68 %` bar in the decision rule. That leg is the
+expensive one (thinking-on, multi-hour) → run via detached driver, not foreground.
+
+### Harness fixes made this session (both env-gated, inert by default)
+
+- `tools/local-llm-bench/bench.py`: added request-level `BENCH_NOTHINK_PREFILL=1`
+  no-think prefill (pre-closed `<think>\n\n</think>` as a trailing assistant turn,
+  injected only into the request, not persistent history). This checkout's bench.py
+  only had the `--no-think` **template-patch** path, which silently no-ops on a GGUF
+  (no external `chat_template.jinja`) → the qwen3.6-mtp study's documented
+  `BENCH_NOTHINK_PREFILL` mechanism did not actually exist here.
+- `tools/local-llm-bench-m4-32gb/scripts/speed_probe.py`: same env-gated prefill,
+  mirroring bench.py, so the probe can run clean no-think.
+
 ## History
 
-- **2026-07-10** — Plan written. Candidate identified (unsloth
-  Qwen3.5-122B-A10B-MTP-GGUF UD-Q4_K_S, 73.4 GB); gates defined; awaiting
-  Gate 0 download.
+- **2026-07-10** — Plan written; candidate staged on disk. **First session:**
+  Gate 0–2 + fast tool-calling done. Speed ~2× the 27B (gen + prefill),
+  tool-calling ties (95 % / 83 %). Sole-model 75 GB, 0 swap. Fixed the no-think
+  prefill mechanism in bench.py + speed_probe.py. Knowledge/LCB ladder (the
+  decision gate) still pending — detached-driver leg.
