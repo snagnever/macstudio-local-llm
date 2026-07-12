@@ -999,7 +999,8 @@ C.buildGroupedChart('chartAccuracy', {
     dset('g26_6', 'gemma-4-26b-a4b (MoE 6-bit)',   C.seriesFor(RESULTS,'g26_6',{metric:'accuracy'},ACC_BENCHES,'bench')),
     dset('g31',   'gemma-4-31b (dense 8-bit)',     C.seriesFor(RESULTS,'g31',  {metric:'accuracy'},ACC_BENCHES,'bench')),
     dset('ge4b',  'gemma-4-e4b (4B 8-bit)',        C.seriesFor(RESULTS,'ge4b', {metric:'accuracy'},ACC_BENCHES,'bench')),
-    dset('a1',    'agents-a1-xl-mlx (MoE 6-bit)',  C.seriesFor(RESULTS,'a1',   {metric:'accuracy'},ACC_BENCHES,'bench'))
+    dset('a1',    'agents-a1-xl-mlx (MoE 6-bit)',  C.seriesFor(RESULTS,'a1',   {metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('q122b', 'qwen3.5-122b-a10b (Q4_K_S) 🔴', C.seriesFor(RESULTS,'q122b',{metric:'accuracy'},ACC_BENCHES,'bench'))
   ],
   options: C.gridOpts('Pass rate (%)', 100)
 });
@@ -1013,7 +1014,7 @@ C.buildGroupedChart('chartLCB', {
 });
 
 // --- Terminal-Bench 2.0 (grouped, ranked order, per-model fraction labels) ---
-const TB_ORDER = [['coder','29/89'],['d27b','28/89'],['a3b35','25/89'],['mmq3','23/89'],['mmiq2','23/89 *'],['g31','20/89'],['g26_6','19/89'],['g26_4','18/89'],['ge4b','4/89']];
+const TB_ORDER = [['coder','29/89'],['d27b','28/89'],['a3b35','25/89'],['mmq3','23/89'],['mmiq2','23/89 *'],['q122b','22/89'],['g31','20/89'],['g26_6','19/89'],['g26_4','18/89'],['ge4b','4/89']];
 C.buildGroupedChart('chartTBench', {
   state: state,
   labels: ['Terminal-Bench 2.0 (n=89)'],
@@ -1022,7 +1023,7 @@ C.buildGroupedChart('chartTBench', {
 });
 
 // --- Tool calling: score ---
-const TOOL_LABELS = [['coder','qwen3-coder-next'],['d27b','qwen3.6-27b'],['a3b35','qwen3.6-35b-a3b'],['g26_4','gemma-4-26b-a4b @4bit'],['g26_6','gemma-4-26b-a4b @6bit'],['g31','gemma-4-31b dense'],['ge4b','gemma-4-e4b (4B)'],['a1','agents-a1-xl-mlx']];
+const TOOL_LABELS = [['coder','qwen3-coder-next'],['d27b','qwen3.6-27b'],['a3b35','qwen3.6-35b-a3b'],['g26_4','gemma-4-26b-a4b @4bit'],['g26_6','gemma-4-26b-a4b @6bit'],['g31','gemma-4-31b dense'],['ge4b','gemma-4-e4b (4B)'],['a1','agents-a1-xl-mlx'],['q122b','qwen3.5-122b-a10b 🔴']];
 // score chart also carries MiniMax (toolScore measured); tps/effTps charts stay on TOOL_LABELS (no MiniMax tool-tps data)
 const TOOL_SCORE_LABELS = TOOL_LABELS.concat([['mmq3','minimax-m2.5 Q3_K_S'],['mmiq2','minimax-m2.5 IQ2_M']]);
 C.buildGroupedChart('chartToolScore', {
@@ -1041,7 +1042,7 @@ C.buildGroupedChart('chartToolTps', {
 });
 
 // --- Generation throughput by scenario ---
-const GEN_LABELS = [['coder','qwen3-coder-next (80B MoE)'],['d27b','qwen3.6-27b (dense)'],['a3b35','qwen3.6-35b-a3b (MoE, MLX)'],['g26_4','gemma-4-26b-a4b @4bit (MoE)'],['g26_6','gemma-4-26b-a4b @6bit (MoE)'],['g31','gemma-4-31b @8bit (dense)'],['ge4b','gemma-4-e4b @8bit (4B)'],['a1','agents-a1-xl-mlx (MoE)']];
+const GEN_LABELS = [['coder','qwen3-coder-next (80B MoE)'],['d27b','qwen3.6-27b (dense)'],['a3b35','qwen3.6-35b-a3b (MoE, MLX)'],['g26_4','gemma-4-26b-a4b @4bit (MoE)'],['g26_6','gemma-4-26b-a4b @6bit (MoE)'],['g31','gemma-4-31b @8bit (dense)'],['ge4b','gemma-4-e4b @8bit (4B)'],['a1','agents-a1-xl-mlx (MoE)'],['q122b','qwen3.5-122b-a10b (122B MoE) 🔴']];
 C.buildGroupedChart('chartGenTps', {
   state: state,
   labels: SCENARIOS,
