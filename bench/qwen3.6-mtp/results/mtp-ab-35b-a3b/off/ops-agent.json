@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "scenario": "ops-agent",
+    "mode": "conversation",
+    "label": "m4-max-128gb-40gpu lmstudio",
+    "backend": "lmstudio",
+    "model_info": {
+      "name": "q36-mtp-off"
+    },
+    "runs": 1,
+    "max_tokens": 500,
+    "cold": false,
+    "warm_up_time": 0.057,
+    "system": {
+      "os": "Darwin",
+      "os_version": "26.3",
+      "arch": "arm64",
+      "chip": "Apple M4 Max",
+      "memory_gb": 128,
+      "cpu_cores": 16,
+      "cpu_cores_performance": 12,
+      "cpu_cores_efficiency": 4,
+      "gpu_cores": 40,
+      "gpu_wired_limit_mb": 0
+    },
+    "timestamp": "2026-07-10T09:10:26"
+  },
+  "results": [
+    {
+      "turn": 1,
+      "run": 1,
+      "ctx_tokens_est": 575,
+      "new_tokens_est": 421,
+      "ttft": 0.702,
+      "gen_time": 1.95,
+      "gen_tps": 73.9,
+      "total": 2.652,
+      "output_tokens": 144,
+      "tool": "server_status",
+      "_response": "Everything is technically running, but **immich-ml** (Immich's machine learning service) is the culprit. It\u2019s consuming **45% CPU** and **8.2GB of RAM**.\n\nThis usually happens when Immich is processing a large batch of new photos or videos in the background. Since it's only been running for 12 days, this might be a recent upload spike.\n\n**Recommendation:**\nIf you recently uploaded media, let it finish. If it stays at ~45% CPU with no uploads happening, we can restart just that service to clear any stuck processes. Do you want me to check the logs for `immich-ml` or restart it?",
+      "_user": "Something feels off with the server. Can you check what's running?"
+    },
+    {
+      "turn": 2,
+      "run": 1,
+      "ctx_tokens_est": 956,
+      "new_tokens_est": 235,
+      "ttft": 0.946,
+      "gen_time": 2.599,
+      "gen_tps": 73.1,
+      "total": 3.544,
+      "output_tokens": 190,
+      "tool": "service_logs",
+      "_response": "The logs confirm that **immich-ml** is actively processing a large backlog of photos. Specifically:\n\n*   It's currently on batch **850 out of 1,203**, meaning it\u2019s about **70% done**.\n*   It\u2019s performing **facial recognition** and generating **CLIP embeddings** (which allow you to search for concepts like \"dog\" or \"beach\").\n*   The estimated time remaining is only **~45 minutes**.\n\nThe high CPU usage is normal behavior here. It also briefly hit a low memory condition but automatically reclaimed 1.2GB, so it\u2019s handling the load as expected.\n\n**Recommendation:** No action needed right now. Let it finish its current batch. Once those ~350 remaining images are processed, CPU usage should drop significantly. I\u2019ll check back in an hour if you\u2019d like to confirm things have stabilized.",
+      "_user": "Immich ML is eating a lot of CPU. What's it doing?"
+    },
+    {
+      "turn": 3,
+      "run": 1,
+      "ctx_tokens_est": 1242,
+      "new_tokens_est": 89,
+      "ttft": 1.183,
+      "gen_time": 2.682,
+      "gen_tps": 73.8,
+      "total": 3.865,
+      "output_tokens": 198,
+      "tool": "docker_exec",
+      "_response": "Yes, it is going to be fine. Here\u2019s why:\n\n*   **Memory Headroom:** The container has a limit of **12GB** and is currently using **8.2GB**. This leaves nearly **4GB of free memory** within the container's allocation. While it hit a low-memory warning earlier, it successfully reclaimed space, and you still have significant buffer left before hitting the hard cap.\n*   **System Memory:** Your Mac Studio has **16.7GB available** system-wide, so even if Immich uses its full 12GB, your host OS will still have plenty of breathing room for other tasks.\n\nThe high memory usage is expected because it\u2019s holding image embeddings and face clusters in RAM to speed up processing. Since it\u2019s already 70% done, this peak load should drop soon as it finishes the current batch and frees up those temporary objects.\n\nNo action needed\u2014just let it run its course!",
+      "_user": "Ah right, we uploaded vacation photos yesterday. Is it going to be OK memory-wise?"
+    },
+    {
+      "turn": 4,
+      "run": 1,
+      "ctx_tokens_est": 1669,
+      "new_tokens_est": 214,
+      "ttft": 1.552,
+      "gen_time": 2.149,
+      "gen_tps": 73.1,
+      "total": 3.7,
+      "output_tokens": 157,
+      "tool": "backup_status",
+      "_response": "The last backup ran successfully at **2:00 AM today** (March 7th).\n\n*   **Status:** Completed with minor warnings.\n*   **Data Synced:** It transferred **12.4GB** and synced **1,847 files**. This significant increase compared to previous days confirms that your vacation photos were included in this latest backup.\n*   **Warnings:** The \"Vault eject failed\" warning is noted as non-fatal (likely an external drive not unmounting cleanly), but the data was already synced and safe before that step.\n\nYour vacation photos are backed up. If you want to investigate why the vault didn't eject, I can check system logs for that specific error, but otherwise, your data is secure.",
+      "_user": "Good. Check if last night's backup ran. I want to make sure the vacation photos are safe."
+    },
+    {
+      "turn": 5,
+      "run": 1,
+      "ctx_tokens_est": 2077,
+      "new_tokens_est": 239,
+      "ttft": 2.013,
+      "gen_time": 5.646,
+      "gen_tps": 71.0,
+      "total": 7.659,
+      "output_tokens": 401,
+      "tool": "disk_usage",
+      "_response": "Here is the current disk situation:\n\n**\ud83d\udfe2 Local Server (`/`)**\n*   **Usage:** 33% (1.2TB used / 3.6TB total)\n*   **Status:** Healthy. Plenty of space for system operations and future growth.\n\n**\ud83d\udd34 Backup Vault (`/Volumes/backup-vault`)**\n*   **Usage:** 69% (3.8TB used / 5.5TB total)\n*   **Available:** 1.7TB\n*   **Status:** Watch this one. While not critical yet, it\u2019s filling up steadily. The \"vault eject failed\" warnings might be related to the drive being heavily utilized or having too many open file handles during large syncs (like today's 12.4GB transfer).\n\n**\ud83d\udfe1 Time Machine (`/Volumes/time-machine`)**\n*   **Usage:** 75% (4.1TB used / 5.5TB total)\n*   **Available:** 1.4TB\n*   **Status:** Moderate. Time Machine will eventually start deleting older snapshots if space gets critically low, but it\u2019s currently stable.\n\n**Data Breakdown (`~/server/data`)**\nYour local data directory is **892GB**, with photos making up the vast majority (**634GB**). This confirms that your vacation photos are indeed stored locally and were part of the backup.\n\n**Recommendation:**\nThe eject failure is likely a transient issue caused by the large write load during the backup. It doesn't seem to be affecting data integrity since the sync completed successfully. I'd suggest monitoring `/Volumes/backup-vault` over the next few weeks; if it approaches 85-90%, we may need to rotate older backups or expand your storage capacity.\n\nWould you like me to check if there are any old, unnecessary backup snapshots on the vault drive that we can clean up?",
+      "_user": "The vault didn't eject again. How's disk space looking on all drives?"
+    },
+    {
+      "turn": 6,
+      "run": 1,
+      "ctx_tokens_est": 2711,
+      "new_tokens_est": 249,
+      "ttft": 2.644,
+      "gen_time": 2.728,
+      "gen_tps": 73.3,
+      "total": 5.373,
+      "output_tokens": 200,
+      "tool": "service_logs",
+      "_response": "Yes, Paperless has already processed all three of your morning scans! Here\u2019s the summary:\n\n1.  **school-report-emma-2026.pdf**\n    *   **Status:** Processed successfully (3 pages).\n    *   **Classification:** School Report.\n    *   **Tags:** `education`, `emma`.\n\n2.  **swimming-certificate-max.pdf**\n    *   **Status:** Processed successfully (1 page).\n    *   **Classification:** Certificate.\n    *   **Tags:** `sports`, `max`.\n\n3.  **electricity-bill-march-2026.pdf**\n    *   **Status:** Processed successfully (2 pages).\n    *   **Classification:** Invoice.\n    *   **Tags:** `utilities`, `electricity`.\n\nAll files were OCR'd with high confidence and auto-classified correctly. They are now searchable in your Paperless dashboard.",
+      "_user": "Time Machine is at 75%. Also did Paperless process the school documents I scanned this morning?"
+    },
+    {
+      "turn": 7,
+      "run": 1,
+      "ctx_tokens_est": 2994,
+      "new_tokens_est": 98,
+      "ttft": 2.941,
+      "gen_time": 3.505,
+      "gen_tps": 71.9,
+      "total": 6.446,
+      "output_tokens": 252,
+      "tool": "docker_exec",
+      "_response": "The Matrix (Synapse) database is currently **2.1 GB**, which is quite small and healthy for a home server setup.\n\nHere\u2019s the breakdown of where that space is going:\n*   **`state_groups_state` (845 MB):** This is the largest table. It stores the current state of all rooms you\u2019re part of. Since it's only ~800MB, your active room list isn't overwhelming.\n*   **`event_json` & `events`:** These store the actual message history and metadata. Combined (~710 MB), this indicates moderate usage\u2014likely a few active family chats or small community rooms.\n\n**Why it feels \"chatty\":**\nThe chatty behavior you noticed earlier (high CPU/Memory on other services) wasn't related to Matrix, as Synapse is only using **0.4% CPU** and **380MB RAM**. The chatter might have been general network traffic from the Immich upload or backup process.\n\n**Recommendation:**\n2.1 GB is very manageable. No cleanup needed at this stage. If you join many large public rooms in the future, this will grow, but for now, it's running efficiently.",
+      "_user": "Nice, it even picked up the electricity bill. How big is the Matrix database? It's been chatty lately."
+    },
+    {
+      "turn": 8,
+      "run": 1,
+      "ctx_tokens_est": 3436,
+      "new_tokens_est": 188,
+      "ttft": 3.346,
+      "gen_time": 4.895,
+      "gen_tps": 71.1,
+      "total": 8.241,
+      "output_tokens": 348,
+      "tool": "docker_exec",
+      "_response": "Here is the breakdown of your Matrix rooms by message volume:\n\n*   **`#server`**: 12,847 events (Server logs/notifications)\n*   **`#family`**: 8,934 events (Main family chat)\n*   **`#test-room`**: 4,521 events (Testing area)\n*   **`#butler`**: 3,421 events (Automation logs)\n*   **`#marvin-old`**: 2,103 events (Old bot/chat room)\n*   **`#alfred-bot`**: 1,893 events (Alfred integration)\n*   **`#documents`**: 567 events (Paperless notifications)\n\n**Analysis:**\nThe database size is actually quite small for these numbers because most of your messages are likely text-only. The bulk of the space comes from `#server` and `#family`, which is expected.\n\n**Recommendation:**\nYou have a couple of rooms that might be candidates for cleanup if you want to save space:\n1.  **`#test-room`**: If this isn't actively used, it has nearly 5k events just sitting there.\n2.  **`#marvin-old`**: An old room with only one member.\n\nSince the total database is only 2.1 GB, I don't think you need to purge anything right now. However, if you want to clean up `#test-room` or `#marvin-old`, I can help you leave those rooms or delete them via Docker exec. Would you like to proceed with any cleanup?",
+      "_user": "2.1GB for Matrix seems like a lot. Can we see which rooms take the most space?"
+    }
+  ]
+}

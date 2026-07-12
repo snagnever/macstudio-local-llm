@@ -25,6 +25,7 @@
 | API id | Source repo | Format | Quant | Disk | Runtime | Status | Notes |
 |---|---|---|---|---|---|---|---|
 | `qwen3.6-27b` | [mlx-community/Qwen3.6-27B-6bit](https://huggingface.co/mlx-community/Qwen3.6-27B-6bit) | MLX safetensors | 6-bit | 22.80 GB | LM Studio MLX | 🟢 **DAILY DRIVER** | Planning / hard-reasoning slot; sole benched variant |
+| `qwen3.6-27b-mtp` | [unsloth/Qwen3.6-27B-MTP-GGUF](https://huggingface.co/unsloth/Qwen3.6-27B-MTP-GGUF) | GGUF | UD-Q6_K_XL | 26.02 GB | LM Studio llama.cpp | ⚗️ **speed study only** | Not a quality candidate — benched only to isolate Draft MTP speculative decoding (see [Draft MTP tuning](#draft-mtp-speculative-decoding--speed-tuning-2026-07-10)). MLX 6-bit stays the pick |
 
 **Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): 6-bit: [`9bf9761`](https://huggingface.co/mlx-community/Qwen3.6-27B-6bit/tree/9bf976157e09080fbc11ccd971d4e9c57554889d) (downloaded 2026-05-16).
 
@@ -49,6 +50,30 @@
 
 Context: 6× slower decode than `coder-next` (67 t/s effective) and 4× slower than `gemma-4-26b-a4b@6bit` (80.8 t/s). The prefill collapse is why it loses the agent slot despite near-parity T-Bench quality.
 Source: [local-llm-reference.md throughput matrix](../local-llm-reference.md), [testing-plan.md](../testing-plan.md), [M4 notes](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md).
+
+### Draft MTP (speculative decoding) — speed tuning (2026-07-10)
+
+The unsloth GGUF (`qwen3.6-27b-mtp`) carries an MTP draft head that LM Studio
+exposes as the **Draft MTP** load toggle. A/B on the *same* GGUF (only the toggle
+flipped; ctx 65k, parallel 4, thinking off) — gen t/s:
+
+| Scenario | MTP off | MTP on (draft=2) | effect |
+|---|---:|---:|---:|
+| creative-writing | 16.7 | 15.4 | **−8 %** |
+| doc-summary | 17.2 | 21.9 | **+28 %** |
+| ops-agent | 16.6 | 19.1 | **+15 %** |
+| prefill-test | 16.7 | 17.5 | +5 % |
+
+**MTP is a per-workload toggle** (textbook speculative decoding): on for
+structured/agentic/summarization, off for creative writing. **Draft depth 2 is
+the optimum** — 3/4/6/8 are monotonically worse on every scenario (single draft
+head → acceptance collapses past ~1 token; each reject still costs a forward
+pass). This dense 27B reproduces the MoE 35B's profile almost exactly, so the
+behaviour is a draft-head × workload property, not architecture-specific. Note
+MTP does **not** touch the prefill collapse (the reason this model loses the
+agent slot) — it only speeds decode, and only on the right workloads. **The MLX
+6-bit build stays the daily driver.** Full data + depth curve:
+[bench/qwen3.6-mtp/plan.md](../../bench/qwen3.6-mtp/plan.md).
 
 ## Quality benchmarks (measured)
 
@@ -113,3 +138,4 @@ Plans: [2026-05-22-livecodebench-phase-1.md](../../bench/lcb-phase1/plan.md) · 
 - **2026-05-24** — LCB v6 backfill: **62 %**, best Qwen, 16.2 h ([plan](../../bench/lcb-phase1/plan.md)); LCB-specific recommendation diverges to `gemma-4-26b-a4b@6bit` (80 %).
 - **2026-05-29** — Terminal-Bench 2.0 leg B5: **31.5 %** ⌛0.5x cap, #2 on rig ([plan](../../bench/terminal-bench/plan.md)); agent slot stays with coder-next on speed.
 - **2026-07-05** — Model card written; still the Planning daily driver post-Phase-5 arrivals (MiniMax-M2.5 GGUF is sole-model only and doesn't contest the slot).
+- **2026-07-10** — Draft MTP speculative-decoding study on the unsloth GGUF variant: MTP is a per-workload toggle (structured +15–28 %, creative −8 %), draft depth 2 optimal; matches the MoE 35B profile ([bench/qwen3.6-mtp/plan.md](../../bench/qwen3.6-mtp/plan.md)). MLX 6-bit remains the daily driver.

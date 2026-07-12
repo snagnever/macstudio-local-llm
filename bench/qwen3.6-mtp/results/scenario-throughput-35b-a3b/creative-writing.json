@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "scenario": "creative-writing",
+    "mode": "single-shot",
+    "label": "m4-max-128gb-40gpu lmstudio",
+    "backend": "lmstudio",
+    "model_info": {
+      "name": "qwen3.6-35b-a3b-mtp"
+    },
+    "runs": 1,
+    "max_tokens": 2000,
+    "cold": false,
+    "warm_up_time": 0.095,
+    "system": {
+      "os": "Darwin",
+      "os_version": "26.3",
+      "arch": "arm64",
+      "chip": "Apple M4 Max",
+      "memory_gb": 128,
+      "cpu_cores": 16,
+      "cpu_cores_performance": 12,
+      "cpu_cores_efficiency": 4,
+      "gpu_cores": 40,
+      "gpu_wired_limit_mb": 0
+    },
+    "timestamp": "2026-07-10T09:03:14"
+  },
+  "results": [
+    {
+      "turn": 1,
+      "run": 1,
+      "ctx_tokens_est": 57,
+      "new_tokens_est": 29,
+      "ttft": 0.237,
+      "gen_time": 7.623,
+      "gen_tps": 68.5,
+      "total": 7.86,
+      "output_tokens": 522,
+      "_response": "Beneath the floorboards\u2019 creaking groan,\nWhere concrete roots the house alone,\nThe air is still and chill as stone,\nAnd silence claims its heavy throne.\nBut deep within the shadowed room,\nA different pulse begins to bloom\u2014\nNot heart, but hum, a low, low drone,\nThat vibrates through the cellar\u2019s bone.\n\nIn racks of steel, the lights glow green,\nLike fireflies trapped in glassy scene,\nCountless eyes that blink unseen,\nThrough data streams and silicon.\nThey do not sleep, they do not dream,\nOf waking sun or morning beam,\nBut guard the ghosts of yesterday,\nThat slip through fiber-optic sway.\n\nHere lies the first cry on a tape,\nThe digital and fragile shape\nOf laughter caught in audio\u2019s wake,\nFor every bond, for every break.\nA thousand photos, frozen tight,\nIn pixels sharp and endless night,\nWhere grandmother smiles with youthful grace,\nPreserved within this cold embrace.\n\nThe fans spin fast to cool the heat\nOf memories too vast to keep,\nWhile earth above its secrets sleep,\nAnd time beyond the walls runs deep.\nNo moth can reach these magnetic shores,\nTo gnaw at edges or decore,\nNo rust can touch the silver code,\nThat holds the family\u2019s heavy load.\n\nIt is a tomb of light and sound,\nWhere lost moments are found again,\nIn circuits\u2019 cold, electric rain,\nThat washes off the dust of years.\nThe servers hum their endless song,\nTo right the world\u2019s forgetting wrong,\nKeeping the past from turning gray,\nIn this dark, deep, digital way.\n\nAbove, a child runs down the stair,\nUnaware of what lies there,\nBut hears the whisper in the air,\nA subtle vibration, faint and bare.\nShe pauses by the heavy door,\nAnd feels the hum beneath her floor,\nThe heartbeat of the home\u2019s core,\nWaiting for her to explore.\n\nSo let them spin their endless wheels,\nTo keep the fractured story real,\nFrom rot, from loss, from time\u2019s cruel steel,\nIn basement dark and cold as steel.\nFor when the body fades to dust,\nAnd trust is broken, hope is rusted,\nThe servers hold what cannot be lost\u2014\nThe echo of a mother\u2019s cost,\nThe image of a father\u2019s ghost,\nIn binary, forever hosted.",
+      "_user": "Write a poem about a mass of servers humming in a dark basement, keeping a family's memories alive. At least 30 lines."
+    },
+    {
+      "turn": 2,
+      "run": 1,
+      "ctx_tokens_est": 60,
+      "new_tokens_est": 32,
+      "ttft": 0.233,
+      "gen_time": 7.92,
+      "gen_tps": 72.4,
+      "total": 8.153,
+      "output_tokens": 573,
+      "_response": "In the shadow of an ancient oak, where roots tangled like old cables, lived Tiberius the Tortoise. While his neighbor, a hare named Hareld, boasted of chrome-plated towers that hummed with liquid-cooled fury, Tiberius sat quietly in the dirt, assembling something else.\n\nHareld\u2019s machine was a beast of glass and neon, capable of simulating galaxies in seconds but requiring hours to cool down after running hot simulations. It demanded silence, stillness, and frequent naps. Tiberius built his from scavenged parts: a cracked calculator screen, gears salvaged from a broken clockwork toy, and a single, steady battery powered by the slow decay of fallen leaves beneath him.\n\nHis device, which he called \"The Moss-Mind,\" did not process data; it processed patience. It had no graphics card, only a cursor that blinked once every ten seconds. When Hareld challenged Tiberius to a race of computation\u2014calculating the trajectory of falling acorns\u2014Hareld\u2019s rig spun up with a jet-engine whine. In three seconds, it spat out an answer: *42 feet.* Then, the lights dimmed. The fans screamed. Hareld had to unplug the system and let it rest for an hour before attempting another run.\n\nTiberius did not plug in. He simply waited. His Moss-Mind clicked softly, a rhythmic ticking like a heartbeat. *Click... pause... click.* It took him six hours to calculate the same trajectory. But it never stopped. When rain fell, Tiberius covered his machine with a large leaf; when the sun blazed, he shaded it with his shell. The Moss-Mind continued its slow, relentless march through the numbers.\n\nBy sunset, Hareld was asleep, dreaming of faster processors and cooler fans. Tiberius woke to find that while his computer had finished only one calculation in the day, the data it produced was perfectly accurate, untouched by heat errors or crash loops.\n\nHareld laughed at dawn, waking up to check on his rival. \"Did you finish?\" he yawned.\n\nTiberius pointed a clawed foot at the tiny screen, which now displayed a single, glowing digit: *Done.*\n\n\"You took all night,\" Hareld sneered, turning back to recharge his rig's capacitors.\n\n\"I did not take all night,\" Tiberius said, his voice slow and deep as the earth itself. \"I simply never stopped.\"\n\nAnd so, while Hareld\u2019s world crashed every time it ran too hot, Tiberius\u2019s tiny computer kept running, proving that in the long game of endurance, slowness is not a weakness, but a foundation that does not tremble.",
+      "_user": "Write a short fable about a tortoise who built a tiny computer that was slower than the hare's gaming rig but never needed to rest."
+    },
+    {
+      "turn": 3,
+      "run": 1,
+      "ctx_tokens_est": 58,
+      "new_tokens_est": 31,
+      "ttft": 0.244,
+      "gen_time": 6.12,
+      "gen_tps": 64.9,
+      "total": 6.364,
+      "output_tokens": 397,
+      "_response": "The dust motes dance in shafts of dying light,\nWhere time has stopped its clock and held its breath,\nBeneath the floorboards\u2019 groaning, wooden bite,\nA silver ghost awaits the coming death\nOf memory\u2019s final, fragile, paper shell.\nNo pixels hum here, no clouded servers spin,\nJust chemical ghosts where stories dwell,\nAnd silence holds the world in deep within.\n\nIt is a square of frozen morning air,\nWith creases worn by fingers long since turned to bone,\nA smile captured with desperate care,\nBefore the great and silent clouds had blown\nThe digital archives into rusted dust,\nLeaving only this tangible trust.\n\nLook closely at the grain, the silver nitrate\u2019s bite,\nHow it catches light like water on a stone,\nA face from yesterday, frozen in sight,\nNo longer scrolling, never to be shown\nOn screens that flicker with their artificial suns,\nBut resting here until the world is done.\n\nThe edges curl like leaves in autumn wind,\nFragile as a moth\u2019s delicate design,\nThis paper truth has nowhere left to find\nA new home for its now obsolete sign.\nIt smells of vinegar and old decay,\nOf promises we made to stay this way.\n\nNo algorithm knows the name contained,\nNo search bar digs through terabytes of sea,\nJust you, alone, with history\u2019s weight unchained,\nHolding a moment wild and raw and free.\nThe last printed word, the final static frame,\nA whisper in the dark, a flickering flame.\n\nIt does not load, it does not refresh or change,\nIt simply *is*, against the void\u2019s demand,\nAn anchor dropped upon an empty range,\nThe end of all we sought to understand.\nOne human touch preserved in chemical grace,\nBefore the long and dark embrace.",
+      "_user": "Write a poem about the last photograph ever printed on paper, found in an attic a hundred years from now. At least 25 lines."
+    }
+  ]
+}

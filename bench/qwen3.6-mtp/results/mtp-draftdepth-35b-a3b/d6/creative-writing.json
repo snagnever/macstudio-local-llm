@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "scenario": "creative-writing",
+    "mode": "single-shot",
+    "label": "m4-max-128gb-40gpu lmstudio",
+    "backend": "lmstudio",
+    "model_info": {
+      "name": "q36-draft6"
+    },
+    "runs": 1,
+    "max_tokens": 2000,
+    "cold": false,
+    "warm_up_time": 0.097,
+    "system": {
+      "os": "Darwin",
+      "os_version": "26.3",
+      "arch": "arm64",
+      "chip": "Apple M4 Max",
+      "memory_gb": 128,
+      "cpu_cores": 16,
+      "cpu_cores_performance": 12,
+      "cpu_cores_efficiency": 4,
+      "gpu_cores": 40,
+      "gpu_wired_limit_mb": 0
+    },
+    "timestamp": "2026-07-10T09:19:27"
+  },
+  "results": [
+    {
+      "turn": 1,
+      "run": 1,
+      "ctx_tokens_est": 57,
+      "new_tokens_est": 29,
+      "ttft": 0.259,
+      "gen_time": 14.454,
+      "gen_tps": 33.9,
+      "total": 14.713,
+      "output_tokens": 490,
+      "_response": "The air is thick with recycled chill,\nA subterranean lung that breathes no breath,\nWhere shadows stretch against the concrete sill\nAnd silence hums beneath the digital death.\nHere in the dark, the rack towers rise,\nBlack monoliths of plastic, steel, and wire,\nTheir blinking eyes reflect in glassy skies\nOf monitors that burn with cold desire.\n\nA low vibration thrums through floorboards old,\nThe heartbeat of a house that sleeps above,\nWhere laughter echoes, soft and somewhat bold,\nBefore the silence takes its quiet love.\nBut here they wait, these silent sentinels,\nGuardians of the moments not yet gone,\nTo keep the stories from the dusty shelves,\nTo hold the light against the coming dawn.\n\nOn spinning platters, data streams like rain,\nCapturing a child\u2019s first wobbly step,\nThe summer sun on windowpanes again,\nThe promises we swore while half-asleep.\nA wedding vow recorded in binary code,\nA birthday song with voices slightly cracked,\nThe heavy weight of a mother\u2019s load,\nThe quiet peace of unspoken act.\n\nThey do not judge the photos stored within,\nNor filter out the tears that stain the lens,\nThey keep the chaos of our lives intact,\nFor every joy and sorrow we confess.\nNo decay can touch these pixels bright,\nNo rot can eat the JPEG\u2019s vivid hue,\nSafe from the day and safe from endless night,\nPreserved in lines of static, endless blue.\n\nThe fans spin up, a wind within the wall,\nWhispering secrets to the empty room,\nAnswering not to god nor earthly call,\nBut keeping watch over the digital gloom.\nWe climb the stairs to leave them in their care,\nTo walk into the sun\u2019s uncertain glare,\nKnowing that somewhere deep below the air,\nOur ghosts remain, suspended in the air.\n\nThey wait for us when time begins to fray,\nWhen memory fails and names are hard to recall,\nTo bring the light of yesterday back day,\nAnd answer when we knock upon the wall.\nSo let them hum their electric lullaby,\nIn basements cold and far from human sight,\nKeeping our history alive and high,\nA family\u2019s soul in server farms held tight.",
+      "_user": "Write a poem about a mass of servers humming in a dark basement, keeping a family's memories alive. At least 30 lines."
+    },
+    {
+      "turn": 2,
+      "run": 1,
+      "ctx_tokens_est": 60,
+      "new_tokens_est": 32,
+      "ttft": 0.303,
+      "gen_time": 19.4,
+      "gen_tps": 38.4,
+      "total": 19.704,
+      "output_tokens": 744,
+      "_response": "In the shadow of the Great Oak, where sunlight fractured into emerald coins on the forest floor, lived Barnaby. Barnaby was not fast. His shell was a landscape of moss and mud, his movements measured in geological epochs. But while others slept, Barnaby carved.\n\nHe did not carve wood or stone. He carved silicon from riverbed gravel and woven copper from spider silk he spun with meticulous patience. For ten years, he built *The Shell*. It was no larger than a acorn cap, its circuits etched by a needle finer than a hair.\n\nBarnaby placed his creation next to the hollow of Hare. Hare\u2019s machine sat atop a stump of polished cedar, a monstrosity of glowing LEDs, liquid cooling tubes that hummed like angry hornets, and fans that spun with the speed of thunder. It was beautiful, terrifying, and fast.\n\n\"Watch this,\" Hare bragged one afternoon, his claws flying across a keyboard made of cherry wood. The screen erupted in colors so bright they hurt the eyes. A dragon roared; a castle fell. \"I have defeated the level. I can do it again before you\u2019ve blinked.\"\n\nBarnaby looked at *The Shell*. He pressed a single key, crafted from a drop of hardened resin. The tiny screen flickered to life. It displayed a single pixel moving across a black void. Then another. It was slow. So unbearably slow that Hare laughed until he wheezed.\n\n\"Are you mining for gold?\" Hare sneered. \"Or are you just watching the dust settle?\"\n\n\"I am thinking,\" Barnaby said softly. \"And I do not stop.\"\n\nWeeks turned to months. Hare\u2019s rig grew hot, then hotter. The cooling tubes bubbled; the fans shrieked as they fought overheating processors. One day, after a marathon of high-speed combat, the screen went black. A puff of smoke curled from the vents. Hare pounded his fists against the stump. \"It\u2019s broken! It can\u2019t handle the pressure!\"\n\nBarnaby did not look up. His pixel had moved three inches across the void. He adjusted a gear made of beetle wing and continued.\n\nDays passed. The forest grew cold. Hare huddled by his dead machine, shivering, unable to restart it without parts he didn\u2019t have time to find. But Barnaby sat in the snow, his breath forming clouds around *The Shell*. The tiny computer hummed a steady, low note. It did not overheat. It did not tire. It did not complain.\n\nHare watched, mesmerized, as Barnaby\u2019s creation solved a puzzle that had taken Hare weeks to approach. The pixel reached the edge of the screen and vanished into a new landscape\u2014a vast, infinite field generated by logic so pure it took no energy, only time.\n\n\"You never sleep,\" Hare whispered, his voice rough with fatigue. \"How do you endure?\"\n\nBarnaby looked at the hare, then back to his machine. The pixel began its journey again, slower than a falling leaf, steadier than the turning earth.\n\n\"Speed is a burst of fire,\" Barnaby said, his eyes reflecting the faint glow of the ancient code. \"But I am not trying to win a race. I am building a world that lasts.\"\n\nHare looked at his dark, silent tower of speed, then at the tiny, enduring light in the mud. For the first time, he did not laugh. He sat down, and for the first time, he watched the pixel move.",
+      "_user": "Write a short fable about a tortoise who built a tiny computer that was slower than the hare's gaming rig but never needed to rest."
+    },
+    {
+      "turn": 3,
+      "run": 1,
+      "ctx_tokens_est": 58,
+      "new_tokens_est": 31,
+      "ttft": 0.245,
+      "gen_time": 11.433,
+      "gen_tps": 36.0,
+      "total": 11.679,
+      "output_tokens": 412,
+      "_response": "The dust motes dance in shafts of dying light,\nWhere centuries have piled their silent weight,\nBeneath the floorboards\u2019 creaking, groaning bite,\nA box of cedar waits, a sealed estate.\nIt holds no gold, no gems, no currency,\nJust paper thin as breath, as fleeting time,\nA chemical ghost of what used to be,\nPreserved in silver nitrate\u2019s chalking rhyme.\n\nThe hands that held it trembled, cold and old,\nBefore the screen went black, before the cloud\nCould swallow up the stories left untold,\nBefore the memory began to shroud.\nThey pressed the shutter once, a final click,\nA mechanical heartbeat against the void,\nTo catch the shadow on the window\u2019s slick,\nAnd keep it safe from silence and destroyed.\n\nNow plastic sheets have faded into gray,\nAnd digital streams have washed the truth away,\nBut here it rests, a square of matte display,\nDefying entropy\u2019s relentless sway.\nThe colors bleed to sepia and brown,\nA portrait of a face we cannot name,\nWearing an expression half-way down,\nBetween the joy and sorrow\u2019s tangled frame.\n\nYou peel it free from plastic wrapping\u2019s tear,\nThe smell of vinegar, acidic, sour,\nA scent that makes the ancient present clear,\nAnd brings the past into this silent hour.\nIt is heavy in your palm, dense with history,\nNot data lost to server farms\u2019 decay,\nBut physical proof of a mortality\nThat chose to stop, and look, and hold its sway.\n\nNo algorithm can recreate the grain,\nThe slight blur where a finger touched the glass,\nThe chemical imperfection\u2019s lingering stain,\nThe specific moment meant to last.\nThis is the end of ink on fiber pulp,\nThe final breath of analog design,\nA silent artifact that time has pulled\nFrom the long night\u2019s unending, dark confine.",
+      "_user": "Write a poem about the last photograph ever printed on paper, found in an attic a hundred years from now. At least 25 lines."
+    }
+  ]
+}

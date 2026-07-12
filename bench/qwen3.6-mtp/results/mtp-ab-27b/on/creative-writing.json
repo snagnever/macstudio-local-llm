@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "scenario": "creative-writing",
+    "mode": "single-shot",
+    "label": "m4-max-128gb-40gpu lmstudio",
+    "backend": "lmstudio",
+    "model_info": {
+      "name": "q36-27b-mtp-on"
+    },
+    "runs": 1,
+    "max_tokens": 2000,
+    "cold": false,
+    "warm_up_time": 0.495,
+    "system": {
+      "os": "Darwin",
+      "os_version": "26.3",
+      "arch": "arm64",
+      "chip": "Apple M4 Max",
+      "memory_gb": 128,
+      "cpu_cores": 16,
+      "cpu_cores_performance": 12,
+      "cpu_cores_efficiency": 4,
+      "gpu_cores": 40,
+      "gpu_wired_limit_mb": 0
+    },
+    "timestamp": "2026-07-10T09:50:56"
+  },
+  "results": [
+    {
+      "turn": 1,
+      "run": 1,
+      "ctx_tokens_est": 57,
+      "new_tokens_est": 29,
+      "ttft": 0.897,
+      "gen_time": 30.521,
+      "gen_tps": 14.5,
+      "total": 31.418,
+      "output_tokens": 442,
+      "_response": "Beneath the floorboards where the roots run deep,\nAnd shadows stretch their fingers through the gloom,\nThe iron hearts awake from endless sleep,\nTo guard the fragments of a quiet room.\nNo sunlight touches this cathedral space,\nWhere cooling fans exhale a steady breath,\nA low and electric, mechanical grace,\nDefying time\u2019s slow march toward silent death.\n\nRacks stand like pillars in a stone abyss,\nWith blinking lights that pulse like distant stars,\nA constellation born of silicon glass,\nReflecting off the cold and concrete walls.\nHere lies the laughter caught in binary code,\nThe birthday cakes, the trips to ocean shore,\nThe weight of every joyfully bestowed\nAnd every sorrow kept behind a door.\n\nIt hums a hymn that only circuits know,\nA vibration felt through soles of heavy feet,\nPreserving how the winter winds did blow,\nAnd summer afternoons on warm concrete.\nThe mother\u2019s voice, recorded in a file,\nPlays back across the fiber-optic strand,\nRetaining every single, precious smile,\nAcross this vast and digital land.\n\nThey do not dream of fields or flowing streams,\nBut of the photos stacked upon a shelf,\nOf childhood drawings, vivid as it seems,\nAnd letters written by a favorite self.\nThe darkness holds them close in its embrace,\nWhile upstairs lives continue in the light,\nUnaware that history finds its place\nWithin this server\u2019s endless, humming night.\n\nSo let the basement stay its cold and still,\nLet dust motes dance within the server glow,\nFor in this dark, they serve a higher will\u2014\nTo keep the seeds of memory aglow.\nThough bodies fade and houses fall to ruin,\nAnd years may strip the paint from every frame,\nThe hum persists beneath the foundation,\nRepeating softly: *You were never tame.*\n\n*You lived. You loved. You mattered here,*\n*Stored in the silence, safe and deep,*\nProtected by the steady, constant gear,\nWhile all the world above is fast asleep.",
+      "_user": "Write a poem about a mass of servers humming in a dark basement, keeping a family's memories alive. At least 30 lines."
+    },
+    {
+      "turn": 2,
+      "run": 1,
+      "ctx_tokens_est": 60,
+      "new_tokens_est": 32,
+      "ttft": 0.887,
+      "gen_time": 56.626,
+      "gen_tps": 15.8,
+      "total": 57.513,
+      "output_tokens": 892,
+      "_response": "In the dappled shade of the Elder Oak, where roots tangled like fiber-optic cables beneath the loam, lived Thistle. Thistle was not merely slow; he was deliberate. While other tortoises sought sunbeams and lettuce, Thistle sought silicon.\n\nHe had scavenged discarded chips from the edge of the Human Highway\u2014broken calculators, fried processors, a single blue LED that still blinked with stubborn hope. With claws worn down to nubs, he sanded the casing from an acorn cap. He wired the circuits with strands of spider silk and copper wire stolen from old fences. It took him three seasons. The result was no larger than a pinecone, its shell etched with binary code in tiny, precise scratches.\n\nOne afternoon, Flash the Hare bounded into the clearing, his ears twitching with the vibration of his own importance. He dragged behind him a tower of black metal and glass, humming like an angry hornet\u2019s nest, vented by fans that spun so fast they blurred the air.\n\n\"Look at this, Thistle!\" Flash chirped, plugging his rig into a portable battery pack. \"The *Velocity X9000*. I can render a thousand worlds before you take a single step. I\u2019m mining crypto, training AI models, and streaming 8K video simultaneously. It\u2019s pure power.\"\n\nThistle adjusted his spectacles, which were made from the lenses of old binoculars. He placed his tiny device on a flat stone. \"It is adequate,\" Thistle said softly.\n\nFlash laughed, a sharp, barking sound. \"Adequate? Your computer probably counts to ten before it boots up. Watch this.\"\n\nHe pressed a button. The fans screamed. The screen flared with neon colors, displaying a complex simulation of a storm system. The data scrolled so fast it was a blur. Flash grinned. \"See? That\u2019s speed. That\u2019s life in the fast lane.\"\n\nBut within minutes, the *Velocity X9000* grew hot. The fans whined higher, straining against the heat. Sweat beaded on Flash\u2019s nose. He had to pause the simulation every ten minutes to let the system cool, fanning it with a leaf, his excitement dampened by maintenance.\n\nThistle did not pause.\n\nHis tiny computer emitted no sound. It generated no heat. The single blue LED pulsed once per second: *thrum... thrum... thrum.*\n\nWhile Flash rested, Thistle\u2019s machine worked. It was processing a problem the humans had left unsolved for decades: the optimal growth pattern of mycelium networks in low-light environments. It didn't need to rush. It didn't overheat. It simply continued, cycle after cycle, day after night, undisturbed by sleep or fatigue.\n\nWeeks turned into months. Flash\u2019s rig was replaced twice; its components degraded from the stress of constant high-performance output. He spent half his time cleaning dust filters and updating drivers, exhausted by the maintenance of speed.\n\nThistle sat still as stone. His computer never stopped. It never slept. It did not know the concept of a break.\n\nOne crisp autumn morning, Flash arrived, looking ragged. His eyes were bloodshot from screen glare; his muscles twitched with caffeine jitter. \"I\u2019m tired,\" he admitted, slumping against the oak. \"The rig crashed again. Blue screen of death. I haven't had a real dream in months.\"\n\nThistle looked down at his acorn-cap computer. The blue LED blinked steadily. On the tiny LCD screen, etched from a recycled watch face, words appeared, one letter at a time, slowly but surely:\n\n*Solution Found.*\n\nFlash squinted at the display. \"What is it?\"\n\n\"The pattern,\" Thistle said, his voice calm as deep water. \"It solved the equation last night. While you were sleeping, while your machine was cooling, my little friend kept counting. It never stopped.\"\n\nFlash looked at his powerful, fragile tower, then at Thistle\u2019s quiet, persistent shell of tech. He realized that speed was a resource to be spent, but endurance was a river that flowed endlessly. The hare had built a beast that needed feeding; the tortoise had built a heart that beat forever.",
+      "_user": "Write a short fable about a tortoise who built a tiny computer that was slower than the hare's gaming rig but never needed to rest."
+    },
+    {
+      "turn": 3,
+      "run": 1,
+      "ctx_tokens_est": 58,
+      "new_tokens_est": 31,
+      "ttft": 1.02,
+      "gen_time": 24.495,
+      "gen_tps": 15.8,
+      "total": 25.515,
+      "output_tokens": 387,
+      "_response": "The dust motes dance in shafts of gray,\nA cathedral built of rot and decay,\nWhere silence holds its ancient breath,\nDefying time\u2019s relentless death.\n\nAmong the boxes, cracked and brown,\nLies paper from a vanished town,\nNot pixel-sharp, nor screen-born light,\nBut chemical and silver-white.\n\nThe last print ever touched by hand,\nBefore the cloud consumed the land,\nRests curled like leaf against the floor,\nBehind a rusted attic door.\n\nIts edges brittle, yellowed deep,\nWhere shadows once began to sleep,\nIt shows a face now lost to years,\nCaught in a moment\u2019s frozen tears.\n\nNo algorithm chose this frame,\nNo server stored it in its name,\nBut hands that trembled with the press,\nDeveloped this in chemical mess.\n\nThe grain is rough, the focus soft,\nA testament to human effort,\nOf light captured on celluloid skin,\nWhere memories could truly begin.\n\nOne hundred years have passed since then,\nSince ink met paper once again,\nNow screens are dead and servers cold,\nStories bought and stories sold.\n\nYet here it lies, this fragile ghost,\nOf analog and heavy cost,\nThe final image, sharp and true,\nBefore the world turned all to blue.\n\nA woman smiles through fading haze,\nIn sepia tones of olden days,\nHer eyes hold secrets we forgot,\nBeneath the attic\u2019s wooden lot.\n\nWe touch it with a gloved\u6307\u5c16,\nAfraid the bond might break and spin,\nFor in this sheet of dried-out rain,\nLives every sun that fell like grain.\n\nThe last photograph on paper ground,\nWhere truth and beauty were profound,\nNow sleeps beneath the ceiling\u2019s weight,\nA relic of a slower fate.",
+      "_user": "Write a poem about the last photograph ever printed on paper, found in an attic a hundred years from now. At least 25 lines."
+    }
+  ]
+}
