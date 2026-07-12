@@ -119,7 +119,7 @@ python3 -c "import json,sys; d=json.load(open(sys.argv[1])); ev=next(iter(d['sta
 
 …or just read the `_summary.json` if it exists (the runner writes one once the run finishes).
 
-**Standings** — Phase A + B (7 models, on-rig 2026-05-24 → 2026-05-29) plus Phase-5 MiniMax-M2.5 (both GGUF quants, remote-model / MBP-Docker, 2026-07). All live in `benchmark-charts.html` chartTBench + scoreboard and `quality-benchmarks-charts.html` chartTBench:
+**Standings** — Phase A + B (7 models, on-rig 2026-05-24 → 2026-05-29) plus Phase-5 MiniMax-M2.5 (both GGUF quants, remote-model / MBP-Docker, 2026-07) and `qwen3.5-122b-a10b` (GGUF Q4_K_S, backfilled 2026-07-12). All live in `benchmark-charts.html` chartTBench + scoreboard and `quality-benchmarks-charts.html` chartTBench:
 
 | Run dir | Model | Score |
 |---|---|---|
@@ -128,6 +128,7 @@ python3 -c "import json,sys; d=json.load(open(sys.argv[1])); ev=next(iter(d['sta
 | `qwen-35b-a3b-6bit` | qwen3.6-35b-a3b@6bit | **28.1 %** (25/89) |
 | _(rig-side)_ | minimax-m2.5@q3_k_s | **25.8 %** (23/89) |
 | `minimax-m2.5-iq2m-remote` | minimax-m2.5@iq2_m | **25.8 %** (23/89) |
+| `qwen3.5-122b-a10b` | qwen3.5-122b-a10b (GGUF Q4_K_S) 🔴 | **24.7 %** (22/89) |
 | `gemma-31b` | gemma-4-31b-it-mlx | **22.5 %** (20/89) |
 | `gemma-26b-a4b-6bit` | gemma-4-26b-a4b-it-mlx@6bit | **21.3 %** (19/89) |
 | `gemma-26b-a4b-4bit` | gemma-4-26b-a4b-it-mlx@4bit | **20.2 %** (18/89) |

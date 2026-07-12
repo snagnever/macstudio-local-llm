@@ -21,7 +21,7 @@
 | Inline tab-completion (FIM) | *Qwen 2.5 Coder 7B — to add*; interim: `gemma-4-e4b-it-mlx` |
 | Vision / OCR / screenshots | Built-in on all current MLX models; reach for `gemma-4-26b-a4b-it-mlx@6bit` first |
 
-**Default for OpenCode:** `qwen/qwen3-coder-next` (unchanged after Phase 2 — no Gemma beat it on the combined coding + tool-calling + knowledge profile). **Now confirmed on Terminal-Bench 2.0 (2026-05-29):** coder-next leads the rig at **32.6 %** (vendor 36.2 %); `qwen3.6-27b` dense is +1.1 pp behind at **31.5 %** but 6× slower decode → coder-next wins on the speed-adjusted agentic-loop trade-off. `qwen3.6-35b-a3b@6bit` lands #3 at **28.1 %**. Best Gemma (`gemma-4-31b` dense) is at **22.5 %**, a full ~10 pp behind — the Gemma LCB top-rank does *not* transfer to agentic shell. All seven local rows are on [`reports/quality-benchmarks-charts.html`](../reports/quality-benchmarks-charts.html#chartTBench).
+**Default for OpenCode:** `qwen/qwen3-coder-next` (unchanged after Phase 2 — no Gemma beat it on the combined coding + tool-calling + knowledge profile). **Now confirmed on Terminal-Bench 2.0 (2026-05-29):** coder-next leads the rig at **32.6 %** (vendor 36.2 %); `qwen3.6-27b` dense is +1.1 pp behind at **31.5 %** but 6× slower decode → coder-next wins on the speed-adjusted agentic-loop trade-off. `qwen3.6-35b-a3b@6bit` lands #3 at **28.1 %**, and `qwen3.5-122b-a10b` (GGUF Q4_K_S) #4 at **24.7 %** (2026-07-12 — a NO-GO Planning challenger: ties the 27B one-shot but a weaker agent). Best Gemma (`gemma-4-31b` dense) is at **22.5 %**, a full ~10 pp behind — the Gemma LCB top-rank does *not* transfer to agentic shell. The local rows are on [`reports/quality-benchmarks-charts.html`](../reports/quality-benchmarks-charts.html#chartTBench).
 
 > **Model ID note:** the IDs above are exactly what `GET /v1/models` returns from the LM Studio server. Use these strings verbatim in client configs — the older `mlx-community/...` paths will 404.
 
@@ -425,10 +425,13 @@ Headline accuracy + tool-calling scores from [`../tools/local-llm-bench-m4-32gb/
 | `gemma-4-26b-a4b@6bit` | 97 % | **80 %** | 78 % | 83 % | 79 % | 53 % | 97.5 % | 83.3 % |
 | `gemma-4-31b-it-mlx` (8-bit dense) | 95 % | 76 % | 77 % | 79 % | 85 % | 48 % | 97.5 % | 83.3 % |
 | `gemma-4-e4b-it-mlx` (4B/8-bit) | 91 % | 68 % | 65 % | 14 % | 65 % | 34 % | 87.5 % | 66.7 % |
+| `qwen3.5-122b-a10b` (GGUF Q4_K_S) 🔴 | 96 % | 62 % | 87 % | ~87 %⁑ | 89 % | — | 95 % | 83.3 % |
 
 † = GPQA at 32 768 cap, raw scores under-count due to thinking spirals. Corrected ceilings: 27b ≈ 78–85 %, 35b-a3b ≈ 75–83 %. See [testing-plan.md truncation finding](testing-plan.md#truncation-finding-gpqa--thinking-models).
+⁑ = 122B MATH is a 60/69 partial (skipped at Q69); GPQA not run. Config thinking ON.
 
 - **`gemma-4-26b-a4b@6bit` is the rig's LCB ceiling at 80 %** (+18 pp over the best Qwen). Knowledge generalist slot is still `qwen3.6-27b`; LCB-specific recommendation has diverged from knowledge after Phase 2 + Step B.
+- **`qwen3.5-122b-a10b` 🔴 NO-GO (2026-07-12):** Planning-slot challenger — one-shot quality ties `qwen3.6-27b` (**LCB 62 % exact tie**, ±3 pp elsewhere) at ~2× decode, but a weaker agent (Terminal-Bench 24.7 % vs 31.5 %) and sole-model 75 GB. Faster sidegrade, not an upgrade; the 27B keeps the slot. See [card](models/qwen3.5-122b-a10b.md).
 - **LiveCodeBench (v6)** support was added to the harness on 2026-05-18 — see [`local-llm-bench-m4-32gb/scripts/bench2.py`](../tools/local-llm-bench-m4-32gb/scripts/bench2.py). Contamination-resistant rolling-window coding suite; supersedes HumanEval as the primary frontier-comparable coding metric. Run with `--max-tokens 65536` for any thinking model or Gemma 4.
 - **GPQA gap** on `qwen3-coder-next` (37 %) reflects the reasoning-model vs single-pass divide — coder-next emits zero thinking tokens by design.
 - **Tool calling** ranks ahead of knowledge for daily-driver decisions (per upstream finding): both Phase 1 daily-drivers exceed 80 % on both suites with identical veerman scores, but jdhodges separates them (35b-a3b: 97.5 %, 27b: 95 %, coder-next: 90 %).
@@ -457,6 +460,8 @@ For access from outside the LAN, install **Tailscale** on both ends — gives ea
 | `0xSero/Gemma-4-21B-REAP` (GGUF) | Upstream's daily-driver winner — REAP-pruned Gemma 4 | Optional reproducibility check; lower priority now that the un-pruned 26B-A4B is local |
 
 > `DeepSeek-V4-Flash-2bit-DQ` was moved off the watchlist — it's now downloaded (`deepseek-v4-flash-dq`, 96.53 GB). The 4-bit `deepseek-v4-flash` (151 GB) **has been removed from disk** as of 2026-05-18 (it never fit in 128 GB unified memory). Only the DQ variant remains.
+
+> `qwen3.5-122b-a10b` (unsloth GGUF Q4_K_S, 75 GB) was benched 2026-07-10→12 as a Planning-slot challenger and is a **🔴 NO-GO** — see [card](models/qwen3.5-122b-a10b.md). Lesson: test the newest *generation* (Qwen3.6), not the biggest *older* one. Forward trigger to watch for: a **Qwen3.6-Coder** or a larger Qwen3.6 MoE (neither exists on unsloth yet — the 3.6 catalog tops out at 27B + 35B-A3B, both already benched; new Gemma-4 12B-Unified is an audio/edge play, not SWE-relevant).
 
 ---
 
