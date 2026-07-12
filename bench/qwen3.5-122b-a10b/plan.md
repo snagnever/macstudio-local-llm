@@ -243,10 +243,67 @@ hair up, knowledge a hair down (−1 pp across MMLU/DROP/MATH), hard-coding sign
 alternate** when raw speed beats the 27B's 22.8 GB pairing flexibility. Leaning
 🟡 **marginal — 27B keeps the Planning slot** pending the Terminal-Bench agentic leg.
 
-Terminal-Bench 2.0 (terminus-2, Docker, thinking ON) running as the final leg.
+### Terminal-Bench 2.0 — FINAL (2026-07-12, terminus-2, Docker, thinking ON)
+
+**22 / 89 = 24.7%** (official harbor mean reward 0.247), 0.5× agent-timeout cap,
+~18.5 h wall-clock. Rig standing:
+
+| Model | T-Bench | note |
+|---|---|---|
+| `qwen3-coder-next` | **32.6 %** | agent-slot winner, ~68 t/s, non-thinking |
+| `qwen3.6-27b` | 31.5 % | #2, 6× slower decode |
+| `qwen3.6-35b-a3b@6bit` | 28.1 % | #3 |
+| **`qwen3.5-122b-a10b`** | **24.7 %** | **#4 — mid-pack; above Gemmas, below the Qwen thinkers** |
+| `gemma-4-31b` | 22.5 % | best Gemma (LCB lead doesn't transfer) |
+| `gemma-4-26b-a4b@6bit` | 21.3 % | LCB ceiling 80 %, but weak agent |
+
+**Failure analysis** (why 67 fails): median episode count is **10 for both PASS
+and FAIL** → failures are *wrong/incomplete solutions that fail the verifier*,
+not timeouts or infra. Three modes: (1) dominant — agent terminates believing it
+succeeded but output fails unit tests (`chess-best-move` wrong answer;
+`db-wal-recovery` 0/7, never produced valid output); (2) partial completions
+graded as full fails (`build-cython-ext` 7/11 tests pass → still FAIL; the 24.7 %
+*understates* work done); (3) minority thrash-to-timeout on brutal tasks
+(`build-pov-ray` 128 episodes). No `AgentTimeoutError`/context/connection errors;
+the litellm "model isn't mapped" warning was cosmetic. Root cause: capable
+**one-shot reasoner, weak agentic executor** — over-thinks, under-executes;
+same trait as its LCB truncations.
+
+## FINAL VERDICT — 🔴 NO-GO for the Planning slot; `qwen3.6-27b` keeps it
+
+Complete campaign scorecard (thinking ON, temp 0, seed 42, ctx 65k):
+
+| Bench | 122B Q4_K_S | 27B 6-bit | Δ |
+|---|---|---|---|
+| HumanEval | 96 % | 93 % | +3 |
+| MMLU | 87 % | 88 % | −1 |
+| DROP | 89 % | 90 % | −1 |
+| MATH | ~87 % (60/69) | 88 % | ~−1 |
+| LCB-50 | 62 % | 62 % | **0 (exact tie, identical per difficulty)** |
+| Terminal-Bench | **24.7 %** | 31.5 % | **−6.8** |
+| decode speed | ~36 t/s | ~20 t/s | **~2× faster** |
+
+**The 122B is a faster sidegrade, not an upgrade.** One-shot quality is a wash
+(±3 pp everywhere, LCB an exact tie), decode is ~2×, but it is a **distinctly
+weaker agent** (−6.8 pp T-Bench) and its long-thinking-chain trait is an active
+liability in loops (4 LCB truncations, 128-episode T-Bench thrash). It also forces
+**sole-model residency (75 GB)** where the 27B swaps in at 22.8 GB and pairs with
+the coder stack. Scale on a one-generation-older model (Qwen3.5) does **not** beat
+the newer, smaller Qwen3.6 — the campaign's headline lesson: **test the newest
+generation, not the biggest old model.** Only niche: a fast one-shot planner on a
+dedicated box where 2× speed beats pairing flexibility — too narrow for a slot.
+
+**SWE-with-agents stack unchanged:** `coder-next@4bit` (agent loop) +
+`gemma-4-26b-a4b@6bit` (single-shot code ceiling) resident; `qwen3.6-27b`
+swap-in planner. 122B stays on the bench.
 
 ## History
 
+- **2026-07-12** — Campaign COMPLETE (~37.5 h total). Terminal-Bench **24.7 %**
+  (22/89), #4 on rig. **Final verdict: 🔴 NO-GO** — faster sidegrade, weaker agent;
+  `qwen3.6-27b` keeps the Planning slot. Unsloth-catalog cross-check: no new
+  Qwen3.6 (only 27B/35B-A3B, both benched) or SWE-relevant Gemma (new 12B-Unified
+  is audio/edge) warrants testing.
 - **2026-07-10** — Plan written; candidate staged on disk. **First session:**
   Gate 0–2 + fast tool-calling done. Speed ~2× the 27B (gen + prefill),
   tool-calling ties (95 % / 83 %). Sole-model 75 GB, 0 swap. Fixed the no-think
