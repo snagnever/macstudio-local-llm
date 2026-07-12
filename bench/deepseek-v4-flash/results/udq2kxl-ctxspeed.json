@@ -1,0 +1,51 @@
+[
+ {
+  "depth": 512,
+  "prompt_tokens": 502,
+  "prefill_tps": 161.3,
+  "decode_tps": 10.9,
+  "rss_gb": 92.3
+ },
+ {
+  "depth": 2048,
+  "prompt_tokens": 1870,
+  "prefill_tps": 209.9,
+  "decode_tps": 11.0,
+  "rss_gb": 92.3
+ },
+ {
+  "depth": 4096,
+  "prompt_tokens": 3718,
+  "prefill_tps": 228.4,
+  "decode_tps": 10.9,
+  "rss_gb": 92.3
+ },
+ {
+  "depth": 8192,
+  "prompt_tokens": 7414,
+  "prefill_tps": 214.4,
+  "decode_tps": 10.4,
+  "rss_gb": 91.0
+ },
+ {
+  "depth": 16384,
+  "prompt_tokens": 14782,
+  "prefill_tps": 182.1,
+  "decode_tps": 10.2,
+  "rss_gb": 91.1
+ },
+ {
+  "depth": 24576,
+  "prompt_tokens": 22150,
+  "prefill_tps": 157.0,
+  "decode_tps": 9.9,
+  "rss_gb": 91.1
+ },
+ {
+  "depth": 30720,
+  "prompt_tokens": 27694,
+  "prefill_tps": 145.7,
+  "decode_tps": 9.4,
+  "rss_gb": 91.2
+ }
+]

@@ -42,3 +42,33 @@ ceiling with no swap pressure.
 **Verdict so far:** speed and memory are a wash-to-slightly-heavier vs baseline, as
 predicted — the quant has to earn its +9.7 GB on *quality* (Tasks 3/5/6). Raw:
 `tools/local-llm-bench-m4-32gb/results/speed_probe/deepseek-v4-flash-udq2kxl_20260712_193227_*`.
+
+## Task 2 — context-vs-speed sweep (2026-07-12)
+
+Standalone probe (`udq2kxl_ctx_probe.py`) against the running llama-server; per
+depth a synthetic prompt + 256-token gen at temp 0. `context_speed_bench.py`
+couldn't be used — it loads via the LM Studio API, blocked for `deepseek4` (no
+`--no-repack` in `lms load`).
+
+| prompt tokens | prefill t/s | decode t/s | RSS GB |
+|---|---|---|---|
+| 502 | 161.3 | 10.9 | 92.3 |
+| 1,870 | 209.9 | 11.0 | 92.3 |
+| 3,718 | 228.4 | 10.9 | 92.3 |
+| 7,414 | 214.4 | 10.4 | 91.0 |
+| 14,782 | 182.1 | 10.2 | 91.1 |
+| 22,150 | 157.0 | 9.9 | 91.1 |
+| 27,694 | 145.7 | 9.4 | 91.2 |
+
+**Decode holds up under depth: 10.9 → 9.4 t/s, only a 13.8% drop across the full
+0→27.7k context** — a gentle linear decline, no collapse. Prefill peaks ~228 t/s
+mid-range and eases to ~146 t/s deep (still fast; a 28k prompt prefills in ~3 min).
+RSS is flat at ~91–92 GB (KV for 32k is reserved at load, so depth doesn't grow
+resident memory). Terminal-Bench viability (Task 6) is fine on the speed axis —
+even at 84%-full context the model sustains >9 t/s.
+
+**Probe gotcha (fixed):** the first run tripped "Context size has been exceeded" at
+the two deep points because every prompt shares the same filler prefix and
+llama-server's prompt-cache prefix reuse accumulated KV across requests. Fix:
+`cache_prompt: false` per request (now baked into the committed script). Raw:
+`bench/deepseek-v4-flash/results/udq2kxl-ctxspeed.json`.
