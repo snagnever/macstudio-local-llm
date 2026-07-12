@@ -6,7 +6,7 @@ Two self-contained dashboards for local-LLM benchmarks on the Mac Studio (M4 Max
 |---|---|---|
 | `benchmark-charts.html` | On-rig measurements (accuracy n=100, LCB n=50, tool calling, throughput, speed probe, prefill, elapsed) | The local runs themselves — what was actually measured on this rig |
 | `quality-benchmarks-charts.html` | Local-vs-frontier comparison using **published** scores (MMLU-Pro, GPQA, SWE-V, AIME, LCB v6, T-Bench, MMMU) | How the local models rank against frontier / open-weight references |
-| `terminal-bench-scoreboard.html` | **Dedicated Terminal-Bench 2.0 page** — 8-model ranking + interactive 89-task × 8-model pass/fail matrix (per-question descriptions, category/difficulty/budget, solve-rate column, MiniMax budget-recovery markers) | Task-by-task T-Bench detail: who solved what, where the local frontier sits |
+| `terminal-bench-scoreboard.html` | **Dedicated Terminal-Bench 2.0 page** — 9-model ranking + interactive 89-task × 9-model pass/fail matrix (per-question descriptions, category/difficulty/budget, solve-rate column, MiniMax budget-recovery markers) | Task-by-task T-Bench detail: who solved what, where the local frontier sits |
 
 Both files share a common runtime, `charts-common.js`, and the same two-array data model (`MODELS` + `RESULTS`). Each page still has its own roster, colors, and prose — they are not merged — but the machinery (filter bar, chart builders, scoreboard, sortable/best-highlight helpers) lives in one place. A fix to the machinery is a single edit to `charts-common.js`; a data change is an edit to the `RESULTS`/`MODELS` arrays inline in one page.
 
@@ -119,7 +119,7 @@ python3 -c "import json,sys; d=json.load(open(sys.argv[1])); ev=next(iter(d['sta
 
 …or just read the `_summary.json` if it exists (the runner writes one once the run finishes).
 
-**Standings** — Phase A + B (7 models, on-rig 2026-05-24 → 2026-05-29) plus Phase-5 MiniMax-M2.5 (both GGUF quants, remote-model / MBP-Docker, 2026-07). All live in `benchmark-charts.html` chartTBench + scoreboard and `quality-benchmarks-charts.html` chartTBench:
+**Standings** — Phase A + B (7 models, on-rig 2026-05-24 → 2026-05-29) plus Phase-5 MiniMax-M2.5 (both GGUF quants, remote-model / MBP-Docker, 2026-07) and `qwen3.5-122b-a10b` (GGUF Q4_K_S, backfilled 2026-07-12). All live in `benchmark-charts.html` chartTBench + scoreboard and `quality-benchmarks-charts.html` chartTBench:
 
 | Run dir | Model | Score |
 |---|---|---|
@@ -128,6 +128,7 @@ python3 -c "import json,sys; d=json.load(open(sys.argv[1])); ev=next(iter(d['sta
 | `qwen-35b-a3b-6bit` | qwen3.6-35b-a3b@6bit | **28.1 %** (25/89) |
 | _(rig-side)_ | minimax-m2.5@q3_k_s | **25.8 %** (23/89) |
 | `minimax-m2.5-iq2m-remote` | minimax-m2.5@iq2_m | **25.8 %** (23/89) |
+| `qwen3.5-122b-a10b` | qwen3.5-122b-a10b (GGUF Q4_K_S) 🔴 | **24.7 %** (22/89) |
 | `gemma-31b` | gemma-4-31b-it-mlx | **22.5 %** (20/89) |
 | `gemma-26b-a4b-6bit` | gemma-4-26b-a4b-it-mlx@6bit | **21.3 %** (19/89) |
 | `gemma-26b-a4b-4bit` | gemma-4-26b-a4b-it-mlx@4bit | **20.2 %** (18/89) |
