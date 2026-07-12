@@ -253,7 +253,8 @@ alternate** when raw speed beats the 27B's 22.8 GB pairing flexibility. Leaning
 | `qwen3-coder-next` | **32.6 %** | agent-slot winner, ~68 t/s, non-thinking |
 | `qwen3.6-27b` | 31.5 % | #2, 6× slower decode |
 | `qwen3.6-35b-a3b@6bit` | 28.1 % | #3 |
-| **`qwen3.5-122b-a10b`** | **24.7 %** | **#4 — mid-pack; above Gemmas, below the Qwen thinkers** |
+| `minimax-m2.5` (both GGUF quants) | 25.8 % | #4 |
+| **`qwen3.5-122b-a10b`** | **24.7 %** | **#5 — mid-pack; above Gemmas, below MiniMax + the Qwen thinkers** |
 | `gemma-4-31b` | 22.5 % | best Gemma (LCB lead doesn't transfer) |
 | `gemma-4-26b-a4b@6bit` | 21.3 % | LCB ceiling 80 %, but weak agent |
 
@@ -300,7 +301,7 @@ swap-in planner. 122B stays on the bench.
 ## History
 
 - **2026-07-12** — Campaign COMPLETE (~37.5 h total). Terminal-Bench **24.7 %**
-  (22/89), #4 on rig. **Final verdict: 🔴 NO-GO** — faster sidegrade, weaker agent;
+  (22/89), #5 on rig. **Final verdict: 🔴 NO-GO** — faster sidegrade, weaker agent;
   `qwen3.6-27b` keeps the Planning slot. Unsloth-catalog cross-check: no new
   Qwen3.6 (only 27B/35B-A3B, both benched) or SWE-relevant Gemma (new 12B-Unified
   is audio/edge) warrants testing.

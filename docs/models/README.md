@@ -28,7 +28,7 @@ Per-model deep dives for every model with local experience on this rig (Mac Stud
 ### NO-GO / removed
 | Model | Status | Why | Runtime |
 |---|---|---|---|
-| [qwen3.5-122b-a10b](qwen3.5-122b-a10b.md) | 🔴 NO-GO (2026-07-12) | Planning-slot challenger: LCB **62% exact tie** with 27B, ~2× faster, but weaker agent (T-Bench **24.7%**, #4) + truncation liability + sole-model 75 GB. Faster sidegrade, not an upgrade — test newest gen, not biggest old model | llama.cpp (GGUF Q4_K_S) |
+| [qwen3.5-122b-a10b](qwen3.5-122b-a10b.md) | 🔴 NO-GO (2026-07-12) | Planning-slot challenger: LCB **62% exact tie** with 27B, ~2× faster, but weaker agent (T-Bench **24.7%**, #5) + truncation liability + sole-model 75 GB. Faster sidegrade, not an upgrade — test newest gen, not biggest old model | llama.cpp (GGUF Q4_K_S) |
 | [kimi-dev-72b](kimi-dev-72b.md) | 🔴 NO-GO (2026-07-05) | ~7 t/s — slowest on rig; disqualified at speed gate | llama.cpp |
 | [nemotron-3-nano-omni](nemotron-3-nano-omni.md) | ⚫ REMOVED 2026-05-18 | dropped in inventory pass, never benched | GGUF |
 

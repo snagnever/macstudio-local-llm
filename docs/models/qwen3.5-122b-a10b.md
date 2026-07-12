@@ -3,7 +3,7 @@
 > **Status: 🔴 NO-GO (Planning-slot challenger) — benched, rejected.** A *faster
 > sidegrade, not an upgrade*: one-shot quality ties [`qwen3.6-27b`](qwen3.6-27b.md)
 > (LCB **62 % exact tie**), decodes ~2× faster (~36 t/s), but is a distinctly
-> weaker agent (Terminal-Bench **24.7 %** vs 31.5 %, #4 on rig) and forces
+> weaker agent (Terminal-Bench **24.7 %** vs 31.5 %, #5 on rig) and forces
 > sole-model 75 GB residency. **The 27B keeps the Planning slot.**
 > Last updated: 2026-07-12
 
@@ -89,13 +89,15 @@ Terminal-Bench: `bench/terminal-bench/logs/tbench-runs/qwen3.5-122b-a10b/`.
 ## Terminal-Bench 2.0 — the deciding leg
 
 **24.7 % (22/89)**, terminus-2 / Docker, `--agent-timeout-multiplier 0.5`, thinking
-ON, ~18.5 h. Rig standing: **#4** — above the Gemmas, below every Qwen thinker.
+ON, ~18.5 h. Rig standing: **#5** — below MiniMax-M2.5 (25.8 %) and every Qwen
+thinker, above the Gemmas.
 
 | Model | T-Bench |
 |---|---|
 | `qwen3-coder-next` | 32.6 % |
 | `qwen3.6-27b` | 31.5 % |
 | `qwen3.6-35b-a3b@6bit` | 28.1 % |
+| `minimax-m2.5` (both GGUF quants) | 25.8 % |
 | **`qwen3.5-122b-a10b`** | **24.7 %** |
 | `gemma-4-31b` | 22.5 % |
 | `gemma-4-26b-a4b@6bit` | 21.3 % |
@@ -165,5 +167,5 @@ Plan + full data: [bench/qwen3.5-122b-a10b/plan.md](../../bench/qwen3.5-122b-a10
 - **2026-07-11** — Quality ladder (thinking ON): HumanEval 96, MMLU 87, DROP 89,
   MATH ~87 (cut at Q69), **LCB-50 62 % exact tie**. Fixed the no-think prefill in
   `bench.py` + `speed_probe.py`.
-- **2026-07-12** — Terminal-Bench **24.7 % (22/89)**, #4 on rig. **Final verdict:
+- **2026-07-12** — Terminal-Bench **24.7 % (22/89)**, #5 on rig. **Final verdict:
   🔴 NO-GO** — faster sidegrade, weaker agent; `qwen3.6-27b` keeps the Planning slot.
