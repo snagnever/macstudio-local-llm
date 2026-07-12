@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "scenario": "creative-writing",
+    "mode": "single-shot",
+    "label": "m4-max-128gb-40gpu lmstudio",
+    "backend": "lmstudio",
+    "model_info": {
+      "name": "qwen3.6-27b-mtp"
+    },
+    "runs": 1,
+    "max_tokens": 2000,
+    "cold": false,
+    "warm_up_time": 0.195,
+    "system": {
+      "os": "Darwin",
+      "os_version": "26.3",
+      "arch": "arm64",
+      "chip": "Apple M4 Max",
+      "memory_gb": 128,
+      "cpu_cores": 16,
+      "cpu_cores_performance": 12,
+      "cpu_cores_efficiency": 4,
+      "gpu_cores": 40,
+      "gpu_wired_limit_mb": 0
+    },
+    "timestamp": "2026-07-10T00:08:05"
+  },
+  "results": [
+    {
+      "turn": 1,
+      "run": 1,
+      "ctx_tokens_est": 57,
+      "new_tokens_est": 29,
+      "ttft": 0.885,
+      "gen_time": 29.486,
+      "gen_tps": 15.0,
+      "total": 30.371,
+      "output_tokens": 442,
+      "_response": "Beneath the floorboards where the roots run deep,\nWhere spiders weave their silken webs in sleep,\nA subterranean heart begins to beat,\nIn concrete walls and shadows of the street.\n\nNo moonlight pierces this obsidian gloom,\nOnly the pulse of electric doom,\nOr rather, grace\u2014this silent, humming choir,\nThat burns with cold and calculated fire.\n\nThe fans exhale in rhythmic, steady breaths,\nA mechanical wind that defies all death.\nThey spin like wings of angels made of steel,\nGuarding the secrets only families feel.\n\nHere lies the laugh recorded on a phone,\nFrom summers past when ice cream melted slow.\nThe pixelated grin of grandpa\u2019s face,\nPreserved in code and silicon embrace.\n\nA video file of a first birthday cake,\nThe candles flickering for goodness sake,\nNow frozen in a binary stream,\nWithin the rack, inside the darkened beam.\n\nThe hard drives spin with magnetic grace,\nHolding time within their iron case.\nThey do not know what joy or sorrow means,\nNor why we cling to fading, fragile scenes.\n\nYet in their heat, they keep us warm and whole,\nA digital archive of every soul\nThat passed through doors where sunlight used to fall,\nNow trapped behind a firewall\u2019s wall.\n\nThe green LEDs blink like distant stars,\nIgniting hope in these cold basements\u2019 bars.\nThey count the seconds since you said goodbye,\nAnd store the echo of your final cry.\n\nWhen power fails and darkness takes its toll,\nThese towers stand as monuments to control\u2014\nControl over decay, control over loss,\nA digital fortress against time\u2019s corrosive gloss.\n\nSo let the world above forget and fade,\nLet seasons change and memories erode.\nDown here, in hums of cooling air,\nYour voice remains, forever there.\n\nWe are the keepers of the electric night,\nThe servers burning with a steady light,\nEnsuring that love, though coded and cold,\nRemains preserved, forever bold.",
+      "_user": "Write a poem about a mass of servers humming in a dark basement, keeping a family's memories alive. At least 30 lines."
+    },
+    {
+      "turn": 2,
+      "run": 1,
+      "ctx_tokens_est": 60,
+      "new_tokens_est": 32,
+      "ttft": 0.899,
+      "gen_time": 49.998,
+      "gen_tps": 16.0,
+      "total": 50.896,
+      "output_tokens": 799,
+      "_response": "In the dappled shade of Oakhaven, where the roots ran deep and the moss grew thick, Barnaby the Tortoise lived. While his kin spent their days grazing on clover or basking in sunbeams, Barnaby had a different obsession. He spent years scavenging discarded silicon from the edges of human settlements, wiring copper threads finer than spider silk, and carving a motherboard out of polished slate.\n\nThe result was not fast. It was not flashy. But it was his. He called it *The Slow Mind*.\n\nOne afternoon, Felix the Hare bounded into Barnaby\u2019s clearing, kicking up dust that settled on Barnaby\u2019s spectacles. Felix dragged behind him a monstrosity of chrome and fans\u2014a gaming rig he had stolen from a crashed delivery drone. It hummed with aggressive energy, its LED lights pulsing like angry heartbeats.\n\n\"Look at this, old shell!\" Felix laughed, his nose twitching rapidly. \"I can process a thousand frames per second. I can render the entire forest in 8K resolution while calculating the trajectory of every falling leaf. It\u2019s speed incarnate! What can your little stone box do?\"\n\nBarnaby adjusted his glasses and placed a claw on the slate keyboard. \"It calculates,\" he said softly.\n\nFelix scoffed. He plugged *The Slow Mind* into a shared power source to prove a point. \"Let\u2019s run a simulation. A simple one: predict the weather for the next century, factoring in wind patterns, soil moisture, and solar cycles.\"\n\nFelix hit enter on his rig. The fans screamed like jet engines. Smoke wisped from the vents. For ten seconds, it blazed with brilliance, churning through data at lightning speed. Then, with a whine of overheating coils, it shut down. \"Needs to cool,\" Felix panted, wiping sweat from his brow. \"But I got thirty years done!\"\n\nBarnaby nodded. He typed one key on *The Slow Mind*. The cursor blinked once. A single number appeared on the slate screen: a temperature prediction for day 36,500. Then it blinked again. Another number. Day 36,501.\n\n\"See?\" Felix crowed. \"You haven't even finished winter!\"\n\nAnd so, they waited. The sun rose and set. Seasons turned. Leaves fell and bloomed. Felix\u2019s rig sat idle, its batteries long since drained, gathering dust as he raced around the forest playing games on smaller, faster devices that crashed every hour. Barnaby never left his clearing. He never ate during the calculation\u2014though he had stored enough moss for months\u2014and he never slept. *The Slow Mind* did not sleep either. It hummed with a low, steady drone, processing one bit at a time, unbothered by heat, by haste, or by expectation.\n\nYears passed. Felix grew old, his fur graying, his jumps becoming hops. He often sat by Barnaby\u2019s shell, watching the single numbers tick by on the slate screen. He asked many times if he should turn it off, but Barnaby always shook his head. \"Patience is not waiting,\" Barnaby said. \"It is working without stopping.\"\n\nOn the day Felix died, he was old and weary, his heart tired from a lifetime of running. He looked at *The Slow Mind*. It had processed ten thousand years of weather data. The screen displayed a prediction for a rainstorm that would fall in the year 3024.\n\nBarnaby closed his eyes for a brief rest, just an hour, before returning to the keyboard. The computer kept humming. It did not care about Felix\u2019s speed or Barnaby\u2019s age. It simply continued, steady and silent, proving that while speed wins the sprint, only endurance writes the history of the world.",
+      "_user": "Write a short fable about a tortoise who built a tiny computer that was slower than the hare's gaming rig but never needed to rest."
+    },
+    {
+      "turn": 3,
+      "run": 1,
+      "ctx_tokens_est": 58,
+      "new_tokens_est": 31,
+      "ttft": 1.152,
+      "gen_time": 26.078,
+      "gen_tps": 15.0,
+      "total": 27.231,
+      "output_tokens": 391,
+      "_response": "The dust hangs heavy, suspended in slants of gray light,\nA century\u2019s silence settling on the floorboards\u2019 rot.\nIn the corner, beneath the sagging eaves\u2019 weight,\nRests a shoebox of cardboard, brittle and soft with age.\nInside, no digital ghosts, no pixelated dreams,\nBut paper fibers, yellowed like old bone,\nHolding a moment that refuses to fade.\n\nThe last one. The final breath of silver and salt.\nPrinted by hands that knew the darkroom\u2019s hush,\nDeveloped in trays where chemicals bloomed black.\nNow found here, by fingers that do not know its scent\u2014\nThe sharp tang of fixer, the smell of creation.\n\nIt shows a woman standing by an open window,\nWind whipping her hair across eyes closed tight against sun.\nShe holds a cup of coffee, steam long since vanished,\nBut you can feel the heat in the grain\u2019s rough texture.\nBehind her, the world is sharp and unfiltered:\nA dog mid-leap, a flower bending low,\nThe chaotic beauty of life unchecked by lens or code.\n\nNo metadata tags this memory with time or place.\nNo cloud stores its duplicate for safekeeping.\nIt exists only here, in this decaying attic,\nFragile as a moth\u2019s wing, thin as regret.\nTo touch it is to risk erasing her smile,\nTo breathe on it might blur the edges of joy.\n\nWe scroll through screens that glow with infinite faces,\nBut none have weight, none smell of earth or rain.\nThis single square holds more truth than a terabyte\u2019s worth,\nBecause it was made by waiting, by watching, by choosing.\nThe last photograph ever printed on paper.\nA anchor dropped in the river of time,\nHolding fast while everything else flows away.",
+      "_user": "Write a poem about the last photograph ever printed on paper, found in an attic a hundred years from now. At least 25 lines."
+    }
+  ]
+}

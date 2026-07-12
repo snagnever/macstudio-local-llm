@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "scenario": "ops-agent",
+    "mode": "conversation",
+    "label": "m4-max-128gb-40gpu lmstudio",
+    "backend": "lmstudio",
+    "model_info": {
+      "name": "q36-draft8"
+    },
+    "runs": 1,
+    "max_tokens": 500,
+    "cold": false,
+    "warm_up_time": 0.057,
+    "system": {
+      "os": "Darwin",
+      "os_version": "26.3",
+      "arch": "arm64",
+      "chip": "Apple M4 Max",
+      "memory_gb": 128,
+      "cpu_cores": 16,
+      "cpu_cores_performance": 12,
+      "cpu_cores_efficiency": 4,
+      "gpu_cores": 40,
+      "gpu_wired_limit_mb": 0
+    },
+    "timestamp": "2026-07-10T09:23:51"
+  },
+  "results": [
+    {
+      "turn": 1,
+      "run": 1,
+      "ctx_tokens_est": 575,
+      "new_tokens_est": 421,
+      "ttft": 0.933,
+      "gen_time": 4.463,
+      "gen_tps": 42.3,
+      "total": 5.396,
+      "output_tokens": 189,
+      "tool": "server_status",
+      "_response": "Everything is technically running, but there is one major red flag: **`immich-ml` (the AI model service) is consuming 45% of your CPU and over 8GB of RAM.**\n\nThis suggests Immich is actively processing a large batch of photos or videos. While this can be normal during initial setup or manual uploads, sustained high usage like this might slow down other services if the load average keeps climbing (it's currently at ~3.8).\n\n**Recommendations:**\n1. **Check Immich Logs:** If it's been running for hours with no new uploads, it might be stuck in a loop. I can check `immich-ml` logs to see what it's doing.\n2. **Restart if stuck:** If the logs show errors or idle processing, restarting the service often fixes it.\n\nWould you like me to check the logs for `immich-ml`?",
+      "_user": "Something feels off with the server. Can you check what's running?"
+    },
+    {
+      "turn": 2,
+      "run": 1,
+      "ctx_tokens_est": 1002,
+      "new_tokens_est": 235,
+      "ttft": 1.154,
+      "gen_time": 6.03,
+      "gen_tps": 38.8,
+      "total": 7.184,
+      "output_tokens": 234,
+      "tool": "service_logs",
+      "_response": "The logs show that `immich-ml` is legitimately busy processing your photo library. It's currently at batch **850 out of 1203** (about 70% complete) and estimating **45 minutes** to finish.\n\nIt's performing two heavy tasks:\n1.  **Facial Recognition:** Identifying faces in photos.\n2.  **CLIP Embeddings:** Analyzing image content for searchability.\n\nThere was a \"Low memory condition\" warning, but the system successfully reclaimed 1.2GB of RAM automatically via garbage collection, so it should stabilize once this batch finishes.\n\n**Actionable Advice:**\n*   **Let it finish:** It looks like a normal background job. Wait ~45 minutes for it to drop back down.\n*   **Monitor Load Average:** If the load average stays above 5-6 after it finishes, we may need to limit Immich's concurrency settings so it doesn't overwhelm your Mac Studio during peak usage.\n\nWould you like me to check in on it again in a bit, or do you want to adjust any settings now?",
+      "_user": "Immich ML is eating a lot of CPU. What's it doing?"
+    },
+    {
+      "turn": 3,
+      "run": 1,
+      "ctx_tokens_est": 1329,
+      "new_tokens_est": 89,
+      "ttft": 1.482,
+      "gen_time": 4.75,
+      "gen_tps": 40.2,
+      "total": 6.232,
+      "output_tokens": 191,
+      "tool": "docker_exec",
+      "_response": "Yes, it is going to be OK memory-wise.\n\nHere\u2019s why:\n*   **Safety Margin:** The container has a hard limit of **12GB**, and it\u2019s currently using **8.2GB** (68%). You still have ~3.8GB of headroom before it hits the ceiling.\n*   **Automatic Cleanup:** As seen in the logs, when memory gets tight, Immich triggers garbage collection to free up space automatically.\n\nThe high CPU usage is expected because face detection and image analysis are compute-heavy tasks. Since you only have ~350 images left (about 45 minutes of work), this spike should resolve itself shortly.\n\n**No action needed right now.** Just let it finish the batch. If you notice the server becomes sluggish for other tasks while this is running, I can help you reduce Immich's concurrency settings later to make it run more quietly in the background.",
+      "_user": "Ah right, we uploaded vacation photos yesterday. Is it going to be OK memory-wise?"
+    },
+    {
+      "turn": 4,
+      "run": 1,
+      "ctx_tokens_est": 1748,
+      "new_tokens_est": 214,
+      "ttft": 1.834,
+      "gen_time": 5.125,
+      "gen_tps": 37.7,
+      "total": 6.959,
+      "output_tokens": 193,
+      "tool": "backup_status",
+      "_response": "Last night\u2019s backup **completed successfully**, so your vacation photos are safe.\n\nHere is the breakdown:\n*   **Status:** Completed (with minor warnings)\n*   **Time:** Ran at 2:00 AM\n*   **Data Synced:** 1847 files, totaling **12.4GB**\n    *   The significant increase in file count and size compared to previous nights confirms that your new vacation photos were included in this backup.\n\n**Notes on Warnings:**\n*   *\"Vault eject failed\"* is likely a non-critical issue with the external drive or encrypted volume not unmounting cleanly, but since the sync completed before this step, your data was already saved.\n*   *\"uchg flags applied successfully\"* is just informational regarding file permissions and is not an error.\n\nYour data is backed up. Let me know if you'd like to troubleshoot that vault eject warning later!",
+      "_user": "Good. Check if last night's backup ran. I want to make sure the vacation photos are safe."
+    },
+    {
+      "turn": 5,
+      "run": 1,
+      "ctx_tokens_est": 2193,
+      "new_tokens_est": 239,
+      "ttft": 2.353,
+      "gen_time": 8.237,
+      "gen_tps": 36.1,
+      "total": 10.591,
+      "output_tokens": 297,
+      "tool": "disk_usage",
+      "_response": "Disk space is healthy across the board, but there are two things to note regarding your backup vault:\n\n1.  **Local Storage:** You have plenty of room on the Mac Studio itself (**33% used**). The recent vacation photos added ~600GB to your photo library, which is already accounted for in this total.\n2.  **Backup Vault (`/Volumes/backup-vault`):** It is at **69%** capacity. While not critical yet, it\u2019s filling up steadily. You have **1.7TB** free, which should last a while, but keep an eye on it if you continue uploading large batches of media.\n\nRegarding the **\"Vault eject failed\"** warning from the backup:\nSince the vault still has 1.7TB available and is mounted correctly at `/Volumes/backup-vault`, the system *can* write to it (as proven by last night's successful sync). The \"eject failure\" likely means the drive didn't unmount cleanly after the job finished, possibly because a background process had a file open or the connection was slow.\n\n**Recommendation:**\nIf this happens often, we can check if any services are locking files in that volume during the backup window. For now, since your data is safe and space is sufficient, you can ignore it unless the drive becomes unresponsive.\n\nWould you like me to check which processes might be holding open files on the backup vault?",
+      "_user": "The vault didn't eject again. How's disk space looking on all drives?"
+    },
+    {
+      "turn": 6,
+      "run": 1,
+      "ctx_tokens_est": 2766,
+      "new_tokens_est": 249,
+      "ttft": 2.903,
+      "gen_time": 4.997,
+      "gen_tps": 56.2,
+      "total": 7.9,
+      "output_tokens": 281,
+      "tool": "service_logs",
+      "_response": "Yes, Paperless successfully processed all three documents this morning! Here is the summary:\n\n1.  **school-report-emma-2026.pdf**\n    *   **Status:** Processed & OCR'd (97% confidence)\n    *   **Classification:** School Report\n    *   **Tags:** `education`, `emma`\n\n2.  **swimming-certificate-max.pdf**\n    *   **Status:** Processed & OCR'd (94% confidence)\n    *   **Classification:** Certificate\n    *   **Tags:** `sports`, `max`\n\n3.  **electricity-bill-march-2026.pdf**\n    *   **Status:** Processed & OCR'd (99% confidence)\n    *   **Classification:** Invoice\n    *   **Tags:** `utilities`, `electricity`\n\nAll files are now searchable and organized with the correct tags. You can view them in your Paperless dashboard.\n\n**Regarding Time Machine (75% full):**\nYou still have 1.4TB free, which is plenty for a few months of backups, but since you've added ~600GB of photos recently, it will fill up faster than usual. If you want to clean up old snapshots or exclude certain folders from TM in the future, let me know!",
+      "_user": "Time Machine is at 75%. Also did Paperless process the school documents I scanned this morning?"
+    },
+    {
+      "turn": 7,
+      "run": 1,
+      "ctx_tokens_est": 3120,
+      "new_tokens_est": 98,
+      "ttft": 3.341,
+      "gen_time": 5.807,
+      "gen_tps": 35.0,
+      "total": 9.148,
+      "output_tokens": 203,
+      "tool": "docker_exec",
+      "_response": "The Matrix (Synapse) database is **2.1 GB**.\n\nWhile it\u2019s grown recently, this size is actually quite healthy for a family server handling active chat rooms. The breakdown shows:\n*   **`state_groups_state` (845 MB):** This stores the current state of all rooms (who is in them, room settings, etc.). A high size here usually means you are part of many active rooms or channels.\n*   **`event_json` & `events`:** These store the actual message history.\n\nGiven that you have services like Synapse running and likely some family group chats active, this growth is normal. It\u2019s not large enough to cause performance issues on your 64GB Mac Studio.\n\nIf you ever want to shrink it significantly, we could prune old messages from unused rooms or limit retention periods for specific servers, but at 2.1 GB, there's no immediate need to intervene.\n\nAnything else you'd like me to check?",
+      "_user": "Nice, it even picked up the electricity bill. How big is the Matrix database? It's been chatty lately."
+    },
+    {
+      "turn": 8,
+      "run": 1,
+      "ctx_tokens_est": 3527,
+      "new_tokens_est": 188,
+      "ttft": 3.617,
+      "gen_time": 7.672,
+      "gen_tps": 48.0,
+      "total": 11.289,
+      "output_tokens": 368,
+      "tool": "docker_exec",
+      "_response": "Here is the breakdown of your Matrix rooms by event count:\n\n1.  **#server**: 12,847 events (37% of total) \u2013 *This is likely automated logs from Docker/Caddy/Kit.*\n2.  **#family**: 8,934 events (26%) \u2013 *Active family chat.*\n3.  **#test-room**: 4,521 events (13%) \u2013 *Testing? This might be a candidate for cleanup if it\u2019s no longer needed.*\n4.  **#butler**: 3,421 events (10%) \u2013 *Automated bot logs.*\n5.  **#marvin-old**: 2,103 events (6%) \u2013 *Old/dead room?*\n6.  **#alfred-bot**: 1,893 events (5%) \u2013 *Bot logs.*\n7.  **#documents**: 567 events (2%)\n\n**Analysis:**\n*   **Automated Noise:** The `#server`, `#butler`, and `#alfred-bot` rooms are taking up ~52% of your event space but likely contain mostly automated logs that aren't critical to keep forever.\n*   **#test-room**: If this is no longer needed, it\u2019s easy to purge or archive.\n\n**Actionable Advice:**\nIf you want to reclaim some database size and reduce \"chatter,\" we could:\n1.  **Purge/Archive `#test-room`** if it's unused.\n2.  **Limit Log Retention** for the bot rooms (`#server`, `#butler`) so they don't accumulate indefinitely.\n\nWould you like me to help purge one of these rooms or adjust log retention settings?",
+      "_user": "2.1GB for Matrix seems like a lot. Can we see which rooms take the most space?"
+    }
+  ]
+}

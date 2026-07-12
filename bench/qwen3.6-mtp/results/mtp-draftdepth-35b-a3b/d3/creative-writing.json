@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "scenario": "creative-writing",
+    "mode": "single-shot",
+    "label": "m4-max-128gb-40gpu lmstudio",
+    "backend": "lmstudio",
+    "model_info": {
+      "name": "q36-draft3"
+    },
+    "runs": 1,
+    "max_tokens": 2000,
+    "cold": false,
+    "warm_up_time": 0.097,
+    "system": {
+      "os": "Darwin",
+      "os_version": "26.3",
+      "arch": "arm64",
+      "chip": "Apple M4 Max",
+      "memory_gb": 128,
+      "cpu_cores": 16,
+      "cpu_cores_performance": 12,
+      "cpu_cores_efficiency": 4,
+      "gpu_cores": 40,
+      "gpu_wired_limit_mb": 0
+    },
+    "timestamp": "2026-07-10T09:33:49"
+  },
+  "results": [
+    {
+      "turn": 1,
+      "run": 1,
+      "ctx_tokens_est": 57,
+      "new_tokens_est": 29,
+      "ttft": 0.256,
+      "gen_time": 7.155,
+      "gen_tps": 57.7,
+      "total": 7.411,
+      "output_tokens": 413,
+      "_response": "Beneath the floorboards where the root cellar sleeps,\nIn concrete tombs lit by blinking amber eyes,\nThe cold air hisses through vents that never weep,\nA silent choir of silicon and lies.\nNo wind blows here, no sun dares pierce the stone,\nOnly the hum of fans in rhythmic flight,\nKeeping the dark at a digital bone,\nTurning on binary day and night.\n\nThey hold the birthday candles\u2019 flickering grace,\nThe first steps taken on a grainy screen,\nThe voice that whispered love across space,\nThe laughter frozen in its sweetest scene.\nEach drive a vessel, spinning at high speed,\nPreserving moments that time would otherwise steal,\nPlanting data like seeds within the seed,\nMaking the past feel strangely real.\n\nWires snake like vines through racks of black steel,\nA garden grown from light and memory\u2019s dust,\nWhere secrets and smiles are kept secure and real,\nIn circuits built to place trust in rust.\nThe basement breathes with a low, electric drone,\nA heartbeat made of code and current flow,\nGuarding the ghosts that linger on the bone,\nWatching over the family below.\n\nIf power failed, if the grid went dark and cold,\nWould they dissolve into static and noise?\nOr remain as stories, brave and bold,\nEchoes in servers\u2019 artificial poise?\nFor now they hum, a lullaby of light,\nKeeping the ancestors near and dear,\nSuspended in the endless, data night,\nCrystallizing love\u2019s invisible fear.\n\nThe heat rises up through the floorboards\u2019 gap,\nA phantom warmth in the winter air,\nTracing the contours of each captured lap,\nOf a family gathered everywhere.\nNot in flesh, nor blood, nor breath,\nBut in the server\u2019s endless, looping stream,\nDefying time with quiet depth,\nWaking the dead from their digital dream.",
+      "_user": "Write a poem about a mass of servers humming in a dark basement, keeping a family's memories alive. At least 30 lines."
+    },
+    {
+      "turn": 2,
+      "run": 1,
+      "ctx_tokens_est": 60,
+      "new_tokens_est": 32,
+      "ttft": 0.262,
+      "gen_time": 10.472,
+      "gen_tps": 61.8,
+      "total": 10.734,
+      "output_tokens": 647,
+      "_response": "In the shadow of the Great Oak, where the roots tangled like old code, lived Thorne. While his cousin Hare spent his daylight hours tuning RGB fans and chasing high scores on a rig that hummed with the arrogance of fiber optics, Thorne gathered stones. Not for strength, but for structure.\n\nThorne\u2019s workshop was not a desk of sleek aluminum, but a hollowed-out stump lined with moss. He did not build silicon; he built memory from clay and logic from knotted vines. His machine, which he called the *Slowthinker*, had no screen that flashed, only a dial of polished river glass that turned with the patience of tectonic plates.\n\nOne afternoon, Hare swaggered over, his headset askew, laughing at Thorne\u2019s back. \"Still playing with dirt, cousin? My rig renders a galaxy in seconds. What does your rock pile do?\"\n\n\"It remembers,\" Thorne said softly, his voice like gravel shifting. \"It remembers the shape of the wind.\"\n\nHare scoffed and returned to his game, where speed was king and latency was death. He played until his eyes burned, then slept for ten hours straight, waking refreshed, ready to win again. He did not understand that while he rested, Thorne did not stop.\n\nThorne\u2019s *Slowthinker* turned one click per hour. It calculated the growth of lichen on the northern stone. It mapped the migration of beetles beneath the bark. It tracked the subtle shift in the moon\u2019s pull on the nearby stream. Hare\u2019s machine was fast, but it was blind to anything that did not demand immediate action.\n\nYears passed. The Great Drought came, silent and cruel. The river shrank to a trickle; the leaves curled and browned. Panic seized the forest. The animals gathered around Hare\u2019s glowing console, begging for a solution, for a forecast, for hope. But Hare\u2019s rig was built for games of war and fantasy; it had no data on droughts, only data on victory in simulated battles. It offered only error messages and blinking red lights.\n\nThorne stepped forward. He did not speak. He placed his hand on the river glass dial of the *Slowthinker*. With a creak that sounded like an ancient sigh, he turned it once. Then again. The slow, steady accumulation of decades of observation clicked into place.\n\nFrom a small slot in the mossy chassis, Thorne pulled out a scroll of bark. It was not a prediction; it was a map of hidden aquifers, marked by the moisture patterns he had recorded in the clay over twenty years of unbroken attention.\n\n\"The water is here,\" Thorne said, pointing to a dry patch of earth near the western ridge. \"Dig.\"\n\nSkeptical but desperate, the animals dug. Water burst forth, cool and sweet. Hare stared at his black screen, then at the muddy paws of the tortoise who had never logged off, never rebooted, never blinked. The hare\u2019s speed had been a sprint; Thorne\u2019s slowness was an endurance that outlasted the storm.",
+      "_user": "Write a short fable about a tortoise who built a tiny computer that was slower than the hare's gaming rig but never needed to rest."
+    },
+    {
+      "turn": 3,
+      "run": 1,
+      "ctx_tokens_est": 58,
+      "new_tokens_est": 31,
+      "ttft": 0.259,
+      "gen_time": 7.598,
+      "gen_tps": 55.1,
+      "total": 7.857,
+      "output_tokens": 419,
+      "_response": "Dust motes dance like ancient stars above the floor,\nIn silence deep where shadows stretch and wait,\nA cardboard box, its flaps beginning to warp,\nHolds secrets sealed in time\u2019s cold, gray gate.\nBeneath a tunic stained with forgotten rain,\nAnd beneath a map of roads now drowned by sea,\nLies the final print, the last enduring grain,\nOf silver halide and chemistry.\n\nNo pixels hum here, no electric ghost,\nNo cloud server to guard this fleeting face;\nJust paper thin as breath against the coast,\nA physical artifact of time and place.\nThe edges curl like leaves in autumn\u2019s grip,\nThe colors faded to a sepia sigh,\nA moment caught before the digital ship\nSailed off into the vast and data sky.\n\nI hold it up to light from broken glass,\nTwo figures stand on grass now turned to stone,\nThey do not know the centuries that pass,\nNor how the world has shed its flesh and bone.\nTheir smiles are sharp, a jagged, analog cut,\nMore real than any hologram\u2019s soft glow,\nFor in their eyes, there is no future shut,\nOnly the present\u2019s intense, vivid flow.\n\nThe photographer is dust, the subject too,\nThe camera melted down for scrap and steel,\nBut this small square remains, both old and new,\nA tangible wound that refuses to heal.\nIt smells of acid, vinegar, and age,\nOf hands that held it while the world grew loud,\nBefore the screen replaced the human page,\nAnd silence was the only sacred cloud.\n\nI trace the border with a trembling thumb,\nThis last artifact of light on fiber,\nA silent witness to what we have become,\nTo rise above our physical desire.\nIt burns my fingers though it cannot scorch,\nA heavy truth in lightweight paper\u2019s frame,\nThe final whisper of the analog torch,\nThat flickered out without a single name.",
+      "_user": "Write a poem about the last photograph ever printed on paper, found in an attic a hundred years from now. At least 25 lines."
+    }
+  ]
+}

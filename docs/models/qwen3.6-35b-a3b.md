@@ -27,6 +27,7 @@
 |---|---|---|---|---|---|---|---|
 | `qwen3.6-35b-a3b@6bit` | [mlx-community/Qwen3.6-35B-A3B-6bit](https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-6bit) | MLX safetensors | 6-bit (mlx-vlm 0.4.4 conversion) | 29.09 GB | LM Studio MLX | 🟢 **DAILY DRIVER** | Full Phase 1 suite + LCB backfill + T-Bench 2.0 benched |
 | `qwen3.6-35b-a3b@8bit` | [mlx-community/Qwen3.6-35B-A3B-8bit](https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-8bit) | MLX safetensors | 8-bit (mlx-vlm 0.4.4 conversion) | 37.75 GB | LM Studio MLX | ⏸ **Pending quant A/B (Phase 2 #9)** | Same weights, heavier quant — does it close the knowledge gap to `qwen3.6-27b`? All benches TBD |
+| `qwen3.6-35b-a3b-mtp` | [unsloth/Qwen3.6-35B-A3B-MTP-GGUF](https://huggingface.co/unsloth/Qwen3.6-35B-A3B-MTP-GGUF) | GGUF | UD-Q6_K_XL | 32.61 GB | LM Studio llama.cpp | ⚗️ **speed study only** | Not a quality candidate — benched only to isolate Draft MTP speculative decoding (see [Draft MTP tuning](#draft-mtp-speculative-decoding--speed-tuning-2026-07-10)). MLX `@6bit` stays the pick |
 
 **Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): @6bit: [`cb7e092`](https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-6bit/tree/cb7e092ef8efe540bc3672c8929c4adbe5f4f759) (downloaded 2026-05-17) · @8bit: [`e06a74e`](https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-8bit/tree/e06a74e6236a60c8367e1a3214e83d8b61b637b0) (downloaded 2026-05-17).
 
@@ -52,6 +53,29 @@
 
 Context: ~4.5× faster than `qwen3.6-27b` dense (20 t/s), faster than `coder-next` (68–70 t/s), slower than `gemma-4-26b-a4b@4bit` (100–106 t/s).
 Source: [local-llm-reference.md § Performance Expectations](../local-llm-reference.md), [testing-plan.md § Effective throughput](../testing-plan.md), [M4 notes](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md).
+
+### Draft MTP (speculative decoding) — speed tuning (2026-07-10)
+
+The unsloth GGUF (`qwen3.6-35b-a3b-mtp`) carries an MTP draft head that LM Studio
+exposes as the **Draft MTP** load toggle. A/B on the *same* GGUF (only the toggle
+flipped; ctx 65k, parallel 4, thinking off) — gen t/s:
+
+| Scenario | MTP off | MTP on (draft=2) | effect |
+|---|---:|---:|---:|
+| creative-writing | 74.7 | 68.1 | **−9 %** |
+| doc-summary | 76.0 | 92.7 | **+22 %** |
+| ops-agent | 72.7 | 82.2 | **+13 %** |
+| prefill-test | 72.9 | 71.0 | −3 % |
+
+**MTP is a per-workload toggle** (textbook speculative decoding): on for
+structured/agentic/summarization, off for creative writing. **Draft depth 2 is
+the optimum** — 3/4/6/8 are monotonically worse on every scenario (single draft
+head → acceptance collapses past ~1 token; each reject still costs a forward
+pass). The dense 27B reproduces the same profile, so this is a draft-head ×
+workload property, not a MoE effect. This GGUF is also ~25 % slower than the MLX
+`@6bit` on creative-writing (format/quant gap, independent of MTP) — **the MLX
+build stays the daily driver; the value here is the tuning rule.** Full data +
+depth curve: [bench/qwen3.6-mtp/plan.md](../../bench/qwen3.6-mtp/plan.md).
 
 ## Quality benchmarks (measured)
 
@@ -115,3 +139,4 @@ Plans: [2026-05-22-livecodebench-phase-1.md](../../bench/lcb-phase1/plan.md) · 
 - **2026-05-24** — LCB v6 backfill at 65k cap: **54 %**, 6 real spirals ([plan](../../bench/lcb-phase1/plan.md)).
 - **2026-05-26 → 05-29** — Terminal-Bench 2.0 Phase B leg B3: **28.1 %**, #3 on rig; thinking-format guard passed ([plan](../../bench/terminal-bench/plan.md)).
 - **2026-07-05** — Confirmed as the Veerman 75 %-band baseline in the MiniMax-M2.5 GGUF evaluation ([minimax-m2.5.md](minimax-m2.5.md)). `@8bit` quant A/B still pending (Phase 2 #9).
+- **2026-07-10** — Draft MTP speculative-decoding study on the unsloth GGUF variant: MTP is a per-workload toggle (structured +13–22 %, creative −9 %), draft depth 2 optimal ([bench/qwen3.6-mtp/plan.md](../../bench/qwen3.6-mtp/plan.md)). MLX `@6bit` remains the daily driver.

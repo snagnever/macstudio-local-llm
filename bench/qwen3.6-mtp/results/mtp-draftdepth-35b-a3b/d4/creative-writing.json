@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "scenario": "creative-writing",
+    "mode": "single-shot",
+    "label": "m4-max-128gb-40gpu lmstudio",
+    "backend": "lmstudio",
+    "model_info": {
+      "name": "q36-draft4"
+    },
+    "runs": 1,
+    "max_tokens": 2000,
+    "cold": false,
+    "warm_up_time": 0.095,
+    "system": {
+      "os": "Darwin",
+      "os_version": "26.3",
+      "arch": "arm64",
+      "chip": "Apple M4 Max",
+      "memory_gb": 128,
+      "cpu_cores": 16,
+      "cpu_cores_performance": 12,
+      "cpu_cores_efficiency": 4,
+      "gpu_cores": 40,
+      "gpu_wired_limit_mb": 0
+    },
+    "timestamp": "2026-07-10T09:16:41"
+  },
+  "results": [
+    {
+      "turn": 1,
+      "run": 1,
+      "ctx_tokens_est": 57,
+      "new_tokens_est": 29,
+      "ttft": 0.305,
+      "gen_time": 7.666,
+      "gen_tps": 50.1,
+      "total": 7.971,
+      "output_tokens": 384,
+      "_response": "Beneath the floorboards, where the cold seeps deep,\nA silent cathedral wakes from its sleep.\nNot stone or stained glass catches the eye,\nBut blinking lights in a digital sky.\nRacks of black iron stand in rows,\nWhere the current flows and the data grows,\nHumming a low and steady tune,\nBeneath the house\u2019s wooden spoon.\n\nHere lives the laughter caught on tape,\nThe promises we couldn\u2019t keep,\nThe grainy footage of July nights,\nWhen the summer heat was too much to fight.\nPixels hold the shape of a grandmother\u2019s hands,\nKnitting soft wool for newborn demands,\nThe rustle of pages from old books read,\nBefore the world turned fast and fed.\n\nFans spin their white noise into the dark,\nA mechanical lullaby, a spark\nThat keeps the ghost of a voice alive,\nKeeping the past from coming unstrived.\nEvery byte is a brick in the wall,\nAgainst the inevitable fall\nOf forgetting, of decay, of time\u2019s cruel tide,\nWith nowhere for these memories to hide.\n\nThe screen glows blue like a midnight lake,\nFor every choice that we couldn\u2019t make,\nOr should have made with more care,\nLeaving us stranded in thin air.\nYet here they rest on magnetic beds,\nWords spoken softly, words said,\nPreserved in silicon, cold and vast,\nWatching the years go by so fast.\n\nWe sleep above, unaware and blind,\nTo the ghosts that hum behind the mind.\nBut down below, in the humming dark,\nThe family\u2019s soul remains stark,\nAlive in circuits, awake in code,\nCarrying the weight of every load,\nWaiting for a click, a search, a key,\nTo set the frozen moments free.",
+      "_user": "Write a poem about a mass of servers humming in a dark basement, keeping a family's memories alive. At least 30 lines."
+    },
+    {
+      "turn": 2,
+      "run": 1,
+      "ctx_tokens_est": 60,
+      "new_tokens_est": 32,
+      "ttft": 0.27,
+      "gen_time": 12.877,
+      "gen_tps": 51.9,
+      "total": 13.147,
+      "output_tokens": 668,
+      "_response": "In the shadow of the Great Oak, where roots tangled like old cables, lived Barnaby, a tortoise with a shell scarred by time and a mind sharp as flint. While his neighbor, Hareo, spent his days chasing digital phantoms in neon-lit arenas, Barnaby chose silence. He gathered copper wire from discarded phones, silicon shards from broken screens, and lenses from cracked eyeglasses.\n\nOver the course of ten winters, Barnaby constructed a machine no larger than a walnut. It was a clunker of logic, built not for speed, but for endurance. Its processor ticked with the slow, deliberate rhythm of a heartbeat: *click\u2026 pause\u2026 click.*\n\nOne summer evening, Hareo burst into the burrow, his face flushed from hours of high-stakes gaming. His rig hummed with the aggressive whine of cooling fans, lights flashing in chaotic strobes. \"Look at this frame rate!\" Hareo boasted, tapping a key that made the screen scream with data. \"I can calculate ten thousand moves per second. But even I need to blink. Even I need sleep.\"\n\nBarnaby nodded slowly and placed his walnut-sized computer on a mossy stone. He fed it a simple equation: *What is the sum of all integers from 1 to one billion?*\n\nHareo laughed, a sharp, barking sound. \"That will take my rig three seconds. And then I\u2019ll order pizza.\" He turned back to his screen, the glow illuminating his eager eyes. He won every match in the arena, celebrated victories that faded before they could be remembered, and eventually, his eyelids grew heavy. The game demanded constant attention; one missed frame meant defeat. Hareo fell asleep at his keyboard, dreaming of faster processors and higher scores, his rig idling, waiting for a player who needed rest.\n\nBarnaby did not sleep. He watched the tiny lights on his machine blink in their patient cadence. *Click\u2026 pause\u2026 click.* The heat from the device was barely warm, like sun-baked stone. While Hareo dreamed, Barnaby calculated. He did not race against time; he conversed with it.\n\nHours passed. The moon climbed high and began its descent. Just as the first gray light of dawn touched the leaves, Hareo stirred, blinking at a screen that showed \"GAME OVER.\" He had missed the final round in his slumber. Frustrated, he looked across the room.\n\nBarnaby\u2019s computer was still ticking. *Click\u2026 pause\u2026 click.*\n\nSlowly, steadily, without a sound of struggle or strain, the machine produced its result on a tiny scroll of parchment it dispensed like a leaf falling from a tree. Hareo picked it up, expecting an error or a timeout. Instead, he saw the perfect sum, arrived at not by force, but by faithfulness to the process.\n\nThe hare looked at his humming, overheating rig, then at the quiet, unblinking machine of the tortoise. He realized that while he had conquered the moment, Barnaby had outlasted it. Hareo powered down his lights, finally understanding that some things cannot be rushed, only endured.",
+      "_user": "Write a short fable about a tortoise who built a tiny computer that was slower than the hare's gaming rig but never needed to rest."
+    },
+    {
+      "turn": 3,
+      "run": 1,
+      "ctx_tokens_est": 58,
+      "new_tokens_est": 31,
+      "ttft": 0.23,
+      "gen_time": 12.834,
+      "gen_tps": 47.3,
+      "total": 13.064,
+      "output_tokens": 607,
+      "_response": "Dust motes dance in the shaft of pale light,\nWhere time has stopped its relentless flight.\nBeneath a beam of warped oak wood,\nA silence thick as ancient blood.\nMy fingers brush against the box,\nThe scent of cedar and forgotten clocks.\nInside lies not a data drive,\nNor cloud-stored dream, nor digital hive,\nBut something brittle, soft, and thin,\nWhere light once lived for us within.\n\nIt is a square of chemically stained skin,\nOf silver salts that now begin\nTo fade into the ghost of gray,\nA memory held at last in play.\nThe edges curl like dried-up leaves,\nBeneath the weight of seven heavens.\nI hold it up to check the date:\nA century of heavy weight.\n\nThe image shows a woman\u2019s face,\nWith sunlight caught within her space.\nHer eyes are bright with earthly fire,\nShe holds a flower, or perhaps a wire?\nNo, just a ribbon, red and bright,\nAgainst the backdrop of a night\nThat hasn\u2019t happened yet for her,\nBut is now dust and distant blur.\n\nThe colors bleed in subtle hues,\nA magenta blush on morning dews,\nThe blue of shirts, the brown of earth,\nPreserved beneath this paper girth.\nIt smells of vinegar and loss,\nOf acid eating through the cross\nThat binds the image to its frame,\nA slow decay, a gentle shame.\n\nFor in this age of pure recall,\nWhere minds are linked and none can fall\nInto forgetfulness\u2019s deep,\nThis paper promises no sleep.\nIt is fragile, finite, frail,\nA testament to ending all.\nNo backup exists in the sky,\nJust this one truth beneath my eye.\n\nShe smiles because she knew the end,\nThe bitter taste of broken friend,\nThe way the light would fail to hold,\nWhen stories were not bought or sold\nBut lived and lost without a trace,\nExcept in this specific space.\nA chemical arrest of time,\nBefore the world went pure sublime.\n\nI turn it over, blank and white,\nThe backside of that final night.\nNo code to scan, no key to type,\nJust grainy texture, stark and ripe\nWith imperfections, flaws, and spots,\nOf life that ticked in earthly clocks.\nThis is the last thing printed true,\nBefore we all became the view.\n\nThe paper crumbles slightly at the fold,\nA secret that the dark has told.\nI cannot save it from the air,\nNor keep it safe beyond its care.\nSo I let go and watch it fall,\nBack to the attic\u2019s dusty wall.\nLet entropy reclaim its due,\nFor there is nothing left to do\nBut witness how the light once shone,\nBefore the digital dusk was known.",
+      "_user": "Write a poem about the last photograph ever printed on paper, found in an attic a hundred years from now. At least 25 lines."
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "scenario": "creative-writing",
+    "mode": "single-shot",
+    "label": "m4-max-128gb-40gpu lmstudio",
+    "backend": "lmstudio",
+    "model_info": {
+      "name": "q36-27b-draft4"
+    },
+    "runs": 1,
+    "max_tokens": 2000,
+    "cold": false,
+    "warm_up_time": 0.501,
+    "system": {
+      "os": "Darwin",
+      "os_version": "26.3",
+      "arch": "arm64",
+      "chip": "Apple M4 Max",
+      "memory_gb": 128,
+      "cpu_cores": 16,
+      "cpu_cores_performance": 12,
+      "cpu_cores_efficiency": 4,
+      "gpu_cores": 40,
+      "gpu_wired_limit_mb": 0
+    },
+    "timestamp": "2026-07-10T10:11:03"
+  },
+  "results": [
+    {
+      "turn": 1,
+      "run": 1,
+      "ctx_tokens_est": 57,
+      "new_tokens_est": 29,
+      "ttft": 0.91,
+      "gen_time": 46.53,
+      "gen_tps": 8.8,
+      "total": 47.441,
+      "output_tokens": 409,
+      "_response": "Beneath the floorboards where the roots go deep,\nAnd silence pools like water in a well,\nThe iron hearts begin their rhythmic sleep,\nA chorus that no living soul can tell.\nNo sunlight touches this concrete womb,\nWhere dust motes dance in beams of LED blue,\nDispelling shadows, banishing gloom,\nTo keep the ghosts of yesterday anew.\n\nHere lies the laughter caught in silicon,\nThe birthday cake, the tears upon a cheek,\nThe winter snow that fell on a silent lawn,\nPreserved within the circuitry\u2019s tight speak.\nEach drive spins round, a frantic, humming wheel,\nDefying entropy and time\u2019s decay,\nMaking the broken fragments feel quite real,\nIn this cold vault where memories hold sway.\n\nThe fans exhale a breath of warm electric air,\nA lullaby for images long gone,\nOf children running through a summer square,\nAnd voices singing songs from dusk till dawn.\nNo flesh remains to touch these hard drives\u2019 sides,\nYet here they live in binary and light,\nRefusing death\u2019s inevitable tides,\nBurning their embers into endless night.\n\nThe basement holds its breath against the storm above,\nWhile data streams like rivers underground,\nPreserving every glance, every word of love,\nOn disks that spin without a single sound.\nIt is not magic, nor it is divine,\nJust copper wire and logic gates aligned,\nTo hold a world that was once yours and mine,\nA digital soul, carefully designed.\n\nSo let the house above grow quiet still,\nLet curtains fade to gray and windows cloud,\nThe basement keeps its vigil on the hill,\nWhere lost and found are locked within a shroud.\nThe hum persists, a steady, low refrain,\nFor every smile that ever lit a face,\nProtected from the wind and driving rain,\nIn this dark place, we find our resting place.",
+      "_user": "Write a poem about a mass of servers humming in a dark basement, keeping a family's memories alive. At least 30 lines."
+    },
+    {
+      "turn": 2,
+      "run": 1,
+      "ctx_tokens_est": 60,
+      "new_tokens_est": 32,
+      "ttft": 1.094,
+      "gen_time": 83.952,
+      "gen_tps": 9.9,
+      "total": 85.047,
+      "output_tokens": 833,
+      "_response": "In the heart of the Whispering Woods, where sunlight dappled through ancient oaks like scattered gold coins, lived Barnaby. Barnaby was not merely slow; he was geological in his patience. While other tortoises napped under ferns, Barnaby worked with tweezers made from bent pine needles and soldering irons heated by focused magnifying glass.\n\nFor three seasons, he built it: The Stone-Heart Server.\n\nIt was a monstrosity of smooth river stones, copper wire coiled like vine, and crystals pulled from the earth\u2019s deepest veins. It had no screen, only a series of blinking amber lights that pulsed with the rhythm of a resting heart. *Thump... pause... thump.*\n\nOne afternoon, Flash, the hare, bounded into Barnaby\u2019s clearing. His ears twitched with excitement, and behind him trailed a cable thick as a python, plugged into a sleek, glowing tower on his back. The tower hummed with the aggressive buzz of a thousand angry bees.\n\n\"Look at this beauty, Barnaby!\" Flash shouted, kicking up dust that coated Barnaby\u2019s shell. \"The Hyper-Velocity X-9000! It renders dreams in milliseconds! I can simulate the entire forest blooming and wilting before you can blink one eye!\"\n\nBarnaby did not blink. He was currently aligning a micro-gear no larger than a grain of sand. \"It looks loud,\" he said softly, his voice like dry leaves skittering on pavement.\n\n\"Loud? It\u2019s music! The song of speed!\" Flash laughed, tapping a claw against his rig. \"I can play four games at once while downloading the history of the universe. You should try it. I\u2019ll let you use it for ten seconds.\"\n\n\"I have my own,\" Barnaby replied, placing the final stone into place. He closed the casing with a soft *click*. The amber lights began their slow, steady pulse.\n\nFlash scoffed, adjusting his VR headset. \"Let\u2019s see what your rock does. I\u2019m going to simulate a century of racing. When it\u2019s done, I\u2019ll be halfway across the continent.\"\n\nFlash hit start. His rig screamed, fans whirring into a blur, heat radiating from his back like a furnace. He closed his eyes, lost in the digital wind, dreaming of victory laps.\n\nBarnaby sat beside his Stone-Heart Server and placed a paw on its warm casing. He did not rush. He simply waited.\n\nHours passed. The sun dipped below the horizon, painting the sky in bruises of purple and orange. Flash\u2019s rig grew hot, then hotter. The hare began to pant, his ears drooping. \"Just... one more... race...\" he wheezed. But the heat was unbearable. The cooling fans failed. With a sad *fzzt*, the Hyper-Velocity X-9000 smoked and died. Flash slumped over, exhausted by the sheer effort of processing so much data in so little time.\n\nNight fell. Stars pricked the velvet sky. Barnaby\u2019s server continued its pulse. *Thump... pause... thump.* It did not overheat. It did not demand more energy than a single dewdrop could provide. It simply calculated, bit by agonizing bit, the trajectory of every star above them.\n\nBy dawn, Flash was still asleep, dreaming of crashes and lag. Barnaby stood up, his joints creaking gently. He looked at his server. The amber lights had stopped blinking. A single green light glowed steadily.\n\nThe calculation was complete. It had taken thirty days to compute the position of the morning star. But it was done. Perfectly. Accurately. And Barnaby hadn\u2019t missed a single sunrise, nor felt a moment of burnout. He picked up his server, tucked it under his arm like a sleeping child, and began his slow walk toward the high ridge to watch the day begin, leaving the hare behind in the dust of haste.",
+      "_user": "Write a short fable about a tortoise who built a tiny computer that was slower than the hare's gaming rig but never needed to rest."
+    },
+    {
+      "turn": 3,
+      "run": 1,
+      "ctx_tokens_est": 58,
+      "new_tokens_est": 31,
+      "ttft": 1.545,
+      "gen_time": 46.978,
+      "gen_tps": 8.7,
+      "total": 48.523,
+      "output_tokens": 408,
+      "_response": "The dust hangs heavy in the slant of light,\nA gray suspension in the attic\u2019s throat,\nWhere shadows stretch their long and silent limbs\nAcross the floorboards\u2019 rotting, warped domain.\nHere lies a box of cardboard, brittle brown,\nIts corners softened by the damp decay,\nAnd tucked within, beneath a tangle of thread,\nRests one small square of fibrous white memory.\n\nIt is not digital, no pixelated ghost,\nBut chemical and silver, fixed in time\nBy light that struck it once upon a day\nWhen sun still burned with honest, golden heat.\nThe paper curls like leaves in autumn wind,\nIts edges yellowed to the color of tea,\nYet holds the image sharp against the fade:\nA woman laughing, head thrown back in joy,\nHer hair a halo caught mid-motion\u2019s blur,\nStanding beside a car of chrome and glass,\nBefore the skies turned thick with ash and wire.\n\nYou hold it now with gloves of woven silk,\nAfraid to touch the emulsion with skin,\nFor fear your oils might erase her smile,\nThe last tangible proof that we were warm.\nNo cloud can store this weight, no server farm\nCan replicate the scent of old developed labs,\nThat sharp and acrid smell of fixer bath\nWhich anchored beauty to a physical plane.\n\nShe looks at you through layers of dead time,\nHer eyes bright with a future she didn\u2019t know\nWould end in silence, screens, and empty air.\nThis is the anchor of our species\u2019 soul,\nThe final artifact of hands that made,\nNot just consumed, not just observed and scrolled,\nBut touched and held the moments as they passed.\n\nThe attic groans; a rafter shifts its weight.\nYou place it back in darkness, deep and cold,\nPreserving what is left for us to keep,\nA paper ghost, the last of its own kind.",
+      "_user": "Write a poem about the last photograph ever printed on paper, found in an attic a hundred years from now. At least 25 lines."
+    }
+  ]
+}
