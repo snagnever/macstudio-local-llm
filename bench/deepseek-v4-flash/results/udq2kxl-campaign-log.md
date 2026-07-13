@@ -72,3 +72,33 @@ the two deep points because every prompt shares the same filler prefix and
 llama-server's prompt-cache prefix reuse accumulated KV across requests. Fix:
 `cache_prompt: false` per request (now baked into the committed script). Raw:
 `bench/deepseek-v4-flash/results/udq2kxl-ctxspeed.json`.
+
+## Task 3 — cheap quality signals (2026-07-12)
+
+All three ran clean (rc=0), temp 0 / seed 42, sole-model on :1235. jdhodges 14.7
+min, Veerman 6.8 min, HumanEval 1h43m (faster than the ~3h budget).
+
+| Signal | UD-Q2_K_XL | IQ2_XS-XL baseline | Δ |
+|---|---|---|---|
+| jdhodges tool-calling (40) | **90.0%** (36/40) | 87.5% (35/40) | +2.5 |
+| Veerman tool-calling (12) | **75.0%** (9/12) | 58.3% (7/12) | **+16.7** |
+| HumanEval (100) | **95.0%** (95/100, 0 trunc) | 88.0% (88/100) | **+7.0** |
+
+**UD-Q2_K_XL beats the baseline on all three signals — a clean sweep.** The two
+big jumps (Veerman +16.7, HumanEval +7.0) are exactly where a dynamic quant should
+help: Unsloth pins sensitive layers at higher precision, and Veerman's agentic
+proactivity + HumanEval's longer-form code generation are the workloads most
+sensitive to the 2-bit quality floor that hurt the flat IQ2_XS-XL quant. HumanEval
+95% notably clears coder-next (89%) too — the best local coding result on this rig
+in that suite. Raw:
+`tools/local-llm-bench-m4-32gb/benchmarks/runs/{toolcall_jdhodges,toolcall_veerman,humaneval}_deepseek-v4-flash-udq2kxl_2026071220*`.
+
+## Task 4 — decision gate (2026-07-12): **PROCEED** ✅
+
+Gate rule: "UD ≥ baseline on ≥2 of 3 signals, none catastrophically down → proceed
+to LCB + Terminal-Bench." Result: **3 of 3 up**, two by wide margins, none down.
+The +9.7 GB memory cost is already justified on tool-calling + HumanEval alone. The
+quant is a genuine quality upgrade, not a sidegrade. Proceed to **Task 5 (LCB v6)**
+and **Task 6 (Terminal-Bench 2.0)** — and the strong HumanEval/Veerman lift makes
+those two worth the overnight/multi-hour spend. Provisional trajectory: **UPGRADE**
+(pending LCB/TBench not regressing).
