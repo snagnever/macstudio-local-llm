@@ -102,3 +102,41 @@ quant is a genuine quality upgrade, not a sidegrade. Proceed to **Task 5 (LCB v6
 and **Task 6 (Terminal-Bench 2.0)** — and the strong HumanEval/Veerman lift makes
 those two worth the overnight/multi-hour spend. Provisional trajectory: **UPGRADE**
 (pending LCB/TBench not regressing).
+
+## Task 5 — LiveCodeBench v6 (50) (2026-07-13)
+
+Ran 629 min (~10.5h), temp 0, max_tokens 32768, sole-model on :1235.
+
+- **RAW score: 56.0% (28/50)** — `livecodebench_deepseek-v4-flash-udq2kxl_20260713_084306_summary.json`.
+- **Cache-adjusted: 73.7% (28/38)** — excluding the 12 HTTP-500 empties (see below).
+
+**Failure breakdown (22 fails):** 12 HTTP-500 empties · ~5 degeneration spirals
+(TRUNC at the 32,768-token cap) · ~5 genuine wrong-answers.
+
+**The 12 empties are a runtime artifact, not the model returning blank text.** Each
+is `finish_reason='error'`, `HTTP Error 500`. Server log:
+`update_slots: decode() failed: Context size has been exceeded` + `failed to find
+free space in the KV cache ... off = 0`. Mechanism: a hard case spirals and
+generates ~32k tokens, filling the single `-np 1` slot's entire KV cache to the
+`-c 32768` ceiling; that sequence's KV **isn't evicted before the next request**,
+so the next case's fresh prefill (off=0) finds zero free cells and 500s. The
+instant (~1s) empties sit directly after spirals (Q9→Q10, Q11→Q12, Q19→Q20); the
+two slow empties (Q44 20min, Q46 50min) ground through the server's
+`1024→…→1` batch-shrink retry loop before giving up. On a clean cache several of
+those 12 would have been real attempts.
+
+**Read:** the raw 56% is ~17 pts depressed by this KV-eviction bug. Even adjusted,
+73.7% sits **below the rig LCB ceiling** (`gemma-4-26b-a4b@6bit` 80% — at 21.8 GB
+and 80 t/s). The ~5 genuine spirals are real 2-bit degeneration on hard long-form
+coding — the recurring DeepSeek-V4-Flash 2-bit story, surviving the dynamic quant.
+So **LCB is this quant's weak spot**: mediocre even discounting the artifact, and
+the artifact itself only appears because the model spirals. The baseline
+IQ2_XS-XL never finished 50 (7/50), so no true A/B — but its reported ~2–3% empty
+rate vs UD's 24% raw suggests UD may spiral more, or just drew a bad hard-case mix.
+
+**Mitigation available (not yet run):** restart-server-per-case (repo has the OOM-era
+pattern) or a per-request KV clear would remove the 12 artifact 500s and yield a
+clean ~74% model-quality read — at ~4h server-warmload overhead. Decision deferred:
+worth it only if the verdict hinges on LCB, which HumanEval 95% + tool-calling
+already outweigh. Raw:
+`tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_deepseek-v4-flash-udq2kxl_20260713_084306*`.
