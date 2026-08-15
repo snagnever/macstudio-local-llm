@@ -194,12 +194,38 @@ The 0731 *checkpoint's* quality delta is muddier: a big tool-calling gain, a
 flat agentic axis (measured off-spec), and a confounded code regression. A clean
 checkpoint read needs 0731 vs original *on the same engine* — not attempted.
 
+## Task 4b — Veerman at vendor sampling (2026-08-15)
+
+The T4 Veerman ran at temp 0; the 0731 card recommends temp 1.0 / top_p 0.95
+(agentic). Veerman is the agentic suite and 0731's headline claim, so re-ran it
+on-spec. Temp 1.0 is stochastic on 12 cases → 3 seeds. Raw jsonl confirms
+`temperature:1.0, top_p:0.95` were actually sent (the summary JSON drops top_p,
+but the request rows carry it). Made `BENCH_TEMPERATURE/TOP_P/SEED`
+env-overridable in `tool_call_bench.py`; unset → unchanged temp-0 defaults.
+
+| Run | score | veerman_hard | action | restraint |
+|---|---|---|---|---|
+| temp 0 (T4) | 75.0% (9/12) | 1/3 | 6/7 | 2/2 |
+| temp 1.0 seed 1 | 66.7% (8/12) | 1/3 | 6/7 | 1/2 |
+| temp 1.0 seed 2 | 75.0% (9/12) | 2/3 | 6/7 | 1/2 |
+| temp 1.0 seed 3 | 83.3% (10/12) | 2/3 | 6/7 | 2/2 |
+
+**Mean at temp 1.0 = 75.0%, identical to temp 0**, with a ±8.3-point spread
+(66.7–83.3) that swamps any signal. **Vendor sampling does not unstick Veerman.**
+The temp-0 measurement was not the problem — the agentic ceiling is real, and
+0731's advertised agentic gains do not show up on this suite at either sampling.
+
+Firmest signal: `veerman_action` is **6/7 in all four runs** — the same single
+case fails every time. That is a stable model limitation, not sampling noise.
+`veerman_hard` only wobbles 1–2 of 3 (within the seed spread). Closes the T4
+caveat: the flat Veerman is genuine, not a temp-0 artifact.
+
 ## Status
 
 - [x] T1 — speed probe → **PASS, 3.26×**
 - [x] T2 — memory / DSpark / context → no wired-limit tuning needed; skip DSpark; 256k default
 - [ ] T3 — context-vs-speed sweep (overlay on the llama.cpp curve, extend past 32k)
 - [x] T4 — cheap quality signals → **PASS** (jdhodges +7.5, Veerman 0, HumanEval −5, confounded)
-- [ ] T4b — Veerman + HumanEval re-run at temp 1.0 (vendor-recommended) — decision pending
+- [x] T4b — Veerman at temp 1.0 → flat (mean 75.0%, ±8.3); agentic ceiling confirmed, not a sampling artifact
 - [ ] T5 — LiveCodeBench v6 (does ds4's KV manager kill the 12 HTTP-500 artifact?)
 - [ ] T6 — Terminal-Bench 2.0
