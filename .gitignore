@@ -41,6 +41,12 @@ venvs/
 # Tracked scripts live in bench/<campaign>/scripts/, distilled results in
 # bench/<campaign>/results/ — see AGENTS.md for the tracked/ignored split.
 bench/**/logs/
+# ds4 / DwarfStar inference engine — an upstream git clone with its own history.
+# Committing it would either create a broken gitlink or vendor a third-party tree
+# into a public repo. Rebuild in 17s:
+#   git clone https://github.com/antirez/ds4 vendor/ds4 && (cd vendor/ds4 && make)
+vendor/ds4/
+
 # Metal GPU capture bundles — enormous (~90 GB; dominated by resident weights),
 # regenerable via bench/deepseek-v4-flash/scripts/metal_capture_probe.py. Never commit.
 *.gputrace/
