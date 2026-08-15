@@ -117,11 +117,89 @@ ds4-server -m <...imatrix-fixed-0731.gguf> --metal -c 262144 --host 127.0.0.1 --
 
 Non-thinking via model id `deepseek-chat`; thinking via `deepseek-v4-flash`.
 
+## Official card cross-check (2026-08-15)
+
+Everything above about thinking modes came from ds4's own `MODEL_CARD.md` and
+`--help thinking`, **not** the vendor card. Fetched
+[deepseek-ai/DeepSeek-V4-Flash-0731](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731)
+afterwards to reconcile. Three corrections:
+
+1. **The `<think>`/`</think>` marker mechanism is ds4's rendering, not the wire
+   format.** The vendor ships no Jinja template — control is a Python
+   `encoding/` folder driven by two params:
+   `encode_messages(messages, thinking_mode=..., reasoning_effort=...)`, where
+   `reasoning_effort` ∈ **low / high / max** (not ds4's "Non-think / High /
+   Max" labels). The disable levers this campaign uses (`model=deepseek-chat`,
+   `think=false`, `thinking={type:disabled}`) are **ds4-server's HTTP mapping**,
+   correct for driving ds4 but not the vendor field names — they will differ on
+   vLLM/SGLang. The `--ctx >= 393216` Max gate matches the vendor's recommended
+   384K (=384×1024) output length for high/max, so that part is consistent.
+
+2. **Sampling: every score here was taken at temp 0; the vendor recommends
+   temp 1.0** (`top_p=0.95` agentic, `1.0` otherwise). Temp 0 is defensible for
+   a deterministic A/B against the temp-0 baseline, but it is off-spec. The
+   original April checkpoint recommended temp 0.6 (per [setup
+   doc](../../../docs/models/deepseek-v4-flash/setup.md)); 0731 raised it to
+   1.0. **Open question:** Veerman stalled at 75.0% with `veerman_hard` 1/3 —
+   the exact agentic-proactivity axis 0731 was supposed to improve — and that
+   was measured at temp 0. Worth a temp-1.0 re-run before concluding 0731 did
+   not move agentic behaviour. (In thinking mode client sampling is ignored
+   anyway, per both cards, so this only bites the thinking-off benches — i.e.
+   all of ours.)
+
+3. **DSpark "not worth it" is scoped to ds4 on Metal.** The vendor documents
+   DSpark for vLLM (`num_speculative_tokens=7`) and SGLang
+   (`--speculative-algorithm DSPARK`), different engines with different
+   acceptance behaviour. The +7.5% figure is ds4's `--dspark`, not a verdict on
+   DSpark generally.
+
+## Task 4 — cheap quality signals (2026-08-15)
+
+Thinking OFF (`model=deepseek-chat`, verified 1-token `2+2` before the run),
+temp 0, sole-model on :8000. All fresh (`carried_over=0`).
+
+| Signal | 0731 + ds4 | baseline (UD-Q2_K_XL, orig ckpt) | Δ | wall clock |
+|---|---|---|---|---|
+| jdhodges (40) | **97.5%** (39/40) | 90.0% | **+7.5** | 9.6 min |
+| Veerman (12) | 75.0% (9/12) | 75.0% | **0.0** | 2.9 min |
+| HumanEval (100) | **90.0%** (90/100, 0 trunc) | 95.0% | **−5.0** | 21.4 min |
+
+**Gate (≥2 of 3 at-or-above, none catastrophically down): PASS.** jdhodges up,
+Veerman level, HumanEval down 5 — not catastrophic, but a genuine regression,
+not noise (5 problems).
+
+Reading the three:
+
+- **jdhodges 97.5%** — best tool-calling result on the rig in this suite, tying
+  `qwen3.6-35b-a3b` (98%) and the MLX/DSML peak (98%). The single miss is in
+  `multi_tool`; `tool_selection`/`argument_accuracy`/`edge_cases`/`format_compliance`
+  all 8/8. This is where 0731's post-training shows up.
+- **Veerman flat at 75.0%** — `veerman_action` 6/7, `veerman_restraint` 2/2,
+  `veerman_hard` **1/3**. The hard agentic-proactivity cases are untouched. See
+  the temp-0 caveat in the cross-check above: 0731 was *advertised* as an
+  agentic upgrade, so measuring its headline axis at off-spec temp 0 is the
+  weakest part of this campaign. **Flagged for a temp-1.0 re-run.**
+- **HumanEval 90.0% (−5.0)** — a real drop, but the comparison is **confounded**:
+  the baseline was the Unsloth `UD-Q2_K_XL` recipe on llama.cpp, this is the
+  antirez `fixed-0731` mixed 2+4-bit recipe on ds4. Checkpoint, quant recipe,
+  and runtime all changed at once, so the −5 cannot be attributed to the
+  checkpoint. 0 truncations means it is not degeneration — just 10 wrong
+  solutions vs the baseline's 5. Wall clock 21.4 min vs the baseline's 1h43m
+  (4.8×) — HumanEval's longer generations sit nearer the 3.26× decode ceiling
+  than the short tool-calling suites did.
+
+**Provisional verdict: UPGRADE on tooling, WASH on code.** The runtime win
+(3.26×, no workarounds, 256k nearly free) is unambiguous and stands on its own.
+The 0731 *checkpoint's* quality delta is muddier: a big tool-calling gain, a
+flat agentic axis (measured off-spec), and a confounded code regression. A clean
+checkpoint read needs 0731 vs original *on the same engine* — not attempted.
+
 ## Status
 
 - [x] T1 — speed probe → **PASS, 3.26×**
 - [x] T2 — memory / DSpark / context → no wired-limit tuning needed; skip DSpark; 256k default
 - [ ] T3 — context-vs-speed sweep (overlay on the llama.cpp curve, extend past 32k)
-- [ ] T4 — cheap quality signals vs 90.0 / 75.0 / 95.0
+- [x] T4 — cheap quality signals → **PASS** (jdhodges +7.5, Veerman 0, HumanEval −5, confounded)
+- [ ] T4b — Veerman + HumanEval re-run at temp 1.0 (vendor-recommended) — decision pending
 - [ ] T5 — LiveCodeBench v6 (does ds4's KV manager kill the 12 HTTP-500 artifact?)
 - [ ] T6 — Terminal-Bench 2.0
