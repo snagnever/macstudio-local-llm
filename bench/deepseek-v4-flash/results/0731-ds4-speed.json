@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-08-15T17:40:50.945324",
+  "base_url": "http://127.0.0.1:8000/v1",
+  "rss_gb": 0.1,
+  "modes": {
+    "nothink": {
+      "model": "deepseek-chat",
+      "rows": [
+        {
+          "ok": true,
+          "elapsed": 0.45,
+          "completion_tokens": 1,
+          "reasoning_tokens": 0,
+          "prompt_tokens": 23,
+          "tok_s": 2.2,
+          "content": "4",
+          "question": "trivial"
+        },
+        {
+          "ok": true,
+          "elapsed": 1.07,
+          "completion_tokens": 1,
+          "reasoning_tokens": 0,
+          "prompt_tokens": 97,
+          "tok_s": 0.9,
+          "content": "A",
+          "question": "mmlu_atmosphere"
+        },
+        {
+          "ok": true,
+          "elapsed": 1.78,
+          "completion_tokens": 39,
+          "reasoning_tokens": 0,
+          "prompt_tokens": 45,
+          "tok_s": 21.9,
+          "content": "```python\ndef second_largest(lst):\n    unique = set(lst)\n    if len(unique) < 2:\n        return None\n    return sorted(unique)[-2]\n```",
+          "question": "code_second_largest"
+        }
+      ]
+    },
+    "think_high": {
+      "model": "deepseek-v4-flash",
+      "rows": [
+        {
+          "ok": true,
+          "elapsed": 2.12,
+          "completion_tokens": 62,
+          "reasoning_tokens": 0,
+          "prompt_tokens": 23,
+          "tok_s": 29.2,
+          "content": "4",
+          "question": "trivial"
+        },
+        {
+          "ok": true,
+          "elapsed": 2.05,
+          "completion_tokens": 41,
+          "reasoning_tokens": 0,
+          "prompt_tokens": 97,
+          "tok_s": 20.0,
+          "content": "A",
+          "question": "mmlu_atmosphere"
+        },
+        {
+          "ok": true,
+          "elapsed": 9.98,
+          "completion_tokens": 325,
+          "reasoning_tokens": 0,
+          "prompt_tokens": 45,
+          "tok_s": 32.6,
+          "content": "```python\ndef second_largest(lst):\n    unique = set(lst)\n    if len(unique) < 2:\n        return None\n    return sorted(unique)[-2]\n```",
+          "question": "code_second_largest"
+        }
+      ]
+    }
+  },
+  "rss_gb_after": 0.1
+}
