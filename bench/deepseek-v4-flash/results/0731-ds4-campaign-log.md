@@ -220,11 +220,92 @@ case fails every time. That is a stable model limitation, not sampling noise.
 `veerman_hard` only wobbles 1–2 of 3 (within the seed spread). Closes the T4
 caveat: the flat Veerman is genuine, not a temp-0 artifact.
 
+## Task 3 — context-vs-speed sweep (2026-08-15)
+
+ds4-server emits no llama.cpp-style `timings` field, so
+[`ds4_0731_ctx_probe.py`](../scripts/ds4_0731_ctx_probe.py) times the client
+side via SSE streaming: TTFT ≈ prefill, `(gen−1)/(total−TTFT)` = decode,
+`prompt_tokens/TTFT` = prefill t/s (`stream_options.include_usage` recovers
+`prompt_tokens`). Each depth uses a unique filler prefix so ds4's prompt cache
+cannot inflate a deep read. Thinking OFF (`deepseek-chat`), 256 gen tokens/point.
+
+| prompt tok | prefill t/s | **decode t/s** | TTFT |
+|---|---|---|---|
+| 510 | 191 | **33.1** | 2.7 s |
+| 1,879 | 334 | 32.6 | 5.6 s |
+| 3,727 | 336 | 31.9 | 11.1 s |
+| 7,423 | 304 | 30.3 | 24.4 s |
+| 14,791 | 308 | 29.9 | 48.0 s |
+| 22,159 | 306 | 29.2 | 72.5 s |
+| 27,703 | 298 | 28.7 | 92.9 s |
+| — past what llama.cpp -c 32768 could reach — | | | |
+| 44,287 | 284 | 27.2 | 156 s |
+| 59,023 | 271 | 26.9 | 217 s |
+| 118,015 | 234 | **24.4** | **505 s** |
+
+**Overlay vs the llama.cpp baseline** (`udq2kxl-ctxspeed.json`, decode 10.9→9.4
+over 0.5k→27.7k = −13.8%):
+
+- **Decode slope is the same shape, at 3× the height.** ds4 falls 33.1→28.7 over
+  the same 0.5k→27.7k span = **−13.3%**, essentially identical to llama.cpp's
+  −13.8%. So the 3.26× runtime win is *preserved across depth*, not eroded by
+  context — ds4 is 3.0–3.1× the baseline at every overlapping point.
+- **It keeps going where llama.cpp stopped.** Still **26.9 t/s at 65k** (−19%)
+  and **24.4 t/s at 128k** (−26%) — depths the `-c 32768` config could not reach
+  at all.
+- **Prefill is consistently higher and holds better:** peaks 336 t/s at 4k vs the
+  baseline's 228 peak, and is still 271 t/s at 65k where the baseline had already
+  sagged to 146 by 28k.
+
+**The real long-context limiter is prefill *time*, not decode and not memory.**
+A 118k-token prompt takes **8.4 min to first token** (TTFT 505 s). Memory at that
+depth is a non-issue (T2: 256k KV = +3 GiB), and decode is still usable — but an
+8-minute wait before the first token is the practical ceiling for interactive
+use. This is why the 1M window is "operationally unwise" on any tier: it is a TTFT
+wall, not a RAM wall. For agentic loops with a 20k-token system prompt, budget
+~60–70 s of prefill per cold turn.
+
+## Task 4-think — the with-thinking half of the A/B (2026-08-15)
+
+Repeated the three cheap signals with thinking HIGH (`model=deepseek-v4-flash`,
+`TOOLBENCH_MAX_TOKENS=16384` so a tool call isn't truncated behind the reasoning,
+HumanEval `--max-tokens 32768`). This is the read that lines up with the vendor's
+own thinking-mode headline numbers. Max mode is out of scope — it needs
+`--ctx >= 393216`, above this 256k server.
+
+| Suite | thinking OFF | thinking HIGH | Δ | wall clock |
+|---|---|---|---|---|
+| jdhodges (40) | 97.5% (39/40) | **95.0%** (38/40) | **−2.5** | 9.6 → 10.3 min |
+| Veerman (12) | 75.0% (9/12) | 83.3% (10/12) | +8.3 | 2.9 → 3.1 min |
+| HumanEval (100) | 90.0% (90/100, 0 trunc) | 91.0% (91/100, **3 trunc**) | +1.0 | 21.4 → **106.3 min** |
+
+**Verdict: thinking does not earn its cost on these workloads. Thinking-off is
+the right default.**
+
+- **jdhodges −2.5** — reasoning *hurts* direct tool-calling. The extra loss is in
+  `multi_tool` (6/8 vs 7/8): deliberation second-guesses a clean parallel call.
+- **Veerman +8.3 is within noise, not a real gain.** T4b measured a ±8.3-point
+  seed spread on this 12-case suite, and thinking's 10/12 sits at the top of that
+  band (the temp-1.0 seeds ranged 8–10/12). `veerman_hard` 2/3 vs 1/3 is one
+  case. n=1 in thinking mode (which ignores the seed) cannot distinguish this
+  from luck. Not a demonstrated improvement.
+- **HumanEval +1.0 at 5× the wall clock**, plus 3 truncations (reasoning spirals
+  that never reached code) where thinking-off had 0. Completions ballooned
+  (~780–1260 tok vs ~150 thinking-off) — reasoning *is* engaging hard on code, it
+  just doesn't convert to correctness on HumanEval's difficulty.
+
+Why the vendor's thinking-mode gains (MMLU-Pro 86, LCB 91.6) don't show here:
+those are reasoning-heavy benchmarks (hard math, contest code). Tool-calling and
+standard HumanEval don't reward deliberation, so on this rig's cheap-signal suite
+thinking is pure tax. **Where thinking might still pay is T5 (LiveCodeBench v6)** —
+the one hard-code suite — so run T5 in *both* modes rather than assuming off.
+
 ## Status
 
 - [x] T1 — speed probe → **PASS, 3.26×**
 - [x] T2 — memory / DSpark / context → no wired-limit tuning needed; skip DSpark; 256k default
-- [ ] T3 — context-vs-speed sweep (overlay on the llama.cpp curve, extend past 32k)
+- [x] T3 — context-vs-speed sweep → decode slope matches llama.cpp at 3× height; usable to 128k; prefill *time* is the long-context limiter (8.4 min TTFT @118k)
+- [x] T4-think — with/without thinking A/B → thinking-off is the right default (jdhodges −2.5, Veerman +8.3 within noise, HumanEval +1.0 at 5× cost)
 - [x] T4 — cheap quality signals → **PASS** (jdhodges +7.5, Veerman 0, HumanEval −5, confounded)
 - [x] T4b — Veerman at temp 1.0 → flat (mean 75.0%, ±8.3); agentic ceiling confirmed, not a sampling artifact
 - [ ] T5 — LiveCodeBench v6 (does ds4's KV manager kill the 12 HTTP-500 artifact?)
