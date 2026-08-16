@@ -1,8 +1,9 @@
 # DeepSeek-V4-Flash
 
-> **Status: 🟢 GO via GGUF** (llama.cpp, standalone `llama-server`) · **MLX: 🟡 CONSTRAINED** (Metal OOM fixed by local patch, but the 2-bit DQ quant loops on open-ended generation and every LM Studio-native path is blocked) · **⚫ 4-bit variant REMOVED 2026-05-18** (151 GB — never loaded; exceeded 128 GB unified memory).
-> The long arc on this rig: three runtime bugs diagnosed and fixed/dodged (mlx-lm Metal residency leak, missing tool template, llama.cpp repack abort) before the model could show what it actually is — a capable non-thinking tool-caller/coder at 2-bit.
-> Last updated: 2026-07-05
+> **Status: 🟢 GO via ds4 (DwarfStar)** — antirez's dedicated C+Metal engine is now the recommended runtime for the **0731** checkpoint: **3.26× llama.cpp** (33.6 vs 10.3 t/s), builds clean with no patches, no `--no-repack`/`-np 1`/version-pin workarounds, and its own KV manager **eliminates the LCB HTTP-500 eviction bug** (0/50 vs llama.cpp's 12/50). · **llama.cpp GGUF: 🟡 SUPERSEDED** (still works — the 2026-07-05 GO path — but slower and artifact-prone). · **MLX: ⚫ DEAD** (arch PR #1192 closed unmerged; 2-bit DQ loops). · **4-bit: ⚫ won't fit** (155 GB > 128 GB).
+> **Quality verdict (0731, ds4, 2-bit):** a capable long-context tool-caller/coder, but **on this rig's coding+tool suites it is matched or beaten by `gemma-4-26b-a4b@6bit` at ¼ the memory and 2.4× the speed** (LCB 78 vs 80, HumanEval 90 vs 97, jdhodges tie). Its one unique win is **context**: 256k costs +3 GiB and holds >24 t/s to 128k — no other rig model comes close. Thinking-off is the right default for tool-calling/HumanEval; thinking only plausibly pays on hard code (LCB). Knowledge benches (MMLU/MATH/GPQA/DROP) not yet run for 0731 — the open question is whether the 284B buys knowledge the 26B lacks.
+> Full campaign: [bench/deepseek-v4-flash/results/0731-ds4-campaign-log.md](../../../bench/deepseek-v4-flash/results/0731-ds4-campaign-log.md) (T1–T5, 2026-08-15/16).
+> Last updated: 2026-08-16
 
 ## At a glance (official)
 
