@@ -300,12 +300,56 @@ standard HumanEval don't reward deliberation, so on this rig's cheap-signal suit
 thinking is pure tax. **Where thinking might still pay is T5 (LiveCodeBench v6)** —
 the one hard-code suite — so run T5 in *both* modes rather than assuming off.
 
+## Task 5 — LiveCodeBench v6 (50), thinking HIGH (2026-08-16)
+
+Ran 234 min (3.9h), thinking HIGH (`deepseek-v4-flash`), max_tokens 32768.
+
+- **RAW score: 78.0% (39/50) — and it is a CLEAN 50: 0 HTTP-500, 0 runtime
+  artifacts.** The 11 misses are 6 truncations (reasoning spiralled past the 32k
+  cap before finishing code, scored FAIL) + 5 genuine wrong answers.
+
+**The KV-eviction bug is gone.** The runner's post-hoc check found **0 error/500
+of 50**, against the baseline's **12/50**. The llama.cpp failure mode — a
+spiralled case fills the single `-np 1` slot's KV to the `-c` ceiling and the
+next case's prefill finds no free cells → HTTP-500 — simply does not occur: ds4
+manages its own KV and evicts between requests. **This is the first trustworthy
+LCB read for this model on this rig** — no cache-adjustment asterisk needed.
+
+Against the baseline (UD-Q2_K_XL, thinking-off, llama.cpp):
+
+| | baseline raw | baseline cache-adj | **0731+ds4 think** |
+|---|---|---|---|
+| score | 56.0% (28/50) | 73.7% (28/38) | **78.0% (39/50)** |
+| HTTP-500 empties | 12 | (excluded) | **0** |
+| clean 50? | no | no | **yes** |
+
++22 pts over the baseline's raw 56%, +4.3 over its cache-adjusted 73.7% — and
+unlike both, this is a full clean 50. The comparison still changes four things at
+once (checkpoint + quant + runtime + thinking), so it is not a controlled
+checkpoint read, but the **runtime half is now proven**: the artifact that
+depressed every prior LCB number is eliminated.
+
+**Thinking's cost on LCB: 6 truncations.** Token spread across the 50 cases:
+median 3,016, mean 8,416, max 32,768 (the cap). Thinking-off never truncated on
+HumanEval; here 6 hard cases reasoned past 32k before emitting complete code.
+That is the real price of thinking on hard code — a raised cap or a reasoning
+budget would recover some of those 6.
+
+**Whether thinking *helped* LCB is still open** — this run has no thinking-off
+0731+ds4 counterpart, only the confounded llama.cpp baseline. T4-think showed
+thinking loses on tool-calling and is flat on HumanEval; LCB is the one suite
+where it plausibly pays, so **T5b (LCB thinking-off, same engine) is the clean
+isolation** and the natural next run.
+
 ## Status
 
 - [x] T1 — speed probe → **PASS, 3.26×**
 - [x] T2 — memory / DSpark / context → no wired-limit tuning needed; skip DSpark; 256k default
 - [x] T3 — context-vs-speed sweep → decode slope matches llama.cpp at 3× height; usable to 128k; prefill *time* is the long-context limiter (8.4 min TTFT @118k)
 - [x] T4-think — with/without thinking A/B → thinking-off is the right default (jdhodges −2.5, Veerman +8.3 within noise, HumanEval +1.0 at 5× cost)
+- [x] T5 — LCB v6 thinking HIGH → **78.0% clean 50, 0 HTTP-500** (baseline had 12); ds4 KV manager kills the eviction bug. 6 truncations = thinking's cost on hard code.
+- [ ] T5b — LCB v6 thinking-OFF, same engine → isolate whether thinking helps on the one hard-code suite
+- [ ] T6 — Terminal-Bench 2.0
 - [x] T4 — cheap quality signals → **PASS** (jdhodges +7.5, Veerman 0, HumanEval −5, confounded)
 - [x] T4b — Veerman at temp 1.0 → flat (mean 75.0%, ±8.3); agentic ceiling confirmed, not a sampling artifact
 - [ ] T5 — LiveCodeBench v6 (does ds4's KV manager kill the 12 HTTP-500 artifact?)
