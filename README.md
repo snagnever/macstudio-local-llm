@@ -58,6 +58,18 @@ cd macstudio-local-llm
 git submodule update --init --recursive
 ```
 
+## Secret scanning
+
+This repository is public. A `pre-commit` hook runs `gitleaks` and blocks any
+commit that contains a secret. Install the hook once after cloning:
+
+```bash
+brew install gitleaks pre-commit
+pre-commit install
+```
+
+GitHub Actions repeats the scan on every push as a safety net.
+
 ## Running a benchmark
 
 **Knowledge + tool-calling (the M4 Max fork):**
