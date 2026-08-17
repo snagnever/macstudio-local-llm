@@ -1,0 +1,19 @@
+# Config do gitleaks. Estende as regras padrão e isenta falsos-positivos
+# conhecidos: identificadores de modelo de ML (não são segredos) e o writeup
+# sobre vazamento de "channel token" de modelo.
+title = "gitleaks config — local-llms"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Falsos-positivos conhecidos (identificadores de modelo de ML, não segredos)"
+# `qwen3.6-35b-a3b-mtp` é o nome do modelo passado em KEY=/MODEL_KEY= nos
+# scripts de bench; a regra generic-api-key o marca por entropia.
+regexes = [
+  '''qwen3\.6-35b-a3b-mtp''',
+]
+paths = [
+  '''fixes/.*/tokenizer_config\.json''',
+  '''docs/models/.*/channel-token-leak-writeup\.md''',
+]
