@@ -40,7 +40,7 @@ class MetricsTests(unittest.TestCase):
                 "memory": {"ram_usage": 64_000_000_000, "swap_usage": 500_000_000},
                 "gpu_usage": ["GPU", 0.75],
                 "all_power": 42.5,
-                "gpu_temp": 48.25,
+                "temp": {"cpu_temp_avg": 44.0, "gpu_temp_avg": 48.25},
             }
         )
 

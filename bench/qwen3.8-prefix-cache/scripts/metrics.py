@@ -26,11 +26,12 @@ def metric_delta(
 def parse_macmon(line: str) -> dict[str, Any]:
     sample = json.loads(line)
     memory = sample.get("memory", {})
+    temperature = sample.get("temp", {})
     gpu_usage = sample.get("gpu_usage", [None, 0])
     return {
         "ram_gb": memory.get("ram_usage", 0) / 1e9,
         "swap_gb": memory.get("swap_usage", 0) / 1e9,
         "gpu_pct": float(gpu_usage[1]) * 100 if len(gpu_usage) > 1 else 0.0,
         "power_w": float(sample.get("all_power", 0.0)),
-        "gpu_temp_c": float(sample.get("gpu_temp", 0.0)),
+        "gpu_temp_c": float(temperature.get("gpu_temp_avg", 0.0)),
     }
