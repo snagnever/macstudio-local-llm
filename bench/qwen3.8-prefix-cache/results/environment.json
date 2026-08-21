@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-08-21T23:08:00Z",
-  "campaign_source_revision": "3795ad379027bef0c4a96e77aef14c1b4596f582",
+  "captured_at": "2026-08-21T23:51:49Z",
+  "campaign_source_revision": "0f8c47d",
   "host": {
     "role": "rig",
     "hostname_class": "macstudio",
@@ -50,8 +50,8 @@
     "mlx8": {
       "id": "ddalcu/Qwen3.8-27B-MLX-Serve-8bit",
       "revision": "011e38296b3d2aa99245ed49a700459c4ac246b6",
-      "local_artifact_sha256": null,
-      "status": "not_downloaded"
+      "artifact_manifest": "bench/qwen3.8-prefix-cache/results/artifacts.json",
+      "status": "downloaded_and_hashed"
     },
     "gguf": {
       "id": "unsloth/Qwen3.8-27B-GGUF",
@@ -61,14 +61,26 @@
         "UD-Q6_K_XL",
         "UD-Q8_K_XL"
       ],
-      "local_artifact_sha256": null,
-      "status": "not_downloaded"
+      "artifacts": {
+        "UD-Q4_K_XL": {
+          "sha256": "3f227079003add2511437e5b1e94812e363385225bf6a9b47b0054a72bc8b01e",
+          "status": "downloaded_and_hashed"
+        },
+        "MTP_Q4_0": {
+          "sha256": "50d9ce5a6da381bbcfb31061cf73df94a90e6faf8efeddee379a9cb8f1501c6e",
+          "status": "downloaded_and_hashed"
+        },
+        "UD-Q6_K_XL": {"status": "pending_post_gate"},
+        "UD-Q8_K_XL": {"status": "pending_post_gate"}
+      },
+      "artifact_manifest": "bench/qwen3.8-prefix-cache/results/artifacts.json",
+      "status": "smoke_set_ready"
     }
   },
   "preflight": {
     "common_dependencies": "pass",
     "rig_commands": "pass",
     "metal_access": "pass outside sandbox",
-    "model_artifacts": "pending"
+    "model_artifacts": "smoke_set_ready"
   }
 }

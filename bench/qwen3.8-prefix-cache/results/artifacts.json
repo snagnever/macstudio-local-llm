@@ -1,0 +1,133 @@
+{
+  "generated_at": "2026-08-21T23:51:49.996450+00:00",
+  "models": [
+    {
+      "files": [
+        {
+          "path": ".gitattributes",
+          "sha256": "34448b82c17d60fec9b65b1f093c115ddbaadc04beb1b0140b6bfed2e012a930",
+          "size_bytes": 1570
+        },
+        {
+          "path": "LICENSE",
+          "sha256": "bbedc3fda3305820b977265f01b8619d87570a6739de3a5582c3464840f1e57a",
+          "size_bytes": 11544
+        },
+        {
+          "path": "README.md",
+          "sha256": "7d51e8c8b42a369982da22832bfc7c6643cda48112521d639d0651bf20489dc7",
+          "size_bytes": 5225
+        },
+        {
+          "path": "chat_template.jinja",
+          "sha256": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041",
+          "size_bytes": 8952
+        },
+        {
+          "path": "config.json",
+          "sha256": "b49a20cb4489c3290339c03256e75974c65bbd4d34bd2dbec5c293eb6f4e0b62",
+          "size_bytes": 3809
+        },
+        {
+          "path": "generation_config.json",
+          "sha256": "e70c136c1b78ddc1fb0905bac8e733a4dc448d4f852a5dd75143fffc70be550e",
+          "size_bytes": 202
+        },
+        {
+          "path": "merges.txt",
+          "sha256": "a9d356d7bdf1ef4949e3e748e95b8e10ad9d4e2e838eddc38a0a7b6b94d1db8d",
+          "size_bytes": 3353259
+        },
+        {
+          "path": "model-00001.safetensors",
+          "sha256": "0db4119aaf3269f01e629fe67738632f0a44dc5433f84d5677ca2745e6afd65d",
+          "size_bytes": 6699043279
+        },
+        {
+          "path": "model-00002.safetensors",
+          "sha256": "f8a67e1febc7e793e55ac28825fbe34aa671a53211212eb53e59fa57add55f10",
+          "size_bytes": 5382572517
+        },
+        {
+          "path": "model-00003.safetensors",
+          "sha256": "98e5719bc628c9dd5311987120a92d3e9f2cda5604ed071d3a61a5ccb970a6d2",
+          "size_bytes": 5448802532
+        },
+        {
+          "path": "model-00004.safetensors",
+          "sha256": "364692d97424074dd7c9679fe2a78fab1a2ac3cab4fd1d84c2e26a4e93fe7b38",
+          "size_bytes": 5398689427
+        },
+        {
+          "path": "model-00005.safetensors",
+          "sha256": "cd1e82cf3a9137e97ba12b3148c6f95dfca6cc194e81d4a981bee1fe2910c24c",
+          "size_bytes": 5420960896
+        },
+        {
+          "path": "model-00006.safetensors",
+          "sha256": "620dc8ebf9b5e2033abfbad38e65d11b22181e1e870404407be659aef6fd0435",
+          "size_bytes": 2843508924
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "sha256": "6e881f186eed7449477622a4cce4e94979b5d87827a9ad773feb2eb199bc0f98",
+          "size_bytes": 192192
+        },
+        {
+          "path": "preprocessor_config.json",
+          "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+          "size_bytes": 390
+        },
+        {
+          "path": "tokenizer.json",
+          "sha256": "0997f410c57a1f4e53b09e4be8f4a172d90edd9564368fb0847030937229b9f3",
+          "size_bytes": 12809320
+        },
+        {
+          "path": "tokenizer_config.json",
+          "sha256": "b11349aafa7cdc6a320767cf7ceb29ed82f7eda5d65e8e0819e76f0ce947bf27",
+          "size_bytes": 17928
+        },
+        {
+          "path": "video_preprocessor_config.json",
+          "sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+          "size_bytes": 385
+        },
+        {
+          "path": "vocab.json",
+          "sha256": "ce99b4cb2983d118806ce0a8b777a35b093e2000a503ebde25853284c9dfa003",
+          "size_bytes": 6722759
+        }
+      ],
+      "model_id": "ddalcu/Qwen3.8-27B-MLX-Serve-8bit",
+      "revision": "011e38296b3d2aa99245ed49a700459c4ac246b6"
+    },
+    {
+      "files": [
+        {
+          "path": "MTP/mtp-Qwen3.8-27B-Q4_0.gguf",
+          "sha256": "50d9ce5a6da381bbcfb31061cf73df94a90e6faf8efeddee379a9cb8f1501c6e",
+          "size_bytes": 1369590656
+        },
+        {
+          "path": "Qwen3.8-27B-UD-Q4_K_XL.gguf",
+          "sha256": "3f227079003add2511437e5b1e94812e363385225bf6a9b47b0054a72bc8b01e",
+          "size_bytes": 17559178144
+        },
+        {
+          "path": "README.md",
+          "sha256": "66088b22a4db15353288f45a570279f76d7d8b7f349a64dd28698b867c9bd2bb",
+          "size_bytes": 7455
+        },
+        {
+          "path": "config.json",
+          "sha256": "45d9009888b40b71af58ac82f7151393c113b4eabb870ca3c3bbd237667d18cc",
+          "size_bytes": 3760
+        }
+      ],
+      "model_id": "unsloth/Qwen3.8-27B-GGUF",
+      "revision": "4ca720788d1e01f1bff70c033e0d0028fd02e502"
+    }
+  ],
+  "schema_version": 1
+}
