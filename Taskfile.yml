@@ -1,0 +1,5 @@
+version: "3"
+
+includes:
+  qwen38:
+    taskfile: ./bench/qwen3.8-prefix-cache/Taskfile.yml

@@ -1,0 +1,114 @@
+version: "3"
+
+vars:
+  ROOT: "{{.TASKFILE_DIR}}/../.."
+  CAMPAIGN: "{{.ROOT}}/bench/qwen3.8-prefix-cache"
+
+tasks:
+  deps:common:
+    desc: Check common campaign dependencies
+    dir: "{{.ROOT}}"
+    preconditions:
+      - {sh: "command -v python3", msg: "Install Python 3.9 or newer."}
+      - {sh: "command -v curl", msg: "Install curl."}
+      - {sh: "command -v jq", msg: "Install jq with: brew install jq"}
+      - {sh: "command -v git", msg: "Install Git."}
+    cmds:
+      - python3 -c 'import sys; assert sys.version_info >= (3, 9), sys.version'
+
+  deps:rig:
+    desc: Check Mac Studio runtime dependencies
+    deps: [deps:common]
+    preconditions:
+      - {sh: "command -v macmon", msg: "Install macmon with: brew install macmon"}
+      - {sh: "command -v mlx-serve", msg: "Install the pinned mlx-serve release."}
+      - {sh: "command -v llama-server", msg: "Install the pinned llama.cpp release."}
+
+  deps:driver:
+    desc: Check MacBook Pro driver dependencies
+    deps: [deps:common]
+    preconditions:
+      - {sh: "command -v docker", msg: "Install Docker Desktop."}
+      - {sh: "command -v harbor", msg: "Install Harbor 0.8.0."}
+
+  unit:
+    desc: Run campaign unit tests
+    deps: [deps:common]
+    dir: "{{.ROOT}}"
+    cmds:
+      - python3 -m unittest discover -s bench/qwen3.8-prefix-cache/tests -v
+      - bash bench/qwen3.8-prefix-cache/tests/test_launchers.sh
+
+  docs:check:
+    desc: Check campaign Markdown and whitespace
+    deps: [deps:common]
+    dir: "{{.ROOT}}"
+    cmds:
+      - git diff --check
+
+  validate:
+    desc: Run all local campaign checks
+    deps: [unit, docs:check]
+
+  smoke:
+    desc: Run the 8K runtime smoke stage on the rig
+    deps: [deps:rig, unit]
+    dir: "{{.ROOT}}"
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh smoke
+
+  cache:32k:
+    desc: Run 32K cache-only arms on the rig
+    deps: [deps:rig, unit]
+    dir: "{{.ROOT}}"
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh cache-32k
+
+  mtp:32k:
+    desc: Run 32K MTP arms on the rig
+    deps: [deps:rig, unit]
+    dir: "{{.ROOT}}"
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh mtp-32k
+
+  cache:65k:
+    desc: Run approved arms at 65K on the rig
+    deps: [deps:rig, unit]
+    dir: "{{.ROOT}}"
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh cache-65k
+
+  tool-loop:
+    desc: Run the controlled 20-turn tool loop on the rig
+    deps: [deps:rig, unit]
+    dir: "{{.ROOT}}"
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh tool-loop
+
+  summary:
+    desc: Regenerate the campaign summary
+    deps: [deps:common, unit]
+    dir: "{{.ROOT}}"
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh summary
+
+  quality:
+    desc: Run the common cheap-quality screen on every survivor
+    deps: [deps:rig, unit]
+    dir: "{{.ROOT}}"
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-quality-screen.sh
+
+  native-context:
+    desc: Smoke-test the selected winner at 262K context
+    deps: [deps:rig, unit]
+    dir: "{{.ROOT}}"
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh native-262k
+
+  tbench:
+    desc: Run Terminal-Bench from the driver
+    deps: [deps:driver]
+    dir: "{{.ROOT}}"
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-tbench-qwen38-REMOTE.sh
