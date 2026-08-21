@@ -12,12 +12,13 @@ REPEATS="${QWEN38_REPEATS:-3}"
 INTER_RUN_SECONDS="${QWEN38_INTER_RUN_SECONDS:-45}"
 
 MLX_RUNTIME_REVISION="${QWEN38_MLX_RUNTIME_REVISION:-v26.8.9}"
-LLAMA_RUNTIME_REVISION="${QWEN38_LLAMA_RUNTIME_REVISION:-5a32f7b66ef6cfb3e60deea26e3454cc6ad3438c}"
+LLAMA_RUNTIME_REVISION="${QWEN38_LLAMA_RUNTIME_REVISION:-v0.2.0/b10566@bb4caa7540188872173c44d161602d9271386413}"
 MLX_MODEL_REVISION="${QWEN38_MLX_MODEL_REVISION:-011e38296b3d2aa99245ed49a700459c4ac246b6}"
 UNSLOTH_MODEL_REVISION="${QWEN38_UNSLOTH_MODEL_REVISION:-4ca720788d1e01f1bff70c033e0d0028fd02e502}"
 
 ACTIVE_PID=""
 MACMON_PID=""
+MACMON_LOG=""
 
 usage() {
   cat >&2 <<'EOF'
@@ -110,17 +111,23 @@ start_runtime() {
   local log_file="$3"
 
   echo "+ QWEN38_CTX_SIZE=$context bash $LAUNCHER $arm"
-  QWEN38_CTX_SIZE="$context" bash "$LAUNCHER" "$arm" >"$log_file" 2>&1 &
-  ACTIVE_PID=$!
-
   if command -v macmon >/dev/null; then
-    macmon pipe >"${log_file%.log}-macmon.jsonl" 2>&1 &
+    MACMON_LOG="${log_file%.log}-macmon.jsonl"
+    macmon pipe >"$MACMON_LOG" 2>&1 &
     MACMON_PID=$!
   fi
+  QWEN38_CTX_SIZE="$context" bash "$LAUNCHER" "$arm" >"$log_file" 2>&1 &
+  ACTIVE_PID=$!
 }
 
-stop_runtime() {
+finish_runtime() {
+  local results_file="$1"
+  local session_id="$2"
   cleanup
+  python3 "$SCRIPTS/enrich_telemetry.py" \
+    --results "$results_file" \
+    --telemetry "$MACMON_LOG" \
+    --session-id "$session_id"
   if [[ "$INTER_RUN_SECONDS" != "0" ]]; then
     sleep "$INTER_RUN_SECONDS"
   fi
@@ -153,6 +160,7 @@ run_cache_arm() {
   local stamp
   stamp="$(date -u +%Y%m%dT%H%M%SZ)"
   local runtime_log="$LOGS/${stamp}-${arm}-${context}-runtime.log"
+  local session_id="${stamp}-${arm}-${context}-cache"
   start_runtime "$arm" "$context" "$runtime_log"
   wait_for_server "http://127.0.0.1:${PORT}/v1"
 
@@ -164,6 +172,7 @@ run_cache_arm() {
     --runtime-revision "$RUNTIME_REVISION"
     --model-revision "$MODEL_REVISION"
     --arm "$arm"
+    --session-id "$session_id"
     --context "$context"
     --repeat "$REPEATS"
     --output "$RESULTS/cache-probe.jsonl"
@@ -180,7 +189,7 @@ run_cache_arm() {
   "${PROBE_COMMAND[@]}"
 
   validate_mtp_log "$arm" "$runtime_log"
-  stop_runtime
+  finish_runtime "$RESULTS/cache-probe.jsonl" "$session_id"
 }
 
 run_tool_arm() {
@@ -196,6 +205,7 @@ run_tool_arm() {
   local stamp
   stamp="$(date -u +%Y%m%dT%H%M%SZ)"
   local runtime_log="$LOGS/${stamp}-${arm}-tool-loop-runtime.log"
+  local session_id="${stamp}-${arm}-tool-loop"
   start_runtime "$arm" 65536 "$runtime_log"
   wait_for_server "http://127.0.0.1:${PORT}/v1"
 
@@ -207,6 +217,7 @@ run_tool_arm() {
     --runtime-revision "$RUNTIME_REVISION"
     --model-revision "$MODEL_REVISION"
     --arm "$arm"
+    --session-id "$session_id"
     --output "$RESULTS/tool-loop.jsonl"
     --metrics-url "http://127.0.0.1:${PORT}/metrics"
   )
@@ -221,7 +232,7 @@ run_tool_arm() {
   "${TOOL_COMMAND[@]}"
 
   validate_mtp_log "$arm" "$runtime_log"
-  stop_runtime
+  finish_runtime "$RESULTS/tool-loop.jsonl" "$session_id"
 }
 
 summarize() {

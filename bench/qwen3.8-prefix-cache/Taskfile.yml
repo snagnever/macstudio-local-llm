@@ -49,6 +49,22 @@ tasks:
     cmds:
       - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh smoke
 
+  models:smoke:
+    desc: Download and hash pinned MLX/Q4/MTP smoke artifacts
+    deps: [deps:common]
+    preconditions:
+      - {sh: "command -v uvx", msg: "Install uv with: brew install uv"}
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/download-models.sh smoke
+
+  models:all:
+    desc: Download and hash all pinned campaign artifacts
+    deps: [deps:common]
+    preconditions:
+      - {sh: "command -v uvx", msg: "Install uv with: brew install uv"}
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/download-models.sh all
+
   cache:32k:
     desc: Run 32K cache-only arms on the rig
     deps: [deps:rig, unit]

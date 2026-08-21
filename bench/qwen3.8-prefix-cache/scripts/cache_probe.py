@@ -227,6 +227,7 @@ def _record(
             f"{now.strftime('%Y%m%dT%H%M%SZ')}-{args.arm}-"
             f"{args.context}-{scenario}-r{repeat}"
         ),
+        "session_id": args.session_id,
         "runtime": args.runtime,
         "runtime_revision": args.runtime_revision,
         "model_id": args.model,
@@ -248,10 +249,10 @@ def _record(
             metrics_before, metrics_after
         ),
         "correct": expected_needle in result.text,
-        "ram_peak_gb": 0.0,
-        "swap_delta_gb": 0.0,
-        "gpu_temp_start_c": 0.0,
-        "gpu_temp_peak_c": 0.0,
+        "ram_peak_gb": None,
+        "swap_delta_gb": None,
+        "gpu_temp_start_c": None,
+        "gpu_temp_peak_c": None,
         "fixture_token_hash": fixture_hash,
         "error": None,
     }
@@ -267,6 +268,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--runtime-revision", required=True)
     parser.add_argument("--model-revision", required=True)
     parser.add_argument("--arm", required=True)
+    parser.add_argument("--session-id", required=True)
     parser.add_argument("--context", required=True, type=int)
     parser.add_argument("--repeat", type=int, default=3)
     parser.add_argument("--cache-enabled", action="store_true")

@@ -249,6 +249,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--runtime-revision", required=True)
     parser.add_argument("--model-revision", required=True)
     parser.add_argument("--arm", required=True)
+    parser.add_argument("--session-id", required=True)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--metrics-url")
     parser.add_argument("--turns", type=int, default=20)
@@ -337,11 +338,13 @@ def main() -> int:
                 "schema_version": 1,
                 "record_type": "tool_turn",
                 "run_id": datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"),
+                "session_id": args.session_id,
                 "runtime": args.runtime,
                 "runtime_revision": args.runtime_revision,
                 "model_id": args.model,
                 "model_revision": args.model_revision,
                 "arm": args.arm,
+                "context_target": 65536,
                 "cache_enabled": args.cache_enabled,
                 "mtp_enabled": args.mtp_enabled,
                 "turn": turn,
@@ -356,6 +359,10 @@ def main() -> int:
                 "response_empty": response_empty,
                 "correct": correct,
                 "metrics_available": bool(before),
+                "ram_peak_gb": None,
+                "swap_delta_gb": None,
+                "gpu_temp_start_c": None,
+                "gpu_temp_peak_c": None,
                 "error": error,
             }
             _write_record(output, record)
@@ -388,9 +395,17 @@ def main() -> int:
         verdict = {
             "schema_version": 1,
             "record_type": "verdict",
+            "session_id": args.session_id,
             "runtime": args.runtime,
+            "runtime_revision": args.runtime_revision,
             "model_id": args.model,
+            "model_revision": args.model_revision,
             "arm": args.arm,
+            "context_target": 65536,
+            "ram_peak_gb": None,
+            "swap_delta_gb": None,
+            "gpu_temp_start_c": None,
+            "gpu_temp_peak_c": None,
             "turns_requested": args.turns,
             "tools_seen": sorted(seen_tools),
             "missing_tools": missing_tools,
