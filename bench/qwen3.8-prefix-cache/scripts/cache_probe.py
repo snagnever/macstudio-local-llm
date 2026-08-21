@@ -26,6 +26,13 @@ NEEDLE_QUESTION = (
 )
 
 
+def fixture_token_target(context_size: int) -> int:
+    """Reserve room for the chat template and the bounded diagnostic output."""
+    if context_size <= 512:
+        raise ValueError("context size must exceed the 512-token request reserve")
+    return context_size - 512
+
+
 def cache_hit_ratio(cached_tokens: int, prompt_tokens: int) -> float:
     if prompt_tokens <= 0:
         return 0.0
@@ -190,6 +197,7 @@ def _payload(model: str, messages: list[dict[str, Any]]) -> dict[str, Any]:
         "messages": messages,
         "max_tokens": 64,
         "temperature": 0,
+        "reasoning_effort": "xhigh",
     }
 
 
@@ -281,7 +289,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> int:
     args = build_parser().parse_args()
     tokenizer = RuntimeTokenizer(args.base_url, args.model)
-    fixture = build_fixture(args.context, tokenizer)
+    fixture = build_fixture(fixture_token_target(args.context), tokenizer)
     fixture_hash = sha256_tokens(fixture.token_ids)
     suffix = f"Tool result confirms {fixture.needles[0]}. {NEEDLE_QUESTION}"
     args.output.parent.mkdir(parents=True, exist_ok=True)
