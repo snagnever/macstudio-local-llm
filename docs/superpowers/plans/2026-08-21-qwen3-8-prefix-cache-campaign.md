@@ -17,8 +17,9 @@
 - Use um runtime por vez.
 - Use concorrência igual a 1.
 - Use contextos de 8.192, 32.768 e 65.536 tokens.
-- Mantenha `preserve_thinking=true` e `reasoning_effort=medium`.
-- Deixe PLD desligado durante o diagnóstico.
+- Mantenha `preserve_thinking=true` e `reasoning_effort=xhigh` nos braços canônicos.
+- Use `reasoning_effort=medium` somente em ablação identificada.
+- Preserve os defaults do vendor nos braços canônicos; desligue PLD somente nos controles diagnósticos.
 - Deixe KV quantization desligada na fase inicial.
 - Salve resultados destilados em `bench/qwen3.8-prefix-cache/results/`.
 - Salve logs brutos em `bench/qwen3.8-prefix-cache/logs/`.
@@ -48,6 +49,7 @@
 | `bench/qwen3.8-prefix-cache/results/cache-probe.jsonl` | Medições do cache |
 | `bench/qwen3.8-prefix-cache/results/tool-loop.jsonl` | Medições do loop agentic |
 | `bench/qwen3.8-prefix-cache/results/summary.md` | Resultado destilado e gates |
+| `bench/qwen3.8-prefix-cache/results/runtime-survivors.json` | Braços aprovados nos gates funcionais |
 | `bench/qwen3.8-prefix-cache/results/selection.json` | Runtime, modelo, porta e braço vencedores |
 | `docs/models/qwen3.8-27b/README.md` | Card final do modelo no rig |
 
@@ -956,7 +958,7 @@ git commit -m "bench(qwen3.8): add controlled agent tool loop"
 - Create: `bench/qwen3.8-prefix-cache/tests/test_launchers.sh`
 
 **Interfaces:**
-- Consumes: arm name `A` through `F` and an optional `--print` argument.
+- Consumes: arm name `A` through `H` and an optional `--print` argument.
 - Produces: one server process with flags fixed by the campaign spec.
 
 - [ ] **Step 1: Write launcher validation**
@@ -971,15 +973,25 @@ SCRIPTS="$ROOT/bench/qwen3.8-prefix-cache/scripts"
 bash -n "$SCRIPTS/run-mlx-serve.sh"
 bash -n "$SCRIPTS/run-llama-cpp.sh"
 
+MLX_A="$(bash "$SCRIPTS/run-mlx-serve.sh" A --print)"
 MLX_B="$(bash "$SCRIPTS/run-mlx-serve.sh" B --print)"
 MLX_C="$(bash "$SCRIPTS/run-mlx-serve.sh" C --print)"
+GGUF_D="$(bash "$SCRIPTS/run-llama-cpp.sh" D --print)"
 GGUF_E="$(bash "$SCRIPTS/run-llama-cpp.sh" E --print)"
 GGUF_F="$(bash "$SCRIPTS/run-llama-cpp.sh" F --print)"
+GGUF_G="$(bash "$SCRIPTS/run-llama-cpp.sh" G --print)"
+GGUF_H="$(bash "$SCRIPTS/run-llama-cpp.sh" H --print)"
 
+grep -q -- '--prefix-cache-entries 0' <<<"$MLX_A"
 grep -q -- '--no-mtp' <<<"$MLX_B"
-grep -q -- '--mtp-depth 3' <<<"$MLX_C"
-grep -q -- '--cache-ram 16384' <<<"$GGUF_E"
+! grep -q -- '--no-mtp' <<<"$MLX_C"
+! grep -q -- '--mtp-depth' <<<"$MLX_C"
+grep -q -- 'UD-Q4_K_XL' <<<"$GGUF_D"
+grep -q -- '--no-cache-prompt' <<<"$GGUF_D"
+! grep -q -- '--spec-type' <<<"$GGUF_E"
 grep -q -- '--spec-type draft-mtp' <<<"$GGUF_F"
+grep -q -- 'UD-Q6_K_XL' <<<"$GGUF_G"
+grep -q -- 'UD-Q8_K_XL' <<<"$GGUF_H"
 ```
 
 - [ ] **Step 2: Run launcher validation and verify failure**
@@ -997,9 +1009,9 @@ Expected: FAIL because the launchers do not exist.
 Use a shell array. Map arms exactly:
 
 ```text
-A: prefix-cache-entries=0, no-mtp
-B: prefix-cache-entries=4, no-mtp
-C: prefix-cache-entries=4, mtp, mtp-depth=3
+A: prefix-cache-entries=0, no-mtp, no-pld
+B: cache default, no-mtp, no-pld
+C: defaults do vendor para cache, MTP, PLD e profundidade especulativa
 ```
 
 Always include these options:
@@ -1010,12 +1022,6 @@ Always include these options:
 --host 0.0.0.0
 --port 11234
 --ctx-size 65536
---prefix-cache-mem 16GB
---tokenize-cache-entries 16
---prefill-chunk 8192
---kv-quant off
---max-concurrent 1
---no-pld
 --metrics
 ```
 
@@ -1026,12 +1032,15 @@ Print the shell-escaped command and exit when the second argument is `--print`.
 Map arms exactly:
 
 ```text
-D: --no-cache-prompt without draft-mtp
-E: --cache-prompt without draft-mtp
-F: --cache-prompt with draft-mtp depth 3
+D: UD-Q4_K_XL, --no-cache-prompt, sem draft-mtp
+E: UD-Q4_K_XL, defaults do runtime, sem draft-mtp
+F: UD-Q4_K_XL, defaults do runtime, draft-mtp depth 3
+G: UD-Q6_K_XL, defaults do runtime, draft-mtp depth 3
+H: UD-Q8_K_XL, defaults do runtime, draft-mtp depth 3
 ```
 
 Use the base command from `bench/qwen3.8-prefix-cache/plan.md`.
+Validate from the startup log that the Unsloth MTP sidecar was loaded and that draft acceptance counters are present.
 Print the shell-escaped command and exit when the second argument is `--print`.
 
 - [ ] **Step 5: Run launcher validation and verify success**
@@ -1062,7 +1071,7 @@ git commit -m "bench(qwen3.8): add pinned runtime launchers"
 
 **Interfaces:**
 - Consumes: JSONL from `cache_probe.py` and `tool_loop.py`.
-- Produces: `results/summary.md` and process exit status for failed gates.
+- Produces: `results/summary.md`, `results/runtime-survivors.json` and process exit status for failed gates.
 
 - [ ] **Step 1: Write gate tests**
 
@@ -1146,7 +1155,8 @@ def gate_record(record: dict) -> list[str]:
 Group records by runtime, arm, context and scenario.
 Report median, minimum and maximum for TTFT and total time.
 Report each gate as `PASS` or `FAIL`.
-Write the winning runtime, model, port and arm to `results/selection.json`.
+Write every functionally approved runtime, model, port and arm to `results/runtime-survivors.json`.
+Do not choose the winner until the same cheap-quality suites have run on every survivor.
 
 - [ ] **Step 4: Implement staged orchestration**
 
@@ -1191,7 +1201,7 @@ git commit -m "bench(qwen3.8): orchestrate cache campaign gates"
 - Create: `bench/qwen3.8-prefix-cache/results/cache-probe.jsonl`
 - Create: `bench/qwen3.8-prefix-cache/results/tool-loop.jsonl`
 - Create: `bench/qwen3.8-prefix-cache/results/summary.md`
-- Create: `bench/qwen3.8-prefix-cache/results/selection.json`
+- Create: `bench/qwen3.8-prefix-cache/results/runtime-survivors.json`
 
 **Interfaces:**
 - Consumes: tested campaign scripts and live runtimes on the rig.
@@ -1272,7 +1282,7 @@ bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh summary
 ```
 
 Expected: every selected arm has cache, latency, memory and tool-loop gates.
-Expected: `results/selection.json` identifies one winning arm.
+Expected: `results/runtime-survivors.json` lists every arm approved for the common quality screen.
 
 - [ ] **Step 8: Commit distilled results**
 
@@ -1281,7 +1291,7 @@ git add bench/qwen3.8-prefix-cache/results/environment.json \
   bench/qwen3.8-prefix-cache/results/cache-probe.jsonl \
   bench/qwen3.8-prefix-cache/results/tool-loop.jsonl \
   bench/qwen3.8-prefix-cache/results/summary.md \
-  bench/qwen3.8-prefix-cache/results/selection.json
+  bench/qwen3.8-prefix-cache/results/runtime-survivors.json
 git commit -m "bench(qwen3.8): record prefix-cache campaign"
 ```
 
@@ -1291,11 +1301,12 @@ git commit -m "bench(qwen3.8): record prefix-cache campaign"
 - Create: `bench/qwen3.8-prefix-cache/scripts/run-quality-screen.sh`
 - Create: `bench/qwen3.8-prefix-cache/scripts/run-tbench-qwen38-REMOTE.sh`
 - Create: `bench/qwen3.8-prefix-cache/results/quality-screen.jsonl`
+- Create: `bench/qwen3.8-prefix-cache/results/selection.json`
 - Create: `bench/qwen3.8-prefix-cache/results/tbench-summary.json`
 
 **Interfaces:**
-- Consumes: winner from `results/summary.md` and existing benchmark tools.
-- Produces: cheap quality verdict and one complete Terminal-Bench result.
+- Consumes: every arm from `results/runtime-survivors.json` and existing benchmark tools.
+- Produces: comparable quality records, `results/selection.json`, a 262K winner smoke result and one complete Terminal-Bench result.
 
 - [ ] **Step 1: Implement the quality screen driver**
 
@@ -1310,6 +1321,7 @@ Terminal-Bench fixed five-task subset
 ```
 
 Use the exact question indexes before reading model answers. Save them in the driver script.
+Run the complete fixed set on every survivor before selecting the winner. Never select a candidate from runtime gates alone.
 
 - [ ] **Step 2: Validate the quality driver**
 
@@ -1329,9 +1341,15 @@ Run:
 bash bench/qwen3.8-prefix-cache/scripts/run-quality-screen.sh
 ```
 
-Expected: `quality-screen.jsonl` contains all five suites.
+Expected: `quality-screen.jsonl` contains all five suites for every survivor.
+Expected: `selection.json` records the winner only after the common quality comparison.
 
-- [ ] **Step 4: Implement the remote Terminal-Bench driver**
+- [ ] **Step 4: Smoke-test the winner at native context**
+
+Run one deterministic needle-retrieval probe at 262.144 tokens with the winning vendor-default configuration.
+If the runtime or rig cannot complete it, record the exact limitation; do not silently reduce the context.
+
+- [ ] **Step 5: Implement the remote Terminal-Bench driver**
 
 Copy the protocol from `bench/terminal-bench/scripts/run-tbench-minimax-REMOTE.sh`.
 Use these exact settings:
@@ -1359,7 +1377,7 @@ agent-timeout-multiplier=0.5
 Pass `"openai/${WINNER_MODEL_ID}"` to Harbor as the model.
 The script must not hardcode the winner.
 
-- [ ] **Step 5: Validate and execute Terminal-Bench on the MacBook Pro**
+- [ ] **Step 6: Validate and execute Terminal-Bench on the MacBook Pro**
 
 Run:
 
@@ -1370,7 +1388,7 @@ bash bench/qwen3.8-prefix-cache/scripts/run-tbench-qwen38-REMOTE.sh
 
 Expected: Harbor completes with concurrency 1 and writes its raw job under campaign logs.
 
-- [ ] **Step 6: Convert the Harbor result**
+- [ ] **Step 7: Convert the Harbor result**
 
 Run the existing adapter:
 
@@ -1388,12 +1406,13 @@ cp "$GENERATED" bench/qwen3.8-prefix-cache/results/tbench-summary.json
 
 Expected: the summary contains pass count, fail count and wall time.
 
-- [ ] **Step 7: Commit quality results**
+- [ ] **Step 8: Commit quality results**
 
 ```bash
 git add bench/qwen3.8-prefix-cache/scripts/run-quality-screen.sh \
   bench/qwen3.8-prefix-cache/scripts/run-tbench-qwen38-REMOTE.sh \
   bench/qwen3.8-prefix-cache/results/quality-screen.jsonl \
+  bench/qwen3.8-prefix-cache/results/selection.json \
   bench/qwen3.8-prefix-cache/results/tbench-summary.json
 git commit -m "bench(qwen3.8): select runtime with agent quality gates"
 ```

@@ -12,7 +12,7 @@ O teste deve responder estas perguntas:
 1. O runtime reutiliza o prefixo em conversas append-only?
 2. O runtime mantém o cache após tool calls?
 3. MTP mantém o cache correto e reduz o tempo total?
-4. MLX 8-bit supera GGUF Q6 e Q8 no fluxo completo?
+4. MLX 8-bit supera o GGUF recomendado pela Unsloth e suas variantes Q6/Q8 no fluxo completo?
 5. Qual setup merece o Terminal-Bench completo?
 
 ## Hardware e topologia
@@ -34,7 +34,7 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 | H3 | O Qwen híbrido reutiliza bem somente prefixes exatos. | Casos idêntico, append e mutação central |
 | H4 | Tool calls podem invalidar o cache do `mlx-serve`. | Loop determinístico com 20 tool turns |
 | H5 | MTP pode alterar a reutilização ou o estado do cache. | A/B cache ligado com MTP desligado e ligado |
-| H6 | `UD-Q6_K_XL` oferece a melhor relação GGUF. | Qualidade, memória e tempo total contra Q8 |
+| H6 | O `UD-Q4_K_XL` recomendado pela Unsloth oferece o melhor equilíbrio local. | Qualidade, memória e tempo total contra Q6 e Q8 |
 | H7 | KV em 16-bit cabe no contexto padrão de 65.536. | Memória máxima sem swap |
 
 ## Escopo
@@ -42,8 +42,8 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 ### Incluído
 
 - `mlx-serve` com MLX 8-bit.
-- `llama.cpp` com Unsloth Dynamic v3 Q6.
-- Unsloth Dynamic v3 Q8 após o gate de Q6.
+- `llama.cpp` com Unsloth Dynamic v3 Q4 recomendado pelo vendor.
+- Unsloth Dynamic v3 Q6 e Q8 como variantes de maior fidelidade.
 - Cache frio, cache quente, append, mutação e restart.
 - Tool calling com schemas estáveis.
 - MTP nativo no MLX e `draft-mtp` no GGUF.
@@ -53,12 +53,12 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 
 ### Excluído
 
-- Contexto acima de 65.536 na primeira campanha.
+- Contexto acima de 65.536 na matriz principal. O vencedor recebe um smoke test em 262.144.
 - YaRN e contexto de um milhão de tokens.
 - Vision e processamento de vídeo.
 - Batch com vários usuários.
 - DFlash e DSpark antes da seleção do runtime base.
-- Quants Q4, Q3, Q2 e Q1.
+- Quants Q3, Q2 e Q1.
 - Ajuste fino e LoRA.
 
 ## Modelos candidatos
@@ -66,10 +66,17 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 | ID da campanha | Modelo | Formato | Quant | Fase |
 |---|---|---|---|---|
 | `mlx8` | `ddalcu/Qwen3.8-27B-MLX-Serve-8bit` | MLX | 8-bit | Inicial |
-| `gguf-q6` | `unsloth/Qwen3.8-27B-GGUF:UD-Q6_K_XL` | GGUF | Dynamic v3 Q6 | Inicial |
-| `gguf-q8` | `unsloth/Qwen3.8-27B-GGUF:UD-Q8_K_XL` | GGUF | Dynamic v3 Q8 | Após gate |
+| `gguf-q4` | `unsloth/Qwen3.8-27B-GGUF:UD-Q4_K_XL` | GGUF | Dynamic v3 Q4 | Inicial, recomendado pela Unsloth |
+| `gguf-q6` | `unsloth/Qwen3.8-27B-GGUF:UD-Q6_K_XL` | GGUF | Dynamic v3 Q6 | Após gate funcional do Q4 |
+| `gguf-q8` | `unsloth/Qwen3.8-27B-GGUF:UD-Q8_K_XL` | GGUF | Dynamic v3 Q8 | Após gate funcional do Q4 |
 
 Fixe a revisão do Hugging Face antes de baixar cada modelo. Registre também o SHA-256 do artefato local.
+
+| Artefato | Revisão verificada em 2026-08-21 |
+|---|---|
+| `Qwen/Qwen3.8-27B` | `1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0` |
+| `ddalcu/Qwen3.8-27B-MLX-Serve-8bit` | `011e38296b3d2aa99245ed49a700459c4ac246b6` |
+| `unsloth/Qwen3.8-27B-GGUF` | `4ca720788d1e01f1bff70c033e0d0028fd02e502` |
 
 ## Runtimes candidatos
 
@@ -120,7 +127,7 @@ As tarefas de execução dependem dos checks da máquina correspondente. Elas n�
 
 ## Configuração base do MLX
 
-Use este braço como configuração de produção candidata:
+Use o comando mínimo documentado pelo model card como braço canônico. Fixe `mlx-serve` em `v26.8.9` ou em revisão posterior registrada, pois essa versão corrige a restauração conjunta de prefix cache e histórico MTP:
 
 ```bash
 mlx-serve \
@@ -129,54 +136,43 @@ mlx-serve \
   --host 0.0.0.0 \
   --port 11234 \
   --ctx-size 65536 \
-  --prefix-cache-entries 4 \
-  --prefix-cache-mem 16GB \
-  --tokenize-cache-entries 16 \
-  --prefill-chunk 8192 \
-  --kv-quant off \
-  --max-concurrent 1 \
-  --mtp \
-  --mtp-depth 3 \
-  --no-pld \
   --metrics
 ```
 
-Use `--prefix-cache-entries 0 --no-mtp` no braço frio sem cache.
-Use `--no-mtp` no braço que isola somente o prefix cache.
+Esse braço preserva os defaults do runtime, inclusive cache, PLD e seleção automática de MTP. Registre os defaults resolvidos no log de inicialização.
+
+Use `--prefix-cache-entries 0 --no-mtp --no-pld` somente no controle frio.
+Use `--no-mtp --no-pld` no braço diagnóstico que isola somente o prefix cache.
+Não fixe `--mtp-depth` no braço canônico; deixe a calibração específica do Qwen3.8 escolher a profundidade.
 
 Não ative o cache em SSD antes do teste de restart em memória passar.
 
 ## Configuração base do GGUF
 
-Use este braço como configuração de produção candidata:
+Use o quant recomendado pela Unsloth como primeiro braço GGUF. Fixe `llama.cpp` em `v0.2.0` (`5a32f7b66ef6cfb3e60deea26e3454cc6ad3438c`) ou em revisão posterior registrada:
 
 ```bash
 llama-server \
-  -hf unsloth/Qwen3.8-27B-GGUF:UD-Q6_K_XL \
+  -hf unsloth/Qwen3.8-27B-GGUF:UD-Q4_K_XL \
   --host 0.0.0.0 \
   --port 8080 \
   --ctx-size 65536 \
   --n-gpu-layers all \
   --flash-attn on \
   --parallel 1 \
-  --cache-prompt \
-  --cache-ram 16384 \
-  --ctx-checkpoints 32 \
-  --checkpoint-min-step 4096 \
-  --cache-reuse 256 \
-  --cache-type-k f16 \
-  --cache-type-v f16 \
   --jinja \
   --reasoning-preserve \
-  --chat-template-kwargs '{"preserve_thinking":true,"reasoning_effort":"medium"}' \
+  --chat-template-kwargs '{"preserve_thinking":true,"reasoning_effort":"xhigh"}' \
   --metrics
 ```
 
-Adicione estas opções somente no braço MTP:
+Esse comando mantém os defaults de prompt/KV cache do `llama.cpp`. Use `--no-cache-prompt` somente no controle frio. Adicione estas opções somente no braço MTP:
 
 ```bash
 --spec-type draft-mtp --spec-draft-n-max 3
 ```
+
+Ao carregar por `-hf`, confirme no log que o sidecar `MTP/mtp-Qwen3.8-27B-Q4_0.gguf` foi resolvido e que o runtime reporta drafts gerados e aceitos. Se a revisão fixada não fizer autodiscovery, forneça o sidecar com `--spec-draft-hf unsloth/Qwen3.8-27B-GGUF` e registre essa diferença.
 
 O executor deve validar os nomes das opções na revisão fixada do `llama.cpp`.
 Uma mudança de opção deve atualizar este runbook antes das medições.
@@ -188,7 +184,7 @@ Mantenha estes valores iguais em todos os braços:
 - Contexto declarado.
 - Prompt e tokens do prompt.
 - `preserve_thinking=true`.
-- `reasoning_effort=medium`.
+- `reasoning_effort=xhigh` no braço canônico. `medium` é permitido somente como ablação identificada.
 - Temperatura e parâmetros de sampling.
 - Limite de saída.
 - Ordem dos tool schemas.
@@ -213,14 +209,16 @@ Use `temperature=0` somente nos testes de equivalência e diagnóstico.
 
 | Braço | Runtime | Modelo | Prefix cache | MTP |
 |---|---|---|---:|---:|
-| A | `mlx-serve` | `mlx8` | desligado | desligado |
-| B | `mlx-serve` | `mlx8` | ligado | desligado |
-| C | `mlx-serve` | `mlx8` | ligado | ligado |
-| D | `llama.cpp` | `gguf-q6` | desligado | desligado |
-| E | `llama.cpp` | `gguf-q6` | ligado | desligado |
-| F | `llama.cpp` | `gguf-q6` | ligado | ligado |
+| A | `mlx-serve` | `mlx8` | desligado | desligado; PLD desligado |
+| B | `mlx-serve` | `mlx8` | ligado | desligado; PLD desligado |
+| C | `mlx-serve` | `mlx8` | default do vendor | default/auto do vendor |
+| D | `llama.cpp` | `gguf-q4` | desligado | desligado |
+| E | `llama.cpp` | `gguf-q4` | default do runtime | desligado |
+| F | `llama.cpp` | `gguf-q4` | default do runtime | `draft-mtp` |
+| G | `llama.cpp` | `gguf-q6` | default do runtime | `draft-mtp` |
+| H | `llama.cpp` | `gguf-q8` | default do runtime | `draft-mtp` |
 
-Execute primeiro os braços A, B, D e E em 8K. Execute C e F após validar o cache sem MTP.
+Execute primeiro os braços A, B, D e E em 8K. Execute C e F após validar o cache sem MTP. Execute G e H após o Q4 passar os gates funcionais.
 
 ## Cenários de cache
 
@@ -260,7 +258,7 @@ Cada registro em `results/*.jsonl` deve conter estes campos:
   "schema_version": 1,
   "run_id": "20260821T210000Z-mlx8-B-32768-append-r1",
   "runtime": "mlx-serve",
-  "runtime_revision": "26.8.7",
+  "runtime_revision": "v26.8.9",
   "model_id": "ddalcu/Qwen3.8-27B-MLX-Serve-8bit",
   "model_revision": "9f31e8c5",
   "quant": "8bit",
@@ -356,14 +354,14 @@ O loop passa quando:
 - O MTP não pode alterar o resultado funcional.
 - Desative o MTP quando ele falhar em qualquer requisito.
 
-### Gate 5 — Q8
+### Gate 5 — Variantes Unsloth de maior fidelidade
 
-Execute Q8 somente se Q6 passar os quatro gates anteriores.
-Adote Q8 somente quando ele recuperar falhas reais do Q6.
+Execute Q6 e Q8 somente se o Q4 recomendado pelo vendor passar os quatro gates anteriores.
+Adote Q6 ou Q8 somente quando recuperar falhas reais do Q4 ou produzir ganho mensurável de qualidade que justifique o custo.
 
 ## Qualidade barata
 
-Execute esta sequência após os gates de runtime:
+Execute esta sequência em todos os candidatos funcionalmente aprovados, antes da seleção final:
 
 1. `jdhodges` tool calling.
 2. `Veerman` tool calling.
@@ -401,8 +399,9 @@ preflight e pinning
 → cache com MTP em 32K
 → braços aprovados em 65K
 → loop agentic de 20 turnos
-→ qualidade barata
-→ Q6 contra Q8
+→ Q4 contra Q6 e Q8 na qualidade barata
+→ seleção do vencedor
+→ smoke test do vencedor em 262K
 → Terminal-Bench completo
 → relatório e decisão
 ```
@@ -447,4 +446,5 @@ A campanha termina quando estes itens existem:
 - Um relatório com cache frio, cache quente e tool turns.
 - Um resultado do Terminal-Bench para o vencedor.
 - Uma decisão explícita sobre MTP.
-- Uma decisão explícita sobre Q6 e Q8.
+- Uma decisão explícita sobre Q4, Q6 e Q8.
+- Um smoke test em 262.144 tokens para o vencedor, ou uma limitação registrada quando o hardware/runtime impedir.

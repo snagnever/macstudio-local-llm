@@ -18,8 +18,13 @@ Relatos comunitários orientam hipóteses. Eles não substituem medições no ri
 | P7 | [mlx-serve engine notes](https://github.com/ddalcu/mlx-serve/blob/main/CLAUDE.md) | Limitações do cache híbrido e tool calls |
 | P8 | [llama.cpp server README](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md) | Prompt cache, checkpoints e KV cache |
 | P9 | [mlx-lm cache implementation](https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/models/cache.py) | Estados de cache e persistência |
-| P10 | [Unsloth Qwen3.8 GGUF](https://huggingface.co/unsloth/Qwen3.8-27B-GGUF) | Arquivos Q6, Q8 e tamanhos |
+| P10 | [Unsloth Qwen3.8 GGUF](https://huggingface.co/unsloth/Qwen3.8-27B-GGUF) | Arquivos Q4, Q6, Q8 e tamanhos |
 | P11 | [Unsloth Dynamic 3.0](https://unsloth.ai/docs/basics/dynamic-3.0-ggufs) | Método e métricas de quantização |
+| P12 | [Unsloth Qwen3.8-27B guide](https://unsloth.ai/models/qwen3.8-27b) | Quant recomendado, memória e presets de thinking |
+| P13 | [Unsloth Qwen3.8 MTP sidecar](https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/tree/main/MTP) | Artefato MTP distribuído com os GGUFs |
+| P14 | [llama.cpp speculative decoding](https://github.com/ggml-org/llama.cpp/blob/master/docs/speculative.md) | `draft-mtp`, sidecars e estatísticas de aceitação |
+| P15 | [mlx-serve releases](https://github.com/ddalcu/mlx-serve/releases) | Revisão que corrige restore de prefix cache com MTP |
+| P16 | [llama.cpp releases](https://github.com/ggml-org/llama.cpp/releases) | Revisão reproduzível do runtime GGUF |
 
 ## Issues e discussões técnicas
 
@@ -100,30 +105,30 @@ Fontes: P8, I3 e I4.
 
 ### Quantização
 
-O Dynamic v3 Q6 é o primeiro GGUF da campanha.
-O Q8 funciona como referência de qualidade.
+O Dynamic v3 `UD-Q4_K_XL` é o primeiro GGUF da campanha porque a Unsloth o recomenda como melhor equilíbrio local.
+Q6 e Q8 funcionam como variantes de maior fidelidade e custo.
 
 Os dados públicos disponíveis usam perplexidade, divergência e correspondência de tokens.
 Eles não comprovam qualidade em Terminal-Bench.
 
-Fontes: P10, P11, C1 e C3.
+Fontes: P10, P11, P12, C1 e C3.
 
 ### Speculative decoding
 
 MTP, DFlash e DSpark podem acelerar código mais que prosa.
 O ganho depende da taxa de aceitação e do custo de verificação.
 
-Esta campanha testa MTP primeiro. Ela adia DFlash e DSpark.
+Esta campanha testa MTP primeiro. O braço GGUF valida o sidecar publicado pela Unsloth e a aceitação reportada pelo `llama.cpp`. Ela adia DFlash e DSpark.
 
-Fontes: P6, C2, C5 e C8.
+Fontes: P6, P13, P14, C2, C5 e C8.
 
 ## Questões que somente o rig pode resolver
 
 1. O `mlx-serve` atual mantém o prefixo após um tool call real?
 2. O client reenfileira `reasoning_content` sem normalização?
 3. O MTP mantém o estado correto depois de um cache restore?
-4. Q6 reduz o tempo total no M4 Max?
-5. Q8 recupera falhas funcionais do Q6?
+4. Q4, Q6 ou Q8 reduz o tempo total no M4 Max sem perder qualidade?
+5. Q6 ou Q8 recupera falhas funcionais do Q4 recomendado?
 6. O cache em SSD reduz o tempo após restart?
 7. O runtime mantém memória estável por 20 tool turns?
 
