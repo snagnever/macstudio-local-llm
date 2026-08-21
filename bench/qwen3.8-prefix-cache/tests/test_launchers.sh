@@ -6,6 +6,7 @@ SCRIPTS="$ROOT/bench/qwen3.8-prefix-cache/scripts"
 
 bash -n "$SCRIPTS/run-mlx-serve.sh"
 bash -n "$SCRIPTS/run-llama-cpp.sh"
+bash -n "$SCRIPTS/run-campaign.sh"
 
 MLX_A="$(bash "$SCRIPTS/run-mlx-serve.sh" A --print)"
 MLX_B="$(bash "$SCRIPTS/run-mlx-serve.sh" B --print)"
@@ -44,5 +45,21 @@ fi
 
 if bash "$SCRIPTS/run-llama-cpp.sh" C --print >/dev/null 2>&1; then
   echo "GGUF launcher accepted invalid arm C" >&2
+  exit 1
+fi
+
+SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" smoke)"
+grep -q -- 'arm=A context=8192' <<<"$SMOKE"
+grep -q -- 'arm=B context=8192' <<<"$SMOKE"
+grep -q -- 'arm=D context=8192' <<<"$SMOKE"
+grep -q -- 'arm=E context=8192' <<<"$SMOKE"
+! grep -q -- 'arm=C context=8192' <<<"$SMOKE"
+
+MTP="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" mtp-32k)"
+grep -q -- 'arm=C context=32768' <<<"$MTP"
+grep -q -- 'arm=F context=32768' <<<"$MTP"
+
+if QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" unknown-stage >/dev/null 2>&1; then
+  echo "campaign runner accepted an unknown stage" >&2
   exit 1
 fi
