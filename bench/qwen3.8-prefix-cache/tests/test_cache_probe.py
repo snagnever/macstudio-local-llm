@@ -19,14 +19,15 @@ from cache_probe import (
 
 class CacheProbeTests(unittest.TestCase):
     def test_fixture_target_reserves_template_and_generation_headroom(self):
-        self.assertEqual(fixture_token_target(8192), 7680)
-        self.assertEqual(fixture_token_target(32768), 32256)
+        self.assertEqual(fixture_token_target(8192), 7168)
+        self.assertEqual(fixture_token_target(32768), 31744)
 
     def test_diagnostic_payload_keeps_vendor_reasoning_effort(self):
         payload = _payload("model", [{"role": "user", "content": "probe"}])
 
         self.assertEqual(payload["temperature"], 0)
         self.assertEqual(payload["reasoning_effort"], "xhigh")
+        self.assertEqual(payload["max_tokens"], 512)
 
     def test_cache_ratio_is_bounded_and_handles_empty_prompt(self):
         self.assertEqual(cache_hit_ratio(900, 1000), 0.9)

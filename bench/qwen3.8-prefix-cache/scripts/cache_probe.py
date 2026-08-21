@@ -28,9 +28,9 @@ NEEDLE_QUESTION = (
 
 def fixture_token_target(context_size: int) -> int:
     """Reserve room for the chat template and the bounded diagnostic output."""
-    if context_size <= 512:
-        raise ValueError("context size must exceed the 512-token request reserve")
-    return context_size - 512
+    if context_size <= 1024:
+        raise ValueError("context size must exceed the 1024-token request reserve")
+    return context_size - 1024
 
 
 def cache_hit_ratio(cached_tokens: int, prompt_tokens: int) -> float:
@@ -195,7 +195,7 @@ def _payload(model: str, messages: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "model": model,
         "messages": messages,
-        "max_tokens": 64,
+        "max_tokens": 512,
         "temperature": 0,
         "reasoning_effort": "xhigh",
     }
