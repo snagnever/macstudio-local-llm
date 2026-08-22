@@ -16,6 +16,53 @@ class StreamResult:
     raw_chunks: int
 
 
+def normalize_mlx_dspark_metrics(
+    extension: dict[str, Any], machine: Optional[dict[str, Any]] = None
+) -> dict[str, Any]:
+    """Map only v0.15.0 observed response fields; absent values remain null."""
+    result = {
+        "speculation_mode": None,
+        "ttft_ms": None,
+        "prefill_ms": None,
+        "decode_ms": None,
+        "cached_tokens": None,
+        "accept_length": None,
+        "draft_cap_resolved": None,
+        "decode_tps": None,
+        "machine_roofline_tps": None,
+        "decode_roofline_ratio": None,
+        "verification_steps": None,
+        "accepted_tokens": None,
+    }
+    if not isinstance(extension, dict):
+        return result
+    result.update(
+        {
+            "speculation_mode": extension.get("mode"),
+            "ttft_ms": _seconds_to_ms(extension.get("ttft_seconds")),
+            "prefill_ms": _seconds_to_ms(extension.get("prefill_seconds")),
+            "decode_ms": _seconds_to_ms(extension.get("decode_seconds")),
+            "cached_tokens": extension.get("cached_tokens"),
+            "accept_length": extension.get("accept_len"),
+            "draft_cap_resolved": extension.get("cap"),
+            "decode_tps": extension.get("decode_tokens_per_sec"),
+            "machine_roofline_tps": extension.get("ceiling_tokens_per_sec"),
+            "decode_roofline_ratio": extension.get("roofline_ratio"),
+            "verification_steps": extension.get("target_forwards"),
+        }
+    )
+    # `/machine` is only a fallback for an explicitly observed last-request verdict.
+    if result["decode_tps"] is None and isinstance(machine, dict):
+        verdict = machine.get("verdict")
+        if isinstance(verdict, dict):
+            result["decode_tps"] = verdict.get("decode_tps")
+    return result
+
+
+def _seconds_to_ms(value: Any) -> Optional[float]:
+    return float(value) * 1000 if isinstance(value, (int, float)) else None
+
+
 def iter_sse_json(lines: Iterable[bytes]) -> Iterator[dict[str, Any]]:
     for raw_line in lines:
         line = raw_line.decode("utf-8").strip()

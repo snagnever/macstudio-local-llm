@@ -17,6 +17,8 @@ MLX_RUNTIME_REVISION="${QWEN38_MLX_RUNTIME_REVISION:-v26.8.9}"
 LLAMA_RUNTIME_REVISION="${QWEN38_LLAMA_RUNTIME_REVISION:-v0.2.0/b10566@bb4caa7540188872173c44d161602d9271386413}"
 MLX_MODEL_REVISION="${QWEN38_MLX_MODEL_REVISION:-011e38296b3d2aa99245ed49a700459c4ac246b6}"
 UNSLOTH_MODEL_REVISION="${QWEN38_UNSLOTH_MODEL_REVISION:-4ca720788d1e01f1bff70c033e0d0028fd02e502}"
+MLX_DSPARK_RUNTIME_REVISION="v0.15.0/69cd5c122d19ad3916eefccd43334ff59a92a914"
+MLX_DSPARK_MODEL_REVISION="815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9"
 
 ACTIVE_PID=""
 MACMON_PID=""
@@ -25,7 +27,7 @@ LAST_RUNTIME_LOG=""
 
 usage() {
   cat >&2 <<'EOF'
-usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|specprefill-16k|specprefill-32k|ane-16k|ane-32k|cache-65k|tool-loop|summary|native-262k}
+usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|specprefill-16k|specprefill-32k|ane-16k|ane-32k|dspark-smoke|dspark-decode-8k|dspark-cache-32k|dspark-decode-32k|cache-65k|tool-loop|summary|native-262k}
 EOF
 }
 
@@ -94,6 +96,14 @@ arm_metadata() {
       PORT=8000
       LAUNCHER="$SCRIPTS/run-omlx.sh"
       ;;
+    P|Q|R|S)
+      RUNTIME="mlx-dspark"
+      MODEL_ID="mlx-community/Qwen3.8-27B-8bit"
+      RUNTIME_REVISION="$MLX_DSPARK_RUNTIME_REVISION"
+      MODEL_REVISION="$MLX_DSPARK_MODEL_REVISION"
+      PORT=8484
+      LAUNCHER="$SCRIPTS/run-mlx-dspark.sh"
+      ;;
     *)
       echo "unknown arm: $arm" >&2
       return 64
@@ -105,7 +115,7 @@ arm_metadata() {
   SPECPREFILL_ARGS=()
   ANE_PREFILL_ARGS=()
   case "$arm" in
-    B|C|E|F|G|H|K|L|M|N) CACHE_ARGS=(--cache-enabled) ;;
+    B|C|E|F|G|H|K|L|M|N|Q|R|S) CACHE_ARGS=(--cache-enabled) ;;
   esac
   case "$arm" in
     C|F|G|H) MTP_ARGS=(--mtp-enabled) ;;
@@ -209,7 +219,7 @@ run_cache_arm() {
   echo "RUN arm=$arm context=$context mode=cache"
   wait_for_cooldown || return 1
   if [[ "$DRY_RUN" == "1" ]]; then
-    if [[ "$RUNTIME" == "oMLX" ]]; then
+    if [[ "$RUNTIME" == "oMLX" || "$RUNTIME" == "mlx-dspark" ]]; then
       echo "+ QWEN38_CTX_SIZE=$context bash $LAUNCHER $arm"
     else
       bash "$LAUNCHER" "$arm" --print
@@ -239,8 +249,16 @@ run_cache_arm() {
     --content-class "$content_class"
     --repeat "$REPEATS"
     --output "$RESULTS/cache-probe.jsonl"
-    --metrics-url "http://127.0.0.1:${PORT}/metrics"
   )
+  if [[ "$RUNTIME" == "mlx-dspark" ]]; then
+    PROBE_COMMAND+=(--mlx-dspark-metrics-url "http://127.0.0.1:${PORT}/metrics" --machine-url "http://127.0.0.1:${PORT}/machine")
+    case "$arm" in
+      R) PROBE_COMMAND+=(--drafter-id RadixArk/Qwen3.8-27B-DSpark --drafter-revision 85ef153be924f17ce4bf62726954eeaa4a73e854) ;;
+      S) PROBE_COMMAND+=(--drafter-id incoai/Qwen3.8-27B-DFlash2 --drafter-revision dedf8df68adfb1afeaf7b7480c0a0243108177b4) ;;
+    esac
+  else
+    PROBE_COMMAND+=(--metrics-url "http://127.0.0.1:${PORT}/metrics")
+  fi
   if [[ "${#CACHE_ARGS[@]}" -gt 0 ]]; then
     PROBE_COMMAND+=("${CACHE_ARGS[@]}")
   fi
@@ -268,7 +286,7 @@ run_tool_arm() {
   echo "RUN arm=$arm context=$context mode=tool-loop"
   wait_for_cooldown || return 1
   if [[ "$DRY_RUN" == "1" ]]; then
-    if [[ "$RUNTIME" == "oMLX" ]]; then
+    if [[ "$RUNTIME" == "oMLX" || "$RUNTIME" == "mlx-dspark" ]]; then
       echo "+ bash $LAUNCHER $arm (tool-loop)"
     else
       bash "$LAUNCHER" "$arm" --print
@@ -370,6 +388,16 @@ run_arms() {
   done
 }
 
+run_dspark_decode() {
+  local context="$1"
+  local arm content_class
+  for arm in P Q R S; do
+    for content_class in code math chat tool_call_json; do
+      run_cache_arm "$arm" "$context" "$content_class"
+    done
+  done
+}
+
 case "$STAGE" in
   smoke)
     run_arms 8192 A B D E
@@ -407,6 +435,24 @@ case "$STAGE" in
     ;;
   ane-32k)
     run_arms 32768 J O
+    ;;
+  dspark-smoke)
+    if [[ "$DRY_RUN" == "1" ]]; then
+      echo "+ bash $SCRIPTS/run-mlx-dspark.sh auto-smoke"
+    else
+      bash "$SCRIPTS/run-mlx-dspark.sh" auto-smoke
+    fi
+    ;;
+  dspark-decode-8k)
+    run_dspark_decode 8192
+    ;;
+  dspark-cache-32k)
+    run_dspark_decode 32768
+    ;;
+  dspark-decode-32k)
+    run_dspark_decode 32768
+    run_tool_arm R 32768
+    run_tool_arm S 32768
     ;;
   cache-65k)
     SPECPREFILL_WINNER=""

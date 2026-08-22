@@ -6,7 +6,7 @@ from pathlib import Path
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from sse_client import iter_sse_json, stream_delta_fields
+from sse_client import iter_sse_json, normalize_mlx_dspark_metrics, stream_delta_fields
 
 
 class SseTests(unittest.TestCase):
@@ -64,6 +64,37 @@ class SseTests(unittest.TestCase):
         chunks = list(iter_sse_json(lines))
 
         self.assertEqual(chunks, [{"usage": {"prompt_tokens": 8}}])
+
+    def test_normalizes_only_observed_v0150_dspark_telemetry(self):
+        normalized = normalize_mlx_dspark_metrics(
+            {
+                "mode": "dflash",
+                "ttft_seconds": 0.123,
+                "prefill_seconds": 0.100,
+                "decode_seconds": 1.5,
+                "cached_tokens": 4096,
+                "accept_len": 3.25,
+                "cap": 7,
+                "decode_tokens_per_sec": 42.0,
+                "ceiling_tokens_per_sec": 51.0,
+                "roofline_ratio": 0.824,
+                "target_forwards": 160,
+            },
+            {"verdict": {"decode_tps": 42.0}},
+        )
+
+        self.assertEqual(normalized["speculation_mode"], "dflash")
+        self.assertEqual(normalized["ttft_ms"], 123.0)
+        self.assertEqual(normalized["prefill_ms"], 100.0)
+        self.assertEqual(normalized["decode_ms"], 1500.0)
+        self.assertEqual(normalized["cached_tokens"], 4096)
+        self.assertEqual(normalized["accept_length"], 3.25)
+        self.assertEqual(normalized["draft_cap_resolved"], 7)
+        self.assertEqual(normalized["decode_tps"], 42.0)
+        self.assertEqual(normalized["machine_roofline_tps"], 51.0)
+        self.assertEqual(normalized["decode_roofline_ratio"], 0.824)
+        self.assertEqual(normalized["verification_steps"], 160)
+        self.assertIsNone(normalized["accepted_tokens"])
 
 
 if __name__ == "__main__":

@@ -19,6 +19,7 @@ tasks:
       - {sh: "command -v mlx-serve", msg: "Install the pinned mlx-serve release."}
       - {sh: "command -v llama-server", msg: "Install the pinned llama.cpp release."}
       - {sh: "command -v omlx", msg: "Install the pinned oMLX release."}
+      - {sh: "command -v mlx-dspark", msg: "Install mlx-dspark v0.15.0."}
 
   deps:driver:
     desc: Check MacBook Pro driver dependencies
@@ -119,6 +120,30 @@ tasks:
     deps: [deps:rig, unit]
     cmds:
       - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh ane-32k
+
+  dspark:smoke:
+    desc: Confirm mlx-dspark auto mode resolves DFlash 2 without recording a benchmark
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh dspark-smoke
+
+  dspark:decode:8k:
+    desc: Compare mlx-dspark baseline, DSpark, and DFlash 2 at 8K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh dspark-decode-8k
+
+  dspark:cache:32k:
+    desc: Run all five cache scenarios for mlx-dspark at 32K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh dspark-cache-32k
+
+  dspark:decode:32k:
+    desc: Compare mlx-dspark decode and 20-turn tool stability at 32K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh dspark-decode-32k
 
   cache:65k:
     desc: Run approved arms at 65K on the rig

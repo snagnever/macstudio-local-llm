@@ -17,7 +17,7 @@ from fixtures import (
     sha256_tokens,
 )
 from metrics import normalize_server_measurements, parse_prometheus
-from sse_client import StreamResult, stream_chat
+from sse_client import StreamResult, normalize_mlx_dspark_metrics, stream_chat
 
 
 SCENARIOS = (
@@ -157,6 +157,14 @@ def _metrics_snapshot(url: Optional[str]) -> dict[str, float]:
         return {}
     with urlopen(url, timeout=10) as response:
         return parse_prometheus(response.read().decode("utf-8"))
+
+
+def _json_snapshot(url: Optional[str]) -> dict[str, Any]:
+    if not url:
+        return {}
+    with urlopen(url, timeout=10) as response:
+        payload = json.load(response)
+    return payload if isinstance(payload, dict) else {}
 
 
 def _metric_by_suffix(
@@ -341,12 +349,21 @@ def _record(
     mutation_prefix_tokens: int,
     mutation_tokens: int,
     code_expected_result: Optional[int] = None,
+    dspark_machine: Optional[dict[str, Any]] = None,
+    dspark_metrics: Optional[dict[str, Any]] = None,
+    drafter_id: Optional[str] = None,
+    drafter_revision: Optional[str] = None,
 ) -> dict[str, Any]:
     usage = result.usage
     prompt_tokens = int(usage.get("prompt_tokens") or 0)
     cached_tokens = cached_tokens_from_usage(usage)
     performance = _performance(result, prompt_tokens, cached_tokens)
     server = normalize_server_measurements(usage, metrics_before, metrics_after)
+    dspark_extension = {**(dspark_metrics or {}), **(usage.get("x_mlx_dspark") or {})}
+    dspark = normalize_mlx_dspark_metrics(dspark_extension, dspark_machine)
+    if dspark["cached_tokens"] is not None:
+        cached_tokens = int(dspark["cached_tokens"])
+        performance = _performance(result, prompt_tokens, cached_tokens)
     needles = needle_verdicts(result, expected_needles)
     code_result_ok, code_result_value = (
         code_result_verdict(result, code_expected_result)
@@ -403,24 +420,24 @@ def _record(
         "prompt_tokens": prompt_tokens,
         "cached_tokens": cached_tokens,
         "cache_hit_ratio": cache_hit_ratio(cached_tokens, prompt_tokens),
-        "ttft_ms": result.ttft_ms,
+        "ttft_ms": dspark["ttft_ms"] if dspark["ttft_ms"] is not None else result.ttft_ms,
         "e2e_ms": result.e2e_ms,
-        **performance,
+        **{**performance, "decode_tps": dspark["decode_tps"] if dspark["decode_tps"] is not None else performance["decode_tps"]},
         "mtp_acceptance": mtp_acceptance_from_snapshots(
             metrics_before, metrics_after
         ),
-        "speculation_mode": server["speculation_mode"],
-        "drafter_id": server["drafter_id"],
-        "drafter_revision": server["drafter_revision"],
+        "speculation_mode": dspark["speculation_mode"] or server["speculation_mode"],
+        "drafter_id": drafter_id or server["drafter_id"],
+        "drafter_revision": drafter_revision or server["drafter_revision"],
         "draft_cap_policy": server["draft_cap_policy"],
-        "draft_cap_resolved": server["draft_cap_resolved"],
+        "draft_cap_resolved": dspark["draft_cap_resolved"] if dspark["draft_cap_resolved"] is not None else server["draft_cap_resolved"],
         "drafted_tokens": server["drafted_tokens"],
         "accepted_tokens": server["accepted_tokens"],
-        "accept_length": server["accept_length"],
-        "verification_steps": server["verification_steps"],
+        "accept_length": dspark["accept_length"] if dspark["accept_length"] is not None else server["accept_length"],
+        "verification_steps": dspark["verification_steps"] if dspark["verification_steps"] is not None else server["verification_steps"],
         "decode_speedup_vs_baseline": None,
-        "machine_roofline_tps": server["machine_roofline_tps"],
-        "decode_roofline_ratio": server["decode_roofline_ratio"],
+        "machine_roofline_tps": dspark["machine_roofline_tps"] if dspark["machine_roofline_tps"] is not None else server["machine_roofline_tps"],
+        "decode_roofline_ratio": dspark["decode_roofline_ratio"] if dspark["decode_roofline_ratio"] is not None else server["decode_roofline_ratio"],
         "finish_reason": result.finish_reason,
         "reasoning_chars": len(result.reasoning_text),
         "needle_verdicts": needles,
@@ -444,6 +461,8 @@ def _record(
         "gpu_temp_start_c": None,
         "gpu_temp_peak_c": None,
         "fixture_token_hash": fixture_hash,
+        "greedy_tokens_hash": getattr(args, "greedy_tokens_hash", None),
+        "logit_tie_evidence": None,
         "temperature": SAMPLING_CONTROLS["temperature"],
         "top_p": SAMPLING_CONTROLS["top_p"],
         "top_k": SAMPLING_CONTROLS["top_k"],
@@ -483,6 +502,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--ane-prefill-enabled", action="store_true")
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--metrics-url")
+    parser.add_argument("--mlx-dspark-metrics-url")
+    parser.add_argument("--machine-url")
+    parser.add_argument("--drafter-id")
+    parser.add_argument("--drafter-revision")
     return parser
 
 
@@ -541,6 +564,9 @@ def main() -> int:
                     ),
                 )
                 metrics_after = _metrics_snapshot(args.metrics_url)
+                dspark_machine = _json_snapshot(args.machine_url)
+                dspark_metrics = _json_snapshot(args.mlx_dspark_metrics_url)
+                args.greedy_tokens_hash = sha256_tokens(tokenizer(result.text))
                 record = _record(
                     args,
                     scenario,
@@ -554,6 +580,10 @@ def main() -> int:
                     mutation_prefix_tokens,
                     mutation_tokens,
                     fixture.expected_result,
+                    dspark_machine,
+                    dspark_metrics,
+                    args.drafter_id,
+                    args.drafter_revision,
                 )
                 output.write(json.dumps(record, sort_keys=True) + "\n")
                 output.flush()

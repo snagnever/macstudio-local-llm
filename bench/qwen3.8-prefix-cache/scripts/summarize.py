@@ -45,6 +45,16 @@ SPECPREFILL_PROFILES = {
     "M": ("Qwen/Qwen3.5-2B", "15852e8c16360a2fea060d615a32b45270f8a8fc", 0.40),
     "N": ("Qwen/Qwen3.5-0.8B", "2fc06364715b967f1860aea9cf38778875588b17", 0.50),
 }
+SPECULATIVE_ARMS = ("R", "S")
+SPECULATIVE_CONTEXTS = (8192, 32768)
+SPECULATIVE_CLASSES = ("code", "math", "chat", "tool_call_json")
+SPECULATIVE_TELEMETRY = (
+    "drafter_id",
+    "drafter_revision",
+    "draft_cap_resolved",
+    "accept_length",
+    "verification_steps",
+)
 
 
 def gate_record(record: dict[str, Any]) -> list[str]:
@@ -541,6 +551,159 @@ def _median(records: list[dict[str, Any]], field: str) -> float:
     return statistics.median(values) if values else 0.0
 
 
+def _speculative_pair_key(record: dict[str, Any]) -> tuple[Any, ...]:
+    """All controls that must be exact when comparing Q to a speculative arm."""
+    return tuple(record.get(field) for field in PAIRING_FIELDS) + (record.get("repeat"),)
+
+
+def _token_equivalent(baseline: dict[str, Any], candidate: dict[str, Any]) -> bool:
+    baseline_hash = baseline.get("greedy_tokens_hash")
+    candidate_hash = candidate.get("greedy_tokens_hash")
+    if isinstance(baseline_hash, str) and baseline_hash and baseline_hash == candidate_hash:
+        return True
+    return bool(
+        baseline.get("logit_tie_evidence")
+        and candidate.get("logit_tie_evidence")
+        and baseline.get("correct")
+        and candidate.get("correct")
+    )
+
+
+def _candidate_speculative_pairs(
+    records: list[dict[str, Any]], candidate: str, baseline_arm: str
+) -> tuple[list[tuple[dict[str, Any], dict[str, Any]]], list[str]]:
+    baseline = {
+        _speculative_pair_key(record): record
+        for record in records
+        if record.get("arm") == baseline_arm
+        and record.get("record_type") != "verdict"
+        and record.get("context_target") in SPECULATIVE_CONTEXTS
+        and record.get("content_class") in SPECULATIVE_CLASSES
+    }
+    candidates = {
+        _speculative_pair_key(record): record
+        for record in records
+        if record.get("arm") == candidate
+        and record.get("record_type") != "verdict"
+        and record.get("context_target") in SPECULATIVE_CONTEXTS
+        and record.get("content_class") in SPECULATIVE_CLASSES
+    }
+    if not baseline or not candidates:
+        return [], ["pairs"]
+    missing = sorted(set(baseline) ^ set(candidates), key=str)
+    if missing:
+        return [], ["pairs"]
+    pairs = [(baseline[key], candidates[key]) for key in sorted(baseline, key=str)]
+    expected = {
+        (context, content_class, repeat)
+        for context in SPECULATIVE_CONTEXTS
+        for content_class in SPECULATIVE_CLASSES
+        for repeat in REQUIRED_REPETITIONS
+    }
+    observed = {
+        (int(base["context_target"]), str(base["content_class"]), int(base["repeat"]))
+        for base, _ in pairs
+    }
+    return pairs, ([] if observed == expected else ["pairs"])
+
+
+def evaluate_speculative_decode(
+    records: list[dict[str, Any]], baseline_arm: str = "Q"
+) -> dict[str, Any]:
+    """Apply Gate 8 without inventing a metric when a pair is absent."""
+    result: dict[str, Any] = {}
+    passing: list[dict[str, Any]] = []
+    for candidate in SPECULATIVE_ARMS:
+        pairs, missing = _candidate_speculative_pairs(records, candidate, baseline_arm)
+        inconclusive = list(missing)
+        failures: list[str] = []
+        if pairs:
+            for baseline, speculative in pairs:
+                if not _token_equivalent(baseline, speculative):
+                    failures.append("token_equivalence")
+                if not baseline.get("correct") or not speculative.get("correct"):
+                    failures.append("correct")
+                if any(speculative.get(field) is None for field in SPECULATIVE_TELEMETRY):
+                    inconclusive.append("telemetry")
+                if baseline.get("decode_tps") in (None, 0) or speculative.get("decode_tps") is None:
+                    inconclusive.append("decode_tps")
+                if baseline.get("e2e_ms") in (None, 0) or speculative.get("e2e_ms") is None:
+                    inconclusive.append("warm_total")
+                if baseline.get("cache_hit_ratio") is None or speculative.get("cache_hit_ratio") is None:
+                    inconclusive.append("cache_hit")
+                if baseline.get("ttft_ms") is None or speculative.get("ttft_ms") is None:
+                    inconclusive.append("warm_ttft")
+        tool_ok = any(
+            record.get("arm") == candidate
+            and record.get("record_type") == "verdict"
+            and record.get("turns_requested") == 20
+            and record.get("correct")
+            for record in records
+        )
+        if not tool_ok:
+            inconclusive.append("tool_loop")
+        if inconclusive:
+            result[candidate] = {
+                "arm": candidate, "baseline": baseline_arm, "status": "INCONCLUSIVE",
+                "failures": _unique(inconclusive), "median_decode_speedup": {},
+            }
+            continue
+        by_context: dict[int, list[float]] = defaultdict(list)
+        by_class: dict[str, list[float]] = defaultdict(list)
+        warm_speedups: list[float] = []
+        cache_regressions: list[bool] = []
+        ttft_regressions: list[bool] = []
+        for baseline, speculative in pairs:
+            speedup = float(speculative["decode_tps"]) / float(baseline["decode_tps"])
+            by_context[int(baseline["context_target"])].append(speedup)
+            by_class[str(baseline["content_class"])].append(speedup)
+            if baseline["scenario"] == "identical":
+                warm_speedups.append(float(baseline["e2e_ms"]) / float(speculative["e2e_ms"]))
+                cache_regressions.append(float(speculative["cache_hit_ratio"]) < float(baseline["cache_hit_ratio"]))
+                ttft_regressions.append(float(speculative["ttft_ms"]) > float(baseline["ttft_ms"]) * 1.10)
+        medians = {str(context): statistics.median(values) for context, values in by_context.items()}
+        class_speedups = {name: statistics.median(values) for name, values in by_class.items()}
+        if medians.get("8192", 0.0) < 1.25:
+            failures.append("decode_8k")
+        if medians.get("32768", 0.0) < 1.15:
+            failures.append("decode_32k")
+        if sum(value > 1.0 for value in class_speedups.values()) < 3:
+            failures.append("class_gain")
+        if any(value < 0.95 for value in class_speedups.values()):
+            failures.append("class_regression")
+        if not warm_speedups:
+            inconclusive.append("warm_pairs")
+        elif statistics.median(warm_speedups) < (1 / 0.90):
+            failures.append("warm_total")
+        if any(cache_regressions):
+            failures.append("cache_hit")
+        if any(ttft_regressions):
+            failures.append("warm_ttft")
+        if inconclusive:
+            status = "INCONCLUSIVE"
+            failures = _unique(inconclusive)
+        else:
+            status = "PASS" if not _unique(failures) else "FAIL"
+            failures = _unique(failures)
+        evaluation = {
+            "arm": candidate, "baseline": baseline_arm, "status": status,
+            "failures": failures, "median_decode_speedup": medians,
+            "class_speedups": class_speedups,
+            "warm_total_speedup": statistics.median(warm_speedups) if warm_speedups else None,
+        }
+        result[candidate] = evaluation
+        if status == "PASS":
+            passing.append(evaluation)
+    winner = None
+    if passing:
+        winner = min(
+            passing,
+            key=lambda item: (-float(item["warm_total_speedup"]), -float(item["median_decode_speedup"]["32768"])),
+        )
+    result["winner"] = {"arm": winner["arm"] if winner else baseline_arm, "selected": winner is not None}
+    return result
+
+
 def _summary_rows(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     groups: dict[tuple[Any, ...], list[dict[str, Any]]] = defaultdict(list)
     for record in records:
@@ -579,6 +742,7 @@ def _write_summary(
     evaluations: dict[str, dict[str, Any]],
     specprefill: dict[str, dict[str, Any]],
     ane: dict[str, dict[str, Any]],
+    speculative: dict[str, Any],
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = [
@@ -645,6 +809,25 @@ def _write_summary(
             f"{', '.join(ane_evaluation['failures']) or '—'} |",
         ]
     )
+    lines.extend(
+        [
+            "",
+            "## mlx-dspark Gate 8",
+            "",
+            "| Arm | Status | 8K decode | 32K decode | 32K warm total | Failures |",
+            "|---|---|---:|---:|---:|---|",
+        ]
+    )
+    for arm in SPECULATIVE_ARMS:
+        evaluation = speculative.get(arm, {})
+        decode = evaluation.get("median_decode_speedup", {})
+        warm = evaluation.get("warm_total_speedup")
+        lines.append(
+            f"| {arm} | {evaluation.get('status', 'INCONCLUSIVE')} | "
+            f"{decode.get('8192', 0.0):.3f} | {decode.get('32768', 0.0):.3f} | "
+            f"{warm if warm is not None else '—'} | "
+            f"{', '.join(evaluation.get('failures', [])) or '—'} |"
+        )
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -679,6 +862,11 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=campaign / "results" / "omlx-mtp-gate.json",
     )
+    parser.add_argument(
+        "--dspark-selection",
+        type=Path,
+        default=campaign / "results" / "mlx-dspark-selection.json",
+    )
     return parser
 
 
@@ -688,7 +876,8 @@ def main() -> int:
     evaluations = evaluate_arms(records)
     specprefill = evaluate_specprefill(records)
     ane = evaluate_ane(records)
-    _write_summary(args.summary, records, evaluations, specprefill, ane)
+    speculative = evaluate_speculative_decode(records)
+    _write_summary(args.summary, records, evaluations, specprefill, ane, speculative)
 
     survivors = [
         evaluation
@@ -713,6 +902,10 @@ def main() -> int:
     args.omlx_mtp_gate.parent.mkdir(parents=True, exist_ok=True)
     args.omlx_mtp_gate.write_text(
         json.dumps(mtp_gate, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    args.dspark_selection.parent.mkdir(parents=True, exist_ok=True)
+    args.dspark_selection.write_text(
+        json.dumps(speculative, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     return 0 if survivors else 2
 
