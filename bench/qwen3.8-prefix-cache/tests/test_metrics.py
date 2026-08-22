@@ -84,6 +84,23 @@ class MetricsTests(unittest.TestCase):
 
         self.assertEqual(evidence["ane_runtime_log_compiled_programs"], 2)
         self.assertEqual(evidence["ane_runtime_log_executed_operations"], 126)
+
+    def test_ane_runtime_log_fails_closed_without_one_compilation_and_one_profile(self):
+        """Conflicting, missing, or multiple v0.6.3rc2 events are not evidence."""
+        valid_compile = "Eagerly compiled 64 MLP and 0 GDN procedures into 2 instance-pinned ANE programs (sequence_length=8192)"
+        valid_profile = "[benchmark-ane-profile] category=mlp operations=126 configured_layers=64 observed_shapes=1.969"
+        for source in (
+            valid_compile,
+            valid_profile,
+            "\n".join((valid_compile, valid_compile.replace("into 2", "into 3"), valid_profile)),
+            "\n".join((valid_compile, valid_profile, valid_profile.replace("operations=126", "operations=127"))),
+            "\n".join((valid_compile, valid_profile, "[benchmark-ane-profile] category=gdn operations=9 configured_layers=1")),
+            "[unrelated-ane] operations=999\nnot a benchmark event",
+        ):
+            with self.subTest(source=source):
+                evidence = parse_ane_runtime_evidence(source, "O", "measured-o", 16384)
+                self.assertIsNone(evidence["ane_runtime_log_compiled_programs"])
+                self.assertIsNone(evidence["ane_runtime_log_executed_operations"])
     def test_prometheus_parser_reads_labels_and_ignores_comments(self):
         source = (
             '# HELP prefix_cache_hits_total Cache hits\n'

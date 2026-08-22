@@ -9,6 +9,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 from cache_probe import (
     cache_hit_ratio,
+    code_result_verdict,
     cached_tokens_from_usage,
     fixture_token_target,
     _payload,
@@ -188,8 +189,24 @@ class CacheProbeTests(unittest.TestCase):
         messages = _base_messages(fixture.text, fixture.question)
 
         self.assertIn("def rolling_checksum", fixture.text)
-        self.assertIn("CODE-RESULT-32896", messages[-1]["content"])
-        self.assertEqual(fixture.needles, ("CODE-RESULT-32896",))
+        self.assertNotIn("CODE-RESULT", fixture.text)
+        self.assertNotIn(str(fixture.expected_result), messages[-1]["content"])
+        self.assertIn('"rolling_checksum"', messages[-1]["content"])
+        self.assertEqual(fixture.needles, ())
+
+    def test_code_result_requires_the_derived_structured_value_not_an_echo(self):
+        """The MTP code gate must parse a result, not find a disclosed marker."""
+        good = StreamResult(
+            text='{"rolling_checksum": 32896}', reasoning_text="", finish_reason="stop",
+            ttft_ms=1.0, e2e_ms=2.0, usage={}, raw_chunks=1,
+        )
+        echo = StreamResult(
+            text="CODE-RESULT-32896", reasoning_text="", finish_reason="stop",
+            ttft_ms=1.0, e2e_ms=2.0, usage={}, raw_chunks=1,
+        )
+
+        self.assertEqual(code_result_verdict(good, 32896), (True, 32896))
+        self.assertEqual(code_result_verdict(echo, 32896), (False, None))
 
 
 if __name__ == "__main__":

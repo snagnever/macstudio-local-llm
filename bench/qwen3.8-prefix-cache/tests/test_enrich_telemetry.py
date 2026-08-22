@@ -85,6 +85,21 @@ class EnrichTelemetryTests(unittest.TestCase):
         self.assertEqual(records[0]["ane_runtime_log_executed_operations"], 126)
         self.assertNotIn("ane_runtime_log_compiled_programs", records[1])
 
+    def test_enrichment_does_not_stamp_positive_ane_evidence_from_ambiguous_log(self):
+        """A scoped record keeps unavailable evidence when the log is ambiguous."""
+        records = [{"session_id": "wanted", "arm": "O", "context_target": 16384}]
+        evidence = parse_ane_runtime_evidence(
+            "Eagerly compiled 64 MLP and 0 GDN procedures into 2 instance-pinned ANE programs (sequence_length=8192)\n"
+            "[benchmark-ane-profile] category=mlp operations=126 configured_layers=64\n"
+            "[benchmark-ane-profile] category=mlp operations=127 configured_layers=64",
+            "O", "wanted", 16384,
+        )
+
+        enrich_records(records, "wanted", {"ram_peak_gb": 60.0}, evidence, "O", 16384)
+
+        self.assertIsNone(records[0]["ane_runtime_log_compiled_programs"])
+        self.assertIsNone(records[0]["ane_runtime_log_executed_operations"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from hashlib import sha256
 import re
 from struct import pack
-from typing import Callable
+from typing import Callable, Optional
 
 
 @dataclass(frozen=True)
@@ -11,6 +11,7 @@ class PromptFixture:
     token_ids: list[int]
     needles: tuple[str, ...]
     question: str = ""
+    expected_result: Optional[int] = None
 
 
 NEEDLES = (
@@ -18,10 +19,9 @@ NEEDLES = (
     "ARGON-1844-EMBER",
     "NEON-6301-ORBIT",
 )
-CODE_RESULT = "CODE-RESULT-32896"
 CODE_QUESTION = (
-    "Review the deterministic Python program and return only its asserted result: "
-    f"{CODE_RESULT}."
+    "Run or derive the deterministic Python program. Return exactly one JSON object "
+    'with the integer field "rolling_checksum".'
 )
 
 
@@ -76,9 +76,7 @@ def build_code_fixture(
         "    return total",
         "",
         "INPUT = list(range(1, 257))",
-        "EXPECTED = 32896",
-        "assert rolling_checksum(INPUT) == EXPECTED",
-        f"# Required response marker: {CODE_RESULT}",
+        "result = rolling_checksum(INPUT)",
     ]
     index = 0
     token_ids = encode("\n".join(code))
@@ -89,11 +87,13 @@ def build_code_fixture(
         index += 1
         token_ids = encode("\n".join(code))
     text = "\n".join(code)
+    expected_result = sum(range(1, 257)) % 65537
     return PromptFixture(
         text=text,
         token_ids=encode(text),
-        needles=(CODE_RESULT,),
+        needles=(),
         question=CODE_QUESTION,
+        expected_result=expected_result,
     )
 
 

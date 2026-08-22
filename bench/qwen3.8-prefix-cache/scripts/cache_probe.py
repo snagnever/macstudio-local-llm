@@ -277,6 +277,27 @@ def result_correct(
     return all(needle_verdicts(result, needles).values())
 
 
+def code_result_verdict(
+    result: StreamResult, expected_result: int
+) -> tuple[bool, Optional[int]]:
+    """Validate the derived code result as the one-field JSON response contract."""
+    if result.finish_reason == "length":
+        return False, None
+    try:
+        payload = json.loads(result.text.strip())
+    except (json.JSONDecodeError, AttributeError):
+        return False, None
+    if (
+        not isinstance(payload, dict)
+        or set(payload) != {"rolling_checksum"}
+        or isinstance(payload["rolling_checksum"], bool)
+        or not isinstance(payload["rolling_checksum"], int)
+    ):
+        return False, None
+    value = payload["rolling_checksum"]
+    return value == expected_result, value
+
+
 def _prompt_identity(messages: list[dict[str, Any]]) -> str:
     canonical = json.dumps(messages, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
@@ -319,6 +340,7 @@ def _record(
     suffix_tokens: int,
     mutation_prefix_tokens: int,
     mutation_tokens: int,
+    code_expected_result: Optional[int] = None,
 ) -> dict[str, Any]:
     usage = result.usage
     prompt_tokens = int(usage.get("prompt_tokens") or 0)
@@ -326,6 +348,11 @@ def _record(
     performance = _performance(result, prompt_tokens, cached_tokens)
     server = normalize_server_measurements(usage, metrics_before, metrics_after)
     needles = needle_verdicts(result, expected_needles)
+    code_result_ok, code_result_value = (
+        code_result_verdict(result, code_expected_result)
+        if code_expected_result is not None
+        else (None, None)
+    )
     now = datetime.now(timezone.utc)
     return {
         "schema_version": 3,
@@ -397,6 +424,9 @@ def _record(
         "finish_reason": result.finish_reason,
         "reasoning_chars": len(result.reasoning_text),
         "needle_verdicts": needles,
+        "code_result_expected": code_expected_result,
+        "code_result_value": code_result_value,
+        "code_result_verdict": code_result_ok,
         "static_prefix_correct": (
             scenario != "cold"
             and cached_tokens > 0
@@ -408,7 +438,7 @@ def _record(
             and isinstance(server["static_prefix_cached_tokens"], (int, float))
             and server["static_prefix_cached_tokens"] >= server["static_prefix_boundary_tokens"]
         ),
-        "correct": all(needles.values()),
+        "correct": code_result_ok if code_expected_result is not None else all(needles.values()),
         "ram_peak_gb": None,
         "swap_delta_gb": None,
         "gpu_temp_start_c": None,
@@ -518,6 +548,7 @@ def main() -> int:
                     len(suffix_token_ids),
                     mutation_prefix_tokens,
                     mutation_tokens,
+                    fixture.expected_result,
                 )
                 output.write(json.dumps(record, sort_keys=True) + "\n")
                 output.flush()

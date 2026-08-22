@@ -107,26 +107,46 @@ def metric_delta(
 def parse_ane_runtime_evidence(
     text: str, arm: str, session_id: str, context: int
 ) -> dict[str, Any]:
-    """Bind actual oMLX ANE benchmark events to an isolated runner scope."""
-    compiled_programs = None
-    executed_operations = None
+    """Bind one v0.6.3rc2 ANE compilation and one MLP profile to this run.
+
+    oMLX emits exactly one eager compilation declaration and one
+    ``benchmark-ane-profile`` MLP summary for an isolated ANE benchmark run.
+    Anything else is ambiguous: never select a last declaration or aggregate
+    profiles that might belong to unrelated work.
+    """
+    compiled_events = []
+    profile_events = []
+    unidentifiable_event = False
+    compiled_pattern = re.compile(
+        r"^Eagerly compiled \d+ MLP and \d+ GDN procedures into (\d+) "
+        r"instance-pinned ANE programs \(sequence_length=\d+\)$"
+    )
+    profile_pattern = re.compile(
+        r"^\[benchmark-ane-profile\] category=mlp operations=(\d+) "
+        r"configured_layers=\d+(?: observed_shapes=[0-9.]+)?$"
+    )
     for raw_line in text.splitlines():
-        compiled = re.search(
-            r"Eagerly compiled \d+ MLP and \d+ GDN procedures into (\d+) .*ANE programs",
-            raw_line,
-        )
+        line = raw_line.strip()
+        compiled = compiled_pattern.fullmatch(line)
         if compiled:
-            compiled_programs = int(compiled.group(1))
-        benchmark = re.search(
-            r"\[benchmark-ane-profile\].*\boperations=(\d+)", raw_line
-        )
-        if benchmark:
-            operations = int(benchmark.group(1))
-            executed_operations = (
-                operations
-                if executed_operations is None
-                else executed_operations + operations
-            )
+            compiled_events.append(int(compiled.group(1)))
+        elif "Eagerly compiled" in line and "ANE programs" in line:
+            unidentifiable_event = True
+        profile = profile_pattern.fullmatch(line)
+        if profile:
+            profile_events.append(int(profile.group(1)))
+        elif "[benchmark-ane-profile]" in line:
+            unidentifiable_event = True
+    if (
+        not unidentifiable_event
+        and len(compiled_events) == 1
+        and len(profile_events) == 1
+    ):
+        compiled_programs = compiled_events[0]
+        executed_operations = profile_events[0]
+    else:
+        compiled_programs = None
+        executed_operations = None
     return {
         "ane_runtime_log_arm": arm,
         "ane_runtime_log_session_id": session_id,

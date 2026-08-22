@@ -86,10 +86,16 @@ def pair_record(arm, context, ttft_ms, **overrides):
 
 
 def trio(arm, context, ttft_ms, **overrides):
-    return [
+    records = [
         pair_record(arm, context, ttft_ms, repeat=repeat, **overrides)
         for repeat in (1, 2, 3)
     ]
+    # Production cold probes deliberately change their system prefix per repeat.
+    # Both arms must still carry the same repeat-specific prompt identity.
+    for record in records:
+        if record["scenario"] == "cold":
+            record["prompt_identity"] = f"cold-{context}-r{record['repeat']}"
+    return records
 
 
 def specprefill_fixture(arm="M", candidate_ttft=70):
@@ -112,6 +118,31 @@ class SummaryTests(unittest.TestCase):
 
         self.assertEqual(result["M"]["status"], "PASS")
         self.assertEqual(result["M"]["advance_to_65k"], True)
+
+    def test_specprefill_pairs_production_unique_cold_prompts_by_repeat(self):
+        """Cold r1/r2/r3 identities differ but pair exactly across L and M."""
+        result = evaluate_specprefill(specprefill_fixture("M", 70))
+
+        self.assertEqual(result["M"]["status"], "PASS")
+
+    def test_specprefill_rejects_a_mismatched_or_missing_cold_repeat_identity(self):
+        """A unique cold prompt is valid only when its matching repeat pairs."""
+        mismatched = specprefill_fixture("M", 70)
+        next(
+            record for record in mismatched
+            if record.get("arm") == "M" and record.get("scenario") == "cold"
+            and record.get("context_target") == 16384 and record.get("repeat") == 2
+        )["prompt_identity"] = "wrong-r2"
+        self.assertIn("prompt_identity", evaluate_specprefill(mismatched)["M"]["failures"])
+
+        missing = [
+            record for record in specprefill_fixture("M", 70)
+            if not (
+                record.get("arm") == "M" and record.get("scenario") == "cold"
+                and record.get("context_target") == 16384 and record.get("repeat") == 2
+            )
+        ]
+        self.assertIn("repetitions", evaluate_specprefill(missing)["M"]["failures"])
 
     def test_specprefill_rejects_mismatched_or_missing_pairing_controls(self):
         """Different builds, prompts, or absent controls must never form a pair."""
@@ -237,10 +268,35 @@ class SummaryTests(unittest.TestCase):
     def test_mtp_gate_requires_isolated_l_evidence(self):
         """SpecPrefill must not run before the L MTP profile records a clean gate."""
         self.assertFalse(omlx_mtp_gate([])["passed"])
-        k = trio("K", 32768, 100, content_class="code", prompt_identity="code-32768", fixture_token_hash="code-fixture", mtp_enabled=False, cache_hit_ratio=0.96)
-        l = trio("L", 32768, 90, content_class="code", prompt_identity="code-32768", fixture_token_hash="code-fixture", mtp_enabled=True, mtp_acceptance=0.5, cache_hit_ratio=0.96)
+        k = trio("K", 32768, 100, content_class="code", prompt_identity="code-32768", fixture_token_hash="code-fixture", mtp_enabled=False, cache_hit_ratio=0.96, code_result_verdict=True, code_result_expected=32896, code_result_value=32896)
+        l = trio("L", 32768, 90, content_class="code", prompt_identity="code-32768", fixture_token_hash="code-fixture", mtp_enabled=True, mtp_acceptance=0.5, cache_hit_ratio=0.96, code_result_verdict=True, code_result_expected=32896, code_result_value=32896)
         verdict = {**pair_record("L", 32768, 1), "record_type": "verdict", "turns_requested": 20, "specprefill_enabled": False, "mtp_enabled": True}
         self.assertTrue(omlx_mtp_gate([*k, *l, verdict])["passed"])
+
+    def test_ane_pairs_production_unique_cold_prompts_by_repeat(self):
+        """J/O comparisons use the stable control group, not a cold prompt singleton."""
+        records = [
+            *trio("J", 16384, 100), *trio("O", 16384, 95),
+            *trio("J", 32768, 100), *trio("O", 32768, 90),
+        ]
+
+        self.assertEqual(evaluate_ane(records)["O"]["status"], "PASS")
+
+    def test_mtp_rejects_a_functionally_wrong_k_result(self):
+        """MTP cannot pass when the non-MTP control does not solve the same code task."""
+        k = trio("K", 32768, 100, content_class="code", prompt_identity="code-32768", fixture_token_hash="code-fixture", mtp_enabled=False, cache_hit_ratio=0.96, correct=False, code_result_verdict=False, code_result_expected=32896, code_result_value=1)
+        l = trio("L", 32768, 90, content_class="code", prompt_identity="code-32768", fixture_token_hash="code-fixture", mtp_enabled=True, mtp_acceptance=0.5, cache_hit_ratio=0.96, code_result_verdict=True, code_result_expected=32896, code_result_value=32896)
+        verdict = {**pair_record("L", 32768, 1), "record_type": "verdict", "turns_requested": 20, "specprefill_enabled": False, "mtp_enabled": True}
+
+        self.assertIn("code_result", omlx_mtp_gate([*k, *l, verdict])["failures"])
+
+    def test_mtp_rejects_different_verified_code_results(self):
+        """Both arms must evidence one identical independently-verifiable result."""
+        k = trio("K", 32768, 100, content_class="code", prompt_identity="code-32768", fixture_token_hash="code-fixture", mtp_enabled=False, cache_hit_ratio=0.96, code_result_verdict=True, code_result_expected=32896, code_result_value=32896)
+        l = trio("L", 32768, 90, content_class="code", prompt_identity="code-32768", fixture_token_hash="code-fixture", mtp_enabled=True, mtp_acceptance=0.5, cache_hit_ratio=0.96, code_result_verdict=True, code_result_expected=32896, code_result_value=32897)
+        verdict = {**pair_record("L", 32768, 1), "record_type": "verdict", "turns_requested": 20, "specprefill_enabled": False, "mtp_enabled": True}
+
+        self.assertIn("code_result", omlx_mtp_gate([*k, *l, verdict])["failures"])
 
     def test_specprefill_fails_when_needle_or_tool_loop_fails(self):
         """Ignoring functional failures would incorrectly promote SpecPrefill."""
@@ -293,10 +349,10 @@ class SummaryTests(unittest.TestCase):
     def test_ane_is_inconclusive_without_executed_operations(self):
         """Compiled but unused ANE paths cannot establish an acceleration result."""
         records = [
-            pair_record("J", 16384, 100),
-            pair_record("O", 16384, 90, ane_compiled_mlp_layers=0, ane_compiled_gdn_layers=0, ane_executed_operations=0),
-            pair_record("J", 32768, 100),
-            pair_record("O", 32768, 90, ane_compiled_mlp_layers=0, ane_compiled_gdn_layers=0, ane_executed_operations=0),
+            *trio("J", 16384, 100),
+            *trio("O", 16384, 90, ane_compiled_mlp_layers=0, ane_compiled_gdn_layers=0, ane_executed_operations=0),
+            *trio("J", 32768, 100),
+            *trio("O", 32768, 90, ane_compiled_mlp_layers=0, ane_compiled_gdn_layers=0, ane_executed_operations=0),
         ]
 
         result = evaluate_ane(records)
@@ -306,10 +362,8 @@ class SummaryTests(unittest.TestCase):
     def test_ane_is_inconclusive_when_layers_compile_but_execute_zero_operations(self):
         """Compilation without observed execution cannot satisfy the ANE gate."""
         records = [
-            pair_record("J", 16384, 100),
-            pair_record("O", 16384, 90, ane_executed_operations=0),
-            pair_record("J", 32768, 100),
-            pair_record("O", 32768, 90, ane_executed_operations=0),
+            *trio("J", 16384, 100), *trio("O", 16384, 90, ane_executed_operations=0),
+            *trio("J", 32768, 100), *trio("O", 32768, 90, ane_executed_operations=0),
         ]
 
         result = evaluate_ane(records)

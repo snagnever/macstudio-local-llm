@@ -38,6 +38,9 @@ PAIRING_FIELDS = (
     "concurrency",
     "warmup_id",
 )
+CONTROL_GROUP_FIELDS = tuple(
+    field for field in PAIRING_FIELDS if field != "prompt_identity"
+)
 SPECPREFILL_PROFILES = {
     "M": ("Qwen/Qwen3.5-2B", "15852e8c16360a2fea060d615a32b45270f8a8fc", 0.40),
     "N": ("Qwen/Qwen3.5-0.8B", "2fc06364715b967f1860aea9cf38778875588b17", 0.50),
@@ -100,10 +103,49 @@ def _comparison_signature(record: dict[str, Any]) -> tuple[Any, ...]:
     return tuple(record.get(field) for field in PAIRING_FIELDS)
 
 
+def _control_group_signature(record: dict[str, Any]) -> tuple[Any, ...]:
+    """Return the stable comparison controls, excluding per-repeat prompt text."""
+    return tuple(record.get(field) for field in CONTROL_GROUP_FIELDS)
+
+
 def _pairing_metadata_present(record: dict[str, Any]) -> bool:
     if any(record.get(field) is None for field in PAIRING_FIELDS):
         return False
     return isinstance(record.get("prompt_tokens"), int) and record["prompt_tokens"] > 0
+
+
+def _repeat_pairing_failure(
+    baseline: list[dict[str, Any]], candidate: list[dict[str, Any]]
+) -> Optional[str]:
+    """Validate the campaign's exact r1/r2/r3 evidence within one control group."""
+    def by_repeat(records: list[dict[str, Any]]) -> Optional[dict[int, dict[str, Any]]]:
+        grouped: dict[int, dict[str, Any]] = {}
+        for record in records:
+            repeat = record.get("repeat")
+            if not isinstance(repeat, int) or repeat not in REQUIRED_REPETITIONS:
+                return None
+            if repeat in grouped:
+                return None
+            grouped[repeat] = record
+        return grouped if set(grouped) == REQUIRED_REPETITIONS else None
+
+    baseline_by_repeat = by_repeat(baseline)
+    candidate_by_repeat = by_repeat(candidate)
+    if baseline_by_repeat is None or candidate_by_repeat is None:
+        return "repetitions"
+    identities: list[str] = []
+    for repeat in sorted(REQUIRED_REPETITIONS):
+        baseline_identity = baseline_by_repeat[repeat].get("prompt_identity")
+        candidate_identity = candidate_by_repeat[repeat].get("prompt_identity")
+        if not isinstance(baseline_identity, str) or not baseline_identity:
+            return "prompt_identity"
+        if baseline_identity != candidate_identity:
+            return "prompt_identity"
+        identities.append(baseline_identity)
+    scenario = baseline[0].get("scenario")
+    if scenario == "cold":
+        return None if len(set(identities)) == len(REQUIRED_REPETITIONS) else "prompt_identity"
+    return None if len(set(identities)) == 1 else "prompt_identity"
 
 
 def _records_for_arm_context(
@@ -159,6 +201,7 @@ def _pairwise_result(
     failures: list[str] = []
     comparisons: list[dict[str, Any]] = []
     candidate_records: list[dict[str, Any]] = []
+    baseline_records: list[dict[str, Any]] = []
     candidate_by_context: dict[int, list[dict[str, Any]]] = {}
     for context in contexts:
         baseline = _records_for_arm_context(records, baseline_arm, context)
@@ -172,27 +215,21 @@ def _pairwise_result(
         baseline_groups: dict[tuple[Any, ...], list[dict[str, Any]]] = defaultdict(list)
         candidate_groups: dict[tuple[Any, ...], list[dict[str, Any]]] = defaultdict(list)
         for record in baseline:
-            baseline_groups[_comparison_signature(record)].append(record)
+            baseline_groups[_control_group_signature(record)].append(record)
         for record in candidate:
-            candidate_groups[_comparison_signature(record)].append(record)
+            candidate_groups[_control_group_signature(record)].append(record)
         if baseline_groups.keys() != candidate_groups.keys():
             failures.append("incompatible_comparison")
             continue
-        repetitions_valid = True
+        pairing_failure = None
         for key in baseline_groups:
-            baseline_repeats = [record.get("repeat") for record in baseline_groups[key]]
-            candidate_repeats = [record.get("repeat") for record in candidate_groups[key]]
-            if (
-                not all(isinstance(repeat, int) and repeat > 0 for repeat in baseline_repeats + candidate_repeats)
-                or len(set(baseline_repeats)) != len(baseline_repeats)
-                or len(set(candidate_repeats)) != len(candidate_repeats)
-                or set(baseline_repeats) != set(candidate_repeats)
-                or set(baseline_repeats) != REQUIRED_REPETITIONS
-            ):
-                repetitions_valid = False
+            pairing_failure = _repeat_pairing_failure(
+                baseline_groups[key], candidate_groups[key]
+            )
+            if pairing_failure is not None:
                 break
-        if not repetitions_valid:
-            failures.append("repetitions")
+        if pairing_failure is not None:
+            failures.append(pairing_failure)
             continue
         baseline_ttft = statistics.median(
             _median(group, "ttft_ms") for group in baseline_groups.values()
@@ -218,8 +255,9 @@ def _pairwise_result(
         if minimum_improvement is not None and improvement + 1e-9 < minimum_improvement:
             failures.append(f"ttft_{context}")
         candidate_records.extend(candidate)
+        baseline_records.extend(baseline)
         candidate_by_context[context] = candidate
-    failures.extend(_functional_failures(candidate_records))
+    failures.extend(_functional_failures(baseline_records + candidate_records))
     return {
         "candidate": candidate_arm,
         "baseline": baseline_arm,
@@ -387,6 +425,25 @@ def omlx_mtp_gate(records: list[dict[str, Any]]) -> dict[str, Any]:
     baseline = _records_for_arm_context(records, "K", 32768)
     evidence = _records_for_arm_context(records, "L", 32768)
     failures = list(comparison["failures"])
+    code_records = baseline + evidence
+    expected_results = {
+        record.get("code_result_expected") for record in code_records
+        if isinstance(record.get("code_result_expected"), int)
+        and not isinstance(record.get("code_result_expected"), bool)
+    }
+    observed_results = {
+        record.get("code_result_value") for record in code_records
+        if isinstance(record.get("code_result_value"), int)
+        and not isinstance(record.get("code_result_value"), bool)
+    }
+    if (
+        not code_records
+        or not all(record.get("code_result_verdict") is True for record in code_records)
+        or len(expected_results) != 1
+        or len(observed_results) != 1
+        or expected_results != observed_results
+    ):
+        failures.append("code_result")
     if not evidence or not all(
         record.get("content_class") == "code"
         and record.get("mtp_enabled") is True
