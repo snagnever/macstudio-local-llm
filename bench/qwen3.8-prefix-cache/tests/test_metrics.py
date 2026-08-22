@@ -7,10 +7,27 @@ from pathlib import Path
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from metrics import metric_delta, parse_macmon, parse_prometheus
+from metrics import metric_delta, normalize_server_measurements, parse_macmon, parse_prometheus
 
 
 class MetricsTests(unittest.TestCase):
+    def test_server_measurements_preserve_observed_sparse_work_without_inference(self):
+        """Replacing observed server telemetry with a prompt-length guess must fail."""
+        observed = normalize_server_measurements(
+            {
+                "x_mlx_dspark": {
+                    "prompt_work_mode": "sparse",
+                    "machine_roofline_tps": 88.5,
+                    "specprefill_selected_tokens": 123,
+                }
+            },
+            {},
+        )
+
+        self.assertEqual(observed["prompt_work_mode"], "sparse")
+        self.assertEqual(observed["machine_roofline_tps"], 88.5)
+        self.assertEqual(observed["specprefill_selected_tokens"], 123)
+        self.assertIsNone(observed["specprefill_scored_tokens"])
     def test_prometheus_parser_reads_labels_and_ignores_comments(self):
         source = (
             '# HELP prefix_cache_hits_total Cache hits\n'

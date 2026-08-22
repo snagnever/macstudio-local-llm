@@ -32,10 +32,14 @@ def stream_delta_fields(chunks: Iterable[dict[str, Any]]) -> dict[str, Any]:
     content: list[str] = []
     reasoning: list[str] = []
     usage: dict[str, Any] = {}
+    server_extensions: dict[str, Any] = {}
     finish_reason = None
     for chunk in chunks:
         if chunk.get("usage"):
-            usage = chunk["usage"]
+            usage = dict(chunk["usage"])
+        for name in ("x_mlx_dspark", "x_omlx"):
+            if isinstance(chunk.get(name), dict):
+                server_extensions[name] = chunk[name]
         choices = chunk.get("choices") or []
         if not choices:
             continue
@@ -49,7 +53,7 @@ def stream_delta_fields(chunks: Iterable[dict[str, Any]]) -> dict[str, Any]:
         "content": "".join(content),
         "reasoning": "".join(reasoning),
         "finish_reason": finish_reason,
-        "usage": usage,
+        "usage": {**usage, **server_extensions},
     }
 
 

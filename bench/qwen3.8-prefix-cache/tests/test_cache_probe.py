@@ -1,6 +1,7 @@
 import sys
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
@@ -13,6 +14,7 @@ from cache_probe import (
     _payload,
     _warmup_payload,
     _messages_for_scenario,
+    _record,
     mtp_acceptance_from_snapshots,
     scenario_messages,
     result_correct,
@@ -22,6 +24,60 @@ from sse_client import StreamResult
 
 
 class CacheProbeTests(unittest.TestCase):
+    def test_measurement_record_uses_schema_v3_and_has_speculation_fields(self):
+        """Changing the v3 record contract must break this schema assertion."""
+        args = SimpleNamespace(
+            arm="M", context=16384, session_id="session", runtime="oMLX",
+            runtime_revision="v0.6.3rc2", model="awq5", model_revision="target",
+            cache_enabled=True, mtp_enabled=True, specprefill=True,
+            specprefill_keep_pct=0.40, specprefill_threshold=8192,
+            ane_prefill_enabled=False,
+        )
+        result = StreamResult(
+            text="XENON", reasoning_text="", finish_reason="stop", ttft_ms=10.0,
+            e2e_ms=20.0,
+            usage={
+                "prompt_tokens": 100,
+                "completion_tokens": 2,
+                "x_mlx_dspark": {"prompt_work_mode": "sparse"},
+            },
+            raw_chunks=1,
+        )
+
+        record = _record(
+            args, "cold", 1, result, "XENON", "fixture", {}, {}, 0, 0, 0
+        )
+
+        required = {
+            "specprefill_enabled", "specprefill_draft_model",
+            "specprefill_draft_revision", "specprefill_keep_pct",
+            "specprefill_threshold", "specprefill_selected_tokens",
+            "specprefill_scored_tokens", "specprefill_draft_ms",
+            "specprefill_target_ms", "static_prefix_cached_tokens",
+            "ane_prefill_enabled", "ane_prefill_tuned",
+            "ane_compiled_mlp_layers", "ane_compiled_gdn_layers",
+            "prompt_work_mode", "speculation_mode", "drafter_id",
+            "drafter_revision", "draft_cap_policy", "draft_cap_resolved",
+            "drafted_tokens", "accepted_tokens", "accept_length",
+            "verification_steps", "decode_speedup_vs_baseline",
+            "machine_roofline_tps", "decode_roofline_ratio",
+        }
+        self.assertEqual(record["schema_version"], 3)
+        self.assertTrue(required.issubset(record))
+        self.assertEqual(record["prompt_work_mode"], "sparse")
+        self.assertIsNone(record["specprefill_selected_tokens"])
+
+    def test_specprefill_request_options_are_sent_exactly(self):
+        """Dropping a request override must make the runtime profile unobservable."""
+        payload = _payload(
+            "model", [{"role": "user", "content": "probe"}],
+            specprefill=True, specprefill_keep_pct=0.40,
+            specprefill_threshold=8192,
+        )
+
+        self.assertTrue(payload["specprefill"])
+        self.assertEqual(payload["specprefill_keep_pct"], 0.40)
+        self.assertEqual(payload["specprefill_threshold"], 8192)
     def test_warmup_is_bounded_but_keeps_xhigh(self):
         payload = _warmup_payload("model", "warmup fixture")
 

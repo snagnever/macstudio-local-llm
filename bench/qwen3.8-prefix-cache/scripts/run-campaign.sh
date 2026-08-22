@@ -22,7 +22,7 @@ MACMON_LOG=""
 
 usage() {
   cat >&2 <<'EOF'
-usage: run-campaign.sh {smoke|cache-32k|mtp-32k|cache-65k|tool-loop|summary|native-262k}
+usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|specprefill-16k|specprefill-32k|ane-16k|ane-32k|cache-65k|tool-loop|summary|native-262k}
 EOF
 }
 
@@ -75,6 +75,22 @@ arm_metadata() {
       PORT=8080
       LAUNCHER="$SCRIPTS/run-llama-cpp.sh"
       ;;
+    I)
+      RUNTIME="oMLX"
+      MODEL_ID="ddalcu/Qwen3.8-27B-MLX-Serve-8bit"
+      RUNTIME_REVISION="v0.6.3rc2"
+      MODEL_REVISION="$MLX_MODEL_REVISION"
+      PORT=8000
+      LAUNCHER="$SCRIPTS/run-omlx.sh"
+      ;;
+    J|K|L|M|N|O)
+      RUNTIME="oMLX"
+      MODEL_ID="True2456/Qwen3.8-27B-AWQ-5.0bpw"
+      RUNTIME_REVISION="v0.6.3rc2"
+      MODEL_REVISION="dc699a76ddcbef44c188a8aee2ccc79ccc339a04"
+      PORT=8000
+      LAUNCHER="$SCRIPTS/run-omlx.sh"
+      ;;
     *)
       echo "unknown arm: $arm" >&2
       return 64
@@ -83,11 +99,22 @@ arm_metadata() {
 
   CACHE_ARGS=()
   MTP_ARGS=()
+  SPECPREFILL_ARGS=()
+  ANE_PREFILL_ARGS=()
   case "$arm" in
-    B|C|E|F|G|H) CACHE_ARGS=(--cache-enabled) ;;
+    B|C|E|F|G|H|K|L|M|N) CACHE_ARGS=(--cache-enabled) ;;
   esac
   case "$arm" in
     C|F|G|H) MTP_ARGS=(--mtp-enabled) ;;
+    L|M|N) MTP_ARGS=(--mtp-enabled) ;;
+  esac
+  case "$arm" in
+    M) SPECPREFILL_ARGS=(--specprefill=true --specprefill-keep-pct 0.40 --specprefill-threshold 8192) ;;
+    N) SPECPREFILL_ARGS=(--specprefill=true --specprefill-keep-pct 0.50 --specprefill-threshold 8192) ;;
+    J|K|L|O) SPECPREFILL_ARGS=(--specprefill=false) ;;
+  esac
+  case "$arm" in
+    O) ANE_PREFILL_ARGS=(--ane-prefill-enabled) ;;
   esac
 }
 
@@ -172,7 +199,11 @@ run_cache_arm() {
   echo "RUN arm=$arm context=$context mode=cache"
   wait_for_cooldown
   if [[ "$DRY_RUN" == "1" ]]; then
-    bash "$LAUNCHER" "$arm" --print
+    if [[ "$RUNTIME" == "oMLX" ]]; then
+      echo "+ QWEN38_CTX_SIZE=$context bash $LAUNCHER $arm"
+    else
+      bash "$LAUNCHER" "$arm" --print
+    fi
     return 0
   fi
 
@@ -203,6 +234,12 @@ run_cache_arm() {
   fi
   if [[ "${#MTP_ARGS[@]}" -gt 0 ]]; then
     PROBE_COMMAND+=("${MTP_ARGS[@]}")
+  fi
+  if [[ "${#SPECPREFILL_ARGS[@]}" -gt 0 ]]; then
+    PROBE_COMMAND+=("${SPECPREFILL_ARGS[@]}")
+  fi
+  if [[ "${#ANE_PREFILL_ARGS[@]}" -gt 0 ]]; then
+    PROBE_COMMAND+=("${ANE_PREFILL_ARGS[@]}")
   fi
   printf '+ %q ' "${PROBE_COMMAND[@]}"
   printf '\n'
@@ -290,6 +327,27 @@ case "$STAGE" in
     ;;
   mtp-32k)
     run_arms 32768 C F G H
+    ;;
+  omlx-smoke)
+    run_arms 8192 I J
+    ;;
+  omlx-cache-32k)
+    run_arms 32768 K
+    ;;
+  omlx-mtp-32k)
+    run_arms 32768 L
+    ;;
+  specprefill-16k)
+    run_arms 16384 L M N
+    ;;
+  specprefill-32k)
+    run_arms 32768 L M N
+    ;;
+  ane-16k)
+    run_arms 16384 J O
+    ;;
+  ane-32k)
+    run_arms 32768 J O
     ;;
   cache-65k)
     if [[ "$DRY_RUN" == "1" ]]; then

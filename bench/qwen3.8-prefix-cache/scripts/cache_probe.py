@@ -9,7 +9,7 @@ from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from fixtures import build_fixture, build_suffix, mutate_middle_tokens, sha256_tokens
-from metrics import parse_prometheus
+from metrics import normalize_server_measurements, parse_prometheus
 from sse_client import StreamResult, stream_chat
 
 
@@ -199,14 +199,28 @@ def _messages_for_scenario(
     return messages
 
 
-def _payload(model: str, messages: list[dict[str, Any]]) -> dict[str, Any]:
-    return {
+def _payload(
+    model: str,
+    messages: list[dict[str, Any]],
+    *,
+    specprefill: Optional[bool] = None,
+    specprefill_keep_pct: Optional[float] = None,
+    specprefill_threshold: Optional[int] = None,
+) -> dict[str, Any]:
+    payload = {
         "model": model,
         "messages": messages,
         "max_tokens": 1024,
         "temperature": 0,
         "reasoning_effort": "xhigh",
     }
+    if specprefill is not None:
+        payload["specprefill"] = specprefill
+    if specprefill_keep_pct is not None:
+        payload["specprefill_keep_pct"] = specprefill_keep_pct
+    if specprefill_threshold is not None:
+        payload["specprefill_threshold"] = specprefill_threshold
+    return payload
 
 
 def _warmup_payload(model: str, warmup_text: str) -> dict[str, Any]:
@@ -256,9 +270,10 @@ def _record(
     prompt_tokens = int(usage.get("prompt_tokens") or 0)
     cached_tokens = cached_tokens_from_usage(usage)
     performance = _performance(result, prompt_tokens, cached_tokens)
+    server = normalize_server_measurements(usage, metrics_after)
     now = datetime.now(timezone.utc)
     return {
-        "schema_version": 1,
+        "schema_version": 3,
         "run_id": (
             f"{now.strftime('%Y%m%dT%H%M%SZ')}-{args.arm}-"
             f"{args.context}-{scenario}-r{repeat}"
@@ -280,6 +295,22 @@ def _record(
         "repeat": repeat,
         "cache_enabled": args.cache_enabled,
         "mtp_enabled": args.mtp_enabled,
+        "specprefill_enabled": bool(getattr(args, "specprefill", False)),
+        "specprefill_draft_model": server["specprefill_draft_model"],
+        "specprefill_draft_revision": server["specprefill_draft_revision"],
+        "specprefill_keep_pct": getattr(args, "specprefill_keep_pct", None),
+        "specprefill_threshold": getattr(args, "specprefill_threshold", None),
+        "specprefill_selected_tokens": server["specprefill_selected_tokens"],
+        "specprefill_scored_tokens": server["specprefill_scored_tokens"],
+        "specprefill_draft_ms": server["specprefill_draft_ms"],
+        "specprefill_target_ms": server["specprefill_target_ms"],
+        "static_prefix_cached_tokens": server["static_prefix_cached_tokens"],
+        "ane_prefill_enabled": bool(getattr(args, "ane_prefill_enabled", False)),
+        "ane_prefill_tuned": server["ane_prefill_tuned"],
+        "ane_compiled_mlp_layers": server["ane_compiled_mlp_layers"],
+        "ane_compiled_gdn_layers": server["ane_compiled_gdn_layers"],
+        "ane_executed_operations": server["ane_executed_operations"],
+        "prompt_work_mode": server["prompt_work_mode"],
         "prompt_tokens": prompt_tokens,
         "cached_tokens": cached_tokens,
         "cache_hit_ratio": cache_hit_ratio(cached_tokens, prompt_tokens),
@@ -289,6 +320,18 @@ def _record(
         "mtp_acceptance": mtp_acceptance_from_snapshots(
             metrics_before, metrics_after
         ),
+        "speculation_mode": server["speculation_mode"],
+        "drafter_id": server["drafter_id"],
+        "drafter_revision": server["drafter_revision"],
+        "draft_cap_policy": server["draft_cap_policy"],
+        "draft_cap_resolved": server["draft_cap_resolved"],
+        "drafted_tokens": server["drafted_tokens"],
+        "accepted_tokens": server["accepted_tokens"],
+        "accept_length": server["accept_length"],
+        "verification_steps": server["verification_steps"],
+        "decode_speedup_vs_baseline": None,
+        "machine_roofline_tps": server["machine_roofline_tps"],
+        "decode_roofline_ratio": server["decode_roofline_ratio"],
         "finish_reason": result.finish_reason,
         "reasoning_chars": len(result.reasoning_text),
         "correct": result_correct(result, expected_needle),
@@ -318,6 +361,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--repeat", type=int, default=3)
     parser.add_argument("--cache-enabled", action="store_true")
     parser.add_argument("--mtp-enabled", action="store_true")
+    parser.add_argument("--specprefill", type=lambda value: value.lower() == "true")
+    parser.add_argument("--specprefill-keep-pct", type=float)
+    parser.add_argument("--specprefill-threshold", type=int)
+    parser.add_argument("--ane-prefill-enabled", action="store_true")
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--metrics-url")
     return parser
@@ -347,7 +394,16 @@ def main() -> int:
                     scenario, fixture.text, mutated_text, suffix, repeat
                 )
                 metrics_before = _metrics_snapshot(args.metrics_url)
-                result = stream_chat(args.base_url, _payload(args.model, messages))
+                result = stream_chat(
+                    args.base_url,
+                    _payload(
+                        args.model,
+                        messages,
+                        specprefill=args.specprefill,
+                        specprefill_keep_pct=args.specprefill_keep_pct,
+                        specprefill_threshold=args.specprefill_threshold,
+                    ),
+                )
                 metrics_after = _metrics_snapshot(args.metrics_url)
                 record = _record(
                     args,

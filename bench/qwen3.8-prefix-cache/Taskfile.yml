@@ -18,6 +18,7 @@ tasks:
       - {sh: "command -v macmon", msg: "Install macmon with: brew install macmon"}
       - {sh: "command -v mlx-serve", msg: "Install the pinned mlx-serve release."}
       - {sh: "command -v llama-server", msg: "Install the pinned llama.cpp release."}
+      - {sh: "command -v omlx", msg: "Install the pinned oMLX release."}
 
   deps:driver:
     desc: Check MacBook Pro driver dependencies
@@ -76,6 +77,48 @@ tasks:
     deps: [deps:rig, unit]
     cmds:
       - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh mtp-32k
+
+  omlx:smoke:
+    desc: Run the 8K oMLX loader smoke stage on the rig
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-smoke
+
+  omlx:cache:32k:
+    desc: Run the 32K oMLX cache stage on the rig
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-cache-32k
+
+  omlx:mtp:32k:
+    desc: Run the 32K oMLX MTP stage on the rig
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-mtp-32k
+
+  specprefill:16k:
+    desc: Compare oMLX SpecPrefill profiles at 16K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh specprefill-16k
+
+  specprefill:32k:
+    desc: Compare oMLX SpecPrefill profiles at 32K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh specprefill-32k
+
+  ane:16k:
+    desc: Compare oMLX ANE prefill at 16K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh ane-16k
+
+  ane:32k:
+    desc: Compare oMLX ANE prefill at 32K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh ane-32k
 
   cache:65k:
     desc: Run approved arms at 65K on the rig
