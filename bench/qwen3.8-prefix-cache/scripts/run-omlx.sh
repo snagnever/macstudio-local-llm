@@ -7,6 +7,7 @@ CONFIG="$ROOT/bench/qwen3.8-prefix-cache/config/omlx-arms.json"
 ARM="${1:-}"
 MODE="${2:-}"
 OMLX_BIN="${QWEN38_OMLX_BIN:-omlx}"
+EXPECTED_OMLX_VERSION="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["omlx_version"])' "$CONFIG")"
 
 case "$ARM" in
   I|J|K|L|M|N|O) ;;
@@ -48,6 +49,10 @@ case "$ARM" in
 esac
 
 RUN_ID="${QWEN38_OMLX_RUN_ID:-$(date -u +%Y%m%dT%H%M%SZ)-$ARM-$RANDOM}"
+if [[ ! "$RUN_ID" =~ ^[A-Za-z0-9._-]+$ || "$RUN_ID" == "." || "$RUN_ID" == ".." ]]; then
+  echo "QWEN38_OMLX_RUN_ID must be a safe single path component" >&2
+  exit 64
+fi
 OMLX_BASE_PATH="$ROOT/bench/qwen3.8-prefix-cache/logs/omlx/$RUN_ID"
 OMLX_MODEL_DIR="$OMLX_MODEL_ROOT"
 OMLX_PORT=8000
@@ -76,6 +81,19 @@ if [[ "$MODE" == "--print" ]]; then
   printf '%q ' "${COMMAND[@]}"
   printf '\n'
   exit 0
+fi
+
+if [[ "${EXPECTED_OMLX_VERSION#v}" != "0.6.3rc2" ]]; then
+  echo "campaign configuration must pin oMLX v0.6.3rc2" >&2
+  exit 65
+fi
+if ! ACTUAL_OMLX_VERSION="$("$OMLX_BIN" --version)"; then
+  echo "failed to determine oMLX runtime version" >&2
+  exit 69
+fi
+if [[ "${ACTUAL_OMLX_VERSION#v}" != "${EXPECTED_OMLX_VERSION#v}" ]]; then
+  echo "oMLX version mismatch: expected $EXPECTED_OMLX_VERSION, got $ACTUAL_OMLX_VERSION" >&2
+  exit 65
 fi
 
 exec "${COMMAND[@]}"

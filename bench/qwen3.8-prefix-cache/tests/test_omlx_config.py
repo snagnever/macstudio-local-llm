@@ -16,6 +16,16 @@ class OmlxConfigTests(unittest.TestCase):
     def setUp(self):
         self.tempdir = tempfile.TemporaryDirectory()
         self.root = Path(self.tempdir.name)
+        self.model_root = self.root / "models"
+        self.model_root.mkdir()
+        self.target_dirs = {
+            "I": self.model_root
+            / "ddalcu-Qwen3.8-27B-MLX-Serve-8bit-011e38296b3d2aa99245ed49a700459c4ac246b6",
+            "J": self.model_root
+            / "True2456-Qwen3.8-27B-AWQ-5.0bpw-dc699a76ddcbef44c188a8aee2ccc79ccc339a04",
+        }
+        self.target_dirs["I"].mkdir()
+        self.target_dirs["J"].mkdir()
         self.draft_2b = self.root / "draft-2b"
         self.draft_08b = self.root / "draft-08b"
         self.draft_2b.mkdir()
@@ -26,7 +36,7 @@ class OmlxConfigTests(unittest.TestCase):
             encoding="utf-8",
         )
         self.model_paths = {
-            "model_root": self.root / "models",
+            "model_root": self.model_root,
             "draft-2b": self.draft_2b,
             "draft-08b": self.draft_08b,
             "ane_profile": self.ane_profile,
@@ -80,6 +90,8 @@ class OmlxConfigTests(unittest.TestCase):
                 self.assertEqual(global_state["cache"]["enabled"], profile["cache_enabled"])
                 self.assertEqual(model_state["version"], 1)
                 self.assertEqual(len(model_state["models"]), 1)
+                expected_dir = self.target_dirs["I" if arm == "I" else "J"]
+                self.assertEqual(set(model_state["models"]), {expected_dir.name})
 
     def test_unknown_arm_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "unknown arm"):
@@ -117,6 +129,28 @@ class OmlxConfigTests(unittest.TestCase):
         model_state = json.loads((base_path / "model_settings.json").read_text())
         settings = next(iter(model_state["models"].values()))
         self.assertTrue(settings["qwen35_ane_prefill_enabled"])
+
+    def test_state_rejects_a_missing_expected_target_directory_before_writing(self):
+        missing_root = self.root / "missing-target-root"
+        missing_root.mkdir()
+        paths = dict(self.model_paths, model_root=missing_root)
+        base_path = self.root / "state"
+        with self.assertRaisesRegex(ValueError, "target model directory"):
+            write_omlx_state(base_path, load_arm(CONFIG, "J"), paths)
+        self.assertFalse(base_path.exists())
+
+    def test_ane_tuner_profile_rejects_unknown_keys_and_invalid_values(self):
+        invalid_profiles = (
+            {"qwen35_ane_prefill_typo": True},
+            {"qwen35_ane_prefill_sequence_length": 1025},
+            {"qwen35_ane_prefill_fraction": "0.53"},
+            {"qwen35_ane_prefill_cpu_threads": True},
+        )
+        for data in invalid_profiles:
+            with self.subTest(data=data):
+                self.ane_profile.write_text(json.dumps(data) + "\n", encoding="utf-8")
+                with self.assertRaises(ValueError):
+                    validate_arm(load_arm(CONFIG, "O"), self.model_paths)
 
 
 if __name__ == "__main__":

@@ -11,7 +11,11 @@ bash -n "$SCRIPTS/run-campaign.sh"
 bash -n "$SCRIPTS/download-models.sh"
 
 MODEL_ROOT="/tmp/qwen38-launcher-fixture"
-mkdir -p "$MODEL_ROOT/draft-2b" "$MODEL_ROOT/draft-08b"
+mkdir -p \
+  "$MODEL_ROOT/ddalcu-Qwen3.8-27B-MLX-Serve-8bit-011e38296b3d2aa99245ed49a700459c4ac246b6" \
+  "$MODEL_ROOT/True2456-Qwen3.8-27B-AWQ-5.0bpw-dc699a76ddcbef44c188a8aee2ccc79ccc339a04" \
+  "$MODEL_ROOT/draft-2b" \
+  "$MODEL_ROOT/draft-08b"
 MLX_A="$(QWEN38_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-mlx-serve.sh" A --print)"
 MLX_B="$(QWEN38_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-mlx-serve.sh" B --print)"
 MLX_C="$(QWEN38_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-mlx-serve.sh" C --print)"
@@ -22,8 +26,27 @@ GGUF_G="$(QWEN38_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-llama-cpp.sh" G --p
 GGUF_H="$(QWEN38_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-llama-cpp.sh" H --print)"
 
 ANE_PROFILE="$(mktemp /tmp/qwen38-ane-profile.XXXXXX)"
-trap 'rm -f "$ANE_PROFILE"' EXIT
+VERSION_LOG="$(mktemp /tmp/qwen38-omlx-version.XXXXXX)"
+FAKE_OMLX_OK="$(mktemp /tmp/qwen38-omlx-ok.XXXXXX)"
+FAKE_OMLX_BAD="$(mktemp /tmp/qwen38-omlx-bad.XXXXXX)"
+trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD"' EXIT
 printf '%s\n' '{"qwen35_ane_prefill_sequence_length":8192}' >"$ANE_PROFILE"
+printf '%s\n' \
+  '#!/usr/bin/env bash' \
+  'if [[ "$1" == "--version" ]]; then' \
+  "  printf '%s\\n' checked > '$VERSION_LOG'" \
+  "  printf '%s\\n' '0.6.3rc2'" \
+  '  exit 0' \
+  'fi' \
+  '[[ "$1" == "serve" ]]' >"$FAKE_OMLX_OK"
+printf '%s\n' \
+  '#!/usr/bin/env bash' \
+  'if [[ "$1" == "--version" ]]; then' \
+  "  printf '%s\\n' 'v0.6.2'" \
+  '  exit 0' \
+  'fi' \
+  '[[ "$1" == "serve" ]]' >"$FAKE_OMLX_BAD"
+chmod +x "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD"
 OMLX_I="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" I --print)"
 OMLX_J="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" J --print)"
 OMLX_K="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" K --print)"
@@ -71,6 +94,18 @@ grep -q -- '"qwen35_ane_prefill_enabled": true' <<<"$OMLX_O"
 grep -q -- '"specprefill_enabled": false' <<<"$OMLX_O"
 grep -q -- '"mtp_enabled": false' <<<"$OMLX_O"
 
+QWEN38_OMLX_BIN="$FAKE_OMLX_OK" \
+  QWEN38_OMLX_RUN_ID="version-ok-$RANDOM" \
+  OMLX_MODEL_ROOT="$MODEL_ROOT" \
+  bash "$SCRIPTS/run-omlx.sh" J >/dev/null
+test -s "$VERSION_LOG"
+
+if QWEN38_OMLX_BIN="$FAKE_OMLX_BAD" OMLX_MODEL_ROOT="$MODEL_ROOT" \
+  bash "$SCRIPTS/run-omlx.sh" J >/dev/null 2>&1; then
+  echo "oMLX launcher accepted a runtime version other than v0.6.3rc2" >&2
+  exit 1
+fi
+
 if bash "$SCRIPTS/run-mlx-serve.sh" D --print >/dev/null 2>&1; then
   echo "MLX launcher accepted invalid arm D" >&2
   exit 1
@@ -90,6 +125,14 @@ if OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" O --print >/dev/nul
   echo "oMLX launcher accepted O without a tuner profile" >&2
   exit 1
 fi
+
+for INVALID_RUN_ID in . .. ../.omlx nested/run 'nested\\run'; do
+  if QWEN38_OMLX_RUN_ID="$INVALID_RUN_ID" OMLX_MODEL_ROOT="$MODEL_ROOT" \
+    bash "$SCRIPTS/run-omlx.sh" J --print >/dev/null 2>&1; then
+    echo "oMLX launcher accepted unsafe run ID: $INVALID_RUN_ID" >&2
+    exit 1
+  fi
+done
 
 SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" smoke)"
 grep -q -- 'GPU cooldown gate: below 50C' <<<"$SMOKE"

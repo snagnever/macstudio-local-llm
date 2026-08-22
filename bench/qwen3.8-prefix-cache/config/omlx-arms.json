@@ -3,23 +3,19 @@
   "models": {
     "mlx8": {
       "repository": "ddalcu/Qwen3.8-27B-MLX-Serve-8bit",
-      "revision": "011e38296b3d2aa99245ed49a700459c4ac246b6",
-      "local_name": "Qwen3.8-27B-MLX-Serve-8bit"
+      "revision": "011e38296b3d2aa99245ed49a700459c4ac246b6"
     },
     "awq5": {
       "repository": "True2456/Qwen3.8-27B-AWQ-5.0bpw",
-      "revision": "dc699a76ddcbef44c188a8aee2ccc79ccc339a04",
-      "local_name": "Qwen3.8-27B-AWQ-5.0bpw"
+      "revision": "dc699a76ddcbef44c188a8aee2ccc79ccc339a04"
     },
     "draft-2b": {
       "repository": "Qwen/Qwen3.5-2B",
-      "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
-      "local_name": "Qwen3.5-2B"
+      "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc"
     },
     "draft-08b": {
       "repository": "Qwen/Qwen3.5-0.8B",
-      "revision": "2fc06364715b967f1860aea9cf38778875588b17",
-      "local_name": "Qwen3.5-0.8B"
+      "revision": "2fc06364715b967f1860aea9cf38778875588b17"
     }
   },
   "arms": {
