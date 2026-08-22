@@ -494,10 +494,15 @@ def main() -> int:
     else:
         fixture = build_fixture(fixture_token_target(args.context), tokenizer)
     fixture_hash = sha256_tokens(fixture.token_ids)
+    suffix_trailer = (
+        f"Tool result confirms {fixture.needles[0]}. {fixture.question}"
+        if fixture.needles
+        else f"Tool result confirms the deterministic program completed. {fixture.question}"
+    )
     suffix, suffix_token_ids = build_suffix(
         1024,
         tokenizer,
-        f"Tool result confirms {fixture.needles[0]}. {fixture.question}",
+        suffix_trailer,
     )
     mutated_text, mutation_prefix_tokens, mutation_tokens = mutate_middle_tokens(
         fixture.text, 64, tokenizer

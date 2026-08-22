@@ -1,12 +1,18 @@
+import contextlib
+import io
+import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
+import cache_probe
 from cache_probe import (
     cache_hit_ratio,
     code_result_verdict,
@@ -207,6 +213,36 @@ class CacheProbeTests(unittest.TestCase):
 
         self.assertEqual(code_result_verdict(good, 32896), (True, 32896))
         self.assertEqual(code_result_verdict(echo, 32896), (False, None))
+
+    def test_main_code_mode_constructs_suffix_and_measurement_records_without_audit_needles(self):
+        """K/L's real main path must not index an empty audit-needle tuple."""
+        class Tokenizer:
+            def __call__(self, text):
+                return list(range(len(text.split())))
+
+        response = StreamResult(
+            text='{"rolling_checksum": 32896}', reasoning_text="", finish_reason="stop",
+            ttft_ms=1.0, e2e_ms=2.0,
+            usage={"prompt_tokens": 100, "completion_tokens": 1}, raw_chunks=1,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "code.jsonl"
+            argv = [
+                "cache_probe.py", "--base-url", "http://example.test/v1",
+                "--model", "awq5", "--runtime", "oMLX",
+                "--runtime-revision", "v0.6.3rc2", "--model-revision", "target",
+                "--arm", "L", "--session-id", "code-session", "--context", "2561",
+                "--content-class", "code", "--repeat", "1", "--output", str(output),
+            ]
+            with patch.object(cache_probe, "RuntimeTokenizer", return_value=Tokenizer()), \
+                patch.object(cache_probe, "stream_chat", return_value=response), \
+                patch.object(sys, "argv", argv), \
+                contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(cache_probe.main(), 0)
+
+            records = [json.loads(line) for line in output.read_text().splitlines()]
+        self.assertEqual(len(records), 5)
+        self.assertTrue(all(record["code_result_verdict"] for record in records))
 
 
 if __name__ == "__main__":

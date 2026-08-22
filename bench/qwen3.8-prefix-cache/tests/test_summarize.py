@@ -373,15 +373,16 @@ class SummaryTests(unittest.TestCase):
     def test_ane_rejects_runtime_log_evidence_from_a_different_session(self):
         """A compiled warmup log cannot be bound to a later measured request."""
         records = [
-            pair_record("J", 16384, 100),
-            pair_record("O", 16384, 90, ane_runtime_log_session_id="warmup-o"),
-            pair_record("J", 32768, 100),
-            pair_record("O", 32768, 90),
+            *trio("J", 16384, 100),
+            *trio("O", 16384, 90, ane_runtime_log_session_id="warmup-o"),
+            *trio("J", 32768, 100),
+            *trio("O", 32768, 90, ane_runtime_log_session_id="warmup-o"),
         ]
 
         result = evaluate_ane(records)
 
         self.assertEqual(result["O"]["status"], "INCONCLUSIVE")
+        self.assertIn("ane_runtime_log", result["O"]["failures"])
     def test_good_append_record_passes(self):
         self.assertEqual(gate_record(passing_record()), [])
 
