@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Any, Optional
 
 
@@ -106,30 +107,26 @@ def metric_delta(
 def parse_ane_runtime_evidence(
     text: str, arm: str, session_id: str, context: int
 ) -> dict[str, Any]:
-    """Extract only explicitly scoped ANE evidence from structured runtime logs."""
+    """Bind actual oMLX ANE benchmark events to an isolated runner scope."""
     compiled_programs = None
     executed_operations = None
     for raw_line in text.splitlines():
-        try:
-            event = json.loads(raw_line)
-        except json.JSONDecodeError:
-            continue
-        if not isinstance(event, dict):
-            continue
-        payload = event.get("ane") if isinstance(event.get("ane"), dict) else event
-        if (
-            event.get("arm") != arm
-            or event.get("session_id") != session_id
-            or event.get("context_target") != context
-        ):
-            continue
-        mlp = payload.get("ane_compiled_mlp_layers")
-        gdn = payload.get("ane_compiled_gdn_layers")
-        operations = payload.get("ane_executed_operations")
-        if isinstance(mlp, (int, float)) or isinstance(gdn, (int, float)):
-            compiled_programs = int(mlp or 0) + int(gdn or 0)
-        if isinstance(operations, (int, float)):
-            executed_operations = operations
+        compiled = re.search(
+            r"Eagerly compiled \d+ MLP and \d+ GDN procedures into (\d+) .*ANE programs",
+            raw_line,
+        )
+        if compiled:
+            compiled_programs = int(compiled.group(1))
+        benchmark = re.search(
+            r"\[benchmark-ane-profile\].*\boperations=(\d+)", raw_line
+        )
+        if benchmark:
+            operations = int(benchmark.group(1))
+            executed_operations = (
+                operations
+                if executed_operations is None
+                else executed_operations + operations
+            )
     return {
         "ane_runtime_log_arm": arm,
         "ane_runtime_log_session_id": session_id,

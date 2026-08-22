@@ -9,7 +9,13 @@ from typing import Any, Optional, Union
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-from fixtures import build_fixture, build_suffix, mutate_middle_tokens, sha256_tokens
+from fixtures import (
+    build_code_fixture,
+    build_fixture,
+    build_suffix,
+    mutate_middle_tokens,
+    sha256_tokens,
+)
 from metrics import normalize_server_measurements, parse_prometheus
 from sse_client import StreamResult, stream_chat
 
@@ -188,13 +194,15 @@ def _quant_label(model: str) -> str:
     return "unknown"
 
 
-def _base_messages(text: str) -> list[dict[str, Any]]:
+def _base_messages(
+    text: str, question: str = NEEDLE_QUESTION
+) -> list[dict[str, Any]]:
     return [
         {
             "role": "system",
             "content": "You are a deterministic audit retrieval assistant.",
         },
-        {"role": "user", "content": f"{text}\n\n{NEEDLE_QUESTION}"},
+        {"role": "user", "content": f"{text}\n\n{question}"},
     ]
 
 
@@ -204,10 +212,11 @@ def _messages_for_scenario(
     mutated_text: str,
     suffix: str,
     repeat: int,
+    question: str = NEEDLE_QUESTION,
 ) -> list[dict[str, Any]]:
     if name == "middle_mutation":
-        return _base_messages(mutated_text)
-    messages = scenario_messages(name, _base_messages(fixture_text), suffix)
+        return _base_messages(mutated_text, question)
+    messages = scenario_messages(name, _base_messages(fixture_text, question), suffix)
     if name == "cold":
         messages[0]["content"] = (
             f"Cold cache-buster {repeat:03d}. " + messages[0]["content"]
@@ -450,12 +459,15 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> int:
     args = build_parser().parse_args()
     tokenizer = RuntimeTokenizer(args.base_url, args.model)
-    fixture = build_fixture(fixture_token_target(args.context), tokenizer)
+    if args.content_class == "code":
+        fixture = build_code_fixture(fixture_token_target(args.context), tokenizer)
+    else:
+        fixture = build_fixture(fixture_token_target(args.context), tokenizer)
     fixture_hash = sha256_tokens(fixture.token_ids)
     suffix, suffix_token_ids = build_suffix(
         1024,
         tokenizer,
-        f"Tool result confirms {fixture.needles[0]}. {NEEDLE_QUESTION}",
+        f"Tool result confirms {fixture.needles[0]}. {fixture.question}",
     )
     mutated_text, mutation_prefix_tokens, mutation_tokens = mutate_middle_tokens(
         fixture.text, 64, tokenizer
@@ -469,7 +481,12 @@ def main() -> int:
         for scenario in SCENARIOS:
             for repeat in range(1, args.repeat + 1):
                 messages = _messages_for_scenario(
-                    scenario, fixture.text, mutated_text, suffix, repeat
+                    scenario,
+                    fixture.text,
+                    mutated_text,
+                    suffix,
+                    repeat,
+                    fixture.question,
                 )
                 args.messages = messages
                 args.static_prefix_hash = _static_prefix_hash(messages)

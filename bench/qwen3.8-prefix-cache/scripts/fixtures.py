@@ -9,13 +9,19 @@ from typing import Callable
 class PromptFixture:
     text: str
     token_ids: list[int]
-    needles: tuple[str, str, str]
+    needles: tuple[str, ...]
+    question: str = ""
 
 
 NEEDLES = (
     "XENON-7592-FALCON",
     "ARGON-1844-EMBER",
     "NEON-6301-ORBIT",
+)
+CODE_RESULT = "CODE-RESULT-32896"
+CODE_QUESTION = (
+    "Review the deterministic Python program and return only its asserted result: "
+    f"{CODE_RESULT}."
 )
 
 
@@ -45,7 +51,50 @@ def build_fixture(
         records[position] += f" Verified key: {needle}."
 
     text = "\n".join(records)
-    return PromptFixture(text=text, token_ids=encode(text), needles=NEEDLES)
+    return PromptFixture(
+        text=text,
+        token_ids=encode(text),
+        needles=NEEDLES,
+        question=(
+            "Return only the three verified keys stored closest to 10%, 50%, and 90% "
+            "of the audit records, in that order."
+        ),
+    )
+
+
+def build_code_fixture(
+    target_tokens: int, encode: Callable[[str], list[int]]
+) -> PromptFixture:
+    """Build a deterministic, verifiable Python workload for the MTP gate."""
+    if target_tokens <= 0:
+        raise ValueError("target_tokens must be positive")
+    code = [
+        "def rolling_checksum(values):",
+        "    total = 0",
+        "    for value in values:",
+        "        total = (total + value) % 65537",
+        "    return total",
+        "",
+        "INPUT = list(range(1, 257))",
+        "EXPECTED = 32896",
+        "assert rolling_checksum(INPUT) == EXPECTED",
+        f"# Required response marker: {CODE_RESULT}",
+    ]
+    index = 0
+    token_ids = encode("\n".join(code))
+    while len(token_ids) < target_tokens:
+        code.append(
+            f"# Deterministic code review note {index:06d}: preserve the loop invariant."
+        )
+        index += 1
+        token_ids = encode("\n".join(code))
+    text = "\n".join(code)
+    return PromptFixture(
+        text=text,
+        token_ids=encode(text),
+        needles=(CODE_RESULT,),
+        question=CODE_QUESTION,
+    )
 
 
 def build_suffix(

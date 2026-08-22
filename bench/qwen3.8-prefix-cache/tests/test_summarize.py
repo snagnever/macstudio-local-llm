@@ -85,14 +85,28 @@ def pair_record(arm, context, ttft_ms, **overrides):
     return record
 
 
+def trio(arm, context, ttft_ms, **overrides):
+    return [
+        pair_record(arm, context, ttft_ms, repeat=repeat, **overrides)
+        for repeat in (1, 2, 3)
+    ]
+
+
+def specprefill_fixture(arm="M", candidate_ttft=70):
+    records = []
+    for context in (16384, 32768):
+        records.extend(trio("L", context, 100, scenario="cold", static_prefix_correct=False))
+        records.extend(trio(arm, context, candidate_ttft, scenario="cold", static_prefix_correct=False, prompt_work_mode="sparse"))
+        records.extend(trio("L", context, 100, scenario="identical", prompt_identity=f"warm-{context}"))
+        records.extend(trio(arm, context, candidate_ttft, scenario="identical", prompt_identity=f"warm-{context}", prompt_work_mode="cached"))
+    records.append({**pair_record(arm, 32768, 1), "record_type": "verdict", "turns_requested": 20})
+    return records
+
+
 class SummaryTests(unittest.TestCase):
     def test_specprefill_passes_only_after_twenty_percent_ttft_gain_at_both_contexts(self):
         """Relaxing the 20% pairwise TTFT gate must fail this fixture."""
-        records = [
-            pair_record("L", 16384, 100), pair_record("M", 16384, 80),
-            pair_record("L", 32768, 120), pair_record("M", 32768, 90),
-            {**pair_record("M", 65536, 1), "record_type": "verdict", "turns_requested": 20},
-        ]
+        records = specprefill_fixture("M", 70)
 
         result = evaluate_specprefill(records)
 
@@ -134,13 +148,33 @@ class SummaryTests(unittest.TestCase):
         duplicate.append(pair_record("M", 16384, 70, repeat=1))
         self.assertEqual(evaluate_specprefill(duplicate)["M"]["status"], "FAIL")
 
+    def test_specprefill_rejects_equally_incomplete_repetition_sets(self):
+        """Matching partial runs are not the campaign's three-measurement median."""
+        for repeats in ((1,), (1, 2)):
+            records = [
+                *[pair_record("L", 16384, 100, repeat=repeat) for repeat in repeats],
+                *[pair_record("M", 16384, 70, repeat=repeat) for repeat in repeats],
+                *[pair_record("L", 32768, 100, repeat=repeat) for repeat in repeats],
+                *[pair_record("M", 32768, 70, repeat=repeat) for repeat in repeats],
+                {**pair_record("M", 32768, 1), "record_type": "verdict", "turns_requested": 20},
+            ]
+            self.assertEqual(evaluate_specprefill(records)["M"]["status"], "FAIL")
+
+    def test_specprefill_accepts_sparse_cold_and_cached_warm_evidence(self):
+        """A real cache hit must remain cached while the uncached cold work is sparse."""
+        records = specprefill_fixture("M", 70)
+
+        result = evaluate_specprefill(records)
+
+        self.assertEqual(result["M"]["status"], "PASS")
+
     def test_specprefill_requires_the_declared_profile_and_sparse_execution(self):
         """A disabled or wrong M/N profile cannot self-certify its own verdict."""
-        records = [
-            pair_record("L", 16384, 100), pair_record("M", 16384, 70, specprefill_enabled=False),
-            pair_record("L", 32768, 100), pair_record("M", 32768, 70, prompt_work_mode="cached"),
-            {**pair_record("M", 32768, 1), "record_type": "verdict", "turns_requested": 20},
-        ]
+        records = specprefill_fixture("M", 70)
+        for record in records:
+            if record.get("arm") == "M" and record.get("scenario") == "cold":
+                record["specprefill_enabled"] = False
+                record["prompt_work_mode"] = "cached"
 
         result = evaluate_specprefill(records)
 
@@ -162,10 +196,8 @@ class SummaryTests(unittest.TestCase):
 
     def test_specprefill_requires_all_needles_static_prefix_and_real_tool_verdict(self):
         """Missing Gate 6 evidence is not a passing substitute for measurement."""
-        records = [
-            pair_record("L", 16384, 100), pair_record("M", 16384, 70),
-            pair_record("L", 32768, 100), pair_record("M", 32768, 70),
-        ]
+        records = specprefill_fixture("M", 70)
+        records = [record for record in records if record.get("record_type") != "verdict"]
         for record in records:
             if record["arm"] == "M":
                 record.pop("needle_verdicts")
@@ -180,12 +212,11 @@ class SummaryTests(unittest.TestCase):
 
     def test_only_one_machine_readable_specprefill_winner_can_advance(self):
         """65K orchestration must consume one selected profile, never an implicit tie."""
-        records = [
-            pair_record("L", 16384, 100), pair_record("M", 16384, 70), pair_record("N", 16384, 75),
-            pair_record("L", 32768, 100), pair_record("M", 32768, 70), pair_record("N", 32768, 75),
-            {**pair_record("M", 65536, 1), "record_type": "verdict", "turns_requested": 20},
-            {**pair_record("N", 65536, 1), "record_type": "verdict", "turns_requested": 20},
-        ]
+        records = specprefill_fixture("M", 70)
+        records.extend(
+            record for record in specprefill_fixture("N", 75)
+            if record.get("arm") == "N"
+        )
 
         selection = specprefill_selection(evaluate_specprefill(records))
 
@@ -206,20 +237,19 @@ class SummaryTests(unittest.TestCase):
     def test_mtp_gate_requires_isolated_l_evidence(self):
         """SpecPrefill must not run before the L MTP profile records a clean gate."""
         self.assertFalse(omlx_mtp_gate([])["passed"])
-        k = pair_record("K", 32768, 100, content_class="code", mtp_enabled=False, cache_hit_ratio=0.96)
-        l = pair_record("L", 32768, 90, content_class="code", mtp_enabled=True, mtp_acceptance=0.5, cache_hit_ratio=0.96)
+        k = trio("K", 32768, 100, content_class="code", prompt_identity="code-32768", fixture_token_hash="code-fixture", mtp_enabled=False, cache_hit_ratio=0.96)
+        l = trio("L", 32768, 90, content_class="code", prompt_identity="code-32768", fixture_token_hash="code-fixture", mtp_enabled=True, mtp_acceptance=0.5, cache_hit_ratio=0.96)
         verdict = {**pair_record("L", 32768, 1), "record_type": "verdict", "turns_requested": 20, "specprefill_enabled": False, "mtp_enabled": True}
-        self.assertTrue(omlx_mtp_gate([k, l, verdict])["passed"])
+        self.assertTrue(omlx_mtp_gate([*k, *l, verdict])["passed"])
 
     def test_specprefill_fails_when_needle_or_tool_loop_fails(self):
         """Ignoring functional failures would incorrectly promote SpecPrefill."""
-        records = [
-            pair_record("L", 16384, 100),
-            pair_record("M", 16384, 70, needle_verdicts={"10": False, "50": True, "90": True}),
-            pair_record("L", 32768, 100),
-            pair_record("M", 32768, 70, static_prefix_correct=False),
-            {**pair_record("M", 65536, 1), "record_type": "verdict", "turns_requested": 20, "correct": False},
-        ]
+        records = specprefill_fixture("M", 70)
+        for record in records:
+            if record.get("arm") == "M" and record.get("scenario") == "cold":
+                record["needle_verdicts"] = {"10": False, "50": True, "90": True}
+            if record.get("arm") == "M" and record.get("record_type") == "verdict":
+                record["correct"] = False
 
         result = evaluate_specprefill(records)
 
@@ -236,10 +266,7 @@ class SummaryTests(unittest.TestCase):
 
     def test_ane_passes_at_five_percent_ttft_gain_with_confirmed_operations(self):
         """ANE must be both faster and observed executing operations."""
-        records = [
-            pair_record("J", 16384, 100), pair_record("O", 16384, 95),
-            pair_record("J", 32768, 100), pair_record("O", 32768, 90),
-        ]
+        records = [*trio("J", 16384, 100), *trio("O", 16384, 95), *trio("J", 32768, 100), *trio("O", 32768, 90)]
 
         result = evaluate_ane(records)
 
@@ -247,12 +274,7 @@ class SummaryTests(unittest.TestCase):
 
     def test_ane_accepts_one_context_gain_but_scopes_execution_to_that_context(self):
         """Gate 7 needs one compatible 5% gain, not two, with local O evidence."""
-        records = [
-            pair_record("J", 16384, 100, specprefill_enabled=False),
-            pair_record("O", 16384, 95, specprefill_enabled=False),
-            pair_record("J", 32768, 100, specprefill_enabled=False),
-            pair_record("O", 32768, 105, specprefill_enabled=False, ane_executed_operations=0),
-        ]
+        records = [*trio("J", 16384, 100, specprefill_enabled=False), *trio("O", 16384, 95, specprefill_enabled=False), *trio("J", 32768, 100, specprefill_enabled=False), *trio("O", 32768, 105, specprefill_enabled=False, ane_executed_operations=0)]
 
         result = evaluate_ane(records)
 
@@ -260,11 +282,7 @@ class SummaryTests(unittest.TestCase):
 
     def test_ane_requires_enabled_o_and_disabled_specprefill_on_both_arms(self):
         """Activation evidence outside the valid J/O comparison cannot prove ANE."""
-        records = [
-            pair_record("J", 16384, 100, specprefill_enabled=True),
-            pair_record("O", 16384, 90, ane_prefill_enabled=False),
-            pair_record("J", 32768, 100), pair_record("O", 32768, 90),
-        ]
+        records = [*trio("J", 16384, 100, specprefill_enabled=True), *trio("O", 16384, 90, ane_prefill_enabled=False), *trio("J", 32768, 100), *trio("O", 32768, 90)]
 
         result = evaluate_ane(records)
 

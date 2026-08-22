@@ -9,6 +9,7 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from enrich_telemetry import enrich_records, summarize_telemetry
+from metrics import parse_ane_runtime_evidence
 
 
 class EnrichTelemetryTests(unittest.TestCase):
@@ -66,6 +67,23 @@ class EnrichTelemetryTests(unittest.TestCase):
         self.assertEqual(changed, 1)
         self.assertEqual(records[0]["ram_peak_gb"], 60.0)
         self.assertIsNone(records[1]["ram_peak_gb"])
+
+    def test_enrichment_binds_a_production_ane_log_to_the_known_run_scope(self):
+        records = [
+            {"session_id": "wanted", "arm": "O", "context_target": 16384},
+            {"session_id": "other", "arm": "O", "context_target": 16384},
+        ]
+        evidence = parse_ane_runtime_evidence(
+            "Eagerly compiled 64 MLP and 0 GDN procedures into 2 instance-pinned ANE programs (sequence_length=8192)\n"
+            "[benchmark-ane-profile] category=mlp operations=126 configured_layers=64",
+            "O", "wanted", 16384,
+        )
+
+        enrich_records(records, "wanted", {"ram_peak_gb": 60.0}, evidence, "O", 16384)
+
+        self.assertEqual(records[0]["ane_runtime_log_compiled_programs"], 2)
+        self.assertEqual(records[0]["ane_runtime_log_executed_operations"], 126)
+        self.assertNotIn("ane_runtime_log_compiled_programs", records[1])
 
 
 if __name__ == "__main__":

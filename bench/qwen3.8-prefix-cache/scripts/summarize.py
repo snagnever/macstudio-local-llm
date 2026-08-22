@@ -13,6 +13,7 @@ ARM_PORTS = {"C": 11234, "E": 8080, "F": 8080, "G": 8080, "H": 8080}
 REQUIRED_CONTEXTS = {32768, 65536}
 REQUIRED_SCENARIOS = {"identical", "append", "middle_mutation", "tool_turn"}
 PAIRWISE_CONTEXTS = (16384, 32768)
+REQUIRED_REPETITIONS = {1, 2, 3}
 PAIRING_FIELDS = (
     "runtime",
     "runtime_revision",
@@ -186,6 +187,7 @@ def _pairwise_result(
                 or len(set(baseline_repeats)) != len(baseline_repeats)
                 or len(set(candidate_repeats)) != len(candidate_repeats)
                 or set(baseline_repeats) != set(candidate_repeats)
+                or set(baseline_repeats) != REQUIRED_REPETITIONS
             ):
                 repetitions_valid = False
                 break
@@ -246,7 +248,19 @@ def evaluate_specprefill(records: list[dict[str, Any]]) -> dict[str, dict[str, A
             for record in candidate_records
         ):
             evaluation["failures"] = _unique(evaluation["failures"] + ["profile"])
-        if not all(record.get("prompt_work_mode") == "sparse" for record in candidate_records):
+        cold_sparse = [
+            record for record in candidate_records if record.get("scenario") == "cold"
+        ]
+        warm_cached = [
+            record for record in candidate_records
+            if record.get("static_prefix_correct") is True
+        ]
+        if (
+            not cold_sparse
+            or not warm_cached
+            or not all(record.get("prompt_work_mode") == "sparse" for record in cold_sparse)
+            or not all(record.get("prompt_work_mode") == "cached" for record in warm_cached)
+        ):
             evaluation["failures"] = _unique(evaluation["failures"] + ["prompt_work_mode"])
         if not all(
             isinstance(record.get("needle_verdicts"), dict)
@@ -258,6 +272,7 @@ def evaluate_specprefill(records: list[dict[str, Any]]) -> dict[str, dict[str, A
             context: any(
                 record.get("static_prefix_correct") is True
                 and record.get("static_prefix_prior_match") is True
+                and record.get("prompt_work_mode") == "cached"
                 and isinstance(record.get("static_prefix_boundary_tokens"), int)
                 and record["static_prefix_boundary_tokens"] > 0
                 and isinstance(record.get("static_prefix_cached_tokens"), (int, float))

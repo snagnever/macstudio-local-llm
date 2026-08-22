@@ -14,12 +14,14 @@ from cache_probe import (
     _payload,
     _warmup_payload,
     _messages_for_scenario,
+    _base_messages,
     _record,
     mtp_acceptance_from_snapshots,
     scenario_messages,
     result_correct,
     token_ids_from_response,
 )
+from fixtures import build_code_fixture
 from sse_client import StreamResult
 
 
@@ -179,6 +181,15 @@ class CacheProbeTests(unittest.TestCase):
         }
 
         self.assertEqual(mtp_acceptance_from_snapshots(before, after), 0.6)
+
+    def test_code_workload_has_a_deterministic_prompt_and_verifiable_result(self):
+        encode = lambda text: text.split()
+        fixture = build_code_fixture(80, encode)
+        messages = _base_messages(fixture.text, fixture.question)
+
+        self.assertIn("def rolling_checksum", fixture.text)
+        self.assertIn("CODE-RESULT-32896", messages[-1]["content"])
+        self.assertEqual(fixture.needles, ("CODE-RESULT-32896",))
 
 
 if __name__ == "__main__":

@@ -56,31 +56,12 @@ class MetricsTests(unittest.TestCase):
         self.assertEqual(observed["ane_compiled_mlp_layers"], 8.0)
         self.assertEqual(observed["ane_executed_operations"], 2.0)
 
-    def test_ane_runtime_log_evidence_requires_matching_arm_session_and_context(self):
-        """Structured logs from another session cannot certify a measured O request."""
+    def test_ane_runtime_log_evidence_carries_the_runner_known_scope(self):
+        """The isolated runtime log is stamped by enrichment, not invented by oMLX."""
         source = "\n".join(
             [
-                json.dumps(
-                    {
-                        "event": "ane_prefill",
-                        "arm": "O",
-                        "session_id": "measured-o",
-                        "context_target": 16384,
-                        "ane_compiled_mlp_layers": 2,
-                        "ane_compiled_gdn_layers": 1,
-                        "ane_executed_operations": 4,
-                    }
-                ),
-                json.dumps(
-                    {
-                        "event": "ane_prefill",
-                        "arm": "O",
-                        "session_id": "warmup-o",
-                        "context_target": 16384,
-                        "ane_compiled_mlp_layers": 99,
-                        "ane_executed_operations": 99,
-                    }
-                ),
+                "Eagerly compiled 2 MLP and 1 GDN procedures into 3 instance-pinned ANE programs (sequence_length=8192)",
+                "[benchmark-ane-profile] category=mlp operations=4 configured_layers=2",
             ]
         )
 
@@ -89,6 +70,20 @@ class MetricsTests(unittest.TestCase):
         self.assertEqual(evidence["ane_runtime_log_compiled_programs"], 3)
         self.assertEqual(evidence["ane_runtime_log_executed_operations"], 4)
         self.assertEqual(evidence["ane_runtime_log_arm"], "O")
+
+    def test_ane_runtime_log_reads_the_pinned_runtime_benchmark_events(self):
+        """oMLX does not know campaign IDs; the runner binds its isolated log slice."""
+        source = "\n".join(
+            [
+                "Eagerly compiled 64 MLP and 0 GDN procedures into 2 instance-pinned ANE programs (sequence_length=8192)",
+                "[benchmark-ane-profile] category=mlp operations=126 configured_layers=64 observed_shapes=1.969",
+            ]
+        )
+
+        evidence = parse_ane_runtime_evidence(source, "O", "measured-o", 16384)
+
+        self.assertEqual(evidence["ane_runtime_log_compiled_programs"], 2)
+        self.assertEqual(evidence["ane_runtime_log_executed_operations"], 126)
     def test_prometheus_parser_reads_labels_and_ignores_comments(self):
         source = (
             '# HELP prefix_cache_hits_total Cache hits\n'
