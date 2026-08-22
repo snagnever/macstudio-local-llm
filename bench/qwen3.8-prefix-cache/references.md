@@ -25,6 +25,16 @@ Relatos comunitários orientam hipóteses. Eles não substituem medições no ri
 | P14 | [llama.cpp speculative decoding](https://github.com/ggml-org/llama.cpp/blob/master/docs/speculative.md) | `draft-mtp`, sidecars e estatísticas de aceitação |
 | P15 | [mlx-serve releases](https://github.com/ddalcu/mlx-serve/releases) | Revisão que corrige restore de prefix cache com MTP |
 | P16 | [llama.cpp releases](https://github.com/ggml-org/llama.cpp/releases) | Revisão reproduzível do runtime GGUF |
+| P17 | [oMLX repository](https://github.com/jundot/omlx) | Runtime, API compatível e configuração isolada |
+| P18 | [oMLX v0.6.2](https://github.com/jundot/omlx/releases/tag/v0.6.2) | Última versão estável durante a revisão |
+| P19 | [oMLX v0.6.3rc2](https://github.com/jundot/omlx/releases/tag/v0.6.3rc2) | Correção da estimativa KV híbrida e prefill ANE experimental |
+| P20 | [oMLX per-model settings](https://github.com/jundot/omlx/blob/main/omlx/model_settings.py) | Campos de MTP, SpecPrefill e prefill ANE |
+| P21 | [oMLX SpecPrefill implementation](https://github.com/jundot/omlx/blob/main/omlx/patches/specprefill.py) | Seleção de tokens e métricas do prefill sparse |
+| P22 | [SpecPrefill paper](https://arxiv.org/abs/2502.02789) | Método de seleção por atenção do draft |
+| P23 | [True2456 AWQ 5.0 bpw model card](https://huggingface.co/True2456/Qwen3.8-27B-AWQ-5.0bpw) | Quantização, loader exigido e drafts recomendados |
+| P24 | [AWQ revision fixed by the campaign](https://huggingface.co/True2456/Qwen3.8-27B-AWQ-5.0bpw/commit/dc699a76ddcbef44c188a8aee2ccc79ccc339a04) | Revisão reproduzível do checkpoint |
+| P25 | [AWQ MTP-head repair](https://huggingface.co/True2456/Qwen3.8-27B-AWQ-5.0bpw/commit/c5839cc642e479b7bbcd28311a4b8b9fb52fbd02) | Correção incluída na revisão fixada |
+| P26 | [oMLX OpenAI request fields](https://github.com/jundot/omlx/blob/main/omlx/api/openai_models.py) | Overrides de SpecPrefill por request |
 
 ## Issues e discussões técnicas
 
@@ -36,6 +46,10 @@ Relatos comunitários orientam hipóteses. Eles não substituem medições no ri
 | I4 | [llama.cpp host-memory prompt caching](https://github.com/ggml-org/llama.cpp/discussions/20574) | Capacidade e operação do cache em RAM |
 | I5 | [mlx-dspark prefix cache never hits](https://github.com/ARahim3/mlx-dspark/issues/7) | Motivo para adiar DSpark |
 | I6 | [Qwen3.8 preserve_thinking for llama.cpp](https://huggingface.co/Qwen/Qwen3.8-27B/discussions/39) | Flags do template no GGUF |
+| I7 | [SpecPrefill cache did not activate](https://github.com/jundot/omlx/issues/2443) | Risco de queda silenciosa do prefixo estático |
+| I8 | [Persist static prefix for SpecPrefill](https://github.com/jundot/omlx/pull/2440) | Escopo da correção para system prompt e tools |
+| I9 | [Qwen ANE prefill on M3 Max](https://github.com/jundot/omlx/issues/2781) | Protocolo, custo de memória e sinais de execução |
+| I10 | [ANE prefill regression on M5](https://github.com/jundot/omlx/issues/2779) | Evidência de dependência do hardware |
 
 ## Relatos comunitários
 
@@ -49,6 +63,7 @@ Relatos comunitários orientam hipóteses. Eles não substituem medições no ri
 | C6 | [Qwen3.8 forks on M4 Max 128 GB](https://www.reddit.com/r/LocalLLaMA/comments/1vq50xf/having_all_those_qwen_38_27b_forks_which_one/) | MLX é o ponto inicial no Mac | Recomendações sem protocolo comum |
 | C7 | [Q6_K_XL on M2 Ultra](https://www.reddit.com/r/LocalLLaMA/comments/1vr3s7j/qwen3827b_q6_k_xl_speeds_on_m2_ultra_192gb_what/) | Flags de cache e MTP no `llama.cpp` | Hardware diferente |
 | C8 | [vLLM hybrid cache and MTP field notes](https://www.reddit.com/r/LocalLLaMA/comments/1vspexl/qwen38_27b_via_vllm_i_love_it_and_i_hate_it_here/) | Cache e especulação precisam de teste conjunto | CUDA e patches comunitários |
+| C9 | [Qwen3.8 AWQ 5 bpw discussion](https://www.reddit.com/r/oMLX/comments/1vr3agq/if_you_were_initially_put_off_by_qwen3827b_pptg/) | Motiva o AWQ e o prefill especulativo | Relato do ecossistema oMLX |
 
 ## Evidência local reutilizável
 
@@ -122,6 +137,48 @@ Esta campanha testa MTP primeiro. O braço GGUF valida o sidecar publicado pela 
 
 Fontes: P6, P13, P14, C2, C5 e C8.
 
+### oMLX e o AWQ misto
+
+O `oMLX` expõe uma API compatível com OpenAI.
+Ele oferece cache em camadas, MTP e ajustes por modelo.
+
+O AWQ de 5,0 bpw usa quantização mista e group size 64 nas projeções principais.
+A revisão fixada inclui a correção da cabeça MTP.
+
+O model card exige `oMLX`.
+O loader padrão do `mlx_vlm` pode deslocar norms ao interpretar o namespace `mtp.*`.
+
+Os números publicados usam M5 e kernels NAX.
+Eles não medem o Mac Studio M4 Max desta campanha.
+
+Fontes: P17, P20, P23, P24, P25 e C9.
+
+### SpecPrefill
+
+SpecPrefill usa a atenção de um draft para escolher tokens importantes do prompt.
+O target processa somente o subconjunto escolhido.
+
+O método reduz trabalho de prefill.
+Ele não equivale a MTP, PLD ou cache de prefixo.
+
+O `oMLX` aceita um draft, keep rate e threshold por modelo.
+Ele também aceita overrides por request.
+
+A correção de I8 persiste somente o prefixo estático do system prompt e das tools.
+Ela não transforma o histórico esparso em prefixo integral reutilizável.
+
+Fontes: P20, P21, P22, P26, I7 e I8.
+
+### Prefill pela ANE
+
+O `oMLX` oferece prefill experimental pela Apple Neural Engine.
+O recurso usa interfaces privadas e programas de forma fixa.
+
+Resultados públicos mostram diferenças entre gerações de hardware.
+O plano exige ajuste e medição locais no M4 Max.
+
+Fontes: P19, P20, I9 e I10.
+
 ## Questões que somente o rig pode resolver
 
 1. O `mlx-serve` atual mantém o prefixo após um tool call real?
@@ -131,6 +188,10 @@ Fontes: P6, P13, P14, C2, C5 e C8.
 5. Q6 ou Q8 recupera falhas funcionais do Q4 recomendado?
 6. O cache em SSD reduz o tempo após restart?
 7. O runtime mantém memória estável por 20 tool turns?
+8. Qual draft de SpecPrefill reduz TTFT sem perder as três chaves?
+9. O cache estático permanece correto quando SpecPrefill está ativo?
+10. O AWQ misto oferece ganho real no M4 Max sem NAX?
+11. O prefill pela ANE executa operações e reduz TTFT neste rig?
 
 ## Política de uso das fontes
 

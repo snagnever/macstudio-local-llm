@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Construir e executar uma campanha reproduzível que selecione o melhor runtime, cache e quantização do Qwen3.8-27B no Mac Studio M4 Max.
+**Goal:** Construir e executar uma campanha reproduzível que selecione runtime, cache, quantização e prefill do Qwen3.8-27B no Mac Studio M4 Max.
 
-**Architecture:** Um probe HTTP mede streaming, cache e estado do template sem depender do runtime. Scripts separados iniciam `mlx-serve` e `llama.cpp`. Um loop de ferramentas valida o comportamento agentic antes dos benchmarks caros.
+**Architecture:** Um probe HTTP mede streaming, cache e estado do template sem depender do runtime. Launchers separados iniciam `mlx-serve`, `llama.cpp` e `oMLX`. Perfis isolam cache, MTP, SpecPrefill e prefill ANE. Um loop de ferramentas valida o comportamento agentic antes dos benchmarks caros.
 
-**Tech Stack:** Python 3.9+, biblioteca padrão, shell POSIX, OpenAI Chat Completions API, Prometheus metrics, `macmon`, `mlx-serve`, `llama.cpp`, Harbor.
+**Tech Stack:** Python 3.9+, biblioteca padrão, shell POSIX, OpenAI Chat Completions API, Prometheus metrics, `macmon`, `mlx-serve`, `llama.cpp`, `oMLX`, Harbor.
 
 **Spec:** `bench/qwen3.8-prefix-cache/plan.md`
 
@@ -17,9 +17,16 @@
 - Use um runtime por vez.
 - Use concorrência igual a 1.
 - Use contextos de 8.192, 32.768 e 65.536 tokens.
+- Use 16.384 tokens para as comparações de SpecPrefill e ANE.
 - Mantenha `preserve_thinking=true` e `reasoning_effort=xhigh` nos braços canônicos.
 - Use `reasoning_effort=medium` somente em ablação identificada.
 - Preserve os defaults do vendor nos braços canônicos; desligue PLD somente nos controles diagnósticos.
+- Use `OMLX_BASE_PATH` isolado por execução. Não altere `~/.omlx`.
+- Fixe o `oMLX` v0.6.3 estável. Use `v0.6.3rc2` somente quando a versão estável não existir.
+- Não misture revisões do `oMLX` numa comparação.
+- Use o AWQ 5,0 bpw somente no `oMLX`.
+- Compare SpecPrefill com o braço L no mesmo contexto.
+- Compare ANE com o braço J no mesmo contexto.
 - Deixe KV quantization desligada na fase inicial.
 - Salve resultados destilados em `bench/qwen3.8-prefix-cache/results/`.
 - Salve logs brutos em `bench/qwen3.8-prefix-cache/logs/`.
@@ -42,6 +49,9 @@
 | `bench/qwen3.8-prefix-cache/scripts/summarize.py` | Criar tabelas e aplicar gates |
 | `bench/qwen3.8-prefix-cache/scripts/run-mlx-serve.sh` | Iniciar os braços MLX |
 | `bench/qwen3.8-prefix-cache/scripts/run-llama-cpp.sh` | Iniciar os braços GGUF |
+| `bench/qwen3.8-prefix-cache/config/omlx-arms.json` | Fixar os perfis I–O e os drafts |
+| `bench/qwen3.8-prefix-cache/scripts/omlx_config.py` | Gerar configuração isolada do oMLX |
+| `bench/qwen3.8-prefix-cache/scripts/run-omlx.sh` | Iniciar os braços oMLX |
 | `bench/qwen3.8-prefix-cache/scripts/run-campaign.sh` | Orquestrar smoke, 32K e 65K |
 | `bench/qwen3.8-prefix-cache/scripts/run-tbench-qwen38-REMOTE.sh` | Executar Harbor no MacBook Pro |
 | `bench/qwen3.8-prefix-cache/tests/` | Testar fixtures, SSE, métricas e mensagens |
@@ -53,6 +63,14 @@
 | `bench/qwen3.8-prefix-cache/results/selection.json` | Runtime, modelo, porta e braço vencedores |
 | `docs/models/qwen3.8-27b/README.md` | Card final do modelo no rig |
 
+## Progress Snapshot
+
+- Tasks 1–8 foram implementadas nos commits `cf6c832` até `27ca205`.
+- O preflight foi salvo em `results/environment.json` no commit `e56d5e2`.
+- O preflight comum, o preflight do rig e o check do Metal passaram.
+- Os modelos ainda não foram baixados.
+- Nenhuma medição de inferência foi executada.
+
 ### Task 1: Add the Taskfile dependency graph
 
 **Files:**
@@ -63,7 +81,7 @@
 - Consumes: `go-task` instalado com `brew install go-task`.
 - Produces: namespace `qwen38` e checks separados para rig e driver.
 
-- [ ] **Step 1: Create the root Taskfile**
+- [x] **Step 1: Create the root Taskfile**
 
 ```yaml
 version: "3"
@@ -73,7 +91,7 @@ includes:
     taskfile: ./bench/qwen3.8-prefix-cache/Taskfile.yml
 ```
 
-- [ ] **Step 2: Create the campaign Taskfile**
+- [x] **Step 2: Create the campaign Taskfile**
 
 ```yaml
 version: "3"
@@ -185,7 +203,7 @@ tasks:
       - bash bench/qwen3.8-prefix-cache/scripts/run-tbench-qwen38-REMOTE.sh
 ```
 
-- [ ] **Step 3: Verify the Taskfile namespace**
+- [x] **Step 3: Verify the Taskfile namespace**
 
 Run:
 
@@ -195,7 +213,7 @@ task --list
 
 Expected: output lists tasks under the `qwen38:` namespace.
 
-- [ ] **Step 4: Verify the common dependency task**
+- [x] **Step 4: Verify the common dependency task**
 
 Run:
 
@@ -205,7 +223,7 @@ task qwen38:deps:common
 
 Expected: exits 0 on the development Mac.
 
-- [ ] **Step 5: Commit the Taskfiles**
+- [x] **Step 5: Commit the Taskfiles**
 
 ```bash
 git add Taskfile.yml bench/qwen3.8-prefix-cache/Taskfile.yml
@@ -223,7 +241,7 @@ git commit -m "build: add Qwen3.8 campaign tasks"
 - Consumes: `encode(text: str) -> list[int]` fornecido pelo tokenizer do modelo.
 - Produces: `PromptFixture`, `build_fixture()`, `mutate_middle()` e `sha256_tokens()`.
 
-- [ ] **Step 1: Write the fixture tests**
+- [x] **Step 1: Write the fixture tests**
 
 ```python
 import sys
@@ -265,7 +283,7 @@ if __name__ == "__main__":
     unittest.main()
 ```
 
-- [ ] **Step 2: Run the fixture tests and verify failure**
+- [x] **Step 2: Run the fixture tests and verify failure**
 
 Run:
 
@@ -275,7 +293,7 @@ python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_fixtures.py -v
 
 Expected: FAIL because `fixtures` does not exist.
 
-- [ ] **Step 3: Implement the fixture module**
+- [x] **Step 3: Implement the fixture module**
 
 ```python
 from dataclasses import dataclass
@@ -333,7 +351,7 @@ def sha256_tokens(token_ids: list[int]) -> str:
     return digest.hexdigest()
 ```
 
-- [ ] **Step 4: Run the fixture tests and verify success**
+- [x] **Step 4: Run the fixture tests and verify success**
 
 Run:
 
@@ -343,7 +361,7 @@ python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_fixtures.py -v
 
 Expected: 3 tests pass.
 
-- [ ] **Step 5: Commit the fixture module**
+- [x] **Step 5: Commit the fixture module**
 
 ```bash
 git add bench/qwen3.8-prefix-cache/scripts/fixtures.py \
@@ -362,7 +380,7 @@ git commit -m "bench(qwen3.8): add deterministic cache fixtures"
 - Consumes: OpenAI-compatible `/v1/chat/completions` streaming responses.
 - Produces: `StreamResult` and `stream_chat()`.
 
-- [ ] **Step 1: Write SSE parser tests**
+- [x] **Step 1: Write SSE parser tests**
 
 ```python
 import sys
@@ -396,7 +414,7 @@ if __name__ == "__main__":
     unittest.main()
 ```
 
-- [ ] **Step 2: Run the SSE tests and verify failure**
+- [x] **Step 2: Run the SSE tests and verify failure**
 
 Run:
 
@@ -406,7 +424,7 @@ python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_sse_client.py -v
 
 Expected: FAIL because `sse_client` does not exist.
 
-- [ ] **Step 3: Implement SSE parsing and timing**
+- [x] **Step 3: Implement SSE parsing and timing**
 
 ```python
 import json
@@ -472,7 +490,7 @@ def stream_chat(base_url: str, payload: dict[str, Any], timeout_s: int = 900) ->
     )
 ```
 
-- [ ] **Step 4: Run the SSE tests and verify success**
+- [x] **Step 4: Run the SSE tests and verify success**
 
 Run:
 
@@ -482,7 +500,7 @@ python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_sse_client.py -v
 
 Expected: 2 tests pass.
 
-- [ ] **Step 5: Commit the streaming client**
+- [x] **Step 5: Commit the streaming client**
 
 ```bash
 git add bench/qwen3.8-prefix-cache/scripts/sse_client.py \
@@ -500,7 +518,7 @@ git commit -m "bench(qwen3.8): measure streaming TTFT"
 - Consumes: Prometheus text and one `macmon pipe` JSON object.
 - Produces: `parse_prometheus()`, `metric_delta()` e `parse_macmon()`.
 
-- [ ] **Step 1: Write metrics tests**
+- [x] **Step 1: Write metrics tests**
 
 ```python
 import sys
@@ -530,7 +548,7 @@ if __name__ == "__main__":
     unittest.main()
 ```
 
-- [ ] **Step 2: Run metrics tests and verify failure**
+- [x] **Step 2: Run metrics tests and verify failure**
 
 Run:
 
@@ -540,7 +558,7 @@ python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_metrics.py -v
 
 Expected: FAIL because `metrics` does not exist.
 
-- [ ] **Step 3: Implement metrics parsing**
+- [x] **Step 3: Implement metrics parsing**
 
 ```python
 import json
@@ -576,7 +594,7 @@ def parse_macmon(line: str) -> dict[str, Any]:
     }
 ```
 
-- [ ] **Step 4: Run metrics tests and verify success**
+- [x] **Step 4: Run metrics tests and verify success**
 
 Run:
 
@@ -586,7 +604,7 @@ python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_metrics.py -v
 
 Expected: 2 tests pass.
 
-- [ ] **Step 5: Commit metrics support**
+- [x] **Step 5: Commit metrics support**
 
 ```bash
 git add bench/qwen3.8-prefix-cache/scripts/metrics.py \
@@ -604,7 +622,7 @@ git commit -m "bench(qwen3.8): capture cache and system metrics"
 - Consumes: `PromptFixture`, `stream_chat()`, `/metrics` e command-line parameters.
 - Produces: one schema-version-1 JSON object per measured request.
 
-- [ ] **Step 1: Write scenario and ratio tests**
+- [x] **Step 1: Write scenario and ratio tests**
 
 ```python
 import sys
@@ -634,7 +652,7 @@ if __name__ == "__main__":
     unittest.main()
 ```
 
-- [ ] **Step 2: Run cache probe tests and verify failure**
+- [x] **Step 2: Run cache probe tests and verify failure**
 
 Run:
 
@@ -644,7 +662,7 @@ python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_cache_probe.py -v
 
 Expected: FAIL because `cache_probe` does not exist.
 
-- [ ] **Step 3: Implement pure scenario helpers**
+- [x] **Step 3: Implement pure scenario helpers**
 
 Start `cache_probe.py` with these interfaces:
 
@@ -700,7 +718,7 @@ def scenario_messages(name: str, base: list[dict[str, Any]], suffix: str) -> lis
     raise ValueError(f"scenario requires dedicated mutation path: {name}")
 ```
 
-- [ ] **Step 4: Add the CLI and JSONL writer**
+- [x] **Step 4: Add the CLI and JSONL writer**
 
 The CLI must accept these exact options:
 
@@ -733,7 +751,7 @@ def cached_tokens_from_usage(usage: dict) -> int:
 Write one JSON object after each request. Flush the file after every line.
 Use the schema from `bench/qwen3.8-prefix-cache/plan.md`.
 
-- [ ] **Step 5: Run all unit tests**
+- [x] **Step 5: Run all unit tests**
 
 Run:
 
@@ -743,7 +761,7 @@ python3 -m unittest discover -s bench/qwen3.8-prefix-cache/tests -v
 
 Expected: 9 tests pass.
 
-- [ ] **Step 6: Verify the CLI help**
+- [x] **Step 6: Verify the CLI help**
 
 Run:
 
@@ -753,7 +771,7 @@ python3 bench/qwen3.8-prefix-cache/scripts/cache_probe.py --help
 
 Expected: exits 0 and lists all 12 options.
 
-- [ ] **Step 7: Commit the cache probe**
+- [x] **Step 7: Commit the cache probe**
 
 ```bash
 git add bench/qwen3.8-prefix-cache/scripts/cache_probe.py \
@@ -771,7 +789,7 @@ git commit -m "bench(qwen3.8): add prefix-cache scenario probe"
 - Consumes: OpenAI tool calls and `stream_chat()`.
 - Produces: 20 turn records and one final-verdict record.
 
-- [ ] **Step 1: Write stable-schema and message tests**
+- [x] **Step 1: Write stable-schema and message tests**
 
 ```python
 import json
@@ -812,7 +830,7 @@ if __name__ == "__main__":
     unittest.main()
 ```
 
-- [ ] **Step 2: Run tool loop tests and verify failure**
+- [x] **Step 2: Run tool loop tests and verify failure**
 
 Run:
 
@@ -822,7 +840,7 @@ python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_tool_loop.py -v
 
 Expected: FAIL because `tool_loop` does not exist.
 
-- [ ] **Step 3: Implement fixed tool definitions**
+- [x] **Step 3: Implement fixed tool definitions**
 
 Define these tools in this order:
 
@@ -886,7 +904,7 @@ TOOLS = [
 ]
 ```
 
-- [ ] **Step 4: Implement exact message preservation**
+- [x] **Step 4: Implement exact message preservation**
 
 ```python
 from copy import deepcopy
@@ -910,7 +928,7 @@ def append_tool_exchange(
     return updated
 ```
 
-- [ ] **Step 5: Add the 20-turn CLI loop**
+- [x] **Step 5: Add the 20-turn CLI loop**
 
 Use non-streaming requests for tool-call parsing. Measure each request from send to complete response.
 Capture `/metrics` before and after each turn.
@@ -932,7 +950,7 @@ response_empty
 
 Return exit code 2 when a turn fails. Return exit code 0 after all 20 turns pass.
 
-- [ ] **Step 6: Run all unit tests**
+- [x] **Step 6: Run all unit tests**
 
 Run:
 
@@ -942,7 +960,7 @@ python3 -m unittest discover -s bench/qwen3.8-prefix-cache/tests -v
 
 Expected: 11 tests pass.
 
-- [ ] **Step 7: Commit the tool loop**
+- [x] **Step 7: Commit the tool loop**
 
 ```bash
 git add bench/qwen3.8-prefix-cache/scripts/tool_loop.py \
@@ -961,7 +979,7 @@ git commit -m "bench(qwen3.8): add controlled agent tool loop"
 - Consumes: arm name `A` through `H` and an optional `--print` argument.
 - Produces: one server process with flags fixed by the campaign spec.
 
-- [ ] **Step 1: Write launcher validation**
+- [x] **Step 1: Write launcher validation**
 
 ```bash
 #!/usr/bin/env bash
@@ -994,7 +1012,7 @@ grep -q -- 'UD-Q6_K_XL' <<<"$GGUF_G"
 grep -q -- 'UD-Q8_K_XL' <<<"$GGUF_H"
 ```
 
-- [ ] **Step 2: Run launcher validation and verify failure**
+- [x] **Step 2: Run launcher validation and verify failure**
 
 Run:
 
@@ -1004,7 +1022,7 @@ bash bench/qwen3.8-prefix-cache/tests/test_launchers.sh
 
 Expected: FAIL because the launchers do not exist.
 
-- [ ] **Step 3: Implement the MLX launcher**
+- [x] **Step 3: Implement the MLX launcher**
 
 Use a shell array. Map arms exactly:
 
@@ -1027,7 +1045,7 @@ Always include these options:
 
 Print the shell-escaped command and exit when the second argument is `--print`.
 
-- [ ] **Step 4: Implement the GGUF launcher**
+- [x] **Step 4: Implement the GGUF launcher**
 
 Map arms exactly:
 
@@ -1043,7 +1061,7 @@ Use the base command from `bench/qwen3.8-prefix-cache/plan.md`.
 Validate from the startup log that the Unsloth MTP sidecar was loaded and that draft acceptance counters are present.
 Print the shell-escaped command and exit when the second argument is `--print`.
 
-- [ ] **Step 5: Run launcher validation and verify success**
+- [x] **Step 5: Run launcher validation and verify success**
 
 Run:
 
@@ -1053,7 +1071,7 @@ bash bench/qwen3.8-prefix-cache/tests/test_launchers.sh
 
 Expected: exits 0 without output.
 
-- [ ] **Step 6: Commit the launchers**
+- [x] **Step 6: Commit the launchers**
 
 ```bash
 git add bench/qwen3.8-prefix-cache/scripts/run-mlx-serve.sh \
@@ -1073,7 +1091,7 @@ git commit -m "bench(qwen3.8): add pinned runtime launchers"
 - Consumes: JSONL from `cache_probe.py` and `tool_loop.py`.
 - Produces: `results/summary.md`, `results/runtime-survivors.json` and process exit status for failed gates.
 
-- [ ] **Step 1: Write gate tests**
+- [x] **Step 1: Write gate tests**
 
 ```python
 import sys
@@ -1119,7 +1137,7 @@ if __name__ == "__main__":
     unittest.main()
 ```
 
-- [ ] **Step 2: Run summary tests and verify failure**
+- [x] **Step 2: Run summary tests and verify failure**
 
 Run:
 
@@ -1129,7 +1147,7 @@ python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_summarize.py -v
 
 Expected: FAIL because `summarize` does not exist.
 
-- [ ] **Step 3: Implement gate evaluation**
+- [x] **Step 3: Implement gate evaluation**
 
 ```python
 def gate_record(record: dict) -> list[str]:
@@ -1158,7 +1176,7 @@ Report each gate as `PASS` or `FAIL`.
 Write every functionally approved runtime, model, port and arm to `results/runtime-survivors.json`.
 Do not choose the winner until the same cheap-quality suites have run on every survivor.
 
-- [ ] **Step 4: Implement staged orchestration**
+- [x] **Step 4: Implement staged orchestration**
 
 `run-campaign.sh` must accept one stage:
 
@@ -1174,7 +1192,7 @@ summary
 The script must refuse unknown stages. It must print each command before execution.
 It must create logs under `bench/qwen3.8-prefix-cache/logs/`.
 
-- [ ] **Step 5: Run all tests**
+- [x] **Step 5: Run all tests**
 
 Run:
 
@@ -1185,7 +1203,7 @@ bash bench/qwen3.8-prefix-cache/tests/test_launchers.sh
 
 Expected: 13 Python tests pass. The shell test exits 0.
 
-- [ ] **Step 6: Commit orchestration and summary**
+- [x] **Step 6: Commit orchestration and summary**
 
 ```bash
 git add bench/qwen3.8-prefix-cache/scripts/run-campaign.sh \
@@ -1194,7 +1212,246 @@ git add bench/qwen3.8-prefix-cache/scripts/run-campaign.sh \
 git commit -m "bench(qwen3.8): orchestrate cache campaign gates"
 ```
 
-### Task 9: Execute rig preflight and cache stages
+### Task 9: Add isolated oMLX profiles and launcher
+
+**Files:**
+- Create: `bench/qwen3.8-prefix-cache/config/omlx-arms.json`
+- Create: `bench/qwen3.8-prefix-cache/scripts/omlx_config.py`
+- Create: `bench/qwen3.8-prefix-cache/scripts/run-omlx.sh`
+- Create: `bench/qwen3.8-prefix-cache/tests/test_omlx_config.py`
+- Modify: `bench/qwen3.8-prefix-cache/tests/test_launchers.sh`
+
+**Interfaces:**
+- Consumes: arm I–O, local model directory, draft paths and an isolated base path.
+- Produces: `settings.json`, `model_settings.json` and one `omlx serve` process on port 8000.
+
+- [ ] **Step 1: Write failing profile tests**
+
+Test these mappings in `test_omlx_config.py`:
+
+```text
+I: mlx8, cache off, MTP off, SpecPrefill off, ANE off
+J: awq5, cache off, MTP off, SpecPrefill off, ANE off
+K: awq5, cache on, MTP off, SpecPrefill off, ANE off
+L: awq5, cache on, MTP on, SpecPrefill off, ANE off
+M: awq5, cache on, MTP on, draft-2b, keep 0.40, threshold 8192
+N: awq5, cache on, MTP on, draft-08b, keep 0.50, threshold 8192
+O: awq5, cache off, MTP off, SpecPrefill off, ANE on
+```
+
+Assert that every arm writes one model entry.
+Assert that the generator rejects an unknown arm.
+Assert that M and N require local draft paths.
+Assert that O requires a recorded tuner profile.
+
+- [ ] **Step 2: Run the profile tests and verify failure**
+
+Run:
+
+```bash
+python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_omlx_config.py -v
+```
+
+Expected: FAIL because `omlx_config` does not exist.
+
+- [ ] **Step 3: Implement the declarative arm map**
+
+Store model repository IDs, pinned revisions and per-model fields in `config/omlx-arms.json`.
+Do not store machine-specific absolute paths.
+
+Implement these functions in `omlx_config.py`:
+
+```python
+def load_arm(path: Path, arm: str) -> dict: ...
+def validate_arm(profile: dict, model_paths: dict[str, Path]) -> None: ...
+def write_omlx_state(base_path: Path, profile: dict, model_paths: dict[str, Path]) -> None: ...
+```
+
+Write global state to `<base_path>/settings.json`.
+Write per-model state to `<base_path>/model_settings.json`.
+Use the oMLX versioned envelopes for both files.
+
+- [ ] **Step 4: Implement the isolated launcher**
+
+`run-omlx.sh` must accept an arm and optional `--print`.
+It must require `OMLX_MODEL_ROOT`.
+It must require `OMLX_DRAFT_2B_PATH` for M.
+It must require `OMLX_DRAFT_08B_PATH` for N.
+It must require `OMLX_ANE_PROFILE` for O.
+
+Create the execution state under:
+
+```text
+bench/qwen3.8-prefix-cache/logs/omlx/<run-id>/
+```
+
+Export these values before `omlx serve`:
+
+```text
+OMLX_BASE_PATH=<isolated path>
+OMLX_MODEL_DIR=<model root>
+OMLX_PORT=8000
+OMLX_CACHE_ENABLED=<arm value>
+```
+
+Print the shell-escaped command and resolved profile for `--print`.
+Never read or write `~/.omlx`.
+
+- [ ] **Step 5: Extend launcher validation**
+
+Add `bash -n` for `run-omlx.sh`.
+Check printed profiles for arms I–O.
+Check that M and N use the required draft and keep values.
+Check that O enables only `qwen35_ane_prefill_enabled` among prefill techniques.
+
+Run:
+
+```bash
+python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_omlx_config.py -v
+bash bench/qwen3.8-prefix-cache/tests/test_launchers.sh
+```
+
+Expected: all new Python tests pass. The shell test exits 0.
+
+- [ ] **Step 6: Commit the oMLX integration**
+
+```bash
+git add bench/qwen3.8-prefix-cache/config/omlx-arms.json \
+  bench/qwen3.8-prefix-cache/scripts/omlx_config.py \
+  bench/qwen3.8-prefix-cache/scripts/run-omlx.sh \
+  bench/qwen3.8-prefix-cache/tests/test_omlx_config.py \
+  bench/qwen3.8-prefix-cache/tests/test_launchers.sh
+git commit -m "bench(qwen3.8): add isolated oMLX arms"
+```
+
+### Task 10: Measure SpecPrefill and ANE without confounding effects
+
+**Files:**
+- Modify: `bench/qwen3.8-prefix-cache/scripts/cache_probe.py`
+- Modify: `bench/qwen3.8-prefix-cache/scripts/metrics.py`
+- Modify: `bench/qwen3.8-prefix-cache/scripts/sse_client.py`
+- Modify: `bench/qwen3.8-prefix-cache/scripts/summarize.py`
+- Modify: `bench/qwen3.8-prefix-cache/scripts/run-campaign.sh`
+- Modify: `bench/qwen3.8-prefix-cache/Taskfile.yml`
+- Modify: `bench/qwen3.8-prefix-cache/tests/test_cache_probe.py`
+- Modify: `bench/qwen3.8-prefix-cache/tests/test_metrics.py`
+- Modify: `bench/qwen3.8-prefix-cache/tests/test_summarize.py`
+
+**Interfaces:**
+- Consumes: oMLX response usage, structured server logs and `macmon` telemetry.
+- Produces: schema version 2 records and separate gates for SpecPrefill and ANE.
+
+- [ ] **Step 1: Write failing schema and gate tests**
+
+Require these schema fields:
+
+```text
+specprefill_enabled
+specprefill_draft_model
+specprefill_draft_revision
+specprefill_keep_pct
+specprefill_threshold
+specprefill_selected_tokens
+specprefill_scored_tokens
+specprefill_draft_ms
+specprefill_target_ms
+static_prefix_cached_tokens
+ane_prefill_enabled
+ane_prefill_tuned
+ane_compiled_mlp_layers
+ane_compiled_gdn_layers
+prompt_work_mode
+```
+
+Add a SpecPrefill gate fixture with L and M at the same context.
+Verify PASS at 20% lower median TTFT with correct needles.
+Verify FAIL when a needle or tool-loop verdict fails.
+
+Add an ANE gate fixture with J and O at the same context.
+Verify PASS at 5% lower median TTFT with confirmed ANE operations.
+Verify INCONCLUSIVE when the operation count is zero.
+
+- [ ] **Step 2: Run the new tests and verify failure**
+
+Run:
+
+```bash
+python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_cache_probe.py -v
+python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_metrics.py -v
+python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_summarize.py -v
+```
+
+Expected: FAIL because schema version 2 and the new gates do not exist.
+
+- [ ] **Step 3: Extend request and measurement records**
+
+Send `specprefill`, `specprefill_keep_pct` and `specprefill_threshold` for M and N.
+Send `specprefill=false` for J, K, L and O.
+
+Record unavailable server metrics as `null`.
+Never infer selected-token counts from prompt length.
+Set `prompt_work_mode` from observed execution: `full`, `cached` or `sparse`.
+
+Use unique cold prompts for each repetition.
+Reuse the exact system and tool prefix for warm repetitions.
+Preserve the existing response-content policy.
+
+- [ ] **Step 4: Implement pairwise gates**
+
+Compare L against M and N at 16K and 32K.
+Compare J against O at 16K and 32K.
+Reject comparisons with different model revisions, contexts or sampling settings.
+
+Use median TTFT and median total time.
+Report `prompt_tps` without using it for the SpecPrefill verdict.
+Advance one SpecPrefill profile to 65K only after both 16K and 32K pass.
+
+- [ ] **Step 5: Extend stages and Taskfile tasks**
+
+Add these stages to `run-campaign.sh`:
+
+```text
+omlx-smoke
+omlx-cache-32k
+omlx-mtp-32k
+specprefill-16k
+specprefill-32k
+ane-16k
+ane-32k
+```
+
+Add matching tasks under the `qwen38:` namespace.
+Add `omlx` to `deps:rig`.
+Keep the existing A–H stages unchanged.
+
+- [ ] **Step 6: Run local verification**
+
+Run:
+
+```bash
+python3 -m unittest discover -s bench/qwen3.8-prefix-cache/tests -v
+bash bench/qwen3.8-prefix-cache/tests/test_launchers.sh
+task qwen38:validate
+```
+
+Expected: all Python tests pass. The shell test and validation task exit 0.
+
+- [ ] **Step 7: Commit SpecPrefill and ANE support**
+
+```bash
+git add bench/qwen3.8-prefix-cache/Taskfile.yml \
+  bench/qwen3.8-prefix-cache/scripts/cache_probe.py \
+  bench/qwen3.8-prefix-cache/scripts/metrics.py \
+  bench/qwen3.8-prefix-cache/scripts/sse_client.py \
+  bench/qwen3.8-prefix-cache/scripts/summarize.py \
+  bench/qwen3.8-prefix-cache/scripts/run-campaign.sh \
+  bench/qwen3.8-prefix-cache/tests/test_cache_probe.py \
+  bench/qwen3.8-prefix-cache/tests/test_metrics.py \
+  bench/qwen3.8-prefix-cache/tests/test_summarize.py
+git commit -m "bench(qwen3.8): measure speculative prefill paths"
+```
+
+### Task 11: Execute rig preflight and runtime stages
 
 **Files:**
 - Create: `bench/qwen3.8-prefix-cache/results/environment.json`
@@ -1207,7 +1464,7 @@ git commit -m "bench(qwen3.8): orchestrate cache campaign gates"
 - Consumes: tested campaign scripts and live runtimes on the rig.
 - Produces: pinned environment and distilled measurements.
 
-- [ ] **Step 1: Record the rig environment**
+- [x] **Step 1: Record the rig environment**
 
 Run on the rig:
 
@@ -1222,7 +1479,22 @@ macmon pipe
 Store structured values in `results/environment.json`.
 Include the output of `git rev-parse HEAD` for source-built runtimes.
 
-- [ ] **Step 2: Run the 8K smoke stage**
+- [ ] **Step 2: Download and verify model artifacts**
+
+Download the five target artifacts and two drafts from their pinned revisions.
+Record each local path, size and SHA-256 in `results/environment.json`.
+Record `omlx --version` after installing the pinned runtime.
+
+Verify the AWQ revision:
+
+```text
+dc699a76ddcbef44c188a8aee2ccc79ccc339a04
+```
+
+Confirm that its history contains the repaired MTP-head commit.
+Do not continue with an older AWQ snapshot.
+
+- [ ] **Step 3: Run the 8K baseline smoke stage**
 
 Run on the rig:
 
@@ -1232,7 +1504,18 @@ bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh smoke
 
 Expected: arms A, B, D and E finish three measurements without crashes.
 
-- [ ] **Step 3: Summarize the smoke stage**
+- [ ] **Step 4: Run the 8K oMLX smoke stage**
+
+Run on the rig:
+
+```bash
+bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-smoke
+```
+
+Expected: J finishes three measurements without crashes.
+Expected: I either passes or records a loader incompatibility.
+
+- [ ] **Step 5: Summarize the smoke stages**
 
 Run:
 
@@ -1240,20 +1523,36 @@ Run:
 bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh summary
 ```
 
-Expected: `results/summary.md` contains four 8K arm rows.
+Expected: `results/summary.md` contains the completed 8K arms.
 
-- [ ] **Step 4: Run 32K cache and MTP stages**
+- [ ] **Step 6: Run 32K cache and MTP stages**
 
 Run:
 
 ```bash
 bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh cache-32k
 bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh mtp-32k
+bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-cache-32k
+bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-mtp-32k
 ```
 
 Expected: cache-only arms finish before MTP arms begin.
 
-- [ ] **Step 5: Run approved arms at 65K**
+- [ ] **Step 7: Run SpecPrefill and ANE stages**
+
+Run:
+
+```bash
+bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh specprefill-16k
+bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh specprefill-32k
+bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh ane-16k
+bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh ane-32k
+```
+
+Expected: L, M and N have pairwise SpecPrefill results.
+Expected: J and O have pairwise ANE results.
+
+- [ ] **Step 8: Run approved arms at 65K**
 
 Run:
 
@@ -1263,7 +1562,7 @@ bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh cache-65k
 
 Expected: the script selects only arms that passed 32K gates.
 
-- [ ] **Step 6: Run the 20-turn tool loop**
+- [ ] **Step 9: Run the 20-turn tool loop**
 
 Run:
 
@@ -1273,7 +1572,7 @@ bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh tool-loop
 
 Expected: each selected arm records 20 tool turns and one verdict.
 
-- [ ] **Step 7: Generate the campaign summary**
+- [ ] **Step 10: Generate the campaign summary**
 
 Run:
 
@@ -1282,9 +1581,10 @@ bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh summary
 ```
 
 Expected: every selected arm has cache, latency, memory and tool-loop gates.
+Expected: every oMLX arm has explicit SpecPrefill and ANE verdicts.
 Expected: `results/runtime-survivors.json` lists every arm approved for the common quality screen.
 
-- [ ] **Step 8: Commit distilled results**
+- [ ] **Step 11: Commit distilled results**
 
 ```bash
 git add bench/qwen3.8-prefix-cache/results/environment.json \
@@ -1295,7 +1595,7 @@ git add bench/qwen3.8-prefix-cache/results/environment.json \
 git commit -m "bench(qwen3.8): record prefix-cache campaign"
 ```
 
-### Task 10: Run the quality screen and Terminal-Bench winner
+### Task 12: Run the quality screen and Terminal-Bench winner
 
 **Files:**
 - Create: `bench/qwen3.8-prefix-cache/scripts/run-quality-screen.sh`
@@ -1417,7 +1717,7 @@ git add bench/qwen3.8-prefix-cache/scripts/run-quality-screen.sh \
 git commit -m "bench(qwen3.8): select runtime with agent quality gates"
 ```
 
-### Task 11: Publish the final rig decision
+### Task 13: Publish the final rig decision
 
 **Files:**
 - Create: `docs/models/qwen3.8-27b/README.md`
@@ -1441,6 +1741,9 @@ Runtime and revisions
 Cold and warm prefill
 Tool-turn cache behavior
 MTP behavior
+SpecPrefill behavior and selected draft
+ANE prefill behavior
+AWQ 5.0 bpw behavior
 Quality screen
 Terminal-Bench
 Memory and context
@@ -1494,12 +1797,17 @@ git commit -m "docs(qwen3.8): publish M4 Max runtime decision"
 
 ## Self-Review Checklist
 
-- [ ] Every campaign requirement maps to one task.
-- [ ] All script interfaces have one owner.
-- [ ] Test names match implementation names.
-- [ ] Runtime arms match the campaign matrix.
-- [ ] Tool schemas keep a fixed order.
-- [ ] The plan stores raw logs only under ignored paths.
-- [ ] The plan commits only distilled results.
-- [ ] Terminal-Bench runs only after cheap gates.
-- [ ] Final documentation links to local evidence.
+- [x] Every campaign requirement maps to one task.
+- [x] All script interfaces have one owner.
+- [x] Test names match implementation names.
+- [x] Runtime arms match the campaign matrix.
+- [x] oMLX state stays inside the campaign log directory.
+- [x] SpecPrefill compares M and N only against L at the same context.
+- [x] ANE compares O only against J at the same context.
+- [x] AWQ measurements use revision `dc699a76ddcbef44c188a8aee2ccc79ccc339a04`.
+- [x] Sparse prefill verdicts do not use raw prompt TPS.
+- [x] Tool schemas keep a fixed order.
+- [x] The plan stores raw logs only under ignored paths.
+- [x] The plan commits only distilled results.
+- [x] Terminal-Bench runs only after cheap gates.
+- [x] Final documentation links to local evidence.
