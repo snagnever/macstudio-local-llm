@@ -1,6 +1,7 @@
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
@@ -11,12 +12,37 @@ from tool_loop import (
     append_tool_exchange,
     build_tools,
     parse_tool_arguments,
+    _metrics_snapshot,
     _tool_payload,
     _final_payload,
 )
 
 
 class ToolLoopTests(unittest.TestCase):
+    def test_dspark_metrics_snapshot_reads_the_official_json_shape(self):
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_):
+                return False
+
+            def read(self):
+                return (
+                    b'{"model":"target","mode":"dflash","requests":1,'
+                    b'"mean_accept_len":3.5,"mean_decode_tokens_per_sec":42.0,'
+                    b'"prefix_cache":{"enabled":true},"auto_cap":{"cap":7},'
+                    b'"rounds":{"accepted":8,"drafted":10,"steps":3}}'
+                )
+
+        with patch("tool_loop.urlopen", return_value=Response()):
+            metrics = _metrics_snapshot(
+                "http://127.0.0.1:8484/metrics", runtime="mlx-dspark"
+            )
+
+        self.assertEqual(metrics["mlx_dspark.mean_accept_len"], 3.5)
+        self.assertEqual(metrics["mlx_dspark.rounds.accepted"], 8)
+
     def test_tool_payload_carries_the_exact_specprefill_profile(self):
         """Tool-loop evidence must be collected with the profile under test."""
         payload = _tool_payload(

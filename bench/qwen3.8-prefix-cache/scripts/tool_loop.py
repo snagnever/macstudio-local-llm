@@ -166,11 +166,33 @@ def _chat_once(
     return choices[0]["message"], body.get("usage") or {}
 
 
-def _metrics_snapshot(url: Optional[str]) -> dict[str, float]:
+def _flatten_json_metrics(
+    value: Any, *, prefix: str, result: dict[str, float]
+) -> None:
+    if isinstance(value, dict):
+        for key, child in value.items():
+            _flatten_json_metrics(
+                child, prefix=f"{prefix}.{key}" if prefix else key, result=result
+            )
+    elif isinstance(value, (int, float)) and not isinstance(value, bool):
+        result[prefix] = float(value)
+
+
+def _metrics_snapshot(
+    url: Optional[str], runtime: Optional[str] = None
+) -> dict[str, float]:
     if not url:
         return {}
     with urlopen(url, timeout=10) as response:
-        return parse_prometheus(response.read().decode("utf-8"))
+        text = response.read().decode("utf-8")
+    if runtime == "mlx-dspark":
+        payload = json.loads(text)
+        if not isinstance(payload, dict):
+            raise ValueError("mlx-dspark /metrics must return a JSON object")
+        result: dict[str, float] = {}
+        _flatten_json_metrics(payload, prefix="mlx_dspark", result=result)
+        return result
+    return parse_prometheus(text)
 
 
 def _initial_messages() -> list[dict[str, Any]]:
@@ -302,7 +324,7 @@ def main() -> int:
 
     with args.output.open("a", encoding="utf-8") as output:
         for turn in range(1, args.turns + 1):
-            before = _metrics_snapshot(args.metrics_url)
+            before = _metrics_snapshot(args.metrics_url, args.runtime)
             started = time.perf_counter()
             error: Optional[str] = None
             assistant_message: dict[str, Any] = {}
@@ -345,7 +367,7 @@ def main() -> int:
                 error = f"{type(caught).__name__}: {caught}"
 
             elapsed_ms = (time.perf_counter() - started) * 1000
-            after = _metrics_snapshot(args.metrics_url)
+            after = _metrics_snapshot(args.metrics_url, args.runtime)
             server = normalize_server_measurements(usage, before, after)
             prompt_tokens = int(usage.get("prompt_tokens") or 0)
             cached_tokens = cached_tokens_from_usage(usage)

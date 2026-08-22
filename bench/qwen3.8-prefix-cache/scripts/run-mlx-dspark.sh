@@ -15,9 +15,13 @@ case "$OPTION" in ""|--print) ;; *) echo "unknown option: $OPTION" >&2; exit 64;
 if [[ "$ARM" == "R" ]]; then [[ -n "${MLX_DSPARK_DSPARK_PATH:-}" ]] || { echo "MLX_DSPARK_DSPARK_PATH is required for R" >&2; exit 64; }; fi
 if [[ "$ARM" == "S" || "$ARM" == "auto-smoke" ]]; then [[ -n "${MLX_DSPARK_DFLASH2_PATH:-}" ]] || { echo "MLX_DSPARK_DFLASH2_PATH is required" >&2; exit 64; }; fi
 
-EXPECTED_VERSION="v0.15.0"
-ACTUAL_VERSION="$($MLX_DSPARK_BIN --version)" || { echo "failed to determine mlx-dspark version" >&2; exit 69; }
-[[ "$ACTUAL_VERSION" == *"0.15.0"* ]] || { echo "mlx-dspark version mismatch: expected $EXPECTED_VERSION, got $ACTUAL_VERSION" >&2; exit 65; }
+EXPECTED_VERSION="0.15.0"
+DOCTOR_JSON="$($MLX_DSPARK_BIN doctor --json 2>/dev/null)" || true
+ACTUAL_VERSION="$(DOCTOR_JSON="$DOCTOR_JSON" python3 -c 'import json, os; report=json.loads(os.environ["DOCTOR_JSON"]); print((report.get("environment") or {}).get("version") or "")' 2>/dev/null)" || {
+  echo "failed to determine mlx-dspark version from doctor --json" >&2
+  exit 69
+}
+[[ "$ACTUAL_VERSION" == "$EXPECTED_VERSION" ]] || { echo "mlx-dspark version mismatch: expected $EXPECTED_VERSION, got ${ACTUAL_VERSION:-unknown}" >&2; exit 65; }
 
 CONFIG_ARGS=(python3 "$CONFIG_TOOL" --config "$CONFIG" --target-path "$MLX_DSPARK_TARGET_PATH")
 [[ -n "${MLX_DSPARK_DSPARK_PATH:-}" ]] && CONFIG_ARGS+=(--dspark-path "$MLX_DSPARK_DSPARK_PATH")
@@ -32,19 +36,34 @@ if [[ "$ARM" != "auto-smoke" ]]; then
   exec "${COMMAND[@]}"
 fi
 
-# The auto probe intentionally leaves the drafter unspecified: v0.15.0 must resolve it.
+# Auto mode is exercised with the campaign's pinned local DFlash2 snapshot.
 "${CONFIG_ARGS[@]}" --arm S --print-command >/dev/null
-mkdir -p "$CAMPAIGN/logs"
-AUTO_COMMAND=("$MLX_DSPARK_BIN" serve --model "$MLX_DSPARK_TARGET_PATH" --mode auto --host 0.0.0.0 --port 8484 --context-window 65536 --reasoning-effort xhigh --max-batch 1)
+AUTO_COMMAND=("$MLX_DSPARK_BIN" serve --model "$MLX_DSPARK_TARGET_PATH" --mode auto --drafter "$MLX_DSPARK_DFLASH2_PATH" --host 0.0.0.0 --port 8484 --context-window 65536 --reasoning-effort xhigh --max-batch 1)
 if [[ "$OPTION" == "--print" ]]; then printf '%q ' "${AUTO_COMMAND[@]}"; printf '\n'; exit 0; fi
+if python3 -c 'import socket, sys; s=socket.socket(); s.settimeout(0.2); status=s.connect_ex(("127.0.0.1", 8484)); s.close(); sys.exit(0 if status == 0 else 1)'; then
+  echo "auto-smoke refused: port 8484 is already in use" >&2
+  exit 69
+fi
+mkdir -p "$CAMPAIGN/logs"
 "${AUTO_COMMAND[@]}" >"$CAMPAIGN/logs/mlx-dspark-auto-smoke.log" 2>&1 &
 PID=$!
 cleanup() { kill "$PID" 2>/dev/null || true; wait "$PID" 2>/dev/null || true; }
 trap cleanup EXIT INT TERM
 for _ in $(seq 1 "${QWEN38_HEALTH_ATTEMPTS:-120}"); do
+  if ! kill -0 "$PID" 2>/dev/null; then
+    wait "$PID" 2>/dev/null || child_status=$?
+    echo "auto-smoke child exited before health (status ${child_status:-0})" >&2
+    exit 1
+  fi
   if HEALTH="$(curl --silent --fail http://127.0.0.1:8484/health 2>/dev/null)"; then
-    HEALTH="$HEALTH" EXPECTED_DRAFTER="incoai/Qwen3.8-27B-DFlash2" EXPECTED_PATH="$MLX_DSPARK_DFLASH2_PATH" \
-      python3 -c 'import json, os, sys; h=json.loads(os.environ["HEALTH"]); expected=os.environ["EXPECTED_DRAFTER"]; actual=h.get("drafter"); ok=h.get("status") == "ok" and h.get("mode") == "dflash" and actual in {expected, os.environ["EXPECTED_PATH"]}; sys.exit(0 if ok else 1)' && exit 0
+    kill -0 "$PID" 2>/dev/null || { echo "auto-smoke child exited before health validation" >&2; exit 1; }
+    HEALTH="$HEALTH" EXPECTED_TARGET="$MLX_DSPARK_TARGET_PATH" EXPECTED_DRAFTER="$MLX_DSPARK_DFLASH2_PATH" \
+      python3 -c 'import json, os, sys; h=json.loads(os.environ["HEALTH"]); ok=h.get("status") == "ok" and h.get("mode") == "dflash" and h.get("target") == os.environ["EXPECTED_TARGET"] and h.get("drafter") == os.environ["EXPECTED_DRAFTER"]; sys.exit(0 if ok else 1)' && exit 0
+  fi
+  if ! kill -0 "$PID" 2>/dev/null; then
+    wait "$PID" 2>/dev/null || child_status=$?
+    echo "auto-smoke child exited before health (status ${child_status:-0})" >&2
+    exit 1
   fi
   sleep 1
 done

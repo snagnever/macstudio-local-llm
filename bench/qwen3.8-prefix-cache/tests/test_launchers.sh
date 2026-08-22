@@ -32,7 +32,7 @@ FAKE_OMLX_OK="$(mktemp /tmp/qwen38-omlx-ok.XXXXXX)"
 FAKE_OMLX_BAD="$(mktemp /tmp/qwen38-omlx-bad.XXXXXX)"
 FAKE_DSPARK_OK="$(mktemp /tmp/qwen38-dspark-ok.XXXXXX)"
 FAKE_DSPARK_BAD="$(mktemp /tmp/qwen38-dspark-bad.XXXXXX)"
-trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD"' EXIT
+trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD" "$FAKE_DSPARK_OK" "$FAKE_DSPARK_BAD"' EXIT
 printf '%s\n' '{"qwen35_ane_prefill_sequence_length":8192}' >"$ANE_PROFILE"
 printf '%s\n' \
   '#!/usr/bin/env bash' \
@@ -50,8 +50,21 @@ printf '%s\n' \
   'fi' \
   '[[ "$1" == "serve" ]]' >"$FAKE_OMLX_BAD"
 chmod +x "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD"
-printf '%s\n' '#!/usr/bin/env bash' '[[ "$1" == "--version" ]] && { echo "mlx-dspark 0.15.0"; exit 0; }' '[[ "$1" == "serve" ]]' >"$FAKE_DSPARK_OK"
-printf '%s\n' '#!/usr/bin/env bash' '[[ "$1" == "--version" ]] && { echo "mlx-dspark 0.15.1"; exit 0; }' '[[ "$1" == "serve" ]]' >"$FAKE_DSPARK_BAD"
+printf '%s\n' \
+  '#!/usr/bin/env bash' \
+  'if [[ "$1" == "doctor" && "$2" == "--json" ]]; then' \
+  '  echo '\''{"ok":true,"environment":{"version":"0.15.0"}}'\''' \
+  '  exit 0' \
+  'fi' \
+  'if [[ "$1" == "serve" ]]; then exit "${FAKE_DSPARK_SERVE_STATUS:-0}"; fi' \
+  'exit 64' >"$FAKE_DSPARK_OK"
+printf '%s\n' \
+  '#!/usr/bin/env bash' \
+  'if [[ "$1" == "doctor" && "$2" == "--json" ]]; then' \
+  '  echo '\''{"ok":true,"environment":{"version":"0.15.1"}}'\''' \
+  '  exit 0' \
+  'fi' \
+  'exit 64' >"$FAKE_DSPARK_BAD"
 chmod +x "$FAKE_DSPARK_OK" "$FAKE_DSPARK_BAD"
 OMLX_I="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" I --print)"
 OMLX_J="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" J --print)"
@@ -64,16 +77,52 @@ mkdir -p "$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75
 DSPARK_Q="$(MLX_DSPARK_BIN="$FAKE_DSPARK_OK" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" bash "$SCRIPTS/run-mlx-dspark.sh" Q --print)"
 DSPARK_R="$(MLX_DSPARK_BIN="$FAKE_DSPARK_OK" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" MLX_DSPARK_DSPARK_PATH="$MODEL_ROOT/RadixArk--Qwen3.8-27B-DSpark-85ef153be924f17ce4bf62726954eeaa4a73e854" bash "$SCRIPTS/run-mlx-dspark.sh" R --print)"
 DSPARK_S="$(MLX_DSPARK_BIN="$FAKE_DSPARK_OK" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" MLX_DSPARK_DFLASH2_PATH="$MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4" bash "$SCRIPTS/run-mlx-dspark.sh" S --print)"
+DSPARK_AUTO="$(MLX_DSPARK_BIN="$FAKE_DSPARK_OK" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" MLX_DSPARK_DFLASH2_PATH="$MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4" bash "$SCRIPTS/run-mlx-dspark.sh" auto-smoke --print)"
 grep -q -- '--mode baseline' <<<"$DSPARK_Q"
 grep -q -- '--mode dspark' <<<"$DSPARK_R"
 grep -q -- '--mode dflash' <<<"$DSPARK_S"
 grep -q -- '--max-draft auto' <<<"$DSPARK_R"
 grep -q -- '--max-draft auto' <<<"$DSPARK_S"
 ! grep -q -- '--kv-bits' <<<"$DSPARK_R"
+grep -q -- '--mode auto' <<<"$DSPARK_AUTO"
+grep -q -- "--drafter $MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4" <<<"$DSPARK_AUTO"
 if MLX_DSPARK_BIN="$FAKE_DSPARK_BAD" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" bash "$SCRIPTS/run-mlx-dspark.sh" Q --print >/dev/null 2>&1; then
   echo "mlx-dspark launcher accepted an unpinned runtime version" >&2
   exit 1
 fi
+
+DSPARK_EARLY_EXIT_LOG="$(mktemp /tmp/qwen38-dspark-early-exit.XXXXXX)"
+if FAKE_DSPARK_SERVE_STATUS=73 QWEN38_HEALTH_ATTEMPTS=1 \
+  MLX_DSPARK_BIN="$FAKE_DSPARK_OK" \
+  MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" \
+  MLX_DSPARK_DFLASH2_PATH="$MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4" \
+  bash "$SCRIPTS/run-mlx-dspark.sh" auto-smoke > /dev/null 2>"$DSPARK_EARLY_EXIT_LOG"; then
+  echo "mlx-dspark auto-smoke accepted a child that exited before health" >&2
+  exit 1
+fi
+grep -q -- 'exited before health' "$DSPARK_EARLY_EXIT_LOG"
+rm -f "$DSPARK_EARLY_EXIT_LOG"
+
+DSPARK_OCCUPIED_LOG="$(mktemp /tmp/qwen38-dspark-occupied.XXXXXX)"
+python3 -c 'import socket, time; s=socket.socket(); s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1); s.bind(("127.0.0.1", 8484)); s.listen(); time.sleep(30)' >/dev/null 2>&1 &
+DSPARK_OCCUPIED_PID=$!
+for _ in $(seq 1 20); do
+  python3 -c 'import socket, sys; s=socket.socket(); s.settimeout(0.1); status=s.connect_ex(("127.0.0.1", 8484)); s.close(); sys.exit(status)' && break
+  sleep 0.05
+done
+set +e
+QWEN38_HEALTH_ATTEMPTS=1 \
+  MLX_DSPARK_BIN="$FAKE_DSPARK_OK" \
+  MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" \
+  MLX_DSPARK_DFLASH2_PATH="$MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4" \
+  bash "$SCRIPTS/run-mlx-dspark.sh" auto-smoke >/dev/null 2>"$DSPARK_OCCUPIED_LOG"
+DSPARK_OCCUPIED_STATUS=$?
+set -e
+kill "$DSPARK_OCCUPIED_PID" 2>/dev/null || true
+wait "$DSPARK_OCCUPIED_PID" 2>/dev/null || true
+[[ "$DSPARK_OCCUPIED_STATUS" -ne 0 ]]
+grep -q -- 'port 8484 is already in use' "$DSPARK_OCCUPIED_LOG"
+rm -f "$DSPARK_OCCUPIED_LOG"
 
 grep -q -- "--model $MODEL_ROOT/ddalcu-Qwen3.8-27B-MLX-Serve-8bit-011e38296b3d2aa99245ed49a700459c4ac246b6" <<<"$MLX_C"
 ! grep -q -- '--model ddalcu/' <<<"$MLX_C"
@@ -178,7 +227,7 @@ grep -q -- 'arm=S context=32768 mode=tool-loop' <<<"$DSPARK_32K"
 
 MTP_GATE_FIXTURE="$(mktemp /tmp/qwen38-mtp-gate.XXXXXX)"
 SPECPREFILL_SELECTION_FIXTURE="$(mktemp /tmp/qwen38-specprefill-selection.XXXXXX)"
-trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD" "$MTP_GATE_FIXTURE" "$SPECPREFILL_SELECTION_FIXTURE"' EXIT
+trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD" "$FAKE_DSPARK_OK" "$FAKE_DSPARK_BAD" "$MTP_GATE_FIXTURE" "$SPECPREFILL_SELECTION_FIXTURE"' EXIT
 printf '%s\n' '{"arm":"L","passed":true}' >"$MTP_GATE_FIXTURE"
 printf '%s\n' '{"winner":{"arm":"M"}}' >"$SPECPREFILL_SELECTION_FIXTURE"
 SPECPREFILL="$(QWEN38_DRY_RUN=1 QWEN38_OMLX_MTP_GATE="$MTP_GATE_FIXTURE" bash "$SCRIPTS/run-campaign.sh" specprefill-32k)"
@@ -197,7 +246,7 @@ grep -q -- 'arm=M context=65536' <<<"$CACHE_65K"
 FALLBACK_LOG="$(mktemp /tmp/qwen38-arm-i-fallback.XXXXXX)"
 FALLBACK_FUNCTION="$(mktemp /tmp/qwen38-arm-i-function.XXXXXX)"
 FALLBACK_CALLS="$(mktemp /tmp/qwen38-arm-i-calls.XXXXXX)"
-trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD" "$MTP_GATE_FIXTURE" "$SPECPREFILL_SELECTION_FIXTURE" "$FALLBACK_LOG" "$FALLBACK_FUNCTION" "$FALLBACK_CALLS"' EXIT
+trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD" "$FAKE_DSPARK_OK" "$FAKE_DSPARK_BAD" "$MTP_GATE_FIXTURE" "$SPECPREFILL_SELECTION_FIXTURE" "$FALLBACK_LOG" "$FALLBACK_FUNCTION" "$FALLBACK_CALLS"' EXIT
 sed -n '/^run_omlx_smoke()/,/^run_arms()/p' "$SCRIPTS/run-campaign.sh" | sed '$d' >"$FALLBACK_FUNCTION"
 (
   # Load the production fallback function, then stub only its runtime boundary.
