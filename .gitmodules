@@ -5,3 +5,6 @@
 	path = tools/local-llm-bench
 	url = https://github.com/snagnever/local-llm-bench.git
 	branch = results/m4-max-128gb-40gpu
+[submodule "vendor/ds4"]
+	path = vendor/ds4
+	url = https://github.com/antirez/ds4
