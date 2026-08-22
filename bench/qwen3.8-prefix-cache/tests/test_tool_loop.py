@@ -12,6 +12,7 @@ from tool_loop import (
     build_tools,
     parse_tool_arguments,
     _tool_payload,
+    _final_payload,
 )
 
 
@@ -26,6 +27,16 @@ class ToolLoopTests(unittest.TestCase):
         self.assertTrue(payload["specprefill"])
         self.assertEqual(payload["specprefill_keep_pct"], 0.40)
         self.assertEqual(payload["specprefill_threshold"], 8192)
+
+    def test_final_payload_keeps_the_tool_loop_profile(self):
+        """The verdict request must not silently switch sampling or SpecPrefill."""
+        payload = _final_payload(
+            "model", [{"role": "user", "content": "probe"}],
+            specprefill=True, specprefill_keep_pct=0.40, specprefill_threshold=8192,
+        )
+
+        self.assertEqual(payload["temperature"], 0)
+        self.assertTrue(payload["specprefill"])
     def test_build_tools_returns_fresh_stably_ordered_schemas(self):
         first = build_tools()
         first[0]["function"]["name"] = "mutated"

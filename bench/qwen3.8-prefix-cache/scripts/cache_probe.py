@@ -333,7 +333,7 @@ def _record(
         "arm": args.arm,
         "context_target": args.context,
         "scenario": scenario,
-        "content_class": "audit_retrieval",
+        "content_class": getattr(args, "content_class", "audit_retrieval"),
         "prompt_identity": _prompt_identity(getattr(args, "messages", [])),
         "concurrency": 1,
         "warmup_id": WARMUP_ID,
@@ -346,8 +346,8 @@ def _record(
         "cache_enabled": args.cache_enabled,
         "mtp_enabled": args.mtp_enabled,
         "specprefill_enabled": bool(getattr(args, "specprefill", False)),
-        "specprefill_draft_model": server["specprefill_draft_model"],
-        "specprefill_draft_revision": server["specprefill_draft_revision"],
+        "specprefill_draft_model": getattr(args, "specprefill_draft_model", None),
+        "specprefill_draft_revision": getattr(args, "specprefill_draft_revision", None),
         "specprefill_keep_pct": getattr(args, "specprefill_keep_pct", None),
         "specprefill_threshold": getattr(args, "specprefill_threshold", None),
         "specprefill_selected_tokens": server["specprefill_selected_tokens"],
@@ -355,7 +355,9 @@ def _record(
         "specprefill_draft_ms": server["specprefill_draft_ms"],
         "specprefill_target_ms": server["specprefill_target_ms"],
         "static_prefix_cached_tokens": server["static_prefix_cached_tokens"],
+        "static_prefix_boundary_tokens": server["static_prefix_boundary_tokens"],
         "static_prefix_hash": getattr(args, "static_prefix_hash", None),
+        "static_prefix_prior_match": getattr(args, "static_prefix_prior_match", False),
         "ane_prefill_enabled": bool(getattr(args, "ane_prefill_enabled", False)),
         "ane_prefill_tuned": server["ane_prefill_tuned"],
         "ane_compiled_mlp_layers": server["ane_compiled_mlp_layers"],
@@ -391,6 +393,11 @@ def _record(
             and cached_tokens > 0
             and all(needles.values())
             and getattr(args, "static_prefix_matches", False)
+            and getattr(args, "static_prefix_prior_match", False)
+            and isinstance(server["static_prefix_boundary_tokens"], int)
+            and server["static_prefix_boundary_tokens"] > 0
+            and isinstance(server["static_prefix_cached_tokens"], (int, float))
+            and server["static_prefix_cached_tokens"] >= server["static_prefix_boundary_tokens"]
         ),
         "correct": all(needles.values()),
         "ram_peak_gb": None,
@@ -425,12 +432,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--arm", required=True)
     parser.add_argument("--session-id", required=True)
     parser.add_argument("--context", required=True, type=int)
+    parser.add_argument("--content-class", default="audit_retrieval")
     parser.add_argument("--repeat", type=int, default=3)
     parser.add_argument("--cache-enabled", action="store_true")
     parser.add_argument("--mtp-enabled", action="store_true")
     parser.add_argument("--specprefill", type=lambda value: value.lower() == "true")
     parser.add_argument("--specprefill-keep-pct", type=float)
     parser.add_argument("--specprefill-threshold", type=int)
+    parser.add_argument("--specprefill-draft-model")
+    parser.add_argument("--specprefill-draft-revision")
     parser.add_argument("--ane-prefill-enabled", action="store_true")
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--metrics-url")
@@ -463,10 +473,10 @@ def main() -> int:
                 )
                 args.messages = messages
                 args.static_prefix_hash = _static_prefix_hash(messages)
-                previous_hash = static_prefixes.setdefault(
-                    scenario, args.static_prefix_hash
-                )
+                previous_hash = static_prefixes.get(scenario)
+                args.static_prefix_prior_match = previous_hash is not None
                 args.static_prefix_matches = previous_hash == args.static_prefix_hash
+                static_prefixes[scenario] = args.static_prefix_hash
                 metrics_before = _metrics_snapshot(args.metrics_url)
                 result = stream_chat(
                     args.base_url,

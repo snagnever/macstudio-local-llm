@@ -220,7 +220,14 @@ def _tool_payload(
     return payload
 
 
-def _final_payload(model: str, messages: list[dict[str, Any]]) -> dict[str, Any]:
+def _final_payload(
+    model: str,
+    messages: list[dict[str, Any]],
+    *,
+    specprefill: Optional[bool] = None,
+    specprefill_keep_pct: Optional[float] = None,
+    specprefill_threshold: Optional[int] = None,
+) -> dict[str, Any]:
     final_messages = deepcopy(messages)
     final_messages.append(
         {
@@ -231,18 +238,19 @@ def _final_payload(model: str, messages: list[dict[str, Any]]) -> dict[str, Any]
             ),
         }
     )
-    return {
+    payload = {
         "model": model,
         "messages": final_messages,
         "max_tokens": 1024,
-        "temperature": 1.0,
-        "top_p": 0.95,
-        "top_k": 20,
-        "min_p": 0.0,
-        "presence_penalty": 0.0,
-        "frequency_penalty": 0.0,
-        "reasoning_effort": "xhigh",
+        **SAMPLING_CONTROLS,
     }
+    if specprefill is not None:
+        payload["specprefill"] = specprefill
+    if specprefill_keep_pct is not None:
+        payload["specprefill_keep_pct"] = specprefill_keep_pct
+    if specprefill_threshold is not None:
+        payload["specprefill_threshold"] = specprefill_threshold
+    return payload
 
 
 def _write_record(output, record: dict[str, Any]) -> None:
@@ -272,6 +280,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--specprefill", type=lambda value: value.lower() == "true")
     parser.add_argument("--specprefill-keep-pct", type=float)
     parser.add_argument("--specprefill-threshold", type=int)
+    parser.add_argument("--specprefill-draft-model")
+    parser.add_argument("--specprefill-draft-revision")
     parser.add_argument("--context", type=int, default=65536)
     parser.add_argument("--concurrency", type=int, default=1)
     parser.add_argument("--warmup-id", default="tool-loop-warmup-v1")
@@ -375,8 +385,8 @@ def main() -> int:
                 "cache_enabled": args.cache_enabled,
                 "mtp_enabled": args.mtp_enabled,
                 "specprefill_enabled": bool(args.specprefill),
-                "specprefill_draft_model": server["specprefill_draft_model"],
-                "specprefill_draft_revision": server["specprefill_draft_revision"],
+                "specprefill_draft_model": args.specprefill_draft_model,
+                "specprefill_draft_revision": args.specprefill_draft_revision,
                 "specprefill_keep_pct": args.specprefill_keep_pct,
                 "specprefill_threshold": args.specprefill_threshold,
                 "specprefill_selected_tokens": server["specprefill_selected_tokens"],
@@ -435,7 +445,13 @@ def main() -> int:
             try:
                 final_message, _ = _chat_once(
                     args.base_url,
-                    _final_payload(args.model, messages),
+                    _final_payload(
+                        args.model,
+                        messages,
+                        specprefill=args.specprefill,
+                        specprefill_keep_pct=args.specprefill_keep_pct,
+                        specprefill_threshold=args.specprefill_threshold,
+                    ),
                     args.timeout,
                 )
                 final_text = (
@@ -464,8 +480,8 @@ def main() -> int:
             "context_target": args.context,
             "mtp_enabled": args.mtp_enabled,
             "specprefill_enabled": bool(args.specprefill),
-            "specprefill_draft_model": None,
-            "specprefill_draft_revision": None,
+            "specprefill_draft_model": args.specprefill_draft_model,
+            "specprefill_draft_revision": args.specprefill_draft_revision,
             "specprefill_keep_pct": args.specprefill_keep_pct,
             "specprefill_threshold": args.specprefill_threshold,
             "specprefill_selected_tokens": None,

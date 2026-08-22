@@ -154,6 +154,7 @@ printf '%s\n' '{"winner":{"arm":"M"}}' >"$SPECPREFILL_SELECTION_FIXTURE"
 SPECPREFILL="$(QWEN38_DRY_RUN=1 QWEN38_OMLX_MTP_GATE="$MTP_GATE_FIXTURE" bash "$SCRIPTS/run-campaign.sh" specprefill-32k)"
 grep -q -- 'arm=M context=32768' <<<"$SPECPREFILL"
 grep -q -- 'arm=N context=32768' <<<"$SPECPREFILL"
+! grep -q -- 'context=65536' <<<"$SPECPREFILL"
 if QWEN38_DRY_RUN=1 QWEN38_OMLX_MTP_GATE=/tmp/missing-qwen38-gate \
   bash "$SCRIPTS/run-campaign.sh" specprefill-16k >/dev/null 2>&1; then
   echo "SpecPrefill ran without a passing isolated L/MTP gate" >&2
@@ -162,6 +163,43 @@ fi
 CACHE_65K="$(QWEN38_DRY_RUN=1 QWEN38_SPECPREFILL_SELECTION="$SPECPREFILL_SELECTION_FIXTURE" bash "$SCRIPTS/run-campaign.sh" cache-65k)"
 grep -q -- 'arm=C context=65536' <<<"$CACHE_65K"
 grep -q -- 'arm=M context=65536' <<<"$CACHE_65K"
+
+FALLBACK_LOG="$(mktemp /tmp/qwen38-arm-i-fallback.XXXXXX)"
+FALLBACK_FUNCTION="$(mktemp /tmp/qwen38-arm-i-function.XXXXXX)"
+FALLBACK_CALLS="$(mktemp /tmp/qwen38-arm-i-calls.XXXXXX)"
+trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD" "$MTP_GATE_FIXTURE" "$SPECPREFILL_SELECTION_FIXTURE" "$FALLBACK_LOG" "$FALLBACK_FUNCTION" "$FALLBACK_CALLS"' EXIT
+sed -n '/^run_omlx_smoke()/,/^run_arms()/p' "$SCRIPTS/run-campaign.sh" | sed '$d' >"$FALLBACK_FUNCTION"
+(
+  # Load the production fallback function, then stub only its runtime boundary.
+  source "$FALLBACK_FUNCTION"
+  run_cache_arm() {
+    printf '%s\n' "$1" >>"$FALLBACK_CALLS"
+    if [[ "$1" == "I" ]]; then
+      LAST_RUNTIME_LOG="$FALLBACK_LOG"
+      return "$I_STATUS"
+    fi
+    return 0
+  }
+
+  printf '%s\n' 'checkpoint incompatibility' >"$FALLBACK_LOG"
+  I_STATUS=47
+  set +e
+  run_omlx_smoke
+  allowed_status=$?
+  set -e
+  [[ "$allowed_status" -eq 0 ]]
+  [[ "$(tr '\n' ' ' <"$FALLBACK_CALLS")" == 'I J ' ]]
+
+  : >"$FALLBACK_CALLS"
+  printf '%s\n' 'runtime readiness failed' >"$FALLBACK_LOG"
+  I_STATUS=48
+  set +e
+  run_omlx_smoke
+  denied_status=$?
+  set -e
+  [[ "$denied_status" -eq 48 ]]
+  [[ "$(tr '\n' ' ' <"$FALLBACK_CALLS")" == 'I ' ]]
+)
 
 if QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" unknown-stage >/dev/null 2>&1; then
   echo "campaign runner accepted an unknown stage" >&2

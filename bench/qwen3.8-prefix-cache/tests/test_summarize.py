@@ -37,6 +37,7 @@ def pair_record(arm, context, ttft_ms, **overrides):
     record.update(
         {
             "context_target": context,
+            "session_id": f"session-{arm}-{context}",
             "model_revision": "target-revision",
             "runtime_revision": "v0.6.3rc2",
             "quant": "awq5",
@@ -55,15 +56,29 @@ def pair_record(arm, context, ttft_ms, **overrides):
             "fixture_token_hash": "fixture-v1",
             "concurrency": 1,
             "warmup_id": "warmup-v1",
+            "repeat": 1,
             "ttft_ms": ttft_ms,
             "e2e_ms": ttft_ms + 20,
             "needle_verdicts": {"10": True, "50": True, "90": True},
             "static_prefix_correct": True,
+            "static_prefix_prior_match": True,
+            "static_prefix_cached_tokens": 8,
+            "static_prefix_boundary_tokens": 8,
             "specprefill_enabled": arm in {"M", "N"},
+            "specprefill_keep_pct": 0.40 if arm == "M" else (0.50 if arm == "N" else None),
+            "specprefill_threshold": 8192 if arm in {"M", "N"} else None,
+            "specprefill_draft_model": "Qwen/Qwen3.5-2B" if arm == "M" else ("Qwen/Qwen3.5-0.8B" if arm == "N" else None),
+            "specprefill_draft_revision": "15852e8c16360a2fea060d615a32b45270f8a8fc" if arm == "M" else ("2fc06364715b967f1860aea9cf38778875588b17" if arm == "N" else None),
+            "prompt_work_mode": "sparse" if arm in {"M", "N"} else "full",
             "ane_prefill_enabled": arm == "O",
             "ane_compiled_mlp_layers": 2 if arm == "O" else None,
             "ane_compiled_gdn_layers": 1 if arm == "O" else None,
             "ane_executed_operations": 3 if arm == "O" else None,
+            "ane_runtime_log_arm": "O" if arm == "O" else None,
+            "ane_runtime_log_session_id": f"session-{arm}-{context}" if arm == "O" else None,
+            "ane_runtime_log_context": context if arm == "O" else None,
+            "ane_runtime_log_compiled_programs": 3 if arm == "O" else None,
+            "ane_runtime_log_executed_operations": 3 if arm == "O" else None,
         }
     )
     record.update(overrides)
@@ -102,6 +117,48 @@ class SummaryTests(unittest.TestCase):
                 ]
                 result = evaluate_specprefill(records)
                 self.assertEqual(result["M"]["status"], "FAIL")
+
+    def test_specprefill_rejects_unpaired_or_duplicate_repetitions(self):
+        """Medians require the same unique repetition set on both sides."""
+        base = [
+            pair_record("L", 16384, 100, repeat=1),
+            pair_record("L", 16384, 100, repeat=2),
+            pair_record("M", 16384, 70, repeat=1),
+            pair_record("L", 32768, 100, repeat=1),
+            pair_record("L", 32768, 100, repeat=2),
+            pair_record("M", 32768, 70, repeat=1),
+            {**pair_record("M", 32768, 1), "record_type": "verdict", "turns_requested": 20},
+        ]
+        self.assertEqual(evaluate_specprefill(base)["M"]["status"], "FAIL")
+        duplicate = [dict(record) for record in base]
+        duplicate.append(pair_record("M", 16384, 70, repeat=1))
+        self.assertEqual(evaluate_specprefill(duplicate)["M"]["status"], "FAIL")
+
+    def test_specprefill_requires_the_declared_profile_and_sparse_execution(self):
+        """A disabled or wrong M/N profile cannot self-certify its own verdict."""
+        records = [
+            pair_record("L", 16384, 100), pair_record("M", 16384, 70, specprefill_enabled=False),
+            pair_record("L", 32768, 100), pair_record("M", 32768, 70, prompt_work_mode="cached"),
+            {**pair_record("M", 32768, 1), "record_type": "verdict", "turns_requested": 20},
+        ]
+
+        result = evaluate_specprefill(records)
+
+        self.assertEqual(result["M"]["status"], "FAIL")
+        self.assertIn("profile", result["M"]["failures"])
+        self.assertIn("prompt_work_mode", result["M"]["failures"])
+
+    def test_static_prefix_needs_a_prior_full_boundary_hit_at_each_context(self):
+        """A first request or a partial cache hit is not static-prefix evidence."""
+        records = [
+            pair_record("L", 16384, 100),
+            pair_record("M", 16384, 70, static_prefix_prior_match=False, static_prefix_cached_tokens=4, static_prefix_boundary_tokens=8),
+            pair_record("L", 32768, 100),
+            pair_record("M", 32768, 70, static_prefix_prior_match=True, static_prefix_cached_tokens=8, static_prefix_boundary_tokens=8),
+            {**pair_record("M", 32768, 1), "record_type": "verdict", "turns_requested": 20},
+        ]
+
+        self.assertIn("static_prefix", evaluate_specprefill(records)["M"]["failures"])
 
     def test_specprefill_requires_all_needles_static_prefix_and_real_tool_verdict(self):
         """Missing Gate 6 evidence is not a passing substitute for measurement."""
@@ -149,8 +206,10 @@ class SummaryTests(unittest.TestCase):
     def test_mtp_gate_requires_isolated_l_evidence(self):
         """SpecPrefill must not run before the L MTP profile records a clean gate."""
         self.assertFalse(omlx_mtp_gate([])["passed"])
-        record = pair_record("L", 32768, 100, mtp_enabled=True, specprefill_enabled=False)
-        self.assertTrue(omlx_mtp_gate([record])["passed"])
+        k = pair_record("K", 32768, 100, content_class="code", mtp_enabled=False, cache_hit_ratio=0.96)
+        l = pair_record("L", 32768, 90, content_class="code", mtp_enabled=True, mtp_acceptance=0.5, cache_hit_ratio=0.96)
+        verdict = {**pair_record("L", 32768, 1), "record_type": "verdict", "turns_requested": 20, "specprefill_enabled": False, "mtp_enabled": True}
+        self.assertTrue(omlx_mtp_gate([k, l, verdict])["passed"])
 
     def test_specprefill_fails_when_needle_or_tool_loop_fails(self):
         """Ignoring functional failures would incorrectly promote SpecPrefill."""
@@ -233,6 +292,19 @@ class SummaryTests(unittest.TestCase):
             pair_record("O", 16384, 90, ane_executed_operations=0),
             pair_record("J", 32768, 100),
             pair_record("O", 32768, 90, ane_executed_operations=0),
+        ]
+
+        result = evaluate_ane(records)
+
+        self.assertEqual(result["O"]["status"], "INCONCLUSIVE")
+
+    def test_ane_rejects_runtime_log_evidence_from_a_different_session(self):
+        """A compiled warmup log cannot be bound to a later measured request."""
+        records = [
+            pair_record("J", 16384, 100),
+            pair_record("O", 16384, 90, ane_runtime_log_session_id="warmup-o"),
+            pair_record("J", 32768, 100),
+            pair_record("O", 32768, 90),
         ]
 
         result = evaluate_ane(records)

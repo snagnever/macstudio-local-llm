@@ -112,8 +112,8 @@ arm_metadata() {
     L|M|N) MTP_ARGS=(--mtp-enabled) ;;
   esac
   case "$arm" in
-    M) SPECPREFILL_ARGS=(--specprefill=true --specprefill-keep-pct 0.40 --specprefill-threshold 8192) ;;
-    N) SPECPREFILL_ARGS=(--specprefill=true --specprefill-keep-pct 0.50 --specprefill-threshold 8192) ;;
+    M) SPECPREFILL_ARGS=(--specprefill=true --specprefill-keep-pct 0.40 --specprefill-threshold 8192 --specprefill-draft-model Qwen/Qwen3.5-2B --specprefill-draft-revision 15852e8c16360a2fea060d615a32b45270f8a8fc) ;;
+    N) SPECPREFILL_ARGS=(--specprefill=true --specprefill-keep-pct 0.50 --specprefill-threshold 8192 --specprefill-draft-model Qwen/Qwen3.5-0.8B --specprefill-draft-revision 2fc06364715b967f1860aea9cf38778875588b17) ;;
     J|K|L|O) SPECPREFILL_ARGS=(--specprefill=false) ;;
   esac
   case "$arm" in
@@ -153,11 +153,17 @@ start_runtime() {
 finish_runtime() {
   local results_file="$1"
   local session_id="$2"
+  local runtime_log="$3"
+  local arm="$4"
+  local context="$5"
   cleanup
   python3 "$SCRIPTS/enrich_telemetry.py" \
     --results "$results_file" \
     --telemetry "$MACMON_LOG" \
-    --session-id "$session_id"
+    --session-id "$session_id" \
+    --runtime-log "$runtime_log" \
+    --arm "$arm" \
+    --context "$context"
   if [[ "$INTER_RUN_SECONDS" != "0" ]]; then
     sleep "$INTER_RUN_SECONDS"
   fi
@@ -167,7 +173,7 @@ validate_mtp_log() {
   local arm="$1"
   local log_file="$2"
   case "$arm" in
-    C|F|G|H)
+    C|F|G|H|L)
       if ! grep -Eiq 'mtp|draft' "$log_file"; then
         echo "arm $arm did not report MTP/draft activation in $log_file" >&2
         return 1
@@ -198,9 +204,10 @@ wait_for_cooldown() {
 run_cache_arm() {
   local arm="$1"
   local context="$2"
-  arm_metadata "$arm"
+  local content_class="${3:-audit_retrieval}"
+  arm_metadata "$arm" || return 1
   echo "RUN arm=$arm context=$context mode=cache"
-  wait_for_cooldown
+  wait_for_cooldown || return 1
   if [[ "$DRY_RUN" == "1" ]]; then
     if [[ "$RUNTIME" == "oMLX" ]]; then
       echo "+ QWEN38_CTX_SIZE=$context bash $LAUNCHER $arm"
@@ -216,8 +223,8 @@ run_cache_arm() {
   local runtime_log="$LOGS/${stamp}-${arm}-${context}-runtime.log"
   LAST_RUNTIME_LOG="$runtime_log"
   local session_id="${stamp}-${arm}-${context}-cache"
-  start_runtime "$arm" "$context" "$runtime_log"
-  wait_for_server "http://127.0.0.1:${PORT}/v1"
+  start_runtime "$arm" "$context" "$runtime_log" || { cleanup; return 1; }
+  wait_for_server "http://127.0.0.1:${PORT}/v1" || { cleanup; return 1; }
 
   PROBE_COMMAND=(
     python3 "$SCRIPTS/cache_probe.py"
@@ -229,6 +236,7 @@ run_cache_arm() {
     --arm "$arm"
     --session-id "$session_id"
     --context "$context"
+    --content-class "$content_class"
     --repeat "$REPEATS"
     --output "$RESULTS/cache-probe.jsonl"
     --metrics-url "http://127.0.0.1:${PORT}/metrics"
@@ -247,17 +255,18 @@ run_cache_arm() {
   fi
   printf '+ %q ' "${PROBE_COMMAND[@]}"
   printf '\n'
-  "${PROBE_COMMAND[@]}"
+  "${PROBE_COMMAND[@]}" || { cleanup; return 1; }
 
-  validate_mtp_log "$arm" "$runtime_log"
-  finish_runtime "$RESULTS/cache-probe.jsonl" "$session_id"
+  validate_mtp_log "$arm" "$runtime_log" || { cleanup; return 1; }
+  finish_runtime "$RESULTS/cache-probe.jsonl" "$session_id" "$runtime_log" "$arm" "$context" || return 1
 }
 
 run_tool_arm() {
   local arm="$1"
-  arm_metadata "$arm"
-  echo "RUN arm=$arm context=65536 mode=tool-loop"
-  wait_for_cooldown
+  local context="${2:-32768}"
+  arm_metadata "$arm" || return 1
+  echo "RUN arm=$arm context=$context mode=tool-loop"
+  wait_for_cooldown || return 1
   if [[ "$DRY_RUN" == "1" ]]; then
     if [[ "$RUNTIME" == "oMLX" ]]; then
       echo "+ bash $LAUNCHER $arm (tool-loop)"
@@ -272,8 +281,8 @@ run_tool_arm() {
   stamp="$(date -u +%Y%m%dT%H%M%SZ)"
   local runtime_log="$LOGS/${stamp}-${arm}-tool-loop-runtime.log"
   local session_id="${stamp}-${arm}-tool-loop"
-  start_runtime "$arm" 65536 "$runtime_log"
-  wait_for_server "http://127.0.0.1:${PORT}/v1"
+  start_runtime "$arm" "$context" "$runtime_log" || { cleanup; return 1; }
+  wait_for_server "http://127.0.0.1:${PORT}/v1" || { cleanup; return 1; }
 
   TOOL_COMMAND=(
     python3 "$SCRIPTS/tool_loop.py"
@@ -284,7 +293,7 @@ run_tool_arm() {
     --model-revision "$MODEL_REVISION"
     --arm "$arm"
     --session-id "$session_id"
-    --context 65536
+    --context "$context"
     --output "$RESULTS/tool-loop.jsonl"
     --metrics-url "http://127.0.0.1:${PORT}/metrics"
   )
@@ -299,10 +308,10 @@ run_tool_arm() {
   fi
   printf '+ %q ' "${TOOL_COMMAND[@]}"
   printf '\n'
-  "${TOOL_COMMAND[@]}"
+  "${TOOL_COMMAND[@]}" || { cleanup; return 1; }
 
-  validate_mtp_log "$arm" "$runtime_log"
-  finish_runtime "$RESULTS/tool-loop.jsonl" "$session_id"
+  validate_mtp_log "$arm" "$runtime_log" || { cleanup; return 1; }
+  finish_runtime "$RESULTS/tool-loop.jsonl" "$session_id" "$runtime_log" "$arm" "$context" || return 1
 }
 
 summarize() {
@@ -338,16 +347,19 @@ require_omlx_mtp_gate() {
   fi
 }
 
-run_omlx_smoke() {
-  if ! run_cache_arm I 8192; then
+run_omlx_smoke() (
+  set +e
+  run_cache_arm I 8192
+  local arm_i_status=$?
+  if [[ "$arm_i_status" -ne 0 ]]; then
     if [[ -n "$LAST_RUNTIME_LOG" ]] && grep -Eiq 'checkpoint.*incompatib|incompatib.*checkpoint' "$LAST_RUNTIME_LOG"; then
       echo "arm I checkpoint incompatibility recorded; continuing with J" >&2
     else
-      return 1
+      return "$arm_i_status"
     fi
   fi
   run_cache_arm J 8192
-}
+)
 
 run_arms() {
   local context="$1"
@@ -372,10 +384,11 @@ case "$STAGE" in
     run_omlx_smoke
     ;;
   omlx-cache-32k)
-    run_arms 32768 K
+    run_cache_arm K 32768 code
     ;;
   omlx-mtp-32k)
-    run_arms 32768 L
+    run_cache_arm L 32768 code
+    run_tool_arm L 32768
     summarize || true
     ;;
   specprefill-16k)
@@ -385,8 +398,8 @@ case "$STAGE" in
   specprefill-32k)
     require_omlx_mtp_gate
     run_arms 32768 L M N
-    run_tool_arm M
-    run_tool_arm N
+    run_tool_arm M 32768
+    run_tool_arm N 32768
     summarize || true
     ;;
   ane-16k)

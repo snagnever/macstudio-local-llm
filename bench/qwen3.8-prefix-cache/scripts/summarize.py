@@ -37,6 +37,10 @@ PAIRING_FIELDS = (
     "concurrency",
     "warmup_id",
 )
+SPECPREFILL_PROFILES = {
+    "M": ("Qwen/Qwen3.5-2B", "15852e8c16360a2fea060d615a32b45270f8a8fc", 0.40),
+    "N": ("Qwen/Qwen3.5-0.8B", "2fc06364715b967f1860aea9cf38778875588b17", 0.50),
+}
 
 
 def gate_record(record: dict[str, Any]) -> list[str]:
@@ -131,6 +135,8 @@ def _tool_loop_passed(
         and record.get("specprefill_enabled") == profile.get("specprefill_enabled")
         and record.get("specprefill_keep_pct") == profile.get("specprefill_keep_pct")
         and record.get("specprefill_threshold") == profile.get("specprefill_threshold")
+        and record.get("specprefill_draft_model") == profile.get("specprefill_draft_model")
+        and record.get("specprefill_draft_revision") == profile.get("specprefill_draft_revision")
         and record.get("mtp_enabled") == profile.get("mtp_enabled")
         and record.get("runtime_revision") == profile.get("runtime_revision")
         and record.get("model_id") == profile.get("model_id")
@@ -147,12 +153,13 @@ def _pairwise_result(
     baseline_arm: str,
     candidate_arm: str,
     minimum_improvement: Optional[float],
+    contexts: tuple[int, ...] = PAIRWISE_CONTEXTS,
 ) -> dict[str, Any]:
     failures: list[str] = []
     comparisons: list[dict[str, Any]] = []
     candidate_records: list[dict[str, Any]] = []
     candidate_by_context: dict[int, list[dict[str, Any]]] = {}
-    for context in PAIRWISE_CONTEXTS:
+    for context in contexts:
         baseline = _records_for_arm_context(records, baseline_arm, context)
         candidate = _records_for_arm_context(records, candidate_arm, context)
         if not baseline or not candidate:
@@ -169,6 +176,21 @@ def _pairwise_result(
             candidate_groups[_comparison_signature(record)].append(record)
         if baseline_groups.keys() != candidate_groups.keys():
             failures.append("incompatible_comparison")
+            continue
+        repetitions_valid = True
+        for key in baseline_groups:
+            baseline_repeats = [record.get("repeat") for record in baseline_groups[key]]
+            candidate_repeats = [record.get("repeat") for record in candidate_groups[key]]
+            if (
+                not all(isinstance(repeat, int) and repeat > 0 for repeat in baseline_repeats + candidate_repeats)
+                or len(set(baseline_repeats)) != len(baseline_repeats)
+                or len(set(candidate_repeats)) != len(candidate_repeats)
+                or set(baseline_repeats) != set(candidate_repeats)
+            ):
+                repetitions_valid = False
+                break
+        if not repetitions_valid:
+            failures.append("repetitions")
             continue
         baseline_ttft = statistics.median(
             _median(group, "ttft_ms") for group in baseline_groups.values()
@@ -214,13 +236,37 @@ def evaluate_specprefill(records: list[dict[str, Any]]) -> dict[str, dict[str, A
             for context_records in evaluation["candidate_by_context"].values()
             for record in context_records
         ]
+        expected_draft_model, expected_draft_revision, expected_keep_pct = SPECPREFILL_PROFILES[arm]
+        if not all(
+            record.get("specprefill_enabled") is True
+            and record.get("specprefill_keep_pct") == expected_keep_pct
+            and record.get("specprefill_threshold") == 8192
+            and record.get("specprefill_draft_model") == expected_draft_model
+            and record.get("specprefill_draft_revision") == expected_draft_revision
+            for record in candidate_records
+        ):
+            evaluation["failures"] = _unique(evaluation["failures"] + ["profile"])
+        if not all(record.get("prompt_work_mode") == "sparse" for record in candidate_records):
+            evaluation["failures"] = _unique(evaluation["failures"] + ["prompt_work_mode"])
         if not all(
             isinstance(record.get("needle_verdicts"), dict)
             and all(record["needle_verdicts"].get(position) is True for position in ("10", "50", "90"))
             for record in candidate_records
         ):
             evaluation["failures"] = _unique(evaluation["failures"] + ["needle_evidence"])
-        if not any(record.get("static_prefix_correct") is True for record in candidate_records):
+        static_evidence = {
+            context: any(
+                record.get("static_prefix_correct") is True
+                and record.get("static_prefix_prior_match") is True
+                and isinstance(record.get("static_prefix_boundary_tokens"), int)
+                and record["static_prefix_boundary_tokens"] > 0
+                and isinstance(record.get("static_prefix_cached_tokens"), (int, float))
+                and record["static_prefix_cached_tokens"] >= record["static_prefix_boundary_tokens"]
+                for record in context_records
+            )
+            for context, context_records in evaluation["candidate_by_context"].items()
+        }
+        if set(static_evidence) != set(PAIRWISE_CONTEXTS) or not all(static_evidence.values()):
             evaluation["failures"] = _unique(evaluation["failures"] + ["static_prefix"])
         profile = candidate_records[0] if candidate_records else {}
         if not _tool_loop_passed(records, arm, profile):
@@ -275,6 +321,19 @@ def evaluate_ane(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     ]
     if active_records and not all(record.get("ane_prefill_enabled") is True for record in active_records):
         evaluation["failures"] = _unique(evaluation["failures"] + ["ane_not_enabled"])
+    log_evidence = [
+        record
+        for record in active_records
+        if record.get("ane_runtime_log_arm") == "O"
+        and record.get("ane_runtime_log_session_id") == record.get("session_id")
+        and record.get("ane_runtime_log_context") == record.get("context_target")
+        and isinstance(record.get("ane_runtime_log_compiled_programs"), (int, float))
+        and record["ane_runtime_log_compiled_programs"] > 0
+        and isinstance(record.get("ane_runtime_log_executed_operations"), (int, float))
+        and record["ane_runtime_log_executed_operations"] > 0
+    ]
+    if len(log_evidence) != len(active_records):
+        evaluation["failures"] = _unique(evaluation["failures"] + ["ane_runtime_log"])
     compiled_layers = sum(
         int(record.get(field) or 0)
         for record in active_records
@@ -284,7 +343,7 @@ def evaluate_ane(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
         int(record.get("ane_executed_operations") or 0)
         for record in active_records
     )
-    if compiled_layers == 0 or operations == 0:
+    if compiled_layers == 0 or operations == 0 or len(log_evidence) != len(active_records):
         status = "INCONCLUSIVE"
     elif evaluation["failures"]:
         status = "FAIL"
@@ -309,19 +368,31 @@ def specprefill_selection(
 
 
 def omlx_mtp_gate(records: list[dict[str, Any]]) -> dict[str, Any]:
-    evidence = [
-        record
-        for record in records
-        if record.get("arm") == "L"
-        and record.get("context_target") == 32768
+    comparison = _pairwise_result(records, "K", "L", None, contexts=(32768,))
+    baseline = _records_for_arm_context(records, "K", 32768)
+    evidence = _records_for_arm_context(records, "L", 32768)
+    failures = list(comparison["failures"])
+    if not evidence or not all(
+        record.get("content_class") == "code"
         and record.get("mtp_enabled") is True
         and record.get("specprefill_enabled") is False
-    ]
+        and isinstance(record.get("mtp_acceptance"), (int, float))
+        and record["mtp_acceptance"] > 0
+        for record in evidence
+    ):
+        failures.append("mtp_evidence")
+    if not comparison["comparisons"] or comparison["comparisons"][0]["candidate_e2e_ms"] >= comparison["comparisons"][0]["baseline_e2e_ms"]:
+        failures.append("e2e")
+    if not baseline or _median(evidence, "cache_hit_ratio") + 1e-9 < _median(baseline, "cache_hit_ratio"):
+        failures.append("cache_hit_ratio")
+    if not _tool_loop_passed(records, "L", evidence[0] if evidence else {}):
+        failures.append("tool_loop")
     return {
         "schema_version": 3,
         "arm": "L",
-        "passed": bool(evidence) and not any(gate_record(record) for record in evidence),
+        "passed": not _unique(failures),
         "records": len(evidence),
+        "failures": _unique(failures),
     }
 
 
