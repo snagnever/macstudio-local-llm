@@ -17,7 +17,10 @@ from fixtures import (
 
 class FixtureTests(unittest.TestCase):
     def test_token_mutation_reports_exact_prefix_and_span(self):
-        original = " ".join(f"w{i}" for i in range(1000))
+        original = "\n".join(
+            " ".join(f"w{row * 10 + column}" for column in range(10))
+            for row in range(100)
+        )
 
         changed, prefix_tokens, mutation_tokens = mutate_middle_tokens(
             original, 64, str.split
@@ -26,6 +29,8 @@ class FixtureTests(unittest.TestCase):
         original_tokens = original.split()
         changed_tokens = changed.split()
         self.assertEqual(mutation_tokens, 64)
+        self.assertEqual(changed.count("\n"), original.count("\n"))
+        self.assertGreater(prefix_tokens, 400)
         self.assertEqual(
             original_tokens[:prefix_tokens], changed_tokens[:prefix_tokens]
         )

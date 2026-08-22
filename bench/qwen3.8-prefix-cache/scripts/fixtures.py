@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from hashlib import sha256
+import re
 from struct import pack
 from typing import Callable
 
@@ -120,14 +121,21 @@ def mutate_middle_tokens(
     if not words:
         raise ValueError("text must contain words")
     original_tokens = encode(text)
+    word_matches = list(re.finditer(r"\S+", text))
 
     def candidate(word_count: int) -> tuple[str, int, int]:
         boundary = max(0, len(words) // 2 - word_count // 2)
         end = min(len(words), boundary + word_count)
-        replacements = [
-            f"mutation-{index:03d}" for index in range(end - boundary)
-        ]
-        changed = " ".join(words[:boundary] + replacements + words[end:])
+        pieces: list[str] = []
+        cursor = 0
+        for replacement_index, match in enumerate(
+            word_matches[boundary:end]
+        ):
+            pieces.append(text[cursor : match.start()])
+            pieces.append(f"mutation-{replacement_index:03d}")
+            cursor = match.end()
+        pieces.append(text[cursor:])
+        changed = "".join(pieces)
         prefix, span = _token_difference_span(original_tokens, encode(changed))
         return changed, prefix, span
 
