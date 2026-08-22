@@ -11,6 +11,7 @@ from cache_probe import (
     cached_tokens_from_usage,
     fixture_token_target,
     _payload,
+    _messages_for_scenario,
     mtp_acceptance_from_snapshots,
     scenario_messages,
     result_correct,
@@ -20,6 +21,13 @@ from sse_client import StreamResult
 
 
 class CacheProbeTests(unittest.TestCase):
+    def test_cold_repeats_change_the_leading_system_prefix(self):
+        first = _messages_for_scenario("cold", "fixture", "mutated", "suffix", 1)
+        second = _messages_for_scenario("cold", "fixture", "mutated", "suffix", 2)
+
+        self.assertNotEqual(first[0]["content"], second[0]["content"])
+        self.assertEqual(first[1:], second[1:])
+
     def test_fixture_target_reserves_template_and_generation_headroom(self):
         self.assertEqual(fixture_token_target(8192), 5632)
         self.assertEqual(fixture_token_target(32768), 30208)

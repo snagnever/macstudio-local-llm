@@ -183,11 +183,20 @@ def _base_messages(text: str) -> list[dict[str, Any]]:
 
 
 def _messages_for_scenario(
-    name: str, fixture_text: str, mutated_text: str, suffix: str
+    name: str,
+    fixture_text: str,
+    mutated_text: str,
+    suffix: str,
+    repeat: int,
 ) -> list[dict[str, Any]]:
     if name == "middle_mutation":
         return _base_messages(mutated_text)
-    return scenario_messages(name, _base_messages(fixture_text), suffix)
+    messages = scenario_messages(name, _base_messages(fixture_text), suffix)
+    if name == "cold":
+        messages[0]["content"] = (
+            f"Cold cache-buster {repeat:03d}. " + messages[0]["content"]
+        )
+    return messages
 
 
 def _payload(model: str, messages: list[dict[str, Any]]) -> dict[str, Any]:
@@ -318,10 +327,10 @@ def main() -> int:
 
     with args.output.open("a", encoding="utf-8") as output:
         for scenario in SCENARIOS:
-            messages = _messages_for_scenario(
-                scenario, fixture.text, mutated_text, suffix
-            )
             for repeat in range(1, args.repeat + 1):
+                messages = _messages_for_scenario(
+                    scenario, fixture.text, mutated_text, suffix, repeat
+                )
                 metrics_before = _metrics_snapshot(args.metrics_url)
                 result = stream_chat(args.base_url, _payload(args.model, messages))
                 metrics_after = _metrics_snapshot(args.metrics_url)
