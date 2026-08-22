@@ -28,9 +28,9 @@ NEEDLE_QUESTION = (
 
 def fixture_token_target(context_size: int) -> int:
     """Reserve room for the chat template and the bounded diagnostic output."""
-    if context_size <= 1024:
-        raise ValueError("context size must exceed the 1024-token request reserve")
-    return context_size - 1024
+    if context_size <= 1536:
+        raise ValueError("context size must exceed the 1536-token request reserve")
+    return context_size - 1536
 
 
 def cache_hit_ratio(cached_tokens: int, prompt_tokens: int) -> float:
@@ -195,10 +195,14 @@ def _payload(model: str, messages: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "model": model,
         "messages": messages,
-        "max_tokens": 512,
+        "max_tokens": 1024,
         "temperature": 0,
         "reasoning_effort": "xhigh",
     }
+
+
+def result_correct(result: StreamResult, expected_needle: str) -> bool:
+    return result.finish_reason != "length" and expected_needle in result.text
 
 
 def _performance(result: StreamResult, prompt_tokens: int, cached_tokens: int):
@@ -256,13 +260,17 @@ def _record(
         "mtp_acceptance": mtp_acceptance_from_snapshots(
             metrics_before, metrics_after
         ),
-        "correct": expected_needle in result.text,
+        "finish_reason": result.finish_reason,
+        "reasoning_chars": len(result.reasoning_text),
+        "correct": result_correct(result, expected_needle),
         "ram_peak_gb": None,
         "swap_delta_gb": None,
         "gpu_temp_start_c": None,
         "gpu_temp_peak_c": None,
         "fixture_token_hash": fixture_hash,
-        "error": None,
+        "error": (
+            "finish_reason:length" if result.finish_reason == "length" else None
+        ),
     }
 
 

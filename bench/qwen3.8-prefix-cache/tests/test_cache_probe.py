@@ -13,21 +13,46 @@ from cache_probe import (
     _payload,
     mtp_acceptance_from_snapshots,
     scenario_messages,
+    result_correct,
     token_ids_from_response,
 )
+from sse_client import StreamResult
 
 
 class CacheProbeTests(unittest.TestCase):
     def test_fixture_target_reserves_template_and_generation_headroom(self):
-        self.assertEqual(fixture_token_target(8192), 7168)
-        self.assertEqual(fixture_token_target(32768), 31744)
+        self.assertEqual(fixture_token_target(8192), 6656)
+        self.assertEqual(fixture_token_target(32768), 31232)
 
     def test_diagnostic_payload_keeps_vendor_reasoning_effort(self):
         payload = _payload("model", [{"role": "user", "content": "probe"}])
 
         self.assertEqual(payload["temperature"], 0)
         self.assertEqual(payload["reasoning_effort"], "xhigh")
-        self.assertEqual(payload["max_tokens"], 512)
+        self.assertEqual(payload["max_tokens"], 1024)
+
+    def test_correctness_requires_visible_non_truncated_answer(self):
+        hidden_only = StreamResult(
+            text="",
+            reasoning_text="the key is XENON",
+            finish_reason="length",
+            ttft_ms=1.0,
+            e2e_ms=2.0,
+            usage={},
+            raw_chunks=2,
+        )
+        visible = StreamResult(
+            text="XENON",
+            reasoning_text="checked",
+            finish_reason="stop",
+            ttft_ms=1.0,
+            e2e_ms=2.0,
+            usage={},
+            raw_chunks=2,
+        )
+
+        self.assertFalse(result_correct(hidden_only, "XENON"))
+        self.assertTrue(result_correct(visible, "XENON"))
 
     def test_cache_ratio_is_bounded_and_handles_empty_prompt(self):
         self.assertEqual(cache_hit_ratio(900, 1000), 0.9)

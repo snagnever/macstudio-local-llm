@@ -6,10 +6,32 @@ from pathlib import Path
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from sse_client import iter_sse_json
+from sse_client import iter_sse_json, stream_delta_fields
 
 
 class SseTests(unittest.TestCase):
+    def test_stream_fields_keep_reasoning_separate_from_visible_content(self):
+        chunks = [
+            {
+                "choices": [
+                    {"delta": {"reasoning_content": "hidden key"}, "finish_reason": None}
+                ]
+            },
+            {
+                "choices": [
+                    {"delta": {"content": "visible answer"}, "finish_reason": "stop"}
+                ],
+                "usage": {"completion_tokens": 7},
+            },
+        ]
+
+        fields = stream_delta_fields(chunks)
+
+        self.assertEqual(fields["content"], "visible answer")
+        self.assertEqual(fields["reasoning"], "hidden key")
+        self.assertEqual(fields["finish_reason"], "stop")
+        self.assertEqual(fields["usage"], {"completion_tokens": 7})
+
     def test_parser_yields_json_chunks_and_stops_at_done(self):
         lines = [
             b'data: {"choices":[{"delta":{"content":"A"}}]}\n',
