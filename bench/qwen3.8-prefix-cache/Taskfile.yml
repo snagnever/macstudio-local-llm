@@ -170,7 +170,7 @@ tasks:
       - bash bench/qwen3.8-prefix-cache/scripts/run-quality-screen.sh
 
   native-context:
-    desc: Smoke-test the selected winner at 262K context
+    desc: Smoke-test every approved compatible arm at 262K context
     deps: [deps:rig, unit]
     cmds:
       - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh native-262k

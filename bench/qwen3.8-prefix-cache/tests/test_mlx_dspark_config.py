@@ -71,6 +71,21 @@ class MlxDsparkConfigTests(unittest.TestCase):
             self.assertEqual(command[command.index("--max-draft") + 1], "auto")
             self.assertEqual(command[command.index("--drafter") + 1], str(self.paths[key]))
 
+    def test_build_command_accepts_native_262k_context_override(self):
+        profile = load_arm(CONFIG, "S")
+
+        command = build_command(profile, self.paths, context_window=262144)
+
+        self.assertEqual(command[command.index("--context-window") + 1], "262144")
+
+    def test_build_command_rejects_context_outside_target_native_window(self):
+        profile = load_arm(CONFIG, "S")
+
+        for context_window in (0, -1, 262145):
+            with self.subTest(context_window=context_window):
+                with self.assertRaises(ValueError):
+                    build_command(profile, self.paths, context_window=context_window)
+
     def test_rejects_unknown_arm_and_wrong_snapshot_directory(self):
         with self.assertRaises(ValueError):
             load_arm(CONFIG, "Z")

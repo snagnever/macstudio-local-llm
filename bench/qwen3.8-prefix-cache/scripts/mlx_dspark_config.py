@@ -8,7 +8,7 @@ import copy
 import json
 import shlex
 from pathlib import Path
-from typing import Any
+from typing import Optional
 
 
 def _snapshot_name(identity: dict[str, str]) -> str:
@@ -51,13 +51,23 @@ def validate_arm(profile: dict, model_paths: dict[str, Path]) -> None:
         raise ValueError(f"{drafter_key} snapshot must be named {expected_drafter}")
 
 
-def build_command(profile: dict, model_paths: dict[str, Path]) -> list[str]:
+def build_command(
+    profile: dict,
+    model_paths: dict[str, Path],
+    context_window: Optional[int] = None,
+) -> list[str]:
     validate_arm(profile, model_paths)
     runtime = profile["runtime"]
+    resolved_context = runtime["context_window"] if context_window is None else context_window
+    native_context = profile["target"]["native_context_window"]
+    if resolved_context <= 0 or resolved_context > native_context:
+        raise ValueError(
+            f"context window must be between 1 and target native limit {native_context}"
+        )
     command = [
         "mlx-dspark", "serve", "--model", str(model_paths["target"]),
         "--mode", profile["mode"], "--host", runtime["host"],
-        "--port", str(runtime["port"]), "--context-window", str(runtime["context_window"]),
+        "--port", str(runtime["port"]), "--context-window", str(resolved_context),
         "--reasoning-effort", runtime["reasoning_effort"], "--max-batch",
         str(runtime["concurrency"]),
     ]
@@ -76,6 +86,7 @@ def main() -> None:
     parser.add_argument("--target-path", type=Path, required=True)
     parser.add_argument("--dspark-path", type=Path)
     parser.add_argument("--dflash-path", type=Path)
+    parser.add_argument("--context-window", type=int)
     parser.add_argument("--print-command", action="store_true")
     parser.add_argument("--command-shell", action="store_true")
     args = parser.parse_args()
@@ -85,7 +96,7 @@ def main() -> None:
         paths["dspark"] = args.dspark_path
     if args.dflash_path is not None:
         paths["dflash"] = args.dflash_path
-    command = build_command(profile, paths)
+    command = build_command(profile, paths, context_window=args.context_window)
     if args.print_command:
         print(json.dumps(command))
     if args.command_shell:

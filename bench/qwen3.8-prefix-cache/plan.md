@@ -73,7 +73,7 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 
 ### Excluído
 
-- Contexto acima de 65.536 na matriz principal. O vencedor recebe um smoke test em 262.144.
+- Contexto acima de 65.536 na matriz principal. Cada braço aprovado e compatível com o contexto nativo recebe um smoke test em 262.144.
 - YaRN e contexto de um milhão de tokens.
 - Vision e processamento de vídeo.
 - Batch com vários usuários.
@@ -696,8 +696,8 @@ preflight e pinning
 → braços aprovados em 65K
 → loop agentic de 20 turnos
 → Q4 contra Q6 e Q8 na qualidade barata
-→ seleção do vencedor
-→ smoke test do vencedor em 262K
+→ seleção dos sobreviventes compatíveis
+→ smoke test dos sobreviventes compatíveis em 262K
 → Terminal-Bench completo
 → relatório e decisão
 ```
@@ -750,4 +750,4 @@ A campanha termina quando estes itens existem:
 - Uma decisão explícita sobre Q4, Q6 e Q8.
 - Uma decisão explícita entre baseline, DSpark e DFlash 2 no target MLX 8-bit.
 - Uma medição separada de TTFT, tempo total e decode sustentado do vencedor.
-- Um smoke test em 262.144 tokens para o vencedor, ou uma limitação registrada quando o hardware/runtime impedir.
+- Um smoke test em 262.144 tokens para cada sobrevivente compatível, ou uma limitação registrada por hardware/runtime.

@@ -11,6 +11,8 @@ DRY_RUN="${QWEN38_DRY_RUN:-0}"
 REPEATS="${QWEN38_REPEATS:-3}"
 INTER_RUN_SECONDS="${QWEN38_INTER_RUN_SECONDS:-45}"
 SPECPREFILL_SELECTION="${QWEN38_SPECPREFILL_SELECTION:-$RESULTS/specprefill-selection.json}"
+RUNTIME_SURVIVORS="${QWEN38_RUNTIME_SURVIVORS:-$RESULTS/runtime-survivors.json}"
+MLX_DSPARK_SELECTION="${QWEN38_MLX_DSPARK_SELECTION:-$RESULTS/mlx-dspark-selection.json}"
 OMLX_MTP_GATE="${QWEN38_OMLX_MTP_GATE:-$RESULTS/omlx-mtp-gate.json}"
 
 MLX_RUNTIME_REVISION="${QWEN38_MLX_RUNTIME_REVISION:-v26.8.9}"
@@ -386,18 +388,40 @@ summarize() {
 }
 
 survivor_arms() {
-  if [[ ! -f "$RESULTS/runtime-survivors.json" ]]; then
+  if [[ ! -f "$RUNTIME_SURVIVORS" && "$DRY_RUN" == "1" ]]; then
+    printf '%s\n' C E F G H
+    return 0
+  fi
+  if [[ ! -f "$RUNTIME_SURVIVORS" ]]; then
     summarize >/dev/null
   fi
   jq -r '.survivors[] | select(.passed == true) | .arm' \
-    "$RESULTS/runtime-survivors.json"
+    "$RUNTIME_SURVIVORS"
 }
 
 specprefill_winner_arm() {
   if [[ ! -f "$SPECPREFILL_SELECTION" ]]; then
     summarize >/dev/null || true
   fi
+  [[ -f "$SPECPREFILL_SELECTION" ]] || return 0
   jq -r '.winner.arm // empty' "$SPECPREFILL_SELECTION"
+}
+
+dspark_winner_arm() {
+  if [[ ! -f "$MLX_DSPARK_SELECTION" ]]; then
+    summarize >/dev/null || true
+  fi
+  [[ -f "$MLX_DSPARK_SELECTION" ]] || return 0
+  jq -r 'if .winner.selected == true then .winner.arm // empty else empty end' \
+    "$MLX_DSPARK_SELECTION"
+}
+
+approved_arms() {
+  {
+    survivor_arms
+    specprefill_winner_arm
+    dspark_winner_arm
+  } | awk 'NF && !seen[$0]++'
 }
 
 require_omlx_mtp_gate() {
@@ -509,27 +533,16 @@ case "$STAGE" in
     run_tool_arm S 32768
     ;;
   cache-65k)
-    SPECPREFILL_WINNER=""
-    if [[ "$DRY_RUN" == "1" ]]; then
-      run_arms 65536 C E F G H
-      if [[ -f "$SPECPREFILL_SELECTION" ]]; then
-        SPECPREFILL_WINNER="$(specprefill_winner_arm)"
-        [[ -n "$SPECPREFILL_WINNER" ]] && run_arms 65536 "$SPECPREFILL_WINNER"
-      fi
-    else
-      summarize || true
-      ARMS=()
-      while IFS= read -r ARM; do
-        [[ -n "$ARM" ]] && ARMS+=("$ARM")
-      done < <(survivor_arms)
-      SPECPREFILL_WINNER="$(specprefill_winner_arm)"
-      [[ -n "$SPECPREFILL_WINNER" ]] && ARMS+=("$SPECPREFILL_WINNER")
-      if [[ "${#ARMS[@]}" -eq 0 ]]; then
-        echo "no passing production arms are available for 65K" >&2
-        exit 2
-      fi
-      run_arms 65536 "${ARMS[@]}"
+    [[ "$DRY_RUN" == "1" ]] || summarize || true
+    ARMS=()
+    while IFS= read -r ARM; do
+      [[ -n "$ARM" ]] && ARMS+=("$ARM")
+    done < <(approved_arms)
+    if [[ "${#ARMS[@]}" -eq 0 ]]; then
+      echo "no approved arms are available for 65K" >&2
+      exit 2
     fi
+    run_arms 65536 "${ARMS[@]}"
     ;;
   tool-loop)
     if [[ "$DRY_RUN" == "1" ]]; then
@@ -551,17 +564,17 @@ case "$STAGE" in
     summarize
     ;;
   native-262k)
-    if [[ "$DRY_RUN" == "1" ]]; then
-      echo "RUN winner context=262144 mode=native-smoke"
-      exit 0
-    fi
-    SELECTION="$RESULTS/selection.json"
-    if [[ ! -f "$SELECTION" ]]; then
-      echo "selection is missing: $SELECTION" >&2
+    [[ "$DRY_RUN" == "1" ]] || summarize || true
+    ARMS=()
+    while IFS= read -r ARM; do
+      [[ -n "$ARM" ]] && ARMS+=("$ARM")
+    done < <(approved_arms)
+    if [[ "${#ARMS[@]}" -eq 0 ]]; then
+      echo "no approved arms are available for native 262K" >&2
       exit 2
     fi
-    WINNER_ARM="$(jq -er '.winner.arm' "$SELECTION")"
-    QWEN38_REPEATS=1 run_cache_arm "$WINNER_ARM" 262144
+    REPEATS=1
+    run_arms 262144 "${ARMS[@]}"
     ;;
   *)
     usage

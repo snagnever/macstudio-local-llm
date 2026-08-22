@@ -77,12 +77,14 @@ mkdir -p "$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75
 DSPARK_Q="$(MLX_DSPARK_BIN="$FAKE_DSPARK_OK" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" bash "$SCRIPTS/run-mlx-dspark.sh" Q --print)"
 DSPARK_R="$(MLX_DSPARK_BIN="$FAKE_DSPARK_OK" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" MLX_DSPARK_DSPARK_PATH="$MODEL_ROOT/RadixArk--Qwen3.8-27B-DSpark-85ef153be924f17ce4bf62726954eeaa4a73e854" bash "$SCRIPTS/run-mlx-dspark.sh" R --print)"
 DSPARK_S="$(MLX_DSPARK_BIN="$FAKE_DSPARK_OK" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" MLX_DSPARK_DFLASH2_PATH="$MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4" bash "$SCRIPTS/run-mlx-dspark.sh" S --print)"
+DSPARK_NATIVE="$(QWEN38_CTX_SIZE=262144 MLX_DSPARK_BIN="$FAKE_DSPARK_OK" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" MLX_DSPARK_DFLASH2_PATH="$MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4" bash "$SCRIPTS/run-mlx-dspark.sh" S --print)"
 DSPARK_AUTO="$(MLX_DSPARK_BIN="$FAKE_DSPARK_OK" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" MLX_DSPARK_DFLASH2_PATH="$MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4" bash "$SCRIPTS/run-mlx-dspark.sh" auto-smoke --print)"
 grep -q -- '--mode baseline' <<<"$DSPARK_Q"
 grep -q -- '--mode dspark' <<<"$DSPARK_R"
 grep -q -- '--mode dflash' <<<"$DSPARK_S"
 grep -q -- '--max-draft auto' <<<"$DSPARK_R"
 grep -q -- '--max-draft auto' <<<"$DSPARK_S"
+grep -q -- '--context-window 262144' <<<"$DSPARK_NATIVE"
 ! grep -q -- '--kv-bits' <<<"$DSPARK_R"
 grep -q -- '--mode dflash' <<<"$DSPARK_AUTO"
 grep -q -- "--drafter $MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4" <<<"$DSPARK_AUTO"
@@ -233,9 +235,13 @@ grep -q -- 'arm=S context=32768 mode=tool-loop' <<<"$DSPARK_32K"
 
 MTP_GATE_FIXTURE="$(mktemp /tmp/qwen38-mtp-gate.XXXXXX)"
 SPECPREFILL_SELECTION_FIXTURE="$(mktemp /tmp/qwen38-specprefill-selection.XXXXXX)"
-trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD" "$FAKE_DSPARK_OK" "$FAKE_DSPARK_BAD" "$MTP_GATE_FIXTURE" "$SPECPREFILL_SELECTION_FIXTURE"' EXIT
+RUNTIME_SURVIVORS_FIXTURE="$(mktemp /tmp/qwen38-runtime-survivors.XXXXXX)"
+DSPARK_SELECTION_FIXTURE="$(mktemp /tmp/qwen38-dspark-selection.XXXXXX)"
+trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD" "$FAKE_DSPARK_OK" "$FAKE_DSPARK_BAD" "$MTP_GATE_FIXTURE" "$SPECPREFILL_SELECTION_FIXTURE" "$RUNTIME_SURVIVORS_FIXTURE" "$DSPARK_SELECTION_FIXTURE"' EXIT
 printf '%s\n' '{"arm":"L","passed":true}' >"$MTP_GATE_FIXTURE"
 printf '%s\n' '{"winner":{"arm":"M"}}' >"$SPECPREFILL_SELECTION_FIXTURE"
+printf '%s\n' '{"survivors":[{"arm":"C","passed":true},{"arm":"E","passed":true}]}' >"$RUNTIME_SURVIVORS_FIXTURE"
+printf '%s\n' '{"winner":{"arm":"S","selected":true}}' >"$DSPARK_SELECTION_FIXTURE"
 SPECPREFILL="$(QWEN38_DRY_RUN=1 QWEN38_OMLX_MTP_GATE="$MTP_GATE_FIXTURE" bash "$SCRIPTS/run-campaign.sh" specprefill-32k)"
 grep -q -- 'arm=M context=32768' <<<"$SPECPREFILL"
 grep -q -- 'arm=N context=32768' <<<"$SPECPREFILL"
@@ -245,14 +251,25 @@ if QWEN38_DRY_RUN=1 QWEN38_OMLX_MTP_GATE=/tmp/missing-qwen38-gate \
   echo "SpecPrefill ran without a passing isolated L/MTP gate" >&2
   exit 1
 fi
-CACHE_65K="$(QWEN38_DRY_RUN=1 QWEN38_SPECPREFILL_SELECTION="$SPECPREFILL_SELECTION_FIXTURE" bash "$SCRIPTS/run-campaign.sh" cache-65k)"
+CACHE_65K="$(QWEN38_DRY_RUN=1 QWEN38_RUNTIME_SURVIVORS="$RUNTIME_SURVIVORS_FIXTURE" QWEN38_SPECPREFILL_SELECTION="$SPECPREFILL_SELECTION_FIXTURE" QWEN38_MLX_DSPARK_SELECTION="$DSPARK_SELECTION_FIXTURE" bash "$SCRIPTS/run-campaign.sh" cache-65k)"
 grep -q -- 'arm=C context=65536' <<<"$CACHE_65K"
 grep -q -- 'arm=M context=65536' <<<"$CACHE_65K"
+grep -q -- 'arm=S context=65536' <<<"$CACHE_65K"
+
+NATIVE_262K="$(QWEN38_DRY_RUN=1 QWEN38_RUNTIME_SURVIVORS="$RUNTIME_SURVIVORS_FIXTURE" QWEN38_SPECPREFILL_SELECTION="$SPECPREFILL_SELECTION_FIXTURE" QWEN38_MLX_DSPARK_SELECTION="$DSPARK_SELECTION_FIXTURE" bash "$SCRIPTS/run-campaign.sh" native-262k)"
+grep -q -- 'arm=C context=262144' <<<"$NATIVE_262K"
+grep -q -- 'arm=E context=262144' <<<"$NATIVE_262K"
+grep -q -- 'arm=M context=262144' <<<"$NATIVE_262K"
+grep -q -- 'arm=S context=262144' <<<"$NATIVE_262K"
+if grep -q -- 'RUN winner' <<<"$NATIVE_262K"; then
+  echo "native-context stage still collapses compatible survivors to one winner" >&2
+  exit 1
+fi
 
 FALLBACK_LOG="$(mktemp /tmp/qwen38-arm-i-fallback.XXXXXX)"
 FALLBACK_FUNCTION="$(mktemp /tmp/qwen38-arm-i-function.XXXXXX)"
 FALLBACK_CALLS="$(mktemp /tmp/qwen38-arm-i-calls.XXXXXX)"
-trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD" "$FAKE_DSPARK_OK" "$FAKE_DSPARK_BAD" "$MTP_GATE_FIXTURE" "$SPECPREFILL_SELECTION_FIXTURE" "$FALLBACK_LOG" "$FALLBACK_FUNCTION" "$FALLBACK_CALLS"' EXIT
+trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD" "$FAKE_DSPARK_OK" "$FAKE_DSPARK_BAD" "$MTP_GATE_FIXTURE" "$SPECPREFILL_SELECTION_FIXTURE" "$RUNTIME_SURVIVORS_FIXTURE" "$DSPARK_SELECTION_FIXTURE" "$FALLBACK_LOG" "$FALLBACK_FUNCTION" "$FALLBACK_CALLS"' EXIT
 sed -n '/^run_omlx_smoke()/,/^run_arms()/p' "$SCRIPTS/run-campaign.sh" | sed '$d' >"$FALLBACK_FUNCTION"
 (
   # Load the production fallback function, then stub only its runtime boundary.
