@@ -21,8 +21,8 @@ from sse_client import StreamResult
 
 class CacheProbeTests(unittest.TestCase):
     def test_fixture_target_reserves_template_and_generation_headroom(self):
-        self.assertEqual(fixture_token_target(8192), 6656)
-        self.assertEqual(fixture_token_target(32768), 31232)
+        self.assertEqual(fixture_token_target(8192), 5632)
+        self.assertEqual(fixture_token_target(32768), 30208)
 
     def test_diagnostic_payload_keeps_vendor_reasoning_effort(self):
         payload = _payload("model", [{"role": "user", "content": "probe"}])

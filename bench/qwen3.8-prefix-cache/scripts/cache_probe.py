@@ -8,7 +8,7 @@ from typing import Any, Optional
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-from fixtures import build_fixture, mutate_middle, sha256_tokens
+from fixtures import build_fixture, build_suffix, mutate_middle, sha256_tokens
 from metrics import parse_prometheus
 from sse_client import StreamResult, stream_chat
 
@@ -28,9 +28,9 @@ NEEDLE_QUESTION = (
 
 def fixture_token_target(context_size: int) -> int:
     """Reserve room for the chat template and the bounded diagnostic output."""
-    if context_size <= 1536:
-        raise ValueError("context size must exceed the 1536-token request reserve")
-    return context_size - 1536
+    if context_size <= 2560:
+        raise ValueError("context size must exceed the 2560-token request reserve")
+    return context_size - 2560
 
 
 def cache_hit_ratio(cached_tokens: int, prompt_tokens: int) -> float:
@@ -227,6 +227,7 @@ def _record(
     fixture_hash: str,
     metrics_before: dict[str, float],
     metrics_after: dict[str, float],
+    suffix_tokens: int,
 ) -> dict[str, Any]:
     usage = result.usage
     prompt_tokens = int(usage.get("prompt_tokens") or 0)
@@ -248,6 +249,7 @@ def _record(
         "arm": args.arm,
         "context_target": args.context,
         "scenario": scenario,
+        "suffix_tokens": suffix_tokens if scenario in {"append", "tool_turn"} else 0,
         "repeat": repeat,
         "cache_enabled": args.cache_enabled,
         "mtp_enabled": args.mtp_enabled,
@@ -299,7 +301,11 @@ def main() -> int:
     tokenizer = RuntimeTokenizer(args.base_url, args.model)
     fixture = build_fixture(fixture_token_target(args.context), tokenizer)
     fixture_hash = sha256_tokens(fixture.token_ids)
-    suffix = f"Tool result confirms {fixture.needles[0]}. {NEEDLE_QUESTION}"
+    suffix, suffix_token_ids = build_suffix(
+        1024,
+        tokenizer,
+        f"Tool result confirms {fixture.needles[0]}. {NEEDLE_QUESTION}",
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
 
     with args.output.open("a", encoding="utf-8") as output:
@@ -318,6 +324,7 @@ def main() -> int:
                     fixture_hash,
                     metrics_before,
                     metrics_after,
+                    len(suffix_token_ids),
                 )
                 output.write(json.dumps(record, sort_keys=True) + "\n")
                 output.flush()

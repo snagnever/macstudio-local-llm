@@ -6,10 +6,18 @@ from pathlib import Path
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from fixtures import build_fixture, mutate_middle, sha256_tokens
+from fixtures import build_fixture, build_suffix, mutate_middle, sha256_tokens
 
 
 class FixtureTests(unittest.TestCase):
+    def test_suffix_reaches_1024_token_target_and_keeps_trailer(self):
+        suffix, token_ids = build_suffix(
+            1024, str.split, "Return the verified key."
+        )
+
+        self.assertEqual(len(token_ids), 1024)
+        self.assertTrue(suffix.endswith("Return the verified key."))
+
     def test_fixture_reaches_target_and_places_three_needles(self):
         fixture = build_fixture(8192, str.split)
 

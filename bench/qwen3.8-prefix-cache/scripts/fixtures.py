@@ -47,6 +47,33 @@ def build_fixture(
     return PromptFixture(text=text, token_ids=encode(text), needles=NEEDLES)
 
 
+def build_suffix(
+    target_tokens: int, encode: Callable[[str], list[int]], trailer: str
+) -> tuple[str, list[int]]:
+    if target_tokens <= 0:
+        raise ValueError("target_tokens must be positive")
+
+    def render(count: int) -> str:
+        filler = [f"append-record-{index:06d}" for index in range(count)]
+        return " ".join([*filler, trailer])
+
+    low = 0
+    high = 1
+    while len(encode(render(high))) < target_tokens:
+        low = high
+        high *= 2
+
+    while low + 1 < high:
+        middle = (low + high) // 2
+        if len(encode(render(middle))) < target_tokens:
+            low = middle
+        else:
+            high = middle
+
+    text = render(high)
+    return text, encode(text)
+
+
 def mutate_middle(text: str, count: int) -> tuple[str, int]:
     words = text.split()
     if count <= 0:
