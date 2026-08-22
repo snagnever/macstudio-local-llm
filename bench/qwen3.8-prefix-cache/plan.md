@@ -1,11 +1,15 @@
 # 2026-08-21 — Qwen3.8-27B: prefix cache, prefill especulativo e runtime no M4 Max
 
-> **Status:** infraestrutura implementada até `e56d5e2`. O preflight passou. Os modelos ainda não foram baixados e nenhuma inferência foi medida.
+> **Status:** infraestrutura base e preflight implementados. Os snapshots MLX 8-bit,
+> GGUF Q4 e MTP foram baixados e verificados. Tentativas diagnósticas corrigiram o
+> harness, mas ainda não há uma sessão canônica completa; oMLX e mlx-dspark aguardam
+> implementação e execução dos braços descritos abaixo.
 
 ## Objetivo
 
-Selecionar o melhor setup do Qwen3.8-27B no Mac Studio M4 Max com 128 GB.
-O resultado deve equilibrar qualidade, tempo total e estabilidade em agent loops.
+Selecionar o setup de maior desempenho do Qwen3.8-27B no Mac Studio M4 Max com 128 GB.
+Correção funcional é um gate eliminatório; entre os braços corretos, a campanha prioriza
+tempo total, TTFT quente e throughput sustentado de decode em agent loops.
 
 O teste deve responder estas perguntas:
 
@@ -17,6 +21,7 @@ O teste deve responder estas perguntas:
 6. O AWQ misto de 5,0 bpw supera os candidatos atuais no M4 Max?
 7. O prefill pela Apple Neural Engine reduz a latência neste M4 Max?
 8. Qual setup merece o Terminal-Bench completo?
+9. DSpark ou DFlash 2 aumenta o decode e o tempo total frente ao mesmo target 8-bit sem especulação?
 
 ## Hardware e topologia
 
@@ -43,6 +48,8 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 | H9 | O cache do oMLX preserva o system prompt durante SpecPrefill. | Prefixo estático e loop de ferramentas após cache hit |
 | H10 | O AWQ misto de 5,0 bpw mantém qualidade com menos memória que MLX 8-bit. | Mesma tela de qualidade, memória e latência |
 | H11 | O prefill pela ANE depende do hardware e precisa de ajuste local. | A/B com tuner no M4 Max e SpecPrefill desligado |
+| H12 | DFlash 2 ou DSpark oferece o maior ganho de decode no target MLX 8-bit. | Baseline, DSpark e DFlash 2 explícitos no mesmo runtime e checkpoint |
+| H13 | O ganho especulativo permanece positivo em contexto longo e após cache hit. | Decode e tempo total em 8K, 32K e 65K, separados por tipo de conteúdo |
 
 ## Escopo
 
@@ -55,7 +62,9 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 - Tool calling com schemas estáveis.
 - MTP nativo no MLX e `draft-mtp` no GGUF.
 - `oMLX` com cache, MTP, SpecPrefill e prefill pela Apple Neural Engine (ANE).
+- `mlx-dspark` com baseline, DSpark e DFlash 2 explícitos sobre o mesmo target 8-bit.
 - `True2456/Qwen3.8-27B-AWQ-5.0bpw` somente no `oMLX`.
+- Drafters `RadixArk/Qwen3.8-27B-DSpark` e `incoai/Qwen3.8-27B-DFlash2`.
 - Drafts Qwen3.5-2B BF16 e Qwen3.5-0.8B BF16 para SpecPrefill.
 - Contextos de 8.192, 32.768 e 65.536 tokens.
 - Contexto de 16.384 tokens nos braços de prefill do `oMLX`.
@@ -68,7 +77,7 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 - YaRN e contexto de um milhão de tokens.
 - Vision e processamento de vídeo.
 - Batch com vários usuários.
-- DFlash, DSpark e PLD adicional antes da seleção do runtime base.
+- Lookup-only e tuning manual de draft cap antes da calibração automática do runtime.
 - Uso do modelo AWQ fora do `oMLX`.
 - Comparação direta entre resultados ANE de M3, M4 e M5.
 - Quants Q3, Q2 e Q1.
@@ -85,6 +94,9 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 | `awq5` | `True2456/Qwen3.8-27B-AWQ-5.0bpw` | MLX AWQ | 5,0 bpw misto | oMLX, após smoke do runtime |
 | `draft-2b` | `Qwen/Qwen3.5-2B` | MLX BF16 | BF16 | SpecPrefill, keep 0,40 |
 | `draft-08b` | `Qwen/Qwen3.5-0.8B` | MLX BF16 | BF16 | SpecPrefill, keep 0,50 |
+| `mlx8-dspark` | `mlx-community/Qwen3.8-27B-8bit` | MLX | 8-bit, group size 64 | Target oficial da integração `mlx-dspark` |
+| `draft-dspark` | `RadixArk/Qwen3.8-27B-DSpark` | MLX draft | 4-bit em memória pelo runtime | DSpark explícito |
+| `draft-dflash2` | `incoai/Qwen3.8-27B-DFlash2` | MLX draft | 4-bit em memória pelo runtime | DFlash 2 explícito |
 
 Fixe a revisão do Hugging Face antes de baixar cada modelo. Registre também o SHA-256 do artefato local.
 
@@ -94,6 +106,9 @@ Fixe a revisão do Hugging Face antes de baixar cada modelo. Registre também o 
 | `ddalcu/Qwen3.8-27B-MLX-Serve-8bit` | `011e38296b3d2aa99245ed49a700459c4ac246b6` |
 | `unsloth/Qwen3.8-27B-GGUF` | `4ca720788d1e01f1bff70c033e0d0028fd02e502` |
 | `True2456/Qwen3.8-27B-AWQ-5.0bpw` | `dc699a76ddcbef44c188a8aee2ccc79ccc339a04` |
+| `mlx-community/Qwen3.8-27B-8bit` | `815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9` |
+| `RadixArk/Qwen3.8-27B-DSpark` | `85ef153be924f17ce4bf62726954eeaa4a73e854` |
+| `incoai/Qwen3.8-27B-DFlash2` | `dedf8df68adfb1afeaf7b7480c0a0243108177b4` |
 
 O commit fixado do AWQ inclui a correção do MTP publicada em `c5839cc642e479b7bbcd28311a4b8b9fb52fbd02`.
 Não use uma revisão anterior.
@@ -108,6 +123,7 @@ Confirme que cada draft usa a mesma família de tokenizer do target.
 | `mlx-serve` | Runtime MLX principal | 11234 |
 | `llama-server` | Runtime GGUF principal | 8080 |
 | `oMLX` | Runtime MLX para AWQ, SpecPrefill e ANE | 8000 |
+| `mlx-dspark` | Runtime MLX para DSpark e DFlash 2 | 8484 |
 
 Use um runtime por vez. Termine o processo anterior antes de iniciar outro braço.
 
@@ -126,7 +142,7 @@ O Taskfile não deve instalar outras dependências. Ele deve falhar cedo quando 
 | Grupo | Dependências |
 |---|---|
 | Comum | `python3`, `curl`, `jq`, `git` |
-| Rig | Comum, `macmon`, `mlx-serve`, `llama-server`, `omlx` |
+| Rig | Comum, `macmon`, `mlx-serve`, `llama-server`, `omlx`, `mlx-dspark` |
 | Driver | Comum, `docker`, `harbor` |
 
 Use estas tarefas durante a campanha:
@@ -146,6 +162,10 @@ task qwen38:specprefill:16k
 task qwen38:specprefill:32k
 task qwen38:ane:16k
 task qwen38:ane:32k
+task qwen38:dspark:smoke
+task qwen38:dspark:decode:8k
+task qwen38:dspark:cache:32k
+task qwen38:dspark:decode:32k
 task qwen38:cache:65k
 task qwen38:tool-loop
 task qwen38:summary
@@ -253,6 +273,53 @@ Execute o tuner local antes do braço O.
 Registre todas as opções `qwen35_ane_prefill_*` resolvidas.
 Não copie proporções publicadas para M3 ou M5.
 
+## Configuração base do mlx-dspark
+
+Fixe `mlx-dspark` em `v0.15.0` (`69cd5c1`) durante toda a comparação.
+Essa é a versão mínima porque expõe TTFT, prefill, decode isolado e razão contra o
+roofline do Mac por request, além de incluir a adaptação de draft cap para contexto
+longo introduzida em `v0.14.0`. Não misture versões numa mesma tabela.
+
+Use somente snapshots locais das três revisões fixadas. O controle sem especulação é:
+
+```bash
+mlx-dspark serve \
+  --model /caminho/para/mlx-community--Qwen3.8-27B-8bit \
+  --mode baseline \
+  --host 0.0.0.0 \
+  --port 8484 \
+  --context-window 65536 \
+  --reasoning-effort xhigh
+```
+
+O braço P adiciona `--no-prefix-cache`. O braço Q preserva o cache padrão.
+Os braços especulativos mantêm o cache padrão e trocam apenas o modo e o drafter:
+
+```text
+R: --mode dspark --drafter /caminho/para/RadixArk--Qwen3.8-27B-DSpark --max-draft auto
+S: --mode dflash --drafter /caminho/para/incoai--Qwen3.8-27B-DFlash2 --max-draft auto
+```
+
+Antes das medições, faça um único probe com `--mode auto` e confirme em `/health`
+que o runtime resolve DFlash 2 para esse target. O modo `auto` não cria outro braço:
+os resultados canônicos usam R e S explícitos para que a técnica observada não dependa
+do registry da versão.
+
+Não copie o draft cap medido em M4 Pro. `--max-draft auto` deve calibrar e adaptar o
+cap no M4 Max; registre `draft_cap_resolved` por request. Preserve lookup drafts no
+braço canônico porque são parte do default do runtime. Use `--no-lookup-drafts`
+somente numa ablação identificada quando for necessário atribuir o ganho ao drafter.
+
+Deixe `--kv-bits` ausente na matriz principal. Uma ablação KV8 só pode ocorrer após
+o vencedor passar em 65K, pois quantização do KV altera a comparação de memória e
+reprodutibilidade. Não habilite SSD spill antes de o cache em RAM passar; quando
+habilitado, direcione `--prefix-cache-dir` para `bench/qwen3.8-prefix-cache/logs/`.
+
+Meça separadamente quatro classes de saída: código, matemática, chat e tool-call JSON.
+Cada classe deve produzir pelo menos 512 completion tokens no sweep de decode, salvo
+EOS natural. Reporte mediana por classe e agregada; não use somente código para escolher
+o runtime.
+
 ## Configuração do AWQ misto
 
 Use o AWQ somente no `oMLX`.
@@ -316,7 +383,7 @@ Use `temperature=0` somente nos testes de equivalência e diagnóstico.
 
 ## Matriz de runtime
 
-| Braço | Runtime | Modelo | Prefix cache | MTP | SpecPrefill | ANE |
+| Braço | Runtime | Modelo | Prefix cache | Decode especulativo | SpecPrefill | ANE |
 |---|---|---|---:|---:|---:|---:|
 | A | `mlx-serve` | `mlx8` | desligado | desligado; PLD desligado | desligado | desligada |
 | B | `mlx-serve` | `mlx8` | ligado | desligado; PLD desligado | desligado | desligada |
@@ -333,6 +400,10 @@ Use `temperature=0` somente nos testes de equivalência e diagnóstico.
 | M | `oMLX` | `awq5` + `draft-2b` | ligado | ligado | ligado | desligada |
 | N | `oMLX` | `awq5` + `draft-08b` | ligado | ligado | ligado | desligada |
 | O | `oMLX` | `awq5` | desligado | desligado | desligado | ligada |
+| P | `mlx-dspark` | `mlx8-dspark` | desligado | `baseline` | desligado | desligada |
+| Q | `mlx-dspark` | `mlx8-dspark` | ligado | `baseline` | desligado | desligada |
+| R | `mlx-dspark` | `mlx8-dspark` + `draft-dspark` | ligado | DSpark, cap auto | desligado | desligada |
+| S | `mlx-dspark` | `mlx8-dspark` + `draft-dflash2` | ligado | DFlash 2, cap auto | desligado | desligada |
 
 Execute primeiro os braços A, B, D e E em 8K. Execute C e F após validar o cache sem MTP. Execute G e H após o Q4 passar os gates funcionais.
 
@@ -349,6 +420,17 @@ Execute somente os vencedores do oMLX em 65K.
 Os braços M e N combinam MTP com SpecPrefill somente depois do gate isolado de MTP.
 Use L como baseline direto de M e N.
 Use J como baseline direto de O.
+
+Execute P, Q, R e S em 8K após o smoke do launcher.
+Use P contra Q para isolar prefix cache. Use Q contra R e S para comparar decode
+e tempo total com o mesmo target, cache e sampling. Avance R e S para 32K somente
+quando forem lossless no controle greedy. Em 65K, execute Q e apenas o melhor entre
+R e S; mantenha ambos somente quando as medianas de tempo total diferirem menos que 5%.
+
+Não compare diretamente o throughput de `mlx8-dspark` com `mlx8` como se fossem o
+mesmo artefato: são conversões 8-bit diferentes. A comparação causal de especulação
+é exclusivamente P/Q/R/S. Comparações entre runtimes usam tempo total e qualidade
+observada, com revisão e quantização sempre registradas.
 
 ## Cenários de cache
 
@@ -385,7 +467,7 @@ Cada registro em `results/*.jsonl` deve conter estes campos:
 
 ```json
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "run_id": "20260821T210000Z-mlx8-B-32768-append-r1",
   "runtime": "mlx-serve",
   "runtime_revision": "v26.8.9",
@@ -422,6 +504,18 @@ Cada registro em `results/*.jsonl` deve conter estes campos:
   "decode_tps": 0.0,
   "completion_tokens": 0,
   "mtp_acceptance": null,
+  "speculation_mode": null,
+  "drafter_id": null,
+  "drafter_revision": null,
+  "draft_cap_policy": null,
+  "draft_cap_resolved": null,
+  "drafted_tokens": null,
+  "accepted_tokens": null,
+  "accept_length": null,
+  "verification_steps": null,
+  "decode_speedup_vs_baseline": null,
+  "machine_roofline_tps": null,
+  "decode_roofline_ratio": null,
   "correct": true,
   "ram_peak_gb": 0.0,
   "swap_delta_gb": 0.0,
@@ -436,6 +530,11 @@ Substitua valores de exemplo pelos valores medidos. Não salve respostas complet
 Use `prompt_work_mode` com um destes valores: `full`, `cached` ou `sparse`.
 Não compare `prompt_tps` bruto entre prefill completo e sparse.
 Compare TTFT, tempo total, memória e correção funcional.
+
+Normalize o bloco `x_mlx_dspark` da resposta e os endpoints `/metrics` e `/machine`
+nos campos de especulação acima. Não estime taxa de aceitação a partir do throughput.
+Calcule `decode_speedup_vs_baseline` somente no resumo, pareando runtime, target,
+revisão, contexto, classe de conteúdo, sampling e limite de saída.
 
 ## Diagnóstico do template
 
@@ -532,6 +631,23 @@ Rejeite o perfil quando o ganho desaparecer ou a qualidade cair.
 Marque o resultado como inconclusivo quando a ANE não executar operações.
 Não combine ANE com SpecPrefill nesta campanha.
 
+### Gate 8 — DSpark e DFlash 2
+
+- R e S devem produzir os mesmos tokens que Q em `temperature=0`, salvo empate
+  numérico registrado com logits e resultado funcional idêntico.
+- `drafter_id`, `drafter_revision`, `draft_cap_resolved`, `accept_length` e
+  `verification_steps` devem estar presentes; ausência de telemetria invalida o braço.
+- Em 8K, a mediana agregada de `decode_tps` deve ser pelo menos 25% maior que Q.
+- Em 32K, a mediana agregada de `decode_tps` deve ser pelo menos 15% maior que Q.
+- O ganho deve ser positivo em pelo menos três das quatro classes: código, matemática,
+  chat e tool-call JSON. Nenhuma classe pode ficar mais de 5% abaixo de Q.
+- Em 32K, o tempo total do loop quente deve melhorar pelo menos 10% contra Q.
+- O braço especulativo não pode reduzir o cache hit nem elevar TTFT quente em mais de 10%.
+- O braço deve passar os gates de estabilidade e o loop de 20 tool turns.
+
+Selecione entre R e S pela mediana do tempo total quente em 32K. Use decode isolado
+como desempate. Se nenhum passar, mantenha Q como representante do runtime.
+
 ## Qualidade barata
 
 Execute esta sequência em todos os candidatos funcionalmente aprovados, antes da seleção final:
@@ -574,6 +690,9 @@ preflight e pinning
 → cache e MTP do oMLX em 32K
 → SpecPrefill em 16K e 32K
 → prefill ANE em 16K e 32K
+→ smoke do mlx-dspark e resolução do modo auto
+→ baseline, DSpark e DFlash 2 em 8K
+→ cache e decode especulativo do mlx-dspark em 32K
 → braços aprovados em 65K
 → loop agentic de 20 turnos
 → Q4 contra Q6 e Q8 na qualidade barata
@@ -585,18 +704,19 @@ preflight e pinning
 
 ## Regra de decisão
 
-Use estes fatores nesta ordem:
+Correção, estabilidade e qualidade mínima são gates eliminatórios. Entre os braços que
+passarem, use estes fatores nesta ordem:
 
-1. Correção do tool loop.
-2. Cache hit após tool calls.
-3. Tempo total do loop.
-4. Qualidade barata.
-5. Terminal-Bench.
-6. Ganho de SpecPrefill no tempo total.
-7. Memória e swap.
-8. Decode isolado.
+1. Tempo total mediano do loop agentic quente em 32K e 65K.
+2. TTFT quente e cache hit após tool calls.
+3. Throughput de decode sustentado nas quatro classes de conteúdo.
+4. Cauda de latência, memória e ausência de swap.
+5. Qualidade barata e Terminal-Bench como proteção contra regressão.
+6. Simplicidade operacional e reprodutibilidade da configuração.
 
-Não use um score composto. Um runtime que falha em correção não pode vencer por velocidade.
+Não use um score composto. Um runtime incorreto ou instável não pode vencer por
+velocidade, mas diferenças de qualidade dentro da variância não devem ocultar uma
+vantagem material de desempenho, que é o objetivo principal desta campanha.
 
 ## Artefatos da campanha
 
@@ -628,4 +748,6 @@ A campanha termina quando estes itens existem:
 - Uma decisão explícita sobre prefill pela ANE.
 - Uma decisão explícita sobre o AWQ misto de 5,0 bpw.
 - Uma decisão explícita sobre Q4, Q6 e Q8.
+- Uma decisão explícita entre baseline, DSpark e DFlash 2 no target MLX 8-bit.
+- Uma medição separada de TTFT, tempo total e decode sustentado do vencedor.
 - Um smoke test em 262.144 tokens para o vencedor, ou uma limitação registrada quando o hardware/runtime impedir.

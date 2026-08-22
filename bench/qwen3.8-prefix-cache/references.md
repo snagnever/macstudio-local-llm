@@ -35,6 +35,12 @@ Relatos comunitários orientam hipóteses. Eles não substituem medições no ri
 | P24 | [AWQ revision fixed by the campaign](https://huggingface.co/True2456/Qwen3.8-27B-AWQ-5.0bpw/commit/dc699a76ddcbef44c188a8aee2ccc79ccc339a04) | Revisão reproduzível do checkpoint |
 | P25 | [AWQ MTP-head repair](https://huggingface.co/True2456/Qwen3.8-27B-AWQ-5.0bpw/commit/c5839cc642e479b7bbcd28311a4b8b9fb52fbd02) | Correção incluída na revisão fixada |
 | P26 | [oMLX OpenAI request fields](https://github.com/jundot/omlx/blob/main/omlx/api/openai_models.py) | Overrides de SpecPrefill por request |
+| P27 | [mlx-dspark repository](https://github.com/ARahim3/mlx-dspark) | Modos baseline, DSpark, DFlash 2, cache e telemetria |
+| P28 | [mlx-dspark v0.14.0](https://github.com/ARahim3/mlx-dspark/releases/tag/v0.14.0) | Adaptação do draft cap em contexto longo |
+| P29 | [mlx-dspark v0.15.0](https://github.com/ARahim3/mlx-dspark/releases/tag/v0.15.0) | Métricas por request, roofline e memory-pressure guard |
+| P30 | [mlx-community Qwen3.8-27B-8bit](https://huggingface.co/mlx-community/Qwen3.8-27B-8bit) | Target 8-bit, group size 64 e sampling do model card |
+| P31 | [RadixArk Qwen3.8-27B-DSpark](https://huggingface.co/RadixArk/Qwen3.8-27B-DSpark) | Drafter DSpark compatível com o target |
+| P32 | [Inco AI Qwen3.8-27B-DFlash2](https://huggingface.co/incoai/Qwen3.8-27B-DFlash2) | Drafter DFlash 2, parâmetros e garantia lossless |
 
 ## Issues e discussões técnicas
 
@@ -44,7 +50,7 @@ Relatos comunitários orientam hipóteses. Eles não substituem medições no ri
 | I2 | [Qwen3.6 historical think-block drift](https://github.com/QwenLM/Qwen3.6/issues/131) | Normalização de reasoning e tool calls |
 | I3 | [llama.cpp hybrid cache reuse issue](https://github.com/ggml-org/llama.cpp/issues/18497) | Reutilização em modelos recorrentes |
 | I4 | [llama.cpp host-memory prompt caching](https://github.com/ggml-org/llama.cpp/discussions/20574) | Capacidade e operação do cache em RAM |
-| I5 | [mlx-dspark prefix cache never hits](https://github.com/ARahim3/mlx-dspark/issues/7) | Motivo para adiar DSpark |
+| I5 | [mlx-dspark prefix cache never hits](https://github.com/ARahim3/mlx-dspark/issues/7) | Regressão que o gate local deve impedir; upstream declara correção desde v0.10.1 |
 | I6 | [Qwen3.8 preserve_thinking for llama.cpp](https://huggingface.co/Qwen/Qwen3.8-27B/discussions/39) | Flags do template no GGUF |
 | I7 | [SpecPrefill cache did not activate](https://github.com/jundot/omlx/issues/2443) | Risco de queda silenciosa do prefixo estático |
 | I8 | [Persist static prefix for SpecPrefill](https://github.com/jundot/omlx/pull/2440) | Escopo da correção para system prompt e tools |
@@ -59,7 +65,7 @@ Relatos comunitários orientam hipóteses. Eles não substituem medições no ri
 | C2 | [Qwen3.8 on 2x 3090 with vLLM and DFlash2](https://www.reddit.com/r/LocalLLaMA/comments/1vsccit/qwen3827b_on_2x_3090_vllm_dflash2_218_toks_single/) | Especulação depende do tipo de saída | CUDA, não Apple Silicon |
 | C3 | [Dynamic 3.0 independent comparison](https://www.reddit.com/r/LocalLLM/comments/1vt9ucx/the_new_unsloth_dynamic_30_quants_are_real_good/) | Q6 perto de Q8 em métricas indiretas | Não mede agent loops |
 | C4 | [Qwen3.8 not caching context on MLX](https://www.reddit.com/r/LocalLLM/comments/1vozpl6/qwen_38_27b_not_caching_context_on_mlx/) | Decode rápido pode perder no tempo total | Relato individual |
-| C5 | [Qwen3.8 up to 3x faster with mlx-dspark](https://www.reddit.com/r/LocalLLaMA/comments/1vokrcy/qwen3827b_is_now_up_to_3_faster_on_apple_silicon/) | DSpark merece fase posterior | Cache ainda tem issue aberto |
+| C5 | [Qwen3.8 up to 3x faster with mlx-dspark](https://www.reddit.com/r/LocalLLaMA/comments/1vokrcy/qwen3827b_is_now_up_to_3_faster_on_apple_silicon/) | Motiva medir decode especulativo | Números não são do M4 Max desta campanha |
 | C6 | [Qwen3.8 forks on M4 Max 128 GB](https://www.reddit.com/r/LocalLLaMA/comments/1vq50xf/having_all_those_qwen_38_27b_forks_which_one/) | MLX é o ponto inicial no Mac | Recomendações sem protocolo comum |
 | C7 | [Q6_K_XL on M2 Ultra](https://www.reddit.com/r/LocalLLaMA/comments/1vr3s7j/qwen3827b_q6_k_xl_speeds_on_m2_ultra_192gb_what/) | Flags de cache e MTP no `llama.cpp` | Hardware diferente |
 | C8 | [vLLM hybrid cache and MTP field notes](https://www.reddit.com/r/LocalLLaMA/comments/1vspexl/qwen38_27b_via_vllm_i_love_it_and_i_hate_it_here/) | Cache e especulação precisam de teste conjunto | CUDA e patches comunitários |
@@ -133,9 +139,24 @@ Fontes: P10, P11, P12, C1 e C3.
 MTP, DFlash e DSpark podem acelerar código mais que prosa.
 O ganho depende da taxa de aceitação e do custo de verificação.
 
-Esta campanha testa MTP primeiro. O braço GGUF valida o sidecar publicado pela Unsloth e a aceitação reportada pelo `llama.cpp`. Ela adia DFlash e DSpark.
+Esta campanha testa MTP, DSpark e DFlash 2 como técnicas distintas.
+O braço GGUF valida o sidecar publicado pela Unsloth e a aceitação reportada pelo
+`llama.cpp`. Os braços `mlx-dspark` usam o mesmo target 8-bit para que baseline,
+DSpark e DFlash 2 sejam comparações causais.
 
-Fontes: P6, P13, P14, C2, C5 e C8.
+O `mlx-dspark` verifica cada token proposto no target e documenta saída lossless.
+O modo `auto` escolhe DFlash 2 para Qwen3.8 na revisão atual, mas a campanha mede
+modos explícitos para não tornar o resultado dependente do registry.
+
+O issue I5 invalida versões antigas como evidência de cache. A documentação atual
+declara correção por stable boundaries, rungs e anchors; o gate local continua
+obrigatório porque o workload da campanha usa o mesmo padrão híbrido e tool turns.
+
+Não copie caps publicados em M4 Pro. A partir de P28 o runtime adapta o cap à
+profundidade do contexto; P29 expõe decode isolado, TTFT e roofline para validar o
+ganho no M4 Max.
+
+Fontes: P6, P13, P14, P27, P28, P29, P30, P31, P32, I5, C2, C5 e C8.
 
 ### oMLX e o AWQ misto
 
@@ -188,6 +209,9 @@ Fontes: P19, P20, I9 e I10.
 5. Q6 ou Q8 recupera falhas funcionais do Q4 recomendado?
 6. O cache em SSD reduz o tempo após restart?
 7. O runtime mantém memória estável por 20 tool turns?
+8. DSpark ou DFlash 2 vence no tempo total, não apenas em decode isolado?
+9. O ganho especulativo permanece positivo em 32K e 65K no M4 Max?
+10. O modo `auto` resolve o mesmo drafter registrado pelos braços explícitos?
 8. Qual draft de SpecPrefill reduz TTFT sem perder as três chaves?
 9. O cache estático permanece correto quando SpecPrefill está ativo?
 10. O AWQ misto oferece ganho real no M4 Max sem NAX?

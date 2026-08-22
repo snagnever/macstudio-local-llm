@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Construir e executar uma campanha reproduzível que selecione runtime, cache, quantização e prefill do Qwen3.8-27B no Mac Studio M4 Max.
+**Goal:** Construir e executar uma campanha reproduzível que selecione o setup de maior desempenho — runtime, cache, decode especulativo, quantização e prefill — do Qwen3.8-27B no Mac Studio M4 Max.
 
-**Architecture:** Um probe HTTP mede streaming, cache e estado do template sem depender do runtime. Launchers separados iniciam `mlx-serve`, `llama.cpp` e `oMLX`. Perfis isolam cache, MTP, SpecPrefill e prefill ANE. Um loop de ferramentas valida o comportamento agentic antes dos benchmarks caros.
+**Architecture:** Um probe HTTP mede streaming, cache, especulação e estado do template sem depender do runtime. Launchers separados iniciam `mlx-serve`, `llama.cpp`, `oMLX` e `mlx-dspark`. Perfis isolam cache, MTP, DSpark, DFlash 2, SpecPrefill e prefill ANE. Um loop de ferramentas valida o comportamento agentic antes dos benchmarks caros.
 
-**Tech Stack:** Python 3.9+, biblioteca padrão, shell POSIX, OpenAI Chat Completions API, Prometheus metrics, `macmon`, `mlx-serve`, `llama.cpp`, `oMLX`, Harbor.
+**Tech Stack:** Python 3.9+, biblioteca padrão, shell POSIX, OpenAI Chat Completions API, Prometheus metrics, `macmon`, `mlx-serve`, `llama.cpp`, `oMLX`, `mlx-dspark`, Harbor.
 
 **Spec:** `bench/qwen3.8-prefix-cache/plan.md`
 
@@ -24,6 +24,10 @@
 - Use `OMLX_BASE_PATH` isolado por execução. Não altere `~/.omlx`.
 - Fixe o `oMLX` v0.6.3 estável. Use `v0.6.3rc2` somente quando a versão estável não existir.
 - Não misture revisões do `oMLX` numa comparação.
+- Fixe `mlx-dspark` em `v0.15.0` (`69cd5c1`) e não misture versões.
+- Use o mesmo target `mlx-community/Qwen3.8-27B-8bit` nos braços P–S.
+- Use `--max-draft auto`; não copie caps publicados em outro Mac.
+- Preserve lookup drafts nos braços canônicos; ablações devem ser identificadas.
 - Use o AWQ 5,0 bpw somente no `oMLX`.
 - Compare SpecPrefill com o braço L no mesmo contexto.
 - Compare ANE com o braço J no mesmo contexto.
@@ -52,6 +56,9 @@
 | `bench/qwen3.8-prefix-cache/config/omlx-arms.json` | Fixar os perfis I–O e os drafts |
 | `bench/qwen3.8-prefix-cache/scripts/omlx_config.py` | Gerar configuração isolada do oMLX |
 | `bench/qwen3.8-prefix-cache/scripts/run-omlx.sh` | Iniciar os braços oMLX |
+| `bench/qwen3.8-prefix-cache/config/mlx-dspark-arms.json` | Fixar target, drafters e perfis P–S |
+| `bench/qwen3.8-prefix-cache/scripts/mlx_dspark_config.py` | Validar perfis e construir comandos reproduzíveis |
+| `bench/qwen3.8-prefix-cache/scripts/run-mlx-dspark.sh` | Iniciar baseline, DSpark ou DFlash 2 na porta 8484 |
 | `bench/qwen3.8-prefix-cache/scripts/run-campaign.sh` | Orquestrar smoke, 32K e 65K |
 | `bench/qwen3.8-prefix-cache/scripts/run-tbench-qwen38-REMOTE.sh` | Executar Harbor no MacBook Pro |
 | `bench/qwen3.8-prefix-cache/tests/` | Testar fixtures, SSE, métricas e mensagens |
@@ -68,8 +75,10 @@
 - Tasks 1–8 foram implementadas nos commits `cf6c832` até `27ca205`.
 - O preflight foi salvo em `results/environment.json` no commit `e56d5e2`.
 - O preflight comum, o preflight do rig e o check do Metal passaram.
-- Os modelos ainda não foram baixados.
-- Nenhuma medição de inferência foi executada.
+- Os snapshots `mlx8`, GGUF Q4 e MTP foram baixados e verificados; AWQ, Q6/Q8,
+  drafts do SpecPrefill e artefatos do `mlx-dspark` continuam pendentes.
+- Tentativas diagnósticas de inferência encontraram e corrigiram problemas no harness,
+  mas ainda não existe uma sessão canônica completa aprovada pelos gates.
 
 ### Task 1: Add the Taskfile dependency graph
 
@@ -1339,7 +1348,7 @@ git commit -m "bench(qwen3.8): add isolated oMLX arms"
 
 **Interfaces:**
 - Consumes: oMLX response usage, structured server logs and `macmon` telemetry.
-- Produces: schema version 2 records and separate gates for SpecPrefill and ANE.
+- Produces: schema version 3 records and separate gates for SpecPrefill and ANE.
 
 - [ ] **Step 1: Write failing schema and gate tests**
 
@@ -1361,6 +1370,18 @@ ane_prefill_tuned
 ane_compiled_mlp_layers
 ane_compiled_gdn_layers
 prompt_work_mode
+speculation_mode
+drafter_id
+drafter_revision
+draft_cap_policy
+draft_cap_resolved
+drafted_tokens
+accepted_tokens
+accept_length
+verification_steps
+decode_speedup_vs_baseline
+machine_roofline_tps
+decode_roofline_ratio
 ```
 
 Add a SpecPrefill gate fixture with L and M at the same context.
@@ -1381,7 +1402,7 @@ python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_metrics.py -v
 python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_summarize.py -v
 ```
 
-Expected: FAIL because schema version 2 and the new gates do not exist.
+Expected: FAIL because schema version 3 and the new gates do not exist.
 
 - [ ] **Step 3: Extend request and measurement records**
 
@@ -1451,7 +1472,151 @@ git add bench/qwen3.8-prefix-cache/Taskfile.yml \
 git commit -m "bench(qwen3.8): measure speculative prefill paths"
 ```
 
-### Task 11: Execute rig preflight and runtime stages
+### Task 11: Add mlx-dspark performance arms
+
+**Files:**
+- Create: `bench/qwen3.8-prefix-cache/config/mlx-dspark-arms.json`
+- Create: `bench/qwen3.8-prefix-cache/scripts/mlx_dspark_config.py`
+- Create: `bench/qwen3.8-prefix-cache/scripts/run-mlx-dspark.sh`
+- Create: `bench/qwen3.8-prefix-cache/tests/test_mlx_dspark_config.py`
+- Modify: `bench/qwen3.8-prefix-cache/scripts/sse_client.py`
+- Modify: `bench/qwen3.8-prefix-cache/scripts/cache_probe.py`
+- Modify: `bench/qwen3.8-prefix-cache/scripts/summarize.py`
+- Modify: `bench/qwen3.8-prefix-cache/scripts/run-campaign.sh`
+- Modify: `bench/qwen3.8-prefix-cache/Taskfile.yml`
+- Modify: `bench/qwen3.8-prefix-cache/tests/test_sse_client.py`
+- Modify: `bench/qwen3.8-prefix-cache/tests/test_summarize.py`
+- Modify: `bench/qwen3.8-prefix-cache/tests/test_launchers.sh`
+
+**Interfaces:**
+- Consumes: pinned local target and drafter snapshots, arms P–S and the existing OpenAI-compatible probe.
+- Produces: one `mlx-dspark serve` process on port 8484, schema-version-3 speculation telemetry and a pairwise performance verdict against Q.
+
+- [ ] **Step 1: Write failing config, telemetry and gate tests**
+
+In `test_mlx_dspark_config.py`, require these exact mappings:
+
+```text
+P: baseline, prefix cache off, no drafter
+Q: baseline, prefix cache on, no drafter
+R: dspark, prefix cache on, RadixArk/Qwen3.8-27B-DSpark, max-draft auto
+S: dflash, prefix cache on, incoai/Qwen3.8-27B-DFlash2, max-draft auto
+```
+
+Assert that every arm uses target `mlx-community/Qwen3.8-27B-8bit` at revision
+`815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9`. Assert that R and S require local
+draft paths, no arm contains an integer draft cap, and an unknown arm is rejected.
+
+In `test_sse_client.py`, pass an `x_mlx_dspark` fixture containing TTFT, prefill
+seconds, decode seconds, cached prompt tokens, accept length, resolved draft cap and
+decode-only tok/s. Assert exact normalization into the schema-version-3 fields.
+
+In `test_summarize.py`, build paired Q/R/S records for code, math, chat and tool JSON.
+Assert PASS for a candidate with 1.25x aggregate decode at 8K, 1.15x at 32K,
+positive gain in three classes, no class below 0.95x, and 10% lower warm loop time.
+Assert FAIL when token equivalence, telemetry completeness or any threshold fails.
+
+- [ ] **Step 2: Run the focused tests and verify failure**
+
+Run:
+
+```bash
+python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_mlx_dspark_config.py -v
+python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_sse_client.py -v
+python3 -m unittest bench/qwen3.8-prefix-cache/tests/test_summarize.py -v
+```
+
+Expected: the config module and schema-version-3 speculation fields are missing.
+
+- [ ] **Step 3: Implement the declarative arm map**
+
+Write `config/mlx-dspark-arms.json` with runtime version `v0.15.0`, port 8484,
+the three pinned Hugging Face revisions and arms P–S. Do not store absolute paths.
+
+Implement these functions in `mlx_dspark_config.py`:
+
+```python
+load_arm(path: Path, arm: str) -> dict
+validate_arm(profile: dict, model_paths: dict[str, Path]) -> None
+build_command(profile: dict, model_paths: dict[str, Path]) -> list[str]
+```
+
+`build_command` must always emit `--host 0.0.0.0`, `--port 8484`,
+`--context-window 65536` and `--reasoning-effort xhigh`. Emit
+`--no-prefix-cache` only for P. Emit explicit `--mode`, `--drafter` and
+`--max-draft auto` for R and S. Do not emit `--kv-bits`.
+
+- [ ] **Step 4: Implement the launcher and auto-resolution smoke**
+
+`run-mlx-dspark.sh` must accept P, Q, R, S or `auto-smoke`, plus optional `--print`.
+Require `MLX_DSPARK_TARGET_PATH` for every arm, `MLX_DSPARK_DSPARK_PATH` for R and
+`MLX_DSPARK_DFLASH2_PATH` for S. Verify `mlx-dspark --version` reports `0.15.0`.
+
+For `auto-smoke`, start `--mode auto`, query `/health`, assert the resolved mode is
+`dflash` and the drafter identifies `incoai/Qwen3.8-27B-DFlash2`, then stop without
+writing a benchmark record. For P–S, print the shell-escaped command and `exec` it.
+
+- [ ] **Step 5: Normalize telemetry and implement the performance gate**
+
+Add nullable speculation fields from schema version 3 to every probe record.
+Implement:
+
+```python
+normalize_mlx_dspark_metrics(extension: dict, machine: dict | None) -> dict
+evaluate_speculative_decode(records: list[dict], baseline_arm: str = "Q") -> dict
+```
+
+Use only observed `x_mlx_dspark`, `/metrics` and `/machine` values. Pair records by
+target revision, context, content class, sampling and output limit. Report R and S
+separately, including median decode speedup, warm-loop speedup, class coverage,
+cache regression and the selected winner. Missing pairs produce `INCONCLUSIVE`, not 0.
+
+- [ ] **Step 6: Add mlx-dspark campaign stages and tasks**
+
+Add these stages to `run-campaign.sh`:
+
+```text
+dspark-smoke
+dspark-decode-8k
+dspark-cache-32k
+dspark-decode-32k
+```
+
+Add matching `dspark:smoke`, `dspark:decode:8k`, `dspark:cache:32k` and
+`dspark:decode:32k` tasks. Add `mlx-dspark` to `deps:rig`. The decode stages must
+run the four fixed content classes with at least 512 requested completion tokens.
+The cache stage must run `cold`, `identical`, `append`, `middle_mutation` and
+`tool_turn`. Keep concurrency at 1 and one runtime process active at a time.
+
+- [ ] **Step 7: Verify and commit the integration**
+
+Run:
+
+```bash
+python3 -m unittest discover -s bench/qwen3.8-prefix-cache/tests -v
+bash bench/qwen3.8-prefix-cache/tests/test_launchers.sh
+task qwen38:validate
+```
+
+Expected: all Python and shell tests pass; validation exits 0.
+
+```bash
+git add bench/qwen3.8-prefix-cache/config/mlx-dspark-arms.json \
+  bench/qwen3.8-prefix-cache/scripts/mlx_dspark_config.py \
+  bench/qwen3.8-prefix-cache/scripts/run-mlx-dspark.sh \
+  bench/qwen3.8-prefix-cache/scripts/sse_client.py \
+  bench/qwen3.8-prefix-cache/scripts/cache_probe.py \
+  bench/qwen3.8-prefix-cache/scripts/summarize.py \
+  bench/qwen3.8-prefix-cache/scripts/run-campaign.sh \
+  bench/qwen3.8-prefix-cache/Taskfile.yml \
+  bench/qwen3.8-prefix-cache/tests/test_mlx_dspark_config.py \
+  bench/qwen3.8-prefix-cache/tests/test_sse_client.py \
+  bench/qwen3.8-prefix-cache/tests/test_summarize.py \
+  bench/qwen3.8-prefix-cache/tests/test_launchers.sh
+git commit -m "bench(qwen3.8): add dspark performance arms"
+```
+
+### Task 12: Execute rig preflight and runtime stages
 
 **Files:**
 - Create: `bench/qwen3.8-prefix-cache/results/environment.json`
@@ -1473,6 +1638,8 @@ system_profiler SPHardwareDataType
 sw_vers
 mlx-serve --version
 llama-server --version
+omlx --version
+mlx-dspark --version
 macmon pipe
 ```
 
@@ -1481,9 +1648,9 @@ Include the output of `git rev-parse HEAD` for source-built runtimes.
 
 - [ ] **Step 2: Download and verify model artifacts**
 
-Download the five target artifacts and two drafts from their pinned revisions.
+Download the six target artifacts and four drafts from their pinned revisions.
 Record each local path, size and SHA-256 in `results/environment.json`.
-Record `omlx --version` after installing the pinned runtime.
+Record `omlx --version` and `mlx-dspark --version` after installing the pinned runtimes.
 
 Verify the AWQ revision:
 
@@ -1515,7 +1682,19 @@ bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-smoke
 Expected: J finishes three measurements without crashes.
 Expected: I either passes or records a loader incompatibility.
 
-- [ ] **Step 5: Summarize the smoke stages**
+- [ ] **Step 5: Run the 8K mlx-dspark smoke and decode stage**
+
+Run on the rig:
+
+```bash
+bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh dspark-smoke
+bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh dspark-decode-8k
+```
+
+Expected: auto-smoke resolves DFlash 2. Expected: P, Q, R and S produce complete
+code, math, chat and tool-JSON records, and R/S pass greedy token equivalence.
+
+- [ ] **Step 6: Summarize the smoke stages**
 
 Run:
 
@@ -1523,9 +1702,9 @@ Run:
 bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh summary
 ```
 
-Expected: `results/summary.md` contains the completed 8K arms.
+Expected: `results/summary.md` contains the completed 8K arms A–S that apply to each runtime stage.
 
-- [ ] **Step 6: Run 32K cache and MTP stages**
+- [ ] **Step 7: Run 32K cache, MTP and speculative-decode stages**
 
 Run:
 
@@ -1534,11 +1713,14 @@ bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh cache-32k
 bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh mtp-32k
 bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-cache-32k
 bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-mtp-32k
+bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh dspark-cache-32k
+bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh dspark-decode-32k
 ```
 
 Expected: cache-only arms finish before MTP arms begin.
+Expected: Q, R and S have paired 32K results for all four content classes.
 
-- [ ] **Step 7: Run SpecPrefill and ANE stages**
+- [ ] **Step 8: Run SpecPrefill and ANE stages**
 
 Run:
 
@@ -1552,7 +1734,7 @@ bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh ane-32k
 Expected: L, M and N have pairwise SpecPrefill results.
 Expected: J and O have pairwise ANE results.
 
-- [ ] **Step 8: Run approved arms at 65K**
+- [ ] **Step 9: Run approved arms at 65K**
 
 Run:
 
@@ -1560,9 +1742,10 @@ Run:
 bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh cache-65k
 ```
 
-Expected: the script selects only arms that passed 32K gates.
+Expected: the script selects only arms that passed 32K gates. For `mlx-dspark`,
+run Q and the faster of R/S; retain both speculative modes only within a 5% tie.
 
-- [ ] **Step 9: Run the 20-turn tool loop**
+- [ ] **Step 10: Run the 20-turn tool loop**
 
 Run:
 
@@ -1572,7 +1755,7 @@ bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh tool-loop
 
 Expected: each selected arm records 20 tool turns and one verdict.
 
-- [ ] **Step 10: Generate the campaign summary**
+- [ ] **Step 11: Generate the campaign summary**
 
 Run:
 
@@ -1582,9 +1765,10 @@ bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh summary
 
 Expected: every selected arm has cache, latency, memory and tool-loop gates.
 Expected: every oMLX arm has explicit SpecPrefill and ANE verdicts.
+Expected: P–S have explicit cache, decode, time-total and drafter-telemetry verdicts.
 Expected: `results/runtime-survivors.json` lists every arm approved for the common quality screen.
 
-- [ ] **Step 11: Commit distilled results**
+- [ ] **Step 12: Commit distilled results**
 
 ```bash
 git add bench/qwen3.8-prefix-cache/results/environment.json \
@@ -1595,7 +1779,7 @@ git add bench/qwen3.8-prefix-cache/results/environment.json \
 git commit -m "bench(qwen3.8): record prefix-cache campaign"
 ```
 
-### Task 12: Run the quality screen and Terminal-Bench winner
+### Task 13: Run the quality screen and Terminal-Bench winner
 
 **Files:**
 - Create: `bench/qwen3.8-prefix-cache/scripts/run-quality-screen.sh`
@@ -1717,7 +1901,7 @@ git add bench/qwen3.8-prefix-cache/scripts/run-quality-screen.sh \
 git commit -m "bench(qwen3.8): select runtime with agent quality gates"
 ```
 
-### Task 13: Publish the final rig decision
+### Task 14: Publish the final rig decision
 
 **Files:**
 - Create: `docs/models/qwen3.8-27b/README.md`
@@ -1741,6 +1925,8 @@ Runtime and revisions
 Cold and warm prefill
 Tool-turn cache behavior
 MTP behavior
+DSpark and DFlash 2 behavior
+Sustained decode by content class
 SpecPrefill behavior and selected draft
 ANE prefill behavior
 AWQ 5.0 bpw behavior
@@ -1762,7 +1948,8 @@ Do not remove the Qwen3.6 baseline.
 
 - [ ] **Step 3: Update the testing plan**
 
-Document the new cache protocol. Add TTFT, cache hit and tool-turn reuse as standard runtime metrics.
+Document the new cache protocol. Add TTFT, cache hit, tool-turn reuse, sustained decode,
+speculative acceptance and end-to-end loop time as standard runtime metrics.
 
 - [ ] **Step 4: Validate documentation links**
 
@@ -1782,7 +1969,7 @@ Run:
 task qwen38:validate
 ```
 
-Expected: the diff check exits 0, 13 Python tests pass and the shell test exits 0.
+Expected: the diff check, every Python test and the shell launcher test exit 0.
 
 - [ ] **Step 6: Commit the final decision**
 
@@ -1804,6 +1991,9 @@ git commit -m "docs(qwen3.8): publish M4 Max runtime decision"
 - [x] oMLX state stays inside the campaign log directory.
 - [x] SpecPrefill compares M and N only against L at the same context.
 - [x] ANE compares O only against J at the same context.
+- [x] mlx-dspark compares R and S only against Q with the same target revision.
+- [x] Draft caps are calibrated on the M4 Max instead of copied from public results.
+- [x] Performance selection uses four fixed content classes and warm-loop time.
 - [x] AWQ measurements use revision `dc699a76ddcbef44c188a8aee2ccc79ccc339a04`.
 - [x] Sparse prefill verdicts do not use raw prompt TPS.
 - [x] Tool schemas keep a fixed order.
