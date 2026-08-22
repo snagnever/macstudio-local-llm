@@ -8,7 +8,7 @@ from typing import Any, Optional
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-from fixtures import build_fixture, build_suffix, mutate_middle, sha256_tokens
+from fixtures import build_fixture, build_suffix, mutate_middle_tokens, sha256_tokens
 from metrics import parse_prometheus
 from sse_client import StreamResult, stream_chat
 
@@ -183,11 +183,10 @@ def _base_messages(text: str) -> list[dict[str, Any]]:
 
 
 def _messages_for_scenario(
-    name: str, fixture_text: str, suffix: str
+    name: str, fixture_text: str, mutated_text: str, suffix: str
 ) -> list[dict[str, Any]]:
     if name == "middle_mutation":
-        changed, _ = mutate_middle(fixture_text, 64)
-        return _base_messages(changed)
+        return _base_messages(mutated_text)
     return scenario_messages(name, _base_messages(fixture_text), suffix)
 
 
@@ -228,6 +227,8 @@ def _record(
     metrics_before: dict[str, float],
     metrics_after: dict[str, float],
     suffix_tokens: int,
+    mutation_prefix_tokens: int,
+    mutation_tokens: int,
 ) -> dict[str, Any]:
     usage = result.usage
     prompt_tokens = int(usage.get("prompt_tokens") or 0)
@@ -250,6 +251,10 @@ def _record(
         "context_target": args.context,
         "scenario": scenario,
         "suffix_tokens": suffix_tokens if scenario in {"append", "tool_turn"} else 0,
+        "mutation_prefix_tokens": (
+            mutation_prefix_tokens if scenario == "middle_mutation" else None
+        ),
+        "mutation_tokens": mutation_tokens if scenario == "middle_mutation" else 0,
         "repeat": repeat,
         "cache_enabled": args.cache_enabled,
         "mtp_enabled": args.mtp_enabled,
@@ -306,11 +311,16 @@ def main() -> int:
         tokenizer,
         f"Tool result confirms {fixture.needles[0]}. {NEEDLE_QUESTION}",
     )
+    mutated_text, mutation_prefix_tokens, mutation_tokens = mutate_middle_tokens(
+        fixture.text, 64, tokenizer
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
 
     with args.output.open("a", encoding="utf-8") as output:
         for scenario in SCENARIOS:
-            messages = _messages_for_scenario(scenario, fixture.text, suffix)
+            messages = _messages_for_scenario(
+                scenario, fixture.text, mutated_text, suffix
+            )
             for repeat in range(1, args.repeat + 1):
                 metrics_before = _metrics_snapshot(args.metrics_url)
                 result = stream_chat(args.base_url, _payload(args.model, messages))
@@ -325,6 +335,8 @@ def main() -> int:
                     metrics_before,
                     metrics_after,
                     len(suffix_token_ids),
+                    mutation_prefix_tokens,
+                    mutation_tokens,
                 )
                 output.write(json.dumps(record, sort_keys=True) + "\n")
                 output.flush()

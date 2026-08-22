@@ -6,10 +6,34 @@ from pathlib import Path
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from fixtures import build_fixture, build_suffix, mutate_middle, sha256_tokens
+from fixtures import (
+    build_fixture,
+    build_suffix,
+    mutate_middle,
+    mutate_middle_tokens,
+    sha256_tokens,
+)
 
 
 class FixtureTests(unittest.TestCase):
+    def test_token_mutation_reports_exact_prefix_and_span(self):
+        original = " ".join(f"w{i}" for i in range(1000))
+
+        changed, prefix_tokens, mutation_tokens = mutate_middle_tokens(
+            original, 64, str.split
+        )
+
+        original_tokens = original.split()
+        changed_tokens = changed.split()
+        self.assertEqual(mutation_tokens, 64)
+        self.assertEqual(
+            original_tokens[:prefix_tokens], changed_tokens[:prefix_tokens]
+        )
+        self.assertNotEqual(
+            original_tokens[prefix_tokens : prefix_tokens + mutation_tokens],
+            changed_tokens[prefix_tokens : prefix_tokens + mutation_tokens],
+        )
+
     def test_suffix_reaches_1024_token_target_and_keeps_trailer(self):
         suffix, token_ids = build_suffix(
             1024, str.split, "Return the verified key."

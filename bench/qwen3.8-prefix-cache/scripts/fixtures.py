@@ -88,6 +88,72 @@ def mutate_middle(text: str, count: int) -> tuple[str, int]:
     return " ".join(changed), boundary
 
 
+def _token_difference_span(
+    original: list[int], changed: list[int]
+) -> tuple[int, int]:
+    prefix = 0
+    limit = min(len(original), len(changed))
+    while prefix < limit and original[prefix] == changed[prefix]:
+        prefix += 1
+
+    suffix = 0
+    remaining = limit - prefix
+    while (
+        suffix < remaining
+        and original[len(original) - 1 - suffix]
+        == changed[len(changed) - 1 - suffix]
+    ):
+        suffix += 1
+    span = max(
+        len(original) - prefix - suffix,
+        len(changed) - prefix - suffix,
+    )
+    return prefix, span
+
+
+def mutate_middle_tokens(
+    text: str, target_tokens: int, encode: Callable[[str], list[int]]
+) -> tuple[str, int, int]:
+    if target_tokens <= 0:
+        raise ValueError("target_tokens must be positive")
+    words = text.split()
+    if not words:
+        raise ValueError("text must contain words")
+    original_tokens = encode(text)
+
+    def candidate(word_count: int) -> tuple[str, int, int]:
+        boundary = max(0, len(words) // 2 - word_count // 2)
+        end = min(len(words), boundary + word_count)
+        replacements = [
+            f"mutation-{index:03d}" for index in range(end - boundary)
+        ]
+        changed = " ".join(words[:boundary] + replacements + words[end:])
+        prefix, span = _token_difference_span(original_tokens, encode(changed))
+        return changed, prefix, span
+
+    low = 1
+    high = 1
+    high_result = candidate(high)
+    while high_result[2] < target_tokens and high < len(words):
+        low = high
+        high = min(len(words), high * 2)
+        high_result = candidate(high)
+
+    while low + 1 < high:
+        middle = (low + high) // 2
+        result = candidate(middle)
+        if result[2] < target_tokens:
+            low = middle
+        else:
+            high = middle
+
+    choices = [
+        candidate(count)
+        for count in range(max(1, low - 4), min(len(words), high + 4) + 1)
+    ]
+    return min(choices, key=lambda value: abs(value[2] - target_tokens))
+
+
 def sha256_tokens(token_ids: list[int]) -> str:
     digest = sha256()
     for token_id in token_ids:
