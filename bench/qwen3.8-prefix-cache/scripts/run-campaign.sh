@@ -146,11 +146,31 @@ validate_mtp_log() {
   esac
 }
 
+wait_for_cooldown() {
+  echo "GPU cooldown gate: below 50C"
+  if [[ "$DRY_RUN" == "1" ]]; then
+    return 0
+  fi
+  local attempt sample temperature
+  for ((attempt = 1; attempt <= 120; attempt++)); do
+    sample="$(macmon pipe --samples 1 2>/dev/null)"
+    temperature="$(jq -er '.temp.gpu_temp_avg' <<<"$sample")"
+    if awk "BEGIN { exit !($temperature < 50.0) }"; then
+      echo "GPU temperature ready: ${temperature}C"
+      return 0
+    fi
+    sleep 5
+  done
+  echo "GPU did not cool below 50C" >&2
+  return 1
+}
+
 run_cache_arm() {
   local arm="$1"
   local context="$2"
   arm_metadata "$arm"
   echo "RUN arm=$arm context=$context mode=cache"
+  wait_for_cooldown
   if [[ "$DRY_RUN" == "1" ]]; then
     bash "$LAUNCHER" "$arm" --print
     return 0
@@ -196,6 +216,7 @@ run_tool_arm() {
   local arm="$1"
   arm_metadata "$arm"
   echo "RUN arm=$arm context=65536 mode=tool-loop"
+  wait_for_cooldown
   if [[ "$DRY_RUN" == "1" ]]; then
     bash "$LAUNCHER" "$arm" --print
     return 0

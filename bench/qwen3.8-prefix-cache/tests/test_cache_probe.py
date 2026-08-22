@@ -11,6 +11,7 @@ from cache_probe import (
     cached_tokens_from_usage,
     fixture_token_target,
     _payload,
+    _warmup_payload,
     _messages_for_scenario,
     mtp_acceptance_from_snapshots,
     scenario_messages,
@@ -21,6 +22,13 @@ from sse_client import StreamResult
 
 
 class CacheProbeTests(unittest.TestCase):
+    def test_warmup_is_bounded_but_keeps_xhigh(self):
+        payload = _warmup_payload("model", "warmup fixture")
+
+        self.assertEqual(payload["reasoning_effort"], "xhigh")
+        self.assertEqual(payload["max_tokens"], 64)
+        self.assertEqual(payload["messages"][-1]["content"], "warmup fixture")
+
     def test_cold_repeats_change_the_leading_system_prefix(self):
         first = _messages_for_scenario("cold", "fixture", "mutated", "suffix", 1)
         second = _messages_for_scenario("cold", "fixture", "mutated", "suffix", 2)

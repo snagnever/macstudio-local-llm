@@ -56,6 +56,7 @@ if bash "$SCRIPTS/run-llama-cpp.sh" C --print >/dev/null 2>&1; then
 fi
 
 SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" smoke)"
+grep -q -- 'GPU cooldown gate: below 50C' <<<"$SMOKE"
 grep -q -- 'arm=A context=8192' <<<"$SMOKE"
 grep -q -- 'arm=B context=8192' <<<"$SMOKE"
 grep -q -- 'arm=D context=8192' <<<"$SMOKE"

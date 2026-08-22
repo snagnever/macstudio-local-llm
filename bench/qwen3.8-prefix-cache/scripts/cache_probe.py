@@ -209,6 +209,19 @@ def _payload(model: str, messages: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _warmup_payload(model: str, warmup_text: str) -> dict[str, Any]:
+    return {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": "This is an unrelated warmup request."},
+            {"role": "user", "content": warmup_text},
+        ],
+        "max_tokens": 64,
+        "temperature": 0,
+        "reasoning_effort": "xhigh",
+    }
+
+
 def result_correct(result: StreamResult, expected_needle: str) -> bool:
     return result.finish_reason != "length" and expected_needle in result.text
 
@@ -323,6 +336,8 @@ def main() -> int:
     mutated_text, mutation_prefix_tokens, mutation_tokens = mutate_middle_tokens(
         fixture.text, 64, tokenizer
     )
+    warmup_text, _ = build_suffix(512, tokenizer, "Warmup complete.")
+    stream_chat(args.base_url, _warmup_payload(args.model, warmup_text))
     args.output.parent.mkdir(parents=True, exist_ok=True)
 
     with args.output.open("a", encoding="utf-8") as output:
