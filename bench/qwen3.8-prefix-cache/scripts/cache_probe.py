@@ -44,6 +44,7 @@ SAMPLING_CONTROLS = {
     "reasoning_effort": "xhigh",
 }
 WARMUP_ID = "cache-probe-warmup-v1"
+MAX_TOKENS = 2048
 
 
 def fixture_token_target(context_size: int) -> int:
@@ -152,11 +153,32 @@ class RuntimeTokenizer:
         raise RuntimeError("runtime tokenize endpoint is unavailable") from last_error
 
 
+class LocalTokenizer:
+    def __init__(self, model_path: Path):
+        try:
+            from transformers import AutoTokenizer
+        except ImportError as error:
+            raise RuntimeError(
+                "local tokenization requires the runtime's Python environment"
+            ) from error
+        self._tokenizer = AutoTokenizer.from_pretrained(
+            str(model_path), local_files_only=True, trust_remote_code=True
+        )
+
+    def __call__(self, text: str) -> list[int]:
+        return list(self._tokenizer.encode(text, add_special_tokens=False))
+
+
 def _metrics_snapshot(url: Optional[str]) -> dict[str, float]:
     if not url:
         return {}
-    with urlopen(url, timeout=10) as response:
-        return parse_prometheus(response.read().decode("utf-8"))
+    try:
+        with urlopen(url, timeout=10) as response:
+            return parse_prometheus(response.read().decode("utf-8"))
+    except HTTPError as error:
+        if error.code in (404, 405):
+            return {}
+        raise
 
 
 def _json_snapshot(url: Optional[str]) -> dict[str, Any]:
@@ -243,7 +265,7 @@ def _payload(
     payload = {
         "model": model,
         "messages": messages,
-        "max_tokens": 1024,
+        "max_tokens": MAX_TOKENS,
         **SAMPLING_CONTROLS,
     }
     if specprefill is not None:
@@ -471,7 +493,7 @@ def _record(
         "frequency_penalty": SAMPLING_CONTROLS["frequency_penalty"],
         "repetition_penalty": SAMPLING_CONTROLS["repetition_penalty"],
         "reasoning_effort": SAMPLING_CONTROLS["reasoning_effort"],
-        "max_tokens": 1024,
+        "max_tokens": MAX_TOKENS,
         "error": (
             "finish_reason:length" if result.finish_reason == "length" else None
         ),
@@ -484,6 +506,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--base-url", required=True)
     parser.add_argument("--model", required=True)
+    parser.add_argument("--api-model")
     parser.add_argument("--runtime", required=True)
     parser.add_argument("--runtime-revision", required=True)
     parser.add_argument("--model-revision", required=True)
@@ -506,12 +529,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--machine-url")
     parser.add_argument("--drafter-id")
     parser.add_argument("--drafter-revision")
+    parser.add_argument("--tokenizer-path", type=Path)
     return parser
 
 
 def main() -> int:
     args = build_parser().parse_args()
-    tokenizer = RuntimeTokenizer(args.base_url, args.model)
+    api_model = args.api_model or args.model
+    tokenizer = (
+        LocalTokenizer(args.tokenizer_path)
+        if args.tokenizer_path
+        else RuntimeTokenizer(args.base_url, api_model)
+    )
     if args.content_class == "code":
         fixture = build_code_fixture(fixture_token_target(args.context), tokenizer)
     else:
@@ -531,7 +560,7 @@ def main() -> int:
         fixture.text, 64, tokenizer
     )
     warmup_text, _ = build_suffix(512, tokenizer, "Warmup complete.")
-    stream_chat(args.base_url, _warmup_payload(args.model, warmup_text))
+    stream_chat(args.base_url, _warmup_payload(api_model, warmup_text))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     static_prefixes: dict[str, str] = {}
 
@@ -556,7 +585,7 @@ def main() -> int:
                 result = stream_chat(
                     args.base_url,
                     _payload(
-                        args.model,
+                        api_model,
                         messages,
                         specprefill=args.specprefill,
                         specprefill_keep_pct=args.specprefill_keep_pct,

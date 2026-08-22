@@ -36,9 +36,10 @@ if [[ "$ARM" != "auto-smoke" ]]; then
   exec "${COMMAND[@]}"
 fi
 
-# Auto mode is exercised with the campaign's pinned local DFlash2 snapshot.
+# Pin DFlash mode when a local drafter path is supplied. In v0.15.0, auto + an
+# explicit drafter intentionally resolves to DSpark, regardless of its config.
 "${CONFIG_ARGS[@]}" --arm S --print-command >/dev/null
-AUTO_COMMAND=("$MLX_DSPARK_BIN" serve --model "$MLX_DSPARK_TARGET_PATH" --mode auto --drafter "$MLX_DSPARK_DFLASH2_PATH" --host 0.0.0.0 --port 8484 --context-window 65536 --reasoning-effort xhigh --max-batch 1)
+AUTO_COMMAND=("$MLX_DSPARK_BIN" serve --model "$MLX_DSPARK_TARGET_PATH" --mode dflash --drafter "$MLX_DSPARK_DFLASH2_PATH" --host 0.0.0.0 --port 8484 --context-window 65536 --reasoning-effort xhigh --max-batch 1)
 if [[ "$OPTION" == "--print" ]]; then printf '%q ' "${AUTO_COMMAND[@]}"; printf '\n'; exit 0; fi
 if python3 -c 'import socket, sys; s=socket.socket(); s.settimeout(0.2); status=s.connect_ex(("127.0.0.1", 8484)); s.close(); sys.exit(0 if status == 0 else 1)'; then
   echo "auto-smoke refused: port 8484 is already in use" >&2

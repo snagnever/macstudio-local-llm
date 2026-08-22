@@ -1,0 +1,78 @@
+{
+  "status": "exploratory_smoke",
+  "context_tokens": 8192,
+  "repetitions_per_scenario": 1,
+  "measured_max_tokens": 1024,
+  "next_run_max_tokens": 2048,
+  "gate_8_eligible": false,
+  "sessions": {
+    "I": "20260822T153417Z-I-8192-cache",
+    "J": "20260822T154107Z-J-8192-cache",
+    "S": "20260822T155030Z-S-8192-cache"
+  },
+  "arms": [
+    {
+      "arm": "I",
+      "runtime": "oMLX",
+      "model_id": "ddalcu/Qwen3.8-27B-MLX-Serve-8bit",
+      "model_revision": "011e38296b3d2aa99245ed49a700459c4ac246b6",
+      "correct_scenarios": 2,
+      "scenario_count": 5,
+      "length_capped_scenarios": 3,
+      "mean_prefill_tps": 247.97050520727726,
+      "mean_decode_tps": 16.309728751841902,
+      "mean_ttft_ms": 25000.230091623962,
+      "ram_peak_gb": 86.332817408,
+      "gpu_temp_peak_c": 86.81478118896484,
+      "swap_delta_gb": 0.0
+    },
+    {
+      "arm": "J",
+      "runtime": "oMLX",
+      "model_id": "True2456/Qwen3.8-27B-AWQ-5.0bpw",
+      "model_revision": "dc699a76ddcbef44c188a8aee2ccc79ccc339a04",
+      "correct_scenarios": 2,
+      "scenario_count": 5,
+      "length_capped_scenarios": 3,
+      "mean_prefill_tps": 249.45484702552994,
+      "mean_decode_tps": 25.959711002181194,
+      "mean_ttft_ms": 24851.598958380055,
+      "ram_peak_gb": 70.907674624,
+      "gpu_temp_start_c": 59.8802375793457,
+      "gpu_temp_peak_c": 84.02965545654297,
+      "swap_delta_gb": 0.0
+    },
+    {
+      "arm": "S",
+      "runtime": "mlx-dspark",
+      "model_id": "mlx-community/Qwen3.8-27B-8bit",
+      "model_revision": "815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9",
+      "drafter_id": "incoai/Qwen3.8-27B-DFlash2",
+      "drafter_revision": "dedf8df68adfb1afeaf7b7480c0a0243108177b4",
+      "correct_scenarios": 2,
+      "scenario_count": 5,
+      "length_capped_scenarios": 3,
+      "mean_prefill_tps": 266.2504080484496,
+      "mean_decode_tps": 52.68,
+      "mean_ttft_ms": 20865.0,
+      "mean_accept_length": 4.6882,
+      "mean_decode_roofline_ratio": 3.4374,
+      "max_cache_hit_ratio": 0.42082175756689577,
+      "ram_peak_gb": 85.119942656,
+      "gpu_temp_start_c": 45.7285270690918,
+      "gpu_temp_peak_c": 82.17176055908203,
+      "swap_delta_gb": 0.0
+    }
+  ],
+  "provisional_ratios": {
+    "J_over_I_decode": 1.5917,
+    "S_over_I_decode": 3.23,
+    "S_over_J_decode": 2.0293
+  },
+  "caveats": [
+    "These are one-repeat smoke measurements, not three-repeat medians.",
+    "Three of five scenarios in every arm reached the old 1024-token output cap; the harness now reserves 2048 output tokens while retaining vendor reasoning_effort=xhigh.",
+    "Arm J began with the reactivated GPU sensor at 59.88C; the cooldown gate now also requires CPU below 38C before subsequent paired runs.",
+    "The mlx-dspark cache counter showed 41 cached tokens on identical/append and 2878 on tool_turn; cache promotion requires the planned paired cache evidence."
+  ]
+}

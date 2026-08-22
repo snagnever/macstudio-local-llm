@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
+from urllib.error import HTTPError
 
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
@@ -76,7 +77,7 @@ class CacheProbeTests(unittest.TestCase):
         self.assertEqual(record["prompt_work_mode"], "sparse")
         self.assertIsNone(record["specprefill_selected_tokens"])
         self.assertEqual(record["runtime_revision"], "v0.6.3rc2")
-        self.assertEqual(record["max_tokens"], 1024)
+        self.assertEqual(record["max_tokens"], 2048)
         self.assertEqual(record["concurrency"], 1)
         self.assertEqual(record["warmup_id"], "cache-probe-warmup-v1")
         self.assertTrue(record["prompt_identity"])
@@ -116,7 +117,7 @@ class CacheProbeTests(unittest.TestCase):
 
         self.assertEqual(payload["temperature"], 0)
         self.assertEqual(payload["reasoning_effort"], "xhigh")
-        self.assertEqual(payload["max_tokens"], 1024)
+        self.assertEqual(payload["max_tokens"], 2048)
 
     def test_correctness_requires_visible_non_truncated_answer(self):
         hidden_only = StreamResult(
@@ -177,6 +178,11 @@ class CacheProbeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "integer token IDs"):
             token_ids_from_response({"tokens": [1, "2", 3]})
 
+    def test_missing_optional_metrics_endpoint_returns_empty_snapshot(self):
+        error = HTTPError("http://example.test/metrics", 404, "Not Found", {}, None)
+        with patch.object(cache_probe, "urlopen", side_effect=error):
+            self.assertEqual(cache_probe._metrics_snapshot("http://example.test/metrics"), {})
+
     def test_mtp_acceptance_uses_request_delta_not_process_lifetime_totals(self):
         before = {
             "qwen_draft_tokens_accepted_total": 100.0,
@@ -233,15 +239,20 @@ class CacheProbeTests(unittest.TestCase):
                 "--runtime-revision", "v0.6.3rc2", "--model-revision", "target",
                 "--arm", "L", "--session-id", "code-session", "--context", "2561",
                 "--content-class", "code", "--repeat", "1", "--output", str(output),
+                "--tokenizer-path", "/models/awq5",
+                "--api-model", "local-awq5-revision",
             ]
-            with patch.object(cache_probe, "RuntimeTokenizer", return_value=Tokenizer()), \
-                patch.object(cache_probe, "stream_chat", return_value=response), \
+            with patch.object(cache_probe, "LocalTokenizer", return_value=Tokenizer()) as local_tokenizer, \
+                patch.object(cache_probe, "stream_chat", return_value=response) as chat, \
                 patch.object(sys, "argv", argv), \
                 contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(cache_probe.main(), 0)
+                local_tokenizer.assert_called_once_with(Path("/models/awq5"))
+                self.assertTrue(all(call.args[1]["model"] == "local-awq5-revision" for call in chat.call_args_list))
 
             records = [json.loads(line) for line in output.read_text().splitlines()]
         self.assertEqual(len(records), 5)
+        self.assertTrue(all(record["model_id"] == "awq5" for record in records))
         self.assertTrue(all(record["code_result_verdict"] for record in records))
 
 

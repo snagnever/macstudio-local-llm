@@ -84,7 +84,7 @@ grep -q -- '--mode dflash' <<<"$DSPARK_S"
 grep -q -- '--max-draft auto' <<<"$DSPARK_R"
 grep -q -- '--max-draft auto' <<<"$DSPARK_S"
 ! grep -q -- '--kv-bits' <<<"$DSPARK_R"
-grep -q -- '--mode auto' <<<"$DSPARK_AUTO"
+grep -q -- '--mode dflash' <<<"$DSPARK_AUTO"
 grep -q -- "--drafter $MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4" <<<"$DSPARK_AUTO"
 if MLX_DSPARK_BIN="$FAKE_DSPARK_BAD" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" bash "$SCRIPTS/run-mlx-dspark.sh" Q --print >/dev/null 2>&1; then
   echo "mlx-dspark launcher accepted an unpinned runtime version" >&2
@@ -204,7 +204,7 @@ for INVALID_RUN_ID in . .. ../.omlx nested/run 'nested\\run'; do
 done
 
 SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" smoke)"
-grep -q -- 'GPU cooldown gate: below 50C' <<<"$SMOKE"
+grep -q -- 'Thermal cooldown gate: CPU below 38C and GPU below 50C' <<<"$SMOKE"
 grep -q -- 'arm=A context=8192' <<<"$SMOKE"
 grep -q -- 'arm=B context=8192' <<<"$SMOKE"
 grep -q -- 'arm=D context=8192' <<<"$SMOKE"
@@ -220,6 +220,12 @@ grep -q -- 'run-mlx-dspark.sh auto-smoke' <<<"$DSPARK_SMOKE"
 DSPARK_8K="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" dspark-decode-8k)"
 grep -q -- 'arm=R context=8192' <<<"$DSPARK_8K"
 grep -q -- 'arm=S context=8192' <<<"$DSPARK_8K"
+DSPARK_S_ONLY="$(QWEN38_DRY_RUN=1 QWEN38_DSPARK_ARMS=S QWEN38_DSPARK_CONTENT_CLASSES=audit_retrieval bash "$SCRIPTS/run-campaign.sh" dspark-decode-8k)"
+grep -q -- 'arm=S context=8192' <<<"$DSPARK_S_ONLY"
+if grep -Eq -- 'arm=(P|Q|R) context=8192' <<<"$DSPARK_S_ONLY"; then
+  echo "mlx-dspark MVP filter ran unselected arms" >&2
+  exit 1
+fi
 DSPARK_CACHE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" dspark-cache-32k)"
 grep -q -- 'arm=Q context=32768' <<<"$DSPARK_CACHE"
 DSPARK_32K="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" dspark-decode-32k)"

@@ -109,6 +109,22 @@ arm_metadata() {
       return 64
       ;;
   esac
+  TOKENIZER_PATH=""
+  case "$arm" in
+    I)
+      TOKENIZER_PATH="${OMLX_MODEL_ROOT:-}/ddalcu-Qwen3.8-27B-MLX-Serve-8bit-$MLX_MODEL_REVISION"
+      ;;
+    J|K|L|M|N|O)
+      TOKENIZER_PATH="${OMLX_MODEL_ROOT:-}/True2456-Qwen3.8-27B-AWQ-5.0bpw-dc699a76ddcbef44c188a8aee2ccc79ccc339a04"
+      ;;
+    P|Q|R|S)
+      TOKENIZER_PATH="${MLX_DSPARK_TARGET_PATH:-}"
+      ;;
+  esac
+  API_MODEL="$MODEL_ID"
+  if [[ "$RUNTIME" == "oMLX" && -n "$TOKENIZER_PATH" ]]; then
+    API_MODEL="$(basename "$TOKENIZER_PATH")"
+  fi
 
   CACHE_ARGS=()
   MTP_ARGS=()
@@ -143,6 +159,31 @@ wait_for_server() {
   done
   echo "runtime did not become healthy at $base_url/models" >&2
   return 1
+}
+
+probe_python() {
+  if [[ -n "${QWEN38_PROBE_PYTHON:-}" ]]; then
+    printf '%s\n' "$QWEN38_PROBE_PYTHON"
+    return
+  fi
+  local runtime_command=""
+  case "$RUNTIME" in
+    oMLX) runtime_command="${QWEN38_OMLX_BIN:-omlx}" ;;
+    mlx-dspark) runtime_command="${MLX_DSPARK_BIN:-mlx-dspark}" ;;
+  esac
+  if [[ -n "$runtime_command" ]]; then
+    local runtime_bin shebang interpreter
+    runtime_bin="$(command -v "$runtime_command" 2>/dev/null || true)"
+    if [[ -n "$runtime_bin" ]]; then
+      IFS= read -r shebang <"$runtime_bin" || true
+      interpreter="${shebang#\#!}"
+      if [[ "$shebang" == '#!'* && -x "$interpreter" ]]; then
+        printf '%s\n' "$interpreter"
+        return
+      fi
+    fi
+  fi
+  printf '%s\n' python3
 }
 
 start_runtime() {
@@ -193,21 +234,21 @@ validate_mtp_log() {
 }
 
 wait_for_cooldown() {
-  echo "GPU cooldown gate: below 50C"
+  echo "Thermal cooldown gate: CPU below 38C and GPU below 50C"
   if [[ "$DRY_RUN" == "1" ]]; then
     return 0
   fi
-  local attempt sample temperature
+  local attempt sample cpu_temperature gpu_temperature
   for ((attempt = 1; attempt <= 120; attempt++)); do
     sample="$(macmon pipe --samples 1 2>/dev/null)"
-    temperature="$(jq -er '.temp.gpu_temp_avg' <<<"$sample")"
-    if awk "BEGIN { exit !($temperature < 50.0) }"; then
-      echo "GPU temperature ready: ${temperature}C"
+    read -r cpu_temperature gpu_temperature < <(jq -er '[.temp.cpu_temp_avg, .temp.gpu_temp_avg] | @tsv' <<<"$sample")
+    if awk "BEGIN { exit !($cpu_temperature < 38.0 && $gpu_temperature < 50.0) }"; then
+      echo "Thermal sensors ready: CPU=${cpu_temperature}C GPU=${gpu_temperature}C"
       return 0
     fi
     sleep 5
   done
-  echo "GPU did not cool below 50C" >&2
+  echo "CPU/GPU sensors did not reach the cooldown thresholds" >&2
   return 1
 }
 
@@ -237,9 +278,10 @@ run_cache_arm() {
   wait_for_server "http://127.0.0.1:${PORT}/v1" || { cleanup; return 1; }
 
   PROBE_COMMAND=(
-    python3 "$SCRIPTS/cache_probe.py"
+    "$(probe_python)" "$SCRIPTS/cache_probe.py"
     --base-url "http://127.0.0.1:${PORT}/v1"
     --model "$MODEL_ID"
+    --api-model "$API_MODEL"
     --runtime "$RUNTIME"
     --runtime-revision "$RUNTIME_REVISION"
     --model-revision "$MODEL_REVISION"
@@ -258,6 +300,9 @@ run_cache_arm() {
     esac
   else
     PROBE_COMMAND+=(--metrics-url "http://127.0.0.1:${PORT}/metrics")
+  fi
+  if [[ -n "${TOKENIZER_PATH:-}" ]]; then
+    PROBE_COMMAND+=(--tokenizer-path "$TOKENIZER_PATH")
   fi
   if [[ "${#CACHE_ARGS[@]}" -gt 0 ]]; then
     PROBE_COMMAND+=("${CACHE_ARGS[@]}")
@@ -391,8 +436,17 @@ run_arms() {
 run_dspark_decode() {
   local context="$1"
   local arm content_class
-  for arm in P Q R S; do
-    for content_class in code math chat tool_call_json; do
+  local arm_list="${QWEN38_DSPARK_ARMS:-P Q R S}"
+  local content_class_list="${QWEN38_DSPARK_CONTENT_CLASSES:-code math chat tool_call_json}"
+  arm_list="${arm_list//,/ }"
+  content_class_list="${content_class_list//,/ }"
+  for arm in $arm_list; do
+    case "$arm" in P|Q|R|S) ;; *) echo "invalid mlx-dspark arm filter: $arm" >&2; return 64 ;; esac
+    for content_class in $content_class_list; do
+      case "$content_class" in
+        audit_retrieval|code|math|chat|tool_call_json) ;;
+        *) echo "invalid mlx-dspark content-class filter: $content_class" >&2; return 64 ;;
+      esac
       run_cache_arm "$arm" "$context" "$content_class"
     done
   done
