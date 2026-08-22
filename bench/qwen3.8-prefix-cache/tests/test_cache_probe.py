@@ -66,6 +66,12 @@ class CacheProbeTests(unittest.TestCase):
         self.assertTrue(required.issubset(record))
         self.assertEqual(record["prompt_work_mode"], "sparse")
         self.assertIsNone(record["specprefill_selected_tokens"])
+        self.assertEqual(record["runtime_revision"], "v0.6.3rc2")
+        self.assertEqual(record["max_tokens"], 1024)
+        self.assertEqual(record["concurrency"], 1)
+        self.assertEqual(record["warmup_id"], "cache-probe-warmup-v1")
+        self.assertTrue(record["prompt_identity"])
+        self.assertIn("10", record["needle_verdicts"])
 
     def test_specprefill_request_options_are_sent_exactly(self):
         """Dropping a request override must make the runtime profile unobservable."""

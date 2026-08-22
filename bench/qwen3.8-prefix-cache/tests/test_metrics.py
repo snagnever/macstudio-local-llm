@@ -28,6 +28,16 @@ class MetricsTests(unittest.TestCase):
         self.assertEqual(observed["machine_roofline_tps"], 88.5)
         self.assertEqual(observed["specprefill_selected_tokens"], 123)
         self.assertIsNone(observed["specprefill_scored_tokens"])
+
+    def test_ane_metric_counters_use_a_per_request_delta(self):
+        """A warmup's lifetime counter must not count as measured ANE work."""
+        observed = normalize_server_measurements(
+            {},
+            {"ane_executed_operations_total": 100.0},
+            {"ane_executed_operations_total": 102.0},
+        )
+
+        self.assertEqual(observed["ane_executed_operations"], 2.0)
     def test_prometheus_parser_reads_labels_and_ignores_comments(self):
         source = (
             '# HELP prefix_cache_hits_total Cache hits\n'

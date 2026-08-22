@@ -146,6 +146,23 @@ MTP="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" mtp-32k)"
 grep -q -- 'arm=C context=32768' <<<"$MTP"
 grep -q -- 'arm=F context=32768' <<<"$MTP"
 
+MTP_GATE_FIXTURE="$(mktemp /tmp/qwen38-mtp-gate.XXXXXX)"
+SPECPREFILL_SELECTION_FIXTURE="$(mktemp /tmp/qwen38-specprefill-selection.XXXXXX)"
+trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD" "$MTP_GATE_FIXTURE" "$SPECPREFILL_SELECTION_FIXTURE"' EXIT
+printf '%s\n' '{"arm":"L","passed":true}' >"$MTP_GATE_FIXTURE"
+printf '%s\n' '{"winner":{"arm":"M"}}' >"$SPECPREFILL_SELECTION_FIXTURE"
+SPECPREFILL="$(QWEN38_DRY_RUN=1 QWEN38_OMLX_MTP_GATE="$MTP_GATE_FIXTURE" bash "$SCRIPTS/run-campaign.sh" specprefill-32k)"
+grep -q -- 'arm=M context=32768' <<<"$SPECPREFILL"
+grep -q -- 'arm=N context=32768' <<<"$SPECPREFILL"
+if QWEN38_DRY_RUN=1 QWEN38_OMLX_MTP_GATE=/tmp/missing-qwen38-gate \
+  bash "$SCRIPTS/run-campaign.sh" specprefill-16k >/dev/null 2>&1; then
+  echo "SpecPrefill ran without a passing isolated L/MTP gate" >&2
+  exit 1
+fi
+CACHE_65K="$(QWEN38_DRY_RUN=1 QWEN38_SPECPREFILL_SELECTION="$SPECPREFILL_SELECTION_FIXTURE" bash "$SCRIPTS/run-campaign.sh" cache-65k)"
+grep -q -- 'arm=C context=65536' <<<"$CACHE_65K"
+grep -q -- 'arm=M context=65536' <<<"$CACHE_65K"
+
 if QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" unknown-stage >/dev/null 2>&1; then
   echo "campaign runner accepted an unknown stage" >&2
   exit 1

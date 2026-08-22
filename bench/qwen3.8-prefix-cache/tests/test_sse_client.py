@@ -47,6 +47,13 @@ class SseTests(unittest.TestCase):
         self.assertEqual(chunks[0]["choices"][0]["delta"]["content"], "A")
         self.assertEqual(chunks[1]["choices"][0]["delta"]["content"], "B")
 
+    def test_stream_fields_keep_top_level_omlx_extension(self):
+        fields = stream_delta_fields(
+            [{"usage": {"prompt_tokens": 8}, "x_omlx": {"prompt_work_mode": "sparse"}}]
+        )
+
+        self.assertEqual(fields["usage"]["x_omlx"]["prompt_work_mode"], "sparse")
+
     def test_parser_ignores_comments_and_non_data_lines(self):
         lines = [
             b": ping\n",

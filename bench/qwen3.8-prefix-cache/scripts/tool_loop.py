@@ -8,8 +8,13 @@ from pathlib import Path
 from typing import Any, Optional
 from urllib.request import Request, urlopen
 
-from cache_probe import cache_hit_ratio, cached_tokens_from_usage
-from metrics import parse_prometheus
+from cache_probe import (
+    SAMPLING_CONTROLS,
+    _quant_label,
+    cache_hit_ratio,
+    cached_tokens_from_usage,
+)
+from metrics import normalize_server_measurements, parse_prometheus
 
 
 TOOLS = [
@@ -190,21 +195,29 @@ def _initial_messages() -> list[dict[str, Any]]:
     ]
 
 
-def _tool_payload(model: str, messages: list[dict[str, Any]]) -> dict[str, Any]:
-    return {
+def _tool_payload(
+    model: str,
+    messages: list[dict[str, Any]],
+    *,
+    specprefill: Optional[bool] = None,
+    specprefill_keep_pct: Optional[float] = None,
+    specprefill_threshold: Optional[int] = None,
+) -> dict[str, Any]:
+    payload = {
         "model": model,
         "messages": messages,
         "tools": build_tools(),
         "tool_choice": "required",
         "max_tokens": 512,
-        "temperature": 1.0,
-        "top_p": 0.95,
-        "top_k": 20,
-        "min_p": 0.0,
-        "presence_penalty": 0.0,
-        "frequency_penalty": 0.0,
-        "reasoning_effort": "xhigh",
+        **SAMPLING_CONTROLS,
     }
+    if specprefill is not None:
+        payload["specprefill"] = specprefill
+    if specprefill_keep_pct is not None:
+        payload["specprefill_keep_pct"] = specprefill_keep_pct
+    if specprefill_threshold is not None:
+        payload["specprefill_threshold"] = specprefill_threshold
+    return payload
 
 
 def _final_payload(model: str, messages: list[dict[str, Any]]) -> dict[str, Any]:
@@ -256,6 +269,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--timeout", type=int, default=900)
     parser.add_argument("--cache-enabled", action="store_true")
     parser.add_argument("--mtp-enabled", action="store_true")
+    parser.add_argument("--specprefill", type=lambda value: value.lower() == "true")
+    parser.add_argument("--specprefill-keep-pct", type=float)
+    parser.add_argument("--specprefill-threshold", type=int)
+    parser.add_argument("--context", type=int, default=65536)
+    parser.add_argument("--concurrency", type=int, default=1)
+    parser.add_argument("--warmup-id", default="tool-loop-warmup-v1")
     return parser
 
 
@@ -285,7 +304,13 @@ def main() -> int:
             try:
                 assistant_message, usage = _chat_once(
                     args.base_url,
-                    _tool_payload(args.model, messages),
+                    _tool_payload(
+                        args.model,
+                        messages,
+                        specprefill=args.specprefill,
+                        specprefill_keep_pct=args.specprefill_keep_pct,
+                        specprefill_threshold=args.specprefill_threshold,
+                    ),
                     args.timeout,
                 )
                 tool_calls = assistant_message.get("tool_calls") or []
@@ -310,7 +335,8 @@ def main() -> int:
                 error = f"{type(caught).__name__}: {caught}"
 
             elapsed_ms = (time.perf_counter() - started) * 1000
-            _metrics_snapshot(args.metrics_url)
+            after = _metrics_snapshot(args.metrics_url)
+            server = normalize_server_measurements(usage, before, after)
             prompt_tokens = int(usage.get("prompt_tokens") or 0)
             cached_tokens = cached_tokens_from_usage(usage)
             if tool_name == last_tool:
@@ -335,7 +361,7 @@ def main() -> int:
                 and consecutive <= 3
             )
             record = {
-                "schema_version": 1,
+                "schema_version": 3,
                 "record_type": "tool_turn",
                 "run_id": datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"),
                 "session_id": args.session_id,
@@ -343,10 +369,27 @@ def main() -> int:
                 "runtime_revision": args.runtime_revision,
                 "model_id": args.model,
                 "model_revision": args.model_revision,
+                "quant": _quant_label(args.model),
                 "arm": args.arm,
-                "context_target": 65536,
+                "context_target": args.context,
                 "cache_enabled": args.cache_enabled,
                 "mtp_enabled": args.mtp_enabled,
+                "specprefill_enabled": bool(args.specprefill),
+                "specprefill_draft_model": server["specprefill_draft_model"],
+                "specprefill_draft_revision": server["specprefill_draft_revision"],
+                "specprefill_keep_pct": args.specprefill_keep_pct,
+                "specprefill_threshold": args.specprefill_threshold,
+                "specprefill_selected_tokens": server["specprefill_selected_tokens"],
+                "specprefill_scored_tokens": server["specprefill_scored_tokens"],
+                "specprefill_draft_ms": server["specprefill_draft_ms"],
+                "specprefill_target_ms": server["specprefill_target_ms"],
+                "static_prefix_cached_tokens": server["static_prefix_cached_tokens"],
+                "ane_prefill_enabled": False,
+                "ane_prefill_tuned": server["ane_prefill_tuned"],
+                "content_class": "tool_loop",
+                "prompt_identity": "tool-loop-v1",
+                "concurrency": args.concurrency,
+                "warmup_id": args.warmup_id,
                 "turn": turn,
                 "tool_name": tool_name,
                 "tool_arguments_valid": arguments_valid,
@@ -359,6 +402,22 @@ def main() -> int:
                 "response_empty": response_empty,
                 "correct": correct,
                 "metrics_available": bool(before),
+                "ane_compiled_mlp_layers": server["ane_compiled_mlp_layers"],
+                "ane_compiled_gdn_layers": server["ane_compiled_gdn_layers"],
+                "ane_executed_operations": server["ane_executed_operations"],
+                "prompt_work_mode": server["prompt_work_mode"],
+                "speculation_mode": server["speculation_mode"],
+                "drafter_id": server["drafter_id"],
+                "drafter_revision": server["drafter_revision"],
+                "draft_cap_policy": server["draft_cap_policy"],
+                "draft_cap_resolved": server["draft_cap_resolved"],
+                "drafted_tokens": server["drafted_tokens"],
+                "accepted_tokens": server["accepted_tokens"],
+                "accept_length": server["accept_length"],
+                "verification_steps": server["verification_steps"],
+                "decode_speedup_vs_baseline": None,
+                "machine_roofline_tps": server["machine_roofline_tps"],
+                "decode_roofline_ratio": server["decode_roofline_ratio"],
                 "ram_peak_gb": None,
                 "swap_delta_gb": None,
                 "gpu_temp_start_c": None,
@@ -393,15 +452,49 @@ def main() -> int:
         missing_tools = sorted(set(REQUIRED_ARGUMENTS) - seen_tools)
         verdict_passed = not run_failed and not final_error and not missing_values and not missing_tools
         verdict = {
-            "schema_version": 1,
+            "schema_version": 3,
             "record_type": "verdict",
             "session_id": args.session_id,
             "runtime": args.runtime,
             "runtime_revision": args.runtime_revision,
             "model_id": args.model,
             "model_revision": args.model_revision,
+            "quant": _quant_label(args.model),
             "arm": args.arm,
-            "context_target": 65536,
+            "context_target": args.context,
+            "mtp_enabled": args.mtp_enabled,
+            "specprefill_enabled": bool(args.specprefill),
+            "specprefill_draft_model": None,
+            "specprefill_draft_revision": None,
+            "specprefill_keep_pct": args.specprefill_keep_pct,
+            "specprefill_threshold": args.specprefill_threshold,
+            "specprefill_selected_tokens": None,
+            "specprefill_scored_tokens": None,
+            "specprefill_draft_ms": None,
+            "specprefill_target_ms": None,
+            "static_prefix_cached_tokens": None,
+            "ane_prefill_enabled": False,
+            "ane_prefill_tuned": None,
+            "ane_compiled_mlp_layers": None,
+            "ane_compiled_gdn_layers": None,
+            "ane_executed_operations": None,
+            "prompt_work_mode": None,
+            "speculation_mode": None,
+            "drafter_id": None,
+            "drafter_revision": None,
+            "draft_cap_policy": None,
+            "draft_cap_resolved": None,
+            "drafted_tokens": None,
+            "accepted_tokens": None,
+            "accept_length": None,
+            "verification_steps": None,
+            "decode_speedup_vs_baseline": None,
+            "machine_roofline_tps": None,
+            "decode_roofline_ratio": None,
+            "content_class": "tool_loop",
+            "prompt_identity": "tool-loop-v1",
+            "concurrency": args.concurrency,
+            "warmup_id": args.warmup_id,
             "ram_peak_gb": None,
             "swap_delta_gb": None,
             "gpu_temp_start_c": None,

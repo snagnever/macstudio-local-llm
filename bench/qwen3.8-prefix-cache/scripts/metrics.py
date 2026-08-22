@@ -1,5 +1,5 @@
 import json
-from typing import Any
+from typing import Any, Optional
 
 
 SERVER_MEASUREMENT_FIELDS = (
@@ -31,15 +31,32 @@ SERVER_MEASUREMENT_FIELDS = (
 
 def _metric_field(metrics: dict[str, float], field: str) -> Any:
     for name, value in metrics.items():
-        if name.split("{")[0].endswith(field):
+        metric_name = name.split("{")[0]
+        if metric_name.endswith(field) or metric_name.endswith(f"{field}_total"):
             return value
     return None
 
 
+def _metric_delta_field(
+    before: dict[str, float], after: dict[str, float], field: str
+) -> Any:
+    before_value = _metric_field(before, field)
+    after_value = _metric_field(after, field)
+    if before_value is None or after_value is None:
+        return None
+    delta = after_value - before_value
+    return delta if delta >= 0 else None
+
+
 def normalize_server_measurements(
-    usage: dict[str, Any], metrics: dict[str, float]
+    usage: dict[str, Any],
+    metrics_before: dict[str, float],
+    metrics_after: Optional[dict[str, float]] = None,
 ) -> dict[str, Any]:
     """Keep only server-reported values; missing telemetry remains unavailable."""
+    if metrics_after is None:
+        metrics_after = metrics_before
+        metrics_before = {}
     result = {field: None for field in SERVER_MEASUREMENT_FIELDS}
     blocks = [usage]
     for name in ("x_mlx_dspark", "x_omlx", "server_metrics"):
@@ -52,7 +69,12 @@ def normalize_server_measurements(
                 result[field] = block[field]
                 break
         if result[field] is None:
-            result[field] = _metric_field(metrics, field)
+            if field.startswith("ane_"):
+                result[field] = _metric_delta_field(
+                    metrics_before, metrics_after, field
+                )
+            else:
+                result[field] = _metric_field(metrics_after, field)
     mode = result["prompt_work_mode"]
     if mode not in {"full", "cached", "sparse"}:
         result["prompt_work_mode"] = None

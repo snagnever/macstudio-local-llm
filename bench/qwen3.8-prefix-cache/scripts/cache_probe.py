@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import argparse
+import hashlib
 import json
 from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -22,8 +23,21 @@ SCENARIOS = (
 )
 
 NEEDLE_QUESTION = (
-    "Return only the verified key stored closest to 10% of the audit records."
+    "Return only the three verified keys stored closest to 10%, 50%, and 90% "
+    "of the audit records, in that order."
 )
+
+SAMPLING_CONTROLS = {
+    "temperature": 0,
+    "top_p": 0.95,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 0.0,
+    "frequency_penalty": 0.0,
+    "repetition_penalty": 1.0,
+    "reasoning_effort": "xhigh",
+}
+WARMUP_ID = "cache-probe-warmup-v1"
 
 
 def fixture_token_target(context_size: int) -> int:
@@ -166,6 +180,8 @@ def mtp_acceptance_from_snapshots(
 
 def _quant_label(model: str) -> str:
     upper = model.upper()
+    if "AWQ" in upper:
+        return "awq5"
     for label in ("UD-Q8_K_XL", "UD-Q6_K_XL", "UD-Q4_K_XL", "8BIT"):
         if label in upper:
             return label.lower()
@@ -211,8 +227,7 @@ def _payload(
         "model": model,
         "messages": messages,
         "max_tokens": 1024,
-        "temperature": 0,
-        "reasoning_effort": "xhigh",
+        **SAMPLING_CONTROLS,
     }
     if specprefill is not None:
         payload["specprefill"] = specprefill
@@ -231,13 +246,43 @@ def _warmup_payload(model: str, warmup_text: str) -> dict[str, Any]:
             {"role": "user", "content": warmup_text},
         ],
         "max_tokens": 64,
-        "temperature": 0,
-        "reasoning_effort": "xhigh",
+        **SAMPLING_CONTROLS,
     }
 
 
-def result_correct(result: StreamResult, expected_needle: str) -> bool:
-    return result.finish_reason != "length" and expected_needle in result.text
+def needle_verdicts(
+    result: StreamResult, expected_needles: Union[str, tuple[str, ...]]
+) -> dict[str, bool]:
+    if isinstance(expected_needles, str):
+        expected_needles = (expected_needles,)
+    return {
+        position: result.finish_reason != "length" and needle in result.text
+        for position, needle in zip(("10", "50", "90"), expected_needles)
+    }
+
+
+def result_correct(
+    result: StreamResult, expected_needle: Union[str, tuple[str, ...]]
+) -> bool:
+    needles = (expected_needle,) if isinstance(expected_needle, str) else expected_needle
+    return all(needle_verdicts(result, needles).values())
+
+
+def _prompt_identity(messages: list[dict[str, Any]]) -> str:
+    canonical = json.dumps(messages, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _static_prefix_hash(messages: list[dict[str, Any]]) -> str:
+    prefix = [
+        message
+        for message in messages
+        if message.get("role") == "system"
+        or message.get("role") == "tool"
+        or message.get("tool_calls")
+    ]
+    canonical = json.dumps(prefix, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def _performance(result: StreamResult, prompt_tokens: int, cached_tokens: int):
@@ -258,7 +303,7 @@ def _record(
     scenario: str,
     repeat: int,
     result: StreamResult,
-    expected_needle: str,
+    expected_needles: Union[str, tuple[str, ...]],
     fixture_hash: str,
     metrics_before: dict[str, float],
     metrics_after: dict[str, float],
@@ -270,7 +315,8 @@ def _record(
     prompt_tokens = int(usage.get("prompt_tokens") or 0)
     cached_tokens = cached_tokens_from_usage(usage)
     performance = _performance(result, prompt_tokens, cached_tokens)
-    server = normalize_server_measurements(usage, metrics_after)
+    server = normalize_server_measurements(usage, metrics_before, metrics_after)
+    needles = needle_verdicts(result, expected_needles)
     now = datetime.now(timezone.utc)
     return {
         "schema_version": 3,
@@ -287,6 +333,10 @@ def _record(
         "arm": args.arm,
         "context_target": args.context,
         "scenario": scenario,
+        "content_class": "audit_retrieval",
+        "prompt_identity": _prompt_identity(getattr(args, "messages", [])),
+        "concurrency": 1,
+        "warmup_id": WARMUP_ID,
         "suffix_tokens": suffix_tokens if scenario in {"append", "tool_turn"} else 0,
         "mutation_prefix_tokens": (
             mutation_prefix_tokens if scenario == "middle_mutation" else None
@@ -305,6 +355,7 @@ def _record(
         "specprefill_draft_ms": server["specprefill_draft_ms"],
         "specprefill_target_ms": server["specprefill_target_ms"],
         "static_prefix_cached_tokens": server["static_prefix_cached_tokens"],
+        "static_prefix_hash": getattr(args, "static_prefix_hash", None),
         "ane_prefill_enabled": bool(getattr(args, "ane_prefill_enabled", False)),
         "ane_prefill_tuned": server["ane_prefill_tuned"],
         "ane_compiled_mlp_layers": server["ane_compiled_mlp_layers"],
@@ -334,12 +385,28 @@ def _record(
         "decode_roofline_ratio": server["decode_roofline_ratio"],
         "finish_reason": result.finish_reason,
         "reasoning_chars": len(result.reasoning_text),
-        "correct": result_correct(result, expected_needle),
+        "needle_verdicts": needles,
+        "static_prefix_correct": (
+            scenario != "cold"
+            and cached_tokens > 0
+            and all(needles.values())
+            and getattr(args, "static_prefix_matches", False)
+        ),
+        "correct": all(needles.values()),
         "ram_peak_gb": None,
         "swap_delta_gb": None,
         "gpu_temp_start_c": None,
         "gpu_temp_peak_c": None,
         "fixture_token_hash": fixture_hash,
+        "temperature": SAMPLING_CONTROLS["temperature"],
+        "top_p": SAMPLING_CONTROLS["top_p"],
+        "top_k": SAMPLING_CONTROLS["top_k"],
+        "min_p": SAMPLING_CONTROLS["min_p"],
+        "presence_penalty": SAMPLING_CONTROLS["presence_penalty"],
+        "frequency_penalty": SAMPLING_CONTROLS["frequency_penalty"],
+        "repetition_penalty": SAMPLING_CONTROLS["repetition_penalty"],
+        "reasoning_effort": SAMPLING_CONTROLS["reasoning_effort"],
+        "max_tokens": 1024,
         "error": (
             "finish_reason:length" if result.finish_reason == "length" else None
         ),
@@ -386,6 +453,7 @@ def main() -> int:
     warmup_text, _ = build_suffix(512, tokenizer, "Warmup complete.")
     stream_chat(args.base_url, _warmup_payload(args.model, warmup_text))
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    static_prefixes: dict[str, str] = {}
 
     with args.output.open("a", encoding="utf-8") as output:
         for scenario in SCENARIOS:
@@ -393,6 +461,12 @@ def main() -> int:
                 messages = _messages_for_scenario(
                     scenario, fixture.text, mutated_text, suffix, repeat
                 )
+                args.messages = messages
+                args.static_prefix_hash = _static_prefix_hash(messages)
+                previous_hash = static_prefixes.setdefault(
+                    scenario, args.static_prefix_hash
+                )
+                args.static_prefix_matches = previous_hash == args.static_prefix_hash
                 metrics_before = _metrics_snapshot(args.metrics_url)
                 result = stream_chat(
                     args.base_url,
@@ -410,7 +484,7 @@ def main() -> int:
                     scenario,
                     repeat,
                     result,
-                    fixture.needles[0],
+                    fixture.needles,
                     fixture_hash,
                     metrics_before,
                     metrics_after,

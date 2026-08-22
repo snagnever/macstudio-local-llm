@@ -10,6 +10,8 @@ STAGE="${1:-}"
 DRY_RUN="${QWEN38_DRY_RUN:-0}"
 REPEATS="${QWEN38_REPEATS:-3}"
 INTER_RUN_SECONDS="${QWEN38_INTER_RUN_SECONDS:-45}"
+SPECPREFILL_SELECTION="${QWEN38_SPECPREFILL_SELECTION:-$RESULTS/specprefill-selection.json}"
+OMLX_MTP_GATE="${QWEN38_OMLX_MTP_GATE:-$RESULTS/omlx-mtp-gate.json}"
 
 MLX_RUNTIME_REVISION="${QWEN38_MLX_RUNTIME_REVISION:-v26.8.9}"
 LLAMA_RUNTIME_REVISION="${QWEN38_LLAMA_RUNTIME_REVISION:-v0.2.0/b10566@bb4caa7540188872173c44d161602d9271386413}"
@@ -19,6 +21,7 @@ UNSLOTH_MODEL_REVISION="${QWEN38_UNSLOTH_MODEL_REVISION:-4ca720788d1e01f1bff70c0
 ACTIVE_PID=""
 MACMON_PID=""
 MACMON_LOG=""
+LAST_RUNTIME_LOG=""
 
 usage() {
   cat >&2 <<'EOF'
@@ -211,6 +214,7 @@ run_cache_arm() {
   local stamp
   stamp="$(date -u +%Y%m%dT%H%M%SZ)"
   local runtime_log="$LOGS/${stamp}-${arm}-${context}-runtime.log"
+  LAST_RUNTIME_LOG="$runtime_log"
   local session_id="${stamp}-${arm}-${context}-cache"
   start_runtime "$arm" "$context" "$runtime_log"
   wait_for_server "http://127.0.0.1:${PORT}/v1"
@@ -255,7 +259,11 @@ run_tool_arm() {
   echo "RUN arm=$arm context=65536 mode=tool-loop"
   wait_for_cooldown
   if [[ "$DRY_RUN" == "1" ]]; then
-    bash "$LAUNCHER" "$arm" --print
+    if [[ "$RUNTIME" == "oMLX" ]]; then
+      echo "+ bash $LAUNCHER $arm (tool-loop)"
+    else
+      bash "$LAUNCHER" "$arm" --print
+    fi
     return 0
   fi
 
@@ -276,6 +284,7 @@ run_tool_arm() {
     --model-revision "$MODEL_REVISION"
     --arm "$arm"
     --session-id "$session_id"
+    --context 65536
     --output "$RESULTS/tool-loop.jsonl"
     --metrics-url "http://127.0.0.1:${PORT}/metrics"
   )
@@ -284,6 +293,9 @@ run_tool_arm() {
   fi
   if [[ "${#MTP_ARGS[@]}" -gt 0 ]]; then
     TOOL_COMMAND+=("${MTP_ARGS[@]}")
+  fi
+  if [[ "${#SPECPREFILL_ARGS[@]}" -gt 0 ]]; then
+    TOOL_COMMAND+=("${SPECPREFILL_ARGS[@]}")
   fi
   printf '+ %q ' "${TOOL_COMMAND[@]}"
   printf '\n'
@@ -309,6 +321,34 @@ survivor_arms() {
     "$RESULTS/runtime-survivors.json"
 }
 
+specprefill_winner_arm() {
+  if [[ ! -f "$SPECPREFILL_SELECTION" ]]; then
+    summarize >/dev/null || true
+  fi
+  jq -r '.winner.arm // empty' "$SPECPREFILL_SELECTION"
+}
+
+require_omlx_mtp_gate() {
+  if [[ ! -f "$OMLX_MTP_GATE" ]]; then
+    summarize >/dev/null || true
+  fi
+  if [[ ! -f "$OMLX_MTP_GATE" ]] || ! jq -e '.passed == true and .arm == "L"' "$OMLX_MTP_GATE" >/dev/null; then
+    echo "SpecPrefill requires a passing isolated L/MTP gate: $OMLX_MTP_GATE" >&2
+    return 2
+  fi
+}
+
+run_omlx_smoke() {
+  if ! run_cache_arm I 8192; then
+    if [[ -n "$LAST_RUNTIME_LOG" ]] && grep -Eiq 'checkpoint.*incompatib|incompatib.*checkpoint' "$LAST_RUNTIME_LOG"; then
+      echo "arm I checkpoint incompatibility recorded; continuing with J" >&2
+    else
+      return 1
+    fi
+  fi
+  run_cache_arm J 8192
+}
+
 run_arms() {
   local context="$1"
   shift
@@ -329,19 +369,25 @@ case "$STAGE" in
     run_arms 32768 C F G H
     ;;
   omlx-smoke)
-    run_arms 8192 I J
+    run_omlx_smoke
     ;;
   omlx-cache-32k)
     run_arms 32768 K
     ;;
   omlx-mtp-32k)
     run_arms 32768 L
+    summarize || true
     ;;
   specprefill-16k)
+    require_omlx_mtp_gate
     run_arms 16384 L M N
     ;;
   specprefill-32k)
+    require_omlx_mtp_gate
     run_arms 32768 L M N
+    run_tool_arm M
+    run_tool_arm N
+    summarize || true
     ;;
   ane-16k)
     run_arms 16384 J O
@@ -350,14 +396,21 @@ case "$STAGE" in
     run_arms 32768 J O
     ;;
   cache-65k)
+    SPECPREFILL_WINNER=""
     if [[ "$DRY_RUN" == "1" ]]; then
       run_arms 65536 C E F G H
+      if [[ -f "$SPECPREFILL_SELECTION" ]]; then
+        SPECPREFILL_WINNER="$(specprefill_winner_arm)"
+        [[ -n "$SPECPREFILL_WINNER" ]] && run_arms 65536 "$SPECPREFILL_WINNER"
+      fi
     else
       summarize || true
       ARMS=()
       while IFS= read -r ARM; do
         [[ -n "$ARM" ]] && ARMS+=("$ARM")
       done < <(survivor_arms)
+      SPECPREFILL_WINNER="$(specprefill_winner_arm)"
+      [[ -n "$SPECPREFILL_WINNER" ]] && ARMS+=("$SPECPREFILL_WINNER")
       if [[ "${#ARMS[@]}" -eq 0 ]]; then
         echo "no passing production arms are available for 65K" >&2
         exit 2

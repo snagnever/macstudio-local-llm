@@ -11,10 +11,21 @@ from tool_loop import (
     append_tool_exchange,
     build_tools,
     parse_tool_arguments,
+    _tool_payload,
 )
 
 
 class ToolLoopTests(unittest.TestCase):
+    def test_tool_payload_carries_the_exact_specprefill_profile(self):
+        """Tool-loop evidence must be collected with the profile under test."""
+        payload = _tool_payload(
+            "model", [{"role": "user", "content": "probe"}],
+            specprefill=True, specprefill_keep_pct=0.40, specprefill_threshold=8192,
+        )
+
+        self.assertTrue(payload["specprefill"])
+        self.assertEqual(payload["specprefill_keep_pct"], 0.40)
+        self.assertEqual(payload["specprefill_threshold"], 8192)
     def test_build_tools_returns_fresh_stably_ordered_schemas(self):
         first = build_tools()
         first[0]["function"]["name"] = "mutated"
