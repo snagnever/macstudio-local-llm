@@ -48,6 +48,9 @@ SPECPREFILL_PROFILES = {
 SPECULATIVE_ARMS = ("R", "S")
 SPECULATIVE_CONTEXTS = (8192, 32768)
 SPECULATIVE_CLASSES = ("code", "math", "chat", "tool_call_json")
+SPECULATIVE_SCENARIOS = (
+    "cold", "identical", "append", "middle_mutation", "tool_turn"
+)
 SPECULATIVE_TELEMETRY = (
     "drafter_id",
     "drafter_revision",
@@ -55,6 +58,15 @@ SPECULATIVE_TELEMETRY = (
     "accept_length",
     "verification_steps",
 )
+SPECULATIVE_SAMPLING = {
+    "top_p": 0.95,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 0.0,
+    "frequency_penalty": 0.0,
+    "repetition_penalty": 1.0,
+    "reasoning_effort": "xhigh",
+}
 
 
 def gate_record(record: dict[str, Any]) -> list[str]:
@@ -573,8 +585,22 @@ def _token_equivalent(baseline: dict[str, Any], candidate: dict[str, Any]) -> bo
     )
 
 
+def _speculative_sampling_matches(
+    record: dict[str, Any], temperature: float
+) -> bool:
+    return record.get("temperature") == temperature and all(
+        record.get(field) == value for field, value in SPECULATIVE_SAMPLING.items()
+    )
+
+
 def _candidate_speculative_pairs(
-    records: list[dict[str, Any]], candidate: str, baseline_arm: str
+    records: list[dict[str, Any]],
+    candidate: str,
+    baseline_arm: str,
+    *,
+    temperature: float,
+    content_classes: tuple[str, ...],
+    repetitions: set[int],
 ) -> tuple[list[tuple[dict[str, Any], dict[str, Any]]], list[str]]:
     baseline = {
         _speculative_pair_key(record): record
@@ -582,7 +608,9 @@ def _candidate_speculative_pairs(
         if record.get("arm") == baseline_arm
         and record.get("record_type") != "verdict"
         and record.get("context_target") in SPECULATIVE_CONTEXTS
-        and record.get("content_class") in SPECULATIVE_CLASSES
+        and record.get("content_class") in content_classes
+        and record.get("repeat") in repetitions
+        and _speculative_sampling_matches(record, temperature)
     }
     candidates = {
         _speculative_pair_key(record): record
@@ -590,7 +618,9 @@ def _candidate_speculative_pairs(
         if record.get("arm") == candidate
         and record.get("record_type") != "verdict"
         and record.get("context_target") in SPECULATIVE_CONTEXTS
-        and record.get("content_class") in SPECULATIVE_CLASSES
+        and record.get("content_class") in content_classes
+        and record.get("repeat") in repetitions
+        and _speculative_sampling_matches(record, temperature)
     }
     if not baseline or not candidates:
         return [], ["pairs"]
@@ -599,13 +629,19 @@ def _candidate_speculative_pairs(
         return [], ["pairs"]
     pairs = [(baseline[key], candidates[key]) for key in sorted(baseline, key=str)]
     expected = {
-        (context, content_class, repeat)
+        (context, content_class, scenario, repeat)
         for context in SPECULATIVE_CONTEXTS
-        for content_class in SPECULATIVE_CLASSES
-        for repeat in REQUIRED_REPETITIONS
+        for content_class in content_classes
+        for scenario in SPECULATIVE_SCENARIOS
+        for repeat in repetitions
     }
     observed = {
-        (int(base["context_target"]), str(base["content_class"]), int(base["repeat"]))
+        (
+            int(base["context_target"]),
+            str(base["content_class"]),
+            str(base["scenario"]),
+            int(base["repeat"]),
+        )
         for base, _ in pairs
     }
     return pairs, ([] if observed == expected else ["pairs"])
@@ -618,13 +654,36 @@ def evaluate_speculative_decode(
     result: dict[str, Any] = {}
     passing: list[dict[str, Any]] = []
     for candidate in SPECULATIVE_ARMS:
-        pairs, missing = _candidate_speculative_pairs(records, candidate, baseline_arm)
-        inconclusive = list(missing)
+        greedy_pairs, greedy_missing = _candidate_speculative_pairs(
+            records,
+            candidate,
+            baseline_arm,
+            temperature=0,
+            content_classes=("code",),
+            repetitions={1},
+        )
+        performance_pairs, performance_missing = _candidate_speculative_pairs(
+            records,
+            candidate,
+            baseline_arm,
+            temperature=1.0,
+            content_classes=SPECULATIVE_CLASSES,
+            repetitions=REQUIRED_REPETITIONS,
+        )
+        inconclusive: list[str] = []
+        if greedy_missing:
+            inconclusive.append("greedy_pairs")
+        if performance_missing:
+            inconclusive.append("performance_pairs")
         failures: list[str] = []
-        if pairs:
-            for baseline, speculative in pairs:
+        if greedy_pairs:
+            for baseline, speculative in greedy_pairs:
                 if not _token_equivalent(baseline, speculative):
                     failures.append("token_equivalence")
+                if not baseline.get("correct") or not speculative.get("correct"):
+                    failures.append("correct")
+        if performance_pairs:
+            for baseline, speculative in performance_pairs:
                 if not baseline.get("correct") or not speculative.get("correct"):
                     failures.append("correct")
                 if any(speculative.get(field) is None for field in SPECULATIVE_TELEMETRY):
@@ -642,6 +701,7 @@ def evaluate_speculative_decode(
             and record.get("record_type") == "verdict"
             and record.get("turns_requested") == 20
             and record.get("correct")
+            and _speculative_sampling_matches(record, 1.0)
             for record in records
         )
         if not tool_ok:
@@ -650,6 +710,8 @@ def evaluate_speculative_decode(
             result[candidate] = {
                 "arm": candidate, "baseline": baseline_arm, "status": "INCONCLUSIVE",
                 "failures": _unique(inconclusive), "median_decode_speedup": {},
+                "greedy_pair_count": len(greedy_pairs),
+                "performance_pair_count": len(performance_pairs),
             }
             continue
         by_context: dict[int, list[float]] = defaultdict(list)
@@ -657,7 +719,7 @@ def evaluate_speculative_decode(
         warm_speedups: list[float] = []
         cache_regressions: list[bool] = []
         ttft_regressions: list[bool] = []
-        for baseline, speculative in pairs:
+        for baseline, speculative in performance_pairs:
             speedup = float(speculative["decode_tps"]) / float(baseline["decode_tps"])
             by_context[int(baseline["context_target"])].append(speedup)
             by_class[str(baseline["content_class"])].append(speedup)
@@ -694,6 +756,8 @@ def evaluate_speculative_decode(
             "failures": failures, "median_decode_speedup": medians,
             "class_speedups": class_speedups,
             "warm_total_speedup": statistics.median(warm_speedups) if warm_speedups else None,
+            "greedy_pair_count": len(greedy_pairs),
+            "performance_pair_count": len(performance_pairs),
         }
         result[candidate] = evaluation
         if status == "PASS":

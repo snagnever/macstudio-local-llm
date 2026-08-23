@@ -205,7 +205,7 @@ arm_metadata() {
     O) ANE_PREFILL_ARGS=(--ane-prefill-enabled) ;;
   esac
   case "$arm" in
-    A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|T|U|V|W|X)
+    A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X)
       SAMPLING_ARGS=(--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh)
       ;;
   esac
@@ -321,8 +321,25 @@ run_cache_arm() {
   local arm="$1"
   local context="$2"
   local content_class="${3:-audit_retrieval}"
+  local measurement_mode="${4:-performance}"
   arm_metadata "$arm" || return 1
-  echo "RUN arm=$arm context=$context mode=cache"
+  local run_repeats="$REPEATS"
+  case "$measurement_mode" in
+    performance) ;;
+    greedy)
+      if [[ "$RUNTIME" != "mlx-dspark" ]]; then
+        echo "greedy control is only supported for mlx-dspark arms" >&2
+        return 64
+      fi
+      SAMPLING_ARGS=(--temperature 0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh)
+      run_repeats=1
+      ;;
+    *)
+      echo "invalid measurement mode: $measurement_mode" >&2
+      return 64
+      ;;
+  esac
+  echo "RUN arm=$arm context=$context mode=cache measurement=$measurement_mode repeats=$run_repeats"
   wait_for_cooldown || return 1
   if [[ "$DRY_RUN" == "1" ]]; then
     if [[ "$RUNTIME" == "oMLX" ]]; then
@@ -338,9 +355,9 @@ run_cache_arm() {
   mkdir -p "$RESULTS" "$LOGS"
   local stamp
   stamp="$(date -u +%Y%m%dT%H%M%SZ)"
-  local runtime_log="$LOGS/${stamp}-${arm}-${context}-runtime.log"
+  local runtime_log="$LOGS/${stamp}-${arm}-${context}-${measurement_mode}-runtime.log"
   LAST_RUNTIME_LOG="$runtime_log"
-  local session_id="${stamp}-${arm}-${context}-cache"
+  local session_id="${stamp}-${arm}-${context}-${measurement_mode}-cache"
   start_runtime "$arm" "$context" "$runtime_log" || { cleanup; return 1; }
   wait_for_server "http://127.0.0.1:${PORT}/v1" || { cleanup; return 1; }
 
@@ -356,7 +373,7 @@ run_cache_arm() {
     --session-id "$session_id"
     --context "$context"
     --content-class "$content_class"
-    --repeat "$REPEATS"
+    --repeat "$run_repeats"
     --output "$RESULTS/cache-probe.jsonl"
   )
   if [[ "$RUNTIME" == "mlx-dspark" ]]; then
@@ -544,11 +561,13 @@ run_arms() {
   done
 }
 
-run_dspark_decode() {
+run_dspark_performance() {
   local context="$1"
+  local default_arms="${2:-Q R S}"
+  local default_content_classes="${3:-code math chat tool_call_json}"
   local arm content_class
-  local arm_list="${QWEN38_DSPARK_ARMS:-P Q R S}"
-  local content_class_list="${QWEN38_DSPARK_CONTENT_CLASSES:-code math chat tool_call_json}"
+  local arm_list="${QWEN38_DSPARK_ARMS:-$default_arms}"
+  local content_class_list="${QWEN38_DSPARK_CONTENT_CLASSES:-$default_content_classes}"
   arm_list="${arm_list//,/ }"
   content_class_list="${content_class_list//,/ }"
   for arm in $arm_list; do
@@ -558,8 +577,22 @@ run_dspark_decode() {
         audit_retrieval|code|math|chat|tool_call_json) ;;
         *) echo "invalid mlx-dspark content-class filter: $content_class" >&2; return 64 ;;
       esac
-      run_cache_arm "$arm" "$context" "$content_class"
+      run_cache_arm "$arm" "$context" "$content_class" performance
     done
+  done
+}
+
+run_dspark_greedy_control() {
+  local context="$1"
+  local arm
+  local arm_list="${QWEN38_DSPARK_ARMS:-Q R S}"
+  arm_list="${arm_list//,/ }"
+  for arm in $arm_list; do
+    case "$arm" in
+      Q|R|S) run_cache_arm "$arm" "$context" code greedy ;;
+      P) ;;
+      *) echo "invalid mlx-dspark arm filter: $arm" >&2; return 64 ;;
+    esac
   done
 }
 
@@ -626,13 +659,15 @@ case "$STAGE" in
     fi
     ;;
   dspark-decode-8k)
-    run_dspark_decode 8192
+    run_dspark_greedy_control 8192
+    run_dspark_performance 8192
     ;;
   dspark-cache-32k)
-    run_dspark_decode 32768
+    run_dspark_performance 32768 "P Q" audit_retrieval
     ;;
   dspark-decode-32k)
-    run_dspark_decode 32768
+    run_dspark_greedy_control 32768
+    run_dspark_performance 32768
     run_tool_arm R 32768
     run_tool_arm S 32768
     ;;

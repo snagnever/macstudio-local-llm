@@ -115,36 +115,86 @@ def specprefill_fixture(arm="M", candidate_ttft=70):
 class SummaryTests(unittest.TestCase):
     def test_speculative_gate_passes_complete_paired_q_r_s_evidence(self):
         records = []
+        scenarios = ("cold", "identical", "append", "middle_mutation", "tool_turn")
         for arm, speedup, warm_time in (("Q", 1.0, 100.0), ("R", 1.30, 88.0), ("S", 1.26, 89.0)):
+            # Token equivalence is a distinct greedy control. Performance
+            # evidence below uses the vendor's temperature=1 sampling.
             for context in (8192, 32768):
+                for scenario in scenarios:
+                    records.append(pair_record(
+                        arm, context, 10.0, runtime="mlx-dspark",
+                        runtime_revision="v0.15.0/69cd5c122d19ad3916eefccd43334ff59a92a914",
+                        model_id="mlx-community/Qwen3.8-27B-8bit",
+                        model_revision="815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9",
+                        quant="8bit", content_class="code", scenario=scenario,
+                        prompt_identity=f"greedy-code-{context}-{scenario}",
+                        fixture_token_hash="fixture-code", repeat=1,
+                        decode_tps=20.0 * speedup, e2e_ms=warm_time,
+                        cache_hit_ratio=0.98, correct=True,
+                        greedy_tokens_hash=f"same-{context}-{scenario}",
+                        drafter_id=(None if arm == "Q" else ("RadixArk/Qwen3.8-27B-DSpark" if arm == "R" else "incoai/Qwen3.8-27B-DFlash2")),
+                        drafter_revision=(None if arm == "Q" else ("85ef153be924f17ce4bf62726954eeaa4a73e854" if arm == "R" else "dedf8df68adfb1afeaf7b7480c0a0243108177b4")),
+                        draft_cap_resolved=(None if arm == "Q" else 7),
+                        accept_length=(None if arm == "Q" else 3.0),
+                        verification_steps=(None if arm == "Q" else 128),
+                    ))
                 for content_class in ("code", "math", "chat", "tool_call_json"):
-                    for repeat in (1, 2, 3):
-                        record = pair_record(
-                            arm, context, 10.0, runtime="mlx-dspark",
-                            runtime_revision="v0.15.0/69cd5c122d19ad3916eefccd43334ff59a92a914",
-                            model_id="mlx-community/Qwen3.8-27B-8bit",
-                            model_revision="815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9",
-                            quant="8bit", content_class=content_class,
-                            scenario="identical",
-                            prompt_identity=f"{content_class}-{context}-r{repeat}",
-                            fixture_token_hash=f"fixture-{content_class}", repeat=repeat,
-                            decode_tps=20.0 * speedup, e2e_ms=warm_time,
-                            cache_hit_ratio=0.98, correct=True,
-                            greedy_tokens_hash="identical", drafter_id=(None if arm == "Q" else ("RadixArk/Qwen3.8-27B-DSpark" if arm == "R" else "incoai/Qwen3.8-27B-DFlash2")),
-                            drafter_revision=(None if arm == "Q" else ("85ef153be924f17ce4bf62726954eeaa4a73e854" if arm == "R" else "dedf8df68adfb1afeaf7b7480c0a0243108177b4")),
-                            draft_cap_resolved=(None if arm == "Q" else 7),
-                            accept_length=(None if arm == "Q" else 3.0),
-                            verification_steps=(None if arm == "Q" else 128),
-                        )
-                        records.append(record)
+                    for scenario in scenarios:
+                        for repeat in (1, 2, 3):
+                            records.append(pair_record(
+                                arm, context, 10.0, runtime="mlx-dspark",
+                                runtime_revision="v0.15.0/69cd5c122d19ad3916eefccd43334ff59a92a914",
+                                model_id="mlx-community/Qwen3.8-27B-8bit",
+                                model_revision="815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9",
+                                quant="8bit", content_class=content_class,
+                                scenario=scenario, temperature=1.0,
+                                prompt_identity=f"official-{content_class}-{context}-{scenario}-r{repeat}",
+                                fixture_token_hash=f"fixture-{content_class}", repeat=repeat,
+                                decode_tps=20.0 * speedup, e2e_ms=warm_time,
+                                cache_hit_ratio=0.98, correct=True,
+                                greedy_tokens_hash=f"sampled-{arm}-{context}-{scenario}-{repeat}",
+                                drafter_id=(None if arm == "Q" else ("RadixArk/Qwen3.8-27B-DSpark" if arm == "R" else "incoai/Qwen3.8-27B-DFlash2")),
+                                drafter_revision=(None if arm == "Q" else ("85ef153be924f17ce4bf62726954eeaa4a73e854" if arm == "R" else "dedf8df68adfb1afeaf7b7480c0a0243108177b4")),
+                                draft_cap_resolved=(None if arm == "Q" else 7),
+                                accept_length=(None if arm == "Q" else 3.0),
+                                verification_steps=(None if arm == "Q" else 128),
+                            ))
         for arm in ("R", "S"):
-            records.append({"arm": arm, "record_type": "verdict", "turns_requested": 20, "correct": True})
+            records.append({
+                **pair_record(arm, 32768, 10.0, temperature=1.0),
+                "record_type": "verdict", "turns_requested": 20, "correct": True,
+            })
 
         result = evaluate_speculative_decode(records)
 
         self.assertEqual(result["R"]["status"], "PASS")
         self.assertEqual(result["S"]["status"], "PASS")
         self.assertEqual(result["winner"]["arm"], "R")
+
+    def test_speculative_gate_requires_separate_greedy_and_official_evidence(self):
+        official_only = [
+            pair_record(
+                arm, context, 10.0, runtime="mlx-dspark", quant="8bit",
+                temperature=1.0, content_class=content_class, scenario=scenario,
+                prompt_identity=f"{content_class}-{context}-{scenario}-r{repeat}",
+                fixture_token_hash=f"fixture-{content_class}", repeat=repeat,
+                decode_tps=30.0, e2e_ms=80.0, greedy_tokens_hash="sampled",
+                drafter_id=(None if arm == "Q" else "draft"),
+                drafter_revision=(None if arm == "Q" else "revision"),
+                draft_cap_resolved=(None if arm == "Q" else 7),
+                accept_length=(None if arm == "Q" else 3.0),
+                verification_steps=(None if arm == "Q" else 128),
+            )
+            for arm in ("Q", "R", "S")
+            for context in (8192, 32768)
+            for content_class in ("code", "math", "chat", "tool_call_json")
+            for scenario in ("cold", "identical", "append", "middle_mutation", "tool_turn")
+            for repeat in (1, 2, 3)
+        ]
+        result = evaluate_speculative_decode(official_only)
+
+        self.assertEqual(result["R"]["status"], "INCONCLUSIVE")
+        self.assertIn("greedy_pairs", result["R"]["failures"])
 
     def test_speculative_gate_fails_closed_for_missing_telemetry_or_token_equivalence(self):
         record = pair_record("R", 8192, 10.0, runtime="mlx-dspark")

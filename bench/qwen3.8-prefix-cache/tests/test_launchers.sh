@@ -290,8 +290,13 @@ grep -q -- 'arm=U context=32768' <<<"$OQ8E_SMOKE"
   source "$ARM_METADATA_FUNCTION"
   OQ8E_MODEL_REVISION=c99e5aad8a478f71c10b9a3dde6709158b690da6
   OQ8E_FP16_MODEL_REVISION=4761782b9455f335292f4d6cb0c89570dff27a11
+  MLX_DSPARK_RUNTIME_REVISION=v0.15.0/69cd5c122d19ad3916eefccd43334ff59a92a914
+  MLX_DSPARK_MODEL_REVISION=815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9
+  MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-$MLX_DSPARK_MODEL_REVISION"
   OMLX_MODEL_ROOT="$MODEL_ROOT"
   arm_metadata J
+  [[ "${SAMPLING_ARGS[*]-}" == '--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh' ]] || exit 1
+  arm_metadata P
   [[ "${SAMPLING_ARGS[*]-}" == '--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh' ]] || exit 1
   arm_metadata T
   [[ "${SAMPLING_ARGS[*]-}" == '--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh' ]] || exit 1
@@ -313,8 +318,9 @@ grep -q -- 'arm=X context=32768 mode=cache' <<<"$OQ4E_DFLASH_32K"
 DSPARK_SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" dspark-smoke)"
 grep -q -- 'run-mlx-dspark.sh auto-smoke' <<<"$DSPARK_SMOKE"
 DSPARK_8K="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" dspark-decode-8k)"
-grep -q -- 'arm=R context=8192' <<<"$DSPARK_8K"
-grep -q -- 'arm=S context=8192' <<<"$DSPARK_8K"
+grep -q -- 'arm=R context=8192 mode=cache measurement=greedy repeats=1' <<<"$DSPARK_8K"
+grep -q -- 'arm=S context=8192 mode=cache measurement=performance repeats=3' <<<"$DSPARK_8K"
+! grep -q -- 'arm=P context=8192' <<<"$DSPARK_8K"
 DSPARK_S_ONLY="$(QWEN38_DRY_RUN=1 QWEN38_DSPARK_ARMS=S QWEN38_DSPARK_CONTENT_CLASSES=audit_retrieval bash "$SCRIPTS/run-campaign.sh" dspark-decode-8k)"
 grep -q -- 'arm=S context=8192' <<<"$DSPARK_S_ONLY"
 if grep -Eq -- 'arm=(P|Q|R) context=8192' <<<"$DSPARK_S_ONLY"; then
@@ -322,8 +328,12 @@ if grep -Eq -- 'arm=(P|Q|R) context=8192' <<<"$DSPARK_S_ONLY"; then
   exit 1
 fi
 DSPARK_CACHE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" dspark-cache-32k)"
+grep -q -- 'arm=P context=32768' <<<"$DSPARK_CACHE"
 grep -q -- 'arm=Q context=32768' <<<"$DSPARK_CACHE"
+! grep -Eq -- 'arm=(R|S) context=32768' <<<"$DSPARK_CACHE"
 DSPARK_32K="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" dspark-decode-32k)"
+grep -q -- 'arm=R context=32768 mode=cache measurement=greedy repeats=1' <<<"$DSPARK_32K"
+! grep -q -- 'arm=P context=32768' <<<"$DSPARK_32K"
 grep -q -- 'arm=S context=32768 mode=tool-loop' <<<"$DSPARK_32K"
 
 MTP_GATE_FIXTURE="$(mktemp /tmp/qwen38-mtp-gate.XXXXXX)"

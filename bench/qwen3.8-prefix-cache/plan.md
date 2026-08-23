@@ -726,6 +726,9 @@ Não combine ANE com SpecPrefill nesta campanha.
 
 - R e S devem produzir os mesmos tokens que Q em `temperature=0`, salvo empate
   numérico registrado com logits e resultado funcional idêntico.
+- Colete essa equivalência em um controle greedy separado, com uma repetição das
+  cinco situações na classe de código. Não agregue esse controle às métricas de
+  performance, que usam o sampling oficial e três repetições.
 - `drafter_id`, `drafter_revision`, `draft_cap_resolved`, `accept_length` e
   `verification_steps` devem estar presentes; ausência de telemetria invalida o braço.
 - Em 8K, a mediana agregada de `decode_tps` deve ser pelo menos 25% maior que Q.
