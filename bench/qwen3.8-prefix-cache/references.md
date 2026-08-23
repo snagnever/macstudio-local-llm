@@ -50,6 +50,8 @@ Relatos comunitários orientam hipóteses. Eles não substituem medições no ri
 | P39 | [MTPLX Qwen3.8 Optimized Speed](https://huggingface.co/Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed) | Checkpoint oficial, quantização, sampling, contexto e MTP depth 3 |
 | P40 | [Revisão fixada do MTPLX Optimized Speed](https://huggingface.co/Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed/commit/123db8bcc7101455b00d9aad36c0e760c6e7de02) | Revisão reproduzível do pacote oficial |
 | P41 | [MTPLX runtime contract](https://huggingface.co/Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed/blob/123db8bcc7101455b00d9aad36c0e760c6e7de02/mtplx_runtime.json) | Perfil Turbo, sampler do draft e evidência de profundidade |
+| P42 | [gcoli Qwen3.8-27B-oQ4e-mtp](https://huggingface.co/gcoli/Qwen3.8-27B-oQ4e-mtp) | Quantização, contexto, sampling e receita reproduzível do target oQ4e |
+| P43 | [Revisão fixada do oQ4e](https://huggingface.co/gcoli/Qwen3.8-27B-oQ4e-mtp/commit/c41ed507f1b16320942a1e9ce340e71d2692dee2) | Revisão reproduzível do checkpoint usado por W/X |
 
 ## Issues e discussões técnicas
 
@@ -82,6 +84,8 @@ Relatos comunitários orientam hipóteses. Eles não substituem medições no ri
 | C10 | [Qwen3.8 oQ8e performance setup](https://www.reddit.com/r/LocalLLaMA/comments/1vty1g4/been_tweaking_my_qwen_38_setup_up_to_45_steady/) | Aponta para a combinação oQ8e, MTP, SpecPrefill e ANE | Não identifica de forma inequívoca o namespace do checkpoint |
 | C11 | [Qwen3.8 em Apple Silicon: runtimes e velocidades](https://www.reddit.com/r/LocalLLM/comments/1vv2tw5/people_running_qwen_38_27b_on_apple_silicon_whats/) | Relatos recorrentes de MTPLX e oMLX motivam o braço MVP | Hardware, quant e protocolos misturados |
 | C12 | [oMLX versus MTPLX no M3 Max](https://github.com/jundot/omlx/issues/2795) | MTPLX aparece melhor até 8K e pior em contexto maior nesse relato | Comparação comunitária, versões e rig diferentes |
+| C13 | [oMLX oQ4e+DFlash em 32K](https://omlx.ai/benchmarks/performance/ri1twmtx) | 46,9 tok/s de geração motiva o pareamento W/X | M5 Pro; o leaderboard omite o namespace do checkpoint |
+| C14 | [Ranking Qwen3.8-27B no M5 Pro, TG ≥ 40](https://omlx.ai/benchmarks/performance?sort=context_length&order=desc&chip_full=M5%7CPro%7C&model=Qwen3.8-27B&tg_min=40) | Mostra oQ4e+DFlash como líder de decode em 32K no recorte | Hardware e versões diferentes; filtro não mede limite de contexto |
 
 ## Evidência local reutilizável
 
@@ -214,6 +218,19 @@ Os números do vendor foram medidos em M5 Max. O issue C12 sugere que a vantagem
 mudar após 8K, por isso o MVP mede 8K e 32K no M4 Max antes de promover o runtime.
 
 Fontes: P38, P39, P40, P41, C11 e C12.
+
+### oQ4e com DFlash no oMLX
+
+O target fixado usa oQe 4-bit com group size 64, preserva MTP e declara 4,70 bpw
+efetivos no language model. A campanha mantém o sampling do model card, mas desliga
+MTP porque DFlash é uma rota especulativa mutuamente exclusiva no oMLX.
+
+O resultado comunitário em M5 Pro mediu 32K com DFlash2, sem quantização do draft,
+sem cache DFlash em RAM/SSD e sem TurboQuant. Como a página publica somente o nome
+curto do modelo, W/X escolhem e fixam explicitamente o artefato `gcoli`; medem a
+configuração, não alegam reproduzir o checkpoint privado do leaderboard.
+
+Fontes: P2, P20, P32, P42, P43, C13 e C14.
 
 ### SpecPrefill
 

@@ -109,6 +109,12 @@ def validate_arm(profile: dict, model_paths: dict[str, Path]) -> None:
         if draft_path is None or not draft_path.is_dir():
             raise ValueError(f"{draft_key} local draft path is required")
 
+    dflash_draft_key = profile.get("dflash_draft_key")
+    if dflash_draft_key:
+        draft_path = model_paths.get(dflash_draft_key)
+        if draft_path is None or not draft_path.is_dir():
+            raise ValueError(f"{dflash_draft_key} local draft path is required")
+
     if profile.get("ane_profile_required"):
         profile_path = model_paths.get("ane_profile")
         if profile_path is None or not profile_path.is_file():
@@ -122,6 +128,9 @@ def _resolved_model_settings(profile: dict, model_paths: dict[str, Path]) -> dic
     draft_key = profile.get("draft_key")
     if draft_key:
         settings["specprefill_draft_model"] = str(model_paths[draft_key])
+    dflash_draft_key = profile.get("dflash_draft_key")
+    if dflash_draft_key:
+        settings["dflash_draft_model"] = str(model_paths[dflash_draft_key])
     if profile.get("ane_profile_required"):
         settings.update(_read_ane_profile(model_paths["ane_profile"]))
         settings["qwen35_ane_prefill_enabled"] = True
@@ -165,6 +174,7 @@ def main() -> None:
     parser.add_argument("--model-root", type=Path, required=True)
     parser.add_argument("--draft-2b-path", type=Path)
     parser.add_argument("--draft-08b-path", type=Path)
+    parser.add_argument("--dflash2-path", type=Path)
     parser.add_argument("--ane-profile", type=Path)
     parser.add_argument("--print-profile", action="store_true")
     args = parser.parse_args()
@@ -174,6 +184,7 @@ def main() -> None:
         "model_root": args.model_root,
         "draft-2b": args.draft_2b_path,
         "draft-08b": args.draft_08b_path,
+        "draft-dflash2": args.dflash2_path,
         "ane_profile": args.ane_profile,
     }
     model_paths = {key: value for key, value in model_paths.items() if value is not None}

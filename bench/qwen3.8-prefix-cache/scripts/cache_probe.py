@@ -250,6 +250,8 @@ def mtp_acceptance_from_snapshots(
 
 def _quant_label(model: str) -> str:
     upper = model.upper()
+    if "OQ4E" in upper:
+        return "oq4e"
     if "MTPLX-OPTIMIZED-SPEED" in upper:
         return "mtplx-speed"
     if "AWQ" in upper:

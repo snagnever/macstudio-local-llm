@@ -1,7 +1,7 @@
 # 2026-08-21 — Qwen3.8-27B: prefix cache, prefill especulativo e runtime no M4 Max
 
 > **Status:** infraestrutura e smoke canônico de 8K implementados; a fase de cache em
-> 32K está em execução. oMLX, mlx-dspark, oQ8e e MTPLX estão integrados ou enfileirados
+> 32K está em execução. oMLX, mlx-dspark, oQ8e, MTPLX e oQ4e+DFlash estão integrados ou enfileirados
 > para as fases posteriores, sempre com runtime, modelo e parâmetros fixados.
 
 ## Objetivo
@@ -22,6 +22,7 @@ O teste deve responder estas perguntas:
 8. Qual setup merece o Terminal-Bench completo?
 9. DSpark ou DFlash 2 aumenta o decode e o tempo total frente ao mesmo target 8-bit sem especulação?
 10. O pacote oficial MTPLX Optimized Speed supera os runtimes MLX já medidos no fluxo completo?
+11. O DFlash2 melhora o tempo total do target oQ4e no próprio oMLX em 32K?
 
 ## Hardware e topologia
 
@@ -51,6 +52,7 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 | H12 | DFlash 2 ou DSpark oferece o maior ganho de decode no target MLX 8-bit. | Baseline, DSpark e DFlash 2 explícitos no mesmo runtime e checkpoint |
 | H13 | O ganho especulativo permanece positivo em contexto longo e após cache hit. | Decode e tempo total em 8K, 32K e 65K, separados por tipo de conteúdo |
 | H14 | MTPLX mantém o ganho publicado sob cache e tool turns no M4 Max. | Smoke 8K e cache/decode/tool loop em 32K com o pacote oficial |
+| H15 | oQ4e+DFlash oferece um ponto de performance melhor que o mesmo oQ4e sem especulação. | Pareamento W/X em código 32K, três repeats e telemetria de draft |
 
 ## Escopo
 
@@ -65,6 +67,7 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 - `oMLX` com cache, MTP, SpecPrefill e prefill pela Apple Neural Engine (ANE).
 - `mlx-dspark` com baseline, DSpark e DFlash 2 explícitos sobre o mesmo target 8-bit.
 - MTPLX com o pacote oficial Optimized Speed e o perfil recomendado pelo vendor.
+- oQ4e com baseline e DFlash2 no próprio `oMLX`, somente como MVP pareado em 32K.
 - `True2456/Qwen3.8-27B-AWQ-5.0bpw` somente no `oMLX`.
 - Drafters `RadixArk/Qwen3.8-27B-DSpark` e `incoai/Qwen3.8-27B-DFlash2`.
 - Drafts Qwen3.5-2B BF16 e Qwen3.5-0.8B BF16 para SpecPrefill.
@@ -102,6 +105,7 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 | `oq8e` | `Jundot/Qwen3.8-27B-oQ8e-mtp` | MLX oQ8e | 8,6 bpw efetivos, BF16 preservado | Candidato principal no M4; smoke pareado em 32K |
 | `oq8e-fp16` | `Jundot/Qwen3.8-27B-oQ8e-fp16-mtp` | MLX oQ8e | 8,6 bpw efetivos, pesos auxiliares fp16 | Controle curto do artefato usado no benchmark público |
 | `mtplx-speed` | `Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed` | MLX dinâmico + MTP nativo | Corpo 4-bit misto, componentes sensíveis 8/16-bit | MVP em 8K e 32K |
+| `oq4e` | `gcoli/Qwen3.8-27B-oQ4e-mtp` | MLX oQe | 4-bit base, 4,70 bpw efetivos no LM | Baseline/DFlash pareado em 32K |
 
 Fixe a revisão do Hugging Face antes de baixar cada modelo. Registre também o SHA-256 do artefato local.
 
@@ -117,6 +121,7 @@ Fixe a revisão do Hugging Face antes de baixar cada modelo. Registre também o 
 | `Jundot/Qwen3.8-27B-oQ8e-mtp` | `c99e5aad8a478f71c10b9a3dde6709158b690da6` |
 | `Jundot/Qwen3.8-27B-oQ8e-fp16-mtp` | `4761782b9455f335292f4d6cb0c89570dff27a11` |
 | `Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed` | `123db8bcc7101455b00d9aad36c0e760c6e7de02` |
+| `gcoli/Qwen3.8-27B-oQ4e-mtp` | `c41ed507f1b16320942a1e9ce340e71d2692dee2` |
 
 O commit fixado do AWQ inclui a correção do MTP publicada em `c5839cc642e479b7bbcd28311a4b8b9fb52fbd02`.
 Não use uma revisão anterior.
@@ -130,7 +135,7 @@ Confirme que cada draft usa a mesma família de tokenizer do target.
 |---|---|---:|
 | `mlx-serve` | Runtime MLX principal | 11234 |
 | `llama-server` | Runtime GGUF principal | 8080 |
-| `oMLX` | Runtime MLX para AWQ, SpecPrefill e ANE | 8000 |
+| `oMLX` | Runtime MLX para AWQ, oQe, SpecPrefill, DFlash e ANE | 8000 |
 | `mlx-dspark` | Runtime MLX para DSpark e DFlash 2 | 8484 |
 | `MTPLX` | Runtime MLX/MTP do pacote oficial Optimized Speed | 8000 |
 
@@ -360,6 +365,31 @@ O cache SSD, ligado por default no runtime, fica desligado durante a matriz para
 misturar restauração em disco com prefix cache em RAM. O flight recorder permanece
 ligado sob `logs/mtplx/`; ele fornece cache, aceitação MTP e timings por request.
 
+## Configuração MVP do oQ4e com DFlash
+
+Fixe `gcoli/Qwen3.8-27B-oQ4e-mtp` na revisão declarada. O model card registra
+quantização oQe 4-bit, group size 64, 4,70 bpw efetivos no language model e sampling
+thinking `temperature=1.0`, `top_p=0.95`, `top_k=20`. O leaderboard público omite o
+namespace do checkpoint; portanto seus números em M5 Pro são somente uma hipótese
+externa, não uma reprodução bit a bit.
+
+Execute somente código em 32K, três repeats, com cache global, SpecPrefill, MTP,
+TurboQuant KV e ANE desligados nos dois braços. W é o baseline. X altera somente:
+
+```text
+dflash_enabled=true
+dflash_draft_model=/caminho/fixado/para/incoai-Qwen3.8-27B-DFlash2
+dflash_draft_quant_enabled=false
+dflash_in_memory_cache=false
+dflash_in_memory_cache_max_entries=2
+dflash_ssd_cache=false
+dflash_draft_sink_size=0
+dflash_verify_mode=dflash
+```
+
+Não acrescente 8K, 16K, tool loop ou promoção automática antes de o pareamento 32K
+mostrar ganho correto e repetível. Registre o drafter e sua revisão em cada resultado.
+
 ## Configuração do AWQ misto
 
 Use o AWQ somente no `oMLX`.
@@ -447,6 +477,8 @@ Use `temperature=0` somente nos testes de equivalência e diagnóstico.
 | T | `oMLX` | `oq8e` | ligado | MTP ligado | desligado | desligada |
 | U | `oMLX` | `oq8e-fp16` | ligado | MTP ligado | desligado | desligada |
 | V | `MTPLX` | `mtplx-speed` | ligado | MTP depth 3, Turbo | desligado | desligada |
+| W | `oMLX` | `oq4e` | desligado | desligado | desligado | desligada |
+| X | `oMLX` | `oq4e` + `draft-dflash2` | desligado | DFlash 2 | desligado | desligada |
 
 Execute primeiro os braços A, B, D e E em 8K. Execute C e F após validar o cache sem MTP. Execute G e H após o Q4 passar os gates funcionais.
 
@@ -463,6 +495,9 @@ Execute somente os vencedores do oMLX em 65K.
 Os braços M e N combinam MTP com SpecPrefill somente depois do gate isolado de MTP.
 Use L como baseline direto de M e N.
 Use J como baseline direto de O.
+
+Execute W e X somente em código 32K. Use W como baseline causal de X e não promova
+automaticamente nenhum dos dois para 65K ou para o tool loop.
 
 Execute P, Q, R e S em 8K após o smoke do launcher.
 Use P contra Q para isolar prefix cache. Use Q contra R e S para comparar decode
@@ -721,6 +756,14 @@ como desempate. Se nenhum passar, mantenha Q como representante do runtime.
 - O smoke 8K e os três repeats em 32K devem terminar sem erro, swap material ou perda funcional.
 - `/metrics` ou o flight recorder deve confirmar cache reutilizado, MTP ativo e aceitação não nula.
 
+### Gate 11 — oQ4e + DFlash MVP
+
+- W e X devem usar o mesmo checkpoint, sampling oficial, contexto e cache desligado.
+- X deve registrar o DFlash2 e sua revisão fixada; o log deve confirmar ativação do drafter.
+- Os três repeats de X devem terminar corretos, sem crash ou swap material.
+- X só permanece na fila longa quando reduzir o tempo total mediano em pelo menos 10%
+  contra W; decode isolado não basta para promoção.
+
 ## Qualidade barata
 
 Execute esta sequência em todos os candidatos funcionalmente aprovados, antes da seleção final:
@@ -763,6 +806,7 @@ preflight e pinning
 → cache e MTP do oMLX em 32K
 → smoke pareado oQ8e BF16/fp16 em 32K
 → MTPLX oficial em 8K e 32K
+→ oQ4e baseline contra DFlash no oMLX em 32K
 → SpecPrefill em 16K e 32K
 → prefill ANE em 16K e 32K
 → smoke do mlx-dspark e resolução do modo auto

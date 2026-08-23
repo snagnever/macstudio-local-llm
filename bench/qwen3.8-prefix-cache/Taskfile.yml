@@ -84,6 +84,14 @@ tasks:
     cmds:
       - bash bench/qwen3.8-prefix-cache/scripts/download-models.sh mtplx
 
+  models:oq4e-dflash:
+    desc: Download the pinned oQ4e target and DFlash2 drafter
+    deps: [deps:common]
+    preconditions:
+      - {sh: "command -v uvx", msg: "Install uv with: brew install uv"}
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/download-models.sh oq4e-dflash
+
   cache:32k:
     desc: Run 32K cache-only arms on the rig
     deps: [deps:rig, unit]
@@ -119,6 +127,12 @@ tasks:
     deps: [deps:rig, unit]
     cmds:
       - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-oq8e-smoke
+
+  omlx:oq4e:dflash:32k:
+    desc: Compare pinned oQ4e baseline and DFlash2 at 32K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-oq4e-dflash-32k
 
   mtplx:smoke:
     desc: Run the official MTPLX Optimized Speed smoke at 8K

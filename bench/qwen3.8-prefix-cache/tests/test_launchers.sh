@@ -18,6 +18,8 @@ mkdir -p \
   "$MODEL_ROOT/True2456-Qwen3.8-27B-AWQ-5.0bpw-dc699a76ddcbef44c188a8aee2ccc79ccc339a04" \
   "$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6" \
   "$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-fp16-mtp-4761782b9455f335292f4d6cb0c89570dff27a11" \
+  "$MODEL_ROOT/gcoli-Qwen3.8-27B-oQ4e-mtp-c41ed507f1b16320942a1e9ce340e71d2692dee2" \
+  "$MODEL_ROOT/incoai-Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4" \
   "$MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-123db8bcc7101455b00d9aad36c0e760c6e7de02" \
   "$MODEL_ROOT/draft-2b" \
   "$MODEL_ROOT/draft-08b"
@@ -90,6 +92,8 @@ OMLX_N="$(OMLX_MODEL_ROOT="$MODEL_ROOT" OMLX_DRAFT_08B_PATH="$MODEL_ROOT/draft-0
 OMLX_O="$(OMLX_MODEL_ROOT="$MODEL_ROOT" OMLX_ANE_PROFILE="$ANE_PROFILE" bash "$SCRIPTS/run-omlx.sh" O --print)"
 OMLX_T="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" T --print)"
 OMLX_U="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" U --print)"
+OMLX_W="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" W --print)"
+OMLX_X="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" X --print)"
 MTPLX_V="$(QWEN38_MTPLX_BIN="$FAKE_MTPLX_OK" QWEN38_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE=32768 bash "$SCRIPTS/run-mtplx.sh" V --print)"
 mkdir -p "$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" "$MODEL_ROOT/RadixArk--Qwen3.8-27B-DSpark-85ef153be924f17ce4bf62726954eeaa4a73e854" "$MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4"
 DSPARK_Q="$(MLX_DSPARK_BIN="$FAKE_DSPARK_OK" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" bash "$SCRIPTS/run-mlx-dspark.sh" Q --print)"
@@ -188,6 +192,13 @@ grep -q -- '"mtp_enabled": true' <<<"$OMLX_T"
 grep -q -- 'Jundot/Qwen3.8-27B-oQ8e-fp16-mtp' <<<"$OMLX_U"
 grep -q -- '4761782b9455f335292f4d6cb0c89570dff27a11' <<<"$OMLX_U"
 grep -q -- '"mtp_enabled": true' <<<"$OMLX_U"
+grep -q -- 'gcoli/Qwen3.8-27B-oQ4e-mtp' <<<"$OMLX_W"
+grep -q -- 'c41ed507f1b16320942a1e9ce340e71d2692dee2' <<<"$OMLX_W"
+grep -q -- '"dflash_enabled": false' <<<"$OMLX_W"
+grep -q -- '"dflash_enabled": true' <<<"$OMLX_X"
+grep -q -- '"dflash_draft_model": ".*/incoai-Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4"' <<<"$OMLX_X"
+grep -q -- '"dflash_in_memory_cache": false' <<<"$OMLX_X"
+grep -q -- '"dflash_ssd_cache": false' <<<"$OMLX_X"
 
 grep -q -- "--model $MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-123db8bcc7101455b00d9aad36c0e760c6e7de02" <<<"$MTPLX_V"
 grep -q -- '--profile turbo' <<<"$MTPLX_V"
@@ -271,6 +282,11 @@ grep -q -- 'arm=V context=8192' <<<"$MTPLX_SMOKE"
 MTPLX_32K="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" mtplx-32k)"
 grep -q -- 'arm=V context=32768 mode=cache' <<<"$MTPLX_32K"
 grep -q -- 'arm=V context=32768 mode=tool-loop' <<<"$MTPLX_32K"
+
+OQ4E_DFLASH_32K="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" omlx-oq4e-dflash-32k)"
+grep -q -- 'arm=W context=32768 mode=cache' <<<"$OQ4E_DFLASH_32K"
+grep -q -- 'arm=X context=32768 mode=cache' <<<"$OQ4E_DFLASH_32K"
+! grep -q -- 'mode=tool-loop' <<<"$OQ4E_DFLASH_32K"
 
 DSPARK_SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" dspark-smoke)"
 grep -q -- 'run-mlx-dspark.sh auto-smoke' <<<"$DSPARK_SMOKE"
@@ -382,3 +398,8 @@ grep -q -- 'Jundot/Qwen3.8-27B-oQ8e-fp16-mtp.*--revision 4761782b9455f335292f4d6
 DOWNLOAD_MTPLX="$(QWEN38_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/download-models.sh" mtplx --print)"
 grep -q -- 'Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed.*--revision 123db8bcc7101455b00d9aad36c0e760c6e7de02' <<<"$DOWNLOAD_MTPLX"
 ! grep -q -- 'Jundot/Qwen3.8-27B-oQ8e' <<<"$DOWNLOAD_MTPLX"
+
+DOWNLOAD_OQ4E_DFLASH="$(QWEN38_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/download-models.sh" oq4e-dflash --print)"
+grep -q -- 'gcoli/Qwen3.8-27B-oQ4e-mtp.*--revision c41ed507f1b16320942a1e9ce340e71d2692dee2' <<<"$DOWNLOAD_OQ4E_DFLASH"
+grep -q -- 'incoai/Qwen3.8-27B-DFlash2.*--revision dedf8df68adfb1afeaf7b7480c0a0243108177b4' <<<"$DOWNLOAD_OQ4E_DFLASH"
+! grep -q -- 'Jundot/Qwen3.8-27B-oQ8e' <<<"$DOWNLOAD_OQ4E_DFLASH"

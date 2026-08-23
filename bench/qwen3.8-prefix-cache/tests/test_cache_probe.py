@@ -37,6 +37,13 @@ from sse_client import StreamResult
 
 
 class CacheProbeTests(unittest.TestCase):
+    def test_oq4e_model_has_a_stable_quant_label(self):
+        """Grouping the new target as unknown would corrupt paired summaries."""
+        self.assertEqual(
+            _quant_label("gcoli/Qwen3.8-27B-oQ4e-mtp"),
+            "oq4e",
+        )
+
     def test_mtplx_official_model_has_a_stable_quant_label(self):
         """Reporting the MTPLX artifact as unknown would break result grouping."""
         self.assertEqual(

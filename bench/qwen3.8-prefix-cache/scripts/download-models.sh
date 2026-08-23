@@ -12,17 +12,21 @@ GGUF_REVISION="4ca720788d1e01f1bff70c033e0d0028fd02e502"
 OQ8E_REVISION="c99e5aad8a478f71c10b9a3dde6709158b690da6"
 OQ8E_FP16_REVISION="4761782b9455f335292f4d6cb0c89570dff27a11"
 MTPLX_REVISION="123db8bcc7101455b00d9aad36c0e760c6e7de02"
+OQ4E_REVISION="c41ed507f1b16320942a1e9ce340e71d2692dee2"
+DFLASH2_REVISION="dedf8df68adfb1afeaf7b7480c0a0243108177b4"
 MLX_DIR="$MODEL_ROOT/ddalcu-Qwen3.8-27B-MLX-Serve-8bit-$MLX_REVISION"
 GGUF_DIR="$MODEL_ROOT/unsloth-Qwen3.8-27B-GGUF-$GGUF_REVISION"
 OQ8E_DIR="$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-mtp-$OQ8E_REVISION"
 OQ8E_FP16_DIR="$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-fp16-mtp-$OQ8E_FP16_REVISION"
 MTPLX_DIR="$MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-$MTPLX_REVISION"
+OQ4E_DIR="$MODEL_ROOT/gcoli-Qwen3.8-27B-oQ4e-mtp-$OQ4E_REVISION"
+DFLASH2_DIR="$MODEL_ROOT/incoai-Qwen3.8-27B-DFlash2-$DFLASH2_REVISION"
 MANIFEST="$ROOT/bench/qwen3.8-prefix-cache/results/artifacts.json"
 
 case "$MODE" in
-  smoke|all|oq8e|mtplx) ;;
+  smoke|all|oq8e|mtplx|oq4e-dflash) ;;
   *)
-    echo "usage: $0 {smoke|all|oq8e|mtplx} [--print]" >&2
+    echo "usage: $0 {smoke|all|oq8e|mtplx|oq4e-dflash} [--print]" >&2
     exit 64
     ;;
 esac
@@ -57,6 +61,18 @@ if [[ "$MODE" == "mtplx" ]]; then
     Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed \
     --revision "$MTPLX_REVISION" \
     --local-dir "$MTPLX_DIR"
+  exit 0
+fi
+
+if [[ "$MODE" == "oq4e-dflash" ]]; then
+  run_command "$UVX_BIN" --from huggingface_hub hf download \
+    gcoli/Qwen3.8-27B-oQ4e-mtp \
+    --revision "$OQ4E_REVISION" \
+    --local-dir "$OQ4E_DIR"
+  run_command "$UVX_BIN" --from huggingface_hub hf download \
+    incoai/Qwen3.8-27B-DFlash2 \
+    --revision "$DFLASH2_REVISION" \
+    --local-dir "$DFLASH2_DIR"
   exit 0
 fi
 

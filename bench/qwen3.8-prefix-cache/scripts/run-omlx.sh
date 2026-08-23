@@ -10,9 +10,9 @@ OMLX_BIN="${QWEN38_OMLX_BIN:-omlx}"
 EXPECTED_OMLX_VERSION="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["omlx_version"])' "$CONFIG")"
 
 case "$ARM" in
-  I|J|K|L|M|N|O|T|U) ;;
+  I|J|K|L|M|N|O|T|U|W|X) ;;
   *)
-    echo "usage: $0 {I|J|K|L|M|N|O|T|U} [--print]" >&2
+    echo "usage: $0 {I|J|K|L|M|N|O|T|U|W|X} [--print]" >&2
     exit 64
     ;;
 esac
@@ -56,6 +56,8 @@ fi
 OMLX_BASE_PATH="$ROOT/bench/qwen3.8-prefix-cache/logs/omlx/$RUN_ID"
 OMLX_MODEL_DIR="$OMLX_MODEL_ROOT"
 OMLX_PORT=8000
+DFLASH2_REVISION="dedf8df68adfb1afeaf7b7480c0a0243108177b4"
+DFLASH2_PATH="${OMLX_DFLASH2_PATH:-$OMLX_MODEL_ROOT/incoai-Qwen3.8-27B-DFlash2-$DFLASH2_REVISION}"
 
 CONFIG_COMMAND=(
   python3 "$SCRIPTS/omlx_config.py"
@@ -68,6 +70,7 @@ case "$ARM" in
   M) CONFIG_COMMAND+=(--draft-2b-path "$OMLX_DRAFT_2B_PATH") ;;
   N) CONFIG_COMMAND+=(--draft-08b-path "$OMLX_DRAFT_08B_PATH") ;;
   O) CONFIG_COMMAND+=(--ane-profile "$OMLX_ANE_PROFILE") ;;
+  X) CONFIG_COMMAND+=(--dflash2-path "$DFLASH2_PATH") ;;
 esac
 
 PROFILE="$("${CONFIG_COMMAND[@]}" --print-profile)"

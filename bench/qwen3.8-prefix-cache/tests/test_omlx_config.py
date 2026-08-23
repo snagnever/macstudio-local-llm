@@ -27,13 +27,22 @@ class OmlxConfigTests(unittest.TestCase):
             / "Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6",
             "U": self.model_root
             / "Jundot-Qwen3.8-27B-oQ8e-fp16-mtp-4761782b9455f335292f4d6cb0c89570dff27a11",
+            "W": self.model_root
+            / "gcoli-Qwen3.8-27B-oQ4e-mtp-c41ed507f1b16320942a1e9ce340e71d2692dee2",
+            "X": self.model_root
+            / "gcoli-Qwen3.8-27B-oQ4e-mtp-c41ed507f1b16320942a1e9ce340e71d2692dee2",
         }
         for target_dir in self.target_dirs.values():
-            target_dir.mkdir()
+            target_dir.mkdir(exist_ok=True)
         self.draft_2b = self.root / "draft-2b"
         self.draft_08b = self.root / "draft-08b"
         self.draft_2b.mkdir()
         self.draft_08b.mkdir()
+        self.dflash2 = (
+            self.model_root
+            / "incoai-Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4"
+        )
+        self.dflash2.mkdir()
         self.ane_profile = self.root / "ane-profile.json"
         self.ane_profile.write_text(
             json.dumps({"qwen35_ane_prefill_sequence_length": 8192}) + "\n",
@@ -43,6 +52,7 @@ class OmlxConfigTests(unittest.TestCase):
             "model_root": self.model_root,
             "draft-2b": self.draft_2b,
             "draft-08b": self.draft_08b,
+            "draft-dflash2": self.dflash2,
             "ane_profile": self.ane_profile,
         }
 
@@ -60,6 +70,8 @@ class OmlxConfigTests(unittest.TestCase):
             "O": ("awq5", False, False, False, True, None, None),
             "T": ("oq8e", True, True, False, False, None, None),
             "U": ("oq8e-fp16", True, True, False, False, None, None),
+            "W": ("oq4e", False, False, False, False, None, None),
+            "X": ("oq4e", False, False, False, False, "draft-dflash2", None),
         }
         for arm, wanted in expected.items():
             with self.subTest(arm=arm):
@@ -70,13 +82,16 @@ class OmlxConfigTests(unittest.TestCase):
                 self.assertEqual(settings["mtp_enabled"], wanted[2])
                 self.assertEqual(settings["specprefill_enabled"], wanted[3])
                 self.assertEqual(settings["qwen35_ane_prefill_enabled"], wanted[4])
-                self.assertEqual(profile.get("draft_key"), wanted[5])
+                resolved_draft_key = profile.get(
+                    "dflash_draft_key", profile.get("draft_key")
+                )
+                self.assertEqual(resolved_draft_key, wanted[5])
                 self.assertEqual(settings.get("specprefill_keep_pct"), wanted[6])
                 if arm in {"M", "N"}:
                     self.assertEqual(settings["specprefill_threshold"], 8192)
 
     def test_write_state_uses_versioned_envelopes_and_one_model_entry(self):
-        for arm in (*"IJKLMNO", "T", "U"):
+        for arm in (*"IJKLMNO", "T", "U", "W", "X"):
             with self.subTest(arm=arm):
                 profile = load_arm(CONFIG, arm)
                 base_path = self.root / arm
@@ -98,6 +113,37 @@ class OmlxConfigTests(unittest.TestCase):
                 self.assertEqual(len(model_state["models"]), 1)
                 expected_dir = self.target_dirs.get(arm, self.target_dirs["J"])
                 self.assertEqual(set(model_state["models"]), {expected_dir.name})
+
+    def test_dflash_pair_resolves_local_drafter_and_changes_only_dflash(self):
+        baseline = load_arm(CONFIG, "W")
+        accelerated = load_arm(CONFIG, "X")
+        baseline_settings = baseline["model_settings"]
+        accelerated_settings = accelerated["model_settings"]
+
+        self.assertFalse(baseline["cache_enabled"])
+        self.assertFalse(accelerated["cache_enabled"])
+        self.assertFalse(baseline_settings["dflash_enabled"])
+        self.assertTrue(accelerated_settings["dflash_enabled"])
+        self.assertFalse(accelerated_settings["mtp_enabled"])
+        self.assertFalse(accelerated_settings["specprefill_enabled"])
+        self.assertFalse(accelerated_settings["turboquant_kv_enabled"])
+        self.assertFalse(accelerated_settings["dflash_draft_quant_enabled"])
+        self.assertFalse(accelerated_settings["dflash_in_memory_cache"])
+        self.assertFalse(accelerated_settings["dflash_ssd_cache"])
+        self.assertEqual(accelerated_settings["dflash_draft_sink_size"], 0)
+        self.assertEqual(accelerated_settings["dflash_verify_mode"], "dflash")
+
+        base_path = self.root / "dflash"
+        write_omlx_state(base_path, accelerated, self.model_paths)
+        model_state = json.loads((base_path / "model_settings.json").read_text())
+        persisted = next(iter(model_state["models"].values()))
+        self.assertEqual(persisted["dflash_draft_model"], str(self.dflash2))
+
+    def test_dflash_arm_requires_its_pinned_local_drafter(self):
+        paths = dict(self.model_paths)
+        paths.pop("draft-dflash2")
+        with self.assertRaisesRegex(ValueError, "draft-dflash2"):
+            validate_arm(load_arm(CONFIG, "X"), paths)
 
     def test_unknown_arm_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "unknown arm"):
