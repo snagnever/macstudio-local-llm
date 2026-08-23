@@ -43,15 +43,18 @@ SAMPLING_CONTROLS = {
     "repetition_penalty": 1.0,
     "reasoning_effort": "xhigh",
 }
-WARMUP_ID = "cache-probe-warmup-v1"
+WARMUP_ID = "cache-probe-independent-v2"
 MAX_TOKENS = 2048
+REQUEST_RESERVE_TOKENS = MAX_TOKENS + 1024 + 512
 
 
 def fixture_token_target(context_size: int) -> int:
     """Reserve room for the chat template and the bounded diagnostic output."""
-    if context_size <= 2560:
-        raise ValueError("context size must exceed the 2560-token request reserve")
-    return context_size - 2560
+    if context_size <= REQUEST_RESERVE_TOKENS:
+        raise ValueError(
+            f"context size must exceed the {REQUEST_RESERVE_TOKENS}-token request reserve"
+        )
+    return context_size - REQUEST_RESERVE_TOKENS
 
 
 def cache_hit_ratio(cached_tokens: int, prompt_tokens: int) -> float:
@@ -225,15 +228,24 @@ def _quant_label(model: str) -> str:
 
 
 def _base_messages(
-    text: str, question: str = NEEDLE_QUESTION
+    text: str, question: str = NEEDLE_QUESTION, repeat: Optional[int] = None
 ) -> list[dict[str, Any]]:
+    trial = f" Cache probe trial {repeat:03d}." if repeat is not None else ""
     return [
         {
             "role": "system",
-            "content": "You are a deterministic audit retrieval assistant.",
+            "content": f"You are a deterministic audit retrieval assistant.{trial}",
         },
         {"role": "user", "content": f"{text}\n\n{question}"},
     ]
+
+
+def _priming_messages(
+    fixture_text: str,
+    repeat: int,
+    question: str = NEEDLE_QUESTION,
+) -> list[dict[str, Any]]:
+    return _base_messages(fixture_text, question, repeat)
 
 
 def _messages_for_scenario(
@@ -245,13 +257,10 @@ def _messages_for_scenario(
     question: str = NEEDLE_QUESTION,
 ) -> list[dict[str, Any]]:
     if name == "middle_mutation":
-        return _base_messages(mutated_text, question)
-    messages = scenario_messages(name, _base_messages(fixture_text, question), suffix)
-    if name == "cold":
-        messages[0]["content"] = (
-            f"Cold cache-buster {repeat:03d}. " + messages[0]["content"]
-        )
-    return messages
+        return _base_messages(mutated_text, question, repeat)
+    return scenario_messages(
+        name, _base_messages(fixture_text, question, repeat), suffix
+    )
 
 
 def _payload(
@@ -274,6 +283,25 @@ def _payload(
         payload["specprefill_keep_pct"] = specprefill_keep_pct
     if specprefill_threshold is not None:
         payload["specprefill_threshold"] = specprefill_threshold
+    return payload
+
+
+def _prime_payload(
+    model: str,
+    messages: list[dict[str, Any]],
+    *,
+    specprefill: Optional[bool] = None,
+    specprefill_keep_pct: Optional[float] = None,
+    specprefill_threshold: Optional[int] = None,
+) -> dict[str, Any]:
+    payload = _payload(
+        model,
+        messages,
+        specprefill=specprefill,
+        specprefill_keep_pct=specprefill_keep_pct,
+        specprefill_threshold=specprefill_threshold,
+    )
+    payload["max_tokens"] = 1
     return payload
 
 
@@ -562,11 +590,25 @@ def main() -> int:
     warmup_text, _ = build_suffix(512, tokenizer, "Warmup complete.")
     stream_chat(args.base_url, _warmup_payload(api_model, warmup_text))
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    static_prefixes: dict[str, str] = {}
-
     with args.output.open("a", encoding="utf-8") as output:
         for scenario in SCENARIOS:
             for repeat in range(1, args.repeat + 1):
+                prime_messages = (
+                    None
+                    if scenario == "cold"
+                    else _priming_messages(fixture.text, repeat, fixture.question)
+                )
+                if prime_messages is not None:
+                    stream_chat(
+                        args.base_url,
+                        _prime_payload(
+                            api_model,
+                            prime_messages,
+                            specprefill=args.specprefill,
+                            specprefill_keep_pct=args.specprefill_keep_pct,
+                            specprefill_threshold=args.specprefill_threshold,
+                        ),
+                    )
                 messages = _messages_for_scenario(
                     scenario,
                     fixture.text,
@@ -576,11 +618,11 @@ def main() -> int:
                     fixture.question,
                 )
                 args.messages = messages
-                args.static_prefix_hash = _static_prefix_hash(messages)
-                previous_hash = static_prefixes.get(scenario)
-                args.static_prefix_prior_match = previous_hash is not None
-                args.static_prefix_matches = previous_hash == args.static_prefix_hash
-                static_prefixes[scenario] = args.static_prefix_hash
+                args.static_prefix_hash = _static_prefix_hash(
+                    prime_messages if prime_messages is not None else messages
+                )
+                args.static_prefix_prior_match = prime_messages is not None
+                args.static_prefix_matches = prime_messages is not None
                 metrics_before = _metrics_snapshot(args.metrics_url)
                 result = stream_chat(
                     args.base_url,

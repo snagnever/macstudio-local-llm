@@ -20,6 +20,8 @@ from cache_probe import (
     cached_tokens_from_usage,
     fixture_token_target,
     _payload,
+    _prime_payload,
+    _priming_messages,
     _warmup_payload,
     _messages_for_scenario,
     _base_messages,
@@ -79,7 +81,7 @@ class CacheProbeTests(unittest.TestCase):
         self.assertEqual(record["runtime_revision"], "v0.6.3rc2")
         self.assertEqual(record["max_tokens"], 2048)
         self.assertEqual(record["concurrency"], 1)
-        self.assertEqual(record["warmup_id"], "cache-probe-warmup-v1")
+        self.assertEqual(record["warmup_id"], "cache-probe-independent-v2")
         self.assertTrue(record["prompt_identity"])
         self.assertIn("10", record["needle_verdicts"])
 
@@ -108,9 +110,30 @@ class CacheProbeTests(unittest.TestCase):
         self.assertNotEqual(first[0]["content"], second[0]["content"])
         self.assertEqual(first[1:], second[1:])
 
+    def test_hot_repeats_are_independent_but_share_their_primed_prefix(self):
+        first_prime = _priming_messages("fixture", 1)
+        second_prime = _priming_messages("fixture", 2)
+        first_append = _messages_for_scenario(
+            "append", "fixture", "mutated", "suffix", 1
+        )
+        second_append = _messages_for_scenario(
+            "append", "fixture", "mutated", "suffix", 2
+        )
+
+        self.assertNotEqual(first_prime[0]["content"], second_prime[0]["content"])
+        self.assertEqual(first_append[: len(first_prime)], first_prime)
+        self.assertEqual(second_append[: len(second_prime)], second_prime)
+
+    def test_prime_is_bounded_to_one_token_and_keeps_vendor_controls(self):
+        payload = _prime_payload("model", _priming_messages("fixture", 1))
+
+        self.assertEqual(payload["max_tokens"], 1)
+        self.assertEqual(payload["reasoning_effort"], "xhigh")
+        self.assertEqual(payload["temperature"], 0)
+
     def test_fixture_target_reserves_template_and_generation_headroom(self):
-        self.assertEqual(fixture_token_target(8192), 5632)
-        self.assertEqual(fixture_token_target(32768), 30208)
+        self.assertEqual(fixture_token_target(8192), 4608)
+        self.assertEqual(fixture_token_target(32768), 29184)
 
     def test_diagnostic_payload_keeps_vendor_reasoning_effort(self):
         payload = _payload("model", [{"role": "user", "content": "probe"}])
@@ -237,7 +260,7 @@ class CacheProbeTests(unittest.TestCase):
                 "cache_probe.py", "--base-url", "http://example.test/v1",
                 "--model", "awq5", "--runtime", "oMLX",
                 "--runtime-revision", "v0.6.3rc2", "--model-revision", "target",
-                "--arm", "L", "--session-id", "code-session", "--context", "2561",
+                "--arm", "L", "--session-id", "code-session", "--context", "4096",
                 "--content-class", "code", "--repeat", "1", "--output", str(output),
                 "--tokenizer-path", "/models/awq5",
                 "--api-model", "local-awq5-revision",
@@ -249,6 +272,7 @@ class CacheProbeTests(unittest.TestCase):
                 self.assertEqual(cache_probe.main(), 0)
                 local_tokenizer.assert_called_once_with(Path("/models/awq5"))
                 self.assertTrue(all(call.args[1]["model"] == "local-awq5-revision" for call in chat.call_args_list))
+                self.assertEqual(chat.call_count, 10)
 
             records = [json.loads(line) for line in output.read_text().splitlines()]
         self.assertEqual(len(records), 5)
