@@ -1,6 +1,10 @@
-# Qwen3.8 prefix-cache campaign summary
+# Qwen3.8 prefix-cache greedy diagnostic summary
 
 > Generated: 2026-08-23T20:11:01.363829+00:00
+>
+> Diagnostic evidence only: every cache-probe record in this snapshot used
+> `temperature=0`. Canonical performance measurements are rerun with the
+> vendor thinking profile (`temperature=1.0`, `top_p=0.95`, `top_k=20`).
 
 ## Runtime gates
 
