@@ -67,6 +67,14 @@ tasks:
     cmds:
       - bash bench/qwen3.8-prefix-cache/scripts/download-models.sh all
 
+  models:oq8e:
+    desc: Download the two pinned oQ8e smoke candidates
+    deps: [deps:common]
+    preconditions:
+      - {sh: "command -v uvx", msg: "Install uv with: brew install uv"}
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/download-models.sh oq8e
+
   cache:32k:
     desc: Run 32K cache-only arms on the rig
     deps: [deps:rig, unit]
@@ -96,6 +104,12 @@ tasks:
     deps: [deps:rig, unit]
     cmds:
       - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-mtp-32k
+
+  omlx:oq8e:smoke:
+    desc: Run the paired 32K oQ8e BF16/fp16 smoke stage
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-oq8e-smoke
 
   specprefill:16k:
     desc: Compare oMLX SpecPrefill profiles at 16K

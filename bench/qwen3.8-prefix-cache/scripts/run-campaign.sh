@@ -21,6 +21,8 @@ MLX_MODEL_REVISION="${QWEN38_MLX_MODEL_REVISION:-011e38296b3d2aa99245ed49a700459
 UNSLOTH_MODEL_REVISION="${QWEN38_UNSLOTH_MODEL_REVISION:-4ca720788d1e01f1bff70c033e0d0028fd02e502}"
 MLX_DSPARK_RUNTIME_REVISION="v0.15.0/69cd5c122d19ad3916eefccd43334ff59a92a914"
 MLX_DSPARK_MODEL_REVISION="815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9"
+OQ8E_MODEL_REVISION="c99e5aad8a478f71c10b9a3dde6709158b690da6"
+OQ8E_FP16_MODEL_REVISION="4761782b9455f335292f4d6cb0c89570dff27a11"
 
 ACTIVE_PID=""
 MACMON_PID=""
@@ -29,7 +31,7 @@ LAST_RUNTIME_LOG=""
 
 usage() {
   cat >&2 <<'EOF'
-usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|specprefill-16k|specprefill-32k|ane-16k|ane-32k|dspark-smoke|dspark-decode-8k|dspark-cache-32k|dspark-decode-32k|cache-65k|tool-loop|summary|native-262k}
+usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|omlx-oq8e-smoke|specprefill-16k|specprefill-32k|ane-16k|ane-32k|dspark-smoke|dspark-decode-8k|dspark-cache-32k|dspark-decode-32k|cache-65k|tool-loop|summary|native-262k}
 EOF
 }
 
@@ -98,6 +100,22 @@ arm_metadata() {
       PORT=8000
       LAUNCHER="$SCRIPTS/run-omlx.sh"
       ;;
+    T)
+      RUNTIME="oMLX"
+      MODEL_ID="Jundot/Qwen3.8-27B-oQ8e-mtp"
+      RUNTIME_REVISION="v0.6.3rc2"
+      MODEL_REVISION="$OQ8E_MODEL_REVISION"
+      PORT=8000
+      LAUNCHER="$SCRIPTS/run-omlx.sh"
+      ;;
+    U)
+      RUNTIME="oMLX"
+      MODEL_ID="Jundot/Qwen3.8-27B-oQ8e-fp16-mtp"
+      RUNTIME_REVISION="v0.6.3rc2"
+      MODEL_REVISION="$OQ8E_FP16_MODEL_REVISION"
+      PORT=8000
+      LAUNCHER="$SCRIPTS/run-omlx.sh"
+      ;;
     P|Q|R|S)
       RUNTIME="mlx-dspark"
       MODEL_ID="mlx-community/Qwen3.8-27B-8bit"
@@ -119,6 +137,12 @@ arm_metadata() {
     J|K|L|M|N|O)
       TOKENIZER_PATH="${OMLX_MODEL_ROOT:-}/True2456-Qwen3.8-27B-AWQ-5.0bpw-dc699a76ddcbef44c188a8aee2ccc79ccc339a04"
       ;;
+    T)
+      TOKENIZER_PATH="${OMLX_MODEL_ROOT:-}/Jundot-Qwen3.8-27B-oQ8e-mtp-$OQ8E_MODEL_REVISION"
+      ;;
+    U)
+      TOKENIZER_PATH="${OMLX_MODEL_ROOT:-}/Jundot-Qwen3.8-27B-oQ8e-fp16-mtp-$OQ8E_FP16_MODEL_REVISION"
+      ;;
     P|Q|R|S)
       TOKENIZER_PATH="${MLX_DSPARK_TARGET_PATH:-}"
       ;;
@@ -133,16 +157,16 @@ arm_metadata() {
   SPECPREFILL_ARGS=()
   ANE_PREFILL_ARGS=()
   case "$arm" in
-    B|C|E|F|G|H|K|L|M|N|Q|R|S) CACHE_ARGS=(--cache-enabled) ;;
+    B|C|E|F|G|H|K|L|M|N|Q|R|S|T|U) CACHE_ARGS=(--cache-enabled) ;;
   esac
   case "$arm" in
     C|F|G|H) MTP_ARGS=(--mtp-enabled) ;;
-    L|M|N) MTP_ARGS=(--mtp-enabled) ;;
+    L|M|N|T|U) MTP_ARGS=(--mtp-enabled) ;;
   esac
   case "$arm" in
     M) SPECPREFILL_ARGS=(--specprefill=true --specprefill-keep-pct 0.40 --specprefill-threshold 8192 --specprefill-draft-model Qwen/Qwen3.5-2B --specprefill-draft-revision 15852e8c16360a2fea060d615a32b45270f8a8fc) ;;
     N) SPECPREFILL_ARGS=(--specprefill=true --specprefill-keep-pct 0.50 --specprefill-threshold 8192 --specprefill-draft-model Qwen/Qwen3.5-0.8B --specprefill-draft-revision 2fc06364715b967f1860aea9cf38778875588b17) ;;
-    J|K|L|O) SPECPREFILL_ARGS=(--specprefill=false) ;;
+    J|K|L|O|T|U) SPECPREFILL_ARGS=(--specprefill=false) ;;
   esac
   case "$arm" in
     O) ANE_PREFILL_ARGS=(--ane-prefill-enabled) ;;
@@ -226,7 +250,7 @@ validate_mtp_log() {
   local arm="$1"
   local log_file="$2"
   case "$arm" in
-    C|F|G|H|L)
+    C|F|G|H|L|T|U)
       if ! grep -Eiq 'mtp|draft' "$log_file"; then
         echo "arm $arm did not report MTP/draft activation in $log_file" >&2
         return 1
@@ -496,6 +520,9 @@ case "$STAGE" in
     run_cache_arm L 32768 code
     run_tool_arm L 32768
     summarize || true
+    ;;
+  omlx-oq8e-smoke)
+    run_arms 32768 T U
     ;;
   specprefill-16k)
     require_omlx_mtp_gate

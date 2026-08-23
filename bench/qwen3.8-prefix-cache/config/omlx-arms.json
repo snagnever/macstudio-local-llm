@@ -9,6 +9,14 @@
       "repository": "True2456/Qwen3.8-27B-AWQ-5.0bpw",
       "revision": "dc699a76ddcbef44c188a8aee2ccc79ccc339a04"
     },
+    "oq8e": {
+      "repository": "Jundot/Qwen3.8-27B-oQ8e-mtp",
+      "revision": "c99e5aad8a478f71c10b9a3dde6709158b690da6"
+    },
+    "oq8e-fp16": {
+      "repository": "Jundot/Qwen3.8-27B-oQ8e-fp16-mtp",
+      "revision": "4761782b9455f335292f4d6cb0c89570dff27a11"
+    },
     "draft-2b": {
       "repository": "Qwen/Qwen3.5-2B",
       "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc"
@@ -87,6 +95,24 @@
         "mtp_enabled": false,
         "specprefill_enabled": false,
         "qwen35_ane_prefill_enabled": true
+      }
+    },
+    "T": {
+      "model_key": "oq8e",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": true,
+        "specprefill_enabled": false,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "U": {
+      "model_key": "oq8e-fp16",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": true,
+        "specprefill_enabled": false,
+        "qwen35_ane_prefill_enabled": false
       }
     }
   }

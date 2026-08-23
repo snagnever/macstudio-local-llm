@@ -1,6 +1,6 @@
 # Qwen3.8-27B prefix-cache campaign — referências
 
-> **Data da revisão:** 2026-08-21
+> **Data da revisão:** 2026-08-23
 
 Este documento separa fontes primárias, relatos comunitários e dados locais.
 Relatos comunitários orientam hipóteses. Eles não substituem medições no rig.
@@ -41,6 +41,11 @@ Relatos comunitários orientam hipóteses. Eles não substituem medições no ri
 | P30 | [mlx-community Qwen3.8-27B-8bit](https://huggingface.co/mlx-community/Qwen3.8-27B-8bit) | Target 8-bit, group size 64 e sampling do model card |
 | P31 | [RadixArk Qwen3.8-27B-DSpark](https://huggingface.co/RadixArk/Qwen3.8-27B-DSpark) | Drafter DSpark compatível com o target |
 | P32 | [Inco AI Qwen3.8-27B-DFlash2](https://huggingface.co/incoai/Qwen3.8-27B-DFlash2) | Drafter DFlash 2, parâmetros e garantia lossless |
+| P33 | [Jundot Qwen3.8-27B-oQ8e-mtp](https://huggingface.co/Jundot/Qwen3.8-27B-oQ8e-mtp) | Checkpoint oQ8e BF16 principal e quantização declarada |
+| P34 | [Revisão fixada do oQ8e BF16](https://huggingface.co/Jundot/Qwen3.8-27B-oQ8e-mtp/commit/c99e5aad8a478f71c10b9a3dde6709158b690da6) | Revisão reproduzível do candidato principal |
+| P35 | [Revisão fixada do oQ8e fp16](https://huggingface.co/Jundot/Qwen3.8-27B-oQ8e-fp16-mtp/commit/4761782b9455f335292f4d6cb0c89570dff27a11) | Revisão reproduzível do controle fp16 |
+| P36 | [oMLX performance: Qwen3.8-27B-oQ8e-fp16-mtp](https://omlx.ai/benchmarks/performance/2pko3m1k) | Configuração e números públicos em M3 Ultra; hipótese externa, não baseline local |
+| P37 | [oQ8e fp16 model card detalhado](https://huggingface.co/evsinlb/Qwen3.8-27B-oQ8e-fp16-mtp) | Bpw efetivo, contexto, sampling e preferência BF16 em M3/M4 |
 
 ## Issues e discussões técnicas
 
@@ -70,6 +75,7 @@ Relatos comunitários orientam hipóteses. Eles não substituem medições no ri
 | C7 | [Q6_K_XL on M2 Ultra](https://www.reddit.com/r/LocalLLaMA/comments/1vr3s7j/qwen3827b_q6_k_xl_speeds_on_m2_ultra_192gb_what/) | Flags de cache e MTP no `llama.cpp` | Hardware diferente |
 | C8 | [vLLM hybrid cache and MTP field notes](https://www.reddit.com/r/LocalLLaMA/comments/1vspexl/qwen38_27b_via_vllm_i_love_it_and_i_hate_it_here/) | Cache e especulação precisam de teste conjunto | CUDA e patches comunitários |
 | C9 | [Qwen3.8 AWQ 5 bpw discussion](https://www.reddit.com/r/oMLX/comments/1vr3agq/if_you_were_initially_put_off_by_qwen3827b_pptg/) | Motiva o AWQ e o prefill especulativo | Relato do ecossistema oMLX |
+| C10 | [Qwen3.8 oQ8e performance setup](https://www.reddit.com/r/LocalLLaMA/comments/1vty1g4/been_tweaking_my_qwen_38_setup_up_to_45_steady/) | Aponta para a combinação oQ8e, MTP, SpecPrefill e ANE | Não identifica de forma inequívoca o namespace do checkpoint |
 
 ## Evidência local reutilizável
 
@@ -173,6 +179,20 @@ Os números publicados usam M5 e kernels NAX.
 Eles não medem o Mac Studio M4 Max desta campanha.
 
 Fontes: P17, P20, P23, P24, P25 e C9.
+
+### oQ8e
+
+O oQ8e usa quantização em 8 bits com group size 64 e preserva o MTP. O checkpoint
+BF16 fixado é o candidato principal porque a documentação do formato recomenda BF16
+em M3/M4; o fp16 permanece apenas como controle curto de desempenho.
+
+O benchmark público de fp16 foi executado em M3 Ultra com oMLX 0.6.2 e combinou MTP,
+SpecPrefill, draft Qwen3.5-0.8B e prefill ANE. Esta campanha usa M4 Max, oMLX
+0.6.3rc2 e começa com essas acelerações desligadas, portanto os números não são
+diretamente comparáveis. O namespace exato usado na página também não é publicado;
+há uploads com o mesmo nome e conteúdo diferente.
+
+Fontes: P33, P34, P35, P36, P37 e C10.
 
 ### SpecPrefill
 

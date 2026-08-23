@@ -97,6 +97,8 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 | `mlx8-dspark` | `mlx-community/Qwen3.8-27B-8bit` | MLX | 8-bit, group size 64 | Target oficial da integração `mlx-dspark` |
 | `draft-dspark` | `RadixArk/Qwen3.8-27B-DSpark` | MLX draft | 4-bit em memória pelo runtime | DSpark explícito |
 | `draft-dflash2` | `incoai/Qwen3.8-27B-DFlash2` | MLX draft | 4-bit em memória pelo runtime | DFlash 2 explícito |
+| `oq8e` | `Jundot/Qwen3.8-27B-oQ8e-mtp` | MLX oQ8e | 8,6 bpw efetivos, BF16 preservado | Candidato principal no M4; smoke pareado em 32K |
+| `oq8e-fp16` | `Jundot/Qwen3.8-27B-oQ8e-fp16-mtp` | MLX oQ8e | 8,6 bpw efetivos, pesos auxiliares fp16 | Controle curto do artefato usado no benchmark público |
 
 Fixe a revisão do Hugging Face antes de baixar cada modelo. Registre também o SHA-256 do artefato local.
 
@@ -109,6 +111,8 @@ Fixe a revisão do Hugging Face antes de baixar cada modelo. Registre também o 
 | `mlx-community/Qwen3.8-27B-8bit` | `815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9` |
 | `RadixArk/Qwen3.8-27B-DSpark` | `85ef153be924f17ce4bf62726954eeaa4a73e854` |
 | `incoai/Qwen3.8-27B-DFlash2` | `dedf8df68adfb1afeaf7b7480c0a0243108177b4` |
+| `Jundot/Qwen3.8-27B-oQ8e-mtp` | `c99e5aad8a478f71c10b9a3dde6709158b690da6` |
+| `Jundot/Qwen3.8-27B-oQ8e-fp16-mtp` | `4761782b9455f335292f4d6cb0c89570dff27a11` |
 
 O commit fixado do AWQ inclui a correção do MTP publicada em `c5839cc642e479b7bbcd28311a4b8b9fb52fbd02`.
 Não use uma revisão anterior.
@@ -404,6 +408,8 @@ Use `temperature=0` somente nos testes de equivalência e diagnóstico.
 | Q | `mlx-dspark` | `mlx8-dspark` | ligado | `baseline` | desligado | desligada |
 | R | `mlx-dspark` | `mlx8-dspark` + `draft-dspark` | ligado | DSpark, cap auto | desligado | desligada |
 | S | `mlx-dspark` | `mlx8-dspark` + `draft-dflash2` | ligado | DFlash 2, cap auto | desligado | desligada |
+| T | `oMLX` | `oq8e` | ligado | MTP ligado | desligado | desligada |
+| U | `oMLX` | `oq8e-fp16` | ligado | MTP ligado | desligado | desligada |
 
 Execute primeiro os braços A, B, D e E em 8K. Execute C e F após validar o cache sem MTP. Execute G e H após o Q4 passar os gates funcionais.
 
@@ -431,6 +437,13 @@ Não compare diretamente o throughput de `mlx8-dspark` com `mlx8` como se fossem
 mesmo artefato: são conversões 8-bit diferentes. A comparação causal de especulação
 é exclusivamente P/Q/R/S. Comparações entre runtimes usam tempo total e qualidade
 observada, com revisão e quantização sempre registradas.
+
+Execute T e U como um smoke pareado em 32K depois da fase oMLX já planejada. Use os
+mesmos prompts, sampling oficial, cache e MTP dos dois lados; deixe SpecPrefill e ANE
+desligados para isolar o checkpoint. T é o candidato de produção no M4. U existe
+somente para verificar se o fp16 do benchmark público muda materialmente o resultado.
+O benchmark público também usou SpecPrefill, draft 0,8B e ANE, portanto este smoke
+não deve ser apresentado como reprodução daqueles números.
 
 ## Cenários de cache
 
@@ -648,6 +661,18 @@ Não combine ANE com SpecPrefill nesta campanha.
 Selecione entre R e S pela mediana do tempo total quente em 32K. Use decode isolado
 como desempate. Se nenhum passar, mantenha Q como representante do runtime.
 
+### Gate 9 — oQ8e
+
+- T e U devem concluir os três repeats em 32K sem crash, corrupção ou swap material.
+- Compare TTFT, tempo total, decode sustentado e qualidade funcional sob a mesma
+  configuração oMLX.
+- Promova T para as fases longas quando a diferença de desempenho estiver dentro de
+  5%, preservando a recomendação BF16 para M3/M4.
+- Promova U somente quando houver vantagem maior que 5%, repetível, sem regressão
+  funcional ou numérica observável; registre que se trata de uma escolha local do rig.
+- Não ative SpecPrefill ou ANE neste gate. Se T sobreviver, essas técnicas continuam
+  sendo avaliadas pelos braços isolados já existentes.
+
 ## Qualidade barata
 
 Execute esta sequência em todos os candidatos funcionalmente aprovados, antes da seleção final:
@@ -688,6 +713,7 @@ preflight e pinning
 → cache com MTP em 32K
 → smoke do oMLX e loader AWQ em 8K
 → cache e MTP do oMLX em 32K
+→ smoke pareado oQ8e BF16/fp16 em 32K
 → SpecPrefill em 16K e 32K
 → prefill ANE em 16K e 32K
 → smoke do mlx-dspark e resolução do modo auto

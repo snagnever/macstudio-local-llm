@@ -23,9 +23,13 @@ class OmlxConfigTests(unittest.TestCase):
             / "ddalcu-Qwen3.8-27B-MLX-Serve-8bit-011e38296b3d2aa99245ed49a700459c4ac246b6",
             "J": self.model_root
             / "True2456-Qwen3.8-27B-AWQ-5.0bpw-dc699a76ddcbef44c188a8aee2ccc79ccc339a04",
+            "T": self.model_root
+            / "Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6",
+            "U": self.model_root
+            / "Jundot-Qwen3.8-27B-oQ8e-fp16-mtp-4761782b9455f335292f4d6cb0c89570dff27a11",
         }
-        self.target_dirs["I"].mkdir()
-        self.target_dirs["J"].mkdir()
+        for target_dir in self.target_dirs.values():
+            target_dir.mkdir()
         self.draft_2b = self.root / "draft-2b"
         self.draft_08b = self.root / "draft-08b"
         self.draft_2b.mkdir()
@@ -54,6 +58,8 @@ class OmlxConfigTests(unittest.TestCase):
             "M": ("awq5", True, True, True, False, "draft-2b", 0.40),
             "N": ("awq5", True, True, True, False, "draft-08b", 0.50),
             "O": ("awq5", False, False, False, True, None, None),
+            "T": ("oq8e", True, True, False, False, None, None),
+            "U": ("oq8e-fp16", True, True, False, False, None, None),
         }
         for arm, wanted in expected.items():
             with self.subTest(arm=arm):
@@ -70,7 +76,7 @@ class OmlxConfigTests(unittest.TestCase):
                     self.assertEqual(settings["specprefill_threshold"], 8192)
 
     def test_write_state_uses_versioned_envelopes_and_one_model_entry(self):
-        for arm in "IJKLMNO":
+        for arm in (*"IJKLMNO", "T", "U"):
             with self.subTest(arm=arm):
                 profile = load_arm(CONFIG, arm)
                 base_path = self.root / arm
@@ -90,7 +96,7 @@ class OmlxConfigTests(unittest.TestCase):
                 self.assertEqual(global_state["cache"]["enabled"], profile["cache_enabled"])
                 self.assertEqual(model_state["version"], 1)
                 self.assertEqual(len(model_state["models"]), 1)
-                expected_dir = self.target_dirs["I" if arm == "I" else "J"]
+                expected_dir = self.target_dirs.get(arm, self.target_dirs["J"])
                 self.assertEqual(set(model_state["models"]), {expected_dir.name})
 
     def test_unknown_arm_is_rejected(self):

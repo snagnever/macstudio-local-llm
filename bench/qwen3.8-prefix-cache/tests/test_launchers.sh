@@ -15,6 +15,8 @@ MODEL_ROOT="/tmp/qwen38-launcher-fixture"
 mkdir -p \
   "$MODEL_ROOT/ddalcu-Qwen3.8-27B-MLX-Serve-8bit-011e38296b3d2aa99245ed49a700459c4ac246b6" \
   "$MODEL_ROOT/True2456-Qwen3.8-27B-AWQ-5.0bpw-dc699a76ddcbef44c188a8aee2ccc79ccc339a04" \
+  "$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6" \
+  "$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-fp16-mtp-4761782b9455f335292f4d6cb0c89570dff27a11" \
   "$MODEL_ROOT/draft-2b" \
   "$MODEL_ROOT/draft-08b"
 MLX_A="$(QWEN38_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-mlx-serve.sh" A --print)"
@@ -73,6 +75,8 @@ OMLX_L="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" L --print)"
 OMLX_M="$(OMLX_MODEL_ROOT="$MODEL_ROOT" OMLX_DRAFT_2B_PATH="$MODEL_ROOT/draft-2b" bash "$SCRIPTS/run-omlx.sh" M --print)"
 OMLX_N="$(OMLX_MODEL_ROOT="$MODEL_ROOT" OMLX_DRAFT_08B_PATH="$MODEL_ROOT/draft-08b" bash "$SCRIPTS/run-omlx.sh" N --print)"
 OMLX_O="$(OMLX_MODEL_ROOT="$MODEL_ROOT" OMLX_ANE_PROFILE="$ANE_PROFILE" bash "$SCRIPTS/run-omlx.sh" O --print)"
+OMLX_T="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" T --print)"
+OMLX_U="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" U --print)"
 mkdir -p "$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" "$MODEL_ROOT/RadixArk--Qwen3.8-27B-DSpark-85ef153be924f17ce4bf62726954eeaa4a73e854" "$MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4"
 DSPARK_Q="$(MLX_DSPARK_BIN="$FAKE_DSPARK_OK" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" bash "$SCRIPTS/run-mlx-dspark.sh" Q --print)"
 DSPARK_R="$(MLX_DSPARK_BIN="$FAKE_DSPARK_OK" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" MLX_DSPARK_DSPARK_PATH="$MODEL_ROOT/RadixArk--Qwen3.8-27B-DSpark-85ef153be924f17ce4bf62726954eeaa4a73e854" bash "$SCRIPTS/run-mlx-dspark.sh" R --print)"
@@ -164,6 +168,12 @@ grep -q -- '"specprefill_keep_pct": 0.5' <<<"$OMLX_N"
 grep -q -- '"qwen35_ane_prefill_enabled": true' <<<"$OMLX_O"
 grep -q -- '"specprefill_enabled": false' <<<"$OMLX_O"
 grep -q -- '"mtp_enabled": false' <<<"$OMLX_O"
+grep -q -- 'Jundot/Qwen3.8-27B-oQ8e-mtp' <<<"$OMLX_T"
+grep -q -- 'c99e5aad8a478f71c10b9a3dde6709158b690da6' <<<"$OMLX_T"
+grep -q -- '"mtp_enabled": true' <<<"$OMLX_T"
+grep -q -- 'Jundot/Qwen3.8-27B-oQ8e-fp16-mtp' <<<"$OMLX_U"
+grep -q -- '4761782b9455f335292f4d6cb0c89570dff27a11' <<<"$OMLX_U"
+grep -q -- '"mtp_enabled": true' <<<"$OMLX_U"
 
 QWEN38_OMLX_BIN="$FAKE_OMLX_OK" \
   QWEN38_OMLX_RUN_ID="version-ok-$RANDOM" \
@@ -216,6 +226,11 @@ grep -q -- 'arm=E context=8192' <<<"$SMOKE"
 MTP="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" mtp-32k)"
 grep -q -- 'arm=C context=32768' <<<"$MTP"
 grep -q -- 'arm=F context=32768' <<<"$MTP"
+
+OQ8E_SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" omlx-oq8e-smoke)"
+grep -q -- 'arm=T context=32768' <<<"$OQ8E_SMOKE"
+grep -q -- 'arm=U context=32768' <<<"$OQ8E_SMOKE"
+! grep -Eq -- 'arm=(J|K|L|M|N|O) context=32768' <<<"$OQ8E_SMOKE"
 
 DSPARK_SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" dspark-smoke)"
 grep -q -- 'run-mlx-dspark.sh auto-smoke' <<<"$DSPARK_SMOKE"
@@ -318,3 +333,8 @@ grep -q -- 'MTP/mtp-Qwen3.8-27B-Q4_0.gguf' <<<"$DOWNLOAD_SMOKE"
 DOWNLOAD_ALL="$(QWEN38_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/download-models.sh" all --print)"
 grep -q -- 'Qwen3.8-27B-UD-Q6_K_XL.gguf' <<<"$DOWNLOAD_ALL"
 grep -q -- 'Qwen3.8-27B-UD-Q8_K_XL.gguf' <<<"$DOWNLOAD_ALL"
+
+DOWNLOAD_OQ8E="$(QWEN38_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/download-models.sh" oq8e --print)"
+grep -q -- 'Jundot/Qwen3.8-27B-oQ8e-mtp.*--revision c99e5aad8a478f71c10b9a3dde6709158b690da6' <<<"$DOWNLOAD_OQ8E"
+grep -q -- 'Jundot/Qwen3.8-27B-oQ8e-fp16-mtp.*--revision 4761782b9455f335292f4d6cb0c89570dff27a11' <<<"$DOWNLOAD_OQ8E"
+! grep -q -- 'unsloth/Qwen3.8-27B-GGUF' <<<"$DOWNLOAD_OQ8E"
