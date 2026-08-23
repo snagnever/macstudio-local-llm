@@ -1,6 +1,6 @@
 # Qwen3.8 prefix-cache campaign summary
 
-> Generated: 2026-08-23T19:19:39.485889+00:00
+> Generated: 2026-08-23T19:39:11.702963+00:00
 
 ## Runtime gates
 
@@ -16,6 +16,7 @@
 | H | llama.cpp | 15 | FAIL | no | correct, error |
 | I | oMLX | 15 | FAIL | no | correct, error |
 | J | oMLX | 15 | FAIL | no | correct, error |
+| K | oMLX | 15 | PASS | no | — |
 
 ## Measurements
 
@@ -81,6 +82,11 @@
 | oMLX | J | 8192 | identical | 3 | 19051.35 | 53796.53 | 0.0000 | 0 |
 | oMLX | J | 8192 | middle_mutation | 3 | 19180.19 | 97591.29 | 0.0000 | 2 |
 | oMLX | J | 8192 | tool_turn | 3 | 23400.22 | 59676.59 | 0.0000 | 0 |
+| oMLX | K | 32768 | append | 3 | 8322.18 | 26206.10 | 0.9456 | 0 |
+| oMLX | K | 32768 | cold | 3 | 126119.43 | 136092.31 | 0.0000 | 0 |
+| oMLX | K | 32768 | identical | 3 | 3450.32 | 13630.01 | 0.9789 | 0 |
+| oMLX | K | 32768 | middle_mutation | 3 | 68068.63 | 79621.61 | 0.4887 | 0 |
+| oMLX | K | 32768 | tool_turn | 3 | 8505.84 | 20088.61 | 0.9444 | 0 |
 
 ## SpecPrefill gate
 

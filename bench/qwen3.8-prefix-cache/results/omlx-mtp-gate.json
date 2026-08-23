@@ -2,7 +2,6 @@
   "arm": "L",
   "failures": [
     "missing_32768",
-    "code_result",
     "mtp_evidence",
     "e2e",
     "cache_hit_ratio",
