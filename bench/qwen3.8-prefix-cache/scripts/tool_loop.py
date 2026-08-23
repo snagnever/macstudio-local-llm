@@ -304,6 +304,22 @@ def _write_record(output, record: dict[str, Any]) -> None:
     print(serialized, flush=True)
 
 
+def sampling_record_fields(controls: dict[str, Any]) -> dict[str, Any]:
+    return {
+        key: controls.get(key)
+        for key in (
+            "temperature",
+            "top_p",
+            "top_k",
+            "min_p",
+            "presence_penalty",
+            "frequency_penalty",
+            "repetition_penalty",
+            "reasoning_effort",
+        )
+    }
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run the deterministic Qwen3.8 20-turn tool protocol."
@@ -462,6 +478,7 @@ def main() -> int:
                 "prompt_identity": "tool-loop-v1",
                 "concurrency": args.concurrency,
                 "warmup_id": args.warmup_id,
+                **sampling_record_fields(sampling_controls),
                 "turn": turn,
                 "tool_name": tool_name,
                 "tool_arguments_valid": arguments_valid,
@@ -574,6 +591,7 @@ def main() -> int:
             "prompt_identity": "tool-loop-v1",
             "concurrency": args.concurrency,
             "warmup_id": args.warmup_id,
+            **sampling_record_fields(sampling_controls),
             "ram_peak_gb": None,
             "swap_delta_gb": None,
             "gpu_temp_start_c": None,

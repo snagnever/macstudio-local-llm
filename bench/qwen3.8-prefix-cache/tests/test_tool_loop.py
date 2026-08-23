@@ -17,6 +17,7 @@ from tool_loop import (
     _tool_payload,
     _final_payload,
     build_parser,
+    sampling_record_fields,
 )
 
 
@@ -134,6 +135,21 @@ class ToolLoopTests(unittest.TestCase):
         self.assertEqual(payload["temperature"], 1.0)
         self.assertEqual(payload["top_p"], 0.95)
         self.assertEqual(payload["top_k"], 20)
+
+    def test_tool_loop_records_the_sampling_profile_it_sends(self):
+        controls = {
+            "temperature": 1.0,
+            "top_p": 0.95,
+            "top_k": 20,
+            "min_p": 0.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+            "repetition_penalty": 1.0,
+            "reasoning_effort": "xhigh",
+        }
+
+        self.assertEqual(sampling_record_fields(controls), controls)
+
     def test_build_tools_returns_fresh_stably_ordered_schemas(self):
         first = build_tools()
         first[0]["function"]["name"] = "mutated"
