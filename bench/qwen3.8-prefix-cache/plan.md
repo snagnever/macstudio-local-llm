@@ -1,8 +1,9 @@
 # 2026-08-21 — Qwen3.8-27B: prefix cache, prefill especulativo e runtime no M4 Max
 
-> **Status:** infraestrutura e smoke canônico de 8K implementados; a fase de cache em
-> 32K está em execução. oMLX, mlx-dspark, oQ8e, MTPLX e oQ4e+DFlash estão integrados ou enfileirados
-> para as fases posteriores, sempre com runtime, modelo e parâmetros fixados.
+> **Status:** infraestrutura e smoke canônico de 8K implementados; o gate isolado
+> de cache/MTP do oMLX em 32K passou. mlx-dspark, oQ8e, MTPLX e oQ4e+DFlash estão
+> integrados ou enfileirados para as fases posteriores, sempre com runtime, modelo
+> e parâmetros fixados.
 
 ## Objetivo
 
@@ -820,6 +821,20 @@ preflight e pinning
 → Terminal-Bench completo
 → relatório e decisão
 ```
+
+### Supervisor da execução
+
+Após o gate isolado K/L, o watchdog do harness mantém a fila restante em execução:
+
+```bash
+python3 bench/qwen3.8-prefix-cache/scripts/campaign_supervisor.py loop --interval 1200
+```
+
+Cada ciclo confirma a sessão ativa, o crescimento do log, o marcador de saída e a
+fase seguinte. Uma fase que termina com sucesso promove imediatamente a próxima.
+Falhas e sessões que desaparecem sem marcador ficam em `needs_agent_review`; o
+watchdog não repete automaticamente uma fase parcialmente medida. O estado, logs e
+marcadores ficam sob `bench/qwen3.8-prefix-cache/logs/` e permanecem fora do Git.
 
 ## Regra de decisão
 

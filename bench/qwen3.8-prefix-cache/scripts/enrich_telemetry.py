@@ -4,7 +4,11 @@ import json
 from pathlib import Path
 from typing import Any, Optional
 
-from metrics import parse_ane_runtime_evidence, parse_macmon
+from metrics import (
+    parse_ane_runtime_evidence,
+    parse_macmon,
+    parse_omlx_mtp_request_evidence,
+)
 
 
 def summarize_telemetry(samples: list[dict[str, Any]]) -> dict[str, Any]:
@@ -63,6 +67,34 @@ def enrich_records(
     return changed
 
 
+def enrich_request_evidence(
+    records: list[dict[str, Any]],
+    session_id: str,
+    evidence: list[dict[str, Any]],
+    arm: Optional[str] = None,
+    context: Optional[int] = None,
+) -> int:
+    if not evidence:
+        return 0
+    scoped_records = [
+        record
+        for record in records
+        if record.get("session_id") == session_id
+        and record.get("arm") == arm
+        and record.get("context_target") == context
+    ]
+    if len(scoped_records) != len(evidence):
+        raise ValueError(
+            "request evidence count does not match scoped records: "
+            f"{len(evidence)} != {len(scoped_records)}"
+        )
+    for record, request_evidence in zip(scoped_records, evidence):
+        for field, value in request_evidence.items():
+            if record.get(field) is None:
+                record[field] = value
+    return len(scoped_records)
+
+
 def load_records(path: Path) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     with path.open(encoding="utf-8") as source:
@@ -100,15 +132,18 @@ def main() -> int:
     summary = summarize_telemetry(load_telemetry(args.telemetry))
     records = load_records(args.results)
     runtime_evidence = None
+    request_evidence: list[dict[str, Any]] = []
     if args.runtime_log is not None:
         if args.arm is None or args.context is None:
             raise SystemExit("--runtime-log requires --arm and --context")
+        runtime_text = args.runtime_log.read_text(encoding="utf-8")
         runtime_evidence = parse_ane_runtime_evidence(
-            args.runtime_log.read_text(encoding="utf-8"),
+            runtime_text,
             args.arm,
             args.session_id,
             args.context,
         )
+        request_evidence = parse_omlx_mtp_request_evidence(runtime_text)
     changed = enrich_records(
         records,
         args.session_id,
@@ -119,6 +154,13 @@ def main() -> int:
     )
     if changed == 0:
         raise SystemExit(f"no records found for telemetry session {args.session_id}")
+    enrich_request_evidence(
+        records,
+        args.session_id,
+        request_evidence,
+        args.arm,
+        args.context,
+    )
     write_records(args.results, records)
     print(json.dumps({"session_id": args.session_id, **summary}, sort_keys=True))
     return 0

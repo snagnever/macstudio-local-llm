@@ -152,10 +152,7 @@ def _repeat_pairing_failure(
         if baseline_identity != candidate_identity:
             return "prompt_identity"
         identities.append(baseline_identity)
-    scenario = baseline[0].get("scenario")
-    if scenario == "cold":
-        return None if len(set(identities)) == len(REQUIRED_REPETITIONS) else "prompt_identity"
-    return None if len(set(identities)) == 1 else "prompt_identity"
+    return None if len(set(identities)) == len(REQUIRED_REPETITIONS) else "prompt_identity"
 
 
 def _records_for_arm_context(
@@ -487,26 +484,33 @@ def evaluate_arms(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
 
     evaluations: dict[str, dict[str, Any]] = {}
     for arm, arm_records in sorted(grouped.items()):
+        probe_records = [
+            record
+            for record in arm_records
+            if record.get("record_type") not in {"tool_turn", "verdict"}
+        ]
+        if not probe_records:
+            continue
         failures = _unique(
             failure
-            for record in arm_records
+            for record in probe_records
             for failure in gate_record(record)
         )
         contexts = {
             int(record["context_target"])
-            for record in arm_records
+            for record in probe_records
             if record.get("context_target") is not None
         }
         scenarios = {
             str(record["scenario"])
-            for record in arm_records
+            for record in probe_records
             if record.get("scenario") is not None
         }
         tool_verdict = any(
             record.get("record_type") == "verdict" and record.get("correct")
             for record in arm_records
         )
-        first = arm_records[0]
+        first = probe_records[0]
         evaluations[arm] = {
             "arm": arm,
             "runtime": first.get("runtime"),
@@ -522,7 +526,7 @@ def evaluate_arms(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
             "contexts": sorted(contexts),
             "scenarios": sorted(scenarios),
             "tool_verdict": tool_verdict,
-            "records": len(arm_records),
+            "records": len(probe_records),
         }
     return evaluations
 
@@ -707,6 +711,8 @@ def evaluate_speculative_decode(
 def _summary_rows(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     groups: dict[tuple[Any, ...], list[dict[str, Any]]] = defaultdict(list)
     for record in records:
+        if record.get("record_type") in {"tool_turn", "verdict"}:
+            continue
         scenario = record.get("scenario") or record.get("record_type") or "unknown"
         key = (
             record.get("runtime"),

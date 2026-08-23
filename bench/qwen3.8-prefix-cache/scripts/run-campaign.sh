@@ -39,7 +39,7 @@ LAST_RUNTIME_LOG=""
 
 usage() {
   cat >&2 <<'EOF'
-usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|omlx-oq8e-smoke|omlx-oq4e-dflash-32k|mtplx-smoke|mtplx-32k|specprefill-16k|specprefill-32k|ane-16k|ane-32k|dspark-smoke|dspark-decode-8k|dspark-cache-32k|dspark-decode-32k|cache-65k|tool-loop|summary|native-262k}
+usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|omlx-mtp-tool-loop-32k|omlx-oq8e-smoke|omlx-oq4e-dflash-32k|mtplx-smoke|mtplx-32k|specprefill-16k|specprefill-32k|ane-16k|ane-32k|dspark-smoke|dspark-decode-8k|dspark-cache-32k|dspark-decode-32k|cache-65k|tool-loop|summary|native-262k}
 EOF
 }
 
@@ -567,6 +567,10 @@ case "$STAGE" in
     ;;
   omlx-mtp-32k)
     run_cache_arm L 32768 code
+    run_tool_arm L 32768
+    summarize || true
+    ;;
+  omlx-mtp-tool-loop-32k)
     run_tool_arm L 32768
     summarize || true
     ;;

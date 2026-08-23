@@ -156,6 +156,54 @@ def parse_ane_runtime_evidence(
     }
 
 
+def parse_omlx_mtp_request_evidence(text: str) -> list[dict[str, Any]]:
+    """Parse per-request MTP evidence from an isolated oMLX runtime log.
+
+    oMLX v0.6.3rc2 does not expose a public Prometheus endpoint. Its MTP
+    batch generator does emit one summary immediately before the matching
+    ``Chat completion`` line. Warmups and one-token cache-control probes are
+    excluded using their request token budgets.
+    """
+    mtp_pattern = re.compile(
+        r"MTP\[\d+\] finish=\S+ tokens=(\d+) cycles=(\d+) "
+        r"tok/cycle=([0-9.]+) accept=(\d+)/(\d+) \([0-9.]+%\)"
+    )
+    completion_pattern = re.compile(
+        r"Chat completion:.*?, (\d+) tokens in .*?"
+        r"request_max_tokens=(\d+)"
+    )
+    pending: Optional[dict[str, Any]] = None
+    evidence: list[dict[str, Any]] = []
+    for raw_line in text.splitlines():
+        mtp_match = mtp_pattern.search(raw_line)
+        if mtp_match:
+            mtp_tokens, cycles, accept_length, accepted, drafted = mtp_match.groups()
+            accepted_tokens = int(accepted)
+            drafted_tokens = int(drafted)
+            pending = {
+                "_mtp_tokens": int(mtp_tokens),
+                "accepted_tokens": accepted_tokens,
+                "drafted_tokens": drafted_tokens,
+                "accept_length": float(accept_length),
+                "verification_steps": int(cycles),
+                "mtp_acceptance": (
+                    accepted_tokens / drafted_tokens if drafted_tokens else None
+                ),
+            }
+        completion_match = completion_pattern.search(raw_line)
+        if not completion_match:
+            continue
+        completion_tokens, request_max_tokens = map(int, completion_match.groups())
+        request_evidence = pending
+        pending = None
+        if request_evidence is None or request_max_tokens <= 64:
+            continue
+        if abs(request_evidence.pop("_mtp_tokens") - completion_tokens) > 1:
+            continue
+        evidence.append(request_evidence)
+    return evidence
+
+
 def parse_macmon(line: str) -> dict[str, Any]:
     sample = json.loads(line)
     memory = sample.get("memory", {})

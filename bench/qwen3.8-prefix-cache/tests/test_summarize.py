@@ -7,6 +7,7 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from summarize import (
+    _summary_rows,
     evaluate_ane,
     evaluate_arms,
     evaluate_specprefill,
@@ -91,11 +92,12 @@ def trio(arm, context, ttft_ms, **overrides):
         pair_record(arm, context, ttft_ms, repeat=repeat, **overrides)
         for repeat in (1, 2, 3)
     ]
-    # Production cold probes deliberately change their system prefix per repeat.
-    # Both arms must still carry the same repeat-specific prompt identity.
+    # Production probes change their system prefix per repeat so no measurement
+    # can reuse the preceding repeat. Both arms still pair on the same repeat.
     for record in records:
-        if record["scenario"] == "cold":
-            record["prompt_identity"] = f"cold-{context}-r{record['repeat']}"
+        record["prompt_identity"] = (
+            f"{record['prompt_identity']}-r{record['repeat']}"
+        )
     return records
 
 
@@ -163,6 +165,48 @@ class SummaryTests(unittest.TestCase):
         result = evaluate_specprefill(specprefill_fixture("M", 70))
 
         self.assertEqual(result["M"]["status"], "PASS")
+
+    def test_mtp_pairs_independent_hot_prompts_by_repeat(self):
+        """Hot repeats may be unique, but each K/L repeat must pair exactly."""
+        k = trio(
+            "K",
+            32768,
+            100,
+            scenario="identical",
+            content_class="code",
+            fixture_token_hash="code-fixture",
+            mtp_enabled=False,
+            cache_hit_ratio=0.96,
+            code_result_verdict=True,
+            code_result_expected=32896,
+            code_result_value=32896,
+        )
+        l = trio(
+            "L",
+            32768,
+            90,
+            scenario="identical",
+            content_class="code",
+            fixture_token_hash="code-fixture",
+            mtp_enabled=True,
+            mtp_acceptance=0.5,
+            cache_hit_ratio=0.96,
+            code_result_verdict=True,
+            code_result_expected=32896,
+            code_result_value=32896,
+        )
+        for records in (k, l):
+            for record in records:
+                record["prompt_identity"] = f"hot-32768-r{record['repeat']}"
+        verdict = {
+            **pair_record("L", 32768, 1),
+            "record_type": "verdict",
+            "turns_requested": 20,
+            "specprefill_enabled": False,
+            "mtp_enabled": True,
+        }
+
+        self.assertTrue(omlx_mtp_gate([*k, *l, verdict])["passed"])
 
     def test_specprefill_rejects_a_mismatched_or_missing_cold_repeat_identity(self):
         """A unique cold prompt is valid only when its matching repeat pairs."""
@@ -486,6 +530,31 @@ class SummaryTests(unittest.TestCase):
         self.assertTrue(evaluations["F"]["passed"])
         self.assertFalse(evaluations["G"]["passed"])
         self.assertEqual(evaluations["G"]["failures"], ["correct"])
+
+    def test_runtime_gate_does_not_pool_agent_loop_turns_with_cache_probes(self):
+        probe = passing_record(arm="L", scenario="append")
+        loop_turn = {
+            **passing_record(arm="L", scenario="tool_turn"),
+            "record_type": "tool_turn",
+            "cache_hit_ratio": 0.0,
+        }
+        verdict = {
+            **passing_record(arm="L", scenario="tool_turn"),
+            "record_type": "verdict",
+            "turns_requested": 20,
+            "correct": True,
+        }
+
+        evaluation = evaluate_arms([probe, loop_turn, verdict])["L"]
+
+        self.assertTrue(evaluation["passed"])
+        self.assertEqual(evaluation["records"], 1)
+        self.assertTrue(evaluation["tool_verdict"])
+
+        rows = _summary_rows([probe, loop_turn, verdict])
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["scenario"], "append")
+        self.assertEqual(rows[0]["count"], 1)
 
 
 if __name__ == "__main__":

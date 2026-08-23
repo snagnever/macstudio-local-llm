@@ -272,6 +272,10 @@ MTP="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" mtp-32k)"
 grep -q -- 'arm=C context=32768' <<<"$MTP"
 grep -q -- 'arm=F context=32768' <<<"$MTP"
 
+OMLX_MTP_TOOL_ONLY="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" omlx-mtp-tool-loop-32k)"
+grep -q -- 'arm=L context=32768 mode=tool-loop' <<<"$OMLX_MTP_TOOL_ONLY"
+! grep -q -- 'arm=L context=32768 mode=cache' <<<"$OMLX_MTP_TOOL_ONLY"
+
 OQ8E_SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" omlx-oq8e-smoke)"
 OMLX_SMOKE_DEFAULT="$(env -u OMLX_MODEL_ROOT QWEN38_MODEL_ROOT="$MODEL_ROOT" \
   QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" omlx-smoke)"

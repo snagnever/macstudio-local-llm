@@ -1,13 +1,7 @@
 {
   "arm": "L",
-  "failures": [
-    "missing_32768",
-    "mtp_evidence",
-    "e2e",
-    "cache_hit_ratio",
-    "tool_loop"
-  ],
-  "passed": false,
-  "records": 0,
+  "failures": [],
+  "passed": true,
+  "records": 15,
   "schema_version": 3
 }

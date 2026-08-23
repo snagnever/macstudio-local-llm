@@ -1,6 +1,6 @@
 # Qwen3.8 prefix-cache campaign summary
 
-> Generated: 2026-08-23T19:39:11.702963+00:00
+> Generated: 2026-08-23T20:11:01.363829+00:00
 
 ## Runtime gates
 
@@ -17,6 +17,7 @@
 | I | oMLX | 15 | FAIL | no | correct, error |
 | J | oMLX | 15 | FAIL | no | correct, error |
 | K | oMLX | 15 | PASS | no | — |
+| L | oMLX | 15 | PASS | no | — |
 
 ## Measurements
 
@@ -87,6 +88,11 @@
 | oMLX | K | 32768 | identical | 3 | 3450.32 | 13630.01 | 0.9789 | 0 |
 | oMLX | K | 32768 | middle_mutation | 3 | 68068.63 | 79621.61 | 0.4887 | 0 |
 | oMLX | K | 32768 | tool_turn | 3 | 8505.84 | 20088.61 | 0.9444 | 0 |
+| oMLX | L | 32768 | append | 3 | 8575.45 | 16070.02 | 0.9456 | 0 |
+| oMLX | L | 32768 | cold | 3 | 129076.17 | 134908.15 | 0.0000 | 0 |
+| oMLX | L | 32768 | identical | 3 | 3567.02 | 10478.08 | 0.9789 | 0 |
+| oMLX | L | 32768 | middle_mutation | 3 | 69821.61 | 75454.96 | 0.4887 | 0 |
+| oMLX | L | 32768 | tool_turn | 3 | 8758.66 | 15764.58 | 0.9444 | 0 |
 
 ## SpecPrefill gate
 

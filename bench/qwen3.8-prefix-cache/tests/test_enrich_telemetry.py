@@ -8,11 +8,86 @@ from pathlib import Path
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from enrich_telemetry import enrich_records, summarize_telemetry
-from metrics import parse_ane_runtime_evidence
+from enrich_telemetry import (
+    enrich_records,
+    enrich_request_evidence,
+    summarize_telemetry,
+)
+from metrics import parse_ane_runtime_evidence, parse_omlx_mtp_request_evidence
 
 
 class EnrichTelemetryTests(unittest.TestCase):
+    def test_omlx_mtp_parser_ignores_warmup_and_control_requests(self):
+        runtime_log = "\n".join(
+            [
+                "MTP[0] finish=length tokens=64 cycles=26 tok/cycle=2.46 accept=38/51 (74.5%) depth[d1=20/23]",
+                "Chat completion: model=x, 64 tokens in 4.56s (41.9 tok/s), prompt: 578, finish_reason=length, max_tokens=64, request_max_tokens=64",
+                "MTP[1] finish=stop tokens=289 cycles=112 tok/cycle=2.58 accept=176/213 (82.6%) depth[d1=99/109]",
+                "Chat completion: model=x, 288 tokens in 135.65s (42.0 tok/s), prompt: 29289, finish_reason=stop, max_tokens=2048, request_max_tokens=2048",
+                "MTP[2] finish=length tokens=2 cycles=1 tok/cycle=2.00 accept=1/1 (100.0%) depth[d1=1/1]",
+                "Chat completion: model=x, 1 tokens in 3.28s (2540.8 tok/s), prompt: 29289, finish_reason=length, max_tokens=1, request_max_tokens=1",
+                "MTP[3] finish=stop tokens=100 cycles=40 tok/cycle=2.50 accept=61/75 (81.3%) depth[d1=40/40]",
+                "Chat completion: model=x, 99 tokens in 6.00s (40.0 tok/s), prompt: 29289, finish_reason=stop, max_tokens=2048, request_max_tokens=2048",
+            ]
+        )
+
+        evidence = parse_omlx_mtp_request_evidence(runtime_log)
+
+        self.assertEqual(len(evidence), 2)
+        self.assertEqual(evidence[0]["accepted_tokens"], 176)
+        self.assertEqual(evidence[0]["drafted_tokens"], 213)
+        self.assertAlmostEqual(evidence[0]["mtp_acceptance"], 176 / 213)
+        self.assertEqual(evidence[0]["verification_steps"], 112)
+        self.assertEqual(evidence[0]["accept_length"], 2.58)
+        self.assertEqual(evidence[1]["accepted_tokens"], 61)
+
+    def test_request_evidence_binds_in_order_without_overwriting_server_values(self):
+        records = [
+            {
+                "session_id": "wanted",
+                "arm": "L",
+                "context_target": 32768,
+                "accepted_tokens": None,
+            },
+            {
+                "session_id": "wanted",
+                "arm": "L",
+                "context_target": 32768,
+                "accepted_tokens": 99,
+            },
+            {"session_id": "other", "arm": "L", "context_target": 32768},
+        ]
+        evidence = [
+            {"accepted_tokens": 10, "mtp_acceptance": 0.5},
+            {"accepted_tokens": 20, "mtp_acceptance": 0.75},
+        ]
+
+        changed = enrich_request_evidence(
+            records, "wanted", evidence, "L", 32768
+        )
+
+        self.assertEqual(changed, 2)
+        self.assertEqual(records[0]["accepted_tokens"], 10)
+        self.assertEqual(records[0]["mtp_acceptance"], 0.5)
+        self.assertEqual(records[1]["accepted_tokens"], 99)
+        self.assertEqual(records[1]["mtp_acceptance"], 0.75)
+        self.assertNotIn("mtp_acceptance", records[2])
+
+    def test_request_evidence_rejects_ambiguous_cardinality(self):
+        records = [
+            {"session_id": "wanted", "arm": "L", "context_target": 32768},
+            {"session_id": "wanted", "arm": "L", "context_target": 32768},
+        ]
+
+        with self.assertRaisesRegex(ValueError, "request evidence count"):
+            enrich_request_evidence(
+                records,
+                "wanted",
+                [{"mtp_acceptance": 0.5}],
+                "L",
+                32768,
+            )
+
     def test_summary_uses_first_sample_and_session_peaks(self):
         samples = [
             {

@@ -2,6 +2,7 @@ import sys
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+from urllib.error import HTTPError
 
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
@@ -20,6 +21,14 @@ from tool_loop import (
 
 
 class ToolLoopTests(unittest.TestCase):
+    def test_missing_optional_metrics_endpoint_returns_empty_snapshot(self):
+        error = HTTPError("http://example.test/metrics", 404, "Not Found", {}, None)
+        with patch("tool_loop.urlopen", side_effect=error):
+            self.assertEqual(
+                _metrics_snapshot("http://example.test/metrics", runtime="oMLX"),
+                {},
+            )
+
     def test_api_model_can_differ_from_the_recorded_artifact(self):
         """MTPLX serves an alias while results must retain the pinned HF id."""
         args = build_parser().parse_args(

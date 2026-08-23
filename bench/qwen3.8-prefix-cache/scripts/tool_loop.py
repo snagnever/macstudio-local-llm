@@ -6,6 +6,7 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from cache_probe import (
@@ -183,8 +184,13 @@ def _metrics_snapshot(
 ) -> dict[str, float]:
     if not url:
         return {}
-    with urlopen(url, timeout=10) as response:
-        text = response.read().decode("utf-8")
+    try:
+        with urlopen(url, timeout=10) as response:
+            text = response.read().decode("utf-8")
+    except HTTPError as error:
+        if error.code in (404, 405):
+            return {}
+        raise
     if runtime in {"mlx-dspark", "MTPLX"}:
         payload = json.loads(text)
         if not isinstance(payload, dict):
