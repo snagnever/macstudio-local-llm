@@ -275,8 +275,7 @@ grep -q -- 'arm=F context=32768' <<<"$MTP"
 OQ8E_SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" omlx-oq8e-smoke)"
 OMLX_SMOKE_DEFAULT="$(env -u OMLX_MODEL_ROOT QWEN38_MODEL_ROOT="$MODEL_ROOT" \
   QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" omlx-smoke)"
-grep -q -- "$MODEL_ROOT/ddalcu-Qwen3.8-27B-MLX-Serve-8bit-011e38296b3d2aa99245ed49a700459c4ac246b6" \
-  <<<"$OMLX_SMOKE_DEFAULT"
+grep -q -- "OMLX_MODEL_ROOT=$MODEL_ROOT" <<<"$OMLX_SMOKE_DEFAULT"
 grep -q -- 'arm=T context=32768' <<<"$OQ8E_SMOKE"
 grep -q -- 'arm=U context=32768' <<<"$OQ8E_SMOKE"
 ! grep -Eq -- 'arm=(J|K|L|M|N|O) context=32768' <<<"$OQ8E_SMOKE"

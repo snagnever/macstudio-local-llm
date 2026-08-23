@@ -323,7 +323,9 @@ run_cache_arm() {
   echo "RUN arm=$arm context=$context mode=cache"
   wait_for_cooldown || return 1
   if [[ "$DRY_RUN" == "1" ]]; then
-    if [[ "$RUNTIME" == "oMLX" || "$RUNTIME" == "mlx-dspark" || "$RUNTIME" == "MTPLX" ]]; then
+    if [[ "$RUNTIME" == "oMLX" ]]; then
+      echo "+ OMLX_MODEL_ROOT=$OMLX_MODEL_ROOT QWEN38_CTX_SIZE=$context bash $LAUNCHER $arm"
+    elif [[ "$RUNTIME" == "mlx-dspark" || "$RUNTIME" == "MTPLX" ]]; then
       echo "+ QWEN38_CTX_SIZE=$context bash $LAUNCHER $arm"
     else
       bash "$LAUNCHER" "$arm" --print

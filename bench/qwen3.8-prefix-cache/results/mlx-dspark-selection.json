@@ -1,0 +1,26 @@
+{
+  "R": {
+    "arm": "R",
+    "baseline": "Q",
+    "failures": [
+      "pairs",
+      "tool_loop"
+    ],
+    "median_decode_speedup": {},
+    "status": "INCONCLUSIVE"
+  },
+  "S": {
+    "arm": "S",
+    "baseline": "Q",
+    "failures": [
+      "pairs",
+      "tool_loop"
+    ],
+    "median_decode_speedup": {},
+    "status": "INCONCLUSIVE"
+  },
+  "winner": {
+    "arm": "Q",
+    "selected": false
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "profiles": {
+    "M": {
+      "advance_to_65k": false,
+      "baseline": "L",
+      "candidate": "M",
+      "candidate_by_context": {},
+      "comparisons": [],
+      "failures": [
+        "missing_16384",
+        "missing_32768",
+        "prompt_work_mode",
+        "static_prefix",
+        "tool_loop"
+      ],
+      "status": "FAIL"
+    },
+    "N": {
+      "advance_to_65k": false,
+      "baseline": "L",
+      "candidate": "N",
+      "candidate_by_context": {},
+      "comparisons": [],
+      "failures": [
+        "missing_16384",
+        "missing_32768",
+        "prompt_work_mode",
+        "static_prefix",
+        "tool_loop"
+      ],
+      "status": "FAIL"
+    }
+  },
+  "schema_version": 3,
+  "winner": null
+}
