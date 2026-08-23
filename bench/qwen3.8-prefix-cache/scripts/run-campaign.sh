@@ -476,8 +476,20 @@ specprefill_winner_arm() {
   if [[ ! -f "$SPECPREFILL_SELECTION" ]]; then
     summarize >/dev/null || true
   fi
-  [[ -f "$SPECPREFILL_SELECTION" ]] || return 0
-  jq -r '.winner.arm // empty' "$SPECPREFILL_SELECTION"
+  if [[ -f "$SPECPREFILL_SELECTION" ]]; then
+    local winner
+    winner="$(jq -r '.winner.arm // empty' "$SPECPREFILL_SELECTION")"
+    if [[ -n "$winner" ]]; then
+      printf '%s\n' "$winner"
+      return 0
+    fi
+  fi
+
+  # A rejected SpecPrefill profile does not invalidate its passing MTP baseline.
+  if [[ -f "$OMLX_MTP_GATE" ]] && \
+      jq -e '.passed == true and .arm == "L"' "$OMLX_MTP_GATE" >/dev/null; then
+    printf '%s\n' L
+  fi
 }
 
 dspark_winner_arm() {
