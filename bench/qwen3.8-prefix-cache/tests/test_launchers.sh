@@ -283,6 +283,19 @@ grep -q -- "OMLX_MODEL_ROOT=$MODEL_ROOT" <<<"$OMLX_SMOKE_DEFAULT"
 grep -q -- 'arm=T context=32768' <<<"$OQ8E_SMOKE"
 grep -q -- 'arm=U context=32768' <<<"$OQ8E_SMOKE"
 ! grep -Eq -- 'arm=(J|K|L|M|N|O) context=32768' <<<"$OQ8E_SMOKE"
+(
+  ARM_METADATA_FUNCTION="$(mktemp /tmp/qwen38-arm-metadata.XXXXXX)"
+  trap 'rm -f "$ARM_METADATA_FUNCTION"' EXIT
+  sed -n '/^arm_metadata()/,/^wait_for_server()/p' "$SCRIPTS/run-campaign.sh" | sed '$d' >"$ARM_METADATA_FUNCTION"
+  source "$ARM_METADATA_FUNCTION"
+  OQ8E_MODEL_REVISION=c99e5aad8a478f71c10b9a3dde6709158b690da6
+  OQ8E_FP16_MODEL_REVISION=4761782b9455f335292f4d6cb0c89570dff27a11
+  OMLX_MODEL_ROOT="$MODEL_ROOT"
+  arm_metadata T
+  [[ "${SAMPLING_ARGS[*]-}" == '--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh' ]]
+  arm_metadata U
+  [[ "${SAMPLING_ARGS[*]-}" == '--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh' ]]
+)
 
 MTPLX_SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" mtplx-smoke)"
 grep -q -- 'arm=V context=8192' <<<"$MTPLX_SMOKE"

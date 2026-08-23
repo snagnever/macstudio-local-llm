@@ -205,7 +205,7 @@ arm_metadata() {
     O) ANE_PREFILL_ARGS=(--ane-prefill-enabled) ;;
   esac
   case "$arm" in
-    V|W|X) SAMPLING_ARGS=(--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh) ;;
+    T|U|V|W|X) SAMPLING_ARGS=(--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh) ;;
   esac
 }
 
