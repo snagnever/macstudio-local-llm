@@ -291,10 +291,12 @@ grep -q -- 'arm=U context=32768' <<<"$OQ8E_SMOKE"
   OQ8E_MODEL_REVISION=c99e5aad8a478f71c10b9a3dde6709158b690da6
   OQ8E_FP16_MODEL_REVISION=4761782b9455f335292f4d6cb0c89570dff27a11
   OMLX_MODEL_ROOT="$MODEL_ROOT"
+  arm_metadata J
+  [[ "${SAMPLING_ARGS[*]-}" == '--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh' ]] || exit 1
   arm_metadata T
-  [[ "${SAMPLING_ARGS[*]-}" == '--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh' ]]
+  [[ "${SAMPLING_ARGS[*]-}" == '--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh' ]] || exit 1
   arm_metadata U
-  [[ "${SAMPLING_ARGS[*]-}" == '--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh' ]]
+  [[ "${SAMPLING_ARGS[*]-}" == '--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh' ]] || exit 1
 )
 
 MTPLX_SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" mtplx-smoke)"
