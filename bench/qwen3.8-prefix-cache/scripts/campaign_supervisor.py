@@ -65,6 +65,8 @@ class ScreenClient:
         return set(re.findall(r"\d+\.([^\s]+)\s+\(", listing))
 
     def launch(self, session: str, stage: str, log_path: Path, exit_path: Path) -> None:
+        environment = os.environ.copy()
+        environment.pop("STY", None)
         subprocess.run(
             [
                 self.binary,
@@ -77,6 +79,7 @@ class ScreenClient:
                 str(exit_path),
             ],
             cwd=self.cwd,
+            env=environment,
             check=True,
         )
 

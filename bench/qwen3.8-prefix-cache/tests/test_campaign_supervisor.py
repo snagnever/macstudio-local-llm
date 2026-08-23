@@ -1,14 +1,16 @@
 import json
+import os
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from campaign_supervisor import DEFAULT_STAGES, Supervisor
+from campaign_supervisor import DEFAULT_STAGES, ScreenClient, Supervisor
 
 
 class FakeScreen:
@@ -134,6 +136,20 @@ class CampaignSupervisorTests(unittest.TestCase):
                     "omlx-oq4e-dflash-32k",
                 ],
             )
+
+    @patch("campaign_supervisor.subprocess.run")
+    def test_screen_launch_does_not_inherit_a_parent_screen_session(self, run):
+        with patch.dict(os.environ, {"STY": "99598.qwen38-supervisor20"}):
+            client = ScreenClient("screen", Path("wrapper.sh"), Path("repo"))
+
+            client.launch(
+                "qwen38-campaign-phase",
+                "phase-a",
+                Path("phase.log"),
+                Path("phase.exit"),
+            )
+
+        self.assertNotIn("STY", run.call_args.kwargs["env"])
 
 
 if __name__ == "__main__":
