@@ -103,6 +103,14 @@ class CampaignSupervisorTests(unittest.TestCase):
             self.assertEqual(state["exit_code"], 1)
             self.assertEqual(len(screen.launches), 1)
 
+            retried = supervisor.retry()
+
+            self.assertEqual(retried["status"], "running")
+            self.assertEqual(retried["stage"], "phase-a")
+            self.assertEqual(retried["attempt"], 2)
+            self.assertTrue(retried["exit_path"].endswith("phase-a-a2.exit"))
+            self.assertEqual([launch[1] for launch in screen.launches], ["phase-a", "phase-a"])
+
     def test_external_campaign_session_defers_launch(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

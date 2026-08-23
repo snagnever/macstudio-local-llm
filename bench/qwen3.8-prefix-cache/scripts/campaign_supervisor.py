@@ -288,10 +288,32 @@ class Supervisor:
 
             return self._launch(state, sessions)
 
+    def retry(self) -> dict:
+        """Acknowledge a reviewed failure and start a fresh numbered attempt."""
+        with self._lock():
+            state = self._load()
+            if state.get("status") != "needs_agent_review":
+                raise ValueError("retry requires status=needs_agent_review")
+            sessions = self.screen.list_sessions()
+            managed = state.get("session")
+            if managed and managed in sessions:
+                raise RuntimeError(f"managed session is still active: {managed}")
+            state.update(
+                status="idle",
+                session=None,
+                log_path=None,
+                exit_path=None,
+                exit_code=None,
+                message="review acknowledged; starting a fresh attempt",
+                last_check_at=self.now(),
+            )
+            self._save(state)
+            return self._launch(state, sessions)
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("once", "loop", "status"))
+    parser.add_argument("command", choices=("once", "loop", "retry", "status"))
     parser.add_argument("--state", type=Path, default=DEFAULT_STATE)
     parser.add_argument("--log-dir", type=Path, default=DEFAULT_LOG_DIR)
     parser.add_argument("--interval", type=int, default=1200)
@@ -326,6 +348,9 @@ def main() -> int:
         return 0
     if args.command == "once":
         print(json.dumps(supervisor.once(), indent=2, sort_keys=True))
+        return 0
+    if args.command == "retry":
+        print(json.dumps(supervisor.retry(), indent=2, sort_keys=True))
         return 0
     if args.interval <= 0:
         raise ValueError("--interval must be greater than zero")

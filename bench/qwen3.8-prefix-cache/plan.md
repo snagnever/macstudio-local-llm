@@ -835,6 +835,8 @@ fase seguinte. Uma fase que termina com sucesso promove imediatamente a próxima
 Falhas e sessões que desaparecem sem marcador ficam em `needs_agent_review`; o
 watchdog não repete automaticamente uma fase parcialmente medida. O estado, logs e
 marcadores ficam sob `bench/qwen3.8-prefix-cache/logs/` e permanecem fora do Git.
+Depois de corrigir e revisar a causa, o agente retoma a mesma fase em uma tentativa
+numerada nova com `campaign_supervisor.py retry`.
 
 ## Regra de decisão
 
