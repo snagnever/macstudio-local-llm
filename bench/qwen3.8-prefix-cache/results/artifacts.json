@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-21T23:51:49.996450+00:00",
+  "generated_at": "2026-08-23T07:56:09.817609+00:00",
   "models": [
     {
       "files": [
@@ -113,6 +113,16 @@
           "path": "Qwen3.8-27B-UD-Q4_K_XL.gguf",
           "sha256": "3f227079003add2511437e5b1e94812e363385225bf6a9b47b0054a72bc8b01e",
           "size_bytes": 17559178144
+        },
+        {
+          "path": "Qwen3.8-27B-UD-Q6_K_XL.gguf",
+          "sha256": "701d8fa9ed214ab21bfc130cd2a7df19ca89bbef7713e2dfb19f3c63696aa917",
+          "size_bytes": 25299061664
+        },
+        {
+          "path": "Qwen3.8-27B-UD-Q8_K_XL.gguf",
+          "sha256": "af36ecb6b5db1407953345b746c14ac93f0657dda413910b4348683a2d990377",
+          "size_bytes": 31457991680
         },
         {
           "path": "README.md",
