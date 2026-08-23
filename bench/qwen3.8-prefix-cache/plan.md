@@ -1,9 +1,8 @@
 # 2026-08-21 — Qwen3.8-27B: prefix cache, prefill especulativo e runtime no M4 Max
 
-> **Status:** infraestrutura base e preflight implementados. Os snapshots MLX 8-bit,
-> GGUF Q4 e MTP foram baixados e verificados. Tentativas diagnósticas corrigiram o
-> harness, mas ainda não há uma sessão canônica completa; oMLX e mlx-dspark aguardam
-> implementação e execução dos braços descritos abaixo.
+> **Status:** infraestrutura e smoke canônico de 8K implementados; a fase de cache em
+> 32K está em execução. oMLX, mlx-dspark, oQ8e e MTPLX estão integrados ou enfileirados
+> para as fases posteriores, sempre com runtime, modelo e parâmetros fixados.
 
 ## Objetivo
 
@@ -22,6 +21,7 @@ O teste deve responder estas perguntas:
 7. O prefill pela Apple Neural Engine reduz a latência neste M4 Max?
 8. Qual setup merece o Terminal-Bench completo?
 9. DSpark ou DFlash 2 aumenta o decode e o tempo total frente ao mesmo target 8-bit sem especulação?
+10. O pacote oficial MTPLX Optimized Speed supera os runtimes MLX já medidos no fluxo completo?
 
 ## Hardware e topologia
 
@@ -50,6 +50,7 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 | H11 | O prefill pela ANE depende do hardware e precisa de ajuste local. | A/B com tuner no M4 Max e SpecPrefill desligado |
 | H12 | DFlash 2 ou DSpark oferece o maior ganho de decode no target MLX 8-bit. | Baseline, DSpark e DFlash 2 explícitos no mesmo runtime e checkpoint |
 | H13 | O ganho especulativo permanece positivo em contexto longo e após cache hit. | Decode e tempo total em 8K, 32K e 65K, separados por tipo de conteúdo |
+| H14 | MTPLX mantém o ganho publicado sob cache e tool turns no M4 Max. | Smoke 8K e cache/decode/tool loop em 32K com o pacote oficial |
 
 ## Escopo
 
@@ -63,6 +64,7 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 - MTP nativo no MLX e `draft-mtp` no GGUF.
 - `oMLX` com cache, MTP, SpecPrefill e prefill pela Apple Neural Engine (ANE).
 - `mlx-dspark` com baseline, DSpark e DFlash 2 explícitos sobre o mesmo target 8-bit.
+- MTPLX com o pacote oficial Optimized Speed e o perfil recomendado pelo vendor.
 - `True2456/Qwen3.8-27B-AWQ-5.0bpw` somente no `oMLX`.
 - Drafters `RadixArk/Qwen3.8-27B-DSpark` e `incoai/Qwen3.8-27B-DFlash2`.
 - Drafts Qwen3.5-2B BF16 e Qwen3.5-0.8B BF16 para SpecPrefill.
@@ -99,10 +101,11 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 | `draft-dflash2` | `incoai/Qwen3.8-27B-DFlash2` | MLX draft | 4-bit em memória pelo runtime | DFlash 2 explícito |
 | `oq8e` | `Jundot/Qwen3.8-27B-oQ8e-mtp` | MLX oQ8e | 8,6 bpw efetivos, BF16 preservado | Candidato principal no M4; smoke pareado em 32K |
 | `oq8e-fp16` | `Jundot/Qwen3.8-27B-oQ8e-fp16-mtp` | MLX oQ8e | 8,6 bpw efetivos, pesos auxiliares fp16 | Controle curto do artefato usado no benchmark público |
+| `mtplx-speed` | `Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed` | MLX dinâmico + MTP nativo | Corpo 4-bit misto, componentes sensíveis 8/16-bit | MVP em 8K e 32K |
 
 Fixe a revisão do Hugging Face antes de baixar cada modelo. Registre também o SHA-256 do artefato local.
 
-| Artefato | Revisão verificada em 2026-08-21 |
+| Artefato | Revisão fixada (revisão mais recente: 2026-08-23) |
 |---|---|
 | `Qwen/Qwen3.8-27B` | `1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0` |
 | `ddalcu/Qwen3.8-27B-MLX-Serve-8bit` | `011e38296b3d2aa99245ed49a700459c4ac246b6` |
@@ -113,6 +116,7 @@ Fixe a revisão do Hugging Face antes de baixar cada modelo. Registre também o 
 | `incoai/Qwen3.8-27B-DFlash2` | `dedf8df68adfb1afeaf7b7480c0a0243108177b4` |
 | `Jundot/Qwen3.8-27B-oQ8e-mtp` | `c99e5aad8a478f71c10b9a3dde6709158b690da6` |
 | `Jundot/Qwen3.8-27B-oQ8e-fp16-mtp` | `4761782b9455f335292f4d6cb0c89570dff27a11` |
+| `Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed` | `123db8bcc7101455b00d9aad36c0e760c6e7de02` |
 
 O commit fixado do AWQ inclui a correção do MTP publicada em `c5839cc642e479b7bbcd28311a4b8b9fb52fbd02`.
 Não use uma revisão anterior.
@@ -128,6 +132,7 @@ Confirme que cada draft usa a mesma família de tokenizer do target.
 | `llama-server` | Runtime GGUF principal | 8080 |
 | `oMLX` | Runtime MLX para AWQ, SpecPrefill e ANE | 8000 |
 | `mlx-dspark` | Runtime MLX para DSpark e DFlash 2 | 8484 |
+| `MTPLX` | Runtime MLX/MTP do pacote oficial Optimized Speed | 8000 |
 
 Use um runtime por vez. Termine o processo anterior antes de iniciar outro braço.
 
@@ -162,6 +167,9 @@ task qwen38:mtp:32k
 task qwen38:omlx:smoke
 task qwen38:omlx:cache:32k
 task qwen38:omlx:mtp:32k
+task qwen38:models:mtplx
+task qwen38:mtplx:smoke
+task qwen38:mtplx:32k
 task qwen38:specprefill:16k
 task qwen38:specprefill:32k
 task qwen38:ane:16k
@@ -324,6 +332,34 @@ Cada classe deve produzir pelo menos 512 completion tokens no sweep de decode, s
 EOS natural. Reporte mediana por classe e agregada; não use somente código para escolher
 o runtime.
 
+## Configuração base do MTPLX
+
+Fixe MTPLX em `v2.9.1` (`bd4421567f9e16ce957c6ef97708b072dcd73937`).
+Essa versão corrige o caminho Turbo, cache multi-turn em escala e crashes próximos de
+19K tokens; ela também garante que o pacote do modelo controla o sampler do draft.
+
+Use o artefato oficial completo e sua revisão fixada. No M4, o vendor recomenda o
+checkpoint BF16, perfil Turbo, MTP depth 3, thinking preservado e sampling Qwen3.8
+`temperature=1.0`, `top_p=0.95`, `top_k=20`:
+
+```bash
+MTPLX_CONFIG=/caminho/isolado/config.toml \
+mtplx serve \
+  --model /caminho/para/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed \
+  --profile turbo \
+  --depth 3 \
+  --generation-mode mtp \
+  --context-window 32768 \
+  --reasoning on \
+  --reasoning-effort xhigh \
+  --preserve-thinking on \
+  --ssd-session-cache off
+```
+
+O cache SSD, ligado por default no runtime, fica desligado durante a matriz para não
+misturar restauração em disco com prefix cache em RAM. O flight recorder permanece
+ligado sob `logs/mtplx/`; ele fornece cache, aceitação MTP e timings por request.
+
 ## Configuração do AWQ misto
 
 Use o AWQ somente no `oMLX`.
@@ -410,6 +446,7 @@ Use `temperature=0` somente nos testes de equivalência e diagnóstico.
 | S | `mlx-dspark` | `mlx8-dspark` + `draft-dflash2` | ligado | DFlash 2, cap auto | desligado | desligada |
 | T | `oMLX` | `oq8e` | ligado | MTP ligado | desligado | desligada |
 | U | `oMLX` | `oq8e-fp16` | ligado | MTP ligado | desligado | desligada |
+| V | `MTPLX` | `mtplx-speed` | ligado | MTP depth 3, Turbo | desligado | desligada |
 
 Execute primeiro os braços A, B, D e E em 8K. Execute C e F após validar o cache sem MTP. Execute G e H após o Q4 passar os gates funcionais.
 
@@ -444,6 +481,11 @@ desligados para isolar o checkpoint. T é o candidato de produção no M4. U exi
 somente para verificar se o fp16 do benchmark público muda materialmente o resultado.
 O benchmark público também usou SpecPrefill, draft 0,8B e ANE, portanto este smoke
 não deve ser apresentado como reprodução daqueles números.
+
+Execute V primeiro em 8K e, se o loader e a saída funcional passarem, em 32K com três
+repetições do workload de código e o loop de 20 tool turns. Esse é um braço MVP de
+runtime e checkpoint conjuntos; compare-o por tempo total, qualidade observada e
+memória, não como uma ablação causal de MTP contra os outros checkpoints.
 
 ## Cenários de cache
 
@@ -673,6 +715,12 @@ como desempate. Se nenhum passar, mantenha Q como representante do runtime.
 - Não ative SpecPrefill ou ANE neste gate. Se T sobreviver, essas técnicas continuam
   sendo avaliadas pelos braços isolados já existentes.
 
+### Gate 10 — MTPLX MVP
+
+- V deve carregar a revisão fixada sob MTPLX 2.9.1, perfil Turbo e sampling oficial.
+- O smoke 8K e os três repeats em 32K devem terminar sem erro, swap material ou perda funcional.
+- `/metrics` ou o flight recorder deve confirmar cache reutilizado, MTP ativo e aceitação não nula.
+
 ## Qualidade barata
 
 Execute esta sequência em todos os candidatos funcionalmente aprovados, antes da seleção final:
@@ -714,6 +762,7 @@ preflight e pinning
 → smoke do oMLX e loader AWQ em 8K
 → cache e MTP do oMLX em 32K
 → smoke pareado oQ8e BF16/fp16 em 32K
+→ MTPLX oficial em 8K e 32K
 → SpecPrefill em 16K e 32K
 → prefill ANE em 16K e 32K
 → smoke do mlx-dspark e resolução do modo auto

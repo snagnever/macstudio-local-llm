@@ -185,12 +185,26 @@ def _metrics_snapshot(
         return {}
     with urlopen(url, timeout=10) as response:
         text = response.read().decode("utf-8")
-    if runtime == "mlx-dspark":
+    if runtime in {"mlx-dspark", "MTPLX"}:
         payload = json.loads(text)
         if not isinstance(payload, dict):
-            raise ValueError("mlx-dspark /metrics must return a JSON object")
+            raise ValueError(f"{runtime} /metrics must return a JSON object")
+        if runtime == "MTPLX":
+            payload = payload.get("latest") or {}
+            if not isinstance(payload, dict):
+                raise ValueError("MTPLX /metrics latest must be a JSON object")
         result: dict[str, float] = {}
-        _flatten_json_metrics(payload, prefix="mlx_dspark", result=result)
+        prefix = "mlx_dspark" if runtime == "mlx-dspark" else "mtplx"
+        _flatten_json_metrics(payload, prefix=prefix, result=result)
+        if runtime == "MTPLX":
+            aliases = {
+                "accepted_drafts": "accepted_tokens",
+                "verify_calls": "verification_steps",
+            }
+            for source, target in aliases.items():
+                value = payload.get(source)
+                if isinstance(value, (int, float)) and not isinstance(value, bool):
+                    result[f"mtplx.{target}"] = float(value)
         return result
     return parse_prometheus(text)
 
@@ -224,6 +238,7 @@ def _tool_payload(
     specprefill: Optional[bool] = None,
     specprefill_keep_pct: Optional[float] = None,
     specprefill_threshold: Optional[int] = None,
+    sampling_controls: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     payload = {
         "model": model,
@@ -231,7 +246,7 @@ def _tool_payload(
         "tools": build_tools(),
         "tool_choice": "required",
         "max_tokens": 512,
-        **SAMPLING_CONTROLS,
+        **(sampling_controls or SAMPLING_CONTROLS),
     }
     if specprefill is not None:
         payload["specprefill"] = specprefill
@@ -249,6 +264,7 @@ def _final_payload(
     specprefill: Optional[bool] = None,
     specprefill_keep_pct: Optional[float] = None,
     specprefill_threshold: Optional[int] = None,
+    sampling_controls: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     final_messages = deepcopy(messages)
     final_messages.append(
@@ -264,7 +280,7 @@ def _final_payload(
         "model": model,
         "messages": final_messages,
         "max_tokens": 1024,
-        **SAMPLING_CONTROLS,
+        **(sampling_controls or SAMPLING_CONTROLS),
     }
     if specprefill is not None:
         payload["specprefill"] = specprefill
@@ -288,6 +304,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--base-url", required=True)
     parser.add_argument("--model", required=True)
+    parser.add_argument("--api-model")
     parser.add_argument("--runtime", required=True)
     parser.add_argument("--runtime-revision", required=True)
     parser.add_argument("--model-revision", required=True)
@@ -307,6 +324,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--context", type=int, default=65536)
     parser.add_argument("--concurrency", type=int, default=1)
     parser.add_argument("--warmup-id", default="tool-loop-warmup-v1")
+    parser.add_argument(
+        "--temperature", type=float, default=SAMPLING_CONTROLS["temperature"]
+    )
+    parser.add_argument("--top-p", type=float, default=SAMPLING_CONTROLS["top_p"])
+    parser.add_argument("--top-k", type=int, default=SAMPLING_CONTROLS["top_k"])
+    parser.add_argument(
+        "--reasoning-effort", default=SAMPLING_CONTROLS["reasoning_effort"]
+    )
     return parser
 
 
@@ -315,6 +340,14 @@ def main() -> int:
     if args.turns <= 0:
         raise SystemExit("--turns must be positive")
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    api_model = args.api_model or args.model
+    sampling_controls = {
+        **SAMPLING_CONTROLS,
+        "temperature": args.temperature,
+        "top_p": args.top_p,
+        "top_k": args.top_k,
+        "reasoning_effort": args.reasoning_effort,
+    }
 
     messages = _initial_messages()
     last_tool: Optional[str] = None
@@ -337,11 +370,12 @@ def main() -> int:
                 assistant_message, usage = _chat_once(
                     args.base_url,
                     _tool_payload(
-                        args.model,
+                        api_model,
                         messages,
                         specprefill=args.specprefill,
                         specprefill_keep_pct=args.specprefill_keep_pct,
                         specprefill_threshold=args.specprefill_threshold,
+                        sampling_controls=sampling_controls,
                     ),
                     args.timeout,
                 )
@@ -468,11 +502,12 @@ def main() -> int:
                 final_message, _ = _chat_once(
                     args.base_url,
                     _final_payload(
-                        args.model,
+                        api_model,
                         messages,
                         specprefill=args.specprefill,
                         specprefill_keep_pct=args.specprefill_keep_pct,
                         specprefill_threshold=args.specprefill_threshold,
+                        sampling_controls=sampling_controls,
                     ),
                     args.timeout,
                 )

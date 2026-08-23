@@ -26,6 +26,7 @@ from cache_probe import (
     _messages_for_scenario,
     _base_messages,
     _record,
+    _quant_label,
     mtp_acceptance_from_snapshots,
     scenario_messages,
     result_correct,
@@ -36,6 +37,13 @@ from sse_client import StreamResult
 
 
 class CacheProbeTests(unittest.TestCase):
+    def test_mtplx_official_model_has_a_stable_quant_label(self):
+        """Reporting the MTPLX artifact as unknown would break result grouping."""
+        self.assertEqual(
+            _quant_label("Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed"),
+            "mtplx-speed",
+        )
+
     def test_measurement_record_uses_schema_v3_and_has_speculation_fields(self):
         """Changing the v3 record contract must break this schema assertion."""
         args = SimpleNamespace(
@@ -142,6 +150,24 @@ class CacheProbeTests(unittest.TestCase):
         self.assertEqual(payload["reasoning_effort"], "xhigh")
         self.assertEqual(payload["max_tokens"], 2048)
 
+    def test_performance_payload_accepts_the_official_vendor_sampling(self):
+        """Ignoring a stage's sampling profile would invalidate performance data."""
+        controls = {
+            **cache_probe.SAMPLING_CONTROLS,
+            "temperature": 1.0,
+        }
+
+        payload = _payload(
+            "model",
+            [{"role": "user", "content": "probe"}],
+            sampling_controls=controls,
+        )
+
+        self.assertEqual(payload["temperature"], 1.0)
+        self.assertEqual(payload["top_p"], 0.95)
+        self.assertEqual(payload["top_k"], 20)
+        self.assertEqual(payload["reasoning_effort"], "xhigh")
+
     def test_correctness_requires_visible_non_truncated_answer(self):
         hidden_only = StreamResult(
             text="",
@@ -205,6 +231,30 @@ class CacheProbeTests(unittest.TestCase):
         error = HTTPError("http://example.test/metrics", 404, "Not Found", {}, None)
         with patch.object(cache_probe, "urlopen", side_effect=error):
             self.assertEqual(cache_probe._metrics_snapshot("http://example.test/metrics"), {})
+
+    def test_mtplx_metrics_snapshot_normalizes_the_official_json_shape(self):
+        """Treating MTPLX JSON as Prometheus would silently drop MTP telemetry."""
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_):
+                return False
+
+            def read(self):
+                return (
+                    b'{"latest":{"drafted_tokens":20,"accepted_drafts":12,'
+                    b'"verify_calls":7,"decode_tok_s":46.8}}'
+                )
+
+        with patch.object(cache_probe, "urlopen", return_value=Response()):
+            metrics = cache_probe._metrics_snapshot(
+                "http://127.0.0.1:8000/metrics", runtime="MTPLX"
+            )
+
+        self.assertEqual(metrics["mtplx.drafted_tokens"], 20)
+        self.assertEqual(metrics["mtplx.accepted_tokens"], 12)
+        self.assertEqual(metrics["mtplx.verification_steps"], 7)
 
     def test_mtp_acceptance_uses_request_delta_not_process_lifetime_totals(self):
         before = {

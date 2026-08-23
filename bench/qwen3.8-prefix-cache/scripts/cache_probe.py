@@ -172,12 +172,43 @@ class LocalTokenizer:
         return list(self._tokenizer.encode(text, add_special_tokens=False))
 
 
-def _metrics_snapshot(url: Optional[str]) -> dict[str, float]:
+def _flatten_json_metrics(
+    value: Any, *, prefix: str, result: dict[str, float]
+) -> None:
+    if isinstance(value, dict):
+        for key, child in value.items():
+            _flatten_json_metrics(
+                child, prefix=f"{prefix}.{key}" if prefix else key, result=result
+            )
+    elif isinstance(value, (int, float)) and not isinstance(value, bool):
+        result[prefix] = float(value)
+
+
+def _metrics_snapshot(
+    url: Optional[str], runtime: Optional[str] = None
+) -> dict[str, float]:
     if not url:
         return {}
     try:
         with urlopen(url, timeout=10) as response:
-            return parse_prometheus(response.read().decode("utf-8"))
+            text = response.read().decode("utf-8")
+        if runtime == "MTPLX":
+            payload = json.loads(text)
+            latest = payload.get("latest") if isinstance(payload, dict) else None
+            if not isinstance(latest, dict):
+                return {}
+            metrics: dict[str, float] = {}
+            _flatten_json_metrics(latest, prefix="mtplx", result=metrics)
+            aliases = {
+                "accepted_drafts": "accepted_tokens",
+                "verify_calls": "verification_steps",
+            }
+            for source, target in aliases.items():
+                value = latest.get(source)
+                if isinstance(value, (int, float)) and not isinstance(value, bool):
+                    metrics[f"mtplx.{target}"] = float(value)
+            return metrics
+        return parse_prometheus(text)
     except HTTPError as error:
         if error.code in (404, 405):
             return {}
@@ -219,6 +250,8 @@ def mtp_acceptance_from_snapshots(
 
 def _quant_label(model: str) -> str:
     upper = model.upper()
+    if "MTPLX-OPTIMIZED-SPEED" in upper:
+        return "mtplx-speed"
     if "AWQ" in upper:
         return "awq5"
     for label in ("UD-Q8_K_XL", "UD-Q6_K_XL", "UD-Q4_K_XL", "8BIT"):
@@ -270,12 +303,13 @@ def _payload(
     specprefill: Optional[bool] = None,
     specprefill_keep_pct: Optional[float] = None,
     specprefill_threshold: Optional[int] = None,
+    sampling_controls: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     payload = {
         "model": model,
         "messages": messages,
         "max_tokens": MAX_TOKENS,
-        **SAMPLING_CONTROLS,
+        **(sampling_controls or SAMPLING_CONTROLS),
     }
     if specprefill is not None:
         payload["specprefill"] = specprefill
@@ -293,6 +327,7 @@ def _prime_payload(
     specprefill: Optional[bool] = None,
     specprefill_keep_pct: Optional[float] = None,
     specprefill_threshold: Optional[int] = None,
+    sampling_controls: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     payload = _payload(
         model,
@@ -300,12 +335,18 @@ def _prime_payload(
         specprefill=specprefill,
         specprefill_keep_pct=specprefill_keep_pct,
         specprefill_threshold=specprefill_threshold,
+        sampling_controls=sampling_controls,
     )
     payload["max_tokens"] = 1
     return payload
 
 
-def _warmup_payload(model: str, warmup_text: str) -> dict[str, Any]:
+def _warmup_payload(
+    model: str,
+    warmup_text: str,
+    *,
+    sampling_controls: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
     return {
         "model": model,
         "messages": [
@@ -313,7 +354,7 @@ def _warmup_payload(model: str, warmup_text: str) -> dict[str, Any]:
             {"role": "user", "content": warmup_text},
         ],
         "max_tokens": 64,
-        **SAMPLING_CONTROLS,
+        **(sampling_controls or SAMPLING_CONTROLS),
     }
 
 
@@ -403,6 +444,7 @@ def _record(
     dspark_metrics: Optional[dict[str, Any]] = None,
     drafter_id: Optional[str] = None,
     drafter_revision: Optional[str] = None,
+    sampling_controls: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     usage = result.usage
     prompt_tokens = int(usage.get("prompt_tokens") or 0)
@@ -421,6 +463,17 @@ def _record(
         else (None, None)
     )
     now = datetime.now(timezone.utc)
+    controls = sampling_controls or SAMPLING_CONTROLS
+    mtp_acceptance = mtp_acceptance_from_snapshots(metrics_before, metrics_after)
+    if (
+        mtp_acceptance is None
+        and isinstance(server["drafted_tokens"], (int, float))
+        and server["drafted_tokens"] > 0
+        and isinstance(server["accepted_tokens"], (int, float))
+    ):
+        mtp_acceptance = min(
+            1.0, max(0.0, server["accepted_tokens"] / server["drafted_tokens"])
+        )
     return {
         "schema_version": 3,
         "run_id": (
@@ -473,9 +526,7 @@ def _record(
         "ttft_ms": dspark["ttft_ms"] if dspark["ttft_ms"] is not None else result.ttft_ms,
         "e2e_ms": result.e2e_ms,
         **{**performance, "decode_tps": dspark["decode_tps"] if dspark["decode_tps"] is not None else performance["decode_tps"]},
-        "mtp_acceptance": mtp_acceptance_from_snapshots(
-            metrics_before, metrics_after
-        ),
+        "mtp_acceptance": mtp_acceptance,
         "speculation_mode": dspark["speculation_mode"] or server["speculation_mode"],
         "drafter_id": drafter_id or server["drafter_id"],
         "drafter_revision": drafter_revision or server["drafter_revision"],
@@ -513,14 +564,14 @@ def _record(
         "fixture_token_hash": fixture_hash,
         "greedy_tokens_hash": getattr(args, "greedy_tokens_hash", None),
         "logit_tie_evidence": None,
-        "temperature": SAMPLING_CONTROLS["temperature"],
-        "top_p": SAMPLING_CONTROLS["top_p"],
-        "top_k": SAMPLING_CONTROLS["top_k"],
-        "min_p": SAMPLING_CONTROLS["min_p"],
-        "presence_penalty": SAMPLING_CONTROLS["presence_penalty"],
-        "frequency_penalty": SAMPLING_CONTROLS["frequency_penalty"],
-        "repetition_penalty": SAMPLING_CONTROLS["repetition_penalty"],
-        "reasoning_effort": SAMPLING_CONTROLS["reasoning_effort"],
+        "temperature": controls["temperature"],
+        "top_p": controls["top_p"],
+        "top_k": controls["top_k"],
+        "min_p": controls["min_p"],
+        "presence_penalty": controls["presence_penalty"],
+        "frequency_penalty": controls["frequency_penalty"],
+        "repetition_penalty": controls["repetition_penalty"],
+        "reasoning_effort": controls["reasoning_effort"],
         "max_tokens": MAX_TOKENS,
         "error": (
             "finish_reason:length" if result.finish_reason == "length" else None
@@ -558,11 +609,26 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--drafter-id")
     parser.add_argument("--drafter-revision")
     parser.add_argument("--tokenizer-path", type=Path)
+    parser.add_argument(
+        "--temperature", type=float, default=SAMPLING_CONTROLS["temperature"]
+    )
+    parser.add_argument("--top-p", type=float, default=SAMPLING_CONTROLS["top_p"])
+    parser.add_argument("--top-k", type=int, default=SAMPLING_CONTROLS["top_k"])
+    parser.add_argument(
+        "--reasoning-effort", default=SAMPLING_CONTROLS["reasoning_effort"]
+    )
     return parser
 
 
 def main() -> int:
     args = build_parser().parse_args()
+    sampling_controls = {
+        **SAMPLING_CONTROLS,
+        "temperature": args.temperature,
+        "top_p": args.top_p,
+        "top_k": args.top_k,
+        "reasoning_effort": args.reasoning_effort,
+    }
     api_model = args.api_model or args.model
     tokenizer = (
         LocalTokenizer(args.tokenizer_path)
@@ -588,7 +654,12 @@ def main() -> int:
         fixture.text, 64, tokenizer
     )
     warmup_text, _ = build_suffix(512, tokenizer, "Warmup complete.")
-    stream_chat(args.base_url, _warmup_payload(api_model, warmup_text))
+    stream_chat(
+        args.base_url,
+        _warmup_payload(
+            api_model, warmup_text, sampling_controls=sampling_controls
+        ),
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("a", encoding="utf-8") as output:
         for scenario in SCENARIOS:
@@ -607,6 +678,7 @@ def main() -> int:
                             specprefill=args.specprefill,
                             specprefill_keep_pct=args.specprefill_keep_pct,
                             specprefill_threshold=args.specprefill_threshold,
+                            sampling_controls=sampling_controls,
                         ),
                     )
                 messages = _messages_for_scenario(
@@ -623,7 +695,7 @@ def main() -> int:
                 )
                 args.static_prefix_prior_match = prime_messages is not None
                 args.static_prefix_matches = prime_messages is not None
-                metrics_before = _metrics_snapshot(args.metrics_url)
+                metrics_before = _metrics_snapshot(args.metrics_url, args.runtime)
                 result = stream_chat(
                     args.base_url,
                     _payload(
@@ -632,9 +704,10 @@ def main() -> int:
                         specprefill=args.specprefill,
                         specprefill_keep_pct=args.specprefill_keep_pct,
                         specprefill_threshold=args.specprefill_threshold,
+                        sampling_controls=sampling_controls,
                     ),
                 )
-                metrics_after = _metrics_snapshot(args.metrics_url)
+                metrics_after = _metrics_snapshot(args.metrics_url, args.runtime)
                 dspark_machine = _json_snapshot(args.machine_url)
                 dspark_metrics = _json_snapshot(args.mlx_dspark_metrics_url)
                 args.greedy_tokens_hash = sha256_tokens(tokenizer(result.text))
@@ -655,6 +728,7 @@ def main() -> int:
                     dspark_metrics,
                     args.drafter_id,
                     args.drafter_revision,
+                    sampling_controls,
                 )
                 output.write(json.dumps(record, sort_keys=True) + "\n")
                 output.flush()

@@ -23,6 +23,10 @@ MLX_DSPARK_RUNTIME_REVISION="v0.15.0/69cd5c122d19ad3916eefccd43334ff59a92a914"
 MLX_DSPARK_MODEL_REVISION="815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9"
 OQ8E_MODEL_REVISION="c99e5aad8a478f71c10b9a3dde6709158b690da6"
 OQ8E_FP16_MODEL_REVISION="4761782b9455f335292f4d6cb0c89570dff27a11"
+MTPLX_RUNTIME_REVISION="v2.9.1/bd4421567f9e16ce957c6ef97708b072dcd73937"
+MTPLX_MODEL_REVISION="123db8bcc7101455b00d9aad36c0e760c6e7de02"
+CACHE_BASE="${XDG_CACHE_HOME:-${HOME}/.cache}"
+CAMPAIGN_MODEL_ROOT="${QWEN38_MODEL_ROOT:-$CACHE_BASE/local-llms/qwen3.8-prefix-cache}"
 
 ACTIVE_PID=""
 MACMON_PID=""
@@ -31,7 +35,7 @@ LAST_RUNTIME_LOG=""
 
 usage() {
   cat >&2 <<'EOF'
-usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|omlx-oq8e-smoke|specprefill-16k|specprefill-32k|ane-16k|ane-32k|dspark-smoke|dspark-decode-8k|dspark-cache-32k|dspark-decode-32k|cache-65k|tool-loop|summary|native-262k}
+usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|omlx-oq8e-smoke|mtplx-smoke|mtplx-32k|specprefill-16k|specprefill-32k|ane-16k|ane-32k|dspark-smoke|dspark-decode-8k|dspark-cache-32k|dspark-decode-32k|cache-65k|tool-loop|summary|native-262k}
 EOF
 }
 
@@ -116,6 +120,14 @@ arm_metadata() {
       PORT=8000
       LAUNCHER="$SCRIPTS/run-omlx.sh"
       ;;
+    V)
+      RUNTIME="MTPLX"
+      MODEL_ID="Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed"
+      RUNTIME_REVISION="$MTPLX_RUNTIME_REVISION"
+      MODEL_REVISION="$MTPLX_MODEL_REVISION"
+      PORT=8000
+      LAUNCHER="$SCRIPTS/run-mtplx.sh"
+      ;;
     P|Q|R|S)
       RUNTIME="mlx-dspark"
       MODEL_ID="mlx-community/Qwen3.8-27B-8bit"
@@ -143,6 +155,9 @@ arm_metadata() {
     U)
       TOKENIZER_PATH="${OMLX_MODEL_ROOT:-}/Jundot-Qwen3.8-27B-oQ8e-fp16-mtp-$OQ8E_FP16_MODEL_REVISION"
       ;;
+    V)
+      TOKENIZER_PATH="$CAMPAIGN_MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-$MTPLX_MODEL_REVISION"
+      ;;
     P|Q|R|S)
       TOKENIZER_PATH="${MLX_DSPARK_TARGET_PATH:-}"
       ;;
@@ -150,18 +165,21 @@ arm_metadata() {
   API_MODEL="$MODEL_ID"
   if [[ "$RUNTIME" == "oMLX" && -n "$TOKENIZER_PATH" ]]; then
     API_MODEL="$(basename "$TOKENIZER_PATH")"
+  elif [[ "$RUNTIME" == "MTPLX" ]]; then
+    API_MODEL="mtplx"
   fi
 
   CACHE_ARGS=()
   MTP_ARGS=()
   SPECPREFILL_ARGS=()
   ANE_PREFILL_ARGS=()
+  SAMPLING_ARGS=()
   case "$arm" in
-    B|C|E|F|G|H|K|L|M|N|Q|R|S|T|U) CACHE_ARGS=(--cache-enabled) ;;
+    B|C|E|F|G|H|K|L|M|N|Q|R|S|T|U|V) CACHE_ARGS=(--cache-enabled) ;;
   esac
   case "$arm" in
     C|F|G|H) MTP_ARGS=(--mtp-enabled) ;;
-    L|M|N|T|U) MTP_ARGS=(--mtp-enabled) ;;
+    L|M|N|T|U|V) MTP_ARGS=(--mtp-enabled) ;;
   esac
   case "$arm" in
     M) SPECPREFILL_ARGS=(--specprefill=true --specprefill-keep-pct 0.40 --specprefill-threshold 8192 --specprefill-draft-model Qwen/Qwen3.5-2B --specprefill-draft-revision 15852e8c16360a2fea060d615a32b45270f8a8fc) ;;
@@ -170,6 +188,9 @@ arm_metadata() {
   esac
   case "$arm" in
     O) ANE_PREFILL_ARGS=(--ane-prefill-enabled) ;;
+  esac
+  case "$arm" in
+    V) SAMPLING_ARGS=(--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh) ;;
   esac
 }
 
@@ -196,6 +217,7 @@ probe_python() {
   case "$RUNTIME" in
     oMLX) runtime_command="${QWEN38_OMLX_BIN:-omlx}" ;;
     mlx-dspark) runtime_command="${MLX_DSPARK_BIN:-mlx-dspark}" ;;
+    MTPLX) runtime_command="${QWEN38_MTPLX_BIN:-mtplx}" ;;
   esac
   if [[ -n "$runtime_command" ]]; then
     local runtime_bin shebang interpreter
@@ -250,7 +272,7 @@ validate_mtp_log() {
   local arm="$1"
   local log_file="$2"
   case "$arm" in
-    C|F|G|H|L|T|U)
+    C|F|G|H|L|T|U|V)
       if ! grep -Eiq 'mtp|draft' "$log_file"; then
         echo "arm $arm did not report MTP/draft activation in $log_file" >&2
         return 1
@@ -286,7 +308,7 @@ run_cache_arm() {
   echo "RUN arm=$arm context=$context mode=cache"
   wait_for_cooldown || return 1
   if [[ "$DRY_RUN" == "1" ]]; then
-    if [[ "$RUNTIME" == "oMLX" || "$RUNTIME" == "mlx-dspark" ]]; then
+    if [[ "$RUNTIME" == "oMLX" || "$RUNTIME" == "mlx-dspark" || "$RUNTIME" == "MTPLX" ]]; then
       echo "+ QWEN38_CTX_SIZE=$context bash $LAUNCHER $arm"
     else
       bash "$LAUNCHER" "$arm" --print
@@ -342,6 +364,9 @@ run_cache_arm() {
   if [[ "${#ANE_PREFILL_ARGS[@]}" -gt 0 ]]; then
     PROBE_COMMAND+=("${ANE_PREFILL_ARGS[@]}")
   fi
+  if [[ "${#SAMPLING_ARGS[@]}" -gt 0 ]]; then
+    PROBE_COMMAND+=("${SAMPLING_ARGS[@]}")
+  fi
   printf '+ %q ' "${PROBE_COMMAND[@]}"
   printf '\n'
   "${PROBE_COMMAND[@]}" || { cleanup; return 1; }
@@ -357,7 +382,7 @@ run_tool_arm() {
   echo "RUN arm=$arm context=$context mode=tool-loop"
   wait_for_cooldown || return 1
   if [[ "$DRY_RUN" == "1" ]]; then
-    if [[ "$RUNTIME" == "oMLX" || "$RUNTIME" == "mlx-dspark" ]]; then
+    if [[ "$RUNTIME" == "oMLX" || "$RUNTIME" == "mlx-dspark" || "$RUNTIME" == "MTPLX" ]]; then
       echo "+ bash $LAUNCHER $arm (tool-loop)"
     else
       bash "$LAUNCHER" "$arm" --print
@@ -377,6 +402,7 @@ run_tool_arm() {
     python3 "$SCRIPTS/tool_loop.py"
     --base-url "http://127.0.0.1:${PORT}/v1"
     --model "$MODEL_ID"
+    --api-model "$API_MODEL"
     --runtime "$RUNTIME"
     --runtime-revision "$RUNTIME_REVISION"
     --model-revision "$MODEL_REVISION"
@@ -394,6 +420,9 @@ run_tool_arm() {
   fi
   if [[ "${#SPECPREFILL_ARGS[@]}" -gt 0 ]]; then
     TOOL_COMMAND+=("${SPECPREFILL_ARGS[@]}")
+  fi
+  if [[ "${#SAMPLING_ARGS[@]}" -gt 0 ]]; then
+    TOOL_COMMAND+=("${SAMPLING_ARGS[@]}")
   fi
   printf '+ %q ' "${TOOL_COMMAND[@]}"
   printf '\n'
@@ -523,6 +552,13 @@ case "$STAGE" in
     ;;
   omlx-oq8e-smoke)
     run_arms 32768 T U
+    ;;
+  mtplx-smoke)
+    run_cache_arm V 8192 code
+    ;;
+  mtplx-32k)
+    run_cache_arm V 32768 code
+    run_tool_arm V 32768
     ;;
   specprefill-16k)
     require_omlx_mtp_gate

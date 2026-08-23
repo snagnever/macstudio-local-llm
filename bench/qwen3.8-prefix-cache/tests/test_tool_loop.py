@@ -15,10 +15,29 @@ from tool_loop import (
     _metrics_snapshot,
     _tool_payload,
     _final_payload,
+    build_parser,
 )
 
 
 class ToolLoopTests(unittest.TestCase):
+    def test_api_model_can_differ_from_the_recorded_artifact(self):
+        """MTPLX serves an alias while results must retain the pinned HF id."""
+        args = build_parser().parse_args(
+            [
+                "--base-url", "http://127.0.0.1:8000/v1",
+                "--model", "Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed",
+                "--api-model", "mtplx",
+                "--runtime", "MTPLX",
+                "--runtime-revision", "v2.9.1/bd44215",
+                "--model-revision", "123db8bc",
+                "--arm", "V",
+                "--session-id", "session",
+                "--output", "/tmp/tool-loop.jsonl",
+            ]
+        )
+
+        self.assertEqual(args.model, "Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed")
+        self.assertEqual(args.api_model, "mtplx")
     def test_dspark_metrics_snapshot_reads_the_official_json_shape(self):
         class Response:
             def __enter__(self):
@@ -43,6 +62,26 @@ class ToolLoopTests(unittest.TestCase):
         self.assertEqual(metrics["mlx_dspark.mean_accept_len"], 3.5)
         self.assertEqual(metrics["mlx_dspark.rounds.accepted"], 8)
 
+    def test_mtplx_metrics_snapshot_reads_the_latest_request(self):
+        """MTPLX tool turns expose JSON rather than Prometheus metrics."""
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_):
+                return False
+
+            def read(self):
+                return b'{"latest":{"drafted_tokens":18,"accepted_drafts":11}}'
+
+        with patch("tool_loop.urlopen", return_value=Response()):
+            metrics = _metrics_snapshot(
+                "http://127.0.0.1:8000/metrics", runtime="MTPLX"
+            )
+
+        self.assertEqual(metrics["mtplx.drafted_tokens"], 18)
+        self.assertEqual(metrics["mtplx.accepted_tokens"], 11)
+
     def test_tool_payload_carries_the_exact_specprefill_profile(self):
         """Tool-loop evidence must be collected with the profile under test."""
         payload = _tool_payload(
@@ -63,6 +102,29 @@ class ToolLoopTests(unittest.TestCase):
 
         self.assertEqual(payload["temperature"], 0)
         self.assertTrue(payload["specprefill"])
+
+    def test_tool_payload_accepts_the_official_vendor_sampling(self):
+        """A performance stage must not inherit the diagnostic temperature."""
+        controls = {
+            "temperature": 1.0,
+            "top_p": 0.95,
+            "top_k": 20,
+            "min_p": 0.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+            "repetition_penalty": 1.0,
+            "reasoning_effort": "xhigh",
+        }
+
+        payload = _tool_payload(
+            "mtplx",
+            [{"role": "user", "content": "probe"}],
+            sampling_controls=controls,
+        )
+
+        self.assertEqual(payload["temperature"], 1.0)
+        self.assertEqual(payload["top_p"], 0.95)
+        self.assertEqual(payload["top_k"], 20)
     def test_build_tools_returns_fresh_stably_ordered_schemas(self):
         first = build_tools()
         first[0]["function"]["name"] = "mutated"

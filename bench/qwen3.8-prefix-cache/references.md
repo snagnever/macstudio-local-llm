@@ -46,6 +46,10 @@ Relatos comunitários orientam hipóteses. Eles não substituem medições no ri
 | P35 | [Revisão fixada do oQ8e fp16](https://huggingface.co/Jundot/Qwen3.8-27B-oQ8e-fp16-mtp/commit/4761782b9455f335292f4d6cb0c89570dff27a11) | Revisão reproduzível do controle fp16 |
 | P36 | [oMLX performance: Qwen3.8-27B-oQ8e-fp16-mtp](https://omlx.ai/benchmarks/performance/2pko3m1k) | Configuração e números públicos em M3 Ultra; hipótese externa, não baseline local |
 | P37 | [oQ8e fp16 model card detalhado](https://huggingface.co/evsinlb/Qwen3.8-27B-oQ8e-fp16-mtp) | Bpw efetivo, contexto, sampling e preferência BF16 em M3/M4 |
+| P38 | [MTPLX v2.9.1](https://github.com/youssofal/MTPLX/releases/tag/v2.9.1) | Runtime fixado, correções de contexto longo, cache multi-turn e telemetria |
+| P39 | [MTPLX Qwen3.8 Optimized Speed](https://huggingface.co/Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed) | Checkpoint oficial, quantização, sampling, contexto e MTP depth 3 |
+| P40 | [Revisão fixada do MTPLX Optimized Speed](https://huggingface.co/Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed/commit/123db8bcc7101455b00d9aad36c0e760c6e7de02) | Revisão reproduzível do pacote oficial |
+| P41 | [MTPLX runtime contract](https://huggingface.co/Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed/blob/123db8bcc7101455b00d9aad36c0e760c6e7de02/mtplx_runtime.json) | Perfil Turbo, sampler do draft e evidência de profundidade |
 
 ## Issues e discussões técnicas
 
@@ -76,6 +80,8 @@ Relatos comunitários orientam hipóteses. Eles não substituem medições no ri
 | C8 | [vLLM hybrid cache and MTP field notes](https://www.reddit.com/r/LocalLLaMA/comments/1vspexl/qwen38_27b_via_vllm_i_love_it_and_i_hate_it_here/) | Cache e especulação precisam de teste conjunto | CUDA e patches comunitários |
 | C9 | [Qwen3.8 AWQ 5 bpw discussion](https://www.reddit.com/r/oMLX/comments/1vr3agq/if_you_were_initially_put_off_by_qwen3827b_pptg/) | Motiva o AWQ e o prefill especulativo | Relato do ecossistema oMLX |
 | C10 | [Qwen3.8 oQ8e performance setup](https://www.reddit.com/r/LocalLLaMA/comments/1vty1g4/been_tweaking_my_qwen_38_setup_up_to_45_steady/) | Aponta para a combinação oQ8e, MTP, SpecPrefill e ANE | Não identifica de forma inequívoca o namespace do checkpoint |
+| C11 | [Qwen3.8 em Apple Silicon: runtimes e velocidades](https://www.reddit.com/r/LocalLLM/comments/1vv2tw5/people_running_qwen_38_27b_on_apple_silicon_whats/) | Relatos recorrentes de MTPLX e oMLX motivam o braço MVP | Hardware, quant e protocolos misturados |
+| C12 | [oMLX versus MTPLX no M3 Max](https://github.com/jundot/omlx/issues/2795) | MTPLX aparece melhor até 8K e pior em contexto maior nesse relato | Comparação comunitária, versões e rig diferentes |
 
 ## Evidência local reutilizável
 
@@ -193,6 +199,21 @@ diretamente comparáveis. O namespace exato usado na página também não é pub
 há uploads com o mesmo nome e conteúdo diferente.
 
 Fontes: P33, P34, P35, P36, P37 e C10.
+
+### MTPLX
+
+O pacote Optimized Speed mistura corpo 4-bit, módulos sensíveis 8-bit e estados/MTP
+em 16-bit. O model card recomenda esse artefato em Macs modernos com pelo menos 32 GB,
+declara contexto de 262.144 tokens e profundidade MTP 3.
+
+A revisão 2.9.1 é necessária porque corrige o fast path Turbo e sessões longas, além
+de fazer o sampler de draft estampado no pacote prevalecer sobre configurações antigas.
+A campanha preserva o sampling oficial do target (1.0/0.95/20), thinking e xhigh.
+
+Os números do vendor foram medidos em M5 Max. O issue C12 sugere que a vantagem pode
+mudar após 8K, por isso o MVP mede 8K e 32K no M4 Max antes de promover o runtime.
+
+Fontes: P38, P39, P40, P41, C11 e C12.
 
 ### SpecPrefill
 

@@ -8,6 +8,7 @@ bash -n "$SCRIPTS/run-mlx-serve.sh"
 bash -n "$SCRIPTS/run-llama-cpp.sh"
 bash -n "$SCRIPTS/run-omlx.sh"
 bash -n "$SCRIPTS/run-mlx-dspark.sh"
+bash -n "$SCRIPTS/run-mtplx.sh"
 bash -n "$SCRIPTS/run-campaign.sh"
 bash -n "$SCRIPTS/download-models.sh"
 
@@ -17,6 +18,7 @@ mkdir -p \
   "$MODEL_ROOT/True2456-Qwen3.8-27B-AWQ-5.0bpw-dc699a76ddcbef44c188a8aee2ccc79ccc339a04" \
   "$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6" \
   "$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-fp16-mtp-4761782b9455f335292f4d6cb0c89570dff27a11" \
+  "$MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-123db8bcc7101455b00d9aad36c0e760c6e7de02" \
   "$MODEL_ROOT/draft-2b" \
   "$MODEL_ROOT/draft-08b"
 MLX_A="$(QWEN38_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-mlx-serve.sh" A --print)"
@@ -34,7 +36,9 @@ FAKE_OMLX_OK="$(mktemp /tmp/qwen38-omlx-ok.XXXXXX)"
 FAKE_OMLX_BAD="$(mktemp /tmp/qwen38-omlx-bad.XXXXXX)"
 FAKE_DSPARK_OK="$(mktemp /tmp/qwen38-dspark-ok.XXXXXX)"
 FAKE_DSPARK_BAD="$(mktemp /tmp/qwen38-dspark-bad.XXXXXX)"
-trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD" "$FAKE_DSPARK_OK" "$FAKE_DSPARK_BAD"' EXIT
+FAKE_MTPLX_OK="$(mktemp /tmp/qwen38-mtplx-ok.XXXXXX)"
+FAKE_MTPLX_BAD="$(mktemp /tmp/qwen38-mtplx-bad.XXXXXX)"
+trap 'rm -f "$ANE_PROFILE" "$VERSION_LOG" "$FAKE_OMLX_OK" "$FAKE_OMLX_BAD" "$FAKE_DSPARK_OK" "$FAKE_DSPARK_BAD" "$FAKE_MTPLX_OK" "$FAKE_MTPLX_BAD"' EXIT
 printf '%s\n' '{"qwen35_ane_prefill_sequence_length":8192}' >"$ANE_PROFILE"
 printf '%s\n' \
   '#!/usr/bin/env bash' \
@@ -68,6 +72,15 @@ printf '%s\n' \
   'fi' \
   'exit 64' >"$FAKE_DSPARK_BAD"
 chmod +x "$FAKE_DSPARK_OK" "$FAKE_DSPARK_BAD"
+printf '%s\n' \
+  '#!/usr/bin/env bash' \
+  'if [[ "$1" == "--version" ]]; then echo "mtplx 2.9.1 (2.9.1)"; exit 0; fi' \
+  '[[ "$1" == "serve" ]]' >"$FAKE_MTPLX_OK"
+printf '%s\n' \
+  '#!/usr/bin/env bash' \
+  'if [[ "$1" == "--version" ]]; then echo "mtplx 2.9.0 (2.9.0)"; exit 0; fi' \
+  '[[ "$1" == "serve" ]]' >"$FAKE_MTPLX_BAD"
+chmod +x "$FAKE_MTPLX_OK" "$FAKE_MTPLX_BAD"
 OMLX_I="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" I --print)"
 OMLX_J="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" J --print)"
 OMLX_K="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" K --print)"
@@ -77,6 +90,7 @@ OMLX_N="$(OMLX_MODEL_ROOT="$MODEL_ROOT" OMLX_DRAFT_08B_PATH="$MODEL_ROOT/draft-0
 OMLX_O="$(OMLX_MODEL_ROOT="$MODEL_ROOT" OMLX_ANE_PROFILE="$ANE_PROFILE" bash "$SCRIPTS/run-omlx.sh" O --print)"
 OMLX_T="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" T --print)"
 OMLX_U="$(OMLX_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/run-omlx.sh" U --print)"
+MTPLX_V="$(QWEN38_MTPLX_BIN="$FAKE_MTPLX_OK" QWEN38_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE=32768 bash "$SCRIPTS/run-mtplx.sh" V --print)"
 mkdir -p "$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" "$MODEL_ROOT/RadixArk--Qwen3.8-27B-DSpark-85ef153be924f17ce4bf62726954eeaa4a73e854" "$MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4"
 DSPARK_Q="$(MLX_DSPARK_BIN="$FAKE_DSPARK_OK" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" bash "$SCRIPTS/run-mlx-dspark.sh" Q --print)"
 DSPARK_R="$(MLX_DSPARK_BIN="$FAKE_DSPARK_OK" MLX_DSPARK_TARGET_PATH="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" MLX_DSPARK_DSPARK_PATH="$MODEL_ROOT/RadixArk--Qwen3.8-27B-DSpark-85ef153be924f17ce4bf62726954eeaa4a73e854" bash "$SCRIPTS/run-mlx-dspark.sh" R --print)"
@@ -175,6 +189,26 @@ grep -q -- 'Jundot/Qwen3.8-27B-oQ8e-fp16-mtp' <<<"$OMLX_U"
 grep -q -- '4761782b9455f335292f4d6cb0c89570dff27a11' <<<"$OMLX_U"
 grep -q -- '"mtp_enabled": true' <<<"$OMLX_U"
 
+grep -q -- "--model $MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-123db8bcc7101455b00d9aad36c0e760c6e7de02" <<<"$MTPLX_V"
+grep -q -- '--profile turbo' <<<"$MTPLX_V"
+grep -q -- '--depth 3' <<<"$MTPLX_V"
+grep -q -- '--generation-mode mtp' <<<"$MTPLX_V"
+grep -q -- '--context-window 32768' <<<"$MTPLX_V"
+grep -q -- '--ssd-session-cache off' <<<"$MTPLX_V"
+grep -q -- '--reasoning-effort xhigh' <<<"$MTPLX_V"
+grep -q -- '--preserve-thinking on' <<<"$MTPLX_V"
+grep -q -- 'MTPLX_CONFIG=' <<<"$MTPLX_V"
+
+QWEN38_MTPLX_BIN="$FAKE_MTPLX_OK" QWEN38_MODEL_ROOT="$MODEL_ROOT" \
+  QWEN38_MTPLX_RUN_ID="version-ok-$RANDOM" \
+  bash "$SCRIPTS/run-mtplx.sh" V >/dev/null
+
+if QWEN38_MTPLX_BIN="$FAKE_MTPLX_BAD" QWEN38_MODEL_ROOT="$MODEL_ROOT" \
+  bash "$SCRIPTS/run-mtplx.sh" V >/dev/null 2>&1; then
+  echo "MTPLX launcher accepted a runtime version other than 2.9.1" >&2
+  exit 1
+fi
+
 QWEN38_OMLX_BIN="$FAKE_OMLX_OK" \
   QWEN38_OMLX_RUN_ID="version-ok-$RANDOM" \
   OMLX_MODEL_ROOT="$MODEL_ROOT" \
@@ -231,6 +265,12 @@ OQ8E_SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" omlx-oq8e-smoke)"
 grep -q -- 'arm=T context=32768' <<<"$OQ8E_SMOKE"
 grep -q -- 'arm=U context=32768' <<<"$OQ8E_SMOKE"
 ! grep -Eq -- 'arm=(J|K|L|M|N|O) context=32768' <<<"$OQ8E_SMOKE"
+
+MTPLX_SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" mtplx-smoke)"
+grep -q -- 'arm=V context=8192' <<<"$MTPLX_SMOKE"
+MTPLX_32K="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" mtplx-32k)"
+grep -q -- 'arm=V context=32768 mode=cache' <<<"$MTPLX_32K"
+grep -q -- 'arm=V context=32768 mode=tool-loop' <<<"$MTPLX_32K"
 
 DSPARK_SMOKE="$(QWEN38_DRY_RUN=1 bash "$SCRIPTS/run-campaign.sh" dspark-smoke)"
 grep -q -- 'run-mlx-dspark.sh auto-smoke' <<<"$DSPARK_SMOKE"
@@ -338,3 +378,7 @@ DOWNLOAD_OQ8E="$(QWEN38_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/download-models.
 grep -q -- 'Jundot/Qwen3.8-27B-oQ8e-mtp.*--revision c99e5aad8a478f71c10b9a3dde6709158b690da6' <<<"$DOWNLOAD_OQ8E"
 grep -q -- 'Jundot/Qwen3.8-27B-oQ8e-fp16-mtp.*--revision 4761782b9455f335292f4d6cb0c89570dff27a11' <<<"$DOWNLOAD_OQ8E"
 ! grep -q -- 'unsloth/Qwen3.8-27B-GGUF' <<<"$DOWNLOAD_OQ8E"
+
+DOWNLOAD_MTPLX="$(QWEN38_MODEL_ROOT="$MODEL_ROOT" bash "$SCRIPTS/download-models.sh" mtplx --print)"
+grep -q -- 'Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed.*--revision 123db8bcc7101455b00d9aad36c0e760c6e7de02' <<<"$DOWNLOAD_MTPLX"
+! grep -q -- 'Jundot/Qwen3.8-27B-oQ8e' <<<"$DOWNLOAD_MTPLX"

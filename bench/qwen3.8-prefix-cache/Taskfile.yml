@@ -20,6 +20,7 @@ tasks:
       - {sh: "command -v llama-server", msg: "Install the pinned llama.cpp release."}
       - {sh: "command -v omlx", msg: "Install the pinned oMLX release."}
       - {sh: "command -v mlx-dspark", msg: "Install mlx-dspark v0.15.0."}
+      - {sh: "command -v mtplx", msg: "Install MTPLX v2.9.1."}
 
   deps:driver:
     desc: Check MacBook Pro driver dependencies
@@ -75,6 +76,14 @@ tasks:
     cmds:
       - bash bench/qwen3.8-prefix-cache/scripts/download-models.sh oq8e
 
+  models:mtplx:
+    desc: Download the pinned official MTPLX Optimized Speed model
+    deps: [deps:common]
+    preconditions:
+      - {sh: "command -v uvx", msg: "Install uv with: brew install uv"}
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/download-models.sh mtplx
+
   cache:32k:
     desc: Run 32K cache-only arms on the rig
     deps: [deps:rig, unit]
@@ -110,6 +119,18 @@ tasks:
     deps: [deps:rig, unit]
     cmds:
       - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-oq8e-smoke
+
+  mtplx:smoke:
+    desc: Run the official MTPLX Optimized Speed smoke at 8K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh mtplx-smoke
+
+  mtplx:32k:
+    desc: Run MTPLX cache, decode, and tool stability at 32K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh mtplx-32k
 
   specprefill:16k:
     desc: Compare oMLX SpecPrefill profiles at 16K

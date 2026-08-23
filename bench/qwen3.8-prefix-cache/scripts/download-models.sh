@@ -11,16 +11,18 @@ MLX_REVISION="011e38296b3d2aa99245ed49a700459c4ac246b6"
 GGUF_REVISION="4ca720788d1e01f1bff70c033e0d0028fd02e502"
 OQ8E_REVISION="c99e5aad8a478f71c10b9a3dde6709158b690da6"
 OQ8E_FP16_REVISION="4761782b9455f335292f4d6cb0c89570dff27a11"
+MTPLX_REVISION="123db8bcc7101455b00d9aad36c0e760c6e7de02"
 MLX_DIR="$MODEL_ROOT/ddalcu-Qwen3.8-27B-MLX-Serve-8bit-$MLX_REVISION"
 GGUF_DIR="$MODEL_ROOT/unsloth-Qwen3.8-27B-GGUF-$GGUF_REVISION"
 OQ8E_DIR="$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-mtp-$OQ8E_REVISION"
 OQ8E_FP16_DIR="$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-fp16-mtp-$OQ8E_FP16_REVISION"
+MTPLX_DIR="$MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-$MTPLX_REVISION"
 MANIFEST="$ROOT/bench/qwen3.8-prefix-cache/results/artifacts.json"
 
 case "$MODE" in
-  smoke|all|oq8e) ;;
+  smoke|all|oq8e|mtplx) ;;
   *)
-    echo "usage: $0 {smoke|all|oq8e} [--print]" >&2
+    echo "usage: $0 {smoke|all|oq8e|mtplx} [--print]" >&2
     exit 64
     ;;
 esac
@@ -47,6 +49,14 @@ if [[ "$MODE" == "oq8e" ]]; then
     Jundot/Qwen3.8-27B-oQ8e-fp16-mtp \
     --revision "$OQ8E_FP16_REVISION" \
     --local-dir "$OQ8E_FP16_DIR"
+  exit 0
+fi
+
+if [[ "$MODE" == "mtplx" ]]; then
+  run_command "$UVX_BIN" --from huggingface_hub hf download \
+    Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed \
+    --revision "$MTPLX_REVISION" \
+    --local-dir "$MTPLX_DIR"
   exit 0
 fi
 
