@@ -145,6 +145,10 @@ svg.chart{width:100%; height:auto; display:block; touch-action:none}
 #hitTable td.grp{background:var(--surface-2); font-family:var(--sans); font-weight:700; color:var(--ink); font-size:0.8rem}
 .hcell{text-align:center; font-variant-numeric:tabular-nums; border-radius:4px}
 .hcell.na{color:var(--muted); background:transparent!important}
+.hcell.est{box-shadow:inset 0 0 0 1.6px var(--muted); font-style:italic}
+.hcell .star{font-style:normal; font-weight:700; margin-left:1px}
+.est-note{margin:10px 0 0; font-size:0.78rem; color:var(--ink-2)}
+.est-note .star{font-weight:700; font-style:normal}
 .hit-legend{display:flex; align-items:center; gap:10px; margin-top:12px; font-size:0.8rem; color:var(--ink-2); flex-wrap:wrap}
 .hit-legend .bar{height:12px; width:150px; border-radius:3px; border:1px solid var(--border);
   background:linear-gradient(90deg, var(--surface-2), rgba(var(--accent-rgb),0.88))}
@@ -212,6 +216,10 @@ footer code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2
     recovered 0.99.</p>
     <div class="tbl-scroll"><table id="hitTable"></table></div>
     <div class="hit-legend"><span>0</span><span class="bar"></span><span>1 (full reuse)</span></div>
+    <p class="est-note"><span class="star">*</span> Estimated, not run to save time — inferred from the
+    adjacent contexts and the 4-bit sibling (MTPLX 4-bit). MTPLX 8-bit at 256K skipped
+    <code>middle_mutation</code> and <code>tool_turn</code>; the estimates follow the measured MTPLX 4-bit
+    at 256K (middle 0.008, tool_turn 0.996 under the 100G cap).</p>
   </section>
 
   <section class="block">
@@ -718,6 +726,10 @@ function buildGrid(){
 }
 
 // ---- hit heatmap ----
+// Estimated cells: not run to save time, inferred from adjacent contexts and
+// the 4-bit sibling. Y@256K middle_mutation ~ intrinsic MTPLX re-prefill (V@256K
+// = 0.008); tool_turn ~ reuse with the 100G cap (V@256K = 0.996).
+const HIT_EST = {"Y":{"262144":{"middle_mutation":0.01,"tool_turn":0.99}}};
 function hitBg(v){ const a=0.10+v*0.78; return `rgba(var(--accent-rgb),${a.toFixed(3)})`; }
 function buildHitTable(){
   const t=document.getElementById("hitTable");
@@ -727,7 +739,12 @@ function buildHitTable(){
     CTX.forEach((c,i)=>{
       h+=`<tr><td>${CTXLAB[i]}</td>`+SCEN.map(sc=>{
         const v=(HITMAP[s.id]&&HITMAP[s.id][c]) ? HITMAP[s.id][c][sc[0]] : undefined;
-        if(v==null) return `<td class="hcell na">—</td>`;
+        if(v==null){
+          const e=(HIT_EST[s.id]&&HIT_EST[s.id][c]) ? HIT_EST[s.id][c][sc[0]] : undefined;
+          if(e==null) return `<td class="hcell na">—</td>`;
+          const et = e>=0.55 ? "#ffffff" : "var(--ink)";
+          return `<td class="hcell est" title="estimated — not run to save time" style="background:${hitBg(e)};color:${et}">${e.toFixed(2)}<span class="star">*</span></td>`;
+        }
         const txt = v>=0.55 ? "#ffffff" : "var(--ink)";
         return `<td class="hcell" style="background:${hitBg(v)};color:${txt}">${v.toFixed(2)}</td>`;
       }).join("")+"</tr>";
