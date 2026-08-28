@@ -92,6 +92,12 @@ tasks:
     cmds:
       - bash bench/qwen3.8-prefix-cache/scripts/download-models.sh oq4e-dflash
 
+  models:manifest:
+    desc: Hash every pinned target and drafter after downloads complete
+    deps: [deps:common]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/write-artifact-manifest.sh
+
   cache:32k:
     desc: Run 32K cache-only arms on the rig
     deps: [deps:rig, unit]
@@ -163,6 +169,12 @@ tasks:
     deps: [deps:rig, unit]
     cmds:
       - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh ane-16k
+
+  ane:tune:
+    desc: Tune the isolated oMLX ANE split on this Mac before arm O
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-ane-tuner.sh
 
   ane:32k:
     desc: Compare oMLX ANE prefill at 32K

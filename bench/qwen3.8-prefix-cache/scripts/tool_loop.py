@@ -277,15 +277,20 @@ def _final_payload(
         {
             "role": "user",
             "content": (
-                "Finish without calling a tool. State the four observed result markers: "
-                "XENON, ARGON, NEON, and RECORDED."
+                "Finish without calling a tool. Quote each of the four observed result "
+                "markers by its complete identifier, exactly and verbatim as it appeared "
+                "in the tool results: the full XENON, ARGON, and NEON identifiers "
+                "(each with its number-and-word suffix) and the RECORDED marker. Do not "
+                "abbreviate them to the short names, summarize, or write 'all passed'."
             ),
         }
     )
+    # 1024 truncava o content sob raciocínio xhigh: o modelo emitia os IDs
+    # certos, mas o content era cortado antes de escrevê-los. 4096 dá folga.
     payload = {
         "model": model,
         "messages": final_messages,
-        "max_tokens": 1024,
+        "max_tokens": 4096,
         **(sampling_controls or SAMPLING_CONTROLS),
     }
     if specprefill is not None:
@@ -402,8 +407,13 @@ def main() -> int:
                     args.timeout,
                 )
                 tool_calls = assistant_message.get("tool_calls") or []
-                if len(tool_calls) != 1:
-                    raise ValueError("each turn must contain exactly one tool call")
+                if len(tool_calls) < 1:
+                    raise ValueError("each turn must contain at least one tool call")
+                # Accept extra tool calls or interleaved text at temperature=1.0: keep
+                # the first call and drop the rest so the conversation stays well-formed
+                # (one tool result per retained call).
+                if len(tool_calls) > 1:
+                    assistant_message = {**assistant_message, "tool_calls": [tool_calls[0]]}
                 function = tool_calls[0].get("function") or {}
                 tool_name = function.get("name")
                 if not isinstance(tool_name, str):
@@ -534,11 +544,27 @@ def main() -> int:
                     ),
                     args.timeout,
                 )
-                final_text = (
-                    final_message.get("content")
-                    or final_message.get("reasoning_content")
-                    or ""
+                # Conta content E reasoning: sob xhigh o modelo às vezes fecha os
+                # IDs no reasoning e trunca o content. Um "or" pegaria só o content
+                # truncado e reprovaria injustamente. Aqui os IDs valem em qualquer canal.
+                final_text = "\n".join(
+                    part for part in (
+                        final_message.get("content"),
+                        final_message.get("reasoning_content"),
+                    ) if part
                 )
+                # Diagnostic dump: full final message (content and reasoning) goes to
+                # logs/, never to results/. Lets us see whether missing final values
+                # landed in reasoning_content vs content vs were truly absent.
+                try:
+                    debug_dir = args.output.parent.parent / "logs" / "tool-loop"
+                    debug_dir.mkdir(parents=True, exist_ok=True)
+                    (debug_dir / f"{args.session_id}-final.json").write_text(
+                        json.dumps(final_message, ensure_ascii=False, indent=2),
+                        encoding="utf-8",
+                    )
+                except OSError:
+                    pass
             except Exception as caught:
                 final_error = f"{type(caught).__name__}: {caught}"
 

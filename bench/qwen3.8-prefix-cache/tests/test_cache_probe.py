@@ -94,7 +94,7 @@ class CacheProbeTests(unittest.TestCase):
         self.assertEqual(record["prompt_work_mode"], "sparse")
         self.assertIsNone(record["specprefill_selected_tokens"])
         self.assertEqual(record["runtime_revision"], "v0.6.3rc2")
-        self.assertEqual(record["max_tokens"], 2048)
+        self.assertEqual(record["max_tokens"], 4096)
         self.assertEqual(record["concurrency"], 1)
         self.assertEqual(record["warmup_id"], "cache-probe-independent-v2")
         self.assertTrue(record["prompt_identity"])
@@ -147,15 +147,15 @@ class CacheProbeTests(unittest.TestCase):
         self.assertEqual(payload["temperature"], 0)
 
     def test_fixture_target_reserves_template_and_generation_headroom(self):
-        self.assertEqual(fixture_token_target(8192), 4608)
-        self.assertEqual(fixture_token_target(32768), 29184)
+        self.assertEqual(fixture_token_target(8192), 2560)
+        self.assertEqual(fixture_token_target(32768), 27136)
 
     def test_diagnostic_payload_keeps_vendor_reasoning_effort(self):
         payload = _payload("model", [{"role": "user", "content": "probe"}])
 
         self.assertEqual(payload["temperature"], 0)
         self.assertEqual(payload["reasoning_effort"], "xhigh")
-        self.assertEqual(payload["max_tokens"], 2048)
+        self.assertEqual(payload["max_tokens"], 4096)
 
     def test_performance_payload_accepts_the_official_vendor_sampling(self):
         """Ignoring a stage's sampling profile would invalidate performance data."""
@@ -317,7 +317,7 @@ class CacheProbeTests(unittest.TestCase):
                 "cache_probe.py", "--base-url", "http://example.test/v1",
                 "--model", "awq5", "--runtime", "oMLX",
                 "--runtime-revision", "v0.6.3rc2", "--model-revision", "target",
-                "--arm", "L", "--session-id", "code-session", "--context", "4096",
+                "--arm", "L", "--session-id", "code-session", "--context", "8192",
                 "--content-class", "code", "--repeat", "1", "--output", str(output),
                 "--tokenizer-path", "/models/awq5",
                 "--api-model", "local-awq5-revision",

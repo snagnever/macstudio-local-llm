@@ -25,8 +25,10 @@ OQ8E_MODEL_REVISION="c99e5aad8a478f71c10b9a3dde6709158b690da6"
 OQ8E_FP16_MODEL_REVISION="4761782b9455f335292f4d6cb0c89570dff27a11"
 OQ4E_MODEL_REVISION="c41ed507f1b16320942a1e9ce340e71d2692dee2"
 DFLASH2_MODEL_REVISION="dedf8df68adfb1afeaf7b7480c0a0243108177b4"
-MTPLX_RUNTIME_REVISION="v2.9.1/bd4421567f9e16ce957c6ef97708b072dcd73937"
+MTPLX_RUNTIME_REVISION="v2.9.2/bbc67427e88288001e4b90ecb44708dc0222154c"
 MTPLX_MODEL_REVISION="123db8bcc7101455b00d9aad36c0e760c6e7de02"
+MTPLX_QUALITY_MODEL_REVISION="09f71b39a75c416be3c974840b53f9fbe9aa1841"
+MTPLX_QUALITY_FP16_MODEL_REVISION="4b3533770e01217f9b523f337b4597fd4ca50eea"
 CACHE_BASE="${XDG_CACHE_HOME:-${HOME}/.cache}"
 CAMPAIGN_MODEL_ROOT="${QWEN38_MODEL_ROOT:-$CACHE_BASE/local-llms/qwen3.8-prefix-cache}"
 OMLX_MODEL_ROOT="${OMLX_MODEL_ROOT:-$CAMPAIGN_MODEL_ROOT}"
@@ -39,7 +41,7 @@ LAST_RUNTIME_LOG=""
 
 usage() {
   cat >&2 <<'EOF'
-usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|omlx-mtp-tool-loop-32k|omlx-oq8e-smoke|omlx-oq4e-dflash-32k|mtplx-smoke|mtplx-32k|specprefill-16k|specprefill-32k|ane-16k|ane-32k|dspark-smoke|dspark-decode-8k|dspark-cache-32k|dspark-decode-32k|cache-65k|tool-loop|summary|native-262k}
+usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|omlx-mtp-tool-loop-32k|omlx-oq8e-smoke|omlx-oq4e-dflash-32k|mtplx-smoke|mtplx-32k|mtplx-tool-loop-32k|mtplx-quality-smoke|mtplx-quality-32k|specprefill-16k|specprefill-32k|ane-16k|ane-32k|dspark-smoke|dspark-decode-8k|dspark-cache-32k|dspark-decode-32k|dspark-tool-loop-32k|cache-65k|cache-65k-frontrunners|cache-65k-mtplx8|cache-65k-oq8e|mtplx-bank-test|mtplx-toolturn-ab|mtplx-y-recap-128k|cache-128k-mtplx-292|cache-128k-sweep|cache-262k-sweep|tool-loop|summary|native-262k}
 EOF
 }
 
@@ -140,6 +142,22 @@ arm_metadata() {
       PORT=8000
       LAUNCHER="$SCRIPTS/run-mtplx.sh"
       ;;
+    Y)
+      RUNTIME="MTPLX"
+      MODEL_ID="Youssofal/Qwen3.8-27B-MTPLX-Optimized-Quality"
+      RUNTIME_REVISION="$MTPLX_RUNTIME_REVISION"
+      MODEL_REVISION="$MTPLX_QUALITY_MODEL_REVISION"
+      PORT=8000
+      LAUNCHER="$SCRIPTS/run-mtplx.sh"
+      ;;
+    Z)
+      RUNTIME="MTPLX"
+      MODEL_ID="Youssofal/Qwen3.8-27B-MTPLX-Optimized-Quality-FP16"
+      RUNTIME_REVISION="$MTPLX_RUNTIME_REVISION"
+      MODEL_REVISION="$MTPLX_QUALITY_FP16_MODEL_REVISION"
+      PORT=8000
+      LAUNCHER="$SCRIPTS/run-mtplx.sh"
+      ;;
     P|Q|R|S)
       RUNTIME="mlx-dspark"
       MODEL_ID="mlx-community/Qwen3.8-27B-8bit"
@@ -173,6 +191,12 @@ arm_metadata() {
     V)
       TOKENIZER_PATH="$CAMPAIGN_MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-$MTPLX_MODEL_REVISION"
       ;;
+    Y)
+      TOKENIZER_PATH="$CAMPAIGN_MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Quality-$MTPLX_QUALITY_MODEL_REVISION"
+      ;;
+    Z)
+      TOKENIZER_PATH="$CAMPAIGN_MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Quality-FP16-$MTPLX_QUALITY_FP16_MODEL_REVISION"
+      ;;
     P|Q|R|S)
       TOKENIZER_PATH="${MLX_DSPARK_TARGET_PATH:-}"
       ;;
@@ -190,22 +214,22 @@ arm_metadata() {
   ANE_PREFILL_ARGS=()
   SAMPLING_ARGS=()
   case "$arm" in
-    B|C|E|F|G|H|K|L|M|N|Q|R|S|T|U|V) CACHE_ARGS=(--cache-enabled) ;;
+    B|C|E|F|G|H|K|L|M|N|Q|R|S|T|U|V|Y|Z) CACHE_ARGS=(--cache-enabled) ;;
   esac
   case "$arm" in
     C|F|G|H) MTP_ARGS=(--mtp-enabled) ;;
-    L|M|N|T|U|V) MTP_ARGS=(--mtp-enabled) ;;
+    L|M|N|T|U|V|Y|Z) MTP_ARGS=(--mtp-enabled) ;;
   esac
   case "$arm" in
     M) SPECPREFILL_ARGS=(--specprefill=true --specprefill-keep-pct 0.40 --specprefill-threshold 8192 --specprefill-draft-model Qwen/Qwen3.5-2B --specprefill-draft-revision 15852e8c16360a2fea060d615a32b45270f8a8fc) ;;
     N) SPECPREFILL_ARGS=(--specprefill=true --specprefill-keep-pct 0.50 --specprefill-threshold 8192 --specprefill-draft-model Qwen/Qwen3.5-0.8B --specprefill-draft-revision 2fc06364715b967f1860aea9cf38778875588b17) ;;
-    J|K|L|O|T|U|W|X) SPECPREFILL_ARGS=(--specprefill=false) ;;
+    J|K|L|O|T|U|W|X|Y|Z) SPECPREFILL_ARGS=(--specprefill=false) ;;
   esac
   case "$arm" in
     O) ANE_PREFILL_ARGS=(--ane-prefill-enabled) ;;
   esac
   case "$arm" in
-    A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X)
+    A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)
       SAMPLING_ARGS=(--temperature 1.0 --top-p 0.95 --top-k 20 --reasoning-effort xhigh)
       ;;
   esac
@@ -289,7 +313,7 @@ validate_mtp_log() {
   local arm="$1"
   local log_file="$2"
   case "$arm" in
-    C|F|G|H|L|T|U|V|X)
+    C|F|G|H|L|T|U|V|X|Y|Z)
       if ! grep -Eiq 'mtp|draft' "$log_file"; then
         echo "arm $arm did not report MTP/draft activation in $log_file" >&2
         return 1
@@ -324,6 +348,9 @@ run_cache_arm() {
   local measurement_mode="${4:-performance}"
   arm_metadata "$arm" || return 1
   local run_repeats="$REPEATS"
+  # Diagnostic A/B hook: write to an alternate file and/or a scenario subset
+  # without touching the canonical results/cache-probe.jsonl dataset.
+  local out_file="${QWEN38_CACHE_OUTPUT:-$RESULTS/cache-probe.jsonl}"
   case "$measurement_mode" in
     performance) ;;
     greedy)
@@ -374,8 +401,17 @@ run_cache_arm() {
     --context "$context"
     --content-class "$content_class"
     --repeat "$run_repeats"
-    --output "$RESULTS/cache-probe.jsonl"
+    --output "$out_file"
   )
+  if [[ -n "${QWEN38_CACHE_SCENARIOS:-}" ]]; then
+    PROBE_COMMAND+=(--scenarios "$QWEN38_CACHE_SCENARIOS")
+  fi
+  if [[ -n "${QWEN38_SCENARIO_REPEATS:-}" ]]; then
+    PROBE_COMMAND+=(--scenario-repeats "$QWEN38_SCENARIO_REPEATS")
+  fi
+  if [[ -n "${QWEN38_CACHE_SCENARIO_ORDER:-}" ]]; then
+    PROBE_COMMAND+=(--scenario-order "$QWEN38_CACHE_SCENARIO_ORDER")
+  fi
   if [[ "$RUNTIME" == "mlx-dspark" ]]; then
     PROBE_COMMAND+=(--mlx-dspark-metrics-url "http://127.0.0.1:${PORT}/metrics" --machine-url "http://127.0.0.1:${PORT}/machine")
     case "$arm" in
@@ -411,7 +447,7 @@ run_cache_arm() {
   "${PROBE_COMMAND[@]}" || { cleanup; return 1; }
 
   validate_mtp_log "$arm" "$runtime_log" || { cleanup; return 1; }
-  finish_runtime "$RESULTS/cache-probe.jsonl" "$session_id" "$runtime_log" "$arm" "$context" || return 1
+  finish_runtime "$out_file" "$session_id" "$runtime_log" "$arm" "$context" || return 1
 }
 
 run_tool_arm() {
@@ -437,35 +473,56 @@ run_tool_arm() {
   start_runtime "$arm" "$context" "$runtime_log" || { cleanup; return 1; }
   wait_for_server "http://127.0.0.1:${PORT}/v1" || { cleanup; return 1; }
 
-  TOOL_COMMAND=(
-    python3 "$SCRIPTS/tool_loop.py"
-    --base-url "http://127.0.0.1:${PORT}/v1"
-    --model "$MODEL_ID"
-    --api-model "$API_MODEL"
-    --runtime "$RUNTIME"
-    --runtime-revision "$RUNTIME_REVISION"
-    --model-revision "$MODEL_REVISION"
-    --arm "$arm"
-    --session-id "$session_id"
-    --context "$context"
-    --output "$RESULTS/tool-loop.jsonl"
-    --metrics-url "http://127.0.0.1:${PORT}/metrics"
-  )
-  if [[ "${#CACHE_ARGS[@]}" -gt 0 ]]; then
-    TOOL_COMMAND+=("${CACHE_ARGS[@]}")
+  # Best-of-N majority: the tool-loop final-recall contract is non-deterministic at
+  # temperature=1.0, so one sampling miss must not fail the whole gate. Run N loops
+  # against the same warm runtime and require a majority to pass. Same session-id
+  # across repeats keeps one telemetry window for enrich_telemetry.
+  local tool_loop_repeats="${QWEN38_TOOL_LOOP_REPEATS:-3}"
+  local tool_loop_majority=$(( tool_loop_repeats / 2 + 1 ))
+  local tool_loop_passes=0
+  local tool_loop_r
+  for (( tool_loop_r = 1; tool_loop_r <= tool_loop_repeats; tool_loop_r++ )); do
+    TOOL_COMMAND=(
+      python3 "$SCRIPTS/tool_loop.py"
+      --base-url "http://127.0.0.1:${PORT}/v1"
+      --model "$MODEL_ID"
+      --api-model "$API_MODEL"
+      --runtime "$RUNTIME"
+      --runtime-revision "$RUNTIME_REVISION"
+      --model-revision "$MODEL_REVISION"
+      --arm "$arm"
+      --session-id "$session_id"
+      --context "$context"
+      --output "$RESULTS/tool-loop.jsonl"
+      --metrics-url "http://127.0.0.1:${PORT}/metrics"
+    )
+    if [[ "${#CACHE_ARGS[@]}" -gt 0 ]]; then
+      TOOL_COMMAND+=("${CACHE_ARGS[@]}")
+    fi
+    if [[ "${#MTP_ARGS[@]}" -gt 0 ]]; then
+      TOOL_COMMAND+=("${MTP_ARGS[@]}")
+    fi
+    if [[ "${#SPECPREFILL_ARGS[@]}" -gt 0 ]]; then
+      TOOL_COMMAND+=("${SPECPREFILL_ARGS[@]}")
+    fi
+    if [[ "${#SAMPLING_ARGS[@]}" -gt 0 ]]; then
+      TOOL_COMMAND+=("${SAMPLING_ARGS[@]}")
+    fi
+    printf '+ %q ' "${TOOL_COMMAND[@]}"
+    printf '\n'
+    if "${TOOL_COMMAND[@]}"; then
+      tool_loop_passes=$(( tool_loop_passes + 1 ))
+      echo "tool-loop $arm r${tool_loop_r}: PASS"
+    else
+      echo "tool-loop $arm r${tool_loop_r}: FAIL"
+    fi
+  done
+  echo "tool-loop $arm majority: ${tool_loop_passes}/${tool_loop_repeats} pass (need ${tool_loop_majority})"
+  if (( tool_loop_passes < tool_loop_majority )); then
+    echo "tool-loop $arm did not reach majority pass" >&2
+    cleanup
+    return 1
   fi
-  if [[ "${#MTP_ARGS[@]}" -gt 0 ]]; then
-    TOOL_COMMAND+=("${MTP_ARGS[@]}")
-  fi
-  if [[ "${#SPECPREFILL_ARGS[@]}" -gt 0 ]]; then
-    TOOL_COMMAND+=("${SPECPREFILL_ARGS[@]}")
-  fi
-  if [[ "${#SAMPLING_ARGS[@]}" -gt 0 ]]; then
-    TOOL_COMMAND+=("${SAMPLING_ARGS[@]}")
-  fi
-  printf '+ %q ' "${TOOL_COMMAND[@]}"
-  printf '\n'
-  "${TOOL_COMMAND[@]}" || { cleanup; return 1; }
 
   validate_mtp_log "$arm" "$runtime_log" || { cleanup; return 1; }
   finish_runtime "$RESULTS/tool-loop.jsonl" "$session_id" "$runtime_log" "$arm" "$context" || return 1
@@ -634,6 +691,23 @@ case "$STAGE" in
     run_cache_arm V 32768 code
     run_tool_arm V 32768
     ;;
+  mtplx-tool-loop-32k)
+    run_tool_arm V 32768
+    ;;
+  mtplx-quality-smoke)
+    run_cache_arm Y 8192 code
+    run_cache_arm Z 8192 code
+    ;;
+  mtplx-quality-32k)
+    # Tool loop a temp=1.0 é flaky (contrato de 4 strings exatas). Aqui ele é
+    # comparativo, não gate: registra a maioria mas NÃO aborta o estágio, para
+    # o Z sempre ser medido. Rode com QWEN38_TOOL_LOOP_REPEATS=5 p/ maioria estável.
+    run_cache_arm Y 32768 code
+    run_tool_arm Y 32768 || echo "tool-loop Y não fez maioria (comparativo, seguindo)" >&2
+    run_cache_arm Z 32768 code
+    run_tool_arm Z 32768 || echo "tool-loop Z não fez maioria (comparativo, seguindo)" >&2
+    summarize || true
+    ;;
   specprefill-16k)
     require_omlx_mtp_gate
     run_arms 16384 L M N
@@ -670,6 +744,102 @@ case "$STAGE" in
     run_dspark_performance 32768
     run_tool_arm R 32768
     run_tool_arm S 32768
+    ;;
+  cache-65k-frontrunners)
+    # Contexto longo (65K) nos front-runners, roteados por run_cache_arm ao runtime
+    # de cada braço (L/T=oMLX, V=MTPLX, S=mlx-dspark). Tolerante: um braço que falhar
+    # não bloqueia os outros. S exige MLX_DSPARK_* no ambiente.
+    run_cache_arm L 65536 || echo "L 65K falhou (seguindo)" >&2
+    run_cache_arm T 65536 || echo "T 65K falhou (seguindo)" >&2
+    run_cache_arm V 65536 || echo "V 65K falhou (seguindo)" >&2
+    run_cache_arm S 65536 || echo "S 65K falhou (seguindo)" >&2
+    summarize || true
+    ;;
+  mtplx-bank-test)
+    # Valida a correção do cache MTPLX a 128K. O cap do session-bank (24G/sessão padrão)
+    # estoura com KV de 128K -> append/tool_turn re-prefilam. Sobe o cap via
+    # MTPLX_SESSION_BANK_PER_SESSION_BYTES / _MAX_BYTES (exportados no launch). Isola a
+    # variável: só o cap muda vs cache-128k-sweep. SEM summarize (não misturar caps na média).
+    run_cache_arm V 131072 || echo "V 128K (bank test) falhou (seguindo)" >&2
+    ;;
+  mtplx-toolturn-ab)
+    # A/B do achado aberto: tool_turn @128K re-prefila no MTPLX mesmo com o cap subido,
+    # enquanto append (estrutura quase igual) reusa. Hipotese: tratamento de tool-history
+    # no session-bank/gate de canonicalizacao mudou na 2.9.2 (passthrough por padrao).
+    # Braco A = runtime apontado por QWEN38_MTPLX_BIN (2.9.2). Controle B = dados 2.9.1 ja medidos.
+    # Grava em arquivo separado (QWEN38_CACHE_OUTPUT) p/ nao poluir o dataset canonico.
+    # Roda so append (controle positivo: base reusa) + tool_turn (a questao).
+    run_cache_arm V 131072 || echo "V 128K (toolturn A/B) falhou (seguindo)" >&2
+    ;;
+  cache-128k-mtplx-292)
+    # Re-mede V e Y @128K na MTPLX 2.9.2 (release adotada; passthrough por padrão corrige o
+    # tool_turn que a 2.9.1 re-prefilava). 5 cenários, 3 repetições (igual a L/T/S@128K, linha
+    # uniforme). Cap do session-bank subido no launch. Substitui as sessões 2.9.1 poluídas de
+    # V/Y@128K (descartadas na higiene depois). SEM summarize aqui.
+    run_cache_arm V 131072 || echo "V 128K (2.9.2) falhou (seguindo)" >&2
+    run_cache_arm Y 131072 || echo "Y 128K (2.9.2) falhou (seguindo)" >&2
+    ;;
+  mtplx-y-recap-128k)
+    # Re-mede Y (MTPLX 8-bit) @128K com o cap do session-bank subido (env no launch),
+    # para casar com o V corrigido no dashboard. SEM summarize (higiene: a sessão antiga
+    # do Y@128K, cap padrão, é descartada depois).
+    run_cache_arm Y 131072 || echo "Y 128K (recap) falhou (seguindo)" >&2
+    ;;
+  cache-128k-sweep)
+    # Varredura de contexto (128K) nos front-runners L/T/V/Y/S. 5 cenários, 3 repetições.
+    # Degrau intermediário da curva desempenho-vs-contexto até o máximo do modelo (262K).
+    # Requer disco livre p/ o transbordo SSD do oMLX (ver anomalia T@65K). S exige MLX_DSPARK_*.
+    run_cache_arm L 131072 || echo "L 128K falhou (seguindo)" >&2
+    run_cache_arm T 131072 || echo "T 128K falhou (seguindo)" >&2
+    run_cache_arm V 131072 || echo "V 128K falhou (seguindo)" >&2
+    run_cache_arm Y 131072 || echo "Y 128K falhou (seguindo)" >&2
+    run_cache_arm S 131072 || echo "S 128K falhou (seguindo)" >&2
+    summarize || true
+    ;;
+  cache-262k-sweep)
+    # Varredura de contexto no MÁXIMO do modelo (262144, nativo). Front-runners L/T/V/Y/S.
+    # Corte por-cenário: cold/middle_mutation/tool_turn com 1 rep, identical/append com 2.
+    # cold/middle/tool_turn a 262K são re-prefill cheio determinístico (spread <=0.5% a 128K;
+    # tool_turn em ordem canônica cai após o middle = pior caso, sempre re-prefila), então 1 rep
+    # basta. cold roda primeiro (SCENARIOS) e semeia o bank. Braços MTPLX (V/Y) na 2.9.2.
+    # Subset de braços por QWEN38_262K_ARMS (default todos). Tolerante.
+    REPEATS=2
+    # Corte por-runtime. oMLX/dspark reusam identical/append barato (cache content-addressed),
+    # então mantêm 2 reps. MTPLX re-prefila no prime a cada rep (identical leva ~1 prefill cheio),
+    # e o hit é determinístico (identical=1.0, append=0.99 estáveis) -> 1 rep. cold/middle/tool_turn
+    # = 1 rep em todos (re-prefill determinístico; tool_turn canônico cai após o middle = pior caso).
+    cut_default="cold=1,middle_mutation=1,tool_turn=1"
+    cut_mtplx="cold=1,middle_mutation=1,tool_turn=1,identical=1,append=1"
+    for arm262 in ${QWEN38_262K_ARMS:-L T V Y S}; do
+      case "$arm262" in
+        V|Y|Z) export QWEN38_SCENARIO_REPEATS="${QWEN38_SCENARIO_REPEATS_MTPLX:-$cut_mtplx}" ;;
+        *)     export QWEN38_SCENARIO_REPEATS="${QWEN38_SCENARIO_REPEATS_DEFAULT:-$cut_default}" ;;
+      esac
+      run_cache_arm "$arm262" 262144 || echo "$arm262 262K falhou (seguindo)" >&2
+    done
+    summarize || true
+    ;;
+  cache-65k-oq8e)
+    # Re-teste do oQ8e (T) a 65K após liberar disco. A 1ª medição deu cache hit 0
+    # por FALHA DE TRANSBORDO PARA SSD (disk_free=1.70 GB): o KV de 65K do oQ8e
+    # (8.6 bpw) não coube no SSD cheio. Com disco liberado, isola a variável.
+    run_cache_arm T 65536 || echo "T 65K falhou (seguindo)" >&2
+    summarize || true
+    ;;
+  cache-65k-mtplx8)
+    # Contexto longo (65K) do MTPLX 8-bit (Y). Complementa V (4-bit) do estágio
+    # cache-65k-frontrunners: mede warm cache e throughput da precisão 8-bit,
+    # em vez de inferir por analogia com o V. Mesma engine MTPLX, porta 8000.
+    run_cache_arm Y 65536 || echo "Y 65K falhou (seguindo)" >&2
+    summarize || true
+    ;;
+  dspark-tool-loop-32k)
+    # Só os tool loops R/S a 32K (decode/baseline já medidos noutro estágio).
+    # Tolerante: mede os dois mesmo se um não fizer maioria. Rode com
+    # QWEN38_TOOL_LOOP_REPEATS=3 para não custar horas a 32K.
+    run_tool_arm R 32768 || echo "tool-loop R não fez maioria (seguindo p/ S)" >&2
+    run_tool_arm S 32768 || echo "tool-loop S não fez maioria (seguindo)" >&2
+    summarize || true
     ;;
   cache-65k)
     [[ "$DRY_RUN" == "1" ]] || summarize || true

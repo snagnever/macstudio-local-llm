@@ -1,0 +1,252 @@
+{
+ "L": {
+  "32768": {
+   "decode_tps": 42.48,
+   "prefill_tps": 226.79,
+   "e2e_cold_s": 142.9,
+   "e2e_cached_s": 51.9,
+   "eff_cold": 6.69,
+   "eff_cached": 37.1,
+   "ram_gb": 51.7,
+   "hit_cached": 0.975,
+   "comp_cold": 956,
+   "comp_cached": 1924
+  },
+  "65536": {
+   "decode_tps": 33.59,
+   "prefill_tps": 202.41,
+   "e2e_cold_s": 356.4,
+   "e2e_cached_s": 51.0,
+   "eff_cold": 5.625,
+   "eff_cached": 29.9,
+   "ram_gb": 58.8,
+   "hit_cached": 0.989,
+   "comp_cold": 2005,
+   "comp_cached": 1524
+  },
+  "131072": {
+   "decode_tps": 25.22,
+   "prefill_tps": 162.26,
+   "e2e_cold_s": 816.1,
+   "e2e_cached_s": 70.1,
+   "eff_cold": 1.295,
+   "eff_cached": 21.57,
+   "ram_gb": 81.6,
+   "hit_cached": 0.995,
+   "comp_cold": 1057,
+   "comp_cached": 1513
+  },
+  "262144": {
+   "decode_tps": 14.59,
+   "prefill_tps": 114.89,
+   "e2e_cold_s": 2423.0,
+   "e2e_cached_s": 71.0,
+   "eff_cold": 1.138,
+   "eff_cached": 12.92,
+   "ram_gb": null,
+   "hit_cached": 0.997,
+   "comp_cold": 2757,
+   "comp_cached": 917
+  }
+ },
+ "T": {
+  "32768": {
+   "decode_tps": 30.57,
+   "prefill_tps": 211.9,
+   "e2e_cold_s": 173.6,
+   "e2e_cached_s": 39.0,
+   "eff_cold": 6.197,
+   "eff_cached": 27.32,
+   "ram_gb": 67.6,
+   "hit_cached": 0.977,
+   "comp_cold": 1076,
+   "comp_cached": 1064
+  },
+  "65536": {
+   "decode_tps": 28.1,
+   "prefill_tps": 201.99,
+   "e2e_cold_s": 326.6,
+   "e2e_cached_s": 46.0,
+   "eff_cold": 2.517,
+   "eff_cached": 23.73,
+   "ram_gb": 75.7,
+   "hit_cached": 0.989,
+   "comp_cold": 822,
+   "comp_cached": 1092
+  },
+  "131072": {
+   "decode_tps": 20.23,
+   "prefill_tps": 161.95,
+   "e2e_cold_s": 851.8,
+   "e2e_cached_s": 75.6,
+   "eff_cold": 1.807,
+   "eff_cached": 18.59,
+   "ram_gb": 94.6,
+   "hit_cached": 0.995,
+   "comp_cold": 1539,
+   "comp_cached": 1405
+  },
+  "262144": {
+   "decode_tps": 13.47,
+   "prefill_tps": 113.57,
+   "e2e_cold_s": 2312.9,
+   "e2e_cached_s": 117.0,
+   "eff_cold": 0.309,
+   "eff_cached": 11.85,
+   "ram_gb": 111.9,
+   "hit_cached": 0.997,
+   "comp_cold": 714,
+   "comp_cached": 1387
+  }
+ },
+ "S": {
+  "32768": {
+   "decode_tps": 39.9,
+   "prefill_tps": 252.27,
+   "e2e_cold_s": 123.7,
+   "e2e_cached_s": 52.0,
+   "eff_cold": 5.079,
+   "eff_cached": 37.72,
+   "ram_gb": 84.5,
+   "hit_cached": 1.0,
+   "comp_cold": 628,
+   "comp_cached": 1960
+  },
+  "65536": {
+   "decode_tps": 32.1,
+   "prefill_tps": 223.08,
+   "e2e_cold_s": 297.6,
+   "e2e_cached_s": 39.4,
+   "eff_cold": 3.101,
+   "eff_cached": 30.35,
+   "ram_gb": 127.4,
+   "hit_cached": 1.0,
+   "comp_cold": 923,
+   "comp_cached": 1195
+  },
+  "131072": {
+   "decode_tps": 21.9,
+   "prefill_tps": 176.87,
+   "e2e_cold_s": 783.7,
+   "e2e_cached_s": 61.2,
+   "eff_cold": 2.056,
+   "eff_cached": 21.56,
+   "ram_gb": 127.0,
+   "hit_cached": 1.0,
+   "comp_cold": 1611,
+   "comp_cached": 1320
+  },
+  "262144": {
+   "decode_tps": 14.1,
+   "prefill_tps": 124.59,
+   "e2e_cold_s": 2136.7,
+   "e2e_cached_s": 101.5,
+   "eff_cold": 0.51,
+   "eff_cached": 14.14,
+   "ram_gb": 127.5,
+   "hit_cached": 1.0,
+   "comp_cold": 1090,
+   "comp_cached": 1435
+  }
+ },
+ "V": {
+  "32768": {
+   "decode_tps": 44.5,
+   "prefill_tps": 228.61,
+   "e2e_cold_s": 123.9,
+   "e2e_cached_s": 12.5,
+   "eff_cold": 1.704,
+   "eff_cached": 42.41,
+   "ram_gb": 83.1,
+   "hit_cached": 1.0,
+   "comp_cold": 211,
+   "comp_cached": 532
+  },
+  "65536": {
+   "decode_tps": 33.45,
+   "prefill_tps": 200.91,
+   "e2e_cold_s": 331.3,
+   "e2e_cached_s": 69.2,
+   "eff_cold": 3.269,
+   "eff_cached": 34.16,
+   "ram_gb": 108.3,
+   "hit_cached": 1.0,
+   "comp_cold": 1083,
+   "comp_cached": 2362
+  },
+  "131072": {
+   "decode_tps": 24.19,
+   "prefill_tps": 152.96,
+   "e2e_cold_s": 872.6,
+   "e2e_cached_s": 48.9,
+   "eff_cold": 1.423,
+   "eff_cached": 24.15,
+   "ram_gb": 129.5,
+   "hit_cached": 1.0,
+   "comp_cold": 1242,
+   "comp_cached": 1182
+  },
+  "262144": {
+   "decode_tps": 8.93,
+   "prefill_tps": 98.37,
+   "e2e_cold_s": 2746.6,
+   "e2e_cached_s": 125.9,
+   "eff_cold": 0.447,
+   "eff_cached": 9.1,
+   "ram_gb": 132.6,
+   "hit_cached": 1.0,
+   "comp_cold": 1229,
+   "comp_cached": 1146
+  }
+ },
+ "Y": {
+  "32768": {
+   "decode_tps": 34.3,
+   "prefill_tps": 228.38,
+   "e2e_cold_s": 129.7,
+   "e2e_cached_s": 10.1,
+   "eff_cold": 2.768,
+   "eff_cached": 35.78,
+   "ram_gb": 93.5,
+   "hit_cached": 1.0,
+   "comp_cold": 359,
+   "comp_cached": 361
+  },
+  "65536": {
+   "decode_tps": 29.65,
+   "prefill_tps": 200.81,
+   "e2e_cold_s": 329.7,
+   "e2e_cached_s": 25.5,
+   "eff_cold": 2.754,
+   "eff_cached": 27.46,
+   "ram_gb": 118.9,
+   "hit_cached": 1.0,
+   "comp_cold": 908,
+   "comp_cached": 701
+  },
+  "131072": {
+   "decode_tps": 22.33,
+   "prefill_tps": 152.85,
+   "e2e_cold_s": 870.5,
+   "e2e_cached_s": 37.7,
+   "eff_cold": 1.248,
+   "eff_cached": 22.76,
+   "ram_gb": 130.5,
+   "hit_cached": 1.0,
+   "comp_cold": 1086,
+   "comp_cached": 859
+  },
+  "262144": {
+   "decode_tps": 8.73,
+   "prefill_tps": 99.04,
+   "e2e_cold_s": 2718.5,
+   "e2e_cached_s": 124.8,
+   "eff_cold": 0.408,
+   "eff_cached": 8.73,
+   "ram_gb": null,
+   "hit_cached": 1.0,
+   "comp_cold": 1109,
+   "comp_cached": 1090
+  }
+ }
+}

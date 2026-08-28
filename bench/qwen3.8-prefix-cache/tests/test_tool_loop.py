@@ -112,6 +112,11 @@ class ToolLoopTests(unittest.TestCase):
 
         self.assertEqual(payload["temperature"], 0)
         self.assertTrue(payload["specprefill"])
+        # The final prompt must demand the full verbatim identifiers so the grader,
+        # which matches the complete marker strings, tests what it intends to test.
+        final_message = payload["messages"][-1]["content"].lower()
+        self.assertIn("verbatim", final_message)
+        self.assertIn("abbreviate", final_message)
 
     def test_tool_payload_accepts_the_official_vendor_sampling(self):
         """A performance stage must not inherit the diagnostic temperature."""

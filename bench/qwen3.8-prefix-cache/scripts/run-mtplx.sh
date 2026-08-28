@@ -5,15 +5,24 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 ARM="${1:-}"
 OPTION="${2:-}"
 MTPLX_BIN="${QWEN38_MTPLX_BIN:-mtplx}"
-EXPECTED_VERSION="2.9.1"
-MODEL_REVISION="123db8bcc7101455b00d9aad36c0e760c6e7de02"
+EXPECTED_VERSION="${QWEN38_MTPLX_EXPECTED_VERSION:-2.9.2}"
 CACHE_BASE="${XDG_CACHE_HOME:-${HOME}/.cache}"
 MODEL_ROOT="${QWEN38_MODEL_ROOT:-$CACHE_BASE/local-llms/qwen3.8-prefix-cache}"
-MODEL_PATH="$MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-$MODEL_REVISION"
 CONTEXT_WINDOW="${QWEN38_CTX_SIZE:-32768}"
 RUN_ID="${QWEN38_MTPLX_RUN_ID:-$(date -u +%Y%m%dT%H%M%SZ)-$ARM-$RANDOM}"
 
-case "$ARM" in V) ;; *) echo "usage: $0 V [--print]" >&2; exit 64;; esac
+# V = Optimized Speed (4-bit body); Y = Optimized Quality (8-bit). Same runtime
+# config so V vs Y isolates the checkpoint recipe.
+case "$ARM" in
+  V) MODEL_REVISION="123db8bcc7101455b00d9aad36c0e760c6e7de02"
+     MODEL_NAME="Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed" ;;
+  Y) MODEL_REVISION="09f71b39a75c416be3c974840b53f9fbe9aa1841"
+     MODEL_NAME="Youssofal-Qwen3.8-27B-MTPLX-Optimized-Quality" ;;
+  Z) MODEL_REVISION="4b3533770e01217f9b523f337b4597fd4ca50eea"
+     MODEL_NAME="Youssofal-Qwen3.8-27B-MTPLX-Optimized-Quality-FP16" ;;
+  *) echo "usage: $0 {V|Y|Z} [--print]" >&2; exit 64;;
+esac
+MODEL_PATH="$MODEL_ROOT/$MODEL_NAME-$MODEL_REVISION"
 case "$OPTION" in ""|--print) ;; *) echo "unknown option: $OPTION" >&2; exit 64;; esac
 if [[ ! "$RUN_ID" =~ ^[A-Za-z0-9._-]+$ || "$RUN_ID" == "." || "$RUN_ID" == ".." ]]; then
   echo "QWEN38_MTPLX_RUN_ID must be a safe single path component" >&2
@@ -56,7 +65,7 @@ VERSION_OUTPUT="$($MTPLX_BIN --version)" || {
   echo "failed to determine MTPLX runtime version" >&2
   exit 69
 }
-if ! grep -Eq '(^|[^0-9])2\.9\.1([^0-9]|$)' <<<"$VERSION_OUTPUT"; then
+if ! grep -Eq "(^|[^0-9])${EXPECTED_VERSION//./\\.}([^0-9]|\$)" <<<"$VERSION_OUTPUT"; then
   echo "MTPLX version mismatch: expected $EXPECTED_VERSION, got ${VERSION_OUTPUT:-unknown}" >&2
   exit 65
 fi

@@ -1,0 +1,38 @@
+{
+  "R": {
+    "arm": "R",
+    "baseline": "Q",
+    "class_speedups": {
+      "chat": 2.031538713106042,
+      "code": 2.0250274245317517,
+      "math": 2.061502114849674,
+      "tool_call_json": 2.0732360395715803
+    },
+    "failures": [
+      "correct"
+    ],
+    "greedy_pair_count": 10,
+    "median_decode_speedup": {
+      "32768": 1.9036644591611478,
+      "8192": 2.2116564417177913
+    },
+    "performance_pair_count": 120,
+    "status": "FAIL",
+    "warm_total_speedup": 2.327698214442458
+  },
+  "S": {
+    "arm": "S",
+    "baseline": "Q",
+    "failures": [
+      "performance_pairs"
+    ],
+    "greedy_pair_count": 10,
+    "median_decode_speedup": {},
+    "performance_pair_count": 0,
+    "status": "INCONCLUSIVE"
+  },
+  "winner": {
+    "arm": "Q",
+    "selected": false
+  }
+}

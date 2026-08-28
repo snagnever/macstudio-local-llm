@@ -114,6 +114,21 @@ class OmlxConfigTests(unittest.TestCase):
                 expected_dir = self.target_dirs.get(arm, self.target_dirs["J"])
                 self.assertEqual(set(model_state["models"]), {expected_dir.name})
 
+    def test_tuner_state_can_explicitly_enable_local_no_auth_mode(self):
+        base_path = self.root / "ane-tuner"
+        write_omlx_state(
+            base_path,
+            load_arm(CONFIG, "J"),
+            self.model_paths,
+            skip_auth=True,
+        )
+        global_state = json.loads((base_path / "settings.json").read_text())
+
+        self.assertEqual(
+            global_state["auth"],
+            {"api_key": None, "skip_api_key_verification": True},
+        )
+
     def test_dflash_pair_resolves_local_drafter_and_changes_only_dflash(self):
         baseline = load_arm(CONFIG, "W")
         accelerated = load_arm(CONFIG, "X")

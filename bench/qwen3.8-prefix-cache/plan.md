@@ -106,6 +106,8 @@ O driver não deve executar o modelo. O rig não deve executar Docker durante as
 | `oq8e` | `Jundot/Qwen3.8-27B-oQ8e-mtp` | MLX oQ8e | 8,6 bpw efetivos, BF16 preservado | Candidato principal no M4; smoke pareado em 32K |
 | `oq8e-fp16` | `Jundot/Qwen3.8-27B-oQ8e-fp16-mtp` | MLX oQ8e | 8,6 bpw efetivos, pesos auxiliares fp16 | Controle curto do artefato usado no benchmark público |
 | `mtplx-speed` | `Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed` | MLX dinâmico + MTP nativo | Corpo 4-bit misto, componentes sensíveis 8/16-bit | MVP em 8K e 32K |
+| `mtplx-quality` | `Youssofal/Qwen3.8-27B-MTPLX-Optimized-Quality` | MLX + MTP nativo | 8-bit (grupos 64); GDN/estados/norms/MTP em 16-bit | Comparação Speed vs Quality |
+| `mtplx-quality-fp16` | `Youssofal/Qwen3.8-27B-MTPLX-Optimized-Quality-FP16` | MLX + MTP nativo | Quality 8-bit com auxiliares fp16 | Controle fp16 da Quality |
 | `oq4e` | `gcoli/Qwen3.8-27B-oQ4e-mtp` | MLX oQe | 4-bit base, 4,70 bpw efetivos no LM | Baseline/DFlash pareado em 32K |
 
 Fixe a revisão do Hugging Face antes de baixar cada modelo. Registre também o SHA-256 do artefato local.
@@ -122,7 +124,11 @@ Fixe a revisão do Hugging Face antes de baixar cada modelo. Registre também o 
 | `Jundot/Qwen3.8-27B-oQ8e-mtp` | `c99e5aad8a478f71c10b9a3dde6709158b690da6` |
 | `Jundot/Qwen3.8-27B-oQ8e-fp16-mtp` | `4761782b9455f335292f4d6cb0c89570dff27a11` |
 | `Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed` | `123db8bcc7101455b00d9aad36c0e760c6e7de02` |
+| `Youssofal/Qwen3.8-27B-MTPLX-Optimized-Quality` | `09f71b39a75c416be3c974840b53f9fbe9aa1841` |
+| `Youssofal/Qwen3.8-27B-MTPLX-Optimized-Quality-FP16` | `4b3533770e01217f9b523f337b4597fd4ca50eea` |
 | `gcoli/Qwen3.8-27B-oQ4e-mtp` | `c41ed507f1b16320942a1e9ce340e71d2692dee2` |
+| `Qwen/Qwen3.5-2B` | `15852e8c16360a2fea060d615a32b45270f8a8fc` |
+| `Qwen/Qwen3.5-0.8B` | `2fc06364715b967f1860aea9cf38778875588b17` |
 
 O commit fixado do AWQ inclui a correção do MTP publicada em `c5839cc642e479b7bbcd28311a4b8b9fb52fbd02`.
 Não use uma revisão anterior.
@@ -478,6 +484,8 @@ Use `temperature=0` somente nos testes de equivalência e diagnóstico.
 | T | `oMLX` | `oq8e` | ligado | MTP ligado | desligado | desligada |
 | U | `oMLX` | `oq8e-fp16` | ligado | MTP ligado | desligado | desligada |
 | V | `MTPLX` | `mtplx-speed` | ligado | MTP depth 3, Turbo | desligado | desligada |
+| Y | `MTPLX` | `mtplx-quality` | ligado | MTP depth 3, Turbo | desligado | desligada |
+| Z | `MTPLX` | `mtplx-quality-fp16` | ligado | MTP depth 3, Turbo | desligado | desligada |
 | W | `oMLX` | `oq4e` | desligado | desligado | desligado | desligada |
 | X | `oMLX` | `oq4e` + `draft-dflash2` | desligado | DFlash 2 | desligado | desligada |
 
@@ -522,6 +530,15 @@ Execute V primeiro em 8K e, se o loader e a saída funcional passarem, em 32K co
 repetições do workload de código e o loop de 20 tool turns. Esse é um braço MVP de
 runtime e checkpoint conjuntos; compare-o por tempo total, qualidade observada e
 memória, não como uma ablação causal de MTP contra os outros checkpoints.
+
+Execute Y e Z (Optimized Quality 8-bit e a variante fp16) com a mesma configuração
+de runtime do V — mesmo perfil Turbo, depth 3, sampling oficial, cache e MTP — para
+que V vs Y vs Z isole apenas a receita do checkpoint. O objetivo é o trade-off
+Speed vs Quality: o pacote Quality reporta corpo 8-bit e KL divergente ~21x menor
+que o Speed contra o bf16, ao custo de decode menor. Compare por qualidade observada,
+decode, tempo total e memória; Z existe como controle do fp16 auxiliar, promova-o
+sobre Y apenas com vantagem repetível. Estágios: `mtplx-quality-smoke` (8K) e
+`mtplx-quality-32k` (32K + tool loop).
 
 ## Cenários de cache
 
@@ -890,3 +907,39 @@ A campanha termina quando estes itens existem:
 - Uma decisão explícita entre baseline, DSpark e DFlash 2 no target MLX 8-bit.
 - Uma medição separada de TTFT, tempo total e decode sustentado do vencedor.
 - Um smoke test em 262.144 tokens para cada sobrevivente compatível, ou uma limitação registrada por hardware/runtime.
+
+## Ideias e experimentos futuros (pós-campanha)
+
+Fora do escopo da matriz principal. Não bloqueiam a decisão; ficam como
+possíveis follow-ups depois do relatório.
+
+### Forge próprio no MTPLX com receita de mais bits
+
+Forjar um artefato MTPLX a partir do trunk base `Qwen/Qwen3.8-27B` com o
+`mtplx forge`, usando uma receita com corpo em mais bits (por exemplo 5–6 bits
+em vez dos 4 bits do pacote `Optimized Speed`), e comparar contra o V por
+qualidade, decode e memória.
+
+- **Motivação:** avaliar se a quantização agressiva de 4 bits do corpo do
+  pacote oficial custa qualidade que uma receita mais alta recuperaria sem
+  perder muito decode.
+- **Não é** "rodar uma quant Unsloth no MTPLX": o `forge` requantiza com a
+  própria receita e não consome GGUF, então não preserva o Q4/Q6/Q8 do Unsloth.
+  A comparação "qualidade da quant Unsloth + velocidade MTP" não é alcançável;
+  são pipelines de quantização distintos.
+- **Custo:** baixar o trunk base BF16 (`Qwen/Qwen3.8-27B`, ~54 GB, não está no
+  cache), forjar um 27B (pesado) e passar no `mtplx inspect`/verify. Arquitetura
+  precisa ser suportada pelo forge (`qwen3-next-mtp`).
+
+### Outros follow-ups levantados durante a execução
+
+- Rerun canônico dos braços que só têm greedy (mlx-serve A/B/C, llama.cpp D–H,
+  mlx-dspark P/Q/R/S) se forem relevantes para a decisão final.
+- Completar o Gate 8: o drafter DSpark (braço R) foi baixado mas nunca rodou.
+- W/X rodaram `audit_retrieval`, mas o plano pedia `code` em 32K; rerun em
+  `code` se a comparação de código importar.
+- SpecPrefill: o TTFT quente do M piora vs L (prompt sparse não reaproveita o
+  cache como o L). Investigar se há modo de SpecPrefill que preserve o cache
+  quente, ou restringir SpecPrefill ao primeiro turno frio.
+- Re-run canônico de T/U com `max_tokens=4096` para o prompt bater com os
+  demais braços (pendência já registrada).

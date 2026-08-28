@@ -44,7 +44,7 @@ SAMPLING_CONTROLS = {
     "reasoning_effort": "xhigh",
 }
 WARMUP_ID = "cache-probe-independent-v2"
-MAX_TOKENS = 2048
+MAX_TOKENS = 4096
 REQUEST_RESERVE_TOKENS = MAX_TOKENS + 1024 + 512
 
 
@@ -619,7 +619,66 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--reasoning-effort", default=SAMPLING_CONTROLS["reasoning_effort"]
     )
+    parser.add_argument(
+        "--scenarios",
+        default=",".join(SCENARIOS),
+        help=(
+            "Comma-separated subset of scenarios to run, in SCENARIOS order. "
+            "Default: all. Non-cold scenarios prime their own base prefix, "
+            "so a subset like 'append,tool_turn' is self-contained."
+        ),
+    )
+    parser.add_argument(
+        "--scenario-repeats",
+        default="",
+        help=(
+            "Per-scenario repeat overrides as 'name=N,...'. Scenarios not listed "
+            "use --repeat. Prefill-bound scenarios (cold, middle_mutation) are "
+            "deterministic (timing spread <=0.5%), so 1 rep suffices; keep the "
+            "warm scenarios at more reps to confirm reuse stability."
+        ),
+    )
+    parser.add_argument(
+        "--scenario-order",
+        choices=("canonical", "as-given"),
+        default="canonical",
+        help=(
+            "canonical (default): run in the fixed SCENARIOS order regardless of "
+            "--scenarios order. as-given: run in the exact order listed in "
+            "--scenarios (diagnostic; e.g. put middle_mutation before append to "
+            "test whether a divergent turn evicts the warm base from the bank)."
+        ),
+    )
     return parser
+
+
+def scenario_repeat_overrides(raw: str) -> dict[str, int]:
+    overrides: dict[str, int] = {}
+    for item in raw.split(","):
+        item = item.strip()
+        if not item:
+            continue
+        name, _, count = item.partition("=")
+        name = name.strip()
+        if name not in SCENARIOS:
+            raise ValueError(f"unknown scenario in --scenario-repeats: {name!r}")
+        if int(count) < 1:
+            raise ValueError(f"repeat count must be >= 1 for {name!r}")
+        overrides[name] = int(count)
+    return overrides
+
+
+def selected_scenarios(raw: str, order: str = "canonical") -> tuple[str, ...]:
+    requested = [name.strip() for name in raw.split(",") if name.strip()]
+    unknown = [name for name in requested if name not in SCENARIOS]
+    if unknown:
+        raise ValueError(f"unknown scenarios: {unknown}; valid: {list(SCENARIOS)}")
+    if order == "as-given":
+        # Deduplicate while keeping the requested order.
+        seen: set[str] = set()
+        return tuple(n for n in requested if not (n in seen or seen.add(n)))
+    # Default: canonical SCENARIOS order regardless of request order.
+    return tuple(name for name in SCENARIOS if name in requested)
 
 
 def main() -> int:
@@ -662,10 +721,13 @@ def main() -> int:
             api_model, warmup_text, sampling_controls=sampling_controls
         ),
     )
+    scenarios = selected_scenarios(args.scenarios, args.scenario_order)
+    repeat_overrides = scenario_repeat_overrides(args.scenario_repeats)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("a", encoding="utf-8") as output:
-        for scenario in SCENARIOS:
-            for repeat in range(1, args.repeat + 1):
+        for scenario in scenarios:
+            scenario_repeats = repeat_overrides.get(scenario, args.repeat)
+            for repeat in range(1, scenario_repeats + 1):
                 prime_messages = (
                     None
                     if scenario == "cold"

@@ -138,7 +138,11 @@ def _resolved_model_settings(profile: dict, model_paths: dict[str, Path]) -> dic
 
 
 def write_omlx_state(
-    base_path: Path, profile: dict, model_paths: dict[str, Path]
+    base_path: Path,
+    profile: dict,
+    model_paths: dict[str, Path],
+    *,
+    skip_auth: bool = False,
 ) -> None:
     """Write the oMLX v0.6.3rc2 global and per-model state envelopes."""
     validate_arm(profile, model_paths)
@@ -153,6 +157,11 @@ def write_omlx_state(
         "model": {"model_dirs": [str(model_root)]},
         "cache": {"enabled": profile["cache_enabled"]},
     }
+    if skip_auth:
+        global_state["auth"] = {
+            "api_key": None,
+            "skip_api_key_verification": True,
+        }
     per_model_state = {
         "version": MODEL_SETTINGS_VERSION,
         "models": {target_dir.name: model_settings},
@@ -176,6 +185,7 @@ def main() -> None:
     parser.add_argument("--draft-08b-path", type=Path)
     parser.add_argument("--dflash2-path", type=Path)
     parser.add_argument("--ane-profile", type=Path)
+    parser.add_argument("--skip-auth", action="store_true")
     parser.add_argument("--print-profile", action="store_true")
     args = parser.parse_args()
 
@@ -189,7 +199,9 @@ def main() -> None:
     }
     model_paths = {key: value for key, value in model_paths.items() if value is not None}
     validate_arm(profile, model_paths)
-    write_omlx_state(args.base_path, profile, model_paths)
+    write_omlx_state(
+        args.base_path, profile, model_paths, skip_auth=args.skip_auth
+    )
     if args.print_profile:
         resolved = copy.deepcopy(profile)
         resolved["model_settings"] = _resolved_model_settings(profile, model_paths)

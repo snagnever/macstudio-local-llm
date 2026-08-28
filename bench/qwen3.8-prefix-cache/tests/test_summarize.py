@@ -431,6 +431,23 @@ class SummaryTests(unittest.TestCase):
 
         self.assertIn("code_result", omlx_mtp_gate([*k, *l, verdict])["failures"])
 
+    def test_mtp_tolerates_a_single_temperature_one_slip(self):
+        """One wrong checksum in a trio is sampling noise, not a runtime defect."""
+        k = trio("K", 32768, 100, content_class="code", prompt_identity="code-32768", fixture_token_hash="code-fixture", mtp_enabled=False, cache_hit_ratio=0.96, code_result_verdict=True, code_result_expected=32896, code_result_value=32896)
+        l = trio("L", 32768, 90, content_class="code", prompt_identity="code-32768", fixture_token_hash="code-fixture", mtp_enabled=True, mtp_acceptance=0.5, cache_hit_ratio=0.96, code_result_verdict=True, code_result_expected=32896, code_result_value=32896)
+        l[0].update(correct=False, code_result_verdict=False, code_result_value=40606)
+        verdict = {**pair_record("L", 32768, 1), "record_type": "verdict", "turns_requested": 20, "specprefill_enabled": False, "mtp_enabled": True}
+        self.assertTrue(omlx_mtp_gate([*k, *l, verdict])["passed"])
+
+    def test_mtp_rejects_a_majority_wrong_scenario(self):
+        """A majority of wrong checksums is a real functional failure, not noise."""
+        k = trio("K", 32768, 100, content_class="code", prompt_identity="code-32768", fixture_token_hash="code-fixture", mtp_enabled=False, cache_hit_ratio=0.96, code_result_verdict=True, code_result_expected=32896, code_result_value=32896)
+        l = trio("L", 32768, 90, content_class="code", prompt_identity="code-32768", fixture_token_hash="code-fixture", mtp_enabled=True, mtp_acceptance=0.5, cache_hit_ratio=0.96, code_result_verdict=True, code_result_expected=32896, code_result_value=32896)
+        for record in l[:2]:
+            record.update(correct=False, code_result_verdict=False, code_result_value=40606)
+        verdict = {**pair_record("L", 32768, 1), "record_type": "verdict", "turns_requested": 20, "specprefill_enabled": False, "mtp_enabled": True}
+        self.assertFalse(omlx_mtp_gate([*k, *l, verdict])["passed"])
+
     def test_specprefill_fails_when_needle_or_tool_loop_fails(self):
         """Ignoring functional failures would incorrectly promote SpecPrefill."""
         records = specprefill_fixture("M", 70)

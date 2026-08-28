@@ -11,6 +11,8 @@ bash -n "$SCRIPTS/run-mlx-dspark.sh"
 bash -n "$SCRIPTS/run-mtplx.sh"
 bash -n "$SCRIPTS/run-campaign.sh"
 bash -n "$SCRIPTS/download-models.sh"
+bash -n "$SCRIPTS/write-artifact-manifest.sh"
+bash -n "$SCRIPTS/run-ane-tuner.sh"
 
 MODEL_ROOT="/tmp/qwen38-launcher-fixture"
 mkdir -p \
