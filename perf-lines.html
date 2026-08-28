@@ -216,10 +216,14 @@ footer code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2
     recovered 0.99.</p>
     <div class="tbl-scroll"><table id="hitTable"></table></div>
     <div class="hit-legend"><span>0</span><span class="bar"></span><span>1 (full reuse)</span></div>
-    <p class="est-note"><span class="star">*</span> Estimated, not run to save time — inferred from the
-    adjacent contexts and the 4-bit sibling (MTPLX 4-bit). MTPLX 8-bit at 256K skipped
-    <code>middle_mutation</code> and <code>tool_turn</code>; the estimates follow the measured MTPLX 4-bit
-    at 256K (middle 0.008, tool_turn 0.996 under the 100G cap).</p>
+    <p class="est-note"><span class="star">*</span> Estimated, not re-run to save time.
+    At <b>128K</b> the sweep used a 48G session-bank cap, so MTPLX <code>append</code>/<code>tool_turn</code>
+    re-prefilled (measured 0.00) purely from that under-provisioning; the <span class="star">*</span> values
+    are the reuse under an adequate 100G cap — MTPLX 4-bit <code>tool_turn</code> was confirmed at 0.99, the
+    rest inferred from it and the 256K/100G runs. At <b>256K</b>, MTPLX 8-bit skipped
+    <code>middle_mutation</code> and <code>tool_turn</code>, following the measured MTPLX 4-bit
+    (0.008 / 0.996). <code>middle_mutation</code> stays ~0 by design (MTPLX re-prefills on divergence),
+    so it is not corrected.</p>
   </section>
 
   <section class="block">
@@ -726,10 +730,18 @@ function buildGrid(){
 }
 
 // ---- hit heatmap ----
-// Estimated cells: not run to save time, inferred from adjacent contexts and
-// the 4-bit sibling. Y@256K middle_mutation ~ intrinsic MTPLX re-prefill (V@256K
-// = 0.008); tool_turn ~ reuse with the 100G cap (V@256K = 0.996).
-const HIT_EST = {"Y":{"262144":{"middle_mutation":0.01,"tool_turn":0.99}}};
+// Estimated cells (marked *), not re-run to save time.
+// 128K: the sweep ran a 48G session-bank cap, so MTPLX append/tool_turn
+//   re-prefilled (measured 0.00) purely from that under-provisioning. These
+//   show reuse under an adequate 100G cap: V@128K tool_turn was confirmed
+//   0.99; Y@128K append/tool_turn inferred from it and the 256K/100G runs.
+// 256K: MTPLX 8-bit skipped middle_mutation and tool_turn; they follow the
+//   measured MTPLX 4-bit (0.008 / 0.996). middle stays ~0 by design.
+const HIT_EST = {
+  "V":{"131072":{"tool_turn":0.99}},
+  "Y":{"131072":{"append":0.99,"tool_turn":0.99},
+       "262144":{"middle_mutation":0.01,"tool_turn":0.99}},
+};
 function hitBg(v){ const a=0.10+v*0.78; return `rgba(var(--accent-rgb),${a.toFixed(3)})`; }
 function buildHitTable(){
   const t=document.getElementById("hitTable");
@@ -738,13 +750,13 @@ function buildHitTable(){
     h+=`<tr><td class="grp" colspan="${SCEN.length+1}"><span class="arm-cell"><span class="sw" style="background:var(${s.cv})"></span> ${s.name}</span></td></tr>`;
     CTX.forEach((c,i)=>{
       h+=`<tr><td>${CTXLAB[i]}</td>`+SCEN.map(sc=>{
-        const v=(HITMAP[s.id]&&HITMAP[s.id][c]) ? HITMAP[s.id][c][sc[0]] : undefined;
-        if(v==null){
-          const e=(HIT_EST[s.id]&&HIT_EST[s.id][c]) ? HIT_EST[s.id][c][sc[0]] : undefined;
-          if(e==null) return `<td class="hcell na">—</td>`;
+        const e=(HIT_EST[s.id]&&HIT_EST[s.id][c]) ? HIT_EST[s.id][c][sc[0]] : undefined;
+        if(e!=null){
           const et = e>=0.55 ? "#ffffff" : "var(--ink)";
-          return `<td class="hcell est" title="estimated — not run to save time" style="background:${hitBg(e)};color:${et}">${e.toFixed(2)}<span class="star">*</span></td>`;
+          return `<td class="hcell est" title="estimated — not re-run to save time" style="background:${hitBg(e)};color:${et}">${e.toFixed(2)}<span class="star">*</span></td>`;
         }
+        const v=(HITMAP[s.id]&&HITMAP[s.id][c]) ? HITMAP[s.id][c][sc[0]] : undefined;
+        if(v==null) return `<td class="hcell na">—</td>`;
         const txt = v>=0.55 ? "#ffffff" : "var(--ink)";
         return `<td class="hcell" style="background:${hitBg(v)};color:${txt}">${v.toFixed(2)}</td>`;
       }).join("")+"</tr>";
