@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-08-21T23:51:49Z",
+  "campaign_source_revision": "0f8c47d",
+  "host": {
+    "role": "rig",
+    "hostname_class": "macstudio",
+    "hardware": {
+      "model_name": "Mac Studio",
+      "model_identifier": "Mac16,9",
+      "chip": "Apple M4 Max",
+      "cpu_cores": 16,
+      "gpu_cores": 40,
+      "memory_gb": 128
+    },
+    "os": {
+      "name": "macOS",
+      "version": "26.5.2",
+      "build": "25F84"
+    },
+    "storage_free_gib": 491
+  },
+  "telemetry": {
+    "macmon_version": "0.7.2",
+    "sample_validated": true,
+    "schema": "nested temp.gpu_temp_avg and soc fields"
+  },
+  "runtimes": {
+    "mlx_serve": {
+      "release": "v26.8.9",
+      "version_output": "mlx-serve 26.8.9; mlx 0.32.0; mlx-c fba4470b8907",
+      "release_asset": "mlx-serve-bin-macos-arm64.tar.gz",
+      "release_asset_sha256": "fd1a8fd7da24e7c1f583864b4fd1548e161539b143d787a70f00c9a2745145a8",
+      "installed_binary_sha256": "f1cbcdf9ee4c54a23da0a3f0f9c91e5a4d1691beb366bae9eaaa9c5c8523e60a",
+      "install_scope": "user-local"
+    },
+    "llama_cpp": {
+      "semantic_release": "v0.2.0",
+      "semantic_release_target": "5a32f7b66ef6cfb3e60deea26e3454cc6ad3438c",
+      "official_binary_build": "b10566",
+      "binary_build_commit": "bb4caa754",
+      "version_output": "0.2.0-dev (build 10566, commit bb4caa754)",
+      "release_asset": "llama-b10566-bin-macos-arm64.tar.gz",
+      "release_asset_sha256": "533f546dab2ce2f8e29ce3070f26acc55acc59528e177f2cd0d52b7f69b44f50",
+      "installed_binary_sha256": "9f34137ff2559c40a0fe9b130937fd745726130074173665127d863846152198",
+      "install_scope": "user-local"
+    }
+  },
+  "models": {
+    "mlx8": {
+      "id": "ddalcu/Qwen3.8-27B-MLX-Serve-8bit",
+      "revision": "011e38296b3d2aa99245ed49a700459c4ac246b6",
+      "artifact_manifest": "bench/qwen3.8-prefix-cache/results/artifacts.json",
+      "status": "downloaded_and_hashed"
+    },
+    "gguf": {
+      "id": "unsloth/Qwen3.8-27B-GGUF",
+      "revision": "4ca720788d1e01f1bff70c033e0d0028fd02e502",
+      "variants": [
+        "UD-Q4_K_XL",
+        "UD-Q6_K_XL",
+        "UD-Q8_K_XL"
+      ],
+      "artifacts": {
+        "UD-Q4_K_XL": {
+          "sha256": "3f227079003add2511437e5b1e94812e363385225bf6a9b47b0054a72bc8b01e",
+          "status": "downloaded_and_hashed"
+        },
+        "MTP_Q4_0": {
+          "sha256": "50d9ce5a6da381bbcfb31061cf73df94a90e6faf8efeddee379a9cb8f1501c6e",
+          "status": "downloaded_and_hashed"
+        },
+        "UD-Q6_K_XL": {"status": "pending_post_gate"},
+        "UD-Q8_K_XL": {"status": "pending_post_gate"}
+      },
+      "artifact_manifest": "bench/qwen3.8-prefix-cache/results/artifacts.json",
+      "status": "smoke_set_ready"
+    }
+  },
+  "preflight": {
+    "common_dependencies": "pass",
+    "rig_commands": "pass",
+    "metal_access": "pass outside sandbox",
+    "model_artifacts": "smoke_set_ready"
+  }
+}

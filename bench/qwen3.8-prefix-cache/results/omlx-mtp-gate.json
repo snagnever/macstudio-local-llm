@@ -1,0 +1,12 @@
+{
+  "arm": "L",
+  "failures": [
+    "incompatible_comparison",
+    "mtp_evidence",
+    "e2e",
+    "cache_hit_ratio"
+  ],
+  "passed": false,
+  "records": 30,
+  "schema_version": 3
+}

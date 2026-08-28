@@ -1,0 +1,32 @@
+{
+  "runtime": {
+    "version": "v0.15.0",
+    "revision": "69cd5c122d19ad3916eefccd43334ff59a92a914",
+    "host": "0.0.0.0",
+    "port": 8484,
+    "context_window": 65536,
+    "reasoning_effort": "xhigh",
+    "concurrency": 1
+  },
+  "target": {
+    "id": "mlx-community/Qwen3.8-27B-8bit",
+    "revision": "815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9",
+    "native_context_window": 262144
+  },
+  "drafters": {
+    "dspark": {
+      "id": "RadixArk/Qwen3.8-27B-DSpark",
+      "revision": "85ef153be924f17ce4bf62726954eeaa4a73e854"
+    },
+    "dflash": {
+      "id": "incoai/Qwen3.8-27B-DFlash2",
+      "revision": "dedf8df68adfb1afeaf7b7480c0a0243108177b4"
+    }
+  },
+  "arms": {
+    "P": {"mode": "baseline", "prefix_cache": false, "drafter_key": null, "max_draft": null},
+    "Q": {"mode": "baseline", "prefix_cache": true, "drafter_key": null, "max_draft": null},
+    "R": {"mode": "dspark", "prefix_cache": true, "drafter_key": "dspark", "max_draft": "auto"},
+    "S": {"mode": "dflash", "prefix_cache": true, "drafter_key": "dflash", "max_draft": "auto"}
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "omlx_version": "v0.6.3rc2",
+  "models": {
+    "mlx8": {
+      "repository": "ddalcu/Qwen3.8-27B-MLX-Serve-8bit",
+      "revision": "011e38296b3d2aa99245ed49a700459c4ac246b6"
+    },
+    "awq5": {
+      "repository": "True2456/Qwen3.8-27B-AWQ-5.0bpw",
+      "revision": "dc699a76ddcbef44c188a8aee2ccc79ccc339a04"
+    },
+    "oq8e": {
+      "repository": "Jundot/Qwen3.8-27B-oQ8e-mtp",
+      "revision": "c99e5aad8a478f71c10b9a3dde6709158b690da6"
+    },
+    "oq8e-fp16": {
+      "repository": "Jundot/Qwen3.8-27B-oQ8e-fp16-mtp",
+      "revision": "4761782b9455f335292f4d6cb0c89570dff27a11"
+    },
+    "oq4e": {
+      "repository": "gcoli/Qwen3.8-27B-oQ4e-mtp",
+      "revision": "c41ed507f1b16320942a1e9ce340e71d2692dee2"
+    },
+    "draft-2b": {
+      "repository": "Qwen/Qwen3.5-2B",
+      "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc"
+    },
+    "draft-08b": {
+      "repository": "Qwen/Qwen3.5-0.8B",
+      "revision": "2fc06364715b967f1860aea9cf38778875588b17"
+    },
+    "draft-dflash2": {
+      "repository": "incoai/Qwen3.8-27B-DFlash2",
+      "revision": "dedf8df68adfb1afeaf7b7480c0a0243108177b4"
+    }
+  },
+  "arms": {
+    "I": {
+      "model_key": "mlx8",
+      "cache_enabled": false,
+      "model_settings": {
+        "mtp_enabled": false,
+        "specprefill_enabled": false,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "J": {
+      "model_key": "awq5",
+      "cache_enabled": false,
+      "model_settings": {
+        "mtp_enabled": false,
+        "specprefill_enabled": false,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "K": {
+      "model_key": "awq5",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": false,
+        "specprefill_enabled": false,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "L": {
+      "model_key": "awq5",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": true,
+        "specprefill_enabled": false,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "M": {
+      "model_key": "awq5",
+      "cache_enabled": true,
+      "draft_key": "draft-2b",
+      "model_settings": {
+        "mtp_enabled": true,
+        "specprefill_enabled": true,
+        "specprefill_keep_pct": 0.4,
+        "specprefill_threshold": 8192,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "N": {
+      "model_key": "awq5",
+      "cache_enabled": true,
+      "draft_key": "draft-08b",
+      "model_settings": {
+        "mtp_enabled": true,
+        "specprefill_enabled": true,
+        "specprefill_keep_pct": 0.5,
+        "specprefill_threshold": 8192,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "O": {
+      "model_key": "awq5",
+      "cache_enabled": false,
+      "ane_profile_required": true,
+      "model_settings": {
+        "mtp_enabled": false,
+        "specprefill_enabled": false,
+        "qwen35_ane_prefill_enabled": true
+      }
+    },
+    "T": {
+      "model_key": "oq8e",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": true,
+        "specprefill_enabled": false,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "U": {
+      "model_key": "oq8e-fp16",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": true,
+        "specprefill_enabled": false,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "W": {
+      "model_key": "oq4e",
+      "cache_enabled": false,
+      "model_settings": {
+        "mtp_enabled": false,
+        "specprefill_enabled": false,
+        "dflash_enabled": false,
+        "turboquant_kv_enabled": false,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "X": {
+      "model_key": "oq4e",
+      "dflash_draft_key": "draft-dflash2",
+      "cache_enabled": false,
+      "model_settings": {
+        "mtp_enabled": false,
+        "specprefill_enabled": false,
+        "dflash_enabled": true,
+        "dflash_draft_quant_enabled": false,
+        "dflash_in_memory_cache": false,
+        "dflash_in_memory_cache_max_entries": 2,
+        "dflash_ssd_cache": false,
+        "dflash_draft_sink_size": 0,
+        "dflash_verify_mode": "dflash",
+        "turboquant_kv_enabled": false,
+        "qwen35_ane_prefill_enabled": false
+      }
+    }
+  }
+}

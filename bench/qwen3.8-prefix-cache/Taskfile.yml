@@ -1,0 +1,243 @@
+version: "3"
+
+tasks:
+  deps:common:
+    desc: Check common campaign dependencies
+    preconditions:
+      - {sh: "command -v python3", msg: "Install Python 3.9 or newer."}
+      - {sh: "command -v curl", msg: "Install curl."}
+      - {sh: "command -v jq", msg: "Install jq with: brew install jq"}
+      - {sh: "command -v git", msg: "Install Git."}
+    cmds:
+      - python3 -c 'import sys; assert sys.version_info >= (3, 9), sys.version'
+
+  deps:rig:
+    desc: Check Mac Studio runtime dependencies
+    deps: [deps:common]
+    preconditions:
+      - {sh: "command -v macmon", msg: "Install macmon with: brew install macmon"}
+      - {sh: "command -v mlx-serve", msg: "Install the pinned mlx-serve release."}
+      - {sh: "command -v llama-server", msg: "Install the pinned llama.cpp release."}
+      - {sh: "command -v omlx", msg: "Install the pinned oMLX release."}
+      - {sh: "command -v mlx-dspark", msg: "Install mlx-dspark v0.15.0."}
+      - {sh: "command -v mtplx", msg: "Install MTPLX v2.9.1."}
+
+  deps:driver:
+    desc: Check MacBook Pro driver dependencies
+    deps: [deps:common]
+    preconditions:
+      - {sh: "command -v docker", msg: "Install Docker Desktop."}
+      - {sh: "command -v harbor", msg: "Install Harbor 0.8.0."}
+
+  unit:
+    desc: Run campaign unit tests
+    deps: [deps:common]
+    cmds:
+      - python3 -m unittest discover -s bench/qwen3.8-prefix-cache/tests -v
+      - bash bench/qwen3.8-prefix-cache/tests/test_launchers.sh
+
+  docs:check:
+    desc: Check campaign Markdown and whitespace
+    deps: [deps:common]
+    cmds:
+      - git diff --check
+
+  validate:
+    desc: Run all local campaign checks
+    deps: [unit, docs:check]
+
+  smoke:
+    desc: Run the 8K runtime smoke stage on the rig
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh smoke
+
+  models:smoke:
+    desc: Download and hash pinned MLX/Q4/MTP smoke artifacts
+    deps: [deps:common]
+    preconditions:
+      - {sh: "command -v uvx", msg: "Install uv with: brew install uv"}
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/download-models.sh smoke
+
+  models:all:
+    desc: Download and hash all pinned campaign artifacts
+    deps: [deps:common]
+    preconditions:
+      - {sh: "command -v uvx", msg: "Install uv with: brew install uv"}
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/download-models.sh all
+
+  models:oq8e:
+    desc: Download the two pinned oQ8e smoke candidates
+    deps: [deps:common]
+    preconditions:
+      - {sh: "command -v uvx", msg: "Install uv with: brew install uv"}
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/download-models.sh oq8e
+
+  models:mtplx:
+    desc: Download the pinned official MTPLX Optimized Speed model
+    deps: [deps:common]
+    preconditions:
+      - {sh: "command -v uvx", msg: "Install uv with: brew install uv"}
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/download-models.sh mtplx
+
+  models:oq4e-dflash:
+    desc: Download the pinned oQ4e target and DFlash2 drafter
+    deps: [deps:common]
+    preconditions:
+      - {sh: "command -v uvx", msg: "Install uv with: brew install uv"}
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/download-models.sh oq4e-dflash
+
+  models:manifest:
+    desc: Hash every pinned target and drafter after downloads complete
+    deps: [deps:common]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/write-artifact-manifest.sh
+
+  cache:32k:
+    desc: Run 32K cache-only arms on the rig
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh cache-32k
+
+  mtp:32k:
+    desc: Run 32K MTP arms on the rig
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh mtp-32k
+
+  omlx:smoke:
+    desc: Run the 8K oMLX loader smoke stage on the rig
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-smoke
+
+  omlx:cache:32k:
+    desc: Run the 32K oMLX cache stage on the rig
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-cache-32k
+
+  omlx:mtp:32k:
+    desc: Run the 32K oMLX MTP stage on the rig
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-mtp-32k
+
+  omlx:oq8e:smoke:
+    desc: Run the paired 32K oQ8e BF16/fp16 smoke stage
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-oq8e-smoke
+
+  omlx:oq4e:dflash:32k:
+    desc: Compare pinned oQ4e baseline and DFlash2 at 32K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh omlx-oq4e-dflash-32k
+
+  mtplx:smoke:
+    desc: Run the official MTPLX Optimized Speed smoke at 8K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh mtplx-smoke
+
+  mtplx:32k:
+    desc: Run MTPLX cache, decode, and tool stability at 32K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh mtplx-32k
+
+  specprefill:16k:
+    desc: Compare oMLX SpecPrefill profiles at 16K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh specprefill-16k
+
+  specprefill:32k:
+    desc: Compare oMLX SpecPrefill profiles at 32K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh specprefill-32k
+
+  ane:16k:
+    desc: Compare oMLX ANE prefill at 16K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh ane-16k
+
+  ane:tune:
+    desc: Tune the isolated oMLX ANE split on this Mac before arm O
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-ane-tuner.sh
+
+  ane:32k:
+    desc: Compare oMLX ANE prefill at 32K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh ane-32k
+
+  dspark:smoke:
+    desc: Confirm mlx-dspark auto mode resolves DFlash 2 without recording a benchmark
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh dspark-smoke
+
+  dspark:decode:8k:
+    desc: Compare mlx-dspark baseline, DSpark, and DFlash 2 at 8K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh dspark-decode-8k
+
+  dspark:cache:32k:
+    desc: Run all five cache scenarios for mlx-dspark at 32K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh dspark-cache-32k
+
+  dspark:decode:32k:
+    desc: Compare mlx-dspark decode and 20-turn tool stability at 32K
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh dspark-decode-32k
+
+  cache:65k:
+    desc: Run approved arms at 65K on the rig
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh cache-65k
+
+  tool-loop:
+    desc: Run the controlled 20-turn tool loop on the rig
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh tool-loop
+
+  summary:
+    desc: Regenerate the campaign summary
+    deps: [deps:common, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh summary
+
+  quality:
+    desc: Run the common cheap-quality screen on every survivor
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-quality-screen.sh
+
+  native-context:
+    desc: Smoke-test every approved compatible arm at 262K context
+    deps: [deps:rig, unit]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-campaign.sh native-262k
+
+  tbench:
+    desc: Run Terminal-Bench from the driver
+    deps: [deps:driver]
+    cmds:
+      - bash bench/qwen3.8-prefix-cache/scripts/run-tbench-qwen38-REMOTE.sh

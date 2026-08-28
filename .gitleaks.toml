@@ -1,0 +1,23 @@
+# gitleaks configuration for macstudio-local-llm
+#
+# Keep the full default ruleset; add a narrow allowlist for two benchmark
+# false positives that the generic-api-key heuristic flags:
+#
+#   1. SHA-256 content fingerprints in telemetry (fixture_token_hash,
+#      greedy_tokens_hash, static_prefix_hash, ...) — 64 lowercase hex chars.
+#      These are deterministic hashes of prompt fixtures, not credentials.
+#   2. A long config field-name literal in a `key == "..."` comparison
+#      (`qwen3x_ane_prefill_sequence_length`) misread as a secret.
+#
+# The allowlist is pattern-scoped, not path-scoped, so a real secret dropped
+# into any file is still caught.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Benchmark telemetry hashes and a config field-name literal, not secrets"
+regexes = [
+  '''^[0-9a-f]{64}$''',
+  '''ane_prefill_sequence_length''',
+]
