@@ -48,10 +48,10 @@ def build_tiles(data: dict) -> str:
                 if best else "—")
     best_sub = f'{best["arm"]} · {best["model"]}' if best else ""
     tiles = [
-        ("Grupos canônicos", str(len(canonical)), "medidos com sampling do vendor"),
-        ("Melhor decode", best_val, best_sub),
-        ("Gates passados", str(gate_pass), "gates canônicos verdes"),
-        ("Estágios", f'{done}<span class="unit">/{len(data["queue"])}</span>', "concluídos"),
+        ("Canonical groups", str(len(canonical)), "measured with vendor sampling"),
+        ("Best decode", best_val, best_sub),
+        ("Gates passed", str(gate_pass), "canonical gates passing"),
+        ("Stages", f'{done}<span class="unit">/{len(data["queue"])}</span>', "completed"),
     ]
     return "".join(
         f'<div class="tile"><span class="tlabel">{esc(t)}</span>'
@@ -88,7 +88,7 @@ def build_queue(queue: list[dict]) -> str:
 
 def render(data: dict) -> str:
     omlx_gate = data["gates"].get("omlx-mtp-gate", {})
-    gate_line = "L MTP gate: " + ("PASSED" if omlx_gate.get("passed") else "aberto")
+    gate_line = "L MTP gate: " + ("PASSED" if omlx_gate.get("passed") else "open")
     return (
         TEMPLATE
         .replace("/*__CSS__*/", CSS)
@@ -322,29 +322,29 @@ TEMPLATE = """<title>Qwen3.8 Prefix-Cache Campaign</title>
 <script id="campaign-data" type="application/json">__DATA__</script>
 <div class="wrap">
   <header class="head">
-    <div class="eyebrow">Mac Studio M4 Max · 128 GB · benchmark local</div>
+    <div class="eyebrow">Mac Studio M4 Max · 128 GB · local benchmark</div>
     <h1>Qwen3.8-27B — prefix cache, MTP &amp; runtime</h1>
-    <p class="sub">Seleção do setup de maior desempenho. Correção é gate eliminatório;
-    entre os corretos, decide tempo total quente, TTFT e decode sustentado.</p>
+    <p class="sub">Selection of the highest-performance setup. Correctness is an eliminatory gate;
+    among the correct ones, warm total time, TTFT and sustained decode decide.</p>
     <div class="meta"><span class="mono">__GENERATED__</span>
       <span class="sep">·</span><span>__GATELINE__</span></div>
   </header>
 
   <section class="tiles">__TILES__</section>
 
-  <nav class="tabs" role="tablist" aria-label="Seções do dashboard">
-    <button role="tab" data-tab="perf" aria-selected="true">Desempenho</button>
+  <nav class="tabs" role="tablist" aria-label="Dashboard sections">
+    <button role="tab" data-tab="perf" aria-selected="true">Performance</button>
     <button role="tab" data-tab="compare" aria-selected="false">Runtimes &amp; quants</button>
-    <button role="tab" data-tab="tests" aria-selected="false">Testes</button>
-    <button role="tab" data-tab="gates" aria-selected="false">Gates &amp; fila</button>
-    <button role="tab" data-tab="glossary" aria-selected="false">Glossário</button>
+    <button role="tab" data-tab="tests" aria-selected="false">Tests</button>
+    <button role="tab" data-tab="gates" aria-selected="false">Gates &amp; queue</button>
+    <button role="tab" data-tab="glossary" aria-selected="false">Glossary</button>
   </nav>
 
   <div class="tabpanel" data-panel="perf" role="tabpanel">
     <section class="panel">
-      <h2 id="chart-title">Decode sustentado <span class="h2sub" id="chart-sub"></span></h2>
+      <h2 id="chart-title">Sustained decode <span class="h2sub" id="chart-sub"></span></h2>
       <div class="controls" style="margin-bottom:14px;">
-        <div class="fgroup"><span class="fglabel">Métrica</span>
+        <div class="fgroup"><span class="fglabel">Metric</span>
           <div class="seg" id="metric-seg"></div></div>
       </div>
       <div id="chart-host"></div>
@@ -352,83 +352,83 @@ TEMPLATE = """<title>Qwen3.8 Prefix-Cache Campaign</title>
     </section>
 
     <section class="panel">
-      <h2>Mesmo modelo por contexto <span class="h2sub">decode tok/s · canônico</span></h2>
+      <h2>Same model per context <span class="h2sub">decode tok/s · canonical</span></h2>
       <div class="matrix" id="matrix"></div>
     </section>
 
     <section class="panel">
-      <h2>Braços medidos <span class="h2sub" id="table-count"></span></h2>
+      <h2>Measured arms <span class="h2sub" id="table-count"></span></h2>
       <div class="controls">
-        <div class="fgroup"><span class="fglabel">Modo</span><div class="seg" id="f-mode"></div></div>
+        <div class="fgroup"><span class="fglabel">Mode</span><div class="seg" id="f-mode"></div></div>
         <div class="fgroup"><span class="fglabel">Runtime</span><div class="seg" id="f-runtime"></div></div>
-        <div class="fgroup"><span class="fglabel">Contexto</span><div class="seg" id="f-ctx"></div></div>
-        <div class="fgroup"><span class="fglabel">Classe</span><div class="seg" id="f-class"></div></div>
-        <div class="fgroup"><span class="fglabel">Agrupar</span><div class="seg" id="f-group"></div></div>
-        <div class="fgroup search"><span class="fglabel">Buscar braço / modelo</span>
-          <input id="search" type="text" placeholder="ex.: MTPLX, oQ8e, L" autocomplete="off"></div>
+        <div class="fgroup"><span class="fglabel">Context</span><div class="seg" id="f-ctx"></div></div>
+        <div class="fgroup"><span class="fglabel">Class</span><div class="seg" id="f-class"></div></div>
+        <div class="fgroup"><span class="fglabel">Group</span><div class="seg" id="f-group"></div></div>
+        <div class="fgroup search"><span class="fglabel">Search arm / model</span>
+          <input id="search" type="text" placeholder="e.g.: MTPLX, oQ8e, L" autocomplete="off"></div>
       </div>
       <div class="scroll"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
-      <p class="foot"><span class="chip neutral">canonical</span> = amostragem do vendor
-      (métrica de decisão); <span class="chip wait">greedy</span> = diagnóstico
-      <span class="mono">temp=0</span>, esmaecido, não conta para veredito e infla o decode.
-      E2E não compara entre classes (<span class="mono">code</span> curto vs
-      <span class="mono">audit</span> longo). Braços com cache off (W/X) têm TTFT frio por desenho.</p>
+      <p class="foot"><span class="chip neutral">canonical</span> = vendor sampling
+      (decision metric); <span class="chip wait">greedy</span> = diagnostic
+      <span class="mono">temp=0</span>, dimmed, does not count for verdict and inflates decode.
+      E2E does not compare across classes (<span class="mono">code</span> short vs
+      <span class="mono">audit</span> long). Arms with cache off (W/X) have cold TTFT by design.</p>
     </section>
   </div>
 
   <div class="tabpanel" data-panel="compare" role="tabpanel" hidden>
     <section class="panel">
-      <h2>Ofertas de runtime <span class="h2sub">o que cada uma busca, como, e o custo</span></h2>
+      <h2>Runtime offerings <span class="h2sub">what each one seeks, how, and the cost</span></h2>
       <div class="profgrid" id="runtime-profiles"></div>
     </section>
     <section class="panel">
-      <h2>Ofertas de quantização <span class="h2sub">alvo de cada quant e a troca que ela faz</span></h2>
+      <h2>Quantization offerings <span class="h2sub">target of each quant and the trade-off it makes</span></h2>
       <div class="profgrid" id="quant-profiles"></div>
     </section>
     <section class="panel">
-      <h2>Decode medido por runtime <span class="h2sub">melhor decode por runtime · canônico; greedy esmaecido</span></h2>
+      <h2>Decode measured per runtime <span class="h2sub">best decode per runtime · canonical; greedy dimmed</span></h2>
       <div class="cmp" id="runtimes"></div>
     </section>
     <section class="panel">
-      <h2>Decode medido por quant <span class="h2sub">melhor decode por bits/peso · menos bits tende a mais rápido</span></h2>
+      <h2>Decode measured per quant <span class="h2sub">best decode per bits/weight · fewer bits tends to faster</span></h2>
       <div class="cmp" id="quants"></div>
     </section>
   </div>
 
   <div class="tabpanel" data-panel="tests" role="tabpanel" hidden>
     <section class="panel">
-      <h2>O que cada teste avalia <span class="h2sub">cache-probe (5 cenários × 2 modos) + tool loop</span></h2>
+      <h2>What each test evaluates <span class="h2sub">cache-probe (5 scenarios × 2 modes) + tool loop</span></h2>
       <div id="test-catalog"></div>
     </section>
     <section class="panel">
-      <h2>Quais configurações rodaram quais testes <span class="h2sub">cenário por braço · modo medido</span></h2>
+      <h2>Which configurations ran which tests <span class="h2sub">scenario per arm · mode measured</span></h2>
       <div class="scroll"><table id="tcov-table"><thead id="tcov-head"></thead><tbody id="tcov-body"></tbody></table></div>
-      <p class="foot"><span class="cov-y">■</span> canônico (temp=1, vale para veredito) ·
-      <span class="cov-p">■</span> só greedy (temp=0, diagnóstico) ·
-      <span class="cov-d">—</span> não rodado. A coluna <b>tool loop</b> mostra maioria (passes/total).
-      Nem todo braço roda todos os cenários — depende do gate.</p>
+      <p class="foot"><span class="cov-y">■</span> canonical (temp=1, counts for verdict) ·
+      <span class="cov-p">■</span> greedy only (temp=0, diagnostic) ·
+      <span class="cov-d">—</span> not run. The <b>tool loop</b> column shows majority (passes/total).
+      Not every arm runs all scenarios — depends on the gate.</p>
     </section>
   </div>
 
   <div class="tabpanel" data-panel="gates" role="tabpanel" hidden>
-    <section class="panel"><h2>Vereditos de gate</h2><div class="vgrid">__VERDICTS__</div></section>
-    <section class="panel"><h2>Fila da campanha</h2><ol class="queue">__QUEUE__</ol></section>
+    <section class="panel"><h2>Gate verdicts</h2><div class="vgrid">__VERDICTS__</div></section>
+    <section class="panel"><h2>Campaign queue</h2><ol class="queue">__QUEUE__</ol></section>
   </div>
 
   <div class="tabpanel" data-panel="glossary" role="tabpanel" hidden>
     <section class="panel">
-      <h2>Matriz de cobertura <span class="h2sub">quant/modelo + runtime × o que já foi medido · cache, MTP, contexto</span></h2>
+      <h2>Coverage matrix <span class="h2sub">quant/model + runtime × what has been measured · cache, MTP, context</span></h2>
       <div class="scroll"><table id="cov-table"><thead id="cov-head"></thead><tbody id="cov-body"></tbody></table></div>
-      <p class="foot"><span class="mono">canônico</span> = temp=1 (vale para veredito);
-      <span class="mono">greedy</span> = temp=0 (diagnóstico). <b>—</b> em contexto = braço planejado,
-      ainda não rodado. MTP: <span class="mono">✓</span> nativo, <span class="mono">draft</span> via modelo
-      rascunho, <span class="mono">auto</span> default do vendor.</p>
+      <p class="foot"><span class="mono">canonical</span> = temp=1 (counts for verdict);
+      <span class="mono">greedy</span> = temp=0 (diagnostic). <b>—</b> in context = planned arm,
+      not yet run. MTP: <span class="mono">✓</span> native, <span class="mono">draft</span> via draft
+      model, <span class="mono">auto</span> vendor default.</p>
     </section>
-    <section class="panel"><h2>O que é cada braço</h2><div class="gloss" id="arm-gloss"></div></section>
-    <section class="panel"><h2>O que é cada gate</h2><div class="gatelist" id="gate-gloss"></div></section>
+    <section class="panel"><h2>What each arm is</h2><div class="gloss" id="arm-gloss"></div></section>
+    <section class="panel"><h2>What each gate is</h2><div class="gatelist" id="gate-gloss"></div></section>
   </div>
-  <footer class="pfoot">Gerado por <span class="mono">consolidate.py</span> +
-    <span class="mono">render_overview.py</span>. Dados brutos não versionados em
+  <footer class="pfoot">Generated by <span class="mono">consolidate.py</span> +
+    <span class="mono">render_overview.py</span>. Raw data not versioned in
     <span class="mono">results/</span>.</footer>
 </div>
 <div id="tip" role="tooltip"></div>
@@ -438,9 +438,9 @@ const ARMS = DATA.arms, TL = DATA.tool_loop || {};
 const VERDICT = {}; (DATA.verdicts||[]).forEach(v => { (v.arm||"").split("/").forEach(a => VERDICT[a.trim()] = v.state); });
 const METRICS = {
   decode:   {btn:"decode",    label:"decode tok/s",     key:"decode_tps",        better:"high", fmt:v=>v.toFixed(1)},
-  ttft:     {btn:"TTFT q.",   label:"TTFT quente",      key:"ttft_identical_ms", better:"low",  fmt:v=>(v/1000).toFixed(1)+"s"},
-  ttftcold: {btn:"TTFT frio", label:"TTFT frio",        key:"ttft_cold_ms",      better:"low",  fmt:v=>(v/1000).toFixed(1)+"s"},
-  e2e:      {btn:"E2E q.",    label:"E2E quente",       key:"e2e_identical_ms",  better:"low",  fmt:v=>(v/1000).toFixed(1)+"s"},
+  ttft:     {btn:"TTFT q.",   label:"warm TTFT",        key:"ttft_identical_ms", better:"low",  fmt:v=>(v/1000).toFixed(1)+"s"},
+  ttftcold: {btn:"TTFT cold", label:"cold TTFT",        key:"ttft_cold_ms",      better:"low",  fmt:v=>(v/1000).toFixed(1)+"s"},
+  e2e:      {btn:"E2E q.",    label:"warm E2E",         key:"e2e_identical_ms",  better:"low",  fmt:v=>(v/1000).toFixed(1)+"s"},
   cache:    {btn:"cache",     label:"cache hit",        key:"cache_hit_identical", better:"high", fmt:v=>Math.round(v*100)+"%"},
 };
 const state = {
@@ -479,16 +479,16 @@ function matchSearch(a){ const q = state.search.trim().toLowerCase(); if(!q) ret
 function renderChart(){
   const m = METRICS[state.metric], host = document.getElementById("chart-host");
   document.getElementById("chart-sub").textContent =
-    m.label + " · " + (m.better==="high"?"maior é melhor":"menor é melhor") + " · canônico em destaque";
+    m.label + " · " + (m.better==="high"?"higher is better":"lower is better") + " · canonical highlighted";
   let rows = filtered().filter(a => a[m.key]!=null);
   rows.sort((x,y) => m.better==="high" ? y[m.key]-x[m.key] : x[m.key]-y[m.key]);
   rows = rows.slice(0, 16);
-  if(!rows.length){ host.innerHTML = '<p class="empty">Nenhum braço com esta métrica no filtro atual.</p>'; document.getElementById("deltas").innerHTML=""; return; }
+  if(!rows.length){ host.innerHTML = '<p class="empty">No arm with this metric in the current filter.</p>'; document.getElementById("deltas").innerHTML=""; return; }
   const max = Math.max(...rows.map(a=>a[m.key]));
   const searching = !!state.search.trim();
   const H=34, G=11, PL=196, PR=64, W=820, height=rows.length*(H+G)+G;
   let best = rows[0][m.key];
-  let svg = `<svg viewBox="0 0 ${W} ${height}" class="chart" role="img" aria-label="${m.label} por braço">`;
+  let svg = `<svg viewBox="0 0 ${W} ${height}" class="chart" role="img" aria-label="${m.label} per arm">`;
   rows.forEach((a,i)=>{
     const y=G+i*(H+G), w=Math.max(2,(a[m.key]/max)*(W-PL-PR));
     const lead = a[m.key]===best && a.mode==="canonical";
@@ -544,13 +544,13 @@ function renderMatrix(){
       + `<span class="mtrack"><span class="mfill" style="width:${(p.decode_tps/gmax*100).toFixed(1)}%"></span></span>`
       + `<span class="mval">${p.decode_tps.toFixed(1)}</span></div>`).join("");
     return `<div class="mrow"${multi}><h3><span class="marm">${r.arm}</span> · ${shortModel(r.model)}</h3>${bars}</div>`;
-  }).join("") || '<p class="empty">Sem dados canônicos.</p>';
+  }).join("") || '<p class="empty">No canonical data.</p>';
 }
 
 /* ---------- table ---------- */
 const COV = {}; (DATA.coverage||[]).forEach(c => COV[c.arm] = {cache:c.cache, mtp:c.mtp});
-// Quant + modelo sem duplicar: mostra a string mais informativa quando uma
-// contém a outra (ex.: quant "AWQ 5bpw" == model "AWQ 5bpw"), senão as duas.
+// Quant + model without duplication: show the more informative string when one
+// contains the other (e.g. quant "AWQ 5bpw" == model "AWQ 5bpw"), else both.
 function quantModel(a){
   const m = shortModel(a.model), q = a.quant;
   if(!q) return m;
@@ -564,20 +564,20 @@ const covFlag = (v)=> v==null ? '<span class="cov-d">—</span>'
   : (v==="✗" ? '<span class="cov-n">✗</span>'
   : (v==="—" ? '<span class="cov-d">—</span>' : `<span class="cov-p">${v}</span>`)));
 const COLS = [
-  {key:"arm", label:"Braço", cls:""},
+  {key:"arm", label:"Arm", cls:""},
   {key:"runtime", label:"Runtime", cls:""},
-  {key:"model", label:"Quant / modelo", cls:""},
+  {key:"model", label:"Quant / model", cls:""},
   {key:"cache", label:"Cache", cls:"cov-c"},
   {key:"mtp", label:"MTP", cls:"cov-c"},
   {key:"context", label:"Ctx", cls:"num"},
-  {key:"content_class", label:"Classe", cls:""},
+  {key:"content_class", label:"Class", cls:""},
   {key:"decode_tps", label:"decode", cls:"num"},
   {key:"ttft_identical_ms", label:"TTFT q.", cls:"num"},
   {key:"e2e_identical_ms", label:"E2E q.", cls:"num"},
   {key:"cache_hit_identical", label:"cache hit", cls:"num"},
-  {key:"correct", label:"correção", cls:"num"},
+  {key:"correct", label:"correctness", cls:"num"},
   {key:"tool", label:"tool loop", cls:"num"},
-  {key:"mode", label:"Modo", cls:""},
+  {key:"mode", label:"Mode", cls:""},
 ];
 const SORTABLE = new Set(["arm","runtime","context","decode_tps","ttft_identical_ms","e2e_identical_ms","cache_hit_identical","correct","mode"]);
 function renderHead(){
@@ -629,11 +629,11 @@ function renderTable(){
   let rows = filtered();
   const q = state.search.trim();
   document.getElementById("table-count").textContent =
-    `${rows.length} de ${ARMS.length} grupos` + (q?` · busca "${q}"`:"");
+    `${rows.length} of ${ARMS.length} groups` + (q?` · search "${q}"`:"");
   // canonical-before-greedy stays the primary key unless the user sorts explicitly
   rows = sortRows(rows);
   const tb = document.getElementById("tbody");
-  if(!rows.length){ tb.innerHTML = `<tr><td colspan="${COLS.length}" class="empty">Nada corresponde ao filtro.</td></tr>`; return; }
+  if(!rows.length){ tb.innerHTML = `<tr><td colspan="${COLS.length}" class="empty">Nothing matches the filter.</td></tr>`; return; }
   let html="", lastGroup=null;
   if(state.group==="runtime") rows.sort((x,y)=> x.runtime.localeCompare(y.runtime) || (y.decode_tps||0)-(x.decode_tps||0));
   rows.forEach(a=>{
@@ -651,13 +651,13 @@ function showTip(e, arm, ctx, cls){
   const a = findArm(arm,ctx,cls); if(!a) return;
   tip.innerHTML = `<div class="tt">${a.arm} · ${shortModel(a.model)}</div>`
     + `<div class="tl">${a.runtime} · ${a.config}</div>`
-    + `<dl><dt>contexto</dt><dd>${ctxK(a.context)} ${a.content_class||''}</dd>`
+    + `<dl><dt>context</dt><dd>${ctxK(a.context)} ${a.content_class||''}</dd>`
     + `<dt>decode</dt><dd>${a.decode_tps!=null?a.decode_tps.toFixed(1)+' tok/s':'—'}</dd>`
     + `<dt>TTFT q.</dt><dd>${a.ttft_identical_ms!=null?(a.ttft_identical_ms/1000).toFixed(1)+'s':'—'}</dd>`
-    + `<dt>TTFT frio</dt><dd>${a.ttft_cold_ms!=null?(a.ttft_cold_ms/1000).toFixed(1)+'s':'—'}</dd>`
+    + `<dt>cold TTFT</dt><dd>${a.ttft_cold_ms!=null?(a.ttft_cold_ms/1000).toFixed(1)+'s':'—'}</dd>`
     + `<dt>E2E q.</dt><dd>${a.e2e_identical_ms!=null?(a.e2e_identical_ms/1000).toFixed(1)+'s':'—'}</dd>`
     + `<dt>cache</dt><dd>${a.cache_hit_identical!=null?Math.round(a.cache_hit_identical*100)+'%':'—'}</dd>`
-    + `<dt>correção</dt><dd>${a.correct}/${a.total}</dd><dt>modo</dt><dd>${a.mode}</dd></dl>`;
+    + `<dt>correctness</dt><dd>${a.correct}/${a.total}</dd><dt>mode</dt><dd>${a.mode}</dd></dl>`;
   tip.classList.add("on");
   const pad=14; let x=e.clientX+pad, y=e.clientY+pad;
   if(x+tip.offsetWidth>innerWidth) x=e.clientX-tip.offsetWidth-pad;
@@ -671,8 +671,8 @@ function initControls(){
   seg(document.getElementById("metric-seg"),
     Object.entries(METRICS).map(([k,m])=>({val:k,label:m.btn})),
     state.metric, v=>{ state.metric=v; renderChart(); });
-  const opt = (vals,labels)=> [{val:"all",label:"tudo"}].concat(vals.map((v,i)=>({val:String(v),label:labels?labels[i]:String(v)})));
-  seg(document.getElementById("f-mode"), [{val:"all",label:"tudo"},{val:"canonical",label:"canonical"},{val:"greedy",label:"greedy"}],
+  const opt = (vals,labels)=> [{val:"all",label:"all"}].concat(vals.map((v,i)=>({val:String(v),label:labels?labels[i]:String(v)})));
+  seg(document.getElementById("f-mode"), [{val:"all",label:"all"},{val:"canonical",label:"canonical"},{val:"greedy",label:"greedy"}],
     state.mode, v=>{state.mode=v; refresh();});
   seg(document.getElementById("f-runtime"), opt(uniq(ARMS.map(a=>a.runtime))),
     state.runtime, v=>{state.runtime=v; refresh();});
@@ -680,7 +680,7 @@ function initControls(){
     state.ctx, v=>{state.ctx=v; refresh();});
   seg(document.getElementById("f-class"), opt(uniq(ARMS.map(a=>a.content_class||"?"))),
     state.cls, v=>{state.cls=v; refresh();});
-  seg(document.getElementById("f-group"), [{val:"none",label:"não"},{val:"runtime",label:"runtime"}],
+  seg(document.getElementById("f-group"), [{val:"none",label:"no"},{val:"runtime",label:"runtime"}],
     state.group, v=>{state.group=v; renderTable();});
 }
 /* ---------- runtime & quant comparisons ---------- */
@@ -707,7 +707,7 @@ function renderRuntimes(){
   }).filter(Boolean).sort((x,y)=>y.val-x.val);
   const max = Math.max(...rows.map(r=>r.val));
   document.getElementById("runtimes").innerHTML = rows.map(r =>
-    cmpBar(r.rt, r.rt, `${r.nc} canônico · ${r.ng} greedy · melhor ${r.arm}`, r.val, max, r.greedy)).join("");
+    cmpBar(r.rt, r.rt, `${r.nc} canonical · ${r.ng} greedy · best ${r.arm}`, r.val, max, r.greedy)).join("");
 }
 function renderQuants(){
   const by = {}; ARMS.forEach(a => { if(a.quant) (by[a.quant] ||= []).push(a); });
@@ -717,7 +717,7 @@ function renderQuants(){
   }).filter(Boolean).sort((x,y)=> x.bpw-y.bpw);
   const max = Math.max(...rows.map(r=>r.val));
   document.getElementById("quants").innerHTML = rows.map(r =>
-    cmpBar(r.q, r.q, `${r.bpw} bpw · melhor ${r.arm}`, r.val, max, r.greedy)).join("");
+    cmpBar(r.q, r.q, `${r.bpw} bpw · best ${r.arm}`, r.val, max, r.greedy)).join("");
 }
 function renderGlossaries(){
   const g = DATA.arm_glossary || {};
@@ -731,11 +731,11 @@ function profCard(p){
   const tagRow = p.bpw
     ? `<span class="ptag">${p.bpw} bpw · ${p.runtime}</span>`
     : `<span class="ptag">${p.tag}</span>`;
-  const arm = p.arms ? `<div class="parm mono">braços ${p.arms}</div>` : "";
-  const how = p.how ? `<div><dt>Como</dt><dd>${p.how}</dd></div>` : "";
+  const arm = p.arms ? `<div class="parm mono">arms ${p.arms}</div>` : "";
+  const how = p.how ? `<div><dt>How</dt><dd>${p.how}</dd></div>` : "";
   return `<div class="prof"><div class="ptop"><span class="pname">${p.name}</span>${tagRow}</div>`
     + arm + `<p class="pgoal">${p.goal}</p>`
-    + `<dl class="pmeta">${how}<div><dt>Custo</dt><dd>${p.cost}</dd></div></dl></div>`;
+    + `<dl class="pmeta">${how}<div><dt>Cost</dt><dd>${p.cost}</dd></div></dl></div>`;
 }
 function renderProfiles(){
   document.getElementById("runtime-profiles").innerHTML =
@@ -751,12 +751,12 @@ function renderTests(){
       + items.map(x=>`<div class="gitem"><span class="gk ${keyw?'kw':''}">${x.key}</span><span>${x.eval}</span></div>`).join("")
       + `</div></div>` : "";
   let html = "";
-  html += gloss(c.scenarios, "Cenários do cache-probe", true);
-  html += gloss(c.modes, "Modos de amostragem", true);
-  html += gloss(c.correctness, "Checagem de correção (por classe de conteúdo)", true);
+  html += gloss(c.scenarios, "cache-probe scenarios", true);
+  html += gloss(c.modes, "Sampling modes", true);
+  html += gloss(c.correctness, "Correctness check (by content class)", true);
   if(c.tool_loop) html += `<div class="tblock"><div class="subhead">Tool loop</div>`
     + `<p class="tp">${c.tool_loop.eval}</p></div>`;
-  if(c.metrics) html += `<div class="tblock"><div class="subhead">Métricas capturadas por registro</div>`
+  if(c.metrics) html += `<div class="tblock"><div class="subhead">Metrics captured per record</div>`
     + `<div class="mchips">${c.metrics.map(m=>`<span class="mchip">${m}</span>`).join("")}</div></div>`;
   document.getElementById("test-catalog").innerHTML = html;
 }
@@ -765,7 +765,7 @@ function renderTestCoverage(){
   const scen = ["cold","identical","append","middle_mutation","tool_turn"];
   const short = {cold:"cold",identical:"ident.",append:"append",middle_mutation:"mid.mut",tool_turn:"tool_turn"};
   document.getElementById("tcov-head").innerHTML = "<tr>"
-    + `<th>Braço</th><th>Runtime</th><th>Modelo</th>`
+    + `<th>Arm</th><th>Runtime</th><th>Model</th>`
     + scen.map(s=>`<th class="cov-c">${short[s]}</th>`).join("")
     + `<th class="cov-c">tool loop</th></tr>`;
   const cellFor = (v)=> v==="canonical" ? '<span class="cov-y">■</span>'
@@ -781,7 +781,7 @@ function renderTestCoverage(){
 /* ---------- coverage matrix ---------- */
 function renderCoverage(){
   const cov = DATA.coverage || [];
-  const cols = ["Braço","Runtime","Quant / modelo","Cache","MTP","Ctx canônico","Ctx greedy","Tool","Nota"];
+  const cols = ["Arm","Runtime","Quant / model","Cache","MTP","Canonical ctx","Greedy ctx","Tool","Note"];
   document.getElementById("cov-head").innerHTML =
     "<tr>" + cols.map(c=>`<th>${c}</th>`).join("") + "</tr>";
   const flag = (v)=> v==="✓"||v.startsWith("✓") ? `<span class="cov-y">${v}</span>`

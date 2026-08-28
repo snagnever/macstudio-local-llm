@@ -2,28 +2,28 @@
   "arm_glossary": {
     "A": {
       "bpw": 8.0,
-      "desc": "mlx-serve 8-bit, cache off \u2014 baseline sem cache.",
+      "desc": "mlx-serve 8-bit, cache off \u2014 baseline no cache.",
       "model": "MLX-Serve 8-bit",
       "quant": "MLX 8-bit",
       "runtime": "mlx-serve"
     },
     "B": {
       "bpw": 8.0,
-      "desc": "mlx-serve 8-bit, cache on \u2014 isola o prefix cache.",
+      "desc": "mlx-serve 8-bit, cache on \u2014 isolates the prefix cache.",
       "model": "MLX-Serve 8-bit",
       "quant": "MLX 8-bit",
       "runtime": "mlx-serve"
     },
     "C": {
       "bpw": 8.0,
-      "desc": "mlx-serve 8-bit, cache + MTP auto \u2014 default do vendor.",
+      "desc": "mlx-serve 8-bit, cache + MTP auto \u2014 vendor default.",
       "model": "MLX-Serve 8-bit",
       "quant": "MLX 8-bit",
       "runtime": "mlx-serve"
     },
     "D": {
       "bpw": 4.5,
-      "desc": "llama.cpp GGUF Q4, cache off \u2014 baseline GGUF.",
+      "desc": "llama.cpp GGUF Q4, cache off \u2014 GGUF baseline.",
       "model": "GGUF Q4",
       "quant": "GGUF Q4",
       "runtime": "llama.cpp"
@@ -58,126 +58,126 @@
     },
     "I": {
       "bpw": 8.0,
-      "desc": "oMLX carregando o 8-bit MLX-Serve \u2014 check de loader (pode falhar).",
+      "desc": "oMLX loading the 8-bit MLX-Serve \u2014 loader check (may fail).",
       "model": "MLX-Serve 8-bit",
       "quant": "MLX 8-bit",
       "runtime": "oMLX"
     },
     "J": {
       "bpw": 5.0,
-      "desc": "oMLX AWQ 5bpw, cache off \u2014 smoke do loader AWQ.",
+      "desc": "oMLX AWQ 5bpw, cache off \u2014 AWQ loader smoke.",
       "model": "AWQ 5bpw",
       "quant": "AWQ 5bpw",
       "runtime": "oMLX"
     },
     "K": {
       "bpw": 5.0,
-      "desc": "oMLX AWQ, cache on, sem MTP \u2014 baseline do gate MTP.",
+      "desc": "oMLX AWQ, cache on, no MTP \u2014 MTP gate baseline.",
       "model": "AWQ 5bpw",
       "quant": "AWQ 5bpw",
       "runtime": "oMLX"
     },
     "L": {
       "bpw": 5.0,
-      "desc": "oMLX AWQ, cache + MTP \u2014 candidato do gate MTP.",
+      "desc": "oMLX AWQ, cache + MTP \u2014 MTP gate candidate.",
       "model": "AWQ 5bpw",
       "quant": "AWQ 5bpw",
       "runtime": "oMLX"
     },
     "M": {
       "bpw": 5.0,
-      "desc": "L + SpecPrefill com draft 2B.",
+      "desc": "L + SpecPrefill with draft 2B.",
       "model": "AWQ 5bpw + draft-2B",
       "quant": "AWQ 5bpw",
       "runtime": "oMLX"
     },
     "N": {
       "bpw": 5.0,
-      "desc": "L + SpecPrefill com draft 0.8B.",
+      "desc": "L + SpecPrefill with draft 0.8B.",
       "model": "AWQ 5bpw + draft-0.8B",
       "quant": "AWQ 5bpw",
       "runtime": "oMLX"
     },
     "O": {
       "bpw": 5.0,
-      "desc": "oMLX AWQ + prefill pela ANE.",
+      "desc": "oMLX AWQ + prefill via ANE.",
       "model": "AWQ 5bpw",
       "quant": "AWQ 5bpw",
       "runtime": "oMLX"
     },
     "P": {
       "bpw": 8.0,
-      "desc": "mlx-dspark 8-bit, cache off \u2014 baseline sem especula\u00e7\u00e3o.",
+      "desc": "mlx-dspark 8-bit, cache off \u2014 baseline no speculation.",
       "model": "8-bit g64",
       "quant": "MLX 8-bit",
       "runtime": "mlx-dspark"
     },
     "Q": {
       "bpw": 8.0,
-      "desc": "mlx-dspark 8-bit, cache on \u2014 baseline com cache.",
+      "desc": "mlx-dspark 8-bit, cache on \u2014 baseline with cache.",
       "model": "8-bit g64",
       "quant": "MLX 8-bit",
       "runtime": "mlx-dspark"
     },
     "R": {
       "bpw": 8.0,
-      "desc": "mlx-dspark cache + drafter DSpark (especula\u00e7\u00e3o no decode, cache preservado).",
+      "desc": "mlx-dspark cache + DSpark drafter (speculation in decode, cache preserved).",
       "model": "8-bit + DSpark",
       "quant": "MLX 8-bit",
       "runtime": "mlx-dspark"
     },
     "S": {
       "bpw": 8.0,
-      "desc": "mlx-dspark cache + drafter DFlash2 (especula\u00e7\u00e3o no decode, cache preservado).",
+      "desc": "mlx-dspark cache + DFlash2 drafter (speculation in decode, cache preserved).",
       "model": "8-bit + DFlash2",
       "quant": "MLX 8-bit",
       "runtime": "mlx-dspark"
     },
     "T": {
       "bpw": 8.6,
-      "desc": "oMLX oQ8e 8.6bpw, cache + MTP \u2014 candidato de produ\u00e7\u00e3o M4.",
+      "desc": "oMLX oQ8e 8.6bpw, cache + MTP \u2014 M4 production candidate.",
       "model": "oQ8e 8.6bpw",
       "quant": "oQ8e 8.6bpw",
       "runtime": "oMLX"
     },
     "U": {
       "bpw": 8.6,
-      "desc": "oMLX oQ8e-fp16 \u2014 controle fp16 do oQ8e.",
+      "desc": "oMLX oQ8e-fp16 \u2014 oQ8e fp16 control.",
       "model": "oQ8e-fp16",
       "quant": "oQ8e 8.6bpw",
       "runtime": "oMLX"
     },
     "V": {
       "bpw": 4.5,
-      "desc": "MTPLX Optimized Speed (corpo 4-bit) \u2014 MVP runtime+checkpoint.",
+      "desc": "MTPLX Optimized Speed (4-bit body) \u2014 MVP runtime+checkpoint.",
       "model": "MTPLX Optimized Speed",
       "quant": "MTPLX 4-bit",
       "runtime": "MTPLX"
     },
     "W": {
       "bpw": 4.7,
-      "desc": "oMLX oQ4e 4.7bpw, cache off \u2014 baseline do par DFlash.",
+      "desc": "oMLX oQ4e 4.7bpw, cache off \u2014 DFlash pair baseline.",
       "model": "oQ4e 4.7bpw",
       "quant": "oQ4e 4.7bpw",
       "runtime": "oMLX"
     },
     "X": {
       "bpw": 4.7,
-      "desc": "oMLX oQ4e + DFlash2 \u2014 teste causal do DFlash2.",
+      "desc": "oMLX oQ4e + DFlash2 \u2014 DFlash2 causal test.",
       "model": "oQ4e + DFlash2",
       "quant": "oQ4e 4.7bpw",
       "runtime": "oMLX"
     },
     "Y": {
       "bpw": 8.0,
-      "desc": "MTPLX Optimized Quality (8-bit) \u2014 fidelidade vs Speed.",
+      "desc": "MTPLX Optimized Quality (8-bit) \u2014 fidelity vs Speed.",
       "model": "MTPLX Optimized Quality",
       "quant": "MTPLX 8-bit",
       "runtime": "MTPLX"
     },
     "Z": {
       "bpw": 8.0,
-      "desc": "MTPLX Optimized Quality FP16 \u2014 controle fp16 da Quality.",
+      "desc": "MTPLX Optimized Quality FP16 \u2014 Quality fp16 control.",
       "model": "MTPLX Optimized Quality FP16",
       "quant": "MTPLX 8-bit",
       "runtime": "MTPLX"
@@ -1871,7 +1871,7 @@
       "measured": true,
       "model": "MLX-Serve 8-bit",
       "mtp": "\u2717",
-      "note": "isola cache",
+      "note": "isolates cache",
       "quant": "MLX 8-bit",
       "runtime": "mlx-serve",
       "tool": null
@@ -1886,7 +1886,7 @@
       "measured": true,
       "model": "MLX-Serve 8-bit",
       "mtp": "auto",
-      "note": "default vendor",
+      "note": "vendor default",
       "quant": "MLX 8-bit",
       "runtime": "mlx-serve",
       "tool": null
@@ -1901,7 +1901,7 @@
       "measured": true,
       "model": "GGUF Q4",
       "mtp": "\u2717",
-      "note": "baseline GGUF",
+      "note": "GGUF baseline",
       "quant": "GGUF Q4",
       "runtime": "llama.cpp",
       "tool": null
@@ -1977,7 +1977,7 @@
       "measured": true,
       "model": "MLX-Serve 8-bit",
       "mtp": "\u2717",
-      "note": "check loader",
+      "note": "loader check",
       "quant": "MLX 8-bit",
       "runtime": "oMLX",
       "tool": null
@@ -1992,7 +1992,7 @@
       "measured": true,
       "model": "AWQ 5bpw",
       "mtp": "\u2717",
-      "note": "smoke AWQ",
+      "note": "AWQ smoke",
       "quant": "AWQ 5bpw",
       "runtime": "oMLX",
       "tool": null
@@ -2009,7 +2009,7 @@
       "measured": true,
       "model": "AWQ 5bpw",
       "mtp": "\u2717",
-      "note": "baseline MTP gate",
+      "note": "MTP gate baseline",
       "quant": "AWQ 5bpw",
       "runtime": "oMLX",
       "tool": null
@@ -2030,7 +2030,7 @@
       "measured": true,
       "model": "AWQ 5bpw",
       "mtp": "\u2713",
-      "note": "candidato MTP gate",
+      "note": "MTP gate candidate",
       "quant": "AWQ 5bpw",
       "runtime": "oMLX",
       "tool": "2/3"
@@ -2109,7 +2109,7 @@
       "measured": true,
       "model": "8-bit g64",
       "mtp": "\u2717",
-      "note": "baseline cache",
+      "note": "cache baseline",
       "quant": "MLX 8-bit",
       "runtime": "mlx-dspark",
       "tool": null
@@ -2168,7 +2168,7 @@
       "measured": true,
       "model": "oQ8e 8.6bpw",
       "mtp": "\u2713",
-      "note": "promovido G9",
+      "note": "promoted G9",
       "quant": "oQ8e 8.6bpw",
       "runtime": "oMLX",
       "tool": null
@@ -2183,7 +2183,7 @@
       "measured": true,
       "model": "oQ8e-fp16",
       "mtp": "\u2713",
-      "note": "controle fp16",
+      "note": "fp16 control",
       "quant": "oQ8e 8.6bpw",
       "runtime": "oMLX",
       "tool": null
@@ -2237,7 +2237,7 @@
       "measured": true,
       "model": "MTPLX Optimized Quality FP16",
       "mtp": "\u2713",
-      "note": "controle fp16",
+      "note": "fp16 control",
       "quant": "MTPLX 8-bit",
       "runtime": "MTPLX",
       "tool": "3/5"
@@ -2252,7 +2252,7 @@
       "measured": true,
       "model": "oQ4e 4.7bpw",
       "mtp": "\u2717",
-      "note": "baseline DFlash",
+      "note": "DFlash baseline",
       "quant": "oQ4e 4.7bpw",
       "runtime": "oMLX",
       "tool": null
@@ -2267,7 +2267,7 @@
       "measured": true,
       "model": "oQ4e + DFlash2",
       "mtp": "DFlash2",
-      "note": "reprovou G11",
+      "note": "failed G11",
       "quant": "oQ4e 4.7bpw",
       "runtime": "oMLX",
       "tool": null
@@ -5498,91 +5498,91 @@
   },
   "gates_glossary": [
     {
-      "desc": "Reaproveita o prefixo certo: hit >=0,95 id\u00eantico; sem reuso ap\u00f3s muta\u00e7\u00e3o.",
-      "gate": "1 \u00b7 Corre\u00e7\u00e3o do cache"
+      "desc": "Reuses the right prefix: hit >=0.95 identical; no reuse after mutation.",
+      "gate": "1 \u00b7 Cache correctness"
     },
     {
-      "desc": "Cache d\u00e1 >=5x no tempo quente; TTFT reflete s\u00f3 o sufixo novo.",
-      "gate": "2 \u00b7 Lat\u00eancia"
+      "desc": "Cache gives >=5x on warm time; TTFT reflects only the new suffix.",
+      "gate": "2 \u00b7 Latency"
     },
     {
-      "desc": "Sem crash/corrup\u00e7\u00e3o; swap <=0,5GB; RAM <=80GB; 20 tool turns corretos.",
-      "gate": "3 \u00b7 Estabilidade"
+      "desc": "No crash/corruption; swap <=0.5GB; RAM <=80GB; 20 tool turns correct.",
+      "gate": "3 \u00b7 Stability"
     },
     {
-      "desc": "MTP reduz o tempo total sem baixar cache hit nem mudar o resultado.",
+      "desc": "MTP reduces the total time without lowering cache hit or changing the result.",
       "gate": "4 \u00b7 MTP"
     },
     {
-      "desc": "S\u00f3 roda se o Q4 passar; adota Q6/Q8 se recuperar falha ou ganho de qualidade.",
+      "desc": "Only runs if Q4 passes; adopts Q6/Q8 if it recovers a failure or a quality gain.",
       "gate": "5 \u00b7 Q6/Q8"
     },
     {
-      "desc": "M ou N reduz TTFT >=20% vs L em 16K e 32K, mantendo corre\u00e7\u00e3o.",
+      "desc": "M or N reduces TTFT >=20% vs L at 16K and 32K, keeping correctness.",
       "gate": "6 \u00b7 SpecPrefill"
     },
     {
-      "desc": "O reduz TTFT >=5% vs J com programas ANE realmente compilados.",
+      "desc": "O reduces TTFT >=5% vs J with ANE programs actually compiled.",
       "gate": "7 \u00b7 ANE"
     },
     {
-      "desc": "Decode +25%/+15% e tempo total +10% vs Q, com equival\u00eancia greedy.",
+      "desc": "Decode +25%/+15% and total time +10% vs Q, with greedy equivalence.",
       "gate": "8 \u00b7 DSpark/DFlash2"
     },
     {
-      "desc": "T vs U sem crash; promove T se a diferen\u00e7a for <5%.",
+      "desc": "T vs U no crash; promotes T if the difference is <5%.",
       "gate": "9 \u00b7 oQ8e"
     },
     {
-      "desc": "Carrega e roda sem perda funcional; cache, MTP ativo e aceita\u00e7\u00e3o confirmados.",
+      "desc": "Loads and runs without functional loss; cache, active MTP and acceptance confirmed.",
       "gate": "10 \u00b7 MTPLX"
     },
     {
-      "desc": "X s\u00f3 permanece se cortar >=10% no tempo total mediano vs W.",
+      "desc": "X only stays if it cuts >=10% in the median total time vs W.",
       "gate": "11 \u00b7 oQ4e+DFlash"
     }
   ],
-  "generated_at": "2026-08-28T01:20:54Z",
+  "generated_at": "2026-08-28T16:06:32Z",
   "quant_profiles": [
     {
       "bpw": "8.0",
-      "cost": "Maior footprint; decode moderado. Base dos baselines.",
-      "goal": "Qualidade pr\u00f3xima do fp como refer\u00eancia.",
+      "cost": "Larger footprint; moderate decode. Base of the baselines.",
+      "goal": "Quality close to fp as a reference.",
       "name": "MLX 8-bit",
       "runtime": "mlx-serve / mlx-dspark"
     },
     {
       "bpw": "4.5\u20138.5",
-      "cost": "k-quants no Metal; decode mais lento aqui. Q4 \u00e9 o port\u00e3o para Q6/Q8.",
-      "goal": "Escada de tamanho contra qualidade no ecossistema GGUF.",
+      "cost": "k-quants on Metal; slower decode here. Q4 is the gate to Q6/Q8.",
+      "goal": "Size ladder against quality in the GGUF ecosystem.",
       "name": "GGUF Q4/Q6/Q8",
       "runtime": "llama.cpp"
     },
     {
       "bpw": "5.0",
-      "cost": "Tamanho m\u00e9dio; base do gate de MTP (K/L) e do SpecPrefill.",
-      "goal": "Quant activation-aware: boa qualidade a 5 bpw, compat\u00edvel com MTP.",
+      "cost": "Medium size; base of the MTP gate (K/L) and SpecPrefill.",
+      "goal": "Activation-aware quant: good quality at 5 bpw, compatible with MTP.",
       "name": "AWQ 5bpw",
       "runtime": "oMLX"
     },
     {
       "bpw": "8.6",
-      "cost": "Grande, mas promovido no Gate 9 (bra\u00e7o T).",
-      "goal": "Fidelidade de produ\u00e7\u00e3o no M4 com MTP (estilo exl 8-bit).",
+      "cost": "Large, but promoted in Gate 9 (arm T).",
+      "goal": "Production fidelity on M4 with MTP (exl 8-bit style).",
       "name": "oQ8e 8.6bpw",
       "runtime": "oMLX"
     },
     {
       "bpw": "4.7",
-      "cost": "No teste rodou cache-off; o prefill domina o tempo total (Gate 11 reprovado).",
-      "goal": "Menor quant do oMLX, para parear com o DFlash2.",
+      "cost": "In the test it ran cache-off; prefill dominates the total time (Gate 11 failed).",
+      "goal": "Smallest oMLX quant, to pair with DFlash2.",
       "name": "oQ4e 4.7bpw",
       "runtime": "oMLX"
     },
     {
       "bpw": "4.5 / 8.0",
-      "cost": "M\u00e1ximo decode; checkpoints n\u00e3o verificados. Y/Z ainda em medi\u00e7\u00e3o.",
-      "goal": "Receita co-desenhada com as cabe\u00e7as MTP: Speed 4-bit, Quality 8-bit.",
+      "cost": "Maximum decode; unverified checkpoints. Y/Z still under measurement.",
+      "goal": "Recipe co-designed with the MTP heads: Speed 4-bit, Quality 8-bit.",
       "name": "MTPLX 4-/8-bit",
       "runtime": "MTPLX"
     }
@@ -5617,11 +5617,11 @@
       "status": "done"
     },
     {
-      "stage": "SpecPrefill 32K (Gate 6) \u2014 reprovado",
+      "stage": "SpecPrefill 32K (Gate 6) \u2014 failed",
       "status": "done"
     },
     {
-      "stage": "ANE 16K/32K (Gate 7) \u2014 bloqueado (compilador ANE ausente)",
+      "stage": "ANE 16K/32K (Gate 7) \u2014 blocked (ANE compiler absent)",
       "status": "blocked"
     },
     {
@@ -5637,7 +5637,7 @@
       "status": "done"
     },
     {
-      "stage": "native 262K (L/T/V/S full, Y parcial)",
+      "stage": "native 262K (L/T/V/S full, Y partial)",
       "status": "done"
     },
     {
@@ -5645,7 +5645,7 @@
       "status": "pending"
     },
     {
-      "stage": "confirmat\u00f3rio tool_turn V@128K/cap 100G",
+      "stage": "confirmatory tool_turn V@128K/cap 100G",
       "status": "pending"
     },
     {
@@ -5656,61 +5656,61 @@
   "runtime_profiles": [
     {
       "arms": "A\u2013C",
-      "cost": "Sem quant pr\u00f3pria nem prefill especulativo; decode moderado. Responde 'o caminho simples funciona?'.",
-      "goal": "Servir o modelo MLX padr\u00e3o como piso de desempenho e refer\u00eancia de qualidade.",
-      "how": "Pesos MLX 8-bit, prefix cache e MTP no modo autom\u00e1tico do vendor.",
+      "cost": "No own quant or speculative prefill; moderate decode. Answers 'does the simple path work?'.",
+      "goal": "Serve the standard MLX model as a performance floor and quality reference.",
+      "how": "MLX 8-bit weights, prefix cache and MTP in the vendor's automatic mode.",
       "name": "mlx-serve",
-      "tag": "refer\u00eancia MLX"
+      "tag": "MLX reference"
     },
     {
       "arms": "D\u2013H",
-      "cost": "Decode mais baixo nesta m\u00e1quina; o draft-mtp acelera, mas n\u00e3o alcan\u00e7a o MTP nativo.",
-      "goal": "Aproveitar o ecossistema GGUF e especular com um modelo rascunho (draft-mtp).",
-      "how": "Quants GGUF Q4/Q6/Q8 no backend Metal; escada de tamanho contra qualidade.",
+      "cost": "Lower decode on this machine; draft-mtp speeds up but does not reach native MTP.",
+      "goal": "Leverage the GGUF ecosystem and speculate with a draft model (draft-mtp).",
+      "how": "GGUF Q4/Q6/Q8 quants on the Metal backend; size ladder against quality.",
       "name": "llama.cpp",
       "tag": "GGUF + draft"
     },
     {
       "arms": "I\u2013O, T\u2013U, W\u2013X",
-      "cost": "Runtime mais completo; roda os gates 6, 7, 9 e 11.",
-      "goal": "Reunir num s\u00f3 runtime cache, MTP nativo, SpecPrefill e prefill pela ANE.",
-      "how": "MTP integrado mais quants pr\u00f3prias estilo exl (oQ8e, oQ4e) e AWQ 5bpw.",
+      "cost": "Most complete runtime; runs gates 6, 7, 9 and 11.",
+      "goal": "Bring together in a single runtime cache, native MTP, SpecPrefill and prefill via ANE.",
+      "how": "Integrated MTP plus own exl-style quants (oQ8e, oQ4e) and AWQ 5bpw.",
       "name": "oMLX",
-      "tag": "candidato de produ\u00e7\u00e3o"
+      "tag": "production candidate"
     },
     {
       "arms": "P\u2013S",
-      "cost": "Gate 8 PASSA (decode +90%/+154% vs baseline), mas o pico (S 38 @32K) fica abaixo do MTPLX e \u00e9 8-bit.",
-      "goal": "Especular no decode com checkpoints rascunho separados (DSpark, DFlash2), preservando o prefix cache.",
-      "how": "Corpo 8-bit mais um drafter dedicado que prop\u00f5e tokens para o alvo verificar; cache quente ~1,0 mantido.",
+      "cost": "Gate 8 PASSES (decode +90%/+154% vs baseline), but the peak (S 38 @32K) falls below MTPLX and is 8-bit.",
+      "goal": "Speculate in decode with separate draft checkpoints (DSpark, DFlash2), preserving the prefix cache.",
+      "how": "8-bit body plus a dedicated drafter that proposes tokens for the target to verify; warm cache ~1.0 maintained.",
       "name": "mlx-dspark",
-      "tag": "drafters DSpark/DFlash2"
+      "tag": "DSpark/DFlash2 drafters"
     },
     {
       "arms": "V, Y, Z",
-      "cost": "Checkpoints n\u00e3o verificados (flag --unsafe); serve um modelo por vez.",
-      "goal": "Forjar modelo mais cabe\u00e7as MTP com receita de quant pr\u00f3pria para o maior decode sustentado.",
-      "how": "Pipeline de forge com cache Turbo e MTP; um modelo de gera\u00e7\u00e3o por daemon.",
+      "cost": "Unverified checkpoints (flag --unsafe); serves one model at a time.",
+      "goal": "Forge a model plus MTP heads with its own quant recipe for the highest sustained decode.",
+      "how": "Forge pipeline with Turbo cache and MTP; one generation model per daemon.",
       "name": "MTPLX",
-      "tag": "forge, maior decode"
+      "tag": "forge, higher decode"
     }
   ],
   "schema_version": 1,
   "test_catalog": {
     "correctness": [
       {
-        "eval": "Checksum: o valor exato calculado precisa aparecer na sa\u00edda (code_result_verdict).",
+        "eval": "Checksum: the exact computed value must appear in the output (code_result_verdict).",
         "key": "code"
       },
       {
-        "eval": "Needles em 3 profundidades (10/50/90). Correto = as tr\u00eas presentes e sem truncamento.",
+        "eval": "Needles at 3 depths (10/50/90). Correct = all three present and no truncation.",
         "key": "audit_retrieval"
       }
     ],
     "metrics": [
       "ttft_ms (TTFT)",
       "decode_tps (decode)",
-      "e2e_ms (tempo total)",
+      "e2e_ms (total time)",
       "prompt_tps (prefill)",
       "cache_hit_ratio",
       "cached_tokens",
@@ -5720,38 +5720,38 @@
     ],
     "modes": [
       {
-        "eval": "temp=1, sampling do vendor. M\u00e9trica de decis\u00e3o (vale para veredito).",
+        "eval": "temp=1, vendor sampling. Decision metric (counts for verdict).",
         "key": "canonical"
       },
       {
-        "eval": "temp=0, determin\u00edstico. Diagn\u00f3stico e equival\u00eancia greedy (hash de tokens). N\u00e3o conta para veredito.",
+        "eval": "temp=0, deterministic. Diagnostic and greedy equivalence (token hash). Does not count for verdict.",
         "key": "greedy"
       }
     ],
     "scenarios": [
       {
-        "eval": "Prompt novo, sem cache pr\u00e9vio. Mede TTFT e prefill frios.",
+        "eval": "New prompt, no prior cache. Measures cold TTFT and prefill.",
         "key": "cold"
       },
       {
-        "eval": "Mesmo prompt repetido. Mede cache hit quente e TTFT quente.",
+        "eval": "Same prompt repeated. Measures warm cache hit and warm TTFT.",
         "key": "identical"
       },
       {
-        "eval": "Prompt estendido com um sufixo. Reuso parcial do prefixo.",
+        "eval": "Prompt extended with a suffix. Partial reuse of the prefix.",
         "key": "append"
       },
       {
-        "eval": "Muda um trecho no meio. Invalida\u00e7\u00e3o do cache a partir do ponto.",
+        "eval": "Changes a segment in the middle. Cache invalidation from that point.",
         "key": "middle_mutation"
       },
       {
-        "eval": "Anexa um turno estilo ferramenta ao prompt (cen\u00e1rio de cache, n\u00e3o o loop ag\u00eantico).",
+        "eval": "Appends a tool-style turn to the prompt (cache scenario, not the agentic loop).",
         "key": "tool_turn"
       }
     ],
     "tool_loop": {
-      "eval": "Loop ag\u00eantico de 20 turnos, best-of-N. Passa se chamar as 4 ferramentas (read_fixture, search_fixture, run_fixture_test, record_result) e emitir os 4 identificadores verbatim no turno final; maioria das N repeti\u00e7\u00f5es."
+      "eval": "Agentic loop of 20 turns, best-of-N. Passes if it calls the 4 tools (read_fixture, search_fixture, run_fixture_test, record_result) and emits the 4 identifiers verbatim in the final turn; majority of the N repetitions."
     }
   },
   "test_coverage": [
@@ -6166,61 +6166,61 @@
     {
       "arm": "T",
       "gate": "Gate 9 \u2014 oQ8e",
-      "note": "T promovido (produ\u00e7\u00e3o M4); U s\u00f3 controle, sem vantagem >5%.",
+      "note": "T promoted (M4 production); U just control, no advantage >5%.",
       "state": "pass"
     },
     {
       "arm": "V",
       "gate": "Gate 10 \u2014 MTPLX",
-      "note": "Melhor decode 32K; tool loop 2/3 com prompt corrigido.",
+      "note": "Best decode 32K; tool loop 2/3 with corrected prompt.",
       "state": "pass"
     },
     {
       "arm": "X",
       "gate": "Gate 11 \u2014 oQ4e+DFlash",
-      "note": "DFlash2 +14-24% decode, mas sem 10% de tempo total (cache-off).",
+      "note": "DFlash2 +14-24% decode, but no 10% of total time (cache-off).",
       "state": "fail"
     },
     {
       "arm": "L",
       "gate": "MTP gate \u2014 AWQ5",
-      "note": "L vence K em tempo total; MTP aceita\u00e7\u00e3o ~0,8; tool loop 2/3.",
+      "note": "L beats K on total time; MTP acceptance ~0.8; tool loop 2/3.",
       "state": "pass"
     },
     {
       "arm": "M/N",
       "gate": "Gate 6 \u2014 SpecPrefill",
-      "note": "Corta TTFT frio ~-55%, mas zera o cache quente (hit 0%); TTFT quente 6-17x pior que L. Nenhum avan\u00e7a.",
+      "note": "Cuts cold TTFT ~-55%, but zeroes the warm cache (hit 0%); warm TTFT 6-17x worse than L. None advances.",
       "state": "fail"
     },
     {
       "arm": "O",
       "gate": "Gate 7 \u2014 ANE",
-      "note": "Bloqueado: 'Private ANE procedure-bank compiler is unavailable' neste build do omlx. Kernels da ANE n\u00e3o compilam. Externo, n\u00e3o corrig\u00edvel na campanha.",
+      "note": "Blocked: 'Private ANE procedure-bank compiler is unavailable' in this omlx build. ANE kernels do not compile. External, not fixable in the campaign.",
       "state": "blocked"
     },
     {
       "arm": "R/S",
       "gate": "Gate 8 \u2014 DSpark/DFlash2",
-      "note": "Especula\u00e7\u00e3o entrega: decode +90%/+154% e tempo total -57%/-70% vs Q; tool loop 2/3. Mas o pico (S 38 @32K) fica abaixo do MTPLX (44,5) e \u00e9 8-bit.",
+      "note": "Speculation delivers: decode +90%/+154% and total time -57%/-70% vs Q; tool loop 2/3. But the peak (S 38 @32K) falls below MTPLX (44.5) and is 8-bit.",
       "state": "pass"
     },
     {
       "arm": "Y/Z",
       "gate": "MTPLX Quality \u2014 Y/Z vs Speed",
-      "note": "Speed ~23-31% mais r\u00e1pido no decode. Entre Quality, Z(fp16) domina Y(8-bit): mesmo decode, tool loop 3/5 vs 1/5. Quality s\u00f3 por fidelidade (n\u00e3o medida).",
+      "note": "Speed ~23-31% faster in decode. Among Quality, Z(fp16) dominates Y(8-bit): same decode, tool loop 3/5 vs 1/5. Quality only for fidelity (not measured).",
       "state": "control"
     },
     {
       "arm": "L/T/S vs V/Y",
-      "gate": "Teto 262K \u2014 decode",
-      "note": "No m\u00e1ximo nativo (262K) o MTP do MTPLX colapsa: decode V 6,1 / Y 8,7 tps. oMLX (L 15,4 / T 14,1) e dspark/DFlash2 (S 14,2) seguram ~14-15 tps. Causa: o verify do MTP re-l\u00ea o KV de 262K por passo; o DFlash2 n\u00e3o escala assim. Veredito de velocidade no teto: oMLX e dspark; MTPLX perde a vantagem que tinha at\u00e9 128K.",
+      "gate": "Ceiling 262K \u2014 decode",
+      "note": "At the native maximum (262K) the MTPLX MTP collapses: decode V 6.1 / Y 8.7 tps. oMLX (L 15.4 / T 14.1) and dspark/DFlash2 (S 14.2) hold ~14-15 tps. Cause: the MTP verify re-reads the 262K KV per step; DFlash2 does not scale that way. Speed verdict at the ceiling: oMLX and dspark; MTPLX loses the advantage it had up to 128K.",
       "state": "pass"
     },
     {
       "arm": "L/T/S/V/Y",
-      "gate": "Teto 262K \u2014 cache",
-      "note": "Todos reusam prefixo no teto: identical ~1,0, append 0,95-1,0, tool_turn 0,99-1,0; middle_mutation parcial (0,38-0,49). CONFIRMADO por isolamento de vari\u00e1vel: o tool_turn do MTPLX que zerava a 128K/cap 48G reusa 0,99 a 128K/cap 100G (mesma ordem pior-caso) -> o miss era sub-provis\u00e3o do session-bank, n\u00e3o ordem. Regra: dimensione o cap por-sess\u00e3o p/ KV do contexto + pegada de tool (48G \u00e9 pouco j\u00e1 a 128K; 100G basta a 262K).",
+      "gate": "Ceiling 262K \u2014 cache",
+      "note": "All reuse the prefix at the ceiling: identical ~1.0, append 0.95-1.0, tool_turn 0.99-1.0; middle_mutation partial (0.38-0.49). CONFIRMED by variable isolation: the MTPLX tool_turn that zeroed at 128K/cap 48G reuses 0.99 at 128K/cap 100G (same worst-case order) -> the miss was session-bank under-provisioning, not order. Rule: size the per-session cap for the context KV + tool footprint (48G is too little already at 128K; 100G suffices at 262K).",
       "state": "pass"
     }
   ]
