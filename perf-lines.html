@@ -1,0 +1,794 @@
+<title>Qwen3.8 Speed to 256K</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --plane:#f9f9f7; --surface:#fcfcfb; --surface-2:#f3f2ee;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
+  --accent:#2a78d6; --accent-rgb:42,120,214; --warn:#b06a00; --warn-bg:#fbf1dd;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232321;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+    --accent:#3987e5; --accent-rgb:57,135,229; --warn:#e0a63a; --warn-bg:#2a2312;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232321;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+  --accent:#3987e5; --accent-rgb:57,135,229; --warn:#e0a63a; --warn-bg:#2a2312;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--plane); color:var(--ink); font-family:var(--sans);
+  line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px; margin:0 auto; padding:32px 20px 64px}
+header{display:flex; flex-wrap:wrap; gap:20px 32px; align-items:flex-end; justify-content:space-between}
+h1{font-size:1.7rem; font-weight:700; letter-spacing:-0.02em; margin:0; text-wrap:balance}
+.sub{color:var(--ink-2); max-width:66ch; margin:8px 0 0; font-size:0.98rem}
+.eyebrow{font-family:var(--mono); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin:0 0 6px}
+button.theme{
+  font-family:var(--mono); font-size:0.74rem; color:var(--ink-2); background:var(--surface);
+  border:1px solid var(--border); border-radius:7px; padding:7px 12px; cursor:pointer;
+}
+button.theme:hover{border-color:var(--baseline)}
+button.theme:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+h2.sec{font-size:1.05rem; margin:0 0 4px; letter-spacing:-0.01em}
+.s-note{color:var(--ink-2); font-size:0.88rem; margin:0 0 14px; max-width:82ch}
+.s-note code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+section.block{margin-top:30px}
+
+/* rig strip */
+.rig{display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:10px; margin-top:18px}
+.rig .r-item{background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:10px 13px}
+.rig .r-lab{font-size:0.72rem; color:var(--muted); margin:0 0 3px}
+.rig .r-val{font-family:var(--mono); font-size:0.88rem; color:var(--ink); font-weight:500}
+
+/* tables shared */
+.tbl-scroll{overflow-x:auto; border:1px solid var(--border); border-radius:10px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:0.84rem}
+th,td{padding:8px 11px; text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono)}
+th{font-size:0.72rem; letter-spacing:0.04em; color:var(--muted); font-weight:500; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface)}
+td:first-child,th:first-child{text-align:left}
+tbody tr:hover{background:var(--surface-2)}
+.arm-cell{display:inline-flex; align-items:center; gap:8px}
+.arm-cell .sw{width:10px; height:10px; border-radius:2px; flex:none}
+.arm-cell .code{font-weight:700; color:var(--ink)}
+.na{color:var(--muted)}
+
+#cfgTable{min-width:780px}
+#cfgTable th,#cfgTable td{text-align:left; vertical-align:top; white-space:normal; font-family:var(--sans); font-size:0.83rem; line-height:1.42}
+#cfgTable th{font-family:var(--mono); font-size:0.72rem; letter-spacing:0.04em}
+#cfgTable td:first-child{font-weight:700; color:var(--ink); white-space:nowrap}
+#cfgTable .mono{font-family:var(--mono); font-size:0.9em; color:var(--ink-2)}
+
+/* tech cards */
+.tech{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; margin-top:16px}
+.tcard{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 16px 14px}
+.tcard .t-name{font-size:1.02rem; font-weight:700; letter-spacing:-0.01em; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
+.tcard .t-repo{font-family:var(--mono); font-size:0.72rem; color:var(--muted)}
+.tcard .t-what{font-size:0.86rem; color:var(--ink-2); margin:7px 0 13px; line-height:1.45}
+.tcard dl{margin:0; display:grid; gap:11px}
+.tcard dt{font-family:var(--mono); font-size:0.66rem; letter-spacing:0.09em; text-transform:uppercase; color:var(--accent); margin-bottom:3px}
+.tcard dd{margin:0; font-size:0.83rem; color:var(--ink-2); line-height:1.45}
+.tcard dd b{color:var(--ink); font-weight:600}
+.tcard .t-configs{margin:13px 0 0; padding-top:11px; border-top:1px solid var(--border); font-size:0.8rem; color:var(--ink-2)}
+.tcard .t-configs b{color:var(--ink); font-family:var(--mono); font-weight:600; font-size:0.9em}
+.tech-src{margin-top:12px; font-size:0.78rem; color:var(--muted)}
+.tech-src a{color:var(--accent); text-decoration:none}
+.tech-src a:hover{text-decoration:underline}
+
+/* legend */
+.legend{display:flex; flex-wrap:wrap; gap:8px 18px; margin:22px 0 4px; padding:12px 16px;
+  background:var(--surface); border:1px solid var(--border); border-radius:10px}
+.chip{display:inline-flex; align-items:center; gap:7px; font-size:0.84rem; color:var(--ink-2)}
+.chip .sw{width:22px; height:3px; border-radius:2px; flex:none}
+.chip .code{font-family:var(--mono); font-weight:700; color:var(--ink)}
+
+/* takeaways compact */
+.takeaways{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-top:22px}
+.takeaways h2{font-size:0.95rem; margin:0 0 9px; letter-spacing:-0.01em}
+.takeaways ul{margin:0; padding:0; list-style:none; display:grid; gap:7px}
+.takeaways li{font-size:0.85rem; color:var(--ink-2); padding-left:15px; position:relative; line-height:1.4}
+.takeaways li::before{content:"›"; position:absolute; left:0; color:var(--accent); font-family:var(--mono); font-weight:700}
+.takeaways li b{color:var(--ink)}
+
+/* chart grid */
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:14px; margin-top:14px}
+.panel{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 14px 10px; position:relative}
+.p-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin:0 2px 2px}
+.p-title{font-size:0.98rem; font-weight:700; letter-spacing:-0.01em}
+.p-unit{font-family:var(--mono); font-size:0.72rem; color:var(--muted)}
+.p-dir{font-family:var(--mono); font-size:0.68rem; letter-spacing:0.06em; color:var(--muted)}
+.p-note{font-size:0.76rem; color:var(--warn); background:var(--warn-bg); border-radius:6px;
+  padding:3px 8px; margin:2px 2px 0; display:inline-block}
+.p-interp{font-size:0.8rem; color:var(--ink-2); margin:8px 2px 0; line-height:1.4; border-top:1px solid var(--border); padding-top:8px}
+.p-interp b{color:var(--ink); font-weight:600}
+svg.chart{width:100%; height:auto; display:block; touch-action:none}
+.tick{font-family:var(--mono); font-size:10px; fill:var(--muted)}
+.axis-t{font-family:var(--mono); font-size:10.5px; fill:var(--ink-2)}
+.endlab{font-family:var(--mono); font-size:9.5px; font-weight:700}
+.crosshair{stroke:var(--baseline); stroke-width:1; stroke-dasharray:3 3; opacity:0}
+
+.tip{position:absolute; pointer-events:none; z-index:5; background:var(--surface);
+  border:1px solid var(--baseline); border-radius:8px; padding:8px 10px; font-size:0.78rem;
+  box-shadow:0 6px 20px rgba(0,0,0,0.13); opacity:0; transition:opacity .08s; min-width:158px}
+.tip .t-ctx{font-family:var(--mono); font-weight:700; color:var(--ink); margin-bottom:5px; font-size:0.76rem}
+.tip .t-row{display:flex; align-items:center; gap:7px; justify-content:space-between; margin:2px 0}
+.tip .t-left{display:flex; align-items:center; gap:6px; color:var(--ink-2)}
+.tip .t-left .sw{width:9px; height:9px; border-radius:2px; flex:none}
+.tip .t-left .code{font-family:var(--mono); font-weight:700; color:var(--ink); font-size:0.74rem}
+.tip .t-val{font-family:var(--mono); color:var(--ink); font-variant-numeric:tabular-nums}
+.tip .t-na{color:var(--muted)}
+
+/* hit heatmap */
+#hitTable{min-width:640px}
+#hitTable th{text-align:center}
+#hitTable th:first-child,#hitTable td:first-child{text-align:left}
+#hitTable td.grp{background:var(--surface-2); font-family:var(--sans); font-weight:700; color:var(--ink); font-size:0.8rem}
+.hcell{text-align:center; font-variant-numeric:tabular-nums; border-radius:4px}
+.hcell.na{color:var(--muted); background:transparent!important}
+.hit-legend{display:flex; align-items:center; gap:10px; margin-top:12px; font-size:0.8rem; color:var(--ink-2); flex-wrap:wrap}
+.hit-legend .bar{height:12px; width:150px; border-radius:3px; border:1px solid var(--border);
+  background:linear-gradient(90deg, var(--surface-2), rgba(var(--accent-rgb),0.88))}
+
+/* values table */
+#table{min-width:720px}
+#table td,#table th{font-family:var(--mono)}
+.grp-row td{background:var(--surface-2); color:var(--ink); font-family:var(--sans); font-weight:700; font-size:0.8rem; letter-spacing:0.02em; text-align:left; padding:6px 11px}
+.tbl-note{color:var(--ink-2); font-size:0.88rem; margin:0 0 14px; max-width:80ch}
+.tbl-note code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+
+footer{margin-top:34px; color:var(--ink-2); font-size:0.82rem; max-width:82ch}
+footer b{color:var(--ink)}
+footer code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <p class="eyebrow">Runtimes effective-speed test</p>
+      <h1>End-to-end Qwen3.8-27B speed to 256K</h1>
+      <p class="sub">Five configurations that reached the model's native maximum context
+      (262,144 tokens). Each panel is one metric; each line is one configuration. Hover a chart
+      to read the per-context values.</p>
+    </div>
+    <button class="theme" id="themeBtn" type="button">theme: auto</button>
+  </header>
+
+  <section class="block">
+    <h2 class="sec">Rig</h2>
+    <div class="rig" id="rig"></div>
+  </section>
+
+  <section class="block">
+    <h2 class="sec">Per-config setup</h2>
+    <p class="s-note">What differs across the five configurations: runtime, checkpoint/quant,
+    prefix-cache mechanism and speculation engine. Sampling is identical for all (vendor):
+    <code>temperature 1.0</code>, <code>top-p 0.95</code>, <code>top-k 20</code>,
+    <code>reasoning-effort xhigh</code>. Model native context: 262,144 tokens.</p>
+    <div class="tbl-scroll"><table id="cfgTable"></table></div>
+  </section>
+
+  <section class="block">
+    <h2 class="sec">Runtimes compared</h2>
+    <p class="s-note">All three runtimes do <b>lossless</b> speculative decoding and prefix caching on
+    Apple Silicon — the target verifies every token, so output matches plain decoding. They differ in
+    <b>where the draft comes from</b> and <b>how the KV cache is tiered</b>.</p>
+    <div class="tech" id="tech"></div>
+    <p class="tech-src" id="techSrc"></p>
+  </section>
+
+  <div class="takeaways" id="takeaways"></div>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="grid" id="grid"></div>
+
+  <section class="block">
+    <h2 class="sec">Cache hit by scenario</h2>
+    <p class="s-note">Fraction of the prefix reused per test scenario. <code>cold</code> = first
+    pass (seeding, ≈0 by design). <code>middle_mutation</code> = divergent prefix: MTPLX re-prefills
+    (~0), oMLX reuses the unchanged half (~0.49). <code>tool_turn</code> at 128K on MTPLX 4b/8b read
+    <b>0.00</b> from an under-provisioned session-bank cap (48G); the confirmatory run at 100G
+    recovered 0.99.</p>
+    <div class="tbl-scroll"><table id="hitTable"></table></div>
+    <div class="hit-legend"><span>0</span><span class="bar"></span><span>1 (full reuse)</span></div>
+  </section>
+
+  <section class="block">
+    <h2 class="sec">All values</h2>
+    <p class="tbl-note">Single source: <code>results/cache-probe.jsonl</code>. Scenario cold = cold
+    cache (full prefill); cached = the <code>identical</code> scenario (warm reuse, hit ≥0.97).
+    Effective tps = output tokens ÷ total time.</p>
+    <div class="tbl-scroll"><table id="table"></table></div>
+  </section>
+
+  <footer id="foot"></footer>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+const DATA = {
+ "L": {
+  "32768": {
+   "decode_tps": 42.48,
+   "prefill_tps": 226.79,
+   "e2e_cold_s": 142.9,
+   "e2e_cached_s": 51.9,
+   "eff_cold": 6.69,
+   "eff_cached": 37.1,
+   "ram_gb": 51.7,
+   "hit_cached": 0.975,
+   "comp_cold": 956,
+   "comp_cached": 1924
+  },
+  "65536": {
+   "decode_tps": 33.59,
+   "prefill_tps": 202.41,
+   "e2e_cold_s": 356.4,
+   "e2e_cached_s": 51.0,
+   "eff_cold": 5.625,
+   "eff_cached": 29.9,
+   "ram_gb": 58.8,
+   "hit_cached": 0.989,
+   "comp_cold": 2005,
+   "comp_cached": 1524
+  },
+  "131072": {
+   "decode_tps": 25.22,
+   "prefill_tps": 162.26,
+   "e2e_cold_s": 816.1,
+   "e2e_cached_s": 70.1,
+   "eff_cold": 1.295,
+   "eff_cached": 21.57,
+   "ram_gb": 81.6,
+   "hit_cached": 0.995,
+   "comp_cold": 1057,
+   "comp_cached": 1513
+  },
+  "262144": {
+   "decode_tps": 14.59,
+   "prefill_tps": 114.89,
+   "e2e_cold_s": 2423.0,
+   "e2e_cached_s": 71.0,
+   "eff_cold": 1.138,
+   "eff_cached": 12.92,
+   "ram_gb": null,
+   "hit_cached": 0.997,
+   "comp_cold": 2757,
+   "comp_cached": 917
+  }
+ },
+ "T": {
+  "32768": {
+   "decode_tps": 30.57,
+   "prefill_tps": 211.9,
+   "e2e_cold_s": 173.6,
+   "e2e_cached_s": 39.0,
+   "eff_cold": 6.197,
+   "eff_cached": 27.32,
+   "ram_gb": 67.6,
+   "hit_cached": 0.977,
+   "comp_cold": 1076,
+   "comp_cached": 1064
+  },
+  "65536": {
+   "decode_tps": 28.1,
+   "prefill_tps": 201.99,
+   "e2e_cold_s": 326.6,
+   "e2e_cached_s": 46.0,
+   "eff_cold": 2.517,
+   "eff_cached": 23.73,
+   "ram_gb": 75.7,
+   "hit_cached": 0.989,
+   "comp_cold": 822,
+   "comp_cached": 1092
+  },
+  "131072": {
+   "decode_tps": 20.23,
+   "prefill_tps": 161.95,
+   "e2e_cold_s": 851.8,
+   "e2e_cached_s": 75.6,
+   "eff_cold": 1.807,
+   "eff_cached": 18.59,
+   "ram_gb": 94.6,
+   "hit_cached": 0.995,
+   "comp_cold": 1539,
+   "comp_cached": 1405
+  },
+  "262144": {
+   "decode_tps": 13.47,
+   "prefill_tps": 113.57,
+   "e2e_cold_s": 2312.9,
+   "e2e_cached_s": 117.0,
+   "eff_cold": 0.309,
+   "eff_cached": 11.85,
+   "ram_gb": 111.9,
+   "hit_cached": 0.997,
+   "comp_cold": 714,
+   "comp_cached": 1387
+  }
+ },
+ "S": {
+  "32768": {
+   "decode_tps": 39.9,
+   "prefill_tps": 252.27,
+   "e2e_cold_s": 123.7,
+   "e2e_cached_s": 52.0,
+   "eff_cold": 5.079,
+   "eff_cached": 37.72,
+   "ram_gb": 84.5,
+   "hit_cached": 1.0,
+   "comp_cold": 628,
+   "comp_cached": 1960
+  },
+  "65536": {
+   "decode_tps": 32.1,
+   "prefill_tps": 223.08,
+   "e2e_cold_s": 297.6,
+   "e2e_cached_s": 39.4,
+   "eff_cold": 3.101,
+   "eff_cached": 30.35,
+   "ram_gb": 127.4,
+   "hit_cached": 1.0,
+   "comp_cold": 923,
+   "comp_cached": 1195
+  },
+  "131072": {
+   "decode_tps": 21.9,
+   "prefill_tps": 176.87,
+   "e2e_cold_s": 783.7,
+   "e2e_cached_s": 61.2,
+   "eff_cold": 2.056,
+   "eff_cached": 21.56,
+   "ram_gb": 127.0,
+   "hit_cached": 1.0,
+   "comp_cold": 1611,
+   "comp_cached": 1320
+  },
+  "262144": {
+   "decode_tps": 14.1,
+   "prefill_tps": 124.59,
+   "e2e_cold_s": 2136.7,
+   "e2e_cached_s": 101.5,
+   "eff_cold": 0.51,
+   "eff_cached": 14.14,
+   "ram_gb": 127.5,
+   "hit_cached": 1.0,
+   "comp_cold": 1090,
+   "comp_cached": 1435
+  }
+ },
+ "V": {
+  "32768": {
+   "decode_tps": 44.5,
+   "prefill_tps": 228.61,
+   "e2e_cold_s": 123.9,
+   "e2e_cached_s": 12.5,
+   "eff_cold": 1.704,
+   "eff_cached": 42.41,
+   "ram_gb": 83.1,
+   "hit_cached": 1.0,
+   "comp_cold": 211,
+   "comp_cached": 532
+  },
+  "65536": {
+   "decode_tps": 33.45,
+   "prefill_tps": 200.91,
+   "e2e_cold_s": 331.3,
+   "e2e_cached_s": 69.2,
+   "eff_cold": 3.269,
+   "eff_cached": 34.16,
+   "ram_gb": 108.3,
+   "hit_cached": 1.0,
+   "comp_cold": 1083,
+   "comp_cached": 2362
+  },
+  "131072": {
+   "decode_tps": 24.19,
+   "prefill_tps": 152.96,
+   "e2e_cold_s": 872.6,
+   "e2e_cached_s": 48.9,
+   "eff_cold": 1.423,
+   "eff_cached": 24.15,
+   "ram_gb": 129.5,
+   "hit_cached": 1.0,
+   "comp_cold": 1242,
+   "comp_cached": 1182
+  },
+  "262144": {
+   "decode_tps": 8.93,
+   "prefill_tps": 98.37,
+   "e2e_cold_s": 2746.6,
+   "e2e_cached_s": 125.9,
+   "eff_cold": 0.447,
+   "eff_cached": 9.1,
+   "ram_gb": 132.6,
+   "hit_cached": 1.0,
+   "comp_cold": 1229,
+   "comp_cached": 1146
+  }
+ },
+ "Y": {
+  "32768": {
+   "decode_tps": 34.3,
+   "prefill_tps": 228.38,
+   "e2e_cold_s": 129.7,
+   "e2e_cached_s": 10.1,
+   "eff_cold": 2.768,
+   "eff_cached": 35.78,
+   "ram_gb": 93.5,
+   "hit_cached": 1.0,
+   "comp_cold": 359,
+   "comp_cached": 361
+  },
+  "65536": {
+   "decode_tps": 29.65,
+   "prefill_tps": 200.81,
+   "e2e_cold_s": 329.7,
+   "e2e_cached_s": 25.5,
+   "eff_cold": 2.754,
+   "eff_cached": 27.46,
+   "ram_gb": 118.9,
+   "hit_cached": 1.0,
+   "comp_cold": 908,
+   "comp_cached": 701
+  },
+  "131072": {
+   "decode_tps": 22.33,
+   "prefill_tps": 152.85,
+   "e2e_cold_s": 870.5,
+   "e2e_cached_s": 37.7,
+   "eff_cold": 1.248,
+   "eff_cached": 22.76,
+   "ram_gb": 130.5,
+   "hit_cached": 1.0,
+   "comp_cold": 1086,
+   "comp_cached": 859
+  },
+  "262144": {
+   "decode_tps": 8.73,
+   "prefill_tps": 99.04,
+   "e2e_cold_s": 2718.5,
+   "e2e_cached_s": 124.8,
+   "eff_cold": 0.408,
+   "eff_cached": 8.73,
+   "ram_gb": null,
+   "hit_cached": 1.0,
+   "comp_cold": 1109,
+   "comp_cached": 1090
+  }
+ }
+};
+const HITMAP = {"L":{"32768":{"cold":0.0,"identical":0.975,"append":0.94,"middle_mutation":0.449,"tool_turn":0.938},"65536":{"cold":0.0,"identical":0.989,"append":0.972,"middle_mutation":0.477,"tool_turn":0.972},"131072":{"cold":0.0,"identical":0.995,"append":0.986,"middle_mutation":0.489,"tool_turn":0.986},"262144":{"cold":0.0,"identical":0.997,"append":0.993,"middle_mutation":0.495,"tool_turn":0.993}},"T":{"32768":{"cold":0.0,"identical":0.977,"append":0.944,"middle_mutation":0.488,"tool_turn":0.943},"65536":{"cold":0.0,"identical":0.989,"append":0.972,"middle_mutation":0.477,"tool_turn":0.972},"131072":{"cold":0.0,"identical":0.995,"append":0.986,"middle_mutation":0.489,"tool_turn":0.986},"262144":{"cold":0.0,"identical":0.997,"append":0.993,"middle_mutation":0.495,"tool_turn":0.993}},"S":{"32768":{"cold":0.002,"identical":1.0,"append":0.867,"middle_mutation":0.3,"tool_turn":0.962},"65536":{"cold":0.001,"identical":1.0,"append":0.939,"middle_mutation":0.409,"tool_turn":0.982},"131072":{"cold":0.0,"identical":1.0,"append":0.97,"middle_mutation":0.391,"tool_turn":0.992},"262144":{"cold":0.0,"identical":1.0,"append":0.954,"middle_mutation":0.383,"tool_turn":0.996}},"V":{"32768":{"cold":0.0,"identical":1.0,"append":0.96,"middle_mutation":0.075,"tool_turn":0.962},"65536":{"cold":0.0,"identical":1.0,"append":0.981,"middle_mutation":0.034,"tool_turn":0.982},"131072":{"cold":0.0,"identical":1.0,"append":0.99,"middle_mutation":0.0,"tool_turn":0.0},"262144":{"cold":0.0,"identical":1.0,"append":0.995,"middle_mutation":0.008,"tool_turn":0.996}},"Y":{"32768":{"cold":0.0,"identical":1.0,"append":0.96,"middle_mutation":0.075,"tool_turn":0.962},"65536":{"cold":0.0,"identical":1.0,"append":0.981,"middle_mutation":0.034,"tool_turn":0.982},"131072":{"cold":0.0,"identical":1.0,"append":0.0,"middle_mutation":0.0,"tool_turn":0.0},"262144":{"cold":0.0,"identical":1.0,"append":0.995,"middle_mutation":null,"tool_turn":null}}};
+
+const CTX = [32768,65536,131072,262144];
+const CTXLAB = ["32K","64K","128K","256K"];
+const SERIES = [
+  {id:"L", name:"oMLX AWQ 5bpw",    short:"oMLX AWQ5", cv:"--s1"},
+  {id:"T", name:"oMLX oQ8e 8.6bpw", short:"oMLX oQ8e", cv:"--s2"},
+  {id:"S", name:"mlx-dspark 8-bit", short:"dspark 8b", cv:"--s3"},
+  {id:"V", name:"MTPLX 4-bit",      short:"MTPLX 4b",  cv:"--s4"},
+  {id:"Y", name:"MTPLX 8-bit",      short:"MTPLX 8b",  cv:"--s5"},
+];
+const PANELS = [
+  {key:"decode_tps",  title:"Decode tps",  unit:"tok/s", dir:"↑ better", fmt:v=>v.toFixed(1),
+     interp:"MTPLX leads through 128K, then the <b>MTP verify cost collapses it at 256K</b> (~8.8 vs ~14 tps for oMLX/dspark)."},
+  {key:"prefill_tps", title:"Prefill tps", unit:"tok/s", dir:"↑ better", fmt:v=>v.toFixed(0),
+     interp:"All fall together as the window fills (~250→~99 tok/s); <b>dspark stays a step ahead</b>."},
+  {key:"eff_cached",  title:"Effective tps · warm cache", unit:"tok/s", dir:"↑ better", fmt:v=>v.toFixed(1),
+     interp:"On a warm cache real throughput tracks decode — <b>MTPLX drops below oMLX/dspark at 256K</b>."},
+  {key:"eff_cold",    title:"Effective tps · cold", unit:"tok/s", dir:"↑ better", fmt:v=>v.toFixed(2),
+     note:"On cold, e2e is prefill-dominated: this measures emitted-token count more than raw speed.",
+     interp:"Cold throughput collapses toward <b>~0.3-1.1 tok/s</b>: the full prefill dominates total time."},
+  {key:"e2e_cached_s",title:"e2e wait · warm cache", unit:"s", dir:"↓ better", fmt:v=>v.toFixed(0),
+     interp:"Reuse keeps the wait bounded (<b>≤126 s</b>) at every context — the cache payoff."},
+  {key:"e2e_cold_s",  title:"e2e wait · cold", unit:"s", dir:"↓ better", fmt:v=>v.toFixed(0),
+     interp:"With a cold cache the wait explodes to <b>~36-46 min at 256K</b> (full prefill)."},
+  {key:"ram_gb",      title:"Peak RAM", unit:"GB", dir:"↓ better", fmt:v=>v.toFixed(0),
+     note:"oMLX AWQ 5bpw and MTPLX 8-bit lack RAM capture at 256K (records restored from backup).",
+     interp:"Memory climbs to the <b>128 GB ceiling</b>; oMLX AWQ5 is the only config with headroom."},
+];
+const TAKEAWAYS = [
+  ["Decode at 256K", "oMLX/dspark ~14 tps vs MTPLX ~8.8 tps — the MTP verify step collapses at the ceiling."],
+  ["Prefill floor→ceiling", "~250 → ~99 tok/s as the context fills; the tax is roughly format-independent."],
+  ["Warm cache at 256K", "holds the e2e wait ≤126 s even when a full cold prefill would take ~40 min."],
+  ["Peak RAM", "MTPLX/dspark press the 128 GB ceiling (~127-133 GB, into swap); oMLX AWQ5 is lightest."],
+];
+const ARM_CFG = {
+  L:{runtime:"oMLX v0.6.3rc2", model:"True2456/Qwen3.8-27B-AWQ-5.0bpw", quant:"AWQ 5.0 bpw",
+     cache:"PagedSSD · content-addressed · SSD spill", spec:"none measured — no MTP acceptance recorded"},
+  T:{runtime:"oMLX v0.6.3rc2", model:"Jundot/Qwen3.8-27B-oQ8e-mtp", quant:"oQ8e 8.6 bpw",
+     cache:"PagedSSD · content-addressed · SSD spill", spec:"checkpoint MTP · accept 0.85 · len 2.63"},
+  S:{runtime:"mlx-dspark v0.15.0", model:"mlx-community/Qwen3.8-27B-8bit + drafter incoai/…DFlash2", quant:"MLX 8-bit",
+     cache:"dspark prefix cache · max-batch 1", spec:"DFlash2 decode-time · len 3.20"},
+  V:{runtime:"MTPLX v2.9.2", model:"Youssofal/…MTPLX-Optimized-Speed", quant:"4-bit body",
+     cache:"session-bank in RAM · SSD off · cap 48→100G", spec:"native MTP · depth 3 · turbo profile"},
+  Y:{runtime:"MTPLX v2.9.2", model:"Youssofal/…MTPLX-Optimized-Quality", quant:"8-bit",
+     cache:"session-bank in RAM · SSD off · cap 48→100G", spec:"native MTP · depth 3 · turbo profile"},
+};
+const RIG = [
+  {lab:"Chip", val:"Apple M4 Max"},
+  {lab:"CPU", val:"16 cores (12P+4E)"},
+  {lab:"GPU", val:"40 cores · Metal 4"},
+  {lab:"Unified memory", val:"128 GB"},
+  {lab:"macOS", val:"26.5.2 (25F84)"},
+  {lab:"Serving", val:"oMLX/MTPLX :8000 · dspark :8484"},
+];
+const SCEN = [["cold","cold"],["identical","identical"],["append","append"],
+  ["middle_mutation","middle_mut."],["tool_turn","tool_turn"]];
+const TECH = [
+  {name:"oMLX", repo:"jundot/omlx",
+   what:"An MLX inference server built for coding agents: continuous batching plus a two-tier paged KV cache. Speculation is not its own — it runs whatever the checkpoint ships.",
+   cache:"Block-based paged attention (copy-on-write, prefix sharing) in RAM that <b>spills to an SSD tier</b> (safetensors) instead of evicting. A returning prefix is restored from disk, so TTFT drops from tens of seconds to 1-3 s and survives restarts.",
+   spec:"From the checkpoint only. The <b>AWQ 5bpw</b> arm recorded no MTP acceptance here (runs effectively without speculation); the <b>oQ8e</b> arm's MTP head drafts (accept 0.85, len 2.63).",
+   configs:"oMLX AWQ 5bpw · oMLX oQ8e 8.6bpw"},
+  {name:"MTPLX", repo:"youssofal/MTPLX",
+   what:"Speculation is <b>baked into the quantized checkpoint</b>: the model's own multi-token-prediction (MTP) heads draft, so there is no external draft model eating RAM.",
+   cache:"A warm-prefix <b>session bank</b> keeps the KV cache across turns in RAM; a default SSD session cache restores sessions across restarts. Here the SSD tier is off — the bank lives in RAM, sized by a per-session cap (48→100G).",
+   spec:"The model drafts several tokens ahead (<b>depth 3</b>), verifies each block in one batched forward pass, and commits via <b>exact rejection sampling with residual correction</b> (Leviathan-Chen) — lossless at any temperature. Speed = 4-bit body, Quality = 8-bit; both carry MTP heads.",
+   configs:"MTPLX 4-bit (Optimized-Speed) · MTPLX 8-bit (Optimized-Quality)"},
+  {name:"mlx-dspark", repo:"ARahim3/mlx-dspark",
+   what:"Hosts <b>external EAGLE-family drafters</b> over a plain MLX 8-bit target. Every token is verified by the target, so output is identical to normal decoding.",
+   cache:"Prefix cache reuses the <b>target KV cache</b> (and, for DSpark, the drafter context) from the previous turn; trim mode for dense targets, checkpoint mode for hybrid recurrent state.",
+   spec:"This arm uses <b>DFlash2</b> (z-lab / Inco AI): block-diffusion that denoises a 16-token block in one pass, plus a candidate-path selector (target head's top-16 per slot) and per-sublayer dynamic convolutions for higher acceptance (len 3.20). Sibling drafter DSpark is semi-autoregressive (7-token block, rank-256 Markov head).",
+   configs:"mlx-dspark 8-bit (+ DFlash2 drafter)"},
+];
+const TECH_SRC = [
+  ["youssofal/MTPLX","https://github.com/youssofal/MTPLX"],
+  ["ARahim3/mlx-dspark","https://github.com/ARahim3/mlx-dspark"],
+  ["jundot/omlx","https://github.com/jundot/omlx"],
+];
+
+function cssv(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+// ---- rig ----
+function buildRig(){
+  const el=document.getElementById("rig"); el.innerHTML="";
+  RIG.forEach(r=>{
+    const d=document.createElement("div"); d.className="r-item";
+    d.innerHTML=`<p class="r-lab">${r.lab}</p><p class="r-val">${r.val}</p>`;
+    el.appendChild(d);
+  });
+}
+// ---- config table ----
+function buildConfigTable(){
+  const t=document.getElementById("cfgTable");
+  const cols=["Config","Runtime","Model / quant","Prefix cache","Speculation"];
+  let h="<thead><tr>"+cols.map(c=>`<th>${c}</th>`).join("")+"</tr></thead><tbody>";
+  SERIES.forEach(s=>{
+    const c=ARM_CFG[s.id];
+    h+="<tr>"+
+      `<td><span class="arm-cell"><span class="sw" style="background:var(${s.cv})"></span>${s.name}</span></td>`+
+      `<td class="mono">${c.runtime}</td>`+
+      `<td><span class="mono">${c.model}</span><br>${c.quant}</td>`+
+      `<td>${c.cache}</td>`+
+      `<td>${c.spec}</td></tr>`;
+  });
+  h+="</tbody>"; t.innerHTML=h;
+}
+// ---- tech cards ----
+function buildTech(){
+  const el=document.getElementById("tech"); el.innerHTML="";
+  TECH.forEach(t=>{
+    const d=document.createElement("div"); d.className="tcard";
+    d.innerHTML=
+      `<div class="t-name">${t.name} <span class="t-repo">${t.repo}</span></div>`+
+      `<p class="t-what">${t.what}</p>`+
+      `<dl><div><dt>Prefix cache</dt><dd>${t.cache}</dd></div>`+
+      `<div><dt>Speculation</dt><dd>${t.spec}</dd></div></dl>`+
+      `<p class="t-configs">Configs here: <b>${t.configs}</b></p>`;
+    el.appendChild(d);
+  });
+  document.getElementById("techSrc").innerHTML =
+    "Sources: "+TECH_SRC.map(s=>`<a href="${s[1]}" target="_blank" rel="noopener">${s[0]}</a>`).join(" · ");
+}
+// ---- takeaways ----
+function buildTakeaways(){
+  const el=document.getElementById("takeaways");
+  el.innerHTML=`<h2>Takeaways</h2><ul>`+
+    TAKEAWAYS.map(t=>`<li><b>${t[0]}</b> — ${t[1]}</li>`).join("")+`</ul>`;
+}
+// ---- legend ----
+function buildLegend(){
+  const el=document.getElementById("legend"); el.innerHTML="";
+  SERIES.forEach(s=>{
+    const c=document.createElement("span"); c.className="chip";
+    c.innerHTML=`<span class="sw" style="background:var(${s.cv})"></span><span class="code">${s.name}</span>`;
+    el.appendChild(c);
+  });
+}
+
+// ---- chart geometry ----
+const W=360, H=232, ML=44, MR=72, MT=16, MB=30;
+const x0=ML, x1=W-MR, y0=H-MB, y1=MT;
+function xAt(i){ return x0 + (x1-x0)*(i/(CTX.length-1)); }
+function niceMax(v){
+  if(v<=0) return 1;
+  const pow=Math.pow(10, Math.floor(Math.log10(v)));
+  const n=v/pow;
+  const step = n<=1?1 : n<=2?2 : n<=5?5 : 10;
+  return step*pow;
+}
+function buildPanel(p){
+  const panel=document.createElement("div"); panel.className="panel";
+  panel.innerHTML =
+    `<div class="p-head"><span class="p-title">${p.title}</span>`+
+    `<span class="p-unit">${p.unit} · <span class="p-dir">${p.dir}</span></span></div>`+
+    (p.note?`<span class="p-note">${p.note}</span>`:"");
+  let vmax=0;
+  SERIES.forEach(s=>CTX.forEach(c=>{ const v=DATA[s.id][c][p.key]; if(v!=null&&v>vmax)vmax=v; }));
+  const top=niceMax(vmax*1.08);
+  const yAt=v=> y0 - (y0-y1)*(v/top);
+  const NS="http://www.w3.org/2000/svg";
+  const svg=document.createElementNS(NS,"svg");
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`); svg.setAttribute("class","chart");
+  svg.setAttribute("role","img"); svg.setAttribute("aria-label",`${p.title} (${p.unit}) by context`);
+  let g="";
+  const TICKS=4;
+  for(let t=0;t<=TICKS;t++){
+    const val=top*t/TICKS, yy=yAt(val);
+    g+=`<line x1="${x0}" y1="${yy}" x2="${x1}" y2="${yy}" stroke="var(--grid)" stroke-width="1"/>`;
+    g+=`<text class="tick" x="${x0-6}" y="${yy+3}" text-anchor="end">${p.fmt(val)}</text>`;
+  }
+  g+=`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="var(--baseline)" stroke-width="1"/>`;
+  CTX.forEach((c,i)=>{ g+=`<text class="axis-t" x="${xAt(i)}" y="${y0+15}" text-anchor="middle">${CTXLAB[i]}</text>`; });
+  g+=`<line class="crosshair" id="ch-${p.key}" x1="0" y1="${y1}" x2="0" y2="${y0}"/>`;
+  const ends=[];
+  SERIES.forEach(s=>{
+    const col=`var(${s.cv})`;
+    const pts=[];
+    CTX.forEach((c,i)=>{ const v=DATA[s.id][c][p.key]; if(v!=null) pts.push([i,xAt(i),yAt(v),v]); });
+    for(let k=0;k<pts.length-1;k++){
+      if(pts[k+1][0]-pts[k][0]===1){
+        g+=`<line x1="${pts[k][1]}" y1="${pts[k][2]}" x2="${pts[k+1][1]}" y2="${pts[k+1][2]}" stroke="${col}" stroke-width="2" stroke-linecap="round"/>`;
+      }
+    }
+    pts.forEach(pt=>{ g+=`<circle cx="${pt[1]}" cy="${pt[2]}" r="3.3" fill="${col}" stroke="var(--surface)" stroke-width="1.4"/>`; });
+    if(pts.length){ const last=pts[pts.length-1]; ends.push({y:last[2], x:last[1], lab:s.short, col}); }
+  });
+  ends.sort((a,b)=>a.y-b.y);
+  const MINGAP=11;
+  for(let k=1;k<ends.length;k++){ if(ends[k].y-ends[k-1].y<MINGAP) ends[k].y=ends[k-1].y+MINGAP; }
+  const maxY=y0-2; for(let k=ends.length-1;k>0;k--){ if(ends[k].y>maxY){ends[k].y=maxY; if(ends[k].y-ends[k-1].y<MINGAP)ends[k-1].y=ends[k].y-MINGAP;} }
+  ends.forEach(e=>{ g+=`<text class="endlab" x="${x1+5}" y="${e.y+3.5}" fill="${e.col}">${e.lab}</text>`; });
+  g+=`<rect x="${x0}" y="${y1}" width="${x1-x0}" height="${y0-y1}" fill="transparent" style="cursor:crosshair"/>`;
+  svg.innerHTML=g;
+  panel.appendChild(svg);
+  const interp=document.createElement("p"); interp.className="p-interp"; interp.innerHTML=p.interp;
+  panel.appendChild(interp);
+  attachHover(panel, svg, p);
+  return panel;
+}
+
+const tip=document.getElementById("tip");
+function attachHover(panel, svg, p){
+  const ch=svg.querySelector(`#ch-${p.key}`);
+  function move(ev){
+    const r=svg.getBoundingClientRect();
+    const mx=(ev.clientX-r.left)/r.width*W;
+    let idx=Math.round((mx-x0)/((x1-x0)/(CTX.length-1)));
+    idx=Math.max(0,Math.min(CTX.length-1,idx));
+    const cx=xAt(idx);
+    ch.setAttribute("x1",cx); ch.setAttribute("x2",cx); ch.style.opacity=1;
+    const c=CTX[idx];
+    let rows=`<div class="t-ctx">context ${CTXLAB[idx]} · ${p.title}</div>`;
+    SERIES.forEach(s=>{
+      const v=DATA[s.id][c][p.key];
+      const val = v==null ? `<span class="t-na">no data</span>` : p.fmt(v)+" "+p.unit;
+      rows+=`<div class="t-row"><span class="t-left"><span class="sw" style="background:var(${s.cv})"></span><span class="code">${s.short}</span></span><span class="t-val">${val}</span></div>`;
+    });
+    tip.innerHTML=rows; tip.style.opacity=1;
+    let tx=ev.clientX+14, ty=ev.clientY-10;
+    const tw=tip.offsetWidth, th=tip.offsetHeight;
+    if(tx+tw>window.innerWidth-8) tx=ev.clientX-tw-14;
+    if(ty+th>window.innerHeight-8) ty=window.innerHeight-th-8;
+    if(ty<8) ty=8;
+    tip.style.left=(tx+window.scrollX)+"px"; tip.style.top=(ty+window.scrollY)+"px";
+  }
+  function leave(){ ch.style.opacity=0; tip.style.opacity=0; }
+  svg.addEventListener("mousemove",move);
+  svg.addEventListener("mouseleave",leave);
+  svg.addEventListener("touchmove",e=>{ if(e.touches[0]){move(e.touches[0]); e.preventDefault();} },{passive:false});
+  svg.addEventListener("touchend",leave);
+}
+function buildGrid(){
+  const el=document.getElementById("grid"); el.innerHTML="";
+  PANELS.forEach(p=> el.appendChild(buildPanel(p)) );
+}
+
+// ---- hit heatmap ----
+function hitBg(v){ const a=0.10+v*0.78; return `rgba(var(--accent-rgb),${a.toFixed(3)})`; }
+function buildHitTable(){
+  const t=document.getElementById("hitTable");
+  let h="<thead><tr><th>context</th>"+SCEN.map(s=>`<th>${s[1]}</th>`).join("")+"</tr></thead><tbody>";
+  SERIES.forEach(s=>{
+    h+=`<tr><td class="grp" colspan="${SCEN.length+1}"><span class="arm-cell"><span class="sw" style="background:var(${s.cv})"></span> ${s.name}</span></td></tr>`;
+    CTX.forEach((c,i)=>{
+      h+=`<tr><td>${CTXLAB[i]}</td>`+SCEN.map(sc=>{
+        const v=(HITMAP[s.id]&&HITMAP[s.id][c]) ? HITMAP[s.id][c][sc[0]] : undefined;
+        if(v==null) return `<td class="hcell na">—</td>`;
+        const txt = v>=0.55 ? "#ffffff" : "var(--ink)";
+        return `<td class="hcell" style="background:${hitBg(v)};color:${txt}">${v.toFixed(2)}</td>`;
+      }).join("")+"</tr>";
+    });
+  });
+  h+="</tbody>"; t.innerHTML=h;
+}
+
+// ---- values table ----
+function buildTable(){
+  const t=document.getElementById("table");
+  const cols=[["decode_tps","decode"],["prefill_tps","prefill"],["eff_cached","eff tps warm"],
+    ["eff_cold","eff tps cold"],["e2e_cached_s","e2e warm (s)"],["e2e_cold_s","e2e cold (s)"],
+    ["ram_gb","RAM (GB)"],["hit_cached","warm hit"]];
+  let h="<thead><tr><th>config</th><th>ctx</th>"+cols.map(c=>`<th>${c[1]}</th>`).join("")+"</tr></thead><tbody>";
+  SERIES.forEach(s=>{
+    h+=`<tr class="grp-row"><td colspan="${cols.length+2}"><span class="arm-cell"><span class="sw" style="background:var(${s.cv})"></span>${s.name}</span></td></tr>`;
+    CTX.forEach((c,i)=>{
+      const d=DATA[s.id][c];
+      h+=`<tr><td></td><td>${CTXLAB[i]}</td>`+cols.map(col=>{
+        let v=d[col[0]];
+        if(v==null) return `<td class="na">—</td>`;
+        if(col[0]==="hit_cached"||col[0]==="eff_cold") return `<td>${v.toFixed(2)}</td>`;
+        if(col[0].startsWith("e2e")||col[0]==="prefill_tps"||col[0]==="ram_gb") return `<td>${v.toFixed(0)}</td>`;
+        return `<td>${v.toFixed(1)}</td>`;
+      }).join("")+"</tr>";
+    });
+  });
+  h+="</tbody>"; t.innerHTML=h;
+}
+
+function buildFoot(){
+  document.getElementById("foot").innerHTML=
+   `<b>How to read.</b> x-axis = context size (32K→256K, doubling). One line per config. `+
+   `<b>Decode tps</b> and <b>prefill tps</b> come from the cold scenario. `+
+   `<b>Effective tps</b> = output tokens ÷ total time (includes prefill): the real perceived throughput. `+
+   `At 256K MTPLX's MTP (4b/8b) collapses decode (~8.8 vs ~14 tps); through 128K MTPLX was competitive. `+
+   `Warm cache = the <code>identical</code> scenario, hit ≥0.97. `+
+   `oMLX AWQ 5bpw and MTPLX 8-bit ran a scenario subset at 256K but have every speed point plotted here; `+
+   `only peak RAM is missing at those two points.`;
+}
+
+function renderGrid(){ buildGrid(); }
+buildRig(); buildConfigTable(); buildTech(); buildTakeaways(); buildLegend();
+buildGrid(); buildHitTable(); buildTable(); buildFoot();
+
+// theme toggle: auto -> light -> dark -> auto
+const btn=document.getElementById("themeBtn");
+function applyLabel(){
+  const t=document.documentElement.getAttribute("data-theme");
+  btn.textContent = "theme: " + (t||"auto");
+}
+btn.addEventListener("click",()=>{
+  const cur=document.documentElement.getAttribute("data-theme");
+  const next = cur==null ? "light" : cur==="light" ? "dark" : null;
+  if(next) document.documentElement.setAttribute("data-theme",next);
+  else document.documentElement.removeAttribute("data-theme");
+  try{ next?localStorage.setItem("theme",next):localStorage.removeItem("theme"); }catch(e){}
+  applyLabel(); buildGrid(); buildHitTable();
+});
+try{ const saved=localStorage.getItem("theme"); if(saved) document.documentElement.setAttribute("data-theme",saved); }catch(e){}
+applyLabel();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{ if(!document.documentElement.getAttribute("data-theme")){ buildGrid(); buildHitTable(); } });
+</script>
