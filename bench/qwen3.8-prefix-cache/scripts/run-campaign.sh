@@ -41,7 +41,7 @@ LAST_RUNTIME_LOG=""
 
 usage() {
   cat >&2 <<'EOF'
-usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|omlx-mtp-tool-loop-32k|omlx-oq8e-smoke|omlx-oq4e-dflash-32k|mtplx-smoke|mtplx-32k|mtplx-tool-loop-32k|mtplx-quality-smoke|mtplx-quality-32k|specprefill-16k|specprefill-32k|ane-16k|ane-32k|dspark-smoke|dspark-decode-8k|dspark-cache-32k|dspark-decode-32k|dspark-tool-loop-32k|cache-65k|cache-65k-frontrunners|cache-65k-mtplx8|cache-65k-oq8e|mtplx-bank-test|mtplx-toolturn-ab|mtplx-y-recap-128k|cache-128k-mtplx-292|cache-128k-sweep|cache-262k-sweep|tool-loop|summary|native-262k}
+usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|omlx-mtp-tool-loop-32k|omlx-oq8e-smoke|omlx-oq4e-dflash-32k|mtplx-smoke|mtplx-32k|mtplx-tool-loop-32k|mtplx-quality-smoke|mtplx-quality-32k|specprefill-16k|specprefill-32k|ane-16k|ane-32k|dspark-smoke|dspark-decode-8k|dspark-cache-32k|dspark-decode-32k|dspark-tool-loop-32k|cache-65k|cache-65k-frontrunners|cache-65k-mtplx8|cache-65k-oq8e|mtplx-bank-test|mtplx-toolturn-ab|mtplx-y-recap-128k|cache-128k-mtplx-292|cache-128k-mtplx-2100|cache-262k-mtplx-2100|cache-128k-sweep|cache-262k-sweep|tool-loop|summary|native-262k}
 EOF
 }
 
@@ -884,6 +884,33 @@ case "$STAGE" in
     fi
     REPEATS=1
     run_arms 262144 "${ARMS[@]}"
+    ;;
+  cache-128k-mtplx-2100)
+    # Re-probe da campanha runtime-refresh (ver plan-runtime-refresh.md). Re-mede V e Y
+    # @128K na MTPLX 2.10.0 com o memory-planning automático (cap DEFAULT, sem override).
+    # Isola uma variável: só a versão do runtime muda vs cache-128k-sweep (2.9.2, default,
+    # que perdeu append/tool_turn). Testa R2: o planning automático mata o cap-artifact?
+    # Grava num arquivo separado p/ não misturar com o dataset 2.9.2. SEM summarize.
+    export QWEN38_MTPLX_EXPECTED_VERSION=2.10.0
+    export QWEN38_CACHE_OUTPUT="${QWEN38_CACHE_OUTPUT:-$RESULTS/runtime-refresh/cache-probe-mtplx2100.jsonl}"
+    MTPLX_RUNTIME_REVISION="v2.10.0/e979b569288286f49440532de4aec9108e0a9e73"
+    # Subconjunto de braços via QWEN38_REFRESH_128K_ARMS (default V Y). Ex: "V" p/ resposta rápida.
+    for armR in ${QWEN38_REFRESH_128K_ARMS:-V Y}; do
+      run_cache_arm "$armR" 131072 || echo "$armR 128K (2.10.0) falhou (seguindo)" >&2
+    done
+    ;;
+  cache-262k-mtplx-2100)
+    # Re-probe runtime-refresh a 262K (máximo nativo). Testa R1: o "memory-aware ceiling"
+    # da 2.10.0 recupera o decode denso que colapsava (~7 tps) na 2.9.2? Mesmo corte por
+    # cenário do cache-262k-sweep p/ MTPLX (identical/append 1 rep; re-prefill determinístico).
+    export QWEN38_MTPLX_EXPECTED_VERSION=2.10.0
+    export QWEN38_CACHE_OUTPUT="${QWEN38_CACHE_OUTPUT:-$RESULTS/runtime-refresh/cache-probe-mtplx2100.jsonl}"
+    export QWEN38_SCENARIO_REPEATS="${QWEN38_SCENARIO_REPEATS_MTPLX:-cold=1,middle_mutation=1,tool_turn=1,identical=1,append=1}"
+    MTPLX_RUNTIME_REVISION="v2.10.0/e979b569288286f49440532de4aec9108e0a9e73"
+    REPEATS=1
+    for armR in ${QWEN38_REFRESH_262K_ARMS:-V Y}; do
+      run_cache_arm "$armR" 262144 || echo "$armR 262K (2.10.0) falhou (seguindo)" >&2
+    done
     ;;
   *)
     usage

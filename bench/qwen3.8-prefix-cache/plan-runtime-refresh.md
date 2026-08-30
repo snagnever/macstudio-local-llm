@@ -130,4 +130,36 @@ Reusar o harness existente:
 
 ## Veredito
 
-Pendente. Preencher por pergunta ao fechar cada trilha.
+**R2 — fechado (2026-08-30). Não confirmado no default; fix parcial via SSD.**
+O planejamento automático da 2.10.0 reproduz o mesmo cap 48G/24G-por-sessão da 2.9.2 —
+não conserta o artefato. No default (SSD off), V @128K erra `append` e `tool_turn` (0.00).
+O fix de RAM da 2.9.2 (cap 100G) não transfere: pico de 119.8G a 128K não deixa espaço.
+O caminho correto é `--ssd-session-cache on` (default-ON no vendor; nosso launcher tinha off),
+seguro de memória (sem swap). Resultado V @128K SSD-on:
+
+| Cenário | 2.10 default (SSD off) | 2.10 SSD on |
+|---|---|---|
+| append | 0.00 | 0.99 (recuperou) |
+| tool_turn | 0.00 | 0.00 (não recuperou) |
+
+O miss do `tool_turn` na rodada CHEIA 5×3 SSD-on é REPRODUTÍVEL (2 rodadas byte-idênticas) e foi
+diagnosticado com `MTPLX_DEBUG_PREFIX_DIVERGENCE=1`. No `tool_turn` medido, o melhor match bancado
+é a entrada do `append`: `matched=125610 prompt_len=126688` (99,2% do base compartilhado, diverge só
+no sufixo). Mesmo assim: `store-on-prefill cached=0 restore=cold` = re-prefill cheio. Dois fatores:
+(1) backlog de postcommit (27 `cross_session_foreground_preempted`, backlog 4) impede o prime do
+tool_turn de bancar o base LIMPO a tempo — nos runs curtos existe `clean prefix (matched=126688)` ->
+`exact-restore`; (2) o near-prefix não reusa os 125610 compartilhados quando só há entrada de sufixo
+divergente. Não é evicção por cap nem SSD (refutados). oMLX/dspark não têm isso (reusam o base por bloco).
+Implicação prática: reuso a 128K funciona para conversa única que cresce; quebra sob churn com tool turns.
+Issue postável: `mtplx-cache-reuse-issue.md`.
+Dados: `results/runtime-refresh/cache-probe-mtplx2100{,-ssd,-ssd-diag,-ssd-diag2,-ssd-pressure,-ssd-repro}.jsonl`.
+Ver [[mtplx-session-bank-cap]].
+
+**R1 — fechado (2026-08-30). Confirmado: o colapso de decode a 262K sumiu.**
+V cold @262K, MTPLX 2.10.0, SSD-on: decode 7.25 -> **15.16 tps** (2,1×), empata com oMLX
+(15.20) e passa o dspark (14.54). Causa do colapso na 2.9.2: pico de RAM 123.5G (perto do
+teto de 128G) -> thrashing no decode. A 2.10.0 (memory-aware ceiling + spill SSD) segura o
+pico em ~95G, sem swap -> decode recupera. Needles corretos, MTP aceitando 0.38.
+Dado: `results/runtime-refresh/cache-probe-mtplx2100-262k.jsonl`.
+
+**R3, R4, R5 — pendentes.**
