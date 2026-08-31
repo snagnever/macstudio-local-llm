@@ -84,13 +84,17 @@ PLE at layer 1, QSA budget 2048/4`), MTP forçado ON. **Sem hack de offload, sem
 |---|---|---|---|---|
 | 32K | ~60-64 | 0.961 | 105.8GB | 0 |
 | 128K | ~44 | 0.991 | 120.5GB | 0 |
+| 256K (nativo) | 33.4 (cold) | HTTP 400 (não mediu) | 119.7GB | 0 |
 
-O mlx-serve mantém a liderança de decode em todo contexto (@128K ~44 vs oQ4e/oMLX ~33 vs densas ~25).
+O mlx-serve mantém a liderança de decode em todo contexto (@128K ~44 vs oQ4e/oMLX ~33; @256K 33.4 vs
+oMLX ~27 vs densas ~7-14). Cabe até o máximo nativo (256K, pico 119.7GB, sem swap). **Borda:** o
+`tool_turn` @256K devolveu HTTP 400 no mlx-serve (o cold rodou correto; o turno de tool no contexto
+máximo é rejeitado — a investigar se for priorizar cache a 256K).
 
 - **Veredito:** mlx-serve v26.8.11 + ddalcu é **o caminho recomendado do Flash-Next no rig** — decode mais
   rápido, memória mais limpa (mmap nativo), correto. Dados: `results/flashnext-mlxserve-{32k,128k}-v26811.jsonl`.
 
-**Não medido ainda:** 256K no mlx-serve (rodando); e o **Terminal-Bench** (qualidade de agente, do driver) — o gate decisivo.
+**Não medido ainda:** o **Terminal-Bench** (qualidade de agente, do driver) — o gate decisivo.
 
 ## As duas quants/builds: características, prós/contras e recomendação
 
