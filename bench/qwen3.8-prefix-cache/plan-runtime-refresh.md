@@ -184,4 +184,36 @@ vira o jogo neste ponto. Harness: guards de versão do oMLX/dspark agora env-ove
 (`QWEN38_OMLX_EXPECTED_VERSION`, `QWEN38_MLX_DSPARK_EXPECTED_VERSION`); stages `refresh-omlx-t-32k`
 e `refresh-dspark-s-32k`.
 
-**R5 — pendente.**
+## R5 — Flash-Next: stacks e quants (pesquisa 2026-08-31)
+
+O Flash-Next completo é MoE 125B-A6B. O desafio num M4 Max 128GB é caber com folga para
+o KV. Stacks e quants levantados (web + Reddit r/LocalLLaMA):
+
+| # | Stack | Quant | Disco | Residente | Cabe 128G | Spec |
+|---|---|---|---|---|---|---|
+| 1 | oMLX 0.6.4 | `Jundot/Qwen3.8-Flash-Next-oQ4e-mtp` | 106GB | ~87GB (SSD-map PLE) | Sim (vendor validou M5 Max 128GB) | Lightning MTP + sparse prefill |
+| 2 | llama.cpp / LM Studio | `unsloth/Qwen3.8-Flash-Next-GGUF` UD IQ4_XS/Q4 | ~93GB | ~54GB (n-gram no SSD) | Sim, folgado | MTP + SSD n-gram + vision |
+| 3 | MLX (mlx-vlm/LM Studio) | `Vontra/…-MLX-4bit` (~65G), `pipenetwork/…-MLX-6bit`, `Youssofal/…-MTPLX-Optimized-Speed` (115G) | 65–115GB | varia | 4-bit sim; 6-bit/MTPLX apertado | MTPLX = MTP nativo |
+
+Descartados: `wtdcode/…-AWQ-W4A16` (180GB, não cabe); `sh0wie/…-REAP-288` (73GB mas PODADO,
+não é o modelo completo — confunde a comparação vs densa).
+
+Datapoints de Mac (poucos, modelo é recente): oMLX oQ4e num M5 Max 128GB TG ~46 tok/s @32K,
+262K cold 355s @87GB pico; GGUF IQ1_S num M1 Ultra 128GB PP ~400 / TG ~20 (1-bit, qualidade baixa).
+
+**Veredito de qualidade (comunidade, incl. teste próprio NVFP4-vs-densa em vLLM):** Flash-Next é
+mais rápido e impecável em JSON estrito/injeção/SLA e vence raciocínio alto/code-gen; a densa 27B
+ainda vence trabalho simbólico multi-step sustentado (bug-fix, provas, puzzles). Flash-Next tem
+falha nova: promete o entregável, declara "done", não gera nada. Não é drop-in; promoção condicional.
+
+**Escolha para rodar o R5:** stack **#1 (oMLX 0.6.4 + oQ4e-mtp)** — único caminho do modelo COMPLETO
+que cabe em 128GB, vendor-validado, integra com o harness (`run-omlx.sh`). Custo: download 106GB +
+memória apertada para KV longo.
+
+### Próximos passos para avaliar (após o #1)
+- **#2 GGUF Unsloth (IQ4_XS/Q4) via llama.cpp/LM Studio** — residente menor (~54GB), mais folga p/ KV;
+  comparar velocidade e qualidade vs o oMLX.
+- **#3 MLX 4-bit (`Vontra`)** — o mais leve (~65GB), stack MLX puro; e `pipenetwork` 6-bit se sobrar RAM.
+- **MTPLX Flash-Next pack (115GB)** — MTP nativo, mas apertado em 128GB; testar se carrega residente sem swap.
+- Em todos: velocidade ponta a ponta + Terminal-Bench vs a densa 27B (fecha o R5).
+- Referência: [[qwen38-flash-next-stacks]].
