@@ -15,7 +15,7 @@ case "$OPTION" in ""|--print) ;; *) echo "unknown option: $OPTION" >&2; exit 64;
 if [[ "$ARM" == "R" ]]; then [[ -n "${MLX_DSPARK_DSPARK_PATH:-}" ]] || { echo "MLX_DSPARK_DSPARK_PATH is required for R" >&2; exit 64; }; fi
 if [[ "$ARM" == "S" || "$ARM" == "auto-smoke" ]]; then [[ -n "${MLX_DSPARK_DFLASH2_PATH:-}" ]] || { echo "MLX_DSPARK_DFLASH2_PATH is required" >&2; exit 64; }; fi
 
-EXPECTED_VERSION="0.15.0"
+EXPECTED_VERSION="${QWEN38_MLX_DSPARK_EXPECTED_VERSION:-0.15.0}"
 DOCTOR_JSON="$($MLX_DSPARK_BIN doctor --json 2>/dev/null)" || true
 ACTUAL_VERSION="$(DOCTOR_JSON="$DOCTOR_JSON" python3 -c 'import json, os; report=json.loads(os.environ["DOCTOR_JSON"]); print((report.get("environment") or {}).get("version") or "")' 2>/dev/null)" || {
   echo "failed to determine mlx-dspark version from doctor --json" >&2

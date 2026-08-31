@@ -7,7 +7,7 @@ CONFIG="$ROOT/bench/qwen3.8-prefix-cache/config/omlx-arms.json"
 ARM="${1:-}"
 MODE="${2:-}"
 OMLX_BIN="${QWEN38_OMLX_BIN:-omlx}"
-EXPECTED_OMLX_VERSION="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["omlx_version"])' "$CONFIG")"
+EXPECTED_OMLX_VERSION="${QWEN38_OMLX_EXPECTED_VERSION:-$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["omlx_version"])' "$CONFIG")}"
 
 case "$ARM" in
   I|J|K|L|M|N|O|T|U|W|X) ;;
@@ -86,8 +86,9 @@ if [[ "$MODE" == "--print" ]]; then
   exit 0
 fi
 
-if [[ "${EXPECTED_OMLX_VERSION#v}" != "0.6.3rc2" ]]; then
-  echo "campaign configuration must pin oMLX v0.6.3rc2" >&2
+ALLOWED_OMLX_PIN="${QWEN38_OMLX_EXPECTED_VERSION:-0.6.3rc2}"
+if [[ "${EXPECTED_OMLX_VERSION#v}" != "${ALLOWED_OMLX_PIN#v}" ]]; then
+  echo "campaign configuration must pin oMLX ${ALLOWED_OMLX_PIN}" >&2
   exit 65
 fi
 if ! ACTUAL_OMLX_VERSION="$("$OMLX_BIN" --version)"; then

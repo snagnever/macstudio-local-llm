@@ -166,4 +166,22 @@ teto de 128G) -> thrashing no decode. A 2.10.0 (memory-aware ceiling + spill SSD
 pico em ~95G, sem swap -> decode recupera. Needles corretos, MTP aceitando 0.38.
 Dado: `results/runtime-refresh/cache-probe-mtplx2100-262k.jsonl`.
 
-**R3, R4, R5 — pendentes.**
+**R3 — fechado (2026-08-31, teste mínimo). Ganho modesto.**
+Arm T (oQ8e-mtp) @32K, cold, oMLX **0.6.4** (via git tag; a 0.6.4 é mais nova que a 0.6.3,
+checado antes) com `mtp_enabled:true`. Decode 30.57 -> **31.95 tps (+4.5%)**, prefill
+211.9 -> 226.1 (+6.7%), correto, MTP acc 0.83. Os ganhos grandes de Lightning MTP das
+notas (2.3-2.6x) são do Flash-Next (MoE), não do denso oQ8e. Só um ponto (32K); não
+A/B-ei MTP on/off. Nota: o record sai rotulado `runtime-revision v0.6.3rc2` (label fixo no
+arm_metadata), mas rodou na 0.6.4 (nome do arquivo `-v064`). Dado: `results/runtime-refresh/refresh-omlx-t-32k-v064.jsonl`.
+
+**R4 — fechado (2026-08-31, teste mínimo). Ganho modesto.**
+Arm S (8bit + DFlash2, `--max-draft auto` = cap dinâmico) @32K, cold, mlx-dspark **0.17.2**
+(latest, checado). Decode 39.9 -> **41.80 tps (+4.8%)**, prefill 252 -> 276 (+9.4%), correto,
+cap auto-resolveu para 7. Sem regressão. Dado: `results/runtime-refresh/refresh-dspark-s-32k-v0172.jsonl`.
+
+Resumo R3/R4: as versões novas dão ganho pequeno (+4-5% decode) a 32K, sem regressão; nenhuma
+vira o jogo neste ponto. Harness: guards de versão do oMLX/dspark agora env-overridable
+(`QWEN38_OMLX_EXPECTED_VERSION`, `QWEN38_MLX_DSPARK_EXPECTED_VERSION`); stages `refresh-omlx-t-32k`
+e `refresh-dspark-s-32k`.
+
+**R5 — pendente.**

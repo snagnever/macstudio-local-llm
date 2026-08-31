@@ -912,6 +912,18 @@ case "$STAGE" in
       run_cache_arm "$armR" 262144 || echo "$armR 262K (2.10.0) falhou (seguindo)" >&2
     done
     ;;
+  refresh-omlx-t-32k)
+    # R3 mínimo (runtime-refresh): arm T (oQ8e-mtp) @32K no oMLX novo (Lightning MTP).
+    # Mesmo config (mtp_enabled:true); só a versão do runtime muda vs baseline 0.6.3rc2
+    # (decode 30.57). Cold, 1 rep. Requer QWEN38_OMLX_EXPECTED_VERSION do launcher.
+    run_cache_arm T 32768 || echo "T 32K refresh falhou (seguindo)" >&2
+    ;;
+  refresh-dspark-s-32k)
+    # R4 mínimo (runtime-refresh): arm S (8bit + DFlash2) @32K no mlx-dspark 0.17.2
+    # (cap DFlash dinâmico) vs baseline 0.15.0 (decode 39.9). Cold, 1 rep. Requer
+    # MLX_DSPARK_TARGET_PATH / MLX_DSPARK_DFLASH2_PATH e QWEN38_MLX_DSPARK_EXPECTED_VERSION.
+    run_cache_arm S 32768 || echo "S 32K refresh falhou (seguindo)" >&2
+    ;;
   *)
     usage
     exit 64
