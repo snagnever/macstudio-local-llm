@@ -959,6 +959,14 @@ case "$STAGE" in
     # Requer QWEN38_MLX_SERVE_BIN (v26.8.11) e QWEN38_MLX_MODEL_DIR (path do ddalcu).
     run_cache_arm FS 32768 || echo "FS 32K (Flash-Next mlx-serve) falhou (seguindo)" >&2
     ;;
+  refresh-flashnext-mlxserve-128k)
+    # Flash-Next @128K no mlx-serve (build ddalcu). Contexto longo no caminho rápido.
+    run_cache_arm FS 131072 || echo "FS 128K (Flash-Next mlx-serve) falhou (seguindo)" >&2
+    ;;
+  refresh-flashnext-mlxserve-262k)
+    # Flash-Next @256K (nativo) no mlx-serve (build ddalcu).
+    run_cache_arm FS 262144 || echo "FS 262K (Flash-Next mlx-serve) falhou (seguindo)" >&2
+    ;;
   refresh-flashnext-128k)
     # R5 contexto longo: Flash-Next @128K no oMLX 0.6.4 com qwen4_ple_ssd_offload (PLE em mmap ->
     # ~70GB residente, cabe com o KV de 128K). Requer QWEN38_OMLX_EXPECTED_VERSION=0.6.4.

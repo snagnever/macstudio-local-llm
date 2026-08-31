@@ -78,11 +78,19 @@ PLE at layer 1, QSA budget 2048/4`), MTP forçado ON. **Sem hack de offload, sem
   Não chegou aos ~78 do vendor (aquilo era código + MTP; nosso probe é audit_retrieval → bate o ~60 serial).
 - **Cache diferente do oMLX:** reusa `identical` e `tool_turn` (0.961), mas re-prefila `append`/`middle`
   (0.00). Mitigado pelo prefill rápido (~630 tps). O oMLX oQ4e reusava `append` (0.94) mas era mais lento.
-- **Veredito:** mlx-serve v26.8.11 + ddalcu é **o caminho recomendado do Flash-Next no rig** — decode mais
-  rápido, memória mais limpa (mmap nativo), correto. Dado: `results/flashnext-mlxserve-32k-v26811.jsonl`.
+**Contexto longo no mlx-serve** (tool_turn como referência de decode+cache; append/middle seguem 0.00):
 
-**Não medido ainda:** contexto longo (128K/256K) no mlx-serve; e o **Terminal-Bench** (qualidade de agente,
-do driver) — o gate decisivo.
+| Contexto | decode | tool_turn hit | pico RAM | swap |
+|---|---|---|---|---|
+| 32K | ~60-64 | 0.961 | 105.8GB | 0 |
+| 128K | ~44 | 0.991 | 120.5GB | 0 |
+
+O mlx-serve mantém a liderança de decode em todo contexto (@128K ~44 vs oQ4e/oMLX ~33 vs densas ~25).
+
+- **Veredito:** mlx-serve v26.8.11 + ddalcu é **o caminho recomendado do Flash-Next no rig** — decode mais
+  rápido, memória mais limpa (mmap nativo), correto. Dados: `results/flashnext-mlxserve-{32k,128k}-v26811.jsonl`.
+
+**Não medido ainda:** 256K no mlx-serve (rodando); e o **Terminal-Bench** (qualidade de agente, do driver) — o gate decisivo.
 
 ## Velocidade (terceiros)
 
