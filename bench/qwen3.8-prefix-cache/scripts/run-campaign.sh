@@ -134,6 +134,14 @@ arm_metadata() {
       PORT=8000
       LAUNCHER="$SCRIPTS/run-omlx.sh"
       ;;
+    FN)
+      RUNTIME="oMLX"
+      MODEL_ID="Jundot/Qwen3.8-Flash-Next-oQ4e-mtp"
+      RUNTIME_REVISION="v0.6.4"
+      MODEL_REVISION="2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8"
+      PORT=8000
+      LAUNCHER="$SCRIPTS/run-omlx.sh"
+      ;;
     V)
       RUNTIME="MTPLX"
       MODEL_ID="Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed"
@@ -187,6 +195,9 @@ arm_metadata() {
       ;;
     W|X)
       TOKENIZER_PATH="${OMLX_MODEL_ROOT:-}/gcoli-Qwen3.8-27B-oQ4e-mtp-$OQ4E_MODEL_REVISION"
+      ;;
+    FN)
+      TOKENIZER_PATH="${OMLX_MODEL_ROOT:-}/Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8"
       ;;
     V)
       TOKENIZER_PATH="$CAMPAIGN_MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-$MTPLX_MODEL_REVISION"
@@ -917,6 +928,12 @@ case "$STAGE" in
     # Mesmo config (mtp_enabled:true); só a versão do runtime muda vs baseline 0.6.3rc2
     # (decode 30.57). Cold, 1 rep. Requer QWEN38_OMLX_EXPECTED_VERSION do launcher.
     run_cache_arm T 32768 || echo "T 32K refresh falhou (seguindo)" >&2
+    ;;
+  refresh-flashnext-32k)
+    # R5 mínimo: Flash-Next 125B-A6B (arm FN) @32K no oMLX 0.6.4 (oQ4e-mtp, Lightning MTP +
+    # sparse prefill + SSD-map do PLE). Smoke de velocidade vs a densa. Requer
+    # QWEN38_OMLX_EXPECTED_VERSION=0.6.4 e o modelo baixado no OMLX_MODEL_ROOT.
+    run_cache_arm FN 32768 || echo "FN 32K (Flash-Next) falhou (seguindo)" >&2
     ;;
   refresh-dspark-s-32k)
     # R4 mínimo (runtime-refresh): arm S (8bit + DFlash2) @32K no mlx-dspark 0.17.2

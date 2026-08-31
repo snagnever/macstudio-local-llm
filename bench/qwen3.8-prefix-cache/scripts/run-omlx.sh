@@ -10,7 +10,7 @@ OMLX_BIN="${QWEN38_OMLX_BIN:-omlx}"
 EXPECTED_OMLX_VERSION="${QWEN38_OMLX_EXPECTED_VERSION:-$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["omlx_version"])' "$CONFIG")}"
 
 case "$ARM" in
-  I|J|K|L|M|N|O|T|U|W|X) ;;
+  I|J|K|L|M|N|O|T|U|W|X|FN) ;;
   *)
     echo "usage: $0 {I|J|K|L|M|N|O|T|U|W|X} [--print]" >&2
     exit 64
@@ -78,6 +78,12 @@ OMLX_CACHE_ENABLED="$(python3 -c 'import json, sys; print(str(json.loads(sys.std
 export OMLX_BASE_PATH OMLX_MODEL_DIR OMLX_PORT OMLX_CACHE_ENABLED
 
 COMMAND=(env "OMLX_BASE_PATH=$OMLX_BASE_PATH" "OMLX_MODEL_DIR=$OMLX_MODEL_DIR" "OMLX_PORT=$OMLX_PORT" "OMLX_CACHE_ENABLED=$OMLX_CACHE_ENABLED" "$OMLX_BIN" serve)
+
+# Optional memory-guard tier (off|safe|balanced|aggressive) for big models that
+# barely fit under the Metal wired cap (e.g. Flash-Next oQ4e ~99.6G on a 128G Mac).
+if [[ -n "${QWEN38_OMLX_MEMORY_GUARD:-}" ]]; then
+  COMMAND+=(--memory-guard "$QWEN38_OMLX_MEMORY_GUARD")
+fi
 
 if [[ "$MODE" == "--print" ]]; then
   printf 'profile=%s\n' "$PROFILE"

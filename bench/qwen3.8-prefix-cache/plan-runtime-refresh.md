@@ -217,3 +217,37 @@ memória apertada para KV longo.
 - **MTPLX Flash-Next pack (115GB)** — MTP nativo, mas apertado em 128GB; testar se carrega residente sem swap.
 - Em todos: velocidade ponta a ponta + Terminal-Bench vs a densa 27B (fecha o R5).
 - Referência: [[qwen38-flash-next-stacks]].
+
+### R5 — resultado do smoke (2026-08-31)
+
+Flash-Next @32K, oMLX 0.6.4, arm FN (oQ4e-mtp, Lightning MTP + sparse prefill), 5 cenários × 1 rep,
+todos corretos. **Precisou `--memory-guard off`** (parametrizado por `QWEN38_OMLX_MEMORY_GUARD` no
+run-omlx.sh): no default (balanced) o preflight rejeita — os pesos carregam 99.6GB e o safety cap
+(90% de 107.5GB = 96.8GB) é menor que os pesos.
+
+| Cenário | cache hit | decode tps | prefill tps |
+|---|---|---|---|
+| cold | 0.000 | 49.2 | 331 |
+| identical | 0.975 | 47.1 | 229 |
+| append | 0.940 | 45.4 | 283 |
+| middle_mutation | 0.449 | 48.2 | 307 |
+| tool_turn | 0.938 | 46.7 | 284 |
+
+**Velocidade:** decode ~47 tps — mais rápido que TODAS as densas @32K (L 42.5, S 41.8, T 32.0), como
+esperado de um MoE A6B. Cache reusa bem, incluindo `tool_turn` 0.938 (o cache content-addressed do
+oMLX resolve o tool turn, ao contrário do session-bank do MTPLX). Needles corretos.
+
+**Memória (limite real):** pico 128.87GB + **6.3GB de swap** — o oQ4e (99.6GB de pesos) já raspa o
+teto de 128GB a 32K. **128K não foi rodado**: KV +~3.6GB estouraria o metal cap (107.5GB) / swap
+catastrófico. Rodar contexto longo exige subir `iogpu.wired_limit_mb` (sudo, ação do usuário) ou
+um quant menor (MLX-4bit ~65GB — próxima stack a avaliar).
+
+**Qualidade** (do teste próprio NVFP4-vs-densa + comunidade, [[qwen38-flash-next-stacks]]): Flash-Next
+mais rápido e impecável em JSON/injeção/SLA e vence raciocínio alto/code-gen; a densa 27B ainda vence
+simbólico multi-step sustentado; falha nova "declara done, não gera nada". Não é drop-in.
+
+**Veredito R5:** Flash-Next é mais rápido que a densa (decode +12-47%) e reusa cache melhor no
+`tool_turn`, MAS a stack oQ4e satura os 128GB já a 32K (swap), e em qualidade não desloca a densa em
+trabalho de agente sustentado. Promoção condicional, não substituto. Próximo: quant menor (MLX-4bit)
+para ganhar folga de contexto, + Terminal-Bench para o veredito de agente.
+Dado: `results/runtime-refresh/refresh-flashnext-32k-v064.jsonl`.
