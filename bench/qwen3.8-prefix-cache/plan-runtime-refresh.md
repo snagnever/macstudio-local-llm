@@ -218,36 +218,43 @@ memória apertada para KV longo.
 - Em todos: velocidade ponta a ponta + Terminal-Bench vs a densa 27B (fecha o R5).
 - Referência: [[qwen38-flash-next-stacks]].
 
-### R5 — resultado do smoke (2026-08-31)
+### R5 — resultado (2026-08-31)
 
-Flash-Next @32K, oMLX 0.6.4, arm FN (oQ4e-mtp, Lightning MTP + sparse prefill), 5 cenários × 1 rep,
-todos corretos. **Precisou `--memory-guard off`** (parametrizado por `QWEN38_OMLX_MEMORY_GUARD` no
-run-omlx.sh): no default (balanced) o preflight rejeita — os pesos carregam 99.6GB e o safety cap
-(90% de 107.5GB = 96.8GB) é menor que os pesos.
+Flash-Next, oMLX 0.6.4, arm FN (oQ4e-mtp, Lightning MTP + sparse prefill), 5 cenários × 1 rep,
+todos corretos.
 
-| Cenário | cache hit | decode tps | prefill tps |
-|---|---|---|---|
-| cold | 0.000 | 49.2 | 331 |
-| identical | 0.975 | 47.1 | 229 |
-| append | 0.940 | 45.4 | 283 |
-| middle_mutation | 0.449 | 48.2 | 307 |
-| tool_turn | 0.938 | 46.7 | 284 |
+**Config crítica descoberta:** o setting **`qwen4_ple_ssd_offload`** (default `False`). Sem ele o oMLX
+mantém a tabela PLE (N-gram dos experts) residente → 99.6GB de pesos, satura os 128GB, pico 128.9GB +
+6.3GB swap já a 32K, e o preflight rejeita no guard default. Com `qwen4_ple_ssd_offload: true` (na arm),
+o PLE vai para mmap no SSD → **residente cai para 69.6GB**, sem swap, e o 128K passa a caber. Custo:
+~15% de decode (paginação do PLE). Esta é a config correta; o `--memory-guard off` inicial foi um
+paliativo que ainda piorava (removia o auto-force do offload).
 
-**Velocidade:** decode ~47 tps — mais rápido que TODAS as densas @32K (L 42.5, S 41.8, T 32.0), como
-esperado de um MoE A6B. Cache reusa bem, incluindo `tool_turn` 0.938 (o cache content-addressed do
-oMLX resolve o tool turn, ao contrário do session-bank do MTPLX). Needles corretos.
+Com o offload (config final):
 
-**Memória (limite real):** pico 128.87GB + **6.3GB de swap** — o oQ4e (99.6GB de pesos) já raspa o
-teto de 128GB a 32K. **128K não foi rodado**: KV +~3.6GB estouraria o metal cap (107.5GB) / swap
-catastrófico. Rodar contexto longo exige subir `iogpu.wired_limit_mb` (sudo, ação do usuário) ou
-um quant menor (MLX-4bit ~65GB — próxima stack a avaliar).
+| Contexto | cenário | cache hit | decode | prefill | pico RAM | swap |
+|---|---|---|---|---|---|---|
+| 32K | tool_turn | 0.938 | ~40 | 368 | 113.4GB | 0.00 |
+| 128K | tool_turn | 0.986 | ~33 | 347 | 116.9GB | 0.00 |
 
-**Qualidade** (do teste próprio NVFP4-vs-densa + comunidade, [[qwen38-flash-next-stacks]]): Flash-Next
-mais rápido e impecável em JSON/injeção/SLA e vence raciocínio alto/code-gen; a densa 27B ainda vence
+(demais cenários @128K: cold 32.5, identical 0.995/33.5, append 0.986/31.1, middle_mutation 0.489/31.6)
+
+**Velocidade:** decode **~40 @32K** e **~33 @128K** — mais rápido que as densas (@32K L 42.5/S 41.8/T 32;
+@128K densas ~25, Flash-Next +31%), como esperado de um MoE A6B. Cache excelente, incluindo
+`tool_turn` **0.986 @128K** — que o session-bank do MTPLX NÃO reusava (o cache content-addressed do
+oMLX resolve). Needles corretos, swap 0 nos dois contextos.
+
+**Memória:** com `qwen4_ple_ssd_offload` cabe folgado até 128K (69.6GB residente + KV). Sem o offload
+satura a 32K. Não precisou de sudo/`iogpu.wired_limit_mb`.
+
+**Qualidade** (teste próprio NVFP4-vs-densa + comunidade, [[qwen38-flash-next-stacks]]): Flash-Next mais
+rápido e impecável em JSON/injeção/SLA e vence raciocínio alto/code-gen; a densa 27B ainda vence
 simbólico multi-step sustentado; falha nova "declara done, não gera nada". Não é drop-in.
 
-**Veredito R5:** Flash-Next é mais rápido que a densa (decode +12-47%) e reusa cache melhor no
-`tool_turn`, MAS a stack oQ4e satura os 128GB já a 32K (swap), e em qualidade não desloca a densa em
-trabalho de agente sustentado. Promoção condicional, não substituto. Próximo: quant menor (MLX-4bit)
-para ganhar folga de contexto, + Terminal-Bench para o veredito de agente.
-Dado: `results/runtime-refresh/refresh-flashnext-32k-v064.jsonl`.
+**Veredito R5:** Flash-Next (oQ4e no oMLX 0.6.4, com PLE offload) é **mais rápido que a densa** em 32K e
+128K (+31% no decode a 128K), **reusa cache melhor** (tool_turn 0.986 onde o MTPLX falhava), e **cabe em
+128GB sem swap**. Em qualidade, não desloca a densa em trabalho de agente sustentado — promoção
+condicional, não substituto. Aberto: Terminal-Bench (do driver) para o veredito de agente; quant menor
+(MLX-4bit) daria mais decode ao custo de mmap.
+Dados: `results/runtime-refresh/refresh-flashnext-{32k-v064-ssdple,128k-v064-ssdple}.jsonl`
+(e `-32k-v064.jsonl` = o modo resident que satura, para referência).

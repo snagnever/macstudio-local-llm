@@ -162,6 +162,7 @@
       "model_settings": {
         "mtp_enabled": true,
         "specprefill_enabled": false,
+        "qwen4_ple_ssd_offload": true,
         "qwen35_ane_prefill_enabled": false
       }
     }
