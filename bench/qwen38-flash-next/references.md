@@ -92,6 +92,48 @@ O mlx-serve mantém a liderança de decode em todo contexto (@128K ~44 vs oQ4e/o
 
 **Não medido ainda:** 256K no mlx-serve (rodando); e o **Terminal-Bench** (qualidade de agente, do driver) — o gate decisivo.
 
+## As duas quants/builds: características, prós/contras e recomendação
+
+Ambas são MoE 4-bit affine g64 com a mesma ideia central — manter os pesos NÃO-expert (~4B, ~20x mais
+sensíveis à quantização) em precisão maior. Diferem na granularidade e, sobretudo, no armazenamento do
+n-gram (a decisão que domina o footprint).
+
+| Característica | oQ4e (Jundot / oMLX 0.6.4) | ddalcu mixed-4/8 (mlx-serve 26.8.11) |
+|---|---|---|
+| Não-expert (atenção/DeltaNet) | 5-6 bit seletivo (181 tensores 5b, 99 6b) | 8-bit chapado ("the rest") |
+| Experts | 4-bit base + ~196 tensores 8-bit (gates/router) | 4-bit puro |
+| n-gram (51B) | 4-bit DENTRO dos safetensors → residente por default | 4-bit em `ngram_table.bin` (32GB) SEPARADO, mmapped por design |
+| Disco / Residente | 106GB / 99.6GB (69.6GB com `qwen4_ple_ssd_offload:true`) | 107GB / ~75-83GB (n-gram sempre no mmap) |
+| Decode @32K / @128K | ~40 / ~33 | ~60-64 / ~44 |
+| Cache | reusa identical, append (0.94), tool_turn (0.94), middle parcial | reusa identical, tool_turn (0.96-0.99); re-prefila append/middle |
+
+### oQ4e / oMLX — prós e contras
+**Prós:** quant mais fino (5/6/8-bit por sensibilidade → qualidade ligeiramente melhor no não-expert);
+o cache content-addressed do oMLX reusa `append` (conversa que cresce); ecossistema oMLX (Lightning MTP,
+visão, tool calls, warm-prefix restore, spill de KV no SSD).
+**Contras:** armadilha de memória — n-gram embutido carrega residente (99.6GB, satura 128GB + swap) a menos
+que se ligue o setting não-óbvio `qwen4_ple_ssd_offload:true`; mais lento (~40/33, o offload pagina o
+n-gram, ~15%); prefill do n-gram no SSD ainda incompleto (oMLX PR #3235 aberta); ~1,5x mais lento no geral.
+
+### ddalcu mixed-4/8 / mlx-serve — prós e contras
+**Prós:** mais rápido (~1,5x o oQ4e em todo contexto); memória limpa por design (n-gram mmapped, nunca
+residente → cabe até 256K sem swap e sem setting); prefill rápido (~630 tps) compensa cache misses; receita
+mixed-4/8 é a validada em qualidade (não-expert 8-bit → só +1,3% de perda); serve simples, MTP forçado on.
+**Contras:** cache mais estreito (não reusa `append`/`middle`, só identical+tool_turn — conversa que cresce
+paga re-prefill por turno, mitigado pelo prefill rápido); runtime à parte (binário mlx-serve, instalação
+separada, menos features verificadas que o oMLX); quant mais grosso (8-bit chapado gasta mais bits que o
+5/6-bit fino do oQ4e); menos maduro/testado.
+
+### Recomendação
+- **ddalcu / mlx-serve = default no rig:** velocidade, contexto longo, memória folgada, serve simples.
+  Ganha para uso geral e agente com contextos grandes distintos.
+- **oQ4e / oMLX = quando o padrão é conversa única que cresce** (reuso de `append`), ou se já se está no
+  stack oMLX (visão, tool-cache, integração Claude Code), ligando o offload.
+
+**RESSALVA:** a qualidade de agente (Terminal-Bench) NÃO foi medida em nenhum dos dois — os prós de qualidade
+acima são inferidos das receitas de quant, não medidos. O veredito de qualidade depende do T-Bench (do driver).
+Até lá, a comparação é sólida em velocidade, memória e cache, não em qualidade final.
+
 ## Velocidade (terceiros)
 
 - Build MLX-Serve mixed-4/8 (~75 GB), M4 Max: decode ~60 serial / **~78 com MTP**; prefill ~730 tok/s (card ddalcu).
