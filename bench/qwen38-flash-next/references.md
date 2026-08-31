@@ -61,9 +61,28 @@ Com o offload (5 cenários × 1 rep, todos corretos, swap 0):
   o contexto longo cabe (ao contrário do 3.8-27B denso, que colapsava). Máx no rig com offload: **256K**
   out-of-the-box; 512K esticado; 1M precisa `sudo sysctl iogpu.wired_limit_mb=...`.
 
-**Não medido ainda:** o build **ddalcu MLX-Serve (75 GB, n-gram mmap por design, ~78 tok/s com MTP por
-terceiro)** — seria mais rápido e mais folgado que o oQ4e. É a próxima stack a rodar. E o Terminal-Bench
-(qualidade de agente, roda do driver).
+### Medido no rig — build ddalcu MLX-Serve (mlx-serve v26.8.11, 2026-08-31) — O CAMINHO RECOMENDADO
+
+Serve `qwen4_exp` nativo com n-gram **mmapped por design** (log: `n-gram table 320M rows 4-bit mmapped,
+PLE at layer 1, QSA budget 2048/4`), MTP forçado ON. **Sem hack de offload, sem swap.** @32K, 5 cenários:
+
+| Cenário | cache hit | decode | prefill |
+|---|---|---|---|
+| cold | — | 59.6 | 568 |
+| identical | 1.000 | 63.7 | 15 (hit) |
+| append | 0.000 | 60.7 | 634 |
+| middle_mutation | 0.000 | 63.5 | 638 |
+| tool_turn | 0.961 | 64.1 | 403 |
+
+- **Decode ~60-64 tps** — ~1,5x o oQ4e no oMLX (~40) e as densas (~32-42). Pico 105.8GB, **swap 0**.
+  Não chegou aos ~78 do vendor (aquilo era código + MTP; nosso probe é audit_retrieval → bate o ~60 serial).
+- **Cache diferente do oMLX:** reusa `identical` e `tool_turn` (0.961), mas re-prefila `append`/`middle`
+  (0.00). Mitigado pelo prefill rápido (~630 tps). O oMLX oQ4e reusava `append` (0.94) mas era mais lento.
+- **Veredito:** mlx-serve v26.8.11 + ddalcu é **o caminho recomendado do Flash-Next no rig** — decode mais
+  rápido, memória mais limpa (mmap nativo), correto. Dado: `results/flashnext-mlxserve-32k-v26811.jsonl`.
+
+**Não medido ainda:** contexto longo (128K/256K) no mlx-serve; e o **Terminal-Bench** (qualidade de agente,
+do driver) — o gate decisivo.
 
 ## Velocidade (terceiros)
 

@@ -70,6 +70,14 @@ arm_metadata() {
       PORT=11234
       LAUNCHER="$SCRIPTS/run-mlx-serve.sh"
       ;;
+    FS)
+      RUNTIME="mlx-serve"
+      MODEL_ID="ddalcu/Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit"
+      RUNTIME_REVISION="v26.8.11"
+      MODEL_REVISION="ef5b919d31534faa1997666f1a22d362cd6383cd"
+      PORT=11234
+      LAUNCHER="$SCRIPTS/run-mlx-serve.sh"
+      ;;
     D|E|F)
       RUNTIME="llama.cpp"
       MODEL_ID="unsloth/Qwen3.8-27B-GGUF:UD-Q4_K_XL"
@@ -198,6 +206,11 @@ arm_metadata() {
       ;;
     FN)
       TOKENIZER_PATH="${OMLX_MODEL_ROOT:-}/Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8"
+      ;;
+    FS)
+      # mlx-serve é binário (sem venv Python p/ transformers): usar RuntimeTokenizer
+      # (tokeniza via o servidor), igual aos arms A/B/C do mlx-serve. TOKENIZER_PATH vazio.
+      TOKENIZER_PATH=""
       ;;
     V)
       TOKENIZER_PATH="$CAMPAIGN_MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-$MTPLX_MODEL_REVISION"
@@ -939,6 +952,12 @@ case "$STAGE" in
     # R5 contexto MÁXIMO nativo: Flash-Next @262K (256K) no oMLX 0.6.4 com qwen4_ple_ssd_offload.
     # Pesos 69.6GB + KV ~7GB + scratch ~= 87GB pico (bate com o vendor). Requer QWEN38_OMLX_EXPECTED_VERSION=0.6.4.
     run_cache_arm FN 262144 || echo "FN 262K (Flash-Next) falhou (seguindo)" >&2
+    ;;
+  refresh-flashnext-mlxserve-32k)
+    # Campanha dedicada Flash-Next: build ddalcu MLX-Serve (75GB residente, n-gram mmap) no
+    # mlx-serve >=26.8.11 com MTP. Compara decode/prefill vs o oQ4e no oMLX (arm FN).
+    # Requer QWEN38_MLX_SERVE_BIN (v26.8.11) e QWEN38_MLX_MODEL_DIR (path do ddalcu).
+    run_cache_arm FS 32768 || echo "FS 32K (Flash-Next mlx-serve) falhou (seguindo)" >&2
     ;;
   refresh-flashnext-128k)
     # R5 contexto longo: Flash-Next @128K no oMLX 0.6.4 com qwen4_ple_ssd_offload (PLE em mmap ->

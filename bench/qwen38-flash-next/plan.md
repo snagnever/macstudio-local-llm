@@ -21,8 +21,11 @@ profundo: qual build, e se a qualidade desloca a densa 27B em agente (o gate que
 
 ## Perguntas em aberto
 
-1. **Build certo:** o `ddalcu/Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit` (75GB, n-gram mmap por
-   design, ~78 tok/s com MTP por terceiro) supera o oQ4e (106GB, ~40 com offload) em decode e folga?
+1. **Build certo — RESPONDIDO (2026-08-31): sim.** O `ddalcu MLX-Serve` no **mlx-serve v26.8.11**
+   (arm FS) dá **decode ~60-64 tps** (~1,5x o oQ4e no oMLX ~40), n-gram mmapped por design, pico 105.8GB,
+   **swap 0, sem hack de offload**. Cache reusa identical+tool_turn (0.961), não append/middle. É o
+   caminho recomendado. Ver [references.md](references.md) e `results/flashnext-mlxserve-32k-v26811.jsonl`.
+   Falta: contexto longo (128K/256K) no mlx-serve.
 2. **Prefill:** o offload de n-gram no oMLX custa prefill (PR #3235 aberta). O MTPLX pack ou a
    llama.cpp GGUF (`--override-tensor ...=CPU`) dão prefill melhor?
 3. **Qualidade (o gate decisivo):** Flash-Next passa o **Terminal-Bench** acima do 27B denso?
