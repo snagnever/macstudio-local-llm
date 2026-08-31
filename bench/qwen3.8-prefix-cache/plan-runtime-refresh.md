@@ -184,79 +184,14 @@ vira o jogo neste ponto. Harness: guards de versão do oMLX/dspark agora env-ove
 (`QWEN38_OMLX_EXPECTED_VERSION`, `QWEN38_MLX_DSPARK_EXPECTED_VERSION`); stages `refresh-omlx-t-32k`
 e `refresh-dspark-s-32k`.
 
-## R5 — Flash-Next: stacks e quants (pesquisa 2026-08-31)
+## R5 — Flash-Next
 
-O Flash-Next completo é MoE 125B-A6B. O desafio num M4 Max 128GB é caber com folga para
-o KV. Stacks e quants levantados (web + Reddit r/LocalLLaMA):
+O smoke inicial (velocidade + cache do Flash-Next @32K/128K/256K) rodou nesta campanha e respondeu à
+pergunta do refresh: **o modelo novo é mais rápido que a densa e reusa cache melhor, mas não desloca a
+densa em agente sustentado** — promoção condicional. Toda a research, os resultados e a avaliação
+profunda (build ddalcu, Terminal-Bench) foram consolidados na campanha dedicada:
+**[bench/qwen38-flash-next/](../qwen38-flash-next/plan.md)** (runbook) +
+[references.md](../qwen38-flash-next/references.md) (research + card). Dados em `../qwen38-flash-next/results/`.
 
-| # | Stack | Quant | Disco | Residente | Cabe 128G | Spec |
-|---|---|---|---|---|---|---|
-| 1 | oMLX 0.6.4 | `Jundot/Qwen3.8-Flash-Next-oQ4e-mtp` | 106GB | ~87GB (SSD-map PLE) | Sim (vendor validou M5 Max 128GB) | Lightning MTP + sparse prefill |
-| 2 | llama.cpp / LM Studio | `unsloth/Qwen3.8-Flash-Next-GGUF` UD IQ4_XS/Q4 | ~93GB | ~54GB (n-gram no SSD) | Sim, folgado | MTP + SSD n-gram + vision |
-| 3 | MLX (mlx-vlm/LM Studio) | `Vontra/…-MLX-4bit` (~65G), `pipenetwork/…-MLX-6bit`, `Youssofal/…-MTPLX-Optimized-Speed` (115G) | 65–115GB | varia | 4-bit sim; 6-bit/MTPLX apertado | MTPLX = MTP nativo |
-
-Descartados: `wtdcode/…-AWQ-W4A16` (180GB, não cabe); `sh0wie/…-REAP-288` (73GB mas PODADO,
-não é o modelo completo — confunde a comparação vs densa).
-
-Datapoints de Mac (poucos, modelo é recente): oMLX oQ4e num M5 Max 128GB TG ~46 tok/s @32K,
-262K cold 355s @87GB pico; GGUF IQ1_S num M1 Ultra 128GB PP ~400 / TG ~20 (1-bit, qualidade baixa).
-
-**Veredito de qualidade (comunidade, incl. teste próprio NVFP4-vs-densa em vLLM):** Flash-Next é
-mais rápido e impecável em JSON estrito/injeção/SLA e vence raciocínio alto/code-gen; a densa 27B
-ainda vence trabalho simbólico multi-step sustentado (bug-fix, provas, puzzles). Flash-Next tem
-falha nova: promete o entregável, declara "done", não gera nada. Não é drop-in; promoção condicional.
-
-**Escolha para rodar o R5:** stack **#1 (oMLX 0.6.4 + oQ4e-mtp)** — único caminho do modelo COMPLETO
-que cabe em 128GB, vendor-validado, integra com o harness (`run-omlx.sh`). Custo: download 106GB +
-memória apertada para KV longo.
-
-### Próximos passos para avaliar (após o #1)
-- **#2 GGUF Unsloth (IQ4_XS/Q4) via llama.cpp/LM Studio** — residente menor (~54GB), mais folga p/ KV;
-  comparar velocidade e qualidade vs o oMLX.
-- **#3 MLX 4-bit (`Vontra`)** — o mais leve (~65GB), stack MLX puro; e `pipenetwork` 6-bit se sobrar RAM.
-- **MTPLX Flash-Next pack (115GB)** — MTP nativo, mas apertado em 128GB; testar se carrega residente sem swap.
-- Em todos: velocidade ponta a ponta + Terminal-Bench vs a densa 27B (fecha o R5).
-- Referência: [[qwen38-flash-next-stacks]].
-
-### R5 — resultado (2026-08-31)
-
-Flash-Next, oMLX 0.6.4, arm FN (oQ4e-mtp, Lightning MTP + sparse prefill), 5 cenários × 1 rep,
-todos corretos.
-
-**Config crítica descoberta:** o setting **`qwen4_ple_ssd_offload`** (default `False`). Sem ele o oMLX
-mantém a tabela PLE (N-gram dos experts) residente → 99.6GB de pesos, satura os 128GB, pico 128.9GB +
-6.3GB swap já a 32K, e o preflight rejeita no guard default. Com `qwen4_ple_ssd_offload: true` (na arm),
-o PLE vai para mmap no SSD → **residente cai para 69.6GB**, sem swap, e o 128K passa a caber. Custo:
-~15% de decode (paginação do PLE). Esta é a config correta; o `--memory-guard off` inicial foi um
-paliativo que ainda piorava (removia o auto-force do offload).
-
-Com o offload (config final):
-
-| Contexto | cenário | cache hit | decode | prefill | pico RAM | swap |
-|---|---|---|---|---|---|---|
-| 32K | tool_turn | 0.938 | ~40 | 368 | 113.4GB | 0.00 |
-| 128K | tool_turn | 0.986 | ~33 | 347 | 116.9GB | 0.00 |
-| 256K (nativo) | tool_turn | 0.993 | ~27 | 256 | 124.8GB | 0.00 |
-
-(demais cenários @128K: cold 32.5, identical 0.995/33.5, append 0.986/31.1, middle_mutation 0.489/31.6;
-@256K cold decode 25.4, prefilou 256.657 tokens correto). Máx no rig confirmado: **256K nativo sem swap**.
-
-**Velocidade:** decode **~40 @32K** e **~33 @128K** — mais rápido que as densas (@32K L 42.5/S 41.8/T 32;
-@128K densas ~25, Flash-Next +31%), como esperado de um MoE A6B. Cache excelente, incluindo
-`tool_turn` **0.986 @128K** — que o session-bank do MTPLX NÃO reusava (o cache content-addressed do
-oMLX resolve). Needles corretos, swap 0 nos dois contextos.
-
-**Memória:** com `qwen4_ple_ssd_offload` cabe folgado até 128K (69.6GB residente + KV). Sem o offload
-satura a 32K. Não precisou de sudo/`iogpu.wired_limit_mb`.
-
-**Qualidade** (teste próprio NVFP4-vs-densa + comunidade, [[qwen38-flash-next-stacks]]): Flash-Next mais
-rápido e impecável em JSON/injeção/SLA e vence raciocínio alto/code-gen; a densa 27B ainda vence
-simbólico multi-step sustentado; falha nova "declara done, não gera nada". Não é drop-in.
-
-**Veredito R5:** Flash-Next (oQ4e no oMLX 0.6.4, com PLE offload) é **mais rápido que a densa** em 32K e
-128K (+31% no decode a 128K), **reusa cache melhor** (tool_turn 0.986 onde o MTPLX falhava), e **cabe em
-128GB sem swap**. Em qualidade, não desloca a densa em trabalho de agente sustentado — promoção
-condicional, não substituto. Aberto: Terminal-Bench (do driver) para o veredito de agente; quant menor
-(MLX-4bit) daria mais decode ao custo de mmap.
-Dados: `results/runtime-refresh/refresh-flashnext-{32k-v064-ssdple,128k-v064-ssdple}.jsonl`
-(e `-32k-v064.jsonl` = o modo resident que satura, para referência).
+Resumo medido: decode ~40 @32K, ~33 @128K, ~27 @256K (densas colapsavam a 256K); cache tool_turn
+0.938 -> 0.986 -> 0.993; cabe até 256K nativo sem swap com `qwen4_ple_ssd_offload:true`.

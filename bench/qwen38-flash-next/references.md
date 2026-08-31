@@ -107,9 +107,9 @@ no Aider polyglot local (u/returnity), Flash-Next em Q4 domina o 3.8-27B.
 2. **Terminal-Bench** (do driver com Docker) — o gate decisivo de qualidade de agente (foi o NO-GO do 27B).
 3. Avaliar MTPLX pack e llama.cpp GGUF como caminhos de cache alternativos.
 
-Empírico desta campanha: `bench/qwen3.8-prefix-cache/results/runtime-refresh/refresh-flashnext-*.jsonl`;
-plano/veredito na seção R5 de `bench/qwen3.8-prefix-cache/plan-runtime-refresh.md`. Memória:
-[qwen38-flash-next-stacks].
+Empírico desta campanha: `results/refresh-flashnext-*.jsonl` (movidos do smoke R5 do runtime-refresh).
+Runbook: [plan.md](plan.md). O smoke R5 original: `../qwen3.8-prefix-cache/plan-runtime-refresh.md` (seção R5, agora um ponteiro).
+Memória: [qwen38-flash-next-stacks].
 
 ## Fontes
 

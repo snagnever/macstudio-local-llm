@@ -10,7 +10,7 @@ Per-model deep dives for every model with local experience on this rig (Mac Stud
 | Model | Status | Role | HumanEval | LCB v6 | T-Bench | eff t/s | Disk | Runtime |
 |---|---|---|---|---|---|---|---|---|
 | [qwen3-coder-next](qwen3-coder-next.md) | 🟢 DAILY DRIVER | **Agent** (T-Bench #1) | 89% | 56% | **32.6%** | 55.8 | 64.76 GB (6-bit) | MLX |
-| [qwen3.8-flash-next](qwen3.8-flash-next.md) | 🟡 CONDICIONAL | MoE Qwen4 125B-A6B (mais rápido + cache melhor; qualidade não desloca a densa) | — | — | pendente (T-Bench) | ~40 @32K / ~33 @128K | 106 GB (oQ4e) / 75 GB (MLX-Serve) | oMLX/MLX |
+| [qwen3.8-flash-next](../../bench/qwen38-flash-next/references.md) | 🟡 CONDICIONAL | MoE Qwen4 125B-A6B (mais rápido + cache melhor; qualidade não desloca a densa) — campanha dedicada em `bench/qwen38-flash-next/` | — | — | pendente (T-Bench) | ~40 @32K / ~33 @128K / ~27 @256K | 106 GB (oQ4e) / 75 GB (MLX-Serve) | oMLX/MLX |
 | [qwen3.6-27b](qwen3.6-27b.md) | 🟢 DAILY DRIVER | **Planning / knowledge** (85.8% avg, top of rig) | 93% | 62% | 31.5% | 16.2 | 22.80 GB | MLX |
 | [gemma-4-26b-a4b](gemma-4-26b-a4b/README.md) | 🟢 DAILY DRIVER | **Code** (@6bit LCB ceiling; @4bit fastest on rig) | 97–98% | **80%** @6bit / 66% @4bit | 21.3 / 20.2% | 66.6 / **80.7** | 21.81 / 15.64 GB | MLX |
 | [qwen3.6-35b-a3b](qwen3.6-35b-a3b.md) | 🟢 DAILY DRIVER | Fast generalist (@8bit quant A/B pending) | 87% | 54% | 28.1% | 71.4 | 29.09 GB (6-bit) | MLX |

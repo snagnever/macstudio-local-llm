@@ -2,8 +2,8 @@
 
 > **Status:** aberta. O smoke inicial (velocidade + cache) já rodou como a Trilha D/R5 da
 > campanha `qwen3.8-prefix-cache` (ver [runtime-refresh R5](../qwen3.8-prefix-cache/plan-runtime-refresh.md#r5--resultado-2026-08-31)).
-> Esta campanha aprofunda: build certo + qualidade de agente. Research e procedência no
-> **card do modelo**: [docs/models/qwen3.8-flash-next.md](../../docs/models/qwen3.8-flash-next.md).
+> Esta campanha aprofunda: build certo + qualidade de agente. Research e procedência completas em
+> [references.md](references.md) (o card do modelo, consolidado aqui).
 
 ## Por que uma campanha própria
 
@@ -17,7 +17,7 @@ profundo: qual build, e se a qualidade desloca a densa 27B em agente (o gate que
   a 256K colapsava para ~7-14). Cache reusa `tool_turn` até 0.993 @256K (o session-bank do MTPLX não).
 - **Cabe até 256K nativo sem swap** COM o setting `qwen4_ple_ssd_offload: true` (PLE/n-gram em mmap
   no SSD → residente 99.6GB → 69.6GB). Sem ele, satura a 32K. Custo: ~15% decode (paginação).
-- Dados: `../qwen3.8-prefix-cache/results/runtime-refresh/refresh-flashnext-*.jsonl`.
+- Dados: `results/refresh-flashnext-*.jsonl`.
 
 ## Perguntas em aberto
 
