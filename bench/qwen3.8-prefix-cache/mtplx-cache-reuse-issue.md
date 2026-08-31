@@ -1,9 +1,17 @@
 # Issue draft — MTPLX 2.10.0: tool turn re-prefills a 99% cached prefix under multi-session churn (128K)
 
-> Draft for youssofal/MTPLX. Written for the maintainer.
-> Status (2026-08-30): REPRODUCED (two byte-identical full runs) and traced with
-> `MTPLX_DEBUG_PREFIX_DIVERGENCE=1`. Postable. Numbers came through a custom probe,
-> but the mechanism is visible in the debug log and the repro sketch is vendor-only.
+> Draft for youssofal/MTPLX.
+> Status (2026-08-30): **DO NOT FILE — already mapped upstream.** This behavior is
+> covered by #121 (CLOSED, `tool_call_history_rewrite`: tool turns re-serialize and
+> tokenize differently, so the cache can't extend past them) and #383 (OPEN,
+> cross-session postcommit preemption). The engine even documents our exact case in
+> `_idle_postcommit_foreground_grace_s` ("in a real OpenCode tool loop ... EVERY
+> tool_call_history_rewrite postcommit was preempted ... every tool-turn paid a
+> re-prefill"). Our miss is likely a config gap: the managed app sets
+> `MTPLX_POSTCOMMIT_WAIT_TIMEOUT_S=30.0`, but stock `mtplx serve` leaves it unset
+> (async, preemptable) and the foreground grace defaults to 2.0s while a 128K
+> session commit takes ~9s. Testing that knob before deciding whether any narrow
+> comment on #383 is warranted. Kept as a record, not for filing.
 
 ## Summary
 

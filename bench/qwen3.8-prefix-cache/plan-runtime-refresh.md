@@ -149,10 +149,14 @@ no sufixo). Mesmo assim: `store-on-prefill cached=0 restore=cold` = re-prefill c
 (1) backlog de postcommit (27 `cross_session_foreground_preempted`, backlog 4) impede o prime do
 tool_turn de bancar o base LIMPO a tempo — nos runs curtos existe `clean prefix (matched=126688)` ->
 `exact-restore`; (2) o near-prefix não reusa os 125610 compartilhados quando só há entrada de sufixo
-divergente. Não é evicção por cap nem SSD (refutados). oMLX/dspark não têm isso (reusam o base por bloco).
-Implicação prática: reuso a 128K funciona para conversa única que cresce; quebra sob churn com tool turns.
-Issue postável: `mtplx-cache-reuse-issue.md`.
-Dados: `results/runtime-refresh/cache-probe-mtplx2100{,-ssd,-ssd-diag,-ssd-diag2,-ssd-pressure,-ssd-repro}.jsonl`.
+divergente. Não é evicção por cap nem SSD (refutados). JÁ MAPEADO no vendor: #121 (CLOSED, `tool_call_history_rewrite`)
+e #383 (OPEN, cross-session preemption). O knob que o app usa (`MTPLX_POSTCOMMIT_WAIT_TIMEOUT_S=30`) NÃO
+resolve (A/B 5×3 byte-idêntico). Causa-raiz no postcommit: `unsafe_reason=stop_token_boundary_mismatch` —
+o markup do tool desalinha o boundary; append reusa 125440 via block-clone, tool_turn vai cold (0).
+Novo vs #121: fechado como corrigido (block-overlap salvage), mas a 128K o tool_turn tem cached=0 (sem
+salvage). Ação: COMENTAR no #121/#383 com o repro, não issue nova. Implicação: agente com tool calls a
+128K paga re-prefill cheio (~870s) por turno. oMLX/dspark não têm isso.
+Dados: `results/runtime-refresh/cache-probe-mtplx2100{,-ssd,-ssd-diag,-ssd-diag2,-ssd-pressure,-ssd-repro,-ssd-waitfix}.jsonl`.
 Ver [[mtplx-session-bank-cap]].
 
 **R1 — fechado (2026-08-30). Confirmado: o colapso de decode a 262K sumiu.**
