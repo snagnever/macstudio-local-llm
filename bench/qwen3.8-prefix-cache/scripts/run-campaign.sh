@@ -935,6 +935,11 @@ case "$STAGE" in
     # QWEN38_OMLX_EXPECTED_VERSION=0.6.4 e o modelo baixado no OMLX_MODEL_ROOT.
     run_cache_arm FN 32768 || echo "FN 32K (Flash-Next) falhou (seguindo)" >&2
     ;;
+  refresh-flashnext-262k)
+    # R5 contexto MÁXIMO nativo: Flash-Next @262K (256K) no oMLX 0.6.4 com qwen4_ple_ssd_offload.
+    # Pesos 69.6GB + KV ~7GB + scratch ~= 87GB pico (bate com o vendor). Requer QWEN38_OMLX_EXPECTED_VERSION=0.6.4.
+    run_cache_arm FN 262144 || echo "FN 262K (Flash-Next) falhou (seguindo)" >&2
+    ;;
   refresh-flashnext-128k)
     # R5 contexto longo: Flash-Next @128K no oMLX 0.6.4 com qwen4_ple_ssd_offload (PLE em mmap ->
     # ~70GB residente, cabe com o KV de 128K). Requer QWEN38_OMLX_EXPECTED_VERSION=0.6.4.

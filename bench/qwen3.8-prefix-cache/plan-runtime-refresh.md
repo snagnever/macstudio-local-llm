@@ -236,8 +236,10 @@ Com o offload (config final):
 |---|---|---|---|---|---|---|
 | 32K | tool_turn | 0.938 | ~40 | 368 | 113.4GB | 0.00 |
 | 128K | tool_turn | 0.986 | ~33 | 347 | 116.9GB | 0.00 |
+| 256K (nativo) | tool_turn | 0.993 | ~27 | 256 | 124.8GB | 0.00 |
 
-(demais cenários @128K: cold 32.5, identical 0.995/33.5, append 0.986/31.1, middle_mutation 0.489/31.6)
+(demais cenários @128K: cold 32.5, identical 0.995/33.5, append 0.986/31.1, middle_mutation 0.489/31.6;
+@256K cold decode 25.4, prefilou 256.657 tokens correto). Máx no rig confirmado: **256K nativo sem swap**.
 
 **Velocidade:** decode **~40 @32K** e **~33 @128K** — mais rápido que as densas (@32K L 42.5/S 41.8/T 32;
 @128K densas ~25, Flash-Next +31%), como esperado de um MoE A6B. Cache excelente, incluindo
