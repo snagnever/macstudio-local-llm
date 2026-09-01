@@ -93,21 +93,25 @@ o REJEITA com HTTP 400 por memória — log: `prompt 256657 tokens needs ~19950M
 ~14751MB available — rejecting`. Com o modelo (~83GB) + KV residente do cold + o cap wired do Metal
 (default ~107,5GB), não sobra working memory para um segundo prompt de 256K.
 
-**Soluções testadas (2026-09-01) — 4 knobs, nenhum resolveu:**
+**Soluções testadas (2026-09-01) — 5 knobs, nenhum resolveu:**
 
-| Config | cold | tool_turn @256K | nota |
+| Config | cold (decode) | tool_turn @256K | nota |
 |---|---|---|---|
-| default (kv off, guard 86G, chunk auto 4096) | OK (decode 33.4) | **400** | needs ~19950MB > avail ~14751MB |
-| `--kv-quant 8 --kv-attn-mode fused` (+max-resident 0) | OK (decode **20.7 ↓38%**) | **400** | needs ~17052 > avail ~16060 (faltou ~1GB) |
+| default (kv off, guard 86G, chunk auto 4096) | OK (33.4) | **400** | needs ~19950MB > avail ~14751MB |
+| `--kv-quant 8 --kv-attn-mode fused` (+max-resident 0) | OK (**20.7 ↓38%**) | **400** | needs ~17052 > avail ~16060 (faltou ~1GB) |
+| `--kv-quant turbo4 --kv-attn-mode auto` | OK (**~11.4 ↓66%**) | **Metal OOM hard (crash)** | guard ADMITIU (KV 4-bit menor) → execução estourou → servidor morreu |
 | `--max-resident-mem 0` (guard off) | **Metal OOM hard (crash)** | — | desligar o guard troca o 400 gracioso por crash |
 | `--prefill-chunk 2048` (guard on) | **Metal OOM hard (crash)** | — | forçar chunk < auto (4096) PIOROU |
 
 **Diagnóstico:** o `needs` = KV (~5,8GB a 256K) + **working memory do prefill (~14GB, dominante)** + margem.
 O kv-quant só encolhe o KV (8-bit −2,9GB; 4-bit −4,35GB), não o working. `--kv-quant 6` NÃO existe no
-mlx-serve (opções: 4, 8, turbo2, turbo4). Pela matemática, **kv-quant 4** chegaria a ~15600MB < ~16060
-avail → caberia **na margem**, mas mais lento e frágil (não testado). `--max-resident-mem 0` e
-`--prefill-chunk` menor **pioram** (OOM hard em vez de refusal). A web confirmava o prefill-chunk como
-fix de OOM de prefill longo, mas empiricamente neste build/máquina não ajudou.
+mlx-serve (opções: 4, 8, turbo2, turbo4). O **turbo4** (4-bit Hadamard-rotated) foi testado a 256K: cold +
+identical + append + middle_mutation passaram com needles `{10,50,90}` OK, mas o `tool_turn` deu **Metal
+OOM hard (crash do servidor)**, não o 400 gracioso — o KV 4-bit menor fez o guard **admitir** o pedido, aí
+a execução real (working ~14GB) estourou o cap. Pior ainda: decode caiu para ~11–13,5 tok/s (−66% vs
+default; turbo não aceita `--kv-attn-mode fused`, só `auto`/`dense`). Ou seja, encolher o KV é a alavanca
+errada: `--max-resident-mem 0`, `--prefill-chunk` menor e `turbo4` todos **pioram** (OOM hard em vez de
+refusal). A web citava prefill-chunk como fix de OOM de prefill longo, mas empiricamente aqui não ajudou.
 
 **Fix confiável = `sudo sysctl iogpu.wired_limit_mb=124518`** (107,5 → ~119GB): ataca o termo certo
 (working memory, +12GB de teto), **sem custo de decode**, com folga real (não na margem). É a config
