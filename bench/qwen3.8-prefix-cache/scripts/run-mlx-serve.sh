@@ -11,9 +11,9 @@ MODEL="${QWEN38_MLX_MODEL_DIR:-$MODEL_ROOT/ddalcu-Qwen3.8-27B-MLX-Serve-8bit-$MO
 CTX_SIZE="${QWEN38_CTX_SIZE:-65536}"
 
 case "$ARM" in
-  A|B|C) ;;
+  A|B|C|FS) ;;
   *)
-    echo "usage: $0 {A|B|C} [--print]" >&2
+    echo "usage: $0 {A|B|C|FS} [--print]" >&2
     exit 64
     ;;
 esac
@@ -37,6 +37,10 @@ case "$ARM" in
     ;;
   C)
     # Canonical model/runtime defaults: cache, PLD, MTP and auto depth.
+    ;;
+  FS)
+    # Flash-Next (qwen4_exp) no mlx-serve >=26.8.11: MTP nativo explícito.
+    COMMAND+=(--mtp)
     ;;
 esac
 

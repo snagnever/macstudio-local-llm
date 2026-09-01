@@ -21,6 +21,10 @@
       "repository": "gcoli/Qwen3.8-27B-oQ4e-mtp",
       "revision": "c41ed507f1b16320942a1e9ce340e71d2692dee2"
     },
+    "flashnext-oq4e": {
+      "repository": "Jundot/Qwen3.8-Flash-Next-oQ4e-mtp",
+      "revision": "2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8"
+    },
     "draft-2b": {
       "repository": "Qwen/Qwen3.5-2B",
       "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc"
@@ -149,6 +153,16 @@
         "dflash_draft_sink_size": 0,
         "dflash_verify_mode": "dflash",
         "turboquant_kv_enabled": false,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "FN": {
+      "model_key": "flashnext-oq4e",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": true,
+        "specprefill_enabled": false,
+        "qwen4_ple_ssd_offload": true,
         "qwen35_ane_prefill_enabled": false
       }
     }

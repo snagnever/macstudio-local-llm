@@ -41,7 +41,7 @@ LAST_RUNTIME_LOG=""
 
 usage() {
   cat >&2 <<'EOF'
-usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|omlx-mtp-tool-loop-32k|omlx-oq8e-smoke|omlx-oq4e-dflash-32k|mtplx-smoke|mtplx-32k|mtplx-tool-loop-32k|mtplx-quality-smoke|mtplx-quality-32k|specprefill-16k|specprefill-32k|ane-16k|ane-32k|dspark-smoke|dspark-decode-8k|dspark-cache-32k|dspark-decode-32k|dspark-tool-loop-32k|cache-65k|cache-65k-frontrunners|cache-65k-mtplx8|cache-65k-oq8e|mtplx-bank-test|mtplx-toolturn-ab|mtplx-y-recap-128k|cache-128k-mtplx-292|cache-128k-sweep|cache-262k-sweep|tool-loop|summary|native-262k}
+usage: run-campaign.sh {smoke|cache-32k|mtp-32k|omlx-smoke|omlx-cache-32k|omlx-mtp-32k|omlx-mtp-tool-loop-32k|omlx-oq8e-smoke|omlx-oq4e-dflash-32k|mtplx-smoke|mtplx-32k|mtplx-tool-loop-32k|mtplx-quality-smoke|mtplx-quality-32k|specprefill-16k|specprefill-32k|ane-16k|ane-32k|dspark-smoke|dspark-decode-8k|dspark-cache-32k|dspark-decode-32k|dspark-tool-loop-32k|cache-65k|cache-65k-frontrunners|cache-65k-mtplx8|cache-65k-oq8e|mtplx-bank-test|mtplx-toolturn-ab|mtplx-y-recap-128k|cache-128k-mtplx-292|cache-128k-mtplx-2100|cache-262k-mtplx-2100|cache-128k-sweep|cache-262k-sweep|tool-loop|summary|native-262k}
 EOF
 }
 
@@ -67,6 +67,14 @@ arm_metadata() {
       MODEL_ID="ddalcu/Qwen3.8-27B-MLX-Serve-8bit"
       RUNTIME_REVISION="$MLX_RUNTIME_REVISION"
       MODEL_REVISION="$MLX_MODEL_REVISION"
+      PORT=11234
+      LAUNCHER="$SCRIPTS/run-mlx-serve.sh"
+      ;;
+    FS)
+      RUNTIME="mlx-serve"
+      MODEL_ID="ddalcu/Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit"
+      RUNTIME_REVISION="v26.8.11"
+      MODEL_REVISION="ef5b919d31534faa1997666f1a22d362cd6383cd"
       PORT=11234
       LAUNCHER="$SCRIPTS/run-mlx-serve.sh"
       ;;
@@ -134,6 +142,14 @@ arm_metadata() {
       PORT=8000
       LAUNCHER="$SCRIPTS/run-omlx.sh"
       ;;
+    FN)
+      RUNTIME="oMLX"
+      MODEL_ID="Jundot/Qwen3.8-Flash-Next-oQ4e-mtp"
+      RUNTIME_REVISION="v0.6.4"
+      MODEL_REVISION="2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8"
+      PORT=8000
+      LAUNCHER="$SCRIPTS/run-omlx.sh"
+      ;;
     V)
       RUNTIME="MTPLX"
       MODEL_ID="Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed"
@@ -187,6 +203,14 @@ arm_metadata() {
       ;;
     W|X)
       TOKENIZER_PATH="${OMLX_MODEL_ROOT:-}/gcoli-Qwen3.8-27B-oQ4e-mtp-$OQ4E_MODEL_REVISION"
+      ;;
+    FN)
+      TOKENIZER_PATH="${OMLX_MODEL_ROOT:-}/Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8"
+      ;;
+    FS)
+      # mlx-serve é binário (sem venv Python p/ transformers): usar RuntimeTokenizer
+      # (tokeniza via o servidor), igual aos arms A/B/C do mlx-serve. TOKENIZER_PATH vazio.
+      TOKENIZER_PATH=""
       ;;
     V)
       TOKENIZER_PATH="$CAMPAIGN_MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-$MTPLX_MODEL_REVISION"
@@ -884,6 +908,75 @@ case "$STAGE" in
     fi
     REPEATS=1
     run_arms 262144 "${ARMS[@]}"
+    ;;
+  cache-128k-mtplx-2100)
+    # Re-probe da campanha runtime-refresh (ver plan-runtime-refresh.md). Re-mede V e Y
+    # @128K na MTPLX 2.10.0 com o memory-planning automático (cap DEFAULT, sem override).
+    # Isola uma variável: só a versão do runtime muda vs cache-128k-sweep (2.9.2, default,
+    # que perdeu append/tool_turn). Testa R2: o planning automático mata o cap-artifact?
+    # Grava num arquivo separado p/ não misturar com o dataset 2.9.2. SEM summarize.
+    export QWEN38_MTPLX_EXPECTED_VERSION=2.10.0
+    export QWEN38_CACHE_OUTPUT="${QWEN38_CACHE_OUTPUT:-$RESULTS/runtime-refresh/cache-probe-mtplx2100.jsonl}"
+    MTPLX_RUNTIME_REVISION="v2.10.0/e979b569288286f49440532de4aec9108e0a9e73"
+    # Subconjunto de braços via QWEN38_REFRESH_128K_ARMS (default V Y). Ex: "V" p/ resposta rápida.
+    for armR in ${QWEN38_REFRESH_128K_ARMS:-V Y}; do
+      run_cache_arm "$armR" 131072 || echo "$armR 128K (2.10.0) falhou (seguindo)" >&2
+    done
+    ;;
+  cache-262k-mtplx-2100)
+    # Re-probe runtime-refresh a 262K (máximo nativo). Testa R1: o "memory-aware ceiling"
+    # da 2.10.0 recupera o decode denso que colapsava (~7 tps) na 2.9.2? Mesmo corte por
+    # cenário do cache-262k-sweep p/ MTPLX (identical/append 1 rep; re-prefill determinístico).
+    export QWEN38_MTPLX_EXPECTED_VERSION=2.10.0
+    export QWEN38_CACHE_OUTPUT="${QWEN38_CACHE_OUTPUT:-$RESULTS/runtime-refresh/cache-probe-mtplx2100.jsonl}"
+    export QWEN38_SCENARIO_REPEATS="${QWEN38_SCENARIO_REPEATS_MTPLX:-cold=1,middle_mutation=1,tool_turn=1,identical=1,append=1}"
+    MTPLX_RUNTIME_REVISION="v2.10.0/e979b569288286f49440532de4aec9108e0a9e73"
+    REPEATS=1
+    for armR in ${QWEN38_REFRESH_262K_ARMS:-V Y}; do
+      run_cache_arm "$armR" 262144 || echo "$armR 262K (2.10.0) falhou (seguindo)" >&2
+    done
+    ;;
+  refresh-omlx-t-32k)
+    # R3 mínimo (runtime-refresh): arm T (oQ8e-mtp) @32K no oMLX novo (Lightning MTP).
+    # Mesmo config (mtp_enabled:true); só a versão do runtime muda vs baseline 0.6.3rc2
+    # (decode 30.57). Cold, 1 rep. Requer QWEN38_OMLX_EXPECTED_VERSION do launcher.
+    run_cache_arm T 32768 || echo "T 32K refresh falhou (seguindo)" >&2
+    ;;
+  refresh-flashnext-32k)
+    # R5 mínimo: Flash-Next 125B-A6B (arm FN) @32K no oMLX 0.6.4 (oQ4e-mtp, Lightning MTP +
+    # sparse prefill + SSD-map do PLE). Smoke de velocidade vs a densa. Requer
+    # QWEN38_OMLX_EXPECTED_VERSION=0.6.4 e o modelo baixado no OMLX_MODEL_ROOT.
+    run_cache_arm FN 32768 || echo "FN 32K (Flash-Next) falhou (seguindo)" >&2
+    ;;
+  refresh-flashnext-262k)
+    # R5 contexto MÁXIMO nativo: Flash-Next @262K (256K) no oMLX 0.6.4 com qwen4_ple_ssd_offload.
+    # Pesos 69.6GB + KV ~7GB + scratch ~= 87GB pico (bate com o vendor). Requer QWEN38_OMLX_EXPECTED_VERSION=0.6.4.
+    run_cache_arm FN 262144 || echo "FN 262K (Flash-Next) falhou (seguindo)" >&2
+    ;;
+  refresh-flashnext-mlxserve-32k)
+    # Campanha dedicada Flash-Next: build ddalcu MLX-Serve (75GB residente, n-gram mmap) no
+    # mlx-serve >=26.8.11 com MTP. Compara decode/prefill vs o oQ4e no oMLX (arm FN).
+    # Requer QWEN38_MLX_SERVE_BIN (v26.8.11) e QWEN38_MLX_MODEL_DIR (path do ddalcu).
+    run_cache_arm FS 32768 || echo "FS 32K (Flash-Next mlx-serve) falhou (seguindo)" >&2
+    ;;
+  refresh-flashnext-mlxserve-128k)
+    # Flash-Next @128K no mlx-serve (build ddalcu). Contexto longo no caminho rápido.
+    run_cache_arm FS 131072 || echo "FS 128K (Flash-Next mlx-serve) falhou (seguindo)" >&2
+    ;;
+  refresh-flashnext-mlxserve-262k)
+    # Flash-Next @256K (nativo) no mlx-serve (build ddalcu).
+    run_cache_arm FS 262144 || echo "FS 262K (Flash-Next mlx-serve) falhou (seguindo)" >&2
+    ;;
+  refresh-flashnext-128k)
+    # R5 contexto longo: Flash-Next @128K no oMLX 0.6.4 com qwen4_ple_ssd_offload (PLE em mmap ->
+    # ~70GB residente, cabe com o KV de 128K). Requer QWEN38_OMLX_EXPECTED_VERSION=0.6.4.
+    run_cache_arm FN 131072 || echo "FN 128K (Flash-Next) falhou (seguindo)" >&2
+    ;;
+  refresh-dspark-s-32k)
+    # R4 mínimo (runtime-refresh): arm S (8bit + DFlash2) @32K no mlx-dspark 0.17.2
+    # (cap DFlash dinâmico) vs baseline 0.15.0 (decode 39.9). Cold, 1 rep. Requer
+    # MLX_DSPARK_TARGET_PATH / MLX_DSPARK_DFLASH2_PATH e QWEN38_MLX_DSPARK_EXPECTED_VERSION.
+    run_cache_arm S 32768 || echo "S 32K refresh falhou (seguindo)" >&2
     ;;
   *)
     usage

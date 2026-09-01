@@ -46,7 +46,8 @@ COMMAND=(
   --depth 3
   --generation-mode mtp
   --context-window "$CONTEXT_WINDOW"
-  --ssd-session-cache off
+  --ssd-session-cache "${QWEN38_MTPLX_SSD_SESSION_CACHE:-off}"
+  --ssd-session-cache-dir "$STATE_DIR/ssd-session-cache"
   --reasoning on
   --reasoning-effort xhigh
   --preserve-thinking on
