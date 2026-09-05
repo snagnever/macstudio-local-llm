@@ -68,10 +68,28 @@ Gate: decisão sobre `reasoning_effort` por tipo de tarefa.
 T6 (contexto longo) nos dois melhores pares. Só se o usuário tiver um repositório próprio
 com 50+ arquivos para usar como alvo.
 
-## Setup por runtime
+## Onde roda cada coisa
 
-Os caminhos de modelo e as portas seguem as campanhas anteriores. Confirme o `model-id` com
-`curl http://127.0.0.1:<porta>/v1/models` antes de configurar o harness.
+Dois papéis. O **Mac Studio** (rig, `mac-studio` / `100.110.87.118`) serve os modelos.
+O **MacBook M4** (cliente) roda os harnesses e conecta no rig pelo tailnet. A conexão
+detalhada está em [connect-from-macbook.md](connect-from-macbook.md).
+
+| Passo | Máquina | O que roda |
+|---|---|---|
+| Subir os runtimes (oMLX `27B`:8000, mlx-serve `FN`:11234) | Mac Studio | `run-omlx.sh`, `run-mlx-serve.sh` |
+| Confirmar o `model-id` (`curl /v1/models`) | Mac Studio ou MacBook | `curl http://mac-studio:<porta>/v1/models` |
+| Configurar os harnesses (CC, OC, QC) | MacBook | edições em `~/.claude`, `~/.config/opencode`, env do `qwen` |
+| Copiar o fixture e abrir a sessão do harness | MacBook | Protocolo de um run |
+| Rodar o bloco Verificação e preencher o scorecard | MacBook | testes da tarefa |
+
+Os dois runtimes bindam `0.0.0.0`, alcançáveis pelo tailnet em `mac-studio` (MagicDNS)
+ou `100.110.87.118`.
+
+## Setup por runtime (no Mac Studio)
+
+Os caminhos de modelo e as portas seguem as campanhas anteriores. Suba os runtimes no rig
+e confirme o `model-id` com `curl http://mac-studio:<porta>/v1/models` antes de configurar
+o harness no MacBook.
 
 | Modelo | Runtime | Launcher existente | Porta |
 |---|---|---|---|
@@ -82,17 +100,21 @@ Sampling em todos os runs: temp 1.0, top_p 0.95, top_k 20, min_p 0 (thinking mod
 Contexto do runtime: 131072. Não use MTPLX nem mlx-dspark nesta campanha; o MTPLX perde o
 cache em `tool_turn` acima de 64K e o mlx-dspark não carrega o Flash-Next.
 
-## Setup por harness
+## Setup por harness (no MacBook)
+
+Estas edições são no MacBook. Os `baseURL` usam o nome Tailscale do rig `mac-studio`;
+se o MagicDNS não resolver, troque por `100.110.87.118`. Blocos prontos e adaptados à
+versão instalada de cada harness em [connect-from-macbook.md](connect-from-macbook.md).
 
 ### Claude Code (`CC`)
 
-`~/.claude/settings.json`:
+`~/.claude/settings.json` (no MacBook):
 
 ```json
 {
   "env": {
     "ANTHROPIC_AUTH_TOKEN": "local",
-    "ANTHROPIC_BASE_URL": "http://127.0.0.1:11234",
+    "ANTHROPIC_BASE_URL": "http://mac-studio:11234",
     "ANTHROPIC_MODEL": "<model-id>",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "<model-id>",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "<model-id>",
@@ -102,7 +124,7 @@ cache em `tool_turn` acima de 64K e o mlx-dspark não carrega o Flash-Next.
 }
 ```
 
-Para o `27B` troque a URL para `http://127.0.0.1:8000`. Effort: use o controle de effort do
+Para o `27B` troque a URL para `http://mac-studio:8000`. Effort: use o controle de effort do
 Claude Code (`/effort` ou `CLAUDE_CODE_EFFORT_LEVEL`, conforme a versão instalada). Registre
 no scorecard se o runtime honrou o effort (o mlx-serve documenta suporte a `output_config.effort`;
 o oMLX não documenta).
@@ -118,7 +140,7 @@ em vez de `providers`, adapte):
     "rig": {
       "name": "Mac Studio rig",
       "package": "@opencode-ai/ai/providers/openai-compatible",
-      "settings": { "baseURL": "http://127.0.0.1:11234/v1", "apiKey": "local" },
+      "settings": { "baseURL": "http://mac-studio:11234/v1", "apiKey": "local" },
       "models": {
         "fn": {
           "modelID": "<model-id>",
@@ -137,12 +159,12 @@ em vez de `providers`, adapte):
 }
 ```
 
-Duplique o bloco com `baseURL` `http://127.0.0.1:8000/v1` para o `27B`.
+Duplique o bloco com `baseURL` `http://mac-studio:8000/v1` para o `27B`.
 
 ### Qwen Code (`QC`)
 
 ```bash
-export OPENAI_BASE_URL=http://127.0.0.1:11234/v1
+export OPENAI_BASE_URL=http://mac-studio:11234/v1
 export OPENAI_API_KEY=local
 export OPENAI_MODEL=<model-id>
 qwen
@@ -156,7 +178,9 @@ Desligue a telemetria em `~/.qwen/settings.json` antes do primeiro run. Registre
 `~/.pi/settings.json`: provider OpenAI-compatible, `baseUrl` do runtime, `model` = `<model-id>`,
 `contextWindow` 131072. Se o runtime rejeitar o campo `reasoning_effort`, registre e siga sem ele.
 
-## Protocolo de um run
+## Protocolo de um run (no MacBook)
+
+Um run inteiro roda no MacBook, contra o runtime que está de pé no Mac Studio.
 
 1. Copie o fixture: `cp -R fixtures/<nome> <scratch>/<nome>-<run-id>`. O `run-id` é
    `<modelo>-<harness>-<effort>-<tarefa>-<n>`, por exemplo `FN-OC-medium-T1-1`.
