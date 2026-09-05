@@ -68,6 +68,32 @@ The failure mode this guards against is committing the bulky raw layer: git
 never forgets, and a few full-transcript JSONLs would permanently bloat every
 clone.
 
+## Two machines: rig and client
+
+Work in this repo spans two machines. The **Mac Studio** (rig, `mac-studio` on
+Tailscale / `100.110.87.118`, 128 GB) serves the models and runs the benchmark
+campaigns. The **MacBook** (client) runs the coding harnesses and drives the rig.
+
+An agent on the MacBook reaches the rig shell over **SSH on the tailnet**:
+
+```bash
+ssh vitor@mac-studio '<command>'
+```
+
+Passwordless SSH is set up: an ed25519 key on the MacBook (`~/.ssh/id_ed25519`),
+its public half in the rig's `~/.ssh/authorized_keys`. Remote Login is on on the
+rig. Reproduce it, if lost, with `ssh-keygen -t ed25519` on the MacBook then
+`ssh-copy-id vitor@mac-studio`. Confirm with `ssh -o BatchMode=yes vitor@mac-studio hostname`
+(prints `macstudio`).
+
+Use this to start, stop and query the runtimes on the rig from the MacBook. The
+rig serves one model at a time — 128 GB does not hold two 27B-class models at
+once — so switching model means stopping one runtime and starting another. The
+runtimes bind `0.0.0.0`, so their OpenAI (`/v1/chat/completions`) and Anthropic
+(`/v1/messages`) endpoints are reachable at `http://mac-studio:<port>` over the
+tailnet. Always confirm the live `model-id` with `curl http://mac-studio:<port>/v1/models`
+before pointing a harness at it; the port and quant change as arms come and go.
+
 ## Conventions
 
 - Reference other files by repo-relative path so links stay clickable on GitHub.
