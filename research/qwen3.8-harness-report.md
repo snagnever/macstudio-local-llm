@@ -85,8 +85,8 @@ full Anthropic Messages API"; oMLX: "/v1/messages, drop-in for Claude Code"). N�
 |---|---|---|---|---|---|
 | **Claude Code** | proprietário | Anthropic | alto (~25K tokens de system prompt) | harness das evals oficiais; config oficial da Qwen publicada; `effort` mapeável no mlx-serve | sem controle de sampling; prefill caro sem cache; modelos alias (`ANTHROPIC_DEFAULT_*`) precisam apontar para o mesmo modelo local |
 | **OpenCode** | MIT | OpenAI-compatible | médio | harness padrão do rig; `reasoning` + `limit` por modelo; variantes com `reasoningEffort`; LSP; MCP | default de privacidade antigo (naming via serviço externo, corrigível na config); prompt maior que o Pi |
-| **Qwen Code** | Apache-2.0 | OpenAI-compatible (`OPENAI_BASE_URL`) | médio | formato de tool call afinado para Qwen; Auto-Skills, subagents, Plan Mode | 4/5 vs 5/5 do Claude Code no teste de Raschka; telemetria ON (`~/.qwen/settings.json`); suporte ao 3.8 não declarado na 0.22.0 |
-| **Pi** | MIT | OpenAI-compatible | mínimo (~200 tokens, 4 ferramentas) | único harness viável quando o cache não reusa; `contextWindow` explícito | feito para sessões curtas supervisionadas; endpoints locais podem rejeitar `reasoning_effort`/`developer` role |
+| **Qwen Code** | Apache-2.0 | OpenAI-compatible (`OPENAI_BASE_URL`) | médio | formato de tool call afinado para Qwen; Auto-Skills, subagents, Plan Mode; `/effort` e `model.reasoningEffort` | 4/5 vs 5/5 do Claude Code no teste de Raschka; telemetria ON (`~/.qwen/settings.json`); envia `reasoning.effort` aninhado, que o mlx-dspark ignora — precisa de `extra_body.reasoning_effort` |
+| **Pi** | MIT | OpenAI-compatible | mínimo (~200 tokens, 4 ferramentas) | único harness viável quando o cache não reusa; `contextWindow` explícito; `--thinking` low..max envia `reasoning_effort` (verificado) | feito para sessões curtas supervisionadas; `developer` role pode ser rejeitada por endpoints locais |
 | **Codex CLI** | Apache-2.0 | OpenAI (Responses; `wire_api = "chat"` para locais) | baixo (menor uso de tokens no teste de Raschka) | sandbox de shell; config oficial da Qwen para o Codex (cloud) | afinado para modelos OpenAI; Responses API em runtime local não verificada |
 | **Cline** | Apache-2.0 | OpenAI-compatible / LM Studio | médio | IDE; já documentado no rig | menos controle de `reasoning_effort`; fluxo VS Code, não terminal |
 | **Aider** | Apache-2.0 | OpenAI-compatible | baixo | edição por diff, git nativo | não é loop de agente; sem shell autônomo |
@@ -158,7 +158,8 @@ e quando a config por arquivo for documentada.
 - **Terminal-Bench do Flash-Next.** Pendente no rig e não publicado pelo vendor.
 - **`/v1/messages` com thinking + tools em streaming** no mlx-serve e no oMLX. Os READMEs
   afirmam suporte. O plano de testes começa com um smoke desse caminho.
-- **Suporte declarado do Qwen Code ao Qwen3.8.** A doc da 0.22.0 cita o 3.7 Max.
+- **Suporte declarado do Qwen Code ao Qwen3.8.** A doc da 0.22.0 cita o 3.7 Max. Instalado 0.23.0
+  no MacBook; o tool call fecha o loop no smoke, mas o suporte declarado ao 3.8 não foi confirmado.
 - **Codex CLI com Responses API em runtime local.** Nenhuma das fontes testou isso com Qwen3.8.
 - **Mapeamento de `reasoning_content`** no OpenCode contra oMLX e mlx-serve. O OpenCode documenta
   o campo; os runtimes não documentam o nome que emitem.

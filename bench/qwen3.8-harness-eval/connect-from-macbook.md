@@ -73,67 +73,124 @@ curl -s http://mac-studio:11234/v1/models | python3 -m json.tool   # FN
 ## Configuração dos harnesses no MacBook
 
 Os exemplos usam MagicDNS (`mac-studio`). Se o MagicDNS não resolver, troque por
-`100.110.87.118`.
+`100.110.87.118`. O endpoint atual do `27B` é `http://mac-studio:8484` (mlx-dspark arm S),
+model-id `mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9`.
+
+**Config uma vez, launcher a cada run.** As edições abaixo são feitas uma vez por máquina.
+Nos runs, não abra o harness à mão: use [macbook/](macbook/), que injeta o endpoint e o effort
+sem tocar na config global. `EFFORT=<low|medium|xhigh>`, `RIG_HOST`/`RIG_PORT` trocam o endpoint.
+
+| Harness | Binário | Versão instalada | Config persistente |
+|---|---|---|---|
+| `CC` Claude Code | `claude` | 2.1.236 | nenhuma; o launcher exporta as env |
+| `OC` OpenCode | `opencode` | 1.18.20 | provider `rig` em `~/.config/opencode/opencode.jsonc` |
+| `QC` Qwen Code | `qwen` | 0.23.0 | `~/.qwen/settings.json` (telemetria off) |
+| `PI` Pi | `pi` | 0.85.1 | provider `rig` em `~/.pi/agent/models.json` |
+| `DSH` DeepSeek Harness | `dsh` | 0.1.0-rc.6 | provider `rig` em `~/.dsh/settings.yaml` |
+
+Instalação dos que faltarem: `npm i -g @earendil-works/pi-coding-agent` (Pi) e
+`npm i -g @deepseek-ai/dsh@0.1.0-rc.6` (dsh; fixe a versão, é developer preview).
 
 ### OpenCode
 
-A versão instalada usa o schema `provider` no singular, com `npm` e `options.baseURL`.
-Preserve os providers que já existirem e adicione o `rig`:
+Provider `rig` em `~/.config/opencode/opencode.jsonc`, com `reasoning`, `limit` e as três
+variantes. O launcher `run-oc-27b.sh` escolhe a variante do run (o TUI não tem `--variant`).
 
-```json
+```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
   "provider": {
     "rig": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Mac Studio rig (Tailscale)",
-      "options": { "baseURL": "http://mac-studio:8000/v1" },
+      "options": { "baseURL": "http://mac-studio:8484/v1" },
       "models": {
-        "Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6": {
-          "name": "Qwen3.8 27B denso — oQ8e-mtp (arm T)",
-          "tools": true
+        "mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9": {
+          "name": "Qwen3.8-27B 8bit (rig, dspark)",
+          "reasoning": true,
+          "limit": { "context": 131072, "output": 32768 },
+          "variants": {
+            "low": { "reasoningEffort": "low" },
+            "medium": { "reasoningEffort": "medium" },
+            "xhigh": { "reasoningEffort": "xhigh" }
+          }
         }
       }
     }
-  },
-  "model": "rig/Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6"
-}
-```
-
-Para o `FN`, adicione um segundo provider `rig-fn` com `baseURL`
-`http://mac-studio:11234/v1` e o model-id do `FN`.
-
-### Claude Code
-
-Em `~/.claude/settings.json` no MacBook:
-
-```json
-{
-  "env": {
-    "ANTHROPIC_AUTH_TOKEN": "local",
-    "ANTHROPIC_BASE_URL": "http://mac-studio:8000",
-    "ANTHROPIC_MODEL": "Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6",
-    "CLAUDE_CODE_SUBAGENT_MODEL": "Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6"
   }
 }
 ```
 
-Sem barra `/v1` no `ANTHROPIC_BASE_URL`; o Claude Code monta o caminho. Para o `FN`,
-troque a porta para 11234 e o model-id.
+### Claude Code
+
+O launcher `run-cc-27b.sh` exporta as env, sem tocar em `~/.claude/settings.json`. O effort vai
+em `CLAUDE_CODE_EFFORT_LEVEL`, que tem precedência sobre `/effort` e o settings.json. Não use
+`/effort` na sessão: ele grava no settings.json do usuário.
 
 ### Qwen Code
 
-O `qwen` não está instalado no MacBook. Instale antes do primeiro run. Depois:
+`~/.qwen/settings.json` com telemetria e usage stats desligadas:
 
-```bash
-export OPENAI_BASE_URL=http://mac-studio:8000/v1
-export OPENAI_API_KEY=local
-export OPENAI_MODEL=Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6
-qwen
+```json
+{
+  "model": { "reasoningEffort": "medium", "generationConfig": { "contextWindowSize": 131072 } },
+  "telemetry": { "enabled": false },
+  "privacy": { "usageStatisticsEnabled": false }
+}
 ```
+
+O launcher `run-qc-27b.sh` grava um settings de workspace no diretório do run com o effort. Ele
+escreve `model.reasoningEffort` **e** `generationConfig.extra_body.reasoning_effort`. O segundo é
+necessário: o rig ignora o `reasoning.effort` aninhado que o Qwen Code envia por padrão.
+
+### Pi
+
+`~/.pi/agent/models.json`. Para servidor local só o `id` é obrigatório por modelo:
+
+```json
+{
+  "providers": {
+    "rig": {
+      "baseUrl": "http://mac-studio:8484/v1",
+      "api": "openai-completions",
+      "apiKey": "local",
+      "models": [
+        {
+          "id": "mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9",
+          "name": "Qwen3.8 27B 8bit (rig, dspark)",
+          "reasoning": true,
+          "contextWindow": 131072,
+          "maxTokens": 32768
+        }
+      ]
+    }
+  }
+}
+```
+
+O launcher `run-pi-27b.sh` passa o effort em `--thinking`.
+
+### DeepSeek Harness
+
+Provider `rig` na seção `llm-pi-ai` de `~/.dsh/settings.yaml`. A key vem da env `RIG_API_KEY`
+(o launcher exporta `local`):
+
+```yaml
+llm-pi-ai:
+  providers:
+    rig:
+      displayName: Mac Studio rig (Tailscale)
+      api: openai-completions
+      baseURL: http://mac-studio:8484/v1
+      apiKeyEnv: RIG_API_KEY
+      models:
+        - id: mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9
+          reasoningEfforts: { low: low, medium: medium, xhigh: xhigh }
+```
+
+O launcher `run-dsh-27b.sh` reescreve a seção `agent-default-model` do settings com o modelo e o
+effort do run. Ele fixa o effort na criação da sessão; o dsh não troca no meio. `DSH_PROFILE=web`
+(default) abre a UI em `http://127.0.0.1:3080`; `DSH_PROFILE=headless` roda uma tarefa e sai.
 
 ## Alternativa — túnel SSH (rede sem Tailscale)
 

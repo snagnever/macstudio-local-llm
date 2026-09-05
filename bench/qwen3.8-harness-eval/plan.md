@@ -21,9 +21,13 @@ Sub-perguntas:
 | Eixo | Valores |
 |---|---|
 | Modelo | `27B` (oMLX, oQ8e-mtp, arm T) · `FN` (mlx-serve v26.8.11, ddalcu mixed-4/8) |
-| Harness | `CC` Claude Code · `OC` OpenCode · `QC` Qwen Code · `PI` Pi (opcional) |
-| Effort | `medium` (default do plano) · `xhigh` (só na Fase C) |
+| Harness | `CC` Claude Code · `OC` OpenCode · `QC` Qwen Code · `PI` Pi · `DSH` DeepSeek Harness |
+| Effort | `low` · `medium` (default do plano) · `xhigh` (só na Fase C) |
 | Tarefa | T1–T7 em [tasks/](tasks/) |
+
+Todo harness recebe o effort do run pela variável `EFFORT` do launcher em
+[macbook/](macbook/). Cada harness usa um mecanismo próprio (seção
+[Effort por harness](#effort-por-harness)). O runtime é quem honra o valor.
 
 Um **run** é uma célula modelo × harness × effort × tarefa. Um run usa uma sessão nova do
 harness e uma cópia nova do fixture.
@@ -39,9 +43,12 @@ Para cada runtime, confirme que o harness fecha um loop de tool call.
 1. Suba o runtime com o modelo (seção Setup).
 2. Abra o harness e envie: `List the files in this directory, then read README.md and tell me its first heading.`
 3. Registre: o harness chamou a ferramenta? O modelo leu o arquivo? A resposta veio em texto?
+4. Effort no wire: rode o mesmo smoke com `EFFORT=low` e `EFFORT=xhigh`. Confirme no log do
+   runtime que `tokens_out` de `xhigh` é maior que o de `low`. Se forem iguais, o runtime não
+   honra o campo daquele harness (ver [Effort por harness](#effort-por-harness)).
 
-Gate: os 4 pares `27B×CC`, `27B×OC`, `FN×CC`, `FN×OC` fecham o loop. Um par que falha sai da
-matriz e o motivo vai para `results/notes.md`.
+Gate: os pares `27B×{CC,OC,QC,PI,DSH}` fecham o loop **e** o effort muda o `tokens_out`. Um par
+que falha sai da matriz e o motivo vai para `results/notes.md`.
 
 ### Fase A — triagem (6 runs, ~2 h)
 
@@ -52,8 +59,10 @@ não modelo. Volte à Fase 0.
 
 ### Fase B — harness (12 runs, ~4 h)
 
-O modelo vencedor da Fase A × {`CC`, `OC`, `QC`} × `medium` × **T1, T2, T5, T7**.
-Adicione `PI` só se algum harness ultrapassar 10 min de prefill acumulado numa tarefa.
+O modelo vencedor da Fase A × {`CC`, `OC`, `QC`, `DSH`} × `medium` × **T1, T2, T5, T7**.
+Adicione `PI` só se algum harness ultrapassar 10 min de prefill acumulado numa tarefa. O `DSH`
+está em developer preview (0.1.0-rc.6); se ele parar no meio da tarefa sem aviso (falha relatada),
+registre em `results/notes.md` e siga sem ele.
 
 Gate: um harness tem a maior soma de `pass` com o menor número de intervenções.
 
@@ -78,7 +87,7 @@ detalhada está em [connect-from-macbook.md](connect-from-macbook.md).
 |---|---|---|
 | Subir os runtimes (oMLX `27B`:8000, mlx-serve `FN`:11234) | Mac Studio | `run-omlx.sh`, `run-mlx-serve.sh` |
 | Confirmar o `model-id` (`curl /v1/models`) | Mac Studio ou MacBook | `curl http://mac-studio:<porta>/v1/models` |
-| Configurar os harnesses (CC, OC, QC) | MacBook | edições em `~/.claude`, `~/.config/opencode`, env do `qwen` |
+| Configurar os harnesses (CC, OC, QC, PI, DSH) | MacBook | uma vez, ver [connect-from-macbook.md](connect-from-macbook.md); depois só os launchers |
 | Copiar o fixture e abrir a sessão do harness | MacBook | Protocolo de um run |
 | Rodar o bloco Verificação e preencher o scorecard | MacBook | testes da tarefa |
 
@@ -102,81 +111,41 @@ cache em `tool_turn` acima de 64K e o mlx-dspark não carrega o Flash-Next.
 
 ## Setup por harness (no MacBook)
 
-Estas edições são no MacBook. Os `baseURL` usam o nome Tailscale do rig `mac-studio`;
-se o MagicDNS não resolver, troque por `100.110.87.118`. Blocos prontos e adaptados à
-versão instalada de cada harness em [connect-from-macbook.md](connect-from-macbook.md).
-
-### Claude Code (`CC`)
-
-`~/.claude/settings.json` (no MacBook):
-
-```json
-{
-  "env": {
-    "ANTHROPIC_AUTH_TOKEN": "local",
-    "ANTHROPIC_BASE_URL": "http://mac-studio:11234",
-    "ANTHROPIC_MODEL": "<model-id>",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "<model-id>",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "<model-id>",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "<model-id>",
-    "CLAUDE_CODE_SUBAGENT_MODEL": "<model-id>"
-  }
-}
-```
-
-Para o `27B` troque a URL para `http://mac-studio:8000`. Effort: use o controle de effort do
-Claude Code (`/effort` ou `CLAUDE_CODE_EFFORT_LEVEL`, conforme a versão instalada). Registre
-no scorecard se o runtime honrou o effort (o mlx-serve documenta suporte a `output_config.effort`;
-o oMLX não documenta).
-
-### OpenCode (`OC`)
-
-`~/.config/opencode/opencode.json` (formato v2 da doc; se a versão instalada usar `provider`
-em vez de `providers`, adapte):
-
-```json
-{
-  "providers": {
-    "rig": {
-      "name": "Mac Studio rig",
-      "package": "@opencode-ai/ai/providers/openai-compatible",
-      "settings": { "baseURL": "http://mac-studio:11234/v1", "apiKey": "local" },
-      "models": {
-        "fn": {
-          "modelID": "<model-id>",
-          "capabilities": { "tools": true, "input": ["text"], "output": ["text"] },
-          "limit": { "context": 131072, "output": 32768 },
-          "reasoning": true,
-          "variants": {
-            "medium": { "reasoningEffort": "medium" },
-            "xhigh": { "reasoningEffort": "xhigh" }
-          }
-        }
-      }
-    }
-  },
-  "model": "rig/fn"
-}
-```
-
-Duplique o bloco com `baseURL` `http://mac-studio:8000/v1` para o `27B`.
-
-### Qwen Code (`QC`)
+A configuração de cada harness fica em [connect-from-macbook.md](connect-from-macbook.md).
+Não abra o harness à mão. Use o launcher do run em [macbook/](macbook/); ele injeta o endpoint
+e o effort sem editar a config global do usuário.
 
 ```bash
-export OPENAI_BASE_URL=http://mac-studio:11234/v1
-export OPENAI_API_KEY=local
-export OPENAI_MODEL=<model-id>
-qwen
+EFFORT=medium bench/qwen3.8-harness-eval/macbook/run-<h>-27b.sh <dir-do-run>
 ```
 
-Desligue a telemetria em `~/.qwen/settings.json` antes do primeiro run. Registre a versão
-(`qwen --version`).
+`<h>` é `cc`, `oc`, `qc`, `pi` ou `dsh`. `EFFORT` é `low`, `medium` ou `xhigh` (default `medium`).
+`RIG_HOST` e `RIG_PORT` trocam o endpoint (default `mac-studio:8484`). O teste
+[tests/test_macbook_launchers.sh](tests/test_macbook_launchers.sh) trava o contrato dos launchers.
 
-### Pi (`PI`, opcional)
+### Effort por harness
 
-`~/.pi/settings.json`: provider OpenAI-compatible, `baseUrl` do runtime, `model` = `<model-id>`,
-`contextWindow` 131072. Se o runtime rejeitar o campo `reasoning_effort`, registre e siga sem ele.
+Cada harness usa um mecanismo próprio para o effort. Os campos de wire abaixo foram verificados
+com `EFFORT=low` contra um servidor de captura local (2026-09-05); o runtime do rig é quem honra
+o valor.
+
+| Harness | Mecanismo do launcher | Campo no corpo da requisição | Trocar na sessão |
+|---|---|---|---|
+| `CC` | env `CLAUDE_CODE_EFFORT_LEVEL` (precede `/effort` e settings.json) | `output_config.effort` (+ `thinking: adaptive`) | `/effort` (grava no settings.json do usuário — evite) |
+| `OC` | `variants` no modelo + variante default do agente via `OPENCODE_CONFIG_CONTENT` | `reasoning_effort` | `ctrl+t` cicla a variante |
+| `QC` | `model.reasoningEffort` **e** `generationConfig.extra_body.reasoning_effort` no `<dir>/.qwen/settings.json` | `reasoning.effort` **e** `reasoning_effort` | `/effort` (só o primeiro campo) |
+| `PI` | flag `--thinking` | `reasoning_effort` | `/thinking`, `Shift+Tab` |
+| `DSH` | seção `agent-default-model` do `$DSH_HOME/settings.yaml` | `reasoning_effort` | fixo na criação da sessão |
+
+Dois pontos verificados que mudam a configuração:
+
+- **O rig ignora `reasoning.effort` aninhado.** O formato nativo do Qwen Code (`reasoning: {effort}`)
+  passou sem efeito: `low` gerou os mesmos ~5.900 tokens do default `xhigh`. Por isso o launcher
+  `run-qc-27b.sh` adiciona `extra_body.reasoning_effort`, que chega como `reasoning_effort` puro —
+  o campo que o rig honra (`low` → ~345 tokens).
+- **O Claude Code envia o effort mesmo com model-id local desconhecido.** O aviso
+  `unrecognized_model` não bloqueia `output_config.effort`. O runtime precisa honrar ou rejeitar
+  o campo.
 
 ## Protocolo de um run (no MacBook)
 
@@ -184,7 +153,8 @@ Um run inteiro roda no MacBook, contra o runtime que está de pé no Mac Studio.
 
 1. Copie o fixture: `cp -R fixtures/<nome> <scratch>/<nome>-<run-id>`. O `run-id` é
    `<modelo>-<harness>-<effort>-<tarefa>-<n>`, por exemplo `FN-OC-medium-T1-1`.
-2. Abra uma sessão nova do harness dentro da cópia.
+2. Abra uma sessão nova do harness na cópia com o launcher, passando o effort do run:
+   `EFFORT=<effort> macbook/run-<h>-27b.sh <scratch>/<nome>-<run-id>`.
 3. Cole o bloco **Prompt** da tarefa sem alteração. Inicie o cronômetro.
 4. Não intervenha até o harness parar. Se o harness pedir aprovação de comando, aprove e conte
    como `approvals`, não como intervenção.
@@ -241,5 +211,8 @@ Não some as colunas num score único. Registre o veredito por sub-pergunta em `
 - Benchmarks numéricos (LCB, T-Bench). Eles vivem nas campanhas próprias.
 - Comparação de quantizações. O modelo × runtime está fixo por célula.
 - Cline, Aider, Goose, OpenHands, Codex CLI. Entram só se um resultado das Fases A–C exigir.
-- DeepSeek Harness. Developer preview com breaking changes; reavaliar na 0.1.0 estável. Se entrar,
-  use o modo `Minimal` como par do Pi e o modo `Standard` como par do OpenCode.
+
+O DeepSeek Harness (`DSH`) entrou na matriz (Fase B). É developer preview (0.1.0-rc.6) com
+breaking changes anunciados; fixe a versão no launcher e trate o `NO-GO` por parada silenciosa
+como resultado, não como bug do plano. O modo de tools (`Minimal` só bash/web, `Standard` com
+todas) é escolhido pela env `DSH_TOOLS_MODE`; use `Standard` para bater com os outros harnesses.

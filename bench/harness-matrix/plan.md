@@ -36,9 +36,12 @@ Example: a Qwen3.8 Flash-Next run under OpenCode lands in
   exception: model-generated **SVG artifacts are tracked** (small, verifiable,
   cited by the verdict via its `Raw:` link).
 - **`results/<harness>/<model>.md`** — distilled: task brief, config
-  (harness version, model quant, sampling), outcome, wall-clock, tokens,
-  qualitative notes, link to the raw dir. This is what gets cited from
-  `research/` or `reports/`.
+  (harness version, model quant, sampling, **reasoning effort**), outcome,
+  wall-clock, tokens, qualitative notes, link to the raw dir. This is what gets
+  cited from `research/` or `reports/`. Record the effort level per run: it is
+  the strongest lever on token count, and each harness sends it through a
+  different wire field (see `bench/qwen3.8-harness-eval/plan.md`, "Effort por
+  harness").
 
 ## Comparison axes
 
