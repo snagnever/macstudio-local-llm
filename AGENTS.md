@@ -24,6 +24,11 @@ closest rule below rather than inventing a new top-level directory.
   and raw logs under `logs/`. A campaign is a coherent line of work (a model's
   phase, or a cross-model study like `terminal-bench/` or `degeneration/`), not
   one script.
+- **An artifact a harness run produced** (anything a model wrote while running
+  in a coding harness — generated code, SVGs, ad-hoc files) →
+  `bench/harness-matrix/`: raw file under `logs/<harness>/<model>/` (gitignored)
+  plus a verdict in `results/<harness>/<model>.md`. Pair naming lives in
+  `bench/harness-matrix/plan.md`. Never leave these in the repo root.
 - **A new model card** → `docs/models/<model>.md` (flat file). When that model
   accumulates investigation writeups, **promote it to a folder**:
   `docs/models/<model>/` where `README.md` is the card and each writeup sits

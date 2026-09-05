@@ -1,0 +1,1 @@
+# keep results/ in git; verdict files land in results/<harness>/<model>.md
