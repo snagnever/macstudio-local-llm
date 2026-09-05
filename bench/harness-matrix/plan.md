@@ -14,8 +14,9 @@ harness-matrix/
 ├── plan.md              ← this runbook
 ├── results/             ← distilled verdicts (TRACKED, keep ≤ ~1 MB/file)
 │   └── <harness>/<model>.md        one verdict file per combination
-└── logs/                ← raw artifacts (GITIGNORED via bench/**/logs/)
+└── logs/                ← raw artifacts (gitignored via bench/**/logs/**)
     └── <harness>/<model>/          transcripts, traces, run dirs, outputs
+                                    (model-generated SVGs: tracked exception)
 ```
 
 ## Naming
@@ -31,7 +32,9 @@ Example: a Qwen3.8 Flash-Next run under OpenCode lands in
 ## What goes where
 
 - **`logs/<harness>/<model>/`** — raw: session transcripts, tool-call traces,
-  generated repos, anything bulky. Never commit (gitignored).
+  generated repos, anything bulky. Never commit (gitignored). The one
+  exception: model-generated **SVG artifacts are tracked** (small, verifiable,
+  cited by the verdict via its `Raw:` link).
 - **`results/<harness>/<model>.md`** — distilled: task brief, config
   (harness version, model quant, sampling), outcome, wall-clock, tokens,
   qualitative notes, link to the raw dir. This is what gets cited from

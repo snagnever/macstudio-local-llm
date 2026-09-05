@@ -26,9 +26,11 @@ closest rule below rather than inventing a new top-level directory.
   one script.
 - **An artifact a harness run produced** (anything a model wrote while running
   in a coding harness — generated code, SVGs, ad-hoc files) →
-  `bench/harness-matrix/`: raw file under `logs/<harness>/<model>/` (gitignored)
-  plus a verdict in `results/<harness>/<model>.md`. Pair naming lives in
-  `bench/harness-matrix/plan.md`. Never leave these in the repo root.
+  `bench/harness-matrix/`: file under `logs/<harness>/<model>/` plus a verdict
+  in `results/<harness>/<model>.md`. Model-generated **SVGs are tracked** —
+  they are small, verifiable outputs that the verdicts cite; everything else
+  under `logs/` (transcripts, traces, run dirs) stays gitignored. Pair naming
+  lives in `bench/harness-matrix/plan.md`. Never leave these in the repo root.
 - **A new model card** → `docs/models/<model>.md` (flat file). When that model
   accumulates investigation writeups, **promote it to a folder**:
   `docs/models/<model>/` where `README.md` is the card and each writeup sits

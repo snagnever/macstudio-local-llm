@@ -42,7 +42,14 @@ venvs/
 # logs/ dir is ignored (raw *.log, driver output, tbench run dirs, GPU traces).
 # Tracked scripts live in bench/<campaign>/scripts/, distilled results in
 # bench/<campaign>/results/ — see AGENTS.md for the tracked/ignored split.
-bench/**/logs/
+bench/**/logs/**
+# Exception: harness-generated SVG artifacts are small, verifiable model
+# outputs cited by results/ verdicts, so they stay tracked. The directory
+# re-include lines are required for the negation to take effect. Everything
+# else under harness-matrix logs/ (transcripts, traces, run dirs) stays ignored.
+!bench/harness-matrix/logs/*/
+!bench/harness-matrix/logs/*/*/
+!bench/harness-matrix/logs/*/*/*.svg
 # ds4 / DwarfStar inference engine — an upstream git clone with its own history.
 # Committing it would either create a broken gitlink or vendor a third-party tree
 # into a public repo. Rebuild in 17s:
