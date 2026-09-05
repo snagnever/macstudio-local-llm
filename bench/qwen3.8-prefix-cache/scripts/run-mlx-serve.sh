@@ -44,6 +44,19 @@ case "$ARM" in
     ;;
 esac
 
+# Knobs opcionais de memória p/ contexto máximo (evita o 400 do memory guard a 256K):
+# KV quantizado encolhe o working memory; max-resident-mem 0 desliga o cap auto de 80%.
+if [[ -n "${QWEN38_MLX_KV_QUANT:-}" ]]; then
+  COMMAND+=(--kv-quant "$QWEN38_MLX_KV_QUANT" --kv-attn-mode "${QWEN38_MLX_KV_ATTN_MODE:-fused}")
+fi
+if [[ -n "${QWEN38_MLX_MAX_RESIDENT_MEM:-}" ]]; then
+  COMMAND+=(--max-resident-mem "$QWEN38_MLX_MAX_RESIDENT_MEM")
+fi
+# Chunk de prefill menor reduz o workspace por chunk (fix documentado p/ OOM de prefill longo).
+if [[ -n "${QWEN38_MLX_PREFILL_CHUNK:-}" ]]; then
+  COMMAND+=(--prefill-chunk "$QWEN38_MLX_PREFILL_CHUNK")
+fi
+
 if [[ "$MODE" == "--print" ]]; then
   printf '%q ' "${COMMAND[@]}"
   printf '\n'
