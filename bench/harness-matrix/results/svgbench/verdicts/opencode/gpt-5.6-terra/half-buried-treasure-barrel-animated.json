@@ -1,0 +1,23 @@
+{
+  "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-animated.svg",
+  "question_index": 13,
+  "render": "logs/renders/opencode/gpt-5.6-terra/half-buried-treasure-barrel-animated.png",
+  "judge": {
+    "kind": "llm",
+    "model": "openai/gpt-5.6-terra",
+    "date": "2026-09-06",
+    "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {"text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.", "met": false, "note": "Three horizontal metal hoops are visible, not two."},
+    {"text": "The barrel must be buried in a mound of sand, so only the top half is visible.", "met": false, "note": "More than the top half of the barrel is visible above the sand."},
+    {"text": "Show the sand mounded up slightly around the visible base of the barrel.", "met": true, "note": "Raised sand mounds visibly surround the barrel base."},
+    {"text": "The barrel must be open at the top and filled with treasure items.", "met": true, "note": "The open top is visibly filled with coins, gems, and pearl-like beads."},
+    {"text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.", "met": false, "note": "Exterior items do not visibly overflow from the top or descend a barrel side."},
+    {"text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.", "met": false, "note": "Only a few coins are outside the barrel, not a large exterior pile."},
+    {"text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.", "met": false, "note": "Red and blue-toned gems are visible, but no green emerald is visible."},
+    {"text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.", "met": false, "note": "White beads are visible, but not as a string draped over the barrel edge."},
+    {"text": "A golden goblet must be visible, partially buried in the coins inside the barrel.", "met": false, "note": "No golden goblet is visible among the coins."},
+    {"text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.", "met": false, "note": "Coins and gems have glints, but the required goblet is absent."}
+  ]
+}

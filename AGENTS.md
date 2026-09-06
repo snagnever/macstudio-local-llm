@@ -27,10 +27,15 @@ closest rule below rather than inventing a new top-level directory.
 - **An artifact a harness run produced** (anything a model wrote while running
   in a coding harness — generated code, SVGs, ad-hoc files) →
   `bench/harness-matrix/`: file under `logs/<harness>/<model>/` plus a verdict
-  in `results/<harness>/<model>.md`. Model-generated **SVGs are tracked** —
-  they are small, verifiable outputs that the verdicts cite; everything else
-  under `logs/` (transcripts, traces, run dirs) stays gitignored. Pair naming
-  lives in `bench/harness-matrix/plan.md`. Never leave these in the repo root.
+  in `results/<harness>/<model>.md`. Pair naming lives in
+  `bench/harness-matrix/plan.md`. Never leave these in the repo root.
+- **Commit small benchmark artifacts.** Model-generated **SVGs are tracked in
+  every campaign, at any depth under `logs/`** — they are small, verifiable
+  outputs that the verdicts cite, and re-running the harness does not reproduce
+  them. Everything else under `logs/` (transcripts, traces, run dirs) stays
+  gitignored. For a small artifact that is *not* an SVG, put it under
+  `bench/<campaign>/results/`, which is tracked, instead of adding a new
+  gitignore exception. Never `git add -f` a file into `logs/`.
 - **A new model card** → `docs/models/<model>.md` (flat file). When that model
   accumulates investigation writeups, **promote it to a folder**:
   `docs/models/<model>/` where `README.md` is the card and each writeup sits

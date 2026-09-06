@@ -43,6 +43,28 @@ Example: a Qwen3.8 Flash-Next run under OpenCode lands in
   different wire field (see `bench/qwen3.8-harness-eval/plan.md`, "Effort por
   harness").
 
+## SVGBench scoring of the artifacts
+
+Every SVG under `logs/<harness>/<model>/` whose filename slug matches an
+[SVGBench](https://github.com/johnbean393/SVGBench) prompt gets scored against that
+question's requirements. Score = requirements met / total, the SVGBench metric,
+judged on a headless-Chrome render (SVGBench renders with Chrome too).
+
+- Driver: `scripts/svgbench/svgbench_eval.py` (`manifest` → `render` → `judge` or
+  hand-written verdicts → `score`). Run `--help` for the subcommands.
+- Pinned questions: `scripts/svgbench/questions.json` (+ `questions.meta.json` with the
+  upstream commit).
+- Tracked outputs (`results/svgbench/`): `manifest.json` (artifact → question map),
+  `verdicts/<harness>/<model>/<slug>.json` (per-requirement pass/fail + note),
+  `scores.json` (the display JSON: per-artifact, per-pair, per-question).
+- Renders go to `logs/renders/` (gitignored, PNG).
+- Recipe for updating after a new artifact or re-judging: the project skill
+  `.claude/skills/svgbench-eval/SKILL.md`.
+
+Caveat: the subset is small, the artifacts came through coding harnesses (not the
+SVGBench direct-API loop), and the judge differs from upstream's `gemini-2.5-flash`.
+Do not compare `mean_score` with the upstream leaderboard.
+
 ## Comparison axes
 
 - **Same model, different harness**: isolates harness quality (prompting,

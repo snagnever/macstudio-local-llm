@@ -37,7 +37,8 @@ Motivos, em ordem:
 
 | Item | Qwen3.8-27B | Qwen3.8-Flash-Next | Fonte |
 |---|---|---|---|
-| Arquitetura | denso 27B, VL | MoE 125B-A6B, preview Qwen4, só 12/48 camadas com KV crescente | HF |
+| Arquitetura | denso 27B, VL | MoE 125B-A6B, VL, preview Qwen4, só 12/48 camadas com KV crescente | HF |
+| Entrada de imagem | sim (333 tensores `vision_tower/*` no build 8-bit servido) | sim (333 tensores `model.visual/*` no build ddalcu mixed-4/8) | `config.json` e `model.safetensors.index.json` dos builds |
 | Contexto nativo | 262.144 | 262.144 (1M com YaRN) | HF |
 | `reasoning_effort` | `xhigh` default; `medium`, `low` | idem | HF |
 | `preserve_thinking` | ON por default | ON por default | HF |
@@ -60,6 +61,11 @@ Três consequências para a escolha do harness:
 - **Reuso de cache após tool call decide o custo por turno.** Um agente faz 20–50 tool calls por
   tarefa. Sem reuso, cada turno re-prefila o contexto inteiro. Escolha o runtime pelo cache antes
   de escolher o harness.
+- **Os dois aceitam imagem, mas cada harness precisa declarar isso.** Os builds servidos mantêm
+  a torre de visão, e o `fn` respondeu a um PNG em `/v1/chat/completions` e em `/v1/messages`
+  (2026-09-06). Sem a chave de capability, o cliente bloqueia o anexo antes de chamar o rig. As
+  chaves por harness estão em
+  [bench/qwen3.8-harness-eval/connect-from-macbook.md](../bench/qwen3.8-harness-eval/connect-from-macbook.md).
 - **O Flash-Next é o modelo de agente; o 27B é o modelo de qualidade por token.** O rig mediu
   1,5× o decode do 27B e cache melhor. O gate de qualidade (Terminal-Bench) do Flash-Next
   ainda não rodou no rig.
@@ -68,10 +74,10 @@ Três consequências para a escolha do harness:
 
 | Runtime | OpenAI `/v1/chat/completions` | Anthropic `/v1/messages` | Modelo recomendado no rig | Porta usada nas campanhas |
 |---|---|---|---|---|
-| mlx-serve v26.8.11 (ddalcu) | sim | sim | Flash-Next ddalcu mixed-4/8 (75 GB, 60–64 tok/s, swap 0) | 11234 (default do projeto) |
+| mlx-serve 26.9.1 (ddalcu) | sim | sim | Flash-Next ddalcu mixed-4/8 (75 GB, 60–64 tok/s, swap 0) | 11234 (default do projeto) |
 | oMLX 0.6.4 | sim | sim | 27B oQ8e-mtp (arm T); Flash-Next oQ4e com `qwen4_ple_ssd_offload: true` | 8000 |
-| MTPLX 2.10.0 | sim | não verificado | 27B; **evitar em agente acima de 64K** (`tool_turn` 0.00 @128K) | — |
-| mlx-dspark 0.17.2 | sim | não verificado | 27B 8bit + DFlash2 (41.8 tok/s @32K); sem suporte a `qwen4_exp` | — |
+| MTPLX 2.11.1 | sim | não verificado | 27B; **evitar em agente acima de 64K** (`tool_turn` 0.00 @128K) | — |
+| mlx-dspark 0.18.0 | sim | não verificado | 27B 8bit + DFlash2 (41.8 tok/s @32K); sem suporte a `qwen4_exp` | 8484 |
 | llama.cpp mainline | sim | não verificado | Flash-Next GGUF com `--override-tensor per_layer_token_embd.weight=CPU` (~36 tok/s, terceiro) | 8080 |
 | LM Studio | sim | sim | qualquer; caminho documentado no rig | 1234 |
 
@@ -149,17 +155,25 @@ e quando a config por arquivo for documentada.
 | Contexto no harness | 65.536 mínimo; 131.072 para Flash-Next | um turno de agente consome 8–16K antes de raciocinar; 65.536 é o valor do rig para loops |
 | Output máximo | 32.768 | reserva espaço para raciocínio longo sem cortar a resposta |
 | Runtime | com reuso de cache em `tool_turn` (mlx-serve, oMLX) | evita re-prefill a cada tool call |
+| Entrada de imagem | declarar no harness (`attachment`/`modalities`/`input`) | os dois modelos são VL; sem a chave o cliente recusa o anexo antes do rig |
+| Entrada de vídeo | não declarar | o mlx-serve descarta a parte de vídeo sem erro; o harness manda bytes à toa |
 
 ## 6. O que não verifiquei
 
-- **Terminal-Bench do Qwen3.8-27B no rig.** Os docs de `bench/qwen38-flash-next/` dizem que o
-  T-Bench "deu NO-GO no 27B". Não encontrei script `run-tbench-qwen3.8*` nem arquivo de resultado.
-  Trate a frase como hipótese até existir o dado.
+- **Terminal-Bench do Qwen3.8-27B no rig.** Não rodou. Não existe script `run-tbench-qwen3.8*`
+  nem arquivo de resultado. Não há linha de base de qualidade de agente da densa neste rig.
 - **Terminal-Bench do Flash-Next.** Pendente no rig e não publicado pelo vendor.
 - **`/v1/messages` com thinking + tools em streaming** no mlx-serve e no oMLX. Os READMEs
   afirmam suporte. O plano de testes começa com um smoke desse caminho.
 - **Suporte declarado do Qwen Code ao Qwen3.8.** A doc da 0.22.0 cita o 3.7 Max. Instalado 0.23.0
   no MacBook; o tool call fecha o loop no smoke, mas o suporte declarado ao 3.8 não foi confirmado.
+- **Caminho de imagem do `27b`.** O endpoint mlx-dspark:8484 estava fora em 2026-09-06. A visão
+  do build está confirmada pelos pesos, mas o endpoint não foi testado com imagem. O `fn` foi.
+- **Entrada de vídeo além do mlx-serve.** No mlx-serve 26.9.1 vídeo **não funciona**: quatro
+  formatos de payload (`video_url`, `video` com frames, `video` string, `image_url` com MP4)
+  passaram sem somar token de visão nenhum, contra 6 tokens do controle de imagem — o runtime
+  descarta a parte e responde só com o texto (2026-09-06). Não testei vídeo no `27b` nem em
+  outro runtime. Pi, dsh e Claude Code nem têm modalidade de vídeo.
 - **Codex CLI com Responses API em runtime local.** Nenhuma das fontes testou isso com Qwen3.8.
 - **Mapeamento de `reasoning_content`** no OpenCode contra oMLX e mlx-serve. O OpenCode documenta
   o campo; os runtimes não documentam o nome que emitem.

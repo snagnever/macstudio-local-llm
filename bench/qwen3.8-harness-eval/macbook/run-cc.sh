@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Claude Code apontado para o 27B no rig (Anthropic /v1/messages via Tailscale).
+# Claude Code apontado para o rig (Anthropic /v1/messages via Tailscale).
 # Nao toca em ~/.claude/settings.json; as variaveis valem so nesta shell.
 # O effort vai em CLAUDE_CODE_EFFORT_LEVEL, que tem precedencia sobre /effort e
 # settings.json e nao persiste. Nao use /effort na sessao: ele grava no
 # settings.json do usuario.
-# Uso: EFFORT=<low|medium|xhigh> bench/qwen3.8-harness-eval/macbook/run-cc-27b.sh [dir-do-run] [--print] [args extra do claude]
+# Uso: EFFORT=<none|minimal|low|medium|high|xhigh> bench/qwen3.8-harness-eval/macbook/run-cc-{27b,fn}.sh [dir-do-run] [--print] [args extra do claude]
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 

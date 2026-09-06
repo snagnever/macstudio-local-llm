@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Contract of the MacBook launchers: every harness receives the run's effort
-# level from EFFORT (default medium) and points at the rig 27B endpoint.
+# level from EFFORT (default medium) and points at the rig endpoint of TARGET
+# (27b -> mlx-dspark:8484, fn -> mlx-serve:11234).
 # `--print` after the run dir echoes the env lines and the command instead of
 # executing the harness.
 set -euo pipefail
@@ -8,10 +9,13 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 MB="$ROOT/bench/qwen3.8-harness-eval/macbook"
 MODEL_ID="mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9"
+FN_MODEL_ID="ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit-ef5b919d31534faa1997666f1a22d362cd6383cd"
 
 bash -n "$MB/lib.sh"
 for h in cc oc qc pi dsh; do
+  bash -n "$MB/run-$h.sh"
   bash -n "$MB/run-$h-27b.sh"
+  bash -n "$MB/run-$h-fn.sh"
 done
 
 T="$(mktemp -d /tmp/qwen38-macbook-launcher.XXXXXX)"
@@ -85,10 +89,48 @@ grep -q -- '^/opt/dsh --profile' <<<"$DSH_BIN_OVERRIDE"
 DSH_FRESH="$(DSH_HOME="$T/dsh-fresh" bash "$MB/run-dsh-27b.sh" "$T" --print)"
 grep -q -- '^  provider: rig$' "$T/dsh-fresh/settings.yaml"
 
-# Every launcher rejects an effort outside the campaign matrix.
+# Target fn: Flash-Next on mlx-serve, port 11234, provider rigfn.
+FN_CC="$(bash "$MB/run-cc-fn.sh" "$T" --print)"
+grep -q -- '^ANTHROPIC_BASE_URL=http://mac-studio:11234$' <<<"$FN_CC"
+grep -q -- "^ANTHROPIC_MODEL=$FN_MODEL_ID\$" <<<"$FN_CC"
+FN_OC="$(EFFORT=none bash "$MB/run-oc-fn.sh" "$T" --print)"
+grep -q -- '"baseURL":"http://mac-studio:11234/v1"' <<<"$FN_OC"
+grep -q -- "\"model\":\"rigfn/$FN_MODEL_ID\"" <<<"$FN_OC"
+grep -q -- '"variant":"none"' <<<"$FN_OC"
+[[ "$(tail -n 1 <<<"$FN_OC")" == "opencode --model rigfn/$FN_MODEL_ID" ]]
+FN_QC="$(EFFORT=high bash "$MB/run-qc-fn.sh" "$T" --print)"
+grep -q -- '^OPENAI_BASE_URL=http://mac-studio:11234/v1$' <<<"$FN_QC"
+grep -q -- "^OPENAI_MODEL=$FN_MODEL_ID\$" <<<"$FN_QC"
+grep -q -- '"reasoningEffort": "high"' "$T/.qwen/settings.json"
+FN_PI="$(EFFORT=minimal bash "$MB/run-pi-fn.sh" "$T" --print)"
+[[ "$(tail -n 1 <<<"$FN_PI")" == "pi --model rigfn/$FN_MODEL_ID --thinking minimal" ]]
+DSH_FN="$T/dsh-fn"
+FN_DSH="$(EFFORT=xhigh DSH_HOME="$DSH_FN" bash "$MB/run-dsh-fn.sh" "$T" --print)"
+grep -q -- '^  provider: rigfn$' "$DSH_FN/settings.yaml"
+grep -q -- "^  model: $FN_MODEL_ID\$" "$DSH_FN/settings.yaml"
+grep -q -- '^  reasoningEffort: xhigh$' "$DSH_FN/settings.yaml"
+
+# The implementation scripts default to TARGET=27b.
+CORE_DEFAULT="$(bash "$MB/run-cc.sh" "$T" --print)"
+grep -q -- '^ANTHROPIC_BASE_URL=http://mac-studio:8484$' <<<"$CORE_DEFAULT"
+
+# Every launcher accepts the six efforts the model exposes and rejects anything
+# else. The runtime does not validate the string, so this is the only guard.
 for h in cc oc qc pi dsh; do
-  if EFFORT=high bash "$MB/run-$h-27b.sh" "$T" --print >/dev/null 2>&1; then
-    echo "run-$h-27b.sh accepted EFFORT=high" >&2
+  for target in 27b fn; do
+    for effort in none minimal low medium high xhigh; do
+      if ! EFFORT="$effort" DSH_HOME="$T/dsh-matrix" bash "$MB/run-$h-$target.sh" "$T" --print >/dev/null 2>&1; then
+        echo "run-$h-$target.sh rejected EFFORT=$effort" >&2
+        exit 1
+      fi
+    done
+    if EFFORT=bogus DSH_HOME="$T/dsh-matrix" bash "$MB/run-$h-$target.sh" "$T" --print >/dev/null 2>&1; then
+      echo "run-$h-$target.sh accepted EFFORT=bogus" >&2
+      exit 1
+    fi
+  done
+  if TARGET=bogus DSH_HOME="$T/dsh-matrix" bash "$MB/run-$h.sh" "$T" --print >/dev/null 2>&1; then
+    echo "run-$h.sh accepted TARGET=bogus" >&2
     exit 1
   fi
 done

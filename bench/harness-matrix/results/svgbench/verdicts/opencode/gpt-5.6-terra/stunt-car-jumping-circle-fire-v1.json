@@ -1,0 +1,21 @@
+{
+  "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v1.svg",
+  "question_index": 6,
+  "render": "logs/renders/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v1.png",
+  "judge": {
+    "kind": "llm",
+    "model": "openai/gpt-5.6-terra",
+    "date": "2026-09-06",
+    "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {"text": "Create a red, sporty car with a body, wheels, and windows.", "met": true, "note": "A red coupe has a defined body, two wheels, and blue windows."},
+    {"text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.", "met": true, "note": "A distinct circular flaming hoop uses irregular pointed red, orange, and yellow flames."},
+    {"text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.", "met": false, "note": "No take-off or landing ramps are visible; only hoop supports appear below the ring."},
+    {"text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.", "met": false, "note": "The car overlaps the hoop, but its front half is not visibly past the ring while its back half remains inside it."},
+    {"text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.", "met": false, "note": "The airborne rear wheels are not shown leaving a take-off-ramp edge."},
+    {"text": "Add a ground surface below the entire jump setup.", "met": true, "note": "A dark ground plane spans beneath the car and hoop."},
+    {"text": "Incorporate gray speed lines trailing behind the car to convey high speed.", "met": false, "note": "No gray speed lines visibly trail behind the car."},
+    {"text": "Add orange sparks where the car's tires last touched the take-off ramp.", "met": false, "note": "Orange particles are not located at a tire-to-ramp contact point."}
+  ]
+}

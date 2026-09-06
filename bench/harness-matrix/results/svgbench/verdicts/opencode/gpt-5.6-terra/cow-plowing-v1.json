@@ -1,0 +1,25 @@
+{
+  "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v1.svg",
+  "question_index": 0,
+  "render": "logs/renders/opencode/gpt-5.6-terra/cow-plowing-v1.png",
+  "judge": {
+    "kind": "llm",
+    "model": "openai/gpt-5.6-terra",
+    "date": "2026-09-06",
+    "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {"text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.", "met": false, "note": "Only two legs and no distinct udder are visible."},
+    {"text": "The cow must have black and white patches for its coloring.", "met": false, "note": "The patches are brown and cream, not black and white."},
+    {"text": "Add cow ears, eyes, and snout for facial recognition.", "met": true, "note": "Ear forms, an eye, and an outlined snout are visible."},
+    {"text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.", "met": false, "note": "The cow stands level rather than visibly leaning forward."},
+    {"text": "The cow's hooves must be colored brown, as if covered in soil from the field.", "met": true, "note": "The visible hooves are dark brown."},
+    {"text": "Include a traditional wooden plow with a visible metal blade/share.", "met": true, "note": "A wooden plow and a gray metal share are clearly visible."},
+    {"text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.", "met": false, "note": "The connection is drawn as plain curved lines, not visible chain links."},
+    {"text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.", "met": false, "note": "The fully exposed blade does not visibly turn over a soil chunk."},
+    {"text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.", "met": true, "note": "Multiple dark curved furrows trail leftward from the plow."},
+    {"text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.", "met": false, "note": "The visible field is uniformly plowed; the green hills are background, not an adjacent unplowed section."},
+    {"text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.", "met": false, "note": "No short green grass is shown being overturned."},
+    {"text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.", "met": true, "note": "The blue sky, yellow sun, and layered hill horizon are clear."}
+  ]
+}

@@ -211,7 +211,7 @@ no Aider polyglot local (u/returnity), Flash-Next em Q4 domina o 3.8-27B.
 
 1. Rodar o build **ddalcu MLX-Serve mixed-4/8** (75 GB, n-gram mmap nativo) — deve dar mais decode e mais
    folga que o oQ4e; comparar com os números medidos acima.
-2. **Terminal-Bench** (do driver com Docker) — o gate decisivo de qualidade de agente (foi o NO-GO do 27B).
+2. **Terminal-Bench** (do driver com Docker) — o gate decisivo de qualidade de agente.
 3. Avaliar MTPLX pack e llama.cpp GGUF como caminhos de cache alternativos.
 
 Empírico desta campanha: `results/refresh-flashnext-*.jsonl` (movidos do smoke R5 do runtime-refresh).

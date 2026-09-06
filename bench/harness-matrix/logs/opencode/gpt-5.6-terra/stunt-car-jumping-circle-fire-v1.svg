@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Stunt car jumping through a circle of fire</title>
+  <desc id="desc">A red rally car is airborne through a blazing ring in a dark stunt arena.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#071427"/>
+      <stop offset=".62" stop-color="#132744"/>
+      <stop offset="1" stop-color="#301b29"/>
+    </linearGradient>
+    <radialGradient id="fireGlow">
+      <stop stop-color="#ffcf52" stop-opacity=".65"/>
+      <stop offset=".35" stop-color="#ff6723" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#ff421f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="flame" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#fff6aa"/>
+      <stop offset=".26" stop-color="#ffc53d"/>
+      <stop offset=".62" stop-color="#ff641e"/>
+      <stop offset="1" stop-color="#d92218"/>
+    </linearGradient>
+    <linearGradient id="carPaint" x1="0" y1="0" x2="0.8" y2="1">
+      <stop stop-color="#ff6445"/>
+      <stop offset=".24" stop-color="#df2d28"/>
+      <stop offset=".7" stop-color="#a20f1b"/>
+      <stop offset="1" stop-color="#570c19"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#b9e8f2"/>
+      <stop offset=".38" stop-color="#3b718d"/>
+      <stop offset="1" stop-color="#0c263f"/>
+    </linearGradient>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="18"/></filter>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
+    <filter id="carShadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="16" stdDeviation="9" flood-color="#000" flood-opacity=".58"/></filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <path d="M0 417 C152 377 244 397 385 362 S650 383 797 350 S1032 335 1200 382 V552 H0Z" fill="#0b1b2d" opacity=".8"/>
+  <path d="M0 487 C148 451 279 474 429 441 S728 462 866 432 S1064 431 1200 465 V559 H0Z" fill="#071321"/>
+  <g fill="#d8ecfb" opacity=".66">
+    <circle cx="87" cy="119" r="2"/><circle cx="180" cy="80" r="1.5"/><circle cx="298" cy="143" r="2"/><circle cx="461" cy="83" r="1.5"/><circle cx="682" cy="139" r="2"/><circle cx="840" cy="77" r="1.5"/><circle cx="1060" cy="148" r="2"/><circle cx="1132" cy="68" r="1.5"/>
+  </g>
+  <ellipse cx="470" cy="402" rx="318" ry="294" fill="url(#fireGlow)" filter="url(#blur)"/>
+  <path d="M0 627 C177 584 282 598 466 615 S864 588 1200 628 V800 H0Z" fill="#10131a"/>
+  <path d="M0 647 C198 627 395 653 572 652 S959 626 1200 649" fill="none" stroke="#4e3540" stroke-width="5" opacity=".65"/>
+  <ellipse cx="663" cy="665" rx="390" ry="38" fill="#020407" opacity=".78" filter="url(#softGlow)"/>
+
+  <!-- Ring supports and the hot, irregular fire circle. -->
+  <g>
+    <path d="M295 557 L250 677 M614 557 L659 677" stroke="#353a40" stroke-width="15" stroke-linecap="round"/>
+    <path d="M218 680 H286 M624 680 H693" stroke="#50545a" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="454" cy="400" r="209" fill="none" stroke="#ff4820" stroke-width="28" opacity=".3" filter="url(#softGlow)"/>
+    <circle cx="454" cy="400" r="192" fill="none" stroke="#d92b18" stroke-width="30"/>
+    <circle cx="454" cy="400" r="191" fill="none" stroke="url(#flame)" stroke-width="20" stroke-dasharray="5 8" stroke-linecap="round"/>
+    <g fill="url(#flame)" stroke="#ff8e22" stroke-width="2" stroke-linejoin="round">
+      <path d="M274 316 C239 277 261 236 289 209 C280 251 317 260 301 301 C293 317 286 323 274 316Z"/>
+      <path d="M326 246 C308 193 338 163 365 143 C349 190 387 205 360 242 C349 256 336 257 326 246Z"/>
+      <path d="M410 211 C398 159 429 126 452 108 C434 161 472 173 449 211 C438 228 420 226 410 211Z"/>
+      <path d="M501 214 C516 164 550 143 579 141 C544 177 573 213 532 229 C516 234 504 229 501 214Z"/>
+      <path d="M572 269 C617 237 657 248 686 267 C640 273 638 309 595 302 C580 299 571 285 572 269Z"/>
+      <path d="M641 351 C690 333 723 360 743 389 C695 370 677 405 643 378 C632 369 631 358 641 351Z"/>
+      <path d="M636 444 C684 454 702 491 701 521 C669 477 635 494 622 453 C617 438 624 432 636 444Z"/>
+      <path d="M582 526 C614 562 600 604 578 632 C576 583 537 577 550 535 C555 519 571 516 582 526Z"/>
+      <path d="M490 574 C492 625 458 650 425 659 C460 617 432 591 470 569 C482 562 490 563 490 574Z"/>
+      <path d="M394 572 C373 620 333 628 302 616 C348 594 331 558 373 552 C388 550 399 559 394 572Z"/>
+      <path d="M305 516 C264 544 223 527 202 500 C250 518 268 486 306 503 C320 509 318 520 305 516Z"/>
+      <path d="M264 430 C215 434 195 401 199 368 C225 414 258 396 274 434 C279 449 273 454 264 430Z"/>
+      <path d="M266 356 C220 330 222 287 241 260 C240 310 277 315 281 356 C283 372 274 370 266 356Z"/>
+    </g>
+    <circle cx="454" cy="400" r="191" fill="none" stroke="#ffe16b" stroke-width="4" stroke-dasharray="10 24" opacity=".9"/>
+  </g>
+
+  <!-- Flying embers carry the ring's heat into the scene. -->
+  <g fill="#ffd157">
+    <circle cx="176" cy="270" r="4"/><circle cx="202" cy="183" r="2"/><circle cx="235" cy="141" r="3"/><circle cx="656" cy="207" r="3"/><circle cx="734" cy="285" r="4"/><circle cx="741" cy="462" r="2"/><circle cx="675" cy="566" r="3"/><circle cx="220" cy="569" r="3"/>
+  </g>
+  <g fill="#ff6b23" opacity=".85">
+    <circle cx="139" cy="305" r="2"/><circle cx="307" cy="111" r="2"/><circle cx="592" cy="120" r="3"/><circle cx="754" cy="348" r="2"/><circle cx="713" cy="522" r="4"/><circle cx="158" cy="514" r="2"/>
+  </g>
+
+  <!-- The car is tilted nose-up at the apex of the jump. -->
+  <g transform="translate(494 301) rotate(-7)" filter="url(#carShadow)">
+    <path d="M42 171 C46 126 73 94 122 83 L186 38 C206 20 236 12 297 15 L372 24 C397 27 418 45 437 80 L471 94 C490 100 502 116 505 140 L509 174 L477 181 C467 217 439 237 402 237 C365 237 339 216 330 185 L178 185 C166 219 138 236 102 236 C65 236 37 212 30 177 L3 176 L8 151 C12 138 24 132 42 131Z" fill="url(#carPaint)" stroke="#430d16" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M120 82 L184 40 C207 23 235 19 286 21 L354 29 C370 31 389 46 404 78 L120 92Z" fill="url(#glass)" stroke="#611521" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M195 42 L183 88 M290 24 L287 82 M353 33 L343 81" fill="none" stroke="#801b27" stroke-width="5"/>
+    <path d="M46 118 L488 116 L502 151 L9 151 L18 132Z" fill="#f14a32" opacity=".82"/>
+    <path d="M15 151 L504 151 L508 174 L3 176Z" fill="#57101a"/>
+    <path d="M213 105 L323 102 L331 128 L199 131Z" fill="#ffd9a0" opacity=".9"/>
+    <path d="M337 101 L417 97 L440 126 L346 128Z" fill="#e9392a"/>
+    <path d="M55 121 L143 119 L126 135 L48 136Z" fill="#ffcf67"/>
+    <path d="M450 122 L486 124 L495 142 L452 141Z" fill="#fff0ad"/>
+    <path d="M177 142 L184 178 M331 138 L331 180 M449 142 L445 177" stroke="#79101a" stroke-width="5" opacity=".8"/>
+    <path d="M223 163 H318" stroke="#ff8360" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+    <g>
+      <circle cx="102" cy="178" r="57" fill="#11151c" stroke="#2e333c" stroke-width="8"/>
+      <circle cx="102" cy="178" r="34" fill="#bac2c5" stroke="#414750" stroke-width="7"/>
+      <circle cx="102" cy="178" r="12" fill="#262b34"/>
+      <path d="M102 148 V208 M72 178 H132 M81 157 L123 199 M123 157 L81 199" stroke="#555d68" stroke-width="5"/>
+      <circle cx="402" cy="178" r="57" fill="#11151c" stroke="#2e333c" stroke-width="8"/>
+      <circle cx="402" cy="178" r="34" fill="#bac2c5" stroke="#414750" stroke-width="7"/>
+      <circle cx="402" cy="178" r="12" fill="#262b34"/>
+      <path d="M402 148 V208 M372 178 H432 M381 157 L423 199 M423 157 L381 199" stroke="#555d68" stroke-width="5"/>
+    </g>
+    <path d="M34 96 C5 94 -6 104 -18 122 L25 123Z" fill="#282d34" stroke="#0d1117" stroke-width="5"/>
+    <path d="M469 90 L494 78 L503 96 L479 107Z" fill="#242932" stroke="#0d1117" stroke-width="5"/>
+    <path d="M146 94 L189 91" stroke="#fff0bb" stroke-width="6" stroke-linecap="round" opacity=".8"/>
+    <text x="235" y="74" fill="#fff5d2" font-family="Arial, sans-serif" font-size="23" font-weight="bold" letter-spacing="2">APEX</text>
+  </g>
+
+  <path d="M805 553 C896 550 1005 566 1126 618" fill="none" stroke="#ff6d2c" stroke-width="3" opacity=".25"/>
+  <g fill="#ece5ca" opacity=".75"><circle cx="1035" cy="606" r="2"/><circle cx="1070" cy="621" r="1.5"/><circle cx="1115" cy="640" r="2"/></g>
+</svg>

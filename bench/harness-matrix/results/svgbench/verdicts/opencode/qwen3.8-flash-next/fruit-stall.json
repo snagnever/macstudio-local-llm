@@ -1,0 +1,68 @@
+{
+  "artifact": "logs/opencode/qwen3.8-flash-next/fruit-stall.svg",
+  "question_index": 12,
+  "render": "logs/renders/opencode/qwen3.8-flash-next/fruit-stall.png",
+  "judge": {
+    "kind": "claude-vision",
+    "model": "ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit",
+    "date": "2026-09-06",
+    "method": "viewed the Chrome render plus a 2x crop of the sign region; strict per-requirement pass/fail. Self-judged: the judging model is the artifact's own model."
+  },
+  "requirements": [
+    {
+      "text": "Create a main structure for a wooden fruit stall, including a counter.",
+      "met": true,
+      "note": "brown wooden facade with shelf boxes and a counter line above the crates"
+    },
+    {
+      "text": "Add a red and white striped canopy over the stall, supported by two vertical wooden posts.",
+      "met": true,
+      "note": "red/cream striped scalloped awning on two brown vertical posts"
+    },
+    {
+      "text": "Display exactly four different, recognizable fruits.",
+      "met": false,
+      "note": "six kinds shown: oranges, apples, green pears, grapes, bananas, yellow lemons/limes"
+    },
+    {
+      "text": "First fruit: A pile of red apples in a wicker basket on the left side of the counter.",
+      "met": false,
+      "note": "red apples on the left but in a plain wooden crate, no wicker weave"
+    },
+    {
+      "text": "Second fruit: A bunch of yellow bananas placed next to the apples.",
+      "met": false,
+      "note": "bananas hang at the far right of the stall, not next to the apples"
+    },
+    {
+      "text": "Third fruit: A pile of oranges in another wicker basket on the right side of the counter.",
+      "met": false,
+      "note": "oranges sit in the middle crate (plain wood); the right crate holds yellow fruit"
+    },
+    {
+      "text": "Fourth fruit: A single, large slice of watermelon resting directly on the counter in the center.",
+      "met": false,
+      "note": "no watermelon anywhere in the scene"
+    },
+    {
+      "text": "Include a character representing the stall vendor, a smiling man with a mustache, positioned behind the counter and between the baskets.",
+      "met": false,
+      "note": "no person anywhere in the scene"
+    },
+    {
+      "text": "Add a small, hanging chalkboard sign from the canopy that reads 'Fresh Fruit'.",
+      "met": false,
+      "note": "'FRESH FRUIT' board present with correct text but mounted on the stall wall, no suspension from the canopy (crop confirms no strings)"
+    },
+    {
+      "text": "Depict a cobblestone ground surface in front of the stall.",
+      "met": false,
+      "note": "flat tan ground, no cobbles"
+    },
+    {
+      "text": "Include the silhouette of another market stall in the background to suggest a larger market setting.",
+      "met": false,
+      "note": "plain sky background, no other stall"
+    }
+  ]
+}

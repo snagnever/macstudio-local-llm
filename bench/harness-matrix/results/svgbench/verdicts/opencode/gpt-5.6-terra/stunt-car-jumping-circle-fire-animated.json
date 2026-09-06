@@ -1,0 +1,21 @@
+{
+  "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-animated.svg",
+  "question_index": 6,
+  "render": "logs/renders/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-animated.png",
+  "judge": {
+    "kind": "llm",
+    "model": "openai/gpt-5.6-terra",
+    "date": "2026-09-06",
+    "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {"text": "Create a red, sporty car with a body, wheels, and windows.", "met": true, "note": "A red coupe has a defined body, two wheels, and blue windows."},
+    {"text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.", "met": true, "note": "A distinct circular flaming hoop uses irregular pointed red, orange, and yellow flames."},
+    {"text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.", "met": false, "note": "A take-off ramp is visible on the left, but the right side has no landing ramp."},
+    {"text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.", "met": true, "note": "The airborne car's front half is left of the hoop while its rear half overlaps the hoop opening."},
+    {"text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.", "met": false, "note": "The rear wheels are not shown just departing from the ramp edge."},
+    {"text": "Add a ground surface below the entire jump setup.", "met": true, "note": "A dark ground plane spans beneath the ramps and hoop."},
+    {"text": "Incorporate gray speed lines trailing behind the car to convey high speed.", "met": false, "note": "The gray horizontal marks read as background structures, not speed lines trailing the car."},
+    {"text": "Add orange sparks where the car's tires last touched the take-off ramp.", "met": false, "note": "The orange particles do not appear at a tire-to-ramp contact point."}
+  ]
+}

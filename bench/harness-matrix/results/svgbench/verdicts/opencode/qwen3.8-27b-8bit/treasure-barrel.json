@@ -1,0 +1,63 @@
+{
+  "artifact": "logs/opencode/qwen3.8-27b-8bit/treasure-barrel.svg",
+  "question_index": 13,
+  "render": "logs/renders/opencode/qwen3.8-27b-8bit/treasure-barrel.png",
+  "judge": {
+    "kind": "claude-vision",
+    "model": "claude-fable-5-1",
+    "date": "2026-09-06",
+    "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {
+      "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+      "met": true,
+      "note": "vertical planks and two metal hoops"
+    },
+    {
+      "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
+      "met": true,
+      "note": "lower part hidden in the sand, roughly top half visible"
+    },
+    {
+      "text": "Show the sand mounded up slightly around the visible base of the barrel.",
+      "met": true,
+      "note": "sand mound rises around the base"
+    },
+    {
+      "text": "The barrel must be open at the top and filled with treasure items.",
+      "met": true,
+      "note": "open top filled with coins and gems"
+    },
+    {
+      "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+      "met": false,
+      "note": "coins scattered on the sand; nothing spills down a side"
+    },
+    {
+      "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+      "met": false,
+      "note": "pile inside; only a few scattered coins outside"
+    },
+    {
+      "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+      "met": false,
+      "note": "red and teal gems; no blue sapphire"
+    },
+    {
+      "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+      "met": false,
+      "note": "no pearls"
+    },
+    {
+      "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+      "met": false,
+      "note": "a crown, not a goblet"
+    },
+    {
+      "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
+      "met": true,
+      "note": "sparkle stars and highlights"
+    }
+  ]
+}

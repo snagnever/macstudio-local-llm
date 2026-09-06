@@ -1,0 +1,48 @@
+{
+  "artifact": "logs/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v1.svg",
+  "question_index": 7,
+  "render": "logs/renders/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v1.png",
+  "judge": {
+    "kind": "llm",
+    "model": "openai/gpt-5.6-terra",
+    "date": "2026-09-06",
+    "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {
+      "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
+      "met": false,
+      "note": "The recognizable streamlined dolphin has a dorsal fin and tail fluke, but it is teal-blue rather than grey."
+    },
+    {
+      "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
+      "met": true,
+      "note": "A water surface and prominent white splash appear beneath the dolphin's tail."
+    },
+    {
+      "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
+      "met": false,
+      "note": "The tail and lower body visibly overlap the water surface, so the entire body is not in mid-air."
+    },
+    {
+      "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
+      "met": true,
+      "note": "The multi-colored circular hoop visibly passes around the dolphin's mid-section."
+    },
+    {
+      "text": "Include a human trainer's arm and hand extending into the frame.",
+      "met": true,
+      "note": "A trainer's arm and hand extend into the frame from the right."
+    },
+    {
+      "text": "The trainer's hand must be holding a small fish by the tail.",
+      "met": true,
+      "note": "The trainer visibly holds the small fish by its tail."
+    },
+    {
+      "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
+      "met": false,
+      "note": "The mouth is open, but the fish body remains well away from it rather than being just about to be bitten."
+    }
+  ]
+}

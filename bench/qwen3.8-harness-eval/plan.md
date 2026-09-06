@@ -20,14 +20,16 @@ Sub-perguntas:
 
 | Eixo | Valores |
 |---|---|
-| Modelo | `27B` (oMLX, oQ8e-mtp, arm T) · `FN` (mlx-serve v26.8.11, ddalcu mixed-4/8) |
+| Modelo | `27b` (mlx-dspark arm S, 8-bit + DFlash2, porta 8484) · `fn` (mlx-serve 26.9.1, ddalcu mixed-4/8, arm FS, porta 11234) |
 | Harness | `CC` Claude Code · `OC` OpenCode · `QC` Qwen Code · `PI` Pi · `DSH` DeepSeek Harness |
-| Effort | `low` · `medium` (default do plano) · `xhigh` (só na Fase C) |
+| Effort | `none` · `minimal` · `low` · `medium` (default do plano) · `high` · `xhigh` (Fase C) |
 | Tarefa | T1–T7 em [tasks/](tasks/) |
 
-Todo harness recebe o effort do run pela variável `EFFORT` do launcher em
-[macbook/](macbook/). Cada harness usa um mecanismo próprio (seção
-[Effort por harness](#effort-por-harness)). O runtime é quem honra o valor.
+Todo harness recebe o effort do run pela variável `EFFORT` e o modelo pela variável
+`TARGET` do launcher em [macbook/](macbook/). Cada harness usa um mecanismo próprio (seção
+[Effort por harness](#effort-por-harness)). O runtime é quem honra o valor. As seis combinações
+de effort valem para os dois alvos; a seção [Valores de effort](#valores-de-effort) traz o que
+foi verificado no rig.
 
 Um **run** é uma célula modelo × harness × effort × tarefa. Um run usa uma sessão nova do
 harness e uma cópia nova do fixture.
@@ -100,10 +102,19 @@ Os caminhos de modelo e as portas seguem as campanhas anteriores. Suba os runtim
 e confirme o `model-id` com `curl http://mac-studio:<porta>/v1/models` antes de configurar
 o harness no MacBook.
 
-| Modelo | Runtime | Launcher existente | Porta |
+| Alvo | Runtime | Como subir | Porta |
 |---|---|---|---|
-| `27B` | oMLX 0.6.4, arm T (oQ8e-mtp, `mtp_enabled: true`) | `bench/qwen3.8-prefix-cache/scripts/` (arm T) | 8000 |
-| `FN` | mlx-serve v26.8.11, build ddalcu mixed-4/8 | `bench/qwen38-flash-next/` (arm FS) | 11234 |
+| `27b` | mlx-dspark 0.18.0, arm S (8-bit + drafter DFlash2) | `mlx-dspark serve --model <8bit> --mode dflash --drafter <DFlash2> --port 8484 --context-window 131072` | 8484 |
+| `fn` | mlx-serve 26.9.1, build ddalcu mixed-4/8, arm FS | `mlx-serve --model <ddalcu> --serve --host 0.0.0.0 --port 11234 --ctx-size 131072 --mtp --metrics` | 11234 |
+
+O `fn` subiu com esse comando em 2026-09-05: MTP ON, n-gram mmapped, warmup 4,8 s, decode de smoke
+52–56 tok/s em 1500 tokens de saída. Não passe `--kv-quant`, `--max-resident-mem` nem
+`--prefill-chunk`: os cinco knobs testados em 2026-09-01 pioraram o decode ou trocaram o refusal
+gracioso por OOM (ver [qwen38-flash-next/references.md](../qwen38-flash-next/references.md)).
+
+**Divergência a resolver.** Este plano nomeava o `27B` como oMLX arm T na porta 8000. Os launchers
+da Fase 0 usaram mlx-dspark arm S na 8484, e é esse o default do `TARGET=27b`. Escolha um dos dois
+antes da Fase A e registre em `results/notes.md`; não misture runtimes entre fases.
 
 Sampling em todos os runs: temp 1.0, top_p 0.95, top_k 20, min_p 0 (thinking mode do card).
 Contexto do runtime: 131072. Não use MTPLX nem mlx-dspark nesta campanha; o MTPLX perde o
@@ -111,17 +122,22 @@ cache em `tool_turn` acima de 64K e o mlx-dspark não carrega o Flash-Next.
 
 ## Setup por harness (no MacBook)
 
-A configuração de cada harness fica em [connect-from-macbook.md](connect-from-macbook.md).
-Não abra o harness à mão. Use o launcher do run em [macbook/](macbook/); ele injeta o endpoint
-e o effort sem editar a config global do usuário.
+A configuração de cada harness fica em [connect-from-macbook.md](connect-from-macbook.md),
+incluindo a chave de imagem por harness (os dois alvos são VL). Não abra o harness à mão.
+Use o launcher do run em [macbook/](macbook/); ele injeta o endpoint e o effort sem editar a
+config global do usuário.
 
 ```bash
-EFFORT=medium bench/qwen3.8-harness-eval/macbook/run-<h>-27b.sh <dir-do-run>
+EFFORT=medium bench/qwen3.8-harness-eval/macbook/run-<h>-<alvo>.sh <dir-do-run>
 ```
 
-`<h>` é `cc`, `oc`, `qc`, `pi` ou `dsh`. `EFFORT` é `low`, `medium` ou `xhigh` (default `medium`).
-`RIG_HOST` e `RIG_PORT` trocam o endpoint (default `mac-studio:8484`). O teste
-[tests/test_macbook_launchers.sh](tests/test_macbook_launchers.sh) trava o contrato dos launchers.
+`<h>` é `cc`, `oc`, `qc`, `pi` ou `dsh`. `<alvo>` é `27b` ou `fn`. `EFFORT` é `none`, `minimal`,
+`low`, `medium`, `high` ou `xhigh` (default `medium`). `RIG_HOST` e `RIG_PORT` trocam o endpoint
+(default `mac-studio:8484` no `27b`, `mac-studio:11234` no `fn`); `RIG_MODEL_ID` e `RIG_PROVIDER`
+trocam o modelo e a entrada de provider do harness. Os `run-<h>-<alvo>.sh` são wrappers que fixam
+`TARGET`; a implementação de cada harness está em `run-<h>.sh`. O teste
+[tests/test_macbook_launchers.sh](tests/test_macbook_launchers.sh) trava o contrato: os 5 harness ×
+2 alvos × 6 efforts, e a recusa de `EFFORT` ou `TARGET` inválido.
 
 ### Effort por harness
 
@@ -133,7 +149,7 @@ o valor.
 |---|---|---|---|
 | `CC` | env `CLAUDE_CODE_EFFORT_LEVEL` (precede `/effort` e settings.json) | `output_config.effort` (+ `thinking: adaptive`) | `/effort` (grava no settings.json do usuário — evite) |
 | `OC` | `variants` no modelo + variante default do agente via `OPENCODE_CONFIG_CONTENT` | `reasoning_effort` | `ctrl+t` cicla a variante |
-| `QC` | `model.reasoningEffort` **e** `generationConfig.extra_body.reasoning_effort` no `<dir>/.qwen/settings.json` | `reasoning.effort` **e** `reasoning_effort` | `/effort` (só o primeiro campo) |
+| `QC` | `model.reasoningEffort` **e** `generationConfig.extra_body.reasoning_effort` no `<dir>/.qwen/settings.json`; o alvo é uma entrada de `modelProviders.openai` no settings global | `reasoning.effort` **e** `reasoning_effort` | `/effort` (só o primeiro campo) |
 | `PI` | flag `--thinking` | `reasoning_effort` | `/thinking`, `Shift+Tab` |
 | `DSH` | seção `agent-default-model` do `$DSH_HOME/settings.yaml` | `reasoning_effort` | fixo na criação da sessão |
 
@@ -141,11 +157,42 @@ Dois pontos verificados que mudam a configuração:
 
 - **O rig ignora `reasoning.effort` aninhado.** O formato nativo do Qwen Code (`reasoning: {effort}`)
   passou sem efeito: `low` gerou os mesmos ~5.900 tokens do default `xhigh`. Por isso o launcher
-  `run-qc-27b.sh` adiciona `extra_body.reasoning_effort`, que chega como `reasoning_effort` puro —
+  `run-qc.sh` adiciona `extra_body.reasoning_effort`, que chega como `reasoning_effort` puro —
   o campo que o rig honra (`low` → ~345 tokens).
 - **O Claude Code envia o effort mesmo com model-id local desconhecido.** O aviso
   `unrecognized_model` não bloqueia `output_config.effort`. O runtime precisa honrar ou rejeitar
   o campo.
+
+### Valores de effort
+
+Os launchers aceitam seis valores nos dois alvos: `none`, `minimal`, `low`, `medium`, `high` e
+`xhigh`. Sonda no `fn` (mlx-serve 26.9.1, campo `reasoning_effort` em `/v1/chat/completions`,
+2026-09-05, uma repetição por valor, temp 1.0). Dados:
+[results/effort-probe-20260905.json](results/effort-probe-20260905.json); script:
+[scripts/effort_probe.py](scripts/effort_probe.py).
+
+| Valor | Tokens de raciocínio (prompt longo, teto 16.000) | Leitura |
+|---|---:|---|
+| `none` | 0 | **thinking desligado**; `reasoning_content` vazio nos dois prompts |
+| `minimal` | 4.957 | raciocina |
+| `low` | 2.949 | raciocina |
+| `medium` | 5.200 | raciocina |
+| `high` | 16.000 | **estourou o teto**: só raciocínio, sem resposta, 316 s |
+| `xhigh` | 16.000 | **estourou o teto**: só raciocínio, sem resposta, 322 s |
+
+Duas leituras para o desenho dos runs. `none` e o par `high`/`xhigh` são níveis distintos de
+verdade. `minimal`, `low` e `medium` não saíram em ordem monotônica com uma amostra a
+temperatura 1.0; para afirmar diferença entre eles, repita a sonda.
+
+Dois pontos que o teste dos launchers guarda:
+
+- **O runtime não valida a string.** O valor `bogus` foi aceito e respondido como default,
+  sem erro. A validação do `lib.sh` é a única proteção contra um typo virar um
+  run de effort default sem ninguém perceber.
+- **Nem todo harness expõe os seis valores.** O `CC` usa `CLAUDE_CODE_EFFORT_LEVEL`, o `PI` usa
+  `--thinking`; os valores aceitos por esses binários não foram testados fora de
+  `low`/`medium`/`xhigh`. Confirme no wire, na Fase 0, antes de usar `none`, `minimal` ou `high`
+  num run que conte.
 
 ## Protocolo de um run (no MacBook)
 
@@ -154,7 +201,7 @@ Um run inteiro roda no MacBook, contra o runtime que está de pé no Mac Studio.
 1. Copie o fixture: `cp -R fixtures/<nome> <scratch>/<nome>-<run-id>`. O `run-id` é
    `<modelo>-<harness>-<effort>-<tarefa>-<n>`, por exemplo `FN-OC-medium-T1-1`.
 2. Abra uma sessão nova do harness na cópia com o launcher, passando o effort do run:
-   `EFFORT=<effort> macbook/run-<h>-27b.sh <scratch>/<nome>-<run-id>`.
+   `EFFORT=<effort> macbook/run-<h>-<alvo>.sh <scratch>/<nome>-<run-id>`.
 3. Cole o bloco **Prompt** da tarefa sem alteração. Inicie o cronômetro.
 4. Não intervenha até o harness parar. Se o harness pedir aprovação de comando, aprove e conte
    como `approvals`, não como intervenção.

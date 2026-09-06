@@ -17,4 +17,5 @@
   darker, more "designed" palette than the local-model runs.
 - **Wall:** 13:50:17–13:51:06 local (~50 s) · **tokens:** out 8,850 (cache read 435,543)
 - **Raw:** `../../logs/claude/claude-opus-4-8/dolphin-hoop.svg`
+- **SVGBench:** 5/7 (q7) · verdict: `../svgbench/verdicts/claude/claude-opus-4-8/dolphin-hoop.json`
 - **Session:** `476cb5e8-…` (`~/.claude/projects/-Users-vitor-LocalProjects-macstudio-local-llm/`)

@@ -16,6 +16,7 @@
   field, cow + plow). Opened in Chrome on follow-up. No edits or retries.
 - **Wall:** 13:18–13:26 local (~8 min, incl. follow-up) · **tokens:** in 26,099 / out 15,087
 - **Raw:** `../../logs/opencode/qwen3.8-27b-8bit/cow-plowing.svg`
+- **SVGBench:** 4/12 (q0) · verdict: `../svgbench/verdicts/opencode/qwen3.8-27b-8bit/cow-plowing.json`
 
 ## Task B — dolphin / hula hoop / fish
 
@@ -27,6 +28,7 @@
 - **Wall:** 13:46–14:11 local (~25 min, incl. "open on chrome" follow-up) ·
   **tokens:** in 42,107 / out 22,222
 - **Raw:** `../../logs/opencode/qwen3.8-27b-8bit/dolphin.svg`
+- **SVGBench:** 3/7 (q7) · verdict: `../svgbench/verdicts/opencode/qwen3.8-27b-8bit/dolphin.json`
 
 ## Notes
 

@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SVGs, graded — SVGBench on the harness matrix</title>
+<meta name="description" content="SVGBench scores for 43 harness-matrix SVGs, including a four-take OpenCode x GPT-5.6 Terra series, graded against pinned upstream questions on Chrome renders.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --board: #e2e7e8;
+    --paper: #eef1f2;
+    --matte: #d8dfe1;
+    --ink: #17242d;
+    --ink-soft: #56676f;
+    --line: #bfc9cd;
+    --rig: #0e6e70;
+    --ctl: #a8325a;
+    --f: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation: none !important; transition: none !important; }
+  }
+  body {
+    margin: 0;
+    background: var(--board);
+    color: var(--ink);
+    font: 16px/1.55 var(--f);
+    font-variant-numeric: tabular-nums lining-nums;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+  a { color: var(--ink); text-decoration-color: var(--line); text-underline-offset: 3px; }
+  a:hover { text-decoration-color: var(--ink); }
+  :focus-visible { outline: 2px solid var(--rig); outline-offset: 2px; }
+  .skip { position: absolute; left: -9999px; }
+  .skip:focus { left: 12px; top: 12px; z-index: 9; background: var(--paper); padding: 8px 14px; }
+
+  /* ---------- masthead ---------- */
+  .masthead { border-bottom: 2px solid var(--ink); background: var(--board); }
+  .masthead .wrap {
+    display: flex; flex-wrap: wrap; gap: 8px 28px;
+    align-items: baseline; justify-content: space-between; padding-top: 18px; padding-bottom: 18px;
+  }
+  .wordmark {
+    font-size: 19px; font-weight: 800; letter-spacing: -0.01em;
+    font-variation-settings: "wdth" 112;
+  }
+  .masthead nav { font-size: 14px; display: flex; gap: 20px; }
+
+  /* ---------- hero / the rule ---------- */
+  .brief { padding: 56px 0 8px; }
+  .kicker { font-size: 14px; font-weight: 600; color: var(--ink-soft); margin: 0 0 14px; }
+  .prompt {
+    margin: 0; max-width: 21ch;
+    font-size: clamp(38px, 6.2vw, 76px); font-weight: 800; line-height: 0.97;
+    letter-spacing: -0.018em; font-variation-settings: "wdth" 115;
+  }
+  .prompt::before { content: "\201C"; }
+  .prompt::after { content: "\201D"; }
+  .deck { margin: 22px 0 0; max-width: 62ch; color: var(--ink-soft); }
+  .deck strong { color: var(--ink); font-weight: 650; }
+
+  /* ---------- section heads ---------- */
+  section { padding: 44px 0 8px; }
+  h2 {
+    font-size: 26px; font-weight: 750; letter-spacing: -0.01em;
+    font-variation-settings: "wdth" 108;
+    margin: 0 0 4px;
+  }
+  .sec-note { margin: 0 0 24px; color: var(--ink-soft); max-width: 68ch; }
+
+  /* ---------- score chip ---------- */
+  .chip {
+    display: inline-block; font-size: 13px; font-weight: 750; padding: 2px 9px;
+    border: 1px solid var(--ink); background: var(--paper); color: var(--ink);
+    vertical-align: 2px;
+  }
+  .chip.best { background: var(--ink); color: var(--paper); }
+
+  /* ---------- the head-to-head columns ---------- */
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  .harness-col > h3 {
+    margin: 0 0 3px; font-size: 15px; font-weight: 700;
+    border-bottom: 2px solid var(--ink); padding-bottom: 7px;
+    font-variation-settings: "wdth" 105;
+  }
+  .harness-col > h3 small { float: right; font-weight: 450; color: var(--ink-soft); }
+  .harness-col .colsub { margin: 7px 0 14px; font-size: 13.5px; color: var(--ink-soft); }
+
+  .proof { margin: 0 0 26px; background: var(--paper); border: 1px solid var(--line); position: relative; }
+  .proof::before, .proof::after {
+    content: ""; position: absolute; width: 13px; height: 13px; pointer-events: none;
+  }
+  .proof::before { top: -1px; left: -1px; border-top: 3px solid var(--arm, var(--ink)); border-left: 3px solid var(--arm, var(--ink)); }
+  .proof::after { bottom: -1px; right: -1px; border-bottom: 3px solid var(--arm, var(--ink)); border-right: 3px solid var(--arm, var(--ink)); }
+  .proof.local { --arm: var(--rig); }
+  .proof.control { --arm: var(--ctl); }
+  .proof > button {
+    display: block; width: 100%; padding: 0; margin: 0; border: 0;
+    background: var(--matte); cursor: zoom-in; position: relative;
+  }
+  .proof > button img { display: block; width: 100%; height: auto; }
+  .anim-flag {
+    position: absolute; right: 8px; top: 8px; padding: 2px 9px;
+    background: var(--paper); border: 1px solid var(--ink); font-size: 12px; font-weight: 650;
+  }
+  .proof figcaption { padding: 14px 16px 15px; border-top: 1px solid var(--line); }
+  .proof .name { font-size: 16px; font-weight: 700; margin: 0 0 1px; }
+  .proof .name .sw { display: inline-block; width: 9px; height: 9px; margin-right: 7px; background: var(--arm); }
+  .proof .runtime { margin: 0 0 10px; font-size: 13px; color: var(--ink-soft); }
+  .fails { margin: 0 0 10px; padding: 0; list-style: none; font-size: 13.5px; }
+  .fails li { margin: 0 0 5px; padding-left: 16px; position: relative; color: var(--ink-soft); }
+  .fails li::before { content: "\2717"; position: absolute; left: 0; color: var(--ctl); font-weight: 700; }
+  .fails li b { color: var(--ink); font-weight: 650; }
+  .twin-note { margin: 0 0 10px; font-size: 13px; color: var(--ink-soft); }
+  .src { font-size: 13px; color: var(--ink-soft); }
+  .src a { font-weight: 600; color: var(--ink-soft); }
+
+  /* ---------- tables ---------- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); background: var(--paper); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 860px; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th {
+    font-size: 12.5px; font-weight: 700; color: var(--ink-soft);
+    border-bottom: 2px solid var(--ink); white-space: nowrap; background: var(--board);
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num { font-weight: 650; white-space: nowrap; }
+  td .pair { font-weight: 700; white-space: nowrap; }
+  td .sub { display: block; font-size: 12.5px; color: var(--ink-soft); font-weight: 450; }
+  .best { box-shadow: inset 0 -2px 0 var(--ink); }
+  .miss { color: var(--ctl); font-weight: 650; }
+  .free { max-width: 34ch; color: var(--ink-soft); }
+  .tnote { font-size: 13px; color: var(--ink-soft); margin: 12px 0 0; max-width: 78ch; }
+
+  /* ---------- fresh-agent take series ---------- */
+  .series-rule { border-top: 2px solid var(--ink); padding-top: 12px; margin-bottom: 24px; }
+  .series-rule p { margin: 0; max-width: 76ch; color: var(--ink-soft); }
+  .series-metrics { display: flex; flex-wrap: wrap; gap: 10px 24px; margin: 14px 0 0; }
+  .series-metrics span { font-size: 13px; color: var(--ink-soft); }
+  .series-metrics b { color: var(--ink); font-size: 17px; margin-right: 5px; }
+  .series-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 28px; }
+  .take-card { border-top: 1px solid var(--line); padding-top: 9px; }
+  .take-card h3 { margin: 0; font-size: 15px; font-weight: 750; }
+  .take-card h3 small { float: right; color: var(--ink-soft); font-size: 12px; font-weight: 600; }
+  .take-card p { margin: 3px 0 8px; color: var(--ink-soft); font-size: 12.5px; }
+  .take-chart { display: block; width: 100%; height: auto; overflow: visible; }
+  .take-chart .frame { stroke: var(--line); stroke-width: 1; }
+  .take-chart .trace { fill: none; stroke: var(--rig); stroke-width: 2.4; }
+  .take-chart .dot { fill: var(--paper); stroke: var(--rig); stroke-width: 2; }
+  .take-chart .dot.peak { fill: var(--rig); }
+  .take-chart text { font-family: var(--f); fill: var(--ink-soft); font-size: 10px; }
+  .take-chart .value { fill: var(--ink); font-size: 11px; font-weight: 700; }
+  .take-chart .axis { font-size: 9px; }
+
+  /* ---------- per-question matrices ---------- */
+  .qsec { margin: 0 0 40px; }
+  .qsec > h3 {
+    margin: 34px 0 3px; font-size: 15px; font-weight: 700;
+    border-bottom: 2px solid var(--ink); padding-bottom: 7px;
+    font-variation-settings: "wdth" 105;
+  }
+  .qsec > h3 small { float: right; font-weight: 450; color: var(--ink-soft); }
+  .qprompt { margin: 7px 0 14px; font-size: 14.5px; max-width: 74ch; }
+  .qnote { margin: 12px 0 0; font-size: 13.5px; color: var(--ink-soft); max-width: 84ch; }
+  .matrix-table { min-width: 960px; }
+  .matrix-table td.req { min-width: 34ch; max-width: 56ch; font-size: 13.5px; }
+  .matrix-table th.ah, .matrix-table td.cell { text-align: center; }
+  .matrix-table .cell { font-weight: 700; }
+  .matrix-table .cell.met { color: var(--rig); }
+  .matrix-table .cell.fail { color: var(--ctl); }
+  .matrix-table .cell .sub { font-weight: 450; white-space: normal; min-width: 15ch; max-width: 24ch; margin: 0 auto; }
+  .matrix-table th.ah .score-line { display: block; margin-top: 3px; }
+
+  /* ---------- loose ends ---------- */
+  .loose-list { margin: 0; padding: 0; list-style: none; max-width: 78ch; }
+  .loose-list li { padding: 12px 0 12px 16px; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+  .loose-list li:last-child { border-bottom: 0; }
+  .loose-list .why { display: block; font-size: 13px; color: var(--ink-soft); }
+
+  /* ---------- footer ---------- */
+  footer { margin-top: 64px; border-top: 2px solid var(--ink); background: var(--board); padding: 26px 0 56px; font-size: 13.5px; color: var(--ink-soft); }
+  footer p { max-width: 78ch; margin: 0 0 8px; }
+  footer a { font-weight: 600; }
+
+  /* ---------- lightbox ---------- */
+  dialog#lb {
+    border: 1px solid var(--ink); background: var(--paper); padding: 0; max-width: min(960px, calc(100vw - 32px));
+    width: 100%; color: var(--ink);
+  }
+  dialog#lb::backdrop { background: rgba(23, 36, 45, 0.72); }
+  .lb-head { display: flex; align-items: baseline; gap: 14px; padding: 12px 16px; border-bottom: 2px solid var(--ink); }
+  .lb-head h3 { margin: 0; font-size: 16px; }
+  .lb-head .close { margin-left: auto; font: inherit; font-weight: 700; background: none; border: 1px solid var(--ink); padding: 3px 12px; cursor: pointer; }
+  .lb-body img { display: block; width: 100%; height: auto; background: var(--matte); }
+  .lb-foot { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; padding: 11px 16px; font-size: 13px; color: var(--ink-soft); }
+  .seg { display: flex; border: 1px solid var(--ink); }
+  .seg button { font: inherit; font-weight: 650; padding: 3px 12px; border: 0; background: none; cursor: pointer; color: var(--ink); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .lb-foot a { font-weight: 600; }
+  .lb-foot .right { margin-left: auto; }
+
+  noscript p { padding: 40px 0; }
+
+  @media (max-width: 860px) {
+    .cols { grid-template-columns: 1fr; }
+    .series-grid { grid-template-columns: 1fr; }
+    .prompt { max-width: none; }
+  }
+  @media (max-width: 620px) {
+    .wrap { width: 100vw; max-width: 100vw; margin: 0; }
+    .masthead .wrap { display: block; }
+    .masthead nav { margin-top: 8px; min-width: 0; width: 100%; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; }
+    .masthead nav a { white-space: nowrap; }
+    .prompt { font-size: 34px; }
+    .deck, .sec-note, .prompt { overflow-wrap: anywhere; }
+    .table-wrap { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#brief">Skip to content</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="wordmark">SVGBench · harness matrix</div>
+    <nav aria-label="Sections">
+      <a href="#brief">The rule</a>
+      <a href="#board">Leaderboard</a>
+      <a href="#takes">Take series</a>
+      <a href="#h2h">Q7 head-to-head</a>
+      <a href="#questions">By question</a>
+      <a href="#loose">Unscored</a>
+      <a href="../bench/harness-matrix/plan.md">Runbook</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <noscript><p>This page renders its matrices, figures and tables from the data arrays below — enable JavaScript to see them.</p></noscript>
+
+  <section class="brief" id="brief" aria-labelledby="rule-h">
+    <p class="kicker">Forty-three model-generated drawings, seven upstream questions, external and self-judged arms — September 6, 2026. Scores from <code>bench/harness-matrix/results/svgbench/scores.json</code>.</p>
+    <h1 class="prompt" id="rule-h">requirements met ÷ requirements total</h1>
+    <p class="deck">SVGBench is a question bank of 105 drawing prompts, each with a checklist of concrete requirements (pinned commit <code>dd42e2c</code>, July 2025). Seven harness-matrix prompts matched a question, so 43 SVGs were rendered in headless Chrome and graded <strong>strictly, one requirement at a time</strong>: half-met counts as failed, and anything the renderer doesn't show doesn't count. <strong>176 of 407 requirement checks met.</strong> The newest 28 checks are self-judged by the model that drew them and are surfaced separately below. Different subset, route and judges make these results unsuitable for comparison with the upstream leaderboard.</p>
+  </section>
+
+  <section id="board" aria-labelledby="board-h">
+    <h2 id="board-h">Leaderboard</h2>
+    <p class="sec-note">Mean over each pair's scored artifacts; per-question cells are that pair's mean on the question. Underlines compare independently judged arms only. The GPT-5.6 Terra row is a self-judged iteration study, therefore shown for context but excluded from ranking. The question mix differs per pair — only the existing Q7 column is a like-for-like comparison.</p>
+    <div class="table-wrap">
+      <table id="boardTable">
+        <thead>
+          <tr>
+            <th>Pair</th><th>Drawings</th><th>Q0</th><th>Q4</th><th>Q5</th><th>Q6</th><th>Q7</th><th>Q12</th><th>Q13</th><th>Mean</th><th>Worth knowing</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="tnote">Opus 4-8's mean covers a single drawing — a question-mix artifact, not a measured edge over the five-drawing pairs. Every animated/static pair was judged <em>"visually identical — same verdicts"</em>: SMIL motion neither adds nor loses points with a PNG-based judge.</p>
+  </section>
+
+  <section id="takes" aria-labelledby="takes-h">
+    <h2 id="takes-h">One refinement helped; animation usually did not</h2>
+    <div class="series-rule">
+      <p>OpenCode x GPT-5.6 Terra generated v1 without prior artifacts, then used fresh agents for v2, v3, and animation. Four of seven prompts reached their highest score by v2. Animation never improved on a prior high: it tied cow and stunt car, then reduced or failed to improve the other five. These are self-judged Chrome renders, not an independent comparison arm.</p>
+      <div class="series-metrics" aria-label="GPT-5.6 Terra series summary">
+        <span><b>28</b> scored SVGs</span>
+        <span><b>0.421</b> mean score</span>
+        <span><b>7</b> SVGBench prompts</span>
+        <span><b>4</b> takes each</span>
+      </div>
+    </div>
+    <div class="series-grid" id="takeSeries" aria-label="Scores across four takes for each prompt"></div>
+    <p class="tnote">Each line is normalized by that question's requirement count. Values under the points are requirements met, not percentages. Full SVGs live in the <a href="../bench/harness-matrix/harness-matrix-svgs.html">artifact gallery</a>; requirement-level verdicts are linked in <a href="../bench/harness-matrix/results/opencode/gpt-5.6-terra.md">the run record</a>.</p>
+  </section>
+
+  <section id="h2h" aria-labelledby="h2h-h">
+    <h2 id="h2h-h">Q7 head-to-head</h2>
+    <p class="sec-note">The one question all four pairs attempted — the dolphin through a hula hoop. Each card shows the artifact and only the requirements it missed; <strong>all four drawings fail the same requirement</strong>: a dolphin entirely clear of the water. Frames follow the sibling report: <strong>teal</strong> for the local rig models, <strong>raspberry</strong> for the Anthropic-hosted controls.</p>
+    <div class="cols" id="h2hCols"></div>
+  </section>
+
+  <section id="questions" aria-labelledby="q-h">
+    <h2 id="q-h">By question</h2>
+    <p class="sec-note">Historical requirement matrices, with text verbatim from the pinned questions file. A dot is a pass, a cross a fail — hover a cross for the judge's one-line reason. The GPT-5.6 Terra take series is summarized above to keep its 28 self-judged variants readable; its full verdicts are linked from the run record.</p>
+    <div id="qBlocks"></div>
+  </section>
+
+  <section id="loose" aria-labelledby="loose-h">
+    <h2 id="loose-h">Unscored artifacts</h2>
+    <p class="sec-note">SVGs in the logs tree that <code>scores.json</code> records but does not grade.</p>
+    <ul class="loose-list">
+      <li><code>logs/opencode/qwen3.8-27b-8bit/dawn-beach.svg</code> and <code>logs/opencode/gpt-5.6-terra/dawn-beach*.svg</code>
+        <span class="why">Five artifacts are unscored — the prompt ("dawn on the beach") is not an SVGBench question. They stay in the artifact gallery, not on this scoreboard.</span></li>
+      <li><code>logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring*.svg</code>
+        <span class="why">Four versions remain unscored because the prompt is not an SVGBench question.</span></li>
+      <li><code>logs/claude/claude-opus-5/</code> additional takes, <code>logs/claude/fable-5-1/</code>, <code>dolphin-hoop-fish*.svg</code> and <code>fruit-stall-animated.svg</code>
+        <span class="why">Twenty-nine artifacts match SVGBench questions but do not have verdict files. The four <code>fable-5-1</code> files are attributed to <code>claude-fable-5-1</code>.</span></li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Method: each <code>logs/&lt;harness&gt;/&lt;model&gt;/**/*.svg</code> in <a href="https://github.com/snagnever/macstudio-local-llm/tree/main/bench/harness-matrix">bench/harness-matrix/</a> is matched to its <a href="https://github.com/johnbean393/SVGBench">SVGBench</a> question, rendered in headless Chrome, and judged per requirement. Most verdicts use claude-fable-5-1; Q12 and the GPT-5.6 Terra take series are self-judged and labeled accordingly. Generated data: <a href="../bench/harness-matrix/results/svgbench/scores.json">scores.json</a> · per-artifact verdicts: <a href="https://github.com/snagnever/macstudio-local-llm/tree/main/bench/harness-matrix/results/svgbench/verdicts">verdicts/</a> · artifact→question map: <a href="../bench/harness-matrix/results/svgbench/manifest.json">manifest.json</a>.</p>
+    <p>Comparability: six of the 105 upstream questions; drawings came out of coding harnesses (OpenCode, Claude Code), not the direct-API run SVGBench specifies; the judges differ from upstream's gemini-2.5-flash. Rankings here are meaningful only within this page.</p>
+    <p>The drawings as artifacts — wall-clock, tokens, craft notes — live in the campaign report, <a href="../bench/harness-matrix/harness-matrix-svgs.html">Four machines, one dolphin</a>. Part of <a href="https://github.com/snagnever/macstudio-local-llm">macstudio-local-llm</a> · rig: Mac Studio M4 Max 128 GB, one model served at a time over Tailscale.</p>
+  </div>
+</footer>
+
+<dialog id="lb" aria-label="Artifact viewer">
+  <div class="lb-head"><h3 id="lbTitle"></h3><button class="close" id="lbClose" aria-label="Close viewer">Close</button></div>
+  <div class="lb-body"><img id="lbImg" alt=""></div>
+  <div class="lb-foot">
+    <div class="seg" id="lbSeg" hidden role="group" aria-label="Choose version">
+      <button data-v="static" aria-pressed="true">Static</button>
+      <button data-v="anim" aria-pressed="false">Animated</button>
+    </div>
+    <span id="lbFile"></span>
+    <a class="right" id="lbRaw" href="#">Open raw file</a>
+  </div>
+</dialog>
+
+<script>
+/* ---------------- data: every number on this page mirrors scores.json ---------------- */
+
+var L = "../bench/harness-matrix/logs/";
+var VD = "../bench/harness-matrix/results/svgbench/verdicts/";
+var Y = "\u2713", N = "\u2717";
+
+/* questions, requirements verbatim (pinned commit dd42e2c) */
+var QUESTIONS = [
+  {
+    id: 0, n: 12, met: 8, total: 24,
+    prompt: "Write svg code to draw an image of a cow plowing a field.",
+    note: "Both 27B takes met the same 4 of 12: brown hooves, a wooden plow with a grey share, dark furrows, and the sky-and-sun backdrop. What's missing is the harness of the thing — udder, black-and-white coat, ears, yoke and chains, a blade buried in turning earth, a split field. The misses are compositional: objects absent from the code, not rendering errors.",
+    arts: [
+      { harness: "opencode", model: "qwen3.8-27b-8bit", slug: "cow-plowing",
+        file: L + "opencode/qwen3.8-27b-8bit/cow-plowing.svg",
+        anim: L + "opencode/qwen3.8-27b-8bit/cow-plowing-animated.svg",
+        verdict: VD + "opencode/qwen3.8-27b-8bit/cow-plowing.json",
+        score: "0.33", met: 4,
+        checks: [
+          [0, "body, head, four legs and tail present; no udder"],
+          [0, "brown-and-white patches, not black-and-white"],
+          [0, "eye and snout present; horns but no ears"],
+          [0, "cow stands level with head lowered; no forward lean"],
+          [1, "hooves are dark brown"],
+          [1, "wooden beam with grey metal share"],
+          [0, "no yoke; beam attaches near the tail; no chains"],
+          [0, "blade sits on the surface; no turned earth"],
+          [1, "several dark furrow lines, three or more behind the plow"],
+          [0, "field is uniform green with lines on both sides; no plowed/unplowed split"],
+          [0, "no unplowed grass section being overturned"],
+          [1, "horizon line, blue sky, yellow sun"]
+        ],
+        alt: "A cow pulling a plow through a field" },
+      { harness: "opencode", model: "qwen3.8-27b-8bit", slug: "cow-plowing-animated", twin: true,
+        file: L + "opencode/qwen3.8-27b-8bit/cow-plowing.svg",
+        anim: L + "opencode/qwen3.8-27b-8bit/cow-plowing-animated.svg",
+        verdict: VD + "opencode/qwen3.8-27b-8bit/cow-plowing-animated.json",
+        score: "0.33", met: 4,
+        checks: "same",
+        alt: "An animated cow pulling a plow through a field" }
+    ]
+  },
+  {
+    id: 4, n: 9, met: 15, total: 27,
+    prompt: "Write svg code for an image of a rubber ducky floating on top of a soapy bathtub.",
+    note: "Three takes (first, animated, re-authored v2) — all three judged visually identical, so all three carry the same 5 of 9. The duck itself passes everything; what fails is the set dressing: peg feet instead of claw feet, a tub filled to the rim instead of the lower portion, and bubbles without the required pink or iridescence.",
+    arts: [
+      { harness: "opencode", model: "qwen3.8-flash-next", slug: "rubber-ducky",
+        file: L + "opencode/qwen3.8-flash-next/rubber-ducky.svg",
+        anim: L + "opencode/qwen3.8-flash-next/rubber-ducky-animated.svg",
+        verdict: VD + "opencode/qwen3.8-flash-next/rubber-ducky.json",
+        score: "0.56", met: 5,
+        checks: [
+          [1, "yellow body and head"],
+          [1, "orange beak, black dot eye"],
+          [0, "white tub with rim, but plain peg feet, not claw-feet"],
+          [0, "water reaches the rim; the tub reads as full, not lower portion"],
+          [1, "translucent band shows the lower part of the duck submerged"],
+          [1, "two ripple arcs around the duck"],
+          [0, "bubbles are plain white/light-blue circles; no pink or iridescence"],
+          [1, "small bubble cluster on the head"],
+          [0, "small clusters at both rims; no large pile on one side"]
+        ],
+        alt: "A rubber duck in a bathtub" },
+      { harness: "opencode", model: "qwen3.8-flash-next", slug: "rubber-ducky-animated", twin: true,
+        file: L + "opencode/qwen3.8-flash-next/rubber-ducky.svg",
+        anim: L + "opencode/qwen3.8-flash-next/rubber-ducky-animated.svg",
+        verdict: VD + "opencode/qwen3.8-flash-next/rubber-ducky-animated.json",
+        score: "0.56", met: 5, checks: "same",
+        alt: "An animated rubber duck in a bathtub" },
+      { harness: "opencode", model: "qwen3.8-flash-next", slug: "rubber-ducky-v2", twin: true,
+        file: L + "opencode/qwen3.8-flash-next/rubber-ducky.svg",
+        anim: L + "opencode/qwen3.8-flash-next/rubber-ducky-animated.svg",
+        verdict: VD + "opencode/qwen3.8-flash-next/rubber-ducky-v2.json",
+        score: "0.56", met: 5, checks: "same",
+        alt: "A rubber duck in a bathtub, second version" }
+    ]
+  },
+  {
+    id: 5, n: 10, met: 5, total: 10,
+    prompt: "Write svg code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
+    note: "The scene and the family are there — cloudscape as ground, basket landed with ropes, two adults and two children. What the judge docked was specificity: the envelope isn't red-and-white striped, nobody is caught spreading the blanket, no grapes in the basket, the pointing adult waves instead, and the sky has four clouds where the question asked for exactly two.",
+    arts: [
+      { harness: "opencode", model: "qwen3.8-27b-8bit", slug: "picnic-on-clouds",
+        file: L + "opencode/qwen3.8-27b-8bit/picnic-on-clouds.svg", anim: null,
+        verdict: VD + "opencode/qwen3.8-27b-8bit/picnic-on-clouds.json",
+        score: "0.50", met: 5,
+        checks: [
+          [1, "solid cloud bank as ground"],
+          [0, "envelope is blue/red/yellow panels, not red-and-white stripes; basket is brown wicker"],
+          [1, "basket rests on the cloud with a shadow"],
+          [1, "ropes from envelope to basket"],
+          [1, "two adults and two children"],
+          [0, "blanket is red-white checkered but already spread; nobody holds a corner"],
+          [1, "open basket on the right corner of the blanket"],
+          [0, "jug is on the blanket, not in the basket; no grapes"],
+          [0, "child stands between blanket and balloon; adult waves from the left, not pointing at the envelope"],
+          [0, "sun present; four clouds, not two"]
+        ],
+        alt: "A family picnic on a cloud after a hot-air-balloon landing" }
+    ]
+  },
+  {
+    id: 7, n: 7, met: 24, total: 35,
+    prompt: "Write svg code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
+    note: "The shared question. flash-next met 6 of 7, opus-4-8 5, opus-5 4, the 27B 3. The universal miss is physics, not draftsmanship: every one of the five drawings leaves part of the dolphin in or on the water. Full card layout in the head-to-head above.",
+    arts: [
+      { harness: "opencode", model: "qwen3.8-flash-next", slug: "dolphin",
+        file: L + "opencode/qwen3.8-flash-next/dolphin.svg",
+        anim: L + "opencode/qwen3.8-flash-next/dolphin-animated.svg",
+        verdict: VD + "opencode/qwen3.8-flash-next/dolphin.json",
+        score: "0.86", met: 6,
+        checks: [
+          [1, "grey body, dorsal fin, fluke"],
+          [1, "white splash burst with droplets at the exit point"],
+          [0, "tail tip is still inside the splash at the waterline"],
+          [1, "rainbow ring around the mid-body"],
+          [1, "arm and hand extend from the trainer on the pier"],
+          [1, "hand holds the fish by the tail"],
+          [1, "jaws open with dark mouth wedge at the fish"]
+        ],
+        alt: "Dolphin leaping through a hula hoop to take a fish from its trainer's hand" },
+      { harness: "opencode", model: "qwen3.8-flash-next", slug: "dolphin-animated", twin: true,
+        file: L + "opencode/qwen3.8-flash-next/dolphin.svg",
+        anim: L + "opencode/qwen3.8-flash-next/dolphin-animated.svg",
+        verdict: VD + "opencode/qwen3.8-flash-next/dolphin-animated.json",
+        score: "0.86", met: 6, checks: "same",
+        alt: "Animated dolphin leaping through a hula hoop" },
+      { harness: "claude", model: "claude-opus-4-8", slug: "dolphin-hoop",
+        file: L + "claude/claude-opus-4-8/dolphin-hoop.svg", anim: null,
+        verdict: VD + "claude/claude-opus-4-8/dolphin-hoop.json",
+        score: "0.71", met: 5,
+        checks: [
+          [1, "grey body, dorsal fin, fluke"],
+          [0, "small droplet splash, offset from where the tail meets the water"],
+          [0, "tail extends below the waterline"],
+          [1, "red-and-yellow ring around the mid-body"],
+          [1, "arm and hand extend from the trainer"],
+          [1, "hand holds the fish at the tail"],
+          [1, "jaw gap open at the fish head"]
+        ],
+        alt: "A dolphin jumping through a hula hoop to bite a fish from a trainer's hand" },
+      { harness: "claude", model: "claude-opus-5", slug: "dolphin-hoop-jump",
+        file: L + "claude/claude-opus-5/dolphin-hoop-jump.svg", anim: null,
+        verdict: VD + "claude/claude-opus-5/dolphin-hoop-jump.json",
+        score: "0.57", met: 4,
+        checks: [
+          [1, "grey body, dorsal fin, fluke"],
+          [1, "splash column at the exit point"],
+          [0, "tail fluke reaches below the waterline"],
+          [0, "hoop is a single orange color"],
+          [1, "arm and hand extend from the trainer on the deck"],
+          [1, "hand holds the fish by the tail"],
+          [0, "mouth only slightly open, not wide"]
+        ],
+        alt: "Dolphin jumping through a hoop to take a fish" },
+      { harness: "opencode", model: "qwen3.8-27b-8bit", slug: "dolphin",
+        file: L + "opencode/qwen3.8-27b-8bit/dolphin.svg", anim: null,
+        verdict: VD + "opencode/qwen3.8-27b-8bit/dolphin.json",
+        score: "0.43", met: 3,
+        checks: [
+          [0, "dolphin is pale blue, not grey; dorsal fin and fluke present"],
+          [0, "only a few small droplets near the tail; no large splash"],
+          [0, "arc is dynamic but the tail fluke sits at the waterline"],
+          [1, "red-and-white striped ring around the mid-body"],
+          [1, "arm and hand extend from the right"],
+          [1, "hand grips the fish at its tail end"],
+          [0, "mouth is a closed thin line"]
+        ],
+        alt: "Dolphin jumping through a hula hoop toward a fish in a trainer's hand" }
+    ]
+  },
+  {
+    id: 12, n: 11, met: 9, total: 33,
+    prompt: "Write svg code for an image of a fruit stall in the market.",
+    note: "Three static takes scored 2/11, 3/11 and 4/11. Each has the wooden stall and striped canopy. Later takes add the hanging sign, a wicker basket and a background stall. All three show six fruit types instead of exactly four. Q12 is self-judged, so compare it cautiously with the other questions.",
+    arts: [
+      { harness: "opencode", model: "qwen3.8-flash-next", slug: "fruit-stall",
+        file: L + "opencode/qwen3.8-flash-next/fruit-stall.svg", anim: null,
+        verdict: VD + "opencode/qwen3.8-flash-next/fruit-stall.json",
+        score: "0.18", met: 2,
+        checks: [
+          [1, "wooden facade, shelf boxes and counter"],
+          [1, "striped awning on two wooden posts"],
+          [0, "six fruit types, not exactly four"],
+          [0, "apples use a wooden crate, not wicker"],
+          [0, "bananas hang far from the apples"],
+          [0, "oranges sit in the middle crate"],
+          [0, "no watermelon"],
+          [0, "no vendor"],
+          [0, "sign is mounted on the wall"],
+          [0, "flat ground without cobbles"],
+          [0, "no background stall"]
+        ],
+        alt: "A wooden fruit stall under a striped canopy" },
+      { harness: "opencode", model: "qwen3.8-flash-next", slug: "fruit-stall-v2",
+        file: L + "opencode/qwen3.8-flash-next/fruit-stall-v2.svg", anim: null,
+        verdict: VD + "opencode/qwen3.8-flash-next/fruit-stall-v2.json",
+        score: "0.27", met: 3,
+        checks: [
+          [1, "wooden stall with counter and crate base"],
+          [1, "striped canopy on two wooden posts"],
+          [0, "six fruit types, not exactly four"],
+          [0, "apples use a wooden crate, not wicker"],
+          [0, "bananas sit far from the apples"],
+          [0, "oranges sit in the middle crate"],
+          [0, "watermelons sit on the ground"],
+          [0, "no vendor"],
+          [1, "hanging sign reads FRESH FRUIT"],
+          [0, "flat pavement without cobbles"],
+          [0, "background building is not a stall"]
+        ],
+        alt: "A fruit stall with a hanging Fresh Fruit sign" },
+      { harness: "opencode", model: "qwen3.8-flash-next", slug: "fruit-stall-v3",
+        file: L + "opencode/qwen3.8-flash-next/fruit-stall-v3.svg", anim: null,
+        verdict: VD + "opencode/qwen3.8-flash-next/fruit-stall-v3.json",
+        score: "0.36", met: 4,
+        checks: [
+          [1, "wooden stall with counter and crate base"],
+          [1, "striped canopy on two wooden posts"],
+          [0, "six fruit types, not exactly four"],
+          [1, "apples use a wicker basket on the left"],
+          [0, "bananas sit far from the apples"],
+          [0, "oranges sit in the middle basket"],
+          [0, "watermelons sit on the ground"],
+          [0, "vendor face is hidden behind the basket"],
+          [0, "sign is mounted on the counter"],
+          [0, "flat ground without cobbles"],
+          [1, "another market stall appears behind"]
+        ],
+        alt: "A fruit stall with baskets and another stall behind it" }
+    ]
+  },
+  {
+    id: 13, n: 10, met: 5, total: 10,
+    prompt: "Write svg code for an image of half buried barrel of treasure.",
+    note: "A clean split: the barrel itself passes every structural check — planks, hoops, half-buried in a mound, open and filled. Everything about abundance fails: nothing spills down a side, only a few coins outside, no blue sapphire, no pearls, and a crown where the question asked for a goblet.",
+    arts: [
+      { harness: "opencode", model: "qwen3.8-27b-8bit", slug: "treasure-barrel",
+        file: L + "opencode/qwen3.8-27b-8bit/treasure-barrel.svg", anim: null,
+        verdict: VD + "opencode/qwen3.8-27b-8bit/treasure-barrel.json",
+        score: "0.50", met: 5,
+        checks: [
+          [1, "vertical planks and two metal hoops"],
+          [1, "lower part hidden in the sand, roughly top half visible"],
+          [1, "sand mound rises around the base"],
+          [1, "open top filled with coins and gems"],
+          [0, "coins scattered on the sand; nothing spills down a side"],
+          [0, "pile inside; only a few scattered coins outside"],
+          [0, "red and teal gems; no blue sapphire"],
+          [0, "no pearls"],
+          [0, "a crown, not a goblet"],
+          [1, "sparkle stars and highlights"]
+        ],
+        alt: "An open barrel of treasure on a shore" }
+    ]
+  }
+];
+
+var PAIRS = [
+  { pair: "claude × claude-opus-4-8", harness: "Claude Code", arm: "control",
+    drawings: 1, mean: "0.71", by: { 7: "0.71" },
+    note: "One drawing — the mean is that single 5/7. A question-mix artifact, not a measured edge." },
+  { pair: "opencode × qwen3.8-flash-next", harness: "OpenCode", arm: "local",
+    drawings: 8, mean: "0.52", by: { 4: "0.56", 7: "0.86", 12: "0.27" },
+    note: "Top of the shared question at 6/7. Three self-judged fruit-stall takes lower the cross-question mean." },
+  { pair: "claude × claude-opus-5", harness: "Claude Code", arm: "control",
+    drawings: 1, mean: "0.57", by: { 7: "0.57" },
+    note: "One drawing; misses hoop colors, an open mouth, and a clear-of-water tail." },
+  { pair: "opencode × qwen3.8-27b-8bit", harness: "OpenCode", arm: "local",
+    drawings: 5, mean: "0.42", by: { 0: "0.33", 5: "0.50", 7: "0.43", 13: "0.50" },
+    note: "Lowest mean; its misses are absent objects — udder, yoke, pearls, grapes — not bad drawing." },
+  { pair: "opencode × gpt-5.6-terra", harness: "OpenCode", arm: "self", self: true,
+    drawings: 28, mean: "0.42", by: { 0: "0.60", 4: "0.36", 5: "0.30", 6: "0.47", 7: "0.71", 12: "0.27", 13: "0.23" },
+    note: "Fresh-agent take study. Self-judged, so shown for trajectory and coverage rather than rank." }
+];
+
+var H2H_ORDER = ["OpenCode", "Claude Code"];
+var H2H_SUB = {
+  "OpenCode": "rig models over Tailscale — the local arms",
+  "Claude Code": "Anthropic-hosted controls, for reference"
+};
+var HARNESS_LABEL = { opencode: "OpenCode", claude: "Claude Code" };
+
+/* ---------------- render ---------------- */
+
+function el(tag, cls, html) {
+  var n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (html != null) n.innerHTML = html;
+  return n;
+}
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+function checksOf(q, a) {
+  if (a.checks !== "same") return a.checks;
+  for (var i = 0; i < q.arts.length; i++) {
+    if (q.arts[i].checks !== "same") return q.arts[i].checks;
+  }
+  return [];
+}
+function fname(p) { return p.split("/").pop(); }
+
+/* leaderboard */
+var boardBody = document.querySelector("#boardTable tbody");
+PAIRS.forEach(function (p) {
+  var tr = el("tr");
+  tr.appendChild(el("td", null, '<span class="pair">' + esc(p.pair) + '</span><span class="sub">' +
+    esc(p.harness) + " · " + (p.arm === "local" ? "local rig" : p.self ? "self-judged" : "Anthropic control") + "</span>"));
+  tr.appendChild(el("td", "num", esc(String(p.drawings))));
+  [0, 4, 5, 6, 7, 12, 13].forEach(function (qi) {
+    var v = p.by[qi];
+    var ranked = PAIRS.filter(function (x) { return !x.self; });
+    var best = !p.self && v && Math.max.apply(null, ranked.map(function (x) { return parseFloat(x.by[qi] || -1); })) === parseFloat(v);
+    tr.appendChild(el("td", "num" + (best ? " best" : ""), v ? esc(v) : "\u2014"));
+  });
+  var bestMean = !p.self && p.mean === "0.71";
+  tr.appendChild(el("td", "num" + (bestMean ? " best" : ""), esc(p.mean)));
+  tr.appendChild(el("td", "free", p.note.replace(/</g, "&lt;")));
+  boardBody.appendChild(tr);
+});
+
+/* fresh-agent series: a compact, directly labeled progression rather than 28 more requirement matrices */
+var TERRA_TAKES = [
+  { id: 0, label: "Cow plowing", n: 12, values: [5, 8, 8, 8] },
+  { id: 4, label: "Rubber ducky", n: 9, values: [3, 5, 3, 2] },
+  { id: 5, label: "Picnic on clouds", n: 10, values: [3, 3, 3, 3] },
+  { id: 6, label: "Stunt car", n: 8, values: [3, 4, 4, 4] },
+  { id: 7, label: "Dolphin", n: 7, values: [4, 6, 5, 5] },
+  { id: 12, label: "Fruit stall", n: 11, values: [3, 3, 3, 3] },
+  { id: 13, label: "Treasure barrel", n: 10, values: [3, 2, 2, 2] }
+];
+var takeSeries = document.getElementById("takeSeries");
+TERRA_TAKES.forEach(function (s) {
+  var best = Math.max.apply(null, s.values), xs = [24, 108, 192, 276];
+  var ys = s.values.map(function (v) { return 88 - (v / s.n) * 64; });
+  var points = xs.map(function (x, i) { return x + "," + ys[i].toFixed(1); }).join(" ");
+  var card = el("article", "take-card");
+  card.appendChild(el("h3", null, "Q" + s.id + " · " + esc(s.label) + "<small>best " + best + "/" + s.n + "</small>"));
+  card.appendChild(el("p", null, "v1 → v2 → v3 → animated · self-judged Chrome render"));
+  var svg = '<svg class="take-chart" viewBox="0 0 300 140" role="img" aria-label="Q' + s.id + " " + esc(s.label) + ": " +
+    s.values.map(function (v, i) { return ["v1", "v2", "v3", "animated"][i] + " " + v + " of " + s.n; }).join(", ") + '">' +
+    '<line class="frame" x1="18" y1="88" x2="282" y2="88"></line><text class="axis" x="3" y="91">0</text><text class="axis" x="1" y="27">1</text>' +
+    '<polyline class="trace" points="' + points + '"></polyline>';
+  s.values.forEach(function (v, i) {
+    svg += '<circle class="dot' + (v === best ? " peak" : "") + '" cx="' + xs[i] + '" cy="' + ys[i].toFixed(1) + '" r="4"></circle>' +
+      '<text class="value" text-anchor="middle" x="' + xs[i] + '" y="' + (ys[i] - 9).toFixed(1) + '">' + v + "/" + s.n + '</text>' +
+      '<text text-anchor="middle" x="' + xs[i] + '" y="110">' + ["v1", "v2", "v3", "anim."][i] + '</text>';
+  });
+  svg += '</svg>';
+  card.insertAdjacentHTML("beforeend", svg);
+  takeSeries.appendChild(card);
+});
+
+/* Q7 head-to-head columns */
+var q7 = QUESTIONS[3];
+var h2h = document.getElementById("h2hCols");
+H2H_ORDER.forEach(function (h) {
+  var col = el("div", "harness-col");
+  var arts = q7.arts.filter(function (a) { return HARNESS_LABEL[a.harness] === h; });
+  col.appendChild(el("h3", null, esc(h) + "<small>" + arts.length + " cards</small>"));
+  col.appendChild(el("p", "colsub", esc(H2H_SUB[h])));
+  arts.forEach(function (a) { col.appendChild(h2hFigure(q7, a)); });
+  h2h.appendChild(col);
+});
+
+function h2hFigure(q, a) {
+  var arm = a.harness === "opencode" ? "local" : "control";
+  var fig = el("figure", "proof " + arm);
+  var btn = el("button");
+  btn.setAttribute("aria-label", "Open " + a.model + "'s " + a.slug + " full size");
+  var img = el("img");
+  img.src = a.file; img.alt = a.alt; img.loading = "lazy";
+  btn.appendChild(img);
+  if (a.anim) btn.appendChild(el("span", "anim-flag", "animated version"));
+  btn.addEventListener("click", function () { openLb(a.file, a.alt, a.model + " · " + q.prompt, a.anim); });
+  fig.appendChild(btn);
+
+  var cap = el("figcaption");
+  cap.appendChild(el("p", "name", '<span class="sw" aria-hidden="true"></span>' + esc(a.model) +
+    ' <span class="chip' + (a.score === "0.86" ? " best" : "") + '">' + esc(a.met + "/" + q.n + " \u00b7 " + a.score) + "</span>"));
+  cap.appendChild(el("p", "runtime", esc(HARNESS_LABEL[a.harness] + " \u00d7 " + a.slug)));
+
+  var fails = el("ul", "fails");
+  checksOf(q, a).forEach(function (c, i) {
+    if (!c[0]) fails.appendChild(el("li", null, "<b>" + esc(REQ_SHORT[q.id][i]) + "</b> — " + esc(c[1])));
+  });
+  cap.appendChild(fails);
+  if (a.twin) cap.appendChild(el("p", "twin-note", "Animated twin — render judged visually identical; same verdicts."));
+  cap.appendChild(el("p", "src", 'verdict <a href="' + a.verdict + '">' + esc(fname(a.verdict)) + "</a> · artifact <a href=\"" + a.file + "\">" + esc(fname(a.file)) + "</a>"));
+  fig.appendChild(cap);
+  return fig;
+}
+
+/* short labels for the requirement cards (verbatim text lives in the matrices below) */
+var REQ_SHORT = {
+  7: ["grey dolphin", "large splash at the exit", "entire body mid-air", "multi-colored hoop at mid-body",
+      "trainer's arm and hand", "fish held by the tail", "mouth wide open at the fish"]
+};
+
+/* per-question matrices */
+var qBlocks = document.getElementById("qBlocks");
+QUESTIONS.forEach(function (q) {
+  var sec = el("div", "qsec");
+  sec.appendChild(el("h3", null, "Q" + q.id + " · " + q.n + " requirements<small>" + q.arts.length +
+    " drawings · " + q.met + " of " + q.total + " checks met</small>"));
+  sec.appendChild(el("p", "qprompt", "\u201C" + esc(q.prompt) + "\u201D"));
+
+  var wrap = el("div", "table-wrap");
+  var table = el("table", "matrix-table");
+  var thead = "<thead><tr><th>Requirement (verbatim, in order)</th>";
+  q.arts.forEach(function (a) {
+    thead += '<th class="ah">' + esc(fname(a.file)) + (a.twin ? " \u25b8anim" : "") +
+      "<span class=\"sub\">" + esc(a.harness + " \u00d7 " + a.model) + "</span>" +
+      '<span class="score-line"><span class="chip' + (isQBest(q, a) ? " best" : "") + '">' + esc(a.met + "/" + q.n + " \u00b7 " + a.score) + "</span></span></th>";
+  });
+  thead += "</tr></thead>";
+  var body = "<tbody>";
+  q.arts.forEach(function (a) { a._checks = checksOf(q, a); });
+  for (var i = 0; i < q.n; i++) {
+    body += '<tr><td class="req">' + esc(REQ_TEXT[q.id][i]) + "</td>";
+    q.arts.forEach(function (a) {
+      var c = a._checks[i];
+      body += '<td class="cell ' + (c[0] ? "met" : "fail") + '" title="' + esc(c[1]) + '">' + (c[0] ? Y : N) +
+        (c[0] ? "" : '<span class="sub">' + esc(c[1]) + "</span>") + "</td>";
+    });
+    body += "</tr>";
+  }
+  body += "</tbody>";
+  table.innerHTML = thead + body;
+  wrap.appendChild(table);
+  sec.appendChild(wrap);
+  sec.appendChild(el("p", "qnote", q.note.replace(/</g, "&lt;")));
+  qBlocks.appendChild(sec);
+});
+
+function isQBest(q, a) {
+  var top = Math.max.apply(null, q.arts.map(function (x) { return parseFloat(x.score); }));
+  return parseFloat(a.score) === top;
+}
+
+/* lightbox */
+var lb = document.getElementById("lb"),
+    lbImg = document.getElementById("lbImg"),
+    lbTitle = document.getElementById("lbTitle"),
+    lbFile = document.getElementById("lbFile"),
+    lbRaw = document.getElementById("lbRaw"),
+    lbSeg = document.getElementById("lbSeg"),
+    current = null;
+
+function openLb(src, alt, title, anim) {
+  current = { static: src, anim: anim || null };
+  lbImg.alt = alt;
+  lbTitle.textContent = title;
+  setVersion("static");
+  lbSeg.hidden = !anim;
+  if (anim) lbSeg.querySelector('[data-v="anim"]').setAttribute("aria-pressed", "false");
+  lb.showModal();
+}
+function setVersion(v) {
+  var src = current[v];
+  lbImg.src = src;
+  lbFile.textContent = src.replace("../bench/harness-matrix/logs/", "");
+  lbRaw.href = src;
+  lbSeg.querySelectorAll("button").forEach(function (b) {
+    b.setAttribute("aria-pressed", String(b.dataset.v === v));
+  });
+}
+lbSeg.addEventListener("click", function (e) {
+  var b = e.target.closest("button"); if (b) setVersion(b.dataset.v);
+});
+document.getElementById("lbClose").addEventListener("click", function () { lb.close(); });
+lb.addEventListener("click", function (e) { if (e.target === lb) lb.close(); });
+
+/* requirement texts, verbatim from the pinned questions.json */
+var REQ_TEXT = {
+  0: [
+    "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+    "The cow must have black and white patches for its coloring.",
+    "Add cow ears, eyes, and snout for facial recognition.",
+    "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+    "The cow's hooves must be colored brown, as if covered in soil from the field.",
+    "Include a traditional wooden plow with a visible metal blade/share.",
+    "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+    "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+    "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+    "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+    "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+    "Add a simple background with a clear horizon line and a blue sky containing a yellow sun."
+  ],
+  4: [
+    "Create a classic rubber ducky shape with a distinct body and head, colored bright yellow.",
+    "The duck must have an orange beak and a simple black dot for an eye.",
+    "Draw a white, claw-foot bathtub shape, showing the inside view with a visible rim.",
+    "Fill the lower portion of the bathtub with light blue water.",
+    "Ensure the water line is clearly visible across the duck's body, showing the lower third of the duck submerged.",
+    "Position the duck so it is floating on the water's surface, creating small, concentric circular ripples in the water around its base.",
+    "Depict soap bubbles as clusters of overlapping circles with a slight iridescence, using semi-transparent white, light pink, and light blue fills.",
+    "Place a small cluster of bubbles on top of the duck's head.",
+    "Place a large pile of bubbles against one side of the tub and a few floating on the water's surface around the duck."
+  ],
+  5: [
+    "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
+    "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
+    "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
+    "Show ropes connecting the balloon's envelope to the basket.",
+    "Include four human figures styled as a family: two adults and two children.",
+    "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
+    "Place an open picnic basket on a corner of the blanket that is already spread out.",
+    "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
+    "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
+    "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds."
+  ],
+  7: [
+    "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
+    "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
+    "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
+    "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
+    "Include a human trainer's arm and hand extending into the frame.",
+    "The trainer's hand must be holding a small fish by the tail.",
+    "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer."
+  ],
+  13: [
+    "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+    "The barrel must be buried in a mound of sand, so only the top half is visible.",
+    "Show the sand mounded up slightly around the visible base of the barrel.",
+    "The barrel must be open at the top and filled with treasure items.",
+    "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+    "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+    "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+    "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+    "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+    "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny."
+  ]
+};
+</script>
+</body>
+</html>

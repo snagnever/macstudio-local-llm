@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">A playful dawn at the beach</title>
+  <desc id="desc">An animated sunrise over a beach where friends play ball, boats cross a shimmering sea, and a small plane tows a banner reading Qwen 3.8 can draw.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#202c61"/>
+      <stop offset=".42" stop-color="#8c5b87"/>
+      <stop offset=".69" stop-color="#f19a75"/>
+      <stop offset="1" stop-color="#ffd990"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#367f9c"/>
+      <stop offset=".55" stop-color="#176f89"/>
+      <stop offset="1" stop-color="#0d536f"/>
+    </linearGradient>
+    <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#f8d797"/>
+      <stop offset="1" stop-color="#e6a961"/>
+    </linearGradient>
+    <linearGradient id="banner" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#fff6dd"/>
+      <stop offset="1" stop-color="#ffe6b6"/>
+    </linearGradient>
+    <radialGradient id="sunGlow">
+      <stop stop-color="#fff6bd" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#ffd584" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="15"/>
+    </filter>
+    <filter id="shadow" x="-20%" y="-30%" width="150%" height="180%">
+      <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#754a4b" flood-opacity=".22"/>
+    </filter>
+    <path id="smallWave" d="M-100 0c32-10 65-10 97 0s65 10 97 0 65-10 97 0 65 10 97 0 65-10 97 0 65 10 97 0 65-10 97 0 65 10 97 0 65-10 97 0 65 10 97 0 65-10 97 0 65 10 97 0 65-10 97 0"/>
+    <path id="palmFrond" d="M0 0c28-22 68-31 115-17C82 3 41 10 0 0Z"/>
+  </defs>
+
+  <!-- Sky and rising sun -->
+  <rect width="1200" height="720" fill="url(#sky)"/>
+  <g opacity=".52" fill="#ffe5cb">
+    <path d="M111 163c29-25 85-24 117 1-40-11-78-10-117-1Z"/>
+    <path d="M276 110c20-16 56-17 80 0-26-6-54-6-80 0Z"/>
+    <path d="M882 123c28-21 77-20 107 2-35-9-72-9-107-2Z"/>
+  </g>
+  <g transform="translate(525 338)">
+    <circle r="127" fill="url(#sunGlow)" filter="url(#softGlow)"/>
+    <circle r="57" fill="#fff1a9">
+      <animate attributeName="r" values="54;58;54" dur="6s" repeatCount="indefinite"/>
+    </circle>
+    <animateTransform attributeName="transform" type="translate" values="525 356;525 329;525 356" dur="18s" repeatCount="indefinite"/>
+  </g>
+  <g fill="none" stroke="#39436c" stroke-width="3" stroke-linecap="round" opacity=".75">
+    <path d="M203 238q13-12 26 0q13-12 26 0"><animateTransform attributeName="transform" type="translate" values="0 0;42 -4;0 0" dur="9s" repeatCount="indefinite"/></path>
+    <path d="M792 218q10-9 20 0q10-9 20 0"><animateTransform attributeName="transform" type="translate" values="0 0;52 6;0 0" dur="11s" repeatCount="indefinite"/></path>
+  </g>
+
+  <!-- Sea, distant land, and moving reflections -->
+  <path d="M0 342C151 327 265 351 415 339c154-12 251 9 402-1 155-11 245-4 383 9v203H0Z" fill="url(#water)"/>
+  <path d="M0 342c115-5 184-33 291-18 103 14 179 26 279 9 113-20 186-20 290-1 124 22 221-5 340 12v27H0Z" fill="#225c79" opacity=".38"/>
+  <g fill="none" stroke="#b6e2d5" stroke-linecap="round" opacity=".64">
+    <path d="M382 376h290" stroke-width="6" stroke-dasharray="35 22"><animate attributeName="stroke-dashoffset" values="0;-114" dur="5s" repeatCount="indefinite"/></path>
+    <path d="M283 412h454" stroke-width="4" stroke-dasharray="48 30"><animate attributeName="stroke-dashoffset" values="0;156" dur="6s" repeatCount="indefinite"/></path>
+    <path d="M82 459h477" stroke-width="5" stroke-dasharray="58 24"><animate attributeName="stroke-dashoffset" values="0;-164" dur="7s" repeatCount="indefinite"/></path>
+    <path d="M676 475h385" stroke-width="4" stroke-dasharray="44 29"><animate attributeName="stroke-dashoffset" values="0;146" dur="5.5s" repeatCount="indefinite"/></path>
+  </g>
+  <g fill="none" stroke="#d4f1df" stroke-width="3" opacity=".8">
+    <use href="#smallWave" y="399"><animateTransform attributeName="transform" type="translate" values="0 0;-90 0;0 0" dur="7s" repeatCount="indefinite"/></use>
+    <use href="#smallWave" y="448"><animateTransform attributeName="transform" type="translate" values="-140 0;0 0;-140 0" dur="6s" repeatCount="indefinite"/></use>
+  </g>
+
+  <!-- Boats -->
+  <g transform="translate(249 317)" filter="url(#shadow)">
+    <g>
+      <path d="M-62 42h125l-18 18H-41Z" fill="#224660"/>
+      <path d="M-2 39V-43L-52 39Z" fill="#fff0c9"/>
+      <path d="M3 39V-24L50 39Z" fill="#e87d64"/>
+      <path d="M-2-47V43" stroke="#24455e" stroke-width="4"/>
+      <animateTransform attributeName="transform" type="rotate" values="0 0 42;3 0 42;0 0 42;-2 0 42;0 0 42" dur="4.5s" repeatCount="indefinite"/>
+    </g>
+  </g>
+  <g transform="translate(901 365) scale(.68)" filter="url(#shadow)">
+    <g>
+      <path d="M-66 44h130l-21 18H-39Z" fill="#173e58"/>
+      <path d="M-4 40V-46L-54 40Z" fill="#f8e8bb"/>
+      <path d="M1 40V-18L48 40Z" fill="#f0b651"/>
+      <path d="M-4-49V44" stroke="#23475e" stroke-width="5"/>
+      <animateTransform attributeName="transform" type="rotate" values="0 0 44;-3 0 44;0 0 44;2 0 44;0 0 44" dur="5.5s" repeatCount="indefinite"/>
+    </g>
+  </g>
+  <g transform="translate(603 405)" opacity=".92">
+    <path d="M-50 12h103l-17 13H-33Z" fill="#9c4e40"/>
+    <path d="M-12 10l25-27 12 27Z" fill="#f8d383"/>
+    <animateTransform attributeName="transform" type="translate" values="603 405;622 399;603 405" dur="9s" repeatCount="indefinite"/>
+  </g>
+
+  <!-- Broad, foaming shore -->
+  <path d="M0 493c126-30 250-17 369 7 156 31 256-36 417-15 176 23 292-9 414 22V720H0Z" fill="url(#sand)"/>
+  <path d="M0 493c126-30 250-17 369 7 156 31 256-36 417-15 176 23 292-9 414 22" fill="none" stroke="#fff4cc" stroke-width="14" opacity=".92">
+    <animate attributeName="d" values="M0 493c126-30 250-17 369 7 156 31 256-36 417-15 176 23 292-9 414 22;M0 501c126-30 250-17 369 7 156 31 256-36 417-15 176 23 292-9 414 22;M0 493c126-30 250-17 369 7 156 31 256-36 417-15 176 23 292-9 414 22" dur="4s" repeatCount="indefinite"/>
+  </path>
+  <g fill="#c9814e" opacity=".42">
+    <ellipse cx="164" cy="603" rx="36" ry="4"/><ellipse cx="443" cy="671" rx="48" ry="5"/><ellipse cx="946" cy="633" rx="43" ry="5"/><ellipse cx="735" cy="696" rx="69" ry="6"/>
+  </g>
+  <g fill="#c77d4b" opacity=".64"><circle cx="87" cy="654" r="3"/><circle cx="121" cy="685" r="4"/><circle cx="522" cy="632" r="3"/><circle cx="691" cy="657" r="3"/><circle cx="1050" cy="681" r="4"/><circle cx="1116" cy="612" r="3"/></g>
+
+  <!-- Framing palms -->
+  <g fill="#164e4e" stroke="#164e4e" stroke-linecap="round">
+    <path d="M38 593C55 505 72 415 118 322" fill="none" stroke-width="22"/>
+    <g transform="translate(118 322)">
+      <use href="#palmFrond" transform="rotate(-169)"/><use href="#palmFrond" transform="rotate(-127)"/><use href="#palmFrond" transform="rotate(-81)"/><use href="#palmFrond" transform="rotate(-36)"/><use href="#palmFrond" transform="rotate(10)"/><use href="#palmFrond" transform="rotate(49)"/>
+    </g>
+    <path d="M1172 607c-7-87-31-169-84-248" fill="none" stroke-width="23"/>
+    <g transform="translate(1088 359)">
+      <use href="#palmFrond" transform="rotate(-166)"/><use href="#palmFrond" transform="rotate(-124)"/><use href="#palmFrond" transform="rotate(-80)"/><use href="#palmFrond" transform="rotate(-35)"/><use href="#palmFrond" transform="rotate(9)"/><use href="#palmFrond" transform="rotate(47)"/>
+    </g>
+  </g>
+
+  <!-- Games on the beach -->
+  <g filter="url(#shadow)">
+    <path d="M497 561v121m105-121v121" stroke="#f7ecce" stroke-width="5" stroke-dasharray="8 8"/>
+    <path d="M499 601h102" stroke="#f7ecce" stroke-width="3"/>
+    <!-- left player jumping for the volleyball -->
+    <g stroke="#263a59" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <g>
+        <circle cx="428" cy="550" r="15" fill="#8d563f" stroke="none"/>
+        <path d="M417 542q12-20 28-3" stroke="#3b3152" stroke-width="12"/>
+        <path d="M427 566l-6 53m4-38l-31-25m31 25l29-34m-33 72l-27 44m27-44l28 39"/>
+        <path d="M416 570l19 6" stroke="#e75e5e" stroke-width="13"/>
+        <animateTransform attributeName="transform" type="translate" values="0 0;0 -40;0 0" dur="1.25s" repeatCount="indefinite"/>
+      </g>
+      <!-- right player -->
+      <g>
+        <circle cx="665" cy="587" r="15" fill="#704535" stroke="none"/>
+        <path d="M653 579q15-21 30 0" stroke="#f4b453" stroke-width="12"/>
+        <path d="M664 603l3 50m-2-32l-27-13m27 13l31-21m-29 53l-27 35m27-35l30 31"/>
+        <path d="M656 612l19 2" stroke="#5a74a6" stroke-width="14"/>
+        <animateTransform attributeName="transform" type="translate" values="0 0;7 0;0 0" dur="1s" repeatCount="indefinite"/>
+      </g>
+    </g>
+    <!-- Animated volleyball -->
+    <g stroke="#d86159" stroke-width="3" fill="#fff1c3">
+      <circle cx="524" cy="457" r="19"/>
+      <path d="M507 451l17 6 13-13m-13 13 2 19m-19-25 3 17" fill="none"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0;86 80;0 0" dur="1.25s" repeatCount="indefinite"/>
+    </g>
+  </g>
+  <!-- Child and bouncing striped ball -->
+  <g transform="translate(251 600)" stroke="#263a59" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <circle cx="0" cy="-30" r="14" fill="#9b5e42" stroke="none"/>
+    <path d="M-12-39q13-20 29 0" stroke="#e86259" stroke-width="12"/>
+    <path d="M0-14l-4 47m2-30l-30 14M-2 3l30 10m-32 20l-31 37m31-37l31 31"/>
+    <path d="M-11-4l20 4" stroke="#f0b44f" stroke-width="13"/>
+    <animateTransform attributeName="transform" type="translate" values="251 600;271 596;251 600" dur="1s" repeatCount="indefinite"/>
+  </g>
+  <g transform="translate(326 623)">
+    <circle r="19" fill="#f5c44f" stroke="#c75b52" stroke-width="3"/>
+    <path d="M-17-7Q0 2 17-7M-18 7Q0 16 18 7" fill="none" stroke="#e56058" stroke-width="5"/>
+    <animateTransform attributeName="transform" type="translate" values="326 623;352 568;371 630;326 623" dur="2.4s" repeatCount="indefinite"/>
+  </g>
+  <!-- Friends relaxing and tossing a ball -->
+  <g transform="translate(834 632)" filter="url(#shadow)">
+    <path d="M-75 27h172l-19 35H-91Z" fill="#ef8061" opacity=".9"/>
+    <path d="M-75 27h172" stroke="#fff2cc" stroke-width="6" stroke-dasharray="18 11"/>
+    <g stroke="#263a59" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <circle cx="-24" cy="-18" r="13" fill="#714432" stroke="none"/>
+      <path d="M-36-25q13-16 25 1" stroke="#31446b" stroke-width="11"/>
+      <path d="M-23-5l-20 28 35 1m-16-29l26 29m-44-1l-27 12m61-11l33 10"/>
+      <circle cx="50" cy="-10" r="13" fill="#9b5f43" stroke="none"/>
+      <path d="M39-17q13-17 26 0" stroke="#f3b853" stroke-width="11"/>
+      <path d="M49 3L33 28l34-2M48 4l27 25M34 28L7 39m59-13l30 10"/>
+    </g>
+  </g>
+
+  <!-- Plane with readable towing banner -->
+  <g>
+    <g>
+      <path d="M36 128c42-6 76-5 109 3" fill="none" stroke="#ffe9c8" stroke-width="3"/>
+      <path d="M-235 93h270l-9 59h-270Z" fill="url(#banner)" stroke="#c65358" stroke-width="3"/>
+      <path d="M-222 104h245" stroke="#f3b55b" stroke-width="4" opacity=".7"/>
+      <text x="-217" y="132" fill="#273d63" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" letter-spacing=".2">Qwen 3.8 can draw</text>
+      <path d="M149 101l49 5 32-21 13 5-22 22 41 14-10 9-43-12-19 15-12-3 11-17-56-2-18 15-13-3 15-20-27-10 10-6Z" fill="#fff6dc" stroke="#c65358" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M201 107l18 2" stroke="#6380a0" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="209" cy="115" r="5" fill="#36557c"/>
+      <animateTransform attributeName="transform" type="translate" values="240 0;1450 -22" dur="22s" repeatCount="indefinite"/>
+    </g>
+  </g>
+</svg>
