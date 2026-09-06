@@ -1,0 +1,56 @@
+# opencode × qwen3.8-flash-next
+
+## Config
+
+| | |
+|---|---|
+| Harness | OpenCode `1.18.20` (provider `rigfn`, Tailscale) |
+| Model | `rigfn--ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit-ef5b919d31534faa1997666f1a22d362cd6383cd` |
+| Runtime | mlx-serve (arm FS, ddalcu mixed-4/8), `http://mac-studio:11234` |
+| Effort | `xhigh` |
+| Date | 2026-09-06 |
+
+## Task — dolphin / hula hoop / fish
+
+- **Prompt:** "Write `svg` code for an image of a dolphin jumping out of the water and
+  through a hula hoop to bite a fish out of its trainers hand." (prefixed "do not look
+  for local files" — no repo exploration requested by the prompt itself)
+- **Outcome:** single-pass `dolphin.svg` (800×600, `<title>` included; rainbow-striped
+  hoop drawn twice — whole ring behind the dolphin, bottom half clipped in front of the
+  belly — for the through-the-hoop read; open jaws with dark mouth wedge, fish held in
+  the trainer's extended hand, splash foam at the waterline). Well-formed XML
+  (validated with `xml.dom.minidom`) and rasterized via Quick Look; the model could not
+  view the raster (no image input) and said so. Opened in Chrome on follow-up.
+  No edits or retries.
+- **Wall:** 00:06–00:26 local (~20 min, incl. "open in chrome" + save follow-ups) ·
+  **tokens:** n/a (not surfaced in-session)
+- **Raw:** `../../logs/opencode/qwen3.8-flash-next/dolphin.svg`
+- **SVGBench:** 6/7 (q7) · verdict: `../svgbench/verdicts/opencode/qwen3.8-flash-next/dolphin.json`
+
+## Notes
+
+- Single-shot scene with layered depth (hoop back/front, splash over tail, jaw strip
+  over the fish) — comparable ambition to the `qwen3.8-27b-8bit` run of the same prompt,
+  but this pass included accessibility markup (`<title>`) the 27B run omitted.
+- Session in this working tree; token counts would need the rig's metrics endpoint.
+
+## Task — cow plowing a field (4-take iteration)
+
+- **Prompt:** "Write `svg` code to draw an image of a cow plowing a field."
+- **Outcome:** four takes by fresh subagent-generators under an orchestrator that
+  rendered each take with headless Chrome, viewed it, and wrote the critique fed to the
+  next take (generators were not told further takes would follow).
+  `cow-plowing.svg` (blind first pass; balloon-oval cow, incoherent harness, illegible
+  plow) → `-v2` (added farmer, yoke+traces, perspective furrows, cast shadows) →
+  `-v3` (team scaled to ~half the frame, bovine head, clod tilth, gentle convergence)
+  → `-animated` (fixed drooping head / tangled harness, plus a seamless 2.4 s SMIL
+  plod cycle: leg phases, body bob, head nod, tail flick, farmer steps, tumbling
+  clods, drifting clouds/birds; motion verified via two headless-Chrome frames 1.2 s
+  apart). All 800×600, self-contained.
+- **Wall:** 13:54–15:08 local (4 takes incl. renders + reviews) ·
+  **tokens:** n/a (not surfaced in-session)
+- **Raw:** `../../logs/opencode/qwen3.8-flash-next/cow-plowing.svg` ·
+  `cow-plowing-v2.svg` · `cow-plowing-v3.svg` · `cow-plowing-animated.svg`
+- **Renders:** `../../logs/renders/opencode/qwen3.8-flash-next/` (gitignored PNGs;
+  `cow-plowing-animated.png` is the t=0 frame)
+- **SVGBench:** not yet judged
