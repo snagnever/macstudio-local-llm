@@ -59,3 +59,31 @@
 - **Renders:** `../../logs/renders/opencode/qwen3.8-flash-next/` (gitignored PNGs;
   `cow-plowing-animated.png` is the t=0 frame)
 - **SVGBench:** not yet judged
+
+## Task — dolphin / hula hoop / fish (fresh-agent 4-take)
+
+- **Prompt:** "Write `svg` code for an image of a dolphin jumping out of the water and
+  through a hula hoop to bite a fish out of its trainers hand."
+- **Outcome:** four takes by fresh subagent-generators under an orchestrator that
+  rendered each take with headless Chrome, viewed it, and wrote the critique fed to the
+  next take (generators were not told further takes would follow).
+  `dolphin-hula-hoop-fish-v1.svg` (blind 800×600 pass; rainbow hoop split back/front,
+  open jaws at the fish, thin splash) → `-v2` (1600×1200; parametrically recomputed
+  through-the-hoop arcs so the body verifiably crosses the ring plane, thicker body,
+  fanged gape gripping the fish, crown splash, real gripping hand) →
+  `-v3` (melon-and-rostrum head replacing the fanged maw, small conical teeth, leaf
+  flukes, hoop recentered so the near rim overlaps the belly, fish clamped head-first
+  in the pinch grip) → `-dolphin-hula-hoop-fish-animated.svg` (5 s seamless SMIL loop:
+  dolphin bobs on its jump arc with pitch rock, fluke flutter, pectoral wave, fish wag
+  in the grip, hoop rims wobble on-beat, waterline path-morph with expanding ripples,
+  staggered falling droplets, drifting clouds; every animation starts and ends on the
+  v3 pose). All self-contained; XML validated with `xmllint`.
+  The v2 generator stalled once (session ended without writing its artifact; a resume
+  prompt produced the file) — same failure mode as the cow-plowing v2 take.
+- **Wall:** 16:42–17:38 local (~56 min incl. the stalled v2 take and its resume) ·
+  **tokens:** n/a this session
+- **Raw:** `../../logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v1.svg` ·
+  `-v2.svg` · `-v3.svg` · `-animated.svg`
+- **Renders:** `../../logs/renders/opencode/qwen3.8-flash-next/` (gitignored PNGs;
+  `dolphin-hula-hoop-fish-animated.png` is the t=0 frame)
+- **SVGBench:** not yet judged

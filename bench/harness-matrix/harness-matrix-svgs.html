@@ -523,6 +523,17 @@ var EXTRAS = [
   });
 });
 
+[
+  ["Dolphin", "Dolphin through a hula hoop", "dolphin-hula-hoop-fish", "A dolphin jumping through a hula hoop toward a trainer's fish"]
+].forEach(function (s) {
+  ["v1", "v2", "v3", "animated"].forEach(function (take) {
+    EXTRAS.push({ subject: s[0], series: "fresh-agent take series", prompt: s[1], model: "qwen3.8-flash-next",
+      file: L + "opencode/qwen3.8-flash-next/" + s[2] + "-" + take + ".svg", animated: take === "animated",
+      arm: "local", attr: "OpenCode · fresh-agent " + (take === "animated" ? "animated take" : "take " + take.slice(1)),
+      alt: (take === "animated" ? "Animated " : "") + s[3] });
+  });
+});
+
 /* ---------------- helpers ---------------- */
 
 function el(tag, cls, html) {
