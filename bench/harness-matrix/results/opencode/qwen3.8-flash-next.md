@@ -47,8 +47,13 @@
   plod cycle: leg phases, body bob, head nod, tail flick, farmer steps, tumbling
   clods, drifting clouds/birds; motion verified via two headless-Chrome frames 1.2 s
   apart). All 800×600, self-contained.
-- **Wall:** 13:54–15:08 local (4 takes incl. renders + reviews) ·
-  **tokens:** n/a (not surfaced in-session)
+- **Wall:** 13:46–15:08 local (~82 min: v1 7 min, v2 stalled 12 min + retry 14 min,
+  v3 20 min, v4 22 min; generator sessions 76 min + orchestrator renders/critiques) ·
+  **tokens:** ~509k input / ~196k output / ~1.38M cache-read (orchestrator's 16 steps +
+  5 subagent sessions, incl. the stalled take; ~705k total). Figures reconstructed
+  after the fact from `~/.local/share/opencode/opencode.db` (`session.tokens_*` and
+  per-step `message.data.tokens`); cost n/a (self-hosted). The stalled v2 take burned
+  ~32k output tokens without writing an artifact.
 - **Raw:** `../../logs/opencode/qwen3.8-flash-next/cow-plowing.svg` ·
   `cow-plowing-v2.svg` · `cow-plowing-v3.svg` · `cow-plowing-animated.svg`
 - **Renders:** `../../logs/renders/opencode/qwen3.8-flash-next/` (gitignored PNGs;
