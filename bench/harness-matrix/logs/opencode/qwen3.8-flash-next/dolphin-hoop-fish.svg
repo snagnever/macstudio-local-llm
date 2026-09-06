@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="800" height="600" viewBox="0 0 800 600">
+  <title>Dolphin jumping through a hula hoop to bite a fish from its trainer's hand</title>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fd0ef"/>
+      <stop offset="1" stop-color="#e9f8ff"/>
+    </linearGradient>
+    <linearGradient id="waterB" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a86c0"/>
+      <stop offset="1" stop-color="#12507c"/>
+    </linearGradient>
+    <linearGradient id="waterF" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1f74ad"/>
+      <stop offset="1" stop-color="#0a3a5d"/>
+    </linearGradient>
+    <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#647f90"/>
+      <stop offset="0.55" stop-color="#8ba4b1"/>
+      <stop offset="0.8" stop-color="#d5e2e8"/>
+      <stop offset="1" stop-color="#eef4f7"/>
+    </linearGradient>
+    <linearGradient id="fishGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d3dce2"/>
+      <stop offset="1" stop-color="#93a2ad"/>
+    </linearGradient>
+    <clipPath id="frontClip"><rect x="296" y="268" width="232" height="128"/></clipPath>
+    <path id="hoopY" d="M300 270 A110 110 0 1 1 520 270 A110 110 0 1 1 300 270" fill="none" stroke="#f2b632" stroke-width="16" pathLength="1200"/>
+    <path id="hoopR" d="M300 270 A110 110 0 1 1 520 270 A110 110 0 1 1 300 270" fill="none" stroke="#e04a3a" stroke-width="16" stroke-dasharray="75 75" pathLength="1200"/>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <circle cx="120" cy="96" r="42" fill="#ffd75e" opacity="0.95"/>
+  <g fill="#ffffff" opacity="0.85">
+    <ellipse cx="200" cy="112" rx="48" ry="18"/>
+    <ellipse cx="238" cy="98" rx="36" ry="20"/>
+    <ellipse cx="168" cy="100" rx="28" ry="16"/>
+  </g>
+
+  <rect x="0" y="438" width="800" height="162" fill="url(#waterB)"/>
+  <rect x="646" y="434" width="154" height="166" fill="#a98d66"/>
+  <rect x="646" y="434" width="154" height="16" fill="#d9c4a0"/>
+
+  <use xlink:href="#hoopY" href="#hoopY"/>
+  <use xlink:href="#hoopR" href="#hoopR"/>
+
+  <path d="M 214 456 C 224 434 240 438 246 456 C 252 432 270 432 276 456 C 282 430 300 432 306 456 C 312 438 328 440 334 456 Z" fill="#d9f0fa" opacity="0.9"/>
+
+  <g>
+    <path d="M 692 250 C 702 272 702 296 696 316" fill="none" stroke="#e0a878" stroke-width="12" stroke-linecap="round"/>
+    <path d="M 672 344 L 670 430" fill="none" stroke="#e6b385" stroke-width="11" stroke-linecap="round"/>
+    <path d="M 690 344 L 692 430" fill="none" stroke="#e6b385" stroke-width="11" stroke-linecap="round"/>
+    <ellipse cx="666" cy="434" rx="9" ry="4" fill="#33454f"/>
+    <ellipse cx="695" cy="434" rx="9" ry="4" fill="#33454f"/>
+    <rect x="662" y="312" width="40" height="36" rx="7" fill="#24485c"/>
+    <path d="M 662 230 C 656 258 658 290 664 316 L 700 316 C 704 288 704 256 696 230 C 686 225 672 225 662 230 Z" fill="#2a7f8f"/>
+    <path d="M 662 214 a 16 16 0 0 1 32 -2 C 692 202 686 197 678 197 C 668 197 662 204 662 214 Z" fill="#4a3222"/>
+    <circle cx="678" cy="216" r="16" fill="#e6b385"/>
+    <circle cx="671" cy="214" r="1.8" fill="#22303a"/>
+    <path d="M 662 214 a 16 16 0 0 1 32 -2 C 692 200 684 194 676 194 C 666 194 660 202 662 214 Z" fill="#4a3222"/>
+  </g>
+
+  <g>
+    <path d="M 508 247 C 516 239 530 234 545 235 L 545 247 C 531 251 518 252 509 249 Z" fill="url(#fishGrad)"/>
+    <path d="M 527 233 L 534 224 L 540 234 Z" fill="#93a2ad"/>
+    <path d="M 545 234 L 559 227 L 557 246 L 545 246 Z" fill="#93a2ad"/>
+    <circle cx="515" cy="243" r="2" fill="#14212b"/>
+  </g>
+  <path d="M 664 246 C 628 226 590 228 552 240" fill="none" stroke="#e0a878" stroke-width="13" stroke-linecap="round"/>
+  <circle cx="549" cy="241" r="7" fill="#e6b385"/>
+
+  <g transform="translate(490 230) rotate(-40)">
+    <path d="M -254 -6 C -272 -18 -292 -30 -308 -36 C -300 -24 -296 -14 -298 -6 C -300 4 -298 14 -304 26 C -288 16 -270 5 -252 1 Z" fill="#5c7787"/>
+    <path d="M -112 -42 C -118 -58 -130 -72 -148 -80 C -142 -66 -142 -52 -148 -42 Z" fill="#5c7787"/>
+    <path d="M 12 2 C 2 -8 -10 -18 -28 -26 C -60 -38 -95 -44 -130 -45 C -175 -46 -215 -36 -252 -14 L -262 -7 L -254 0 C -216 13 -180 19 -150 20 C -110 22 -76 15 -44 1 C -28 -1 -8 0 12 2 Z" fill="url(#bodyGrad)"/>
+    <path d="M -40 -4 C -38 12 -26 24 -4 27 C -12 15 -24 4 -32 -2 Z" fill="#8ba4b1" stroke="#4d6878" stroke-width="1.5"/>
+    <path d="M -58 4 C -66 20 -80 34 -98 42 C -92 26 -86 14 -82 2 Z" fill="#4d6878"/>
+    <path d="M -40 -3 C -20 0 0 1 11 2" fill="none" stroke="#3f5a68" stroke-width="2"/>
+    <path d="M -52 -35 q 6 -4 12 -1" fill="none" stroke="#3f5a68" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="-38" cy="-8" r="4" fill="#16242e"/>
+    <circle cx="-39.5" cy="-9.5" r="1.2" fill="#ffffff" opacity="0.8"/>
+  </g>
+
+  <use xlink:href="#hoopY" href="#hoopY" clip-path="url(#frontClip)"/>
+  <use xlink:href="#hoopR" href="#hoopR" clip-path="url(#frontClip)"/>
+
+  <path d="M 0 452 C 90 442 160 462 240 452 C 300 445 340 462 410 456 C 480 450 540 462 620 456 C 680 452 740 460 800 454 L 800 600 L 0 600 Z" fill="url(#waterF)"/>
+  <path d="M 240 456 C 250 440 266 442 272 456 C 278 438 296 440 302 456 L 302 462 L 240 462 Z" fill="#eaf7fd" opacity="0.8"/>
+  <g fill="#eaf7fd">
+    <circle cx="236" cy="426" r="5"/>
+    <circle cx="222" cy="438" r="3.5"/>
+    <circle cx="308" cy="424" r="4.5"/>
+    <circle cx="320" cy="438" r="5"/>
+  </g>
+  <g fill="none" stroke="#bfe4f5" stroke-width="3" opacity="0.5">
+    <ellipse cx="130" cy="492" rx="70" ry="10"/>
+    <ellipse cx="400" cy="510" rx="85" ry="12"/>
+    <ellipse cx="560" cy="545" rx="70" ry="10"/>
+  </g>
+</svg>
