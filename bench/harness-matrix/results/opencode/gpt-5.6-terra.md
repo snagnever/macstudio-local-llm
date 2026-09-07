@@ -14,12 +14,15 @@ _Run date: 2026-09-06._
   the recovered animated dawn-on-the-beach request with the `Qwen 3.8 can draw`
   plane banner.
 - **SVGBench:** 28 artifacts map to q0, q4, q5, q6, q7, q12, and q13; mean
-  **0.421**. Per-question means: q0 0.604, q4 0.361, q5 0.300, q6 0.469,
-  q7 0.714, q12 0.273, q13 0.225. The four dawn artifacts are intentionally
-  off-benchmark. Verdicts are strict Chrome-render self-judgments by
-  `openai/gpt-5.6-terra`, so they are useful for this internal series but not
-  independent evaluation. See
+  **0.336**, judged by `claude-opus-5` — the single judge applied to every
+  artifact in the rejudged board, not this model judging its own output.
+  Per-question means: q0 0.458, q4 0.25, q5 0.35, q6 0.469, q7 0.536,
+  q12 0.091, q13 0.2. The four dawn artifacts are intentionally off-benchmark.
+  Under the earlier setup, where this pair's own model judged all 28 of its
+  verdicts, the mean read 0.421; every other pair's mean rose under the neutral
+  judge, and this is the only one that fell. See
   [`../svgbench/verdicts/opencode/gpt-5.6-terra/`](../svgbench/verdicts/opencode/gpt-5.6-terra/).
+- **SVGBench:** 5/7 (q7) · verdict: `../svgbench/verdicts/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v2.json`
 
 The picnic filenames use `balloon` while the pinned question uses the source typo
 `ballon`; `results/svgbench/manifest.json` therefore records `question_index_override: 5`

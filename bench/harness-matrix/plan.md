@@ -62,8 +62,11 @@ judged on a headless-Chrome render (SVGBench renders with Chrome too).
   `.claude/skills/svgbench-eval/SKILL.md`.
 
 Caveat: the subset is small, the artifacts came through coding harnesses (not the
-SVGBench direct-API loop), and the judge differs from upstream's `gemini-2.5-flash`.
-Do not compare `mean_score` with the upstream leaderboard.
+SVGBench direct-API loop), and every artifact was judged by a single judge,
+`claude-opus-5`. That judge is itself a contestant in this matrix — 21 of the 84
+scored artifacts are its own — so the `claude/claude-opus-5` row is self-judged,
+and is marked as such wherever it is cited. Do not compare `mean_score` with the
+upstream leaderboard.
 
 ## Comparison axes
 

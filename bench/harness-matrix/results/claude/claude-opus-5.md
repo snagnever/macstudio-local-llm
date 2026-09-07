@@ -37,3 +37,8 @@
 
 - Run 1 shows the pair can no-op when the repo already contains same-prompt outputs
   (the "do not check for existing files" prefix was the user's fix).
+- This pair also produced further artifacts (cow-plowing, dolphin, picnic-on-clouds,
+  rubber-ducky, and treasure-barrel takes) that are not narrated as tasks above; they
+  are scored in the SVGBench rejudge (21 artifacts total for this pair). Its
+  best-scoring artifact there is a perfect score:
+  **SVGBench:** 7/7 (q7) · verdict: `../svgbench/verdicts/claude/claude-opus-5/dolphin-animated.json`

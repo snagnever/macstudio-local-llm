@@ -25,7 +25,7 @@
 - **Wall:** 00:06–00:26 local (~20 min, incl. "open in chrome" + save follow-ups) ·
   **tokens:** n/a (not surfaced in-session)
 - **Raw:** `../../logs/opencode/qwen3.8-flash-next/dolphin.svg`
-- **SVGBench:** 6/7 (q7) · verdict: `../svgbench/verdicts/opencode/qwen3.8-flash-next/dolphin.json`
+- **SVGBench:** 5/7 (q7) · verdict: `../svgbench/verdicts/opencode/qwen3.8-flash-next/dolphin.json`
 
 ## Notes
 
@@ -58,7 +58,7 @@
   `cow-plowing-v2.svg` · `cow-plowing-v3.svg` · `cow-plowing-animated.svg`
 - **Renders:** `../../logs/renders/opencode/qwen3.8-flash-next/` (gitignored PNGs;
   `cow-plowing-animated.png` is the t=0 frame)
-- **SVGBench:** not yet judged
+- **SVGBench:** 7/12 (q0) · verdict: `../svgbench/verdicts/opencode/qwen3.8-flash-next/cow-plowing.json`
 
 ## Task — dolphin / hula hoop / fish (fresh-agent 4-take)
 
@@ -86,4 +86,4 @@
   `-v2.svg` · `-v3.svg` · `-animated.svg`
 - **Renders:** `../../logs/renders/opencode/qwen3.8-flash-next/` (gitignored PNGs;
   `dolphin-hula-hoop-fish-animated.png` is the t=0 frame)
-- **SVGBench:** not yet judged
+- **SVGBench:** 7/7 (q7) · verdict: `../svgbench/verdicts/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-animated.json`
