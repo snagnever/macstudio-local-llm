@@ -383,9 +383,18 @@ is not.
 | --- | --- |
 | Artifacts in the manifest | 89 |
 | Strays (unattributable) | 0 |
-| Scorable artifacts | 80 |
-| Off-benchmark artifacts (`qNone`), which stay unscored | 9 |
-| Individual requirement pass/fail judgments | 762 |
+| Scorable artifacts | 84 |
+| Off-benchmark artifacts (`qNone`), which stay unscored | 5 |
+| Individual requirement pass/fail judgments | 794 |
+
+Four of the nine artifacts the manifest calls off-benchmark are a slug-matcher
+miss, not an off-benchmark prompt:
+`opencode/qwen3.8-flash-next/stunt-car-fire-ring*.svg` answers q6, "a stunt car
+jumping through a circle of fire", but the matcher only recognised
+`gpt-5.6-terra`'s `stunt-car-jumping-circle-fire` spelling. They take a
+`question_index_override` of 6, which lifts q6 from one pair to two. The
+remaining five (`dawn-beach`) match no question in the pinned set and stay
+unscored.
 
 | Question | Artifacts | Reqs | Judgments | Prompt |
 | --- | --- | --- | --- | --- |
@@ -395,7 +404,7 @@ is not.
 | q5 | 9 | 10 | 90 | a picnic on top of the clouds |
 | q13 | 9 | 10 | 90 | a half-buried barrel of treasure |
 | q12 | 8 | 11 | 88 | a fruit stall in the market |
-| q6 | 4 | 8 | 32 | a stunt car jumping through fire |
+| q6 | 8 | 8 | 64 | a stunt car jumping through fire (after the override) |
 
 ### Coverage after re-judging
 
@@ -409,10 +418,11 @@ compare.
 | `claude/fable-5-1` | 4 | 0 | 0 | 0 | 0 | 0 | 0 |
 | `opencode/gpt-5.6-terra` | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
 | `opencode/qwen3.8-27b-8bit` | 2 | 0 | 1 | 0 | 1 | 0 | 1 |
-| `opencode/qwen3.8-flash-next` | 4 | 3 | 0 | 0 | 10 | 4 | 0 |
+| `opencode/qwen3.8-flash-next` | 4 | 3 | 0 | 4 | 10 | 4 | 0 |
 
-Two prompts reach five pairs (q0, q7) and three reach three pairs (q4, q5,
-q13). That is a genuine comparison, against one prompt today.
+Two prompts reach five pairs (q0, q7), three reach three pairs (q4, q5, q13),
+and two reach two pairs (q6, q12). That is a genuine comparison, against one
+prompt today.
 
 Two limits survive re-judging and the site must state them:
 
