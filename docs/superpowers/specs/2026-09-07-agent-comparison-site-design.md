@@ -2,9 +2,13 @@
 
 _Dated 2026-09-07._
 
-Three model-and-harness comparisons become a published site: the existing
-SVGBench scoring, a new **Agent Build-Off**, and a new **Layout Skill Bench**.
-Visitors read the numbers and then run each artifact live.
+Three model-and-harness comparisons become a published site: **SVGBench**,
+re-judged end to end, a new **Agent Build-Off**, and a new **Layout Skill
+Bench**. Visitors read the numbers and then run each artifact live.
+
+SVGBench is not merely republished. Section 8 records why its current
+scoreboard cannot be published as a comparison, and re-judges all 89 artifacts
+under one judge.
 
 The site is in English. The repository keeps its existing conventions.
 
@@ -12,13 +16,13 @@ The site is in English. The repository keeps its existing conventions.
 
 | Benchmark | Question | Arms |
 | --- | --- | --- |
-| SVGBench | Can a local model draw as well as a frontier model? | 5 harness×model pairs, already scored |
+| SVGBench | Can a local model draw as well as a frontier model? | 6 harness×model pairs, 89 artifacts, all re-judged (section 8) |
 | Agent Build-Off | Same brief, one session, from an empty folder — what does each agent stack deliver? | 4 built |
 | Layout Skill Bench | One model, one brief, three design skills — does the skill change the result? | 3 skills × 5 pages |
 
-SVGBench already lives in `bench/harness-matrix/` and already renders through
-`reports/harness-matrix-svgbench.html`. This design adds the two new campaigns
-and publishes all three.
+SVGBench already lives in `bench/harness-matrix/` and renders through
+`reports/harness-matrix-svgbench.html`. This design adds the two new campaigns,
+re-judges SVGBench, and publishes all three.
 
 ### Agent Build-Off arms
 
@@ -300,6 +304,11 @@ Before the workflow is wired:
   route works, and no request 404s.
 - Check both new dashboard pages against `arms.json`: every displayed number
   traces to a record, and every `null` renders as a gap.
+- Run `python3 tests/test_svgbench_eval.py`, and confirm `scores.json` reports
+  `unscored` containing only the 9 off-benchmark artifacts and no pair missing
+  from `pairs`.
+- Confirm every published SVG figure carries its `n`, and that the two
+  single-prompt pairs never appear in an overall ranking.
 
 After the first deploy:
 
@@ -311,8 +320,158 @@ never measured it.
 
 ## 7. Order of work
 
-1. Recover arm `codex-astra` and the three layout arms into `results/`.
-2. Vendor sources, write both `plan.md` files, amend AGENTS.md, copy
+1. Settle the two uncommitted `harness-matrix` files (section 8).
+2. Re-judge all 89 SVGs, regenerate `scores.json`, update the plan caveat and
+   the SVG dashboards (section 8). This is the largest single piece of work.
+3. Recover arm `codex-astra` and the three layout arms into `results/`.
+4. Vendor sources, write both `plan.md` files, amend AGENTS.md, copy
    `overview.html` and `perf-lines.html` into `reports/`.
-3. Build `agent-build-off.html` and `layout-skill-bench.html`; update the hub.
-4. Add the workflow, verify the assembled site locally, deploy, verify live.
+5. Build `agent-build-off.html` and `layout-skill-bench.html`; update the hub.
+6. Add the workflow, verify the assembled site locally, deploy, verify live.
+
+## 8. SVGBench re-judging
+
+The design above assumed SVGBench was scored and needed only publishing. It is
+not. Three defects make the current scoreboard unpublishable as a model
+comparison.
+
+### Defects in the current scoreboard
+
+**Half the artifacts carry no verdict.** 89 SVGs sit under `logs/`; 43 have a
+verdict. `claude/fable-5-1` has none at all, so it is absent from the
+scoreboard entirely.
+
+| Pair | SVGs | Scored | Unscored |
+| --- | --- | --- | --- |
+| `opencode/gpt-5.6-terra` | 32 | 28 | 4 |
+| `opencode/qwen3.8-flash-next` | 25 | 8 | 17 |
+| `claude/claude-opus-5` | 21 | 1 | 20 |
+| `opencode/qwen3.8-27b-8bit` | 6 | 5 | 1 |
+| `claude/fable-5-1` | 4 | 0 | 4 |
+| `claude/claude-opus-4-8` | 1 | 1 | 0 |
+
+**One prompt is comparable.** q7, the dolphin, is the only prompt where every
+scored pair overlaps. Each `mean_score` therefore averages a different question
+mix, and `claude-opus-4-8`'s leading 0.714 rests on one artifact. The existing
+`reports/index.html` already states this as "Opus 4-8's mean lead is a
+question-mix artifact".
+
+**The judge is the contestant.** All 28 `gpt-5.6-terra` verdicts were judged by
+`gpt-5.6-terra` itself — 65 % of the board. Three `qwen3.8-flash-next` verdicts
+were judged by `qwen3.8-flash-next`. The remaining 12 were judged by
+`claude-fable-5-1`, itself a contestant. Four judges, four strictness
+thresholds, no common scale. Self-judging did not visibly inflate results —
+`gpt-5.6-terra` scores lowest at 0.421 — but that is not a defence, because a
+different judge moves the threshold in both directions.
+
+### Decision
+
+Re-judge **all 89 artifacts** with a single judge: `claude-opus-5`, by hand,
+following the `claude-vision` method in the `svgbench-eval` project skill. Every
+existing verdict is replaced, not merged, so one threshold covers the whole
+board.
+
+`claude-opus-5` is itself a contestant, with 21 artifacts. This is a known,
+accepted limitation rather than an oversight. The site states it in plain words
+next to the scoreboard, and the `claude/claude-opus-5` row carries a
+self-judged marker. Five of the six pairs are judged by a non-participant; one
+is not.
+
+### Scale of the work
+
+| Quantity | Value |
+| --- | --- |
+| Artifacts in the manifest | 89 |
+| Strays (unattributable) | 0 |
+| Scorable artifacts | 80 |
+| Off-benchmark artifacts (`qNone`), which stay unscored | 9 |
+| Individual requirement pass/fail judgments | 762 |
+
+| Question | Artifacts | Reqs | Judgments | Prompt |
+| --- | --- | --- | --- | --- |
+| q0 | 18 | 12 | 216 | a cow plowing a field |
+| q7 | 21 | 7 | 147 | a dolphin jumping out of the water |
+| q4 | 11 | 9 | 99 | a rubber ducky floating |
+| q5 | 9 | 10 | 90 | a picnic on top of the clouds |
+| q13 | 9 | 10 | 90 | a half-buried barrel of treasure |
+| q12 | 8 | 11 | 88 | a fruit stall in the market |
+| q6 | 4 | 8 | 32 | a stunt car jumping through fire |
+
+### Coverage after re-judging
+
+Artifact counts per pair and question. This is what the scoreboard can honestly
+compare.
+
+| Pair | q0 | q4 | q5 | q6 | q7 | q12 | q13 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `claude/claude-opus-4-8` | 0 | 0 | 0 | 0 | 1 | 0 | 0 |
+| `claude/claude-opus-5` | 4 | 4 | 4 | 0 | 5 | 0 | 4 |
+| `claude/fable-5-1` | 4 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `opencode/gpt-5.6-terra` | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
+| `opencode/qwen3.8-27b-8bit` | 2 | 0 | 1 | 0 | 1 | 0 | 1 |
+| `opencode/qwen3.8-flash-next` | 4 | 3 | 0 | 0 | 10 | 4 | 0 |
+
+Two prompts reach five pairs (q0, q7) and three reach three pairs (q4, q5,
+q13). That is a genuine comparison, against one prompt today.
+
+Two limits survive re-judging and the site must state them:
+
+- `claude-opus-4-8` has one artifact on one prompt, and `fable-5-1` has four
+  artifacts on one prompt. Neither gets a meaningful cross-prompt mean. Both
+  are shown per-prompt only, never as an overall ranking position.
+- Take counts are uneven — `qwen3.8-flash-next` has 10 artifacts on q7 where
+  `claude-opus-4-8` has 1. Every figure is published with its `n`, and the
+  per-prompt view shows the take spread rather than a single mean.
+
+### Procedure
+
+Per the `svgbench-eval` skill, all paths relative to `bench/harness-matrix/`:
+
+1. `manifest` — regenerate and confirm the artifact-to-question map. Correct a
+   wrong match with `question_index_override`, not by moving files.
+2. `render --only <substring>` — PNGs to `logs/renders/` (gitignored).
+3. Judge each artifact from the **render**, not the source, strictly and per
+   requirement. Partial satisfaction fails, with the failing condition in
+   `note`. A variant visually identical to its base copies the base verdicts
+   and records that in `judge.note`.
+4. `score` — regenerates `results/svgbench/scores.json`.
+5. `python3 tests/test_svgbench_eval.py`.
+6. Cite each result in `results/<harness>/<model>.md`.
+
+Every verdict written in this pass carries
+`judge: {kind: "claude-vision", model: "claude-opus-5", date: "…", method: "…"}`
+with one identical `method` string, so the common threshold is auditable in the
+files themselves.
+
+### Consequent updates
+
+- `bench/harness-matrix/plan.md` — its scoring caveat currently names a
+  different judge. Rewrite it for the single-judge pass and add the
+  self-judging disclosure.
+- `reports/index.html` — the two SVG headlines describe the old, uneven board
+  ("the only shared prompt", "a question-mix artifact"). Both become wrong once
+  coverage reaches five pairs on two prompts. Rewrite them from the new
+  `scores.json`.
+- `reports/harness-matrix-svgbench.html` — rebuild its figures from the new
+  `scores.json`.
+
+### Two working-tree items to settle first
+
+`git status` shows two uncommitted files that this pass touches:
+
+- `bench/harness-matrix/results/svgbench/manifest.json` — a timestamp-only
+  change, safe to regenerate.
+- `bench/harness-matrix/harness-matrix-svgs.html` — a substantial rework
+  (−193 lines) converting a four-way dolphin comparison into a filterable
+  gallery of every SVG. It must be committed or discarded before the site is
+  assembled, and its relationship to `reports/harness-matrix-svgbench.html`
+  clarified: two files render overlapping views of the same data, and the
+  published site should carry one of them.
+
+### A trap for the dashboard build
+
+`scores.json` holds a `questions` array that is a **re-indexed subset** of
+`scripts/svgbench/questions.json`. An artifact's `question_index` refers to the
+full pinned file, not to a position in that subset. The dashboard resolves
+prompts through `questions.json`; indexing into `scores.json['questions']`
+silently mislabels prompts.
