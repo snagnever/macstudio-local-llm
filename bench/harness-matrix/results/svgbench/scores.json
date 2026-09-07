@@ -12,7 +12,7 @@
     "scoring": "score = requirements met / requirements total, judged on the Chrome-rendered PNG; pair mean_score = mean over scored artifacts",
     "comparability": "subset of the 105 questions; artifacts came from coding harnesses, not the SVGBench direct-API run; judge differs from SVGBench's gemini-2.5-flash. Not comparable to the upstream leaderboard."
   },
-  "generated_at": "2026-09-07T14:07:26",
+  "generated_at": "2026-09-07T14:27:56",
   "pairs": [
     {
       "harness": "claude",
@@ -48,11 +48,12 @@
     {
       "harness": "opencode",
       "model": "qwen3.8-flash-next",
-      "artifacts_scored": 21,
-      "mean_score": 0.6082766439909297,
+      "artifacts_scored": 25,
+      "mean_score": 0.5909523809523809,
       "by_question": {
         "0": 0.5625,
         "4": 0.5555555555555556,
+        "6": 0.5,
         "7": 0.7857142857142857,
         "12": 0.25
       }
@@ -72,12 +73,13 @@
     {
       "harness": "opencode",
       "model": "gpt-5.6-terra",
-      "artifacts_scored": 24,
-      "mean_score": 0.31415945165945164,
+      "artifacts_scored": 28,
+      "mean_score": 0.33624381570810147,
       "by_question": {
         "0": 0.45833333333333337,
         "4": 0.25,
         "5": 0.35,
+        "6": 0.46875,
         "7": 0.5357142857142857,
         "12": 0.09090909090909091,
         "13": 0.2
@@ -3587,6 +3589,250 @@
     },
     {
       "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-animated.svg",
+      "question_index": 6,
+      "animated": true,
+      "slug": "stunt-car-jumping-circle-fire-animated",
+      "prompt": "Write `svg` code for an image of a stunt car jumping through a circle of fire.",
+      "score": 0.5,
+      "met": 4,
+      "total": 8,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-animated.png",
+      "requirements": [
+        {
+          "text": "Create a red, sporty car with a body, wheels, and windows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
+          "met": false,
+          "note": "The take-off ramp on the left is drawn, but there is no landing ramp on the right of the fiery ring. The pale blue-grey bar at the right (x 1110-1290, y ~490) is a flat floating gantry with lamp dots hanging under it, well above the ground line, mirrored by an identical one on the left of the canvas."
+        },
+        {
+          "text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
+          "met": false,
+          "note": "Nothing has passed through the ring. Against the hoop's fitted mid-band (centre 977,414, r=259), 0.0% of the car's red body is beyond the ring on the forward side; 36.6% is inside the opening and the remaining 63.4% is still outside behind it, so the car is short of the ring rather than straddling it."
+        },
+        {
+          "text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add a ground surface below the entire jump setup.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Incorporate gray speed lines trailing behind the car to convey high speed.",
+          "met": false,
+          "note": "No gray speed lines trailing behind the car. The pale strokes behind the rear wheel are the ramp's own outline: each one runs unbroken from the grey-outlined base plate at the far left, horizontally along the ground, through the bend at the ramp's foot and up the incline to the wheel, which is the ramp structure and its rail, not streaks in the air behind the car."
+        },
+        {
+          "text": "Add orange sparks where the car's tires last touched the take-off ramp.",
+          "met": false,
+          "note": "No sparks at the ramp lip. A 4x crop of the rear tyre at the ramp's top edge shows only dark ramp face and sky. The two orange shapes floating at the upper left are detached hoop flames, roughly 900 px from the ramp lip."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v1.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-jumping-circle-fire-v1",
+      "prompt": "Write `svg` code for an image of a stunt car jumping through a circle of fire.",
+      "score": 0.375,
+      "met": 3,
+      "total": 8,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v1.png",
+      "requirements": [
+        {
+          "text": "Create a red, sporty car with a body, wheels, and windows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
+          "met": false,
+          "note": "Neither ramp is drawn. The only structures under the hoop are two thin grey posts with small flat feet that hold the ring up; there is no take-off ramp on the left and no landing ramp on the right."
+        },
+        {
+          "text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
+          "met": false,
+          "note": "The car is essentially all the way through. Fitting the hoop's mid-band as a circle at centre (444,396) with r=186 and splitting the car's red body against it, 86.7% of the body lies beyond the ring on the forward side and only 13.2% is still inside the opening, so the back half is not inside the ring."
+        },
+        {
+          "text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
+          "met": false,
+          "note": "There is no take-off ramp for the rear wheels to have left; both wheels are in open sky with nothing beneath them."
+        },
+        {
+          "text": "Add a ground surface below the entire jump setup.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Incorporate gray speed lines trailing behind the car to convey high speed.",
+          "met": false,
+          "note": "No speed lines behind the car. The only linear marks in that part of the canvas are two long brown-maroon horizon strokes (sampled at RGB 120,74,74 and 92,62,70) that belong to the background hills, and they run below and well clear of the car rather than trailing from it."
+        },
+        {
+          "text": "Add orange sparks where the car's tires last touched the take-off ramp.",
+          "met": false,
+          "note": "No sparks anywhere, and no take-off ramp for a last tyre contact point to be on. The scattered orange dots near the hoop are ember specks strewn across the sky, not a spark burst at a ramp edge."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v2.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-jumping-circle-fire-v2",
+      "prompt": "Write `svg` code for an image of a stunt car jumping through a circle of fire.",
+      "score": 0.5,
+      "met": 4,
+      "total": 8,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v2.png",
+      "requirements": [
+        {
+          "text": "Create a red, sporty car with a body, wheels, and windows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
+          "met": false,
+          "note": "The take-off ramp on the left is drawn, but there is no landing ramp on the right of the fiery ring: the only things right of the hoop are the two grey posts and flat feet that support it."
+        },
+        {
+          "text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
+          "met": false,
+          "note": "Nothing has passed through the ring. Against the hoop's fitted mid-band (centre 980,421, r=241), 0.0% of the car's red body is beyond the ring on the forward side; 34.0% is inside the opening and the remaining 66.0% is still outside behind it, so the car is short of the ring rather than straddling it."
+        },
+        {
+          "text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add a ground surface below the entire jump setup.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Incorporate gray speed lines trailing behind the car to convey high speed.",
+          "met": false,
+          "note": "No gray speed lines trailing behind the car. The pale strokes behind the rear wheel are the ramp's own outline: each one runs unbroken from the grey-outlined base plate at the far left, horizontally along the ground, through the bend at the ramp's foot and up the incline to the wheel, which is the ramp structure and its rail, not streaks in the air behind the car."
+        },
+        {
+          "text": "Add orange sparks where the car's tires last touched the take-off ramp.",
+          "met": false,
+          "note": "No sparks at the ramp lip. Crops at 4x of the point where the rear tyre meets the ramp's top edge show only the dark ramp face and night sky; the nearest orange shapes are hoop flames over 300 px away."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v3.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-jumping-circle-fire-v3",
+      "prompt": "Write `svg` code for an image of a stunt car jumping through a circle of fire.",
+      "score": 0.5,
+      "met": 4,
+      "total": 8,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v3.png",
+      "requirements": [
+        {
+          "text": "Create a red, sporty car with a body, wheels, and windows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
+          "met": false,
+          "note": "The take-off ramp on the left is drawn, but there is no landing ramp on the right of the fiery ring. The pale blue-grey bar at the right (x 1085-1250, y ~490) is not a ramp: it is a flat floating gantry with two lamp dots hanging under it, 140 px above the ground line, and an identical one is mirrored on the left of the canvas."
+        },
+        {
+          "text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
+          "met": false,
+          "note": "Nothing has passed through the ring. Against the hoop's fitted mid-band (centre 972,413, r=263), 0.0% of the car's red body is beyond the ring on the forward side; 36.0% is inside the opening and the remaining 64.0% is still outside behind it, so the car is short of the ring rather than straddling it."
+        },
+        {
+          "text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add a ground surface below the entire jump setup.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Incorporate gray speed lines trailing behind the car to convey high speed.",
+          "met": false,
+          "note": "No gray speed lines trailing behind the car. The pale strokes behind the rear wheel are the ramp's own outline: each one runs unbroken from the grey-outlined base plate at the far left, horizontally along the ground, through the bend at the ramp's foot and up the incline to the wheel, which is the ramp structure and its rail, not streaks in the air behind the car."
+        },
+        {
+          "text": "Add orange sparks where the car's tires last touched the take-off ramp.",
+          "met": false,
+          "note": "No sparks at the ramp lip. A 4x crop of the point where the rear tyre meets the ramp's top edge shows only dark ramp face and sky; the one orange stroke in the scene is a stripe painted inside the ramp's base plate at the far left, on the ground about 600 px from the lip."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
       "model": "qwen3.8-27b-8bit",
       "artifact": "logs/opencode/qwen3.8-27b-8bit/cow-plowing-animated.svg",
       "question_index": 0,
@@ -5331,6 +5577,250 @@
           "note": "The bubbles form two similar modest clusters at the left and right ends of the tub, each about 19% of the tub's interior width and neither rising above the rim; there is no large pile banked against one side."
         }
       ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-animated.svg",
+      "question_index": 6,
+      "animated": true,
+      "slug": "stunt-car-fire-ring-animated",
+      "prompt": "Write `svg` code for an image of a stunt car jumping through a circle of fire.",
+      "score": 0.5,
+      "met": 4,
+      "total": 8,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/stunt-car-fire-ring-animated.png",
+      "requirements": [
+        {
+          "text": "Create a red, sporty car with a body, wheels, and windows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
+          "met": false,
+          "note": "The whole car is inside the ring; nothing has passed through it. Against the hoop's fitted mid-band (centre 399,233, r=151), 100.0% of the car's red body lies inside the opening and 0.0% beyond it, so the front half has not passed through."
+        },
+        {
+          "text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
+          "met": false,
+          "note": "The rear wheel is nowhere near the take-off ramp's edge. The ramp's lip is at about (263,372) while the rear wheel sits at about (355,288) in the middle of the hoop - roughly 125 px away, about 2.8 wheel diameters, and well above the ramp."
+        },
+        {
+          "text": "Add a ground surface below the entire jump setup.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Incorporate gray speed lines trailing behind the car to convey high speed.",
+          "met": false,
+          "note": "There are no gray speed lines. Behind the car there is a pink spoiler and a gold exhaust wisp, plus a few small tan debris dashes; nothing gray trails it."
+        },
+        {
+          "text": "Add orange sparks where the car's tires last touched the take-off ramp.",
+          "met": false,
+          "note": "No sparks at the take-off ramp's edge. A 4x crop of the striped ramp lip shows bare ramp and ground; the scattered tan dashes near the wheels are debris flecks inside the hoop, not orange sparks at the ramp."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v2.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-fire-ring-v2",
+      "prompt": "Write `svg` code for an image of a stunt car jumping through a circle of fire.",
+      "score": 0.5,
+      "met": 4,
+      "total": 8,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v2.png",
+      "requirements": [
+        {
+          "text": "Create a red, sporty car with a body, wheels, and windows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
+          "met": false,
+          "note": "The whole car is inside the ring; nothing has passed through it. Against the hoop's fitted mid-band (centre 399,234, r=150), 100.0% of the car's red body lies inside the opening and 0.0% beyond it, so the front half has not passed through."
+        },
+        {
+          "text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
+          "met": false,
+          "note": "The rear wheel is nowhere near the take-off ramp's edge. The ramp's lip is at about (263,372) while the rear wheel sits at about (355,288) in the middle of the hoop - roughly 125 px away, about 2.8 wheel diameters, and well above the ramp."
+        },
+        {
+          "text": "Add a ground surface below the entire jump setup.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Incorporate gray speed lines trailing behind the car to convey high speed.",
+          "met": false,
+          "note": "The three streaks trailing the car are not gray: they are the same tan as the base variant (sampled about RGB 210,166,111, a max-minus-min channel spread near 99), well outside the near-neutral test (spread <= 40) used for the binding colour words. The dark navy shape behind the roof is a spoiler, not a speed line."
+        },
+        {
+          "text": "Add orange sparks where the car's tires last touched the take-off ramp.",
+          "met": false,
+          "note": "No sparks at the take-off ramp's edge. A 4x crop of the striped ramp lip shows bare ramp and ground; the only orange near the car is the exhaust wisp at its tail, inside the hoop."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v3.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-fire-ring-v3",
+      "prompt": "Write `svg` code for an image of a stunt car jumping through a circle of fire.",
+      "score": 0.5,
+      "met": 4,
+      "total": 8,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v3.png",
+      "requirements": [
+        {
+          "text": "Create a red, sporty car with a body, wheels, and windows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
+          "met": false,
+          "note": "The whole car is inside the ring; nothing has passed through it. Against the hoop's fitted mid-band (centre 399,234, r=150), 100.0% of the car's red body lies inside the opening and 0.0% beyond it, so the front half has not passed through."
+        },
+        {
+          "text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
+          "met": false,
+          "note": "The rear wheel is nowhere near the take-off ramp's edge. The ramp's lip is at about (263,372) while the rear wheel sits at about (355,288) in the middle of the hoop - roughly 125 px away, about 2.8 wheel diameters, and well above the ramp."
+        },
+        {
+          "text": "Add a ground surface below the entire jump setup.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Incorporate gray speed lines trailing behind the car to convey high speed.",
+          "met": false,
+          "note": "There are no speed lines at all in this variant. The tan streaks of the base and v2 have been replaced by a pink rear spoiler and a gold exhaust wisp; nothing gray trails the car."
+        },
+        {
+          "text": "Add orange sparks where the car's tires last touched the take-off ramp.",
+          "met": false,
+          "note": "No sparks at the take-off ramp's edge. A 4x crop of the striped ramp lip shows bare ramp and ground; the gold wisp is at the car's tail in the middle of the hoop, not at the ramp."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-fire-ring",
+      "prompt": "Write `svg` code for an image of a stunt car jumping through a circle of fire.",
+      "score": 0.5,
+      "met": 4,
+      "total": 8,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/stunt-car-fire-ring.png",
+      "requirements": [
+        {
+          "text": "Create a red, sporty car with a body, wheels, and windows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
+          "met": false,
+          "note": "The whole car is inside the ring; nothing has passed through it. Against the hoop's fitted mid-band (centre 399,241, r=151), 100.0% of the car's red body lies inside the opening and 0.0% beyond it, so the front half has not passed through."
+        },
+        {
+          "text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
+          "met": false,
+          "note": "The rear wheel is nowhere near the take-off ramp's edge. The ramp's lip is at about (263,372) while the rear wheel sits at about (355,288) in the middle of the hoop - roughly 125 px away, about 2.8 wheel diameters, and well above the ramp."
+        },
+        {
+          "text": "Add a ground surface below the entire jump setup.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Incorporate gray speed lines trailing behind the car to convey high speed.",
+          "met": false,
+          "note": "The three streaks trailing the car are not gray: they sample RGB 210,166,111 / 207,164,111, a max-minus-min channel spread of about 99, which is a tan, well outside the near-neutral test (spread <= 40) used for the binding colour words."
+        },
+        {
+          "text": "Add orange sparks where the car's tires last touched the take-off ramp.",
+          "met": false,
+          "note": "No sparks at the take-off ramp's edge. A 4x crop of the ramp lip shows bare grey ramp and ground; the only orange near the car is a thin exhaust wisp at its tail, 130 px away inside the hoop."
+        }
+      ]
     }
   ],
   "questions": [
@@ -5428,6 +5918,31 @@
         "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v2.svg",
         "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v3.svg",
         "logs/opencode/qwen3.8-27b-8bit/picnic-on-clouds.svg"
+      ]
+    },
+    {
+      "question_index": 6,
+      "prompt": "Write `svg` code for an image of a stunt car jumping through a circle of fire.",
+      "n_requirements": 8,
+      "requirements": [
+        "Create a red, sporty car with a body, wheels, and windows.",
+        "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
+        "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
+        "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
+        "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
+        "Add a ground surface below the entire jump setup.",
+        "Incorporate gray speed lines trailing behind the car to convey high speed.",
+        "Add orange sparks where the car's tires last touched the take-off ramp."
+      ],
+      "artifacts": [
+        "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-animated.svg",
+        "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v1.svg",
+        "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v2.svg",
+        "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v3.svg",
+        "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-animated.svg",
+        "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v2.svg",
+        "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v3.svg",
+        "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring.svg"
       ]
     },
     {
@@ -5563,84 +6078,12 @@
     },
     {
       "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-animated.svg",
-      "question_index": 6,
-      "animated": true,
-      "slug": "stunt-car-jumping-circle-fire-animated",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v1.svg",
-      "question_index": 6,
-      "animated": false,
-      "slug": "stunt-car-jumping-circle-fire-v1",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v2.svg",
-      "question_index": 6,
-      "animated": false,
-      "slug": "stunt-car-jumping-circle-fire-v2",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v3.svg",
-      "question_index": 6,
-      "animated": false,
-      "slug": "stunt-car-jumping-circle-fire-v3",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
       "model": "qwen3.8-27b-8bit",
       "artifact": "logs/opencode/qwen3.8-27b-8bit/dawn-beach.svg",
       "question_index": null,
       "animated": true,
       "slug": "dawn-beach",
       "reason": "prompt is not an SVGBench question"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-animated.svg",
-      "question_index": 6,
-      "animated": true,
-      "slug": "stunt-car-fire-ring-animated",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v2.svg",
-      "question_index": 6,
-      "animated": false,
-      "slug": "stunt-car-fire-ring-v2",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v3.svg",
-      "question_index": 6,
-      "animated": false,
-      "slug": "stunt-car-fire-ring-v3",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring.svg",
-      "question_index": 6,
-      "animated": false,
-      "slug": "stunt-car-fire-ring",
-      "reason": "no verdict file"
     }
   ],
   "skipped": []
