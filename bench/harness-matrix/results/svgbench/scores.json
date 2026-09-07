@@ -12,7 +12,7 @@
     "scoring": "score = requirements met / requirements total, judged on the Chrome-rendered PNG; pair mean_score = mean over scored artifacts",
     "comparability": "subset of the 105 questions; artifacts came from coding harnesses, not the SVGBench direct-API run; judge differs from SVGBench's gemini-2.5-flash. Not comparable to the upstream leaderboard."
   },
-  "generated_at": "2026-09-07T13:33:54",
+  "generated_at": "2026-09-07T13:52:05",
   "pairs": [
     {
       "harness": "claude",
@@ -35,13 +35,14 @@
     {
       "harness": "claude",
       "model": "claude-opus-5",
-      "artifacts_scored": 17,
-      "mean_score": 0.7037348272642391,
+      "artifacts_scored": 21,
+      "mean_score": 0.6934996220710506,
       "by_question": {
         "0": 0.75,
         "4": 0.6944444444444444,
         "5": 0.475,
-        "7": 0.8571428571428571
+        "7": 0.8571428571428571,
+        "13": 0.6499999999999999
       }
     },
     {
@@ -58,24 +59,26 @@
     {
       "harness": "opencode",
       "model": "qwen3.8-27b-8bit",
-      "artifacts_scored": 4,
-      "mean_score": 0.5238095238095238,
+      "artifacts_scored": 5,
+      "mean_score": 0.4990476190476191,
       "by_question": {
         "0": 0.5833333333333334,
         "5": 0.5,
-        "7": 0.42857142857142855
+        "7": 0.42857142857142855,
+        "13": 0.4
       }
     },
     {
       "harness": "opencode",
       "model": "gpt-5.6-terra",
-      "artifacts_scored": 16,
-      "mean_score": 0.39851190476190473,
+      "artifacts_scored": 20,
+      "mean_score": 0.3588095238095238,
       "by_question": {
         "0": 0.45833333333333337,
         "4": 0.25,
         "5": 0.35,
-        "7": 0.5357142857142857
+        "7": 0.5357142857142857,
+        "13": 0.2
       }
     }
   ],
@@ -1290,6 +1293,290 @@
     },
     {
       "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/treasure-barrel-animated.svg",
+      "question_index": 13,
+      "animated": true,
+      "slug": "treasure-barrel-animated",
+      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
+      "score": 0.7,
+      "met": 7,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/claude-opus-5/treasure-barrel-animated.png",
+      "requirements": [
+        {
+          "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+          "met": false,
+          "note": "Three grey metal hoops are drawn on the barrel body - one just under the rim and two lower down - not two."
+        },
+        {
+          "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
+          "met": false,
+          "note": "More than the top half shows: the barrel's silhouette reaches its maximum width of 305 px at y=370 and has tapered back to about 177 px (58% of maximum) where the sand cuts it at y=450, so the bulge and most of the lower taper are above the sand."
+        },
+        {
+          "text": "Show the sand mounded up slightly around the visible base of the barrel.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The barrel must be open at the top and filled with treasure items.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+          "met": false,
+          "note": "The goblet lies on the open sand to the right of the barrel, outside it; no goblet sits in the coins inside the barrel."
+        },
+        {
+          "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/treasure-barrel-v2.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel-v2",
+      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
+      "score": 0.6,
+      "met": 6,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/claude-opus-5/treasure-barrel-v2.png",
+      "requirements": [
+        {
+          "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+          "met": false,
+          "note": "Three grey metal hoops are drawn on the barrel body - one just under the rim and two lower down - not two."
+        },
+        {
+          "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show the sand mounded up slightly around the visible base of the barrel.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The barrel must be open at the top and filled with treasure items.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+          "met": false,
+          "note": "The pearl string is draped over the left rim but its last pearl stops on bare wood about two pearl-diameters short of the nearest coin, so it does not trail into the spilled coins."
+        },
+        {
+          "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+          "met": false,
+          "note": "No goblet appears anywhere in the render; the only vessel-like object is a crown lying on the sand at the lower left."
+        },
+        {
+          "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
+          "met": false,
+          "note": "There is no goblet in the render, so the required glint on the goblet cannot be present; coins and gems are shaded."
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/treasure-barrel-v3.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel-v3",
+      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
+      "score": 0.7,
+      "met": 7,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/claude-opus-5/treasure-barrel-v3.png",
+      "requirements": [
+        {
+          "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+          "met": false,
+          "note": "Three grey metal hoops are drawn on the barrel body - one just under the rim and two lower down - not two."
+        },
+        {
+          "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
+          "met": false,
+          "note": "More than the top half shows: the barrel's silhouette reaches its maximum width of 306 px at y=376 and has tapered back to 166 px (54% of maximum) where the sand cuts it at y=456, so the whole bulge and most of the lower taper are above the sand."
+        },
+        {
+          "text": "Show the sand mounded up slightly around the visible base of the barrel.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The barrel must be open at the top and filled with treasure items.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+          "met": false,
+          "note": "The goblet lies on the open sand to the right of the barrel, outside it; no goblet sits in the coins inside the barrel."
+        },
+        {
+          "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/treasure-barrel.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel",
+      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
+      "score": 0.6,
+      "met": 6,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/claude-opus-5/treasure-barrel.png",
+      "requirements": [
+        {
+          "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+          "met": false,
+          "note": "Three grey metal hoops are drawn on the barrel body - one just under the rim and two lower down - not two."
+        },
+        {
+          "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show the sand mounded up slightly around the visible base of the barrel.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The barrel must be open at the top and filled with treasure items.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+          "met": false,
+          "note": "The pearl string is draped over the right rim but ends in bare wood halfway down the barrel; the spilled coins are all on the left side and on the sand, so it trails into nothing."
+        },
+        {
+          "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+          "met": false,
+          "note": "The goblet lies on the open sand at the lower right, outside the barrel; nothing goblet-shaped sits in the coins inside the barrel."
+        },
+        {
+          "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
+          "met": false,
+          "note": "The gemstones are flat single-fill diamonds with no facet highlight, sparkle or gradient (the crimson gem samples one uniform colour, RGB 216,30,91, across its whole area); only the coins and goblet are shaded."
+        }
+      ]
+    },
+    {
+      "harness": "claude",
       "model": "fable-5-1",
       "artifact": "logs/claude/fable-5-1/cow-plowing-animated.svg",
       "question_index": 0,
@@ -2163,6 +2450,290 @@
     {
       "harness": "opencode",
       "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-animated.svg",
+      "question_index": 13,
+      "animated": true,
+      "slug": "half-buried-treasure-barrel-animated",
+      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
+      "score": 0.2,
+      "met": 2,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/half-buried-treasure-barrel-animated.png",
+      "requirements": [
+        {
+          "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+          "met": false,
+          "note": "Three metal hoops are strapped across the barrel body, not two."
+        },
+        {
+          "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
+          "met": false,
+          "note": "More than the top half shows: the barrel stands about 425 px tall above the dune against a drawn width of about 437 px (ratio 0.97, where half a barrel is roughly 0.7 of its width), and its lower-left base curve is drawn above the sand."
+        },
+        {
+          "text": "Show the sand mounded up slightly around the visible base of the barrel.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The barrel must be open at the top and filled with treasure items.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+          "met": false,
+          "note": "Nothing overflows the rim and nothing spills down any side of the barrel; the three coins and two pearls on the dune are isolated objects with no trail connecting them to the barrel."
+        },
+        {
+          "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+          "met": false,
+          "note": "Outside the barrel there are only three isolated coins scattered on the dune, which is not a large pile."
+        },
+        {
+          "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+          "met": false,
+          "note": "Neither green nor blue is present: the two non-red gems are teal (46,188,163, hue 169 degrees) and the other two are crimson, so there is no green emerald and no blue sapphire."
+        },
+        {
+          "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+          "met": false,
+          "note": "The pearls are three loose beads lying among the coins inside the barrel and two more sitting on the dune; there is no string, and nothing is draped over the barrel's edge."
+        },
+        {
+          "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+          "met": false,
+          "note": "No goblet appears anywhere in the render."
+        },
+        {
+          "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
+          "met": false,
+          "note": "There is no goblet in the render, so the required glint on the goblet cannot be present."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v1.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "half-buried-treasure-barrel-v1",
+      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
+      "score": 0.2,
+      "met": 2,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v1.png",
+      "requirements": [
+        {
+          "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+          "met": false,
+          "note": "No metal hoops: the barrel's horizontal bands are all the same brown wood palette as the staves (sampled 100,44,21 and 141,69,28 against wood at 92,38,22), with no grey or metallic band anywhere, and there are four or five such bands rather than two."
+        },
+        {
+          "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
+          "met": false,
+          "note": "The barrel is not buried at all - its rounded bottom is drawn in full above the sand and it stands on the surface with a cast shadow; the entire barrel is visible."
+        },
+        {
+          "text": "Show the sand mounded up slightly around the visible base of the barrel.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The barrel must be open at the top and filled with treasure items.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+          "met": false,
+          "note": "Nothing overflows the rim - the coins sit level inside the barrel mouth - and there is no treasure on the barrel's side or on the sand."
+        },
+        {
+          "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+          "met": false,
+          "note": "There are no coins at all outside the barrel; the only coins are the layer inside the mouth."
+        },
+        {
+          "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+          "met": false,
+          "note": "No blue sapphire: the gems are a cyan diamond (56,197,210, hue 185 degrees), a violet circle (167,86,202, hue 282 degrees), a green circle and a red diamond, so the blue is missing."
+        },
+        {
+          "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+          "met": false,
+          "note": "No pearls appear anywhere in the render."
+        },
+        {
+          "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+          "met": false,
+          "note": "No goblet appears anywhere in the render."
+        },
+        {
+          "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
+          "met": false,
+          "note": "There is no goblet in the render, so the required glint on the goblet cannot be present, and the gems are flat single-fill shapes with no highlight."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v2.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "half-buried-treasure-barrel-v2",
+      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
+      "score": 0.2,
+      "met": 2,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v2.png",
+      "requirements": [
+        {
+          "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+          "met": false,
+          "note": "Three metal hoops are strapped across the barrel body, not two."
+        },
+        {
+          "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
+          "met": false,
+          "note": "More than the top half shows: the barrel stands about 428 px tall above the dune against a drawn width of about 415 px (ratio 1.03, where half a barrel is roughly 0.7 of its width), and its lower-left base curve is drawn above the sand."
+        },
+        {
+          "text": "Show the sand mounded up slightly around the visible base of the barrel.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The barrel must be open at the top and filled with treasure items.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+          "met": false,
+          "note": "Nothing overflows the rim - the coins lie flat inside the mouth - and nothing spills down any side of the barrel; the three coins on the dune are isolated and unconnected to the barrel."
+        },
+        {
+          "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+          "met": false,
+          "note": "Outside the barrel there are only three isolated coins scattered on the dune, which is not a large pile."
+        },
+        {
+          "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+          "met": false,
+          "note": "Neither green nor blue is present: the two non-red gems are teal (48,197,182, hue 174 degrees) and the other two are crimson, so there is no green emerald and no blue sapphire."
+        },
+        {
+          "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+          "met": false,
+          "note": "No pearls appear anywhere in the render."
+        },
+        {
+          "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+          "met": false,
+          "note": "No goblet appears anywhere in the render."
+        },
+        {
+          "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
+          "met": false,
+          "note": "There is no goblet in the render, so the required glint on the goblet cannot be present."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v3.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "half-buried-treasure-barrel-v3",
+      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
+      "score": 0.2,
+      "met": 2,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v3.png",
+      "requirements": [
+        {
+          "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+          "met": false,
+          "note": "Three metal hoops are strapped across the barrel body, not two."
+        },
+        {
+          "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
+          "met": false,
+          "note": "More than the top half shows: the barrel stands about 425 px tall above the dune against a drawn width of about 437 px (ratio 0.97, where half a barrel is roughly 0.7 of its width), and its lower-left base curve is drawn above the sand."
+        },
+        {
+          "text": "Show the sand mounded up slightly around the visible base of the barrel.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The barrel must be open at the top and filled with treasure items.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+          "met": false,
+          "note": "Nothing overflows the rim and nothing spills down any side of the barrel; the three coins and two pearls on the dune are isolated objects with no trail connecting them to the barrel."
+        },
+        {
+          "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+          "met": false,
+          "note": "Outside the barrel there are only three isolated coins scattered on the dune, which is not a large pile."
+        },
+        {
+          "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+          "met": false,
+          "note": "Neither green nor blue is present: the two non-red gems are teal (43,189,163, hue 169 degrees) and the other two are crimson, so there is no green emerald and no blue sapphire."
+        },
+        {
+          "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+          "met": false,
+          "note": "The pearls are three loose beads lying among the coins inside the barrel and two more sitting on the dune; there is no string, and nothing is draped over the barrel's edge."
+        },
+        {
+          "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+          "met": false,
+          "note": "No goblet appears anywhere in the render."
+        },
+        {
+          "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
+          "met": false,
+          "note": "There is no goblet in the render, so the required glint on the goblet cannot be present."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
       "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-animated.svg",
       "question_index": 5,
       "animated": true,
@@ -2994,6 +3565,77 @@
           "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
           "met": false,
           "note": "Three distant clouds are drawn in the sky - beneath the sun at about (150,180), at (625,110) and at (1090,195) - not two."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-27b-8bit",
+      "artifact": "logs/opencode/qwen3.8-27b-8bit/treasure-barrel.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel",
+      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
+      "score": 0.4,
+      "met": 4,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-27b-8bit/treasure-barrel.png",
+      "requirements": [
+        {
+          "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show the sand mounded up slightly around the visible base of the barrel.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The barrel must be open at the top and filled with treasure items.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+          "met": false,
+          "note": "The coin heap does mound above the rim, but nothing spills down a side onto the sand: the four coins on the barrel face are symmetric studs on the two hoops, and the six coins on the sand are scattered evenly to both sides with no connected trail."
+        },
+        {
+          "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+          "met": false,
+          "note": "Outside the barrel there are only six flat coins spread singly across the whole width of the sand, which is not a large pile."
+        },
+        {
+          "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+          "met": false,
+          "note": "Neither green nor blue is present: the gems are a red diamond, a yellow diamond and a teal diamond (35,165,154, hue 175 degrees), so there is no green emerald and no blue sapphire."
+        },
+        {
+          "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+          "met": false,
+          "note": "No pearls appear anywhere in the render."
+        },
+        {
+          "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+          "met": false,
+          "note": "No goblet appears anywhere in the render; the gold object above the coin heap is a crown."
+        },
+        {
+          "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
+          "met": false,
+          "note": "There is no goblet in the render, so the required glint on the goblet cannot be present."
         }
       ]
     },
@@ -4214,45 +4856,37 @@
         "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v3.svg",
         "logs/opencode/qwen3.8-flash-next/dolphin.svg"
       ]
+    },
+    {
+      "question_index": 13,
+      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
+      "n_requirements": 10,
+      "requirements": [
+        "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+        "The barrel must be buried in a mound of sand, so only the top half is visible.",
+        "Show the sand mounded up slightly around the visible base of the barrel.",
+        "The barrel must be open at the top and filled with treasure items.",
+        "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+        "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+        "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+        "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+        "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+        "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny."
+      ],
+      "artifacts": [
+        "logs/claude/claude-opus-5/treasure-barrel-animated.svg",
+        "logs/claude/claude-opus-5/treasure-barrel-v2.svg",
+        "logs/claude/claude-opus-5/treasure-barrel-v3.svg",
+        "logs/claude/claude-opus-5/treasure-barrel.svg",
+        "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-animated.svg",
+        "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v1.svg",
+        "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v2.svg",
+        "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v3.svg",
+        "logs/opencode/qwen3.8-27b-8bit/treasure-barrel.svg"
+      ]
     }
   ],
   "unscored": [
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/treasure-barrel-animated.svg",
-      "question_index": 13,
-      "animated": true,
-      "slug": "treasure-barrel-animated",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/treasure-barrel-v2.svg",
-      "question_index": 13,
-      "animated": false,
-      "slug": "treasure-barrel-v2",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/treasure-barrel-v3.svg",
-      "question_index": 13,
-      "animated": false,
-      "slug": "treasure-barrel-v3",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/treasure-barrel.svg",
-      "question_index": 13,
-      "animated": false,
-      "slug": "treasure-barrel",
-      "reason": "no verdict file"
-    },
     {
       "harness": "opencode",
       "model": "gpt-5.6-terra",
@@ -4328,42 +4962,6 @@
     {
       "harness": "opencode",
       "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-animated.svg",
-      "question_index": 13,
-      "animated": true,
-      "slug": "half-buried-treasure-barrel-animated",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v1.svg",
-      "question_index": 13,
-      "animated": false,
-      "slug": "half-buried-treasure-barrel-v1",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v2.svg",
-      "question_index": 13,
-      "animated": false,
-      "slug": "half-buried-treasure-barrel-v2",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v3.svg",
-      "question_index": 13,
-      "animated": false,
-      "slug": "half-buried-treasure-barrel-v3",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
       "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-animated.svg",
       "question_index": 6,
       "animated": true,
@@ -4405,15 +5003,6 @@
       "animated": true,
       "slug": "dawn-beach",
       "reason": "prompt is not an SVGBench question"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-27b-8bit",
-      "artifact": "logs/opencode/qwen3.8-27b-8bit/treasure-barrel.svg",
-      "question_index": 13,
-      "animated": false,
-      "slug": "treasure-barrel",
-      "reason": "no verdict file"
     },
     {
       "harness": "opencode",
