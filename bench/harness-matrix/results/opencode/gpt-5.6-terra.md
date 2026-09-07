@@ -19,8 +19,13 @@ _Run date: 2026-09-06._
   Per-question means: q0 0.458, q4 0.25, q5 0.35, q6 0.469, q7 0.536,
   q12 0.091, q13 0.2. The four dawn artifacts are intentionally off-benchmark.
   Under the earlier setup, where this pair's own model judged all 28 of its
-  verdicts, the mean read 0.421; every other pair's mean rose under the neutral
-  judge, and this is the only one that fell. See
+  verdicts, the mean read 0.421. The comparison is like-for-like: the same 28
+  artifacts carry both means. Three pairs kept their artifact set across the
+  rejudge — this one, `opencode/qwen3.8-27b-8bit` (5 artifacts, 0.419 → 0.499),
+  and `claude/claude-opus-4-8` (1 artifact, flat at 0.714). This is the only one
+  that fell. The other pairs on the board gained artifacts at the same time
+  (`claude/claude-opus-5` 1 → 21, `opencode/qwen3.8-flash-next` 8 → 25) or are
+  new (`claude/fable-5-1`), so their means are not comparable across boards. See
   [`../svgbench/verdicts/opencode/gpt-5.6-terra/`](../svgbench/verdicts/opencode/gpt-5.6-terra/).
 - **SVGBench:** 5/7 (q7) · verdict: `../svgbench/verdicts/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v2.json`
 

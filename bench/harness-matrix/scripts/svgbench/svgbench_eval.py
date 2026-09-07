@@ -341,8 +341,10 @@ def build_scores(manifest, verdicts, questions, meta=None):
             "scoring": "score = requirements met / requirements total, judged on the "
                        "Chrome-rendered PNG; pair mean_score = mean over scored artifacts",
             "comparability": "subset of the 105 questions; artifacts came from coding harnesses, "
-                             "not the SVGBench direct-API run; judge differs from SVGBench's "
-                             "gemini-2.5-flash. Not comparable to the upstream leaderboard.",
+                             "not the SVGBench direct-API run; every artifact was judged by one "
+                             "judge, claude-opus-5, which is itself a contestant here — 21 of the "
+                             "84 scored artifacts are its own, so the claude/claude-opus-5 row is "
+                             "self-judged. Not comparable to the upstream leaderboard.",
         },
         "generated_at": dt.datetime.now().isoformat(timespec="seconds"),
         "pairs": pair_list,
