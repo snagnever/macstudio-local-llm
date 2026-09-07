@@ -12,7 +12,7 @@
     "scoring": "score = requirements met / requirements total, judged on the Chrome-rendered PNG; pair mean_score = mean over scored artifacts",
     "comparability": "subset of the 105 questions; artifacts came from coding harnesses, not the SVGBench direct-API run; judge differs from SVGBench's gemini-2.5-flash. Not comparable to the upstream leaderboard."
   },
-  "generated_at": "2026-09-06T18:36:30",
+  "generated_at": "2026-09-07T11:56:20",
   "pairs": [
     {
       "harness": "claude",
@@ -85,8 +85,8 @@
       "total": 7,
       "judge": {
         "kind": "claude-vision",
-        "model": "claude-fable-5-1",
-        "date": "2026-09-06",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
         "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
       },
       "render": "logs/renders/claude/claude-opus-4-8/dolphin-hoop.png",
@@ -94,37 +94,37 @@
         {
           "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
           "met": true,
-          "note": "grey body, dorsal fin, fluke"
+          "note": ""
         },
         {
           "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
           "met": false,
-          "note": "small droplet splash, offset from where the tail meets the water"
+          "note": "Water surface is present, but the splash is a small three-bump cluster with three bubbles sitting ~80px to the left of where the dolphin crosses the waterline; it is neither large nor at the exit point."
         },
         {
           "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
           "met": false,
-          "note": "tail extends below the waterline"
+          "note": "The tail stock and fluke are drawn below the water surface line, so the body is not entirely in mid-air; the pose is also a straight diagonal rather than an arc."
         },
         {
           "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
           "met": true,
-          "note": "red-and-yellow ring around the mid-body"
+          "note": ""
         },
         {
           "text": "Include a human trainer's arm and hand extending into the frame.",
           "met": true,
-          "note": "arm and hand extend from the trainer"
+          "note": ""
         },
         {
           "text": "The trainer's hand must be holding a small fish by the tail.",
           "met": true,
-          "note": "hand holds the fish at the tail"
+          "note": ""
         },
         {
           "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
           "met": true,
-          "note": "jaw gap open at the fish head"
+          "note": ""
         }
       ]
     },
@@ -3574,37 +3574,37 @@
       "harness": "opencode",
       "model": "qwen3.8-flash-next",
       "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-animated.svg",
-      "question_index": null,
+      "question_index": 6,
       "animated": true,
       "slug": "stunt-car-fire-ring-animated",
-      "reason": "prompt is not an SVGBench question"
+      "reason": "no verdict file"
     },
     {
       "harness": "opencode",
       "model": "qwen3.8-flash-next",
       "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v2.svg",
-      "question_index": null,
+      "question_index": 6,
       "animated": false,
       "slug": "stunt-car-fire-ring-v2",
-      "reason": "prompt is not an SVGBench question"
+      "reason": "no verdict file"
     },
     {
       "harness": "opencode",
       "model": "qwen3.8-flash-next",
       "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v3.svg",
-      "question_index": null,
+      "question_index": 6,
       "animated": false,
       "slug": "stunt-car-fire-ring-v3",
-      "reason": "prompt is not an SVGBench question"
+      "reason": "no verdict file"
     },
     {
       "harness": "opencode",
       "model": "qwen3.8-flash-next",
       "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring.svg",
-      "question_index": null,
+      "question_index": 6,
       "animated": false,
       "slug": "stunt-car-fire-ring",
-      "reason": "prompt is not an SVGBench question"
+      "reason": "no verdict file"
     }
   ],
   "skipped": []
