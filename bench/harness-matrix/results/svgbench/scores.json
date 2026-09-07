@@ -12,19 +12,8 @@
     "scoring": "score = requirements met / requirements total, judged on the Chrome-rendered PNG; pair mean_score = mean over scored artifacts",
     "comparability": "subset of the 105 questions; artifacts came from coding harnesses, not the SVGBench direct-API run; judge differs from SVGBench's gemini-2.5-flash. Not comparable to the upstream leaderboard."
   },
-  "generated_at": "2026-09-07T13:16:43",
+  "generated_at": "2026-09-07T13:33:54",
   "pairs": [
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifacts_scored": 13,
-      "mean_score": 0.7741147741147741,
-      "by_question": {
-        "0": 0.75,
-        "4": 0.6944444444444444,
-        "7": 0.8571428571428571
-      }
-    },
     {
       "harness": "claude",
       "model": "fable-5-1",
@@ -44,6 +33,18 @@
       }
     },
     {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifacts_scored": 17,
+      "mean_score": 0.7037348272642391,
+      "by_question": {
+        "0": 0.75,
+        "4": 0.6944444444444444,
+        "5": 0.475,
+        "7": 0.8571428571428571
+      }
+    },
+    {
       "harness": "opencode",
       "model": "qwen3.8-flash-next",
       "artifacts_scored": 17,
@@ -57,21 +58,23 @@
     {
       "harness": "opencode",
       "model": "qwen3.8-27b-8bit",
-      "artifacts_scored": 3,
-      "mean_score": 0.5317460317460317,
+      "artifacts_scored": 4,
+      "mean_score": 0.5238095238095238,
       "by_question": {
         "0": 0.5833333333333334,
+        "5": 0.5,
         "7": 0.42857142857142855
       }
     },
     {
       "harness": "opencode",
       "model": "gpt-5.6-terra",
-      "artifacts_scored": 12,
-      "mean_score": 0.4146825396825397,
+      "artifacts_scored": 16,
+      "mean_score": 0.39851190476190473,
       "by_question": {
         "0": 0.45833333333333337,
         "4": 0.25,
+        "5": 0.35,
         "7": 0.5357142857142857
       }
     }
@@ -734,6 +737,290 @@
           "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
           "met": false,
           "note": "The rostrum is drawn closed: a single dark jaw line with a thin white sliver beneath it and no gape, even though the fish touches the snout tip."
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/picnic-on-clouds-animated.svg",
+      "question_index": 5,
+      "animated": true,
+      "slug": "picnic-on-clouds-animated",
+      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
+      "score": 0.5,
+      "met": 5,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/claude-opus-5/picnic-on-clouds-animated.png",
+      "requirements": [
+        {
+          "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show ropes connecting the balloon's envelope to the basket.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include four human figures styled as a family: two adults and two children.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
+          "met": false,
+          "note": "The blanket is already spread flat on the cloud; the woman stands on it with her arms down and no child holds anything, so no adult-and-child pair grips opposite corners."
+        },
+        {
+          "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
+          "met": false,
+          "note": "The basket sits at the middle of the blanket's left edge - its contact footprint is about 17% across the blanket's width and 63% of the way from the far edge to the near edge, i.e. in a mid-edge cell rather than a corner cell."
+        },
+        {
+          "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
+          "met": false,
+          "note": "Only a baguette emerges from the picnic basket; the teal thermos, the orange bottle, the purple grapes and the sandwiches are all drawn standing on the blanket beside the basket."
+        },
+        {
+          "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
+          "met": false,
+          "note": "The man beside the balloon holds a hamper in both hands rather than pointing up at the envelope, and no child stands near the balloon."
+        },
+        {
+          "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
+          "met": false,
+          "note": "Six small distant clouds are drawn in the sky - at roughly (85,85), (405,120), (620,45), (540,240), (890,230) and (375,300) - not two."
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/picnic-on-clouds-v2.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-on-clouds-v2",
+      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
+      "score": 0.5,
+      "met": 5,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/claude-opus-5/picnic-on-clouds-v2.png",
+      "requirements": [
+        {
+          "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show ropes connecting the balloon's envelope to the basket.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include four human figures styled as a family: two adults and two children.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
+          "met": false,
+          "note": "The blanket is already spread flat on the cloud. The woman stands on it with her arms hanging down and her hands resting on its surface, and no child holds anything; no figure grips a corner, so the two-person spreading pose is absent."
+        },
+        {
+          "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
+          "met": false,
+          "note": "The basket sits at the middle of the blanket's left edge - its contact footprint is about 11% across the blanket's width but 60% of the way from the far edge to the near edge, i.e. in a mid-edge cell rather than a corner cell."
+        },
+        {
+          "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
+          "met": false,
+          "note": "Only a baguette emerges from the picnic basket. The orange thermos bottle, the bunch of purple grapes and the sandwich plate are all drawn separately on the blanket, none of them emerging from the basket."
+        },
+        {
+          "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
+          "met": false,
+          "note": "No child stands near the balloon, and the adult who does (the man in green) holds a hamper with both hands rather than pointing up at the envelope. The second adult is at the blanket, about 350 px away."
+        },
+        {
+          "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
+          "met": false,
+          "note": "Five small distant clouds are drawn in the sky - at roughly (85,90), (420,125), (625,45), (545,245) and (890,225) - not two."
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/picnic-on-clouds-v3.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-on-clouds-v3",
+      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
+      "score": 0.5,
+      "met": 5,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/claude-opus-5/picnic-on-clouds-v3.png",
+      "requirements": [
+        {
+          "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show ropes connecting the balloon's envelope to the basket.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include four human figures styled as a family: two adults and two children.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
+          "met": false,
+          "note": "The blanket is already spread flat on the cloud, the woman merely stands on it with her arms down, and no child holds anything; no figure grips a corner of the blanket."
+        },
+        {
+          "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
+          "met": false,
+          "note": "The basket sits at the middle of the blanket's left edge - its contact footprint is about 17% across the blanket's width and 63% of the way from the far edge to the near edge, i.e. in a mid-edge cell rather than a corner cell."
+        },
+        {
+          "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
+          "met": false,
+          "note": "Only a baguette emerges from the picnic basket. The teal thermos, the orange bottle, the bunch of purple grapes and the sandwiches on the plate all stand separately on the blanket beside the basket, not emerging from it."
+        },
+        {
+          "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
+          "met": false,
+          "note": "The man beside the balloon carries a hamper in both hands and does not point up at the envelope, and no child is near him; the second adult and both children are at the blanket."
+        },
+        {
+          "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
+          "met": false,
+          "note": "Six small distant clouds are drawn in the sky - at roughly (85,85), (405,120), (620,45), (540,240), (890,230) and (370,300) - not two."
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/picnic-on-clouds.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-on-clouds",
+      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
+      "score": 0.4,
+      "met": 4,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/claude-opus-5/picnic-on-clouds.png",
+      "requirements": [
+        {
+          "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
+          "met": false,
+          "note": "The envelope's vertical stripes are gold, red and blue - sampled at (150,200) RGB 226,190,76 and (225,200) RGB 39,104,164. There is no white stripe anywhere on the envelope."
+        },
+        {
+          "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show ropes connecting the balloon's envelope to the basket.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include four human figures styled as a family: two adults and two children.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
+          "met": false,
+          "note": "The checkered blanket lies flat on the cloud with nobody touching it. No adult and no child holds any corner, so the spreading-it-out pose is absent."
+        },
+        {
+          "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
+          "met": false,
+          "note": "The basket sits at the middle of the blanket's left edge - its contact footprint is about 26% across the blanket's width and 62% of the way from the far edge to the near edge, i.e. in a mid-edge cell rather than a corner cell."
+        },
+        {
+          "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
+          "met": false,
+          "note": "Only a baguette emerges from the picnic basket. The orange bottle, the fruit bowl and the sandwich plate all sit separately on the blanket, and no bunch of grapes is drawn anywhere in the render."
+        },
+        {
+          "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
+          "met": false,
+          "note": "The second adult (the woman) stands in the middle of the scene about 270 px from the balloon with both arms down, and the second child stands further right still. The only adult near the balloon holds a hamper with his arm extended sideways, not pointing up at the envelope."
+        },
+        {
+          "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
+          "met": false,
+          "note": "Four small distant clouds are drawn in the sky - at roughly (100,90), (430,155), (640,50) and (890,205) - not two."
         }
       ]
     },
@@ -1876,6 +2163,290 @@
     {
       "harness": "opencode",
       "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-animated.svg",
+      "question_index": 5,
+      "animated": true,
+      "slug": "picnic-clouds-hot-air-balloon-animated",
+      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
+      "score": 0.3,
+      "met": 3,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-animated.png",
+      "requirements": [
+        {
+          "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
+          "met": false,
+          "note": "The envelope is orange-red with pale yellow vertical stripes and no white stripe, so it is not red-and-white striped."
+        },
+        {
+          "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
+          "met": false,
+          "note": "The balloon floats in the upper-left sky with its basket in clear blue sky and a mooring rope hanging loose beneath it; it rests on no cloud."
+        },
+        {
+          "text": "Show ropes connecting the balloon's envelope to the basket.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include four human figures styled as a family: two adults and two children.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
+          "met": false,
+          "note": "The checkered blanket lies flat and untouched; no adult and child pair holds opposite corners."
+        },
+        {
+          "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
+          "met": false,
+          "note": "The wicker basket stands on the cloud outside the blanket's left corner rather than on the blanket."
+        },
+        {
+          "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
+          "met": false,
+          "note": "The basket holds only a small yellow slab; no thermos, bunch of grapes or sandwich emerges from it."
+        },
+        {
+          "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
+          "met": false,
+          "note": "All four figures are grouped at the blanket far from the balloon, and no adult points up at the envelope."
+        },
+        {
+          "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
+          "met": false,
+          "note": "Only one small distant cloud is drawn - a faint wisp beside the sun at about (860,155)."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v1.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-clouds-hot-air-balloon-v1",
+      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
+      "score": 0.4,
+      "met": 4,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v1.png",
+      "requirements": [
+        {
+          "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
+          "met": false,
+          "note": "The envelope's vertical stripes are yellow on an orange-red body with a maroon centre stripe - sampled at (175,250) RGB 254,207,101. There is no white stripe and no red-and-white striping."
+        },
+        {
+          "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
+          "met": false,
+          "note": "The balloon hangs in mid-air in the upper-left sky, its basket about 50 px above the top of the cloudscape with clear blue sky beneath it; it rests on nothing."
+        },
+        {
+          "text": "Show ropes connecting the balloon's envelope to the basket.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include four human figures styled as a family: two adults and two children.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
+          "met": false,
+          "note": "The blanket is a plain yellow-tan mat with no red and white checks, it is already lying flat, and none of the four figures holds any part of it."
+        },
+        {
+          "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
+          "met": false,
+          "note": "The only basket-like object is a small brown box near the middle of the blanket's near edge, about two thirds across the width and 85% of the way forward - a mid-edge position, not a corner."
+        },
+        {
+          "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
+          "met": false,
+          "note": "Nothing emerges from a basket: the food in the scene is three coloured dots on a white platter, so no thermos, no bunch of grapes and no sandwich is visible coming out of any basket."
+        },
+        {
+          "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
+          "met": false,
+          "note": "All four figures are seated together around the blanket, roughly 500 px from the balloon, and no adult raises an arm toward the envelope."
+        },
+        {
+          "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v2.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-clouds-hot-air-balloon-v2",
+      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
+      "score": 0.4,
+      "met": 4,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v2.png",
+      "requirements": [
+        {
+          "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
+          "met": false,
+          "note": "The envelope is orange-red with yellow vertical stripes; there is no white stripe, so the striping is not red and white."
+        },
+        {
+          "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
+          "met": false,
+          "note": "The balloon floats in the sky at upper left with its basket in clear blue sky and a mooring rope dangling free below it; the basket touches no cloud."
+        },
+        {
+          "text": "Show ropes connecting the balloon's envelope to the basket.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include four human figures styled as a family: two adults and two children.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
+          "met": false,
+          "note": "The checkered blanket is already lying flat and none of the four figures touches it; no adult and child hold opposite corners."
+        },
+        {
+          "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
+          "met": false,
+          "note": "The brown box that serves as the basket sits on the blanket's right edge at about 75% of the width but only 53% of the depth - the middle of an edge rather than a corner."
+        },
+        {
+          "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
+          "met": false,
+          "note": "No thermos, bunch of grapes or sandwich emerges from the box: it holds a single cream slab, and the other food (a platter of wavy orange food, a cherry, a blue tumbler) is drawn loose on the blanket."
+        },
+        {
+          "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
+          "met": false,
+          "note": "All four figures sit at the blanket, roughly 600 px from the balloon, and no adult points up at the envelope."
+        },
+        {
+          "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v3.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-clouds-hot-air-balloon-v3",
+      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
+      "score": 0.3,
+      "met": 3,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v3.png",
+      "requirements": [
+        {
+          "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
+          "met": false,
+          "note": "The envelope is orange-red with pale yellow vertical stripes - sampled at (160,200) RGB 255,223,151, a yellow rather than a white. No red-and-white striping."
+        },
+        {
+          "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
+          "met": false,
+          "note": "The balloon hangs in the sky at upper left with its basket surrounded by blue sky and an anchor rope dangling below; nothing supports it."
+        },
+        {
+          "text": "Show ropes connecting the balloon's envelope to the basket.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include four human figures styled as a family: two adults and two children.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
+          "met": false,
+          "note": "The red and white checkered blanket is already lying flat on the cloud and none of the four figures holds a corner of it."
+        },
+        {
+          "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
+          "met": false,
+          "note": "The wicker basket is not on the blanket at all - it stands on the cloud outside the blanket's left corner, roughly 20 px clear of the checkered edge."
+        },
+        {
+          "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
+          "met": false,
+          "note": "The basket holds only a small yellow slab. The bread on the platter, the yellow carton and the green pail of round fruit are all separate objects on the blanket, and no thermos or bunch of grapes appears anywhere."
+        },
+        {
+          "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
+          "met": false,
+          "note": "All four figures are at the blanket, hundreds of pixels from the balloon, and no adult points up at the envelope."
+        },
+        {
+          "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
+          "met": false,
+          "note": "Only one small distant cloud is drawn - a faint wisp beside the sun at about (870,140). The other pale marks are 5 px round dots that read as sparkles, not clouds."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
       "artifact": "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-animated.svg",
       "question_index": 4,
       "animated": true,
@@ -2352,6 +2923,77 @@
           "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
           "met": false,
           "note": "The snout is drawn closed: a single thin dark line runs to the tip where the fish is held, with no gape."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-27b-8bit",
+      "artifact": "logs/opencode/qwen3.8-27b-8bit/picnic-on-clouds.svg",
+      "question_index": 5,
+      "animated": true,
+      "slug": "picnic-on-clouds",
+      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
+      "score": 0.5,
+      "met": 5,
+      "total": 10,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-27b-8bit/picnic-on-clouds.png",
+      "requirements": [
+        {
+          "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
+          "met": false,
+          "note": "The envelope's vertical stripes are blue, yellow and red - sampled at (870,320) RGB 52,152,219 and (935,320) RGB 249,202,36. No white stripe is present."
+        },
+        {
+          "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show ropes connecting the balloon's envelope to the basket.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include four human figures styled as a family: two adults and two children.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
+          "met": false,
+          "note": "The red and white checkered blanket is already spread flat on the cloud; the man stands on it with one arm raised in the air and no figure holds any corner of it."
+        },
+        {
+          "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
+          "met": false,
+          "note": "The only thing in the basket is a rounded cream loaf. The blue jug, the watermelon slice, the cheese wedge, the bread and the apple all lie loose on the blanket, and no bunch of grapes and no sandwich appears anywhere in the render."
+        },
+        {
+          "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
+          "met": false,
+          "note": "The second adult crouches at the blanket about 400 px from the balloon; the child with both arms raised stands between them but no adult is beside the balloon and none points up at the envelope."
+        },
+        {
+          "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
+          "met": false,
+          "note": "Three distant clouds are drawn in the sky - beneath the sun at about (150,180), at (625,110) and at (1090,195) - not two."
         }
       ]
     },
@@ -3509,6 +4151,34 @@
       ]
     },
     {
+      "question_index": 5,
+      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
+      "n_requirements": 10,
+      "requirements": [
+        "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
+        "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
+        "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
+        "Show ropes connecting the balloon's envelope to the basket.",
+        "Include four human figures styled as a family: two adults and two children.",
+        "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
+        "Place an open picnic basket on a corner of the blanket that is already spread out.",
+        "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
+        "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
+        "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds."
+      ],
+      "artifacts": [
+        "logs/claude/claude-opus-5/picnic-on-clouds-animated.svg",
+        "logs/claude/claude-opus-5/picnic-on-clouds-v2.svg",
+        "logs/claude/claude-opus-5/picnic-on-clouds-v3.svg",
+        "logs/claude/claude-opus-5/picnic-on-clouds.svg",
+        "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-animated.svg",
+        "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v1.svg",
+        "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v2.svg",
+        "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v3.svg",
+        "logs/opencode/qwen3.8-27b-8bit/picnic-on-clouds.svg"
+      ]
+    },
+    {
       "question_index": 7,
       "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
       "n_requirements": 7,
@@ -3547,42 +4217,6 @@
     }
   ],
   "unscored": [
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/picnic-on-clouds-animated.svg",
-      "question_index": 5,
-      "animated": true,
-      "slug": "picnic-on-clouds-animated",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/picnic-on-clouds-v2.svg",
-      "question_index": 5,
-      "animated": false,
-      "slug": "picnic-on-clouds-v2",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/picnic-on-clouds-v3.svg",
-      "question_index": 5,
-      "animated": false,
-      "slug": "picnic-on-clouds-v3",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/picnic-on-clouds.svg",
-      "question_index": 5,
-      "animated": false,
-      "slug": "picnic-on-clouds",
-      "reason": "no verdict file"
-    },
     {
       "harness": "claude",
       "model": "claude-opus-5",
@@ -3730,42 +4364,6 @@
     {
       "harness": "opencode",
       "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-animated.svg",
-      "question_index": 5,
-      "animated": true,
-      "slug": "picnic-clouds-hot-air-balloon-animated",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v1.svg",
-      "question_index": 5,
-      "animated": false,
-      "slug": "picnic-clouds-hot-air-balloon-v1",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v2.svg",
-      "question_index": 5,
-      "animated": false,
-      "slug": "picnic-clouds-hot-air-balloon-v2",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v3.svg",
-      "question_index": 5,
-      "animated": false,
-      "slug": "picnic-clouds-hot-air-balloon-v3",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
       "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-animated.svg",
       "question_index": 6,
       "animated": true,
@@ -3807,15 +4405,6 @@
       "animated": true,
       "slug": "dawn-beach",
       "reason": "prompt is not an SVGBench question"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-27b-8bit",
-      "artifact": "logs/opencode/qwen3.8-27b-8bit/picnic-on-clouds.svg",
-      "question_index": 5,
-      "animated": true,
-      "slug": "picnic-on-clouds",
-      "reason": "no verdict file"
     },
     {
       "harness": "opencode",
