@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-06T18:50:37",
+  "generated_at": "2026-09-07T11:46:32",
   "artifacts": [
     {
       "harness": "claude",
@@ -775,36 +775,40 @@
       "model": "qwen3.8-flash-next",
       "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-animated.svg",
       "slug": "stunt-car-fire-ring-animated",
-      "question_index": null,
+      "question_index": 6,
       "animated": true,
-      "bytes": 17519
+      "bytes": 17519,
+      "question_index_override": 6
     },
     {
       "harness": "opencode",
       "model": "qwen3.8-flash-next",
       "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v2.svg",
       "slug": "stunt-car-fire-ring-v2",
-      "question_index": null,
+      "question_index": 6,
       "animated": false,
-      "bytes": 10244
+      "bytes": 10244,
+      "question_index_override": 6
     },
     {
       "harness": "opencode",
       "model": "qwen3.8-flash-next",
       "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v3.svg",
       "slug": "stunt-car-fire-ring-v3",
-      "question_index": null,
+      "question_index": 6,
       "animated": false,
-      "bytes": 11425
+      "bytes": 11425,
+      "question_index_override": 6
     },
     {
       "harness": "opencode",
       "model": "qwen3.8-flash-next",
       "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring.svg",
       "slug": "stunt-car-fire-ring",
-      "question_index": null,
+      "question_index": 6,
       "animated": false,
-      "bytes": 8135
+      "bytes": 8135,
+      "question_index_override": 6
     }
   ],
   "strays": []
