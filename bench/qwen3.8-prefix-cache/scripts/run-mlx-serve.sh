@@ -56,6 +56,18 @@ fi
 if [[ -n "${QWEN38_MLX_PREFILL_CHUNK:-}" ]]; then
   COMMAND+=(--prefill-chunk "$QWEN38_MLX_PREFILL_CHUNK")
 fi
+# Prefix cache: defaults do binário são 32 entradas, 2 GB em RAM, sem disco.
+# Um prefixo de 131072 tokens do Flash-Next ocupa ~3.7 GB (~28 KB/token no log de 2026-09-06),
+# então o default de 2 GB corta toda entrada de sessão longa. O disco fica em ~/.mlx-serve/kv-cache.
+if [[ -n "${QWEN38_MLX_PREFIX_CACHE_MEM:-}" ]]; then
+  COMMAND+=(--prefix-cache-mem "$QWEN38_MLX_PREFIX_CACHE_MEM")
+fi
+if [[ -n "${QWEN38_MLX_PREFIX_CACHE_DISK:-}" ]]; then
+  COMMAND+=(--prefix-cache-disk "$QWEN38_MLX_PREFIX_CACHE_DISK")
+fi
+if [[ -n "${QWEN38_MLX_PREFIX_CACHE_ENTRIES:-}" ]]; then
+  COMMAND+=(--prefix-cache-entries "$QWEN38_MLX_PREFIX_CACHE_ENTRIES")
+fi
 
 if [[ "$MODE" == "--print" ]]; then
   printf '%q ' "${COMMAND[@]}"
