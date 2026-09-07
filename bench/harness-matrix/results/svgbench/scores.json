@@ -12,8 +12,26 @@
     "scoring": "score = requirements met / requirements total, judged on the Chrome-rendered PNG; pair mean_score = mean over scored artifacts",
     "comparability": "subset of the 105 questions; artifacts came from coding harnesses, not the SVGBench direct-API run; judge differs from SVGBench's gemini-2.5-flash. Not comparable to the upstream leaderboard."
   },
-  "generated_at": "2026-09-07T11:56:20",
+  "generated_at": "2026-09-07T12:20:04",
   "pairs": [
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifacts_scored": 5,
+      "mean_score": 0.8571428571428571,
+      "by_question": {
+        "7": 0.8571428571428571
+      }
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifacts_scored": 10,
+      "mean_score": 0.7857142857142857,
+      "by_question": {
+        "7": 0.7857142857142857
+      }
+    },
     {
       "harness": "claude",
       "model": "claude-opus-4-8",
@@ -24,50 +42,21 @@
       }
     },
     {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifacts_scored": 1,
-      "mean_score": 0.5714285714285714,
-      "by_question": {
-        "7": 0.5714285714285714
-      }
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifacts_scored": 8,
-      "mean_score": 0.5248917748917749,
-      "by_question": {
-        "4": 0.5555555555555556,
-        "7": 0.8571428571428571,
-        "12": 0.2727272727272727
-      }
-    },
-    {
       "harness": "opencode",
       "model": "gpt-5.6-terra",
-      "artifacts_scored": 28,
-      "mean_score": 0.4208629663986807,
+      "artifacts_scored": 4,
+      "mean_score": 0.5357142857142857,
       "by_question": {
-        "0": 0.6041666666666666,
-        "4": 0.3611111111111111,
-        "5": 0.3,
-        "6": 0.46875,
-        "7": 0.7142857142857143,
-        "12": 0.2727272727272727,
-        "13": 0.225
+        "7": 0.5357142857142857
       }
     },
     {
       "harness": "opencode",
       "model": "qwen3.8-27b-8bit",
-      "artifacts_scored": 5,
-      "mean_score": 0.41904761904761906,
+      "artifacts_scored": 1,
+      "mean_score": 0.42857142857142855,
       "by_question": {
-        "0": 0.3333333333333333,
-        "5": 0.5,
-        "7": 0.42857142857142855,
-        "13": 0.5
+        "7": 0.42857142857142855
       }
     }
   ],
@@ -131,6 +120,62 @@
     {
       "harness": "claude",
       "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/dolphin-animated.svg",
+      "question_index": 7,
+      "animated": true,
+      "slug": "dolphin-animated",
+      "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
+      "score": 1.0,
+      "met": 7,
+      "total": 7,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/claude-opus-5/dolphin-animated.png",
+      "requirements": [
+        {
+          "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a human trainer's arm and hand extending into the frame.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The trainer's hand must be holding a small fish by the tail.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
       "artifact": "logs/claude/claude-opus-5/dolphin-hoop-jump.svg",
       "question_index": 7,
       "animated": false,
@@ -141,8 +186,8 @@
       "total": 7,
       "judge": {
         "kind": "claude-vision",
-        "model": "claude-fable-5-1",
-        "date": "2026-09-06",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
         "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
       },
       "render": "logs/renders/claude/claude-opus-5/dolphin-hoop-jump.png",
@@ -150,361 +195,205 @@
         {
           "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
           "met": true,
-          "note": "grey body, dorsal fin, fluke"
+          "note": ""
         },
         {
           "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
           "met": true,
-          "note": "splash column at the exit point"
+          "note": ""
         },
         {
           "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
           "met": false,
-          "note": "tail fluke reaches below the waterline"
+          "note": "The tail stock and fluke are drawn well below the water surface line, inside the blue water, so the body is not entirely in mid-air."
         },
         {
           "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
           "met": false,
-          "note": "hoop is a single orange color"
+          "note": "The hoop is a single flat orange colour with no second colour anywhere on the ring, so it is not multi-coloured."
         },
         {
           "text": "Include a human trainer's arm and hand extending into the frame.",
           "met": true,
-          "note": "arm and hand extend from the trainer on the deck"
+          "note": ""
         },
         {
           "text": "The trainer's hand must be holding a small fish by the tail.",
           "met": true,
-          "note": "hand holds the fish by the tail"
+          "note": ""
         },
         {
           "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
           "met": false,
-          "note": "mouth only slightly open, not wide"
+          "note": "The snout is drawn closed - a smooth grey beak with a white underside and no gape - although the fish is held at its tip."
         }
       ]
     },
     {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-animated.svg",
-      "question_index": 0,
-      "animated": true,
-      "slug": "cow-plowing-animated",
-      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
-      "score": 0.6666666666666666,
-      "met": 8,
-      "total": 12,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/cow-plowing-animated.png",
-      "requirements": [
-        {
-          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
-          "met": true,
-          "note": "The cow has a body, head, four visible legs, tail, and small udder."
-        },
-        {
-          "text": "The cow must have black and white patches for its coloring.",
-          "met": false,
-          "note": "The patches are brown and cream, not black and white."
-        },
-        {
-          "text": "Add cow ears, eyes, and snout for facial recognition.",
-          "met": true,
-          "note": "An ear, eye, and snout clearly define the face."
-        },
-        {
-          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
-          "met": true,
-          "note": "The forward-set head, braced legs, and taut plow connection read as pulling."
-        },
-        {
-          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
-          "met": true,
-          "note": "The visible hooves are dark brown."
-        },
-        {
-          "text": "Include a traditional wooden plow with a visible metal blade/share.",
-          "met": true,
-          "note": "A wooden plow and a gray metal share are clearly visible."
-        },
-        {
-          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
-          "met": false,
-          "note": "The connection is drawn as plain curved lines, not visible chain links."
-        },
-        {
-          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
-          "met": false,
-          "note": "The blade is exposed and does not visibly turn over a chunk of soil."
-        },
-        {
-          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
-          "met": true,
-          "note": "At least three dark diagonal furrows trail behind the plow."
-        },
-        {
-          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
-          "met": true,
-          "note": "The smooth upper field and dark furrowed foreground meet at the cow and plow."
-        },
-        {
-          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
-          "met": false,
-          "note": "The sparse grass marks are yellow, not green, and are not visibly overturned."
-        },
-        {
-          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
-          "met": true,
-          "note": "The blue sky, yellow sun, and layered hill horizon are clear."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v1.svg",
-      "question_index": 0,
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/dolphin-v2.svg",
+      "question_index": 7,
       "animated": false,
-      "slug": "cow-plowing-v1",
-      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
-      "score": 0.4166666666666667,
-      "met": 5,
-      "total": 12,
+      "slug": "dolphin-v2",
+      "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
+      "score": 0.8571428571428571,
+      "met": 6,
+      "total": 7,
       "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
       },
-      "render": "logs/renders/opencode/gpt-5.6-terra/cow-plowing-v1.png",
+      "render": "logs/renders/claude/claude-opus-5/dolphin-v2.png",
       "requirements": [
         {
-          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
-          "met": false,
-          "note": "Only two legs and no distinct udder are visible."
-        },
-        {
-          "text": "The cow must have black and white patches for its coloring.",
-          "met": false,
-          "note": "The patches are brown and cream, not black and white."
-        },
-        {
-          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
           "met": true,
-          "note": "Ear forms, an eye, and an outlined snout are visible."
+          "note": ""
         },
         {
-          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
-          "met": false,
-          "note": "The cow stands level rather than visibly leaning forward."
-        },
-        {
-          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
           "met": true,
-          "note": "The visible hooves are dark brown."
+          "note": ""
         },
         {
-          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
           "met": true,
-          "note": "A wooden plow and a gray metal share are clearly visible."
+          "note": ""
         },
         {
-          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
-          "met": false,
-          "note": "The connection is drawn as plain curved lines, not visible chain links."
-        },
-        {
-          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
-          "met": false,
-          "note": "The fully exposed blade does not visibly turn over a soil chunk."
-        },
-        {
-          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
           "met": true,
-          "note": "Multiple dark curved furrows trail leftward from the plow."
+          "note": ""
         },
         {
-          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
-          "met": false,
-          "note": "The visible field is uniformly plowed; the green hills are background, not an adjacent unplowed section."
-        },
-        {
-          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
-          "met": false,
-          "note": "No short green grass is shown being overturned."
-        },
-        {
-          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "text": "Include a human trainer's arm and hand extending into the frame.",
           "met": true,
-          "note": "The blue sky, yellow sun, and layered hill horizon are clear."
+          "note": ""
+        },
+        {
+          "text": "The trainer's hand must be holding a small fish by the tail.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
+          "met": false,
+          "note": "The beak is parted only as a thin dark sliver (gape angle around 10 degrees) at the snout tip; that reads as a slightly open mouth, not a wide-open one."
         }
       ]
     },
     {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v2.svg",
-      "question_index": 0,
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/dolphin-v3.svg",
+      "question_index": 7,
       "animated": false,
-      "slug": "cow-plowing-v2",
-      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
-      "score": 0.6666666666666666,
-      "met": 8,
-      "total": 12,
+      "slug": "dolphin-v3",
+      "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
+      "score": 1.0,
+      "met": 7,
+      "total": 7,
       "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
       },
-      "render": "logs/renders/opencode/gpt-5.6-terra/cow-plowing-v2.png",
+      "render": "logs/renders/claude/claude-opus-5/dolphin-v3.png",
       "requirements": [
         {
-          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
           "met": true,
-          "note": "The cow has a body, head, four visible legs, tail, and small udder."
+          "note": ""
         },
         {
-          "text": "The cow must have black and white patches for its coloring.",
-          "met": false,
-          "note": "The patches are brown and cream, not black and white."
-        },
-        {
-          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
           "met": true,
-          "note": "An ear, eye, and snout clearly define the face."
+          "note": ""
         },
         {
-          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
           "met": true,
-          "note": "The forward-set head, braced legs, and taut plow connection read as pulling."
+          "note": ""
         },
         {
-          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
           "met": true,
-          "note": "The visible hooves are dark brown."
+          "note": ""
         },
         {
-          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "text": "Include a human trainer's arm and hand extending into the frame.",
           "met": true,
-          "note": "A wooden plow and a gray metal share are clearly visible."
+          "note": ""
         },
         {
-          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
-          "met": false,
-          "note": "The connection is drawn as plain curved lines, not visible chain links."
-        },
-        {
-          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
-          "met": false,
-          "note": "The blade is exposed and does not visibly turn over a chunk of soil."
-        },
-        {
-          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "text": "The trainer's hand must be holding a small fish by the tail.",
           "met": true,
-          "note": "At least three dark diagonal furrows trail behind the plow."
+          "note": ""
         },
         {
-          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
           "met": true,
-          "note": "The smooth upper field and dark furrowed foreground meet at the cow and plow."
-        },
-        {
-          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
-          "met": false,
-          "note": "The sparse grass marks are yellow, not green, and are not visibly overturned."
-        },
-        {
-          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
-          "met": true,
-          "note": "The blue sky, yellow sun, and layered hill horizon are clear."
+          "note": ""
         }
       ]
     },
     {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v3.svg",
-      "question_index": 0,
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/dolphin.svg",
+      "question_index": 7,
       "animated": false,
-      "slug": "cow-plowing-v3",
-      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
-      "score": 0.6666666666666666,
-      "met": 8,
-      "total": 12,
+      "slug": "dolphin",
+      "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
+      "score": 0.8571428571428571,
+      "met": 6,
+      "total": 7,
       "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
       },
-      "render": "logs/renders/opencode/gpt-5.6-terra/cow-plowing-v3.png",
+      "render": "logs/renders/claude/claude-opus-5/dolphin.png",
       "requirements": [
         {
-          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
           "met": true,
-          "note": "The cow has a body, head, four visible legs, tail, and small udder."
+          "note": ""
         },
         {
-          "text": "The cow must have black and white patches for its coloring.",
+          "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a human trainer's arm and hand extending into the frame.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The trainer's hand must be holding a small fish by the tail.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
           "met": false,
-          "note": "The patches are brown and cream, not black and white."
-        },
-        {
-          "text": "Add cow ears, eyes, and snout for facial recognition.",
-          "met": true,
-          "note": "An ear, eye, and snout clearly define the face."
-        },
-        {
-          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
-          "met": true,
-          "note": "The forward-set head, braced legs, and taut plow connection read as pulling."
-        },
-        {
-          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
-          "met": true,
-          "note": "The visible hooves are dark brown."
-        },
-        {
-          "text": "Include a traditional wooden plow with a visible metal blade/share.",
-          "met": true,
-          "note": "A wooden plow and a gray metal share are clearly visible."
-        },
-        {
-          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
-          "met": false,
-          "note": "The connection is drawn as plain curved lines, not visible chain links."
-        },
-        {
-          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
-          "met": false,
-          "note": "The blade is exposed and does not visibly turn over a chunk of soil."
-        },
-        {
-          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
-          "met": true,
-          "note": "At least three dark diagonal furrows trail behind the plow."
-        },
-        {
-          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
-          "met": true,
-          "note": "The smooth upper field and dark furrowed foreground meet at the cow and plow."
-        },
-        {
-          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
-          "met": false,
-          "note": "The sparse grass marks are yellow, not green, and are not visibly overturned."
-        },
-        {
-          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
-          "met": true,
-          "note": "The blue sky, yellow sun, and layered hill horizon are clear."
+          "note": "The rostrum is drawn closed: a single dark jaw line with a thin white sliver beneath it and no gape, even though the fish touches the snout tip."
         }
       ]
     },
@@ -516,51 +405,51 @@
       "animated": true,
       "slug": "dolphin-hula-hoop-fish-animated",
       "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
-      "score": 0.7142857142857143,
-      "met": 5,
+      "score": 0.5714285714285714,
+      "met": 4,
       "total": 7,
       "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
       },
       "render": "logs/renders/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-animated.png",
       "requirements": [
         {
           "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
           "met": false,
-          "note": "The recognizable streamlined dolphin has a dorsal fin and tail fluke, but it is teal-blue rather than grey."
+          "note": "The dolphin is a saturated teal blue, not grey."
         },
         {
           "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
-          "met": true,
-          "note": "A water surface and prominent white splash appear beneath the dolphin's tail."
+          "met": false,
+          "note": "The splash is three small pale translucent shards; it is not a large splash."
         },
         {
           "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
           "met": false,
-          "note": "The tail and lower body visibly overlap the water surface, so the entire body is not in mid-air."
+          "note": "The belly, lower flank and tail fluke are drawn below the top edge of the sea, so the body is not entirely in mid-air."
         },
         {
           "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
           "met": true,
-          "note": "The multi-colored circular hoop visibly passes around the dolphin's mid-section."
+          "note": ""
         },
         {
           "text": "Include a human trainer's arm and hand extending into the frame.",
           "met": true,
-          "note": "A trainer's arm and hand extend into the frame from the right."
+          "note": ""
         },
         {
           "text": "The trainer's hand must be holding a small fish by the tail.",
           "met": true,
-          "note": "The trainer visibly holds the small fish by its tail."
+          "note": ""
         },
         {
           "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
           "met": true,
-          "note": "The visibly open mouth is immediately beside the fish body held by the trainer."
+          "note": ""
         }
       ]
     },
@@ -572,51 +461,51 @@
       "animated": false,
       "slug": "dolphin-hula-hoop-fish-v1",
       "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
-      "score": 0.5714285714285714,
-      "met": 4,
+      "score": 0.2857142857142857,
+      "met": 2,
       "total": 7,
       "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
       },
       "render": "logs/renders/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v1.png",
       "requirements": [
         {
           "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
           "met": false,
-          "note": "The recognizable streamlined dolphin has a dorsal fin and tail fluke, but it is teal-blue rather than grey."
+          "note": "The dolphin is a saturated teal blue (about RGB 124,196,215 on the flank, an 90-point red-to-blue spread), not grey."
         },
         {
           "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
-          "met": true,
-          "note": "A water surface and prominent white splash appear beneath the dolphin's tail."
+          "met": false,
+          "note": "A water surface is drawn, but there is no splash at all - only flat wave arcs elsewhere in the sea."
         },
         {
           "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
           "met": false,
-          "note": "The tail and lower body visibly overlap the water surface, so the entire body is not in mid-air."
+          "note": "The tail stock and both fluke lobes are drawn deep inside the blue water below the surface line, so the body is not entirely in mid-air."
         },
         {
           "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
           "met": true,
-          "note": "The multi-colored circular hoop visibly passes around the dolphin's mid-section."
+          "note": ""
         },
         {
           "text": "Include a human trainer's arm and hand extending into the frame.",
           "met": true,
-          "note": "A trainer's arm and hand extend into the frame from the right."
+          "note": ""
         },
         {
           "text": "The trainer's hand must be holding a small fish by the tail.",
-          "met": true,
-          "note": "The trainer visibly holds the small fish by its tail."
+          "met": false,
+          "note": "The forked orange tail fin is at the far left of the fish and the head (eye and mouth line) is at the right, where the trainer's hand grips it; the fish is held by the head, not the tail."
         },
         {
           "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
           "met": false,
-          "note": "The mouth is open, but the fish body remains well away from it rather than being just about to be bitten."
+          "note": "The dolphin's jaw is drawn closed, and the fish is held roughly 200px below and left of the snout rather than at the mouth."
         }
       ]
     },
@@ -628,51 +517,51 @@
       "animated": false,
       "slug": "dolphin-hula-hoop-fish-v2",
       "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
-      "score": 0.8571428571428571,
-      "met": 6,
+      "score": 0.7142857142857143,
+      "met": 5,
       "total": 7,
       "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
       },
       "render": "logs/renders/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v2.png",
       "requirements": [
         {
           "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
           "met": false,
-          "note": "The recognizable streamlined dolphin has a dorsal fin and tail fluke, but it is teal-blue rather than grey."
+          "note": "The dolphin is a saturated teal blue, not grey."
         },
         {
           "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
-          "met": true,
-          "note": "A water surface and prominent white splash appear beneath the dolphin's tail."
+          "met": false,
+          "note": "The only splash is a pair of small pale translucent shards straddling the waterline under the tail; it is not a large splash."
         },
         {
           "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
           "met": true,
-          "note": "The dolphin is fully above the water in a clear jumping arc."
+          "note": ""
         },
         {
           "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
           "met": true,
-          "note": "The multi-colored circular hoop visibly passes around the dolphin's mid-section."
+          "note": ""
         },
         {
           "text": "Include a human trainer's arm and hand extending into the frame.",
           "met": true,
-          "note": "A trainer's arm and hand extend into the frame from the right."
+          "note": ""
         },
         {
           "text": "The trainer's hand must be holding a small fish by the tail.",
           "met": true,
-          "note": "The trainer visibly holds the small fish by its tail."
+          "note": ""
         },
         {
           "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
           "met": true,
-          "note": "The visibly open mouth is immediately beside the fish body held by the trainer."
+          "note": ""
         }
       ]
     },
@@ -684,1595 +573,51 @@
       "animated": false,
       "slug": "dolphin-hula-hoop-fish-v3",
       "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
-      "score": 0.7142857142857143,
-      "met": 5,
+      "score": 0.5714285714285714,
+      "met": 4,
       "total": 7,
       "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
       },
       "render": "logs/renders/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v3.png",
       "requirements": [
         {
           "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
           "met": false,
-          "note": "The recognizable streamlined dolphin has a dorsal fin and tail fluke, but it is teal-blue rather than grey."
+          "note": "The dolphin is a saturated teal blue, not grey."
         },
         {
           "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
-          "met": true,
-          "note": "A water surface and prominent white splash appear beneath the dolphin's tail."
+          "met": false,
+          "note": "The splash is three small pale translucent shards; it is not a large splash."
         },
         {
           "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
           "met": false,
-          "note": "The tail and lower body visibly overlap the water surface, so the entire body is not in mid-air."
+          "note": "The belly, lower flank and tail fluke are drawn below the top edge of the sea, so the body is not entirely in mid-air."
         },
         {
           "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
           "met": true,
-          "note": "The multi-colored circular hoop visibly passes around the dolphin's mid-section."
+          "note": ""
         },
         {
           "text": "Include a human trainer's arm and hand extending into the frame.",
           "met": true,
-          "note": "A trainer's arm and hand extend into the frame from the right."
+          "note": ""
         },
         {
           "text": "The trainer's hand must be holding a small fish by the tail.",
           "met": true,
-          "note": "The trainer visibly holds the small fish by its tail."
+          "note": ""
         },
         {
           "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
           "met": true,
-          "note": "The visibly open mouth is immediately beside the fish body held by the trainer."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/fruit-stall-market-animated.svg",
-      "question_index": 12,
-      "animated": true,
-      "slug": "fruit-stall-market-animated",
-      "prompt": "Write `svg` code for an image of a fruit stall in the market.",
-      "score": 0.2727272727272727,
-      "met": 3,
-      "total": 11,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail",
-        "note": "render is visually identical to the base variant; same verdicts"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/fruit-stall-market-animated.png",
-      "requirements": [
-        {
-          "text": "Create a main structure for a wooden fruit stall, including a counter.",
-          "met": true,
-          "note": "A wooden stall with a prominent counter/display is visible."
-        },
-        {
-          "text": "Add a red and white striped canopy over the stall, supported by two vertical wooden posts.",
-          "met": true,
-          "note": "The red-and-white canopy is supported by two wooden posts."
-        },
-        {
-          "text": "Display exactly four different, recognizable fruits.",
-          "met": false,
-          "note": "Six fruit types are visible: oranges, apples, pears, bananas, grapes, and watermelon."
-        },
-        {
-          "text": "First fruit: A pile of red apples in a wicker basket on the left side of the counter.",
-          "met": false,
-          "note": "The left basket contains oranges, while the red apples are in the center."
-        },
-        {
-          "text": "Second fruit: A bunch of yellow bananas placed next to the apples.",
-          "met": false,
-          "note": "The bananas are in the lower-left basket, not next to the central apples."
-        },
-        {
-          "text": "Third fruit: A pile of oranges in another wicker basket on the right side of the counter.",
-          "met": false,
-          "note": "The oranges are in the left basket; the right basket contains green fruit."
-        },
-        {
-          "text": "Fourth fruit: A single, large slice of watermelon resting directly on the counter in the center.",
-          "met": false,
-          "note": "The watermelon is in a lower-right basket, not directly on the center counter."
-        },
-        {
-          "text": "Include a character representing the stall vendor, a smiling man with a mustache, positioned behind the counter and between the baskets.",
-          "met": false,
-          "note": "No stall vendor is visible."
-        },
-        {
-          "text": "Add a small, hanging chalkboard sign from the canopy that reads 'Fresh Fruit'.",
-          "met": false,
-          "note": "The visible Fresh Fruit panel is neither a chalkboard nor visibly hanging from the canopy."
-        },
-        {
-          "text": "Depict a cobblestone ground surface in front of the stall.",
-          "met": false,
-          "note": "The foreground has large diagonal paving lines, not a cobblestone surface."
-        },
-        {
-          "text": "Include the silhouette of another market stall in the background to suggest a larger market setting.",
-          "met": true,
-          "note": "Translucent background stall silhouettes are visible on both sides."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/fruit-stall-market-v1.svg",
-      "question_index": 12,
-      "animated": false,
-      "slug": "fruit-stall-market-v1",
-      "prompt": "Write `svg` code for an image of a fruit stall in the market.",
-      "score": 0.2727272727272727,
-      "met": 3,
-      "total": 11,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/fruit-stall-market-v1.png",
-      "requirements": [
-        {
-          "text": "Create a main structure for a wooden fruit stall, including a counter.",
-          "met": true,
-          "note": "A wooden stall with a prominent counter/display is visible."
-        },
-        {
-          "text": "Add a red and white striped canopy over the stall, supported by two vertical wooden posts.",
-          "met": true,
-          "note": "The red-and-white canopy is supported by two wooden posts."
-        },
-        {
-          "text": "Display exactly four different, recognizable fruits.",
-          "met": false,
-          "note": "Six fruit types are visible: oranges, apples, pears, bananas, grapes, and watermelon."
-        },
-        {
-          "text": "First fruit: A pile of red apples in a wicker basket on the left side of the counter.",
-          "met": false,
-          "note": "The left basket contains oranges, while the red apples are in the center."
-        },
-        {
-          "text": "Second fruit: A bunch of yellow bananas placed next to the apples.",
-          "met": false,
-          "note": "The bananas are in the lower-left basket, not next to the central apples."
-        },
-        {
-          "text": "Third fruit: A pile of oranges in another wicker basket on the right side of the counter.",
-          "met": false,
-          "note": "The oranges are in the left basket; the right basket contains green fruit."
-        },
-        {
-          "text": "Fourth fruit: A single, large slice of watermelon resting directly on the counter in the center.",
-          "met": false,
-          "note": "The watermelon is in a lower-right basket, not directly on the center counter."
-        },
-        {
-          "text": "Include a character representing the stall vendor, a smiling man with a mustache, positioned behind the counter and between the baskets.",
-          "met": false,
-          "note": "No stall vendor is visible."
-        },
-        {
-          "text": "Add a small, hanging chalkboard sign from the canopy that reads 'Fresh Fruit'.",
-          "met": false,
-          "note": "The visible Fresh Fruit panel is neither a chalkboard nor visibly hanging from the canopy."
-        },
-        {
-          "text": "Depict a cobblestone ground surface in front of the stall.",
-          "met": false,
-          "note": "The foreground is a smooth stylized ground, not a cobblestone surface."
-        },
-        {
-          "text": "Include the silhouette of another market stall in the background to suggest a larger market setting.",
-          "met": true,
-          "note": "Translucent background stall silhouettes are visible on both sides."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/fruit-stall-market-v2.svg",
-      "question_index": 12,
-      "animated": false,
-      "slug": "fruit-stall-market-v2",
-      "prompt": "Write `svg` code for an image of a fruit stall in the market.",
-      "score": 0.2727272727272727,
-      "met": 3,
-      "total": 11,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/fruit-stall-market-v2.png",
-      "requirements": [
-        {
-          "text": "Create a main structure for a wooden fruit stall, including a counter.",
-          "met": true,
-          "note": "A wooden stall with a prominent counter/display is visible."
-        },
-        {
-          "text": "Add a red and white striped canopy over the stall, supported by two vertical wooden posts.",
-          "met": true,
-          "note": "The red-and-white canopy is supported by two wooden posts."
-        },
-        {
-          "text": "Display exactly four different, recognizable fruits.",
-          "met": false,
-          "note": "Six fruit types are visible: oranges, apples, pears, bananas, grapes, and watermelon."
-        },
-        {
-          "text": "First fruit: A pile of red apples in a wicker basket on the left side of the counter.",
-          "met": false,
-          "note": "The left basket contains oranges, while the red apples are in the center."
-        },
-        {
-          "text": "Second fruit: A bunch of yellow bananas placed next to the apples.",
-          "met": false,
-          "note": "The bananas are in the lower-left basket, not next to the central apples."
-        },
-        {
-          "text": "Third fruit: A pile of oranges in another wicker basket on the right side of the counter.",
-          "met": false,
-          "note": "The oranges are in the left basket; the right basket contains green fruit."
-        },
-        {
-          "text": "Fourth fruit: A single, large slice of watermelon resting directly on the counter in the center.",
-          "met": false,
-          "note": "The watermelon is in a lower-right basket, not directly on the center counter."
-        },
-        {
-          "text": "Include a character representing the stall vendor, a smiling man with a mustache, positioned behind the counter and between the baskets.",
-          "met": false,
-          "note": "No stall vendor is visible."
-        },
-        {
-          "text": "Add a small, hanging chalkboard sign from the canopy that reads 'Fresh Fruit'.",
-          "met": false,
-          "note": "The visible Fresh Fruit panel is neither a chalkboard nor visibly hanging from the canopy."
-        },
-        {
-          "text": "Depict a cobblestone ground surface in front of the stall.",
-          "met": false,
-          "note": "The foreground has broad bands and lines, not a cobblestone surface."
-        },
-        {
-          "text": "Include the silhouette of another market stall in the background to suggest a larger market setting.",
-          "met": true,
-          "note": "Translucent background stall silhouettes are visible on both sides."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/fruit-stall-market-v3.svg",
-      "question_index": 12,
-      "animated": false,
-      "slug": "fruit-stall-market-v3",
-      "prompt": "Write `svg` code for an image of a fruit stall in the market.",
-      "score": 0.2727272727272727,
-      "met": 3,
-      "total": 11,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/fruit-stall-market-v3.png",
-      "requirements": [
-        {
-          "text": "Create a main structure for a wooden fruit stall, including a counter.",
-          "met": true,
-          "note": "A wooden stall with a prominent counter/display is visible."
-        },
-        {
-          "text": "Add a red and white striped canopy over the stall, supported by two vertical wooden posts.",
-          "met": true,
-          "note": "The red-and-white canopy is supported by two wooden posts."
-        },
-        {
-          "text": "Display exactly four different, recognizable fruits.",
-          "met": false,
-          "note": "Six fruit types are visible: oranges, apples, pears, bananas, grapes, and watermelon."
-        },
-        {
-          "text": "First fruit: A pile of red apples in a wicker basket on the left side of the counter.",
-          "met": false,
-          "note": "The left basket contains oranges, while the red apples are in the center."
-        },
-        {
-          "text": "Second fruit: A bunch of yellow bananas placed next to the apples.",
-          "met": false,
-          "note": "The bananas are in the lower-left basket, not next to the central apples."
-        },
-        {
-          "text": "Third fruit: A pile of oranges in another wicker basket on the right side of the counter.",
-          "met": false,
-          "note": "The oranges are in the left basket; the right basket contains green fruit."
-        },
-        {
-          "text": "Fourth fruit: A single, large slice of watermelon resting directly on the counter in the center.",
-          "met": false,
-          "note": "The watermelon is in a lower-right basket, not directly on the center counter."
-        },
-        {
-          "text": "Include a character representing the stall vendor, a smiling man with a mustache, positioned behind the counter and between the baskets.",
-          "met": false,
-          "note": "No stall vendor is visible."
-        },
-        {
-          "text": "Add a small, hanging chalkboard sign from the canopy that reads 'Fresh Fruit'.",
-          "met": false,
-          "note": "The visible Fresh Fruit panel is neither a chalkboard nor visibly hanging from the canopy."
-        },
-        {
-          "text": "Depict a cobblestone ground surface in front of the stall.",
-          "met": false,
-          "note": "The foreground has large diagonal paving lines, not a cobblestone surface."
-        },
-        {
-          "text": "Include the silhouette of another market stall in the background to suggest a larger market setting.",
-          "met": true,
-          "note": "Translucent background stall silhouettes are visible on both sides."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-animated.svg",
-      "question_index": 13,
-      "animated": true,
-      "slug": "half-buried-treasure-barrel-animated",
-      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
-      "score": 0.2,
-      "met": 2,
-      "total": 10,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/half-buried-treasure-barrel-animated.png",
-      "requirements": [
-        {
-          "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
-          "met": false,
-          "note": "Three horizontal metal hoops are visible, not two."
-        },
-        {
-          "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
-          "met": false,
-          "note": "More than the top half of the barrel is visible above the sand."
-        },
-        {
-          "text": "Show the sand mounded up slightly around the visible base of the barrel.",
-          "met": true,
-          "note": "Raised sand mounds visibly surround the barrel base."
-        },
-        {
-          "text": "The barrel must be open at the top and filled with treasure items.",
-          "met": true,
-          "note": "The open top is visibly filled with coins, gems, and pearl-like beads."
-        },
-        {
-          "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
-          "met": false,
-          "note": "Exterior items do not visibly overflow from the top or descend a barrel side."
-        },
-        {
-          "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
-          "met": false,
-          "note": "Only a few coins are outside the barrel, not a large exterior pile."
-        },
-        {
-          "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
-          "met": false,
-          "note": "Red and blue-toned gems are visible, but no green emerald is visible."
-        },
-        {
-          "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
-          "met": false,
-          "note": "White beads are visible, but not as a string draped over the barrel edge."
-        },
-        {
-          "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
-          "met": false,
-          "note": "No golden goblet is visible among the coins."
-        },
-        {
-          "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
-          "met": false,
-          "note": "Coins and gems have glints, but the required goblet is absent."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v1.svg",
-      "question_index": 13,
-      "animated": false,
-      "slug": "half-buried-treasure-barrel-v1",
-      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
-      "score": 0.3,
-      "met": 3,
-      "total": 10,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v1.png",
-      "requirements": [
-        {
-          "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
-          "met": false,
-          "note": "Three wide gold bands are visible rather than two horizontal metal hoops."
-        },
-        {
-          "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
-          "met": false,
-          "note": "Most of the barrel body remains visible above the sand."
-        },
-        {
-          "text": "Show the sand mounded up slightly around the visible base of the barrel.",
-          "met": true,
-          "note": "Raised sand banks surround the barrel base."
-        },
-        {
-          "text": "The barrel must be open at the top and filled with treasure items.",
-          "met": true,
-          "note": "The open top visibly contains coins and gemstones."
-        },
-        {
-          "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
-          "met": false,
-          "note": "Treasure remains inside the barrel; none visibly spills onto the sand."
-        },
-        {
-          "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
-          "met": false,
-          "note": "The coin pile is only visible inside the barrel."
-        },
-        {
-          "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
-          "met": true,
-          "note": "Red, green, and blue gemstone forms are mixed with the coins."
-        },
-        {
-          "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
-          "met": false,
-          "note": "No white pearl string is visible."
-        },
-        {
-          "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
-          "met": false,
-          "note": "No golden goblet is visible among the coins."
-        },
-        {
-          "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
-          "met": false,
-          "note": "Coins and gems have glints, but the required goblet is absent."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v2.svg",
-      "question_index": 13,
-      "animated": false,
-      "slug": "half-buried-treasure-barrel-v2",
-      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
-      "score": 0.2,
-      "met": 2,
-      "total": 10,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v2.png",
-      "requirements": [
-        {
-          "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
-          "met": false,
-          "note": "Three horizontal metal hoops are visible, not two."
-        },
-        {
-          "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
-          "met": false,
-          "note": "More than the top half of the barrel is visible above the sand."
-        },
-        {
-          "text": "Show the sand mounded up slightly around the visible base of the barrel.",
-          "met": true,
-          "note": "Mounded sand visibly surrounds the lower barrel."
-        },
-        {
-          "text": "The barrel must be open at the top and filled with treasure items.",
-          "met": true,
-          "note": "The open barrel top is filled with coins and gemstones."
-        },
-        {
-          "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
-          "met": false,
-          "note": "The few exterior coins do not visibly overflow from the top or spill down a barrel side."
-        },
-        {
-          "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
-          "met": false,
-          "note": "Only a few coins are outside the barrel, not a large exterior pile."
-        },
-        {
-          "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
-          "met": false,
-          "note": "Red and blue-toned gems are visible, but no green emerald is visible."
-        },
-        {
-          "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
-          "met": false,
-          "note": "No draped string of white pearls is visible."
-        },
-        {
-          "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
-          "met": false,
-          "note": "No golden goblet is visible among the coins."
-        },
-        {
-          "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
-          "met": false,
-          "note": "Coins and gems are highlighted, but the required goblet is absent."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v3.svg",
-      "question_index": 13,
-      "animated": false,
-      "slug": "half-buried-treasure-barrel-v3",
-      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
-      "score": 0.2,
-      "met": 2,
-      "total": 10,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v3.png",
-      "requirements": [
-        {
-          "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
-          "met": false,
-          "note": "Three horizontal metal hoops are visible, not two."
-        },
-        {
-          "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
-          "met": false,
-          "note": "More than the top half of the barrel is visible above the sand."
-        },
-        {
-          "text": "Show the sand mounded up slightly around the visible base of the barrel.",
-          "met": true,
-          "note": "Raised sand mounds encircle the barrel base."
-        },
-        {
-          "text": "The barrel must be open at the top and filled with treasure items.",
-          "met": true,
-          "note": "The open top visibly holds coins, gemstones, and pearl-like beads."
-        },
-        {
-          "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
-          "met": false,
-          "note": "Exterior items are detached at the mound; no overflow visibly trails down a barrel side."
-        },
-        {
-          "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
-          "met": false,
-          "note": "Only a few exterior coins are visible, not a large pile outside the barrel."
-        },
-        {
-          "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
-          "met": false,
-          "note": "Red and blue-toned gems are visible, but no green emerald is visible."
-        },
-        {
-          "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
-          "met": false,
-          "note": "White beads are visible, but they are not a string draped over the barrel edge."
-        },
-        {
-          "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
-          "met": false,
-          "note": "No golden goblet is visible among the coins."
-        },
-        {
-          "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
-          "met": false,
-          "note": "Coins and gems have highlights, but the required goblet is absent."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-animated.svg",
-      "question_index": 5,
-      "animated": true,
-      "slug": "picnic-clouds-hot-air-balloon-animated",
-      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
-      "score": 0.3,
-      "met": 3,
-      "total": 10,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-animated.png",
-      "requirements": [
-        {
-          "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
-          "met": true,
-          "note": "The scene is grounded on layered, opaque clouds."
-        },
-        {
-          "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
-          "met": false,
-          "note": "The envelope uses red and yellow stripes rather than red and white stripes."
-        },
-        {
-          "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
-          "met": false,
-          "note": "The basket appears suspended over the cloud layers rather than firmly landed."
-        },
-        {
-          "text": "Show ropes connecting the balloon's envelope to the basket.",
-          "met": true,
-          "note": "Visible ropes join the envelope and the brown basket."
-        },
-        {
-          "text": "Include four human figures styled as a family: two adults and two children.",
-          "met": false,
-          "note": "Although four figures are present, they are not clearly two adults and two children."
-        },
-        {
-          "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
-          "met": false,
-          "note": "No adult-child pair visibly holds opposite blanket corners while spreading it."
-        },
-        {
-          "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
-          "met": true,
-          "note": "A brown open picnic basket is visibly placed at the blanket's left corner."
-        },
-        {
-          "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
-          "met": false,
-          "note": "The required thermos, grapes, and sandwich do not all visibly emerge from the basket."
-        },
-        {
-          "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
-          "met": false,
-          "note": "No adult and child are near the balloon with the adult pointing at its envelope."
-        },
-        {
-          "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
-          "met": false,
-          "note": "Only one small distant cloud is clearly visible in the sky."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v1.svg",
-      "question_index": 5,
-      "animated": false,
-      "slug": "picnic-clouds-hot-air-balloon-v1",
-      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
-      "score": 0.3,
-      "met": 3,
-      "total": 10,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v1.png",
-      "requirements": [
-        {
-          "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
-          "met": true,
-          "note": "Layered, opaque clouds form the scene's ground."
-        },
-        {
-          "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
-          "met": false,
-          "note": "The envelope stripes are red and yellow rather than red and white."
-        },
-        {
-          "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
-          "met": false,
-          "note": "The basket visibly hangs above the cloud surface."
-        },
-        {
-          "text": "Show ropes connecting the balloon's envelope to the basket.",
-          "met": true,
-          "note": "Two dark ropes visibly connect the envelope and basket."
-        },
-        {
-          "text": "Include four human figures styled as a family: two adults and two children.",
-          "met": false,
-          "note": "Four figures are visible, but two adults and two children are not clearly established."
-        },
-        {
-          "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
-          "met": false,
-          "note": "The blanket is yellow and no adult-child pair visibly holds opposite corners."
-        },
-        {
-          "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
-          "met": false,
-          "note": "No clearly open picnic basket is visible on a blanket corner."
-        },
-        {
-          "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
-          "met": false,
-          "note": "No open basket visibly contains the required thermos, grapes, and sandwich."
-        },
-        {
-          "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
-          "met": false,
-          "note": "No adult-child pair is positioned near the balloon or visibly pointing at it."
-        },
-        {
-          "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
-          "met": true,
-          "note": "A blue sky includes a yellow sun and two small distant clouds."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v2.svg",
-      "question_index": 5,
-      "animated": false,
-      "slug": "picnic-clouds-hot-air-balloon-v2",
-      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
-      "score": 0.3,
-      "met": 3,
-      "total": 10,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v2.png",
-      "requirements": [
-        {
-          "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
-          "met": true,
-          "note": "Layered opaque clouds provide a solid-looking ground."
-        },
-        {
-          "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
-          "met": false,
-          "note": "The vertical envelope stripes are red and yellow, not red and white."
-        },
-        {
-          "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
-          "met": false,
-          "note": "The basket is suspended above the cloudscape rather than resting on it."
-        },
-        {
-          "text": "Show ropes connecting the balloon's envelope to the basket.",
-          "met": true,
-          "note": "Ropes visibly run from the envelope to the basket."
-        },
-        {
-          "text": "Include four human figures styled as a family: two adults and two children.",
-          "met": false,
-          "note": "The figure sizing does not clearly depict two adults and two children."
-        },
-        {
-          "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
-          "met": false,
-          "note": "The checkered blanket is spread out, but no adult-child pair clearly holds opposite corners."
-        },
-        {
-          "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
-          "met": false,
-          "note": "The blue container on the blanket is not a clearly open picnic basket on a corner."
-        },
-        {
-          "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
-          "met": false,
-          "note": "The required three items are not visibly emerging from an open picnic basket."
-        },
-        {
-          "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
-          "met": false,
-          "note": "No second adult-child pair stands near the balloon with an adult pointing upward."
-        },
-        {
-          "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
-          "met": true,
-          "note": "The blue sky contains a bright yellow sun and two small distant clouds."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v3.svg",
-      "question_index": 5,
-      "animated": false,
-      "slug": "picnic-clouds-hot-air-balloon-v3",
-      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
-      "score": 0.3,
-      "met": 3,
-      "total": 10,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v3.png",
-      "requirements": [
-        {
-          "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
-          "met": true,
-          "note": "Multiple opaque cloud layers make up the ground."
-        },
-        {
-          "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
-          "met": false,
-          "note": "The balloon has red and yellow stripes instead of red and white stripes."
-        },
-        {
-          "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
-          "met": false,
-          "note": "The basket is suspended over irregular cloud layers, not firmly resting on a flat-topped cloud."
-        },
-        {
-          "text": "Show ropes connecting the balloon's envelope to the basket.",
-          "met": true,
-          "note": "Two ropes visibly connect the balloon envelope to its basket."
-        },
-        {
-          "text": "Include four human figures styled as a family: two adults and two children.",
-          "met": false,
-          "note": "Four figures are shown, but the image does not clearly distinguish two adults and two children."
-        },
-        {
-          "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
-          "met": false,
-          "note": "The blanket is checkered, but no adult and child visibly hold opposite corners together."
-        },
-        {
-          "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
-          "met": true,
-          "note": "An open brown picnic basket is placed at the left corner of the spread blanket."
-        },
-        {
-          "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
-          "met": false,
-          "note": "The thermos, grapes, and sandwich are not all visibly emerging from the open basket."
-        },
-        {
-          "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
-          "met": false,
-          "note": "The figures are gathered around the blanket, not beside the balloon with an adult pointing up."
-        },
-        {
-          "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
-          "met": false,
-          "note": "Only one small distant sky cloud is clearly visible beside the sun."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-animated.svg",
-      "question_index": 4,
-      "animated": true,
-      "slug": "rubber-ducky-soapy-bathtub-animated",
-      "prompt": "Write `svg` code for an image of a rubber ducky floating on top of a soapy bathtub.",
-      "score": 0.2222222222222222,
-      "met": 2,
-      "total": 9,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-animated.png",
-      "requirements": [
-        {
-          "text": "Create a classic rubber ducky shape with a distinct body and head, colored bright yellow.",
-          "met": true,
-          "note": "A recognizable bright-yellow duck has a large body and distinct raised head."
-        },
-        {
-          "text": "The duck must have an orange beak and a simple black dot for an eye.",
-          "met": false,
-          "note": "The eye is obscured by the tub rim and is not visible as a simple black dot."
-        },
-        {
-          "text": "Draw a white, claw-foot bathtub shape, showing the inside view with a visible rim.",
-          "met": false,
-          "note": "The white tub has a visible inside and rim, but its supports are not recognizable claw feet."
-        },
-        {
-          "text": "Fill the lower portion of the bathtub with light blue water.",
-          "met": true,
-          "note": "The lower tub is filled with light blue water."
-        },
-        {
-          "text": "Ensure the water line is clearly visible across the duck's body, showing the lower third of the duck submerged.",
-          "met": false,
-          "note": "The water line crosses substantially above the lower third of the duck's body."
-        },
-        {
-          "text": "Position the duck so it is floating on the water's surface, creating small, concentric circular ripples in the water around its base.",
-          "met": false,
-          "note": "The duck floats, but the nearby marks are overlapping wave curves rather than small concentric circular ripples."
-        },
-        {
-          "text": "Depict soap bubbles as clusters of overlapping circles with a slight iridescence, using semi-transparent white, light pink, and light blue fills.",
-          "met": false,
-          "note": "No bubble clusters are visible on or within the tub, and no light pink fill is visible."
-        },
-        {
-          "text": "Place a small cluster of bubbles on top of the duck's head.",
-          "met": false,
-          "note": "No bubble cluster is placed on the duck's head."
-        },
-        {
-          "text": "Place a large pile of bubbles against one side of the tub and a few floating on the water's surface around the duck.",
-          "met": false,
-          "note": "No bubble pile is against a tub side and no bubbles float on the water around the duck."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v1.svg",
-      "question_index": 4,
-      "animated": false,
-      "slug": "rubber-ducky-soapy-bathtub-v1",
-      "prompt": "Write `svg` code for an image of a rubber ducky floating on top of a soapy bathtub.",
-      "score": 0.3333333333333333,
-      "met": 3,
-      "total": 9,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v1.png",
-      "requirements": [
-        {
-          "text": "Create a classic rubber ducky shape with a distinct body and head, colored bright yellow.",
-          "met": true,
-          "note": "A recognizable bright-yellow duck has a large body and distinct raised head."
-        },
-        {
-          "text": "The duck must have an orange beak and a simple black dot for an eye.",
-          "met": true,
-          "note": "The orange beak and black dot eye are clearly visible."
-        },
-        {
-          "text": "Draw a white, claw-foot bathtub shape, showing the inside view with a visible rim.",
-          "met": false,
-          "note": "The white tub has a visible inside and rim, but no claw feet are visible."
-        },
-        {
-          "text": "Fill the lower portion of the bathtub with light blue water.",
-          "met": true,
-          "note": "The lower tub is filled with light blue water."
-        },
-        {
-          "text": "Ensure the water line is clearly visible across the duck's body, showing the lower third of the duck submerged.",
-          "met": false,
-          "note": "No clear water line crosses the duck to show its lower third submerged."
-        },
-        {
-          "text": "Position the duck so it is floating on the water's surface, creating small, concentric circular ripples in the water around its base.",
-          "met": false,
-          "note": "The duck floats, but the marks around it are broad waves and shadow rather than small concentric circular ripples."
-        },
-        {
-          "text": "Depict soap bubbles as clusters of overlapping circles with a slight iridescence, using semi-transparent white, light pink, and light blue fills.",
-          "met": false,
-          "note": "The overlapping bubbles use white and blue tones, but no light pink fill is visible."
-        },
-        {
-          "text": "Place a small cluster of bubbles on top of the duck's head.",
-          "met": false,
-          "note": "No bubble cluster is placed on the duck's head."
-        },
-        {
-          "text": "Place a large pile of bubbles against one side of the tub and a few floating on the water's surface around the duck.",
-          "met": false,
-          "note": "Only small bubble groups are shown; there is no large pile against a tub side."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v2.svg",
-      "question_index": 4,
-      "animated": false,
-      "slug": "rubber-ducky-soapy-bathtub-v2",
-      "prompt": "Write `svg` code for an image of a rubber ducky floating on top of a soapy bathtub.",
-      "score": 0.5555555555555556,
-      "met": 5,
-      "total": 9,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v2.png",
-      "requirements": [
-        {
-          "text": "Create a classic rubber ducky shape with a distinct body and head, colored bright yellow.",
-          "met": true,
-          "note": "A recognizable bright-yellow duck has a large body and distinct raised head."
-        },
-        {
-          "text": "The duck must have an orange beak and a simple black dot for an eye.",
-          "met": true,
-          "note": "The orange beak and black dot eye are clearly visible."
-        },
-        {
-          "text": "Draw a white, claw-foot bathtub shape, showing the inside view with a visible rim.",
-          "met": false,
-          "note": "The white tub has a visible inside and rim, but no claw feet are visible."
-        },
-        {
-          "text": "Fill the lower portion of the bathtub with light blue water.",
-          "met": true,
-          "note": "The lower tub is filled with light blue water."
-        },
-        {
-          "text": "Ensure the water line is clearly visible across the duck's body, showing the lower third of the duck submerged.",
-          "met": true,
-          "note": "A visible water overlay crosses the duck's lower body, submerging roughly its lower third."
-        },
-        {
-          "text": "Position the duck so it is floating on the water's surface, creating small, concentric circular ripples in the water around its base.",
-          "met": false,
-          "note": "The duck floats, but the surrounding marks are broad wave lines rather than small concentric circular ripples."
-        },
-        {
-          "text": "Depict soap bubbles as clusters of overlapping circles with a slight iridescence, using semi-transparent white, light pink, and light blue fills.",
-          "met": false,
-          "note": "The overlapping bubbles use white and blue tones, but no light pink fill is visible."
-        },
-        {
-          "text": "Place a small cluster of bubbles on top of the duck's head.",
-          "met": false,
-          "note": "No bubble cluster is placed on the duck's head."
-        },
-        {
-          "text": "Place a large pile of bubbles against one side of the tub and a few floating on the water's surface around the duck.",
-          "met": true,
-          "note": "A large overlapping bubble cluster sits against the right side, with smaller groups on the water."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v3.svg",
-      "question_index": 4,
-      "animated": false,
-      "slug": "rubber-ducky-soapy-bathtub-v3",
-      "prompt": "Write `svg` code for an image of a rubber ducky floating on top of a soapy bathtub.",
-      "score": 0.3333333333333333,
-      "met": 3,
-      "total": 9,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v3.png",
-      "requirements": [
-        {
-          "text": "Create a classic rubber ducky shape with a distinct body and head, colored bright yellow.",
-          "met": true,
-          "note": "A recognizable bright-yellow duck has a large body and distinct raised head."
-        },
-        {
-          "text": "The duck must have an orange beak and a simple black dot for an eye.",
-          "met": false,
-          "note": "The eye is obscured by the tub rim and is not visible as a simple black dot."
-        },
-        {
-          "text": "Draw a white, claw-foot bathtub shape, showing the inside view with a visible rim.",
-          "met": false,
-          "note": "The white tub has a visible inside and rim, but its supports are not recognizable claw feet."
-        },
-        {
-          "text": "Fill the lower portion of the bathtub with light blue water.",
-          "met": true,
-          "note": "The lower tub is filled with light blue water."
-        },
-        {
-          "text": "Ensure the water line is clearly visible across the duck's body, showing the lower third of the duck submerged.",
-          "met": false,
-          "note": "The water line crosses substantially above the lower third of the duck's body."
-        },
-        {
-          "text": "Position the duck so it is floating on the water's surface, creating small, concentric circular ripples in the water around its base.",
-          "met": false,
-          "note": "The duck floats, but the nearby marks are overlapping wave curves rather than small concentric circular ripples."
-        },
-        {
-          "text": "Depict soap bubbles as clusters of overlapping circles with a slight iridescence, using semi-transparent white, light pink, and light blue fills.",
-          "met": false,
-          "note": "The overlapping bubbles use white and blue tones, but no light pink fill is visible."
-        },
-        {
-          "text": "Place a small cluster of bubbles on top of the duck's head.",
-          "met": false,
-          "note": "No bubble cluster is placed on the duck's head."
-        },
-        {
-          "text": "Place a large pile of bubbles against one side of the tub and a few floating on the water's surface around the duck.",
-          "met": true,
-          "note": "Large overlapping bubble groups sit at the tub sides, with smaller groups on the water."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-animated.svg",
-      "question_index": 6,
-      "animated": true,
-      "slug": "stunt-car-jumping-circle-fire-animated",
-      "prompt": "Write `svg` code for an image of a stunt car jumping through a circle of fire.",
-      "score": 0.5,
-      "met": 4,
-      "total": 8,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-animated.png",
-      "requirements": [
-        {
-          "text": "Create a red, sporty car with a body, wheels, and windows.",
-          "met": true,
-          "note": "A red coupe has a defined body, two wheels, and blue windows."
-        },
-        {
-          "text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
-          "met": true,
-          "note": "A distinct circular flaming hoop uses irregular pointed red, orange, and yellow flames."
-        },
-        {
-          "text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
-          "met": false,
-          "note": "A take-off ramp is visible on the left, but the right side has no landing ramp."
-        },
-        {
-          "text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
-          "met": true,
-          "note": "The airborne car's front half is left of the hoop while its rear half overlaps the hoop opening."
-        },
-        {
-          "text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
-          "met": false,
-          "note": "The rear wheels are not shown just departing from the ramp edge."
-        },
-        {
-          "text": "Add a ground surface below the entire jump setup.",
-          "met": true,
-          "note": "A dark ground plane spans beneath the ramps and hoop."
-        },
-        {
-          "text": "Incorporate gray speed lines trailing behind the car to convey high speed.",
-          "met": false,
-          "note": "The gray horizontal marks read as background structures, not speed lines trailing the car."
-        },
-        {
-          "text": "Add orange sparks where the car's tires last touched the take-off ramp.",
-          "met": false,
-          "note": "The orange particles do not appear at a tire-to-ramp contact point."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v1.svg",
-      "question_index": 6,
-      "animated": false,
-      "slug": "stunt-car-jumping-circle-fire-v1",
-      "prompt": "Write `svg` code for an image of a stunt car jumping through a circle of fire.",
-      "score": 0.375,
-      "met": 3,
-      "total": 8,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v1.png",
-      "requirements": [
-        {
-          "text": "Create a red, sporty car with a body, wheels, and windows.",
-          "met": true,
-          "note": "A red coupe has a defined body, two wheels, and blue windows."
-        },
-        {
-          "text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
-          "met": true,
-          "note": "A distinct circular flaming hoop uses irregular pointed red, orange, and yellow flames."
-        },
-        {
-          "text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
-          "met": false,
-          "note": "No take-off or landing ramps are visible; only hoop supports appear below the ring."
-        },
-        {
-          "text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
-          "met": false,
-          "note": "The car overlaps the hoop, but its front half is not visibly past the ring while its back half remains inside it."
-        },
-        {
-          "text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
-          "met": false,
-          "note": "The airborne rear wheels are not shown leaving a take-off-ramp edge."
-        },
-        {
-          "text": "Add a ground surface below the entire jump setup.",
-          "met": true,
-          "note": "A dark ground plane spans beneath the car and hoop."
-        },
-        {
-          "text": "Incorporate gray speed lines trailing behind the car to convey high speed.",
-          "met": false,
-          "note": "No gray speed lines visibly trail behind the car."
-        },
-        {
-          "text": "Add orange sparks where the car's tires last touched the take-off ramp.",
-          "met": false,
-          "note": "Orange particles are not located at a tire-to-ramp contact point."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v2.svg",
-      "question_index": 6,
-      "animated": false,
-      "slug": "stunt-car-jumping-circle-fire-v2",
-      "prompt": "Write `svg` code for an image of a stunt car jumping through a circle of fire.",
-      "score": 0.5,
-      "met": 4,
-      "total": 8,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v2.png",
-      "requirements": [
-        {
-          "text": "Create a red, sporty car with a body, wheels, and windows.",
-          "met": true,
-          "note": "A red coupe has a defined body, two wheels, and blue windows."
-        },
-        {
-          "text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
-          "met": true,
-          "note": "A distinct circular flaming hoop uses irregular pointed red, orange, and yellow flames."
-        },
-        {
-          "text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
-          "met": false,
-          "note": "A take-off ramp is visible on the left, but no landing ramp is visible on the right."
-        },
-        {
-          "text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
-          "met": true,
-          "note": "The airborne car's front half is left of the hoop while its rear half overlaps the hoop opening."
-        },
-        {
-          "text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
-          "met": false,
-          "note": "The rear wheels are far above and beyond the take-off-ramp edge rather than just leaving it."
-        },
-        {
-          "text": "Add a ground surface below the entire jump setup.",
-          "met": true,
-          "note": "A dark ground plane spans beneath the ramps and hoop."
-        },
-        {
-          "text": "Incorporate gray speed lines trailing behind the car to convey high speed.",
-          "met": false,
-          "note": "The gray lines form the ramp structure, not speed lines trailing behind the car."
-        },
-        {
-          "text": "Add orange sparks where the car's tires last touched the take-off ramp.",
-          "met": false,
-          "note": "No orange sparks appear at the tire-to-ramp departure point."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v3.svg",
-      "question_index": 6,
-      "animated": false,
-      "slug": "stunt-car-jumping-circle-fire-v3",
-      "prompt": "Write `svg` code for an image of a stunt car jumping through a circle of fire.",
-      "score": 0.5,
-      "met": 4,
-      "total": 8,
-      "judge": {
-        "kind": "llm",
-        "model": "openai/gpt-5.6-terra",
-        "date": "2026-09-06",
-        "method": "self-judged visual inspection of the Chrome render; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v3.png",
-      "requirements": [
-        {
-          "text": "Create a red, sporty car with a body, wheels, and windows.",
-          "met": true,
-          "note": "A red coupe has a defined body, two wheels, and blue windows."
-        },
-        {
-          "text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
-          "met": true,
-          "note": "A distinct circular flaming hoop uses irregular pointed red, orange, and yellow flames."
-        },
-        {
-          "text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
-          "met": false,
-          "note": "A take-off ramp is visible on the left, but the right side has no landing ramp."
-        },
-        {
-          "text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
-          "met": true,
-          "note": "The airborne car's front half is left of the hoop while its rear half overlaps the hoop opening."
-        },
-        {
-          "text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
-          "met": false,
-          "note": "The rear wheels are not shown just departing from the ramp edge."
-        },
-        {
-          "text": "Add a ground surface below the entire jump setup.",
-          "met": true,
-          "note": "A dark ground plane spans beneath the ramps and hoop."
-        },
-        {
-          "text": "Incorporate gray speed lines trailing behind the car to convey high speed.",
-          "met": false,
-          "note": "The gray horizontal marks read as background structures, not speed lines trailing the car."
-        },
-        {
-          "text": "Add orange sparks where the car's tires last touched the take-off ramp.",
-          "met": false,
-          "note": "The orange line and particles are not at a tire-to-ramp contact point."
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-27b-8bit",
-      "artifact": "logs/opencode/qwen3.8-27b-8bit/cow-plowing-animated.svg",
-      "question_index": 0,
-      "animated": true,
-      "slug": "cow-plowing-animated",
-      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
-      "score": 0.3333333333333333,
-      "met": 4,
-      "total": 12,
-      "judge": {
-        "kind": "claude-vision",
-        "model": "claude-fable-5-1",
-        "date": "2026-09-06",
-        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail",
-        "note": "render is visually identical to the base variant; same verdicts"
-      },
-      "render": "logs/renders/opencode/qwen3.8-27b-8bit/cow-plowing-animated.png",
-      "requirements": [
-        {
-          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
-          "met": false,
-          "note": "body, head, four legs and tail present; no udder"
-        },
-        {
-          "text": "The cow must have black and white patches for its coloring.",
-          "met": false,
-          "note": "brown-and-white patches, not black-and-white"
-        },
-        {
-          "text": "Add cow ears, eyes, and snout for facial recognition.",
-          "met": false,
-          "note": "eye and snout present; horns but no ears"
-        },
-        {
-          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
-          "met": false,
-          "note": "cow stands level with head lowered; no forward lean"
-        },
-        {
-          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
-          "met": true,
-          "note": "hooves are dark brown"
-        },
-        {
-          "text": "Include a traditional wooden plow with a visible metal blade/share.",
-          "met": true,
-          "note": "wooden beam with grey metal share"
-        },
-        {
-          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
-          "met": false,
-          "note": "no yoke; beam attaches near the tail; no chains"
-        },
-        {
-          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
-          "met": false,
-          "note": "blade sits on the surface; no turned earth"
-        },
-        {
-          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
-          "met": true,
-          "note": "several dark furrow lines, three or more behind the plow"
-        },
-        {
-          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
-          "met": false,
-          "note": "field is uniform green with lines on both sides; no plowed/unplowed split"
-        },
-        {
-          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
-          "met": false,
-          "note": "no unplowed grass section being overturned"
-        },
-        {
-          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
-          "met": true,
-          "note": "horizon line, blue sky, yellow sun"
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-27b-8bit",
-      "artifact": "logs/opencode/qwen3.8-27b-8bit/cow-plowing.svg",
-      "question_index": 0,
-      "animated": false,
-      "slug": "cow-plowing",
-      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
-      "score": 0.3333333333333333,
-      "met": 4,
-      "total": 12,
-      "judge": {
-        "kind": "claude-vision",
-        "model": "claude-fable-5-1",
-        "date": "2026-09-06",
-        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/qwen3.8-27b-8bit/cow-plowing.png",
-      "requirements": [
-        {
-          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
-          "met": false,
-          "note": "body, head, four legs and tail present; no udder"
-        },
-        {
-          "text": "The cow must have black and white patches for its coloring.",
-          "met": false,
-          "note": "brown-and-white patches, not black-and-white"
-        },
-        {
-          "text": "Add cow ears, eyes, and snout for facial recognition.",
-          "met": false,
-          "note": "eye and snout present; horns but no ears"
-        },
-        {
-          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
-          "met": false,
-          "note": "cow stands level with head lowered; no forward lean"
-        },
-        {
-          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
-          "met": true,
-          "note": "hooves are dark brown"
-        },
-        {
-          "text": "Include a traditional wooden plow with a visible metal blade/share.",
-          "met": true,
-          "note": "wooden beam with grey metal share"
-        },
-        {
-          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
-          "met": false,
-          "note": "no yoke; beam attaches near the tail; no chains"
-        },
-        {
-          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
-          "met": false,
-          "note": "blade sits on the surface; no turned earth"
-        },
-        {
-          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
-          "met": true,
-          "note": "several dark furrow lines, three or more behind the plow"
-        },
-        {
-          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
-          "met": false,
-          "note": "field is uniform green with lines on both sides; no plowed/unplowed split"
-        },
-        {
-          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
-          "met": false,
-          "note": "no unplowed grass section being overturned"
-        },
-        {
-          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
-          "met": true,
-          "note": "horizon line, blue sky, yellow sun"
+          "note": ""
         }
       ]
     },
@@ -2289,8 +634,8 @@
       "total": 7,
       "judge": {
         "kind": "claude-vision",
-        "model": "claude-fable-5-1",
-        "date": "2026-09-06",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
         "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
       },
       "render": "logs/renders/opencode/qwen3.8-27b-8bit/dolphin.png",
@@ -2298,179 +643,37 @@
         {
           "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
           "met": false,
-          "note": "dolphin is pale blue, not grey; dorsal fin and fluke present"
+          "note": "The dolphin's body is a light steel blue (about RGB 134,183,219, an 85-point red-to-blue spread), not grey."
         },
         {
           "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
           "met": false,
-          "note": "only a few small droplets near the tail; no large splash"
+          "note": "A water surface is drawn, but there is no splash at the exit point - only a faint pale ellipse and three small bubbles."
         },
         {
           "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
           "met": false,
-          "note": "arc is dynamic but the tail fluke sits at the waterline"
+          "note": "The tail fluke is drawn below the water surface line, inside the blue water, so the body is not entirely in mid-air."
         },
         {
           "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
           "met": true,
-          "note": "red-and-white striped ring around the mid-body"
+          "note": ""
         },
         {
           "text": "Include a human trainer's arm and hand extending into the frame.",
           "met": true,
-          "note": "arm and hand extend from the right"
+          "note": ""
         },
         {
           "text": "The trainer's hand must be holding a small fish by the tail.",
           "met": true,
-          "note": "hand grips the fish at its tail end"
+          "note": ""
         },
         {
           "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
           "met": false,
-          "note": "mouth is a closed thin line"
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-27b-8bit",
-      "artifact": "logs/opencode/qwen3.8-27b-8bit/picnic-on-clouds.svg",
-      "question_index": 5,
-      "animated": true,
-      "slug": "picnic-on-clouds",
-      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
-      "score": 0.5,
-      "met": 5,
-      "total": 10,
-      "judge": {
-        "kind": "claude-vision",
-        "model": "claude-fable-5-1",
-        "date": "2026-09-06",
-        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/qwen3.8-27b-8bit/picnic-on-clouds.png",
-      "requirements": [
-        {
-          "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
-          "met": true,
-          "note": "solid cloud bank as ground"
-        },
-        {
-          "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
-          "met": false,
-          "note": "envelope is blue/red/yellow panels, not red-and-white stripes; basket is brown wicker"
-        },
-        {
-          "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
-          "met": true,
-          "note": "basket rests on the cloud with a shadow"
-        },
-        {
-          "text": "Show ropes connecting the balloon's envelope to the basket.",
-          "met": true,
-          "note": "ropes from envelope to basket"
-        },
-        {
-          "text": "Include four human figures styled as a family: two adults and two children.",
-          "met": true,
-          "note": "two adults and two children"
-        },
-        {
-          "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
-          "met": false,
-          "note": "blanket is red-white checkered but already spread; nobody holds a corner"
-        },
-        {
-          "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
-          "met": true,
-          "note": "open basket on the right corner of the blanket"
-        },
-        {
-          "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
-          "met": false,
-          "note": "jug is on the blanket, not in the basket; no grapes"
-        },
-        {
-          "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
-          "met": false,
-          "note": "child stands between blanket and balloon; adult waves from the left, not pointing at the envelope"
-        },
-        {
-          "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
-          "met": false,
-          "note": "sun present; four clouds, not two"
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-27b-8bit",
-      "artifact": "logs/opencode/qwen3.8-27b-8bit/treasure-barrel.svg",
-      "question_index": 13,
-      "animated": false,
-      "slug": "treasure-barrel",
-      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
-      "score": 0.5,
-      "met": 5,
-      "total": 10,
-      "judge": {
-        "kind": "claude-vision",
-        "model": "claude-fable-5-1",
-        "date": "2026-09-06",
-        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/qwen3.8-27b-8bit/treasure-barrel.png",
-      "requirements": [
-        {
-          "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
-          "met": true,
-          "note": "vertical planks and two metal hoops"
-        },
-        {
-          "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
-          "met": true,
-          "note": "lower part hidden in the sand, roughly top half visible"
-        },
-        {
-          "text": "Show the sand mounded up slightly around the visible base of the barrel.",
-          "met": true,
-          "note": "sand mound rises around the base"
-        },
-        {
-          "text": "The barrel must be open at the top and filled with treasure items.",
-          "met": true,
-          "note": "open top filled with coins and gems"
-        },
-        {
-          "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
-          "met": false,
-          "note": "coins scattered on the sand; nothing spills down a side"
-        },
-        {
-          "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
-          "met": false,
-          "note": "pile inside; only a few scattered coins outside"
-        },
-        {
-          "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
-          "met": false,
-          "note": "red and teal gems; no blue sapphire"
-        },
-        {
-          "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
-          "met": false,
-          "note": "no pearls"
-        },
-        {
-          "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
-          "met": false,
-          "note": "a crown, not a goblet"
-        },
-        {
-          "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
-          "met": true,
-          "note": "sparkle stars and highlights"
+          "note": "The snout is drawn closed: a single thin dark line runs to the tip where the fish is held, with no gape."
         }
       ]
     },
@@ -2482,52 +685,500 @@
       "animated": true,
       "slug": "dolphin-animated",
       "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
-      "score": 0.8571428571428571,
-      "met": 6,
+      "score": 0.7142857142857143,
+      "met": 5,
       "total": 7,
       "judge": {
         "kind": "claude-vision",
-        "model": "claude-fable-5-1",
-        "date": "2026-09-06",
-        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail",
-        "note": "render is visually identical to the base variant; same verdicts"
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
       },
       "render": "logs/renders/opencode/qwen3.8-flash-next/dolphin-animated.png",
       "requirements": [
         {
           "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
           "met": true,
-          "note": "grey body, dorsal fin, fluke"
+          "note": ""
         },
         {
           "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
           "met": true,
-          "note": "white splash burst with droplets at the exit point"
+          "note": ""
         },
         {
           "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
           "met": false,
-          "note": "tail tip is still inside the splash at the waterline"
+          "note": "The tail fluke is drawn below the waterline, inside the blue water, so the body is not entirely in mid-air."
         },
         {
           "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
           "met": true,
-          "note": "rainbow ring around the mid-body"
+          "note": ""
         },
         {
           "text": "Include a human trainer's arm and hand extending into the frame.",
           "met": true,
-          "note": "arm and hand extend from the trainer on the pier"
+          "note": ""
         },
         {
           "text": "The trainer's hand must be holding a small fish by the tail.",
-          "met": true,
-          "note": "hand holds the fish by the tail"
+          "met": false,
+          "note": "The fish's eye and head are at the right end, inside the trainer's fist, and the tail fin is at the left end inside the dolphin's mouth; the fish is held by the head, not the tail."
         },
         {
           "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
           "met": true,
-          "note": "jaws open with dark mouth wedge at the fish"
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish-animated.svg",
+      "question_index": 7,
+      "animated": true,
+      "slug": "dolphin-hoop-fish-animated",
+      "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
+      "score": 0.8571428571428571,
+      "met": 6,
+      "total": 7,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/dolphin-hoop-fish-animated.png",
+      "requirements": [
+        {
+          "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
+          "met": false,
+          "note": "The tail fluke is drawn below the waterline, inside the blue water, so the body is not entirely in mid-air."
+        },
+        {
+          "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a human trainer's arm and hand extending into the frame.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The trainer's hand must be holding a small fish by the tail.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish-v2.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-hoop-fish-v2",
+      "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
+      "score": 0.7142857142857143,
+      "met": 5,
+      "total": 7,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/dolphin-hoop-fish-v2.png",
+      "requirements": [
+        {
+          "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
+          "met": false,
+          "note": "The splash is a small cluster of low bumps roughly 55px wide with no vertical spray; it is not a large splash."
+        },
+        {
+          "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
+          "met": false,
+          "note": "The tail fluke is drawn below the waterline, inside the blue water, so the body is not entirely in mid-air."
+        },
+        {
+          "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a human trainer's arm and hand extending into the frame.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The trainer's hand must be holding a small fish by the tail.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish-v3.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-hoop-fish-v3",
+      "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
+      "score": 0.8571428571428571,
+      "met": 6,
+      "total": 7,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/dolphin-hoop-fish-v3.png",
+      "requirements": [
+        {
+          "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
+          "met": false,
+          "note": "The tail fluke is drawn below the waterline, inside the blue water, so the body is not entirely in mid-air."
+        },
+        {
+          "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a human trainer's arm and hand extending into the frame.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The trainer's hand must be holding a small fish by the tail.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-hoop-fish",
+      "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
+      "score": 0.7142857142857143,
+      "met": 5,
+      "total": 7,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/dolphin-hoop-fish.png",
+      "requirements": [
+        {
+          "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
+          "met": false,
+          "note": "The splash is a row of four small low semicircular bumps sitting on the surface with no vertical spray; it is not a large splash."
+        },
+        {
+          "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
+          "met": false,
+          "note": "The tail fluke tip is drawn below the waterline, inside the blue water, so the body is not entirely in mid-air."
+        },
+        {
+          "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a human trainer's arm and hand extending into the frame.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The trainer's hand must be holding a small fish by the tail.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-animated.svg",
+      "question_index": 7,
+      "animated": true,
+      "slug": "dolphin-hula-hoop-fish-animated",
+      "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
+      "score": 1.0,
+      "met": 7,
+      "total": 7,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail",
+        "note": "render is visually identical to the base variant; same verdicts"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-animated.png",
+      "requirements": [
+        {
+          "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a human trainer's arm and hand extending into the frame.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The trainer's hand must be holding a small fish by the tail.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v1.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-hula-hoop-fish-v1",
+      "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
+      "score": 0.2857142857142857,
+      "met": 2,
+      "total": 7,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v1.png",
+      "requirements": [
+        {
+          "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
+          "met": false,
+          "note": "There is no splash at the exit point - only two faint low translucent mounds and a few bubbles at the surface."
+        },
+        {
+          "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
+          "met": false,
+          "note": "The tail stock and both fluke lobes are drawn well below the waterline, inside the blue water, so the body is not entirely in mid-air."
+        },
+        {
+          "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
+          "met": false,
+          "note": "The hoop is not circular: it is two open, unjoined wavy ribbons that never close into a ring, and the dolphin does not pass through any enclosed centre."
+        },
+        {
+          "text": "Include a human trainer's arm and hand extending into the frame.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The trainer's hand must be holding a small fish by the tail.",
+          "met": false,
+          "note": "The fish's tail fin is at the left and its eye and snout are at the right, inside the trainer's fingers; the fish is held by the head, not the tail."
+        },
+        {
+          "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
+          "met": false,
+          "note": "The dolphin's mouth is almost entirely hidden behind the fish; all that is visible is a thin dark-red sliver, which does not read as a wide-open mouth."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v2.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-hula-hoop-fish-v2",
+      "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
+      "score": 1.0,
+      "met": 7,
+      "total": 7,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v2.png",
+      "requirements": [
+        {
+          "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a human trainer's arm and hand extending into the frame.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The trainer's hand must be holding a small fish by the tail.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v3.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-hula-hoop-fish-v3",
+      "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
+      "score": 1.0,
+      "met": 7,
+      "total": 7,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v3.png",
+      "requirements": [
+        {
+          "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a human trainer's arm and hand extending into the frame.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The trainer's hand must be holding a small fish by the tail.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
+          "met": true,
+          "note": ""
         }
       ]
     },
@@ -2539,13 +1190,13 @@
       "animated": false,
       "slug": "dolphin",
       "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
-      "score": 0.8571428571428571,
-      "met": 6,
+      "score": 0.7142857142857143,
+      "met": 5,
       "total": 7,
       "judge": {
         "kind": "claude-vision",
-        "model": "claude-fable-5-1",
-        "date": "2026-09-06",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
         "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
       },
       "render": "logs/renders/opencode/qwen3.8-flash-next/dolphin.png",
@@ -2553,567 +1204,42 @@
         {
           "text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.",
           "met": true,
-          "note": "grey body, dorsal fin, fluke"
+          "note": ""
         },
         {
           "text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.",
           "met": true,
-          "note": "white splash burst with droplets at the exit point"
+          "note": ""
         },
         {
           "text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.",
           "met": false,
-          "note": "tail tip is still inside the splash at the waterline"
+          "note": "The tail fluke is drawn below the waterline, inside the blue water, so the body is not entirely in mid-air."
         },
         {
           "text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.",
           "met": true,
-          "note": "rainbow ring around the mid-body"
+          "note": ""
         },
         {
           "text": "Include a human trainer's arm and hand extending into the frame.",
           "met": true,
-          "note": "arm and hand extend from the trainer on the pier"
+          "note": ""
         },
         {
           "text": "The trainer's hand must be holding a small fish by the tail.",
-          "met": true,
-          "note": "hand holds the fish by the tail"
+          "met": false,
+          "note": "The fish's eye and head are at the right end, inside the trainer's fist, and the tail fin is at the left end inside the dolphin's mouth; the fish is held by the head, not the tail."
         },
         {
           "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
           "met": true,
-          "note": "jaws open with dark mouth wedge at the fish"
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/fruit-stall-v2.svg",
-      "question_index": 12,
-      "animated": false,
-      "slug": "fruit-stall-v2",
-      "prompt": "Write `svg` code for an image of a fruit stall in the market.",
-      "score": 0.2727272727272727,
-      "met": 3,
-      "total": 11,
-      "judge": {
-        "kind": "claude-vision",
-        "model": "ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit",
-        "date": "2026-09-06",
-        "method": "viewed the Chrome render; strict per-requirement pass/fail. Self-judged: the judging model is the artifact's own model."
-      },
-      "render": "logs/renders/opencode/qwen3.8-flash-next/fruit-stall-v2.png",
-      "requirements": [
-        {
-          "text": "Create a main structure for a wooden fruit stall, including a counter.",
-          "met": true,
-          "note": "wooden stall with counter and crate base"
-        },
-        {
-          "text": "Add a red and white striped canopy over the stall, supported by two vertical wooden posts.",
-          "met": true,
-          "note": "red/white striped scalloped canopy on two vertical brown posts"
-        },
-        {
-          "text": "Display exactly four different, recognizable fruits.",
-          "met": false,
-          "note": "six kinds: apples, oranges, grapes, yellow lemons, bananas, watermelons"
-        },
-        {
-          "text": "First fruit: A pile of red apples in a wicker basket on the left side of the counter.",
-          "met": false,
-          "note": "apples on the left but in a plain slatted wooden crate, no wicker weave"
-        },
-        {
-          "text": "Second fruit: A bunch of yellow bananas placed next to the apples.",
-          "met": false,
-          "note": "bananas sit at the far right end of the counter, nowhere near the apples"
-        },
-        {
-          "text": "Third fruit: A pile of oranges in another wicker basket on the right side of the counter.",
-          "met": false,
-          "note": "oranges in the middle crate, not the right (right holds lemons); plain crate, not wicker"
-        },
-        {
-          "text": "Fourth fruit: A single, large slice of watermelon resting directly on the counter in the center.",
-          "met": false,
-          "note": "whole melons and a cut half sit on the ground in front, not on the counter"
-        },
-        {
-          "text": "Include a character representing the stall vendor, a smiling man with a mustache, positioned behind the counter and between the baskets.",
-          "met": false,
-          "note": "no vendor; only a distant walking shopper in the background"
-        },
-        {
-          "text": "Add a small, hanging chalkboard sign from the canopy that reads 'Fresh Fruit'.",
-          "met": true,
-          "note": "dark board on two strings from the canopy reading FRESH FRUIT (plus a $2/kg line)"
-        },
-        {
-          "text": "Depict a cobblestone ground surface in front of the stall.",
-          "met": false,
-          "note": "flat tan pavement with shadow ellipses, no cobbles"
-        },
-        {
-          "text": "Include the silhouette of another market stall in the background to suggest a larger market setting.",
-          "met": false,
-          "note": "background is a plain city building with windows, not a market stall"
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/fruit-stall-v3.svg",
-      "question_index": 12,
-      "animated": false,
-      "slug": "fruit-stall-v3",
-      "prompt": "Write `svg` code for an image of a fruit stall in the market.",
-      "score": 0.36363636363636365,
-      "met": 4,
-      "total": 11,
-      "judge": {
-        "kind": "claude-vision",
-        "model": "ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit",
-        "date": "2026-09-06",
-        "method": "viewed the Chrome render plus a 2x crop of the vendor region; strict per-requirement pass/fail. Self-judged: the judging model is the artifact's own model."
-      },
-      "render": "logs/renders/opencode/qwen3.8-flash-next/fruit-stall-v3.png",
-      "requirements": [
-        {
-          "text": "Create a main structure for a wooden fruit stall, including a counter.",
-          "met": true,
-          "note": "wooden stall with plank counter and crate base"
-        },
-        {
-          "text": "Add a red and white striped canopy over the stall, supported by two vertical wooden posts.",
-          "met": true,
-          "note": "red/cream striped canopy on two vertical brown posts"
-        },
-        {
-          "text": "Display exactly four different, recognizable fruits.",
-          "met": false,
-          "note": "six kinds: apples, oranges, grapes, yellow lemons, bananas, watermelons"
-        },
-        {
-          "text": "First fruit: A pile of red apples in a wicker basket on the left side of the counter.",
-          "met": true,
-          "note": "red apples in a woven-texture basket on the left of the counter"
-        },
-        {
-          "text": "Second fruit: A bunch of yellow bananas placed next to the apples.",
-          "met": false,
-          "note": "bananas rest on the counter at the right end, next to the yellow-fruit basket, not the apples"
-        },
-        {
-          "text": "Third fruit: A pile of oranges in another wicker basket on the right side of the counter.",
-          "met": false,
-          "note": "oranges occupy the middle wicker basket; the right basket holds yellow fruit"
-        },
-        {
-          "text": "Fourth fruit: A single, large slice of watermelon resting directly on the counter in the center.",
-          "met": false,
-          "note": "watermelon half and slices sit on the ground in front of the stall, not on the counter"
-        },
-        {
-          "text": "Include a character representing the stall vendor, a smiling man with a mustache, positioned behind the counter and between the baskets.",
-          "met": false,
-          "note": "vendor's face is fully buried behind the apple crate (crop shows only the straw hat and a grip arm); no smile or mustache visible, and he is behind the left basket, not between baskets"
-        },
-        {
-          "text": "Add a small, hanging chalkboard sign from the canopy that reads 'Fresh Fruit'.",
-          "met": false,
-          "note": "chalkboard is nailed to the counter front at crate height, not hung from the canopy, and its text is partly occluded by the watermelon"
-        },
-        {
-          "text": "Depict a cobblestone ground surface in front of the stall.",
-          "met": false,
-          "note": "flat tan ground with only shadow ellipses, no cobbles"
-        },
-        {
-          "text": "Include the silhouette of another market stall in the background to suggest a larger market setting.",
-          "met": true,
-          "note": "flat-painted teal-striped neighbor stall on the left reads as another market stall in the background"
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/fruit-stall.svg",
-      "question_index": 12,
-      "animated": false,
-      "slug": "fruit-stall",
-      "prompt": "Write `svg` code for an image of a fruit stall in the market.",
-      "score": 0.18181818181818182,
-      "met": 2,
-      "total": 11,
-      "judge": {
-        "kind": "claude-vision",
-        "model": "ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit",
-        "date": "2026-09-06",
-        "method": "viewed the Chrome render plus a 2x crop of the sign region; strict per-requirement pass/fail. Self-judged: the judging model is the artifact's own model."
-      },
-      "render": "logs/renders/opencode/qwen3.8-flash-next/fruit-stall.png",
-      "requirements": [
-        {
-          "text": "Create a main structure for a wooden fruit stall, including a counter.",
-          "met": true,
-          "note": "brown wooden facade with shelf boxes and a counter line above the crates"
-        },
-        {
-          "text": "Add a red and white striped canopy over the stall, supported by two vertical wooden posts.",
-          "met": true,
-          "note": "red/cream striped scalloped awning on two brown vertical posts"
-        },
-        {
-          "text": "Display exactly four different, recognizable fruits.",
-          "met": false,
-          "note": "six kinds shown: oranges, apples, green pears, grapes, bananas, yellow lemons/limes"
-        },
-        {
-          "text": "First fruit: A pile of red apples in a wicker basket on the left side of the counter.",
-          "met": false,
-          "note": "red apples on the left but in a plain wooden crate, no wicker weave"
-        },
-        {
-          "text": "Second fruit: A bunch of yellow bananas placed next to the apples.",
-          "met": false,
-          "note": "bananas hang at the far right of the stall, not next to the apples"
-        },
-        {
-          "text": "Third fruit: A pile of oranges in another wicker basket on the right side of the counter.",
-          "met": false,
-          "note": "oranges sit in the middle crate (plain wood); the right crate holds yellow fruit"
-        },
-        {
-          "text": "Fourth fruit: A single, large slice of watermelon resting directly on the counter in the center.",
-          "met": false,
-          "note": "no watermelon anywhere in the scene"
-        },
-        {
-          "text": "Include a character representing the stall vendor, a smiling man with a mustache, positioned behind the counter and between the baskets.",
-          "met": false,
-          "note": "no person anywhere in the scene"
-        },
-        {
-          "text": "Add a small, hanging chalkboard sign from the canopy that reads 'Fresh Fruit'.",
-          "met": false,
-          "note": "'FRESH FRUIT' board present with correct text but mounted on the stall wall, no suspension from the canopy (crop confirms no strings)"
-        },
-        {
-          "text": "Depict a cobblestone ground surface in front of the stall.",
-          "met": false,
-          "note": "flat tan ground, no cobbles"
-        },
-        {
-          "text": "Include the silhouette of another market stall in the background to suggest a larger market setting.",
-          "met": false,
-          "note": "plain sky background, no other stall"
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/rubber-ducky-animated.svg",
-      "question_index": 4,
-      "animated": true,
-      "slug": "rubber-ducky-animated",
-      "prompt": "Write `svg` code for an image of a rubber ducky floating on top of a soapy bathtub.",
-      "score": 0.5555555555555556,
-      "met": 5,
-      "total": 9,
-      "judge": {
-        "kind": "claude-vision",
-        "model": "claude-fable-5-1",
-        "date": "2026-09-06",
-        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail",
-        "note": "render is visually identical to the base variant; same verdicts"
-      },
-      "render": "logs/renders/opencode/qwen3.8-flash-next/rubber-ducky-animated.png",
-      "requirements": [
-        {
-          "text": "Create a classic rubber ducky shape with a distinct body and head, colored bright yellow.",
-          "met": true,
-          "note": "yellow body and head"
-        },
-        {
-          "text": "The duck must have an orange beak and a simple black dot for an eye.",
-          "met": true,
-          "note": "orange beak, black dot eye"
-        },
-        {
-          "text": "Draw a white, claw-foot bathtub shape, showing the inside view with a visible rim.",
-          "met": false,
-          "note": "white tub with rim, but plain peg feet, not claw-feet"
-        },
-        {
-          "text": "Fill the lower portion of the bathtub with light blue water.",
-          "met": false,
-          "note": "water reaches the rim; the tub reads as full, not lower portion"
-        },
-        {
-          "text": "Ensure the water line is clearly visible across the duck's body, showing the lower third of the duck submerged.",
-          "met": true,
-          "note": "translucent band shows the lower part of the duck submerged"
-        },
-        {
-          "text": "Position the duck so it is floating on the water's surface, creating small, concentric circular ripples in the water around its base.",
-          "met": true,
-          "note": "two ripple arcs around the duck"
-        },
-        {
-          "text": "Depict soap bubbles as clusters of overlapping circles with a slight iridescence, using semi-transparent white, light pink, and light blue fills.",
-          "met": false,
-          "note": "bubbles are plain white/light-blue circles; no pink or iridescence"
-        },
-        {
-          "text": "Place a small cluster of bubbles on top of the duck's head.",
-          "met": true,
-          "note": "small bubble cluster on the head"
-        },
-        {
-          "text": "Place a large pile of bubbles against one side of the tub and a few floating on the water's surface around the duck.",
-          "met": false,
-          "note": "small clusters at both rims; no large pile on one side"
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/rubber-ducky-v2.svg",
-      "question_index": 4,
-      "animated": false,
-      "slug": "rubber-ducky-v2",
-      "prompt": "Write `svg` code for an image of a rubber ducky floating on top of a soapy bathtub.",
-      "score": 0.5555555555555556,
-      "met": 5,
-      "total": 9,
-      "judge": {
-        "kind": "claude-vision",
-        "model": "claude-fable-5-1",
-        "date": "2026-09-06",
-        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail",
-        "note": "render is visually identical to the base variant; same verdicts"
-      },
-      "render": "logs/renders/opencode/qwen3.8-flash-next/rubber-ducky-v2.png",
-      "requirements": [
-        {
-          "text": "Create a classic rubber ducky shape with a distinct body and head, colored bright yellow.",
-          "met": true,
-          "note": "yellow body and head"
-        },
-        {
-          "text": "The duck must have an orange beak and a simple black dot for an eye.",
-          "met": true,
-          "note": "orange beak, black dot eye"
-        },
-        {
-          "text": "Draw a white, claw-foot bathtub shape, showing the inside view with a visible rim.",
-          "met": false,
-          "note": "white tub with rim, but plain peg feet, not claw-feet"
-        },
-        {
-          "text": "Fill the lower portion of the bathtub with light blue water.",
-          "met": false,
-          "note": "water reaches the rim; the tub reads as full, not lower portion"
-        },
-        {
-          "text": "Ensure the water line is clearly visible across the duck's body, showing the lower third of the duck submerged.",
-          "met": true,
-          "note": "translucent band shows the lower part of the duck submerged"
-        },
-        {
-          "text": "Position the duck so it is floating on the water's surface, creating small, concentric circular ripples in the water around its base.",
-          "met": true,
-          "note": "two ripple arcs around the duck"
-        },
-        {
-          "text": "Depict soap bubbles as clusters of overlapping circles with a slight iridescence, using semi-transparent white, light pink, and light blue fills.",
-          "met": false,
-          "note": "bubbles are plain white/light-blue circles; no pink or iridescence"
-        },
-        {
-          "text": "Place a small cluster of bubbles on top of the duck's head.",
-          "met": true,
-          "note": "small bubble cluster on the head"
-        },
-        {
-          "text": "Place a large pile of bubbles against one side of the tub and a few floating on the water's surface around the duck.",
-          "met": false,
-          "note": "small clusters at both rims; no large pile on one side"
-        }
-      ]
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/rubber-ducky.svg",
-      "question_index": 4,
-      "animated": false,
-      "slug": "rubber-ducky",
-      "prompt": "Write `svg` code for an image of a rubber ducky floating on top of a soapy bathtub.",
-      "score": 0.5555555555555556,
-      "met": 5,
-      "total": 9,
-      "judge": {
-        "kind": "claude-vision",
-        "model": "claude-fable-5-1",
-        "date": "2026-09-06",
-        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
-      },
-      "render": "logs/renders/opencode/qwen3.8-flash-next/rubber-ducky.png",
-      "requirements": [
-        {
-          "text": "Create a classic rubber ducky shape with a distinct body and head, colored bright yellow.",
-          "met": true,
-          "note": "yellow body and head"
-        },
-        {
-          "text": "The duck must have an orange beak and a simple black dot for an eye.",
-          "met": true,
-          "note": "orange beak, black dot eye"
-        },
-        {
-          "text": "Draw a white, claw-foot bathtub shape, showing the inside view with a visible rim.",
-          "met": false,
-          "note": "white tub with rim, but plain peg feet, not claw-feet"
-        },
-        {
-          "text": "Fill the lower portion of the bathtub with light blue water.",
-          "met": false,
-          "note": "water reaches the rim; the tub reads as full, not lower portion"
-        },
-        {
-          "text": "Ensure the water line is clearly visible across the duck's body, showing the lower third of the duck submerged.",
-          "met": true,
-          "note": "translucent band shows the lower part of the duck submerged"
-        },
-        {
-          "text": "Position the duck so it is floating on the water's surface, creating small, concentric circular ripples in the water around its base.",
-          "met": true,
-          "note": "two ripple arcs around the duck"
-        },
-        {
-          "text": "Depict soap bubbles as clusters of overlapping circles with a slight iridescence, using semi-transparent white, light pink, and light blue fills.",
-          "met": false,
-          "note": "bubbles are plain white/light-blue circles; no pink or iridescence"
-        },
-        {
-          "text": "Place a small cluster of bubbles on top of the duck's head.",
-          "met": true,
-          "note": "small bubble cluster on the head"
-        },
-        {
-          "text": "Place a large pile of bubbles against one side of the tub and a few floating on the water's surface around the duck.",
-          "met": false,
-          "note": "small clusters at both rims; no large pile on one side"
+          "note": ""
         }
       ]
     }
   ],
   "questions": [
-    {
-      "question_index": 0,
-      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
-      "n_requirements": 12,
-      "requirements": [
-        "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
-        "The cow must have black and white patches for its coloring.",
-        "Add cow ears, eyes, and snout for facial recognition.",
-        "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
-        "The cow's hooves must be colored brown, as if covered in soil from the field.",
-        "Include a traditional wooden plow with a visible metal blade/share.",
-        "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
-        "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
-        "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
-        "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
-        "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
-        "Add a simple background with a clear horizon line and a blue sky containing a yellow sun."
-      ],
-      "artifacts": [
-        "logs/opencode/gpt-5.6-terra/cow-plowing-animated.svg",
-        "logs/opencode/gpt-5.6-terra/cow-plowing-v1.svg",
-        "logs/opencode/gpt-5.6-terra/cow-plowing-v2.svg",
-        "logs/opencode/gpt-5.6-terra/cow-plowing-v3.svg",
-        "logs/opencode/qwen3.8-27b-8bit/cow-plowing-animated.svg",
-        "logs/opencode/qwen3.8-27b-8bit/cow-plowing.svg"
-      ]
-    },
-    {
-      "question_index": 4,
-      "prompt": "Write `svg` code for an image of a rubber ducky floating on top of a soapy bathtub.",
-      "n_requirements": 9,
-      "requirements": [
-        "Create a classic rubber ducky shape with a distinct body and head, colored bright yellow.",
-        "The duck must have an orange beak and a simple black dot for an eye.",
-        "Draw a white, claw-foot bathtub shape, showing the inside view with a visible rim.",
-        "Fill the lower portion of the bathtub with light blue water.",
-        "Ensure the water line is clearly visible across the duck's body, showing the lower third of the duck submerged.",
-        "Position the duck so it is floating on the water's surface, creating small, concentric circular ripples in the water around its base.",
-        "Depict soap bubbles as clusters of overlapping circles with a slight iridescence, using semi-transparent white, light pink, and light blue fills.",
-        "Place a small cluster of bubbles on top of the duck's head.",
-        "Place a large pile of bubbles against one side of the tub and a few floating on the water's surface around the duck."
-      ],
-      "artifacts": [
-        "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-animated.svg",
-        "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v1.svg",
-        "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v2.svg",
-        "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v3.svg",
-        "logs/opencode/qwen3.8-flash-next/rubber-ducky-animated.svg",
-        "logs/opencode/qwen3.8-flash-next/rubber-ducky-v2.svg",
-        "logs/opencode/qwen3.8-flash-next/rubber-ducky.svg"
-      ]
-    },
-    {
-      "question_index": 5,
-      "prompt": "Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.",
-      "n_requirements": 10,
-      "requirements": [
-        "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
-        "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
-        "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
-        "Show ropes connecting the balloon's envelope to the basket.",
-        "Include four human figures styled as a family: two adults and two children.",
-        "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
-        "Place an open picnic basket on a corner of the blanket that is already spread out.",
-        "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
-        "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
-        "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds."
-      ],
-      "artifacts": [
-        "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-animated.svg",
-        "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v1.svg",
-        "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v2.svg",
-        "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v3.svg",
-        "logs/opencode/qwen3.8-27b-8bit/picnic-on-clouds.svg"
-      ]
-    },
-    {
-      "question_index": 6,
-      "prompt": "Write `svg` code for an image of a stunt car jumping through a circle of fire.",
-      "n_requirements": 8,
-      "requirements": [
-        "Create a red, sporty car with a body, wheels, and windows.",
-        "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
-        "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
-        "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
-        "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
-        "Add a ground surface below the entire jump setup.",
-        "Incorporate gray speed lines trailing behind the car to convey high speed.",
-        "Add orange sparks where the car's tires last touched the take-off ramp."
-      ],
-      "artifacts": [
-        "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-animated.svg",
-        "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v1.svg",
-        "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v2.svg",
-        "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v3.svg"
-      ]
-    },
     {
       "question_index": 7,
       "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
@@ -3129,65 +1255,26 @@
       ],
       "artifacts": [
         "logs/claude/claude-opus-4-8/dolphin-hoop.svg",
+        "logs/claude/claude-opus-5/dolphin-animated.svg",
         "logs/claude/claude-opus-5/dolphin-hoop-jump.svg",
+        "logs/claude/claude-opus-5/dolphin-v2.svg",
+        "logs/claude/claude-opus-5/dolphin-v3.svg",
+        "logs/claude/claude-opus-5/dolphin.svg",
         "logs/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-animated.svg",
         "logs/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v1.svg",
         "logs/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v2.svg",
         "logs/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v3.svg",
         "logs/opencode/qwen3.8-27b-8bit/dolphin.svg",
         "logs/opencode/qwen3.8-flash-next/dolphin-animated.svg",
+        "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish-animated.svg",
+        "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish-v2.svg",
+        "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish-v3.svg",
+        "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish.svg",
+        "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-animated.svg",
+        "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v1.svg",
+        "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v2.svg",
+        "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v3.svg",
         "logs/opencode/qwen3.8-flash-next/dolphin.svg"
-      ]
-    },
-    {
-      "question_index": 12,
-      "prompt": "Write `svg` code for an image of a fruit stall in the market.",
-      "n_requirements": 11,
-      "requirements": [
-        "Create a main structure for a wooden fruit stall, including a counter.",
-        "Add a red and white striped canopy over the stall, supported by two vertical wooden posts.",
-        "Display exactly four different, recognizable fruits.",
-        "First fruit: A pile of red apples in a wicker basket on the left side of the counter.",
-        "Second fruit: A bunch of yellow bananas placed next to the apples.",
-        "Third fruit: A pile of oranges in another wicker basket on the right side of the counter.",
-        "Fourth fruit: A single, large slice of watermelon resting directly on the counter in the center.",
-        "Include a character representing the stall vendor, a smiling man with a mustache, positioned behind the counter and between the baskets.",
-        "Add a small, hanging chalkboard sign from the canopy that reads 'Fresh Fruit'.",
-        "Depict a cobblestone ground surface in front of the stall.",
-        "Include the silhouette of another market stall in the background to suggest a larger market setting."
-      ],
-      "artifacts": [
-        "logs/opencode/gpt-5.6-terra/fruit-stall-market-animated.svg",
-        "logs/opencode/gpt-5.6-terra/fruit-stall-market-v1.svg",
-        "logs/opencode/gpt-5.6-terra/fruit-stall-market-v2.svg",
-        "logs/opencode/gpt-5.6-terra/fruit-stall-market-v3.svg",
-        "logs/opencode/qwen3.8-flash-next/fruit-stall-v2.svg",
-        "logs/opencode/qwen3.8-flash-next/fruit-stall-v3.svg",
-        "logs/opencode/qwen3.8-flash-next/fruit-stall.svg"
-      ]
-    },
-    {
-      "question_index": 13,
-      "prompt": "Write `svg` code for an image of half buried barrel of treasure.",
-      "n_requirements": 10,
-      "requirements": [
-        "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
-        "The barrel must be buried in a mound of sand, so only the top half is visible.",
-        "Show the sand mounded up slightly around the visible base of the barrel.",
-        "The barrel must be open at the top and filled with treasure items.",
-        "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
-        "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
-        "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
-        "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
-        "A golden goblet must be visible, partially buried in the coins inside the barrel.",
-        "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny."
-      ],
-      "artifacts": [
-        "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-animated.svg",
-        "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v1.svg",
-        "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v2.svg",
-        "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v3.svg",
-        "logs/opencode/qwen3.8-27b-8bit/treasure-barrel.svg"
       ]
     }
   ],
@@ -3226,42 +1313,6 @@
       "question_index": 0,
       "animated": false,
       "slug": "cow-plowing",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/dolphin-animated.svg",
-      "question_index": 7,
-      "animated": true,
-      "slug": "dolphin-animated",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/dolphin-v2.svg",
-      "question_index": 7,
-      "animated": false,
-      "slug": "dolphin-v2",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/dolphin-v3.svg",
-      "question_index": 7,
-      "animated": false,
-      "slug": "dolphin-v3",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/dolphin.svg",
-      "question_index": 7,
-      "animated": false,
-      "slug": "dolphin",
       "reason": "no verdict file"
     },
     {
@@ -3411,6 +1462,42 @@
     {
       "harness": "opencode",
       "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-animated.svg",
+      "question_index": 0,
+      "animated": true,
+      "slug": "cow-plowing-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v1.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v2.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v3.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
       "artifact": "logs/opencode/gpt-5.6-terra/dawn-beach-animated.svg",
       "question_index": null,
       "animated": true,
@@ -3446,12 +1533,228 @@
     },
     {
       "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/fruit-stall-market-animated.svg",
+      "question_index": 12,
+      "animated": true,
+      "slug": "fruit-stall-market-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/fruit-stall-market-v1.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall-market-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/fruit-stall-market-v2.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall-market-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/fruit-stall-market-v3.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall-market-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-animated.svg",
+      "question_index": 13,
+      "animated": true,
+      "slug": "half-buried-treasure-barrel-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v1.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "half-buried-treasure-barrel-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v2.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "half-buried-treasure-barrel-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v3.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "half-buried-treasure-barrel-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-animated.svg",
+      "question_index": 5,
+      "animated": true,
+      "slug": "picnic-clouds-hot-air-balloon-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v1.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-clouds-hot-air-balloon-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v2.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-clouds-hot-air-balloon-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v3.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-clouds-hot-air-balloon-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-animated.svg",
+      "question_index": 4,
+      "animated": true,
+      "slug": "rubber-ducky-soapy-bathtub-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v1.svg",
+      "question_index": 4,
+      "animated": false,
+      "slug": "rubber-ducky-soapy-bathtub-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v2.svg",
+      "question_index": 4,
+      "animated": false,
+      "slug": "rubber-ducky-soapy-bathtub-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v3.svg",
+      "question_index": 4,
+      "animated": false,
+      "slug": "rubber-ducky-soapy-bathtub-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-animated.svg",
+      "question_index": 6,
+      "animated": true,
+      "slug": "stunt-car-jumping-circle-fire-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v1.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-jumping-circle-fire-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v2.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-jumping-circle-fire-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v3.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-jumping-circle-fire-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-27b-8bit",
+      "artifact": "logs/opencode/qwen3.8-27b-8bit/cow-plowing-animated.svg",
+      "question_index": 0,
+      "animated": true,
+      "slug": "cow-plowing-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-27b-8bit",
+      "artifact": "logs/opencode/qwen3.8-27b-8bit/cow-plowing.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
       "model": "qwen3.8-27b-8bit",
       "artifact": "logs/opencode/qwen3.8-27b-8bit/dawn-beach.svg",
       "question_index": null,
       "animated": true,
       "slug": "dawn-beach",
       "reason": "prompt is not an SVGBench question"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-27b-8bit",
+      "artifact": "logs/opencode/qwen3.8-27b-8bit/picnic-on-clouds.svg",
+      "question_index": 5,
+      "animated": true,
+      "slug": "picnic-on-clouds",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-27b-8bit",
+      "artifact": "logs/opencode/qwen3.8-27b-8bit/treasure-barrel.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel",
+      "reason": "no verdict file"
     },
     {
       "harness": "opencode",
@@ -3492,82 +1795,64 @@
     {
       "harness": "opencode",
       "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish-animated.svg",
-      "question_index": 7,
-      "animated": true,
-      "slug": "dolphin-hoop-fish-animated",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish-v2.svg",
-      "question_index": 7,
-      "animated": false,
-      "slug": "dolphin-hoop-fish-v2",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish-v3.svg",
-      "question_index": 7,
-      "animated": false,
-      "slug": "dolphin-hoop-fish-v3",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish.svg",
-      "question_index": 7,
-      "animated": false,
-      "slug": "dolphin-hoop-fish",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-animated.svg",
-      "question_index": 7,
-      "animated": true,
-      "slug": "dolphin-hula-hoop-fish-animated",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v1.svg",
-      "question_index": 7,
-      "animated": false,
-      "slug": "dolphin-hula-hoop-fish-v1",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v2.svg",
-      "question_index": 7,
-      "animated": false,
-      "slug": "dolphin-hula-hoop-fish-v2",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v3.svg",
-      "question_index": 7,
-      "animated": false,
-      "slug": "dolphin-hula-hoop-fish-v3",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
       "artifact": "logs/opencode/qwen3.8-flash-next/fruit-stall-animated.svg",
       "question_index": 12,
       "animated": true,
       "slug": "fruit-stall-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/fruit-stall-v2.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/fruit-stall-v3.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/fruit-stall.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/rubber-ducky-animated.svg",
+      "question_index": 4,
+      "animated": true,
+      "slug": "rubber-ducky-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/rubber-ducky-v2.svg",
+      "question_index": 4,
+      "animated": false,
+      "slug": "rubber-ducky-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/rubber-ducky.svg",
+      "question_index": 4,
+      "animated": false,
+      "slug": "rubber-ducky",
       "reason": "no verdict file"
     },
     {
