@@ -6,8 +6,7 @@
     "kind": "claude-vision",
     "model": "claude-opus-5",
     "date": "2026-09-07",
-    "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail",
-    "note": "render is visually identical to the base variant; same verdicts"
+    "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
   },
   "requirements": [
     {"text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.", "met": true, "note": ""},

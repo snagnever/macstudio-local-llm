@@ -41,7 +41,7 @@ board, not only the question it arose on.
 | Part of the body crosses below the drawn waterline | "entire body in mid-air" FAILS | Failed on the calibration artifact for a fluke drawn below the water line. |
 | A splash exists but is small and offset from the exit point | "large splash effect at the point where the dolphin has exited" FAILS | Both the size and the location are conditions. |
 | A ring alternating exactly two colours (red/white, red/yellow) | Counts as "multi-coloured" | Two distinct alternating colours is more than one colour; the calibration artifact passed on a red/yellow ring, so a red/white one must too. |
-| Grey vs blue body colour | Sample the mid-tone flank: a red-to-blue channel spread of about 45 or less counts as grey; a spread of about 80 or more is a blue/teal and FAILS | The calibration dolphin that passed measures 44 (RGB 102,126,146); the teal and steel-blue dolphins measure 85-91. Puts the binding colour word on a repeatable footing. |
+| Wherever a requirement names **grey / gray** (q7 "grey dolphin", q6 req 7 "gray speed lines") | One word, one meaning: a near-neutral fill. It is measured on two bases, and this row carries both. **Body colour (q7) — red-minus-blue spread:** sample the mid-tone flank; about 45 or less counts as grey, about 80 or more is a blue/teal and FAILS. **Line and fill colour (q6) — max-minus-min spread:** 40 or less is gray at any lightness, at the same bar as the binding white rule; a warm tan or beige streak FAILS. The two bases agree on a true neutral and differ only in how a colour cast is measured. No artifact's outcome on this board turns on the difference | Puts the binding colour word on a repeatable footing and makes it do the same work on a dolphin's flank, a speed line, an awning and an envelope stripe. The q7 calibration dolphin that passed measures 44 red-to-blue (RGB 102,126,146) while the teal and steel-blue dolphins measure 85-91. The q6 qwen streaks sample RGB 210,166,111 and 207,164,111 - a max-minus-min spread of about 99, plainly tan at 1x. |
 | A beak parted only as a thin sliver or narrow wedge (gape well under about 20 degrees) | "wide open" FAILS | Distinct from the wide-open V already allowed; a hairline gape does not read as an open mouth at render scale. |
 | "mid-section passing through the center of the hoop" | Passes when the hoop's centre point falls inside the dolphin's body silhouette; FAILS when the centre point is empty background, or when the "hoop" is an open unclosed ribbon so nothing passes through it | Gives the placement clause a single checkable test instead of an impression. |
 | Splash size threshold | Passes with visible vertical spray or a broad mound spanning roughly 15% of canvas width at the exit point; a row of low bumps, or faint translucent shards with no spray, FAILS | Sets the "large" bar consistently once, so the same drawing style is not passed in one file and failed in another. |
@@ -70,14 +70,13 @@ board, not only the question it arose on.
 | "draped over the edge ... trailing down into the spilled coins" (q13 req 8) | Both clauses are conditions. **Draped:** the string must cross the barrel's rim. **Trailing into:** its lowest pearl must touch or overlap a coin that is part of the spill (on the barrel's outer face or on the sand). A string that ends on bare wood or bare sand, more than about one pearl-diameter from any coin, FAILS, and loose unstrung beads are not a string at all | Splits the claude lineage on measurement rather than impression: v3 and animated end with the last pearl overlapping a spill coin (pass), the base ends in bare wood on the opposite side from the spill and v2 stops about two pearl-diameters short (both fail). |
 | "bright highlights and glint effects on the coins, gems, and goblet" (q13 req 10) | All three named object classes must actually carry a highlight - a lighter facet or gradient, a specular band, or a drawn sparkle on the object. A flat single-fill gem (one colour across its whole area) FAILS. If the scene contains no goblet at all, the requirement FAILS, since an absent object cannot carry the required glint | Consistent with "a requirement with several conditions fails if ANY condition fails". The claude base gem samples one uniform RGB 216,30,91 across its area while v2/v3/animated gems carry two facet tones; only v3 and animated also have a goblet to glint. |
 | The q5 "white" measurement applies wherever a requirement names white (q12 req 2, "red and white striped canopy") | Same test as the envelope stripes: white means all channels >= 200 with a max-minus-min spread <= 40. A cream or buttery light stripe FAILS | The colour word must do the same work on an awning as on an envelope. The q12 data separates as cleanly as the q5 data did: all four qwen3.8-flash-next canopies sample RGB 253,240,224 (spread 29, white), while the four gpt-5.6-terra canopies sample 247-251, 227-234, 162-192 (spread 57-87, a cream) - and the difference is visible at 1x, not only in the numbers. |
-| What counts as a "wicker basket" (q12 req 4 and req 6) | The container must read as woven: a visible weave, cross-hatch or basket-weave banding, in a rounded or tapered basket silhouette. A plain rectangular or trapezoidal wooden crate - flat fill, a border and plank lines - is a crate, not a wicker basket | Directly parallel to the q13 ruling that brown bands in the stave palette are not "metal hoops": a named material has to be drawn, not assumed. All 8 q12 artifacts display fruit in plain wooden crates, checked at 4-5x on each. |
+| What counts as a "wicker basket" — **every requirement on the board that names wicker: q5 req 2, q12 req 4 and q12 req 6** | The container must read as woven: a visible weave, cross-hatch or basket-weave banding, in a rounded or tapered basket silhouette. A plain rectangular or trapezoidal wooden crate - flat fill, a border, plank lines, or a single cross of one horizontal and one vertical band - is a crate, not a wicker basket. A lattice of several bands in BOTH axes over a contrasting panel fill is a weave and passes | Directly parallel to the q13 ruling that brown bands in the stave palette are not "metal hoops": a named material has to be drawn, not assumed. All 8 q12 artifacts display fruit in plain wooden crates, checked at 4-5x on each. q5 req 2 also names a wicker basket and was judged two passes before this row existed, so all 9 q5 balloon baskets were re-cropped at 6-14x and re-checked against it - see "Added after the q5 wicker re-check" below. |
 | What counts as a "chalkboard" sign (q12 req 9) | The board must be a dark slate/black/dark-green panel carrying light (chalk-coloured) lettering. A light cream or wooden board with dark lettering is a painted sign and FAILS | Same class of binding descriptor as the colour words. The q12 data separates: all four gpt-5.6-terra signs are cream boards (fill RGB 244,226,177) with dark brown serif text, while all four qwen3.8-flash-next signs are dark green boards with white chalk text. |
 | "hanging ... from the canopy" (q12 req 9) | A separate condition from the board's type and its text. Passes only when the sign is suspended below the canopy by a drawn cord, chain, rope or hook. A board fixed flat against the awning valance, standing on a post at counter level, screwed to the counter's front panel, or propped on the ground FAILS | "Named placement is binding" already covers positions; this makes the suspension clause checkable the same way. Only qwen3.8-flash-next v2 draws the two cords running up to the valance; the other seven mount the sign elsewhere. |
 | "placed next to the apples" (q12 req 5) | Passes when the banana bunch touches the apple pile, or is the closest fruit group to it measured centre to centre. FAILS when another fruit group lies between them or is measurably closer | Turns a vague adjacency into one repeatable measurement, the way the corner-of-the-blanket rule does for q5. All 8 q12 artifacts put the bananas at the far end of the display: in gpt-5.6-terra they are the farthest of five groups from the apples (about 330 px against 150 px for the grapes), and in qwen3.8-flash-next the lemon crate and grape bowl both measure closer. |
 | What counts as a "cobblestone ground surface" (q12 req 10) | Needs a packed, tiled pattern of adjacent paving stones (or their joint lines) covering the ground in front of the stall. A flat fill, soft wave bands, thin path lines, soft blurred patches, or sparse widely-spaced pebble outlines with bare ground between them all FAIL | Otherwise any ground texture at all would satisfy a requirement that names a specific paving. Sampled on every q12 render: gpt v1 flat tan plus one shadow ellipse, gpt v2 wave bands, gpt v3/animated two thin path lines, qwen base a single flat band, qwen v2/v3 soft filled ellipse patches, qwen animated scattered ellipse outlines. Eight of eight. |
 | "the silhouette of another market stall in the background" (q12 req 11) | The background shape must carry the defining feature of a stall - an awning or canopy over an open front or counter. A flat, desaturated background fill counts as a silhouette in this flat-vector style, so monochrome is not required; but a plain building with a pitched or flat roof, a door and windows and no awning is not a market stall | The requirement names a stall, not scenery, and this keeps the noun binding while not punishing flat colour. It splits the q12 board: qwen3.8-flash-next v3 and animated draw a pale flat storefront under a scalloped teal/white awning (pass), while gpt-5.6-terra's tan pitched-roof houses, qwen v2's flat-roofed blue block and qwen base's empty sky all fail. |
 | "front half having passed through the ring and its back half still inside the ring" (q6 req 4) | Fit the hoop's mid-band as a circle from its unoccluded arc, then split the car's body silhouette against that circle along the travel direction. Report three fractions: **through** (outside the circle, forward of its centre), **inside** (within the opening) and **behind** (outside, rearward). Passes only when behind is about 0 AND through lands between 0.30 and 0.70. FAILS when through is about 0 (nothing has emerged, whether the car is short of the hoop or sitting wholly inside it) and when through is 0.75 or more (effectively all the way out) | Turns "front half / back half" into one repeatable measurement, the way the "lower third of the duck" rule does. The q6 data does not come close to the band: gpt v1 measures through 0.87 / inside 0.13, gpt v2/v3/animated measure through 0.00 with 0.63-0.66 of the car still behind the ring, and all four qwen3.8-flash-next cars measure inside 1.00 / through 0.00. |
-| Wherever a requirement names **gray** (q6 req 7, "gray speed lines") | Same shape of test as the binding white rule: gray means a near-neutral fill, max-minus-min channel spread <= 40, at any lightness. A warm tan or beige streak FAILS | The colour word must do the same work on a speed line as on an awning or an envelope stripe. The q6 qwen streaks sample RGB 210,166,111 and 207,164,111 - a spread of about 99, plainly tan at 1x, not gray. |
 | What counts as "gray speed lines trailing behind the car" (q6 req 7) | Needs short parallel streaks in the air behind the moving car. A long continuous stroke that traces a structure - running from a base plate at the far edge of the canvas, along the ground, round the bend at a ramp's foot and up the incline to the wheel - is the ramp's outline or rail, not a speed line, even though it ends at the car and is grey | Parallel to the q13 "brown bands are not metal hoops" and q12 "crate is not wicker" rulings: the named thing has to be drawn, not inferred from an adjacent shape. All four gpt-5.6-terra q6 renders were traced stroke by stroke at 4x before this was applied. |
 | "jagged, irregular flames" (q6 req 2), and "completely surrounded" | The flame clause passes when the tongues are pointed rather than rounded blobs and vary in length or lean around the hoop; the standard tapered vector flame tongue qualifies. "Completely surrounded" is measured as the largest angular gap between flames around the fitted circle - passes when no bare arc exceeds about 45 degrees, and an arc hidden behind the car is not counted as bare | Refusing every tapered-tongue flame would fail all eight artifacts on a purely stylistic reading and make the requirement do no work, so the checkable clause is the distribution. Measured largest gaps on the eight q6 rings run 17-34 degrees, all comfortably inside the bar. |
 | "a red, **sporty** car" (q6 req 1) | "Sporty" gets no separate failing test; the binding conditions are that the car is red and that a body, wheels and windows are all drawn. Only a shape that plainly is not a car of that class (a truck, a van, a bus) would fail on it | Unlike "wicker", "claw-foot" or "chalkboard", which name a concrete construction that either is or is not drawn, "sporty" is a styling adjective with no drawable test; inventing one would be an aesthetic judgment applied unevenly. |
@@ -230,3 +229,73 @@ and the all-fail and near-identical-variant checks it ran.
     near a ramp; the orange in v3/animated is a stripe painted in the ramp's
     base plate 600 px away, and the orange in the qwen renders is an exhaust
     wisp at the car's tail inside the hoop.
+
+## Added after the q5 wicker re-check
+
+The wicker row was written during the q12 pass, two passes after q5 was judged.
+q5 requirement 2 - "a hot air balloon with a large envelope featuring vertical
+red and white stripes and a brown wicker basket" - also names wicker, and the
+six q5 failures had all been decided on the stripe clause alone, so the wicker
+clause had never been tested on the three artifacts that passed. The row above
+is now scoped to every requirement that names wicker, and requirement 2 was
+re-examined on all nine q5 artifacts, not only the three that passed, so the
+rule lands uniformly.
+
+Method: each balloon basket was cropped from the PNG render at 6x, and the
+claude wall was taken to 14x to resolve the banding. The SVG source was not
+opened. Two known crates were re-cropped alongside them as the reference the
+q12 pass set - `gpt-5.6-terra/fruit-stall-market-v2` and
+`qwen3.8-flash-next/fruit-stall-v2` - so the same bar was applied to both
+questions in one sitting.
+
+What is drawn:
+
+- The four `claude/claude-opus-5` picnic baskets are a tapered basket
+  silhouette with a heavy rim band, a base band, and an interior lattice of
+  four horizontal and four vertical darker bands forming a 5x4 grid of cells
+  over a lighter panel. The two tones sample RGB 197,151,81 (panel) and
+  147,102,42 (band), red-minus-blue 105-117, plainly brown. Bands in both axes
+  over a contrasting fill is basket-weave banding, so **the wicker clause
+  passes on all four**.
+- The four `opencode/gpt-5.6-terra` balloon baskets are a flat brown trapezoid
+  with a dark border and a single light cross - one horizontal band and one
+  vertical band, no lattice. That is the crate pattern, so the wicker clause
+  **fails** on all four.
+- The `opencode/qwen3.8-27b-8bit` basket is a rounded-corner brown box carrying
+  a 4x3 cross-hatch of darker lines. Lattice in both axes, so the wicker clause
+  **passes**.
+
+Outcome: no verdict changed. The three claude renders that passed requirement 2
+(v2, v3, animated) draw a genuinely woven basket and keep the pass; the claude
+base still fails on its gold/red/blue envelope, and the four gpt and one qwen
+renders still fail on the stripe clause, which is reason enough on its own -
+requirement 2 is compound, and the gpt four now fail both of its clauses.
+Because nothing moved, `scores.json` was regenerated and is byte-identical, and
+no published figure changed.
+
+The q12 verdicts are untouched. Re-cropping the two reference crates confirmed
+they are what the q12 pass called them: the gpt crate is a flat trapezoid with
+a thin border and no interior banding at all, and the qwen crate is a rectangle
+with a border and one horizontal plank line. Neither carries a lattice, so the
+q5 pass and the q12 failures are the same rule applied to different drawings,
+not two thresholds.
+
+## One judge block across all 84 verdicts
+
+Every verdict in `verdicts/` now carries the same four-key judge block - kind
+`claude-vision`, model `claude-opus-5`, date 2026-09-07, and the one method
+string. One file, `opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-animated`,
+had carried a fifth key: `"note": "render is visually identical to the base
+variant; same verdicts"`. That note described the render, not the judge, and it
+was the only thing keeping the board from having a single identical judge block,
+so it was moved here.
+
+The claim it made is loose and the measurement replaces it. The animated render
+is NOT identical to its v3 sibling: they differ in 152,675 of 1,920,000 pixels,
+the animation frame having moved the bubble sparkles and shifted the dolphin
+slightly. They differ in no judged detail - same grey body, same jaw closing on
+the fish, same hand in frame, same hoop centre over the body, same splash above
+the same waterline - so they land on the same seven verdicts by independent
+inspection, not by copying, which is how the q5, q12, q13 and q6 notes above
+already phrase the same situation. q7's v2 also lands on 7/7 and v1 on 2/7, so
+this pair does split.

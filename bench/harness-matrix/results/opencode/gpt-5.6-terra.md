@@ -2,7 +2,7 @@
 
 _Run date: 2026-09-06._
 
-- **Harness / model:** OpenCode x `openai/gpt-5.6-terra`.
+- **Harness / model:** OpenCode x `gpt-5.6-terra` (pair `opencode/gpt-5.6-terra`).
 - **Method:** eight independent temporary workspaces; a fresh agent made v1 without
   seeing files or future takes, then fresh agents separately made v2, v3, and an
   animated version from the immediately preceding artifact. Each agent opened its

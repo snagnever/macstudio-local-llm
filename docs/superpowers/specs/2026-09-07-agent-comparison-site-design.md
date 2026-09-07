@@ -476,7 +476,7 @@ take series, head-to-head, by-question, and unscored list — built from
 The gallery is deleted and the scoring dashboard is the single SVG page.
 Three reasons: AGENTS.md places dashboards in `reports/`, not in a campaign
 directory; the gallery carried no scores, so it could not answer the
-comparison question; and after re-judging, only 9 off-benchmark artifacts stay
+comparison question; and after re-judging, only 5 off-benchmark artifacts stay
 unscored, which the scoring page already lists. The gallery's single
 hand-written note was already preserved at
 `bench/harness-matrix/results/opencode/qwen3.8-flash-next.md:19`, so no

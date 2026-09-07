@@ -12,7 +12,7 @@
     "scoring": "score = requirements met / requirements total, judged on the Chrome-rendered PNG; pair mean_score = mean over scored artifacts",
     "comparability": "subset of the 105 questions; artifacts came from coding harnesses, not the SVGBench direct-API run; every artifact was judged by one judge, claude-opus-5, which is itself a contestant here — 21 of the 84 scored artifacts are its own, so the claude/claude-opus-5 row is self-judged. Not comparable to the upstream leaderboard."
   },
-  "generated_at": "2026-09-07T18:13:22",
+  "generated_at": "2026-09-07T18:44:20",
   "pairs": [
     {
       "harness": "claude",
@@ -4810,8 +4810,7 @@
         "kind": "claude-vision",
         "model": "claude-opus-5",
         "date": "2026-09-07",
-        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail",
-        "note": "render is visually identical to the base variant; same verdicts"
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
       },
       "render": "logs/renders/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-animated.png",
       "requirements": [
