@@ -12,24 +12,35 @@
     "scoring": "score = requirements met / requirements total, judged on the Chrome-rendered PNG; pair mean_score = mean over scored artifacts",
     "comparability": "subset of the 105 questions; artifacts came from coding harnesses, not the SVGBench direct-API run; judge differs from SVGBench's gemini-2.5-flash. Not comparable to the upstream leaderboard."
   },
-  "generated_at": "2026-09-07T12:20:04",
+  "generated_at": "2026-09-07T12:45:00",
   "pairs": [
     {
       "harness": "claude",
       "model": "claude-opus-5",
-      "artifacts_scored": 5,
-      "mean_score": 0.8571428571428571,
+      "artifacts_scored": 9,
+      "mean_score": 0.8095238095238095,
       "by_question": {
+        "0": 0.75,
         "7": 0.8571428571428571
       }
     },
     {
       "harness": "opencode",
       "model": "qwen3.8-flash-next",
-      "artifacts_scored": 10,
-      "mean_score": 0.7857142857142857,
+      "artifacts_scored": 14,
+      "mean_score": 0.7397959183673469,
       "by_question": {
+        "0": 0.625,
         "7": 0.7857142857142857
+      }
+    },
+    {
+      "harness": "claude",
+      "model": "fable-5-1",
+      "artifacts_scored": 4,
+      "mean_score": 0.7291666666666666,
+      "by_question": {
+        "0": 0.7291666666666666
       }
     },
     {
@@ -43,20 +54,22 @@
     },
     {
       "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifacts_scored": 4,
-      "mean_score": 0.5357142857142857,
+      "model": "qwen3.8-27b-8bit",
+      "artifacts_scored": 3,
+      "mean_score": 0.5317460317460317,
       "by_question": {
-        "7": 0.5357142857142857
+        "0": 0.5833333333333334,
+        "7": 0.42857142857142855
       }
     },
     {
       "harness": "opencode",
-      "model": "qwen3.8-27b-8bit",
-      "artifacts_scored": 1,
-      "mean_score": 0.42857142857142855,
+      "model": "gpt-5.6-terra",
+      "artifacts_scored": 8,
+      "mean_score": 0.49702380952380953,
       "by_question": {
-        "7": 0.42857142857142855
+        "0": 0.45833333333333337,
+        "7": 0.5357142857142857
       }
     }
   ],
@@ -112,6 +125,330 @@
         },
         {
           "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/cow-plowing-animated.svg",
+      "question_index": 0,
+      "animated": true,
+      "slug": "cow-plowing-animated",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.75,
+      "met": 9,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/claude-opus-5/cow-plowing-animated.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": false,
+          "note": "Hoof fill samples RGB (35,31,29) and (58,51,46) - a neutral near-black with a red-minus-blue spread of 6-12; the hooves are black, not brown."
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A padded brown collar sits at the shoulders, but the two traces running back to the plow are plain solid leather straps with no links anywhere along them; no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "The unplowed section is a tan/khaki stubble field, and its tufts are drawn in ochre brown, not green; no green grass, and none is shown being overturned at the share."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/cow-plowing-v2.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v2",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.75,
+      "met": 9,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/claude-opus-5/cow-plowing-v2.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": false,
+          "note": "Hoof fill samples RGB (35,31,29) and (58,51,46) - a neutral near-black with a red-minus-blue spread of 6-12; the hooves are black, not brown."
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A padded brown collar sits at the shoulders, but the two traces running back to the plow are plain solid leather straps with no links anywhere along them; no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "The unplowed section is a tan/khaki stubble field, and its tufts are drawn in ochre brown, not green; no green grass, and none is shown being overturned at the share."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/cow-plowing-v3.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v3",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.75,
+      "met": 9,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/claude-opus-5/cow-plowing-v3.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": false,
+          "note": "Hoof fill samples RGB (35,31,29) and (58,51,46) - a neutral near-black with a red-minus-blue spread of 6-12; the hooves are black, not brown."
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A padded brown collar sits at the shoulders, but the two traces running back to the plow are plain solid leather straps with no links anywhere along them; no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "The unplowed section is a tan/khaki stubble field, and its tufts are drawn in ochre brown, not green; no green grass, and none is shown being overturned at the share."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/cow-plowing.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.75,
+      "met": 9,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/claude-opus-5/cow-plowing.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": false,
+          "note": "Hoof fill samples RGB (35,31,29) and (58,51,46) - a neutral near-black with a red-minus-blue spread of 6-12; the hooves are black, not brown."
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A padded brown collar sits at the shoulders, but the two traces running back to the plow are plain solid leather straps with no links anywhere along them; no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "The unplowed section is a tan/khaki stubble field, and its tufts are drawn in ochre brown, not green; no green grass, and none is shown being overturned at the share."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
           "met": true,
           "note": ""
         }
@@ -398,6 +735,654 @@
       ]
     },
     {
+      "harness": "claude",
+      "model": "fable-5-1",
+      "artifact": "logs/claude/fable-5-1/cow-plowing-animated.svg",
+      "question_index": 0,
+      "animated": true,
+      "slug": "cow-plowing-animated",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.75,
+      "met": 9,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/fable-5-1/cow-plowing-animated.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": false,
+          "note": "The cow is tan/caramel with off-white cream patches; there is no black anywhere on the body."
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A dark brown collar/shoulder strap is present, but the line running back to the plow is a plain smooth strap with no links; no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "Short green grass is present in the unplowed section, but nothing shows it being overturned - only bare brown soil is turned at the share, with no green sod lifted or flipped."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "fable-5-1",
+      "artifact": "logs/claude/fable-5-1/cow-plowing-v2.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v2",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.75,
+      "met": 9,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/fable-5-1/cow-plowing-v2.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": false,
+          "note": "The cow is tan/caramel with off-white cream patches; there is no black anywhere on the body."
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A dark brown collar/shoulder strap is present, but the line running back to the plow is a plain smooth strap with no links; no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "Short green grass is present in the unplowed section, but nothing shows it being overturned - only bare brown soil is turned at the share, with no green sod lifted or flipped."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "fable-5-1",
+      "artifact": "logs/claude/fable-5-1/cow-plowing-v3.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v3",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.75,
+      "met": 9,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/fable-5-1/cow-plowing-v3.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": false,
+          "note": "The cow is tan/caramel with off-white cream patches; there is no black anywhere on the body."
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A dark brown collar/shoulder strap is present, but the line running back to the plow is a plain smooth strap with no links; no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "Short green grass is present in the unplowed section, but nothing shows it being overturned - only bare brown soil is turned at the share, with no green sod lifted or flipped."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "model": "fable-5-1",
+      "artifact": "logs/claude/fable-5-1/cow-plowing.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.6666666666666666,
+      "met": 8,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/claude/fable-5-1/cow-plowing.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": false,
+          "note": "The cow is tan/caramel with off-white cream patches; there is no black anywhere on the body."
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A dark brown collar/shoulder strap is present, but the line running back to the plow is a plain smooth strap with no links; no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": false,
+          "note": "The grey share is drawn fully visible on top of the flat brown field on a small wheeled carriage; no part of it is below the soil surface and no chunk of earth is being lifted or turned."
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "Short green grass is present in the unplowed section, but nothing is shown being overturned anywhere - the plow sits well inside the bare brown area and no sod is disturbed."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-animated.svg",
+      "question_index": 0,
+      "animated": true,
+      "slug": "cow-plowing-animated",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.5,
+      "met": 6,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/cow-plowing-animated.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": false,
+          "note": "The cow is red-brown with cream patches; no black patches anywhere on the body."
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A brown wooden yoke does sit across the shoulders, but the two traces running back to the plow are smooth thin gold lines with no links; no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": false,
+          "note": "The share is drawn fully above the soil with its whole outline visible; nothing occludes it, there is no trench or mound at its edge, and it does not cross below any soil surface line."
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": false,
+          "note": "The field's furrow lines are drawn LIGHTER than the surrounding soil; only about two bands read as darker than the field, short of the three dark furrows required."
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": false,
+          "note": "The entire field is bare brown soil edge to edge; the green is distant hills beyond the horizon, not an unplowed section of the field, so there is no boundary for the cow and plow to stand at."
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "There is no green grass anywhere in the field - the whole field is bare soil - so nothing green is being overturned."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v1.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v1",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.4166666666666667,
+      "met": 5,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/cow-plowing-v1.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": false,
+          "note": "No udder is drawn anywhere under the belly, and only two legs are present (two hooves in the render); the tail is drawn but the leg count and udder both fail."
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": false,
+          "note": "The cow is red-brown with cream patches; no black patches anywhere on the body."
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "No yoke is drawn at all - the single strap runs from the cow's muzzle back to the plow - and that strap is a plain smooth line with no links, so there are no chains either."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": false,
+          "note": "The share is drawn fully above the soil with its whole outline visible; nothing occludes it, there is no trench or mound at its edge, and it does not cross below any soil surface line."
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": false,
+          "note": "The field's furrow lines are drawn LIGHTER than the surrounding soil; only about two bands read as darker than the field, short of the three dark furrows required."
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": false,
+          "note": "The entire field is bare brown soil edge to edge; the green is distant hills beyond the horizon, not an unplowed section of the field, so there is no boundary for the cow and plow to stand at."
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "There is no green grass anywhere in the field - the whole field is bare soil - so nothing green is being overturned."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v2.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v2",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.4166666666666667,
+      "met": 5,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/cow-plowing-v2.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": false,
+          "note": "No udder is drawn under the belly, and only three legs are present (three hooves in the render)."
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": false,
+          "note": "The cow is red-brown with cream patches; no black patches anywhere on the body."
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A brown wooden yoke does sit across the shoulders, but the two traces running back to the plow are smooth thin gold lines with no links; no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": false,
+          "note": "The share is drawn fully above the soil with its whole outline visible; nothing occludes it, there is no trench or mound at its edge, and it does not cross below any soil surface line."
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": false,
+          "note": "The field's furrow lines are drawn LIGHTER than the surrounding soil; only about two bands read as darker than the field, short of the three dark furrows required."
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": false,
+          "note": "The entire field is bare brown soil edge to edge; the green is distant hills beyond the horizon, not an unplowed section of the field, so there is no boundary for the cow and plow to stand at."
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "There is no green grass anywhere in the field - the whole field is bare soil - so nothing green is being overturned."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v3.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v3",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.5,
+      "met": 6,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/gpt-5.6-terra/cow-plowing-v3.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": false,
+          "note": "The cow is red-brown with cream patches; no black patches anywhere on the body."
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A brown wooden yoke does sit across the shoulders, but the two traces running back to the plow are smooth thin gold lines with no links; no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": false,
+          "note": "The share is drawn fully above the soil with its whole outline visible; nothing occludes it, there is no trench or mound at its edge, and it does not cross below any soil surface line."
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": false,
+          "note": "The field's furrow lines are drawn LIGHTER than the surrounding soil; only about two bands read as darker than the field, short of the three dark furrows required."
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": false,
+          "note": "The entire field is bare brown soil edge to edge; the green is distant hills beyond the horizon, not an unplowed section of the field, so there is no boundary for the cow and plow to stand at."
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "There is no green grass anywhere in the field - the whole field is bare soil - so nothing green is being overturned."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
       "harness": "opencode",
       "model": "gpt-5.6-terra",
       "artifact": "logs/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-animated.svg",
@@ -624,6 +1609,168 @@
     {
       "harness": "opencode",
       "model": "qwen3.8-27b-8bit",
+      "artifact": "logs/opencode/qwen3.8-27b-8bit/cow-plowing-animated.svg",
+      "question_index": 0,
+      "animated": true,
+      "slug": "cow-plowing-animated",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.5833333333333334,
+      "met": 7,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-27b-8bit/cow-plowing-animated.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": false,
+          "note": "No udder is drawn anywhere under the belly; body, head, four legs and tail are all present, but the udder is absent."
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": false,
+          "note": "The cow is mid-brown with two off-white patches; there is no black on the body."
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "There is no yoke across the shoulders - the plow beam runs straight to a brown boss at the cow's chest - and no chains are drawn anywhere."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": false,
+          "note": "The pale grey triangular share stands on top of the green turf, fully visible, with no soil over any part of it and no chunk of earth lifted or turned."
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "The field is flat green, but no grass is shown being overturned at the share - the blade sits on undisturbed turf and nothing green is lifted."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-27b-8bit",
+      "artifact": "logs/opencode/qwen3.8-27b-8bit/cow-plowing.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.5833333333333334,
+      "met": 7,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-27b-8bit/cow-plowing.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": false,
+          "note": "No udder is drawn anywhere under the belly; body, head, four legs and tail are all present, but the udder is absent."
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": false,
+          "note": "The cow is mid-brown with two off-white patches; there is no black on the body."
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "There is no yoke across the shoulders - the plow beam runs straight to a brown boss at the cow's chest - and no chains are drawn anywhere."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": false,
+          "note": "The pale grey triangular share stands on top of the green turf, fully visible, with no soil over any part of it and no chunk of earth lifted or turned."
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "The field is flat green, but no grass is shown being overturned at the share - the blade sits on undisturbed turf and nothing green is lifted."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-27b-8bit",
       "artifact": "logs/opencode/qwen3.8-27b-8bit/dolphin.svg",
       "question_index": 7,
       "animated": false,
@@ -674,6 +1821,330 @@
           "text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.",
           "met": false,
           "note": "The snout is drawn closed: a single thin dark line runs to the tip where the fish is held, with no gape."
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/cow-plowing-animated.svg",
+      "question_index": 0,
+      "animated": true,
+      "slug": "cow-plowing-animated",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.5,
+      "met": 6,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/cow-plowing-animated.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": false,
+          "note": "No udder is drawn under the belly - the belly line is unbroken white with no pink sac - although body, head, four legs and tail are all present."
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": false,
+          "note": "Hoof fill samples RGB (43,43,43) - a perfectly neutral dark grey with zero red-minus-blue spread; the hooves are black, not brown."
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A brown neck strap and two smooth trace lines run back to the plow; there is no yoke beam across the shoulders and the traces carry no links, so no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": false,
+          "note": "The share hangs entirely above the soil with its full outline visible; loose clods are scattered around and drawn on top of it, but no part of the blade is occluded by soil or below the surface line."
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": false,
+          "note": "The field is bare brown soil edge to edge with furrow lines throughout; there is no unplowed section, so there is no boundary for the cow and plow to be positioned at."
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "There is no green grass anywhere in the field - the whole field is bare tilled soil - so nothing green is being overturned."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/cow-plowing-v2.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v2",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.6666666666666666,
+      "met": 8,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/cow-plowing-v2.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": false,
+          "note": "Hoof fill samples RGB (43,43,43) - a perfectly neutral dark grey with zero red-minus-blue spread; the hooves are black, not brown."
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A brown neck strap and two smooth trace lines run back to the plow; there is no yoke beam across the shoulders and the traces carry no links, so no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": false,
+          "note": "The field is bare brown soil edge to edge with furrow lines throughout; there is no unplowed section, so there is no boundary for the cow and plow to be positioned at."
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "There is no green grass anywhere in the field - the whole field is bare tilled soil - so nothing green is being overturned."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/cow-plowing-v3.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v3",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.6666666666666666,
+      "met": 8,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/cow-plowing-v3.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": false,
+          "note": "Hoof fill samples RGB (43,43,43) - a perfectly neutral dark grey with zero red-minus-blue spread; the hooves are black, not brown."
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A brown neck strap and two smooth trace lines run back to the plow; there is no yoke beam across the shoulders and the traces carry no links, so no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": false,
+          "note": "The field is bare brown soil edge to edge with furrow lines throughout; there is no unplowed section, so there is no boundary for the cow and plow to be positioned at."
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "There is no green grass anywhere in the field - the whole field is bare tilled soil - so nothing green is being overturned."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/cow-plowing.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing",
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "score": 0.6666666666666666,
+      "met": 8,
+      "total": 12,
+      "judge": {
+        "kind": "claude-vision",
+        "model": "claude-opus-5",
+        "date": "2026-09-07",
+        "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+      },
+      "render": "logs/renders/opencode/qwen3.8-flash-next/cow-plowing.png",
+      "requirements": [
+        {
+          "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow must have black and white patches for its coloring.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Add cow ears, eyes, and snout for facial recognition.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+          "met": false,
+          "note": "Hoof fill samples RGB (43,43,43) - a perfectly neutral dark grey with zero red-minus-blue spread; the hooves are black, not brown."
+        },
+        {
+          "text": "Include a traditional wooden plow with a visible metal blade/share.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+          "met": false,
+          "note": "A brown neck strap and two smooth trace lines run back to the plow; there is no yoke beam across the shoulders and the traces carry no links, so no chains are visible."
+        },
+        {
+          "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+          "met": true,
+          "note": ""
+        },
+        {
+          "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+          "met": false,
+          "note": "The field is bare brown soil edge to edge with furrow lines throughout; there is no unplowed section, so there is no boundary for the cow and plow to be positioned at."
+        },
+        {
+          "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+          "met": false,
+          "note": "There is no green grass anywhere in the field - the whole field is bare tilled soil - so nothing green is being overturned."
+        },
+        {
+          "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+          "met": true,
+          "note": ""
         }
       ]
     },
@@ -1241,6 +2712,45 @@
   ],
   "questions": [
     {
+      "question_index": 0,
+      "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
+      "n_requirements": 12,
+      "requirements": [
+        "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+        "The cow must have black and white patches for its coloring.",
+        "Add cow ears, eyes, and snout for facial recognition.",
+        "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+        "The cow's hooves must be colored brown, as if covered in soil from the field.",
+        "Include a traditional wooden plow with a visible metal blade/share.",
+        "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+        "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+        "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+        "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+        "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+        "Add a simple background with a clear horizon line and a blue sky containing a yellow sun."
+      ],
+      "artifacts": [
+        "logs/claude/claude-opus-5/cow-plowing-animated.svg",
+        "logs/claude/claude-opus-5/cow-plowing-v2.svg",
+        "logs/claude/claude-opus-5/cow-plowing-v3.svg",
+        "logs/claude/claude-opus-5/cow-plowing.svg",
+        "logs/claude/fable-5-1/cow-plowing-animated.svg",
+        "logs/claude/fable-5-1/cow-plowing-v2.svg",
+        "logs/claude/fable-5-1/cow-plowing-v3.svg",
+        "logs/claude/fable-5-1/cow-plowing.svg",
+        "logs/opencode/gpt-5.6-terra/cow-plowing-animated.svg",
+        "logs/opencode/gpt-5.6-terra/cow-plowing-v1.svg",
+        "logs/opencode/gpt-5.6-terra/cow-plowing-v2.svg",
+        "logs/opencode/gpt-5.6-terra/cow-plowing-v3.svg",
+        "logs/opencode/qwen3.8-27b-8bit/cow-plowing-animated.svg",
+        "logs/opencode/qwen3.8-27b-8bit/cow-plowing.svg",
+        "logs/opencode/qwen3.8-flash-next/cow-plowing-animated.svg",
+        "logs/opencode/qwen3.8-flash-next/cow-plowing-v2.svg",
+        "logs/opencode/qwen3.8-flash-next/cow-plowing-v3.svg",
+        "logs/opencode/qwen3.8-flash-next/cow-plowing.svg"
+      ]
+    },
+    {
       "question_index": 7,
       "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
       "n_requirements": 7,
@@ -1279,42 +2789,6 @@
     }
   ],
   "unscored": [
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/cow-plowing-animated.svg",
-      "question_index": 0,
-      "animated": true,
-      "slug": "cow-plowing-animated",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/cow-plowing-v2.svg",
-      "question_index": 0,
-      "animated": false,
-      "slug": "cow-plowing-v2",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/cow-plowing-v3.svg",
-      "question_index": 0,
-      "animated": false,
-      "slug": "cow-plowing-v3",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "claude-opus-5",
-      "artifact": "logs/claude/claude-opus-5/cow-plowing.svg",
-      "question_index": 0,
-      "animated": false,
-      "slug": "cow-plowing",
-      "reason": "no verdict file"
-    },
     {
       "harness": "claude",
       "model": "claude-opus-5",
@@ -1421,78 +2895,6 @@
       "question_index": 13,
       "animated": false,
       "slug": "treasure-barrel",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "fable-5-1",
-      "artifact": "logs/claude/fable-5-1/cow-plowing-animated.svg",
-      "question_index": 0,
-      "animated": true,
-      "slug": "cow-plowing-animated",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "fable-5-1",
-      "artifact": "logs/claude/fable-5-1/cow-plowing-v2.svg",
-      "question_index": 0,
-      "animated": false,
-      "slug": "cow-plowing-v2",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "fable-5-1",
-      "artifact": "logs/claude/fable-5-1/cow-plowing-v3.svg",
-      "question_index": 0,
-      "animated": false,
-      "slug": "cow-plowing-v3",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "claude",
-      "model": "fable-5-1",
-      "artifact": "logs/claude/fable-5-1/cow-plowing.svg",
-      "question_index": 0,
-      "animated": false,
-      "slug": "cow-plowing",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-animated.svg",
-      "question_index": 0,
-      "animated": true,
-      "slug": "cow-plowing-animated",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v1.svg",
-      "question_index": 0,
-      "animated": false,
-      "slug": "cow-plowing-v1",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v2.svg",
-      "question_index": 0,
-      "animated": false,
-      "slug": "cow-plowing-v2",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "gpt-5.6-terra",
-      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v3.svg",
-      "question_index": 0,
-      "animated": false,
-      "slug": "cow-plowing-v3",
       "reason": "no verdict file"
     },
     {
@@ -1714,24 +3116,6 @@
     {
       "harness": "opencode",
       "model": "qwen3.8-27b-8bit",
-      "artifact": "logs/opencode/qwen3.8-27b-8bit/cow-plowing-animated.svg",
-      "question_index": 0,
-      "animated": true,
-      "slug": "cow-plowing-animated",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-27b-8bit",
-      "artifact": "logs/opencode/qwen3.8-27b-8bit/cow-plowing.svg",
-      "question_index": 0,
-      "animated": false,
-      "slug": "cow-plowing",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-27b-8bit",
       "artifact": "logs/opencode/qwen3.8-27b-8bit/dawn-beach.svg",
       "question_index": null,
       "animated": true,
@@ -1754,42 +3138,6 @@
       "question_index": 13,
       "animated": false,
       "slug": "treasure-barrel",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/cow-plowing-animated.svg",
-      "question_index": 0,
-      "animated": true,
-      "slug": "cow-plowing-animated",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/cow-plowing-v2.svg",
-      "question_index": 0,
-      "animated": false,
-      "slug": "cow-plowing-v2",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/cow-plowing-v3.svg",
-      "question_index": 0,
-      "animated": false,
-      "slug": "cow-plowing-v3",
-      "reason": "no verdict file"
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash-next",
-      "artifact": "logs/opencode/qwen3.8-flash-next/cow-plowing.svg",
-      "question_index": 0,
-      "animated": false,
-      "slug": "cow-plowing",
       "reason": "no verdict file"
     },
     {
