@@ -194,44 +194,40 @@
   <!-- SVGBench -->
   <div class="section" id="svgbench">
     <h2 class="section-title">🐬 SVG draw quality</h2>
-    <p class="section-sub">SVGBench questions run through coding harnesses, judged on the Chrome-rendered PNG (requirements met ÷ total). Most verdicts use claude-fable-5-1; Q12 uses the artifact model as a self-judge. Subset of the 105 upstream questions — not comparable to the upstream leaderboard.</p>
+    <p class="section-sub">SVGBench questions run through coding harnesses, judged on the Chrome-rendered PNG (requirements met ÷ total). All 84 verdicts come from one judge, claude-opus-5 — which also drew 21 of the artifacts. Seven of the 105 upstream questions — not comparable to the upstream leaderboard.</p>
     <div class="grid-2">
       <div class="card chart-card" style="height:380px">
-        <h3>flash-next outdraws both Opuses on the only shared prompt</h3>
-        <p class="chart-sub">Q7 — dolphin through a hula hoop, the single question all four pairs attempted. Labels = requirements met of 7; dashed line = mean of the four pairs.</p>
-        <div class="chart-container" style="height:250px"><canvas id="svgQ7Chart" role="img" aria-label="Question 7 head-to-head: local qwen3.8-flash-next met 6 of 7 requirements, claude-opus-4-8 met 5, claude-opus-5 met 4, local qwen3.8-27b-8bit met 3"></canvas></div>
+        <h3>claude-opus-5 leads the shared prompt, 0.857 to 0.786</h3>
+        <p class="chart-sub">Q7 — the dolphin through a hula hoop, drawn by five of the six pairs. Bars are pair means with their n; dashed line = mean over all 21 drawings.</p>
+        <div class="chart-container" style="height:250px"><canvas id="svgQ7Chart" role="img" aria-label="Question 7 pair means: claude-opus-5 0.857 over 5 drawings, local qwen3.8-flash-next 0.786 over 10, claude-opus-4-8 0.714 over 1, local gpt-5.6-terra 0.536 over 4, local qwen3.8-27b-8bit 0.429 over 1"></canvas></div>
       </div>
       <div class="card chart-card" style="height:380px">
-        <h3>Opus 4-8's mean lead is a question-mix artifact</h3>
-        <p class="chart-sub">Mean over each pair's scored artifacts — question coverage differs per pair, so only the Q7 chart is a like-for-like comparison.</p>
-        <div class="chart-container" style="height:250px"><canvas id="svgMeanChart" role="img" aria-label="Pair mean scores: claude-opus-4-8 0.71 on 1 artifact, qwen3.8-flash-next 0.52 on 8 artifacts, claude-opus-5 0.57 on 1 artifact, qwen3.8-27b-8bit 0.42 on 5 artifacts"></canvas></div>
+        <h3>Self-judging was worth 0.079; an outside judge moved nothing</h3>
+        <p class="chart-sub">The 43 artifacts carrying a verdict on both boards, split by who wrote the old one. Same artifacts on each pair of bars — only the judge changed.</p>
+        <div class="chart-container" style="height:250px"><canvas id="svgMeanChart" role="img" aria-label="Re-judging effect: artifacts whose old verdict was written by the model that drew them scored 0.407 then 0.327 under a neutral judge, n=31; artifacts judged by a model with no stake scored 0.563 then 0.573, n=12"></canvas></div>
       </div>
     </div>
     <div class="grid-2">
       <div class="card" style="grid-column: 1 / -1;">
-        <h3 style="margin-bottom:12px">Every scored artifact <span style="font-weight:400; color:#8d99ae;">— 15 SVGs · ▶ animated</span></h3>
+        <h3 style="margin-bottom:12px">The board <span style="font-weight:400; color:#8d99ae;">— 84 scored SVGs, 7 questions, one judge · every figure with its n</span></h3>
         <table class="svgbench-table">
-          <tr><th>Artifact</th><th>Pair</th><th class="num">Q</th><th class="num">Met</th><th class="num">Score</th></tr>
-          <tr><td>dolphin-animated ▶</td><td class="local">opencode · qwen3.8-flash-next</td><td class="num">7</td><td class="num">6 / 7</td><td class="num">0.86</td></tr>
-          <tr><td>dolphin</td><td class="local">opencode · qwen3.8-flash-next</td><td class="num">7</td><td class="num">6 / 7</td><td class="num">0.86</td></tr>
-          <tr><td>dolphin-hoop</td><td>claude · claude-opus-4-8</td><td class="num">7</td><td class="num">5 / 7</td><td class="num">0.71</td></tr>
-          <tr><td>dolphin-hoop-jump</td><td>claude · claude-opus-5</td><td class="num">7</td><td class="num">4 / 7</td><td class="num">0.57</td></tr>
-          <tr><td>rubber-ducky-animated ▶</td><td class="local">opencode · qwen3.8-flash-next</td><td class="num">4</td><td class="num">5 / 9</td><td class="num">0.56</td></tr>
-          <tr><td>rubber-ducky-v2</td><td class="local">opencode · qwen3.8-flash-next</td><td class="num">4</td><td class="num">5 / 9</td><td class="num">0.56</td></tr>
-          <tr><td>rubber-ducky</td><td class="local">opencode · qwen3.8-flash-next</td><td class="num">4</td><td class="num">5 / 9</td><td class="num">0.56</td></tr>
-          <tr><td>fruit-stall-v3</td><td class="local">opencode · qwen3.8-flash-next</td><td class="num">12</td><td class="num">4 / 11</td><td class="num">0.36</td></tr>
-          <tr><td>fruit-stall-v2</td><td class="local">opencode · qwen3.8-flash-next</td><td class="num">12</td><td class="num">3 / 11</td><td class="num">0.27</td></tr>
-          <tr><td>fruit-stall</td><td class="local">opencode · qwen3.8-flash-next</td><td class="num">12</td><td class="num">2 / 11</td><td class="num">0.18</td></tr>
-          <tr><td>picnic-on-clouds ▶</td><td class="local">opencode · qwen3.8-27b-8bit</td><td class="num">5</td><td class="num">5 / 10</td><td class="num">0.50</td></tr>
-          <tr><td>treasure-barrel</td><td class="local">opencode · qwen3.8-27b-8bit</td><td class="num">13</td><td class="num">5 / 10</td><td class="num">0.50</td></tr>
-          <tr><td>dolphin</td><td class="local">opencode · qwen3.8-27b-8bit</td><td class="num">7</td><td class="num">3 / 7</td><td class="num">0.43</td></tr>
-          <tr><td>cow-plowing-animated ▶</td><td class="local">opencode · qwen3.8-27b-8bit</td><td class="num">0</td><td class="num">4 / 12</td><td class="num">0.33</td></tr>
-          <tr><td>cow-plowing</td><td class="local">opencode · qwen3.8-27b-8bit</td><td class="num">0</td><td class="num">4 / 12</td><td class="num">0.33</td></tr>
+          <tr><th>Pair</th><th class="num">Drawings</th><th>Questions drawn</th><th class="num">Mean</th></tr>
+          <tr><td>claude · claude-opus-5 †</td><td class="num">21</td><td>Q0 · Q4 · Q5 · Q7 · Q13</td><td class="num">0.693</td></tr>
+          <tr><td class="local">opencode · qwen3.8-flash-next</td><td class="num">25</td><td>Q0 · Q4 · Q6 · Q7 · Q12</td><td class="num">0.591</td></tr>
+          <tr><td class="local">opencode · qwen3.8-27b-8bit</td><td class="num">5</td><td>Q0 · Q5 · Q7 · Q13</td><td class="num">0.499</td></tr>
+          <tr><td class="local">opencode · gpt-5.6-terra</td><td class="num">28</td><td>all seven</td><td class="num">0.336</td></tr>
+        </table>
+        <p style="color:#8d99ae; font-size:12px; margin:10px 0 14px">† claude-opus-5 judged all 84 artifacts, its own 21 included. Question coverage differs per pair, so the means are not like-for-like; Q7 is the widest shared column.</p>
+        <h3 style="margin-bottom:12px; font-size:15px">Single-prompt pairs <span style="font-weight:400; color:#8d99ae;">— per-prompt figures only, not ranked</span></h3>
+        <table class="svgbench-table">
+          <tr><th>Pair</th><th class="num">Drawings</th><th>Question drawn</th><th class="num">Score on it</th></tr>
+          <tr><td>claude · fable-5-1</td><td class="num">4</td><td>Q0 — cow plowing</td><td class="num">0.729</td></tr>
+          <tr><td>claude · claude-opus-4-8</td><td class="num">1</td><td>Q7 — the dolphin</td><td class="num">0.714</td></tr>
         </table>
       </div>
     </div>
     <div class="insight-box" style="margin-top:16px">
-      <p><strong>Head-to-head the local model wins:</strong> flash-next misses one of seven requirements on Q7 (tail tip still in the splash) while both Claude Opuses miss more. All three animated/static pairs were judged <em>"visually identical — same verdicts"</em>: SMIL motion neither adds nor loses points with a PNG-based judge. The 27B's losses are compositional, not rendering — missing udders, yokes, pearls, grapes — objects absent from the code, not drawing errors.</p>
+      <p><strong>The re-judging changed the headline.</strong> On the old board flash-next led the one shared prompt. Under a single judge, claude-opus-5 leads Q7 0.857 to 0.786 (n=5 and n=10) and leads overall 0.693 to 0.591 (n=21 and n=25). <strong>The judge was moving the score:</strong> gpt-5.6-terra wrote all 28 verdicts on its own drawings and scored 0.421; the same 28 drawings score 0.336 under a neutral judge, and 15 of them fell. Old verdicts written by a model that drew nothing here moved +0.010 (n=12). <strong>Read every figure with its n:</strong> claude-opus-5 judged its own 21 drawings, qwen3.8-27b-8bit is ranked on 5, and the two single-prompt pairs are shown per-prompt only. Detail, per requirement: <a href="harness-matrix-svgbench.html" style="color:#e9c46a">the SVGBench dashboard</a>.</p>
     </div>
   </div>
 
@@ -550,16 +546,17 @@ makeChart('svgQ7Chart', {
   type: 'bar',
   data: {
     labels: [
-      ['qwen3.8-flash-next', 'local · opencode'],
-      ['claude-opus-4-8', 'claude harness'],
-      ['claude-opus-5', 'claude harness'],
-      ['qwen3.8-27b-8bit', 'local · opencode']
+      ['claude-opus-5', 'claude harness · n=5'],
+      ['qwen3.8-flash-next', 'local · opencode · n=10'],
+      ['claude-opus-4-8', 'claude harness · n=1'],
+      ['gpt-5.6-terra', 'local · opencode · n=4'],
+      ['qwen3.8-27b-8bit', 'local · opencode · n=1']
     ],
     datasets: [{
-      data: [0.857, 0.714, 0.571, 0.429],
-      backgroundColor: [localTeal, vendorGray, vendorGray, localTeal],
+      data: [0.857, 0.786, 0.714, 0.536, 0.429],
+      backgroundColor: [vendorGray, localTeal, vendorGray, localTeal, localTeal],
       borderWidth: 0,
-      barThickness: 26,
+      barThickness: 22,
     }]
   },
   options: {
@@ -572,9 +569,9 @@ makeChart('svgQ7Chart', {
     },
     plugins: {
       legend: { display: false },
-      tooltip: { ...tufteTooltip, callbacks: { label: c => `${(c.raw * 100).toFixed(0)}% of requirements met` } },
-      barLabels: { labels: ['6 of 7', '5 of 7', '4 of 7', '3 of 7'], colors: ['#76b7b2', '#d7e0ea', '#d7e0ea', '#76b7b2'] },
-      refLine: { value: 0.643, label: 'pair mean 0.64' }
+      tooltip: { ...tufteTooltip, callbacks: { label: c => `mean ${c.raw.toFixed(3)} of requirements met` } },
+      barLabels: { labels: ['0.857', '0.786', '0.714', '0.536', '0.429'], colors: ['#d7e0ea', '#76b7b2', '#d7e0ea', '#76b7b2', '#76b7b2'] },
+      refLine: { value: 0.735, label: 'all 21 drawings 0.735' }
     }
   },
   plugins: [barLabels, refLine]
@@ -584,30 +581,30 @@ makeChart('svgMeanChart', {
   type: 'bar',
   data: {
     labels: [
-      ['claude-opus-4-8', '1 artifact · Q7 only'],
-      ['qwen3.8-flash-next', '8 artifacts · Q4·7·12'],
-      ['claude-opus-5', '1 artifact · Q7 only'],
-      ['qwen3.8-27b-8bit', '5 artifacts · Q0·5·7·13']
+      ['judged by the model that drew it', 'old board · n=31'],
+      ['the same 31, re-judged', 'this board'],
+      ['judged by a model with no stake', 'old board · n=12'],
+      ['the same 12, re-judged', 'this board']
     ],
     datasets: [{
-      data: [0.714, 0.525, 0.571, 0.419],
-      backgroundColor: [vendorGray, localTeal, vendorGray, localTeal],
+      data: [0.407, 0.327, 0.563, 0.573],
+      backgroundColor: [vendorGray, '#c2626f', vendorGray, localTeal],
       borderWidth: 0,
-      barThickness: 26,
+      barThickness: 22,
     }]
   },
   options: {
     indexAxis: 'y',
     responsive: true, maintainAspectRatio: false, animation: false,
-    layout: { padding: { right: 52, top: 14 } },
+    layout: { padding: { right: 76, top: 14 } },
     scales: {
       x: { min: 0, max: 1, display: false },
       y: { grid: { display: false }, border: { display: false }, ticks: { color: '#d7e0ea', font: { size: 11 }, padding: 8 } }
     },
     plugins: {
       legend: { display: false },
-      tooltip: { ...tufteTooltip, callbacks: { label: c => `mean score ${(c.raw * 100).toFixed(0)}%` } },
-      barLabels: { labels: ['0.71', '0.52', '0.57', '0.42'], colors: ['#d7e0ea', '#76b7b2', '#d7e0ea', '#76b7b2'] }
+      tooltip: { ...tufteTooltip, callbacks: { label: c => `mean score ${c.raw.toFixed(3)}` } },
+      barLabels: { labels: ['0.407', '0.327  −0.079', '0.563', '0.573  +0.010'], colors: ['#d7e0ea', '#e08b95', '#d7e0ea', '#76b7b2'] }
     }
   },
   plugins: [barLabels, refLine]
