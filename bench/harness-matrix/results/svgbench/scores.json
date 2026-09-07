@@ -12,7 +12,7 @@
     "scoring": "score = requirements met / requirements total, judged on the Chrome-rendered PNG; pair mean_score = mean over scored artifacts",
     "comparability": "subset of the 105 questions; artifacts came from coding harnesses, not the SVGBench direct-API run; judge differs from SVGBench's gemini-2.5-flash. Not comparable to the upstream leaderboard."
   },
-  "generated_at": "2026-09-07T13:06:16",
+  "generated_at": "2026-09-07T13:16:43",
   "pairs": [
     {
       "harness": "claude",
@@ -47,9 +47,9 @@
       "harness": "opencode",
       "model": "qwen3.8-flash-next",
       "artifacts_scored": 17,
-      "mean_score": 0.7072829131652661,
+      "mean_score": 0.6925770308123249,
       "by_question": {
-        "0": 0.625,
+        "0": 0.5625,
         "4": 0.5555555555555556,
         "7": 0.7857142857142857
       }
@@ -2412,7 +2412,7 @@
         {
           "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
           "met": false,
-          "note": "The share hangs entirely above the soil with its full outline visible; loose clods are scattered around and drawn on top of it, but no part of the blade is occluded by soil or below the surface line."
+          "note": "Not partially buried: the share hangs entirely above the soil with its outline complete and unbroken. The two brown clods drawn across the blade are detached debris, which the convention excludes from the buried clause, and the top-down field gives no drawn soil-surface line for the silhouette to cross. Earth is visibly lifted at the share, but the blade itself is never in the soil."
         },
         {
           "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
@@ -2444,8 +2444,8 @@
       "animated": false,
       "slug": "cow-plowing-v2",
       "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
-      "score": 0.6666666666666666,
-      "met": 8,
+      "score": 0.5833333333333334,
+      "met": 7,
       "total": 12,
       "judge": {
         "kind": "claude-vision",
@@ -2492,8 +2492,8 @@
         },
         {
           "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
-          "met": true,
-          "note": ""
+          "met": false,
+          "note": "Not partially buried: the grey share is drawn on top of the tilled plane with its outline complete and unbroken, resting on the top edge of the raised tan slab of turned soil rather than crossing below it. No soil mass covers any part of the blade, and the top-down field gives no drawn soil-surface line for the silhouette to cross."
         },
         {
           "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
@@ -2525,8 +2525,8 @@
       "animated": false,
       "slug": "cow-plowing-v3",
       "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
-      "score": 0.6666666666666666,
-      "met": 8,
+      "score": 0.5833333333333334,
+      "met": 7,
       "total": 12,
       "judge": {
         "kind": "claude-vision",
@@ -2573,8 +2573,8 @@
         },
         {
           "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
-          "met": true,
-          "note": ""
+          "met": false,
+          "note": "Not partially buried: the grey share is drawn with a complete, unbroken outline on top of the tilled plane. The loose brown clods lie beside and below it, no soil mass covers any part of it, and the top-down field gives no drawn soil-surface line for the silhouette to cross."
         },
         {
           "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
@@ -2606,8 +2606,8 @@
       "animated": false,
       "slug": "cow-plowing",
       "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
-      "score": 0.6666666666666666,
-      "met": 8,
+      "score": 0.5833333333333334,
+      "met": 7,
       "total": 12,
       "judge": {
         "kind": "claude-vision",
@@ -2654,8 +2654,8 @@
         },
         {
           "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
-          "met": true,
-          "note": ""
+          "met": false,
+          "note": "Not partially buried: the grey share is drawn on top of the tilled plane with its outline complete and unbroken. No soil mass - no ground fill, mound, furrow wall or attached slice of earth - covers any part of it, and the field is an oblique top-down plane with no drawn soil-surface line for the silhouette to cross. The small dark blob at the share's tip is a detached clod, which the convention excludes from the buried clause."
         },
         {
           "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",

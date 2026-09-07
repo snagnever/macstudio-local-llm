@@ -46,8 +46,8 @@
     },
     {
       "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
-      "met": true,
-      "note": ""
+      "met": false,
+      "note": "Not partially buried: the grey share is drawn on top of the tilled plane with its outline complete and unbroken. No soil mass - no ground fill, mound, furrow wall or attached slice of earth - covers any part of it, and the field is an oblique top-down plane with no drawn soil-surface line for the silhouette to cross. The small dark blob at the share's tip is a detached clod, which the convention excludes from the buried clause."
     },
     {
       "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",

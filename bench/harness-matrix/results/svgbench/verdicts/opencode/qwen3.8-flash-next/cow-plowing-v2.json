@@ -46,8 +46,8 @@
     },
     {
       "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
-      "met": true,
-      "note": ""
+      "met": false,
+      "note": "Not partially buried: the grey share is drawn on top of the tilled plane with its outline complete and unbroken, resting on the top edge of the raised tan slab of turned soil rather than crossing below it. No soil mass covers any part of the blade, and the top-down field gives no drawn soil-surface line for the silhouette to cross."
     },
     {
       "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
