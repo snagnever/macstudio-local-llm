@@ -455,18 +455,22 @@ files themselves.
 - `reports/harness-matrix-svgbench.html` — rebuild its figures from the new
   `scores.json`.
 
-### Two working-tree items to settle first
+### One SVG page, settled
 
-`git status` shows two uncommitted files that this pass touches:
+Two files rendered overlapping views of the same data.
+`bench/harness-matrix/harness-matrix-svgs.html` was a gallery with no scores;
+`reports/harness-matrix-svgbench.html` is the scoring dashboard — leaderboard,
+take series, head-to-head, by-question, and unscored list — built from
+`scores.json`.
 
-- `bench/harness-matrix/results/svgbench/manifest.json` — a timestamp-only
-  change, safe to regenerate.
-- `bench/harness-matrix/harness-matrix-svgs.html` — a substantial rework
-  (−193 lines) converting a four-way dolphin comparison into a filterable
-  gallery of every SVG. It must be committed or discarded before the site is
-  assembled, and its relationship to `reports/harness-matrix-svgbench.html`
-  clarified: two files render overlapping views of the same data, and the
-  published site should carry one of them.
+The gallery is deleted and the scoring dashboard is the single SVG page.
+Three reasons: AGENTS.md places dashboards in `reports/`, not in a campaign
+directory; the gallery carried no scores, so it could not answer the
+comparison question; and after re-judging, only 9 off-benchmark artifacts stay
+unscored, which the scoring page already lists. The gallery's single
+hand-written note was already preserved at
+`bench/harness-matrix/results/opencode/qwen3.8-flash-next.md:19`, so no
+analysis was lost.
 
 ### A trap for the dashboard build
 
