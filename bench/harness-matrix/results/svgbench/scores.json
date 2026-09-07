@@ -12,7 +12,7 @@
     "scoring": "score = requirements met / requirements total, judged on the Chrome-rendered PNG; pair mean_score = mean over scored artifacts",
     "comparability": "subset of the 105 questions; artifacts came from coding harnesses, not the SVGBench direct-API run; judge differs from SVGBench's gemini-2.5-flash. Not comparable to the upstream leaderboard."
   },
-  "generated_at": "2026-09-07T14:27:56",
+  "generated_at": "2026-09-07T14:31:13",
   "pairs": [
     {
       "harness": "claude",
