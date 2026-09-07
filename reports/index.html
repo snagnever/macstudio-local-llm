@@ -204,7 +204,7 @@
       <div class="card chart-card" style="height:380px">
         <h3>Self-judging was worth 0.079; an outside judge moved nothing</h3>
         <p class="chart-sub">The 43 artifacts carrying a verdict on both boards, split by who wrote the old one. Same artifacts on each pair of bars — only the judge changed.</p>
-        <div class="chart-container" style="height:250px"><canvas id="svgMeanChart" role="img" aria-label="Re-judging effect: artifacts whose old verdict was written by the model that drew them scored 0.407 then 0.327 under a neutral judge, n=31; artifacts judged by a model with no stake scored 0.563 then 0.573, n=12"></canvas></div>
+        <div class="chart-container" style="height:250px"><canvas id="svgMeanChart" role="img" aria-label="Re-judging effect: artifacts whose old verdict was written by the model that drew them scored 0.407 then 0.327 under a neutral judge, n=31; artifacts judged by a model that drew none of them scored 0.563 then 0.573, n=12"></canvas></div>
       </div>
     </div>
     <div class="grid-2">
@@ -227,7 +227,7 @@
       </div>
     </div>
     <div class="insight-box" style="margin-top:16px">
-      <p><strong>The re-judging changed the headline.</strong> On the old board flash-next led the one shared prompt. Under a single judge, claude-opus-5 leads Q7 0.857 to 0.786 (n=5 and n=10) and leads overall 0.693 to 0.591 (n=21 and n=25). <strong>The judge was moving the score:</strong> gpt-5.6-terra wrote all 28 verdicts on its own drawings and scored 0.421; the same 28 drawings score 0.336 under a neutral judge, and 15 of them fell. Old verdicts written by a model that drew nothing here moved +0.010 (n=12). <strong>Read every figure with its n:</strong> claude-opus-5 judged its own 21 drawings, qwen3.8-27b-8bit is ranked on 5, and the two single-prompt pairs are shown per-prompt only. Detail, per requirement: <a href="harness-matrix-svgbench.html" style="color:#e9c46a">the SVGBench dashboard</a>.</p>
+      <p><strong>The re-judging changed the headline.</strong> On the old board flash-next led the one shared prompt. Under a single judge, claude-opus-5 leads Q7 0.857 to 0.786 (n=5 and n=10) and leads overall 0.693 to 0.591 (n=21 and n=25). <strong>The judge was moving the score:</strong> gpt-5.6-terra wrote all 28 verdicts on its own drawings and scored 0.421; the same 28 drawings score 0.336 under a neutral judge, and 15 of them fell. The other 12 old verdicts were written by claude-fable-5-1, which drew none of those 12; they moved +0.010. <strong>Read every figure with its n:</strong> claude-opus-5 judged its own 21 drawings, qwen3.8-27b-8bit is ranked on 5, and the two single-prompt pairs are shown per-prompt only. Detail, per requirement: <a href="harness-matrix-svgbench.html" style="color:#e9c46a">the SVGBench dashboard</a>.</p>
     </div>
   </div>
 
@@ -583,7 +583,7 @@ makeChart('svgMeanChart', {
     labels: [
       ['judged by the model that drew it', 'old board · n=31'],
       ['the same 31, re-judged', 'this board'],
-      ['judged by a model with no stake', 'old board · n=12'],
+      ['judged by a model that drew none of them', 'old board · n=12'],
       ['the same 12, re-judged', 'this board']
     ],
     datasets: [{

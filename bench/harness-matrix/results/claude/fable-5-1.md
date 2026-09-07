@@ -40,7 +40,8 @@ reconstructed from the artifacts and the verdicts, not from a session transcript
 
 Four artifacts, all on question 0. Scores: `cow-plowing` 8/12, `-v2` 9/12,
 `-v3` 9/12, `-animated` 9/12. Pair mean **0.729**. On q0 that is second of five
-pairs, behind `claude/claude-opus-5` at 0.750 (four takes, all 9/12) and ahead of
+pairs, behind `claude/claude-opus-5` at 0.750 (four takes, all 9/12; self-judged — the
+judge is `claude-opus-5`, this pair's own model) and ahead of
 `opencode/qwen3.8-27b-8bit` 0.583, `opencode/qwen3.8-flash-next` 0.562 and
 `opencode/gpt-5.6-terra` 0.458.
 
