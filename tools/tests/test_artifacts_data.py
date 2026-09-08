@@ -12,11 +12,15 @@ sys.path.insert(0, os.path.join(HERE, ".."))
 import artifacts_data as ad  # noqa: E402
 
 
-def _art(harness, model, slug, q, score, met, total, animated=False):
+JUDGE = "claude-opus-5"
+
+
+def _art(harness, model, slug, q, score, met, total, animated=False, judge=JUDGE):
     return {
         "harness": harness, "model": model,
         "artifact": "logs/%s/%s/%s.svg" % (harness, model, slug),
         "question_index": q, "animated": animated, "slug": slug,
+        "judge": {"kind": "claude-vision", "model": judge, "date": "2026-09-07"},
         "prompt": "Write `svg` code to draw an image of a cow plowing a field.",
         "score": score, "met": met, "total": total,
         "requirements": [{"text": "a cow", "met": True, "note": ""},
@@ -169,6 +173,40 @@ class TestDrawings(unittest.TestCase):
         self.assertEqual(by["opencode/qwen3.8-flash-next"]["n"], 3)
 
 
+class TestSelfJudged(unittest.TestCase):
+    """The judge drew some of what it judged; the page marks those drawings."""
+
+    def setUp(self):
+        self.d = ad.build_drawings(SCORES)
+
+    def test_judge_block_names_the_judge_and_counts_its_own_drawings(self):
+        self.assertEqual(self.d["judge"], {"model": JUDGE, "selfJudged": 1})
+
+    def test_only_the_judges_own_takes_are_marked(self):
+        marked = [t["slug"] for q in self.d["questions"] for t in q["takes"] if t["selfJudged"]]
+        self.assertEqual(marked, ["cow-plowing"])
+
+    def test_pair_carries_the_mark_too(self):
+        by = {p["key"]: p for p in self.d["pairs"]}
+        self.assertIs(by["claude/claude-opus-5"]["selfJudged"], True)
+        self.assertIs(by["opencode/qwen3.8-flash-next"]["selfJudged"], False)
+
+    def test_more_than_one_judge_leaves_the_model_blank_but_still_counts(self):
+        mixed = json.loads(json.dumps(SCORES))
+        mixed["artifacts"][0]["judge"]["model"] = "gpt-5.6-terra"
+        d = ad.build_drawings(mixed)
+        self.assertEqual(d["judge"]["model"], "")
+        self.assertEqual(d["judge"]["selfJudged"], 1)
+
+    def test_an_artifact_with_no_judge_is_not_self_judged(self):
+        none = json.loads(json.dumps(SCORES))
+        for a in none["artifacts"]:
+            a.pop("judge")
+        d = ad.build_drawings(none)
+        self.assertEqual(d["judge"], {"model": "", "selfJudged": 0})
+        self.assertFalse(any(t["selfJudged"] for q in d["questions"] for t in q["takes"]))
+
+
 class TestMetricText(unittest.TestCase):
     def test_none_renders_as_an_em_dash_never_zero(self):
         self.assertEqual(ad.metric_text(None), "—")
@@ -240,6 +278,15 @@ class TestSkills(unittest.TestCase):
 
     def test_skill_config_is_carried(self):
         self.assertEqual(self.s["arms"][0]["skillConfig"], "frontend-design")
+
+    def test_colour_comes_from_the_model_not_the_arms_series_colour(self):
+        """All three arms are the same local model, and the legend reads the
+        colour as who ran it, so all three paint Qwen's colour."""
+        self.assertEqual([a["color"] for a in self.s["arms"]], ["#2a9d8f"] * 3)
+
+    def test_game_arms_keep_their_own_series_colour(self):
+        g = ad.build_game(GAME)
+        self.assertEqual([a["color"] for a in g["arms"]], ["#2a9d8f", "#f4a261"])
 
 
 class TestBlock(unittest.TestCase):

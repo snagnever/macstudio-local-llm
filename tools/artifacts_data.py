@@ -52,8 +52,9 @@ def split_slug(slug):
 
 TAKE_LABEL = {"v1": "take 1", "v2": "take 2", "v3": "take 3", "animated": "animated take"}
 
-# Contestant colours, from the design. Drawings colour by model family; the
-# build-off and layout arms carry their own colour in their arms.json.
+# Contestant colours, from the design, and the page's legend reads them as who
+# ran the artifact. Drawings and layout arms colour by model family; the
+# build-off arms carry their own colour in arms.json and it already agrees.
 MODEL_COLOR = (
     ("qwen", "#2a9d8f"),
     ("claude", "#e76f51"),
@@ -101,6 +102,12 @@ def metric_text(value, unit=""):
 
 # ---------------------------------------------------------------- drawings
 
+def judge_of(artifact):
+    """The model that wrote this artifact's verdict, or "" when none is recorded."""
+    j = artifact.get("judge") or {}
+    return j.get("model") or ""
+
+
 def build_drawings(scores):
     prompts = {q["question_index"]: q["prompt"] for q in scores.get("questions", [])}
     pairs = {}
@@ -115,11 +122,13 @@ def build_drawings(scores):
             "key": key, "harness": a["harness"], "model": a["model"],
             "label": a["model"], "harnessLabel": HARNESS_LABEL.get(a["harness"], a["harness"]),
             "color": color_for(a["model"]), "hosted": a["harness"] == "claude",
-            "n": 0, "qs": [],
+            "n": 0, "qs": [], "selfJudged": False,
         })
         p["n"] += 1
         if q not in p["qs"]:
             p["qs"].append(q)
+        self_judged = judge_of(a) == a["model"]
+        p["selfJudged"] = p["selfJudged"] or self_judged
         by_q.setdefault(q, []).append({
             "pair": key, "model": a["model"],
             "harnessLabel": HARNESS_LABEL.get(a["harness"], a["harness"]),
@@ -128,6 +137,7 @@ def build_drawings(scores):
             "takeLabel": TAKE_LABEL[take],
             "file": SVG_PREFIX + a["artifact"],
             "animated": bool(a.get("animated")),
+            "selfJudged": self_judged,
             "score": a["score"], "met": a["met"], "total": a["total"],
             "reqs": [{"t": r["text"], "m": bool(r["met"]), "n": r.get("note", "")}
                      for r in a["requirements"]],
@@ -151,9 +161,18 @@ def build_drawings(scores):
 
     for p in pairs.values():
         p["qs"].sort()
+
+    # Who wrote the verdicts, and how many of them are on its own drawings. The
+    # page says this next to the scores; harness-matrix-svgbench.html says it too.
+    judges = {judge_of(a) for a in scores["artifacts"] if a.get("question_index") is not None}
+    judges.discard("")
     return {
         "questions": questions,
         "pairs": sorted(pairs.values(), key=lambda p: (p["hosted"], p["key"])),
+        "judge": {
+            "model": sorted(judges)[0] if len(judges) == 1 else "",
+            "selfJudged": sum(1 for q in questions for t in q["takes"] if t["selfJudged"]),
+        },
     }
 
 
@@ -199,7 +218,11 @@ def build_skills(arms):
         out.append({
             "id": a["id"], "label": a["label"], "skillConfig": a["skillConfig"],
             "harness": a["harness"], "model": a["model"], "hosted": bool(a["hosted"]),
-            "color": a.get("color", FALLBACK_COLOR), "form": a.get("form", ""),
+            # The colour line on this page means who ran it, so it comes from the
+            # model, not from the arm's own series colour. All three skill arms are
+            # the same local model, so all three share the Qwen colour; the skill
+            # name is the cell title and tells the arms apart.
+            "color": color_for(a["model"]), "form": a.get("form", ""),
             "shots": [{"n": n, "src": "%s%s-%d.webp" % (SKILL_SHOTS, a["id"], n),
                        "page": page_for(a["id"], n)} for n in ITERATIONS],
             "metrics": _metrics(arms["results"], a["id"], SKILL_METRICS),
