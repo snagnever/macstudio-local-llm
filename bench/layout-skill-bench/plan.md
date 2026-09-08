@@ -87,16 +87,32 @@ All three ship exactly 5 design iterations, matching the brief's ask.
 
 ## Publish-time fixes
 
-*(Filled in by Task 9 — the workflow that builds and publishes each vendored
-demo. Left as a placeholder here so this plan stays the reference for what the
-publish step is expected to do to each arm before the dashboard links to it.)*
+Every fix below exists because the model-written source assumes it is served
+from a domain root; the site actually serves from `/macstudio-local-llm/`.
+**The tracked source under `demos/` keeps exactly what the model wrote** —
+none of these fixes touch it. They are applied to the copy the publish
+workflow builds.
 
-- TBD: build command for `taste-skill/` (`npm ci` then `npm run build`,
-  expected) versus the two static arms (`design-skill/`, `taste2/`), which
-  need no build step — `taste2/` needs its small `server.js` run instead of
-  a static file server, or its pages served directly by path.
-- TBD: any per-arm adjustment needed purely to get each form serving under
-  the site's routing, without touching design content.
+| Arm | Problem | Fix |
+| --- | --- | --- |
+| `taste-skill` | no `base` in `vite.config.ts`, **and** a router that collapses every subpath to page 1 | `vite build --base=…` + `bench/layout-skill-bench/demos/taste-skill.basepath.patch` + a copy of `index.html` to `404.html` |
+| `design-skill` | index and in-page switchers link to `/1/`…`/5/` absolutely | rewrite to relative links |
+| `taste2` | pages link extensionlessly (`href="1"`), resolved in the original run by a Node server the static host does not run; no index page | rewrite to `1.html`…`5.html` and generate an index |
+
+`taste-skill.basepath.patch` is a `git apply`-able patch against
+`src/App.tsx`: it makes `normalize()` strip Vite's injected base out of
+`window.location.pathname` before matching it against `PATHS`, and makes
+`navigate()` prepend that base when pushing history state, so a deep link
+under `/macstudio-local-llm/demos/layout/taste-skill/<n>` resolves to page
+`<n>` instead of collapsing to page 1. It is applied to the build copy only,
+right before `npm run build`, never to the tracked source.
+
+`design-skill`'s relative-link rewrite, `taste2`'s extension rewrite plus
+generated index, and `taste-skill`'s `index.html` → `404.html` copy (needed
+because `taste-skill` does history-API routing and deep links need a
+fallback) are all done by `tools/publish/fix-layout-arms.sh <site-dir>`,
+run against the assembled site tree after all three arms are built/copied
+into it — never against this repo.
 
 ## Limits, stated plainly
 

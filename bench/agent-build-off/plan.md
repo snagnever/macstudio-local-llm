@@ -75,14 +75,26 @@ even though only three of the four state that fact themselves.
 
 ## Publish-time fixes
 
-*(Filled in by Task 9 — the workflow that builds and publishes each vendored
-demo. Left as a placeholder here so this plan stays the reference for what the
-publish step is expected to do to each arm before the dashboard links to it.)*
+Every fix below exists because the model-written source assumes it is served
+from a domain root; the site actually serves from `/macstudio-local-llm/`.
+**The tracked source under `demos/` keeps exactly what the model wrote** —
+none of these fixes touch it. They are applied to the copy the publish
+workflow builds, by `tools/publish/fix-layout-arms.sh` and (for `taste-skill`,
+see the sibling `layout-skill-bench` campaign, not this one) a patch file.
 
-- TBD: exact build command run against each `demos/<arm>/` (expected `npm ci`
-  then each arm's own build script).
-- TBD: any per-arm adjustment needed purely to get a static build to serve
-  (e.g. base-path rewrites), listed per arm, without touching gameplay code.
+| Arm | Problem | Fix |
+| --- | --- | --- |
+| `opencode-qwen38` | no `base` in `vite.config.ts`; emits `/assets/…` | `vite build --base=…` |
+| `opencode-qwen38-superpowers` | same | same |
+| `claude-opus5` | none — `base: './'` already set | build unchanged |
+| `codex-astra` | none — `base: './'` already set | build unchanged |
+
+Only the two `opencode-qwen38*` arms need a build-time flag
+(`vite build --base=/macstudio-local-llm/demos/build-off/<arm>/`); the other
+two already build with a relative base and need no adjustment at all. None of
+these four arms need `tools/publish/fix-layout-arms.sh` — that script covers
+the `layout-skill-bench` arms' post-build link rewrites, which this campaign
+doesn't have.
 
 ## Limits, stated plainly
 
