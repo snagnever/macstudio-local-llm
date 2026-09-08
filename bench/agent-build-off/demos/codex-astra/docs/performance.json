@@ -1,0 +1,26 @@
+{
+  "date": "2026-09-07T02:27:18.777Z",
+  "browser": "153.0.8010.12",
+  "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Pro, Unspecified Version)",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "quality": "high",
+  "durationSeconds": 125.076,
+  "distanceMeters": 3043.533333333598,
+  "meanSampleFps": 60.00239934300523,
+  "medianFrameMs": 16.69999998807907,
+  "p95FrameMs": 17.099999994039536,
+  "meshRange": [
+    1199,
+    1199
+  ],
+  "maxActiveMeshes": 966,
+  "drawCallRange": [
+    137,
+    169
+  ],
+  "transferBytes": 2886555,
+  "errors": []
+}

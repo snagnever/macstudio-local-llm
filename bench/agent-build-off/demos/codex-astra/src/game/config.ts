@@ -1,0 +1,16 @@
+export const LANE_CENTERS = [-2.6, 0, 2.6] as const;
+export const LANE_MOVE_SPEED = 18;
+export const JUMP_VELOCITY = 9.5;
+export const GRAVITY = 26;
+export const SLIDE_DURATION = 0.7;
+export const SHIELD_DURATION = 8;
+export const IMMUNITY_DURATION = 1;
+export const INITIAL_SPEED = 16;
+export const MAX_SPEED = 32;
+export const SPEED_RAMP_SECONDS = 120;
+export const MINIMUM_ROW_GAP = 38;
+export const SAFE_OPENING_SECONDS = 4;
+export const SAFE_OPENING_DISTANCE = 68;
+export const SPAWN_AHEAD = 220;
+export const DESPAWN_BEHIND = -8;
+export const PATTERN_BUFFER_SIZE = 32;

@@ -87,3 +87,13 @@
 - **Renders:** `../../logs/renders/opencode/qwen3.8-flash-next/` (gitignored PNGs;
   `dolphin-hula-hoop-fish-animated.png` is the t=0 frame)
 - **SVGBench:** 7/7 (q7) · verdict: `../svgbench/verdicts/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-animated.json`
+
+## Cross-reference
+
+This pair also ran the `agent-build-off` campaign — a full 3D game built from an empty
+folder in one session, on the same brief as three other agent stacks, in two variants
+(with and without the superpowers skill library). See
+[`bench/agent-build-off/results/opencode-qwen38.md`](../../../agent-build-off/results/opencode-qwen38.md),
+[`bench/agent-build-off/results/opencode-qwen38-superpowers.md`](../../../agent-build-off/results/opencode-qwen38-superpowers.md),
+and the roster/metrics in
+[`bench/agent-build-off/results/arms.json`](../../../agent-build-off/results/arms.json).

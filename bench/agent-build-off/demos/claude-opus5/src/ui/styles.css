@@ -1,0 +1,254 @@
+:root {
+  --ink: #eaf6ff;
+  --cyan: #1de9ff;
+  --pink: #ff2fb9;
+  --violet: #7b2fff;
+  --bg: #05030c;
+  font-family: ui-monospace, "SFMono-Regular", "Menlo", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+canvas {
+  display: block;
+}
+
+.stage {
+  position: fixed;
+  inset: 0;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  padding: env(safe-area-inset-top) 16px 16px;
+}
+
+.overlay > * {
+  pointer-events: auto;
+}
+
+.panel {
+  width: min(440px, 88vw);
+  padding: 28px 26px 26px;
+  text-align: center;
+  border: 1px solid rgba(29, 233, 255, 0.35);
+  border-radius: 18px;
+  background: rgba(6, 4, 16, 0.82);
+  box-shadow: 0 0 60px rgba(123, 47, 255, 0.35), inset 0 0 40px rgba(29, 233, 255, 0.08);
+  backdrop-filter: blur(6px);
+  animation: rise 0.28s ease-out;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+.title {
+  margin: 0 0 6px;
+  font-size: clamp(30px, 8vw, 46px);
+  letter-spacing: 0.14em;
+  color: var(--cyan);
+  text-shadow: 0 0 18px rgba(29, 233, 255, 0.7);
+}
+
+.title span {
+  color: var(--pink);
+  text-shadow: 0 0 18px rgba(255, 47, 185, 0.7);
+}
+
+.title.small {
+  font-size: clamp(24px, 6vw, 34px);
+  color: var(--pink);
+  text-shadow: 0 0 18px rgba(255, 47, 185, 0.7);
+}
+
+.lede {
+  margin: 0 0 18px;
+  opacity: 0.72;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+.keys {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  opacity: 0.66;
+}
+
+.hint {
+  margin: 0 0 18px;
+  font-size: 11px;
+  opacity: 0.45;
+  letter-spacing: 0.1em;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  letter-spacing: 0.16em;
+  border-radius: 10px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+.primary {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+  color: #05030c;
+  background: linear-gradient(90deg, var(--cyan), var(--pink));
+  border: none;
+  box-shadow: 0 0 28px rgba(29, 233, 255, 0.5);
+}
+
+.ghost {
+  padding: 9px 14px;
+  font-size: 11px;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid rgba(234, 246, 255, 0.28);
+}
+
+.ghost:hover {
+  background: rgba(234, 246, 255, 0.08);
+}
+
+.ghost.wide {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.best,
+.record {
+  margin: 14px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  opacity: 0.7;
+}
+
+.record {
+  color: var(--cyan);
+  opacity: 1;
+  animation: pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  to {
+    opacity: 0.4;
+  }
+}
+
+.result {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 18px 0 4px;
+}
+
+.result b {
+  display: block;
+  font-size: 26px;
+  color: var(--cyan);
+}
+
+.result span {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  opacity: 0.55;
+}
+
+.hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: calc(14px + env(safe-area-inset-top)) 16px 0;
+  pointer-events: none;
+}
+
+.hud button {
+  pointer-events: auto;
+}
+
+.hud-score {
+  font-size: clamp(28px, 6vw, 40px);
+  line-height: 1;
+  color: var(--cyan);
+  text-shadow: 0 0 16px rgba(29, 233, 255, 0.6);
+}
+
+.hud-coins {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 6px;
+  font-size: 14px;
+  color: #ffd45e;
+}
+
+.coin-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffd45e;
+  box-shadow: 0 0 10px #ffd45e;
+}
+
+.speed-track {
+  width: 116px;
+  height: 4px;
+  margin-top: 10px;
+  border-radius: 2px;
+  background: rgba(234, 246, 255, 0.14);
+  overflow: hidden;
+}
+
+.speed-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--cyan), var(--pink));
+  box-shadow: 0 0 12px var(--pink);
+}
+
+.loading {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: var(--cyan);
+  opacity: 0.8;
+}
