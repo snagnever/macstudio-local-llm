@@ -791,6 +791,7 @@ var galleryStatus = document.getElementById("galleryStatus"), galleryTiles = doc
 var GALLERY_FLAT = [];
 
 function uniq(list) { return list.filter(function (v, i, all) { return all.indexOf(v) === i; }); }
+function promptRank(label) { var m = /^Q(\d+)/.exec(label); return m ? parseInt(m[1], 10) : 999; }
 function fillSelect(select, values, labelOf, matchOf) {
   values.forEach(function (v) {
     var count = GALLERY.filter(function (x) { return matchOf(x, v); }).length;
@@ -799,7 +800,7 @@ function fillSelect(select, values, labelOf, matchOf) {
 }
 fillSelect(harnessFilter, uniq(GALLERY.map(function (x) { return x.harness; })), function (h) { return HARNESS_LABEL[h] || h; }, function (x, v) { return x.harness === v; });
 fillSelect(modelFilter, uniq(GALLERY.map(function (x) { return x.model; })).sort(function (a, b) { return MODEL_RANK.indexOf(a) - MODEL_RANK.indexOf(b); }), function (m) { return m; }, function (x, v) { return x.model === v; });
-fillSelect(promptFilter, uniq(GALLERY.map(function (x) { return x.promptLabel; })), function (p) { return p; }, function (x, v) { return x.promptLabel === v; });
+fillSelect(promptFilter, uniq(GALLERY.map(function (x) { return x.promptLabel; })).sort(function (a, b) { return promptRank(a) - promptRank(b); }), function (p) { return p; }, function (x, v) { return x.promptLabel === v; });
 
 function takePass(x) {
   if (gState.takes === "first") return x.isFirst;
@@ -832,6 +833,8 @@ function renderGallery() {
   renderGalleryStatus(shown);
   if (!shown.length) { galleryTiles.appendChild(el("p", "gallery-empty", "No SVGs match these filters.")); return; }
   var groups = uniq(shown.map(groupValue));
+  if (gState.group === "prompt") groups.sort(function (a, b) { return promptRank(a) - promptRank(b); });
+  if (gState.group === "model") groups.sort(function (a, b) { return MODEL_RANK.indexOf(a) - MODEL_RANK.indexOf(b); });
   groups.forEach(function (g) {
     var items = shown.filter(function (x) { return groupValue(x) === g; });
     var scored = items.filter(function (x) { return x.score != null; });
@@ -964,6 +967,7 @@ function openGalleryLb(i) {
   lbFile.textContent = x.file.replace("logs/", ""); lbRaw.href = src;
   lbPos.textContent = (i + 1) + " / " + GALLERY_FLAT.length + (x.score == null ? " · unscored" : " · " + x.met + "/" + x.total);
   lbPrev.hidden = i === 0; lbNext.hidden = i === GALLERY_FLAT.length - 1;
+  if (!lb.contains(document.activeElement)) document.getElementById("lbClose").focus();
   lbReqs.replaceChildren();
   if (x.reqs.length) {
     x.reqs.forEach(function (r) {

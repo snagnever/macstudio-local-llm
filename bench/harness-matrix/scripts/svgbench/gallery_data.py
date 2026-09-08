@@ -45,7 +45,7 @@ def _item(a, scored):
         "harness": a["harness"], "model": a["model"],
         "arm": "control" if a["harness"] == "claude" else "local",
         "q": q,
-        "prompt": PROMPT_LABEL.get(q) if q is not None else UNSCORED_LABEL.get(base, base),
+        "prompt": PROMPT_LABEL.get(q, base) if q is not None else UNSCORED_LABEL.get(base, base),
         "slug": a["slug"], "base": base, "take": take,
         "file": a["artifact"], "animated": bool(a.get("animated")),
         "score": a["score"] if scored else None,
@@ -68,14 +68,16 @@ def render_block(items):
 
 
 def write_block(html_path, items):
-    src = open(html_path, encoding="utf-8").read()
+    with open(html_path, encoding="utf-8") as f:
+        src = f.read()
     if src.count(BEGIN) != 1 or src.count(END) != 1:
         raise MarkerError("expected exactly one %s / %s pair in %s" % (BEGIN, END, html_path))
     head, rest = src.split(BEGIN, 1)
     _, tail = rest.split(END, 1)
     out = head + render_block(items) + tail
     if out != src:
-        open(html_path, "w", encoding="utf-8").write(out)
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(out)
     return out != src
 
 
@@ -83,9 +85,11 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true", help="exit 1 when the block differs from scores.json")
     args = ap.parse_args(argv)
-    items = build_items(json.load(open(SCORES, encoding="utf-8")))
+    with open(SCORES, encoding="utf-8") as f:
+        items = build_items(json.load(f))
     if args.check:
-        src = open(HTML, encoding="utf-8").read()
+        with open(HTML, encoding="utf-8") as f:
+            src = f.read()
         stale = render_block(items) not in src
         print("gallery block is %s (%d items)" % ("STALE" if stale else "fresh", len(items)))
         return 1 if stale else 0

@@ -42,6 +42,19 @@ class TestBuildItems(unittest.TestCase):
         self.assertEqual(by["dolphin"]["prompt"], "Dolphin")
         self.assertEqual(by["dawn-beach-v3"]["prompt"], "Dawn on the beach")
 
+    def test_unmapped_question_index_falls_back_to_base_slug(self):
+        scores = {
+            "artifacts": SCORES["artifacts"] + [
+                {"harness": "opencode", "model": "qwen3.8-flash-next", "artifact": "logs/opencode/qwen3.8-flash-next/space-whale-v2.svg",
+                 "question_index": 99, "animated": False, "slug": "space-whale-v2", "score": 1.0, "met": 1, "total": 1,
+                 "requirements": [{"text": "whale", "met": True, "note": ""}]},
+            ],
+            "unscored": SCORES["unscored"],
+        }
+        items = gd.build_items(scores)
+        by = {i["slug"]: i for i in items}
+        self.assertEqual(by["space-whale-v2"]["prompt"], "space-whale")
+
     def test_unscored_item_has_no_score_and_a_reason(self):
         u = [i for i in self.items if i["q"] is None][0]
         self.assertIsNone(u["score"]); self.assertIsNone(u["verdict"]); self.assertEqual(u["reqs"], [])
