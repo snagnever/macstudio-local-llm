@@ -86,6 +86,25 @@ PLE at layer 1, QSA budget 2048/4`), MTP forçado ON. **Sem hack de offload, sem
 | 128K | ~44 | 0.991 | 120.5GB | 0 |
 | 256K (nativo) | 33.4 (cold) | HTTP 400 (memória) | 119.7GB | 0 |
 
+> **Atualização 2026-09-07 — o `append`/`middle` a 0.00 era CAP de 2 GB, não design.** A/B no mesmo
+> binário v26.9.1, Flash-Next @128K, só a config de prefix-cache mudou (`--prefix-cache-mem/-disk/-entries`):
+>
+> | Cenário | KNOBS 16GB/100GB/64 | DEFAULT 2GB/off/32 |
+> |---|---|---|
+> | identical | **1.00 · 0.2s** | 0.00 · 183.7s |
+> | append | **0.99 · 2.2s** | 0.00 · 185.1s |
+> | tool_turn | **0.99 · 2.2s** | 0.58 · 81.3s |
+> | middle_mutation | 0.46 · 108.7s | 0.00 · 183.6s |
+> | decode médio | 44.6 tok/s | 43.5 tok/s |
+>
+> O default de 2 GB não cabe um prefixo de 128K (~3.7 GB): a resposta traz `static_prefix_prior_match:true`
+> mas `cache_hit_ratio:0.0` (casa, mas não retém). 16 GB retém → identical/append/tool_turn ~2 s, custo zero
+> de decode. Ou seja, o mlx-serve **reusa `append` a 128K** com o cap adequado; só o `middle_mutation` fica
+> parcial (0.46, intrínseco à mutação do miolo). Isso corrige a caracterização acima ("re-prefila
+> append/middle") — era o cap, não design. Dados: `bench/qwen3.8-prefix-cache/results/knob-ab-128k-*.jsonl`;
+> fixado no `run-mlx-serve.sh` (arm FS). **Driver principal em uso e teste hoje: Flash-Next ddalcu no
+> mlx-serve 26.9.1 @128K, `--mtp` + prefix-cache 16GB/100GB/64.**
+
 O mlx-serve mantém a liderança de decode em todo contexto (@128K ~44 vs oQ4e/oMLX ~33; @256K 33.4 vs
 oMLX ~27 vs densas ~7-14). Cabe até o máximo nativo (256K, pico 119.7GB, sem swap) para UM request.
 **Borda (não bug):** o `tool_turn` @256K faz um segundo request sobre o contexto cheio, e o mlx-serve
