@@ -265,6 +265,17 @@
   .lb-foot { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; padding: 11px 16px; font-size: 13px; color: var(--ink-soft); }
   .lb-foot a { font-weight: 600; }
   .lb-foot .right { margin-left: auto; }
+  .lb-head .pos { font-size: 13px; color: var(--ink-soft); }
+  .lb-body { position: relative; }
+  .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); font: 28px/1 var(--f); width: 40px; height: 56px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; }
+  .lb-nav.prev { left: 8px; } .lb-nav.next { right: 8px; }
+  .lb-reqs { margin: 0; padding: 10px 16px; list-style: none; border-top: 1px solid var(--line); font-size: 13px; display: grid; gap: 4px; max-height: 32vh; overflow: auto; }
+  .lb-reqs li { padding-left: 18px; position: relative; color: var(--ink-soft); }
+  .lb-reqs li::before { position: absolute; left: 0; font-weight: 800; }
+  .lb-reqs li.ok::before { content: "\2713"; color: var(--rig); }
+  .lb-reqs li.ok { color: var(--ink); }
+  .lb-reqs li.no::before { content: "\2717"; color: var(--ctl); }
+  .lb-reqs li .why { display: block; font-size: 12px; }
 
   noscript p { padding: 40px 0; }
 
@@ -473,10 +484,16 @@
 </footer>
 
 <dialog id="lb" aria-label="Artifact viewer">
-  <div class="lb-head"><h3 id="lbTitle"></h3><button class="close" id="lbClose" aria-label="Close viewer">Close</button></div>
-  <div class="lb-body"><img id="lbImg" alt=""></div>
+  <div class="lb-head"><h3 id="lbTitle"></h3><span class="pos" id="lbPos"></span><button class="close" id="lbClose" aria-label="Close viewer">Close</button></div>
+  <div class="lb-body">
+    <button class="lb-nav prev" id="lbPrev" type="button" aria-label="Previous" hidden>&#8249;</button>
+    <img id="lbImg" alt="">
+    <button class="lb-nav next" id="lbNext" type="button" aria-label="Next" hidden>&#8250;</button>
+  </div>
+  <ul class="lb-reqs" id="lbReqs" hidden></ul>
   <div class="lb-foot">
     <span id="lbFile"></span>
+    <a id="lbVerdict" href="#" hidden>verdict</a>
     <a class="right" id="lbRaw" href="#">Open raw file</a>
   </div>
 </dialog>
@@ -809,7 +826,6 @@ function setTitle(x) {
   return x.harnessLabel + " · " + x.promptLabel + " · " + x.base;
 }
 
-function openGalleryLb(i) { var x = GALLERY_FLAT[i]; openLb(L + x.file, x.slug, x.model + " · " + x.slug); }
 function renderGallery() {
   var shown = galleryShown(), useSlots = gState.takes === "all";
   galleryTiles.replaceChildren(); GALLERY_FLAT = [];
@@ -927,20 +943,44 @@ renderGallery();
 
 
 /* ---------------- lightbox ---------------- */
-var lb = document.getElementById("lb"),
-    lbImg = document.getElementById("lbImg"),
-    lbTitle = document.getElementById("lbTitle"),
-    lbFile = document.getElementById("lbFile"),
-    lbRaw = document.getElementById("lbRaw");
+var lb = document.getElementById("lb"), lbImg = document.getElementById("lbImg"), lbTitle = document.getElementById("lbTitle"),
+    lbFile = document.getElementById("lbFile"), lbRaw = document.getElementById("lbRaw"), lbPos = document.getElementById("lbPos"),
+    lbPrev = document.getElementById("lbPrev"), lbNext = document.getElementById("lbNext"), lbReqs = document.getElementById("lbReqs"),
+    lbVerdict = document.getElementById("lbVerdict");
+var lbIndex = -1;
 
 function openLb(src, alt, title) {
-  lbImg.src = src;
-  lbImg.alt = alt;
-  lbTitle.textContent = title;
-  lbFile.textContent = src.replace(L + "logs/", "");
-  lbRaw.href = src;
+  lbIndex = -1;
+  lbImg.src = src; lbImg.alt = alt; lbTitle.textContent = title;
+  lbFile.textContent = src.replace(L + "logs/", ""); lbRaw.href = src;
+  lbPos.textContent = ""; lbPrev.hidden = lbNext.hidden = true; lbReqs.hidden = true; lbVerdict.hidden = true;
   lb.showModal();
 }
+function openGalleryLb(i) {
+  var x = GALLERY_FLAT[i]; if (!x) return;
+  lbIndex = i;
+  var src = L + x.file;
+  lbImg.src = src; lbImg.alt = x.prompt + " · " + x.slug; lbTitle.textContent = x.model + " · " + x.slug;
+  lbFile.textContent = x.file.replace("logs/", ""); lbRaw.href = src;
+  lbPos.textContent = (i + 1) + " / " + GALLERY_FLAT.length + (x.score == null ? " · unscored" : " · " + x.met + "/" + x.total);
+  lbPrev.hidden = i === 0; lbNext.hidden = i === GALLERY_FLAT.length - 1;
+  lbReqs.replaceChildren();
+  if (x.reqs.length) {
+    x.reqs.forEach(function (r) {
+      var li = el("li", r.m ? "ok" : "no", esc(r.t) + (r.m || !r.n ? "" : '<span class="why">' + esc(r.n) + "</span>"));
+      lbReqs.appendChild(li);
+    });
+    lbReqs.hidden = false; lbVerdict.hidden = false; lbVerdict.href = L + x.verdict;
+  } else { lbReqs.hidden = true; lbVerdict.hidden = true; }
+  if (!lb.open) lb.showModal();
+}
+lbPrev.addEventListener("click", function () { openGalleryLb(lbIndex - 1); });
+lbNext.addEventListener("click", function () { openGalleryLb(lbIndex + 1); });
+lb.addEventListener("keydown", function (e) {
+  if (lbIndex < 0) return;
+  if (e.key === "ArrowLeft" && lbIndex > 0) openGalleryLb(lbIndex - 1);
+  if (e.key === "ArrowRight" && lbIndex < GALLERY_FLAT.length - 1) openGalleryLb(lbIndex + 1);
+});
 document.getElementById("lbClose").addEventListener("click", function () { lb.close(); });
 lb.addEventListener("click", function (e) { if (e.target === lb) lb.close(); });
 </script>
