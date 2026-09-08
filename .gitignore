@@ -5,6 +5,11 @@
 **/node_modules/
 **/.next/
 
+# Site build output (assembled by .github/workflows/publish-pages.yml)
+/site/
+# Vite build output under vendored demo source (source is tracked, dist is not)
+bench/*/demos/**/dist/
+
 # Python
 **/.venv/
 venvs/
