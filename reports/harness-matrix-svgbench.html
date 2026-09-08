@@ -740,6 +740,188 @@ function list(items) {
   return s;
 }
 
+/* ---------------- gallery ---------------- */
+var TAKE_SLOTS = ["v1", "v2", "v3", "animated"];
+var TAKE_LABEL = { v1: "take 1", v2: "take 2", v3: "take 3", animated: "animated" };
+var MODEL_RANK = ["claude-opus-5", "qwen3.8-flash-next", "qwen3.8-27b-8bit", "gpt-5.6-terra", "fable-5-1", "claude-opus-4-8"];
+GALLERY.forEach(function (x) {
+  x.setKey = x.harness + "/" + x.model + "/" + (x.q == null ? "u" : x.q) + "/" + x.base;
+  x.harnessLabel = HARNESS_LABEL[x.harness] || x.harness;
+  x.promptLabel = x.q == null ? x.prompt + " (unscored)" : "Q" + x.q + " · " + x.prompt;
+});
+(function markSets() {
+  var sets = {};
+  GALLERY.forEach(function (x) { (sets[x.setKey] = sets[x.setKey] || []).push(x); });
+  Object.keys(sets).forEach(function (k) {
+    var items = sets[k];
+    var statics = items.filter(function (x) { return x.take !== "animated"; });
+    var best = Math.max.apply(null, items.map(function (x) { return x.score == null ? -1 : x.score; }));
+    items.forEach(function (x) {
+      x.isFirst = x === (statics[0] || items[0]);
+      x.isLast = x === (statics[statics.length - 1] || items[items.length - 1]);
+      x.isBest = x.score != null && x.score === best && items.length > 1;
+    });
+  });
+})();
+
+var gState = { group: "prompt", takes: "all" };
+var groupSeg = document.getElementById("groupSeg"), takeSeg = document.getElementById("takeSeg");
+var harnessFilter = document.getElementById("harnessFilter"), modelFilter = document.getElementById("modelFilter");
+var promptFilter = document.getElementById("promptFilter"), minScore = document.getElementById("minScore");
+var scoredOnly = document.getElementById("scoredOnly"), resetFilters = document.getElementById("resetFilters");
+var galleryStatus = document.getElementById("galleryStatus"), galleryTiles = document.getElementById("galleryTiles");
+var GALLERY_FLAT = [];
+
+function uniq(list) { return list.filter(function (v, i, all) { return all.indexOf(v) === i; }); }
+function fillSelect(select, values, labelOf, matchOf) {
+  values.forEach(function (v) {
+    var count = GALLERY.filter(function (x) { return matchOf(x, v); }).length;
+    var o = el("option", null, esc(labelOf(v)) + " (" + count + ")"); o.value = v; select.appendChild(o);
+  });
+}
+fillSelect(harnessFilter, uniq(GALLERY.map(function (x) { return x.harness; })), function (h) { return HARNESS_LABEL[h] || h; }, function (x, v) { return x.harness === v; });
+fillSelect(modelFilter, uniq(GALLERY.map(function (x) { return x.model; })).sort(function (a, b) { return MODEL_RANK.indexOf(a) - MODEL_RANK.indexOf(b); }), function (m) { return m; }, function (x, v) { return x.model === v; });
+fillSelect(promptFilter, uniq(GALLERY.map(function (x) { return x.promptLabel; })), function (p) { return p; }, function (x, v) { return x.promptLabel === v; });
+
+function takePass(x) {
+  if (gState.takes === "first") return x.isFirst;
+  if (gState.takes === "last") return x.isLast;
+  if (gState.takes === "best") return x.isBest || x.score == null && x.isLast;
+  if (gState.takes === "animated") return x.take === "animated";
+  return true;
+}
+function galleryShown() {
+  var min = parseFloat(minScore.value);
+  return GALLERY.filter(function (x) {
+    return (harnessFilter.value === "all" || x.harness === harnessFilter.value) &&
+      (modelFilter.value === "all" || x.model === modelFilter.value) &&
+      (promptFilter.value === "all" || x.promptLabel === promptFilter.value) &&
+      (!scoredOnly.checked || x.score != null) &&
+      (min === 0 || (x.score != null && x.score >= min)) &&
+      takePass(x);
+  });
+}
+function groupValue(x) { return gState.group === "prompt" ? x.promptLabel : gState.group === "harness" ? x.harnessLabel : x.model; }
+function setTitle(x) {
+  if (gState.group === "prompt") return x.harnessLabel + " × " + x.model + " · " + x.base;
+  if (gState.group === "harness") return x.model + " · " + x.promptLabel + " · " + x.base;
+  return x.harnessLabel + " · " + x.promptLabel + " · " + x.base;
+}
+
+function openGalleryLb(i) { var x = GALLERY_FLAT[i]; openLb(L + x.file, x.slug, x.model + " · " + x.slug); }
+function renderGallery() {
+  var shown = galleryShown(), useSlots = gState.takes === "all";
+  galleryTiles.replaceChildren(); GALLERY_FLAT = [];
+  renderGalleryStatus(shown);
+  if (!shown.length) { galleryTiles.appendChild(el("p", "gallery-empty", "No SVGs match these filters.")); return; }
+  var groups = uniq(shown.map(groupValue));
+  groups.forEach(function (g) {
+    var items = shown.filter(function (x) { return groupValue(x) === g; });
+    var scored = items.filter(function (x) { return x.score != null; });
+    var mean = scored.length ? (scored.reduce(function (t, x) { return t + x.score; }, 0) / scored.length).toFixed(3) : "—";
+    var sec = el("section", "prompt-group");
+    sec.appendChild(el("h3", null, esc(g) + "<small>" + plural(items.length, "SVG") + " · mean " + mean + " (n=" + scored.length + ")</small>"));
+    uniq(items.map(function (x) { return x.setKey; })).forEach(function (key) {
+      var setItems = items.filter(function (x) { return x.setKey === key; });
+      var set = el("div", "comparison-set");
+      set.appendChild(el("h4", null, esc(setTitle(setItems[0])) + '<span class="count">· ' + plural(setItems.length, "SVG") + "</span>"));
+      var grid = el("div", "tiles" + (useSlots ? " slots" : ""));
+      if (useSlots) {
+        TAKE_SLOTS.forEach(function (slot) {
+          var hits = setItems.filter(function (x) { return x.take === slot; });
+          if (!hits.length) { grid.appendChild(el("p", "empty-slot", "no " + TAKE_LABEL[slot])); return; }
+          hits.forEach(function (x) { grid.appendChild(tileFigure(x)); });
+        });
+      } else {
+        setItems.forEach(function (x) { grid.appendChild(tileFigure(x)); });
+      }
+      set.appendChild(grid); sec.appendChild(set);
+    });
+    galleryTiles.appendChild(sec);
+  });
+}
+
+function tileFigure(x) {
+  var index = GALLERY_FLAT.length; GALLERY_FLAT.push(x);
+  var fig = el("figure", "tile " + x.arm);
+  var src = L + x.file;
+  var alt = x.prompt + ", " + x.harnessLabel + " × " + x.model + ", " + TAKE_LABEL[x.take] + (x.score == null ? ", unscored" : ", " + x.met + " of " + x.total + " requirements met");
+  var btn = el("button"); btn.type = "button"; btn.setAttribute("aria-label", "Open " + x.slug + " full size");
+  var img = el("img"); img.src = src; img.alt = alt; img.loading = "lazy"; btn.appendChild(img);
+  if (x.animated) btn.appendChild(el("span", "anim-flag", "animated"));
+  btn.addEventListener("click", function () { openGalleryLb(index); });
+  fig.appendChild(btn);
+  var cap = el("figcaption");
+  cap.appendChild(el("p", "subj", esc(x.prompt) + " · " + esc(x.slug)));
+  cap.appendChild(el("p", "who", esc(x.harnessLabel + " · " + x.model)));
+  var b = '<span class="badge take">' + TAKE_LABEL[x.take] + "</span>";
+  b += x.score == null ? '<span class="badge score none" title="' + esc(x.reason || "") + '">unscored</span>'
+     : '<span class="badge score' + (x.score === 1 ? " perfect" : "") + '">' + x.met + "/" + x.total + "</span>";
+  if (x.isBest) b += '<span class="badge best">best of set</span>';
+  if (x.harness + "/" + x.model === DATA.self_judge) b += '<span class="badge self" title="judged by the model that drew it">† self-judged</span>';
+  cap.appendChild(el("p", "badges", b));
+  fig.appendChild(cap);
+  return fig;
+}
+
+function renderGalleryStatus(shown) {
+  galleryStatus.replaceChildren();
+  var takesText = { all: "takes in order v1, v2, v3, animated", first: "first take of each set", last: "last static take of each set", best: "best-scoring take of each set (ties shown)", animated: "animated takes only" }[gState.takes];
+  galleryStatus.appendChild(el("span", null, plural(shown.length, "SVG") + " of " + GALLERY.length + " · grouped by " + gState.group + " · " + takesText));
+  var chips = [];
+  if (harnessFilter.value !== "all") chips.push({ text: HARNESS_LABEL[harnessFilter.value] || harnessFilter.value, clear: function () { harnessFilter.value = "all"; } });
+  if (modelFilter.value !== "all") chips.push({ text: modelFilter.value, clear: function () { modelFilter.value = "all"; } });
+  if (promptFilter.value !== "all") chips.push({ text: promptFilter.value, clear: function () { promptFilter.value = "all"; } });
+  if (minScore.value !== "0") chips.push({ text: "score " + minScore.options[minScore.selectedIndex].text, clear: function () { minScore.value = "0"; } });
+  if (scoredOnly.checked) chips.push({ text: "scored only", clear: function () { scoredOnly.checked = false; } });
+  if (gState.takes !== "all") chips.push({ text: "takes: " + gState.takes, clear: function () { setSeg(takeSeg, "all"); gState.takes = "all"; } });
+  chips.forEach(function (c) {
+    var chip = el("button", "fchip", esc(c.text)); chip.type = "button"; chip.setAttribute("aria-label", "Clear filter " + c.text);
+    chip.addEventListener("click", function () { c.clear(); update(); });
+    galleryStatus.appendChild(chip);
+  });
+  resetFilters.disabled = chips.length === 0 && gState.group === "prompt";
+}
+function setSeg(seg, v) {
+  seg.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.v === v)); });
+}
+function writeHash() {
+  var p = [];
+  if (gState.group !== "prompt") p.push("g=" + gState.group);
+  if (gState.takes !== "all") p.push("t=" + gState.takes);
+  if (harnessFilter.value !== "all") p.push("h=" + encodeURIComponent(harnessFilter.value));
+  if (modelFilter.value !== "all") p.push("m=" + encodeURIComponent(modelFilter.value));
+  if (promptFilter.value !== "all") p.push("p=" + encodeURIComponent(promptFilter.value));
+  if (minScore.value !== "0") p.push("s=" + minScore.value);
+  if (scoredOnly.checked) p.push("scored=1");
+  history.replaceState(null, "", p.length ? "#gallery?" + p.join("&") : location.pathname + location.search + (location.hash.indexOf("#gallery") === 0 ? "#gallery" : location.hash));
+}
+function readHash() {
+  var h = location.hash;
+  if (h.indexOf("#gallery?") !== 0) return;
+  h.slice(9).split("&").forEach(function (kv) {
+    var k = kv.split("=")[0], v = decodeURIComponent(kv.split("=").slice(1).join("="));
+    if (k === "g" && ["prompt", "harness", "model"].indexOf(v) >= 0) { gState.group = v; setSeg(groupSeg, v); }
+    if (k === "t" && ["all", "first", "last", "best", "animated"].indexOf(v) >= 0) { gState.takes = v; setSeg(takeSeg, v); }
+    if (k === "h") harnessFilter.value = v;
+    if (k === "m") modelFilter.value = v;
+    if (k === "p") promptFilter.value = v;
+    if (k === "s") minScore.value = v;
+    if (k === "scored") scoredOnly.checked = v === "1";
+  });
+}
+function update() { writeHash(); renderGallery(); }
+groupSeg.addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; gState.group = b.dataset.v; setSeg(groupSeg, b.dataset.v); update(); });
+takeSeg.addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; gState.takes = b.dataset.v; setSeg(takeSeg, b.dataset.v); update(); });
+[harnessFilter, modelFilter, promptFilter, minScore, scoredOnly].forEach(function (c) { c.addEventListener("change", update); });
+resetFilters.addEventListener("click", function () {
+  harnessFilter.value = modelFilter.value = promptFilter.value = "all"; minScore.value = "0"; scoredOnly.checked = false;
+  gState = { group: "prompt", takes: "all" }; setSeg(groupSeg, "prompt"); setSeg(takeSeg, "all"); update();
+});
+readHash();
+renderGallery();
+
+
 /* ---------------- lightbox ---------------- */
 var lb = document.getElementById("lb"),
     lbImg = document.getElementById("lbImg"),
