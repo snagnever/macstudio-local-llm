@@ -38,7 +38,9 @@ CAMPAIGN="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEMOS="$CAMPAIGN/demos"
 SHOTS="$CAMPAIGN/results/shots"
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-PORT="${PORT:-8732}"
+# Prefer an OS-assigned free port so a stray process squatting on a fixed port
+# can't collide with us; PORT can still be forced via the environment.
+PORT="${PORT:-$(python3 -c 'import socket;s=socket.socket();s.bind(("",0));print(s.getsockname()[1])')}"
 BUDGET_MS="${BUDGET_MS:-10000}"
 MAX_BYTES=$((300 * 1024))
 
@@ -108,10 +110,19 @@ for arm in "${ARMS[@]}"; do
   echo "== $arm: serve + shoot"
   python3 -m http.server "$PORT" --directory "$root" >"$WORK/$arm.serve.log" 2>&1 &
   SERVER_PID=$!
+  ready=0
   for _ in $(seq 1 50); do
-    if curl -fs -o /dev/null "http://localhost:$PORT/"; then break; fi
+    if curl -fs -o /dev/null "http://localhost:$PORT/"; then ready=1; break; fi
     sleep 0.2
   done
+  if [ "$ready" -ne 1 ]; then
+    echo "!! $arm: server never answered at http://localhost:$PORT/ (port $PORT) after 50 tries, see $WORK/$arm.serve.log" >&2
+    kill "$SERVER_PID" 2>/dev/null || true
+    wait "$SERVER_PID" 2>/dev/null || true
+    SERVER_PID=""
+    fail=1
+    continue
+  fi
 
   n=0
   while IFS= read -r path; do
