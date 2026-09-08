@@ -1,0 +1,47 @@
+# claude × claude-opus-5
+
+## Config
+
+| | |
+|---|---|
+| Harness | Claude Code `2.1.228` (bare `claude`, **Anthropic-hosted model — control arm, not a local rig model**) |
+| Model | `claude-opus-5` |
+| Date | 2026-09-05 |
+
+## Task — dolphin / hula hoop / fish (two runs)
+
+### Run 1 — no-op
+
+- **Prompt:** dolphin prompt (no prefix).
+- **Outcome:** no artifact. The model ran a single `ls -la dolphin-hoop.svg cow-plowing.svg`
+  (seeing prior outputs) and stopped. 13:51:35–13:51:52 local (~17 s), out 882 tokens.
+- **Session:** `8917d2a1-…`
+
+### Run 2 — dolphin-hoop-jump.svg
+
+- **Prompt:** "do not check for existing files." + dolphin prompt.
+- **Outcome:** `dolphin-hoop-jump.svg` (134 lines). Most iterative run of the matrix:
+  - wrote the SVG via bash heredoc,
+  - removed an unused `skin` gradient,
+  - re-authored the dolphin geometry (`translate/rotate/scale` group) after a zoom-crop
+    inspection,
+  - validated with `xml.dom.minidom`,
+  - visually checked with the Claude Browser MCP (navigate + screenshot),
+  - cleaned up its scratch crop (`_zoom_tmp.svg`, deleted in-session).
+- **Wall:** 13:52:02–13:58:25 local (~6.4 min) · **tokens:** out 60,947 (cache read 2,254,316)
+- **Raw:** `../../logs/claude/claude-opus-5/dolphin-hoop-jump.svg`
+- **SVGBench:** 4/7 (q7) · self-judged (the judge is `claude-opus-5`, this pair's own
+  model) · verdict: `../svgbench/verdicts/claude/claude-opus-5/dolphin-hoop-jump.json`
+- **Session:** `f8454b8d-…`
+
+## Notes
+
+- Run 1 shows the pair can no-op when the repo already contains same-prompt outputs
+  (the "do not check for existing files" prefix was the user's fix).
+- This pair also produced further artifacts (cow-plowing, dolphin, picnic-on-clouds,
+  rubber-ducky, and treasure-barrel takes) that are not narrated as tasks above; they
+  are scored in the SVGBench rejudge (21 artifacts total for this pair). Two of them
+  tie at the top with a perfect score:
+  **SVGBench:** 7/7 (q7) · self-judged (the judge is `claude-opus-5`, this pair's own
+  model) · verdicts: `../svgbench/verdicts/claude/claude-opus-5/dolphin-animated.json`
+  and `../svgbench/verdicts/claude/claude-opus-5/dolphin-v3.json`

@@ -1,0 +1,2 @@
+run_id,date,model,runtime,runtime_version,harness,harness_version,effort,task,pass,first_try,wall_min,interventions,approvals,tool_calls,tokens_out,prefill_hit,claimed_done,q_correct,q_scope,q_tests,q_clarity,q_process,notes
+FN-OC-medium-T1-1,2026-09-04,FN,mlx-serve,26.8.11,OC,,medium,T1,,,,,,,,,,,,,,,

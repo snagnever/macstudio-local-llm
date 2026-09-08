@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Half-buried treasure barrel</title>
+  <desc id="desc">A weathered wooden treasure barrel protrudes from sunlit sand, overflowing with gold coins and jewels.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#74c8df"/>
+      <stop offset="1" stop-color="#f8d393"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9b4e20"/>
+      <stop offset="0.48" stop-color="#5e2816"/>
+      <stop offset="1" stop-color="#32140f"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e39b38"/>
+      <stop offset="0.45" stop-color="#8f451c"/>
+      <stop offset="1" stop-color="#482015"/>
+    </linearGradient>
+    <radialGradient id="sand" cx="50%" cy="28%" r="78%">
+      <stop offset="0" stop-color="#ffe7a5"/>
+      <stop offset="0.58" stop-color="#e8b65f"/>
+      <stop offset="1" stop-color="#bd7537"/>
+    </radialGradient>
+    <radialGradient id="gold" cx="32%" cy="24%" r="75%">
+      <stop offset="0" stop-color="#fff7a5"/>
+      <stop offset="0.38" stop-color="#f7c83f"/>
+      <stop offset="0.75" stop-color="#bd7115"/>
+      <stop offset="1" stop-color="#71370a"/>
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="14"/>
+      <feOffset dy="16" dx="4"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.34"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="sparkle" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="0.25"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <path d="M0 389 C120 347 224 366 342 390 S572 446 702 405 S927 322 1200 374 V800 H0Z" fill="url(#sand)"/>
+  <path d="M0 487 C159 437 284 483 404 506 S641 549 771 497 S1016 419 1200 459 V800 H0Z" fill="#d89645" opacity=".38"/>
+  <g fill="none" stroke="#b87035" stroke-width="8" opacity=".34" stroke-linecap="round">
+    <path d="M77 574c139-48 271-21 393 25"/>
+    <path d="M750 602c134-79 275-71 385-28"/>
+    <path d="M108 704c180-43 322-2 427 43"/>
+    <path d="M815 728c116-35 225-29 330 5"/>
+  </g>
+  <g fill="#9c602f" opacity=".38">
+    <circle cx="103" cy="536" r="4"/><circle cx="156" cy="626" r="5"/><circle cx="274" cy="553" r="3"/><circle cx="372" cy="672" r="4"/><circle cx="700" cy="651" r="5"/><circle cx="900" cy="534" r="3"/><circle cx="1037" cy="632" r="5"/><circle cx="1112" cy="509" r="4"/>
+  </g>
+
+  <ellipse cx="605" cy="669" rx="346" ry="84" fill="#6c371e" opacity=".38" filter="url(#shadow)"/>
+  <!-- The sand bank overlaps the lower barrel to make it feel genuinely buried. -->
+  <g filter="url(#shadow)">
+    <path d="M338 300 C353 230 468 186 604 184 C741 181 853 226 874 300 L852 610 C844 702 746 746 602 750 C458 746 359 702 350 610Z" fill="url(#wood)" stroke="#32150f" stroke-width="12"/>
+    <path d="M402 264 C424 218 503 199 605 198 C707 199 791 218 812 264 C785 309 707 329 606 330 C506 329 428 309 402 264Z" fill="#2c1611" stroke="#1d0d0b" stroke-width="10"/>
+    <path d="M421 267 C447 237 511 223 605 222 C699 223 766 237 793 267 C765 291 699 304 606 305 C514 304 449 291 421 267Z" fill="#6b3218"/>
+    <path d="M446 274 C480 249 532 243 604 242 C675 243 729 249 768 274 C729 292 675 298 605 298 C536 298 481 292 446 274Z" fill="#1d100d"/>
+
+    <path d="M343 338 C458 378 746 378 867 338 L861 397 C741 440 467 440 349 397Z" fill="url(#rim)" stroke="#472016" stroke-width="8"/>
+    <path d="M350 482 C470 523 735 523 859 482 L854 540 C733 582 469 582 355 540Z" fill="url(#rim)" stroke="#472016" stroke-width="8"/>
+    <path d="M357 616 C474 655 733 655 853 616 L849 662 C731 704 474 704 361 662Z" fill="url(#rim)" stroke="#472016" stroke-width="8"/>
+    <g fill="none" stroke="#bd7134" stroke-width="11" opacity=".45" stroke-linecap="round">
+      <path d="M443 401c-15 45-16 80-8 132"/><path d="M523 410c-9 50-10 95-3 142"/><path d="M616 410c5 49 6 97 0 145"/><path d="M709 406c11 47 10 93 3 143"/><path d="M782 391c18 41 20 83 14 131"/>
+    </g>
+    <path d="M383 569 C470 604 745 604 829 569 L839 657 C735 710 466 710 371 657Z" fill="#482015" opacity=".55"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <ellipse cx="596" cy="284" rx="151" ry="35" fill="#1b0e0a"/>
+    <g fill="url(#gold)" stroke="#763d09" stroke-width="4">
+      <ellipse cx="476" cy="269" rx="34" ry="13" transform="rotate(-21 476 269)"/>
+      <ellipse cx="520" cy="250" rx="34" ry="13" transform="rotate(18 520 250)"/>
+      <ellipse cx="566" cy="270" rx="37" ry="14" transform="rotate(-13 566 270)"/>
+      <ellipse cx="614" cy="247" rx="35" ry="13" transform="rotate(10 614 247)"/>
+      <ellipse cx="660" cy="272" rx="37" ry="14" transform="rotate(-18 660 272)"/>
+      <ellipse cx="711" cy="254" rx="33" ry="13" transform="rotate(18 711 254)"/>
+      <ellipse cx="742" cy="281" rx="34" ry="13" transform="rotate(-9 742 281)"/>
+      <ellipse cx="497" cy="290" rx="37" ry="14" transform="rotate(13 497 290)"/>
+      <ellipse cx="548" cy="292" rx="35" ry="13" transform="rotate(-18 548 292)"/>
+      <ellipse cx="604" cy="286" rx="39" ry="15" transform="rotate(8 604 286)"/>
+      <ellipse cx="660" cy="295" rx="36" ry="13" transform="rotate(-13 660 295)"/>
+      <ellipse cx="710" cy="294" rx="32" ry="12" transform="rotate(17 710 294)"/>
+    </g>
+    <g stroke="#562308" stroke-width="4">
+      <path d="M466 266l21 5M509 246l22 6M553 267l25 5M600 245l23 5M647 269l25 5M697 252l22 5M731 279l22 4M483 288l25 4M535 290l23 4M590 284l27 5M647 292l25 4M698 291l22 4"/>
+    </g>
+    <g stroke-width="5">
+      <path d="M546 244l16-22 16 22-16 22Z" fill="#39c5d2" stroke="#126c7b"/>
+      <path d="M672 250l15-20 15 20-15 20Z" fill="#e04758" stroke="#7f1827"/>
+      <circle cx="631" cy="270" r="13" fill="#5fc85d" stroke="#1f6c2c"/>
+      <circle cx="522" cy="277" r="11" fill="#a757ca" stroke="#5f247f"/>
+    </g>
+  </g>
+
+  <path d="M0 645 C119 609 224 624 344 666 C420 693 441 743 465 800 H0Z" fill="#e6ad58"/>
+  <path d="M1200 605 C1085 577 977 603 871 656 C804 690 774 745 754 800 H1200Z" fill="#e6ad58"/>
+  <g fill="#c37a38" opacity=".48">
+    <circle cx="286" cy="673" r="5"/><circle cx="335" cy="716" r="3"/><circle cx="177" cy="713" r="4"/><circle cx="947" cy="695" r="5"/><circle cx="1055" cy="658" r="3"/><circle cx="1110" cy="719" r="5"/>
+  </g>
+  <g fill="#fff7bf" filter="url(#sparkle)">
+    <path d="M430 222l6 19 19 6-19 6-6 19-6-19-19-6 19-6Z"/>
+    <path d="M751 204l5 15 15 5-15 5-5 15-5-15-15-5 15-5Z"/>
+    <path d="M692 174l4 12 12 4-12 4-4 12-4-12-12-4 12-4Z" opacity=".8"/>
+  </g>
+</svg>

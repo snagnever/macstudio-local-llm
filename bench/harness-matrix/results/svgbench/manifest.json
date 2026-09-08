@@ -1,0 +1,815 @@
+{
+  "generated_at": "2026-09-07T11:46:32",
+  "artifacts": [
+    {
+      "harness": "claude",
+      "model": "claude-opus-4-8",
+      "artifact": "logs/claude/claude-opus-4-8/dolphin-hoop.svg",
+      "slug": "dolphin-hoop",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 4276
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/cow-plowing-animated.svg",
+      "slug": "cow-plowing-animated",
+      "question_index": 0,
+      "animated": true,
+      "bytes": 33802
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/cow-plowing-v2.svg",
+      "slug": "cow-plowing-v2",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 22907
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/cow-plowing-v3.svg",
+      "slug": "cow-plowing-v3",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 23576
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/cow-plowing.svg",
+      "slug": "cow-plowing",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 19497
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/dolphin-animated.svg",
+      "slug": "dolphin-animated",
+      "question_index": 7,
+      "animated": true,
+      "bytes": 45368
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/dolphin-hoop-jump.svg",
+      "slug": "dolphin-hoop-jump",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 7028
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/dolphin-v2.svg",
+      "slug": "dolphin-v2",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 36804
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/dolphin-v3.svg",
+      "slug": "dolphin-v3",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 38706
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/dolphin.svg",
+      "slug": "dolphin",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 8928
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/picnic-on-clouds-animated.svg",
+      "slug": "picnic-on-clouds-animated",
+      "question_index": 5,
+      "animated": true,
+      "bytes": 33774
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/picnic-on-clouds-v2.svg",
+      "slug": "picnic-on-clouds-v2",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 25622
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/picnic-on-clouds-v3.svg",
+      "slug": "picnic-on-clouds-v3",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 29631
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/picnic-on-clouds.svg",
+      "slug": "picnic-on-clouds",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 17339
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/rubber-ducky-animated.svg",
+      "slug": "rubber-ducky-animated",
+      "question_index": 4,
+      "animated": true,
+      "bytes": 27809
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/rubber-ducky-v2.svg",
+      "slug": "rubber-ducky-v2",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 11105
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/rubber-ducky-v3.svg",
+      "slug": "rubber-ducky-v3",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 19576
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/rubber-ducky.svg",
+      "slug": "rubber-ducky",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 8216
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/treasure-barrel-animated.svg",
+      "slug": "treasure-barrel-animated",
+      "question_index": 13,
+      "animated": true,
+      "bytes": 24875
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/treasure-barrel-v2.svg",
+      "slug": "treasure-barrel-v2",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 17369
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/treasure-barrel-v3.svg",
+      "slug": "treasure-barrel-v3",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 18600
+    },
+    {
+      "harness": "claude",
+      "model": "claude-opus-5",
+      "artifact": "logs/claude/claude-opus-5/treasure-barrel.svg",
+      "slug": "treasure-barrel",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 13030
+    },
+    {
+      "harness": "claude",
+      "model": "fable-5-1",
+      "artifact": "logs/claude/fable-5-1/cow-plowing-animated.svg",
+      "slug": "cow-plowing-animated",
+      "question_index": 0,
+      "animated": true,
+      "bytes": 12052
+    },
+    {
+      "harness": "claude",
+      "model": "fable-5-1",
+      "artifact": "logs/claude/fable-5-1/cow-plowing-v2.svg",
+      "slug": "cow-plowing-v2",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 8435
+    },
+    {
+      "harness": "claude",
+      "model": "fable-5-1",
+      "artifact": "logs/claude/fable-5-1/cow-plowing-v3.svg",
+      "slug": "cow-plowing-v3",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 9293
+    },
+    {
+      "harness": "claude",
+      "model": "fable-5-1",
+      "artifact": "logs/claude/fable-5-1/cow-plowing.svg",
+      "slug": "cow-plowing",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 7520
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-animated.svg",
+      "slug": "cow-plowing-animated",
+      "question_index": 0,
+      "animated": true,
+      "bytes": 12081
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v1.svg",
+      "slug": "cow-plowing-v1",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 4602
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v2.svg",
+      "slug": "cow-plowing-v2",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 7207
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-v3.svg",
+      "slug": "cow-plowing-v3",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 9196
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/dawn-beach-animated.svg",
+      "slug": "dawn-beach-animated",
+      "question_index": null,
+      "animated": true,
+      "bytes": 12703
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/dawn-beach-v1.svg",
+      "slug": "dawn-beach-v1",
+      "question_index": null,
+      "animated": true,
+      "bytes": 7755
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/dawn-beach-v2.svg",
+      "slug": "dawn-beach-v2",
+      "question_index": null,
+      "animated": true,
+      "bytes": 12077
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/dawn-beach-v3.svg",
+      "slug": "dawn-beach-v3",
+      "question_index": null,
+      "animated": true,
+      "bytes": 11637
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-animated.svg",
+      "slug": "dolphin-hula-hoop-fish-animated",
+      "question_index": 7,
+      "animated": true,
+      "bytes": 9188
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v1.svg",
+      "slug": "dolphin-hula-hoop-fish-v1",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 6620
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v2.svg",
+      "slug": "dolphin-hula-hoop-fish-v2",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 7028
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v3.svg",
+      "slug": "dolphin-hula-hoop-fish-v3",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 7387
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/fruit-stall-market-animated.svg",
+      "slug": "fruit-stall-market-animated",
+      "question_index": 12,
+      "animated": true,
+      "bytes": 11891
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/fruit-stall-market-v1.svg",
+      "slug": "fruit-stall-market-v1",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 8063
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/fruit-stall-market-v2.svg",
+      "slug": "fruit-stall-market-v2",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 9474
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/fruit-stall-market-v3.svg",
+      "slug": "fruit-stall-market-v3",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 10855
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-animated.svg",
+      "slug": "half-buried-treasure-barrel-animated",
+      "question_index": 13,
+      "animated": true,
+      "bytes": 11924
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v1.svg",
+      "slug": "half-buried-treasure-barrel-v1",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 6891
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v2.svg",
+      "slug": "half-buried-treasure-barrel-v2",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 10771
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v3.svg",
+      "slug": "half-buried-treasure-barrel-v3",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 9842
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-animated.svg",
+      "slug": "picnic-clouds-hot-air-balloon-animated",
+      "question_index": 5,
+      "animated": true,
+      "bytes": 11757,
+      "question_index_override": 5
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v1.svg",
+      "slug": "picnic-clouds-hot-air-balloon-v1",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 9724,
+      "question_index_override": 5
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v2.svg",
+      "slug": "picnic-clouds-hot-air-balloon-v2",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 8901,
+      "question_index_override": 5
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v3.svg",
+      "slug": "picnic-clouds-hot-air-balloon-v3",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 11136,
+      "question_index_override": 5
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-animated.svg",
+      "slug": "rubber-ducky-soapy-bathtub-animated",
+      "question_index": 4,
+      "animated": true,
+      "bytes": 11808
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v1.svg",
+      "slug": "rubber-ducky-soapy-bathtub-v1",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 5378
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v2.svg",
+      "slug": "rubber-ducky-soapy-bathtub-v2",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 7193
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v3.svg",
+      "slug": "rubber-ducky-soapy-bathtub-v3",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 9605
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-animated.svg",
+      "slug": "stunt-car-jumping-circle-fire-animated",
+      "question_index": 6,
+      "animated": true,
+      "bytes": 11296
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v1.svg",
+      "slug": "stunt-car-jumping-circle-fire-v1",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 8566
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v2.svg",
+      "slug": "stunt-car-jumping-circle-fire-v2",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 8473
+    },
+    {
+      "harness": "opencode",
+      "model": "gpt-5.6-terra",
+      "artifact": "logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v3.svg",
+      "slug": "stunt-car-jumping-circle-fire-v3",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 10010
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-27b-8bit",
+      "artifact": "logs/opencode/qwen3.8-27b-8bit/cow-plowing-animated.svg",
+      "slug": "cow-plowing-animated",
+      "question_index": 0,
+      "animated": true,
+      "bytes": 10597
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-27b-8bit",
+      "artifact": "logs/opencode/qwen3.8-27b-8bit/cow-plowing.svg",
+      "slug": "cow-plowing",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 6037
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-27b-8bit",
+      "artifact": "logs/opencode/qwen3.8-27b-8bit/dawn-beach.svg",
+      "slug": "dawn-beach",
+      "question_index": null,
+      "animated": true,
+      "bytes": 20447
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-27b-8bit",
+      "artifact": "logs/opencode/qwen3.8-27b-8bit/dolphin.svg",
+      "slug": "dolphin",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 5299
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-27b-8bit",
+      "artifact": "logs/opencode/qwen3.8-27b-8bit/picnic-on-clouds.svg",
+      "slug": "picnic-on-clouds",
+      "question_index": 5,
+      "animated": true,
+      "bytes": 13381
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-27b-8bit",
+      "artifact": "logs/opencode/qwen3.8-27b-8bit/treasure-barrel.svg",
+      "slug": "treasure-barrel",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 8350
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/cow-plowing-animated.svg",
+      "slug": "cow-plowing-animated",
+      "question_index": 0,
+      "animated": true,
+      "bytes": 20565
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/cow-plowing-v2.svg",
+      "slug": "cow-plowing-v2",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 13379
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/cow-plowing-v3.svg",
+      "slug": "cow-plowing-v3",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 14679
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/cow-plowing.svg",
+      "slug": "cow-plowing",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 9362
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-animated.svg",
+      "slug": "dolphin-animated",
+      "question_index": 7,
+      "animated": true,
+      "bytes": 10564
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish-animated.svg",
+      "slug": "dolphin-hoop-fish-animated",
+      "question_index": 7,
+      "animated": true,
+      "bytes": 11342
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish-v2.svg",
+      "slug": "dolphin-hoop-fish-v2",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 7410
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish-v3.svg",
+      "slug": "dolphin-hoop-fish-v3",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 8049
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hoop-fish.svg",
+      "slug": "dolphin-hoop-fish",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 5776
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-animated.svg",
+      "slug": "dolphin-hula-hoop-fish-animated",
+      "question_index": 7,
+      "animated": true,
+      "bytes": 17805
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v1.svg",
+      "slug": "dolphin-hula-hoop-fish-v1",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 8070
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v2.svg",
+      "slug": "dolphin-hula-hoop-fish-v2",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 9683
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v3.svg",
+      "slug": "dolphin-hula-hoop-fish-v3",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 9788
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/dolphin.svg",
+      "slug": "dolphin",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 8435
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/fruit-stall-animated.svg",
+      "slug": "fruit-stall-animated",
+      "question_index": 12,
+      "animated": true,
+      "bytes": 23985
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/fruit-stall-v2.svg",
+      "slug": "fruit-stall-v2",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 13581
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/fruit-stall-v3.svg",
+      "slug": "fruit-stall-v3",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 18482
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/fruit-stall.svg",
+      "slug": "fruit-stall",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 6396
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/rubber-ducky-animated.svg",
+      "slug": "rubber-ducky-animated",
+      "question_index": 4,
+      "animated": true,
+      "bytes": 7688
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/rubber-ducky-v2.svg",
+      "slug": "rubber-ducky-v2",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 4164
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/rubber-ducky.svg",
+      "slug": "rubber-ducky",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 3946
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-animated.svg",
+      "slug": "stunt-car-fire-ring-animated",
+      "question_index": 6,
+      "animated": true,
+      "bytes": 17519,
+      "question_index_override": 6
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v2.svg",
+      "slug": "stunt-car-fire-ring-v2",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 10244,
+      "question_index_override": 6
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v3.svg",
+      "slug": "stunt-car-fire-ring-v3",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 11425,
+      "question_index_override": 6
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring.svg",
+      "slug": "stunt-car-fire-ring",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 8135,
+      "question_index_override": 6
+    }
+  ],
+  "strays": []
+}

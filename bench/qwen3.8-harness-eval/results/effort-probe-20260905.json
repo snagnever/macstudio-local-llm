@@ -1,0 +1,45 @@
+{
+  "date": "2026-09-05",
+  "target": "fn",
+  "runtime": "mlx-serve 26.9.1",
+  "model_id": "ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit-ef5b919d31534faa1997666f1a22d362cd6383cd",
+  "endpoint": "http://127.0.0.1:11234/v1/chat/completions",
+  "field": "reasoning_effort",
+  "sampling": { "temperature": 1.0, "top_p": 0.95 },
+  "note": "Uma repeticao por valor. Temperatura 1.0: os niveis intermediarios nao separam com uma amostra. Script: scripts/effort_probe.py",
+  "probes": [
+    {
+      "name": "curto",
+      "prompt": "Quantos numeros primos existem entre 1 e 30? Liste-os.",
+      "max_tokens": 3000,
+      "rows": [
+        { "effort": "none",    "completion_tokens": 809, "reasoning_tokens": null, "reasoning_chars": 0,    "decode_tps": 97.2, "wall_s": 9.2 },
+        { "effort": "minimal", "completion_tokens": 609, "reasoning_tokens": 373,  "reasoning_chars": 841,  "decode_tps": 86.2, "wall_s": 7.1 },
+        { "effort": "low",     "completion_tokens": 786, "reasoning_tokens": 597,  "reasoning_chars": 1259, "decode_tps": 91.6, "wall_s": 8.7 },
+        { "effort": "medium",  "completion_tokens": 599, "reasoning_tokens": 324,  "reasoning_chars": 796,  "decode_tps": 82.1, "wall_s": 7.4 },
+        { "effort": "high",    "completion_tokens": 215, "reasoning_tokens": 122,  "reasoning_chars": 348,  "decode_tps": 66.1, "wall_s": 3.3 },
+        { "effort": "xhigh",   "completion_tokens": 183, "reasoning_tokens": 93,   "reasoning_chars": 276,  "decode_tps": 72.4, "wall_s": 2.6 },
+        { "effort": "bogus",   "completion_tokens": 194, "reasoning_tokens": 133,  "reasoning_chars": 373,  "decode_tps": 69.5, "wall_s": 2.9 }
+      ]
+    },
+    {
+      "name": "longo",
+      "prompt": "Um trem sai de A para B a 72 km/h e outro sai de B para A a 90 km/h, no mesmo instante. A distancia AB e 486 km. Um passaro voa a 120 km/h entre os trens, indo e voltando ate eles se encontrarem. Calcule: (a) o instante do encontro, (b) a distancia total percorrida pelo passaro, (c) quantas vezes o passaro inverte o sentido nas primeiras tres viagens e a distancia de cada uma. Mostre o raciocinio.",
+      "max_tokens": 16000,
+      "rows": [
+        { "effort": "none",    "completion_tokens": 3647,  "reasoning_tokens": null,  "decode_tps": 67.6, "wall_s": 55.2 },
+        { "effort": "minimal", "completion_tokens": 6434,  "reasoning_tokens": 4957,  "decode_tps": 76.1, "wall_s": 85.0 },
+        { "effort": "low",     "completion_tokens": 4150,  "reasoning_tokens": 2949,  "decode_tps": 80.0, "wall_s": 52.0 },
+        { "effort": "medium",  "completion_tokens": 6964,  "reasoning_tokens": 5200,  "decode_tps": 75.9, "wall_s": 91.9 },
+        { "effort": "high",    "completion_tokens": 16000, "reasoning_tokens": 16000, "decode_tps": 50.7, "wall_s": 316.0 },
+        { "effort": "xhigh",   "completion_tokens": 16000, "reasoning_tokens": 16000, "decode_tps": 49.8, "wall_s": 321.5 }
+      ]
+    }
+  ],
+  "conclusoes": [
+    "none desliga o thinking: reasoning_content vazio nos dois prompts.",
+    "high e xhigh estouraram o teto de 16000 tokens no prompt longo, so raciocinio, sem resposta.",
+    "minimal, low e medium ficaram entre 2949 e 5200 tokens de raciocinio, sem ordem monotonica com uma amostra a temperatura 1.0.",
+    "O runtime aceitou o valor invalido bogus e respondeu como default, sem erro: a validacao tem de ficar no launcher."
+  ]
+}

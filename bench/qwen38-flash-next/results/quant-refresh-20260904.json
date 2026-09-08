@@ -1,0 +1,118 @@
+{
+  "Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed": {
+    "sha": "766cec2bb474544381139cc036ae1c2267759b33",
+    "lastModified": "2026-09-03T22:13:04.000Z",
+    "safetensors": {
+      "parameters": {
+        "U32": 26893352960,
+        "BF16": 463375600
+      },
+      "total": 27356723952
+    },
+    "comparison": {
+      "baseline": "123db8bcc7101455b00d9aad36c0e760c6e7de02",
+      "changed_files": [
+        "mtplx_runtime.json"
+      ],
+      "files_checked": 18
+    }
+  },
+  "Youssofal/Qwen3.8-27B-MTPLX-Optimized-Quality": {
+    "sha": "35ec534dfe897f39bb8b6fd43227d2b1fc214696",
+    "lastModified": "2026-09-03T22:13:10.000Z",
+    "safetensors": {
+      "parameters": {
+        "U32": 26893352960,
+        "BF16": 463375600
+      },
+      "total": 27356723952
+    },
+    "comparison": {
+      "baseline": "09f71b39a75c416be3c974840b53f9fbe9aa1841",
+      "changed_files": [
+        "mtplx_runtime.json"
+      ],
+      "files_checked": 20
+    }
+  },
+  "mlx-community/Qwen3.8-27B-8bit": {
+    "sha": "815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9",
+    "lastModified": "2026-08-14T16:16:16.000Z",
+    "safetensors": {
+      "parameters": {
+        "U32": 26893352960,
+        "BF16": 463375600
+      },
+      "total": 27356728560
+    }
+  },
+  "True2456/Qwen3.8-27B-AWQ-5.0bpw": {
+    "sha": "dc699a76ddcbef44c188a8aee2ccc79ccc339a04",
+    "lastModified": "2026-08-17T10:43:24.000Z",
+    "safetensors": {
+      "parameters": {
+        "U32": 27739666432,
+        "BF16": 141376240
+      },
+      "total": 27881042672
+    }
+  },
+  "Jundot/Qwen3.8-27B-oQ8e-mtp": {
+    "sha": "c99e5aad8a478f71c10b9a3dde6709158b690da6",
+    "lastModified": "2026-08-18T02:47:01.000Z",
+    "safetensors": {
+      "parameters": {
+        "U32": 27265597440,
+        "BF16": 515830512
+      },
+      "total": 27781427952
+    }
+  },
+  "ddalcu/Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit": {
+    "sha": "ef5b919d31534faa1997666f1a22d362cd6383cd",
+    "lastModified": "2026-08-27T14:37:29.000Z",
+    "safetensors": {
+      "parameters": {
+        "BF16": 455671664,
+        "U32": 132739891200,
+        "I64": 35
+      },
+      "total": 133195562899
+    }
+  },
+  "Jundot/Qwen3.8-Flash-Next-oQ4e-mtp": {
+    "sha": "2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8",
+    "lastModified": "2026-08-27T11:29:28.000Z",
+    "safetensors": {
+      "parameters": {
+        "U32": 179484224000,
+        "BF16": 515757424,
+        "I64": 35
+      },
+      "total": 179999981459
+    }
+  },
+  "Youssofal/Qwen3.8-Flash-Next-MTPLX-Optimized-Speed": {
+    "sha": "6bc2f6e8426ccb4af73c81bc56ba7718afc92cc6",
+    "lastModified": "2026-08-30T23:46:50.000Z",
+    "safetensors": {
+      "parameters": {
+        "U32": 125068697600,
+        "BF16": 1123887216,
+        "I64": 35
+      },
+      "total": 126192584851
+    }
+  },
+  "ddalcu/Qwen3.8-27B-MLX-Serve-8bit": {
+    "sha": "011e38296b3d2aa99245ed49a700459c4ac246b6",
+    "lastModified": "2026-08-14T20:35:02.000Z",
+    "safetensors": {
+      "parameters": {
+        "BF16": 1787228912,
+        "U32": 25994199040
+      },
+      "total": 27781427952
+    }
+  }
+}

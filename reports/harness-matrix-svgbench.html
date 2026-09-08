@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SVGs, graded &mdash; SVGBench on the harness matrix</title>
+<meta name="description" content="SVGBench scores for 84 harness-matrix SVGs across six harness x model pairs and seven pinned questions, all judged by claude-opus-5 on Chrome renders.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --board: #e2e7e8;
+    --paper: #eef1f2;
+    --matte: #d8dfe1;
+    --ink: #17242d;
+    --ink-soft: #56676f;
+    --line: #bfc9cd;
+    --rig: #0e6e70;
+    --ctl: #a8325a;
+    --f: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation: none !important; transition: none !important; }
+  }
+  body {
+    margin: 0;
+    background: var(--board);
+    color: var(--ink);
+    font: 16px/1.55 var(--f);
+    font-variant-numeric: tabular-nums lining-nums;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+  a { color: var(--ink); text-decoration-color: var(--line); text-underline-offset: 3px; }
+  a:hover { text-decoration-color: var(--ink); }
+  :focus-visible { outline: 2px solid var(--rig); outline-offset: 2px; }
+  .skip { position: absolute; left: -9999px; }
+  .skip:focus { left: 12px; top: 12px; z-index: 9; background: var(--paper); padding: 8px 14px; }
+
+  /* ---------- masthead ---------- */
+  .masthead { border-bottom: 2px solid var(--ink); background: var(--board); }
+  .masthead .wrap {
+    display: flex; flex-wrap: wrap; gap: 8px 28px;
+    align-items: baseline; justify-content: space-between; padding-top: 18px; padding-bottom: 18px;
+  }
+  .wordmark {
+    font-size: 19px; font-weight: 800; letter-spacing: -0.01em;
+    font-variation-settings: "wdth" 112;
+  }
+  .masthead nav { font-size: 14px; display: flex; gap: 20px; }
+
+  /* ---------- hero / the rule ---------- */
+  .brief { padding: 56px 0 8px; }
+  .kicker { font-size: 14px; font-weight: 600; color: var(--ink-soft); margin: 0 0 14px; }
+  .prompt {
+    margin: 0; max-width: 21ch;
+    font-size: clamp(38px, 6.2vw, 76px); font-weight: 800; line-height: 0.97;
+    letter-spacing: -0.018em; font-variation-settings: "wdth" 115;
+  }
+  .prompt::before { content: "\201C"; }
+  .prompt::after { content: "\201D"; }
+  .deck { margin: 22px 0 0; max-width: 62ch; color: var(--ink-soft); }
+  .deck strong { color: var(--ink); font-weight: 650; }
+
+  /* ---------- section heads ---------- */
+  section { padding: 44px 0 8px; }
+  h2 {
+    font-size: 26px; font-weight: 750; letter-spacing: -0.01em;
+    font-variation-settings: "wdth" 108;
+    margin: 0 0 4px;
+  }
+  .sec-note { margin: 0 0 24px; color: var(--ink-soft); max-width: 68ch; }
+  h3.sub-h {
+    margin: 30px 0 3px; font-size: 15px; font-weight: 700;
+    border-bottom: 2px solid var(--ink); padding-bottom: 7px;
+    font-variation-settings: "wdth" 105;
+  }
+  h3.sub-h small { float: right; font-weight: 450; color: var(--ink-soft); }
+
+  /* ---------- score chip ---------- */
+  .chip {
+    display: inline-block; font-size: 13px; font-weight: 750; padding: 2px 9px;
+    border: 1px solid var(--ink); background: var(--paper); color: var(--ink);
+    vertical-align: 2px;
+  }
+  .chip.best { background: var(--ink); color: var(--paper); }
+
+  /* ---------- disclosure panel ---------- */
+  .board-grid { display: grid; grid-template-columns: minmax(0, 1fr) 268px; gap: 24px; align-items: start; }
+  .aside { border: 1px solid var(--line); border-top: 3px solid var(--ink); background: var(--paper); padding: 14px 16px 16px; }
+  .aside h3 { margin: 0 0 8px; font-size: 14px; font-weight: 750; }
+  .aside p { margin: 0 0 9px; font-size: 13.5px; color: var(--ink-soft); }
+  .aside p:last-child { margin-bottom: 0; }
+  .aside b { color: var(--ink); font-weight: 650; }
+  .mark { font-weight: 700; }
+
+  /* ---------- the head-to-head columns ---------- */
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  .harness-col > h3 {
+    margin: 0 0 3px; font-size: 15px; font-weight: 700;
+    border-bottom: 2px solid var(--ink); padding-bottom: 7px;
+    font-variation-settings: "wdth" 105;
+  }
+  .harness-col > h3 small { float: right; font-weight: 450; color: var(--ink-soft); }
+  .harness-col .colsub { margin: 7px 0 14px; font-size: 13.5px; color: var(--ink-soft); }
+
+  .proof { margin: 0 0 26px; background: var(--paper); border: 1px solid var(--line); position: relative; }
+  .proof::before, .proof::after {
+    content: ""; position: absolute; width: 13px; height: 13px; pointer-events: none;
+  }
+  .proof::before { top: -1px; left: -1px; border-top: 3px solid var(--arm, var(--ink)); border-left: 3px solid var(--arm, var(--ink)); }
+  .proof::after { bottom: -1px; right: -1px; border-bottom: 3px solid var(--arm, var(--ink)); border-right: 3px solid var(--arm, var(--ink)); }
+  .proof.local { --arm: var(--rig); }
+  .proof.control { --arm: var(--ctl); }
+  .proof > button {
+    display: block; width: 100%; padding: 0; margin: 0; border: 0;
+    background: var(--matte); cursor: zoom-in; position: relative;
+  }
+  .proof > button img { display: block; width: 100%; height: auto; }
+  .anim-flag {
+    position: absolute; right: 8px; top: 8px; padding: 2px 9px;
+    background: var(--paper); border: 1px solid var(--ink); font-size: 12px; font-weight: 650;
+  }
+  .proof figcaption { padding: 14px 16px 15px; border-top: 1px solid var(--line); }
+  .proof .name { font-size: 16px; font-weight: 700; margin: 0 0 1px; }
+  .proof .name .sw { display: inline-block; width: 9px; height: 9px; margin-right: 7px; background: var(--arm); }
+  .proof .runtime { margin: 0 0 10px; font-size: 13px; color: var(--ink-soft); }
+  .fails { margin: 0 0 10px; padding: 0; list-style: none; font-size: 13.5px; }
+  .fails li { margin: 0 0 5px; padding-left: 16px; position: relative; color: var(--ink-soft); }
+  .fails li::before { content: "\2717"; position: absolute; left: 0; color: var(--ctl); font-weight: 700; }
+  .fails li b { color: var(--ink); font-weight: 650; }
+  .clean-note { margin: 0 0 10px; font-size: 13px; color: var(--ink-soft); }
+  .src { font-size: 13px; color: var(--ink-soft); }
+  .src a { font-weight: 600; color: var(--ink-soft); }
+
+  /* ---------- tables ---------- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); background: var(--paper); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 860px; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th {
+    font-size: 12.5px; font-weight: 700; color: var(--ink-soft);
+    border-bottom: 2px solid var(--ink); white-space: nowrap; background: var(--board);
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num { font-weight: 650; white-space: nowrap; }
+  td .pair { font-weight: 700; white-space: nowrap; }
+  td .sub, th .sub { display: block; font-size: 12.5px; color: var(--ink-soft); font-weight: 450; }
+  .best { box-shadow: inset 0 -2px 0 var(--ink); }
+  .down { color: var(--ctl); font-weight: 650; }
+  .up { color: var(--rig); font-weight: 650; }
+  .free { max-width: 34ch; color: var(--ink-soft); }
+  .tnote { font-size: 13px; color: var(--ink-soft); margin: 12px 0 0; max-width: 78ch; }
+  .narrow { min-width: 620px; }
+
+  /* ---------- fresh-agent take series ---------- */
+  .series-rule { border-top: 2px solid var(--ink); padding-top: 12px; margin-bottom: 24px; }
+  .series-rule p { margin: 0; max-width: 76ch; color: var(--ink-soft); }
+  .series-metrics { display: flex; flex-wrap: wrap; gap: 10px 24px; margin: 14px 0 0; }
+  .series-metrics span { font-size: 13px; color: var(--ink-soft); }
+  .series-metrics b { color: var(--ink); font-size: 17px; margin-right: 5px; }
+  .series-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 28px; }
+  .take-card { border-top: 1px solid var(--line); padding-top: 9px; }
+  .take-card h3 { margin: 0; font-size: 15px; font-weight: 750; }
+  .take-card h3 small { float: right; color: var(--ink-soft); font-size: 12px; font-weight: 600; }
+  .take-card p { margin: 3px 0 8px; color: var(--ink-soft); font-size: 12.5px; }
+  .take-chart { display: block; width: 100%; height: auto; overflow: visible; }
+  .take-chart .frame { stroke: var(--line); stroke-width: 1; }
+  .take-chart .trace { fill: none; stroke: var(--rig); stroke-width: 2.4; }
+  .take-chart .dot { fill: var(--paper); stroke: var(--rig); stroke-width: 2; }
+  .take-chart .dot.peak { fill: var(--rig); }
+  .take-chart text { font-family: var(--f); fill: var(--ink-soft); font-size: 10px; }
+  .take-chart .value { fill: var(--ink); font-size: 11px; font-weight: 700; }
+  .take-chart .axis { font-size: 9px; }
+
+  /* ---------- per-question matrices ---------- */
+  .qsec { margin: 0 0 40px; }
+  .qsec > h3 {
+    margin: 34px 0 3px; font-size: 15px; font-weight: 700;
+    border-bottom: 2px solid var(--ink); padding-bottom: 7px;
+    font-variation-settings: "wdth" 105;
+  }
+  .qsec > h3 small { float: right; font-weight: 450; color: var(--ink-soft); }
+  .qprompt { margin: 7px 0 14px; font-size: 14.5px; max-width: 74ch; }
+  .qnote { margin: 12px 0 0; font-size: 13.5px; color: var(--ink-soft); max-width: 84ch; }
+  .matrix-table { min-width: 900px; }
+  .matrix-table td.req { min-width: 34ch; max-width: 52ch; font-size: 13.5px; }
+  .matrix-table th.ah, .matrix-table td.cell { text-align: center; }
+  .matrix-table .cell { font-weight: 700; white-space: nowrap; }
+  .matrix-table .cell.all { color: var(--rig); }
+  .matrix-table .cell.none { color: var(--ctl); }
+  .matrix-table .cell.some { color: var(--ink); }
+  .matrix-table th.ah .score-line { display: block; margin-top: 3px; }
+
+  /* ---------- loose ends ---------- */
+  .loose-list { margin: 0; padding: 0; list-style: none; max-width: 78ch; }
+  .loose-list li { padding: 12px 0 12px 16px; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+  .loose-list li:last-child { border-bottom: 0; }
+  .loose-list .why { display: block; font-size: 13px; color: var(--ink-soft); }
+
+  /* ---------- footer ---------- */
+  footer { margin-top: 64px; border-top: 2px solid var(--ink); background: var(--board); padding: 26px 0 56px; font-size: 13.5px; color: var(--ink-soft); }
+  footer p { max-width: 78ch; margin: 0 0 8px; }
+  footer a { font-weight: 600; }
+
+  /* ---------- lightbox ---------- */
+  dialog#lb {
+    border: 1px solid var(--ink); background: var(--paper); padding: 0; max-width: min(960px, calc(100vw - 32px));
+    width: 100%; color: var(--ink);
+  }
+  dialog#lb::backdrop { background: rgba(23, 36, 45, 0.72); }
+  .lb-head { display: flex; align-items: baseline; gap: 14px; padding: 12px 16px; border-bottom: 2px solid var(--ink); }
+  .lb-head h3 { margin: 0; font-size: 16px; }
+  .lb-head .close { margin-left: auto; font: inherit; font-weight: 700; background: none; border: 1px solid var(--ink); padding: 3px 12px; cursor: pointer; }
+  .lb-body img { display: block; width: 100%; height: auto; background: var(--matte); }
+  .lb-foot { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; padding: 11px 16px; font-size: 13px; color: var(--ink-soft); }
+  .lb-foot a { font-weight: 600; }
+  .lb-foot .right { margin-left: auto; }
+
+  noscript p { padding: 40px 0; }
+
+  @media (max-width: 980px) {
+    .board-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 860px) {
+    .cols { grid-template-columns: 1fr; }
+    .series-grid { grid-template-columns: 1fr; }
+    .prompt { max-width: none; }
+  }
+  @media (max-width: 620px) {
+    .wrap { width: 100vw; max-width: 100vw; margin: 0; }
+    .masthead .wrap { display: block; }
+    .masthead nav { margin-top: 8px; min-width: 0; width: 100%; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; }
+    .masthead nav a { white-space: nowrap; }
+    .prompt { font-size: 34px; }
+    .deck, .sec-note, .prompt { overflow-wrap: anywhere; }
+    .table-wrap { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#brief">Skip to content</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="wordmark">SVGBench &middot; harness matrix</div>
+    <nav aria-label="Sections">
+      <a href="#brief">The rule</a>
+      <a href="#board">Leaderboard</a>
+      <a href="#rejudge">One judge</a>
+      <a href="#takes">Take series</a>
+      <a href="#h2h">Q7 head-to-head</a>
+      <a href="#questions">By question</a>
+      <a href="#loose">Unscored</a>
+      <a href="../bench/harness-matrix/plan.md">Runbook</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <noscript><p>This page renders its matrices, figures and tables from the data object below &mdash; enable JavaScript to see them.</p></noscript>
+
+  <section class="brief" id="brief" aria-labelledby="rule-h">
+    <p class="kicker">84 model-generated drawings, seven upstream questions, six harness &times; model pairs, one judge &mdash; September 7, 2026. Scores from <code>bench/harness-matrix/results/svgbench/scores.json</code>.</p>
+    <h1 class="prompt" id="rule-h">requirements met &divide; requirements total</h1>
+    <p class="deck">SVGBench is a question bank of 105 drawing prompts, each with a checklist of concrete requirements (pinned commit <code>dd42e2c</code>, July 2025). Seven harness-matrix prompts matched a question, so 84 SVGs were rendered in headless Chrome and graded <strong>strictly, one requirement at a time</strong>: half-met counts as failed, and anything the renderer doesn't show doesn't count. <strong>413 of 794 requirement checks met.</strong> Every verdict on this board comes from a single judge, <strong>claude-opus-5</strong>. The board it replaces used three judges, two of them grading their own drawings &mdash; what that was worth is measured below. Different subset, route and judge make these results unsuitable for comparison with the upstream leaderboard.</p>
+  </section>
+
+  <section id="board" aria-labelledby="board-h">
+    <h2 id="board-h">Leaderboard</h2>
+    <p class="sec-note">Mean over each pair's scored artifacts. Every figure carries its <code>n</code>: the per-question cells are that pair's mean on that question over that many drawings. Underlines mark the best value in a column. Two pairs drew a single question each and are listed under the board, per-prompt only &mdash; they are not ranked.</p>
+    <div class="board-grid">
+      <div>
+        <div class="table-wrap">
+          <table id="boardTable">
+            <thead>
+              <tr>
+                <th>Pair</th><th>Drawings</th><th>Q0</th><th>Q4</th><th>Q5</th><th>Q6</th><th>Q7</th><th>Q12</th><th>Q13</th><th>Mean</th><th>Worth knowing</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="tnote">Question coverage still differs per pair, so the means are not like-for-like across rows; Q7, drawn by five of the six pairs, is the widest shared column. The ranking on it matches the ranking on the means for the two pairs with real coverage: <strong>claude-opus-5 leads qwen3.8-flash-next 0.857 to 0.786 on Q7 (n=5 and n=10) and 0.693 to 0.591 overall (n=21 and n=25)</strong>.</p>
+
+        <h3 class="sub-h">Single-prompt pairs<small>per-prompt figures, not ranked</small></h3>
+        <div class="table-wrap">
+          <table id="singleTable" class="narrow">
+            <thead>
+              <tr><th>Pair</th><th>Drawings</th><th>Question</th><th>Score on that question</th><th>Worth knowing</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <aside class="aside" aria-labelledby="judge-h">
+        <h3 id="judge-h">Who judged</h3>
+        <p><b>claude-opus-5</b> wrote all 84 verdicts on this board, viewing the Chrome render plus 2&times; crops of detail regions.</p>
+        <p>That includes <b>the 21 drawings it made itself</b>. Its row is marked <span class="mark">&dagger;</span>, and its own figures should be read as self-judged.</p>
+        <p>No other pair judged its own work here. On the previous board two did &mdash; see <a href="#rejudge">One judge</a>.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="rejudge" aria-labelledby="rejudge-h">
+    <h2 id="rejudge-h">What one judge changed</h2>
+    <p class="sec-note">The previous board used three judges, and most verdicts were self-judged. <code>opencode/gpt-5.6-terra</code> wrote 28 of the 43 verdicts, all on its own pair's drawings. <code>claude-fable-5-1</code> wrote 12, none of them on its own drawings. <code>qwen3.8-flash-next</code> wrote 3, all on its own. Every artifact was re-judged by <code>claude-opus-5</code>. 43 artifacts appear on both boards, so their old and new verdicts can be compared directly.</p>
+    <div class="table-wrap">
+      <table id="shiftTable" class="narrow">
+        <thead>
+          <tr><th>Pair</th><th>Old board</th><th>This board</th><th>Change</th><th>Same drawings?</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="tnote">Two pairs gained coverage between boards, so their means moved for two reasons at once. <strong>opencode &times; gpt-5.6-terra is the one clean comparison</strong>: the same 28 drawings on both boards, judged by the model that drew them at 0.421 and at 0.336 by <code>claude-opus-5</code>, which drew none of these 28 &mdash; −0.085, with 15 of the 28 scoring lower than they did under self-judging.</p>
+
+    <h3 class="sub-h">The 43 artifacts that carry both verdicts<small>split by who wrote the old one</small></h3>
+    <div class="table-wrap">
+      <table id="judgeTable" class="narrow">
+        <thead>
+          <tr><th>Old verdict written by</th><th>Artifacts</th><th>Old mean</th><th>New mean</th><th>Change</th><th>Fell / rose / unchanged</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="tnote">Self-judging moved 31 artifacts down 0.079 on average; the 12 verdicts <code>claude-fable-5-1</code> wrote, none of them on its own drawings, moved +0.010. The smaller self-judged block is <code>qwen3.8-flash-next</code>'s three fruit-stall takes, 0.273 under its own judging and 0.242 here. This is the whole case for re-judging: the judge, not the drawing, was moving the score.</p>
+  </section>
+
+  <section id="takes" aria-labelledby="takes-h">
+    <h2 id="takes-h">The second take helped; animation never did</h2>
+    <div class="series-rule">
+      <p>OpenCode &times; GPT-5.6 Terra generated v1 without prior artifacts, then used fresh agents for v2, v3, and an animated take. Under the single judge, v2 is the best take on three of the seven prompts and v3 on one; two prompts never move across all four takes, and the rubber ducky ends three requirements below its own v2. The animated take scores exactly what v3 scores on all seven prompts &mdash; SMIL motion neither adds nor loses points with a judge that reads a PNG.</p>
+      <div class="series-metrics" aria-label="GPT-5.6 Terra series summary">
+        <span><b>28</b> scored SVGs</span>
+        <span><b>0.336</b> mean score (n=28)</span>
+        <span><b>7</b> SVGBench prompts</span>
+        <span><b>4</b> takes each</span>
+      </div>
+    </div>
+    <div class="series-grid" id="takeSeries" aria-label="Scores across four takes for each prompt"></div>
+    <p class="tnote">Each line is normalized by that question's requirement count. Values under the points are requirements met, not percentages. Every take's SVG is in the logs tree; requirement-level verdicts are linked from <a href="../bench/harness-matrix/results/opencode/gpt-5.6-terra.md">the run record</a>.</p>
+  </section>
+
+  <section id="h2h" aria-labelledby="h2h-h">
+    <h2 id="h2h-h">Q7 head-to-head</h2>
+    <p class="sec-note">The dolphin through a hula hoop &mdash; five of the six pairs drew it, 21 artifacts in all. Each card carries the pair's Q7 mean with its <code>n</code>, and shows that pair's highest-scoring take with the requirements it missed. All 21 drawings put the trainer's arm in the frame; the requirement that fails most often is the jump itself &mdash; 13 of 21 leave part of the dolphin in or on the water. Frames follow the sibling report: <strong>teal</strong> for the local rig models, <strong>raspberry</strong> for the Anthropic-hosted controls.</p>
+    <div class="cols" id="h2hCols"></div>
+  </section>
+
+  <section id="questions" aria-labelledby="q-h">
+    <h2 id="q-h">By question</h2>
+    <p class="sec-note">One matrix per question, requirement text verbatim from the pinned questions file. A cell is how many of that pair's drawings met that requirement, out of how many it drew &mdash; hover a cell that lost points for the judge's reason. Column heads carry the pair's mean on the question and its <code>n</code>.</p>
+    <div id="qBlocks"></div>
+  </section>
+
+  <section id="loose" aria-labelledby="loose-h">
+    <h2 id="loose-h">Unscored artifacts</h2>
+    <p class="sec-note">SVGs in the logs tree that <code>scores.json</code> records but does not grade. Five of them, all the same prompt: "dawn on the beach" is not an SVGBench question, so there is no requirement checklist to grade it against. They stay in the artifact gallery, not on this scoreboard. Every other artifact in the tree is scored.</p>
+    <ul class="loose-list">
+      <li><code>logs/opencode/gpt-5.6-terra/dawn-beach-animated.svg</code>
+        <span class="why">opencode × gpt-5.6-terra · prompt is not an SVGBench question</span></li>
+      <li><code>logs/opencode/gpt-5.6-terra/dawn-beach-v1.svg</code>
+        <span class="why">opencode × gpt-5.6-terra · prompt is not an SVGBench question</span></li>
+      <li><code>logs/opencode/gpt-5.6-terra/dawn-beach-v2.svg</code>
+        <span class="why">opencode × gpt-5.6-terra · prompt is not an SVGBench question</span></li>
+      <li><code>logs/opencode/gpt-5.6-terra/dawn-beach-v3.svg</code>
+        <span class="why">opencode × gpt-5.6-terra · prompt is not an SVGBench question</span></li>
+      <li><code>logs/opencode/qwen3.8-27b-8bit/dawn-beach.svg</code>
+        <span class="why">opencode × qwen3.8-27b-8bit · prompt is not an SVGBench question</span></li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Method: each <code>logs/&lt;harness&gt;/&lt;model&gt;/**/*.svg</code> in <a href="https://github.com/snagnever/macstudio-local-llm/tree/main/bench/harness-matrix">bench/harness-matrix/</a> is matched to its <a href="https://github.com/johnbean393/SVGBench">SVGBench</a> question, rendered in headless Chrome, and judged per requirement. All 84 verdicts on this board are claude-opus-5's, including the 21 for its own drawings. Generated data: <a href="../bench/harness-matrix/results/svgbench/scores.json">scores.json</a> &middot; per-artifact verdicts: <a href="https://github.com/snagnever/macstudio-local-llm/tree/main/bench/harness-matrix/results/svgbench/verdicts">verdicts/</a> &middot; artifact&rarr;question map: <a href="../bench/harness-matrix/results/svgbench/manifest.json">manifest.json</a> &middot; judging conventions: <a href="../bench/harness-matrix/results/svgbench/judging-conventions.md">judging-conventions.md</a>.</p>
+    <p>Comparability: seven of the 105 upstream questions; drawings came out of coding harnesses (OpenCode, Claude Code), not the direct-API run SVGBench specifies; the judge is not the one the upstream harness uses. Rankings here are meaningful only within this page.</p>
+    <p>The drawings as artifacts &mdash; wall-clock, tokens, craft notes &mdash; live in the per-run records under <a href="https://github.com/snagnever/macstudio-local-llm/tree/main/bench/harness-matrix/results">bench/harness-matrix/results/</a>. Part of <a href="https://github.com/snagnever/macstudio-local-llm">macstudio-local-llm</a> &middot; rig: Mac Studio M4 Max 128 GB, one model served at a time over Tailscale.</p>
+  </div>
+</footer>
+
+<dialog id="lb" aria-label="Artifact viewer">
+  <div class="lb-head"><h3 id="lbTitle"></h3><button class="close" id="lbClose" aria-label="Close viewer">Close</button></div>
+  <div class="lb-body"><img id="lbImg" alt=""></div>
+  <div class="lb-foot">
+    <span id="lbFile"></span>
+    <a class="right" id="lbRaw" href="#">Open raw file</a>
+  </div>
+</dialog>
+
+<script>
+/* ------------------------------------------------------------------
+   Data: derived from bench/harness-matrix/results/svgbench/scores.json.
+   Prompt and requirement text is resolved through the pinned
+   scripts/svgbench/questions.json by question_index (the full
+   105-question file) - scores.json's own `questions` array is a
+   re-indexed subset and must not be indexed by position.
+   Every figure below is published with the n it was computed over.
+   ------------------------------------------------------------------ */
+var DATA = {"totals":{"scored":84,"unscored":5,"questions":7,"pairs":6,"checks_met":413,"checks_total":794,"animated":22,"generated":"2026-09-07"},"pairs":[{"key":"claude/claude-opus-5","label":"claude x claude-opus-5","harness":"claude","model":"claude-opus-5","arm":"control","n":21,"mean":0.6934996220710506,"ranked":true,"by":{"0":{"mean":0.75,"n":4},"4":{"mean":0.6944444444444444,"n":4},"5":{"mean":0.475,"n":4},"7":{"mean":0.8571428571428571,"n":5},"13":{"mean":0.6499999999999999,"n":4}},"note":"Top of the board and top of the shared prompt. Also the judge for all 84 verdicts, its own 21 included."},{"key":"opencode/qwen3.8-flash-next","label":"opencode x qwen3.8-flash-next","harness":"opencode","model":"qwen3.8-flash-next","arm":"local","n":25,"mean":0.5909523809523809,"ranked":true,"by":{"0":{"mean":0.5625,"n":4},"4":{"mean":0.5555555555555556,"n":3},"6":{"mean":0.5,"n":4},"7":{"mean":0.7857142857142857,"n":10},"12":{"mean":0.25,"n":4}},"note":"Second overall, and the widest sample on the shared prompt — 10 of its 25 drawings are the dolphin."},{"key":"opencode/qwen3.8-27b-8bit","label":"opencode x qwen3.8-27b-8bit","harness":"opencode","model":"qwen3.8-27b-8bit","arm":"local","n":5,"mean":0.4990476190476191,"ranked":true,"by":{"0":{"mean":0.5833333333333334,"n":2},"5":{"mean":0.5,"n":1},"7":{"mean":0.42857142857142855,"n":1},"13":{"mean":0.4,"n":1}},"note":"Five drawings across four questions, the thinnest ranked sample here. Read its cells with their n."},{"key":"opencode/gpt-5.6-terra","label":"opencode x gpt-5.6-terra","harness":"opencode","model":"gpt-5.6-terra","arm":"local","n":28,"mean":0.33624381570810147,"ranked":true,"by":{"0":{"mean":0.45833333333333337,"n":4},"4":{"mean":0.25,"n":4},"5":{"mean":0.35,"n":4},"6":{"mean":0.46875,"n":4},"7":{"mean":0.5357142857142857,"n":4},"12":{"mean":0.09090909090909091,"n":4},"13":{"mean":0.2,"n":4}},"note":"The only pair whose mean fell under the single judge: 0.421 when it judged itself, 0.336 here, same 28 drawings."},{"key":"claude/fable-5-1","label":"claude x fable-5-1","harness":"claude","model":"fable-5-1","arm":"control","n":4,"mean":0.7291666666666666,"ranked":false,"by":{"0":{"mean":0.7291666666666666,"n":4}},"note":"Four takes on the cow and nothing else. Per-prompt figure only — no overall rank."},{"key":"claude/claude-opus-4-8","label":"claude x claude-opus-4-8","harness":"claude","model":"claude-opus-4-8","arm":"control","n":1,"mean":0.7142857142857143,"ranked":false,"by":{"7":{"mean":0.7142857142857143,"n":1}},"note":"One drawing, the dolphin. Per-prompt figure only — no overall rank."}],"board_shift":[{"key":"claude/claude-opus-5","label":"claude x claude-opus-5","new_mean":0.6934996220710506,"new_n":21,"old_mean":0.5714285714285714,"old_n":1},{"key":"opencode/qwen3.8-flash-next","label":"opencode x qwen3.8-flash-next","new_mean":0.5909523809523809,"new_n":25,"old_mean":0.5248917748917749,"old_n":8},{"key":"opencode/qwen3.8-27b-8bit","label":"opencode x qwen3.8-27b-8bit","new_mean":0.4990476190476191,"new_n":5,"old_mean":0.41904761904761906,"old_n":5},{"key":"opencode/gpt-5.6-terra","label":"opencode x gpt-5.6-terra","new_mean":0.33624381570810147,"new_n":28,"old_mean":0.4208629663986807,"old_n":28},{"key":"claude/fable-5-1","label":"claude x fable-5-1","new_mean":0.7291666666666666,"new_n":4,"old_mean":null,"old_n":null},{"key":"claude/claude-opus-4-8","label":"claude x claude-opus-4-8","new_mean":0.7142857142857143,"new_n":1,"old_mean":0.7142857142857143,"old_n":1}],"judge_groups":[{"group":"self","n":31,"old_mean":0.40652725410789925,"new_mean":0.32716450216450216,"fell":16,"rose":2,"same":13,"models":["opencode/gpt-5.6-terra","opencode/qwen3.8-flash-next"]},{"group":"other","n":12,"old_mean":0.5634920634920635,"new_mean":0.5730158730158731,"fell":3,"rose":2,"same":7,"models":["claude/claude-opus-4-8","claude/claude-opus-5","opencode/qwen3.8-27b-8bit","opencode/qwen3.8-flash-next"]}],"terra_shift":{"n":28,"old_mean":0.4208629663986807,"new_mean":0.33624381570810147,"fell":15},"flash_self_shift":{"n":3,"old_mean":0.2727272727272727,"new_mean":0.24242424242424243},"questions":[{"id":0,"prompt":"Write `svg` code to draw an image of a cow plowing a field.","reqs":["Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.","The cow must have black and white patches for its coloring.","Add cow ears, eyes, and snout for facial recognition.","Position the cow in a realistic plowing stance, leaning forward as if pulling.","The cow's hooves must be colored brown, as if covered in soil from the field.","Include a traditional wooden plow with a visible metal blade/share.","Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.","The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.","Show at least three distinct, dark furrows in the soil trailing directly behind the plow.","The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.","The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.","Add a simple background with a clear horizon line and a blue sky containing a yellow sun."],"n":12,"arts":18,"met":134,"total":216,"pairs":[{"key":"claude/claude-opus-5","label":"claude x claude-opus-5","harness":"claude","model":"claude-opus-5","n":4,"mean":0.75,"cells":[{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["cow-plowing-animated","Hoof fill samples RGB (35,31,29) and (58,51,46) - a neutral near-black with a red-minus-blue spread of 6-12; the hooves are black, not brown."]]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["cow-plowing-animated","A padded brown collar sits at the shoulders, but the two traces running back to the plow are plain solid leather straps with no links anywhere along them; no chains are visible."]]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["cow-plowing-animated","The unplowed section is a tan/khaki stubble field, and its tufts are drawn in ochre brown, not green; no green grass, and none is shown being overturned at the share."]]},{"met":4,"n":4,"notes":[]}],"perfect":0,"top":{"slug":"cow-plowing","artifact":"logs/claude/claude-opus-5/cow-plowing.svg","met":9,"total":12,"score":0.75,"animated":false,"misses":[]}},{"key":"opencode/qwen3.8-flash-next","label":"opencode x qwen3.8-flash-next","harness":"opencode","model":"qwen3.8-flash-next","n":4,"mean":0.5625,"cells":[{"met":3,"n":4,"notes":[["cow-plowing-animated","No udder is drawn under the belly - the belly line is unbroken white with no pink sac - although body, head, four legs and tail are all present."]]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["cow-plowing-animated","Hoof fill samples RGB (43,43,43) - a perfectly neutral dark grey with zero red-minus-blue spread; the hooves are black, not brown."]]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["cow-plowing-animated","A brown neck strap and two smooth trace lines run back to the plow; there is no yoke beam across the shoulders and the traces carry no links, so no chains are visible."]]},{"met":0,"n":4,"notes":[["cow-plowing-animated","Not partially buried: the share hangs entirely above the soil with its outline complete and unbroken. The two brown clods drawn across the blade are detached debris, which the convention excludes f…"],["cow-plowing-v2","Not partially buried: the grey share is drawn on top of the tilled plane with its outline complete and unbroken, resting on the top edge of the raised tan slab of turned soil rather than crossing b…"]]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["cow-plowing-animated","The field is bare brown soil edge to edge with furrow lines throughout; there is no unplowed section, so there is no boundary for the cow and plow to be positioned at."]]},{"met":0,"n":4,"notes":[["cow-plowing-animated","There is no green grass anywhere in the field - the whole field is bare tilled soil - so nothing green is being overturned."]]},{"met":4,"n":4,"notes":[]}],"perfect":0,"top":{"slug":"cow-plowing","artifact":"logs/opencode/qwen3.8-flash-next/cow-plowing.svg","met":7,"total":12,"score":0.5833333333333334,"animated":false,"misses":[]}},{"key":"opencode/qwen3.8-27b-8bit","label":"opencode x qwen3.8-27b-8bit","harness":"opencode","model":"qwen3.8-27b-8bit","n":2,"mean":0.5833333333333334,"cells":[{"met":0,"n":2,"notes":[["cow-plowing-animated","No udder is drawn anywhere under the belly; body, head, four legs and tail are all present, but the udder is absent."]]},{"met":0,"n":2,"notes":[["cow-plowing-animated","The cow is mid-brown with two off-white patches; there is no black on the body."]]},{"met":2,"n":2,"notes":[]},{"met":2,"n":2,"notes":[]},{"met":2,"n":2,"notes":[]},{"met":2,"n":2,"notes":[]},{"met":0,"n":2,"notes":[["cow-plowing-animated","There is no yoke across the shoulders - the plow beam runs straight to a brown boss at the cow's chest - and no chains are drawn anywhere."]]},{"met":0,"n":2,"notes":[["cow-plowing-animated","The pale grey triangular share stands on top of the green turf, fully visible, with no soil over any part of it and no chunk of earth lifted or turned."]]},{"met":2,"n":2,"notes":[]},{"met":2,"n":2,"notes":[]},{"met":0,"n":2,"notes":[["cow-plowing-animated","The field is flat green, but no grass is shown being overturned at the share - the blade sits on undisturbed turf and nothing green is lifted."]]},{"met":2,"n":2,"notes":[]}],"perfect":0,"top":{"slug":"cow-plowing","artifact":"logs/opencode/qwen3.8-27b-8bit/cow-plowing.svg","met":7,"total":12,"score":0.5833333333333334,"animated":false,"misses":[]}},{"key":"opencode/gpt-5.6-terra","label":"opencode x gpt-5.6-terra","harness":"opencode","model":"gpt-5.6-terra","n":4,"mean":0.45833333333333337,"cells":[{"met":2,"n":4,"notes":[["cow-plowing-v1","No udder is drawn anywhere under the belly, and only two legs are present (two hooves in the render); the tail is drawn but the leg count and udder both fail."],["cow-plowing-v2","No udder is drawn under the belly, and only three legs are present (three hooves in the render)."]]},{"met":0,"n":4,"notes":[["cow-plowing-animated","The cow is red-brown with cream patches; no black patches anywhere on the body."]]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["cow-plowing-animated","A brown wooden yoke does sit across the shoulders, but the two traces running back to the plow are smooth thin gold lines with no links; no chains are visible."],["cow-plowing-v1","No yoke is drawn at all - the single strap runs from the cow's muzzle back to the plow - and that strap is a plain smooth line with no links, so there are no chains either."]]},{"met":0,"n":4,"notes":[["cow-plowing-animated","The share is drawn fully above the soil with its whole outline visible; nothing occludes it, there is no trench or mound at its edge, and it does not cross below any soil surface line."]]},{"met":0,"n":4,"notes":[["cow-plowing-animated","The field's furrow lines are drawn LIGHTER than the surrounding soil; only about two bands read as darker than the field, short of the three dark furrows required."]]},{"met":0,"n":4,"notes":[["cow-plowing-animated","The entire field is bare brown soil edge to edge; the green is distant hills beyond the horizon, not an unplowed section of the field, so there is no boundary for the cow and plow to stand at."]]},{"met":0,"n":4,"notes":[["cow-plowing-animated","There is no green grass anywhere in the field - the whole field is bare soil - so nothing green is being overturned."]]},{"met":4,"n":4,"notes":[]}],"perfect":0,"top":{"slug":"cow-plowing-v3","artifact":"logs/opencode/gpt-5.6-terra/cow-plowing-v3.svg","met":6,"total":12,"score":0.5,"animated":false,"misses":[]}},{"key":"claude/fable-5-1","label":"claude x fable-5-1","harness":"claude","model":"fable-5-1","n":4,"mean":0.7291666666666666,"cells":[{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["cow-plowing-animated","The cow is tan/caramel with off-white cream patches; there is no black anywhere on the body."]]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["cow-plowing-animated","A dark brown collar/shoulder strap is present, but the line running back to the plow is a plain smooth strap with no links; no chains are visible."]]},{"met":3,"n":4,"notes":[["cow-plowing","The grey share is drawn fully visible on top of the flat brown field on a small wheeled carriage; no part of it is below the soil surface and no chunk of earth is being lifted or turned."]]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["cow-plowing-animated","Short green grass is present in the unplowed section, but nothing shows it being overturned - only bare brown soil is turned at the share, with no green sod lifted or flipped."],["cow-plowing","Short green grass is present in the unplowed section, but nothing is shown being overturned anywhere - the plow sits well inside the bare brown area and no sod is disturbed."]]},{"met":4,"n":4,"notes":[]}],"perfect":0,"top":{"slug":"cow-plowing-v2","artifact":"logs/claude/fable-5-1/cow-plowing-v2.svg","met":9,"total":12,"score":0.75,"animated":false,"misses":[]}}],"none_met":[6,10],"all_met":[2,3,5,11]},{"id":4,"prompt":"Write `svg` code for an image of a rubber ducky floating on top of a soapy bathtub.","reqs":["Create a classic rubber ducky shape with a distinct body and head, colored bright yellow.","The duck must have an orange beak and a simple black dot for an eye.","Draw a white, claw-foot bathtub shape, showing the inside view with a visible rim.","Fill the lower portion of the bathtub with light blue water.","Ensure the water line is clearly visible across the duck's body, showing the lower third of the duck submerged.","Position the duck so it is floating on the water's surface, creating small, concentric circular ripples in the water around its base.","Depict soap bubbles as clusters of overlapping circles with a slight iridescence, using semi-transparent white, light pink, and light blue fills.","Place a small cluster of bubbles on top of the duck's head.","Place a large pile of bubbles against one side of the tub and a few floating on the water's surface around the duck."],"n":9,"arts":11,"met":49,"total":99,"pairs":[{"key":"claude/claude-opus-5","label":"claude x claude-opus-5","harness":"claude","model":"claude-opus-5","n":4,"mean":0.6944444444444444,"cells":[{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":3,"n":4,"notes":[["rubber-ducky","The tub is white with a visible rim and an inside view, but its two feet are smooth flared pedestals ending in a plain rounded pad - no toes, claws or gripped ball, so it is a pedestal tub, not a c…"]]},{"met":3,"n":4,"notes":[["rubber-ducky-v2","The tub interior is solid white foam edge to edge; the only light blue water visible is an 8-pixel sliver at the right rim (1.2% of the interior area). No blue water fills the lower portion of the …"]]},{"met":3,"n":4,"notes":[["rubber-ducky-v2","No water line is drawn anywhere across the duck - its yellow body simply ends where the white foam begins, so nothing shows a lower third submerged."]]},{"met":2,"n":4,"notes":[["rubber-ducky-v2","No water surface is visible in the tub, and there are no ripple lines of any kind around the duck's base."],["rubber-ducky","The water is a flat blue band with no ripple lines anywhere; the only shapes around the duck's base are the row of soap bubbles, so there are no small concentric circular ripples."]]},{"met":0,"n":4,"notes":[["rubber-ducky-animated","All the foam and floating bubbles are white with pale-blue shading; the only pink in the render is the soap bar. No light pink bubble fill."],["rubber-ducky-v2","The foam bubbles are white only. The pink on the airborne bubbles is a hairline iridescent crescent of 4-21 pixels, invisible at render scale, so there is no light pink fill."]]},{"met":3,"n":4,"notes":[["rubber-ducky","The duck's head is bare - no bubbles sit on top of it."]]},{"met":3,"n":4,"notes":[["rubber-ducky","The bubbles form one evenly spaced single-file row of similar circles running the whole width of the tub; nothing is banked into a large pile against either side."]]}],"perfect":0,"top":{"slug":"rubber-ducky-v3","artifact":"logs/claude/claude-opus-5/rubber-ducky-v3.svg","met":8,"total":9,"score":0.8888888888888888,"animated":false,"misses":[]}},{"key":"opencode/qwen3.8-flash-next","label":"opencode x qwen3.8-flash-next","harness":"opencode","model":"qwen3.8-flash-next","n":3,"mean":0.5555555555555556,"cells":[{"met":3,"n":3,"notes":[]},{"met":3,"n":3,"notes":[]},{"met":0,"n":3,"notes":[["rubber-ducky-animated","The tub stands on two plain rectangular stubs with rounded bottoms - simple blocks with no toes, claws or gripped ball, so it is not a claw-foot tub."]]},{"met":3,"n":3,"notes":[]},{"met":3,"n":3,"notes":[]},{"met":0,"n":3,"notes":[["rubber-ducky-animated","The only marks on the water are two short, nearly straight white dashes to the left and right of the duck at different heights; they are not nested concentric rings around the duck's base."]]},{"met":0,"n":3,"notes":[["rubber-ducky-animated","The bubbles are clusters of overlapping white circles with pale blue shading, but the render contains no pink pixels at all, so the light pink fill is missing."]]},{"met":3,"n":3,"notes":[]},{"met":0,"n":3,"notes":[["rubber-ducky-animated","The bubbles form two similar modest clusters at the left and right ends of the tub, each about 19% of the tub's interior width and neither rising above the rim; there is no large pile banked agains…"]]}],"perfect":0,"top":{"slug":"rubber-ducky","artifact":"logs/opencode/qwen3.8-flash-next/rubber-ducky.svg","met":5,"total":9,"score":0.5555555555555556,"animated":false,"misses":[]}},{"key":"opencode/gpt-5.6-terra","label":"opencode x gpt-5.6-terra","harness":"opencode","model":"gpt-5.6-terra","n":4,"mean":0.25,"cells":[{"met":2,"n":4,"notes":[["rubber-ducky-soapy-bathtub-animated","The duck's head is sheared off flat by the tub's inner rim, leaving a yellow lozenge with no head bump or neck notch; body and head are not distinct."],["rubber-ducky-soapy-bathtub-v3","The duck is clipped by the tub's inner rim: the top of its head is sheared off flat, leaving a yellow lozenge with no head bump or neck notch, so body and head are not distinct."]]},{"met":2,"n":4,"notes":[["rubber-ducky-soapy-bathtub-animated","The beak is orange, but the eye is clipped by the tub rim into a flat-topped dark half-disc, not a simple black dot."],["rubber-ducky-soapy-bathtub-v3","The beak is orange, but the eye is cut in half by the tub-rim clip and renders as a flat-topped dark half-disc rather than a simple black dot."]]},{"met":0,"n":4,"notes":[["rubber-ducky-soapy-bathtub-animated","The tub rests on two smooth flared pedestal stubs with no toes, claws or gripped ball."],["rubber-ducky-soapy-bathtub-v1","The tub is a white rounded-rectangle basin resting flat on the floor with only a soft drop shadow beneath it. It has no feet at all, let alone claw feet."]]},{"met":4,"n":4,"notes":[]},{"met":1,"n":4,"notes":[["rubber-ducky-soapy-bathtub-animated","Only a 9-pixel sliver of the 229-pixel-tall duck lies below the water line; the duck effectively sits on the surface rather than showing its lower third submerged."],["rubber-ducky-soapy-bathtub-v1","The duck's whole silhouette is drawn complete and unbroken above the surface, with a dark shadow ellipse beneath it; the water line does not cross the body anywhere and nothing is submerged."]]},{"met":0,"n":4,"notes":[["rubber-ducky-soapy-bathtub-animated","The water shows only long horizontal wavy strokes across the tub; no concentric circular ripples around the duck's base."],["rubber-ducky-soapy-bathtub-v1","There are two long horizontal wavy strokes spanning the entire tub and a dark shadow ellipse under the duck, but no concentric circular ripples radiating from its base."]]},{"met":0,"n":4,"notes":[["rubber-ducky-soapy-bathtub-animated","The only bubbles are a white clump in the top-left corner of the canvas; they are white and pale blue with no pink anywhere in the render."],["rubber-ducky-soapy-bathtub-v1","All bubbles are white circles with a white outer glow; there is not a single pink pixel anywhere in the render, so the light pink fill is absent."]]},{"met":0,"n":4,"notes":[["rubber-ducky-soapy-bathtub-animated","No bubbles are drawn on the duck's head."],["rubber-ducky-soapy-bathtub-v2","The duck's head carries no bubbles."]]},{"met":0,"n":4,"notes":[["rubber-ducky-soapy-bathtub-animated","Every bubble has drifted outside the tub to the top-left corner of the canvas; there is no pile against any side of the tub and nothing floating on the water around the duck."],["rubber-ducky-soapy-bathtub-v1","The bubbles are four similar small clusters of about six circles each, spread symmetrically around the basin; the largest spans 19% of the tub width and none is banked into a large pile against one…"]]}],"perfect":0,"top":{"slug":"rubber-ducky-soapy-bathtub-v2","artifact":"logs/opencode/gpt-5.6-terra/rubber-ducky-soapy-bathtub-v2.svg","met":4,"total":9,"score":0.4444444444444444,"animated":false,"misses":[]}}],"none_met":[6],"all_met":[]},{"id":5,"prompt":"Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.","reqs":["Create a scene set on top of a solid-looking cloudscape that serves as the ground.","Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.","The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.","Show ropes connecting the balloon's envelope to the basket.","Include four human figures styled as a family: two adults and two children.","Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.","Place an open picnic basket on a corner of the blanket that is already spread out.","A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.","Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.","The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds."],"n":10,"arts":9,"met":38,"total":90,"pairs":[{"key":"claude/claude-opus-5","label":"claude x claude-opus-5","harness":"claude","model":"claude-opus-5","n":4,"mean":0.475,"cells":[{"met":4,"n":4,"notes":[]},{"met":3,"n":4,"notes":[["picnic-on-clouds","The envelope's vertical stripes are gold, red and blue - sampled at (150,200) RGB 226,190,76 and (225,200) RGB 39,104,164. There is no white stripe anywhere on the envelope."]]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["picnic-on-clouds-animated","The blanket is already spread flat on the cloud; the woman stands on it with her arms down and no child holds anything, so no adult-and-child pair grips opposite corners."],["picnic-on-clouds-v2","The blanket is already spread flat on the cloud. The woman stands on it with her arms hanging down and her hands resting on its surface, and no child holds anything; no figure grips a corner, so th…"]]},{"met":0,"n":4,"notes":[["picnic-on-clouds-animated","The basket sits at the middle of the blanket's left edge - its contact footprint is about 17% across the blanket's width and 63% of the way from the far edge to the near edge, i.e. in a mid-edge ce…"],["picnic-on-clouds-v2","The basket sits at the middle of the blanket's left edge - its contact footprint is about 11% across the blanket's width but 60% of the way from the far edge to the near edge, i.e. in a mid-edge ce…"]]},{"met":0,"n":4,"notes":[["picnic-on-clouds-animated","Only a baguette emerges from the picnic basket; the teal thermos, the orange bottle, the purple grapes and the sandwiches are all drawn standing on the blanket beside the basket."],["picnic-on-clouds-v2","Only a baguette emerges from the picnic basket. The orange thermos bottle, the bunch of purple grapes and the sandwich plate are all drawn separately on the blanket, none of them emerging from the …"]]},{"met":0,"n":4,"notes":[["picnic-on-clouds-animated","The man beside the balloon holds a hamper in both hands rather than pointing up at the envelope, and no child stands near the balloon."],["picnic-on-clouds-v2","No child stands near the balloon, and the adult who does (the man in green) holds a hamper with both hands rather than pointing up at the envelope. The second adult is at the blanket, about 350 px …"]]},{"met":0,"n":4,"notes":[["picnic-on-clouds-animated","Six small distant clouds are drawn in the sky - at roughly (85,85), (405,120), (620,45), (540,240), (890,230) and (375,300) - not two."],["picnic-on-clouds-v2","Five small distant clouds are drawn in the sky - at roughly (85,90), (420,125), (625,45), (545,245) and (890,225) - not two."]]}],"perfect":0,"top":{"slug":"picnic-on-clouds-v2","artifact":"logs/claude/claude-opus-5/picnic-on-clouds-v2.svg","met":5,"total":10,"score":0.5,"animated":false,"misses":[]}},{"key":"opencode/qwen3.8-27b-8bit","label":"opencode x qwen3.8-27b-8bit","harness":"opencode","model":"qwen3.8-27b-8bit","n":1,"mean":0.5,"cells":[{"met":1,"n":1,"notes":[]},{"met":0,"n":1,"notes":[["picnic-on-clouds","The envelope's vertical stripes are blue, yellow and red - sampled at (870,320) RGB 52,152,219 and (935,320) RGB 249,202,36. No white stripe is present."]]},{"met":1,"n":1,"notes":[]},{"met":1,"n":1,"notes":[]},{"met":1,"n":1,"notes":[]},{"met":0,"n":1,"notes":[["picnic-on-clouds","The red and white checkered blanket is already spread flat on the cloud; the man stands on it with one arm raised in the air and no figure holds any corner of it."]]},{"met":1,"n":1,"notes":[]},{"met":0,"n":1,"notes":[["picnic-on-clouds","The only thing in the basket is a rounded cream loaf. The blue jug, the watermelon slice, the cheese wedge, the bread and the apple all lie loose on the blanket, and no bunch of grapes and no sandw…"]]},{"met":0,"n":1,"notes":[["picnic-on-clouds","The second adult crouches at the blanket about 400 px from the balloon; the child with both arms raised stands between them but no adult is beside the balloon and none points up at the envelope."]]},{"met":0,"n":1,"notes":[["picnic-on-clouds","Three distant clouds are drawn in the sky - beneath the sun at about (150,180), at (625,110) and at (1090,195) - not two."]]}],"perfect":0,"top":{"slug":"picnic-on-clouds","artifact":"logs/opencode/qwen3.8-27b-8bit/picnic-on-clouds.svg","met":5,"total":10,"score":0.5,"animated":true,"misses":[]}},{"key":"opencode/gpt-5.6-terra","label":"opencode x gpt-5.6-terra","harness":"opencode","model":"gpt-5.6-terra","n":4,"mean":0.35,"cells":[{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["picnic-clouds-hot-air-balloon-animated","The envelope is orange-red with pale yellow vertical stripes and no white stripe, so it is not red-and-white striped."],["picnic-clouds-hot-air-balloon-v1","The envelope's vertical stripes are yellow on an orange-red body with a maroon centre stripe - sampled at (175,250) RGB 254,207,101. There is no white stripe and no red-and-white striping."]]},{"met":0,"n":4,"notes":[["picnic-clouds-hot-air-balloon-animated","The balloon floats in the upper-left sky with its basket in clear blue sky and a mooring rope hanging loose beneath it; it rests on no cloud."],["picnic-clouds-hot-air-balloon-v1","The balloon hangs in mid-air in the upper-left sky, its basket about 50 px above the top of the cloudscape with clear blue sky beneath it; it rests on nothing."]]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["picnic-clouds-hot-air-balloon-animated","The checkered blanket lies flat and untouched; no adult and child pair holds opposite corners."],["picnic-clouds-hot-air-balloon-v1","The blanket is a plain yellow-tan mat with no red and white checks, it is already lying flat, and none of the four figures holds any part of it."]]},{"met":0,"n":4,"notes":[["picnic-clouds-hot-air-balloon-animated","The wicker basket stands on the cloud outside the blanket's left corner rather than on the blanket."],["picnic-clouds-hot-air-balloon-v1","The only basket-like object is a small brown box near the middle of the blanket's near edge, about two thirds across the width and 85% of the way forward - a mid-edge position, not a corner."]]},{"met":0,"n":4,"notes":[["picnic-clouds-hot-air-balloon-animated","The basket holds only a small yellow slab; no thermos, bunch of grapes or sandwich emerges from it."],["picnic-clouds-hot-air-balloon-v1","Nothing emerges from a basket: the food in the scene is three coloured dots on a white platter, so no thermos, no bunch of grapes and no sandwich is visible coming out of any basket."]]},{"met":0,"n":4,"notes":[["picnic-clouds-hot-air-balloon-animated","All four figures are grouped at the blanket far from the balloon, and no adult points up at the envelope."],["picnic-clouds-hot-air-balloon-v1","All four figures are seated together around the blanket, roughly 500 px from the balloon, and no adult raises an arm toward the envelope."]]},{"met":2,"n":4,"notes":[["picnic-clouds-hot-air-balloon-animated","Only one small distant cloud is drawn - a faint wisp beside the sun at about (860,155)."],["picnic-clouds-hot-air-balloon-v3","Only one small distant cloud is drawn - a faint wisp beside the sun at about (870,140). The other pale marks are 5 px round dots that read as sparkles, not clouds."]]}],"perfect":0,"top":{"slug":"picnic-clouds-hot-air-balloon-v1","artifact":"logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-v1.svg","met":4,"total":10,"score":0.4,"animated":false,"misses":[]}}],"none_met":[5,7,8],"all_met":[0,3,4]},{"id":6,"prompt":"Write `svg` code for an image of a stunt car jumping through a circle of fire.","reqs":["Create a red, sporty car with a body, wheels, and windows.","Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.","Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.","Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.","The car's rear wheels must be depicted as just having left the edge of the take-off ramp.","Add a ground surface below the entire jump setup.","Incorporate gray speed lines trailing behind the car to convey high speed.","Add orange sparks where the car's tires last touched the take-off ramp."],"n":8,"arts":8,"met":31,"total":64,"pairs":[{"key":"opencode/qwen3.8-flash-next","label":"opencode x qwen3.8-flash-next","harness":"opencode","model":"qwen3.8-flash-next","n":4,"mean":0.5,"cells":[{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["stunt-car-fire-ring-animated","The whole car is inside the ring; nothing has passed through it. Against the hoop's fitted mid-band (centre 399,233, r=151), 100.0% of the car's red body lies inside the opening and 0.0% beyond it,…"],["stunt-car-fire-ring-v2","The whole car is inside the ring; nothing has passed through it. Against the hoop's fitted mid-band (centre 399,234, r=150), 100.0% of the car's red body lies inside the opening and 0.0% beyond it,…"]]},{"met":0,"n":4,"notes":[["stunt-car-fire-ring-animated","The rear wheel is nowhere near the take-off ramp's edge. The ramp's lip is at about (263,372) while the rear wheel sits at about (355,288) in the middle of the hoop - roughly 125 px away, about 2.8…"]]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["stunt-car-fire-ring-animated","There are no gray speed lines. Behind the car there is a pink spoiler and a gold exhaust wisp, plus a few small tan debris dashes; nothing gray trails it."],["stunt-car-fire-ring-v2","The three streaks trailing the car are not gray: they are the same tan as the base variant (sampled about RGB 210,166,111, a max-minus-min channel spread near 99), well outside the near-neutral tes…"]]},{"met":0,"n":4,"notes":[["stunt-car-fire-ring-animated","No sparks at the take-off ramp's edge. A 4x crop of the striped ramp lip shows bare ramp and ground; the scattered tan dashes near the wheels are debris flecks inside the hoop, not orange sparks at…"],["stunt-car-fire-ring-v2","No sparks at the take-off ramp's edge. A 4x crop of the striped ramp lip shows bare ramp and ground; the only orange near the car is the exhaust wisp at its tail, inside the hoop."]]}],"perfect":0,"top":{"slug":"stunt-car-fire-ring","artifact":"logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring.svg","met":4,"total":8,"score":0.5,"animated":false,"misses":[]}},{"key":"opencode/gpt-5.6-terra","label":"opencode x gpt-5.6-terra","harness":"opencode","model":"gpt-5.6-terra","n":4,"mean":0.46875,"cells":[{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["stunt-car-jumping-circle-fire-animated","The take-off ramp on the left is drawn, but there is no landing ramp on the right of the fiery ring. The pale blue-grey bar at the right (x 1110-1290, y ~490) is a flat floating gantry with lamp do…"],["stunt-car-jumping-circle-fire-v1","Neither ramp is drawn. The only structures under the hoop are two thin grey posts with small flat feet that hold the ring up; there is no take-off ramp on the left and no landing ramp on the right."]]},{"met":0,"n":4,"notes":[["stunt-car-jumping-circle-fire-animated","Nothing has passed through the ring. Against the hoop's fitted mid-band (centre 977,414, r=259), 0.0% of the car's red body is beyond the ring on the forward side; 36.6% is inside the opening and t…"],["stunt-car-jumping-circle-fire-v1","The car is essentially all the way through. Fitting the hoop's mid-band as a circle at centre (444,396) with r=186 and splitting the car's red body against it, 86.7% of the body lies beyond the rin…"]]},{"met":3,"n":4,"notes":[["stunt-car-jumping-circle-fire-v1","There is no take-off ramp for the rear wheels to have left; both wheels are in open sky with nothing beneath them."]]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["stunt-car-jumping-circle-fire-animated","No gray speed lines trailing behind the car. The pale strokes behind the rear wheel are the ramp's own outline: each one runs unbroken from the grey-outlined base plate at the far left, horizontall…"],["stunt-car-jumping-circle-fire-v1","No speed lines behind the car. The only linear marks in that part of the canvas are two long brown-maroon horizon strokes (sampled at RGB 120,74,74 and 92,62,70) that belong to the background hills…"]]},{"met":0,"n":4,"notes":[["stunt-car-jumping-circle-fire-animated","No sparks at the ramp lip. A 4x crop of the rear tyre at the ramp's top edge shows only dark ramp face and sky. The two orange shapes floating at the upper left are detached hoop flames, roughly 90…"],["stunt-car-jumping-circle-fire-v1","No sparks anywhere, and no take-off ramp for a last tyre contact point to be on. The scattered orange dots near the hoop are ember specks strewn across the sky, not a spark burst at a ramp edge."]]}],"perfect":0,"top":{"slug":"stunt-car-jumping-circle-fire-v2","artifact":"logs/opencode/gpt-5.6-terra/stunt-car-jumping-circle-fire-v2.svg","met":4,"total":8,"score":0.5,"animated":false,"misses":[]}}],"none_met":[3,6,7],"all_met":[0,1,5]},{"id":7,"prompt":"Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.","reqs":["Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.","Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.","Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.","Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.","Include a human trainer's arm and hand extending into the frame.","The trainer's hand must be holding a small fish by the tail.","The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer."],"n":7,"arts":21,"met":108,"total":147,"pairs":[{"key":"claude/claude-opus-5","label":"claude x claude-opus-5","harness":"claude","model":"claude-opus-5","n":5,"mean":0.8571428571428571,"cells":[{"met":5,"n":5,"notes":[]},{"met":5,"n":5,"notes":[]},{"met":4,"n":5,"notes":[["dolphin-hoop-jump","The tail stock and fluke are drawn well below the water surface line, inside the blue water, so the body is not entirely in mid-air."]]},{"met":4,"n":5,"notes":[["dolphin-hoop-jump","The hoop is a single flat orange colour with no second colour anywhere on the ring, so it is not multi-coloured."]]},{"met":5,"n":5,"notes":[]},{"met":5,"n":5,"notes":[]},{"met":2,"n":5,"notes":[["dolphin-hoop-jump","The snout is drawn closed - a smooth grey beak with a white underside and no gape - although the fish is held at its tip."],["dolphin-v2","The beak is parted only as a thin dark sliver (gape angle around 10 degrees) at the snout tip; that reads as a slightly open mouth, not a wide-open one."]]}],"perfect":2,"top":{"slug":"dolphin-v3","artifact":"logs/claude/claude-opus-5/dolphin-v3.svg","met":7,"total":7,"score":1.0,"animated":false,"misses":[]}},{"key":"opencode/qwen3.8-flash-next","label":"opencode x qwen3.8-flash-next","harness":"opencode","model":"qwen3.8-flash-next","n":10,"mean":0.7857142857142857,"cells":[{"met":10,"n":10,"notes":[]},{"met":7,"n":10,"notes":[["dolphin-hoop-fish-v2","The splash is a small cluster of low bumps roughly 55px wide with no vertical spray; it is not a large splash."],["dolphin-hoop-fish","The splash is a row of four small low semicircular bumps sitting on the surface with no vertical spray; it is not a large splash."]]},{"met":3,"n":10,"notes":[["dolphin-animated","The tail fluke is drawn below the waterline, inside the blue water, so the body is not entirely in mid-air."],["dolphin-hoop-fish","The tail fluke tip is drawn below the waterline, inside the blue water, so the body is not entirely in mid-air."]]},{"met":9,"n":10,"notes":[["dolphin-hula-hoop-fish-v1","The hoop is not circular: it is two open, unjoined wavy ribbons that never close into a ring, and the dolphin does not pass through any enclosed centre."]]},{"met":10,"n":10,"notes":[]},{"met":7,"n":10,"notes":[["dolphin-animated","The fish's eye and head are at the right end, inside the trainer's fist, and the tail fin is at the left end inside the dolphin's mouth; the fish is held by the head, not the tail."],["dolphin-hula-hoop-fish-v1","The fish's tail fin is at the left and its eye and snout are at the right, inside the trainer's fingers; the fish is held by the head, not the tail."]]},{"met":9,"n":10,"notes":[["dolphin-hula-hoop-fish-v1","The dolphin's mouth is almost entirely hidden behind the fish; all that is visible is a thin dark-red sliver, which does not read as a wide-open mouth."]]}],"perfect":3,"top":{"slug":"dolphin-hula-hoop-fish-v2","artifact":"logs/opencode/qwen3.8-flash-next/dolphin-hula-hoop-fish-v2.svg","met":7,"total":7,"score":1.0,"animated":false,"misses":[]}},{"key":"opencode/qwen3.8-27b-8bit","label":"opencode x qwen3.8-27b-8bit","harness":"opencode","model":"qwen3.8-27b-8bit","n":1,"mean":0.42857142857142855,"cells":[{"met":0,"n":1,"notes":[["dolphin","The dolphin's body is a light steel blue (about RGB 134,183,219, an 85-point red-to-blue spread), not grey."]]},{"met":0,"n":1,"notes":[["dolphin","A water surface is drawn, but there is no splash at the exit point - only a faint pale ellipse and three small bubbles."]]},{"met":0,"n":1,"notes":[["dolphin","The tail fluke is drawn below the water surface line, inside the blue water, so the body is not entirely in mid-air."]]},{"met":1,"n":1,"notes":[]},{"met":1,"n":1,"notes":[]},{"met":1,"n":1,"notes":[]},{"met":0,"n":1,"notes":[["dolphin","The snout is drawn closed: a single thin dark line runs to the tip where the fish is held, with no gape."]]}],"perfect":0,"top":{"slug":"dolphin","artifact":"logs/opencode/qwen3.8-27b-8bit/dolphin.svg","met":3,"total":7,"score":0.42857142857142855,"animated":false,"misses":[{"i":0,"note":"The dolphin's body is a light steel blue (about RGB 134,183,219, an 85-point red-to-blue spread), not grey."},{"i":1,"note":"A water surface is drawn, but there is no splash at the exit point - only a faint pale ellipse and three small bubbles."},{"i":2,"note":"The tail fluke is drawn below the water surface line, inside the blue water, so the body is not entirely in mid-air."},{"i":6,"note":"The snout is drawn closed: a single thin dark line runs to the tip where the fish is held, with no gape."}]}},{"key":"opencode/gpt-5.6-terra","label":"opencode x gpt-5.6-terra","harness":"opencode","model":"gpt-5.6-terra","n":4,"mean":0.5357142857142857,"cells":[{"met":0,"n":4,"notes":[["dolphin-hula-hoop-fish-animated","The dolphin is a saturated teal blue, not grey."],["dolphin-hula-hoop-fish-v1","The dolphin is a saturated teal blue (about RGB 124,196,215 on the flank, an 90-point red-to-blue spread), not grey."]]},{"met":0,"n":4,"notes":[["dolphin-hula-hoop-fish-animated","The splash is three small pale translucent shards; it is not a large splash."],["dolphin-hula-hoop-fish-v1","A water surface is drawn, but there is no splash at all - only flat wave arcs elsewhere in the sea."]]},{"met":1,"n":4,"notes":[["dolphin-hula-hoop-fish-animated","The belly, lower flank and tail fluke are drawn below the top edge of the sea, so the body is not entirely in mid-air."],["dolphin-hula-hoop-fish-v1","The tail stock and both fluke lobes are drawn deep inside the blue water below the surface line, so the body is not entirely in mid-air."]]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":3,"n":4,"notes":[["dolphin-hula-hoop-fish-v1","The forked orange tail fin is at the far left of the fish and the head (eye and mouth line) is at the right, where the trainer's hand grips it; the fish is held by the head, not the tail."]]},{"met":3,"n":4,"notes":[["dolphin-hula-hoop-fish-v1","The dolphin's jaw is drawn closed, and the fish is held roughly 200px below and left of the snout rather than at the mouth."]]}],"perfect":0,"top":{"slug":"dolphin-hula-hoop-fish-v2","artifact":"logs/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v2.svg","met":5,"total":7,"score":0.7142857142857143,"animated":false,"misses":[{"i":0,"note":"The dolphin is a saturated teal blue, not grey."},{"i":1,"note":"The only splash is a pair of small pale translucent shards straddling the waterline under the tail; it is not a large splash."}]}},{"key":"claude/claude-opus-4-8","label":"claude x claude-opus-4-8","harness":"claude","model":"claude-opus-4-8","n":1,"mean":0.7142857142857143,"cells":[{"met":1,"n":1,"notes":[]},{"met":0,"n":1,"notes":[["dolphin-hoop","Water surface is present, but the splash is a small three-bump cluster with three bubbles sitting ~80px to the left of where the dolphin crosses the waterline; it is neither large nor at the exit p…"]]},{"met":0,"n":1,"notes":[["dolphin-hoop","The tail stock and fluke are drawn below the water surface line, so the body is not entirely in mid-air; the pose is also a straight diagonal rather than an arc."]]},{"met":1,"n":1,"notes":[]},{"met":1,"n":1,"notes":[]},{"met":1,"n":1,"notes":[]},{"met":1,"n":1,"notes":[]}],"perfect":0,"top":{"slug":"dolphin-hoop","artifact":"logs/claude/claude-opus-4-8/dolphin-hoop.svg","met":5,"total":7,"score":0.7142857142857143,"animated":false,"misses":[{"i":1,"note":"Water surface is present, but the splash is a small three-bump cluster with three bubbles sitting ~80px to the left of where the dolphin crosses the waterline; it is neither large nor at the exit point."},{"i":2,"note":"The tail stock and fluke are drawn below the water surface line, so the body is not entirely in mid-air; the pose is also a straight diagonal rather than an arc."}]}}],"none_met":[],"all_met":[4]},{"id":12,"prompt":"Write `svg` code for an image of a fruit stall in the market.","reqs":["Create a main structure for a wooden fruit stall, including a counter.","Add a red and white striped canopy over the stall, supported by two vertical wooden posts.","Display exactly four different, recognizable fruits.","First fruit: A pile of red apples in a wicker basket on the left side of the counter.","Second fruit: A bunch of yellow bananas placed next to the apples.","Third fruit: A pile of oranges in another wicker basket on the right side of the counter.","Fourth fruit: A single, large slice of watermelon resting directly on the counter in the center.","Include a character representing the stall vendor, a smiling man with a mustache, positioned behind the counter and between the baskets.","Add a small, hanging chalkboard sign from the canopy that reads 'Fresh Fruit'.","Depict a cobblestone ground surface in front of the stall.","Include the silhouette of another market stall in the background to suggest a larger market setting."],"n":11,"arts":8,"met":15,"total":88,"pairs":[{"key":"opencode/qwen3.8-flash-next","label":"opencode x qwen3.8-flash-next","harness":"opencode","model":"qwen3.8-flash-next","n":4,"mean":0.25,"cells":[{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["fruit-stall-animated","Six fruit kinds are shown, not exactly four: oranges, red apples, purple grapes, yellow lemons, yellow bananas and watermelons."],["fruit-stall","Seven fruit groups are on display, not exactly four: orange circles, red apples, green ovals, purple grapes, a yellow lemon pile, a yellow banana bunch and three plain dark-green circles at the foo…"]]},{"met":0,"n":4,"notes":[["fruit-stall-animated","The apple pile is on the left of the counter as required, but it stands in a plain rectangular wooden crate (flat brown fill with a border and one plank line), not a wicker basket."],["fruit-stall","The apple pile is on the left of the counter as required, but it stands in a plain rectangular wooden crate (flat brown fill with a single plank line), not a wicker basket."]]},{"met":0,"n":4,"notes":[["fruit-stall-animated","The banana bunch sits at the right end of the counter (around x=880, y=665) while the nearest apples are the shelf pile at about (730,510); the lemon crate at about (760,625) and the grape bowl at …"],["fruit-stall-v2","The banana bunch sits at the far right end of the counter (around x=935, y=675) while the nearest apples are the shelf pile at about (730,510); the lemon crate at (760,630) and the grape bowl at (8…"]]},{"met":0,"n":4,"notes":[["fruit-stall-animated","The oranges are in the CENTRE crate of the counter and centre of the shelf, not on the right side of the counter; the only orange crate on the right stands on the ground beside the stall rather tha…"],["fruit-stall","The oranges sit in the CENTRE crate of the counter (and top-left on the shelf), not on the right side, and the container is a plain rectangular wooden crate, not a wicker basket."]]},{"met":0,"n":4,"notes":[["fruit-stall-animated","The watermelons - two whole and one cut - lie on the GROUND in front of the counter and left of centre, not resting directly on the counter in the centre, and the cut one is a small round cross-sec…"],["fruit-stall","There is no watermelon slice: the only candidate is three plain dark-green circles with no rind stripes and no red flesh, and they sit on the ground at the foot of the counter front rather than res…"]]},{"met":0,"n":4,"notes":[["fruit-stall-animated","The vendor is a smiling man behind the counter, but at 5x his face carries only two dot eyes and a smile arc - there is no moustache anywhere on it."],["fruit-stall-v2","No human figure appears anywhere in the render."]]},{"met":1,"n":4,"notes":[["fruit-stall-animated","The chalkboard reads 'FRESH FRUIT' over '$2 / KG' legibly in chalk lettering, but it is screwed flat to the counter's front panel (two screw dots at its top corners) below the counter top; nothing …"],["fruit-stall-v3","The chalkboard has moved to the counter's front panel below the counter top, so it does not hang from the canopy, and the watermelons occlude its first letter: at 4x the top line reads 'RESH FRUIT'…"]]},{"met":0,"n":4,"notes":[["fruit-stall-animated","The ground is flat sand carrying sparse, widely spaced outlined ellipses with bare sand between them - scattered pebble outlines rather than a packed paving-stone surface; no joint lines or tiled s…"],["fruit-stall-v2","The ground is a flat tan fill carrying a few soft filled ellipse patches with bare ground between them; no paving stones or joint lines are drawn."]]},{"met":2,"n":4,"notes":[["fruit-stall-v2","The only background object is a flat pale-blue building at the left with a flat roof band, one window and one door; it carries no awning, canopy or open counter, so it does not read as another mark…"],["fruit-stall","The background contains only sky, two clouds and a sun - there is no second stall, building or silhouette of any kind."]]}],"perfect":0,"top":{"slug":"fruit-stall-v2","artifact":"logs/opencode/qwen3.8-flash-next/fruit-stall-v2.svg","met":3,"total":11,"score":0.2727272727272727,"animated":false,"misses":[]}},{"key":"opencode/gpt-5.6-terra","label":"opencode x gpt-5.6-terra","harness":"opencode","model":"gpt-5.6-terra","n":4,"mean":0.09090909090909091,"cells":[{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["fruit-stall-market-animated","The canopy's light stripe is a cream, not white: it measures RGB 250,234,191, a spread of 59, against the binding white test of all channels >= 200 with spread <= 40. Two vertical wooden posts are …"],["fruit-stall-market-v1","The canopy's light stripe is a cream, not white: its dominant fill measures RGB 247,229,170, a max-minus-min spread of 77, against the binding white test of all channels >= 200 with spread <= 40. T…"]]},{"met":0,"n":4,"notes":[["fruit-stall-market-animated","Six fruit kinds are shown, not exactly four: oranges, red apples, green pears, yellow bananas, purple grapes and a watermelon."],["fruit-stall-market-v1","Six fruit kinds are shown, not exactly four: oranges, red apples, green pears, a pair of flat yellow blobs, purple grapes and a watermelon."]]},{"met":0,"n":4,"notes":[["fruit-stall-market-animated","The red apples sit in the top-CENTRE crate, not on the left side of the counter (the oranges occupy the left crate), and the container is a plain trapezoidal wooden crate with plank lines, not a wi…"]]},{"met":0,"n":4,"notes":[["fruit-stall-market-animated","The bananas are in the bottom-LEFT crate and the apples in the top-CENTRE crate, with the orange crate lying directly between them; measured centre to centre the bananas are the farthest of the fiv…"],["fruit-stall-market-v1","The only yellow fruit is a pair of flat yellow blobs in the bottom-LEFT crate that do not read as a bunch of bananas, and they sit at the opposite corner of the 3x2 display from the apples: measure…"]]},{"met":0,"n":4,"notes":[["fruit-stall-market-animated","The oranges sit in the top-LEFT crate, not on the right side of the counter, and the container is a plain trapezoidal wooden crate with plank lines, not a wicker basket."]]},{"met":0,"n":4,"notes":[["fruit-stall-market-animated","The watermelon is a dome shape sitting inside the bottom-RIGHT crate; it is neither resting directly on the counter nor in the centre."]]},{"met":0,"n":4,"notes":[["fruit-stall-market-animated","No human figure appears anywhere in the render - the stall is empty."]]},{"met":0,"n":4,"notes":[["fruit-stall-market-animated","The sign is a cream board with dark brown lettering (FRESH FRUIT over MARKET MORNING) fixed flat against the awning valance with no cord, rope or hook - it is a painted board, not a hanging chalkbo…"],["fruit-stall-market-v1","The sign is a cream board (fill RGB 244,226,177) carrying dark brown lettering, fixed flat against the awning valance with no cord, rope or hook - it is a painted board, not a hanging chalkboard. T…"]]},{"met":0,"n":4,"notes":[["fruit-stall-market-animated","The ground is a flat brown gradient carrying two thin light path lines and a shadow ellipse; no paving stones are drawn."],["fruit-stall-market-v1","The ground is a flat tan fill with one soft shadow ellipse and a single thin light path line; no paving stones of any kind are drawn."]]},{"met":0,"n":4,"notes":[["fruit-stall-market-animated","The two background shapes are tan buildings with red pitched roofs and a door/window panel; neither carries an awning, canopy or open counter, so neither reads as another market stall."]]}],"perfect":0,"top":{"slug":"fruit-stall-market-v1","artifact":"logs/opencode/gpt-5.6-terra/fruit-stall-market-v1.svg","met":1,"total":11,"score":0.09090909090909091,"animated":false,"misses":[]}}],"none_met":[2,3,4,5,6,7,9],"all_met":[0]},{"id":13,"prompt":"Write `svg` code for an image of half buried barrel of treasure.","reqs":["Create a wooden barrel with visible vertical planks and two horizontal metal hoops.","The barrel must be buried in a mound of sand, so only the top half is visible.","Show the sand mounded up slightly around the visible base of the barrel.","The barrel must be open at the top and filled with treasure items.","Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.","The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.","Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.","A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.","A golden goblet must be visible, partially buried in the coins inside the barrel.","Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny."],"n":10,"arts":9,"met":38,"total":90,"pairs":[{"key":"claude/claude-opus-5","label":"claude x claude-opus-5","harness":"claude","model":"claude-opus-5","n":4,"mean":0.6499999999999999,"cells":[{"met":0,"n":4,"notes":[["treasure-barrel-animated","Three grey metal hoops are drawn on the barrel body - one just under the rim and two lower down - not two."]]},{"met":2,"n":4,"notes":[["treasure-barrel-animated","More than the top half shows: the barrel's silhouette reaches its maximum width of 305 px at y=370 and has tapered back to about 177 px (58% of maximum) where the sand cuts it at y=450, so the bulg…"],["treasure-barrel-v3","More than the top half shows: the barrel's silhouette reaches its maximum width of 306 px at y=376 and has tapered back to 166 px (54% of maximum) where the sand cuts it at y=456, so the whole bulg…"]]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":2,"n":4,"notes":[["treasure-barrel-v2","The pearl string is draped over the left rim but its last pearl stops on bare wood about two pearl-diameters short of the nearest coin, so it does not trail into the spilled coins."],["treasure-barrel","The pearl string is draped over the right rim but ends in bare wood halfway down the barrel; the spilled coins are all on the left side and on the sand, so it trails into nothing."]]},{"met":0,"n":4,"notes":[["treasure-barrel-animated","The goblet lies on the open sand to the right of the barrel, outside it; no goblet sits in the coins inside the barrel."],["treasure-barrel-v2","No goblet appears anywhere in the render; the only vessel-like object is a crown lying on the sand at the lower left."]]},{"met":2,"n":4,"notes":[["treasure-barrel-v2","There is no goblet in the render, so the required glint on the goblet cannot be present; coins and gems are shaded."],["treasure-barrel","The gemstones are flat single-fill diamonds with no facet highlight, sparkle or gradient (the crimson gem samples one uniform colour, RGB 216,30,91, across its whole area); only the coins and goble…"]]}],"perfect":0,"top":{"slug":"treasure-barrel-v3","artifact":"logs/claude/claude-opus-5/treasure-barrel-v3.svg","met":7,"total":10,"score":0.7,"animated":false,"misses":[]}},{"key":"opencode/qwen3.8-27b-8bit","label":"opencode x qwen3.8-27b-8bit","harness":"opencode","model":"qwen3.8-27b-8bit","n":1,"mean":0.4,"cells":[{"met":1,"n":1,"notes":[]},{"met":1,"n":1,"notes":[]},{"met":1,"n":1,"notes":[]},{"met":1,"n":1,"notes":[]},{"met":0,"n":1,"notes":[["treasure-barrel","The coin heap does mound above the rim, but nothing spills down a side onto the sand: the four coins on the barrel face are symmetric studs on the two hoops, and the six coins on the sand are scatt…"]]},{"met":0,"n":1,"notes":[["treasure-barrel","Outside the barrel there are only six flat coins spread singly across the whole width of the sand, which is not a large pile."]]},{"met":0,"n":1,"notes":[["treasure-barrel","Neither green nor blue is present: the gems are a red diamond, a yellow diamond and a teal diamond (35,165,154, hue 175 degrees), so there is no green emerald and no blue sapphire."]]},{"met":0,"n":1,"notes":[["treasure-barrel","No pearls appear anywhere in the render."]]},{"met":0,"n":1,"notes":[["treasure-barrel","No goblet appears anywhere in the render; the gold object above the coin heap is a crown."]]},{"met":0,"n":1,"notes":[["treasure-barrel","There is no goblet in the render, so the required glint on the goblet cannot be present."]]}],"perfect":0,"top":{"slug":"treasure-barrel","artifact":"logs/opencode/qwen3.8-27b-8bit/treasure-barrel.svg","met":4,"total":10,"score":0.4,"animated":false,"misses":[]}},{"key":"opencode/gpt-5.6-terra","label":"opencode x gpt-5.6-terra","harness":"opencode","model":"gpt-5.6-terra","n":4,"mean":0.2,"cells":[{"met":0,"n":4,"notes":[["half-buried-treasure-barrel-animated","Three metal hoops are strapped across the barrel body, not two."],["half-buried-treasure-barrel-v1","No metal hoops: the barrel's horizontal bands are all the same brown wood palette as the staves (sampled 100,44,21 and 141,69,28 against wood at 92,38,22), with no grey or metallic band anywhere, a…"]]},{"met":0,"n":4,"notes":[["half-buried-treasure-barrel-animated","More than the top half shows: the barrel stands about 425 px tall above the dune against a drawn width of about 437 px (ratio 0.97, where half a barrel is roughly 0.7 of its width), and its lower-l…"],["half-buried-treasure-barrel-v1","The barrel is not buried at all - its rounded bottom is drawn in full above the sand and it stands on the surface with a cast shadow; the entire barrel is visible."]]},{"met":4,"n":4,"notes":[]},{"met":4,"n":4,"notes":[]},{"met":0,"n":4,"notes":[["half-buried-treasure-barrel-animated","Nothing overflows the rim and nothing spills down any side of the barrel; the three coins and two pearls on the dune are isolated objects with no trail connecting them to the barrel."],["half-buried-treasure-barrel-v1","Nothing overflows the rim - the coins sit level inside the barrel mouth - and there is no treasure on the barrel's side or on the sand."]]},{"met":0,"n":4,"notes":[["half-buried-treasure-barrel-animated","Outside the barrel there are only three isolated coins scattered on the dune, which is not a large pile."],["half-buried-treasure-barrel-v1","There are no coins at all outside the barrel; the only coins are the layer inside the mouth."]]},{"met":0,"n":4,"notes":[["half-buried-treasure-barrel-animated","Neither green nor blue is present: the two non-red gems are teal (46,188,163, hue 169 degrees) and the other two are crimson, so there is no green emerald and no blue sapphire."],["half-buried-treasure-barrel-v1","No blue sapphire: the gems are a cyan diamond (56,197,210, hue 185 degrees), a violet circle (167,86,202, hue 282 degrees), a green circle and a red diamond, so the blue is missing."]]},{"met":0,"n":4,"notes":[["half-buried-treasure-barrel-animated","The pearls are three loose beads lying among the coins inside the barrel and two more sitting on the dune; there is no string, and nothing is draped over the barrel's edge."],["half-buried-treasure-barrel-v1","No pearls appear anywhere in the render."]]},{"met":0,"n":4,"notes":[["half-buried-treasure-barrel-animated","No goblet appears anywhere in the render."]]},{"met":0,"n":4,"notes":[["half-buried-treasure-barrel-animated","There is no goblet in the render, so the required glint on the goblet cannot be present."],["half-buried-treasure-barrel-v1","There is no goblet in the render, so the required glint on the goblet cannot be present, and the gems are flat single-fill shapes with no highlight."]]}],"perfect":0,"top":{"slug":"half-buried-treasure-barrel-v1","artifact":"logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v1.svg","met":2,"total":10,"score":0.2,"animated":false,"misses":[]}}],"none_met":[8],"all_met":[2,3]}],"takes":[{"id":0,"label":"Cow plowing","n":12,"values":[5,5,6,6]},{"id":4,"label":"Rubber ducky","n":9,"values":[3,4,1,1]},{"id":5,"label":"Picnic on clouds","n":10,"values":[4,4,3,3]},{"id":6,"label":"Stunt car","n":8,"values":[3,4,4,4]},{"id":7,"label":"Dolphin","n":7,"values":[2,5,4,4]},{"id":12,"label":"Fruit stall","n":11,"values":[1,1,1,1]},{"id":13,"label":"Treasure barrel","n":10,"values":[2,2,2,2]}],"unscored":[{"harness":"opencode","model":"gpt-5.6-terra","artifact":"logs/opencode/gpt-5.6-terra/dawn-beach-animated.svg","reason":"prompt is not an SVGBench question"},{"harness":"opencode","model":"gpt-5.6-terra","artifact":"logs/opencode/gpt-5.6-terra/dawn-beach-v1.svg","reason":"prompt is not an SVGBench question"},{"harness":"opencode","model":"gpt-5.6-terra","artifact":"logs/opencode/gpt-5.6-terra/dawn-beach-v2.svg","reason":"prompt is not an SVGBench question"},{"harness":"opencode","model":"gpt-5.6-terra","artifact":"logs/opencode/gpt-5.6-terra/dawn-beach-v3.svg","reason":"prompt is not an SVGBench question"},{"harness":"opencode","model":"qwen3.8-27b-8bit","artifact":"logs/opencode/qwen3.8-27b-8bit/dawn-beach.svg","reason":"prompt is not an SVGBench question"}],"self_judge":"claude/claude-opus-5"};
+
+var L = "../bench/harness-matrix/";
+var VD = "../bench/harness-matrix/results/svgbench/verdicts/";
+var QCOLS = [0, 4, 5, 6, 7, 12, 13];
+var HARNESS_LABEL = { opencode: "OpenCode", claude: "Claude Code" };
+var H2H_ORDER = ["OpenCode", "Claude Code"];
+var H2H_SUB = {
+  "OpenCode": "rig models over Tailscale - the local arms",
+  "Claude Code": "Anthropic-hosted controls, for reference"
+};
+
+function el(tag, cls, html) {
+  var n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (html != null) n.innerHTML = html;
+  return n;
+}
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;"); }
+function f3(x) { return x.toFixed(3); }
+function fname(p) { return p.split("/").pop(); }
+function pretty(label) { return label.replace(" x ", " × "); }
+function verdictOf(p, slug) { return VD + p.harness + "/" + p.model + "/" + slug + ".json"; }
+function ranked() { return DATA.pairs.filter(function (p) { return p.ranked; }); }
+function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
+function pairOf(key) {
+  return DATA.pairs.filter(function (p) { return p.key === key; })[0];
+}
+
+/* ---------------- leaderboard ---------------- */
+var boardBody = document.querySelector("#boardTable tbody");
+ranked().forEach(function (p) {
+  var tr = el("tr");
+  var mark = p.key === DATA.self_judge ? ' <span class="mark" title="judged its own drawings">†</span>' : "";
+  tr.appendChild(el("td", null, '<span class="pair">' + esc(pretty(p.label)) + mark + '</span><span class="sub">' +
+    esc(HARNESS_LABEL[p.harness]) + " · " + (p.arm === "local" ? "local rig" : "Anthropic-hosted") + "</span>"));
+  tr.appendChild(el("td", "num", "n=" + p.n));
+  QCOLS.forEach(function (qi) {
+    var v = p.by[qi];
+    if (!v) { tr.appendChild(el("td", "num", "—")); return; }
+    var top = Math.max.apply(null, ranked().map(function (x) {
+      return x.by[qi] ? x.by[qi].mean : -1;
+    }));
+    tr.appendChild(el("td", "num" + (v.mean === top ? " best" : ""),
+      f3(v.mean) + '<span class="sub">n=' + v.n + "</span>"));
+  });
+  var topMean = Math.max.apply(null, ranked().map(function (x) { return x.mean; }));
+  tr.appendChild(el("td", "num" + (p.mean === topMean ? " best" : ""),
+    f3(p.mean) + '<span class="sub">n=' + p.n + "</span>"));
+  tr.appendChild(el("td", "free", esc(p.note)));
+  boardBody.appendChild(tr);
+});
+
+var singleBody = document.querySelector("#singleTable tbody");
+DATA.pairs.filter(function (p) { return !p.ranked; }).forEach(function (p) {
+  var qi = Object.keys(p.by)[0];
+  var tr = el("tr");
+  tr.appendChild(el("td", null, '<span class="pair">' + esc(pretty(p.label)) + '</span><span class="sub">' +
+    esc(HARNESS_LABEL[p.harness]) + " · Anthropic-hosted</span>"));
+  tr.appendChild(el("td", "num", "n=" + p.n));
+  tr.appendChild(el("td", "num", "Q" + qi));
+  tr.appendChild(el("td", "num", f3(p.by[qi].mean) + '<span class="sub">n=' + p.by[qi].n + "</span>"));
+  tr.appendChild(el("td", "free", esc(p.note)));
+  singleBody.appendChild(tr);
+});
+
+/* ---------------- what one judge changed ---------------- */
+var shiftBody = document.querySelector("#shiftTable tbody");
+DATA.board_shift.forEach(function (r) {
+  var tr = el("tr");
+  tr.appendChild(el("td", null, '<span class="pair">' + esc(pretty(r.label)) + "</span>"));
+  tr.appendChild(el("td", "num", r.old_mean == null ? "not on it" :
+    f3(r.old_mean) + '<span class="sub">n=' + r.old_n + "</span>"));
+  tr.appendChild(el("td", "num", f3(r.new_mean) + '<span class="sub">n=' + r.new_n + "</span>"));
+  if (r.old_mean == null) {
+    tr.appendChild(el("td", "num", "—"));
+  } else {
+    var d = r.new_mean - r.old_mean;
+    tr.appendChild(el("td", "num" + (d < -0.0005 ? " down" : d > 0.0005 ? " up" : ""),
+      (d >= 0 ? "+" : "−") + Math.abs(d).toFixed(3)));
+  }
+  tr.appendChild(el("td", "free", r.old_n === r.new_n && r.old_mean != null ?
+    "yes, the same " + plural(r.new_n, "drawing") + " on both boards" :
+    r.old_mean == null ? "new pair, judged only here" :
+    "no — " + plural(r.new_n - r.old_n, "drawing") + " added between boards"));
+  shiftBody.appendChild(tr);
+});
+
+var judgeBody = document.querySelector("#judgeTable tbody");
+DATA.judge_groups.forEach(function (g) {
+  var tr = el("tr");
+  tr.appendChild(el("td", null, '<span class="pair">' +
+    (g.group === "self" ? "the model that drew it" : "a model that drew none of these 12") + "</span>" +
+    '<span class="sub">' + esc(g.models.join(", ")) + "</span>"));
+  tr.appendChild(el("td", "num", "n=" + g.n));
+  tr.appendChild(el("td", "num", f3(g.old_mean)));
+  tr.appendChild(el("td", "num", f3(g.new_mean)));
+  var d = g.new_mean - g.old_mean;
+  tr.appendChild(el("td", "num" + (d < 0 ? " down" : " up"),
+    (d >= 0 ? "+" : "−") + Math.abs(d).toFixed(3)));
+  tr.appendChild(el("td", "num", g.fell + " / " + g.rose + " / " + g.same));
+  judgeBody.appendChild(tr);
+});
+
+/* ---------------- gpt-5.6-terra take series ---------------- */
+var takeSeries = document.getElementById("takeSeries");
+DATA.takes.forEach(function (s) {
+  var best = Math.max.apply(null, s.values), xs = [24, 108, 192, 276];
+  var ys = s.values.map(function (v) { return 88 - (v / s.n) * 64; });
+  var points = xs.map(function (x, i) { return x + "," + ys[i].toFixed(1); }).join(" ");
+  var card = el("article", "take-card");
+  card.appendChild(el("h3", null, "Q" + s.id + " · " + esc(s.label) + "<small>best " + best + "/" + s.n + "</small>"));
+  card.appendChild(el("p", null, "v1 → v2 → v3 → animated · four takes, one judge"));
+  var svg = '<svg class="take-chart" viewBox="0 0 300 140" role="img" aria-label="Q' + s.id + " " + esc(s.label) + ": " +
+    s.values.map(function (v, i) { return ["v1", "v2", "v3", "animated"][i] + " " + v + " of " + s.n; }).join(", ") + '">' +
+    '<line class="frame" x1="18" y1="88" x2="282" y2="88"></line><text class="axis" x="3" y="91">0</text><text class="axis" x="1" y="27">1</text>' +
+    '<polyline class="trace" points="' + points + '"></polyline>';
+  s.values.forEach(function (v, i) {
+    svg += '<circle class="dot' + (v === best ? " peak" : "") + '" cx="' + xs[i] + '" cy="' + ys[i].toFixed(1) + '" r="4"></circle>' +
+      '<text class="value" text-anchor="middle" x="' + xs[i] + '" y="' + (ys[i] - 9).toFixed(1) + '">' + v + "/" + s.n + '</text>' +
+      '<text text-anchor="middle" x="' + xs[i] + '" y="110">' + ["v1", "v2", "v3", "anim."][i] + '</text>';
+  });
+  svg += "</svg>";
+  card.insertAdjacentHTML("beforeend", svg);
+  takeSeries.appendChild(card);
+});
+
+/* ---------------- Q7 head-to-head ---------------- */
+var q7 = DATA.questions.filter(function (q) { return q.id === 7; })[0];
+var h2h = document.getElementById("h2hCols");
+H2H_ORDER.forEach(function (h) {
+  var col = el("div", "harness-col");
+  var rows = q7.pairs.filter(function (p) { return HARNESS_LABEL[p.harness] === h; })
+    .sort(function (a, b) { return b.mean - a.mean; });
+  var n = rows.reduce(function (t, p) { return t + p.n; }, 0);
+  col.appendChild(el("h3", null, esc(h) + "<small>" + rows.length + " pairs · " + n + " drawings</small>"));
+  col.appendChild(el("p", "colsub", esc(H2H_SUB[h])));
+  rows.forEach(function (p) { col.appendChild(h2hFigure(q7, p)); });
+  h2h.appendChild(col);
+});
+
+function h2hFigure(q, p) {
+  var top = p.top;
+  var arm = p.harness === "opencode" ? "local" : "control";
+  var fig = el("figure", "proof " + arm);
+  var src = L + top.artifact;
+  var alt = pretty(p.label) + ": " + top.slug + ", " + top.met + " of " + top.total + " requirements met";
+  var btn = el("button");
+  btn.setAttribute("aria-label", "Open " + p.model + "'s " + top.slug + " full size");
+  var img = el("img");
+  img.src = src; img.alt = alt; img.loading = "lazy";
+  btn.appendChild(img);
+  if (top.animated) btn.appendChild(el("span", "anim-flag", "animated"));
+  btn.addEventListener("click", function () { openLb(src, alt, p.model + " · " + top.slug); });
+  fig.appendChild(btn);
+
+  var bestMean = Math.max.apply(null, q.pairs.map(function (x) { return x.mean; }));
+  var cap = el("figcaption");
+  cap.appendChild(el("p", "name", '<span class="sw" aria-hidden="true"></span>' + esc(p.model) +
+    ' <span class="chip' + (p.mean === bestMean ? " best" : "") + '">Q7 mean ' + f3(p.mean) + " · n=" + p.n + "</span>"));
+  cap.appendChild(el("p", "runtime", esc(HARNESS_LABEL[p.harness] + " × " + top.slug) +
+    (p.n === 1 ? " — its only take, " : " — best of " + p.n + ", ") + top.met + "/" + top.total));
+
+  if (top.misses.length) {
+    var fails = el("ul", "fails");
+    top.misses.forEach(function (m) {
+      fails.appendChild(el("li", null, "<b>" + esc(shortReq(q.reqs[m.i])) + "</b> — " + esc(m.note)));
+    });
+    cap.appendChild(fails);
+  } else {
+    cap.appendChild(el("p", "clean-note", "This take met all " + top.total + " requirements, as did " +
+      (p.perfect - 1) + " of the pair's other " + plural(p.n - 1, "take") +
+      ". The mean above is over all " + p.n + "."));
+  }
+  cap.appendChild(el("p", "src", 'verdict <a href="' + verdictOf(p, top.slug) + '">' + esc(top.slug) +
+    ".json</a> · artifact <a href=\"" + src + '">' + esc(fname(top.artifact)) + "</a>"));
+  fig.appendChild(cap);
+  return fig;
+}
+
+/* opening of a requirement, verbatim, for the compact miss lists */
+function shortReq(text) {
+  var s = text.replace(/\s+$/, "").replace(/\.$/, "");
+  if (s.length <= 60) return s;
+  return s.slice(0, 58).replace(/[\s,;]+\S*$/, "") + "…";
+}
+
+/* ---------------- per-question matrices ---------------- */
+var qBlocks = document.getElementById("qBlocks");
+DATA.questions.forEach(function (q) {
+  var sec = el("div", "qsec");
+  sec.appendChild(el("h3", null, "Q" + q.id + " · " + q.n + " requirements<small>" + q.arts +
+    " drawings · " + q.pairs.length + " pairs · " + q.met + " of " + q.total + " checks met</small>"));
+  sec.appendChild(el("p", "qprompt", "“" + esc(q.prompt) + "”"));
+
+  var wrap = el("div", "table-wrap");
+  var table = el("table", "matrix-table");
+  var bestMean = Math.max.apply(null, q.pairs.map(function (x) { return x.mean; }));
+  var thead = "<thead><tr><th>Requirement (verbatim, in order)</th>";
+  q.pairs.forEach(function (p) {
+    thead += '<th class="ah">' + esc(p.model) + '<span class="sub">' + esc(p.harness) + "</span>" +
+      '<span class="score-line"><span class="chip' + (p.mean === bestMean ? " best" : "") + '">' +
+      f3(p.mean) + " · n=" + p.n + "</span></span></th>";
+  });
+  thead += "</tr></thead>";
+
+  var body = "<tbody>";
+  for (var i = 0; i < q.n; i++) {
+    body += '<tr><td class="req">' + esc(q.reqs[i]) + "</td>";
+    q.pairs.forEach(function (p) {
+      var c = p.cells[i];
+      var kind = c.met === c.n ? "all" : c.met === 0 ? "none" : "some";
+      var title = c.notes.map(function (t) { return t[0] + ": " + t[1]; }).join(" — ");
+      body += '<td class="cell ' + kind + '"' + (title ? ' title="' + esc(title) + '"' : "") +
+        ">" + c.met + "/" + c.n + "</td>";
+    });
+    body += "</tr>";
+  }
+  body += "</tbody>";
+  table.innerHTML = thead + body;
+  wrap.appendChild(table);
+  sec.appendChild(wrap);
+  sec.appendChild(el("p", "qnote", qNote(q)));
+  qBlocks.appendChild(sec);
+});
+
+function qNote(q) {
+  var parts = [];
+  var lead = q.pairs.slice().sort(function (a, b) { return b.mean - a.mean; })[0];
+  parts.push("Best on this question: <b>" + esc(pretty(lead.label)) + "</b>, " + f3(lead.mean) +
+    " over " + lead.n + " drawing" + (lead.n === 1 ? "" : "s") + ".");
+  if (q.all_met.length) {
+    parts.push("All " + q.arts + " drawings met " + q.all_met.length + " of the " + q.n + " — " +
+      list(q.all_met.map(function (i) { return "“" + esc(shortReq(q.reqs[i])) + "”"; })) + ".");
+  }
+  if (q.none_met.length) {
+    parts.push("None met " + list(q.none_met.map(function (i) { return "“" + esc(shortReq(q.reqs[i])) + "”"; })) + ".");
+  }
+  return parts.join(" ");
+}
+function list(items) {
+  var shown = items.slice(0, 3);
+  var s = shown.join("; ");
+  if (items.length > shown.length) s += "; and " + (items.length - shown.length) + " more";
+  return s;
+}
+
+/* ---------------- lightbox ---------------- */
+var lb = document.getElementById("lb"),
+    lbImg = document.getElementById("lbImg"),
+    lbTitle = document.getElementById("lbTitle"),
+    lbFile = document.getElementById("lbFile"),
+    lbRaw = document.getElementById("lbRaw");
+
+function openLb(src, alt, title) {
+  lbImg.src = src;
+  lbImg.alt = alt;
+  lbTitle.textContent = title;
+  lbFile.textContent = src.replace(L + "logs/", "");
+  lbRaw.href = src;
+  lb.showModal();
+}
+document.getElementById("lbClose").addEventListener("click", function () { lb.close(); });
+lb.addEventListener("click", function (e) { if (e.target === lb) lb.close(); });
+</script>
+</body>
+</html>

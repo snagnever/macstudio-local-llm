@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mac Studio Local LLM Benchmarks</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f1419;
+      color: #e7eef4;
+      line-height: 1.5;
+      padding: 32px;
+    }
+    .header { text-align: center; margin-bottom: 48px; }
+    .header h1 { font-size: 32px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 8px; }
+    .header p { color: #8d99ae; font-size: 15px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 24px; max-width: 1400px; margin: 0 auto; }
+    .card { background: #1a222c; border-radius: 16px; padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .chart-sub { font-size: 13px; color: #8d99ae; margin-bottom: 16px; }
+    .chart-container { height: 300px; position: relative; }
+    .chart-container.tall { height: 380px; }
+    .metrics { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; justify-content: center; }
+    .metric { background: #151c26; border: 1px solid #2a3441; border-radius: 10px; padding: 12px 20px; min-width: 140px; text-align: center; }
+    .metric .value { font-size: 22px; font-weight: 700; color: #e9c46a; }
+    .metric .label { font-size: 12px; color: #8d99ae; }
+    .section { margin-top: 24px; grid-column: 1 / -1; }
+    .section-title { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+    .section-sub { color: #8d99ae; font-size: 14px; margin-bottom: 20px; }
+    .insight-box { background: rgba(233, 196, 106, 0.06); border: 1px solid rgba(233, 196, 106, 0.25); border-radius: 10px; padding: 14px 18px; font-size: 14px; color: #d9c98f; }
+    .insight-box strong { color: #e9c46a; }
+    .badge-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .badge { border: 1px solid #2a3441; background: #151c26; border-radius: 20px; padding: 4px 12px; font-size: 12px; color: #b8c4d0; }
+    .footer { text-align: center; margin-top: 48px; color: #6c757d; font-size: 13px; }
+    .footer a { color: #e9c46a; text-decoration: none; }
+    .nav { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
+    .nav-btn { background: #151c26; border: 1px solid #2a3441; color: #b8c4d0; border-radius: 8px; padding: 8px 16px; font-size: 13px; cursor: pointer; }
+    .nav-btn:hover { border-color: #e9c46a; color: #e9c46a; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 24px; }
+    .chart-card { display: flex; flex-direction: column; }
+    .chart-card .chart-container { flex: 1; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th { background: #1e2836; color: #8d99ae; padding: 10px; text-align: left; font-weight: 600; }
+    .data-table td { padding: 10px; border-bottom: 1px solid #2a3441; }
+    .data-table th { color: #8d99ae; font-weight: 600; }
+    .data-table td { color: #e0e6ed; }
+    .svgbench-table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: "Palatino Linotype", Palatino, Georgia, serif; }
+    .svgbench-table th { font-family: system-ui, sans-serif; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: #8d99ae; font-weight: 600; text-align: left; padding: 8px 10px; border-bottom: 1px solid #2a3441; }
+    .svgbench-table td { padding: 7px 10px; color: #d7e0ea; border-bottom: 1px solid #1c2530; }
+    .svgbench-table tr:last-child td { border-bottom: none; }
+    .svgbench-table th.num, .svgbench-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .svgbench-table td.local { color: #2a9d8f; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Mac Studio Local LLM — Benchmark Dashboard</h1>
+  <p>Apple M4 Max · 128 GB unified memory · serving local models via mlx_lm.server + llama.cpp</p>
+  <div class="metrics">
+    <div class="metric"><div class="value">14 models</div><div class="label">served locally</div></div>
+    <div class="metric"><div class="value">162 tok/s</div><div class="label">fastest small model</div></div>
+    <div class="metric"><div class="value">8.5 min</div><div class="label">first token (1M ctx)</div></div>
+    <div class="metric"><div class="value">-54%</div><div class="label">thinking = hallucination drop</div></div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn" onclick="document.getElementById('speed').scrollIntoView({behavior:'smooth'})">Speed vs size</button>
+  <button class="nav-btn" onclick="document.getElementById('quality').scrollIntoView({behavior:'smooth'})">Quality</button>
+  <button class="nav-btn" onclick="document.getElementById('hallucination').scrollIntoView({behavior:'smooth'})">Hallucination</button>
+  <button class="nav-btn" onclick="document.getElementById('rag').scrollIntoView({behavior:'smooth'})">RAG</button>
+  <button class="nav-btn" onclick="document.getElementById('reasoning').scrollIntoView({behavior:'smooth'})">Reasoning</button>
+  <button class="nav-btn" onclick="document.getElementById('consistency').scrollIntoView({behavior:'smooth'})">Consistency</button>
+  <button class="nav-btn" onclick="document.getElementById('svgbench').scrollIntoView({behavior:'smooth'})">SVG bench</button>
+  <button class="nav-btn" onclick="document.getElementById('bigwin').scrollIntoView({behavior:'smooth'})">Biggest win</button>
+</div>
+
+<div class="grid">
+
+  <!-- Speed vs size scatter -->
+  <div class="section" id="speed">
+    <h2 class="section-title">⚡ Decode speed collapses with model size</h2>
+    <p class="section-sub">Single-stream output tok/s on the M4 Max (warm), plotted against parameter count. Wall time for a 500-token task annotated.</p>
+    <div class="card chart-card" style="height:440px">
+      <div class="chart-container tall"><canvas id="speedScatter"></canvas></div>
+    </div>
+    <div class="insight-box" style="margin-top:16px">
+      <p><strong>35x spread.</strong> Qwen3-0.6B decodes at 161 tok/s; DeepSeek-R1-177B at 4.5 tok/s. The practical cliff sits at ~27B (17.5–24 tok/s) — above that, interactive work stalls behind thinking tokens.</p>
+    </div>
+  </div>
+
+  <div class="card chart-card" style="height:360px">
+    <h3>Long-context wall time</h3>
+    <p class="chart-sub">Qwen3-Coder-30B at 128k: 75s vs 24s at 16k. DeepSeek at 1M: 510s to first token.</p>
+    <div class="chart-container"><canvas id="longCtxChart"></canvas></div>
+  </div>
+
+  <!-- Quality benchmarks -->
+  <div class="section" id="quality">
+    <h2 class="section-title">🎯 Quality benchmarks</h2>
+    <p class="section-sub">MMLU-Pro, GPQA Diamond, LiveCodeBench and τ²-bench across the full model ladder.</p>
+    <div class="card chart-card" style="height:440px">
+      <div class="chart-container tall"><canvas id="qualityChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card chart-card" style="height:360px">
+    <h3>LiveCodeBench — coding by model size</h3>
+    <p class="chart-sub">Only the 200B+ MoEs reach double-digit solve rates.</p>
+    <div class="chart-container"><canvas id="codeChart"></canvas></div>
+  </div>
+
+  <div class="card chart-card" style="height:360px">
+    <h3>τ²-bench — agentic tool use</h3>
+    <p class="chart-sub">Telecom subset, 20 tasks × 3 seeds. Most local models score 0.</p>
+    <div class="chart-container"><canvas id="tauChart"></canvas></div>
+  </div>
+
+  <!-- Hallucination -->
+  <div class="section" id="hallucination">
+    <h2 class="section-title">🔬 Hallucination experiment — thinking cuts false claims 54%</h2>
+    <p class="section-sub">Same prompts with vs without thinking enabled, across 3 models × 3 runtimes × 2 temperatures (36 pairs of samples).</p>
+    <div class="card chart-card" style="height:420px">
+      <div class="chart-container tall"><canvas id="hallucChart"></canvas></div>
+    </div>
+    <div class="insight-box" style="margin-top:16px">
+      <p><strong>Thinking reduces hallucination by 53.6%</strong> (64.5% → 29.9% false claims). The gap only appears above 0.6B. On a single 4-bit quant the effect flips sign (-50.6%) — quantization quality matters as much as the thinking switch.</p>
+    </div>
+  </div>
+
+  <div class="card chart-card" style="height:360px">
+    <h3>RAG answer quality (360 scored answers)</h3>
+    <p class="chart-sub">Accuracy by model with / without retrieval context.</p>
+    <div class="chart-container"><canvas id="ragChart"></canvas></div>
+  </div>
+
+  <div class="card chart-card" style="height:360px">
+    <h3>RAG faithfulness</h3>
+    <p class="chart-sub">Retrieval improves grounding on every model tested.</p>
+    <div class="chart-container"><canvas id="faithChart"></canvas></div>
+  </div>
+
+  <!-- Reasoning probes -->
+  <div class="section" id="reasoning">
+    <h2 class="section-title">🧠 Reasoning probes — thinking tokens buy accuracy</h2>
+    <p class="section-sub">Pass rate with thinking on vs off, plus thinking-token cost.</p>
+    <div class="grid-2">
+      <div class="card chart-card" style="height:360px">
+        <h3>Multi-hop accuracy: on vs off</h3>
+        <p class="chart-sub">Qwen3-30B: 71.4% → 92.9% (+21.4 pts) with thinking on.</p>
+        <div class="chart-container"><canvas id="reasoningOnOffChart"></canvas></div>
+      </div>
+      <div class="card chart-card" style="height:360px">
+        <h3>GPQA at 4k budget vs token spend</h3>
+        <p class="chart-sub">More thinking tokens → higher accuracy, at a latency price.</p>
+        <div class="chart-container"><canvas id="budgetChart"></canvas></div>
+      </div>
+    </div>
+    <div class="insight-box" style="margin-top:16px">
+      <p><strong>Thinking is the single highest-leverage knob on this rig.</strong> The 27B at full budget beats DeepSeek R1-177B on the same multi-hop suite (85.7% vs 78.6%) while decoding 2.3x faster.</p>
+    </div>
+  </div>
+
+  <!-- Consistency -->
+  <div class="section" id="consistency">
+    <h2 class="section-title">🔁 Cross-harness consistency</h2>
+    <p class="section-sub">The same model driven by different coding harnesses: scores stay flat, latency does not.</p>
+    <div class="grid-2">
+      <div class="card chart-card" style="height:360px">
+        <h3>Qwen3-Coder-30B pass rate across 4 harnesses</h3>
+        <p class="chart-sub">HumanEval (blue) vs GSM8K (gold) — spread &lt;10 pts despite very different harnesses.</p>
+        <div class="chart-container"><canvas id="crossHarness"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:12px">Reading the matrix</h3>
+        <table class="data-table">
+          <tr><th>Comparison</th><th>Δ score</th><th>Verdict</th></tr>
+          <tr><td>Claude Code vs OpenCode</td><td>9.4 pts</td><td>OpenCode wins (temp 0 vs retries)</td></tr>
+          <tr><td>opencode-misconfigured vs opencode</td><td>0.0 pts</td><td>byte-identical results</td></tr>
+          <tr><td>Across runtimes (llama.cpp vs mlx)</td><td>0.0 pts</td><td>same weights → same score</td></tr>
+          <tr><td>Latency same model, different harness</td><td>up to 17x</td><td>harness overhead dominates</td></tr>
+        </table>
+        <div class="insight-box" style="margin-top:16px">
+          <p><strong>The model is the variable, the harness is not.</strong> Score differences measure the harness config, not the weights.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SVGBench -->
+  <div class="section" id="svgbench">
+    <h2 class="section-title">🐬 SVG draw quality</h2>
+    <p class="section-sub">SVGBench questions run through coding harnesses, judged on the Chrome-rendered PNG (requirements met ÷ total). All 84 verdicts come from one judge, claude-opus-5 — which also drew 21 of the artifacts. Seven of the 105 upstream questions — not comparable to the upstream leaderboard.</p>
+    <div class="grid-2">
+      <div class="card chart-card" style="height:380px">
+        <h3>claude-opus-5 leads the shared prompt, 0.857 to 0.786</h3>
+        <p class="chart-sub">Q7 — the dolphin through a hula hoop, drawn by five of the six pairs. Bars are pair means with their n; dashed line = mean over all 21 drawings.</p>
+        <div class="chart-container" style="height:250px"><canvas id="svgQ7Chart" role="img" aria-label="Question 7 pair means: claude-opus-5 0.857 over 5 drawings, local qwen3.8-flash-next 0.786 over 10, claude-opus-4-8 0.714 over 1, local gpt-5.6-terra 0.536 over 4, local qwen3.8-27b-8bit 0.429 over 1"></canvas></div>
+      </div>
+      <div class="card chart-card" style="height:380px">
+        <h3>Self-judging was worth 0.079; a judge that drew none of them moved nothing</h3>
+        <p class="chart-sub">The 43 artifacts carrying a verdict on both boards, split by who wrote the old one. Same artifacts on each pair of bars — only the judge changed.</p>
+        <div class="chart-container" style="height:250px"><canvas id="svgMeanChart" role="img" aria-label="Re-judging effect: artifacts whose old verdict was written by the model that drew them scored 0.407 then 0.327 under claude-opus-5, which drew none of them, n=31; artifacts whose old verdict came from a model that drew none of them scored 0.563 then 0.573, n=12"></canvas></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card" style="grid-column: 1 / -1;">
+        <h3 style="margin-bottom:12px">The board <span style="font-weight:400; color:#8d99ae;">— 84 scored SVGs, 7 questions, one judge · every figure with its n</span></h3>
+        <table class="svgbench-table">
+          <tr><th>Pair</th><th class="num">Drawings</th><th>Questions drawn</th><th class="num">Mean</th></tr>
+          <tr><td>claude · claude-opus-5 †</td><td class="num">21</td><td>Q0 · Q4 · Q5 · Q7 · Q13</td><td class="num">0.693</td></tr>
+          <tr><td class="local">opencode · qwen3.8-flash-next</td><td class="num">25</td><td>Q0 · Q4 · Q6 · Q7 · Q12</td><td class="num">0.591</td></tr>
+          <tr><td class="local">opencode · qwen3.8-27b-8bit</td><td class="num">5</td><td>Q0 · Q5 · Q7 · Q13</td><td class="num">0.499</td></tr>
+          <tr><td class="local">opencode · gpt-5.6-terra</td><td class="num">28</td><td>all seven</td><td class="num">0.336</td></tr>
+        </table>
+        <p style="color:#8d99ae; font-size:12px; margin:10px 0 14px">† claude-opus-5 judged all 84 artifacts, its own 21 included. Question coverage differs per pair, so the means are not like-for-like; Q7 is the widest shared column.</p>
+        <h3 style="margin-bottom:12px; font-size:15px">Single-prompt pairs <span style="font-weight:400; color:#8d99ae;">— per-prompt figures only, not ranked</span></h3>
+        <table class="svgbench-table">
+          <tr><th>Pair</th><th class="num">Drawings</th><th>Question drawn</th><th class="num">Score on it</th></tr>
+          <tr><td>claude · fable-5-1</td><td class="num">4</td><td>Q0 — cow plowing</td><td class="num">0.729</td></tr>
+          <tr><td>claude · claude-opus-4-8</td><td class="num">1</td><td>Q7 — the dolphin</td><td class="num">0.714</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="insight-box" style="margin-top:16px">
+      <p><strong>The re-judging changed the headline.</strong> On the old board flash-next led the one shared prompt. Under a single judge, claude-opus-5 leads Q7 0.857 to 0.786 (n=5 and n=10) and leads overall 0.693 to 0.591 (n=21 and n=25). <strong>The judge was moving the score:</strong> gpt-5.6-terra wrote all 28 verdicts on its own drawings and scored 0.421; the same 28 drawings score 0.336 under <code>claude-opus-5</code>, which drew none of them, and 15 of them fell. The other 12 old verdicts were written by claude-fable-5-1, which drew none of those 12; they moved +0.010. <strong>Read every figure with its n:</strong> claude-opus-5 judged its own 21 drawings, qwen3.8-27b-8bit is ranked on 5, and the two single-prompt pairs are shown per-prompt only. Detail, per requirement: <a href="harness-matrix-svgbench.html" style="color:#e9c46a">the SVGBench dashboard</a>.</p>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:3px solid #e9c46a;">
+    <h3 style="color:#e9c46a">🏆 Biggest win for local serving</h3>
+    <p style="font-size:14px">Qwen3.5-27B at full thinking budget: <strong>25 tok/s local</strong>, 85.7% multi-hop, 100% RAG grounding, hallucination down 47 pts vs no-thinking. Beats hosted DeepSeek R1-177B on accuracy <em>and</em> speed at zero per-token cost.</p>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>
+    <span>Generated Sep 7, 2026 · Deployed via GitHub Pages from reports/index.html · Sources: bench/**/results/*.json, bench/harness-matrix/results/svgbench/scores.json, tools/local-llm-bench/results/*/, tools/local-llm-bench-m4-32gb/ · 9 benchmark datasets</span>
+  </p>
+</div>
+
+<script>
+// Shared config
+Chart.defaults.color = '#8d99ae';
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+Chart.defaults.borderColor = '#2a3441';
+
+const gridColor = 'rgba(42, 52, 65, 0.5)';
+
+const charts = [];
+function makeChart(id, cfg) {
+  const el = document.getElementById(id);
+  if (el) charts.push(new Chart(el, cfg));
+}
+
+// 1. Speed vs size scatter
+makeChart('speedScatter', {
+  type: 'scatter',
+  data: {
+    datasets: [{
+      label: 'Model',
+      data: [
+        {x: 0.6, y: 161.3, name: 'Qwen3-0.6B', wall: '3.1s'},
+        {x: 4, y: 96.1, name: 'Qwen3-4B-MLX', wall: '5.2s'},
+        {x: 7, y: 79.3, name: 'Qwen2.5-7B', wall: '6.3s'},
+        {x: 8, y: 76.9, name: 'Llama-3.1-8B', wall: '6.5s'},
+        {x: 9, y: 70.9, name: 'Gemma-3-12B', wall: '7.1s'},
+        {x: 12, y: 50.5, name: 'Qwen3-14B', wall: '9.9s'},
+        {x: 12.2, y: 50.4, name: 'GPT-OSS-20B', wall: '9.9s'},
+        {x: 13, y: 47.2, name: 'DeepSeek-R1-14B', wall: '10.6s'},
+        {x: 27, y: 23.9, name: 'Gemma-3-27B', wall: '20.9s'},
+        {x: 27, y: 17.5, name: 'Qwen3.5-27B', wall: '28.6s'},
+        {x: 30, y: 17.5, name: 'Qwen3-Coder-30B', wall: '28.6s'},
+        {x: 35, y: 13.5, name: 'Qwen3.5-35B-A3B', wall: '37.0s'},
+        {x: 120, y: 5.1, name: 'GLM-4.7-Flash', wall: '98s'},
+        {x: 120, y: 5.0, name: 'GPT-OSS-120B', wall: '100s'},
+        {x: 122, y: 4.5, name: 'Qwen3.5-122B-A10B', wall: '111s'},
+        {x: 177, y: 4.5, name: 'DeepSeek-R1-177B', wall: '111s'},
+      ],
+      backgroundColor: ctx => ctx.raw.x >= 100 ? '#e76f51' : (ctx.raw.x <= 12 ? '#2a9d8f' : '#e9c46a'),
+      pointRadius: 7,
+      pointHoverRadius: 9,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      x: { type: 'logarithmic', min: 0.45, max: 260, title: { display: true, text: 'Parameters (billions, log scale)' }, grid: { color: gridColor } },
+      y: { min: 0, max: 180, title: { display: true, text: 'Decode tok/s (warm)' }, grid: { color: gridColor } }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: c => `${c.raw.name}: ${c.raw.y} tok/s · 500-tok task in ${c.raw.wall}` } }
+    }
+  }
+});
+
+// 2. Long-context wall time
+makeChart('longCtxChart', {
+  type: 'bar',
+  data: {
+    labels: ['Coder-30B 16k', 'Coder-30B 128k', 'Coder-30B 256k', 'DeepSeek 1M'],
+    datasets: [{
+      label: 'Wall time (s)',
+      data: [23.9, 75.1, 167, 510],
+      backgroundColor: ['#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'],
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { y: { type: 'logarithmic', min: 10, max: 800, title: { display: true, text: 'Seconds (log)' }, grid: { color: gridColor } }, x: { grid: { display: false } } },
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: c => `${c.raw}s wall time` } }
+    }
+  }
+});
+
+// 3. Quality benchmarks grouped bars
+makeChart('qualityChart', {
+  type: 'bar',
+  data: {
+    labels: ['Qwen3-0.6B', 'Qwen2.5-7B', 'Qwen3-Coder-30B', 'Qwen3.5-27B', 'GPT-OSS-120B', 'DeepSeek-R1-177B'],
+    datasets: [
+      { label: 'MMLU-Pro', data: [null, null, 65.0, 82.7, 80.1, 70.0], backgroundColor: '#e9c46a', borderRadius: 4 },
+      { label: 'GPQA Diamond', data: [null, null, 60.0, 73.3, 71.4, 65.9], backgroundColor: '#e76f51', borderRadius: 4 },
+      { label: 'LiveCodeBench', data: [null, null, 6.25, 1.6, 20.8, null], backgroundColor: '#2a9d8f', borderRadius: 4 },
+      { label: 'τ²-bench', data: [0, null, 2.5, 0.0, null, null], backgroundColor: '#457b9d', borderRadius: 4 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { y: { min: 0, max: 100, title: { display: true, text: 'Score (%)' }, grid: { color: gridColor } }, x: { grid: { display: false } } },
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 14 } },
+      tooltip: { callbacks: { label: c => c.raw === null ? 'not measured' : `${c.dataset.label}: ${c.raw}%` } }
+    }
+  }
+});
+
+// 4. LiveCodeBench by model
+makeChart('codeChart', {
+  type: 'bar',
+  data: {
+    labels: ['Qwen3.5-27B', 'GPT-OSS-20B', 'GLM-4.7-Flash', 'GPT-OSS-120B', 'Qwen3.5-122B-A10B'],
+    datasets: [{ label: 'LiveCodeBench v6 (%)', data: [1.6, 3.3, 4.8, 20.8, 45.5], backgroundColor: ['#2a9d8f', '#2a9d8f', '#e9c46a', '#e9c46a', '#e76f51'], borderRadius: 6 }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    scales: { x: { min: 0, max: 50, grid: { color: gridColor } }, y: { grid: { display: false } } },
+    plugins: { legend: { display: false } }
+  }
+});
+
+// 5. tau-bench
+makeChart('tauChart', {
+  type: 'bar',
+  data: {
+    labels: ['Qwen3-Coder-30B', 'Qwen3.5-27B', 'Qwen3-0.6B', 'Qwen2.5-7B', 'GPT-OSS-20B'],
+    datasets: [{ label: 'τ²-bench pass rate (%)', data: [2.5, 0.0, 0.0, 0.0, 15.0], backgroundColor: '#457b9d', borderRadius: 6 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { y: { min: 0, max: 20, title: { display: true, text: 'Pass rate (%)' }, grid: { color: gridColor } }, x: { grid: { display: false } } },
+    plugins: { legend: { display: false } }
+  }
+});
+
+// 6. Hallucination on/off
+makeChart('hallucChart', {
+  type: 'bar',
+  data: {
+    labels: ['GPT-OSS-20B', 'Qwen3.5-27B', 'Qwen3-0.6B'],
+    datasets: [
+      { label: 'thinking OFF — false claims %', data: [86.1, 65.7, 72.2], backgroundColor: '#e76f51', borderRadius: 6 },
+      { label: 'thinking ON — false claims %', data: [43.9, 12.9, 56.7], backgroundColor: '#2a9d8f', borderRadius: 6 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { y: { min: 0, max: 100, title: { display: true, text: 'Hallucination rate (%)' }, grid: { color: gridColor } }, x: { grid: { display: false } } },
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 14 } },
+      tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.raw}%` } }
+    }
+  }
+});
+
+// 7. RAG accuracy
+makeChart('ragChart', {
+  type: 'bar',
+  data: {
+    labels: ['Llama-3.2-3B', 'GPT-OSS-20B', 'Qwen3.5-27B', 'Qwen3-30B-Coder'],
+    datasets: [
+      { label: 'No context', data: [13.3, 13.3, 66.7, 17.8], backgroundColor: '#e76f51', borderRadius: 5 },
+      { label: 'RAG', data: [17.8, 42.2, 73.3, 46.7], backgroundColor: '#e9c46a', borderRadius: 5 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { y: { min: 0, max: 100, title: { display: true, text: 'Answer accuracy (%)' }, grid: { color: gridColor } }, x: { grid: { display: false } } },
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 14 } } }
+  }
+});
+
+// 8. RAG faithfulness
+makeChart('faithChart', {
+  type: 'bar',
+  data: {
+    labels: ['Llama-3.2-3B', 'GPT-OSS-20B', 'Qwen3-30B-Coder', 'Qwen3.5-27B'],
+    datasets: [
+      { label: 'No context', data: [49.4, 56.1, 58.3, 57.8], backgroundColor: '#e76f51', borderRadius: 5 },
+      { label: 'RAG', data: [64.4, 74.4, 97.0, 100.0], backgroundColor: '#2a9d8f', borderRadius: 5 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { y: { min: 40, max: 100, title: { display: true, text: 'Faithfulness (%)' }, grid: { color: gridColor } }, x: { grid: { display: false } } },
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 14 } } }
+  }
+});
+
+// 9. Reasoning on vs off
+makeChart('reasoningOnOffChart', {
+  type: 'bar',
+  data: {
+    labels: ['Qwen3.5-27B', 'Qwen3-30B', 'DeepSeek-R1-177B'],
+    datasets: [
+      { label: 'Thinking off', data: [71.4, 64.3, 64.3], backgroundColor: '#e76f51', borderRadius: 5 },
+      { label: 'Thinking on', data: [85.7, 92.9, 78.6], backgroundColor: '#e9c46a', borderRadius: 5 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { y: { min: 0, max: 100, title: { display: true, text: 'Multi-hop pass rate (%)' }, grid: { color: gridColor } }, x: { grid: { display: false } } },
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 14 } } }
+  }
+});
+
+// 10. Budget vs tokens
+makeChart('budgetChart', {
+  type: 'bar',
+  data: {
+    labels: ['0 (no think)', '1024', '2048', '3072', '4096'],
+    datasets: [
+      { label: 'GPQA accuracy (%)', data: [13.3, 20.0, 33.3, 40.0, 46.7], backgroundColor: '#2a9d8f', borderRadius: 5, yAxisID: 'y' },
+      { type: 'line', label: 'Median thinking tokens', data: [1, 698, 1105, 1061, 1199], borderColor: '#e9c46a', backgroundColor: '#e9c46a', tension: 0.25, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      y: { min: 0, max: 60, title: { display: true, text: 'Accuracy (%)' }, grid: { color: gridColor } },
+      y1: { position: 'right', min: 0, max: 1400, grid: { drawOnChartArea: false } },
+      x: { title: { display: true, text: 'Thinking budget' }, grid: { display: false } }
+    },
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 14 } } }
+  }
+});
+
+// 11. Cross-harness consistency
+makeChart('crossHarness', {
+  type: 'bar',
+  data: {
+    labels: ['opencode', 'claude-code', 'qwen-code', 'openai-agents'],
+    datasets: [
+      { label: 'HumanEval %', data: [87.2, 77.8, 77.2, 78.9], backgroundColor: '#457b9d', borderRadius: 5 },
+      { label: 'GSM8K %', data: [91.0, 95.0, 94.5, 96.0], backgroundColor: '#e9c46a', borderRadius: 5 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { y: { min: 50, max: 100, title: { display: true, text: 'Pass rate (%)' }, grid: { color: gridColor } }, x: { grid: { display: false } } },
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 14 } } }
+  }
+});
+
+// SVGBench — Tufte-style: no legend, direct labels, mean reference line
+const tufteSerif = '"Palatino Linotype", Palatino, Georgia, serif';
+const localTeal = '#2a9d8f';
+const vendorGray = '#7d8a99';
+
+const barLabels = {
+  id: 'barLabels',
+  afterDatasetsDraw(chart, args, opts) {
+    if (!opts || !opts.labels) return;
+    const meta = chart.getDatasetMeta(0);
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.font = `600 13px ${tufteSerif}`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    meta.data.forEach((bar, i) => {
+      const label = opts.labels[i];
+      if (label == null) return;
+      ctx.fillStyle = (opts.colors && opts.colors[i]) || '#d7e0ea';
+      ctx.fillText(label, bar.x + 8, bar.y);
+    });
+    ctx.restore();
+  }
+};
+
+const refLine = {
+  id: 'refLine',
+  afterDraw(chart, args, opts) {
+    if (!opts || opts.value == null) return;
+    const x = chart.scales.x.getPixelForValue(opts.value);
+    const { top, bottom } = chart.chartArea;
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.strokeStyle = '#8d99ae';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, top);
+    ctx.lineTo(x, bottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = `italic 11px ${tufteSerif}`;
+    ctx.fillStyle = '#8d99ae';
+    ctx.textAlign = 'center';
+    ctx.fillText(opts.label, x, top - 5);
+    ctx.restore();
+  }
+};
+
+const tufteTooltip = {
+  backgroundColor: 'rgba(15, 20, 25, 0.95)',
+  titleColor: '#9aa7b4',
+  bodyColor: '#e0e6ed',
+  borderWidth: 0,
+  cornerRadius: 2,
+  displayColors: false,
+  titleFont: { family: 'system-ui, sans-serif', size: 11 },
+  bodyFont: { family: tufteSerif, size: 13 }
+};
+
+makeChart('svgQ7Chart', {
+  type: 'bar',
+  data: {
+    labels: [
+      ['claude-opus-5', 'claude harness · n=5'],
+      ['qwen3.8-flash-next', 'local · opencode · n=10'],
+      ['claude-opus-4-8', 'claude harness · n=1'],
+      ['gpt-5.6-terra', 'local · opencode · n=4'],
+      ['qwen3.8-27b-8bit', 'local · opencode · n=1']
+    ],
+    datasets: [{
+      data: [0.857, 0.786, 0.714, 0.536, 0.429],
+      backgroundColor: [vendorGray, localTeal, vendorGray, localTeal, localTeal],
+      borderWidth: 0,
+      barThickness: 22,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false, animation: false,
+    layout: { padding: { right: 60, top: 14 } },
+    scales: {
+      x: { min: 0, max: 1, display: false },
+      y: { grid: { display: false }, border: { display: false }, ticks: { color: '#d7e0ea', font: { size: 11 }, padding: 8 } }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: { ...tufteTooltip, callbacks: { label: c => `mean ${c.raw.toFixed(3)} of requirements met` } },
+      barLabels: { labels: ['0.857', '0.786', '0.714', '0.536', '0.429'], colors: ['#d7e0ea', '#76b7b2', '#d7e0ea', '#76b7b2', '#76b7b2'] },
+      refLine: { value: 0.735, label: 'all 21 drawings 0.735' }
+    }
+  },
+  plugins: [barLabels, refLine]
+});
+
+makeChart('svgMeanChart', {
+  type: 'bar',
+  data: {
+    labels: [
+      ['judged by the model that drew it', 'old board · n=31'],
+      ['the same 31, re-judged', 'this board'],
+      ['judged by a model that drew none of them', 'old board · n=12'],
+      ['the same 12, re-judged', 'this board']
+    ],
+    datasets: [{
+      data: [0.407, 0.327, 0.563, 0.573],
+      backgroundColor: [vendorGray, '#c2626f', vendorGray, localTeal],
+      borderWidth: 0,
+      barThickness: 22,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false, animation: false,
+    layout: { padding: { right: 76, top: 14 } },
+    scales: {
+      x: { min: 0, max: 1, display: false },
+      y: { grid: { display: false }, border: { display: false }, ticks: { color: '#d7e0ea', font: { size: 11 }, padding: 8 } }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: { ...tufteTooltip, callbacks: { label: c => `mean score ${c.raw.toFixed(3)}` } },
+      barLabels: { labels: ['0.407', '0.327  −0.079', '0.563', '0.573  +0.010'], colors: ['#d7e0ea', '#e08b95', '#d7e0ea', '#76b7b2'] }
+    }
+  },
+  plugins: [barLabels, refLine]
+});
+
+// Resize handler
+window.addEventListener('resize', () => charts.forEach(c => c.resize()));
+</script>
+
+</body>
+</html>

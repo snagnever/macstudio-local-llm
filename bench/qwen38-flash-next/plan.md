@@ -9,7 +9,8 @@
 
 Flash-Next é modelo novo (MoE 125B-A6B, arquitetura "Qwen4"), não uma variante de runtime. O
 smoke R5 respondeu "o runtime-refresh achou um modelo mais rápido?" (sim). Falta o veredito
-profundo: qual build, e se a qualidade desloca a densa 27B em agente (o gate que deu NO-GO no 27B).
+profundo: qual build, e se a qualidade desloca a densa 27B em agente. O T-Bench da densa 27B
+nunca rodou no rig; não há script nem arquivo de resultado.
 
 ## O que já sabemos (do smoke R5, oMLX 0.6.4 + build Jundot oQ4e)
 
@@ -43,7 +44,7 @@ profundo: qual build, e se a qualidade desloca a densa 27B em agente (o gate que
 
 - Disco antes do pull ([[check-disk-before-model-downloads]]).
 - Suporte `qwen4_exp`: MTPLX ≥2.10.0, oMLX ≥0.6.4, llama.cpp mainline (PR #27742). mlx-dspark 0.17.2 NÃO suporta.
-- Correção é eliminatório; **qualidade (T-Bench) é o gate decisivo** (foi o NO-GO do 27B).
+- Correção é eliminatório; **qualidade (T-Bench) é o gate decisivo**.
 
 ## Saídas
 
