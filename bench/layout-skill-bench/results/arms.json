@@ -1,0 +1,81 @@
+{
+  "campaign": "layout-skill-bench",
+  "description": "Three opencode sessions, one local model (Qwen3.8 Flash Next MLX), one byte-identical verbatim brief, each loading a different design skill, each producing a five-iteration landing-page design for the same note-taking app. Source vendored under demos/<arm>; per-arm self-reports (recovered from the opencode session database) under results/<arm>.md; this file is the single source of numbers for the dashboard.",
+  "brief": "I want you to design the landing page for a note-taking application as essentially a second brain. You should design five iterations and each of them should be accessible within the slash one, slash two, slash three like pages directory. And then you should add a little button that lets me switch between them easily.",
+  "briefNote": "Byte-identical across all three arms (SHA eaebe847..., 318 characters), confirmed against the opencode session database in Task 2. It is carried per-arm below (rather than only once at the top) so each arm record is self-contained for the dashboard, but it is the same string three times, not three different briefs.",
+  "arms": [
+    {
+      "id": "design-skill",
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "hosted": false,
+      "label": "opencode + Qwen3.8 Flash Next + frontend-design",
+      "color": "#2a9d8f",
+      "sourceFolder": "~/LocalProjects/qwen38-next-layout-bench/design-skill",
+      "skillConfig": "frontend-design",
+      "skillConfigNote": "Loaded from the user's global skill directory (~/.agents/skills/frontend-design/SKILL.md), unrelated to the Leonxlnx/taste-skill package the other two arms pull from. This arm has no skills-lock.json at all — its skill was identified by reading the session transcript, not a lock file. It is NOT a no-skill baseline.",
+      "brief": "I want you to design the landing page for a note-taking application as essentially a second brain. You should design five iterations and each of them should be accessible within the slash one, slash two, slash three like pages directory. And then you should add a little button that lets me switch between them easily.",
+      "form": "Five static HTML directories, no build step, no framework (index.html plus 1/ 2/ 3/ 4/ 5/, each with its own index.html)"
+    },
+    {
+      "id": "taste-skill",
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "hosted": false,
+      "label": "opencode + Qwen3.8 Flash Next + design-taste-frontend",
+      "color": "#e76f51",
+      "sourceFolder": "~/LocalProjects/qwen38-next-layout-bench/taste-skill",
+      "skillConfig": "design-taste-frontend",
+      "skillConfigNote": "One of three skills pinned by taste-skill/skills-lock.json (brandkit, design-taste-frontend, high-end-visual-design), all from Leonxlnx/taste-skill and vendored locally under .agents/skills/. The lock records what was AVAILABLE, not what ran: reading the session transcript shows only design-taste-frontend was actually invoked (87,308-character skill message matching design-taste-frontend/SKILL.md's 87,253 bytes on disk). taste2's lock file is byte-identical to this one, but taste2 invoked a different skill (high-end-visual-design) — the two arms are NOT a repeat run of the same configuration.",
+      "brief": "I want you to design the landing page for a note-taking application as essentially a second brain. You should design five iterations and each of them should be accessible within the slash one, slash two, slash three like pages directory. And then you should add a little button that lets me switch between them easily.",
+      "form": "Vite + React + TypeScript app (react 19, motion, tailwind v4, vite 7) with five client-side routes /1..5, plus a fixed-position switcher nav"
+    },
+    {
+      "id": "taste2",
+      "harness": "opencode",
+      "model": "qwen3.8-flash-next",
+      "hosted": false,
+      "label": "opencode + Qwen3.8 Flash Next + high-end-visual-design",
+      "color": "#f4a261",
+      "sourceFolder": "~/LocalProjects/qwen38-next-layout-bench/taste2",
+      "skillConfig": "high-end-visual-design",
+      "skillConfigNote": "One of three skills pinned by taste2/skills-lock.json, byte-for-byte identical to taste-skill's lock file (diffed; both pin brandkit, design-taste-frontend, high-end-visual-design from Leonxlnx/taste-skill). The lock records what was AVAILABLE, not what ran: reading the session transcript shows only high-end-visual-design was actually invoked (10,476-character skill message matching high-end-visual-design/SKILL.md's 10,561 bytes on disk). brandkit does not appear in any of the three arms' sessions.",
+      "brief": "I want you to design the landing page for a note-taking application as essentially a second brain. You should design five iterations and each of them should be accessible within the slash one, slash two, slash three like pages directory. And then you should add a little button that lets me switch between them easily.",
+      "form": "Five static HTML pages (pages/1.html .. pages/5.html) served by a small Node HTTP server (server.js, plain node:http, no framework), \"/\" redirects to \"/1\""
+    }
+  ],
+  "results": [
+    {"arm": "design-skill", "metric": "wallMinutes", "value": 12.4,
+     "note": "743.6 s, first message to last recorded token event"},
+    {"arm": "design-skill", "metric": "tokensOutput", "value": 37742},
+    {"arm": "design-skill", "metric": "tokensInputUncached", "value": 48917},
+    {"arm": "design-skill", "metric": "tokensCacheRead", "value": 437595},
+    {"arm": "design-skill", "metric": "toolCalls", "value": 12,
+     "note": "6 bash + 6 write"},
+    {"arm": "design-skill", "metric": "messages", "value": 14,
+     "note": "1 user + 13 assistant; one user turn (combined skill + brief message), no follow-up prompts"},
+    {"arm": "design-skill", "metric": "pageCount", "value": 5},
+
+    {"arm": "taste-skill", "metric": "wallMinutes", "value": 24.7,
+     "note": "1,483.4 s, first message to last recorded token event"},
+    {"arm": "taste-skill", "metric": "tokensOutput", "value": 45018},
+    {"arm": "taste-skill", "metric": "tokensInputUncached", "value": 354721},
+    {"arm": "taste-skill", "metric": "tokensCacheRead", "value": 905050},
+    {"arm": "taste-skill", "metric": "toolCalls", "value": 25,
+     "note": "6 bash + 2 todowrite + 13 write + 4 edit"},
+    {"arm": "taste-skill", "metric": "messages", "value": 23,
+     "note": "2 user + 21 assistant; two user turns (skill-load message, then the brief)"},
+    {"arm": "taste-skill", "metric": "pageCount", "value": 5},
+
+    {"arm": "taste2", "metric": "wallMinutes", "value": 38.0,
+     "note": "2,279.0 s, first message to last recorded token event"},
+    {"arm": "taste2", "metric": "tokensOutput", "value": 89922},
+    {"arm": "taste2", "metric": "tokensInputUncached", "value": 464702},
+    {"arm": "taste2", "metric": "tokensCacheRead", "value": 412103},
+    {"arm": "taste2", "metric": "toolCalls", "value": 15,
+     "note": "6 bash + 1 read + 7 write + 1 edit"},
+    {"arm": "taste2", "metric": "messages", "value": 19,
+     "note": "4 user + 15 assistant; four user turns (skill-load message, the brief, an opencode auto-compaction bookkeeping event, and a \"continue if you have next steps\" nudge) — the only one of the three sessions with a compaction event"},
+    {"arm": "taste2", "metric": "pageCount", "value": 5}
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "second-brain-iterations",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  }
+}
