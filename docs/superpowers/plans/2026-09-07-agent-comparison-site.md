@@ -44,15 +44,26 @@ either alone, and the other three arms never got that check.
 - Produces: a verified `codex-astra.md` on the same headings as the other three
   arms, plus a recorded verdict on whether its self-reported tokens match the logs.
 
-- [ ] **Step 1: Wait for the file, then read it**
+- [ ] **Step 1: Read the file the arm wrote**
 
 ```bash
-ls -la /Users/vitor/LocalProjects/hyper-runner-astra/STATS.md
+cat /Users/vitor/LocalProjects/hyper-runner-astra/STATS.md
 ```
 
-If it is absent, stop and report that — do not start reconstructing one from
-logs in parallel. Two records of the same session, produced by different methods,
-is exactly the confusion this task exists to avoid.
+It exists (written 2026-09-07). Three things about it differ from the other
+three arms, and each is handled below, not smoothed over:
+
+1. **It is in Portuguese.** Site copy is English (Global Constraints). The
+   authentic self-report is kept as the arm wrote it; every dashboard-facing
+   figure and note goes into `arms.json` in English. The write-up states that
+   this arm reported in Portuguese.
+2. **Its headings differ** (Sessão, Tokens, Custo, Projeto, Verificação
+   registrada, Validação deste relatório, Fontes). Map its figures onto the same
+   `arms.json` metrics as the others; do not force the file itself to match.
+3. **It is multi-model and multi-agent.** It reports `gpt-6-astra`,
+   `gpt-5.6-sol` and `codex-auto-review` across **5 delegated agents**, totalling
+   **18.6 M tokens**. The other three arms are single-model, single-agent. This
+   is a structural difference, not a detail — see Step 4.
 
 - [ ] **Step 2: Write the verification script**
 
@@ -132,16 +143,21 @@ python3 bench/agent-build-off/scripts/verify_codex_stats.py \
       ~/.codex/sessions/2026/09/0*/*.jsonl ~/.codex/archived_sessions/*.jsonl 2>/dev/null)
 ```
 
-Sanity floor: `model` must be `gpt-6-astra`, and the summed totals must be at
-least the largest single session's — 10,429,199 input, 51,706 output, 8,482
-reasoning. If `session_count` is 0, the `cwd` string did not match; print one
-`session_meta` line and compare exactly.
+The script sums `total_token_usage` across sessions, which is cumulative across
+every model in each session, so its total should reconcile with the STATS grand
+**total of 18.6 M tokens** — not with `gpt-6-astra` alone (11.4 M). `token_count`
+does not break down by model, so the script gives one summed figure; the arm's
+per-model table (gpt-6-astra 11.4 M, gpt-5.6-sol 6.3 M, codex-auto-review 0.86 M)
+is finer than the logs expose to this script. Verify the total, not the split.
 
-Compare each figure with the same figure in the arm's `STATS.md`. **Exact
-agreement is not required** — the arm may legitimately scope its totals
-differently, for example excluding the session that wrote the file. What matters
-is that any difference has a stated reason. Record the comparison as a table:
-self-reported, log-derived, and the explanation for each gap.
+If `session_count` is 0, the `cwd` string did not match; print one `session_meta`
+line and compare exactly.
+
+Compare the log-derived total with the arm's grand total. **Exact agreement is
+not required** — the arm states it excludes the session that wrote the file, so
+the logs (which include it) will read slightly higher. What matters is that the
+difference has a stated reason. Record the comparison as a table: self-reported,
+log-derived, and the explanation for each gap.
 
 - [ ] **Step 4: Record which convention the arm used for the stats session**
 
@@ -154,14 +170,20 @@ figures:
 | `opencode-qwen38-superpowers` | includes it — "Totals were read while this stats request was running, so they include it" |
 | `claude-opus5` | says nothing |
 
-Establish which of the three `codex-astra` used, from its own text and from your
-Step 3 comparison. This is a real cross-arm inconsistency in a headline metric,
-not a footnote: Task 4 records it per arm in `arms.json` as
-`statsSessionIncluded` with values `true`, `false` or `null`, and Task 7 states
-it on the dashboard beside the token figures.
+`codex-astra` states it plainly: "O relatório não inclui os tokens usados para
+criar este arquivo" — it **excludes** the stats session, so
+`statsSessionIncluded` is `false`. This is a real cross-arm inconsistency in a
+headline metric, not a footnote: Task 4 records it per arm in `arms.json`, and
+Task 7 states it on the dashboard beside the token figures.
 
 For `claude-opus5`, which says nothing, the value is `null` and the note reads
 "not stated". Do not infer it.
+
+**Also record that `codex-astra` is multi-model and multi-agent.** Add a roster
+note that its 18.6 M tokens span three models across five delegated agents, so
+its token total is not comparable to the single-model arms at all — a larger
+caveat than the stats-session one. The other three each ran one model in one
+agent.
 
 - [ ] **Step 5: Copy the file into the campaign**
 
@@ -761,11 +783,18 @@ In the page's own words, not a footnote:
 - `opencode-qwen38-superpowers` ran with a skills library the others lacked.
 - Only `codex-astra` has a measured frame rate — 60.00 fps mean over 125 s. The other three record it as not collected. That is a gap in the others, not a win for this arm.
 - `hyper-runner-fable` never ran and is absent.
-- The arms do not agree on whether the session that wrote their stats file is
-  counted in their own token totals: one excludes it, one includes it, one does
-  not say. Show each arm's `statsSessionIncluded` beside its token figures. A
-  token comparison across arms that disagree on this is approximate, and the page
-  must say so rather than presenting the totals as directly comparable.
+- **`codex-astra` is not a single-model run.** Its 18.6 M tokens span three
+  models (`gpt-6-astra`, `gpt-5.6-sol`, `codex-auto-review`) across five
+  delegated agents; the other three arms each ran one model in one agent. Its
+  token total is therefore not comparable to theirs at all. Show this beside its
+  figures, not as a footnote — a reader must not read 18.6 M against 240 K output
+  as the same axis.
+- The arms also disagree on whether the session that wrote their stats file is
+  counted in their token totals: astra excludes it, `opencode-qwen38` excludes
+  it, `opencode-qwen38-superpowers` includes it, `claude-opus5` does not say.
+  Show each arm's `statsSessionIncluded` beside its token figures.
+- `codex-astra` reported in Portuguese; the other three in English. The page's
+  own copy is English; the figures are the arm's own.
 
 - [ ] **Step 5: Verify every figure traces to the data**
 
@@ -1225,6 +1254,11 @@ If Steps 1-4 surfaced problems, fix them at the right layer — a path fix belon
 ---
 
 ### Task 12: Update the hub and deploy
+
+> **STOP BEFORE DEPLOY.** Execution pauses after Step 3 (commit and push). Steps
+> 4-6 run the workflow and publish to the public site, which is outward-facing;
+> the user reviews the assembled site (Task 11's evidence) and gives an explicit
+> go before those steps run. Do not trigger the workflow without that go.
 
 **Files:**
 - Modify: `reports/index.html`
