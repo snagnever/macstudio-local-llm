@@ -91,8 +91,9 @@
   body[data-size="2"] .tiles { --cols: 2; }
   body[data-size="3"] .tiles { --cols: 3; }
   body[data-size="4"] .tiles { --cols: 4; }
-  /* wide artifacts (16:10 screenshots) never go past two across */
-  body[data-size="3"] .tiles.wide, body[data-size="4"] .tiles.wide { --cols: 2; }
+  /* wide artifacts (16:10 screenshots): the four game shots sit two across, the three skill shots three across */
+  body[data-size="3"] .tiles.game, body[data-size="4"] .tiles.game { --cols: 2; }
+  body[data-size="4"] .tiles.skill { --cols: 3; }
 
   /* ---------------- cells ---------------- */
   figure.cell { margin: 0; min-width: 0; }
@@ -159,8 +160,7 @@
   }
   @media (max-width: 860px) {
     :root { --gutter: 16px; --gap: 16px; }
-    body[data-size="3"] .tiles, body[data-size="4"] .tiles, body[data-size="2"] .tiles.wide,
-    body[data-size="3"] .tiles.wide, body[data-size="4"] .tiles.wide { --cols: 2; }
+    body[data-size="3"] .tiles, body[data-size="4"] .tiles, body[data-size="4"] .tiles.skill { --cols: 2; }
     .lb { grid-template-columns: minmax(0, 1fr); }
     .lb-stage { border-right: 0; border-bottom: 1px solid var(--line); min-height: 200px; }
     .lb-stage img { max-height: 50vh; }
@@ -389,13 +389,13 @@ var DATA = {"generated_at": "2026-09-08", "drawings": {"questions": [{"q": 0, "l
     return fig;
   }
 
-  function row(parent, title, sub, specs, wide) {
+  function row(parent, title, sub, specs, kind) {
     var r = el("div", "row");
     var h = el("div", "rowhead");
     h.appendChild(el("span", "rowtitle", esc(title)));
     if (sub) h.appendChild(el("span", "rowsub", esc(sub)));
     r.appendChild(h);
-    var tiles = el("div", "tiles" + (wide ? " wide" : ""));
+    var tiles = el("div", "tiles" + (kind ? " wide " + kind : ""));
     specs.forEach(function (s) { tiles.appendChild(cell(s)); });
     r.appendChild(tiles);
     parent.appendChild(r);
@@ -511,7 +511,7 @@ var DATA = {"generated_at": "2026-09-08", "drawings": {"questions": [{"q": 0, "l
       });
     });
     row(document.getElementById("gameRow"), "Hyper runner",
-      "The same brief, four stacks, one session each", group, true);
+      "The same brief, four stacks, one session each", group, "game");
   })();
 
   /* ---------------- skills ---------------- */
@@ -564,7 +564,7 @@ var DATA = {"generated_at": "2026-09-08", "drawings": {"questions": [{"q": 0, "l
       });
     });
     row(skillRows, "Second brain, iteration " + n,
-      "One landing-page brief, three design skills", group, true);
+      "One landing-page brief, three design skills", group, "skill");
   }
 
   function renderSkills() {
