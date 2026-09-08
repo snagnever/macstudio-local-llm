@@ -68,6 +68,20 @@ jobs:
           rm -f site/demos/layout/design-skill/skills-lock.json
           rm -rf site/demos/layout/design-skill/.agents
           tools/publish/fix-layout-arms.sh site
+          # harness-matrix-svgbench.html references ../bench/harness-matrix/ for its
+          # SVGBench scores, verdicts, run records, and the gallery's SVGs. Two steps
+          # make those resolve on the published site:
+          #  1. Export the tracked subtree (results, plan.md, the 89 tracked logs SVGs)
+          #     into site/bench/. git archive exports only tracked files, so the
+          #     gitignored transcripts stay out.
+          #  2. The page lives at reports/ in the repo, where ../bench points at the
+          #     repo-root bench/. Assembly flattens reports/ to the site root, so ../bench
+          #     would resolve above the /macstudio-local-llm/ site root and 404. Rewrite
+          #     the assembled copy's ../bench/harness-matrix/ to bench/harness-matrix/.
+          git archive HEAD bench/harness-matrix | tar -x -C site/
+          sed -i.bak -E 's#\.\./bench/harness-matrix/#bench/harness-matrix/#g' \
+            site/harness-matrix-svgbench.html
+          rm -f site/harness-matrix-svgbench.html.bak
 
       - name: Check the assembled tree
         run: |
@@ -86,6 +100,9 @@ jobs:
             test -f "site/demos/layout/$arm/index.html"
           done
           test -f site/demos/layout/taste-skill/404.html
+          test -f site/bench/harness-matrix/results/svgbench/scores.json
+          test -f site/bench/harness-matrix/plan.md
+          test "$(find site/bench/harness-matrix/logs -name '*.svg' | wc -l)" -ge 80
           if grep -rIl 'src="/assets/\|href="/assets/' site/demos >/dev/null 2>&1; then
             echo "root-absolute asset paths survived the base fix:"
             grep -rIl 'src="/assets/\|href="/assets/' site/demos
