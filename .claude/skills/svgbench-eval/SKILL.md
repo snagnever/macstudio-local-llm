@@ -32,6 +32,8 @@ All paths below are relative to `bench/harness-matrix/`. Driver: `scripts/svgben
 4. **Score.** `python3 scripts/svgbench/svgbench_eval.py score` rewrites `scores.json`.
    A `StaleVerdict` error names a verdict whose requirement texts no longer match the
    pinned `scripts/svgbench/questions.json`: re-judge that artifact.
+   Then `python3 scripts/svgbench/gallery_data.py` rewrites the gallery block of
+   `reports/harness-matrix-svgbench.html`; `--check` reports whether it is stale.
 5. **Tests.** `python3 tests/test_svgbench_eval.py` after any driver change.
 6. **Cite.** If `results/<harness>/<model>.md` exists, add one line to the task's bullet
    list, in this form: `- **SVGBench:** 4/10 (q13) · verdict: `../svgbench/verdicts/<harness>/<model>/<slug>.json``.

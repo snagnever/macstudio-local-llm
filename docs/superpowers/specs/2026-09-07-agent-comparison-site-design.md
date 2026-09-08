@@ -482,7 +482,7 @@ Two files rendered overlapping views of the same data.
 take series, head-to-head, by-question, and unscored list — built from
 `scores.json`.
 
-The gallery is deleted and the scoring dashboard is the single SVG page.
+The standalone gallery is deleted; the scoring dashboard is the single SVG page and carries its own gallery section, generated from scores.json (plan: 2026-09-07-svgbench-gallery.md).
 Three reasons: AGENTS.md places dashboards in `reports/`, not in a campaign
 directory; the gallery carried no scores, so it could not answer the
 comparison question; and after re-judging, only 5 off-benchmark artifacts stay

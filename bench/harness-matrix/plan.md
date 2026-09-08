@@ -60,6 +60,8 @@ judged on a headless-Chrome render (SVGBench renders with Chrome too).
 - Renders go to `logs/renders/` (gitignored, PNG).
 - Recipe for updating after a new artifact or re-judging: the project skill
   `.claude/skills/svgbench-eval/SKILL.md`.
+- Gallery: `scripts/svgbench/gallery_data.py` regenerates the `GALLERY` block in
+  `reports/harness-matrix-svgbench.html` from `scores.json`. Run it after every `score`.
 
 Caveat: the subset is small, the artifacts came through coding harnesses (not the
 SVGBench direct-API loop), and every artifact was judged by a single judge,
