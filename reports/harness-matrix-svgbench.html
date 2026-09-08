@@ -760,6 +760,7 @@ GALLERY.forEach(function (x) {
       x.isFirst = x === (statics[0] || items[0]);
       x.isLast = x === (statics[statics.length - 1] || items[items.length - 1]);
       x.isBest = x.score != null && x.score === best && items.length > 1;
+      x.isBestPick = x.score != null && x.score === best;
     });
   });
 })();
@@ -786,7 +787,7 @@ fillSelect(promptFilter, uniq(GALLERY.map(function (x) { return x.promptLabel; }
 function takePass(x) {
   if (gState.takes === "first") return x.isFirst;
   if (gState.takes === "last") return x.isLast;
-  if (gState.takes === "best") return x.isBest || x.score == null && x.isLast;
+  if (gState.takes === "best") return x.isBestPick || x.score == null && x.isLast;
   if (gState.takes === "animated") return x.take === "animated";
   return true;
 }
@@ -896,6 +897,9 @@ function writeHash() {
   if (scoredOnly.checked) p.push("scored=1");
   history.replaceState(null, "", p.length ? "#gallery?" + p.join("&") : location.pathname + location.search + (location.hash.indexOf("#gallery") === 0 ? "#gallery" : location.hash));
 }
+function optionValues(select) {
+  return Array.prototype.map.call(select.options, function (o) { return o.value; });
+}
 function readHash() {
   var h = location.hash;
   if (h.indexOf("#gallery?") !== 0) return;
@@ -903,10 +907,10 @@ function readHash() {
     var k = kv.split("=")[0], v = decodeURIComponent(kv.split("=").slice(1).join("="));
     if (k === "g" && ["prompt", "harness", "model"].indexOf(v) >= 0) { gState.group = v; setSeg(groupSeg, v); }
     if (k === "t" && ["all", "first", "last", "best", "animated"].indexOf(v) >= 0) { gState.takes = v; setSeg(takeSeg, v); }
-    if (k === "h") harnessFilter.value = v;
-    if (k === "m") modelFilter.value = v;
-    if (k === "p") promptFilter.value = v;
-    if (k === "s") minScore.value = v;
+    if (k === "h" && optionValues(harnessFilter).indexOf(v) >= 0) harnessFilter.value = v;
+    if (k === "m" && optionValues(modelFilter).indexOf(v) >= 0) modelFilter.value = v;
+    if (k === "p" && optionValues(promptFilter).indexOf(v) >= 0) promptFilter.value = v;
+    if (k === "s" && optionValues(minScore).indexOf(v) >= 0) minScore.value = v;
     if (k === "scored") scoredOnly.checked = v === "1";
   });
 }
