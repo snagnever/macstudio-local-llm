@@ -167,7 +167,8 @@
   }
   @media (max-width: 560px) {
     .bar h1 { font-size: 18px; }
-    .bar .size { margin-left: 0; }
+    /* one artifact across is the only sensible width here, so the control goes */
+    .bar .size { display: none; }
     body[data-size] .tiles, body[data-size] .tiles.wide { --cols: 1; }
   }
   @media (prefers-reduced-motion: reduce) {
