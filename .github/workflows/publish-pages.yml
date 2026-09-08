@@ -6,7 +6,9 @@ on:
     paths:
       - 'reports/**'
       - 'bench/agent-build-off/demos/**'
+      - 'bench/agent-build-off/results/**'
       - 'bench/layout-skill-bench/demos/**'
+      - 'bench/layout-skill-bench/results/**'
       - 'tools/publish/**'
       - '.github/workflows/publish-pages.yml'
   workflow_dispatch:
@@ -82,6 +84,15 @@ jobs:
           sed -i.bak -E 's#\.\./bench/harness-matrix/#bench/harness-matrix/#g' \
             site/harness-matrix-svgbench.html
           rm -f site/harness-matrix-svgbench.html.bak
+          # artifacts.html shows drawings and screenshots from all three campaigns and
+          # references them as ../bench/<campaign>/... . harness-matrix is already
+          # exported above; export the two results subtrees it also needs (arms.json,
+          # the per-arm notes, and the shots/ WebPs — all tracked and small), then
+          # rewrite every ../bench/ in the assembled copy the same way.
+          git archive HEAD bench/agent-build-off/results | tar -x -C site/
+          git archive HEAD bench/layout-skill-bench/results | tar -x -C site/
+          sed -i.bak -E 's#\.\./bench/#bench/#g' site/artifacts.html
+          rm -f site/artifacts.html.bak
 
       - name: Check the assembled tree
         run: |
@@ -92,6 +103,7 @@ jobs:
           test -f site/agent-build-off.html
           test -f site/layout-skill-bench.html
           test -f site/harness-matrix-svgbench.html
+          test -f site/artifacts.html
           test -f site/charts-common.js
           for arm in opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra; do
             test -f "site/demos/build-off/$arm/index.html"
@@ -103,6 +115,8 @@ jobs:
           test -f site/bench/harness-matrix/results/svgbench/scores.json
           test -f site/bench/harness-matrix/plan.md
           test "$(find site/bench/harness-matrix/logs -name '*.svg' | wc -l)" -ge 80
+          test -f site/bench/agent-build-off/results/shots/claude-opus5.webp
+          test -f site/bench/layout-skill-bench/results/shots/taste2-5.webp
           if grep -rIl 'src="/assets/\|href="/assets/' site/demos >/dev/null 2>&1; then
             echo "root-absolute asset paths survived the base fix:"
             grep -rIl 'src="/assets/\|href="/assets/' site/demos

@@ -237,6 +237,28 @@ The six `chartRef*` charts are built by `buildRankedChart(...)` over the full `M
 
 The toggle `Show data labels on bars` (header) flips the shared `labelsOn` inside `charts-common.js` via `ChartsCommon.bindLabelToggle(...)`. Every chart built through the helpers is auto-registered, so no wiring is needed when adding one. The scoreboard is an HTML table, so the toggle does not affect it.
 
+## Artifacts gallery (`artifacts.html`)
+
+One page showing what the models made, across three campaigns: the SVGBench drawings from `bench/harness-matrix/logs/`, screenshots of the four Agent Build-Off games, and screenshots of the fifteen Layout Skill Bench landing pages. Each artifact sits next to its score or its source.
+
+The page is self-contained, but its data block is generated:
+
+```bash
+python3 tools/artifacts_data.py           # regenerate the data block in reports/artifacts.html
+python3 tools/artifacts_data.py --check   # exit 0 if the block matches the sources
+```
+
+Run it after any change to `bench/harness-matrix/results/svgbench/scores.json`, `bench/agent-build-off/results/arms.json`, or `bench/layout-skill-bench/results/arms.json`.
+
+The screenshots are captured by two scripts, one per campaign. Each builds or serves the arm's demo and writes WebP files into that campaign's `results/shots/`:
+
+```bash
+bench/agent-build-off/scripts/capture-shots.sh      # -> results/shots/<arm>.webp
+bench/layout-skill-bench/scripts/capture-shots.sh   # -> results/shots/<arm>-<n>.webp
+```
+
+**Path convention.** Like `harness-matrix-svgbench.html`, the page addresses every asset and source link as `../bench/<campaign>/...` so it works when opened straight from the repo. Publishing flattens `reports/` to the site root, where `../bench` would resolve above it — so `.github/workflows/publish-pages.yml` exports the three `bench/` subtrees into `site/bench/` with `git archive` and rewrites `../bench/` to `bench/` in the assembled `site/artifacts.html`. Keep new links in the `../bench/` form; the workflow handles the rest.
+
 ## Models card — Best for / Expected usage
 
 Both files use a **wide** card (`<section class="card wide">`) for the model table so the qualitative-description columns have room to breathe. The two right-most cells per row carry the editorial copy:
