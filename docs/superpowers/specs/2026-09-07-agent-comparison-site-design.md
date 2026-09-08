@@ -137,16 +137,25 @@ Two gaps. Both sources are verified present.
 
 ### Arm `codex-astra`
 
-No `STATS.md`. Eight Codex rollout files sit under
-`~/.codex/sessions/2026/09/06/`, matched by `cwd`
+**Superseded, 2026-09-07: Codex is writing this arm's own `STATS.md`**, as the
+other three arms did. That is the better arrangement — all four arms then carry
+a self-reported record on comparable headings, instead of three self-reported
+and one reconstructed by a different agent from logs.
+
+The recovery this section described becomes the *verification* instead. Eight
+Codex rollout files sit under `~/.codex/sessions/2026/09/06/`, matched by `cwd`
 `/Users/vitor/LocalProjects/hyper-runner-astra`. They carry `token_count`
 events with exact totals; the largest session reports 10,429,199 input tokens
 (10,276,864 cached), 51,706 output and 8,482 reasoning. Tool calls, prompts,
-model id `gpt-6-astra` and timestamps are all in the same files.
+model id `gpt-6-astra` and timestamps are all in the same files. The plan
+cross-checks the self-reported figures against them and records any difference
+with its reason — a check the other three arms never got.
 
-Recovery writes `bench/agent-build-off/results/codex-astra.md` on the same
-headings the other three use: Session, Tokens, Code, Libraries, Build output,
-Process, Defects, Not verified. Its existing `docs/VERIFICATION.md` and
+One inconsistency this surfaced, which the site must carry: the arms disagree on
+whether the session that wrote the stats file is inside their own token totals.
+`opencode-qwen38` excludes it, `opencode-qwen38-superpowers` includes it, and
+`claude-opus5` does not say. Since tokens are a headline metric, each arm records
+`statsSessionIncluded` and the dashboard shows it beside the token figures. Its existing `docs/VERIFICATION.md` and
 `docs/performance.json` fold into the Process and Not-verified sections. Arm
 `codex-astra` is the only arm with a measured frame rate — 60.00 fps mean over
 125 s — which the other three list as "not collected". The site shows that
