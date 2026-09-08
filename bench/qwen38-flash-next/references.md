@@ -105,6 +105,18 @@ PLE at layer 1, QSA budget 2048/4`), MTP forçado ON. **Sem hack de offload, sem
 > fixado no `run-mlx-serve.sh` (arm FS). **Driver principal em uso e teste hoje: Flash-Next ddalcu no
 > mlx-serve 26.9.1 @128K, `--mtp` + prefix-cache 16GB/100GB/64.**
 
+> **Concorrência 2026-09-08 — batched decode NÃO engaja no Flash-Next (MoE); execução serial, limite 1.**
+> Teste no rig (v26.9.1, servidor no ar): 1 request = 4.7s / decode 106.6 tok/s; 4 requests concorrentes =
+> escada 3.6 / 7.2 / 10.8 / 14.4s, cada stream com decode **cheio** (113.7 tok/s) e **zero** eventos
+> `[batched] slots=N`. Com `MLX_SERVE_FORCE_BATCHED=1` + `MLX_SERVE_MOE_BATCHED_DECODE=1` o servidor loga
+> `force_batched=on — single-slot ticks will route through batched kernel`: troca o kernel de UM slot, não roda
+> vários juntos. O batched decode multi-request da changelog (2.76× em 4 streams) é dos trunks **densos**
+> Qwen 3.5/3.6/3.8; o `qwen4_exp` (MoE) mantém 1 slot — a especulação MoE (MTP) ocupa o slot único.
+> Consequência p/ OpenCode: rodar N agentes em paralelo **não soma throughput** (enfileiram); concorrência
+> real de decode exige um modelo denso. Distinto do outro sentido de "concorrente": sessões **quentes no
+> cache** (`--prefix-cache-entries`, hoje 64) — essas sim são configuráveis dentro do orçamento de memória
+> (16GB RAM / 100GB SSD): ~4 sessões de 128K na RAM, dezenas em contextos típicos de OpenCode (20–40K).
+
 O mlx-serve mantém a liderança de decode em todo contexto (@128K ~44 vs oQ4e/oMLX ~33; @256K 33.4 vs
 oMLX ~27 vs densas ~7-14). Cabe até o máximo nativo (256K, pico 119.7GB, sem swap) para UM request.
 **Borda (não bug):** o `tool_turn` @256K faz um segundo request sobre o contexto cheio, e o mlx-serve
