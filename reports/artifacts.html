@@ -1527,6 +1527,10 @@ var DATA = {"generated_at": "2026-09-08", "families": [{"key": "qwen", "color": 
     DATA.skills.arms.length + " skills · one model · one brief · five iterations each",
     { text: DATA.skills.brief, note: "Byte-identical in all three runs." });
 
+  // one model ran all three, and every page below is captioned with its skill,
+  // so the collapsed block leads with the chart and keeps the roster for later
+  document.getElementById("skillSession").classList.add("chart-only");
+
   function renderSkills() {
     skillRows.innerHTML = "";
     if (grouping === "iteration") {
