@@ -358,44 +358,56 @@ class TestFamilyColour(unittest.TestCase):
             self.assertTrue(f["label"])
 
 class TestRig(unittest.TestCase):
-    """The stack line: the machine, and one decode speed read from a results file."""
+    """The stack line: the machine, and the decode range read from results files."""
 
-    def _jsonl(self, rows):
-        fh = tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False)
-        for r in rows:
-            fh.write(json.dumps(r) + "\n")
-        fh.close()
-        self.addCleanup(os.unlink, fh.name)
-        return fh.name
-
-    def _run(self, tps):
-        return {"decode_tps": tps, "context_target": 32768, "runtime": "mlx-serve",
-                "runtime_revision": "v26.9.1", "model_id": "ddalcu/Qwen3.8-Flash-Next"}
-
-    def _with(self, path):
-        old = ad.RIG_DECODE
-        ad.RIG_DECODE = path
-        self.addCleanup(setattr, ad, "RIG_DECODE", old)
+    def _dir(self, files):
+        d = tempfile.mkdtemp()
+        for name, rows in files.items():
+            with open(os.path.join(d, name), "w", encoding="utf-8") as fh:
+                for r in rows:
+                    fh.write(json.dumps(r) + "\n")
+        old = ad.RIG_DECODE_DIR
+        ad.RIG_DECODE_DIR = d
+        self.addCleanup(setattr, ad, "RIG_DECODE_DIR", old)
         return ad.build_rig()
 
-    def test_decode_is_the_median_of_the_runs(self):
-        rig = self._with(self._jsonl([self._run(50.0), self._run(60.0), self._run(70.0)]))
-        self.assertEqual(rig["decode"]["tps"], 60.0)
-        self.assertEqual(rig["decode"]["n"], 3)
+    def _run(self, tps, context=32768, runtime="mlx-serve",
+             model="ddalcu/Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit"):
+        return {"decode_tps": tps, "context_target": context, "runtime": runtime,
+                "runtime_revision": "v26.9.1", "model_id": model}
 
-    def test_decode_names_the_runtime_build_and_its_file(self):
-        rig = self._with(self._jsonl([self._run(61.0)]))
-        self.assertEqual(rig["decode"]["runtime"], "mlx-serve v26.9.1")
-        self.assertTrue(rig["decode"]["source"].endswith(".jsonl"))
+    def test_the_range_rounds_outward_so_it_claims_no_unmeasured_speed(self):
+        rig = self._dir({"a.jsonl": [self._run(42.2), self._run(64.7)]})
+        self.assertEqual(rig["decode"]["low"], 42)
+        self.assertEqual(rig["decode"]["high"], 65)
+        self.assertEqual(rig["decode"]["n"], 2)
 
-    def test_a_missing_file_leaves_the_machine_but_no_speed(self):
-        rig = self._with(os.path.join(tempfile.gettempdir(), "no-such-decode-file.jsonl"))
+    def test_it_reads_every_file_in_the_directory(self):
+        rig = self._dir({"a.jsonl": [self._run(50.0)], "b.jsonl": [self._run(61.0)]})
+        self.assertEqual(rig["decode"]["n"], 2)
+        self.assertEqual(len(rig["decode"]["sources"]), 2)
+
+    def test_another_runtime_quantisation_or_a_longer_context_is_left_out(self):
+        rig = self._dir({"a.jsonl": [
+            self._run(60.0),
+            self._run(25.0, context=262144),
+            self._run(38.0, model="ddalcu/Qwen3.8-Flash-Next-oQ4e-mtp"),
+            self._run(90.0, runtime="llama.cpp"),
+        ]})
+        self.assertEqual(rig["decode"]["n"], 1)
+        self.assertEqual(rig["decode"]["low"], 60)
+
+    def test_the_context_ceiling_is_the_widest_run_in_the_range(self):
+        rig = self._dir({"a.jsonl": [self._run(60.0), self._run(45.0, context=131072)]})
+        self.assertEqual(rig["decode"]["contextMax"], 131072)
+
+    def test_an_empty_directory_leaves_the_machine_but_no_speed(self):
+        rig = self._dir({})
         self.assertIn("machine", rig)
         self.assertNotIn("decode", rig)
 
     def test_rows_without_a_decode_number_are_ignored(self):
-        rig = self._with(self._jsonl([{"decode_tps": None}, self._run(40.0)]))
-        self.assertEqual(rig["decode"]["tps"], 40.0)
+        rig = self._dir({"a.jsonl": [{"decode_tps": None}, self._run(40.0)]})
         self.assertEqual(rig["decode"]["n"], 1)
 
 

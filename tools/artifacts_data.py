@@ -23,7 +23,8 @@ locally, which is why their labels say so.
 import argparse
 import datetime
 import json
-import statistics
+import glob
+import math
 import os
 import re
 import sys
@@ -33,9 +34,14 @@ ROOT = os.path.abspath(os.path.join(HERE, ".."))
 SCORES = os.path.join(ROOT, "bench", "harness-matrix", "results", "svgbench", "scores.json")
 GAME_ARMS = os.path.join(ROOT, "bench", "agent-build-off", "results", "arms.json")
 SKILL_ARMS = os.path.join(ROOT, "bench", "layout-skill-bench", "results", "arms.json")
-# One decode measurement on the same runtime build the local SVGBench pair used.
-RIG_DECODE = os.path.join(ROOT, "bench", "qwen38-flash-next", "results",
-                          "refresh-20260904-v2691-32k.jsonl")
+# The decode speeds the page prints as a range. Only the runtime and the
+# quantisation the campaigns actually ran on count, at the context sizes a
+# coding session works at; the 262k rows measure a configuration none of these
+# runs used, so they would widen the range with numbers nobody here saw.
+RIG_DECODE_DIR = os.path.join(ROOT, "bench", "qwen38-flash-next", "results")
+RIG_DECODE_RUNTIME = "mlx-serve"
+RIG_DECODE_MODEL = "MLX-Serve-mixed-4-8bit"
+RIG_DECODE_MAX_CONTEXT = 131072
 # The machine itself, as docs/local-llm-reference.md records it.
 RIG_MACHINE = "Mac Studio M4 Max, 128 GB unified memory"
 # The local model's size, as bench/qwen38-flash-next/references.md records it:
@@ -486,30 +492,50 @@ def build_families():
     ]
 
 
-def build_rig():
-    """The machine, and one decode speed measured on it.
+def _decode_rows():
+    """Every decode measurement on the runtime and quantisation the campaigns ran."""
+    out = []
+    for path in sorted(glob.glob(os.path.join(RIG_DECODE_DIR, "*.jsonl"))):
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                lines = [line for line in fh if line.strip()]
+        except OSError:
+            continue
+        for line in lines:
+            try:
+                r = json.loads(line)
+            except ValueError:
+                continue
+            if not r.get("decode_tps"):
+                continue
+            if not str(r.get("runtime", "")).startswith(RIG_DECODE_RUNTIME):
+                continue
+            if RIG_DECODE_MODEL not in str(r.get("model_id", "")):
+                continue
+            if (r.get("context_target") or 0) > RIG_DECODE_MAX_CONTEXT:
+                continue
+            out.append((os.path.relpath(path, ROOT), r))
+    return out
 
-    The number is the median of the runs in one file of the qwen38-flash-next
-    campaign, recorded on the same runtime build and model the local SVGBench
-    pair used. No file, no number: the page then says nothing about speed.
+
+def build_rig():
+    """The machine, and the decode speed it runs the model at, as a range.
+
+    A single median reads as a promise; the range is what the rig actually did
+    across the measured runs. Both ends are rounded outward, so the printed band
+    never claims a speed no run reached. No measurements, no range: the page then
+    says nothing about speed.
     """
     rig = {"machine": RIG_MACHINE, "params": RIG_PARAMS}
-    try:
-        with open(RIG_DECODE, "r", encoding="utf-8") as fh:
-            rows = [json.loads(line) for line in fh if line.strip()]
-    except (OSError, ValueError):
-        rows = []
-    tps = [r["decode_tps"] for r in rows if r.get("decode_tps")]
+    rows = _decode_rows()
+    tps = [r["decode_tps"] for _, r in rows]
     if tps:
-        first = rows[0]
-        runtime = " ".join(x for x in (first.get("runtime"), first.get("runtime_revision")) if x)
         rig["decode"] = {
-            "tps": round(statistics.median(tps), 1),
+            "low": int(math.floor(min(tps))),
+            "high": int(math.ceil(max(tps))),
             "n": len(tps),
-            "context": first.get("context_target"),
-            "runtime": runtime,
-            "model": first.get("model_id", ""),
-            "source": os.path.relpath(RIG_DECODE, ROOT),
+            "contextMax": max((r.get("context_target") or 0) for _, r in rows),
+            "sources": sorted({src for src, _ in rows}),
         }
     return rig
 
