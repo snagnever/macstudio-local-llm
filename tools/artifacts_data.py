@@ -67,7 +67,10 @@ FALLBACK_COLOR = "#4a4e49"
 HARNESS_LABEL = {"opencode": "opencode", "claude": "Claude Code", "codex": "Codex"}
 
 SVG_PREFIX = "../bench/harness-matrix/"
+HARNESS_ROOT = os.path.join(ROOT, "bench", "harness-matrix")
+PARTICIPANTS = os.path.join(HARNESS_ROOT, "results", "svgbench", "participants.json")
 GAME_SHOTS = "../bench/agent-build-off/results/shots/"
+GAME_CLIPS = "../bench/agent-build-off/results/clips/"
 SKILL_SHOTS = "../bench/layout-skill-bench/results/shots/"
 
 GAME_METRICS = [("wallMinutes", "Wall time", " min"), ("tokensOutput", "Output tokens", ""),
@@ -100,7 +103,73 @@ def metric_text(value, unit=""):
     return "{:,.1f}".format(float(value)) + unit
 
 
+def _cfg(config):
+    """One participant row: who ran it, on what, at what thinking level.
+
+    Every value comes from a results file. A level that file does not state
+    stays None and the page prints "not recorded" — this campaign set records
+    a reasoning effort for exactly one pair.
+    """
+    config = config or {}
+    harness = config.get("harness") or ""
+    if config.get("harnessVersion"):
+        harness += " " + config["harnessVersion"]
+    return {
+        "harness": harness,
+        "model": config.get("modelId") or "",
+        "runtime": config.get("runtime") or "",
+        "effort": config.get("effort") or "",
+        "source": config.get("source") or "",
+    }
+
+
+def _extreme(arms, key, want_max, label, why=""):
+    """The arm at one end of a metric, with the caveat its results file attaches.
+
+    Returns None when no arm reports the metric, so a summary never invents a
+    winner out of missing data.
+    """
+    rows = []
+    for a in arms:
+        m = next((x for x in a["metrics"] if x["key"] == key), None)
+        if m and m.get("value") is not None:
+            rows.append((a, m))
+    if not rows:
+        return None
+    a, m = (max if want_max else min)(rows, key=lambda r: r[1]["value"])
+    return {"label": label, "who": a.get("skillConfig") or a["label"],
+            "value": m["text"], "note": m.get("note") or "", "why": why}
+
+
 # ---------------------------------------------------------------- drawings
+
+_VIEWBOX = re.compile(r'viewBox\s*=\s*"\s*([-\d.eE]+)[,\s]+([-\d.eE]+)[,\s]+([-\d.eE]+)[,\s]+([-\d.eE]+)\s*"')
+_WH = re.compile(r'\b(width|height)\s*=\s*"\s*([\d.]+)\s*(?:px)?\s*"')
+DEFAULT_ASPECT = 4 / 3
+
+
+def aspect_of(svg_path):
+    """The drawing's own width/height, so its frame matches the artwork exactly.
+
+    A frame in a fixed ratio letterboxes every SVG that does not share it. Reads
+    the viewBox first, falls back to width/height, and to 4:3 when neither
+    parses. Only the file's head is read; the viewBox is in the root element.
+    """
+    try:
+        with open(svg_path, "r", encoding="utf-8", errors="replace") as fh:
+            head = fh.read(4000)
+    except OSError:
+        return DEFAULT_ASPECT
+    m = _VIEWBOX.search(head)
+    if m:
+        w, h = float(m.group(3)), float(m.group(4))
+        if w > 0 and h > 0:
+            return w / h
+    dims = {k: float(v) for k, v in _WH.findall(head)}
+    if dims.get("width", 0) > 0 and dims.get("height", 0) > 0:
+        return dims["width"] / dims["height"]
+    return DEFAULT_ASPECT
+
 
 def judge_of(artifact):
     """The model that wrote this artifact's verdict, or "" when none is recorded."""
@@ -136,22 +205,36 @@ def build_drawings(scores):
             "slug": a["slug"], "base": base, "take": take,
             "takeLabel": TAKE_LABEL[take],
             "file": SVG_PREFIX + a["artifact"],
+            "aspect": round(aspect_of(os.path.join(HARNESS_ROOT, a["artifact"])), 4),
             "animated": bool(a.get("animated")),
             "selfJudged": self_judged,
             "score": a["score"], "met": a["met"], "total": a["total"],
             "reqs": [{"t": r["text"], "m": bool(r["met"]), "n": r.get("note", "")}
                      for r in a["requirements"]],
-            "best": False,
+            "best": False, "last": False,
         })
 
+    # Reading order, not question-bank order: the two drawings every pair
+    # attempted lead, then the questions with the most models to compare.
+    LEAD = [7, 0]
+
+    def question_order(q):
+        if q in LEAD:
+            return (0, LEAD.index(q), 0)
+        return (1, -len({t["pair"] for t in by_q[q]}), q)
+
     questions = []
-    for q in sorted(by_q):
+    for q in sorted(by_q, key=question_order):
         takes = by_q[q]
         takes.sort(key=lambda t: (t["pair"], TAKE_RANK[t["take"]]))
         for key in {t["pair"] for t in takes}:
             mine = [t for t in takes if t["pair"] == key]
             best = min(mine, key=lambda t: (-t["score"], TAKE_RANK[t["take"]]))
             best["best"] = True
+            # the take the pair ended on, and an animated one wins over a still:
+            # TAKE_RANK already ends at "animated", so the highest rank is it
+            last = max(mine, key=lambda t: (t["animated"], TAKE_RANK[t["take"]]))
+            last["last"] = True
         questions.append({
             "q": q,
             "label": PROMPT_LABEL.get(q, "Question %d" % q),
@@ -166,9 +249,54 @@ def build_drawings(scores):
     # page says this next to the scores; harness-matrix-svgbench.html says it too.
     judges = {judge_of(a) for a in scores["artifacts"] if a.get("question_index") is not None}
     judges.discard("")
+
+    # Who ran each pair, and the mean it scored. The means cover different
+    # question sets, which the summary says rather than hiding.
+    cfgs = {}
+    try:
+        with open(PARTICIPANTS, "r", encoding="utf-8") as fh:
+            cfgs = {c["key"]: c for c in json.load(fh)["pairs"]}
+    except (OSError, ValueError, KeyError):
+        cfgs = {}
+    means = {"%s/%s" % (p["harness"], p["model"]): p for p in scores.get("pairs", [])}
+    roster = []
+    for p in sorted(pairs.values(), key=lambda p: (p["hosted"], p["key"])):
+        m = means.get(p["key"], {})
+        row = dict(_cfg(cfgs.get(p["key"])))
+        row.update({
+            "key": p["key"], "label": p["model"], "color": p["color"],
+            "hosted": p["hosted"], "n": m.get("artifacts_scored"),
+            "mean": round(m["mean_score"], 3) if m.get("mean_score") is not None else None,
+            "selfJudged": p["selfJudged"],
+        })
+        roster.append(row)
+
+    scored = [r for r in roster if r["mean"] is not None]
+    summary, summary_note = [], ""
+    if len(scored) > 1:
+        def row(r, label):
+            return {"label": label, "who": r["label"], "value": "%.3f" % r["mean"],
+                    "note": "over %d drawing%s" % (r["n"], "" if r["n"] == 1 else "s"),
+                    "why": ("it judged its own drawings" if r["selfJudged"] else "")}
+        summary = [row(max(scored, key=lambda r: r["mean"]), "Highest mean"),
+                   row(min(scored, key=lambda r: r["mean"]), "Lowest mean")]
+        # The means are not a ranking and the page must not let them read as one:
+        # each pair attempted a different set of questions, and the counts run
+        # from one drawing to twenty-eight.
+        ns = sorted(r["n"] for r in scored)
+        summary_note = (
+            "These two are the ends of the scale, not a ranking. Each pair attempted a "
+            "different set of questions, and the counts behind the means run from %d "
+            "drawing to %d, so a high mean over a handful is not a better model than a "
+            "lower mean over many." % (ns[0], ns[-1])
+        )
+
     return {
         "questions": questions,
         "pairs": sorted(pairs.values(), key=lambda p: (p["hosted"], p["key"])),
+        "roster": roster,
+        "summary": summary,
+        "summaryNote": summary_note,
         "judge": {
             "model": sorted(judges)[0] if len(judges) == 1 else "",
             "selfJudged": sum(1 for q in questions for t in q["takes"] if t["selfJudged"]),
@@ -196,11 +324,27 @@ def build_game(arms):
             "id": a["id"], "label": a["label"], "harness": a["harness"], "model": a["model"],
             "hosted": bool(a["hosted"]), "color": a.get("color", FALLBACK_COLOR),
             "shot": GAME_SHOTS + a["id"] + ".webp",
+            # A 60 fps loop of the start screen, when one was recorded. The page
+            # plays it over the still and falls back to the still without it.
+            "clip": (GAME_CLIPS + a["id"] + ".mp4"
+                     if os.path.exists(os.path.join(ROOT, "bench", "agent-build-off",
+                                                    "results", "clips", a["id"] + ".mp4"))
+                     else ""),
             "demo": "demos/build-off/%s/" % a["id"],
             "note": a.get("multiModelNote") or "",
             "metrics": _metrics(arms["results"], a["id"], GAME_METRICS),
         })
-    return {"brief": arms.get("brief", ""), "arms": out}
+        out[-1].update(_cfg(a.get("config")))
+    # No quality score exists for this campaign, so the summary names the ends
+    # of each measured run instead of declaring a winner.
+    summary = [x for x in (
+        _extreme(out, "wallMinutes", False, "Shortest run"),
+        _extreme(out, "wallMinutes", True, "Longest run"),
+        _extreme(out, "tokensOutput", True, "Most output tokens"),
+        _extreme(out, "sourceLines", True, "Most source shipped"),
+        _extreme(out, "defectsFound", True, "Most defects caught in its own work"),
+    ) if x]
+    return {"brief": arms.get("brief", ""), "arms": out, "summary": summary}
 
 
 # Per-arm page URL rule, copied verbatim from reports/layout-skill-bench.html.
@@ -227,7 +371,15 @@ def build_skills(arms):
                        "page": page_for(a["id"], n)} for n in ITERATIONS],
             "metrics": _metrics(arms["results"], a["id"], SKILL_METRICS),
         })
-    return {"brief": arms.get("brief", ""), "arms": out}
+        out[-1].update(_cfg(a.get("config")))
+    # This campaign scored nothing: it varied one skill and kept everything else
+    # fixed, so the summary reports cost, and says the quality call is the eye's.
+    summary = [x for x in (
+        _extreme(out, "wallMinutes", False, "Fastest session"),
+        _extreme(out, "wallMinutes", True, "Longest session"),
+        _extreme(out, "tokensOutput", True, "Most output tokens"),
+    ) if x]
+    return {"brief": arms.get("brief", ""), "arms": out, "summary": summary}
 
 
 # ------------------------------------------------------------------ block

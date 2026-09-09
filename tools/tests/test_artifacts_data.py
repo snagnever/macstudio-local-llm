@@ -118,8 +118,9 @@ class TestDrawings(unittest.TestCase):
         self.d = ad.build_drawings(SCORES)
         self.q0 = [q for q in self.d["questions"] if q["q"] == 0][0]
 
-    def test_questions_in_question_index_order(self):
-        self.assertEqual([q["q"] for q in self.d["questions"]], [0, 7])
+    def test_questions_in_reading_order_dolphin_then_cow(self):
+        # 7 and 0 lead in that order whatever their fields look like
+        self.assertEqual([q["q"] for q in self.d["questions"]], [7, 0])
 
     def test_question_carries_label_and_verbatim_prompt(self):
         self.assertEqual(self.q0["label"], "Cow plowing")
@@ -148,7 +149,9 @@ class TestDrawings(unittest.TestCase):
         self.assertEqual(keys, sorted(keys))
 
     def test_take_carries_site_relative_file_and_flags(self):
-        t = [t for t in self.d["questions"][1]["takes"] if t["slug"] == "dolphin-animated"][0]
+        # dolphin now leads the reading order, so it is questions[0]
+        t = [t for q in self.d["questions"] for t in q["takes"]
+             if t["slug"] == "dolphin-animated"][0]
         self.assertEqual(t["file"], "../bench/harness-matrix/logs/opencode/gpt-5.6-terra/dolphin-animated.svg")
         self.assertTrue(t["animated"])
         self.assertEqual(t["take"], "animated")
@@ -171,6 +174,113 @@ class TestDrawings(unittest.TestCase):
         by = {p["key"]: p for p in self.d["pairs"]}
         self.assertEqual(by["opencode/gpt-5.6-terra"]["qs"], [7])
         self.assertEqual(by["opencode/qwen3.8-flash-next"]["n"], 3)
+
+
+class TestQuestionOrder(unittest.TestCase):
+    """Reading order: dolphin, cow, then the questions with the most pairs."""
+
+    def _order(self, extra):
+        scores = json.loads(json.dumps(SCORES))
+        scores["questions"] += [
+            {"question_index": 4, "prompt": "a duck", "n_requirements": 2, "requirements": []},
+            {"question_index": 6, "prompt": "a car", "n_requirements": 2, "requirements": []},
+            {"question_index": 13, "prompt": "a barrel", "n_requirements": 2, "requirements": []},
+        ]
+        scores["artifacts"] = scores["artifacts"] + extra
+        return [q["q"] for q in ad.build_drawings(scores)["questions"]]
+
+    def test_lead_questions_come_first_even_with_the_smallest_field(self):
+        # q4 gets three pairs, more than either lead question, and still follows them
+        extra = [_art("opencode", m, "rubber-ducky", 4, 0.5, 1, 2)
+                 for m in ("qwen3.8-flash-next", "gpt-5.6-terra", "qwen3.8-27b-8bit")]
+        self.assertEqual(self._order(extra)[:2], [7, 0])
+
+    def test_the_rest_run_widest_field_first(self):
+        extra = [_art("opencode", m, "rubber-ducky", 4, 0.5, 1, 2)
+                 for m in ("qwen3.8-flash-next", "gpt-5.6-terra", "qwen3.8-27b-8bit")]
+        extra += [_art("opencode", "gpt-5.6-terra", "stunt-car", 6, 0.5, 1, 2)]
+        self.assertEqual(self._order(extra), [7, 0, 4, 6])
+
+    def test_equal_fields_fall_back_to_the_question_index(self):
+        extra = [_art("opencode", "gpt-5.6-terra", "stunt-car", 6, 0.5, 1, 2),
+                 _art("opencode", "gpt-5.6-terra", "treasure-barrel", 13, 0.5, 1, 2)]
+        self.assertEqual(self._order(extra), [7, 0, 6, 13])
+
+
+class TestLastTake(unittest.TestCase):
+    """"Last take" is the drawing a pair ended on, an animated one preferred."""
+
+    def _takes(self, arts, q=0):
+        scores = json.loads(json.dumps(SCORES))
+        scores["artifacts"] = arts
+        d = ad.build_drawings(scores)
+        return [t for qq in d["questions"] if qq["q"] == q for t in qq["takes"]]
+
+    def test_an_animated_take_wins_over_a_later_still_one(self):
+        takes = self._takes([
+            _art("opencode", "qwen3.8-flash-next", "cow-plowing-animated", 0, 0.1, 0, 2, animated=True),
+            _art("opencode", "qwen3.8-flash-next", "cow-plowing-v3", 0, 0.9, 1, 2),
+        ])
+        last = [t for t in takes if t["last"]]
+        self.assertEqual([t["slug"] for t in last], ["cow-plowing-animated"])
+
+    def test_without_an_animated_take_the_highest_rank_wins(self):
+        takes = self._takes([
+            _art("opencode", "qwen3.8-flash-next", "cow-plowing-v1", 0, 0.9, 1, 2),
+            _art("opencode", "qwen3.8-flash-next", "cow-plowing-v3", 0, 0.1, 0, 2),
+        ])
+        self.assertEqual([t["slug"] for t in takes if t["last"]], ["cow-plowing-v3"])
+
+    def test_last_and_best_are_independent_flags(self):
+        takes = self._takes([
+            _art("opencode", "qwen3.8-flash-next", "cow-plowing-v1", 0, 0.9, 1, 2),
+            _art("opencode", "qwen3.8-flash-next", "cow-plowing-v3", 0, 0.1, 0, 2),
+        ])
+        self.assertEqual([t["slug"] for t in takes if t["best"]], ["cow-plowing-v1"])
+        self.assertEqual([t["slug"] for t in takes if t["last"]], ["cow-plowing-v3"])
+
+    def test_exactly_one_last_take_per_pair_per_question(self):
+        d = ad.build_drawings(SCORES)
+        for q in d["questions"]:
+            seen = {}
+            for t in q["takes"]:
+                seen[t["pair"]] = seen.get(t["pair"], 0) + (1 if t["last"] else 0)
+            for pair, n in seen.items():
+                self.assertEqual(n, 1, "%s on q%s" % (pair, q["q"]))
+
+
+class TestAspect(unittest.TestCase):
+    """A frame takes its drawing's own ratio, so nothing is letterboxed."""
+
+    def _write(self, body):
+        fh = tempfile.NamedTemporaryFile("w", suffix=".svg", delete=False)
+        fh.write(body)
+        fh.close()
+        self.addCleanup(os.unlink, fh.name)
+        return fh.name
+
+    def test_viewbox_gives_the_ratio(self):
+        p = self._write('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500"></svg>')
+        self.assertAlmostEqual(ad.aspect_of(p), 1.6)
+
+    def test_viewbox_wins_over_width_and_height(self):
+        p = self._write('<svg width="100" height="100" viewBox="0 0 1200 800"></svg>')
+        self.assertAlmostEqual(ad.aspect_of(p), 1.5)
+
+    def test_width_and_height_are_the_fallback(self):
+        p = self._write('<svg xmlns="http://www.w3.org/2000/svg" width="900px" height="600px"></svg>')
+        self.assertAlmostEqual(ad.aspect_of(p), 1.5)
+
+    def test_a_file_with_neither_falls_back_to_four_thirds(self):
+        p = self._write("<svg></svg>")
+        self.assertAlmostEqual(ad.aspect_of(p), 4 / 3)
+
+    def test_a_missing_file_falls_back_rather_than_raising(self):
+        self.assertAlmostEqual(ad.aspect_of("/no/such/drawing.svg"), 4 / 3)
+
+    def test_a_zero_sized_viewbox_falls_back(self):
+        p = self._write('<svg viewBox="0 0 0 0"></svg>')
+        self.assertAlmostEqual(ad.aspect_of(p), 4 / 3)
 
 
 class TestSelfJudged(unittest.TestCase):
@@ -248,6 +358,20 @@ class TestGame(unittest.TestCase):
         self.assertEqual(a["color"], "#2a9d8f")
         self.assertIs(a["hosted"], False)
         self.assertEqual(a["label"], "opencode + Qwen3.8 Flash Next (local)")
+
+    def test_clip_is_empty_when_no_loop_was_recorded(self):
+        # the fixture arms have no file under results/clips, so the page falls
+        # back to the still rather than requesting a missing video
+        for a in self.g["arms"]:
+            if not os.path.exists(os.path.join(
+                    ad.ROOT, "bench", "agent-build-off", "results", "clips", a["id"] + ".mp4")):
+                self.assertEqual(a["clip"], "")
+
+    def test_a_recorded_clip_is_a_site_relative_mp4_path(self):
+        for a in self.g["arms"]:
+            if a["clip"]:
+                self.assertTrue(a["clip"].startswith("../bench/agent-build-off/results/clips/"))
+                self.assertTrue(a["clip"].endswith(".mp4"))
 
     def test_brief_is_carried_through(self):
         g = ad.build_game(dict(GAME, brief="build a 3D runner"))

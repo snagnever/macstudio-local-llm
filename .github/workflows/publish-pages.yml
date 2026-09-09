@@ -116,6 +116,8 @@ jobs:
           test -f site/bench/harness-matrix/plan.md
           test "$(find site/bench/harness-matrix/logs -name '*.svg' | wc -l)" -ge 80
           test -f site/bench/agent-build-off/results/shots/claude-opus5.webp
+          test -f site/bench/agent-build-off/results/clips/claude-opus5.mp4
+          test -f site/bench/harness-matrix/results/svgbench/participants.json
           test -f site/bench/layout-skill-bench/results/shots/taste2-5.webp
           if grep -rIl 'src="/assets/\|href="/assets/' site/demos >/dev/null 2>&1; then
             echo "root-absolute asset paths survived the base fix:"

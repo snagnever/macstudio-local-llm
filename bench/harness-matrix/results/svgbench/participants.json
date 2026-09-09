@@ -1,0 +1,71 @@
+{
+  "description": "Who ran each harness x model pair on the SVGBench prompts. Every field is transcribed from that pair's own record under bench/harness-matrix/results/<harness>/<model>.md, named in `source`. A field that record does not state is null, never guessed: only one pair states a reasoning effort at all.",
+  "generated_by": "hand-transcribed 2026-09-08 from the six pair records",
+  "pairs": [
+    {
+      "key": "claude/claude-opus-5",
+      "harness": "Claude Code",
+      "harnessVersion": "2.1.228",
+      "modelId": "claude-opus-5",
+      "runtime": null,
+      "runtimeNote": "Anthropic-hosted control arm, not a rig model",
+      "effort": null,
+      "date": "2026-09-05",
+      "source": "bench/harness-matrix/results/claude/claude-opus-5.md"
+    },
+    {
+      "key": "claude/claude-opus-4-8",
+      "harness": "Claude Code",
+      "harnessVersion": "2.1.228",
+      "modelId": "claude-opus-4-8",
+      "runtime": null,
+      "runtimeNote": "Anthropic-hosted control arm, not a rig model",
+      "effort": null,
+      "date": "2026-09-05",
+      "source": "bench/harness-matrix/results/claude/claude-opus-4-8.md"
+    },
+    {
+      "key": "claude/fable-5-1",
+      "harness": "Claude Code",
+      "harnessVersion": null,
+      "harnessVersionNote": "version not recorded; the run itself was not logged",
+      "modelId": "fable-5-1",
+      "runtime": null,
+      "runtimeNote": "Anthropic-hosted control arm, not a rig model",
+      "effort": null,
+      "date": "2026-09-06",
+      "source": "bench/harness-matrix/results/claude/fable-5-1.md"
+    },
+    {
+      "key": "opencode/qwen3.8-flash-next",
+      "harness": "opencode",
+      "harnessVersion": "1.18.20",
+      "modelId": "ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit",
+      "runtime": "mlx-serve, arm FS, mixed 4/8-bit",
+      "effort": "xhigh",
+      "date": "2026-09-06",
+      "source": "bench/harness-matrix/results/opencode/qwen3.8-flash-next.md"
+    },
+    {
+      "key": "opencode/qwen3.8-27b-8bit",
+      "harness": "opencode",
+      "harnessVersion": "1.18.20",
+      "modelId": "mlx-community--Qwen3.8-27B-8bit",
+      "runtime": "mlx-dspark, arm S, MLX 8-bit with a DFlash2 drafter",
+      "effort": null,
+      "date": "2026-09-05",
+      "source": "bench/harness-matrix/results/opencode/qwen3.8-27b-8bit.md"
+    },
+    {
+      "key": "opencode/gpt-5.6-terra",
+      "harness": "opencode",
+      "harnessVersion": null,
+      "harnessVersionNote": "version not recorded",
+      "modelId": "gpt-5.6-terra",
+      "runtime": null,
+      "effort": null,
+      "date": "2026-09-06",
+      "source": "bench/harness-matrix/results/opencode/gpt-5.6-terra.md"
+    }
+  ]
+}
