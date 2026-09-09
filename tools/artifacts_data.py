@@ -105,6 +105,12 @@ GAME_SHOTS = "../bench/agent-build-off/results/shots/"
 GAME_CLIPS = "../bench/agent-build-off/results/clips/"
 SKILL_SHOTS = "../bench/layout-skill-bench/results/shots/"
 
+# The one chart each campaign leads with, shown while the session block is
+# collapsed. Output tokens is the pick for both: every arm reports it, and the
+# spread reads at a glance. Wall time would lead with a 682-minute bar that is a
+# raw span around a nine-hour laptop sleep, which flattens the other three.
+LEAD_METRIC = {"game": "tokensOutput", "skills": "tokensOutput"}
+
 GAME_METRICS = [("wallMinutes", "Wall time", " min"), ("tokensOutput", "Output tokens", ""),
                 ("sourceLines", "Source lines", ""), ("defectsFound", "Defects found", "")]
 SKILL_METRICS = [("wallMinutes", "Wall time", " min"), ("tokensOutput", "Output tokens", "")]
@@ -396,7 +402,8 @@ def build_game(arms):
         _extreme(out, "sourceLines", True, "Most source shipped"),
         _extreme(out, "defectsFound", True, "Most defects caught in its own work"),
     ) if x]
-    return {"brief": arms.get("brief", ""), "arms": out, "summary": summary}
+    return {"brief": arms.get("brief", ""), "arms": out, "summary": summary,
+            "leadMetric": LEAD_METRIC["game"]}
 
 
 # Per-arm page URL rule, copied verbatim from reports/layout-skill-bench.html.
@@ -430,7 +437,8 @@ def build_skills(arms):
         _extreme(out, "wallMinutes", True, "Longest session"),
         _extreme(out, "tokensOutput", True, "Most output tokens"),
     ) if x]
-    return {"brief": arms.get("brief", ""), "arms": out, "summary": summary}
+    return {"brief": arms.get("brief", ""), "arms": out, "summary": summary,
+            "leadMetric": LEAD_METRIC["skills"]}
 
 
 # ------------------------------------------------------------------ block
