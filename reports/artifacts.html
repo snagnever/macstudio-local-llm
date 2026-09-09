@@ -109,8 +109,8 @@
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
     mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
   }
-  .track { display: flex; width: max-content; animation: slide 78s linear infinite; }
-  .teaser:hover .track { animation-play-state: paused; }
+  .teaser-track { display: flex; width: max-content; animation: slide 78s linear infinite; }
+  .teaser:hover .teaser-track { animation-play-state: paused; }
   @keyframes slide { to { transform: translateX(-50%); } }
   .tease {
     flex: 0 0 auto; position: relative; margin-right: 16px;
@@ -548,7 +548,7 @@
     .mat { border-radius: 17px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .track { animation: none; }
+    .teaser-track { animation: none; }
     html { scroll-behavior: auto; }
     .rise { opacity: 1; transform: none; filter: none; }
     * { transition-duration: .01ms !important; animation-duration: .01ms !important; }
@@ -605,7 +605,7 @@
       locally, and at a very good speed.</p>
   </div>
 
-  <div class="teaser" aria-hidden="true"><div class="track" id="teaseTrack"></div></div>
+  <div class="teaser" aria-hidden="true"><div class="teaser-track" id="teaseTrack"></div></div>
 
   <div class="read">
     <p class="lede"><span id="claimNums"></span> Its drawings and its game sit next to what
