@@ -23,6 +23,7 @@ locally, which is why their labels say so.
 import argparse
 import datetime
 import json
+import statistics
 import os
 import re
 import sys
@@ -32,6 +33,11 @@ ROOT = os.path.abspath(os.path.join(HERE, ".."))
 SCORES = os.path.join(ROOT, "bench", "harness-matrix", "results", "svgbench", "scores.json")
 GAME_ARMS = os.path.join(ROOT, "bench", "agent-build-off", "results", "arms.json")
 SKILL_ARMS = os.path.join(ROOT, "bench", "layout-skill-bench", "results", "arms.json")
+# One decode measurement on the same runtime build the local SVGBench pair used.
+RIG_DECODE = os.path.join(ROOT, "bench", "qwen38-flash-next", "results",
+                          "refresh-20260904-v2691-32k.jsonl")
+# The machine itself, as docs/local-llm-reference.md records it.
+RIG_MACHINE = "Mac Studio M4 Max, 128 GB unified memory"
 HTML = os.path.join(ROOT, "reports", "artifacts.html")
 
 BEGIN, END = "/* DATA:begin */", "/* DATA:end */"
@@ -291,7 +297,14 @@ def build_drawings(scores):
             % (ns[0], ns[-1])
         )
 
+    bench = scores.get("benchmark", {})
     return {
+        "benchmark": {
+            "name": bench.get("name", ""),
+            "source": bench.get("source", ""),
+            "questionCount": (bench.get("questions") or {}).get("question_count"),
+            "comparability": bench.get("comparability", ""),
+        },
         "questions": questions,
         "pairs": sorted(pairs.values(), key=lambda p: (p["hosted"], p["key"])),
         "roster": roster,
@@ -386,9 +399,38 @@ def build_skills(arms):
 
 # ------------------------------------------------------------------ block
 
+def build_rig():
+    """The machine, and one decode speed measured on it.
+
+    The number is the median of the runs in one file of the qwen38-flash-next
+    campaign, recorded on the same runtime build and model the local SVGBench
+    pair used. No file, no number: the page then says nothing about speed.
+    """
+    rig = {"machine": RIG_MACHINE}
+    try:
+        with open(RIG_DECODE, "r", encoding="utf-8") as fh:
+            rows = [json.loads(line) for line in fh if line.strip()]
+    except (OSError, ValueError):
+        rows = []
+    tps = [r["decode_tps"] for r in rows if r.get("decode_tps")]
+    if tps:
+        first = rows[0]
+        runtime = " ".join(x for x in (first.get("runtime"), first.get("runtime_revision")) if x)
+        rig["decode"] = {
+            "tps": round(statistics.median(tps), 1),
+            "n": len(tps),
+            "context": first.get("context_target"),
+            "runtime": runtime,
+            "model": first.get("model_id", ""),
+            "source": os.path.relpath(RIG_DECODE, ROOT),
+        }
+    return rig
+
+
 def build_all(scores, game, skills):
     return {
         "generated_at": datetime.date.today().isoformat(),
+        "rig": build_rig(),
         "drawings": build_drawings(scores),
         "game": build_game(game),
         "skills": build_skills(skills),
