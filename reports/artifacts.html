@@ -122,8 +122,9 @@
   .tease.shot img, .tease.shot video { object-fit: cover; object-position: center; }
   /* a landing page is read from the top; a game is read from the middle */
   .tease.page img { object-position: top center; }
-  /* a drawing is the artwork itself, so it is never cropped */
-  .tease.draw img { object-fit: contain; padding: 8px; }
+  /* a drawing is the artwork itself: never cropped, and no frame around it */
+  .tease.draw { background: none; box-shadow: none; }
+  .tease.draw img { object-fit: contain; }
   .tease .tag {
     position: absolute; left: 9px; bottom: 9px; z-index: 1;
     font: 500 10.5px/1 var(--ui); color: var(--soft);
@@ -178,6 +179,24 @@
   .ava svg { width: 15px; height: 15px; display: block; }
   .ava.lg { width: 40px; height: 40px; }
   .ava.lg svg { width: 22px; height: 22px; }
+
+  /* ---------- contents ---------- */
+  .toc { margin: 34px 0 0; border-top: 1px solid var(--hair-2); }
+  .toc a {
+    display: grid; grid-template-columns: 2.4rem minmax(0, 1fr) auto; align-items: baseline;
+    gap: 4px 14px; padding: 15px 2px; text-decoration: none;
+    border-bottom: 1px solid var(--hair-2);
+    transition: background-color .45s var(--ease);
+  }
+  .toc a:hover { background: rgba(27, 27, 24, .028); }
+  .toc .n { font: 500 11.5px/1.4 var(--ui); color: var(--soft); font-variant-numeric: tabular-nums; }
+  .toc .t { font: 500 16.5px/1.35 var(--ui); color: var(--ink); }
+  .toc .c { font: 400 12.5px/1.4 var(--ui); color: var(--soft); font-variant-numeric: tabular-nums; }
+  .toc a:hover .t { text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 620px) {
+    .toc a { grid-template-columns: 2rem minmax(0, 1fr); }
+    .toc .c { grid-column: 2; }
+  }
 
   /* ---------- sections ---------- */
   section { padding: 128px 0 0; }
@@ -597,6 +616,7 @@
       one model.</p>
     <p class="stack" id="stack"></p>
     <ul class="legend" id="legend"></ul>
+    <nav class="toc" id="toc" aria-label="Contents"></nav>
   </div>
 </header>
 
@@ -762,12 +782,15 @@ var DATA = {"generated_at": "2026-09-08", "families": [{"key": "qwen", "color": 
     var games = DATA.game.arms.map(function (a) {
       return { src: a.shot, clip: a.clip, ar: 1.6, kind: "shot game", tag: a.short };
     });
-    // the clip that plays is the local model's, the one the page is about
-    var playing = -1;
-    games.forEach(function (g, i) {
-      if (playing < 0 && g.clip && /qwen/i.test(g.tag)) playing = i;
+    // three of the four play, the local model's first: the hero costs three
+    // videos, not four, and the last game rides as the still already loaded
+    var PLAYS = 3, played = 0;
+    games.slice().sort(function (a, b) {
+      return (/qwen/i.test(b.tag) ? 1 : 0) - (/qwen/i.test(a.tag) ? 1 : 0);
+    }).forEach(function (g) {
+      if (g.clip && played < PLAYS) played += 1;
+      else g.clip = "";
     });
-    games.forEach(function (g, i) { if (i !== playing) g.clip = ""; });
 
     // one drawing per stack, animated where the stack made one
     var seen = {}, draws = [];
@@ -820,6 +843,31 @@ var DATA = {"generated_at": "2026-09-08", "families": [{"key": "qwen", "color": 
     // the list runs twice: the animation ends one copy along, so the loop joins
     items.forEach(function (it) { track.appendChild(tile(it)); });
     items.forEach(function (it) { track.appendChild(tile(it)); });
+  })();
+
+  /* What is in the page, in order, with the size of each part. The titles are
+     read from the sections themselves, so renaming a section renames its row. */
+  (function () {
+    var host = document.getElementById("toc");
+    if (!host) return;
+    var drawn = DATA.drawings.questions.reduce(function (n, q) { return n + q.takes.length; }, 0);
+    var rows = [
+      { id: "drawings", count: drawn + " drawings · " + DATA.drawings.roster.length +
+        " stacks · " + DATA.drawings.questions.length + " prompts" },
+      { id: "game", count: DATA.game.arms.length + " builds of one brief" },
+      { id: "skills", count: (DATA.skills.arms.length * 5) + " pages · " +
+        DATA.skills.arms.length + " skills" }
+    ];
+    rows.forEach(function (r, i) {
+      var h2 = document.querySelector("#" + r.id + " h2");
+      if (!h2) return;
+      var a = el("a");
+      a.href = "#" + r.id;
+      a.appendChild(el("span", "n", (i + 1).toString().padStart(2, "0")));
+      a.appendChild(el("span", "t", esc(h2.textContent)));
+      a.appendChild(el("span", "c", esc(r.count)));
+      host.appendChild(a);
+    });
   })();
 
   /* The headline is about size, so the sentence under it carries the size and
