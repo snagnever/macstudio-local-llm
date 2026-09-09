@@ -285,10 +285,10 @@ def build_drawings(scores):
         # from one drawing to twenty-eight.
         ns = sorted(r["n"] for r in scored)
         summary_note = (
-            "These two are the ends of the scale, not a ranking. Each pair attempted a "
-            "different set of questions, and the counts behind the means run from %d "
-            "drawing to %d, so a high mean over a handful is not a better model than a "
-            "lower mean over many." % (ns[0], ns[-1])
+            "These are the two ends of the scale, not a ranking. Each stack attempted a "
+            "different set of prompts, and the counts behind the means run from %d drawing "
+            "to %d. A high mean over few drawings does not beat a lower mean over many."
+            % (ns[0], ns[-1])
         )
 
     return {
