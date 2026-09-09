@@ -21,7 +21,8 @@
         "runtime": "served locally on the rig",
         "effort": null,
         "source": "bench/agent-build-off/results/opencode-qwen38.md"
-      }
+      },
+      "short": "Qwen3.8"
     },
     {
       "id": "opencode-qwen38-superpowers",
@@ -41,7 +42,8 @@
         "runtime": "served locally on the rig",
         "effort": null,
         "source": "bench/agent-build-off/results/opencode-qwen38-superpowers.md"
-      }
+      },
+      "short": "Qwen3.8 + superpowers"
     },
     {
       "id": "claude-opus5",
@@ -61,7 +63,8 @@
         "runtime": null,
         "effort": null,
         "source": "bench/agent-build-off/results/claude-opus5.md"
-      }
+      },
+      "short": "Opus 5"
     },
     {
       "id": "codex-astra",
@@ -82,7 +85,8 @@
         "runtime": null,
         "effort": null,
         "source": "bench/agent-build-off/results/codex-astra.md"
-      }
+      },
+      "short": "gpt-6-astra"
     }
   ],
   "results": [
@@ -535,5 +539,6 @@
       "note": "mean over a 125.076 s desktop sample, Chromium 153, 1440×900, Apple M5 Pro through ANGLE Metal; codex-astra is the only one of the four arms with a measured frame rate — a gap in the other three arms' verification, not a win to credit to this one"
     }
   ],
-  "configNote": "Run configuration for each arm, transcribed from that arm's own report named in `source`. A field the report does not state is null, never guessed; none of these reports records a reasoning effort or thinking level."
+  "configNote": "Run configuration for each arm, transcribed from that arm's own report named in `source`. A field the report does not state is null, never guessed; none of these reports records a reasoning effort or thinking level.",
+  "shortNote": "A short display name for each arm, for chart rows and other narrow places. It names the same arm as `label`; it measures nothing."
 }

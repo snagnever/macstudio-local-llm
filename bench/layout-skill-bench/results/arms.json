@@ -23,7 +23,8 @@
         "runtime": "served locally on the rig",
         "effort": null,
         "source": "bench/layout-skill-bench/results/design-skill.md"
-      }
+      },
+      "short": "frontend-design"
     },
     {
       "id": "taste-skill",
@@ -44,7 +45,8 @@
         "runtime": "served locally on the rig",
         "effort": null,
         "source": "bench/layout-skill-bench/results/taste-skill.md"
-      }
+      },
+      "short": "design-taste"
     },
     {
       "id": "taste2",
@@ -65,7 +67,8 @@
         "runtime": "served locally on the rig",
         "effort": null,
         "source": "bench/layout-skill-bench/results/taste2.md"
-      }
+      },
+      "short": "high-end-visual"
     }
   ],
   "results": [
@@ -184,5 +187,6 @@
       "value": 5
     }
   ],
-  "configNote": "Run configuration for each arm, transcribed from that arm's own report named in `source`. A field the report does not state is null, never guessed; none of these reports records a reasoning effort or thinking level."
+  "configNote": "Run configuration for each arm, transcribed from that arm's own report named in `source`. A field the report does not state is null, never guessed; none of these reports records a reasoning effort or thinking level.",
+  "shortNote": "A short display name for each arm, for chart rows and other narrow places. It names the same arm as `label`; it measures nothing."
 }

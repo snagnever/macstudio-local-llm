@@ -252,7 +252,9 @@ Run it after any change to `bench/harness-matrix/results/svgbench/scores.json`, 
 
 Each section opens with the session's participants and a short summary. The participant rows come from `bench/harness-matrix/results/svgbench/participants.json` for the drawings, and from the `config` block on each arm in the two `arms.json` files. Those blocks are transcribed by hand from the per-arm reports named in their `source` field; a field a report does not state stays `null` and the page prints "not recorded". Only one pair records a thinking level. The summaries are computed from the same data, so they cannot drift from it.
 
-The frames take each drawing's own ratio, read from its `viewBox`, so nothing is letterboxed. The game tiles play a 60 fps loop of the start screen from `bench/agent-build-off/results/clips/<arm>.mp4` when one exists, falling back to the still. Regenerate the clips with `bench/agent-build-off/scripts/capture-clips.sh`.
+Each session block also carries a chart per measured quantity and that competitor's own numbers beside their name. The bars are one quiet ink, not a colour per competitor: the competitor palette fails a categorical-palette check (the two Qwen greens sit 8.8 ΔE apart in normal vision), so identity is carried by the row's name and its avatar, and length carries the magnitude. A bar drawn as an outline with a dagger is a number whose results row adds a caveat. Two measures never share an axis; each gets its own small chart.
+
+The frames take each drawing's own ratio, read from its `viewBox`, so nothing is letterboxed. Every row of drawings hangs at one height with widths varying by ratio, so the frames line up. The `Size` control in the nav sets that height and the game grid's columns. The game tiles play a 60 fps loop of the start screen from `bench/agent-build-off/results/clips/<arm>.mp4` when one exists, falling back to the still. Regenerate the clips with `bench/agent-build-off/scripts/capture-clips.sh`.
 
 The screenshots are captured by two scripts, one per campaign. Each builds or serves the arm's demo and writes WebP files into that campaign's `results/shots/`:
 

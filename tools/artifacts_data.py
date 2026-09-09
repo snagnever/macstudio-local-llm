@@ -265,7 +265,7 @@ def build_drawings(scores):
         row = dict(_cfg(cfgs.get(p["key"])))
         row.update({
             "key": p["key"], "label": p["model"], "color": p["color"],
-            "hosted": p["hosted"], "n": m.get("artifacts_scored"),
+            "hosted": p["hosted"], "n": m.get("artifacts_scored"), "qs": list(p["qs"]),
             "mean": round(m["mean_score"], 3) if m.get("mean_score") is not None else None,
             "selfJudged": p["selfJudged"],
         })
@@ -321,7 +321,8 @@ def build_game(arms):
     out = []
     for a in arms["arms"]:
         out.append({
-            "id": a["id"], "label": a["label"], "harness": a["harness"], "model": a["model"],
+            "id": a["id"], "label": a["label"], "short": a.get("short") or a["label"],
+            "harness": a["harness"], "model": a["model"],
             "hosted": bool(a["hosted"]), "color": a.get("color", FALLBACK_COLOR),
             "shot": GAME_SHOTS + a["id"] + ".webp",
             # A 60 fps loop of the start screen, when one was recorded. The page
@@ -360,7 +361,8 @@ def build_skills(arms):
     out = []
     for a in arms["arms"]:
         out.append({
-            "id": a["id"], "label": a["label"], "skillConfig": a["skillConfig"],
+            "id": a["id"], "label": a["label"], "short": a.get("short") or a["skillConfig"],
+            "skillConfig": a["skillConfig"],
             "harness": a["harness"], "model": a["model"], "hosted": bool(a["hosted"]),
             # The colour line on this page means who ran it, so it comes from the
             # model, not from the arm's own series colour. All three skill arms are
