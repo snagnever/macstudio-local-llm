@@ -14,6 +14,7 @@
       "statsSessionIncluded": false,
       "statsSessionNote": "Its own STATS.md states: \"Figures exclude the two later prompts that wrote this file.\"",
       "multiModel": false,
+      "skills": [],
       "config": {
         "harness": "opencode",
         "harnessVersion": null,
@@ -33,8 +34,11 @@
       "color": "#52b788",
       "sourceFolder": "~/LocalProjects/hyper-runner-superpowers",
       "statsSessionIncluded": true,
-      "statsSessionNote": "Its own STATS.md states: \"Totals were read while this stats request was running, so they include it.\" This arm additionally had the superpowers skill library available; the other three did not.",
+      "statsSessionNote": "Its own STATS.md states: \"Totals were read while this stats request was running, so they include it.\"",
       "multiModel": false,
+      "skills": [
+        "superpowers"
+      ],
       "config": {
         "harness": "opencode",
         "harnessVersion": null,
@@ -56,6 +60,9 @@
       "statsSessionIncluded": null,
       "statsSessionNote": "not stated",
       "multiModel": false,
+      "skills": [
+        "superpowers"
+      ],
       "config": {
         "harness": "Claude Code",
         "harnessVersion": null,
@@ -77,6 +84,9 @@
       "statsSessionIncluded": false,
       "statsSessionNote": "Its own STATS.md states plainly it excludes the session that wrote the file (\"O relatório não inclui os tokens usados para criar este arquivo.\"). A verification pass against the Codex session logs found the excluded-session explanation accounts for the direction of a self-report/log gap but not its full size (see results/codex-astra.md).",
       "multiModel": true,
+      "skills": [
+        "superpowers"
+      ],
       "multiModelNote": "This arm's ~18.6M-token total spans THREE models (gpt-6-astra, gpt-5.6-sol, codex-auto-review) across FIVE delegated agents running partly in parallel. The other three arms each ran a single model in a single agent. codex-astra's token total is therefore NOT comparable to the other three arms' totals — this is a larger caveat than the statsSessionIncluded convention above.",
       "config": {
         "harness": "Codex",
@@ -540,5 +550,6 @@
     }
   ],
   "configNote": "Run configuration for each arm, transcribed from that arm's own report named in `source`. A field the report does not state is null, never guessed; none of these reports records a reasoning effort or thinking level.",
-  "shortNote": "A short display name for each arm, for chart rows and other narrow places. It names the same arm as `label`; it measures nothing."
+  "shortNote": "A short display name for each arm, for chart rows and other narrow places. It names the same arm as `label`; it measures nothing.",
+  "skillsNote": "`skills` lists the skill libraries loaded in that arm's session. Three of the four ran with superpowers; opencode-qwen38 is the arm without it. Stated by the operator on 2026-09-08; the per-arm reports do not record it."
 }

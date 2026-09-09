@@ -415,6 +415,8 @@ def build_game(arms):
                      if os.path.exists(os.path.join(ROOT, "bench", "agent-build-off",
                                                     "results", "clips", a["id"] + ".mp4"))
                      else ""),
+            # which skill libraries were loaded in that session
+            "skills": list(a.get("skills") or []),
             "demo": "demos/build-off/%s/" % a["id"],
             "note": a.get("multiModelNote") or "",
             "metrics": _metrics(arms["results"], a["id"], GAME_METRICS),

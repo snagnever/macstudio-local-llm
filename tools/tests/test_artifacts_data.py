@@ -490,6 +490,11 @@ class TestGame(unittest.TestCase):
         self.assertIsNone(d["value"])
         self.assertIn("no “defects found” section", d["note"])
 
+    def test_arm_carries_the_skills_loaded_in_its_session(self):
+        g = ad.build_game(GAME)
+        for arm in g["arms"]:
+            self.assertIsInstance(arm["skills"], list)
+
     def test_arm_keeps_identity_and_colour(self):
         a = self.g["arms"][0]
         self.assertEqual(a["color"], ad.FAMILY_RAMP["qwen"][1])
