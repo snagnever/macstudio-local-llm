@@ -45,3 +45,11 @@
   **SVGBench:** 7/7 (q7) · self-judged (the judge is `claude-opus-5`, this pair's own
   model) · verdicts: `../svgbench/verdicts/claude/claude-opus-5/dolphin-animated.json`
   and `../svgbench/verdicts/claude/claude-opus-5/dolphin-v3.json`
+
+## Cross-reference
+
+This pair also ran the `agent-build-off` campaign — a full 3D game built from an empty
+folder in one session, on the same brief as three other agent stacks. See
+[`bench/agent-build-off/results/claude-opus5.md`](../../../agent-build-off/results/claude-opus5.md)
+and the roster/metrics in
+[`bench/agent-build-off/results/arms.json`](../../../agent-build-off/results/arms.json).

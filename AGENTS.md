@@ -80,6 +80,28 @@ The failure mode this guards against is committing the bulky raw layer: git
 never forgets, and a few full-transcript JSONLs would permanently bloat every
 clone.
 
+A third class sits alongside raw and small: a runnable demo app the model
+wrote, published on the site. It must be tracked, and it is a directory, not
+one file.
+
+| Class | Example | Location | Tracked |
+| --- | --- | --- | --- |
+| Raw run output | transcripts, traces, `*.log`, run dirs | `bench/<campaign>/logs/` | no |
+| Small artifact | a model-generated SVG | `logs/` (SVG only) or `results/` | yes |
+| Runnable artifact | a demo app the model wrote, published on the site | `bench/<campaign>/demos/<arm>/` | yes, source only |
+
+Rules for `demos/`:
+
+- It holds **source**, never `node_modules`, `dist` or `.git`. The site builds
+  it.
+- It is the artifact as the model produced it. Hosting fixes happen at publish
+  time and are listed in the campaign's `plan.md`.
+- A campaign gets a `demos/` directory only when its artifacts are published.
+
+`reports/` plus the built demos are assembled and pushed to the `gh-pages`
+branch by `.github/workflows/publish-pages.yml`, which serves
+`https://snagnever.github.io/macstudio-local-llm/`.
+
 ## Two machines: rig and client
 
 Work in this repo spans two machines. The **Mac Studio** (rig, `mac-studio` on

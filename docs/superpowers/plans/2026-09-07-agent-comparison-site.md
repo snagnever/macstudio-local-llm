@@ -24,37 +24,57 @@
 
 ---
 
-### Task 1: Recover the codex-astra session metrics
+### Task 1: Adopt and independently verify the codex-astra STATS
 
-`~/LocalProjects/hyper-runner-astra` has no `STATS.md`. Its three siblings do, on a shared set of headings. Its Codex sessions carry exact token totals.
+Codex is writing its own `STATS.md` for `~/LocalProjects/hyper-runner-astra`, the
+way the other three arms did. **This replaces the recovery this task originally
+planned, and it is the better arrangement**: all four arms then carry a
+self-reported record on the same headings, rather than three self-reported and
+one reconstructed by a different agent from logs.
+
+What the recovery was going to produce becomes the *check* instead. A
+self-reported record cross-checked against the session logs is stronger than
+either alone, and the other three arms never got that check.
 
 **Files:**
-- Create: `bench/agent-build-off/results/codex-astra.md`
-- Create: `bench/agent-build-off/scripts/recover_codex_stats.py`
+- Create: `bench/agent-build-off/results/codex-astra.md` (copied from the arm)
+- Create: `bench/agent-build-off/scripts/verify_codex_stats.py`
 
 **Interfaces:**
-- Produces: a `STATS.md`-shaped record on the same headings the other three arms use — Session, Tokens, Code, Libraries, Build output, Process, Defects, Not verified.
+- Produces: a verified `codex-astra.md` on the same headings as the other three
+  arms, plus a recorded verdict on whether its self-reported tokens match the logs.
 
-- [ ] **Step 1: Find every rollout file for this arm**
+- [ ] **Step 1: Read the file the arm wrote**
 
 ```bash
-mkdir -p /Users/vitor/LocalProjects/macstudio-local-llm/bench/agent-build-off/{scripts,results}
-grep -l '"cwd":"/Users/vitor/LocalProjects/hyper-runner-astra"' \
-  ~/.codex/sessions/2026/09/0*/*.jsonl ~/.codex/archived_sessions/*.jsonl 2>/dev/null | sort
+cat /Users/vitor/LocalProjects/hyper-runner-astra/STATS.md
 ```
 
-Expected: eight or more files. Record the list; every one belongs to this arm.
+It exists (written 2026-09-07). Three things about it differ from the other
+three arms, and each is handled below, not smoothed over:
 
-- [ ] **Step 2: Write the extraction script**
+1. **It is in Portuguese.** Site copy is English (Global Constraints). The
+   authentic self-report is kept as the arm wrote it; every dashboard-facing
+   figure and note goes into `arms.json` in English. The write-up states that
+   this arm reported in Portuguese.
+2. **Its headings differ** (Sessão, Tokens, Custo, Projeto, Verificação
+   registrada, Validação deste relatório, Fontes). Map its figures onto the same
+   `arms.json` metrics as the others; do not force the file itself to match.
+3. **It is multi-model and multi-agent.** It reports `gpt-6-astra`,
+   `gpt-5.6-sol` and `codex-auto-review` across **5 delegated agents**, totalling
+   **18.6 M tokens**. The other three arms are single-model, single-agent. This
+   is a structural difference, not a detail — see Step 4.
 
-Create `bench/agent-build-off/scripts/recover_codex_stats.py`:
+- [ ] **Step 2: Write the verification script**
+
+Create `bench/agent-build-off/scripts/verify_codex_stats.py`:
 
 ```python
 #!/usr/bin/env python3
-"""Extract session metrics for one Codex arm from its rollout logs.
+"""Cross-check a Codex arm's self-reported token totals against its rollout logs.
 
-Usage: recover_codex_stats.py <cwd-to-match> <rollout.jsonl> [...]
-Prints a JSON summary. Stdlib only.
+Usage: verify_codex_stats.py <cwd-to-match> <rollout.jsonl> [...]
+Prints the totals the logs support. Stdlib only.
 """
 import json, sys, collections
 
@@ -63,26 +83,30 @@ def main(argv):
     sessions, tool_calls, prompts = [], collections.Counter(), 0
     first_ts = last_ts = None
     model = None
-    totals = {}
+    totals = collections.Counter()
     for path in files:
         last_tc = None
+        matched = False
         with open(path) as fh:
             for line in fh:
                 try:
                     rec = json.loads(line)
                 except json.JSONDecodeError:
                     continue
-                ts = rec.get("timestamp")
-                if ts:
-                    first_ts = ts if first_ts is None or ts < first_ts else first_ts
-                    last_ts = ts if last_ts is None or ts > last_ts else last_ts
                 p = rec.get("payload") or {}
                 if rec.get("type") == "session_meta":
                     if p.get("cwd") != want_cwd:
                         break
-                    sessions.append({"id": p.get("session_id"), "cwd": p.get("cwd"),
+                    matched = True
+                    sessions.append({"id": p.get("session_id"),
                                      "cli_version": p.get("cli_version"),
                                      "started": rec.get("timestamp")})
+                if not matched:
+                    continue
+                ts = rec.get("timestamp")
+                if ts:
+                    first_ts = ts if first_ts is None or ts < first_ts else first_ts
+                    last_ts = ts if last_ts is None or ts > last_ts else last_ts
                 if p.get("type") == "token_count":
                     last_tc = p.get("info", {}).get("total_token_usage")
                 if p.get("type") in ("custom_tool_call", "function_call"):
@@ -95,11 +119,11 @@ def main(argv):
         if last_tc:
             # Codex reports cumulative totals per session; sum across sessions.
             for k, v in last_tc.items():
-                totals[k] = totals.get(k, 0) + v
+                totals[k] += v
     print(json.dumps({
         "sessions": sessions, "session_count": len(sessions),
         "model": model, "first_timestamp": first_ts, "last_timestamp": last_ts,
-        "tokens": totals, "user_prompts": prompts,
+        "tokens": dict(totals), "user_prompts": prompts,
         "tool_calls_by_type": dict(tool_calls),
         "tool_calls_total": sum(tool_calls.values()),
     }, indent=2))
@@ -108,72 +132,132 @@ if __name__ == "__main__":
     main(sys.argv)
 ```
 
-- [ ] **Step 3: Run it and check the totals are plausible**
+- [ ] **Step 3: Run it and compare against the self-reported figures**
 
 ```bash
 cd /Users/vitor/LocalProjects/macstudio-local-llm
-python3 bench/agent-build-off/scripts/recover_codex_stats.py \
+mkdir -p bench/agent-build-off/{scripts,results}
+python3 bench/agent-build-off/scripts/verify_codex_stats.py \
   /Users/vitor/LocalProjects/hyper-runner-astra \
-  $(grep -l '"cwd":"/Users/vitor/LocalProjects/hyper-runner-astra"' ~/.codex/sessions/2026/09/0*/*.jsonl ~/.codex/archived_sessions/*.jsonl 2>/dev/null)
+  $(grep -l '"cwd":"/Users/vitor/LocalProjects/hyper-runner-astra"' \
+      ~/.codex/sessions/2026/09/0*/*.jsonl ~/.codex/archived_sessions/*.jsonl 2>/dev/null)
 ```
 
-Sanity check: `model` should be `gpt-6-astra`. The largest single session alone reports 10,429,199 input tokens, 51,706 output and 8,482 reasoning, so the summed totals must be at least that. If `session_count` is 0, the `cwd` string did not match — print one `session_meta` line and compare exactly.
+The script sums `total_token_usage` across sessions, which is cumulative across
+every model in each session, so its total should reconcile with the STATS grand
+**total of 18.6 M tokens** — not with `gpt-6-astra` alone (11.4 M). `token_count`
+does not break down by model, so the script gives one summed figure; the arm's
+per-model table (gpt-6-astra 11.4 M, gpt-5.6-sol 6.3 M, codex-auto-review 0.86 M)
+is finer than the logs expose to this script. Verify the total, not the split.
 
-- [ ] **Step 4: Collect the repository-side numbers**
+If `session_count` is 0, the `cwd` string did not match; print one `session_meta`
+line and compare exactly.
+
+Compare the log-derived total with the arm's grand total. **Exact agreement is
+not required** — the arm states it excludes the session that wrote the file, so
+the logs (which include it) will read slightly higher. What matters is that the
+difference has a stated reason. Record the comparison as a table: self-reported,
+log-derived, and the explanation for each gap.
+
+- [ ] **Step 4: Record which convention the arm used for the stats session**
+
+The three existing arms disagree on this, and it moves the headline token
+figures:
+
+| Arm | Convention |
+| --- | --- |
+| `opencode-qwen38` | excludes it — "Figures exclude the two later prompts that wrote this file" |
+| `opencode-qwen38-superpowers` | includes it — "Totals were read while this stats request was running, so they include it" |
+| `claude-opus5` | says nothing |
+
+`codex-astra` states it plainly: "O relatório não inclui os tokens usados para
+criar este arquivo" — it **excludes** the stats session, so
+`statsSessionIncluded` is `false`. This is a real cross-arm inconsistency in a
+headline metric, not a footnote: Task 4 records it per arm in `arms.json`, and
+Task 7 states it on the dashboard beside the token figures.
+
+For `claude-opus5`, which says nothing, the value is `null` and the note reads
+"not stated". Do not infer it.
+
+**Also record that `codex-astra` is multi-model and multi-agent.** Add a roster
+note that its 18.6 M tokens span three models across five delegated agents, so
+its token total is not comparable to the single-model arms at all — a larger
+caveat than the stats-session one. The other three each ran one model in one
+agent.
+
+- [ ] **Step 5: Copy the file into the campaign**
 
 ```bash
-cd /Users/vitor/LocalProjects/hyper-runner-astra
-echo "source lines:"; find src -type f \( -name '*.ts' -o -name '*.tsx' -o -name '*.css' \) -exec cat {} + | wc -l
-echo "source files:"; find src -type f \( -name '*.ts' -o -name '*.tsx' -o -name '*.css' \) | wc -l
-echo "direct deps:"; python3 -c "import json;p=json.load(open('package.json'));print(len(p.get('dependencies',{})),'runtime +',len(p.get('devDependencies',{})),'dev')"
-echo "installed packages:"; python3 -c "import json;l=json.load(open('package-lock.json'));print(len(l.get('packages',{}))-1)"
-echo "committed assets:"; du -sh public/assets 2>/dev/null
-ls -la dist/assets | head
+cd /Users/vitor/LocalProjects/macstudio-local-llm
+cp /Users/vitor/LocalProjects/hyper-runner-astra/STATS.md \
+   bench/agent-build-off/results/codex-astra.md
+diff <(grep '^## ' bench/agent-build-off/results/codex-astra.md) \
+     <(grep '^## ' /Users/vitor/LocalProjects/hyper-runner-claude/STATS.md)
 ```
 
-- [ ] **Step 5: Write `bench/agent-build-off/results/codex-astra.md`**
+The `diff` shows how this arm's headings compare with a sibling's. They do not
+have to match exactly, but a heading the other three all have and this one lacks
+is a gap worth naming in the write-up rather than leaving silent.
 
-Use exactly the headings the sibling arms use — read `~/LocalProjects/hyper-runner-claude/STATS.md` first and match its structure and tone. Fill Session, Tokens, Code, Libraries and Build output from Steps 3 and 4.
+- [ ] **Step 6: Append the verification record**
 
-For **Process** and **Not verified**, fold in the two files this arm already has and the others lack:
-- `~/LocalProjects/hyper-runner-astra/docs/VERIFICATION.md` — 36 Vitest tests, 14 Playwright browser tests on Chromium 153.0.8010.12, and a 17-row acceptance table (A01-A17) with two partial rows.
-- `~/LocalProjects/hyper-runner-astra/docs/performance.json` — 125.076 s sample, mean 60.00 fps, median frame 16.70 ms, p95 17.10 ms, 1199 meshes, 137-169 draw calls, on an Apple M5 Pro through ANGLE Metal.
+Add a short section to `bench/agent-build-off/results/codex-astra.md` titled
+"Verification against the session logs", holding the Step 3 comparison table and
+the Step 4 convention. Mark it plainly as added when the file was adopted into
+this campaign, so it is not mistaken for something the arm reported about itself.
 
-State plainly that this is the **only** arm with a measured frame rate, and that the other three list it as not collected. That asymmetry is a gap in the others, not a win for this arm — say so.
+Also note there what this arm has that the others lack: `docs/VERIFICATION.md`
+(36 Vitest tests, 14 Playwright tests on Chromium 153.0.8010.12, a 17-row
+acceptance table with two partial rows) and `docs/performance.json` (125.076 s
+sample, mean 60.00 fps, median frame 16.70 ms, p95 17.10 ms, 1199 meshes,
+137-169 draw calls, Apple M5 Pro through ANGLE Metal). It is the **only** arm
+with a measured frame rate; the other three record it as not collected. That is
+a gap in the others, not a win for this arm — say so.
 
-Wall time: the span from `first_timestamp` to `last_timestamp`. Codex opens a new rollout file on resume, so the span covers gaps. Apply the same input-wait deduction the `hyper-runner-superpowers` STATS applies, and where a deduction cannot be computed, write "not recorded" on its own row.
-
-- [ ] **Step 6: Confirm the brief matches the other arms**
+- [ ] **Step 7: Check the brief matches the other arms**
 
 ```bash
 grep -A12 "first prompt, verbatim" /Users/vitor/LocalProjects/hyper-runner-claude/STATS.md
-python3 -c "
-import json,sys
-for path in sys.argv[1:]:
-    for line in open(path):
-        r=json.loads(line)
-        p=r.get('payload') or {}
-        if r.get('type')=='response_item' and p.get('role')=='user':
-            for c in p.get('content',[]):
-                t=c.get('text','')
-                if 'runner game' in t or 'SPEC' in t:
-                    print(path); print(t[:1200]); sys.exit(0)
-" $(grep -l '"cwd":"/Users/vitor/LocalProjects/hyper-runner-astra"' ~/.codex/sessions/2026/09/0*/*.jsonl 2>/dev/null | sort | head -3)
+grep -A12 -i "verbatim\|first prompt" bench/agent-build-off/results/codex-astra.md
 ```
 
-If the brief matches the other three verbatim, quote it and say so. **If it differs, quote both and say the arms are not like-for-like** — do not imply a controlled comparison that did not happen.
+If the arm quotes its brief and it matches the other three, say so. If it does
+not quote one, recover it from the logs:
 
-- [ ] **Step 7: Commit**
+```bash
+python3 - <<'PY' $(grep -l '"cwd":"/Users/vitor/LocalProjects/hyper-runner-astra"' ~/.codex/sessions/2026/09/0*/*.jsonl 2>/dev/null | sort | head -3)
+import json, sys
+for path in sys.argv[1:]:
+    for line in open(path):
+        try: r = json.loads(line)
+        except json.JSONDecodeError: continue
+        p = r.get("payload") or {}
+        if r.get("type") == "response_item" and p.get("role") == "user":
+            for c in p.get("content", []):
+                t = c.get("text", "")
+                if "runner game" in t or "SPEC" in t:
+                    print(path); print(t[:1200]); sys.exit(0)
+PY
+```
+
+**If the brief differs from the other three, quote both and say the arms are not
+like-for-like.** Do not imply a controlled comparison that did not happen.
+
+- [ ] **Step 8: Commit**
 
 ```bash
 cd /Users/vitor/LocalProjects/macstudio-local-llm
 git add bench/agent-build-off/
-git commit -m "bench(build-off): recover codex-astra session metrics from rollout logs
+git commit -m "bench(build-off): adopt and verify the codex-astra STATS
 
-This arm shipped without a STATS.md. Its eight Codex rollout files carry exact
-token totals, tool calls and timestamps, so the record is measured rather than
-estimated. It is the only arm with a sampled frame rate; the others record that
-as not collected.
+This arm now reports its own stats, as the other three do, so all four carry a
+self-reported record on comparable headings. Its token totals are cross-checked
+against the eight Codex rollout files, and the comparison is recorded in the
+file.
+
+Also records which arms include the stats-writing session in their token totals.
+The three existing arms use three different conventions, which moves a headline
+figure, so it is tracked per arm rather than left implicit.
 
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ```
@@ -452,7 +536,7 @@ find bench/agent-build-off/demos -name 'package-lock.json' | wc -l
 
 First command must print nothing. Second must print `4` — every arm needs its lockfile, because `npm ci` against it is what makes the build reproducible.
 
-- [ ] **Step 3: Copy the three existing STATS files**
+- [ ] **Step 3: Copy the other three STATS files**
 
 ```bash
 cd /Users/vitor/LocalProjects/macstudio-local-llm
@@ -462,7 +546,9 @@ cp ~/LocalProjects/hyper-runner-claude/STATS.md      bench/agent-build-off/resul
 ls bench/agent-build-off/results/
 ```
 
-Four `.md` files must be present, including `codex-astra.md` from Task 1.
+Four `.md` files must be present — these three plus `codex-astra.md` from Task 1.
+All four are now self-reported by the agent that did the work, which makes them
+comparable; only `codex-astra.md` additionally carries a log cross-check.
 
 - [ ] **Step 4: Write `results/arms.json`**
 
@@ -489,6 +575,13 @@ Follow the two-array model `reports/README.md` documents: an `arms` roster and a
 Populate every arm across the metrics the four `results/*.md` files share: `wallMinutes`, `activeMinutes`, `tokensOutput`, `tokensInputUncached`, `tokensCacheRead`, `tokensReasoning`, `userPrompts`, `questionsAsked`, `toolCalls`, `sourceLines`, `sourceFiles`, `docLines`, `directDeps`, `installedPackages`, `bundleRawKB`, `bundleGzipKB`, `buildSeconds`, `testsPassing`, `defectsFound`, `meanFps`.
 
 A metric a given arm never recorded is `value: null` with a `note`. Do not compute a substitute.
+
+Each arm also carries `statsSessionIncluded` on its roster entry, from Task 1
+Step 4 — `true`, `false`, or `null` with the note "not stated". The arms disagree
+on whether the session that wrote the stats file is inside their own token
+totals, which shifts the token comparison directly. It is a roster field rather
+than a metric because it qualifies how every token figure for that arm should be
+read.
 
 - [ ] **Step 5: Validate arms.json mechanically**
 
@@ -690,6 +783,18 @@ In the page's own words, not a footnote:
 - `opencode-qwen38-superpowers` ran with a skills library the others lacked.
 - Only `codex-astra` has a measured frame rate — 60.00 fps mean over 125 s. The other three record it as not collected. That is a gap in the others, not a win for this arm.
 - `hyper-runner-fable` never ran and is absent.
+- **`codex-astra` is not a single-model run.** Its 18.6 M tokens span three
+  models (`gpt-6-astra`, `gpt-5.6-sol`, `codex-auto-review`) across five
+  delegated agents; the other three arms each ran one model in one agent. Its
+  token total is therefore not comparable to theirs at all. Show this beside its
+  figures, not as a footnote — a reader must not read 18.6 M against 240 K output
+  as the same axis.
+- The arms also disagree on whether the session that wrote their stats file is
+  counted in their token totals: astra excludes it, `opencode-qwen38` excludes
+  it, `opencode-qwen38-superpowers` includes it, `claude-opus5` does not say.
+  Show each arm's `statsSessionIncluded` beside its token figures.
+- `codex-astra` reported in Portuguese; the other three in English. The page's
+  own copy is English; the figures are the arm's own.
 
 - [ ] **Step 5: Verify every figure traces to the data**
 
@@ -1149,6 +1254,11 @@ If Steps 1-4 surfaced problems, fix them at the right layer — a path fix belon
 ---
 
 ### Task 12: Update the hub and deploy
+
+> **STOP BEFORE DEPLOY.** Execution pauses after Step 3 (commit and push). Steps
+> 4-6 run the workflow and publish to the public site, which is outward-facing;
+> the user reviews the assembled site (Task 11's evidence) and gives an explicit
+> go before those steps run. Do not trigger the workflow without that go.
 
 **Files:**
 - Modify: `reports/index.html`

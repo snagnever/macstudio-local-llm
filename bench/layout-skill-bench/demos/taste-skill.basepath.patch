@@ -1,0 +1,24 @@
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -15,14 +15,18 @@
+ 
+ const PATHS: string[] = ITERATIONS.map((i) => i.path);
+ 
++const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
++
+ function normalize(pathname: string) {
+   const clean = pathname.replace(/\/+$/, "");
+-  return PATHS.includes(clean) ? clean : "/1";
++  const rel = clean.startsWith(BASE) ? clean.slice(BASE.length) || "/1" : clean;
++  return PATHS.includes(rel) ? rel : "/1";
+ }
+ 
+ function navigate(path: string) {
+-  if (path === window.location.pathname) return;
+-  window.history.pushState({}, "", path);
++  const target = BASE + path;
++  if (target === window.location.pathname) return;
++  window.history.pushState({}, "", target);
+   window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+   window.dispatchEvent(new PopStateEvent("popstate"));
+ }

@@ -76,6 +76,7 @@
   <button class="nav-btn" onclick="document.getElementById('reasoning').scrollIntoView({behavior:'smooth'})">Reasoning</button>
   <button class="nav-btn" onclick="document.getElementById('consistency').scrollIntoView({behavior:'smooth'})">Consistency</button>
   <button class="nav-btn" onclick="document.getElementById('svgbench').scrollIntoView({behavior:'smooth'})">SVG bench</button>
+  <button class="nav-btn" onclick="document.getElementById('agent-comparisons').scrollIntoView({behavior:'smooth'})">Agent &amp; skill bench</button>
   <button class="nav-btn" onclick="document.getElementById('bigwin').scrollIntoView({behavior:'smooth'})">Biggest win</button>
 </div>
 
@@ -231,6 +232,26 @@
     </div>
   </div>
 
+  <!-- Agent & skill comparisons -->
+  <div class="section" id="agent-comparisons">
+    <h2 class="section-title">🤖 Agent &amp; skill comparisons</h2>
+    <p class="section-sub">Two more head-to-heads, plus a gallery that shows their artifacts next to the SVGBench drawings.</p>
+    <div class="grid-2">
+      <div class="card" style="border-left:3px solid #e9c46a;">
+        <h3 style="color:#e9c46a">Agent Build-Off</h3>
+        <p style="font-size:14px">Five agent stacks build the same game from one brief — time to build, output tokens, source lines shipped, bundle size, and the defects each one caught. <a href="agent-build-off.html" style="color:#e9c46a">Open the dashboard</a>.</p>
+      </div>
+      <div class="card" style="border-left:3px solid #e9c46a;">
+        <h3 style="color:#e9c46a">Layout Skill Bench</h3>
+        <p style="font-size:14px">One model, one brief, three design skills — wall time and output tokens per run, five pages each, side by side. <a href="layout-skill-bench.html" style="color:#e9c46a">Open the dashboard</a>.</p>
+      </div>
+      <div class="card" style="border-left:3px solid #e9c46a;">
+        <h3 style="color:#e9c46a">Artifacts gallery</h3>
+        <p style="font-size:14px">Model output from three benchmarks on one page: 84 graded SVG drawings, the five built games, and the fifteen landing pages, each beside its numbers. <a href="artifacts.html" style="color:#e9c46a">Open the gallery</a>.</p>
+      </div>
+    </div>
+  </div>
+
   <div class="card" style="border-left:3px solid #e9c46a;">
     <h3 style="color:#e9c46a">🏆 Biggest win for local serving</h3>
     <p style="font-size:14px">Qwen3.5-27B at full thinking budget: <strong>25 tok/s local</strong>, 85.7% multi-hop, 100% RAG grounding, hallucination down 47 pts vs no-thinking. Beats hosted DeepSeek R1-177B on accuracy <em>and</em> speed at zero per-token cost.</p>
@@ -242,6 +263,7 @@
   <p>
     <span>Generated Sep 7, 2026 · Deployed via GitHub Pages from reports/index.html · Sources: bench/**/results/*.json, bench/harness-matrix/results/svgbench/scores.json, tools/local-llm-bench/results/*/, tools/local-llm-bench-m4-32gb/ · 9 benchmark datasets</span>
   </p>
+  <p style="margin-top:8px">Also on this site — earlier standalone dashboards, preserved as-is: <a href="overview.html">Qwen3.8 Prefix-Cache Campaign</a> · <a href="perf-lines.html">Speed to 256K</a></p>
 </div>
 
 <script>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Hyper Runner</title>
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+
+    <div id="ui" data-state="menu">
+      <!-- In-run overlay -->
+      <div id="hud">
+        <div class="top">
+          <div>
+            <div id="score">000000</div>
+            <div id="combo"></div>
+          </div>
+          <div class="right">
+            <div class="small">BEST <span id="best">000000</span></div>
+            <div class="small"><span class="coin-count">0</span> COINS</div>
+            <button id="btn-mute" type="button">AUDIO: ON</button>
+          </div>
+        </div>
+        <div class="bars">
+          <div class="bar-row"><span>SHLD</span><i class="track"><b id="bar-shield"></b></i></div>
+          <div class="bar-row"><span>MAGN</span><i class="track"><b id="bar-magnet"></b></i></div>
+          <div class="bar-row"><span>BOOST</span><i class="track"><b id="bar-boost"></b></i></div>
+        </div>
+      </div>
+
+      <!-- Menu -->
+      <section id="menu" class="screen">
+        <h1>HYPER <em>RUNNER</em></h1>
+        <p class="sub">DODGE THE GRID</p>
+        <button id="btn-start" type="button">START RUN</button>
+        <p class="keys">
+          &larr; &rarr; MOVE &nbsp;&middot;&nbsp; SPACE JUMP &nbsp;&middot;&nbsp; &darr; SLIDE
+          &nbsp;&middot;&nbsp; M AUDIO<br />
+          ON TOUCH: SWIPE TO MOVE &middot; SWIPE UP / DOWN
+        </p>
+      </section>
+
+      <!-- Game over -->
+      <section id="gameover" class="screen">
+        <h2>SIGNAL LOST</h2>
+        <div id="new-record">NEW RECORD</div>
+        <p>SCORE <b id="final-score">0</b></p>
+        <p>BEST <b id="final-best">0</b></p>
+        <button id="btn-restart" type="button">RUN AGAIN</button>
+      </section>
+
+      <!-- WebGL context lost -->
+      <section id="lost" class="screen">
+        <h2>WEBGL CONTEXT LOST</h2>
+        <p>Reload the page to keep running.</p>
+      </section>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

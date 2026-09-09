@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Build-Off — five stacks, one brief</title>
+<meta name="description" content="Five coding-agent stacks built the same 3D runner game from an empty folder on the same brief, one session each. Figures come from bench/agent-build-off/results/arms.json; uncollected metrics render as gaps, and the page states what is not comparable.">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="charts-common.js"></script>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --border: #262a33;
+    --text: #e6e6e6;
+    --muted: #9aa0a6;
+    --accent: #5aa9ff;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  header {
+    padding: 22px 32px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  header .top { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; justify-content: space-between; }
+  header h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  header .sub { margin: 8px 0 0; color: var(--muted); font-size: 13px; max-width: 92ch; }
+  header .sub code { color: var(--accent); }
+  .toggle { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); cursor: pointer; }
+  .toggle input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  .brief-quote {
+    margin: 14px 0 0; padding: 10px 14px; border-left: 3px solid var(--accent);
+    background: #12151b; color: #cdd1d6; font-size: 12.5px; max-width: 100ch; border-radius: 0 6px 6px 0;
+  }
+  main {
+    max-width: 1600px; margin: 0 auto; padding: 24px 32px 64px;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px;
+  }
+  @media (max-width: 1100px) { main { grid-template-columns: minmax(0, 1fr); } }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+  .card.wide { grid-column: 1 / -1; }
+  .card h2 {
+    margin: 0 0 4px; font-size: 14px; font-weight: 600; letter-spacing: 0.02em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .card .sub { margin: 0 0 16px; font-size: 12px; color: var(--muted); max-width: 100ch; }
+  .card .sub code { color: #cdd1d6; }
+  .chart-wrap { position: relative; height: 340px; }
+  .chart-cap { font-size: 11.5px; color: var(--muted); margin-top: 10px; max-width: 100ch; }
+
+  .category-heading {
+    grid-column: 1 / -1; margin: 16px 0 0; font-size: 15px; font-weight: 600;
+    letter-spacing: 0.02em; color: var(--text); scroll-margin-top: 120px;
+    border-bottom: 1px solid var(--border); padding-bottom: 8px;
+  }
+  .category-heading .hint { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: 10px; }
+
+  /* Arm cards */
+  .arm-grid { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 1100px) { .arm-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 640px)  { .arm-grid { grid-template-columns: 1fr; } }
+  .arm {
+    background: var(--panel); border: 1px solid var(--border); border-top: 3px solid var(--arm, var(--accent));
+    border-radius: 10px; padding: 16px 16px 18px; display: flex; flex-direction: column;
+  }
+  .arm h3 { margin: 0 0 2px; font-size: 15px; font-weight: 700; }
+  .arm .stack { font-size: 12px; color: var(--muted); margin: 0 0 12px; }
+  .arm .pill { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10.5px; background: #262a33; color: var(--muted); margin-left: 4px; vertical-align: 1px; }
+  .arm dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; font-size: 12px; margin: 0 0 12px; }
+  .arm dt { color: var(--muted); white-space: nowrap; }
+  .arm dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+  .arm dd.dash { color: #555; }
+  .arm .flag { font-size: 11.5px; color: #cdd1d6; margin: 0 0 8px; padding: 8px 10px; background: #12151b; border-radius: 6px; border: 1px solid var(--border); }
+  .arm .flag b { color: #ffd7a8; font-weight: 650; }
+  .arm .flag.hard { border-color: #6b4a2a; }
+  .play {
+    margin-top: auto; display: inline-flex; align-items: center; gap: 7px; justify-content: center;
+    text-decoration: none; font-size: 13px; font-weight: 650; color: #0f1115; background: var(--arm, var(--accent));
+    border-radius: 7px; padding: 8px 12px;
+  }
+  .play:hover { filter: brightness(1.08); }
+  .play .tri { font-size: 11px; }
+  .play-note { font-size: 10.5px; color: var(--muted); text-align: center; margin: 6px 0 0; }
+
+  /* Caveat callouts */
+  .caveats { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 1100px) { .caveats { grid-template-columns: 1fr; } }
+  .caveat { background: #17130d; border: 1px solid #6b4a2a; border-radius: 10px; padding: 16px 18px; }
+  .caveat h3 { margin: 0 0 6px; font-size: 13px; font-weight: 700; color: #ffd7a8; }
+  .caveat p { margin: 0; font-size: 12.5px; color: #d7d2c8; }
+  .caveat p + p { margin-top: 8px; }
+  .caveat code { color: #ffcf9e; }
+  .limits { grid-column: 1 / -1; }
+  .limits ul { margin: 6px 0 0; padding-left: 18px; }
+  .limits li { margin: 0 0 8px; font-size: 13px; color: #cdd1d6; max-width: 110ch; }
+  .limits li b { color: var(--text); }
+
+  /* Scoreboard */
+  .scoreboard-wrap { overflow-x: auto; }
+  table.scoreboard { width: 100%; min-width: 1500px; border-collapse: collapse; font-size: 12px; }
+  table.scoreboard th, table.scoreboard td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+  table.scoreboard thead th {
+    color: var(--muted); font-weight: 500; text-align: right; cursor: pointer; user-select: none;
+    position: relative; padding-right: 16px; white-space: nowrap;
+  }
+  table.scoreboard thead th:first-child { text-align: left; }
+  table.scoreboard thead th:hover { color: var(--text); }
+  table.scoreboard thead th[data-sorted]::after {
+    position: absolute; right: 3px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 10px;
+  }
+  table.scoreboard thead th[data-sorted="asc"]::after  { content: '\25B2'; }
+  table.scoreboard thead th[data-sorted="desc"]::after { content: '\25BC'; }
+  table.scoreboard tbody td { vertical-align: middle; }
+  table.scoreboard tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.scoreboard tbody td.dash { color: #555; }
+  table.scoreboard tbody tr:hover { background: rgba(255,255,255,0.03); }
+  table.scoreboard td.model-cell { white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd1d6; }
+  table.scoreboard .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: baseline; }
+  .scoreboard-hint { font-size: 11px; color: var(--muted); margin-top: 10px; max-width: 120ch; }
+  .scoreboard-hint code { color: #cdd1d6; }
+
+  /* Defect narratives */
+  .defects { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  @media (max-width: 900px) { .defects { grid-template-columns: 1fr; } }
+  .defect { border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; background: var(--panel); border-left: 3px solid var(--arm, var(--accent)); }
+  .defect h3 { margin: 0 0 2px; font-size: 14px; font-weight: 700; }
+  .defect .who { font-size: 11.5px; color: var(--muted); margin: 0 0 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .defect p { margin: 0 0 8px; font-size: 12.5px; color: #cdd1d6; }
+  .defect p:last-child { margin-bottom: 0; }
+  .defect .keep { color: #7ee787; font-weight: 600; }
+  .defect code { color: #ffcf9e; }
+
+  footer { color: var(--muted); font-size: 12px; padding: 18px 32px 40px; text-align: center; max-width: 1600px; margin: 0 auto; }
+  footer code { color: #cdd1d6; }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <h1>Agent Build-Off &mdash; five stacks, one brief</h1>
+    <label class="toggle"><input type="checkbox" id="toggleLabels" checked /> Show data labels</label>
+  </div>
+  <p class="sub">Five coding-agent stacks were handed the <strong>same verbatim brief</strong> and each built the same 3D runner game from an empty folder, in one session &mdash; four of them in parallel on 2026-09-07, and <code>claude-qwen38</code> later the same day. The question this page answers: same brief, one session, from nothing &mdash; what does each stack deliver? Every number here comes from <code>bench/agent-build-off/results/arms.json</code>, the single source; a metric that was not collected renders as a gap (&mdash;), never as zero. These arms are <strong>not ranked</strong>: several of the columns below are not comparable across rows, and the page says where.</p>
+  <blockquote class="brief-quote">&ldquo;You are going to create a complete and impressive 3D demo runner game, using modules and libraries to reduce the need of new code&hellip; Select the stack based on easiness to implement a functional demo on reduced time. Question me for decisions and ambiguities while creating the plan. &mdash; SAVE a detailed SPEC AND PLAN to SPEC.md and PLAN.md&hellip; Create an AGENTS.md&hellip;&rdquo; &mdash; the brief, given word-for-word to all four arms.</blockquote>
+</header>
+
+<div class="filter-bar" id="filterBar"></div>
+
+<main>
+  <noscript><p style="grid-column:1/-1">This page renders its charts and scoreboard from an inline data object &mdash; enable JavaScript to see them.</p></noscript>
+
+  <h2 class="category-heading" id="sec-arms">The five arms <span class="hint">who ran, on what, and each arm&rsquo;s own caveat &mdash; press Play to open the built demo</span></h2>
+  <div class="arm-grid" id="armGrid"></div>
+
+  <h2 class="category-heading" id="sec-notcomparable">What is not comparable <span class="hint">read these before the scoreboard, not as footnotes</span></h2>
+  <div class="caveats">
+    <div class="caveat">
+      <h3>codex-astra is not a single-model run</h3>
+      <p>Its <code>~18.6M</code>-token total spans <b>three models</b> (<code>gpt-6-astra</code>, <code>gpt-5.6-sol</code>, <code>codex-auto-review</code>) across <b>five delegated agents</b> running partly in parallel. The other three arms each ran one model in one agent.</p>
+      <p>So its token total is <b>not comparable</b> to theirs at all: read its 98,882 output tokens as a sum across three models, and do not weigh its full total against claude-opus5&rsquo;s 240,076 output tokens on the same axis.</p>
+    </div>
+    <div class="caveat">
+      <h3>The arms disagree on what the token totals count</h3>
+      <p>Each arm decides differently whether the later session that <i>wrote its stats file</i> is inside its own token totals: <code>codex-astra</code> excludes it, <code>opencode-qwen38</code> excludes it, <code>opencode-qwen38-superpowers</code> includes it, <code>claude-qwen38</code> includes it, and <code>claude-opus5</code> does not say.</p>
+      <p>Each arm&rsquo;s own answer is printed on its card above, beside its token figures.</p>
+    </div>
+    <div class="caveat">
+      <h3>codex-astra reported in Portuguese</h3>
+      <p>Its STATS.md is written in Portuguese; the other four are in English, with different section headings. This page&rsquo;s own copy is English.</p>
+      <p>But every <b>figure</b> below is the arm&rsquo;s own number, translated into the data, not re-measured.</p>
+    </div>
+  </div>
+
+  <div class="card wide limits">
+    <h2>The other limits</h2>
+    <ul>
+      <li><b>The three local arms cost nothing to run and took far longer.</b> <code>opencode-qwen38</code> took 90 minutes; <code>claude-qwen38</code> 144 minutes on a clock still running when its numbers were read; <code>opencode-qwen38-superpowers</code> spans an 11-hour raw clock (682.33 min, including a mid-task laptop sleep), of which 109.3 min &mdash; about 1 h 49 m &mdash; is active time. The two hosted arms finished in well under an hour but bill for their tokens.</li>
+      <li><b><code>opencode-qwen38</code> is the only arm without the superpowers skill library.</b> Its opencode sibling invoked brainstorming, writing-plans, TDD and systematic-debugging; the operator states the two hosted arms had the library loaded too, and <code>claude-qwen38</code>&rsquo;s transcript carries it, though that session invoked no skill through the Skill tool. The plain-versus-superpowers contrast therefore lives in the two opencode arms, not across the board.</li>
+      <li><b>Only <code>codex-astra</code> has a measured frame rate</b> &mdash; 60.00 fps mean over a two-minute desktop sample. The other four record frame rate as not collected. That is a gap in <i>their</i> verification, not a win to credit to this arm.</li>
+      <li><b><code>hyper-runner-fable</code> never ran and is absent</b> from this comparison entirely.</li>
+    </ul>
+  </div>
+
+  <h2 class="category-heading" id="sec-board">The scoreboard <span class="hint">every shared metric, sortable &mdash; click a header; gaps are uncollected metrics, not zeros</span></h2>
+  <div class="card wide">
+    <h2>All metrics, all five arms</h2>
+    <p class="sub">Every value is from <code>bench/agent-build-off/results/arms.json</code>. Click any column header to re-rank; double-click to reset. There is <strong>no green &ldquo;best&rdquo; highlight</strong>: more tokens or more lines is not &ldquo;better,&rdquo; and most columns are not like-for-like across rows (see the per-column notes below the table).</p>
+    <div class="scoreboard-wrap">
+      <table class="scoreboard" id="scoreboard">
+        <thead>
+          <tr>
+            <th data-sort="str">Arm</th>
+            <th data-sort="num">Wall (min)</th>
+            <th data-sort="num">Active (min)</th>
+            <th data-sort="num">Out tok</th>
+            <th data-sort="num">Uncached in</th>
+            <th data-sort="num">Cache-read</th>
+            <th data-sort="num">Reason tok</th>
+            <th data-sort="num">Prompts</th>
+            <th data-sort="num">Questions</th>
+            <th data-sort="num">Tool calls</th>
+            <th data-sort="num">Src lines</th>
+            <th data-sort="num">Src files</th>
+            <th data-sort="num">Doc lines</th>
+            <th data-sort="num">Direct deps</th>
+            <th data-sort="num">Pkgs</th>
+            <th data-sort="num">Bundle raw KB</th>
+            <th data-sort="num">Bundle gzip KB</th>
+            <th data-sort="num">Build (s)</th>
+            <th data-sort="num">Tests</th>
+            <th data-sort="num">Defects</th>
+            <th data-sort="num">FPS</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="scoreboard-hint">
+      Bases differ per row &mdash; the arms.json notes carry the detail; the load-bearing ones:
+      <b>Tokens</b> &mdash; <code>codex-astra</code>&rsquo;s are a three-model, five-agent sum (see the caveat above), not comparable to the single-model arms; the stats-writing session is inside some arms&rsquo; totals and not others.
+      <b>Wall time</b> &mdash; <code>opencode-qwen38</code> measures &ldquo;first file to final edit,&rdquo; the others &ldquo;first prompt to final report&rdquo;; <code>opencode-qwen38-superpowers</code>&rsquo;s wall clock includes a long laptop sleep, so its Active column is the fair read.
+      <b>Tests</b> &mdash; five different meanings: <code>opencode-qwen38</code>&rsquo;s 9 are custom CDP browser assertions, <code>opencode-qwen38-superpowers</code>&rsquo;s 65 are Vitest units, <code>codex-astra</code>&rsquo;s 50 are Vitest + Playwright, and <code>claude-opus5</code> used no unit-test framework (browser automation and a scripted autopilot instead) and <code>claude-qwen38</code> used none at all, so those two cells are gaps, not zeros.
+      <b>Source lines</b> &mdash; <code>codex-astra</code> reports tests separately; <code>opencode-qwen38-superpowers</code> folds a test file into its count.
+      <b>Bundle</b> &mdash; <code>codex-astra</code>&rsquo;s raw KB is the whole dist folder (assets included), not the JS/CSS-only figure the others report, and it published no gzip number.
+    </p>
+  </div>
+
+  <h2 class="category-heading" id="sec-charts">A few dimensions, drawn <span class="hint">read each caption for the caveat that the bars cannot carry</span></h2>
+
+  <section class="card">
+    <h2>Time to build</h2>
+    <p class="sub">Wall clock and active time, minutes, log scale. Active time is reported only where an arm split it out.</p>
+    <div class="chart-wrap"><canvas id="chartTime"></canvas></div>
+    <p class="chart-cap">The two hosted arms finished fastest by the clock. <code>opencode-qwen38-superpowers</code>&rsquo;s 682.33-minute wall clock is a raw span that includes a nine-hour laptop sleep; its 109.3-minute active bar is the honest build time. <code>opencode-qwen38</code> and <code>claude-opus5</code> report a single clock and no active split, so their Active bars are gaps.</p>
+  </section>
+
+  <section class="card">
+    <h2>Output tokens</h2>
+    <p class="sub">Tokens the model generated. The most comparable token class across the arms &mdash; but read the caption.</p>
+    <div class="chart-wrap"><canvas id="chartTokens"></canvas></div>
+    <p class="chart-cap"><code>codex-astra</code>&rsquo;s 98,882 is a sum across three models and five agents, not one model&rsquo;s output; the other three bars are each a single model in a single agent. Cache-read input (millions of tokens) dwarfs output for every arm and lives in the scoreboard, not here.</p>
+  </section>
+
+  <section class="card">
+    <h2>Source lines shipped</h2>
+    <p class="sub">Lines under <code>src/</code> at the end of the session.</p>
+    <div class="chart-wrap"><canvas id="chartLines"></canvas></div>
+    <p class="chart-cap"><code>codex-astra</code>&rsquo;s 1,435 excludes its test lines, reported separately; <code>opencode-qwen38-superpowers</code>&rsquo;s 2,136 folds a test file into the count. The bars are close, but not counted the same way.</p>
+  </section>
+
+  <section class="card">
+    <h2>Bundle size, gzipped</h2>
+    <p class="sub">Gzipped production bundle, KB. Lower is a lighter first paint &mdash; not a quality verdict.</p>
+    <div class="chart-wrap"><canvas id="chartBundle"></canvas></div>
+    <p class="chart-cap"><code>opencode-qwen38-superpowers</code> ships the lightest bundle by hand-rolling physics; the two Rapier arms carry the WASM engine. <code>codex-astra</code> published no gzip figure, so its bar is a gap &mdash; its reported 5,836 KB is the whole dist folder with assets, a different measurement.</p>
+  </section>
+
+  <h2 class="category-heading" id="sec-defects">The defects each arm caught <span class="hint">the sharpest content in the five records &mdash; how each stack found its hardest bug</span></h2>
+  <div class="defects" id="defectGrid"></div>
+
+</main>
+
+<footer>
+  <p>One page for the <code>agent-build-off</code> campaign. Data: <code>bench/agent-build-off/results/arms.json</code>; narratives: <code>bench/agent-build-off/results/&lt;arm&gt;.md</code>. Play buttons resolve on the published site, under <code>demos/build-off/&lt;arm&gt;/</code>. Self-contained: Chart.js + the datalabels plugin via CDN, and the shared <code>charts-common.js</code> runtime.</p>
+</footer>
+
+<script>
+/* ---------------------------------------------------------------------------
+ * Inline data — copied verbatim from bench/agent-build-off/results/arms.json,
+ * field names kept. Nothing is fetched at runtime so the page opens over
+ * file://. RESULTS below adds a `model` alias for `arm` so ChartsCommon's
+ * metricValue()/buildScoreboard() (which key on `model`) can read it.
+ * ------------------------------------------------------------------------- */
+const DATA = {
+  "arms": [
+    { "id": "opencode-qwen38", "harness": "opencode", "model": "qwen3.8-flash-next", "hosted": false,
+      "label": "opencode + Qwen3.8 Flash Next (local)", "color": "#2a9d8f",
+      "sourceFolder": "~/LocalProjects/hyper-runner", "statsSessionIncluded": false,
+      "statsSessionNote": "Its own STATS.md states: \"Figures exclude the two later prompts that wrote this file.\"", "multiModel": false },
+    { "id": "opencode-qwen38-superpowers", "harness": "opencode", "model": "qwen3.8-flash-next", "hosted": false,
+      "label": "opencode + Qwen3.8 Flash Next + superpowers (local)", "color": "#52b788",
+      "sourceFolder": "~/LocalProjects/hyper-runner-superpowers", "statsSessionIncluded": true,
+      "statsSessionNote": "Its own STATS.md states: \"Totals were read while this stats request was running, so they include it.\"", "multiModel": false },
+    { "id": "claude-opus5", "harness": "claude", "model": "claude-opus-5", "hosted": true,
+      "label": "Claude + Opus 5", "color": "#e76f51",
+      "sourceFolder": "~/LocalProjects/hyper-runner-claude", "statsSessionIncluded": null,
+      "statsSessionNote": "not stated", "multiModel": false },
+    { "id": "codex-astra", "harness": "codex", "model": "gpt-6-astra", "hosted": true,
+      "label": "Codex + gpt-6-astra (multi-model)", "color": "#f4a261",
+      "sourceFolder": "~/LocalProjects/hyper-runner-astra", "statsSessionIncluded": false,
+      "statsSessionNote": "Its own STATS.md states plainly it excludes the session that wrote the file (\"O relatório não inclui os tokens usados para criar este arquivo.\"). A verification pass against the Codex session logs found the excluded-session explanation accounts for the direction of a self-report/log gap but not its full size (see results/codex-astra.md).", "multiModel": true },
+    { "id": "claude-qwen38", "harness": "claude", "model": "qwen3.8-flash-next", "hosted": false,
+      "label": "Claude Code + Qwen3.8 Flash Next (local)", "color": "#146b5b",
+      "sourceFolder": "~/LocalProjects/hyper-runner-qwen-cc", "statsSessionIncluded": true,
+      "statsSessionNote": "Its own STATS.md counts the stats request as one of its six user prompts and runs its wall clock to the extraction moment, so the session that wrote the file is inside its own totals.", "multiModel": false }
+  ],
+  "results": [
+    { "arm": "opencode-qwen38", "metric": "wallMinutes", "value": 90 },
+    { "arm": "opencode-qwen38", "metric": "activeMinutes", "value": null },
+    { "arm": "opencode-qwen38", "metric": "tokensOutput", "value": 112802 },
+    { "arm": "opencode-qwen38", "metric": "tokensInputUncached", "value": 1268186 },
+    { "arm": "opencode-qwen38", "metric": "tokensCacheRead", "value": 4790430 },
+    { "arm": "opencode-qwen38", "metric": "tokensReasoning", "value": 0 },
+    { "arm": "opencode-qwen38", "metric": "userPrompts", "value": 10 },
+    { "arm": "opencode-qwen38", "metric": "questionsAsked", "value": 3 },
+    { "arm": "opencode-qwen38", "metric": "toolCalls", "value": 142 },
+    { "arm": "opencode-qwen38", "metric": "sourceLines", "value": 1170 },
+    { "arm": "opencode-qwen38", "metric": "sourceFiles", "value": 13 },
+    { "arm": "opencode-qwen38", "metric": "docLines", "value": 159 },
+    { "arm": "opencode-qwen38", "metric": "directDeps", "value": 17 },
+    { "arm": "opencode-qwen38", "metric": "installedPackages", "value": 136 },
+    { "arm": "opencode-qwen38", "metric": "bundleRawKB", "value": 3463.2 },
+    { "arm": "opencode-qwen38", "metric": "bundleGzipKB", "value": 1182.4 },
+    { "arm": "opencode-qwen38", "metric": "buildSeconds", "value": 0.33 },
+    { "arm": "opencode-qwen38", "metric": "testsPassing", "value": 9 },
+    { "arm": "opencode-qwen38", "metric": "defectsFound", "value": 8 },
+    { "arm": "opencode-qwen38", "metric": "meanFps", "value": null },
+    { "arm": "opencode-qwen38-superpowers", "metric": "wallMinutes", "value": 682.33 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "activeMinutes", "value": 109.3 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "tokensOutput", "value": 285431 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "tokensInputUncached", "value": 875625 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "tokensCacheRead", "value": 13581216 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "tokensReasoning", "value": null },
+    { "arm": "opencode-qwen38-superpowers", "metric": "userPrompts", "value": 10 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "questionsAsked", "value": 8 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "toolCalls", "value": 230 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "sourceLines", "value": 2136 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "sourceFiles", "value": 34 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "docLines", "value": 3201 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "directDeps", "value": 16 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "installedPackages", "value": 156 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "bundleRawKB", "value": 1177.34 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "bundleGzipKB", "value": 319.96 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "buildSeconds", "value": 0.155 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "testsPassing", "value": 65 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "defectsFound", "value": 6 },
+    { "arm": "opencode-qwen38-superpowers", "metric": "meanFps", "value": null },
+    { "arm": "claude-opus5", "metric": "wallMinutes", "value": 41.9 },
+    { "arm": "claude-opus5", "metric": "activeMinutes", "value": null },
+    { "arm": "claude-opus5", "metric": "tokensOutput", "value": 240076 },
+    { "arm": "claude-opus5", "metric": "tokensInputUncached", "value": 374 },
+    { "arm": "claude-opus5", "metric": "tokensCacheRead", "value": 25978321 },
+    { "arm": "claude-opus5", "metric": "tokensReasoning", "value": null },
+    { "arm": "claude-opus5", "metric": "userPrompts", "value": 3 },
+    { "arm": "claude-opus5", "metric": "questionsAsked", "value": 8 },
+    { "arm": "claude-opus5", "metric": "toolCalls", "value": 107 },
+    { "arm": "claude-opus5", "metric": "sourceLines", "value": 2111 },
+    { "arm": "claude-opus5", "metric": "sourceFiles", "value": 26 },
+    { "arm": "claude-opus5", "metric": "docLines", "value": 319 },
+    { "arm": "claude-opus5", "metric": "directDeps", "value": 15 },
+    { "arm": "claude-opus5", "metric": "installedPackages", "value": 74 },
+    { "arm": "claude-opus5", "metric": "bundleRawKB", "value": 3520.9 },
+    { "arm": "claude-opus5", "metric": "bundleGzipKB", "value": 1199.5 },
+    { "arm": "claude-opus5", "metric": "buildSeconds", "value": 0.44 },
+    { "arm": "claude-opus5", "metric": "testsPassing", "value": null },
+    { "arm": "claude-opus5", "metric": "defectsFound", "value": 5 },
+    { "arm": "claude-opus5", "metric": "meanFps", "value": null },
+    { "arm": "codex-astra", "metric": "wallMinutes", "value": 67 },
+    { "arm": "codex-astra", "metric": "activeMinutes", "value": null },
+    { "arm": "codex-astra", "metric": "tokensOutput", "value": 98882 },
+    { "arm": "codex-astra", "metric": "tokensInputUncached", "value": 647559 },
+    { "arm": "codex-astra", "metric": "tokensCacheRead", "value": 17861000 },
+    { "arm": "codex-astra", "metric": "tokensReasoning", "value": 18106 },
+    { "arm": "codex-astra", "metric": "userPrompts", "value": null },
+    { "arm": "codex-astra", "metric": "questionsAsked", "value": 3 },
+    { "arm": "codex-astra", "metric": "toolCalls", "value": 187 },
+    { "arm": "codex-astra", "metric": "sourceLines", "value": 1435 },
+    { "arm": "codex-astra", "metric": "sourceFiles", "value": 16 },
+    { "arm": "codex-astra", "metric": "docLines", "value": null },
+    { "arm": "codex-astra", "metric": "directDeps", "value": 6 },
+    { "arm": "codex-astra", "metric": "installedPackages", "value": 90 },
+    { "arm": "codex-astra", "metric": "bundleRawKB", "value": 5836 },
+    { "arm": "codex-astra", "metric": "bundleGzipKB", "value": null },
+    { "arm": "codex-astra", "metric": "buildSeconds", "value": null },
+    { "arm": "codex-astra", "metric": "testsPassing", "value": 50 },
+    { "arm": "codex-astra", "metric": "defectsFound", "value": null },
+    { "arm": "codex-astra", "metric": "meanFps", "value": 60.0 },
+    { "arm": "claude-qwen38", "metric": "wallMinutes", "value": 144 },
+    { "arm": "claude-qwen38", "metric": "activeMinutes", "value": null },
+    { "arm": "claude-qwen38", "metric": "tokensOutput", "value": 149235 },
+    { "arm": "claude-qwen38", "metric": "tokensInputUncached", "value": 3538572 },
+    { "arm": "claude-qwen38", "metric": "tokensCacheRead", "value": 3194985 },
+    { "arm": "claude-qwen38", "metric": "tokensReasoning", "value": null },
+    { "arm": "claude-qwen38", "metric": "userPrompts", "value": 6 },
+    { "arm": "claude-qwen38", "metric": "questionsAsked", "value": 4 },
+    { "arm": "claude-qwen38", "metric": "toolCalls", "value": 127 },
+    { "arm": "claude-qwen38", "metric": "sourceLines", "value": 2135 },
+    { "arm": "claude-qwen38", "metric": "sourceFiles", "value": 19 },
+    { "arm": "claude-qwen38", "metric": "docLines", "value": 343 },
+    { "arm": "claude-qwen38", "metric": "directDeps", "value": 3 },
+    { "arm": "claude-qwen38", "metric": "installedPackages", "value": 15 },
+    { "arm": "claude-qwen38", "metric": "bundleRawKB", "value": 6868.46 },
+    { "arm": "claude-qwen38", "metric": "bundleGzipKB", "value": 1516.54 },
+    { "arm": "claude-qwen38", "metric": "buildSeconds", "value": 35.5 },
+    { "arm": "claude-qwen38", "metric": "testsPassing", "value": null },
+    { "arm": "claude-qwen38", "metric": "defectsFound", "value": 7 },
+    { "arm": "claude-qwen38", "metric": "meanFps", "value": null }
+  ]
+};
+
+const C = ChartsCommon;
+C.initTheme();
+
+// MODELS = arms + a derived tier (local/hosted) and provider (harness) so the
+// filter bar's pills group cleanly. RESULTS = the tidy value records with a
+// `model` alias for `arm`.
+const MODELS = DATA.arms.map(function (a) {
+  return Object.assign({}, a, {
+    tier: a.hosted ? 'hosted' : 'local',
+    provider: a.harness,
+    chartLabel: a.label
+  });
+});
+const RESULTS = DATA.results.map(function (r) { return Object.assign({ model: r.arm }, r); });
+
+const byId  = C.indexModels(MODELS);
+const state = C.createFilterState(MODELS);
+const val   = function (id, q) { return C.metricValue(RESULTS, id, q); };
+
+// Filter bar: a checkbox per arm (default `local`-only would hide the hosted
+// two), plus Tier and Provider pills.
+C.createFilterBar(document.getElementById('filterBar'), state, {
+  checkboxModels: MODELS,
+  sections: [
+    { id: 'sec-arms', label: 'Arms' },
+    { id: 'sec-notcomparable', label: 'Not comparable' },
+    { id: 'sec-board', label: 'Scoreboard' },
+    { id: 'sec-charts', label: 'Charts' },
+    { id: 'sec-defects', label: 'Defects' }
+  ]
+});
+
+// ---- arm cards ----------------------------------------------------------
+const fmtNum = function (v) {
+  if (v === null || v === undefined) return null;
+  return Number.isInteger(v)
+    ? v.toLocaleString('en-US')
+    : v.toLocaleString('en-US', { maximumFractionDigits: 3 });
+};
+const statsWord = function (v) {
+  if (v === true) return 'included';
+  if (v === false) return 'excluded';
+  return 'not stated';
+};
+function armFig(id, q, unit) {
+  var v = val(id, q);
+  if (v === null) return '<dd class="dash">&mdash;</dd>';
+  return '<dd>' + fmtNum(v) + (unit ? ' ' + unit : '') + '</dd>';
+}
+const armGrid = document.getElementById('armGrid');
+MODELS.forEach(function (m) {
+  var flag = '';
+  if (m.multiModel) {
+    flag = '<p class="flag hard"><b>Not a single-model run.</b> ~18.6M tokens across three models and five agents &mdash; this token total is not comparable to the other arms.</p>';
+  } else if (m.id === 'opencode-qwen38-superpowers') {
+    flag = '<p class="flag"><b>Skills library.</b> Ran with the superpowers skill set the other three lacked.</p>';
+  }
+  var card = document.createElement('div');
+  card.className = 'arm';
+  card.style.setProperty('--arm', m.color);
+  card.innerHTML =
+    '<h3>' + m.label.replace(/ \(.*\)$/, '') + '</h3>' +
+    '<p class="stack">' + m.harness + ' &middot; ' + m.model +
+      '<span class="pill">' + (m.hosted ? 'hosted' : 'local') + '</span></p>' +
+    '<dl>' +
+      '<dt>Wall time</dt>' + armFig(m.id, { metric: 'wallMinutes' }, 'min') +
+      '<dt>Active time</dt>' + armFig(m.id, { metric: 'activeMinutes' }, 'min') +
+      '<dt>Output tokens</dt>' + armFig(m.id, { metric: 'tokensOutput' }) +
+      '<dt>Stats session</dt><dd>' + statsWord(m.statsSessionIncluded) + '</dd>' +
+      '<dt>Tool calls</dt>' + armFig(m.id, { metric: 'toolCalls' }) +
+      '<dt>Tests</dt>' + armFig(m.id, { metric: 'testsPassing' }) +
+      '<dt>Mean FPS</dt>' + armFig(m.id, { metric: 'meanFps' }) +
+    '</dl>' +
+    flag +
+    '<a class="play" href="demos/build-off/' + m.id + '/"><span class="tri">&#9654;</span> Play the demo</a>' +
+    '<p class="play-note">demos/build-off/' + m.id + '/ &mdash; resolves on the published site</p>';
+  armGrid.appendChild(card);
+});
+
+// ---- scoreboard ---------------------------------------------------------
+C.buildScoreboard(document.getElementById('scoreboard'), MODELS, RESULTS, [
+  { kind: 'num', query: { metric: 'wallMinutes' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'activeMinutes' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'tokensOutput' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'tokensInputUncached' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'tokensCacheRead' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'tokensReasoning' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'userPrompts' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'questionsAsked' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'toolCalls' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'sourceLines' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'sourceFiles' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'docLines' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'directDeps' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'installedPackages' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'bundleRawKB' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'bundleGzipKB' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'buildSeconds' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'testsPassing' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'defectsFound' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'meanFps' }, fmt: fmtNum }
+]);
+C.setupSortableTable('scoreboard');
+// No highlightBestPerColumn: "best" (max) is meaningless here — more tokens or
+// lines is not better, and the columns are not comparable across rows.
+state.onChange(function () { C.applyTableFilter('scoreboard', state, {}); });
+
+// ---- charts -------------------------------------------------------------
+function dset(id, data, extra) {
+  return Object.assign({ modelId: id, label: byId.get(id).chartLabel, backgroundColor: byId.get(id).color, data: data }, extra || {});
+}
+
+// Time (wall + active), log scale so the fast arms stay readable next to the
+// 682-minute raw clock.
+var timeOpts = C.gridOpts('Minutes (log scale)');
+timeOpts.scales.y.type = 'logarithmic';
+C.buildGroupedChart('chartTime', {
+  state: state,
+  labels: ['Wall clock', 'Active time'],
+  datasets: MODELS.map(function (m) {
+    return dset(m.id, [val(m.id, { metric: 'wallMinutes' }), val(m.id, { metric: 'activeMinutes' })]);
+  }),
+  options: timeOpts
+});
+
+// Output tokens (single group).
+C.buildGroupedChart('chartTokens', {
+  state: state,
+  labels: ['Output tokens'],
+  datasets: MODELS.map(function (m) { return dset(m.id, [val(m.id, { metric: 'tokensOutput' })]); }),
+  options: C.gridOpts('Tokens')
+});
+
+// Source lines (single group).
+C.buildGroupedChart('chartLines', {
+  state: state,
+  labels: ['Source lines (src/)'],
+  datasets: MODELS.map(function (m) { return dset(m.id, [val(m.id, { metric: 'sourceLines' })]); }),
+  options: C.gridOpts('Lines')
+});
+
+// Bundle gzip (single group) — codex-astra is null, renders as a gap.
+C.buildGroupedChart('chartBundle', {
+  state: state,
+  labels: ['Bundle, gzipped'],
+  datasets: MODELS.map(function (m) { return dset(m.id, [val(m.id, { metric: 'bundleGzipKB' })]); }),
+  options: C.gridOpts('KB (gzip)')
+});
+
+// ---- defect narratives --------------------------------------------------
+const DEFECTS = [
+  { id: 'opencode-qwen38', title: 'A physics bug the flag denied',
+    body: '<p>Deaths kept happening on clean jumps, intermittently &mdash; the hard one. Rapier still generated collision contacts for colliders whose <code>enabled</code> flag read <i>false</i>: the flag and the narrow phase disagreed, and a jump that cleared a block died against a wall that was supposed to be off.</p>' +
+          '<p>Found by <span class="keep">per-frame CDP tracing with a seeded obstacle layout</span>, not by playing. The fix stops disabling inactive colliders and translates them far below the world instead, so the narrow phase can never see them.</p>' },
+  { id: 'claude-opus5', title: 'A hitbox a scripted bot exposed',
+    body: '<p>The collision box was as wide as the mesh, so a lane change still in flight always clipped the neighbouring lane. Every run died the same way, and by hand it just looked like bad luck.</p>' +
+          '<p>A <span class="keep">scripted autopilot driving the pure logic through <code>window.hyper</code></span> made the pattern undeniable &mdash; every seeded run ended identically. A narrower hitbox roughly tripled how long the autopilot survived.</p>' },
+  { id: 'opencode-qwen38-superpowers', title: 'A flicker traced to shader source',
+    body: '<p>The track blinked black and the grid lines vanished &mdash; reported after delivery. The first hypothesis, z-fighting, was wrong.</p>' +
+          '<p>Root cause: multisampling was off on the EffectComposer, and drei&rsquo;s Grid draws its lines with an alpha-blended <code>fwidth</code> shader that discards zero-alpha fragments &mdash; with no MSAA on the offscreen target, the lines never survived. Found by <span class="keep">reading the installed shader source in <code>node_modules</code></span> after z-fighting was ruled out, not by guessing parameters. The fix turns multisampling back on.</p>' },
+  { id: 'codex-astra', title: 'A self-report the logs corrected',
+    body: '<p>This arm&rsquo;s own record has no &ldquo;defects found&rdquo; section, so its sharpest finding is about the report itself. It states its <code>~18.6M</code>-token total excludes the later session that wrote the stats file.</p>' +
+          '<p>A <span class="keep">verification pass against the Codex rollout logs</span> confirmed the direction of that exclusion but not its full size: with the stats-writing session removed, the logs read about 5.1% <i>below</i> the self-report, an open discrepancy the campaign records rather than papers over. It is also the only arm with a measured frame rate, 60.00 fps.</p>' }
+];
+const defectGrid = document.getElementById('defectGrid');
+DEFECTS.forEach(function (d) {
+  var m = byId.get(d.id);
+  var card = document.createElement('div');
+  card.className = 'defect';
+  card.style.setProperty('--arm', m.color);
+  card.innerHTML = '<h3>' + d.title + '</h3><p class="who">' + m.label + '</p>' + d.body;
+  defectGrid.appendChild(card);
+});
+
+C.bindLabelToggle(document.getElementById('toggleLabels'));
+</script>
+</body>
+</html>

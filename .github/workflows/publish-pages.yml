@@ -1,0 +1,142 @@
+name: Publish Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'reports/**'
+      - 'bench/agent-build-off/demos/**'
+      - 'bench/agent-build-off/results/**'
+      - 'bench/layout-skill-bench/demos/**'
+      - 'bench/layout-skill-bench/results/**'
+      - 'tools/publish/**'
+      - '.github/workflows/publish-pages.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: publish-pages
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      BASE: /macstudio-local-llm
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build the Agent Build-Off demos
+        run: |
+          set -euo pipefail
+          for arm in opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra claude-qwen38; do
+            echo "::group::$arm"
+            pushd "bench/agent-build-off/demos/$arm"
+            npm ci
+            npx vite build --base="$BASE/demos/build-off/$arm/"
+            popd
+            echo "::endgroup::"
+          done
+
+      - name: Build the taste-skill layout arm
+        run: |
+          set -euo pipefail
+          pushd bench/layout-skill-bench/demos/taste-skill
+          git apply ../taste-skill.basepath.patch
+          npm ci
+          npx vite build --base="$BASE/demos/layout/taste-skill/"
+          git checkout -- src/App.tsx
+          popd
+
+      - name: Assemble the site
+        run: |
+          set -euo pipefail
+          mkdir -p site/demos/build-off site/demos/layout
+          cp -R reports/. site/
+          touch site/.nojekyll
+          for arm in opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra claude-qwen38; do
+            cp -R "bench/agent-build-off/demos/$arm/dist" "site/demos/build-off/$arm"
+          done
+          cp -R bench/layout-skill-bench/demos/taste-skill/dist site/demos/layout/taste-skill
+          cp -R bench/layout-skill-bench/demos/design-skill  site/demos/layout/design-skill
+          mkdir -p site/demos/layout/taste2
+          cp -R bench/layout-skill-bench/demos/taste2/pages/. site/demos/layout/taste2/
+          rm -f site/demos/layout/design-skill/skills-lock.json
+          rm -rf site/demos/layout/design-skill/.agents
+          tools/publish/fix-layout-arms.sh site
+          # harness-matrix-svgbench.html references ../bench/harness-matrix/ for its
+          # SVGBench scores, verdicts, run records, and the gallery's SVGs. Two steps
+          # make those resolve on the published site:
+          #  1. Export the tracked subtree (results, plan.md, the 89 tracked logs SVGs)
+          #     into site/bench/. git archive exports only tracked files, so the
+          #     gitignored transcripts stay out.
+          #  2. The page lives at reports/ in the repo, where ../bench points at the
+          #     repo-root bench/. Assembly flattens reports/ to the site root, so ../bench
+          #     would resolve above the /macstudio-local-llm/ site root and 404. Rewrite
+          #     the assembled copy's ../bench/harness-matrix/ to bench/harness-matrix/.
+          git archive HEAD bench/harness-matrix | tar -x -C site/
+          sed -i.bak -E 's#\.\./bench/harness-matrix/#bench/harness-matrix/#g' \
+            site/harness-matrix-svgbench.html
+          rm -f site/harness-matrix-svgbench.html.bak
+          # artifacts.html shows drawings and screenshots from all three campaigns and
+          # references them as ../bench/<campaign>/... . harness-matrix is already
+          # exported above; export the two results subtrees it also needs (arms.json,
+          # the per-arm notes, and the shots/ WebPs — all tracked and small), then
+          # rewrite every ../bench/ in the assembled copy the same way.
+          git archive HEAD bench/agent-build-off/results | tar -x -C site/
+          git archive HEAD bench/layout-skill-bench/results | tar -x -C site/
+          sed -i.bak -E 's#\.\./bench/#bench/#g' site/artifacts.html
+          rm -f site/artifacts.html.bak
+
+      - name: Check the assembled tree
+        run: |
+          set -euo pipefail
+          test -f site/index.html
+          test -f site/overview.html
+          test -f site/perf-lines.html
+          test -f site/agent-build-off.html
+          test -f site/layout-skill-bench.html
+          test -f site/harness-matrix-svgbench.html
+          test -f site/artifacts.html
+          test -f site/charts-common.js
+          for arm in opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra claude-qwen38; do
+            test -f "site/demos/build-off/$arm/index.html"
+          done
+          for arm in design-skill taste-skill taste2; do
+            test -f "site/demos/layout/$arm/index.html"
+          done
+          test -f site/demos/layout/taste-skill/404.html
+          test -f site/bench/harness-matrix/results/svgbench/scores.json
+          test -f site/bench/harness-matrix/plan.md
+          test "$(find site/bench/harness-matrix/logs -name '*.svg' | wc -l)" -ge 80
+          test -f site/bench/agent-build-off/results/shots/claude-opus5.webp
+          test -f site/bench/agent-build-off/results/clips/claude-opus5.mp4
+          test -f site/bench/harness-matrix/results/svgbench/participants.json
+          test -f site/bench/layout-skill-bench/results/shots/taste2-5.webp
+          if grep -rIl 'src="/assets/\|href="/assets/' site/demos >/dev/null 2>&1; then
+            echo "root-absolute asset paths survived the base fix:"
+            grep -rIl 'src="/assets/\|href="/assets/' site/demos
+            exit 1
+          fi
+          du -sh site
+
+      - name: Publish to gh-pages
+        run: |
+          set -euo pipefail
+          cd site
+          git init -q .
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "Publish site from ${GITHUB_SHA::7}"
+          git push -q --force \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            HEAD:gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
