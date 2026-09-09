@@ -1,0 +1,347 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" width="100%" role="img" aria-label="Animated dawn on the beach">
+  <title>Dawn on the beach — Qwen 3.8 can draw</title>
+
+  <defs>
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#33205c"/>
+      <stop offset="40%" stop-color="#8a4a8f"/>
+      <stop offset="72%" stop-color="#e0708c"/>
+      <stop offset="100%" stop-color="#ffc46b"/>
+    </linearGradient>
+    <linearGradient id="seaGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffab7b"/>
+      <stop offset="22%" stop-color="#d4638f"/>
+      <stop offset="55%" stop-color="#7a5a9e"/>
+      <stop offset="100%" stop-color="#223a63"/>
+    </linearGradient>
+    <linearGradient id="sandGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe0b0"/>
+      <stop offset="100%" stop-color="#e79f63"/>
+    </linearGradient>
+    <linearGradient id="glintGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffd36b" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#ffd36b" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#ffd97a" stop-opacity="0.9"/>
+      <stop offset="45%" stop-color="#ffb35c" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#ffb35c" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sunDisc" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0%" stop-color="#fff6d8"/>
+      <stop offset="60%" stop-color="#ffd36b"/>
+      <stop offset="100%" stop-color="#ff9d4d"/>
+    </radialGradient>
+    <path id="petal" d="M0,-13 A13,13 0 0 1 11.26,-6.5 L0,0 Z"/>
+  </defs>
+
+  <!-- sky -->
+  <rect x="0" y="0" width="1200" height="432" fill="url(#skyGrad)"/>
+
+  <!-- fading stars -->
+  <g fill="#ffffff">
+    <circle cx="110" cy="58" r="2"><animate attributeName="opacity" values="0.9;0.15;0.9" dur="3.2s" repeatCount="indefinite"/></circle>
+    <circle cx="330" cy="42" r="1.5"><animate attributeName="opacity" values="0.7;0.1;0.7" dur="2.6s" begin="-1s" repeatCount="indefinite"/></circle>
+    <circle cx="545" cy="75" r="1.5"><animate attributeName="opacity" values="0.8;0.15;0.8" dur="3.8s" begin="-2s" repeatCount="indefinite"/></circle>
+    <circle cx="760" cy="30" r="1.5"><animate attributeName="opacity" values="0.7;0.2;0.7" dur="3s" begin="-0.5s" repeatCount="indefinite"/></circle>
+    <circle cx="935" cy="48" r="2"><animate attributeName="opacity" values="0.9;0.2;0.9" dur="2.9s" begin="-1.6s" repeatCount="indefinite"/></circle>
+    <circle cx="1120" cy="92" r="1.5"><animate attributeName="opacity" values="0.6;0.1;0.6" dur="3.5s" begin="-2.4s" repeatCount="indefinite"/></circle>
+  </g>
+
+  <!-- dawn cloud bands -->
+  <ellipse cx="600" cy="250" rx="320" ry="14" fill="#ff9e7d" opacity="0.22"/>
+  <ellipse cx="380" cy="298" rx="230" ry="10" fill="#ff9e7d" opacity="0.18"/>
+  <ellipse cx="880" cy="210" rx="200" ry="11" fill="#ffb38a" opacity="0.2"/>
+
+  <!-- clouds -->
+  <g fill="#ffe8d6">
+    <g transform="translate(180,110)">
+      <animateTransform attributeName="transform" type="translate" values="180 110; 240 116; 180 110" dur="36s" repeatCount="indefinite"/>
+      <ellipse cx="0" cy="0" rx="36" ry="14" opacity="0.85"/>
+      <ellipse cx="28" cy="-7" rx="26" ry="12" opacity="0.85"/>
+      <ellipse cx="-28" cy="-4" rx="22" ry="11" opacity="0.85"/>
+    </g>
+    <g transform="translate(760,80)">
+      <animateTransform attributeName="transform" type="translate" values="760 80; 706 85; 760 80" dur="44s" repeatCount="indefinite"/>
+      <ellipse cx="0" cy="0" rx="30" ry="12" opacity="0.6"/>
+      <ellipse cx="23" cy="-6" rx="20" ry="9" opacity="0.6"/>
+      <ellipse cx="-23" cy="-4" rx="18" ry="9" opacity="0.6"/>
+    </g>
+    <g transform="translate(1030,175)">
+      <animateTransform attributeName="transform" type="translate" values="1030 175; 976 179; 1030 175" dur="40s" repeatCount="indefinite"/>
+      <ellipse cx="0" cy="0" rx="24" ry="9" opacity="0.55"/>
+      <ellipse cx="18" cy="-5" rx="16" ry="7" opacity="0.55"/>
+    </g>
+  </g>
+
+  <!-- sun -->
+  <g transform="translate(600,330)">
+    <circle r="150" fill="url(#sunGlow)">
+      <animate attributeName="opacity" values="0.75;1;0.75" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <g opacity="0.3" stroke="#ffd98e" stroke-width="5" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="80s" repeatCount="indefinite"/>
+      <line x1="66" y1="0" x2="100" y2="0"/>
+      <line x1="46.7" y1="46.7" x2="70.7" y2="70.7"/>
+      <line x1="0" y1="66" x2="0" y2="100"/>
+      <line x1="-46.7" y1="46.7" x2="-70.7" y2="70.7"/>
+      <line x1="-66" y1="0" x2="-100" y2="0"/>
+      <line x1="-46.7" y1="-46.7" x2="-70.7" y2="-70.7"/>
+      <line x1="0" y1="-66" x2="0" y2="-100"/>
+      <line x1="46.7" y1="-46.7" x2="70.7" y2="-70.7"/>
+    </g>
+    <circle r="52" fill="url(#sunDisc)"/>
+  </g>
+
+  <!-- sea -->
+  <rect x="0" y="430" width="1200" height="142" fill="url(#seaGrad)"/>
+
+  <!-- sun glint on water -->
+  <polygon points="572,432 628,432 656,572 544,572" fill="url(#glintGrad)">
+    <animate attributeName="opacity" values="0.45;0.8;0.45" dur="3.2s" repeatCount="indefinite"/>
+  </polygon>
+
+  <!-- distant boat -->
+  <g transform="translate(1065,446)" opacity="0.85">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 0 -2.5; 0 0" dur="5s" repeatCount="indefinite"/>
+      <line x1="0" y1="0" x2="0" y2="-26" stroke="#5d4037" stroke-width="2"/>
+      <path d="M2,-25 L2,-3 L16,-4 Z" fill="#fff3e0" opacity="0.9"/>
+      <path d="M-30,0 L30,0 L20,9 L-20,9 Z" fill="#8d5a3a"/>
+    </g>
+  </g>
+
+  <!-- wave bands -->
+  <path d="M0,452 Q100,442 200,452 T400,452 T600,452 T800,452 T1000,452 T1200,452 T1400,452 T1600,452 T1800,452 T2000,452 T2200,452 T2400,452 L2400,572 L0,572 Z" fill="#ffffff" opacity="0.12">
+    <animateTransform attributeName="transform" type="translate" values="0 0; -400 0" dur="11s" repeatCount="indefinite"/>
+  </path>
+  <path d="M0,496 Q100,484 200,496 T400,496 T600,496 T800,496 T1000,496 T1200,496 T1400,496 T1600,496 T1800,496 T2000,496 T2200,496 T2400,496 L2400,610 L0,610 Z" fill="#0e2347" opacity="0.25">
+    <animateTransform attributeName="transform" type="translate" values="0 0; -400 0" dur="8s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- sailboat -->
+  <g transform="translate(260,486)">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 8 0; 0 0" dur="14s" repeatCount="indefinite"/>
+      <g>
+        <animateTransform attributeName="transform" type="translate" values="0 0; 0 -5; 0 2; 0 0" dur="4s" repeatCount="indefinite"/>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" values="-3 0 0; 3 0 0; -3 0 0" dur="4s" repeatCount="indefinite"/>
+          <line x1="0" y1="2" x2="0" y2="-54" stroke="#5d4037" stroke-width="3"/>
+          <path d="M3,-52 L3,-4 L36,-8 Z" fill="#fff8ee"/>
+          <path d="M-3,-48 L-3,-4 L-28,-8 Z" fill="#ffe0b2"/>
+          <polygon points="0,-54 13,-50 0,-46" fill="#ff5252"/>
+          <path d="M-38,0 L38,0 L26,16 L-26,16 Z" fill="#b3542e"/>
+          <line x1="-34" y1="5" x2="34" y2="5" stroke="#8d3b1e" stroke-width="2.5"/>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- rowboat -->
+  <g transform="translate(905,536)">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0; -7 0; 0 0" dur="12s" repeatCount="indefinite"/>
+      <g>
+        <animateTransform attributeName="transform" type="translate" values="0 0; 0 -4; 0 1; 0 0" dur="3.4s" begin="-1s" repeatCount="indefinite"/>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" values="2.5 0 0; -2.5 0 0; 2.5 0 0" dur="3.4s" begin="-1s" repeatCount="indefinite"/>
+          <line x1="-9" y1="-4" x2="-9" y2="0" stroke="#ff8a65" stroke-width="7" stroke-linecap="round"/>
+          <line x1="9" y1="-4" x2="9" y2="0" stroke="#7e57c2" stroke-width="7" stroke-linecap="round"/>
+          <circle cx="-9" cy="-9" r="4.5" fill="#f5c39a"/>
+          <circle cx="9" cy="-9" r="4.5" fill="#e8b088"/>
+          <path d="M-34,0 L34,0 L24,12 L-24,12 Z" fill="#4a7fb5"/>
+          <line x1="-30" y1="4" x2="30" y2="4" stroke="#33608f" stroke-width="2"/>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- front wave band -->
+  <path d="M0,540 Q100,532 200,540 T400,540 T600,540 T800,540 T1000,540 T1200,540 T1400,540 T1600,540 T1800,540 T2000,540 T2200,540 T2400,540 L2400,585 L0,585 Z" fill="#0b1d3c" opacity="0.35">
+    <animateTransform attributeName="transform" type="translate" values="0 0; -400 0" dur="6.5s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- water sparkles -->
+  <g fill="#ffd9a0">
+    <ellipse cx="420" cy="470" rx="7" ry="1.6"><animate attributeName="opacity" values="0.15;0.8;0.15" dur="2.6s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="680" cy="455" rx="6" ry="1.5"><animate attributeName="opacity" values="0.15;0.8;0.15" dur="2.6s" begin="-0.9s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="840" cy="480" rx="7" ry="1.6"><animate attributeName="opacity" values="0.15;0.7;0.15" dur="2.6s" begin="-1.7s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="560" cy="505" rx="6" ry="1.5"><animate attributeName="opacity" values="0.1;0.6;0.1" dur="2.6s" begin="-0.4s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="980" cy="465" rx="6" ry="1.5"><animate attributeName="opacity" values="0.15;0.75;0.15" dur="2.6s" begin="-2.1s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="300" cy="500" rx="6" ry="1.5"><animate attributeName="opacity" values="0.1;0.6;0.1" dur="2.6s" begin="-1.2s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="740" cy="528" rx="6" ry="1.5"><animate attributeName="opacity" values="0.1;0.55;0.1" dur="2.6s" begin="-1.9s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="1080" cy="518" rx="6" ry="1.5"><animate attributeName="opacity" values="0.1;0.55;0.1" dur="2.6s" begin="-0.6s" repeatCount="indefinite"/></ellipse>
+  </g>
+
+  <!-- sand -->
+  <path d="M0,574 Q300,564 600,572 T1200,568 L1200,700 L0,700 Z" fill="url(#sandGrad)"/>
+  <path d="M0,574 Q300,564 600,572 T1200,568" fill="none" stroke="#c9835a" stroke-width="16" opacity="0.5"/>
+
+  <!-- foam at water's edge -->
+  <path d="M0,574 Q75,567 150,574 T300,574 T450,574 T600,574 T750,574 T900,574 T1050,574 T1200,574 T1350,574 T1500,574 T1650,574 T1800,574 T1950,574 T2100,574 T2250,574 T2400,574" fill="none" stroke="#ffffff" stroke-width="4.5" opacity="0.9">
+    <animateTransform attributeName="transform" type="translate" values="0 0; -300 0" dur="5.5s" repeatCount="indefinite"/>
+  </path>
+  <path d="M0,581 Q75,575 150,581 T300,581 T450,581 T600,581 T750,581 T900,581 T1050,581 T1200,581 T1350,581 T1500,581 T1650,581 T1800,581 T1950,581 T2100,581 T2250,581 T2400,581" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.45">
+    <animateTransform attributeName="transform" type="translate" values="0 0; -300 0" dur="7.5s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- shells -->
+  <ellipse cx="320" cy="640" rx="5" ry="3" fill="#ffffff" opacity="0.8"/>
+  <ellipse cx="500" cy="672" rx="4" ry="2.5" fill="#ffe0c2"/>
+  <ellipse cx="760" cy="684" rx="5" ry="3" fill="#ffffff" opacity="0.7"/>
+  <ellipse cx="1080" cy="655" rx="4" ry="2.5" fill="#ffe0c2"/>
+  <ellipse cx="430" cy="622" rx="3.5" ry="2" fill="#ffffff" opacity="0.6"/>
+
+  <!-- umbrella + towel + sunbather -->
+  <ellipse cx="150" cy="652" rx="52" ry="8" fill="#000000" opacity="0.1"/>
+  <g transform="translate(140,646)">
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="-2 0 0; 2 0 0; -2 0 0" dur="5.5s" repeatCount="indefinite"/>
+      <line x1="0" y1="0" x2="0" y2="-74" stroke="#8d6e63" stroke-width="4" stroke-linecap="round"/>
+      <path d="M0,-74 L-56,-74 A56,56 0 0 1 -39.6,-113.6 Z" fill="#ff7043"/>
+      <path d="M0,-74 L-39.6,-113.6 A56,56 0 0 1 0,-130 Z" fill="#fff8f0"/>
+      <path d="M0,-74 L0,-130 A56,56 0 0 1 39.6,-113.6 Z" fill="#ff7043"/>
+      <path d="M0,-74 L39.6,-113.6 A56,56 0 0 1 56,-74 Z" fill="#fff8f0"/>
+      <circle cx="0" cy="-130" r="3.5" fill="#8d6e63"/>
+    </g>
+  </g>
+  <g transform="translate(215,652) rotate(6)">
+    <rect x="-35" y="-12" width="70" height="24" rx="4" fill="#4fc3f7"/>
+    <rect x="-35" y="-4" width="70" height="5" fill="#b3e5fc"/>
+  </g>
+  <g>
+    <circle cx="187" cy="630" r="7" fill="#f0b27a"/>
+    <path d="M178,628 A9,9 0 0 1 196,628 Z" fill="#ffe082"/>
+    <line x1="195" y1="633" x2="233" y2="637" stroke="#ff8a65" stroke-width="10" stroke-linecap="round"/>
+    <line x1="233" y1="637" x2="245" y2="634" stroke="#37474f" stroke-width="6" stroke-linecap="round"/>
+    <line x1="203" y1="632" x2="197" y2="625" stroke="#ff8a65" stroke-width="5" stroke-linecap="round"/>
+  </g>
+
+  <!-- people playing with the ball -->
+  <!-- shadows -->
+  <ellipse cx="700" cy="644" rx="16" ry="4" fill="#000000" opacity="0.12"/>
+  <ellipse cx="950" cy="634" rx="16" ry="4" fill="#000000" opacity="0.12"/>
+  <ellipse cx="590" cy="664" rx="12" ry="3.5" fill="#000000" opacity="0.12"/>
+  <ellipse cx="826" cy="650" rx="11" ry="3" fill="#000000" opacity="0.25">
+    <animate attributeName="cx" values="718;932;718" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="rx" values="9;13;9" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.3;0.18;0.3" dur="4s" repeatCount="indefinite"/>
+  </ellipse>
+
+  <!-- child running -->
+  <g transform="translate(590,662) scale(0.75)">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 0 -3; 0 0" dur="0.25s" repeatCount="indefinite"/>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="28 0 -18; -28 0 -18; 28 0 -18" dur="0.5s" repeatCount="indefinite"/>
+        <line x1="0" y1="-18" x2="-7" y2="0" stroke="#37474f" stroke-width="7" stroke-linecap="round"/>
+      </g>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="-28 0 -18; 28 0 -18; -28 0 -18" dur="0.5s" repeatCount="indefinite"/>
+        <line x1="0" y1="-18" x2="7" y2="0" stroke="#37474f" stroke-width="7" stroke-linecap="round"/>
+      </g>
+      <line x1="0" y1="-18" x2="0" y2="-40" stroke="#ffd54f" stroke-width="11" stroke-linecap="round"/>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="-35 0 -36; 25 0 -36; -35 0 -36" dur="0.5s" repeatCount="indefinite"/>
+        <line x1="0" y1="-36" x2="14" y2="-44" stroke="#ffd54f" stroke-width="5.5" stroke-linecap="round"/>
+        <circle cx="14" cy="-44" r="3" fill="#e8b088"/>
+      </g>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="25 0 -36; -35 0 -36; 25 0 -36" dur="0.5s" repeatCount="indefinite"/>
+        <line x1="0" y1="-36" x2="-14" y2="-44" stroke="#ffd54f" stroke-width="5.5" stroke-linecap="round"/>
+        <circle cx="-14" cy="-44" r="3" fill="#e8b088"/>
+      </g>
+      <circle cx="0" cy="-49" r="8.5" fill="#e8b088"/>
+      <path d="M-8.5,-50 A8.5,8.5 0 0 1 8.5,-50 Z" fill="#6d4c41"/>
+    </g>
+  </g>
+
+  <!-- player A -->
+  <g transform="translate(700,642)">
+    <line x1="-2" y1="-22" x2="-9" y2="0" stroke="#37474f" stroke-width="7" stroke-linecap="round"/>
+    <line x1="2" y1="-22" x2="9" y2="0" stroke="#37474f" stroke-width="7" stroke-linecap="round"/>
+    <line x1="0" y1="-22" x2="0" y2="-48" stroke="#ff7043" stroke-width="12" stroke-linecap="round"/>
+    <line x1="0" y1="-44" x2="-16" y2="-57" stroke="#ff7043" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="-16" cy="-57" r="3.5" fill="#f5c39a"/>
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="30 0 -44; -55 0 -44; 30 0 -44" dur="2s" repeatCount="indefinite"/>
+      <line x1="0" y1="-44" x2="17" y2="-58" stroke="#ff7043" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="17" cy="-58" r="3.5" fill="#f5c39a"/>
+    </g>
+    <circle cx="0" cy="-58" r="9.5" fill="#f5c39a"/>
+    <path d="M-9.5,-58 A9.5,9.5 0 0 1 9.5,-58 Z" fill="#4e342e"/>
+  </g>
+
+  <!-- player B -->
+  <g transform="translate(950,632)">
+    <line x1="-2" y1="-22" x2="-9" y2="0" stroke="#546e7a" stroke-width="7" stroke-linecap="round"/>
+    <line x1="2" y1="-22" x2="9" y2="0" stroke="#546e7a" stroke-width="7" stroke-linecap="round"/>
+    <line x1="0" y1="-22" x2="0" y2="-48" stroke="#26a69a" stroke-width="12" stroke-linecap="round"/>
+    <line x1="0" y1="-44" x2="16" y2="-57" stroke="#26a69a" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="16" cy="-57" r="3.5" fill="#f0b27a"/>
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="30 0 -44; -55 0 -44; 30 0 -44" dur="2s" begin="-1s" repeatCount="indefinite"/>
+      <line x1="0" y1="-44" x2="-17" y2="-58" stroke="#26a69a" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="-17" cy="-58" r="3.5" fill="#f0b27a"/>
+    </g>
+    <circle cx="0" cy="-58" r="9.5" fill="#f0b27a"/>
+    <path d="M-9.5,-58 A9.5,9.5 0 0 1 9.5,-58 Z" fill="#212121"/>
+  </g>
+
+  <!-- beach ball -->
+  <g>
+    <animateMotion path="M718,578 Q826,436 934,570 Q826,468 718,578" dur="4s" repeatCount="indefinite"/>
+    <g>
+      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.2s" repeatCount="indefinite"/>
+      <circle r="13" fill="#ffffff"/>
+      <use href="#petal" fill="#ff5252"/>
+      <use href="#petal" transform="rotate(120)" fill="#40c4ff"/>
+      <use href="#petal" transform="rotate(240)" fill="#ffd740"/>
+      <circle r="3" fill="#ffffff"/>
+    </g>
+  </g>
+
+  <!-- gulls -->
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="-80 150; 1300 118" dur="24s" repeatCount="indefinite"/>
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 0 9; 0 0" dur="2.1s" repeatCount="indefinite"/>
+      <path d="M0,0 Q9,-10 18,-1 Q27,-10 36,0" fill="none" stroke="#4a4a5a" stroke-width="2.5" stroke-linecap="round">
+        <animate attributeName="d" values="M0,0 Q9,-10 18,-1 Q27,-10 36,0; M0,0 Q9,3 18,2 Q27,3 36,0; M0,0 Q9,-10 18,-1 Q27,-10 36,0" dur="0.7s" repeatCount="indefinite"/>
+      </path>
+    </g>
+  </g>
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="-140 200; 1280 175" dur="31s" begin="-14s" repeatCount="indefinite"/>
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 0 7; 0 0" dur="1.9s" repeatCount="indefinite"/>
+      <path d="M0,0 Q7,-8 14,-1 Q21,-8 28,0" fill="none" stroke="#5a5a6a" stroke-width="2" stroke-linecap="round">
+        <animate attributeName="d" values="M0,0 Q7,-8 14,-1 Q21,-8 28,0; M0,0 Q7,3 14,2 Q21,3 28,0; M0,0 Q7,-8 14,-1 Q21,-8 28,0" dur="0.6s" repeatCount="indefinite"/>
+      </path>
+    </g>
+  </g>
+
+  <!-- plane with banner -->
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="-380 142; 1560 118" dur="16s" repeatCount="indefinite"/>
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 0 -5; 0 0" dur="2.4s" repeatCount="indefinite"/>
+      <line x1="-54" y1="-2" x2="-250" y2="-2" stroke="#ffffff" stroke-width="6" stroke-linecap="round" opacity="0.2"/>
+      <line x1="-46" y1="-4" x2="-268" y2="20" stroke="#8a8f98" stroke-width="1.5"/>
+      <line x1="-46" y1="-4" x2="-56" y2="20" stroke="#8a8f98" stroke-width="1.5"/>
+      <rect x="-272" y="18" width="222" height="36" rx="7" fill="#fffdf7" stroke="#d9c9a8" stroke-width="1.5"/>
+      <text x="-161" y="42" text-anchor="middle" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="21" font-weight="700" fill="#2b3a55">Qwen 3.8 can draw</text>
+      <polygon points="-38,-4 -54,-28 -24,-6" fill="#cfd6e6"/>
+      <ellipse cx="0" cy="0" rx="46" ry="13" fill="#eef1f8" stroke="#c3cad9" stroke-width="1.5"/>
+      <line x1="-38" y1="5" x2="34" y2="5" stroke="#ff7043" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="28" cy="-7" rx="9" ry="5" fill="#7fb8ff"/>
+      <polygon points="-6,6 -34,26 6,20" fill="#cfd6e6"/>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" from="0 46 0" to="360 46 0" dur="0.35s" repeatCount="indefinite"/>
+        <line x1="46" y1="-16" x2="46" y2="16" stroke="#5b6472" stroke-width="3" stroke-linecap="round"/>
+      </g>
+      <circle cx="47" cy="0" r="3.5" fill="#5b6472"/>
+    </g>
+  </g>
+</svg>

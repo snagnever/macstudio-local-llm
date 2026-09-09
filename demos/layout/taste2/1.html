@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050505">
+<title>Synapse — the second brain that connects itself</title>
+<meta name="description" content="Synapse turns every note, link, and half-formed thought into a living graph your mind can actually search.">
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=cabinet-grotesk@400,500,700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --e:cubic-bezier(.32,.72,0,1);
+  --bg:#050505;--fg:#ECEAEF;--dim:#A09CAC;--hair:rgba(255,255,255,.12);
+  --vio:#A78BFA;--em:#34D399;
+  --disp:'Clash Display','Cabinet Grotesk',ui-sans-serif,system-ui,sans-serif;
+  --body:'Plus Jakarta Sans','Avenir Next',ui-sans-serif,system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:rgba(167,139,250,.35);color:#fff}
+a{color:inherit;text-decoration:none}
+img,svg{display:block;max-width:100%}
+.container{max-width:1220px;margin:0 auto;padding:0 clamp(20px,4vw,40px)}
+.section{padding:clamp(88px,12vw,150px) 0;position:relative}
+section[id]{scroll-margin-top:130px}
+h1,h2,h3{font-family:var(--disp);font-weight:600;letter-spacing:-.02em;line-height:1.04}
+h1{font-size:clamp(2.9rem,7.2vw,6.2rem);letter-spacing:-.028em}
+h1 em{font-style:normal;background:linear-gradient(100deg,var(--vio) 10%,#c4b5fd 40%,var(--em) 85%);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:clamp(2.1rem,4.6vw,3.9rem)}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#B9B4C8;border-radius:999px;padding:7px 16px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px var(--hair),inset 0 1px 1px rgba(255,255,255,.16)}
+.eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--em);box-shadow:0 0 10px var(--em);animation:blip 3s var(--e) infinite}
+@keyframes blip{0%,100%{opacity:1}50%{opacity:.35}}
+.lead{color:var(--dim);font-size:clamp(1.02rem,1.5vw,1.22rem);max-width:56ch}
+.meta{font-size:13px;color:rgba(255,255,255,.42)}
+.btn{display:inline-flex;align-items:center;padding:9px 9px 9px 26px;border-radius:999px;background:#F6F5F8;color:#0A0A0B;font-weight:700;font-size:15px;letter-spacing:-.01em;transition:transform .55s var(--e),background .55s var(--e);will-change:transform}
+.btn .ic{width:38px;height:38px;border-radius:50%;background:rgba(10,10,11,.08);display:flex;align-items:center;justify-content:center;margin-left:18px;font-size:15px;transition:transform .55s var(--e),background .55s var(--e)}
+.btn:hover{background:#fff}.btn:hover .ic{transform:translate(3px,-2px) scale(1.07);background:rgba(10,10,11,.14)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:rgba(255,255,255,.07);color:#F1EFF5;box-shadow:inset 0 0 0 1px var(--hair),inset 0 1px 1px rgba(255,255,255,.14)}
+.btn.ghost .ic{background:rgba(255,255,255,.1)}
+.btn.ghost:hover{background:rgba(255,255,255,.12)}.btn.ghost:hover .ic{background:rgba(255,255,255,.18)}
+.cta-row{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.shell{border-radius:30px;padding:7px;background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.025));box-shadow:0 0 0 1px rgba(255,255,255,.05),0 30px 60px -30px rgba(0,0,0,.8);transition:transform .7s var(--e)}
+.shell:hover{transform:translateY(-5px)}
+.core{border-radius:calc(30px - 7px);background:#0C0C0F;box-shadow:inset 0 1px 1px rgba(255,255,255,.13);overflow:hidden;height:100%}
+.reveal{opacity:0;transform:translateY(56px);filter:blur(10px);transition:opacity .95s var(--e),transform .95s var(--e),filter .95s var(--e)}
+.reveal.visible{opacity:1;transform:none;filter:none}
+.grain{position:fixed;inset:0;z-index:70;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.navwrap{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;justify-content:center;pointer-events:none}
+.nav{pointer-events:auto;margin-top:22px;width:max-content;max-width:calc(100% - 32px);display:flex;align-items:center;gap:10px;border-radius:999px;padding:7px 7px 7px 22px;background:rgba(10,10,12,.55);backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%);box-shadow:inset 0 0 0 1px var(--hair),inset 0 1px 1px rgba(255,255,255,.18),0 20px 40px -20px rgba(0,0,0,.7)}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:600;font-size:16px;letter-spacing:-.01em}
+.brand svg{width:18px;height:18px}
+.links{display:flex;align-items:center;gap:2px}
+.links a{font-size:13.5px;font-weight:500;color:#B9B5C4;border-radius:999px;padding:8px 14px;transition:color .45s var(--e),background .45s var(--e)}
+.links a:hover{color:#fff;background:rgba(255,255,255,.07)}
+.ncta{background:#F6F5F8;color:#0A0A0B!important;font-weight:700!important;padding:9px 18px!important;transition:transform .55s var(--e)}
+.ncta:hover{background:#fff!important;transform:scale(1.03)}
+.burger{display:none;position:relative;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px var(--hair);border:0;cursor:pointer}
+.burger span{position:absolute;left:12px;width:18px;height:1.6px;background:#fff;border-radius:2px;transition:transform .65s var(--e)}
+.burger span:nth-child(1){top:18px}.burger span:nth-child(2){top:23px}
+.menu-open .burger span:nth-child(1){transform:translateY(2.8px) rotate(45deg)}
+.menu-open .burger span:nth-child(2){transform:translateY(-2.8px) rotate(-45deg)}
+.menu{position:fixed;inset:0;z-index:55;background:rgba(5,5,6,.86);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);opacity:0;visibility:hidden;transition:opacity .6s var(--e),visibility .6s}
+body.menu-open .menu{opacity:1;visibility:visible}
+.menu-inner{height:100%;display:flex;flex-direction:column;justify-content:center;gap:2px}
+.mlink{font-family:var(--disp);font-size:clamp(2.1rem,7vw,4.4rem);line-height:1.12;color:#fff;padding:8px 0;opacity:0;transform:translateY(48px);transition:opacity .7s var(--e),transform .7s var(--e),color .4s}
+.mlink:hover{color:var(--vio)}
+.mlink .mnum{display:inline-block;width:56px;font-family:var(--mono);font-size:13px;font-weight:400;color:rgba(255,255,255,.38);vertical-align:middle}
+body.menu-open .mlink{opacity:1;transform:none}
+.menu .mlink:nth-child(1){transition-delay:.10s}.menu .mlink:nth-child(2){transition-delay:.16s}.menu .mlink:nth-child(3){transition-delay:.22s}.menu .mlink:nth-child(4){transition-delay:.28s}.menu .mlink:nth-child(5){transition-delay:.34s}
+.menu-cta{margin-top:34px;opacity:0;transform:translateY(48px);transition:opacity .7s var(--e) .42s,transform .7s var(--e) .42s}
+body.menu-open .menu-cta{opacity:1;transform:none}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;will-change:transform}
+.o1{width:620px;height:620px;top:-220px;right:-160px;background:radial-gradient(circle,rgba(124,58,237,.42),transparent 65%);animation:drift1 22s var(--e) infinite alternate}
+.o2{width:520px;height:520px;bottom:-260px;left:-180px;background:radial-gradient(circle,rgba(16,185,129,.24),transparent 65%);animation:drift2 26s var(--e) infinite alternate}
+.o3{width:340px;height:340px;top:38%;left:34%;background:radial-gradient(circle,rgba(217,70,239,.16),transparent 65%);animation:drift3 30s var(--e) infinite alternate}
+@keyframes drift1{to{transform:translate(-90px,70px) scale(1.15)}}
+@keyframes drift2{to{transform:translate(70px,-60px) scale(1.2)}}
+@keyframes drift3{to{transform:translate(-60px,-90px) scale(.9)}}
+.hero{position:relative;min-height:100dvh;display:flex;align-items:center;padding:170px 0 90px;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:clamp(40px,6vw,90px);align-items:center;position:relative;z-index:1}
+.hero h1{margin:26px 0 28px}
+.hero .lead{margin-bottom:36px}
+.hero .meta{margin-top:30px}
+.hero-r{display:flex;flex-direction:column;gap:22px}
+.mini-lab{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.tilt-a{transform:rotate(-1.1deg)}.tilt-b{transform:rotate(.9deg)}
+.tilt-a,.tilt-b{transition:transform .8s var(--e)}
+.tilt-a:hover,.tilt-b:hover{transform:rotate(0deg) translateY(-5px)}
+.cap-card{padding:26px 26px 22px}
+.cap-line{display:flex;align-items:baseline;gap:10px;font-size:15.5px;color:#D9D6E0;margin:16px 0 6px;font-weight:500}
+.cap-line .caret{width:2px;height:19px;background:var(--vio);border-radius:2px;animation:blink 1.15s steps(2) infinite;align-self:center}
+@keyframes blink{50%{opacity:0}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);color:#B9B4C8}
+.chip.hot{background:rgba(167,139,250,.14);box-shadow:inset 0 0 0 1px rgba(167,139,250,.4);color:#C9B8FE}
+.recall-card{padding:26px 26px 24px}
+.recall-q{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--em);margin-bottom:14px}
+.recall-a{font-family:var(--disp);font-size:21px;font-weight:500;letter-spacing:-.015em;line-height:1.3;color:#F1EFF5}
+.recall-a mark{background:linear-gradient(180deg,transparent 58%,rgba(167,139,250,.3) 58%);color:inherit}
+.stat-strip{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:rgba(255,255,255,.4);padding:16px 22px}
+.stat-strip b{color:#D9D6E0;font-weight:500}
+.logos{padding:0 0 clamp(60px,8vw,100px)}
+.logos-row{display:flex;flex-wrap:wrap;align-items:center;gap:clamp(26px,4vw,54px)}
+.logos-cap{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.34)}
+.logo{font-family:var(--disp);font-size:17px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.4);transition:color .5s var(--e)}
+.logo:hover{color:rgba(255,255,255,.85)}
+.sec-head{display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:end;margin-bottom:clamp(44px,6vw,72px)}
+.sec-head h2{margin-top:22px}
+.sec-head .lead{padding-bottom:8px}
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:20px}
+.bento .s3{grid-column:span 3}.bento .s2{grid-column:span 2}.bento .s1{grid-column:span 1}
+.bento .r2{grid-row:span 2}
+.card-pad{padding:28px}
+.card-title{font-size:19px;font-weight:600;margin-bottom:8px}
+.card-sub{font-size:14px;color:var(--dim)}
+.graph-card{display:flex;flex-direction:column;height:100%}
+.graph-wrap{flex:1;padding:8px 8px 0;position:relative}
+.graph-wrap svg{width:100%;height:100%}
+.graph-cap{padding:20px 28px 26px;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.04em}
+.graph-cap b{color:#C9B8FE;font-weight:500}
+.flow{stroke-dasharray:4 8;animation:flow 9s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-240}}
+.nd{transform-box:fill-box;transform-origin:center;animation:pulse 4.5s var(--e) infinite}
+@keyframes pulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.28)}}
+.bignum{font-family:var(--disp);font-size:clamp(2.3rem,3.4vw,3.2rem);font-weight:600;letter-spacing:-.03em;background:linear-gradient(120deg,#fff,#9FE8C8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.todo{display:flex;align-items:center;gap:10px;font-size:13.5px;color:#C9C5D4;padding:7px 0}
+.todo svg{width:15px;height:15px;flex:none;color:var(--em)}
+.todo.pend svg{color:rgba(255,255,255,.25)}
+.article-line{font-size:13.5px;color:#B9B5C4;line-height:1.75}
+.article-line mark{background:linear-gradient(180deg,transparent 55%,rgba(167,139,250,.3) 55%);color:#E4E1EA;padding:0 2px}
+.cite-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+.cite{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:999px;background:rgba(52,211,153,.1);box-shadow:inset 0 0 0 1px rgba(52,211,153,.35);color:#7EE7BB}
+.steps{display:grid;grid-template-columns:1fr 1.12fr .95fr;gap:clamp(28px,4vw,56px)}
+.step{position:relative;padding-top:26px}
+.step::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.28),transparent)}
+.step:nth-child(2){margin-top:56px}.step:nth-child(3){margin-top:112px}
+.step-num{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--vio);display:block;margin-bottom:16px}
+.step h3{font-size:clamp(1.5rem,2.4vw,2.1rem);margin-bottom:14px}
+.step p{color:var(--dim);font-size:15px}
+.quote-wrap{text-align:center}
+.quote-wrap .core{padding:clamp(50px,8vw,96px) clamp(24px,7vw,110px)}
+.quote{font-size:clamp(1.5rem,3vw,2.35rem);font-family:var(--disp);font-weight:500;letter-spacing:-.02em;line-height:1.28;max-width:22ch;margin:22px auto 30px}
+.quote em{font-style:normal;color:var(--em)}
+.author{display:flex;align-items:center;justify-content:center;gap:14px}
+.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#10B981);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
+.author-txt{text-align:left;font-size:13px;color:var(--dim)}
+.author-txt b{display:block;color:#ECEAEF;font-size:14px}
+.final{text-align:center}
+.final h2{font-size:clamp(2.4rem,5.6vw,4.6rem);margin:26px 0 22px}
+.final .cta-row{justify-content:center}
+.final .meta{margin-top:28px}
+.foot{border-top:1px solid rgba(255,255,255,.07);padding:70px 0 46px;position:relative}
+.foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px;margin-bottom:60px}
+.foot h4{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:18px;font-weight:500}
+.foot a.fl{display:block;font-size:14px;color:#B0ACC0;padding:5px 0;transition:color .4s var(--e),transform .4s var(--e)}
+.foot a.fl:hover{color:#fff;transform:translateX(4px)}
+.foot-bottom{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-top:26px;border-top:1px solid rgba(255,255,255,.07);font-size:12.5px;color:rgba(255,255,255,.4)}
+.status{display:flex;align-items:center;gap:8px}
+.status i{width:7px;height:7px;border-radius:50%;background:var(--em);box-shadow:0 0 8px var(--em);animation:blip 2.6s var(--e) infinite}
+.iter{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:6px;border-radius:999px;padding:6px;background:rgba(13,13,16,.62);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:inset 0 0 0 1px var(--hair),inset 0 1px 1px rgba(255,255,255,.16),0 18px 40px -14px rgba(0,0,0,.75);transition:opacity .5s var(--e)}
+body.menu-open .iter{opacity:0;pointer-events:none}
+.ia{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#B9B4C8;transition:background .45s var(--e),color .45s var(--e),transform .45s var(--e)}
+.ia:hover{background:rgba(255,255,255,.09);color:#fff;transform:scale(1.06)}
+.icap{font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.38);padding:0 10px 0 8px}
+.dots{display:flex;gap:4px}
+.dt{min-width:28px;height:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.55);transition:all .55s var(--e)}
+.dt:hover{background:rgba(255,255,255,.08);color:#fff}
+.dt.on{min-width:34px;background:rgba(255,255,255,.94);color:#0A0A0B;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+@media (max-width:1020px){
+  .hero-grid{grid-template-columns:1fr;gap:56px}
+  .sec-head{grid-template-columns:1fr;align-items:start}
+  .bento{grid-template-columns:1fr 1fr}
+  .bento .s3,.bento .s2{grid-column:span 1}.bento .s1{grid-column:span 1}.bento .r2{grid-row:span 1}
+  .steps{grid-template-columns:1fr;gap:0}.step{margin-top:0!important}
+  .foot-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:880px){
+  .links{display:none}.burger{display:block}
+  .nav{padding:7px 7px 7px 18px}
+}
+@media (max-width:640px){
+  .bento{grid-template-columns:1fr;gap:14px}
+  .tilt-a,.tilt-b{transform:none}
+  .hero{padding-top:140px}
+  .cta-row .btn{width:100%;justify-content:space-between}
+  .foot-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body data-iter="1">
+<div class="grain" aria-hidden="true"></div>
+
+<header class="navwrap">
+  <nav class="nav" aria-label="Primary">
+    <a class="brand" href="1.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="url(#bg1)" stroke-width="1.4"><defs><linearGradient id="bg1" x1="0" y1="0" x2="24" y2="24"><stop stop-color="#A78BFA"/><stop offset="1" stop-color="#34D399"/></linearGradient></defs><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="8" r="2.4"/><circle cx="10" cy="18" r="2.4"/><path d="M7.8 7.2 16 8M8.6 16 16.6 9.6M7 8l2 7.8"/></svg>
+      Synapse
+    </a>
+    <div class="links">
+      <a href="#graph">Graph</a><a href="#method">Method</a><a href="#story">Story</a><a href="#begin">Changelog</a>
+      <a class="ncta" href="#begin">Open app</a>
+    </div>
+    <button class="burger" aria-expanded="false" aria-label="Open menu"><span></span><span></span></button>
+  </nav>
+</header>
+
+<div class="menu" role="dialog" aria-modal="true" aria-label="Navigation">
+  <div class="container menu-inner">
+    <a class="mlink" href="#graph"><span class="mnum">01</span>Graph</a>
+    <a class="mlink" href="#method"><span class="mnum">02</span>Method</a>
+    <a class="mlink" href="#story"><span class="mnum">03</span>Story</a>
+    <a class="mlink" href="#begin"><span class="mnum">04</span>Changelog</a>
+    <div class="menu-cta"><a class="btn" href="#begin">Open Synapse <span class="ic">↗</span></a></div>
+  </div>
+</div>
+
+<section class="hero" id="top">
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow reveal">Synapse 3.0 — semantic recall is live</span>
+      <h1 class="reveal" data-d="1">Every thought you keep,<br><em>linked</em> to everything else.</h1>
+      <p class="lead reveal" data-d="2">Synapse is the second brain that wires your notes, highlights, and half-finished ideas into a living graph — so the right thought finds you at the right moment, not somewhere in a folder.</p>
+      <div class="cta-row reveal" data-d="3">
+        <a class="btn" href="#begin">Start thinking free <span class="ic">↗</span></a>
+        <a class="btn ghost" href="#graph">Watch the 2-min film <span class="ic">▷</span></a>
+      </div>
+      <p class="meta reveal" data-d="4">Free while in beta · No credit card · Your data stays yours</p>
+    </div>
+    <div class="hero-r">
+      <div class="shell reveal" data-d="2">
+        <div class="core cap-card">
+          <span class="mini-lab">⌘K · capture anything, anywhere</span>
+          <p class="cap-line">attention residue — every open tab leaves a film on the next task <span class="caret"></span></p>
+          <div class="chips">
+            <span class="chip hot">#attention</span><span class="chip">← linked to 3 notes</span><span class="chip">filed nowhere, found everywhere</span>
+          </div>
+        </div>
+      </div>
+      <div class="shell tilt-a reveal" data-d="3">
+        <div class="core recall-card">
+          <p class="recall-q">Recall · tonight 20:04</p>
+          <p class="recall-a">You buried this on purpose: <mark>“Sell the Tuesday, not the drill.”</mark></p>
+          <div class="chips"><span class="chip">14 related notes</span><span class="cite">[1] pricing-pilot</span><span class="cite">[2] q3-notes</span></div>
+        </div>
+      </div>
+      <div class="shell tilt-b reveal" data-d="4">
+        <div class="core stat-strip">
+          <span>This week · <b>61 captured</b></span><span><b>128</b> links</span><span><b>9</b> resurfaces</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="logos">
+  <div class="container">
+    <div class="logos-row reveal">
+      <span class="logos-cap">Running inside the second brains of</span>
+      <span class="logo">Aster Labs</span><span class="logo">Northwind</span><span class="logo">Pallas</span><span class="logo">Studio Mono</span><span class="logo">Fieldkit</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="graph">
+  <div class="container">
+    <div class="sec-head">
+      <div class="reveal">
+        <span class="eyebrow">The shape of a mind</span>
+        <h2>One surface for capture,<br>connection, and recall.</h2>
+      </div>
+      <p class="lead reveal" data-d="1">Folders are where ideas go to die. Synapse keeps everything on one canvas and lets meaning do the sorting.</p>
+    </div>
+    <div class="bento">
+      <div class="shell s3 r2 reveal">
+        <div class="core graph-card">
+          <div class="graph-wrap">
+            <svg viewBox="0 0 420 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <defs>
+                <radialGradient id="gv" cx=".5" cy=".5" r=".5"><stop stop-color="#A78BFA"/><stop offset="1" stop-color="#6D28D9"/></radialGradient>
+                <radialGradient id="ge" cx=".5" cy=".5" r=".5"><stop stop-color="#34D399"/><stop offset="1" stop-color="#065F46"/></radialGradient>
+              </defs>
+              <g stroke="rgba(255,255,255,.15)" fill="none">
+                <path class="flow" d="M70 60 160 96M160 96 110 190M160 96 250 60M160 96 225 160M110 190 175 245M250 60 345 45M250 60 310 120M225 160 310 120M225 160 200 235M175 245 290 255M310 120 370 180M290 255 370 180M70 60 40 140M40 140 110 190M345 45 310 120"/>
+              </g>
+              <circle cx="160" cy="96" r="16" fill="url(#gv)" opacity=".18" style="filter:blur(6px)"/>
+              <circle class="nd" cx="160" cy="96" r="7" fill="url(#gv)"/>
+              <circle class="nd" style="animation-delay:.5s" cx="225" cy="160" r="6.4" fill="url(#ge)"/>
+              <circle class="nd" style="animation-delay:1s" cx="310" cy="120" r="6.4" fill="url(#gv)"/>
+              <circle class="nd" style="animation-delay:1.6s" cx="175" cy="245" r="6" fill="#E6E3EC"/>
+              <circle class="nd" style="animation-delay:.8s" cx="70" cy="60" r="4.4" fill="#E6E3EC"/>
+              <circle class="nd" style="animation-delay:1.3s" cx="110" cy="190" r="4.4" fill="#E6E3EC"/>
+              <circle class="nd" style="animation-delay:.2s" cx="250" cy="60" r="4.4" fill="#E6E3EC"/>
+              <circle class="nd" style="animation-delay:1.9s" cx="200" cy="235" r="4.2" fill="#E6E3EC"/>
+              <circle class="nd" style="animation-delay:.6s" cx="345" cy="45" r="3.8" fill="#B9B4C8"/>
+              <circle class="nd" style="animation-delay:1.1s" cx="370" cy="180" r="3.8" fill="#B9B4C8"/>
+              <circle class="nd" style="animation-delay:1.5s" cx="290" cy="255" r="3.8" fill="#B9B4C8"/>
+              <circle class="nd" style="animation-delay:2.1s" cx="40" cy="140" r="3.6" fill="#B9B4C8"/>
+            </svg>
+          </div>
+          <p class="graph-cap"><b>12,480 notes · 31,061 links</b> — organized by meaning, never by folder.</p>
+        </div>
+      </div>
+      <div class="shell s3 reveal" data-d="1">
+        <div class="core card-pad">
+          <span class="mini-lab">⌘K from anywhere</span>
+          <h3 class="card-title" style="margin-top:12px">Capture without filing</h3>
+          <p class="card-sub">Jot it, clip it, dictate it. Synapse never asks where it goes.</p>
+          <div class="chips">
+            <span class="chip hot">book ch. 12 → cite p. 214</span>
+            <span class="chip">voice · 0:14</span><span class="chip">clip · longread</span>
+          </div>
+        </div>
+      </div>
+      <div class="shell s1 reveal" data-d="2">
+        <div class="core card-pad" style="text-align:center">
+          <div class="bignum">41<small style="font-size:.45em">ms</small></div>
+          <p class="card-sub" style="font-size:11.5px">median recall, 12k notes</p>
+        </div>
+      </div>
+      <div class="shell s2 reveal" data-d="2">
+        <div class="core card-pad">
+          <h3 class="card-title">Today, rewritten by tonight</h3>
+          <div class="todo"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="6.4"/><path d="m5.4 8.2 1.8 1.8 3.4-3.8"/></svg>Draft the pricing page — sell the Tuesday</div>
+          <div class="todo pend"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="6.4"/></svg>Resurface last Thursday's cluster</div>
+          <div class="todo pend"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="6.4"/></svg>Reply to Ada's graph thread</div>
+        </div>
+      </div>
+      <div class="shell s2 reveal" data-d="3">
+        <div class="core card-pad">
+          <h3 class="card-title">Everything you read, quoted</h3>
+          <p class="article-line">“The true cost of multitasking isn't time — it's <mark>the residue your attention leaves behind</mark>, quietly taxing the next task.”</p>
+          <div class="chips"><span class="chip">web clipper · auto-cited</span></div>
+        </div>
+      </div>
+      <div class="shell s2 reveal" data-d="3">
+        <div class="core card-pad">
+          <h3 class="card-title">Answers with receipts</h3>
+          <p class="card-sub">Every synthesis cites your own notes — never a hallucination.</p>
+          <div class="cite-chips"><span class="cite">[1] pricing-pilot</span><span class="cite">[2] q3-notes</span><span class="cite">[3] call-ada</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="method">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:clamp(60px,9vw,110px)" class="reveal">
+      <span class="eyebrow">Method</span>
+      <h2 style="margin-top:22px">From noise to network<br>in three moves.</h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><span class="step-num">01 — DUMP</span><h3>Empty the mind</h3><p>Capture without deciding where it goes. Synapse files nothing in folders, so your brain stays in overdrive, not admin mode.</p></div>
+      <div class="step reveal" data-d="1"><span class="step-num">02 — WEAVE</span><h3>Let the graph pull</h3><p>Every save proposes its own connections. You accept, rename, or ignore — the network grows in your voice, not a taxonomy's.</p></div>
+      <div class="step reveal" data-d="2"><span class="step-num">03 — RETURN</span><h3>Be interrupted kindly</h3><p>Daily digests resurface what your past self buried on purpose, exactly when today's work needs it.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="story" style="padding-top:0">
+  <div class="container">
+    <div class="shell quote-wrap reveal">
+      <div class="core">
+        <span class="eyebrow">Story</span>
+        <p class="quote">“Synapse turned my graveyard of half-notes into an <em>actual second opinion</em>.”</p>
+        <div class="author">
+          <span class="avatar">ME</span>
+          <span class="author-txt"><b>Mara Ellison</b>Research Lead, Aster Labs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section final" id="begin">
+  <div class="orb o1" style="top:auto;bottom:-320px;right:20%;opacity:.7"></div>
+  <div class="container" style="position:relative;z-index:1">
+    <span class="eyebrow reveal">Give it a mind</span>
+    <h2 class="reveal" data-d="1">Give your memory<br>somewhere to live.</h2>
+    <div class="cta-row reveal" data-d="2">
+      <a class="btn" href="#top">Start thinking free <span class="ic">↗</span></a>
+      <a class="btn ghost" href="#top">Book a walkthrough <span class="ic">→</span></a>
+    </div>
+    <p class="meta reveal" data-d="3">No credit card · Import from Notion, Obsidian, or chaos in one click</p>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="1.html" style="margin-bottom:16px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="url(#bg2)" stroke-width="1.4"><defs><linearGradient id="bg2" x1="0" y1="0" x2="24" y2="24"><stop stop-color="#A78BFA"/><stop offset="1" stop-color="#34D399"/></linearGradient></defs><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="8" r="2.4"/><circle cx="10" cy="18" r="2.4"/><path d="M7.8 7.2 16 8M8.6 16 16.6 9.6M7 8l2 7.8"/></svg>
+          Synapse
+        </a>
+        <p style="font-size:13.5px;color:rgba(255,255,255,.42);max-width:30ch;margin-top:12px">A second brain that connects itself. Built for people who think in webs, not drawers.</p>
+      </div>
+      <div><h4>Product</h4><a class="fl" href="#graph">Living graph</a><a class="fl" href="#graph">Capture</a><a class="fl" href="#begin">Pricing</a><a class="fl" href="#begin">Changelog</a></div>
+      <div><h4>Company</h4><a class="fl" href="#story">Manifesto</a><a class="fl" href="#story">Careers</a><a class="fl" href="#begin">Press kit</a></div>
+      <div><h4>Resources</h4><a class="fl" href="#method">Docs</a><a class="fl" href="#method">Method</a><a class="fl" href="#graph">Community</a></div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Synapse Labs · Set in Clash Display</span>
+      <span class="status"><i></i>All systems nominal</span>
+    </div>
+  </div>
+</footer>
+
+<nav class="iter" aria-label="Design iterations">
+  <a class="ia" href="5.html" rel="prev" aria-label="Previous iteration">←</a>
+  <span class="icap">Iter</span>
+  <div class="dots">
+    <a class="dt on" href="1.html" aria-current="true">1</a><a class="dt" href="2.html">2</a><a class="dt" href="3.html">3</a><a class="dt" href="4.html">4</a><a class="dt" href="5.html">5</a>
+  </div>
+  <a class="ia" href="2.html" rel="next" aria-label="Next iteration">→</a>
+</nav>
+
+<script>
+const body=document.body,burger=document.querySelector('.burger'),menu=document.querySelector('.menu');
+const setMenu=o=>{body.classList.toggle('menu-open',o);burger.setAttribute('aria-expanded',String(o))};
+burger.addEventListener('click',()=>setMenu(!body.classList.contains('menu-open')));
+document.querySelectorAll('.mlink').forEach(l=>l.addEventListener('click',()=>setMenu(false)));
+addEventListener('keydown',e=>{
+  if(e.key==='Escape')setMenu(false);
+  if(e.key==='ArrowRight'){e.preventDefault();location.href=(cur%5)+1}
+  if(e.key==='ArrowLeft'){e.preventDefault();location.href=((cur-1+5)%5)+1}
+});
+const cur=+body.dataset.iter;
+document.querySelectorAll('.reveal').forEach(el=>{
+  const d=parseInt(el.dataset.d||'0',10);if(d)el.style.transitionDelay=(d*95)+'ms';
+});
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}})},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

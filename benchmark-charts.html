@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Local LLM Benchmarks — M4 Max / 128GB</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="charts-common.js"></script>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --border: #262a33;
+    --text: #e6e6e6;
+    --muted: #9aa0a6;
+    --accent: #5aa9ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+  }
+  header {
+    border-bottom: 1px solid var(--border);
+  }
+  .header-inner {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  header h1 { margin: 0 0 4px; font-size: 20px; font-weight: 600; }
+  header p { margin: 0; color: var(--muted); font-size: 13px; }
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    user-select: none;
+    cursor: pointer;
+  }
+  .toggle input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  .header-actions { display: inline-flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .report-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #1b1f27;
+    transition: background 0.12s ease, border-color 0.12s ease;
+  }
+  .report-link:hover { background: #232833; border-color: #3a414e; }
+  .report-link.current { color: var(--muted); border-style: dashed; cursor: default; pointer-events: none; }
+  main {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 24px 32px 64px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+  @media (max-width: 1100px) {
+    main { grid-template-columns: minmax(0, 1fr); }
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .card.wide { grid-column: 1 / -1; }
+  .card h2 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .card .sub {
+    margin: 0 0 16px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .chart-wrap { position: relative; height: 320px; }
+  .chart-wrap.tall { height: 420px; }
+  .chart-wrap.ref-sm { height: 380px; }
+  .chart-wrap.ref-md { height: 480px; }
+  .chart-wrap.ref-lg { height: 560px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 0;
+  }
+  th, td {
+    padding: 7px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th { color: var(--muted); font-weight: 500; white-space: nowrap; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .specs {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 16px;
+    font-size: 13px;
+  }
+  .specs dt { color: var(--muted); }
+  .specs dd { margin: 0; color: var(--text); }
+  .swatch {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: baseline;
+  }
+  .pill {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+    background: #262a33;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+  footer {
+    color: var(--muted);
+    font-size: 12px;
+    padding: 16px 32px 32px;
+    text-align: center;
+  }
+  /* Wide model table: keep readable on narrow screens */
+  .model-table-wrap { overflow-x: auto; }
+  .model-table-wrap table { min-width: 1280px; }
+  .model-table-wrap td.bestfor { color: #d6dae0; font-size: 12px; max-width: 220px; }
+  .model-table-wrap td.usage   { color: var(--muted); font-size: 12px; max-width: 260px; }
+  /* Model → HuggingFace link + inline telemetry footnote flag */
+  a.model-link { color: inherit; text-decoration: none; }
+  a.model-link:hover { text-decoration: underline; }
+  a.model-link .ext { color: var(--muted); font-size: 10px; white-space: nowrap; }
+  a.model-link:hover .ext { color: var(--accent); }
+  .tele-flag { color: var(--muted); cursor: help; }
+  /* Sortable scoreboard */
+  .scoreboard-wrap { overflow-x: auto; }
+  table.scoreboard { width: 100%; min-width: 880px; border-collapse: collapse; font-size: 12px; }
+  table.scoreboard th, table.scoreboard td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+  table.scoreboard thead th {
+    color: var(--muted); font-weight: 500; text-align: left;
+    cursor: pointer; user-select: none; position: relative;
+    padding-right: 18px; white-space: nowrap;
+  }
+  table.scoreboard thead th.num { text-align: right; }
+  table.scoreboard thead th:hover { color: var(--text); }
+  table.scoreboard thead th[data-sorted]::after {
+    position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+    color: var(--accent); font-size: 10px;
+  }
+  table.scoreboard thead th[data-sorted="asc"]::after  { content: '▲'; }
+  table.scoreboard thead th[data-sorted="desc"]::after { content: '▼'; }
+  table.scoreboard tbody td { vertical-align: middle; }
+  table.scoreboard tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.scoreboard tbody td.dash { color: #555; }
+  table.scoreboard tbody td.best { color: #7ee787; font-weight: 600; }
+  table.scoreboard tbody tr:hover { background: rgba(255,255,255,0.03); }
+  table.scoreboard td.model-cell { white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd1d6; }
+  .scoreboard-hint { font-size: 11px; color: var(--muted); margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>Local LLM Benchmarks</h1>
+      <p>Apple M4 Max · 128 GB · LM Studio / MLX · runs through 2026-05-22 (Phase 1 complete · Phase 2 in progress: Gemma 4 26B-A4B@4bit/@6bit done, 31B-dense partial)</p>
+    </div>
+    <div class="header-actions">
+      <nav>
+        <a class="report-link current" aria-current="page" href="benchmark-charts.html">On-rig measurements</a>
+        <a class="report-link" href="quality-benchmarks-charts.html">Quality vs frontier →</a>
+      </nav>
+      <label class="toggle">
+        <input type="checkbox" id="toggleLabels" checked />
+        Show data labels on bars
+      </label>
+    </div>
+  </div>
+</header>
+
+<!-- Global filter bar (sticky). Populated by charts-common.js. -->
+<div class="filter-bar" id="filterBar"></div>
+
+<main>
+
+  <h2 class="category-heading" id="sec-overview">Overview <span class="hint">system, model roster, the full scoreboard, and the quality-vs-speed trade-off</span></h2>
+
+  <!-- 0. System & Models -->
+  <section class="card">
+    <h2>System</h2>
+    <p class="sub">Apple Mac Studio · macOS 26.3 (Sequoia) · ARM64</p>
+    <dl class="specs">
+      <dt>Chip</dt>             <dd>Apple M4 Max (T6041)</dd>
+      <dt>CPU</dt>              <dd>16-core (12P + 4E)</dd>
+      <dt>GPU</dt>              <dd>40-core integrated</dd>
+      <dt>Neural Engine</dt>    <dd>16-core ANE</dd>
+      <dt>Memory</dt>           <dd>128 GB unified (LPDDR5X, ~546 GB/s)</dd>
+      <dt>Storage</dt>          <dd>1.8 TB SSD</dd>
+      <dt>OS / kernel</dt>      <dd>macOS 26.3 · Darwin 25.3.0</dd>
+      <dt>Inference backend</dt><dd>LM Studio · MLX (Apple Silicon)</dd>
+      <dt>API endpoint</dt>     <dd><code>http://&lt;lm-studio-host&gt;:1234/v1</code></dd>
+    </dl>
+  </section>
+
+  <section class="card wide">
+    <h2>Models benchmarked</h2>
+    <p class="sub">All MLX safetensors, run via LM Studio. Phase 1 (Qwen) verified 2026-05-19; Phase 2 (Gemma 4) verified 2026-05-22 (all 7 models, n=100 across HumanEval/MMLU/MATH/DROP/GPQA + n=50 LCB). The two right-most columns capture qualitative strengths and how each model is meant to be used in rotation. Model names link to the HuggingFace quant repo; <strong>Peak RAM</strong> is the loaded footprint from speed-probe telemetry (<code>—</code> where no qualifying probe — see Resource usage below); the rest is on-disk metadata.</p>
+    <div class="model-table-wrap">
+    <table id="modelsTable">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Model</th>
+          <th>Provider</th>
+          <th>Family</th>
+          <th>Arch</th>
+          <th class="num">Total</th>
+          <th class="num">Active</th>
+          <th>Quant</th>
+          <th class="num">Disk</th>
+          <th class="num">Peak RAM</th>
+          <th>Context</th>
+          <th>Vision</th>
+          <th>Tools</th>
+          <th>Best for</th>
+          <th>Expected usage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-model-id="coder">
+          <td><span class="swatch" style="background:#5aa9ff"></span></td>
+          <td><a class="model-link" href="https://huggingface.co/lmstudio-community/Qwen3-Coder-Next-MLX-6bit" target="_blank" rel="noopener"><code>qwen/qwen3-coder-next</code> <span class="ext">↗ HF</span></a></td>
+          <td>Qwen (Alibaba) · mlx-community<span class="pill">via LM Studio</span></td>
+          <td>Qwen3-Coder</td>
+          <td>MoE</td>
+          <td class="num">80 B</td>
+          <td class="num">3 B</td>
+          <td>6-bit MLX</td>
+          <td class="num">64.76 GB</td>
+          <td class="num">—</td>
+          <td>256K (1M w/ YaRN)</td>
+          <td>—</td>
+          <td>✓</td>
+          <td class="bestfor">Agentic coding, multi-file edits, tool-driven repo work. Strong jdhodges (90) but weakest GPQA (37) of Phase 1.</td>
+          <td class="usage">Primary local coder. ~68 t/s thanks to 3B active despite 80B total — feels snappy on coding scaffolds. Don't reach for it on hard science Q&amp;A.</td>
+        </tr>
+        <tr data-model-id="d27b">
+          <td><span class="swatch" style="background:#ff8a5a"></span></td>
+          <td><a class="model-link" href="https://huggingface.co/mlx-community/Qwen3.6-27B-6bit" target="_blank" rel="noopener"><code>qwen3.6-27b</code> <span class="ext">↗ HF</span></a></td>
+          <td>Qwen (Alibaba) · mlx-community<span class="pill">via LM Studio</span></td>
+          <td>Qwen3.6</td>
+          <td>Dense</td>
+          <td class="num">27 B</td>
+          <td class="num">27 B</td>
+          <td>6-bit MLX</td>
+          <td class="num">22.80 GB</td>
+          <td class="num">48.8 GB</td>
+          <td>128K</td>
+          <td>✓</td>
+          <td>✓</td>
+          <td class="bestfor">GPQA-tier science, MATH, DROP comprehension. Highest GPQA on the rig (70, &gt;78 if not for 32 k truncation).</td>
+          <td class="usage">Quality-over-speed slot. Decode ~20 t/s and reasoning-heavy — expect long waits, especially past ~3 k context where prefill drops to ~5 t/s. Reserve for hard one-shot questions.</td>
+        </tr>
+        <tr data-model-id="a3b35">
+          <td><span class="swatch" style="background:#7ee787"></span></td>
+          <td><a class="model-link" href="https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-6bit" target="_blank" rel="noopener"><code>qwen3.6-35b-a3b</code> <span class="ext">↗ HF</span></a></td>
+          <td>Qwen (Alibaba) · mlx-community<span class="pill">via LM Studio</span></td>
+          <td>Qwen3.6</td>
+          <td>MoE</td>
+          <td class="num">35 B</td>
+          <td class="num">3 B</td>
+          <td>6-bit MLX</td>
+          <td class="num">29.09 GB</td>
+          <td class="num">56.0 GB</td>
+          <td>128K</td>
+          <td>✓</td>
+          <td>✓</td>
+          <td class="bestfor">Balanced reasoning + tool calls at MoE speed. Near-27b accuracy at ~4× the throughput.</td>
+          <td class="usage">Daily-driver chat with tools. ~85 t/s generation; jdhodges 97.5 leads Phase 1. Watch the documented MLX MoE tool-call regression on 4-bit/8-bit Qwen3.x-A3B checkpoints (6-bit unaffected so far).</td>
+        </tr>
+        <tr data-model-id="g26_4">
+          <td><span class="swatch" style="background:#ffd166"></span></td>
+          <td><a class="model-link" href="https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit" target="_blank" rel="noopener"><code>gemma-4-26b-a4b-it-mlx@4bit</code> <span class="ext">↗ HF</span></a></td>
+          <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
+          <td>Gemma 4</td>
+          <td>MoE</td>
+          <td class="num">26 B</td>
+          <td class="num">4 B</td>
+          <td>4-bit MLX</td>
+          <td class="num">14.6 GB</td>
+          <td class="num">—</td>
+          <td>65K</td>
+          <td>✓</td>
+          <td>✓</td>
+          <td class="bestfor">Vision + throughput when RAM is tight. Fastest Gemma (~100 t/s) and lightest on disk (14.6 GB).</td>
+          <td class="usage">Pick when RAM-constrained or for vision drafts. 4-bit costs ~6 pp GPQA and ~3 pp MATH vs @6bit — prefer the 6-bit sibling when you have the headroom.</td>
+        </tr>
+        <tr data-model-id="g26_6">
+          <td><span class="swatch" style="background:#f59e0b"></span></td>
+          <td><a class="model-link" href="https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit" target="_blank" rel="noopener"><code>gemma-4-26b-a4b-it-mlx@6bit</code> <span class="ext">↗ HF</span></a></td>
+          <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
+          <td>Gemma 4</td>
+          <td>MoE</td>
+          <td class="num">26 B</td>
+          <td class="num">4 B</td>
+          <td>6-bit MLX</td>
+          <td class="num">21.81 GB</td>
+          <td class="num">30.3 GB<span class="tele-flag" title="probe filename did not record quant; attributed to @6bit">*</span></td>
+          <td>65K</td>
+          <td>✓</td>
+          <td>✓</td>
+          <td class="bestfor">Coding (LCB ceiling 80 %), vision, knowledge — the rig's best LCB and the best Gemma quant overall.</td>
+          <td class="usage">Recommended Gemma slot. ~80 t/s, near-lossless vs base, jdhodges 97.5 / veerman 83.3. Default to this for any Gemma workload unless you specifically need the 4-bit RAM savings.</td>
+        </tr>
+        <tr data-model-id="g31">
+          <td><span class="swatch" style="background:#fb7185"></span></td>
+          <td><a class="model-link" href="https://huggingface.co/lmstudio-community/gemma-4-31B-it-MLX-8bit" target="_blank" rel="noopener"><code>gemma-4-31b-it-mlx</code> <span class="ext">↗ HF</span></a></td>
+          <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
+          <td>Gemma 4</td>
+          <td>Dense</td>
+          <td class="num">31 B</td>
+          <td class="num">31 B</td>
+          <td>8-bit MLX</td>
+          <td class="num">33.80 GB</td>
+          <td class="num">—</td>
+          <td>65K</td>
+          <td>✓</td>
+          <td>✓</td>
+          <td class="bestfor">DROP comprehension (+6 pp vs A4B@6bit) — and that's it. Demoted from rotation.</td>
+          <td class="usage">Skip in normal use. Decode ~13 t/s = 6× slower than A4B@6bit for indistinguishable accuracy on every other bench. Only reach for it if a specific dense behavior matters.</td>
+        </tr>
+        <tr data-model-id="ge4b">
+          <td><span class="swatch" style="background:#c084fc"></span></td>
+          <td><a class="model-link" href="https://huggingface.co/lmstudio-community/gemma-4-E4B-it-MLX-8bit" target="_blank" rel="noopener"><code>gemma-4-e4b-it-mlx</code> <span class="ext">↗ HF</span></a></td>
+          <td>Google · mlx-community<span class="pill">via LM Studio</span></td>
+          <td>Gemma 4</td>
+          <td>Dense</td>
+          <td class="num">4 B</td>
+          <td class="num">4 B</td>
+          <td>8-bit MLX</td>
+          <td class="num">~7.5 GB</td>
+          <td class="num">—</td>
+          <td>32K</td>
+          <td>✓</td>
+          <td>✓</td>
+          <td class="bestfor">FIM / autocomplete / quick-call slot; fast vision drafts.</td>
+          <td class="usage">Tiny utility, ~70 t/s. MATH collapses to 14 % — never use it for hard symbolic work. Useful as a drafter / first-pass under an editor that streams completions.</td>
+        </tr>
+        <tr data-model-id="a1">
+          <td><span class="swatch" style="background:#2dd4bf"></span></td>
+          <td><a class="model-link" href="https://huggingface.co/leonsarmiento/Agents-A1-6bit-XL-mlx" target="_blank" rel="noopener"><code>agents-a1-xl-mlx</code> <span class="ext">↗ HF</span></a></td>
+          <td>InternScience / leonsarmiento (Qwen3.5 base) · community<span class="pill">via LM Studio</span></td>
+          <td>Agents-A1</td>
+          <td>MoE</td>
+          <td class="num">~40 B</td>
+          <td class="num">~3 B</td>
+          <td>6-bit MLX</td>
+          <td class="num">29.90 GB</td>
+          <td class="num">108.1 GB</td>
+          <td>256K</td>
+          <td>✓*</td>
+          <td>✓</td>
+          <td class="bestfor">Tool-calling generalist. Top-tier jdhodges 92.5 / veerman 83.3, HumanEval 97, LCB 64, MMLU 82. Qwen3.5 MoE (256 experts / 8 active), heavy thinker. *vision tower present but untested on-rig.</td>
+          <td class="usage">Well-rounded but a heavy thinker — ~40 t/s effective under reasoning load, and it can't complete short-output workloads (thinking overruns 150-tok budgets). Doesn't displace coder-next (agentic speed), 27b (knowledge), or gemma@6bit (coding). MATH/DROP/GPQA + T-Bench not run (2026-07-05).</td>
+        </tr>
+        <tr data-model-id="mmq3">
+          <td><span class="swatch" style="background:#a78bfa"></span></td>
+          <td><a class="model-link" href="https://huggingface.co/unsloth/MiniMax-M2.5-GGUF" target="_blank" rel="noopener"><code>unsloth/minimax-m2.5</code> <span class="ext">↗ HF</span></a></td>
+          <td>MiniMax · unsloth (GGUF)<span class="pill">via LM Studio</span></td>
+          <td>MiniMax-M2.5</td>
+          <td>MoE</td>
+          <td class="num">229 B</td>
+          <td class="num">~10 B</td>
+          <td>Q3_K_S GGUF</td>
+          <td class="num">98.69 GB</td>
+          <td class="num">—</td>
+          <td>60K (usable)</td>
+          <td>—</td>
+          <td>✓</td>
+          <td class="bestfor">Frontier-scale local coder/agent. LCB 72%, T-Bench 25.8% (4th on rig). Sole-model (&gt;80 GB).</td>
+          <td class="usage">GGUF-only (MLX build ⛔ kernel-panics). ~37 t/s, always-on reasoning tax. MMLU/MATH/DROP/GPQA not run.</td>
+        </tr>
+        <tr data-model-id="mmiq2">
+          <td><span class="swatch" style="background:#e879f9"></span></td>
+          <td><a class="model-link" href="https://huggingface.co/unsloth/MiniMax-M2.5-GGUF" target="_blank" rel="noopener"><code>minimax-m2.5@iq2_m</code> <span class="ext">↗ HF</span></a></td>
+          <td>MiniMax · unsloth (GGUF)<span class="pill">via LM Studio</span></td>
+          <td>MiniMax-M2.5</td>
+          <td>MoE</td>
+          <td class="num">229 B</td>
+          <td class="num">~10 B</td>
+          <td>UD-IQ2_M GGUF</td>
+          <td class="num">78.20 GB</td>
+          <td class="num">—</td>
+          <td>60K (usable)</td>
+          <td>—</td>
+          <td>✓</td>
+          <td class="bestfor">Preferred MiniMax quant — beats Q3_K_S on code (LCB 76, Veerman 83), ties it on T-Bench (25.8%). Under 80 GB → co-resident.</td>
+          <td class="usage">~43 t/s (+17% vs Q3_K_S). Pair with a fast generalist, or free ~50 GB for local-Docker T-Bench. T-Bench 25.8% (23/89) — exact tie with Q3_K_S.</td>
+        </tr>
+        <tr data-model-id="q122b">
+          <td><span class="swatch" style="background:#22d3ee"></span></td>
+          <td><a class="model-link" href="https://huggingface.co/unsloth/Qwen3.5-122B-A10B-MTP-GGUF" target="_blank" rel="noopener"><code>qwen3.5-122b-a10b</code> <span class="ext">↗ HF</span></a></td>
+          <td>Alibaba (Qwen) · unsloth GGUF<span class="pill">🔴 NO-GO</span></td>
+          <td>Qwen3.5</td>
+          <td>MoE</td>
+          <td class="num">122 B</td>
+          <td class="num">10 B</td>
+          <td>GGUF Q4_K_S</td>
+          <td class="num">75.23 GB</td>
+          <td class="num">75.2 GB</td>
+          <td>256K</td>
+          <td>✓*</td>
+          <td>✓</td>
+          <td class="bestfor">Planning-slot challenger — <strong>NO-GO (2026-07-12)</strong>. Ties <code>qwen3.6-27b</code> one-shot (HumanEval 96, LCB 62 exact tie, ±3 pp) at ~2× decode (~36 t/s), but weaker agent (T-Bench 24.7, #5 — below MiniMax 25.8) and 75 GB sole-model. *vision advertised, untested.</td>
+          <td class="usage">Faster sidegrade, not an upgrade. One-gen-older Qwen3.5 loses to the newer, smaller Qwen3.6 on every axis that matters for a slot: agentic (−6.8 pp T-Bench), memory (75 GB sole-model vs 27B's 22.8 GB swap-in), and a truncation liability (over-thinks, under-executes). Lesson: test the newest generation, not the biggest old model.</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- 0c. Scoreboard — accuracy + tool-calling + throughput in one matrix -->
+  <section class="card wide">
+    <h2>Benchmark scoreboard</h2>
+    <p class="sub">All accuracy benches (n=100), tool-calling suites, and creative-writing throughput in one matrix. <strong>Click any column header to sort</strong> ascending/descending; the best score in each numeric column is highlighted green. Hover a row to highlight it. Throughput columns are the creative-writing scenario (the most representative single number for "feels like" decode speed). The filter bar above hides models from every chart and this table at once.</p>
+    <div class="scoreboard-wrap">
+      <table class="scoreboard" id="scoreboardMain">
+        <thead>
+          <tr>
+            <th data-sort="str">Model</th>
+            <th class="num" data-sort="num">HumanEval</th>
+            <th class="num" data-sort="num">MMLU</th>
+            <th class="num" data-sort="num">MATH</th>
+            <th class="num" data-sort="num">DROP</th>
+            <th class="num" data-sort="num">GPQA</th>
+            <th class="num" data-sort="num">LCB v6</th>
+            <th class="num" data-sort="num">T-Bench</th>
+            <th class="num" data-sort="num">jdhodges</th>
+            <th class="num" data-sort="num">veerman</th>
+            <th class="num" data-sort="num">Gen t/s</th>
+            <th class="num" data-sort="num">Eff t/s</th>
+          </tr>
+        </thead>
+        <tbody><!-- generated by charts-common.js --></tbody>
+      </table>
+    </div>
+    <p class="scoreboard-hint">Defaults: rows are in the same order as the Models table above. Click headers to re-rank. Accuracy = pass-rate %, tool-calling = score %, throughput = tok/s on the creative-writing scenario. T-Bench is on-rig Terminal-Bench 2.0 n=89 (terminus-2, <code>--agent-timeout-multiplier 0.5</code>, 2026-05-24 → 2026-05-29; <code>qwen3.5-122b-a10b</code> backfilled 2026-07-12) — all candidates measured. Phase-5 additions MiniMax-M2.5 Q3_K_S and UD-IQ2_M both appear in the charts and tie exactly on T-Bench at 25.8% (23/89).</p>
+  </section>
+
+  <!-- 0c-bis. Resource usage (speed-probe telemetry) -->
+  <section class="card wide">
+    <h2>Resource usage <span class="hint">CPU · GPU · memory · power, from speed-probe telemetry</span></h2>
+    <p class="sub">Per-model resource draw captured by <code>macmon</code> during the <strong>speed-probe</strong> runs (local models only — accuracy/throughput benchmarks and frontier models are not instrumented). <strong>Peak RAM</strong> is peak unified-memory footprint (weights + KV cache + runtime); <strong>Avg CPU/GPU</strong> are the mean per-sample utilisation; <strong>Peak power</strong> is the package total. Only runs with <strong>n ≥ 10</strong> telemetry samples are shown — noisier runs are gated out and appear as <code>—</code> (<code>qwen3-coder-next</code> n=2, <code>gemma-4-31b</code> and <code>gemma-4-e4b</code> have no qualifying probe). The filter bar above hides rows here too.</p>
+    <div class="scoreboard-wrap">
+      <table class="scoreboard" id="telemetryTable">
+        <thead>
+          <tr>
+            <th data-sort="str">Model</th>
+            <th class="num" data-sort="num">Peak RAM (GB)</th>
+            <th class="num" data-sort="num">Avg CPU %</th>
+            <th class="num" data-sort="num">Avg GPU %</th>
+            <th class="num" data-sort="num">Peak power (W)</th>
+            <th class="num" data-sort="num">Samples</th>
+            <th>Probe date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-model-id="d27b">
+            <td class="model-cell"><span class="swatch" style="background:#ff8a5a"></span> qwen3.6-27b</td>
+            <td class="num">48.8</td><td class="num">10.6</td><td class="num">99.1</td><td class="num">43.0</td><td class="num">70</td><td>2026-05-17</td>
+          </tr>
+          <tr data-model-id="a3b35">
+            <td class="model-cell"><span class="swatch" style="background:#7ee787"></span> qwen3.6-35b-a3b</td>
+            <td class="num">56.0</td><td class="num">10.1</td><td class="num">93.7</td><td class="num">27.4</td><td class="num">15</td><td>2026-05-19</td>
+          </tr>
+          <tr data-model-id="g26_6">
+            <td class="model-cell"><span class="swatch" style="background:#f59e0b"></span> gemma-4-26b-a4b @6bit<span class="tele-flag" title="probe filename did not record quant; attributed to @6bit (primary Gemma slot)">*</span></td>
+            <td class="num">30.3</td><td class="num">23.6</td><td class="num">94.6</td><td class="num">16.0</td><td class="num">26</td><td>2026-04-08</td>
+          </tr>
+          <tr data-model-id="a1">
+            <td class="model-cell"><span class="swatch" style="background:#2dd4bf"></span> agents-a1-xl-mlx</td>
+            <td class="num">108.1</td><td class="num">14.4</td><td class="num">99.2</td><td class="num">67.9</td><td class="num">258</td><td>2026-07-04</td>
+          </tr>
+          <tr data-model-id="coder">
+            <td class="model-cell"><span class="swatch" style="background:#5aa9ff"></span> qwen3-coder-next</td>
+            <td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td>n=2 (below gate)</td>
+          </tr>
+          <tr data-model-id="g26_4">
+            <td class="model-cell"><span class="swatch" style="background:#ffd166"></span> gemma-4-26b-a4b @4bit</td>
+            <td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td>no probe</td>
+          </tr>
+          <tr data-model-id="g31">
+            <td class="model-cell"><span class="swatch" style="background:#fb7185"></span> gemma-4-31b dense</td>
+            <td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td>no probe</td>
+          </tr>
+          <tr data-model-id="ge4b">
+            <td class="model-cell"><span class="swatch" style="background:#c084fc"></span> gemma-4-e4b</td>
+            <td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td class="num dash">—</td><td>no probe</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="scoreboard-hint">Source: <code>tools/local-llm-bench-m4-32gb/results/speed_probe/*_results.json</code> (peak RAM / avg GPU / peak power / samples) + <code>*_macmon.jsonl</code> (per-sample <code>cpu_usage_pct</code> for Avg CPU). Rig: Apple M4 Max, 128 GB unified. <span class="tele-flag">*</span> Gemma probe filename did not record the quant; attributed to @6bit (the primary Gemma slot).</p>
+  </section>
+
+  <!-- 0d. Quality vs speed scatter -->
+  <section class="card wide">
+    <h2>Quality vs speed</h2>
+    <p class="sub">Benchmark score against generation throughput — the trade-off the bar charts can't show. Bubble size ∝ on-disk footprint (GB). Pick the y-axis benchmark; "Composite" averages the six accuracy suites (missing suites are skipped and flagged in the tooltip). <code>agents-a1-xl-mlx</code> has no creative-writing throughput sample, so it has no bubble.</p>
+    <div class="scatter-controls">
+      <span class="control-label">Y axis</span>
+      <select id="scatterBench">
+        <option value="composite">Composite (6-bench mean)</option>
+        <option value="HumanEval">HumanEval</option>
+        <option value="MMLU">MMLU</option>
+        <option value="MATH">MATH</option>
+        <option value="DROP">DROP</option>
+        <option value="GPQA">GPQA</option>
+        <option value="LCB">LiveCodeBench v6</option>
+        <option value="TBench">Terminal-Bench 2.0</option>
+      </select>
+    </div>
+    <div class="chart-wrap tall"><canvas id="chartScatter"></canvas></div>
+  </section>
+
+  <h2 class="category-heading" id="sec-coding">Coding <span class="hint">LiveCodeBench &amp; HumanEval — on-rig and vs frontier</span></h2>
+
+  <section class="card wide">
+    <h2>LiveCodeBench v6 — local (n=50)</h2>
+    <p class="sub">All 7 daily-driver candidates fully characterized after Phase 1 backfill + Step B reruns (2026-05-24). <strong>Gemma 4 26B-A4B @6bit at 80 % is the rig's LCB ceiling</strong>, +18 pp over the best Qwen (27b at 62 %). Numbers are post-rerun MERGED canonical: <code>qwen/qwen3-coder-next</code> 56 % clean (0 trunc), <code>qwen3.6-27b</code> 62 % (1 trunc, Q3 abc365_c — hardest across the trio), <code>qwen3.6-35b-a3b@6bit</code> 54 % (6 trunc, all 65 k spirals), <code>gemma-4-26b-a4b@4bit</code> 66 % (8 trunc — Q2 recovered at 65 k, rest are real model limits), <code>gemma-4-26b-a4b@6bit</code> 80 % (1 trunc — Q19 still spirals at 65 k). Phase-5 MiniMax-M2.5 also plotted: Q3_K_S 72% @60k, UD-IQ2_M 76% @32k raw — both above every Qwen, IQ2_M ties gemma-4-31b.</p>
+    <div class="chart-wrap"><canvas id="chartLCB"></canvas></div>
+  </section>
+
+  <section class="card"><h2>HumanEval</h2><p class="sub">Python coding. Largely deprecated by frontier providers post-2024.</p><div class="chart-wrap ref-sm"><canvas id="chartRefHumanEval"></canvas></div></section>
+  <section class="card wide"><h2>LiveCodeBench v6</h2><p class="sub">Coding pass@1 against the rolling contamination-resistant set. Anthropic Opus 4.x, Gemini 3 Pro, GPT-5.2, o-series and Llama 4 don't publish LCB; bars are limited to providers who do. Sonnet 4.5 is reported as LCB-<strong>Pro</strong>, not directly comparable to v6 pass@1 — kept with caveat.</p><div class="chart-wrap ref-md"><canvas id="chartRefLCB"></canvas></div></section>
+
+  <h2 class="category-heading" id="sec-knowledge">Knowledge &amp; reasoning <span class="hint">accuracy suites, frontier comparison, and model radar</span></h2>
+
+  <!-- Frontier comparison intro -->
+  <section class="card wide">
+    <h2>Local vs frontier — published scores</h2>
+    <p class="sub">
+      Local runs (this rig, n=100, seed=42, temp=0) plotted against published first-party scores for frontier &amp; notable open-weight models.
+      Caveats: many newer frontier models no longer publish HumanEval/DROP; MATH often means MATH-500 or AIME 2025 (noted per-model);
+      GPQA is Diamond throughout. Reasoning models (o3, R1, Claude 4.x with thinking, Gemini 2.5/3, GPT-5) report with test-time compute.
+      Use for ranking, not absolute deltas — ±5pp noise at n=100. Tier pills in the filter bar toggle the frontier / open-weight reference rows.
+    </p>
+  </section>
+
+  <!-- 1. Accuracy by benchmark -->
+  <section class="card wide">
+    <h2>Accuracy — 100-question benchmarks</h2>
+    <p class="sub">Pass rate across reasoning/coding/knowledge suites. Phase 1 (Qwen ×3) complete; Phase 2 (Gemma 4) — 26B-A4B@4bit/@6bit complete, 31B-dense partial (MATH/DROP/GPQA still running). GPQA caveats: Qwen 27b had 15/100 and 35b-a3b had 23/100 hard-capped at <code>max_tokens=32 768</code> (counted as wrong); true GPQA likely 78–85 % / 75–83 %. Gemma 4 runs used the doubled <code>max_tokens=65 536</code> rule and truncated only 1–2 questions — those scores are not affected.</p>
+    <div class="chart-wrap"><canvas id="chartAccuracy"></canvas></div>
+  </section>
+
+  <section class="card"><h2>MMLU</h2><p class="sub">General knowledge. Anthropic 4.x reports MMMLU (multilingual) — marked *</p><div class="chart-wrap ref-md"><canvas id="chartRefMMLU"></canvas></div></section>
+  <section class="card"><h2>MATH</h2><p class="sub">Original MATH for local/legacy; MATH-500 for DeepSeek (†); AIME 2025 for frontier (‡).</p><div class="chart-wrap ref-md"><canvas id="chartRefMATH"></canvas></div></section>
+  <section class="card"><h2>DROP (F1)</h2><p class="sub">Reading comprehension. Mostly dropped by frontier providers — small field.</p><div class="chart-wrap ref-sm"><canvas id="chartRefDROP"></canvas></div></section>
+  <section class="card wide"><h2>GPQA Diamond</h2><p class="sub">Graduate-level science. The one benchmark still universally reported.</p><div class="chart-wrap ref-lg"><canvas id="chartRefGPQA"></canvas></div></section>
+
+  <!-- Model radar -->
+  <section class="card wide">
+    <h2>Model profile — radar</h2>
+    <p class="sub">Head-to-head shape across every 0–100 benchmark axis. Pick up to 3 models. Axes are fixed 0–100 (all are percentages) so shapes stay comparable regardless of selection. Missing axes (e.g. <code>agents-a1-xl-mlx</code> has no MATH/DROP/GPQA/T-Bench) show as gaps.</p>
+    <div class="radar-picker" id="radarPicker"></div>
+    <div class="chart-wrap tall"><canvas id="chartRadar"></canvas></div>
+  </section>
+
+  <h2 class="category-heading" id="sec-tools">Tool use &amp; agents <span class="hint">Terminal-Bench and tool-calling suites</span></h2>
+
+  <!-- Terminal-Bench (on-rig, full backfill) -->
+  <section class="card wide">
+    <h2>Terminal-Bench 2.0 — local (n=89)</h2>
+    <p class="sub">Multi-turn shell-agent benchmark, measured on-rig 2026-05-24 → 2026-05-29 via Harbor + LiteLLM → LM Studio (Docker linux/amd64), terminus-2 agent, concurrency=1, vanilla T-Bench 2.0 task set with <code>--agent-timeout-multiplier 0.5</code> (bounds the 14 tasks declaring &gt;60-min agent budgets — scores are a defensible floor; full-budget would land ≤5 pp higher). <strong>All 7 candidates complete:</strong> <code>qwen/qwen3-coder-next</code> <strong>32.6 %</strong> (29/89, 16.8 h), <code>qwen3.6-27b</code> <strong>31.5 %</strong> (28/89, 18.9 h), <code>qwen3.6-35b-a3b@6bit</code> <strong>28.1 %</strong> (25/89, 15.6 h), <code>gemma-4-31b</code> dense <strong>22.5 %</strong> (20/89, 17.4 h), <code>gemma-4-26b-a4b@6bit</code> <strong>21.3 %</strong> (19/89, 14.4 h), <code>@4bit</code> <strong>20.2 %</strong> (18/89, 16.0 h), <code>gemma-4-e4b</code> <strong>4.5 %</strong> (4/89, 6.4 h). Total wall-clock ~105 h. <strong>Backfill (2026-07-12):</strong> <code>qwen3.5-122b-a10b</code> (GGUF Q4_K_S, thinking ON) <strong>24.7 %</strong> (22/89, ~18.5 h) — #5, a NO-GO Planning challenger that ties the 27B one-shot but is a weaker agent (the older Qwen3.5 gen losing to the newer, smaller Qwen3.6). <strong>Headline:</strong> T-Bench cleanly inverts LCB at the top — the three Qwen3.6 models cluster on top (trained with explicit agentic-loop targets); Gemma — which topped LCB at 80 % — drops to mid-pack. Canonical summaries: <code>tools/local-llm-bench-m4-32gb/benchmarks/runs/tbench_*_summary.json</code>; raw run dirs at <code>bench/terminal-bench/logs/tbench-runs/&lt;model&gt;/result.json</code>. Phase-5 MiniMax-M2.5 lands at 25.8% (23/89) on <em>both</em> quants — Q3_K_S (98.69 GB) and UD-IQ2_M (78.20 GB) tie exactly, 4th overall, above all Gemma. The 2-bit UD-IQ2_M matched the larger Q3_K_S on the agentic-shell loop measured here (remote model on the rig, MBP-side Docker, <code>--agent-timeout-multiplier 0.5</code>; the IQ2_M run's initial 16 Docker env-start failures were recovered on a clean-Docker resume before scoring). <strong>Budget diagnostic:</strong> IQ2_M logged 46 <code>AgentTimeoutError</code> at 0.5× and <code>46/89 = 51.7%</code> equals MiniMax's vendor T-Bench figure — but re-running timeout tasks at 1.0× and 1.5× budget recovers only ~25–33% of them (verified-recoverable ≈ 27/89 = 30.3%, budget-boosted, not cohort-comparable). The rest of the gap to vendor is structural — throughput (2-bit @ ~40 t/s over LAN), tool-call JSON-format instability, and capability misses — not a multiplier artifact; more budget mostly lets it <em>finish and be wrong</em>. Full analysis: <code>bench/minimax-m2.5/iq2m-tbench-budget-diagnostic.md</code>.</p>
+    <div class="chart-wrap"><canvas id="chartTBench"></canvas></div>
+    <p class="scoreboard-hint"><strong>* MiniMax-M2.5 UD-IQ2_M — with more agent-time budget:</strong> at a full/1.5× <code>--agent-timeout-multiplier</code> the model recovers to <strong>~30.3% (27/89)</strong> = 23 base passes + 4 verified timeout recoveries (of the 46 <code>AgentTimeoutError</code> at 0.5×, ~25–33% recover). The plotted bar is the apples-to-apples <strong>0.5× value (25.8%)</strong> — the extended-budget figure gives IQ2_M more time than every other row, so it is a diagnostic, not a cohort-comparable score, and the rest of the gap to vendor's 51.7% is structural (throughput + 2-bit tool-call format instability). Detail: <code>bench/minimax-m2.5/iq2m-tbench-budget-diagnostic.md</code>.</p>
+  </section>
+
+  <!-- 2. Tool calling -->
+  <section class="card">
+    <h2>Tool calling — score</h2>
+    <p class="sub">jdhodges (40 q) and veerman (12 q) suites.</p>
+    <div class="chart-wrap"><canvas id="chartToolScore"></canvas></div>
+  </section>
+
+  <section class="card">
+    <h2>Tool calling — throughput</h2>
+    <p class="sub">Fresh token-weighted tok/s during each tool-call suite.</p>
+    <div class="chart-wrap"><canvas id="chartToolTps"></canvas></div>
+  </section>
+
+  <h2 class="category-heading" id="sec-performance">Performance <span class="hint">throughput, prefill degradation, speed probes, wall-clock</span></h2>
+
+  <!-- 3. Throughput by scenario -->
+  <section class="card wide">
+    <h2>Generation throughput by scenario</h2>
+    <p class="sub">Average generation tok/s — pure decode speed, excludes prefill.</p>
+    <div class="chart-wrap"><canvas id="chartGenTps"></canvas></div>
+  </section>
+
+  <section class="card wide">
+    <h2>Effective throughput by scenario</h2>
+    <p class="sub">End-to-end tok/s including prefill — what the user actually feels.</p>
+    <div class="chart-wrap"><canvas id="chartEffectiveTps"></canvas></div>
+  </section>
+
+  <!-- 4. Prefill degradation -->
+  <section class="card wide">
+    <h2>Effective throughput vs context length (prefill-test)</h2>
+    <p class="sub">How fast the model still feels at growing context. The dense 27b collapses to ~2 t/s at 8.5k.</p>
+    <div class="chart-wrap tall"><canvas id="chartPrefill"></canvas></div>
+  </section>
+
+  <!-- 5. Speed probe -->
+  <section class="card">
+    <h2>Speed probe — total wall-clock</h2>
+    <p class="sub">3-prompt cold start (2+2, MMLU atmosphere, code).</p>
+    <div class="chart-wrap"><canvas id="chartProbeTotal"></canvas></div>
+  </section>
+
+  <section class="card">
+    <h2>Speed probe — reasoning tokens emitted</h2>
+    <p class="sub">Why 27b is slow: it thinks heavily even for trivial prompts.</p>
+    <div class="chart-wrap"><canvas id="chartProbeReason"></canvas></div>
+  </section>
+
+  <!-- 6. Wall-clock per 100-question run -->
+  <section class="card wide">
+    <h2>Elapsed time per benchmark</h2>
+    <p class="sub">Wall-clock minutes per suite (n=100 except LiveCodeBench n=50). 27b GPQA includes 15 max-token spirals at ~29 min each — the dominant time sink of Phase 1. Gemma 4 31B dense runs at ~13 t/s vs Gemma 26B-A4B's ~100 t/s — the dense tax shows up as ~7× longer wall-clock per bench.</p>
+    <div class="chart-wrap"><canvas id="chartElapsed"></canvas></div>
+  </section>
+
+</main>
+
+<footer>
+  Sources: <code>local-llm-bench-m4-32gb/benchmarks/runs/</code>, <code>local-llm-bench-m4-32gb/results/speed_probe/</code>, <code>benchmarking/local-llm-bench/results/</code>
+</footer>
+
+<script>
+const C = ChartsCommon;
+C.initTheme();
+
+// ---------------------------------------------------------------------------
+// Canonical data model. MODELS = one record per model (metadata + color).
+// RESULTS = one tidy record per measured value. Every chart + the scoreboard
+// derives from these two arrays — numbers live here exactly once.
+//   metric='accuracy'  bench=HumanEval|MMLU|MATH|DROP|GPQA|LCB|TBench   (pass %)
+//   metric='toolScore' suite=jdhodges|veerman                          (score %)
+//   metric='toolTps'   suite=jdhodges|veerman                          (tok/s)
+//   metric='genTps'|'effTps'  scenario=creative-writing|doc-summary|ops-agent|prefill-test
+//   metric='prefillEffTps'    context=655|1453|3015|8496               (tok/s)
+//   metric='probeSeconds'     prompt='2+2'|mmlu|code|total             (s)
+//   metric='probeReasonTok'   prompt='2+2'|mmlu|code                   (tokens)
+//   metric='elapsedMin'       bench=HumanEval|MMLU|MATH|DROP|GPQA|LCB  (min)
+// refExclude:true keeps a model out of the ranked "vs frontier" charts.
+// ---------------------------------------------------------------------------
+// provider = weights creator/vendor; family = model line. Both drive the filter pills.
+// hf = HuggingFace repo for the on-disk quant (docs/models/*.md).
+// peakRamGB / cpuPct / gpuPct / powerW / probeN = speed-probe telemetry (macmon), local only,
+// quality-gated to runs with probeN >= 10; models without a qualifying run omit these fields.
+const MODELS = [
+  // --- local (this rig) ---
+  { id:'coder', tier:'local', arch:'moe',   quant:'6bit', diskGB:64.76, color:'#5aa9ff',
+    provider:'Alibaba (Qwen)', family:'Qwen3-Coder', hf:'https://huggingface.co/lmstudio-community/Qwen3-Coder-Next-MLX-6bit',
+    label:'qwen3-coder-next',        chartLabel:'qwen3-coder-next (80B 6-bit)', refLabel:'qwen3-coder-next (local 80B)',
+    refNote:'LCB: clean (0 trunc after Q19 rerun at 65k)' },
+  { id:'d27b', tier:'local', arch:'dense', quant:'6bit', diskGB:22.80, color:'#ff8a5a',
+    provider:'Alibaba (Qwen)', family:'Qwen3.6', hf:'https://huggingface.co/mlx-community/Qwen3.6-27B-6bit',
+    peakRamGB:48.8, cpuPct:10.6, gpuPct:99.1, powerW:43.0, probeN:70, probeDate:'2026-05-17',
+    label:'qwen3.6-27b',             chartLabel:'qwen3.6-27b (dense 6-bit)', refLabel:'qwen3.6-27b (local dense)',
+    refNote:'GPQA: 15/100 truncated at 32k; true ≈78-85%. LCB: 1 trunc at 65k (Q3)' },
+  { id:'a3b35', tier:'local', arch:'moe',  quant:'6bit', diskGB:29.09, color:'#7ee787',
+    provider:'Alibaba (Qwen)', family:'Qwen3.6', hf:'https://huggingface.co/mlx-community/Qwen3.6-35B-A3B-6bit',
+    peakRamGB:56.0, cpuPct:10.1, gpuPct:93.7, powerW:27.4, probeN:15, probeDate:'2026-05-19',
+    label:'qwen3.6-35b-a3b',         chartLabel:'qwen3.6-35b-a3b (MoE 6-bit)', refLabel:'qwen3.6-35b-a3b (local MoE)',
+    refNote:'GPQA: 23/100 truncated at 32k; true ≈75-83%. LCB: 6 trunc at 65k (floor)' },
+  { id:'g26_4', tier:'local', arch:'moe',  quant:'4bit', diskGB:14.6, color:'#ffd166',
+    provider:'Google', family:'Gemma 4', hf:'https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit',
+    label:'gemma-4-26b-a4b @4bit',   chartLabel:'gemma-4-26b-a4b (MoE 4-bit)', refLabel:'gemma-4-26b-a4b @4bit (local)',
+    refNote:'LCB: Step B reruns at 65k recovered Q2; 8 trunc are real model limits' },
+  { id:'g26_6', tier:'local', arch:'moe',  quant:'6bit', diskGB:21.81, color:'#f59e0b',
+    provider:'Google', family:'Gemma 4', hf:'https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit',
+    peakRamGB:30.3, cpuPct:23.6, gpuPct:94.6, powerW:16.0, probeN:26, probeDate:'2026-04-08',
+    probeNote:'probe filename did not record quant; attributed to @6bit (primary Gemma slot)',
+    label:'gemma-4-26b-a4b @6bit',   chartLabel:'gemma-4-26b-a4b (MoE 6-bit)', refLabel:'gemma-4-26b-a4b @6bit (local)',
+    refNote:'LCB: Step B reruns at 65k recovered Q28; 1 trunc remains (Q19). Rig LCB ceiling.' },
+  { id:'g31', tier:'local', arch:'dense', quant:'8bit', diskGB:33.80, color:'#fb7185',
+    provider:'Google', family:'Gemma 4', hf:'https://huggingface.co/lmstudio-community/gemma-4-31B-it-MLX-8bit',
+    label:'gemma-4-31b dense',       chartLabel:'gemma-4-31b (dense 8-bit)', refLabel:'gemma-4-31b dense @8bit (local)' },
+  { id:'ge4b', tier:'local', arch:'dense', quant:'8bit', diskGB:7.5, color:'#c084fc',
+    provider:'Google', family:'Gemma 4', hf:'https://huggingface.co/lmstudio-community/gemma-4-E4B-it-MLX-8bit',
+    label:'gemma-4-e4b',             chartLabel:'gemma-4-e4b (4B 8-bit)', refLabel:'gemma-4-e4b @8bit (local 4B)',
+    refNote:'MATH collapses at 4B — FIM/quick-call only' },
+  { id:'a1', tier:'local', arch:'moe',   quant:'6bit', diskGB:29.90, color:'#2dd4bf', refExclude:true,
+    provider:'InternScience', family:'Agents-A1', hf:'https://huggingface.co/leonsarmiento/Agents-A1-6bit-XL-mlx',
+    peakRamGB:108.1, cpuPct:14.4, gpuPct:99.2, powerW:67.9, probeN:258, probeDate:'2026-07-04',
+    label:'agents-a1-xl-mlx',        chartLabel:'agents-a1-xl-mlx (MoE 6-bit)' },
+  { id:'mmq3', tier:'local', arch:'moe', quant:'Q3_K_S', diskGB:98.69, color:'#a78bfa',
+    provider:'MiniMax', family:'MiniMax-M2.5', hf:'https://huggingface.co/unsloth/MiniMax-M2.5-GGUF',
+    label:'minimax-m2.5 Q3_K_S',     chartLabel:'MiniMax-M2.5 (GGUF Q3_K_S)', refLabel:'MiniMax-M2.5 Q3_K_S (local 229B)',
+    refNote:'GGUF ✓ (MLX ⛔). LCB 72% @60k (68% @32k raw). HumanEval/LCB/T-Bench + tool only — MMLU/MATH/DROP/GPQA not run' },
+  { id:'mmiq2', tier:'local', arch:'moe', quant:'UD-IQ2_M', diskGB:78.20, color:'#e879f9',
+    provider:'MiniMax', family:'MiniMax-M2.5', hf:'https://huggingface.co/unsloth/MiniMax-M2.5-GGUF',
+    label:'minimax-m2.5 IQ2_M',      chartLabel:'MiniMax-M2.5 (GGUF UD-IQ2_M)', refLabel:'MiniMax-M2.5 IQ2_M (local 229B)',
+    refNote:'Preferred quant — 78 GB, ~43 t/s, under the 80 GB co-residency line. LCB 76% @32k raw (recovery stopped after Q8). T-Bench 25.8% (23/89) — ties Q3_K_S' },
+  { id:'q122b', tier:'local', arch:'moe', quant:'Q4_K_S', diskGB:75.23, color:'#22d3ee',
+    provider:'Alibaba (Qwen)', family:'Qwen3.5', hf:'https://huggingface.co/unsloth/Qwen3.5-122B-A10B-MTP-GGUF',
+    label:'qwen3.5-122b-a10b 🔴',    chartLabel:'qwen3.5-122b-a10b (GGUF Q4_K_S)', refLabel:'qwen3.5-122b-a10b (local 122B/10B)',
+    refNote:'NO-GO 2026-07-12: ties 27B one-shot at ~2x speed but weaker agent (T-Bench 24.7%) + sole-model 75 GB. MATH 60/69 partial; GPQA not run' },
+
+  // --- frontier / open-weight reference (published scores; ranked charts only) ---
+  { id:'opus47',     tier:'frontier', provider:'Anthropic', family:'Claude Opus',   label:'Claude Opus 4.7' },
+  { id:'opus46',     tier:'frontier', provider:'Anthropic', family:'Claude Opus',   label:'Claude Opus 4.6',   refNote:'*‡' },
+  { id:'opus45',     tier:'frontier', provider:'Anthropic', family:'Claude Opus',   label:'Claude Opus 4.5',   refNote:'*' },
+  { id:'sonnet46',   tier:'frontier', provider:'Anthropic', family:'Claude Sonnet', label:'Claude Sonnet 4.6', refNote:'*‡ · LCB community ~80' },
+  { id:'sonnet45',   tier:'frontier', provider:'Anthropic', family:'Claude Sonnet', label:'Claude Sonnet 4.5', refNote:'*‡ · LCB-Pro variant' },
+  { id:'gpt52',      tier:'frontier', provider:'OpenAI',    family:'GPT',            label:'GPT-5.2',           refNote:'*' },
+  { id:'gpt5',       tier:'frontier', provider:'OpenAI',    family:'GPT',            label:'GPT-5',             refNote:'‡ · LCB aggregator' },
+  { id:'o3',         tier:'frontier', provider:'OpenAI',    family:'o-series',       label:'o3' },
+  { id:'o4mini',     tier:'frontier', provider:'OpenAI',    family:'o-series',       label:'o4-mini',           refNote:'‡' },
+  { id:'gpt4o',      tier:'frontier', provider:'OpenAI',    family:'GPT',            label:'GPT-4o' },
+  { id:'gemini3pro', tier:'frontier', provider:'Google',    family:'Gemini',         label:'Gemini 3 Pro',      refNote:'*‡' },
+  { id:'gemini25pro',tier:'frontier', provider:'Google',    family:'Gemini',         label:'Gemini 2.5 Pro',    refNote:'‡' },
+  { id:'dsv4flash',  tier:'open',     provider:'DeepSeek',  family:'DeepSeek',       label:'DeepSeek-V4 Flash', refNote:'LCB v6 from research note 2026-05-17' },
+  { id:'dsr1',       tier:'open',     provider:'DeepSeek',  family:'DeepSeek',       label:'DeepSeek-R1',       refNote:'†' },
+  { id:'dsv3',       tier:'open',     provider:'DeepSeek',  family:'DeepSeek',       label:'DeepSeek-V3',       refNote:'†' },
+  { id:'dsv32',      tier:'open',     provider:'DeepSeek',  family:'DeepSeek',       label:'DeepSeek-V3.2-Exp' },
+  { id:'llama4mav',  tier:'open',     provider:'Meta',      family:'Llama',          label:'Llama 4 Maverick' },
+  { id:'llama33',    tier:'open',     provider:'Meta',      family:'Llama',          label:'Llama 3.3 70B' },
+  { id:'qwen3coder480', tier:'open',  provider:'Alibaba (Qwen)', family:'Qwen3-Coder', label:'Qwen3-Coder-480B' },
+  { id:'qwen3235',   tier:'open',     provider:'Alibaba (Qwen)', family:'Qwen3',    label:'Qwen3-235B Thinking' },
+  { id:'qwen2572',   tier:'open',     provider:'Alibaba (Qwen)', family:'Qwen2.5',  label:'Qwen2.5-72B' },
+  { id:'kimi',       tier:'open',     provider:'Moonshot AI', family:'Kimi',         label:'Kimi K2.6' }
+];
+
+const RESULTS = [
+  // ---- accuracy: local (bench) ----
+  { model:'coder', metric:'accuracy', bench:'HumanEval', value:89 },
+  { model:'coder', metric:'accuracy', bench:'MMLU', value:76 },
+  { model:'coder', metric:'accuracy', bench:'MATH', value:84 },
+  { model:'coder', metric:'accuracy', bench:'DROP', value:83 },
+  { model:'coder', metric:'accuracy', bench:'GPQA', value:37 },
+  { model:'coder', metric:'accuracy', bench:'LCB', value:56 },
+  { model:'coder', metric:'accuracy', bench:'TBench', value:32.6 },
+  { model:'d27b', metric:'accuracy', bench:'HumanEval', value:93 },
+  { model:'d27b', metric:'accuracy', bench:'MMLU', value:88 },
+  { model:'d27b', metric:'accuracy', bench:'MATH', value:88 },
+  { model:'d27b', metric:'accuracy', bench:'DROP', value:90 },
+  { model:'d27b', metric:'accuracy', bench:'GPQA', value:70 },
+  { model:'d27b', metric:'accuracy', bench:'LCB', value:62 },
+  { model:'d27b', metric:'accuracy', bench:'TBench', value:31.5 },
+
+  { model:'q122b', metric:'accuracy', bench:'HumanEval', value:96 },
+  { model:'q122b', metric:'accuracy', bench:'MMLU', value:87 },
+  { model:'q122b', metric:'accuracy', bench:'MATH', value:87 },
+  { model:'q122b', metric:'accuracy', bench:'DROP', value:89 },
+  { model:'q122b', metric:'accuracy', bench:'LCB', value:62 },
+  { model:'q122b', metric:'accuracy', bench:'TBench', value:24.7 },
+  { model:'a3b35', metric:'accuracy', bench:'HumanEval', value:87 },
+  { model:'a3b35', metric:'accuracy', bench:'MMLU', value:83 },
+  { model:'a3b35', metric:'accuracy', bench:'MATH', value:89 },
+  { model:'a3b35', metric:'accuracy', bench:'DROP', value:89 },
+  { model:'a3b35', metric:'accuracy', bench:'GPQA', value:65 },
+  { model:'a3b35', metric:'accuracy', bench:'LCB', value:54 },
+  { model:'a3b35', metric:'accuracy', bench:'TBench', value:28.1 },
+  { model:'g26_4', metric:'accuracy', bench:'HumanEval', value:98 },
+  { model:'g26_4', metric:'accuracy', bench:'MMLU', value:78 },
+  { model:'g26_4', metric:'accuracy', bench:'MATH', value:80 },
+  { model:'g26_4', metric:'accuracy', bench:'DROP', value:79 },
+  { model:'g26_4', metric:'accuracy', bench:'GPQA', value:47 },
+  { model:'g26_4', metric:'accuracy', bench:'LCB', value:66 },
+  { model:'g26_4', metric:'accuracy', bench:'TBench', value:20.2 },
+  { model:'g26_6', metric:'accuracy', bench:'HumanEval', value:97 },
+  { model:'g26_6', metric:'accuracy', bench:'MMLU', value:78 },
+  { model:'g26_6', metric:'accuracy', bench:'MATH', value:83 },
+  { model:'g26_6', metric:'accuracy', bench:'DROP', value:79 },
+  { model:'g26_6', metric:'accuracy', bench:'GPQA', value:53 },
+  { model:'g26_6', metric:'accuracy', bench:'LCB', value:80 },
+  { model:'g26_6', metric:'accuracy', bench:'TBench', value:21.3 },
+  { model:'g31', metric:'accuracy', bench:'HumanEval', value:95 },
+  { model:'g31', metric:'accuracy', bench:'MMLU', value:77 },
+  { model:'g31', metric:'accuracy', bench:'MATH', value:79 },
+  { model:'g31', metric:'accuracy', bench:'DROP', value:85 },
+  { model:'g31', metric:'accuracy', bench:'GPQA', value:48 },
+  { model:'g31', metric:'accuracy', bench:'LCB', value:76 },
+  { model:'g31', metric:'accuracy', bench:'TBench', value:22.5 },
+  { model:'ge4b', metric:'accuracy', bench:'HumanEval', value:91 },
+  { model:'ge4b', metric:'accuracy', bench:'MMLU', value:65 },
+  { model:'ge4b', metric:'accuracy', bench:'MATH', value:14 },
+  { model:'ge4b', metric:'accuracy', bench:'DROP', value:65 },
+  { model:'ge4b', metric:'accuracy', bench:'GPQA', value:34 },
+  { model:'ge4b', metric:'accuracy', bench:'LCB', value:68 },
+  { model:'ge4b', metric:'accuracy', bench:'TBench', value:4.5 },
+  { model:'a1', metric:'accuracy', bench:'HumanEval', value:97 },
+  { model:'a1', metric:'accuracy', bench:'MMLU', value:82 },
+  { model:'a1', metric:'accuracy', bench:'MATH', value:null },
+  { model:'a1', metric:'accuracy', bench:'DROP', value:null },
+  { model:'a1', metric:'accuracy', bench:'GPQA', value:null },
+  { model:'a1', metric:'accuracy', bench:'LCB', value:64 },
+  { model:'mmq3', metric:'accuracy', bench:'HumanEval', value:94 },
+  { model:'mmq3', metric:'accuracy', bench:'LCB', value:72 },
+  { model:'mmq3', metric:'accuracy', bench:'TBench', value:25.8 },
+  { model:'mmiq2', metric:'accuracy', bench:'HumanEval', value:94 },
+  { model:'mmiq2', metric:'accuracy', bench:'LCB', value:76 },
+  { model:'mmiq2', metric:'accuracy', bench:'TBench', value:25.8 },
+
+  // ---- accuracy: frontier / open (published, ranked charts) ----
+  { model:'opus47', metric:'accuracy', bench:'GPQA', value:94.2 },
+  { model:'opus46', metric:'accuracy', bench:'MMLU', value:91.1 },
+  { model:'opus46', metric:'accuracy', bench:'MATH', value:100.0 },
+  { model:'opus46', metric:'accuracy', bench:'GPQA', value:91.3 },
+  { model:'opus45', metric:'accuracy', bench:'MMLU', value:90.8 },
+  { model:'opus45', metric:'accuracy', bench:'GPQA', value:87.0 },
+  { model:'sonnet46', metric:'accuracy', bench:'MMLU', value:89.3 },
+  { model:'sonnet46', metric:'accuracy', bench:'MATH', value:95.6 },
+  { model:'sonnet46', metric:'accuracy', bench:'GPQA', value:89.9 },
+  { model:'sonnet46', metric:'accuracy', bench:'LCB', value:80 },
+  { model:'sonnet45', metric:'accuracy', bench:'MMLU', value:89.5 },
+  { model:'sonnet45', metric:'accuracy', bench:'MATH', value:87.0 },
+  { model:'sonnet45', metric:'accuracy', bench:'GPQA', value:83.4 },
+  { model:'sonnet45', metric:'accuracy', bench:'LCB', value:70 },
+  { model:'gpt52', metric:'accuracy', bench:'MMLU', value:89.6 },
+  { model:'gpt52', metric:'accuracy', bench:'GPQA', value:93.2 },
+  { model:'gpt5', metric:'accuracy', bench:'MATH', value:100.0 },
+  { model:'gpt5', metric:'accuracy', bench:'GPQA', value:89.4 },
+  { model:'gpt5', metric:'accuracy', bench:'LCB', value:80 },
+  { model:'o3', metric:'accuracy', bench:'MMLU', value:91.6 },
+  { model:'o3', metric:'accuracy', bench:'HumanEval', value:81.3 },
+  { model:'o3', metric:'accuracy', bench:'MATH', value:96.7 },
+  { model:'o3', metric:'accuracy', bench:'GPQA', value:87.7 },
+  { model:'o4mini', metric:'accuracy', bench:'MATH', value:99.5 },
+  { model:'o4mini', metric:'accuracy', bench:'GPQA', value:81.4 },
+  { model:'gpt4o', metric:'accuracy', bench:'MMLU', value:88.7 },
+  { model:'gpt4o', metric:'accuracy', bench:'HumanEval', value:90.2 },
+  { model:'gpt4o', metric:'accuracy', bench:'MATH', value:76.6 },
+  { model:'gpt4o', metric:'accuracy', bench:'DROP', value:83.4 },
+  { model:'gpt4o', metric:'accuracy', bench:'GPQA', value:53.6 },
+  { model:'gemini3pro', metric:'accuracy', bench:'MMLU', value:91.8 },
+  { model:'gemini3pro', metric:'accuracy', bench:'MATH', value:95.0 },
+  { model:'gemini3pro', metric:'accuracy', bench:'GPQA', value:91.9 },
+  { model:'gemini25pro', metric:'accuracy', bench:'MATH', value:86.7 },
+  { model:'gemini25pro', metric:'accuracy', bench:'GPQA', value:84.0 },
+  { model:'dsv4flash', metric:'accuracy', bench:'LCB', value:91.6 },
+  { model:'dsr1', metric:'accuracy', bench:'MMLU', value:90.8 },
+  { model:'dsr1', metric:'accuracy', bench:'MATH', value:97.3 },
+  { model:'dsr1', metric:'accuracy', bench:'DROP', value:92.2 },
+  { model:'dsr1', metric:'accuracy', bench:'GPQA', value:71.5 },
+  { model:'dsr1', metric:'accuracy', bench:'LCB', value:65.9 },
+  { model:'dsv3', metric:'accuracy', bench:'MMLU', value:88.5 },
+  { model:'dsv3', metric:'accuracy', bench:'HumanEval', value:65.2 },
+  { model:'dsv3', metric:'accuracy', bench:'MATH', value:90.2 },
+  { model:'dsv3', metric:'accuracy', bench:'DROP', value:89.0 },
+  { model:'dsv3', metric:'accuracy', bench:'GPQA', value:59.1 },
+  { model:'dsv3', metric:'accuracy', bench:'LCB', value:65.9 },
+  { model:'dsv32', metric:'accuracy', bench:'GPQA', value:79.9 },
+  { model:'llama4mav', metric:'accuracy', bench:'MATH', value:61.2 },
+  { model:'llama4mav', metric:'accuracy', bench:'GPQA', value:65.1 },
+  { model:'llama33', metric:'accuracy', bench:'HumanEval', value:88.4 },
+  { model:'llama33', metric:'accuracy', bench:'MATH', value:77.0 },
+  { model:'llama33', metric:'accuracy', bench:'GPQA', value:50.5 },
+  { model:'qwen3coder480', metric:'accuracy', bench:'LCB', value:70.7 },
+  { model:'qwen3235', metric:'accuracy', bench:'GPQA', value:81.1 },
+  { model:'qwen2572', metric:'accuracy', bench:'MMLU', value:86.1 },
+  { model:'qwen2572', metric:'accuracy', bench:'HumanEval', value:86.6 },
+  { model:'qwen2572', metric:'accuracy', bench:'MATH', value:83.1 },
+  { model:'qwen2572', metric:'accuracy', bench:'GPQA', value:49.0 },
+  { model:'kimi', metric:'accuracy', bench:'LCB', value:89.6 },
+
+  // ---- tool calling: score (suite) ----
+  { model:'coder', metric:'toolScore', suite:'jdhodges', value:90.0 }, { model:'coder', metric:'toolScore', suite:'veerman', value:83.3 },
+  { model:'d27b', metric:'toolScore', suite:'jdhodges', value:95.0 },  { model:'d27b', metric:'toolScore', suite:'veerman', value:83.3 },
+  { model:'q122b', metric:'toolScore', suite:'jdhodges', value:95.0 },  { model:'q122b', metric:'toolScore', suite:'veerman', value:83.3 },
+  { model:'a3b35', metric:'toolScore', suite:'jdhodges', value:97.5 }, { model:'a3b35', metric:'toolScore', suite:'veerman', value:75.0 },
+  { model:'g26_4', metric:'toolScore', suite:'jdhodges', value:97.5 }, { model:'g26_4', metric:'toolScore', suite:'veerman', value:83.3 },
+  { model:'g26_6', metric:'toolScore', suite:'jdhodges', value:97.5 }, { model:'g26_6', metric:'toolScore', suite:'veerman', value:83.3 },
+  { model:'g31', metric:'toolScore', suite:'jdhodges', value:97.5 },   { model:'g31', metric:'toolScore', suite:'veerman', value:83.3 },
+  { model:'ge4b', metric:'toolScore', suite:'jdhodges', value:87.5 },  { model:'ge4b', metric:'toolScore', suite:'veerman', value:66.7 },
+  { model:'a1', metric:'toolScore', suite:'jdhodges', value:92.5 },    { model:'a1', metric:'toolScore', suite:'veerman', value:83.3 },
+  { model:'mmq3', metric:'toolScore', suite:'jdhodges', value:95.0 },  { model:'mmq3', metric:'toolScore', suite:'veerman', value:75.0 },
+  { model:'mmiq2', metric:'toolScore', suite:'jdhodges', value:92.5 }, { model:'mmiq2', metric:'toolScore', suite:'veerman', value:83.3 },
+
+  // ---- tool calling: throughput (suite) ----
+  { model:'coder', metric:'toolTps', suite:'jdhodges', value:18.55 }, { model:'coder', metric:'toolTps', suite:'veerman', value:35.38 },
+  { model:'d27b', metric:'toolTps', suite:'jdhodges', value:14.47 },  { model:'d27b', metric:'toolTps', suite:'veerman', value:18.40 },
+  { model:'a3b35', metric:'toolTps', suite:'jdhodges', value:72.35 }, { model:'a3b35', metric:'toolTps', suite:'veerman', value:85.81 },
+  { model:'g26_4', metric:'toolTps', suite:'jdhodges', value:73.36 }, { model:'g26_4', metric:'toolTps', suite:'veerman', value:82.08 },
+  { model:'g26_6', metric:'toolTps', suite:'jdhodges', value:57.85 }, { model:'g26_6', metric:'toolTps', suite:'veerman', value:66.58 },
+  { model:'g31', metric:'toolTps', suite:'jdhodges', value:11.39 },   { model:'g31', metric:'toolTps', suite:'veerman', value:12.33 },
+  { model:'ge4b', metric:'toolTps', suite:'jdhodges', value:42.50 },  { model:'ge4b', metric:'toolTps', suite:'veerman', value:60.30 },
+  { model:'a1', metric:'toolTps', suite:'jdhodges', value:67.44 },    { model:'a1', metric:'toolTps', suite:'veerman', value:75.10 },
+
+  // ---- generation throughput (scenario) ----
+  { model:'coder', metric:'genTps', scenario:'creative-writing', value:70.2 }, { model:'coder', metric:'genTps', scenario:'doc-summary', value:69.9 }, { model:'coder', metric:'genTps', scenario:'ops-agent', value:67.9 }, { model:'coder', metric:'genTps', scenario:'prefill-test', value:68.0 },
+  { model:'d27b', metric:'genTps', scenario:'creative-writing', value:20.7 }, { model:'d27b', metric:'genTps', scenario:'doc-summary', value:20.2 }, { model:'d27b', metric:'genTps', scenario:'ops-agent', value:20.0 }, { model:'d27b', metric:'genTps', scenario:'prefill-test', value:20.4 },
+  { model:'q122b', metric:'genTps', scenario:'creative-writing', value:37.8 }, { model:'q122b', metric:'genTps', scenario:'doc-summary', value:39.6 }, { model:'q122b', metric:'genTps', scenario:'ops-agent', value:35.6 }, { model:'q122b', metric:'genTps', scenario:'prefill-test', value:35.8 },
+  { model:'a3b35', metric:'genTps', scenario:'creative-writing', value:91.6 }, { model:'a3b35', metric:'genTps', scenario:'doc-summary', value:91.7 }, { model:'a3b35', metric:'genTps', scenario:'ops-agent', value:85.5 }, { model:'a3b35', metric:'genTps', scenario:'prefill-test', value:85.5 },
+  { model:'g26_4', metric:'genTps', scenario:'creative-writing', value:106.0 }, { model:'g26_4', metric:'genTps', scenario:'doc-summary', value:107.6 }, { model:'g26_4', metric:'genTps', scenario:'ops-agent', value:100.3 }, { model:'g26_4', metric:'genTps', scenario:'prefill-test', value:99.2 },
+  { model:'g26_6', metric:'genTps', scenario:'creative-writing', value:85.3 }, { model:'g26_6', metric:'genTps', scenario:'doc-summary', value:85.9 }, { model:'g26_6', metric:'genTps', scenario:'ops-agent', value:80.8 }, { model:'g26_6', metric:'genTps', scenario:'prefill-test', value:80.9 },
+  { model:'g31', metric:'genTps', scenario:'creative-writing', value:13.9 }, { model:'g31', metric:'genTps', scenario:'doc-summary', value:14.3 }, { model:'g31', metric:'genTps', scenario:'ops-agent', value:13.7 }, { model:'g31', metric:'genTps', scenario:'prefill-test', value:13.6 },
+  { model:'ge4b', metric:'genTps', scenario:'creative-writing', value:73.7 }, { model:'ge4b', metric:'genTps', scenario:'doc-summary', value:75.4 }, { model:'ge4b', metric:'genTps', scenario:'ops-agent', value:70.9 }, { model:'ge4b', metric:'genTps', scenario:'prefill-test', value:69.3 },
+  { model:'a1', metric:'genTps', scenario:'ops-agent', value:82.1 },
+
+  // ---- effective throughput (scenario) ----
+  { model:'coder', metric:'effTps', scenario:'creative-writing', value:67.8 }, { model:'coder', metric:'effTps', scenario:'doc-summary', value:45.6 }, { model:'coder', metric:'effTps', scenario:'ops-agent', value:55.8 }, { model:'coder', metric:'effTps', scenario:'prefill-test', value:20.6 },
+  { model:'q122b', metric:'effTps', scenario:'creative-writing', value:36.1 }, { model:'q122b', metric:'effTps', scenario:'doc-summary', value:23.2 }, { model:'q122b', metric:'effTps', scenario:'ops-agent', value:20.1 }, { model:'q122b', metric:'effTps', scenario:'prefill-test', value:7.5 },
+  { model:'d27b', metric:'effTps', scenario:'creative-writing', value:19.9 }, { model:'d27b', metric:'effTps', scenario:'doc-summary', value:11.2 }, { model:'d27b', metric:'effTps', scenario:'ops-agent', value:16.2 }, { model:'d27b', metric:'effTps', scenario:'prefill-test', value:4.0 },
+  { model:'a3b35', metric:'effTps', scenario:'creative-writing', value:86.9 }, { model:'a3b35', metric:'effTps', scenario:'doc-summary', value:55.9 }, { model:'a3b35', metric:'effTps', scenario:'ops-agent', value:71.4 }, { model:'a3b35', metric:'effTps', scenario:'prefill-test', value:22.9 },
+  { model:'g26_4', metric:'effTps', scenario:'creative-writing', value:99.9 }, { model:'g26_4', metric:'effTps', scenario:'doc-summary', value:55.8 }, { model:'g26_4', metric:'effTps', scenario:'ops-agent', value:80.7 }, { model:'g26_4', metric:'effTps', scenario:'prefill-test', value:17.9 },
+  { model:'g26_6', metric:'effTps', scenario:'creative-writing', value:80.5 }, { model:'g26_6', metric:'effTps', scenario:'doc-summary', value:46.9 }, { model:'g26_6', metric:'effTps', scenario:'ops-agent', value:66.6 }, { model:'g26_6', metric:'effTps', scenario:'prefill-test', value:20.5 },
+  { model:'g31', metric:'effTps', scenario:'creative-writing', value:13.6 }, { model:'g31', metric:'effTps', scenario:'doc-summary', value:8.0 }, { model:'g31', metric:'effTps', scenario:'ops-agent', value:10.3 }, { model:'g31', metric:'effTps', scenario:'prefill-test', value:3.3 },
+  { model:'ge4b', metric:'effTps', scenario:'creative-writing', value:69.5 }, { model:'ge4b', metric:'effTps', scenario:'doc-summary', value:46.1 }, { model:'ge4b', metric:'effTps', scenario:'ops-agent', value:62.9 }, { model:'ge4b', metric:'effTps', scenario:'prefill-test', value:29.1 },
+  { model:'a1', metric:'effTps', scenario:'ops-agent', value:35.9 },
+
+  // ---- prefill degradation (context length) ----
+  { model:'coder', metric:'prefillEffTps', context:655, value:40.8 }, { model:'coder', metric:'prefillEffTps', context:1453, value:39.8 }, { model:'coder', metric:'prefillEffTps', context:3015, value:28.3 }, { model:'coder', metric:'prefillEffTps', context:8496, value:9.0 },
+  { model:'d27b', metric:'prefillEffTps', context:655, value:10.6 }, { model:'d27b', metric:'prefillEffTps', context:1453, value:9.5 }, { model:'d27b', metric:'prefillEffTps', context:3015, value:5.0 }, { model:'d27b', metric:'prefillEffTps', context:8496, value:1.9 },
+  { model:'a3b35', metric:'prefillEffTps', context:655, value:54.1 }, { model:'a3b35', metric:'prefillEffTps', context:1453, value:48.6 }, { model:'a3b35', metric:'prefillEffTps', context:3015, value:31.2 }, { model:'a3b35', metric:'prefillEffTps', context:8496, value:9.0 },
+  { model:'g26_4', metric:'prefillEffTps', context:655, value:53.2 }, { model:'g26_4', metric:'prefillEffTps', context:1453, value:49.3 }, { model:'g26_4', metric:'prefillEffTps', context:3015, value:32.2 }, { model:'g26_4', metric:'prefillEffTps', context:8496, value:7.4 },
+  { model:'g26_6', metric:'prefillEffTps', context:655, value:45.2 }, { model:'g26_6', metric:'prefillEffTps', context:1453, value:43.1 }, { model:'g26_6', metric:'prefillEffTps', context:3015, value:29.3 }, { model:'g26_6', metric:'prefillEffTps', context:8496, value:9.8 },
+  { model:'g31', metric:'prefillEffTps', context:655, value:8.1 }, { model:'g31', metric:'prefillEffTps', context:1453, value:7.3 }, { model:'g31', metric:'prefillEffTps', context:3015, value:4.6 }, { model:'g31', metric:'prefillEffTps', context:8496, value:1.5 },
+  { model:'ge4b', metric:'prefillEffTps', context:655, value:52.0 }, { model:'ge4b', metric:'prefillEffTps', context:1453, value:47.7 }, { model:'ge4b', metric:'prefillEffTps', context:3015, value:36.1 }, { model:'ge4b', metric:'prefillEffTps', context:8496, value:15.5 },
+
+  // ---- speed probe: total wall-clock (prompt) ----
+  { model:'coder', metric:'probeSeconds', prompt:'2+2', value:0.25 }, { model:'coder', metric:'probeSeconds', prompt:'mmlu', value:0.37 }, { model:'coder', metric:'probeSeconds', prompt:'code', value:0.89 }, { model:'coder', metric:'probeSeconds', prompt:'total', value:1.51 },
+  { model:'d27b', metric:'probeSeconds', prompt:'2+2', value:6.5 }, { model:'d27b', metric:'probeSeconds', prompt:'mmlu', value:16.4 }, { model:'d27b', metric:'probeSeconds', prompt:'code', value:51.5 }, { model:'d27b', metric:'probeSeconds', prompt:'total', value:74.4 },
+  { model:'a3b35', metric:'probeSeconds', prompt:'2+2', value:2.0 }, { model:'a3b35', metric:'probeSeconds', prompt:'mmlu', value:2.96 }, { model:'a3b35', metric:'probeSeconds', prompt:'code', value:10.87 }, { model:'a3b35', metric:'probeSeconds', prompt:'total', value:15.83 },
+
+  // ---- speed probe: reasoning tokens (prompt) ----
+  { model:'coder', metric:'probeReasonTok', prompt:'2+2', value:0 }, { model:'coder', metric:'probeReasonTok', prompt:'mmlu', value:0 }, { model:'coder', metric:'probeReasonTok', prompt:'code', value:0 },
+  { model:'d27b', metric:'probeReasonTok', prompt:'2+2', value:116 }, { model:'d27b', metric:'probeReasonTok', prompt:'mmlu', value:311 }, { model:'d27b', metric:'probeReasonTok', prompt:'code', value:1023 },
+  { model:'a3b35', metric:'probeReasonTok', prompt:'2+2', value:165 }, { model:'a3b35', metric:'probeReasonTok', prompt:'mmlu', value:256 }, { model:'a3b35', metric:'probeReasonTok', prompt:'code', value:1023 },
+
+  // ---- elapsed minutes per bench ----
+  { model:'coder', metric:'elapsedMin', bench:'HumanEval', value:16.6 }, { model:'coder', metric:'elapsedMin', bench:'MMLU', value:13.6 }, { model:'coder', metric:'elapsedMin', bench:'MATH', value:45.1 }, { model:'coder', metric:'elapsedMin', bench:'DROP', value:13.7 }, { model:'coder', metric:'elapsedMin', bench:'GPQA', value:13.9 }, { model:'coder', metric:'elapsedMin', bench:'LCB', value:42.0 },
+  { model:'d27b', metric:'elapsedMin', bench:'HumanEval', value:186.3 }, { model:'d27b', metric:'elapsedMin', bench:'MMLU', value:99.1 }, { model:'d27b', metric:'elapsedMin', bench:'MATH', value:603.6 }, { model:'d27b', metric:'elapsedMin', bench:'DROP', value:88.3 }, { model:'d27b', metric:'elapsedMin', bench:'GPQA', value:1332.4 }, { model:'d27b', metric:'elapsedMin', bench:'LCB', value:969.9 },
+  { model:'a3b35', metric:'elapsedMin', bench:'HumanEval', value:58.1 }, { model:'a3b35', metric:'elapsedMin', bench:'MMLU', value:56.9 }, { model:'a3b35', metric:'elapsedMin', bench:'MATH', value:206.6 }, { model:'a3b35', metric:'elapsedMin', bench:'DROP', value:27.1 }, { model:'a3b35', metric:'elapsedMin', bench:'GPQA', value:388.6 }, { model:'a3b35', metric:'elapsedMin', bench:'LCB', value:275.3 },
+  { model:'g26_4', metric:'elapsedMin', bench:'HumanEval', value:15.7 }, { model:'g26_4', metric:'elapsedMin', bench:'MMLU', value:12.5 }, { model:'g26_4', metric:'elapsedMin', bench:'MATH', value:36.2 }, { model:'g26_4', metric:'elapsedMin', bench:'DROP', value:12.4 }, { model:'g26_4', metric:'elapsedMin', bench:'GPQA', value:37.3 }, { model:'g26_4', metric:'elapsedMin', bench:'LCB', value:74.9 },
+  { model:'g26_6', metric:'elapsedMin', bench:'HumanEval', value:16.1 }, { model:'g26_6', metric:'elapsedMin', bench:'MMLU', value:12.3 }, { model:'g26_6', metric:'elapsedMin', bench:'MATH', value:25.5 }, { model:'g26_6', metric:'elapsedMin', bench:'DROP', value:12.4 }, { model:'g26_6', metric:'elapsedMin', bench:'GPQA', value:54.1 }, { model:'g26_6', metric:'elapsedMin', bench:'LCB', value:49.7 },
+  { model:'g31', metric:'elapsedMin', bench:'HumanEval', value:37.7 }, { model:'g31', metric:'elapsedMin', bench:'MMLU', value:14.5 }, { model:'g31', metric:'elapsedMin', bench:'MATH', value:null }, { model:'g31', metric:'elapsedMin', bench:'DROP', value:null }, { model:'g31', metric:'elapsedMin', bench:'GPQA', value:null }, { model:'g31', metric:'elapsedMin', bench:'LCB', value:73.5 }
+];
+
+// ---------------------------------------------------------------------------
+// Derivation helpers + wiring
+// ---------------------------------------------------------------------------
+const byId  = C.indexModels(MODELS);
+const LOCAL = MODELS.filter(m => m.tier === 'local');
+const state = C.createFilterState(MODELS);
+
+C.createFilterBar(document.getElementById('filterBar'), state, {
+  sections: [
+    { id:'sec-overview',    label:'Overview' },
+    { id:'sec-coding',      label:'Coding' },
+    { id:'sec-knowledge',   label:'Knowledge' },
+    { id:'sec-tools',       label:'Tool use' },
+    { id:'sec-performance', label:'Performance' }
+  ]
+});
+
+const ACC_BENCHES = ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA'];
+const SCENARIOS   = ['creative-writing', 'doc-summary', 'ops-agent', 'prefill-test'];
+const refLabel    = m => (m.refLabel || m.label) + (m.refNote ? ' ' + m.refNote : '');
+const val         = (id, q) => C.metricValue(RESULTS, id, q);
+function dset(id, label, data, extra) {
+  return Object.assign({ modelId:id, label:label, backgroundColor: byId.get(id).color, data:data }, extra || {});
+}
+
+// --- Accuracy (grouped, 5 benches) ---
+C.buildGroupedChart('chartAccuracy', {
+  state: state,
+  labels: ACC_BENCHES,
+  datasets: [
+    dset('coder', 'qwen3-coder-next (80B 6-bit)', C.seriesFor(RESULTS,'coder',{metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('d27b',  'qwen3.6-27b (dense 6-bit)',     C.seriesFor(RESULTS,'d27b', {metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('a3b35', 'qwen3.6-35b-a3b (MoE 6-bit)',   C.seriesFor(RESULTS,'a3b35',{metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('g26_4', 'gemma-4-26b-a4b (MoE 4-bit)',   C.seriesFor(RESULTS,'g26_4',{metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('g26_6', 'gemma-4-26b-a4b (MoE 6-bit)',   C.seriesFor(RESULTS,'g26_6',{metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('g31',   'gemma-4-31b (dense 8-bit)',     C.seriesFor(RESULTS,'g31',  {metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('ge4b',  'gemma-4-e4b (4B 8-bit)',        C.seriesFor(RESULTS,'ge4b', {metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('a1',    'agents-a1-xl-mlx (MoE 6-bit)',  C.seriesFor(RESULTS,'a1',   {metric:'accuracy'},ACC_BENCHES,'bench')),
+    dset('q122b', 'qwen3.5-122b-a10b (Q4_K_S) 🔴', C.seriesFor(RESULTS,'q122b',{metric:'accuracy'},ACC_BENCHES,'bench'))
+  ],
+  options: C.gridOpts('Pass rate (%)', 100)
+});
+
+// --- LiveCodeBench v6 (grouped, single bench) ---
+C.buildGroupedChart('chartLCB', {
+  state: state,
+  labels: ['LiveCodeBench v6 (n=50)'],
+  datasets: LOCAL.map(m => dset(m.id, m.chartLabel, [val(m.id, {metric:'accuracy', bench:'LCB'})])),
+  options: C.gridOpts('Pass rate (%)', 100)
+});
+
+// --- Terminal-Bench 2.0 (grouped, ranked order, per-model fraction labels) ---
+const TB_ORDER = [['coder','29/89'],['d27b','28/89'],['a3b35','25/89'],['mmq3','23/89'],['mmiq2','23/89 *'],['q122b','22/89'],['g31','20/89'],['g26_6','19/89'],['g26_4','18/89'],['ge4b','4/89']];
+C.buildGroupedChart('chartTBench', {
+  state: state,
+  labels: ['Terminal-Bench 2.0 (n=89)'],
+  datasets: TB_ORDER.map(([id, frac]) => dset(id, byId.get(id).chartLabel + ' — ' + frac, [val(id, {metric:'accuracy', bench:'TBench'})])),
+  options: C.gridOpts('Pass rate (%)', 100)
+});
+
+// --- Tool calling: score ---
+const TOOL_LABELS = [['coder','qwen3-coder-next'],['d27b','qwen3.6-27b'],['a3b35','qwen3.6-35b-a3b'],['g26_4','gemma-4-26b-a4b @4bit'],['g26_6','gemma-4-26b-a4b @6bit'],['g31','gemma-4-31b dense'],['ge4b','gemma-4-e4b (4B)'],['a1','agents-a1-xl-mlx'],['q122b','qwen3.5-122b-a10b 🔴']];
+// score chart also carries MiniMax (toolScore measured); tps/effTps charts stay on TOOL_LABELS (no MiniMax tool-tps data)
+const TOOL_SCORE_LABELS = TOOL_LABELS.concat([['mmq3','minimax-m2.5 Q3_K_S'],['mmiq2','minimax-m2.5 IQ2_M']]);
+C.buildGroupedChart('chartToolScore', {
+  state: state,
+  labels: ['jdhodges (40q)', 'veerman (12q)'],
+  datasets: TOOL_SCORE_LABELS.map(([id, label]) => dset(id, label, [val(id,{metric:'toolScore',suite:'jdhodges'}), val(id,{metric:'toolScore',suite:'veerman'})])),
+  options: C.gridOpts('Score (%)', 100)
+});
+
+// --- Tool calling: throughput ---
+C.buildGroupedChart('chartToolTps', {
+  state: state,
+  labels: ['jdhodges', 'veerman'],
+  datasets: TOOL_LABELS.map(([id, label]) => dset(id, label, [val(id,{metric:'toolTps',suite:'jdhodges'}), val(id,{metric:'toolTps',suite:'veerman'})])),
+  options: C.gridOpts('tok/s (token-weighted)')
+});
+
+// --- Generation throughput by scenario ---
+const GEN_LABELS = [['coder','qwen3-coder-next (80B MoE)'],['d27b','qwen3.6-27b (dense)'],['a3b35','qwen3.6-35b-a3b (MoE, MLX)'],['g26_4','gemma-4-26b-a4b @4bit (MoE)'],['g26_6','gemma-4-26b-a4b @6bit (MoE)'],['g31','gemma-4-31b @8bit (dense)'],['ge4b','gemma-4-e4b @8bit (4B)'],['a1','agents-a1-xl-mlx (MoE)'],['q122b','qwen3.5-122b-a10b (122B MoE) 🔴']];
+C.buildGroupedChart('chartGenTps', {
+  state: state,
+  labels: SCENARIOS,
+  datasets: GEN_LABELS.map(([id, label]) => dset(id, label, C.seriesFor(RESULTS, id, {metric:'genTps'}, SCENARIOS, 'scenario'))),
+  options: C.gridOpts('Avg generation tok/s')
+});
+
+// --- Effective throughput by scenario ---
+C.buildGroupedChart('chartEffectiveTps', {
+  state: state,
+  labels: SCENARIOS,
+  datasets: TOOL_LABELS.map(([id, label]) => dset(id, label, C.seriesFor(RESULTS, id, {metric:'effTps'}, SCENARIOS, 'scenario'))),
+  options: C.gridOpts('Avg effective tok/s')
+});
+
+// --- Prefill degradation (line, linear x) ---
+const PREFILL_CTX = [655, 1453, 3015, 8496];
+const PREFILL = [['coder','qwen3-coder-next','top'],['d27b','qwen3.6-27b','bottom'],['a3b35','qwen3.6-35b-a3b','top'],['g26_4','gemma-4-26b-a4b @4bit','top'],['g26_6','gemma-4-26b-a4b @6bit','bottom'],['g31','gemma-4-31b dense','bottom'],['ge4b','gemma-4-e4b (4B)','top']];
+C.buildGroupedChart('chartPrefill', {
+  state: state,
+  type: 'line',
+  labels: PREFILL_CTX,
+  datasets: PREFILL.map(([id, label, align]) => {
+    const m = byId.get(id);
+    return { modelId:id, label:label, borderColor:m.color, backgroundColor:m.color,
+      data: C.seriesFor(RESULTS, id, {metric:'prefillEffTps'}, PREFILL_CTX, 'context'),
+      tension:0.25, datalabels:{ align:align, color:m.color } };
+  }),
+  options: Object.assign({}, C.gridOpts('Effective tok/s'), {
+    scales: {
+      x: { type:'linear', grid:{ color:'#262a33' }, ticks:{ color:'#9aa0a6' }, title:{ display:true, text:'Context length (tokens)', color:'#9aa0a6' } },
+      y: { grid:{ color:'#262a33' }, ticks:{ color:'#9aa0a6' }, title:{ display:true, text:'Effective tok/s', color:'#9aa0a6' }, beginAtZero:true }
+    }
+  })
+});
+
+// --- Speed probe: total wall-clock ---
+const PROBE = [['coder','qwen3-coder-next'],['d27b','qwen3.6-27b'],['a3b35','qwen3.6-35b-a3b']];
+C.buildGroupedChart('chartProbeTotal', {
+  state: state,
+  labels: ['2+2', 'MMLU atmos.', 'code 2nd-largest', 'Total'],
+  datasets: PROBE.map(([id, label]) => dset(id, label, C.seriesFor(RESULTS, id, {metric:'probeSeconds'}, ['2+2','mmlu','code','total'], 'prompt'))),
+  options: C.gridOpts('Seconds')
+});
+
+// --- Speed probe: reasoning tokens ---
+C.buildGroupedChart('chartProbeReason', {
+  state: state,
+  labels: ['2+2', 'MMLU atmos.', 'code 2nd-largest'],
+  datasets: PROBE.map(([id, label]) => dset(id, label, C.seriesFor(RESULTS, id, {metric:'probeReasonTok'}, ['2+2','mmlu','code'], 'prompt'))),
+  options: C.gridOpts('Reasoning tokens emitted')
+});
+
+// --- Elapsed per bench ---
+const ELAPSED_BENCHES = ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA', 'LCB'];
+const ELAPSED = [['coder','qwen3-coder-next'],['d27b','qwen3.6-27b'],['a3b35','qwen3.6-35b-a3b'],['g26_4','gemma-4-26b-a4b @4bit'],['g26_6','gemma-4-26b-a4b @6bit'],['g31','gemma-4-31b dense']];
+C.buildGroupedChart('chartElapsed', {
+  state: state,
+  labels: ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA', 'LiveCodeBench (n=50)'],
+  datasets: ELAPSED.map(([id, label]) => dset(id, label, C.seriesFor(RESULTS, id, {metric:'elapsedMin'}, ELAPSED_BENCHES, 'bench'))),
+  options: C.gridOpts('Minutes')
+});
+
+// --- Ranked "vs frontier" charts (derive from RESULTS; drop & re-rank on filter) ---
+[
+  ['chartRefMMLU',      'MMLU',      'MMLU'],
+  ['chartRefHumanEval', 'HumanEval', 'HumanEval'],
+  ['chartRefMATH',      'MATH',      'MATH'],
+  ['chartRefDROP',      'DROP',      'DROP F1'],
+  ['chartRefGPQA',      'GPQA',      'GPQA Diamond'],
+  ['chartRefLCB',       'LCB',       'LiveCodeBench v6']
+].forEach(([canvasId, bench, axisLabel]) => {
+  C.buildRankedChart(canvasId, {
+    state: state, models: MODELS, results: RESULTS,
+    query: { metric:'accuracy', bench:bench }, axisLabel: axisLabel, labelFn: refLabel
+  });
+});
+
+// --- Scoreboard (generated tbody) ---
+C.buildScoreboard(document.getElementById('scoreboardMain'), LOCAL, RESULTS, [
+  { kind:'num', query:{metric:'accuracy', bench:'HumanEval'}, fmt:C.fmtInt },
+  { kind:'num', query:{metric:'accuracy', bench:'MMLU'},      fmt:C.fmtInt },
+  { kind:'num', query:{metric:'accuracy', bench:'MATH'},      fmt:C.fmtInt },
+  { kind:'num', query:{metric:'accuracy', bench:'DROP'},      fmt:C.fmtInt },
+  { kind:'num', query:{metric:'accuracy', bench:'GPQA'},      fmt:C.fmtInt },
+  { kind:'num', query:{metric:'accuracy', bench:'LCB'},       fmt:C.fmtInt },
+  { kind:'num', query:{metric:'accuracy', bench:'TBench'} },
+  { kind:'num', query:{metric:'toolScore', suite:'jdhodges'} },
+  { kind:'num', query:{metric:'toolScore', suite:'veerman'} },
+  { kind:'num', query:{metric:'genTps', scenario:'creative-writing'} },
+  { kind:'num', query:{metric:'effTps', scenario:'creative-writing'} }
+]);
+C.setupSortableTable('scoreboardMain');
+C.highlightBestPerColumn('scoreboardMain');
+state.onChange(st => C.applyTableFilter('scoreboardMain', state, { highlight:true }));
+state.onChange(st => C.applyTableFilter('modelsTable', state, {}));
+
+// --- Resource-usage telemetry table (sortable + filterable) ---
+C.setupSortableTable('telemetryTable');
+state.onChange(st => C.applyTableFilter('telemetryTable', state, {}));
+
+// --- Quality-vs-speed scatter ---
+C.buildScatterChart('chartScatter', {
+  state: state, models: LOCAL, results: RESULTS,
+  xQuery: { metric:'genTps', scenario:'creative-writing' },
+  xLabel: 'Generation tok/s (creative-writing)',
+  accuracyMetric: 'accuracy',
+  compositeBenches: ['HumanEval', 'MMLU', 'MATH', 'DROP', 'GPQA', 'LCB'],
+  radiusFn: d => 4 + Math.sqrt(d) * 1.7,
+  selectEl: document.getElementById('scatterBench')
+});
+
+// --- Model radar ---
+C.buildRadarChart('chartRadar', {
+  state: state, models: LOCAL, results: RESULTS,
+  pickerContainer: document.getElementById('radarPicker'),
+  axes: [
+    { label:'HumanEval', query:{metric:'accuracy', bench:'HumanEval'} },
+    { label:'MMLU',      query:{metric:'accuracy', bench:'MMLU'} },
+    { label:'MATH',      query:{metric:'accuracy', bench:'MATH'} },
+    { label:'DROP',      query:{metric:'accuracy', bench:'DROP'} },
+    { label:'GPQA',      query:{metric:'accuracy', bench:'GPQA'} },
+    { label:'LCB',       query:{metric:'accuracy', bench:'LCB'} },
+    { label:'T-Bench',   query:{metric:'accuracy', bench:'TBench'} },
+    { label:'jdhodges',  query:{metric:'toolScore', suite:'jdhodges'} }
+  ],
+  defaultSelection: ['d27b', 'coder', 'g26_6'],
+  maxSelected: 3
+});
+
+// --- Data-label toggle ---
+C.bindLabelToggle(document.getElementById('toggleLabels'));
+</script>
+
+</body>
+</html>

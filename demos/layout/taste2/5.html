@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#FFFFFF">
+<title>Lumen — your mind, compiled</title>
+<meta name="description" content="Lumen turns scattered notes, docs, and bookmarks into one bright workspace that writes back — AI that cites your own thinking.">
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --e:cubic-bezier(.32,.72,0,1);
+  --bg:#FFFFFF;--ink:#0F1115;--mut:#5C6270;--hair:rgba(15,17,21,.08);
+  --g1:#5B5BD6;--g2:#8B7CF6;
+  --disp:'Satoshi','Plus Jakarta Sans',ui-sans-serif,system-ui,sans-serif;
+  --body:'Plus Jakarta Sans','Avenir Next',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --amb:0 50px 100px -30px rgba(40,40,110,.22),0 16px 38px -18px rgba(40,40,110,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:rgba(91,91,214,.2)}
+a{color:inherit;text-decoration:none}
+svg{display:block}
+.container{max-width:1200px;margin:0 auto;padding:0 clamp(20px,4vw,40px)}
+.section{padding:clamp(88px,12vw,150px) 0;position:relative}
+section[id]{scroll-margin-top:130px}
+h1,h2,h3{font-family:var(--disp);font-weight:700;letter-spacing:-.035em;line-height:1.03}
+h1{font-size:clamp(3rem,7.6vw,6.4rem)}
+h2{font-size:clamp(2.1rem,4.6vw,3.8rem)}
+.grad{background:linear-gradient(100deg,var(--g1),var(--g2) 55%,#C4B5FD);-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#575D8F;border-radius:999px;padding:7px 16px;background:linear-gradient(120deg,rgba(91,91,214,.08),rgba(139,124,246,.08));box-shadow:inset 0 0 0 1px rgba(91,91,214,.22)}
+.eyebrow::before{content:"✦";color:var(--g1)}
+.lead{color:var(--mut);font-size:clamp(1.02rem,1.5vw,1.22rem);max-width:56ch}
+.meta{font-size:13px;color:#9AA0AE}
+.btn{display:inline-flex;align-items:center;padding:9px 9px 9px 26px;border-radius:999px;background:var(--ink);color:#fff;font-weight:700;font-size:15px;letter-spacing:-.01em;box-shadow:var(--amb);transition:transform .55s var(--e),background .55s var(--e)}
+.btn .ic{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.13);display:flex;align-items:center;justify-content:center;margin-left:18px;font-size:15px;transition:transform .55s var(--e),background .55s var(--e)}
+.btn:hover{background:#000}.btn:hover .ic{transform:translate(3px,-2px) scale(1.07);background:rgba(255,255,255,.22)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px var(--hair),0 12px 28px -14px rgba(40,40,110,.25);font-weight:600}
+.btn.ghost .ic{background:rgba(15,17,21,.06)}
+.btn.ghost:hover{background:#F4F5FA}.btn.ghost:hover .ic{background:rgba(15,17,21,.1)}
+.btn.gradbtn{background:linear-gradient(110deg,var(--g1),var(--g2));box-shadow:0 18px 44px -16px rgba(109,95,224,.55)}
+.btn.gradbtn:hover{background:linear-gradient(110deg,#6A6AE0,#9A8BFF)}
+.cta-row{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.shell{border-radius:30px;padding:7px;background:#EDEEF6;box-shadow:var(--amb);transition:transform .8s var(--e)}
+.core{border-radius:calc(30px - 7px);background:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(15,17,21,.05);height:100%}
+.reveal{opacity:0;transform:translateY(56px);filter:blur(10px);transition:opacity .95s var(--e),transform .95s var(--e),filter .95s var(--e)}
+.reveal.visible{opacity:1;transform:none;filter:none}
+.grain{position:fixed;inset:0;z-index:70;pointer-events:none;opacity:.02;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.navwrap{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;justify-content:center;pointer-events:none}
+.nav{pointer-events:auto;margin-top:22px;width:max-content;max-width:calc(100% - 32px);display:flex;align-items:center;gap:10px;border-radius:999px;padding:7px 7px 7px 22px;background:rgba(255,255,255,.8);backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);box-shadow:inset 0 0 0 1px rgba(15,17,21,.08),0 18px 42px -16px rgba(40,40,110,.25)}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:900;font-size:18px;letter-spacing:-.04em}
+.brand svg{width:18px;height:18px}
+.links{display:flex;align-items:center;gap:2px}
+.links a{font-size:13.5px;font-weight:600;color:#4A5062;border-radius:999px;padding:8px 14px;transition:color .45s var(--e),background .45s var(--e)}
+.links a:hover{color:var(--ink);background:rgba(91,91,214,.07)}
+.ncta{background:linear-gradient(110deg,var(--g1),var(--g2))!important;color:#fff!important;padding:9px 18px!important;transition:transform .55s var(--e)}
+.ncta:hover{transform:scale(1.03)}
+.burger{display:none;position:relative;width:42px;height:42px;border-radius:50%;background:rgba(15,17,21,.05);box-shadow:inset 0 0 0 1px rgba(15,17,21,.12);border:0;cursor:pointer}
+.burger span{position:absolute;left:12px;width:18px;height:1.8px;background:var(--ink);border-radius:2px;transition:transform .65s var(--e)}
+.burger span:nth-child(1){top:18px}.burger span:nth-child(2){top:23px}
+.menu-open .burger span:nth-child(1){transform:translateY(2.8px) rotate(45deg)}
+.menu-open .burger span:nth-child(2){transform:translateY(-2.8px) rotate(-45deg)}
+.menu{position:fixed;inset:0;z-index:55;background:rgba(255,255,255,.92);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);opacity:0;visibility:hidden;transition:opacity .6s var(--e),visibility .6s}
+body.menu-open .menu{opacity:1;visibility:visible}
+.menu-inner{height:100%;display:flex;flex-direction:column;justify-content:center;gap:2px}
+.mlink{font-family:var(--disp);font-weight:900;letter-spacing:-.045em;font-size:clamp(2.1rem,7vw,4.4rem);line-height:1.12;color:var(--ink);padding:8px 0;opacity:0;transform:translateY(48px);transition:opacity .7s var(--e),transform .7s var(--e),color .4s}
+.mlink:hover{color:var(--g1)}
+.mlink .mnum{display:inline-block;width:56px;font-family:var(--mono);font-size:12px;font-weight:400;color:rgba(15,17,21,.35);vertical-align:middle}
+body.menu-open .mlink{opacity:1;transform:none}
+.menu .mlink:nth-child(1){transition-delay:.10s}.menu .mlink:nth-child(2){transition-delay:.16s}.menu .mlink:nth-child(3){transition-delay:.22s}.menu .mlink:nth-child(4){transition-delay:.28s}
+.menu-cta{margin-top:34px;opacity:0;transform:translateY(48px);transition:opacity .7s var(--e) .36s,transform .7s var(--e) .36s}
+body.menu-open .menu-cta{opacity:1;transform:none}
+.hero{position:relative;min-height:100dvh;display:flex;flex-direction:column;justify-content:center;padding:170px 0 80px;overflow:hidden;text-align:center}
+.hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(15,17,21,.032) 1px,transparent 1px),linear-gradient(90deg,rgba(15,17,21,.032) 1px,transparent 1px);background-size:52px 52px;mask-image:radial-gradient(ellipse 80% 55% at 50% 0%,#000 25%,transparent 72%);-webkit-mask-image:radial-gradient(ellipse 80% 55% at 50% 0%,#000 25%,transparent 72%);pointer-events:none}
+.hero::after{content:"";position:absolute;width:820px;height:620px;top:-320px;left:50%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(139,124,246,.22),transparent 65%);filter:blur(70px);pointer-events:none;animation:drift 26s var(--e) infinite alternate}
+@keyframes drift{to{transform:translate(-60px,50px) scale(1.1)}}
+.hero .container{position:relative;z-index:1}
+.hero h1{margin:26px auto 28px;max-width:13ch}
+.hero .lead{margin:0 auto 38px}
+.hero .meta{margin-top:28px}
+.app{margin-top:clamp(52px,7vw,84px);text-align:left}
+.app .core{background:#FBFBFE}
+.chrome{display:flex;align-items:center;gap:8px;padding:16px 20px;border-bottom:1px solid rgba(15,17,21,.06)}
+.cdot{width:11px;height:11px;border-radius:50%;background:#E4E5EE}
+.cdot:nth-child(1){background:#FBC7BE}.cdot:nth-child(2){background:#F9E3B7}.cdot:nth-child(3){background:#C9E8CB}
+.curl{margin-left:14px;flex:1;max-width:340px;text-align:center;font-family:var(--mono);font-size:11px;color:#9AA0AE;background:#F1F2F8;border-radius:999px;padding:6px 16px;box-shadow:inset 0 0 0 1px rgba(15,17,21,.05)}
+.chrome kbd{margin-left:auto;font-family:var(--mono);font-size:10px;color:#575D8F;background:rgba(91,91,214,.09);border-radius:7px;padding:5px 9px}
+.appbody{display:grid;grid-template-columns:190px 1fr 230px;min-height:440px}
+.side{border-right:1px solid rgba(15,17,21,.06);padding:22px 14px;display:flex;flex-direction:column;gap:3px}
+.side .ws{font-weight:800;font-size:13px;letter-spacing:-.02em;padding:6px 12px;margin-bottom:10px;display:flex;gap:8px;align-items:center}
+.ws .sq{width:18px;height:18px;border-radius:6px;background:linear-gradient(120deg,var(--g1),var(--g2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:900}
+.sitem{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:#5C6270;border-radius:9px;padding:8px 12px;transition:background .4s var(--e)}
+.sitem:hover{background:rgba(91,91,214,.06)}
+.sitem.on{background:rgba(91,91,214,.1);color:var(--ink)}
+.sitem svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.4}
+.sitem .badge{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:#fff;background:var(--g1);border-radius:999px;padding:2px 7px}
+.ssub{font-size:12px;color:#8A90A0;font-weight:600;padding:6px 12px 6px 35px}
+.ssub.on{color:var(--g1)}
+.main{padding:30px 34px}
+.crumb{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#9AA0AE;margin-bottom:14px}
+.main h4{font-family:var(--disp);font-weight:900;letter-spacing:-.04em;font-size:clamp(1.5rem,2.6vw,2.1rem);margin-bottom:16px}
+.para{font-size:14.5px;color:#3D4354;max-width:56ch;margin-bottom:14px}
+.para .lnk{color:var(--g1);font-weight:700;background:rgba(91,91,214,.08);border-radius:6px;padding:1px 7px;white-space:nowrap}
+.callout{display:flex;gap:12px;background:linear-gradient(120deg,rgba(91,91,214,.07),rgba(139,124,246,.07));border-radius:14px;padding:14px 18px;font-size:13.5px;color:#43498F;max-width:56ch;margin:6px 0 18px}
+.task{display:flex;align-items:center;gap:11px;font-size:13.5px;font-weight:600;color:#3A4052;padding:7px 0}
+.task svg{width:16px;height:16px;flex:none}
+.task.done{color:#9AA0AE}
+.task.done svg{color:var(--g1)}
+.edited{margin-top:20px;font-size:12px;color:#9AA0AE;display:flex;align-items:center;gap:10px}
+.edited .bl{font-family:var(--mono);font-size:10px;color:var(--g1);background:rgba(91,91,214,.09);border-radius:999px;padding:4px 10px}
+.rail{border-left:1px solid rgba(15,17,21,.06);padding:26px 18px}
+.rail h5{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:#9AA0AE;margin-bottom:12px;font-weight:500}
+.mention{background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:10px;box-shadow:0 0 0 1px rgba(15,17,21,.05),0 10px 20px -12px rgba(40,40,110,.18)}
+.mention b{display:block;font-size:12.5px;font-weight:700;letter-spacing:-.01em;margin-bottom:3px}
+.mention span{font-size:11.5px;color:#9AA0AE}
+.rail .sugg{font-size:11.5px;font-weight:700;color:var(--g1);background:rgba(91,91,214,.07);border-radius:999px;padding:7px 14px;display:inline-block;margin:4px 4px 0 0}
+.logos{padding:clamp(60px,8vw,100px) 0 0}
+.logos-row{display:flex;flex-wrap:wrap;align-items:center;gap:clamp(26px,4vw,52px)}
+.logos-cap{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#B0B5C2}
+.logo{font-family:var(--disp);font-weight:900;font-size:16px;letter-spacing:.02em;text-transform:uppercase;color:rgba(15,17,21,.3);transition:color .5s var(--e)}
+.logo:hover{color:rgba(15,17,21,.75)}
+.bento{display:grid;grid-template-columns:repeat(12,1fr);gap:20px}
+.bento .b5{grid-column:span 5}.bento .b6{grid-column:span 6}.bento .b7{grid-column:span 7}
+.card-pad{padding:32px}
+.card-title{font-size:21px;margin-bottom:8px}
+.card-sub{font-size:14px;color:var(--mut)}
+.blocks{margin-top:20px;display:flex;flex-direction:column;gap:10px}
+.block{border-radius:10px;background:#F3F4FA;box-shadow:inset 0 0 0 1px rgba(15,17,21,.04);padding:11px 14px;font-family:var(--mono);font-size:11px;color:#575D8F;display:flex;justify-content:space-between;align-items:center}
+.block.hl{background:linear-gradient(120deg,rgba(91,91,214,.1),rgba(139,124,246,.1));color:var(--g1)}
+.linkmap{margin-top:22px;position:relative;height:150px}
+.linkmap svg{width:100%;height:100%}
+.flow{stroke-dasharray:4 7;animation:flow 8s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-220}}
+.nd{transform-box:fill-box;transform-origin:center;animation:pulse 4.2s var(--e) infinite}
+@keyframes pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.25)}}
+.pal{margin-top:18px;background:#0F1115;border-radius:16px;padding:16px;box-shadow:0 20px 40px -18px rgba(15,17,21,.5)}
+.pal .q{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11.5px;color:#8F96E8;padding:6px 10px}
+.pal .q::before{content:"⌘K"}
+.prow{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:#C8CBDA;border-radius:9px;padding:8px 10px}
+.prow.acc{background:rgba(139,124,246,.16);color:#fff}
+.prow kbd{font-family:var(--mono);font-size:9.5px;color:#8A90C0;background:rgba(255,255,255,.07);border-radius:5px;padding:3px 7px}
+.mark{width:40px;height:40px;border-radius:13px;background:linear-gradient(120deg,rgba(91,91,214,.12),rgba(139,124,246,.12));box-shadow:inset 0 0 0 1px rgba(91,91,214,.25);display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:17px}
+.rows{display:flex;flex-direction:column}
+.brow{display:grid;grid-template-columns:90px 1fr auto;gap:clamp(20px,4vw,60px);align-items:baseline;padding:40px 0;border-top:1px solid rgba(15,17,21,.08);transition:padding-left .6s var(--e)}
+.brow:last-child{border-bottom:1px solid rgba(15,17,21,.08)}
+.brow:hover{padding-left:14px}
+.brow:hover h3{color:var(--g1)}
+.brow .bnum{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:#B0B5C2}
+.brow h3{font-size:clamp(1.9rem,3.6vw,3rem);letter-spacing:-.045em;transition:color .5s var(--e)}
+.brow p{color:var(--mut);font-size:14.5px;max-width:36ch;text-align:right}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+.tier .core{padding:36px 32px;display:flex;flex-direction:column;height:auto}
+.tname{font-size:17px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+.tprice{font-family:var(--disp);font-size:44px;font-weight:900;letter-spacing:-.05em;margin:10px 0 2px}
+.tprice small{font-family:var(--body);font-size:12px;font-weight:600;color:#9AA0AE;letter-spacing:0}
+.tdesc{font-size:13.5px;color:var(--mut);margin-bottom:24px;min-height:44px}
+.tfeat{list-style:none;margin-bottom:30px;flex:1}
+.tfeat li{display:flex;gap:10px;align-items:center;font-size:13.5px;font-weight:600;color:#3A4052;padding:6px 0}
+.tfeat svg{width:15px;height:15px;color:var(--g1);flex:none}
+.shell.gold{background:linear-gradient(135deg,var(--g1),var(--g2) 50%,#C4B5FD);box-shadow:0 40px 90px -30px rgba(109,95,224,.5)}
+.pop{align-self:flex-start;font-size:9.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--g1);background:rgba(91,91,214,.09);border-radius:999px;padding:6px 13px;margin-bottom:16px}
+.shell.gold .pop{background:rgba(15,17,21,.06);color:#37327F}
+.quote-wrap{text-align:center}
+.quote-wrap .core{padding:clamp(50px,8vw,92px) clamp(24px,7vw,110px)}
+.quote{font-family:var(--disp);font-weight:900;letter-spacing:-.045em;font-size:clamp(1.7rem,3.4vw,2.7rem);line-height:1.18;max-width:20ch;margin:24px auto 30px}
+.quote em{font-style:normal;color:var(--g1)}
+.author{display:flex;align-items:center;justify-content:center;gap:14px}
+.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--g1),var(--g2));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
+.author-txt{text-align:left;font-size:13px;color:var(--mut)}
+.author-txt b{display:block;color:var(--ink);font-size:14px}
+.final{text-align:center;overflow:hidden}
+.final::before{content:"";position:absolute;width:900px;height:600px;bottom:-320px;left:50%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(139,124,246,.28),transparent 65%);filter:blur(80px);pointer-events:none}
+.final h2{margin:26px auto 22px;position:relative;max-width:16ch}
+.final .cta-row{justify-content:center;position:relative}
+.final .meta{margin-top:30px;position:relative}
+.foot{padding:70px 0 46px;overflow:hidden}
+.foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:70px}
+.foot h4{font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#B0B5C2;margin-bottom:16px;font-weight:500}
+.foot a.fl{display:block;font-size:14px;font-weight:600;color:#4A5062;padding:5px 0;transition:color .4s var(--e),transform .4s var(--e)}
+.foot a.fl:hover{color:var(--g1);transform:translateX(4px)}
+.ghostword{font-family:var(--disp);font-weight:900;font-size:clamp(5.5rem,17vw,15rem);letter-spacing:-.06em;line-height:.85;color:transparent;-webkit-text-stroke:1px rgba(15,17,21,.12);user-select:none;margin:0 0 26px;pointer-events:none}
+.foot-bottom{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-top:26px;border-top:1px solid rgba(15,17,21,.08);font-size:12.5px;color:#9AA0AE}
+.iter{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:6px;border-radius:999px;padding:6px;background:rgba(255,255,255,.84);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:inset 0 0 0 1px rgba(15,17,21,.1),0 16px 40px -12px rgba(40,40,110,.35);transition:opacity .5s var(--e)}
+body.menu-open .iter{opacity:0;pointer-events:none}
+.ia{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#5C6270;transition:background .45s var(--e),color .45s var(--e),transform .45s var(--e)}
+.ia:hover{background:rgba(15,17,21,.06);color:var(--ink);transform:scale(1.06)}
+.icap{font-family:var(--mono);font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:#B0B5C2;padding:0 10px 0 8px}
+.dots{display:flex;gap:4px}
+.dt{min-width:28px;height:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:#8A90A0;transition:all .55s var(--e)}
+.dt:hover{background:rgba(15,17,21,.06);color:var(--ink)}
+.dt.on{min-width:34px;background:linear-gradient(110deg,var(--g1),var(--g2));color:#fff;font-weight:700;box-shadow:0 8px 18px -6px rgba(109,95,224,.6)}
+@media (max-width:1080px){
+  .appbody{grid-template-columns:1fr}
+  .side,.rail{display:none}
+  .bento{grid-template-columns:1fr 1fr}.bento .b5,.bento .b6,.bento .b7{grid-column:span 1}
+  .tiers{grid-template-columns:1fr}
+  .brow{grid-template-columns:1fr;gap:10px}.brow p{text-align:left}
+  .foot-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:880px){
+  .links{display:none}.burger{display:block}
+  .nav{padding:7px 7px 7px 18px}
+}
+@media (max-width:640px){
+  .bento{grid-template-columns:1fr;gap:14px}
+  .hero{padding-top:140px}
+  .cta-row .btn{width:100%;justify-content:space-between}
+  .main{padding:24px 20px}
+  .foot-grid{grid-template-columns:1fr}
+  .foot-bottom{flex-direction:column}
+}
+</style>
+</head>
+<body data-iter="5">
+<div class="grain" aria-hidden="true"></div>
+
+<header class="navwrap">
+  <nav class="nav" aria-label="Primary">
+    <a class="brand" href="5.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="url(#lg1)" stroke-width="1.5"><defs><linearGradient id="lg1" x1="0" y1="0" x2="24" y2="24"><stop stop-color="#5B5BD6"/><stop offset="1" stop-color="#C4B5FD"/></linearGradient></defs><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l2.8 2.8M16.2 16.2 19 19M19 5l-2.8 2.8M7.8 16.2 5 19"/><circle cx="12" cy="12" r="3.2"/></svg>
+      Lumen
+    </a>
+    <div class="links">
+      <a href="#product">Product</a><a href="#flow">Flow</a><a href="#pricing">Pricing</a><a href="#voices">Voices</a>
+      <a class="ncta" href="#pricing">Get Lumen</a>
+    </div>
+    <button class="burger" aria-expanded="false" aria-label="Open menu"><span></span><span></span></button>
+  </nav>
+</header>
+
+<div class="menu" role="dialog" aria-modal="true" aria-label="Navigation">
+  <div class="container menu-inner">
+    <a class="mlink" href="#product"><span class="mnum">01</span>Product</a>
+    <a class="mlink" href="#flow"><span class="mnum">02</span>Flow</a>
+    <a class="mlink" href="#pricing"><span class="mnum">03</span>Pricing</a>
+    <a class="mlink" href="#voices"><span class="mnum">04</span>Voices</a>
+    <div class="menu-cta"><a class="btn gradbtn" href="#pricing">Get Lumen free <span class="ic">↗</span></a></div>
+  </div>
+</div>
+
+<section class="hero" id="top">
+  <div class="container">
+    <span class="eyebrow reveal">Lumen 2.0 — the canvas brain</span>
+    <h1 class="reveal" data-d="1">Your mind,<br><span class="grad">compiled</span>.</h1>
+    <p class="lead reveal" data-d="2">Lumen turns your scattered notes, docs, and bookmarks into one bright workspace that writes back — an AI that only ever quotes your own thinking, never the internet's.</p>
+    <div class="cta-row reveal" data-d="3" style="justify-content:center">
+      <a class="btn" href="#pricing">Get Lumen free <span class="ic">↗</span></a>
+      <a class="btn ghost" href="#product">Watch the keynote <span class="ic">▷</span></a>
+    </div>
+    <p class="meta reveal" data-d="4">Free 30 days of Pro · Import from Notion in one click</p>
+
+    <div class="shell app reveal" data-d="2">
+      <div class="core">
+        <div class="chrome">
+          <span class="cdot"></span><span class="cdot"></span><span class="cdot"></span>
+          <span class="curl">lumen.app/brain/pitch-angle</span>
+          <kbd>⌘K</kbd>
+        </div>
+        <div class="appbody">
+          <aside class="side">
+            <span class="ws"><span class="sq">L</span>Ada's brain</span>
+            <div class="sitem"><svg viewBox="0 0 16 16"><path d="M2 10h12M4 4h8l2 6v2H2v-2l2-6Z"/></svg>Inbox<span class="badge">3</span></div>
+            <div class="sitem on"><svg viewBox="0 0 16 16"><rect x="2.5" y="2.5" width="11" height="11" rx="2"/></svg>Projects</div>
+            <div class="ssub on">Awwwards pitch</div>
+            <div class="ssub">Reading list</div>
+            <div class="sitem"><svg viewBox="0 0 16 16"><circle cx="8" cy="5.5" r="2.6"/><path d="M3 13.5c.8-2.6 2.7-3.5 5-3.5s4.2.9 5 3.5"/></svg>People</div>
+            <div class="sitem"><svg viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="10.5" rx="2"/><path d="M2.5 6.5h11"/></svg>Daily</div>
+            <div class="sitem"><svg viewBox="0 0 16 16"><path d="M3.5 4.5h9L11 13.5H5L3.5 4.5ZM2 4.5h12"/></svg>Archive</div>
+          </aside>
+          <div class="main">
+            <p class="crumb">Projects / Awwwards pitch</p>
+            <h4>Second brain — the pitch angle</h4>
+            <p class="para">Lead with the Tuesday story, not the feature list. The hook is <span class="lnk">attention residue ↗</span> — everyone feels it, nobody names it.</p>
+            <div class="callout">💡 From your notes, 14 Mar: “Sell the Tuesday, not the drill.” That's still the best line in the deck.</div>
+            <div class="task done"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6.4"/><path d="m5.4 8.3 1.8 1.8 3.4-3.9"/></svg>Write the Tuesday cold-open</div>
+            <div class="task done"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6.4"/><path d="m5.4 8.3 1.8 1.8 3.4-3.9"/></svg>Draft the graph reveal</div>
+            <div class="task"><svg viewBox="0 0 16 16" fill="none" stroke="#C3C7D2" stroke-width="1.4"><circle cx="8" cy="8" r="6.4"/></svg>Decide on the pricing slide</div>
+            <p class="edited">Edited 2 min ago <span class="bl">+3 backlinks</span></p>
+          </div>
+          <aside class="rail">
+            <h5>Linked mentions</h5>
+            <div class="mention"><b>Attention residue</b><span>“Every open tab leaves a film…”</span></div>
+            <div class="mention"><b>Q3 notes</b><span>“Keep the surface calm…”</span></div>
+            <div class="mention"><b>Ada — call</b><span>“Ship the graph, hide the…”</span></div>
+            <h5 style="margin-top:22px">Suggestions</h5>
+            <span class="sugg">Why now? +</span><span class="sugg">Pricing? +</span>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="logos">
+  <div class="container">
+    <div class="logos-row reveal">
+      <span class="logos-cap">Bright minds at</span>
+      <span class="logo">Fieldkit</span><span class="logo">Vector Foundry</span><span class="logo">Studio Mono</span><span class="logo">Northwind</span><span class="logo">9th Ward</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="product">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:clamp(44px,6vw,72px)" class="reveal">
+      <span class="eyebrow">The product</span>
+      <h2 style="margin-top:22px">Everything in one<br>bright place.</h2>
+    </div>
+    <div class="bento">
+      <div class="shell b5 reveal">
+        <div class="core card-pad">
+          <h3 class="card-title">Blocks, not formatting</h3>
+          <p class="card-sub">Docs, tables, toggles, boards — one keystroke apart.</p>
+          <div class="blocks">
+            <div class="block">/ toggle <span>▸</span></div>
+            <div class="block hl">/ table <span>⏎</span></div>
+            <div class="block">/ board <span>▸</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="shell b7 reveal" data-d="1">
+        <div class="core card-pad">
+          <h3 class="card-title">Every note knows its neighbors</h3>
+          <p class="card-sub">Backlinks and forward links, drawn live as you write.</p>
+          <div class="linkmap">
+            <svg viewBox="0 0 460 150" fill="none" preserveAspectRatio="xMidYMid meet">
+              <path class="flow" d="M110 75h60m80 0h60M230 75 150 30m80 45 80-45M230 75l-80 45m80-45 80 45" stroke="rgba(91,91,214,.4)" stroke-width="1.2"/>
+              <rect x="185" y="57" width="90" height="36" rx="18" fill="url(#lgr)"/>
+              <text x="230" y="80" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="11" font-weight="700" fill="#fff">pitch angle</text>
+              <defs><linearGradient id="lgr" x1="185" y1="57" x2="275" y2="93"><stop stop-color="#5B5BD6"/><stop offset="1" stop-color="#8B7CF6"/></linearGradient></defs>
+              <circle class="nd" cx="110" cy="75" r="8" fill="#C4B5FD"/>
+              <circle class="nd" style="animation-delay:.6s" cx="350" cy="75" r="8" fill="#5B5BD6"/>
+              <circle class="nd" style="animation-delay:.3s" cx="150" cy="30" r="6" fill="#C3C7D2"/>
+              <circle class="nd" style="animation-delay:.9s" cx="310" cy="30" r="6" fill="#C3C7D2"/>
+              <circle class="nd" style="animation-delay:1.2s" cx="150" cy="120" r="6" fill="#C3C7D2"/>
+              <circle class="nd" style="animation-delay:1.5s" cx="310" cy="120" r="6" fill="#5B5BD6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="shell b7 reveal" data-d="1">
+        <div class="core card-pad">
+          <h3 class="card-title">Ask → cite → draft</h3>
+          <p class="card-sub">Lumen answers from your vault, shows its receipts, and turns the answer into a first draft you can argue with.</p>
+          <div class="blocks">
+            <div class="block">⌕ “what's my pricing stance?” <span>↵</span></div>
+            <div class="block hl">Annual-only for the pilot <span>[1][2]</span></div>
+            <div class="block">→ turn into outline <span>⏎</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="shell b5 reveal" data-d="2">
+        <div class="core card-pad">
+          <h3 class="card-title">The whole mind, one palette</h3>
+          <div class="pal">
+            <div class="q">lumen</div>
+            <div class="prow acc"><span>Ask Lumen…</span><kbd>⌘↵</kbd></div>
+            <div class="prow"><span>Open graph</span><kbd>⌘G</kbd></div>
+            <div class="prow"><span>New note</span><kbd>⌘N</kbd></div>
+          </div>
+        </div>
+      </div>
+      <div class="shell b6 reveal" data-d="2">
+        <div class="core card-pad">
+          <div class="mark">✈</div>
+          <h3 class="card-title">Trains welcome</h3>
+          <p class="card-sub">Offline-first with conflict-free sync. Notes never blink at 30,000 feet — they reconcile quietly when the sky comes back.</p>
+        </div>
+      </div>
+      <div class="shell b6 reveal" data-d="3">
+        <div class="core card-pad">
+          <div class="mark">🗂</div>
+          <h3 class="card-title">Leave anytime</h3>
+          <p class="card-sub">Your vault is a folder of Markdown files on your machine. Lock-in is a pricing mistake, not a feature.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="flow" style="padding-top:0">
+  <div class="container">
+    <div class="rows">
+      <div class="brow reveal">
+        <span class="bnum">01 /</span>
+        <h3>Capture.</h3>
+        <p>One keystroke, anywhere on any device. It lands in the inbox; filing is Lumen's job.</p>
+      </div>
+      <div class="brow reveal" data-d="1">
+        <span class="bnum">02 /</span>
+        <h3>Connect.</h3>
+        <p>Every note finds its neighbors the moment it's written. The graph grows in your words.</p>
+      </div>
+      <div class="brow reveal" data-d="2">
+        <span class="bnum">03 /</span>
+        <h3>Create.</h3>
+        <p>Ask, cite, draft. Your second brain hands you the outline; you bring the taste.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pricing" style="padding-top:0">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:clamp(44px,6vw,72px)" class="reveal">
+      <span class="eyebrow">Pricing</span>
+      <h2 style="margin-top:22px">Simple as a page,<br>deep as a vault.</h2>
+    </div>
+    <div class="tiers">
+      <div class="shell reveal">
+        <div class="core">
+          <span class="tname">Solo</span>
+          <div class="tprice">$0 <small>forever</small></div>
+          <p class="tdesc">One brain, unlimited thoughts.</p>
+          <ul class="tfeat">
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3.5 8.5 3 3 6-7"/></svg>Unlimited notes &amp; backlinks</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3.5 8.5 3 3 6-7"/></svg>Offline-first sync, 2 devices</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3.5 8.5 3 3 6-7"/></svg>Markdown export</li>
+          </ul>
+          <a class="btn ghost" href="#top" style="align-self:flex-start">Start free <span class="ic">↗</span></a>
+        </div>
+      </div>
+      <div class="shell gold reveal" data-d="1">
+        <div class="core">
+          <span class="pop">Most loved</span>
+          <span class="tname">Pro</span>
+          <div class="tprice">$8 <small>/ month</small></div>
+          <p class="tdesc">The brain that answers back.</p>
+          <ul class="tfeat">
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3.5 8.5 3 3 6-7"/></svg>Ask Lumen with citations</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3.5 8.5 3 3 6-7"/></svg>Auto-links, suggestions, AI drafts</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3.5 8.5 3 3 6-7"/></svg>Version history, unlimited devices</li>
+          </ul>
+          <a class="btn gradbtn" href="#top" style="align-self:flex-start">Get Pro <span class="ic">↗</span></a>
+        </div>
+      </div>
+      <div class="shell reveal" data-d="2">
+        <div class="core">
+          <span class="tname">Team</span>
+          <div class="tprice">$16 <small>/ seat / month</small></div>
+          <p class="tdesc">Two brains, genuinely better than one.</p>
+          <ul class="tfeat">
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3.5 8.5 3 3 6-7"/></svg>Shared spaces &amp; permissions</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3.5 8.5 3 3 6-7"/></svg>Team-wide ask engine</li>
+            <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3.5 8.5 3 3 6-7"/></svg>SSO &amp; audit log</li>
+          </ul>
+          <a class="btn ghost" href="#top" style="align-self:flex-start">Talk to us <span class="ic">↗</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="voices" style="padding-top:0">
+  <div class="container">
+    <div class="shell quote-wrap reveal">
+      <div class="core">
+        <span class="eyebrow">Voices</span>
+        <p class="quote">“We deleted four tools the week we moved <em>in</em>.”</p>
+        <div class="author">
+          <span class="avatar">PR</span>
+          <span class="author-txt"><b>Priya Raman</b>Studio Lead, 9th Ward</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section final" id="get">
+  <div class="container" style="position:relative;z-index:1">
+    <span class="eyebrow reveal">One bright place</span>
+    <h2 class="reveal" data-d="1">Your mind is full of answers. Go get them.</h2>
+    <div class="cta-row reveal" data-d="2">
+      <a class="btn gradbtn" href="#top">Get Lumen free <span class="ic">↗</span></a>
+      <a class="btn ghost" href="#product">Import in one click <span class="ic">↓</span></a>
+    </div>
+    <p class="meta reveal" data-d="3">Free 30 days of Pro · Your notes will miss you — bring them home</p>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="5.html" style="margin-bottom:14px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="url(#lg2)" stroke-width="1.5"><defs><linearGradient id="lg2" x1="0" y1="0" x2="24" y2="24"><stop stop-color="#5B5BD6"/><stop offset="1" stop-color="#C4B5FD"/></linearGradient></defs><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l2.8 2.8M16.2 16.2 19 19M19 5l-2.8 2.8M7.8 16.2 5 19"/><circle cx="12" cy="12" r="3.2"/></svg>
+          Lumen
+        </a>
+        <p style="font-size:13.5px;color:#9AA0AE;max-width:30ch;margin-top:12px">The second brain that writes back — and shows its sources.</p>
+      </div>
+      <div><h4>Product</h4><a class="fl" href="#product">Features</a><a class="fl" href="#pricing">Pricing</a><a class="fl" href="#product">Import</a><a class="fl" href="#product">Changelog</a></div>
+      <div><h4>Resources</h4><a class="fl" href="#flow">Docs</a><a class="fl" href="#flow">Templates</a><a class="fl" href="#pricing">Keyboard map</a></div>
+      <div><h4>Company</h4><a class="fl" href="#voices">Manifesto</a><a class="fl" href="#voices">Careers</a><a class="fl" href="#voices">Press</a></div>
+    </div>
+    <div class="ghostword" aria-hidden="true">LUMEN</div>
+    <div class="foot-bottom">
+      <span>© 2026 Lumen Software</span>
+      <span>Made for thinking · Set in Satoshi</span>
+    </div>
+  </div>
+</footer>
+
+<nav class="iter" aria-label="Design iterations">
+  <a class="ia" href="4.html" rel="prev" aria-label="Previous iteration">←</a>
+  <span class="icap">Iter</span>
+  <div class="dots">
+    <a class="dt" href="1.html">1</a><a class="dt" href="2.html">2</a><a class="dt" href="3.html">3</a><a class="dt" href="4.html">4</a><a class="dt on" href="5.html" aria-current="true">5</a>
+  </div>
+  <a class="ia" href="1.html" rel="next" aria-label="Next iteration">→</a>
+</nav>
+
+<script>
+const body=document.body,burger=document.querySelector('.burger'),menu=document.querySelector('.menu');
+const setMenu=o=>{body.classList.toggle('menu-open',o);burger.setAttribute('aria-expanded',String(o))};
+burger.addEventListener('click',()=>setMenu(!body.classList.contains('menu-open')));
+document.querySelectorAll('.mlink').forEach(l=>l.addEventListener('click',()=>setMenu(false)));
+const cur=+body.dataset.iter;
+addEventListener('keydown',e=>{
+  if(e.key==='Escape')setMenu(false);
+  if(e.key==='ArrowRight'){e.preventDefault();location.href=(cur%5)+1}
+  if(e.key==='ArrowLeft'){e.preventDefault();location.href=((cur-1+5)%5)+1}
+});
+document.querySelectorAll('.reveal').forEach(el=>{
+  const d=parseInt(el.dataset.d||'0',10);if(d)el.style.transitionDelay=(d*95)+'ms';
+});
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}})},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

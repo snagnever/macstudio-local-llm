@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layout Skill Bench — three skills, one brief</title>
+<meta name="description" content="One local model built the same five-page landing-page design three times, on one byte-identical brief, each run loading a different design skill. Figures come from bench/layout-skill-bench/results/arms.json; a null renders as a gap, never zero.">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="charts-common.js"></script>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --border: #262a33;
+    --text: #e6e6e6;
+    --muted: #9aa0a6;
+    --accent: #5aa9ff;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  header {
+    padding: 22px 32px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  header .top { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; justify-content: space-between; }
+  header h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  header .sub { margin: 8px 0 0; color: var(--muted); font-size: 13px; max-width: 96ch; }
+  header .sub code { color: var(--accent); }
+  header .sub strong { color: var(--text); }
+  .toggle { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); cursor: pointer; }
+  .toggle input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  .brief-quote {
+    margin: 14px 0 0; padding: 10px 14px; border-left: 3px solid var(--accent);
+    background: #12151b; color: #cdd1d6; font-size: 12.5px; max-width: 100ch; border-radius: 0 6px 6px 0;
+  }
+  .brief-quote .cite { display: block; margin-top: 6px; color: var(--muted); font-size: 11.5px; }
+  .brief-quote .cite code { color: #cdd1d6; }
+
+  main {
+    max-width: 1600px; margin: 0 auto; padding: 24px 32px 64px;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px;
+  }
+  @media (max-width: 1100px) { main { grid-template-columns: minmax(0, 1fr); } }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+  .card.wide { grid-column: 1 / -1; }
+  .card h2 {
+    margin: 0 0 4px; font-size: 14px; font-weight: 600; letter-spacing: 0.02em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .card .sub { margin: 0 0 16px; font-size: 12px; color: var(--muted); max-width: 100ch; }
+  .card .sub code { color: #cdd1d6; }
+  .chart-wrap { position: relative; height: 320px; }
+  .chart-cap { font-size: 11.5px; color: var(--muted); margin-top: 10px; max-width: 100ch; }
+
+  .category-heading {
+    grid-column: 1 / -1; margin: 16px 0 0; font-size: 15px; font-weight: 600;
+    letter-spacing: 0.02em; color: var(--text); scroll-margin-top: 120px;
+    border-bottom: 1px solid var(--border); padding-bottom: 8px;
+  }
+  .category-heading .hint { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: 10px; }
+
+  /* Controls-for / varies callout */
+  .controls { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 900px) { .controls { grid-template-columns: 1fr; } }
+  .ctrl { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .ctrl.held { border-left: 3px solid #52b788; }
+  .ctrl.varied { border-left: 3px solid #e0a458; }
+  .ctrl h3 { margin: 0 0 8px; font-size: 13px; font-weight: 700; }
+  .ctrl.held h3 { color: #7ee787; }
+  .ctrl.varied h3 { color: #ffd7a8; }
+  .ctrl ul { margin: 0; padding-left: 18px; }
+  .ctrl li { margin: 0 0 8px; font-size: 12.5px; color: #cdd1d6; }
+  .ctrl li:last-child { margin-bottom: 0; }
+  .ctrl li b { color: var(--text); }
+  .ctrl code { color: #ffcf9e; }
+  .ctrl .skill-line { display: flex; align-items: baseline; gap: 8px; }
+  .ctrl .dot { width: 9px; height: 9px; border-radius: 2px; flex: 0 0 auto; position: relative; top: 1px; }
+
+  .locknote { grid-column: 1 / -1; background: #17130d; border: 1px solid #6b4a2a; border-radius: 10px; padding: 16px 18px; }
+  .locknote h3 { margin: 0 0 6px; font-size: 13px; font-weight: 700; color: #ffd7a8; }
+  .locknote p { margin: 0 0 8px; font-size: 12.5px; color: #d7d2c8; max-width: 110ch; }
+  .locknote p:last-child { margin-bottom: 0; }
+  .locknote code { color: #ffcf9e; }
+
+  /* Arm rows: identity + 5 page cells */
+  .arm-row {
+    grid-column: 1 / -1; background: var(--panel); border: 1px solid var(--border);
+    border-left: 3px solid var(--arm, var(--accent)); border-radius: 10px; padding: 16px 18px 18px;
+  }
+  .arm-head { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; justify-content: space-between; }
+  .arm-head h3 { margin: 0; font-size: 15px; font-weight: 700; }
+  .arm-head h3 .skill { color: var(--arm, var(--accent)); }
+  .arm-head .stack { font-size: 12px; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .arm-form { margin: 6px 0 0; font-size: 12px; color: #cdd1d6; max-width: 110ch; }
+  .arm-form code { color: #ffcf9e; }
+  .arm-metrics {
+    display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 12px 0 14px;
+  }
+  .metric {
+    background: #12151b; border: 1px solid var(--border); border-radius: 7px; padding: 6px 11px;
+    display: flex; flex-direction: column; gap: 1px; min-width: 92px;
+  }
+  .metric .v { font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .metric .v.dash { color: #555; }
+  .metric .k { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+  .metric .n { font-size: 10px; color: #6b7178; margin-top: 1px; max-width: 22ch; }
+
+  .page-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 720px) { .page-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .page-cell {
+    display: flex; flex-direction: column; text-decoration: none;
+    border: 1px solid var(--border); border-radius: 9px; overflow: hidden; background: #12151b;
+    transition: border-color .12s ease, transform .12s ease;
+  }
+  .page-cell:hover { border-color: var(--arm, var(--accent)); transform: translateY(-2px); }
+  .page-thumb {
+    aspect-ratio: 16 / 10; display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(120% 90% at 50% -10%, color-mix(in srgb, var(--arm) 26%, transparent), transparent 60%),
+      #0f1115;
+    color: var(--arm, var(--accent)); font-size: 30px; font-weight: 800; letter-spacing: -0.02em;
+    border-bottom: 1px solid var(--border);
+  }
+  .page-meta { padding: 8px 10px 10px; }
+  .page-meta .title { font-size: 12.5px; font-weight: 650; color: var(--text); }
+  .page-meta .path { font-size: 10px; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; word-break: break-all; margin-top: 3px; }
+  .arm-note { margin: 12px 0 0; font-size: 11px; color: var(--muted); }
+  .arm-note code { color: #cdd1d6; }
+
+  /* Scoreboard */
+  .scoreboard-wrap { overflow-x: auto; }
+  table.scoreboard { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 12px; }
+  table.scoreboard th, table.scoreboard td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+  table.scoreboard thead th {
+    color: var(--muted); font-weight: 500; text-align: right; cursor: pointer; user-select: none;
+    position: relative; padding-right: 16px; white-space: nowrap;
+  }
+  table.scoreboard thead th:first-child { text-align: left; }
+  table.scoreboard thead th:hover { color: var(--text); }
+  table.scoreboard thead th[data-sorted]::after {
+    position: absolute; right: 3px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 10px;
+  }
+  table.scoreboard thead th[data-sorted="asc"]::after  { content: '\25B2'; }
+  table.scoreboard thead th[data-sorted="desc"]::after { content: '\25BC'; }
+  table.scoreboard tbody td { vertical-align: middle; }
+  table.scoreboard tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.scoreboard tbody td.dash { color: #555; }
+  table.scoreboard tbody tr:hover { background: rgba(255,255,255,0.03); }
+  table.scoreboard td.model-cell { white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd1d6; }
+  table.scoreboard .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: baseline; }
+  .scoreboard-hint { font-size: 11px; color: var(--muted); margin-top: 10px; max-width: 120ch; }
+  .scoreboard-hint code { color: #cdd1d6; }
+
+  .limits { grid-column: 1 / -1; }
+  .limits ul { margin: 6px 0 0; padding-left: 18px; }
+  .limits li { margin: 0 0 8px; font-size: 13px; color: #cdd1d6; max-width: 112ch; }
+  .limits li b { color: var(--text); }
+  .limits code { color: #ffcf9e; }
+
+  footer { color: var(--muted); font-size: 12px; padding: 18px 32px 40px; text-align: center; max-width: 1600px; margin: 0 auto; }
+  footer code { color: #cdd1d6; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <h1>Layout Skill Bench &mdash; three skills, one brief</h1>
+    <label class="toggle"><input type="checkbox" id="toggleLabels" checked /> Show data labels</label>
+  </div>
+  <p class="sub">One local model &mdash; <strong>Qwen3.8 Flash Next (MLX)</strong> &mdash; built the same deliverable <strong>three times</strong>: five landing-page iterations for a note-taking &ldquo;second brain&rdquo; app, with an easy switcher between them. Every run received the <strong>same byte-identical verbatim brief</strong> and ran on the same model in the same harness (<code>opencode</code>). The one thing that changed between runs was the <strong>design skill loaded</strong>. Every figure on this page comes from <code>bench/layout-skill-bench/results/arms.json</code>, the single source; a value that was not collected would render as a gap (&mdash;), never zero. This is a controlled comparison of <strong>three different skills</strong>, not one skill against a baseline and not one configuration run twice.</p>
+  <blockquote class="brief-quote">&ldquo;I want you to design the landing page for a note-taking application as essentially a second brain. You should design five iterations and each of them should be accessible within the slash one, slash two, slash three like pages directory. And then you should add a little button that lets me switch between them easily.&rdquo;
+    <span class="cite">The verbatim brief &mdash; SHA <code>eaebe847&hellip;</code>, 318 characters, byte-identical across all three runs (confirmed against the opencode session database).</span>
+  </blockquote>
+</header>
+
+<div class="filter-bar" id="filterBar"></div>
+
+<main>
+  <noscript><p style="grid-column:1/-1">This page renders its grid, metrics and charts from an inline data object &mdash; enable JavaScript to see them.</p></noscript>
+
+  <h2 class="category-heading" id="sec-control">What the comparison holds and what it varies <span class="hint">read this before the grid</span></h2>
+  <div class="controls">
+    <div class="ctrl held">
+      <h3>Held identical across all three runs</h3>
+      <ul>
+        <li><b>The brief</b> &mdash; the exact 318-character text above, SHA <code>eaebe847&hellip;</code>, byte-identical in every run.</li>
+        <li><b>The model</b> &mdash; Qwen3.8 Flash Next, MLX, on the local rig, at zero API cost.</li>
+        <li><b>The harness</b> &mdash; <code>opencode</code>, one session per run.</li>
+        <li><b>The task</b> &mdash; five landing-page iterations plus a switcher; every run shipped exactly <b>5 pages</b>.</li>
+      </ul>
+    </div>
+    <div class="ctrl varied">
+      <h3>Varied &mdash; one design skill per run</h3>
+      <ul id="skillList"></ul>
+    </div>
+  </div>
+
+  <div class="locknote">
+    <h3>Why this is three skills, not two &mdash; and not one skill vs. a no-skill baseline</h3>
+    <p><code>taste-skill</code> and <code>taste2</code> ship a <b>byte-identical</b> <code>skills-lock.json</code> (both pin <code>brandkit</code>, <code>design-taste-frontend</code> and <code>high-end-visual-design</code> from <code>Leonxlnx/taste-skill</code>). A lock file records which skills were <i>available</i>, not which one <i>fired</i>. Reading each session's actual transcript shows different skills ran: <code>taste-skill</code> invoked <code>design-taste-frontend</code> (an 87,308-character skill message) and <code>taste2</code> invoked <code>high-end-visual-design</code> (a 10,476-character one). <code>brandkit</code> appears in neither session. So the two arms are <b>not</b> a repeat run of one configuration.</p>
+    <p><code>design-skill</code> has <b>no lock file at all</b> &mdash; it is not part of the <code>Leonxlnx/taste-skill</code> package. Its transcript shows it loaded <code>frontend-design</code> from the user's global skill directory, so it is <b>not a no-skill baseline</b> either. Each of the three ran a real, different design skill.</p>
+  </div>
+
+  <h2 class="category-heading" id="sec-grid">The three runs, five pages each <span class="hint">session metrics above each strip; every cell opens that run&rsquo;s real page on the published site</span></h2>
+  <div id="armRows" style="grid-column:1/-1; display:flex; flex-direction:column; gap:20px;"></div>
+
+  <h2 class="category-heading" id="sec-board">Session metrics, side by side <span class="hint">every figure from arms.json &mdash; click a header to re-rank</span></h2>
+  <div class="card wide">
+    <h2>All metrics, all three runs</h2>
+    <p class="sub">Recovered from the opencode session database (none of the runs shipped a stats file), collected into <code>bench/layout-skill-bench/results/arms.json</code>. There is <strong>no &ldquo;best&rdquo; highlight</strong>: more tokens or more wall time is not &ldquo;better&rdquo; &mdash; it mostly reflects how much the loaded skill asked the model to do.</p>
+    <div class="scoreboard-wrap">
+      <table class="scoreboard" id="scoreboard">
+        <thead>
+          <tr>
+            <th data-sort="str">Run (skill)</th>
+            <th data-sort="num">Wall (min)</th>
+            <th data-sort="num">Output tok</th>
+            <th data-sort="num">Uncached in tok</th>
+            <th data-sort="num">Cache-read tok</th>
+            <th data-sort="num">Tool calls</th>
+            <th data-sort="num">Messages</th>
+            <th data-sort="num">Pages</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="scoreboard-hint">
+      Bases, from the arms.json notes: <b>Wall</b> is first message to last recorded token event.
+      <b>Messages</b> counts user + assistant turns &mdash; <code>taste2</code>&rsquo;s 19 is the only count that includes a mid-run auto-compaction event and a &ldquo;continue&rdquo; nudge, alongside the same two substantive turns the other runs have; <code>design-skill</code>&rsquo;s single user turn combined the skill document and the brief into one message, while the other two received them as two separate turns.
+      All three ship <b>5 pages</b>, matching the brief.
+    </p>
+  </div>
+
+  <h2 class="category-heading" id="sec-charts">Two dimensions, drawn <span class="hint">cost, not quality &mdash; read the captions</span></h2>
+
+  <section class="card">
+    <h2>Wall time per run</h2>
+    <p class="sub">Minutes, first message to last recorded token event.</p>
+    <div class="chart-wrap"><canvas id="chartTime"></canvas></div>
+    <p class="chart-cap"><code>taste2</code>&rsquo;s 38.0 min ran the longest of the three; its session is also the only one carrying a mid-run auto-compaction event. Wall time here tracks how much each skill asked the model to do, not the quality of what shipped.</p>
+  </section>
+
+  <section class="card">
+    <h2>Output tokens per run</h2>
+    <p class="sub">Tokens the model generated. Cache-read input (hundreds of thousands per run) dwarfs output and lives in the scoreboard, not here.</p>
+    <div class="chart-wrap"><canvas id="chartTokens"></canvas></div>
+    <p class="chart-cap"><code>taste2</code> generated the most output (89,922), roughly double <code>design-skill</code>&rsquo;s 37,742 &mdash; again a reflection of skill verbosity and run length, not a score.</p>
+  </section>
+
+  <div class="card wide limits">
+    <h2>Limits, stated plainly</h2>
+    <ul>
+      <li><b>Wall time and token cost are not proxies for design quality.</b> They reflect how much the loaded skill asked the model to do (<code>taste-skill</code>&rsquo;s ~87KB skill document versus <code>taste2</code>&rsquo;s ~10KB one, versus <code>design-skill</code>&rsquo;s skill and brief combined into a single message) more than any inherent difference between the three skills&rsquo; output.</li>
+      <li><b>Only <code>design-skill</code> combined the skill and the brief into one message;</b> the other two received them as two separate user turns. That is a difference in session setup, not in the words of the brief.</li>
+      <li><b><code>taste2</code> is the only run with a mid-run auto-compaction event</b> and an extra &ldquo;continue&rdquo; nudge &mdash; its messages count (19) includes both, alongside the two substantive turns the other two runs also have.</li>
+      <li><b>All three ran on the same local model at zero API cost.</b> This bench does not compare cost or hosted-model behavior at all &mdash; only skill choice under identical local conditions.</li>
+      <li><b>The three runs shipped different forms</b> (static HTML directories, a Vite + React app, static pages behind a small Node server), so the grid links below take three different shapes; a later publish step rewrites two of them to serve under the site.</li>
+    </ul>
+  </div>
+
+</main>
+
+<footer>
+  <p>One page for the <code>layout-skill-bench</code> campaign. Data: <code>bench/layout-skill-bench/results/arms.json</code>; framing: <code>bench/layout-skill-bench/plan.md</code>; per-run self-reports: <code>bench/layout-skill-bench/results/&lt;arm&gt;.md</code>. Grid links resolve on the published site, under <code>demos/layout/&lt;arm&gt;/</code>. Self-contained: Chart.js + the datalabels plugin via CDN, and the shared <code>charts-common.js</code> runtime.</p>
+</footer>
+
+<script>
+/* ---------------------------------------------------------------------------
+ * Inline data — copied verbatim from bench/layout-skill-bench/results/arms.json,
+ * field names kept. Nothing is fetched at runtime so the page opens over
+ * file://. RESULTS below adds a `model` alias for `arm` so ChartsCommon's
+ * metricValue()/buildScoreboard() (which key on `model`) can read it.
+ * ------------------------------------------------------------------------- */
+const DATA = {
+  "arms": [
+    { "id": "design-skill", "harness": "opencode", "model": "qwen3.8-flash-next", "hosted": false,
+      "label": "opencode + Qwen3.8 Flash Next + frontend-design", "color": "#2a9d8f",
+      "skillConfig": "frontend-design",
+      "skillSource": "user's global skill directory (~/.agents/skills/frontend-design) — no lock file; NOT a no-skill baseline",
+      "form": "Five static HTML directories, no build step, no framework (index.html plus 1/ 2/ 3/ 4/ 5/, each with its own index.html)" },
+    { "id": "taste-skill", "harness": "opencode", "model": "qwen3.8-flash-next", "hosted": false,
+      "label": "opencode + Qwen3.8 Flash Next + design-taste-frontend", "color": "#e76f51",
+      "skillConfig": "design-taste-frontend",
+      "skillSource": "Leonxlnx/taste-skill package (vendored under .agents/skills/); the skill that actually fired, per the session transcript",
+      "form": "Vite + React + TypeScript app (react 19, motion, tailwind v4, vite 7) with five client-side routes /1..5, plus a fixed-position switcher nav" },
+    { "id": "taste2", "harness": "opencode", "model": "qwen3.8-flash-next", "hosted": false,
+      "label": "opencode + Qwen3.8 Flash Next + high-end-visual-design", "color": "#f4a261",
+      "skillConfig": "high-end-visual-design",
+      "skillSource": "Leonxlnx/taste-skill package (same lock file as taste-skill, but a different skill fired, per the transcript)",
+      "form": "Five static HTML pages (pages/1.html .. pages/5.html) served by a small Node HTTP server (server.js, plain node:http, no framework), \"/\" redirects to \"/1\"" }
+  ],
+  "results": [
+    { "arm": "design-skill", "metric": "wallMinutes", "value": 12.4, "note": "743.6 s, first message to last recorded token event" },
+    { "arm": "design-skill", "metric": "tokensOutput", "value": 37742 },
+    { "arm": "design-skill", "metric": "tokensInputUncached", "value": 48917 },
+    { "arm": "design-skill", "metric": "tokensCacheRead", "value": 437595 },
+    { "arm": "design-skill", "metric": "toolCalls", "value": 12, "note": "6 bash + 6 write" },
+    { "arm": "design-skill", "metric": "messages", "value": 14, "note": "1 user + 13 assistant; one user turn (combined skill + brief message), no follow-up prompts" },
+    { "arm": "design-skill", "metric": "pageCount", "value": 5 },
+
+    { "arm": "taste-skill", "metric": "wallMinutes", "value": 24.7, "note": "1,483.4 s, first message to last recorded token event" },
+    { "arm": "taste-skill", "metric": "tokensOutput", "value": 45018 },
+    { "arm": "taste-skill", "metric": "tokensInputUncached", "value": 354721 },
+    { "arm": "taste-skill", "metric": "tokensCacheRead", "value": 905050 },
+    { "arm": "taste-skill", "metric": "toolCalls", "value": 25, "note": "6 bash + 2 todowrite + 13 write + 4 edit" },
+    { "arm": "taste-skill", "metric": "messages", "value": 23, "note": "2 user + 21 assistant; two user turns (skill-load message, then the brief)" },
+    { "arm": "taste-skill", "metric": "pageCount", "value": 5 },
+
+    { "arm": "taste2", "metric": "wallMinutes", "value": 38.0, "note": "2,279.0 s, first message to last recorded token event" },
+    { "arm": "taste2", "metric": "tokensOutput", "value": 89922 },
+    { "arm": "taste2", "metric": "tokensInputUncached", "value": 464702 },
+    { "arm": "taste2", "metric": "tokensCacheRead", "value": 412103 },
+    { "arm": "taste2", "metric": "toolCalls", "value": 15, "note": "6 bash + 1 read + 7 write + 1 edit" },
+    { "arm": "taste2", "metric": "messages", "value": 19, "note": "4 user + 15 assistant; four user turns (skill-load message, the brief, an opencode auto-compaction bookkeeping event, and a \"continue if you have next steps\" nudge) — the only one of the three sessions with a compaction event" },
+    { "arm": "taste2", "metric": "pageCount", "value": 5 }
+  ]
+};
+
+const C = ChartsCommon;
+C.initTheme();
+
+// MODELS = arms + a derived tier/provider so the filter bar groups cleanly.
+// RESULTS = the tidy value records with a `model` alias for `arm`.
+const MODELS = DATA.arms.map(function (a) {
+  return Object.assign({}, a, { tier: a.hosted ? 'hosted' : 'local', provider: a.harness, chartLabel: a.skillConfig });
+});
+const RESULTS = DATA.results.map(function (r) { return Object.assign({ model: r.arm }, r); });
+
+const byId  = C.indexModels(MODELS);
+const state = C.createFilterState(MODELS);
+const val   = function (id, q) { return C.metricValue(RESULTS, id, q); };
+const note  = function (id, metric) {
+  var r = RESULTS.find(function (x) { return x.model === id && x.metric === metric; });
+  return r && r.note ? r.note : null;
+};
+
+const fmtNum = function (v) {
+  if (v === null || v === undefined) return null;
+  return Number.isInteger(v) ? v.toLocaleString('en-US') : v.toLocaleString('en-US', { maximumFractionDigits: 3 });
+};
+
+// Filter bar: a checkbox per run, plus section nav.
+C.createFilterBar(document.getElementById('filterBar'), state, {
+  checkboxModels: MODELS,
+  sections: [
+    { id: 'sec-control', label: 'Control' },
+    { id: 'sec-grid', label: 'The grid' },
+    { id: 'sec-board', label: 'Metrics' },
+    { id: 'sec-charts', label: 'Charts' }
+  ]
+});
+
+// ---- "varied" skill list -----------------------------------------------
+const skillList = document.getElementById('skillList');
+MODELS.forEach(function (m) {
+  var li = document.createElement('li');
+  li.innerHTML =
+    '<span class="skill-line"><span class="dot" style="background:' + m.color + '"></span>' +
+    '<span><code>' + m.skillConfig + '</code> &mdash; <b>' + m.id + '</b>. ' + m.skillSource + '.</span></span>';
+  skillList.appendChild(li);
+});
+
+// ---- link shapes (differ per arm; resolve on the published site) --------
+function linkFor(id, n) {
+  if (id === 'design-skill') return 'demos/layout/design-skill/' + n + '/';
+  if (id === 'taste-skill')  return 'demos/layout/taste-skill/' + n;
+  return 'demos/layout/taste2/' + n + '.html';               // taste2
+}
+
+// ---- arm rows: identity + metrics + 5 page cells ------------------------
+const METRIC_DEFS = [
+  { metric: 'wallMinutes', k: 'Wall time', unit: ' min' },
+  { metric: 'tokensOutput', k: 'Output tok' },
+  { metric: 'toolCalls', k: 'Tool calls' },
+  { metric: 'messages', k: 'Messages' },
+  { metric: 'pageCount', k: 'Pages' }
+];
+const armRows = document.getElementById('armRows');
+MODELS.forEach(function (m) {
+  var row = document.createElement('div');
+  row.className = 'arm-row';
+  row.dataset.modelId = m.id;
+  row.style.setProperty('--arm', m.color);
+
+  var metricsHtml = METRIC_DEFS.map(function (d) {
+    var v = val(m.id, { metric: d.metric });
+    var vHtml = (v === null || v === undefined)
+      ? '<span class="v dash">&mdash;</span>'
+      : '<span class="v">' + fmtNum(v) + (d.unit || '') + '</span>';
+    var n = note(m.id, d.metric);
+    return '<div class="metric">' + vHtml + '<span class="k">' + d.k + '</span>' +
+      (n ? '<span class="n">' + n + '</span>' : '') + '</div>';
+  }).join('');
+
+  var cells = '';
+  for (var n = 1; n <= 5; n++) {
+    var href = linkFor(m.id, n);
+    cells +=
+      '<a class="page-cell" href="' + href + '">' +
+        '<span class="page-thumb">' + n + '</span>' +
+        '<span class="page-meta"><span class="title">Iteration ' + n + '</span>' +
+        '<span class="path">' + href + '</span></span>' +
+      '</a>';
+  }
+
+  row.innerHTML =
+    '<div class="arm-head">' +
+      '<h3>Run: <span class="skill">' + m.skillConfig + '</span> <span style="color:var(--muted);font-weight:500;font-size:12.5px;">(' + m.id + ')</span></h3>' +
+      '<span class="stack">' + m.harness + ' &middot; ' + m.model + ' &middot; local</span>' +
+    '</div>' +
+    '<p class="arm-form"><b>Shipped form:</b> ' + m.form + '</p>' +
+    '<div class="arm-metrics">' + metricsHtml + '</div>' +
+    '<div class="page-strip">' + cells + '</div>' +
+    '<p class="arm-note">Links resolve on the published site; the five above take this arm&rsquo;s shape &mdash; <code>' + linkFor(m.id, 1) + '</code> &hellip; <code>' + linkFor(m.id, 5) + '</code>.</p>';
+  armRows.appendChild(row);
+});
+
+// Filter hides whole arm rows too.
+state.onChange(function (st) {
+  Array.prototype.forEach.call(armRows.children, function (row) {
+    row.style.display = st.isVisibleById(row.dataset.modelId) ? '' : 'none';
+  });
+});
+
+// ---- scoreboard ---------------------------------------------------------
+C.buildScoreboard(document.getElementById('scoreboard'), MODELS, RESULTS, [
+  { kind: 'num', query: { metric: 'wallMinutes' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'tokensOutput' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'tokensInputUncached' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'tokensCacheRead' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'toolCalls' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'messages' }, fmt: fmtNum },
+  { kind: 'num', query: { metric: 'pageCount' }, fmt: fmtNum }
+]);
+C.setupSortableTable('scoreboard');
+// No highlightBestPerColumn: "best" (max) is meaningless here.
+state.onChange(function () { C.applyTableFilter('scoreboard', state, {}); });
+
+// ---- charts -------------------------------------------------------------
+function dset(id, data, extra) {
+  return Object.assign({ modelId: id, label: byId.get(id).chartLabel, backgroundColor: byId.get(id).color, data: data }, extra || {});
+}
+
+C.buildGroupedChart('chartTime', {
+  state: state,
+  labels: ['Wall clock (min)'],
+  datasets: MODELS.map(function (m) { return dset(m.id, [val(m.id, { metric: 'wallMinutes' })]); }),
+  options: C.gridOpts('Minutes')
+});
+
+C.buildGroupedChart('chartTokens', {
+  state: state,
+  labels: ['Output tokens'],
+  datasets: MODELS.map(function (m) { return dset(m.id, [val(m.id, { metric: 'tokensOutput' })]); }),
+  options: C.gridOpts('Tokens')
+});
+
+C.bindLabelToggle(document.getElementById('toggleLabels'));
+</script>
+</body>
+</html>
