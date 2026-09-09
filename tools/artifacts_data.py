@@ -77,7 +77,7 @@ TAKE_LABEL = {"v1": "take 1", "v2": "take 2", "v3": "take 3", "animated": "anima
 # they are a ramp, not a categorical palette, and every row that carries a tone
 # also carries the model name, the family mark and the number in text.
 FAMILY_RAMP = {
-    "qwen": ("#00764f", "#019d7e", "#18c5b4"),
+    "qwen": ("#00764f", "#019d7e", "#18c5b4", "#004c1b"),
     "claude": ("#a04034", "#c66846", "#e9925f"),
     "gpt": ("#445dad", "#6e7ed4", "#9ca1f8"),
 }
@@ -106,7 +106,7 @@ TONE = {
     "opencode-qwen38": 1, "opencode-qwen38-superpowers": 2, "claude-qwen38": 0,
     "claude-opus5": 1, "codex-astra": 1,
     # layout-skill-bench arms: one model, one tone per design skill
-    "design-skill": 0, "taste-skill": 1, "taste2": 2,
+    "design-skill": 0, "taste-skill": 1, "taste2": 2, "vanilla": 3,
 }
 DEFAULT_TONE = 1
 FALLBACK_COLOR = FAMILY_RAMP["gpt"][DEFAULT_TONE]
@@ -443,8 +443,8 @@ def build_game(arms):
 
 # Per-arm page URL rule, copied verbatim from reports/layout-skill-bench.html.
 def page_for(arm_id, n):
-    if arm_id == "design-skill":
-        return "demos/layout/design-skill/%s/" % n
+    if arm_id in ("design-skill", "vanilla"):
+        return "demos/layout/%s/%s/" % (arm_id, n)
     if arm_id == "taste-skill":
         return "demos/layout/taste-skill/%s" % n
     return "demos/layout/taste2/%s.html" % n              # taste2

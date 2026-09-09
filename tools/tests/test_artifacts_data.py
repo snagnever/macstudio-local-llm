@@ -557,12 +557,13 @@ class TestSkills(unittest.TestCase):
     def test_skill_config_is_carried(self):
         self.assertEqual(self.s["arms"][0]["skillConfig"], "frontend-design")
 
-    def test_three_skill_arms_are_three_tones_of_one_family(self):
-        """All three arms are the same local model, so they share the Qwen hue
-        and take one tone each: one family at a glance, still told apart."""
+    def test_the_skill_arms_are_tones_of_one_family(self):
+        """Every arm here is a Qwen, so they share the hue and take one tone
+        each: one family at a glance, still told apart."""
         got = [a["color"] for a in self.s["arms"]]
-        self.assertEqual(got, list(ad.FAMILY_RAMP["qwen"]))
-        self.assertEqual(len(set(got)), 3)
+        self.assertEqual(len(set(got)), len(got))
+        for c in got:
+            self.assertIn(c, ad.FAMILY_RAMP["qwen"])
 
     def test_game_colour_is_the_family_ramp_not_the_arms_series_colour(self):
         """arms.json carries its own series colours for the other reports; this
