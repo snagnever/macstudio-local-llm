@@ -3,6 +3,11 @@
 > **Status:** closed. Source vendored, three self-reported STATS files copied, one
 > log-verified (`codex-astra`), `results/arms.json` populated and validated. This
 > feeds the comparison site (Task 7's dashboard).
+>
+> **Later addition (2026-09-08):** a fifth arm, `claude-qwen38` — Claude Code
+> driving the same local Qwen3.8 Flash Next — was processed into the campaign
+> from a session run on 2026-09-07 after the other four. This plan describes the
+> original four; `results/arms.json` and both reports carry all five.
 
 ## What this campaign compares
 
