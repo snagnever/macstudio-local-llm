@@ -367,6 +367,8 @@
   /* ---------- footer ---------- */
   footer { margin-top: 120px; padding: 54px 0 110px; border-top: 1px solid var(--hair-2); }
   footer p { margin: 0 0 14px; font-size: 16px; line-height: 1.68; color: var(--soft); }
+  .snote a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--hair); text-underline-offset: 3px; }
+  .snote a:hover { text-decoration-color: var(--ink); }
   footer a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--hair); text-underline-offset: 3px; }
   footer a:hover { text-decoration-color: var(--ink); }
 
@@ -1059,7 +1061,10 @@ var DATA = {"generated_at": "2026-09-08", "drawings": {"questions": [{"q": 7, "l
     "One local model ran the same brief three times. Only the loaded design skill changed " +
     "between the runs, and each run produced five iterations of the page. A row holds one " +
     "skill's five iterations, so the skill is what you compare; switch the grouping to read one " +
-    "iteration across the three skills.";
+    "iteration across the three skills. The prompt is not ours: it comes from " +
+    '<a href="https://whichai.dev/" rel="noopener">Which AI Made This?</a>, which runs it on ' +
+    "frontier models with and without a design skill. Open that site to read these local runs " +
+    "against the frontier ones.";
   /* The skill is what changed between runs, so a skill's five pages sit
      together and the iteration number is a caption. The other grouping —
      one iteration read across the three skills — stays a click away. */
