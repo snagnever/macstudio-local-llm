@@ -229,7 +229,7 @@
       Bases differ per row &mdash; the arms.json notes carry the detail; the load-bearing ones:
       <b>Tokens</b> &mdash; <code>codex-astra</code>&rsquo;s are a three-model, five-agent sum (see the caveat above), not comparable to the single-model arms; the stats-writing session is inside some arms&rsquo; totals and not others.
       <b>Wall time</b> &mdash; <code>opencode-qwen38</code> measures &ldquo;first file to final edit,&rdquo; the others &ldquo;first prompt to final report&rdquo;; <code>opencode-qwen38-superpowers</code>&rsquo;s wall clock includes a long laptop sleep, so its Active column is the fair read.
-      <b>Tests</b> &mdash; four different meanings: <code>opencode-qwen38</code>&rsquo;s 9 are custom CDP browser assertions, <code>opencode-qwen38-superpowers</code>&rsquo;s 65 are Vitest units, <code>codex-astra</code>&rsquo;s 50 are Vitest + Playwright, and <code>claude-opus5</code> used no unit-test framework (browser automation and a scripted autopilot instead), so its cell is a gap, not a zero.
+      <b>Tests</b> &mdash; five different meanings: <code>opencode-qwen38</code>&rsquo;s 9 are custom CDP browser assertions, <code>opencode-qwen38-superpowers</code>&rsquo;s 65 are Vitest units, <code>codex-astra</code>&rsquo;s 50 are Vitest + Playwright, and <code>claude-opus5</code> used no unit-test framework (browser automation and a scripted autopilot instead) and <code>claude-qwen38</code> used none at all, so those two cells are gaps, not zeros.
       <b>Source lines</b> &mdash; <code>codex-astra</code> reports tests separately; <code>opencode-qwen38-superpowers</code> folds a test file into its count.
       <b>Bundle</b> &mdash; <code>codex-astra</code>&rsquo;s raw KB is the whole dist folder (assets included), not the JS/CSS-only figure the others report, and it published no gzip number.
     </p>
@@ -265,7 +265,7 @@
     <p class="chart-cap"><code>opencode-qwen38-superpowers</code> ships the lightest bundle by hand-rolling physics; the two Rapier arms carry the WASM engine. <code>codex-astra</code> published no gzip figure, so its bar is a gap &mdash; its reported 5,836 KB is the whole dist folder with assets, a different measurement.</p>
   </section>
 
-  <h2 class="category-heading" id="sec-defects">The defects each arm caught <span class="hint">the sharpest content in the four records &mdash; how each stack found its hardest bug</span></h2>
+  <h2 class="category-heading" id="sec-defects">The defects each arm caught <span class="hint">the sharpest content in the five records &mdash; how each stack found its hardest bug</span></h2>
   <div class="defects" id="defectGrid"></div>
 
 </main>

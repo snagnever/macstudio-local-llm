@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Comparing tasks between Qwen3.8 Flash Next and frontier models</title>
-<meta name="description" content="Output from three benchmarks, side by side: graded SVGBench drawings, one 3D game built four times from one brief, and one landing page written five ways by one local model under three design skills.">
+<meta name="description" content="Output from three benchmarks, side by side: graded SVGBench drawings, one 3D game built five times from one brief, and one landing page written five ways by one local model under three design skills.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -345,8 +345,8 @@
 
   .tiles { display: grid; gap: var(--gap); align-items: start;
     grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); }
-  /* One control, three sizes. Strips grow taller; the game grid, whose four
-     screenshots share one ratio, goes from two across to one. */
+  /* One control, three sizes. Strips grow taller; the game grid, whose
+     screenshots all share one ratio, goes from two across to one. */
   body { --lead-h: min(430px, 46vh); }
   body[data-size="s"] { --lead-h: 300px; }
   body[data-size="l"] { --lead-h: min(580px, 62vh); }
@@ -764,25 +764,34 @@ var DATA = {"generated_at": "2026-09-08", "families": [{"key": "qwen", "color": 
   }
 
   /* The band under the headline: a few of the artifacts from each campaign,
-     moving past before the reader reaches them. One game clip plays — the rest
-     are the stills the page already loads — so the hero costs one video, not
-     four. Order alternates between campaigns so no two neighbours are alike. */
+     moving past before the reader reaches them. Three game clips play — the
+     rest are the stills the page already loads — so the hero costs three
+     videos, not one per arm. Order alternates between campaigns so no two
+     neighbours are alike. */
   (function () {
     var track = document.getElementById("teaseTrack");
     if (!track) return;
 
     var games = DATA.game.arms.map(function (a) {
-      return { src: a.shot, clip: a.clip, ar: 1.6, kind: "shot game", tag: a.short };
+      return { src: a.shot, clip: a.clip, ar: 1.6, kind: "shot game",
+               tag: a.short, model: a.model };
     });
-    // three of the four play, the local model's first: the hero costs three
-    // videos, not four, and the last game rides as the still already loaded
-    var PLAYS = 3, played = 0;
-    games.slice().sort(function (a, b) {
+    // Three of the games play: the hero costs three videos rather than one per
+    // arm, and the rest ride as stills. The local model goes first, then one
+    // game per model family, so the band never plays three of the same family
+    // while another never moves.
+    var PLAYS = 3, played = 0, fams = {};
+    var ordered = games.slice().sort(function (a, b) {
       return (/qwen/i.test(b.tag) ? 1 : 0) - (/qwen/i.test(a.tag) ? 1 : 0);
-    }).forEach(function (g) {
-      if (g.clip && played < PLAYS) played += 1;
-      else g.clip = "";
     });
+    ordered.forEach(function (g) {
+      var f = family(g.model);
+      if (g.clip && played < PLAYS && !fams[f]) { fams[f] = 1; played += 1; g.plays = true; }
+    });
+    ordered.forEach(function (g) {
+      if (g.clip && played < PLAYS && !g.plays) { played += 1; g.plays = true; }
+    });
+    games.forEach(function (g) { if (!g.plays) g.clip = ""; });
 
     // one drawing per stack, animated where the stack made one
     var seen = {}, draws = [];
@@ -1437,7 +1446,7 @@ var DATA = {"generated_at": "2026-09-08", "families": [{"key": "qwen", "color": 
       });
     });
     row(document.getElementById("gameRow"), "3D runner game",
-      "Four stacks, one session each, from an empty folder", group, "game");
+      "Five stacks, one session each, from an empty folder", group, "game");
   })();
 
   session("gameSession",
