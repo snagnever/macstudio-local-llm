@@ -99,6 +99,38 @@
   }
   .island .navsel:hover { background-color: rgba(27, 27, 24, .09); }
 
+  /* ---------- the teaser band ----------
+     Everything below, before the reader gets there: real artifacts moving past
+     at reading speed. It is decorative — every one of these appears again in
+     its own section — so it is hidden from screen readers and holds no links.
+     Hover stops it; a reader who asked for less motion never sees it move. */
+  .teaser {
+    margin: 40px 0 44px; overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  }
+  .track { display: flex; width: max-content; animation: slide 78s linear infinite; }
+  .teaser:hover .track { animation-play-state: paused; }
+  @keyframes slide { to { transform: translateX(-50%); } }
+  .tease {
+    flex: 0 0 auto; position: relative; margin-right: 16px;
+    height: var(--tease-h, clamp(158px, 20vh, 208px)); aspect-ratio: var(--ar, 1.6);
+    border-radius: 20px; overflow: hidden; background: var(--mat);
+    box-shadow: inset 0 0 0 1px var(--hair-2), 0 18px 34px -30px rgba(27, 27, 24, .5);
+  }
+  .tease img, .tease video { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .tease.shot img, .tease.shot video { object-fit: cover; object-position: center; }
+  /* a landing page is read from the top; a game is read from the middle */
+  .tease.page img { object-position: top center; }
+  /* a drawing is the artwork itself, so it is never cropped */
+  .tease.draw img { object-fit: contain; padding: 8px; }
+  .tease .tag {
+    position: absolute; left: 9px; bottom: 9px; z-index: 1;
+    font: 500 10.5px/1 var(--ui); color: var(--soft);
+    background: rgba(250, 250, 248, .86); padding: 5px 9px; border-radius: 999px;
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+
   /* ---------- masthead ---------- */
   header.mast { padding: 190px 0 0; }
   .eyebrow {
@@ -490,11 +522,14 @@
     body, body[data-size] { --lead-h: 210px; }
     .tiles.game { --cols: 1; }
     .tiles.lead { --lead-h: 200px; }
+    .teaser { margin: 30px 0 34px; }
+    .tease { --tease-h: 124px; margin-right: 12px; border-radius: 16px; }
     .session.is-collapsed .chart th { white-space: normal; max-width: 13ch; }
     .plate { border-radius: 24px; padding: 7px; }
     .mat { border-radius: 17px; }
   }
   @media (prefers-reduced-motion: reduce) {
+    .track { animation: none; }
     html { scroll-behavior: auto; }
     .rise { opacity: 1; transform: none; filter: none; }
     * { transition-duration: .01ms !important; animation-duration: .01ms !important; }
@@ -549,6 +584,11 @@
     <p class="disclaim">This was made for fun, without much scientific rigour &mdash; the artifacts
       will show you that. Do not take it too seriously, but I think it shows a good model running
       locally, and at a very good speed.</p>
+  </div>
+
+  <div class="teaser" aria-hidden="true"><div class="track" id="teaseTrack"></div></div>
+
+  <div class="read">
     <p class="lede"><span id="claimNums"></span> Its drawings and its game sit next to what
       hosted frontier models made from the same prompts, and they hold up. Judge them by eye:
       the scores are in each section,
@@ -710,6 +750,77 @@ var DATA = {"generated_at": "2026-09-08", "families": [{"key": "qwen", "color": 
     // an em dash value beside an em dash separator reads as one long dash
     return s + (m.value == null ? " (" + esc(m.note) + ")" : " &mdash; " + esc(m.note));
   }
+
+  /* The band under the headline: a few of the artifacts from each campaign,
+     moving past before the reader reaches them. One game clip plays — the rest
+     are the stills the page already loads — so the hero costs one video, not
+     four. Order alternates between campaigns so no two neighbours are alike. */
+  (function () {
+    var track = document.getElementById("teaseTrack");
+    if (!track) return;
+
+    var games = DATA.game.arms.map(function (a) {
+      return { src: a.shot, clip: a.clip, ar: 1.6, kind: "shot game", tag: a.short };
+    });
+    // the clip that plays is the local model's, the one the page is about
+    var playing = -1;
+    games.forEach(function (g, i) {
+      if (playing < 0 && g.clip && /qwen/i.test(g.tag)) playing = i;
+    });
+    games.forEach(function (g, i) { if (i !== playing) g.clip = ""; });
+
+    // one drawing per stack, animated where the stack made one
+    var seen = {}, draws = [];
+    DATA.drawings.questions.forEach(function (q) {
+      q.takes.forEach(function (t) {
+        if (!t.last || seen[t.pair]) return;
+        seen[t.pair] = true;
+        draws.push({ src: t.file, ar: t.aspect || 1.3333, kind: "draw", tag: t.model });
+      });
+    });
+
+    var pages = DATA.skills.arms.map(function (a) {
+      return { src: a.shots[1].src, ar: 1.6, kind: "shot page", tag: a.skillConfig };
+    });
+
+    // round-robin, so a drawing never follows a drawing
+    var lanes = [games, draws, pages], items = [], left = true;
+    while (left) {
+      left = false;
+      lanes.forEach(function (lane) {
+        if (lane.length) { items.push(lane.shift()); left = true; }
+      });
+    }
+    if (!items.length) return;
+
+    var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function tile(it) {
+      var d = el("div", "tease " + it.kind);
+      d.style.setProperty("--ar", it.ar);
+      var img = el("img");
+      img.src = it.src;
+      img.alt = "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      d.appendChild(img);
+      if (it.clip && !still) {
+        var v = document.createElement("video");
+        v.src = it.clip;
+        v.poster = it.src;
+        v.muted = true;
+        v.loop = true;
+        v.autoplay = true;
+        v.playsInline = true;
+        v.preload = "metadata";
+        d.appendChild(v);
+      }
+      if (it.tag) d.appendChild(el("span", "tag", esc(it.tag)));
+      return d;
+    }
+    // the list runs twice: the animation ends one copy along, so the loop joins
+    items.forEach(function (it) { track.appendChild(tile(it)); });
+    items.forEach(function (it) { track.appendChild(tile(it)); });
+  })();
 
   /* The headline is about size, so the sentence under it carries the size and
      where the model ran. Both come from the data block. */
