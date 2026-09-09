@@ -445,7 +445,7 @@ def build_families():
         {"key": "qwen", "color": FAMILY_RAMP["qwen"][1], "label": "Qwen, on the rig"},
         {"key": "claude", "color": FAMILY_RAMP["claude"][1], "label": "Claude, hosted"},
         {"key": "gpt", "color": FAMILY_RAMP["gpt"][1],
-         "label": "GPT family: gpt-5.6-terra on the rig, gpt-6-astra hosted"},
+         "label": "OpenAI: gpt-5.6-terra on the rig, gpt-6-astra hosted"},
     ]
 
 
