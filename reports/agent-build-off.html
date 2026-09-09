@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agent Build-Off — four stacks, one brief</title>
-<meta name="description" content="Four coding-agent stacks built the same 3D runner game from an empty folder on the same brief, one session each. Figures come from bench/agent-build-off/results/arms.json; uncollected metrics render as gaps, and the page states what is not comparable.">
+<title>Agent Build-Off — five stacks, one brief</title>
+<meta name="description" content="Five coding-agent stacks built the same 3D runner game from an empty folder on the same brief, one session each. Figures come from bench/agent-build-off/results/arms.json; uncollected metrics render as gaps, and the page states what is not comparable.">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script src="charts-common.js"></script>
@@ -147,10 +147,10 @@
 
 <header>
   <div class="top">
-    <h1>Agent Build-Off &mdash; four stacks, one brief</h1>
+    <h1>Agent Build-Off &mdash; five stacks, one brief</h1>
     <label class="toggle"><input type="checkbox" id="toggleLabels" checked /> Show data labels</label>
   </div>
-  <p class="sub">Four coding-agent stacks were handed the <strong>same verbatim brief</strong> and each built the same 3D runner game from an empty folder, in one session, in parallel, on 2026-09-07. The question this page answers: same brief, one session, from nothing &mdash; what does each stack deliver? Every number here comes from <code>bench/agent-build-off/results/arms.json</code>, the single source; a metric that was not collected renders as a gap (&mdash;), never as zero. These arms are <strong>not ranked</strong>: several of the columns below are not comparable across rows, and the page says where.</p>
+  <p class="sub">Five coding-agent stacks were handed the <strong>same verbatim brief</strong> and each built the same 3D runner game from an empty folder, in one session &mdash; four of them in parallel on 2026-09-07, and <code>claude-qwen38</code> later the same day. The question this page answers: same brief, one session, from nothing &mdash; what does each stack deliver? Every number here comes from <code>bench/agent-build-off/results/arms.json</code>, the single source; a metric that was not collected renders as a gap (&mdash;), never as zero. These arms are <strong>not ranked</strong>: several of the columns below are not comparable across rows, and the page says where.</p>
   <blockquote class="brief-quote">&ldquo;You are going to create a complete and impressive 3D demo runner game, using modules and libraries to reduce the need of new code&hellip; Select the stack based on easiness to implement a functional demo on reduced time. Question me for decisions and ambiguities while creating the plan. &mdash; SAVE a detailed SPEC AND PLAN to SPEC.md and PLAN.md&hellip; Create an AGENTS.md&hellip;&rdquo; &mdash; the brief, given word-for-word to all four arms.</blockquote>
 </header>
 
@@ -159,7 +159,7 @@
 <main>
   <noscript><p style="grid-column:1/-1">This page renders its charts and scoreboard from an inline data object &mdash; enable JavaScript to see them.</p></noscript>
 
-  <h2 class="category-heading" id="sec-arms">The four arms <span class="hint">who ran, on what, and each arm&rsquo;s own caveat &mdash; press Play to open the built demo</span></h2>
+  <h2 class="category-heading" id="sec-arms">The five arms <span class="hint">who ran, on what, and each arm&rsquo;s own caveat &mdash; press Play to open the built demo</span></h2>
   <div class="arm-grid" id="armGrid"></div>
 
   <h2 class="category-heading" id="sec-notcomparable">What is not comparable <span class="hint">read these before the scoreboard, not as footnotes</span></h2>
@@ -171,12 +171,12 @@
     </div>
     <div class="caveat">
       <h3>The arms disagree on what the token totals count</h3>
-      <p>Each arm decides differently whether the later session that <i>wrote its stats file</i> is inside its own token totals: <code>codex-astra</code> excludes it, <code>opencode-qwen38</code> excludes it, <code>opencode-qwen38-superpowers</code> includes it, and <code>claude-opus5</code> does not say.</p>
+      <p>Each arm decides differently whether the later session that <i>wrote its stats file</i> is inside its own token totals: <code>codex-astra</code> excludes it, <code>opencode-qwen38</code> excludes it, <code>opencode-qwen38-superpowers</code> includes it, <code>claude-qwen38</code> includes it, and <code>claude-opus5</code> does not say.</p>
       <p>Each arm&rsquo;s own answer is printed on its card above, beside its token figures.</p>
     </div>
     <div class="caveat">
       <h3>codex-astra reported in Portuguese</h3>
-      <p>Its STATS.md is written in Portuguese; the other three are in English, with different section headings. This page&rsquo;s own copy is English.</p>
+      <p>Its STATS.md is written in Portuguese; the other four are in English, with different section headings. This page&rsquo;s own copy is English.</p>
       <p>But every <b>figure</b> below is the arm&rsquo;s own number, translated into the data, not re-measured.</p>
     </div>
   </div>
@@ -184,16 +184,16 @@
   <div class="card wide limits">
     <h2>The other limits</h2>
     <ul>
-      <li><b>The two local arms cost nothing to run and took far longer.</b> <code>opencode-qwen38</code> took 90 minutes; <code>opencode-qwen38-superpowers</code> spans an 11-hour raw clock (682.33 min, including a mid-task laptop sleep), of which 109.3 min &mdash; about 1 h 49 m &mdash; is active time. The two hosted arms finished in well under an hour but bill for their tokens.</li>
-      <li><b><code>opencode-qwen38-superpowers</code> ran with a skills library the others lacked.</b> Its session invoked brainstorming, writing-plans, TDD, systematic-debugging and more &mdash; a head start on process the other three did not have.</li>
-      <li><b>Only <code>codex-astra</code> has a measured frame rate</b> &mdash; 60.00 fps mean over a two-minute desktop sample. The other three record frame rate as not collected. That is a gap in <i>their</i> verification, not a win to credit to this arm.</li>
+      <li><b>The three local arms cost nothing to run and took far longer.</b> <code>opencode-qwen38</code> took 90 minutes; <code>claude-qwen38</code> 144 minutes on a clock still running when its numbers were read; <code>opencode-qwen38-superpowers</code> spans an 11-hour raw clock (682.33 min, including a mid-task laptop sleep), of which 109.3 min &mdash; about 1 h 49 m &mdash; is active time. The two hosted arms finished in well under an hour but bill for their tokens.</li>
+      <li><b><code>opencode-qwen38</code> is the only arm without the superpowers skill library.</b> Its opencode sibling invoked brainstorming, writing-plans, TDD and systematic-debugging; the operator states the two hosted arms had the library loaded too, and <code>claude-qwen38</code>&rsquo;s transcript carries it, though that session invoked no skill through the Skill tool. The plain-versus-superpowers contrast therefore lives in the two opencode arms, not across the board.</li>
+      <li><b>Only <code>codex-astra</code> has a measured frame rate</b> &mdash; 60.00 fps mean over a two-minute desktop sample. The other four record frame rate as not collected. That is a gap in <i>their</i> verification, not a win to credit to this arm.</li>
       <li><b><code>hyper-runner-fable</code> never ran and is absent</b> from this comparison entirely.</li>
     </ul>
   </div>
 
   <h2 class="category-heading" id="sec-board">The scoreboard <span class="hint">every shared metric, sortable &mdash; click a header; gaps are uncollected metrics, not zeros</span></h2>
   <div class="card wide">
-    <h2>All metrics, all four arms</h2>
+    <h2>All metrics, all five arms</h2>
     <p class="sub">Every value is from <code>bench/agent-build-off/results/arms.json</code>. Click any column header to re-rank; double-click to reset. There is <strong>no green &ldquo;best&rdquo; highlight</strong>: more tokens or more lines is not &ldquo;better,&rdquo; and most columns are not like-for-like across rows (see the per-column notes below the table).</p>
     <div class="scoreboard-wrap">
       <table class="scoreboard" id="scoreboard">
@@ -286,13 +286,11 @@ const DATA = {
     { "id": "opencode-qwen38", "harness": "opencode", "model": "qwen3.8-flash-next", "hosted": false,
       "label": "opencode + Qwen3.8 Flash Next (local)", "color": "#2a9d8f",
       "sourceFolder": "~/LocalProjects/hyper-runner", "statsSessionIncluded": false,
-      "statsSessionNote": "Its own STATS.md states: \"Figures exclude the two later prompts that wrote this file.\"",
-      "multiModel": false },
+      "statsSessionNote": "Its own STATS.md states: \"Figures exclude the two later prompts that wrote this file.\"", "multiModel": false },
     { "id": "opencode-qwen38-superpowers", "harness": "opencode", "model": "qwen3.8-flash-next", "hosted": false,
       "label": "opencode + Qwen3.8 Flash Next + superpowers (local)", "color": "#52b788",
       "sourceFolder": "~/LocalProjects/hyper-runner-superpowers", "statsSessionIncluded": true,
-      "statsSessionNote": "Its own STATS.md states: \"Totals were read while this stats request was running, so they include it.\" This arm additionally had the superpowers skill library available; the other three did not.",
-      "multiModel": false },
+      "statsSessionNote": "Its own STATS.md states: \"Totals were read while this stats request was running, so they include it.\"", "multiModel": false },
     { "id": "claude-opus5", "harness": "claude", "model": "claude-opus-5", "hosted": true,
       "label": "Claude + Opus 5", "color": "#e76f51",
       "sourceFolder": "~/LocalProjects/hyper-runner-claude", "statsSessionIncluded": null,
@@ -300,9 +298,11 @@ const DATA = {
     { "id": "codex-astra", "harness": "codex", "model": "gpt-6-astra", "hosted": true,
       "label": "Codex + gpt-6-astra (multi-model)", "color": "#f4a261",
       "sourceFolder": "~/LocalProjects/hyper-runner-astra", "statsSessionIncluded": false,
-      "statsSessionNote": "Its own STATS.md states plainly it excludes the session that wrote the file. A verification pass against the Codex session logs found the excluded-session explanation accounts for the direction of a self-report/log gap but not its full size (see results/codex-astra.md).",
-      "multiModel": true,
-      "multiModelNote": "This arm's ~18.6M-token total spans THREE models (gpt-6-astra, gpt-5.6-sol, codex-auto-review) across FIVE delegated agents running partly in parallel. The other three arms each ran a single model in a single agent. codex-astra's token total is therefore NOT comparable to the other three arms' totals." }
+      "statsSessionNote": "Its own STATS.md states plainly it excludes the session that wrote the file (\"O relatório não inclui os tokens usados para criar este arquivo.\"). A verification pass against the Codex session logs found the excluded-session explanation accounts for the direction of a self-report/log gap but not its full size (see results/codex-astra.md).", "multiModel": true },
+    { "id": "claude-qwen38", "harness": "claude", "model": "qwen3.8-flash-next", "hosted": false,
+      "label": "Claude Code + Qwen3.8 Flash Next (local)", "color": "#146b5b",
+      "sourceFolder": "~/LocalProjects/hyper-runner-qwen-cc", "statsSessionIncluded": true,
+      "statsSessionNote": "Its own STATS.md counts the stats request as one of its six user prompts and runs its wall clock to the extraction moment, so the session that wrote the file is inside its own totals.", "multiModel": false }
   ],
   "results": [
     { "arm": "opencode-qwen38", "metric": "wallMinutes", "value": 90 },
@@ -325,7 +325,6 @@ const DATA = {
     { "arm": "opencode-qwen38", "metric": "testsPassing", "value": 9 },
     { "arm": "opencode-qwen38", "metric": "defectsFound", "value": 8 },
     { "arm": "opencode-qwen38", "metric": "meanFps", "value": null },
-
     { "arm": "opencode-qwen38-superpowers", "metric": "wallMinutes", "value": 682.33 },
     { "arm": "opencode-qwen38-superpowers", "metric": "activeMinutes", "value": 109.3 },
     { "arm": "opencode-qwen38-superpowers", "metric": "tokensOutput", "value": 285431 },
@@ -346,7 +345,6 @@ const DATA = {
     { "arm": "opencode-qwen38-superpowers", "metric": "testsPassing", "value": 65 },
     { "arm": "opencode-qwen38-superpowers", "metric": "defectsFound", "value": 6 },
     { "arm": "opencode-qwen38-superpowers", "metric": "meanFps", "value": null },
-
     { "arm": "claude-opus5", "metric": "wallMinutes", "value": 41.9 },
     { "arm": "claude-opus5", "metric": "activeMinutes", "value": null },
     { "arm": "claude-opus5", "metric": "tokensOutput", "value": 240076 },
@@ -367,7 +365,6 @@ const DATA = {
     { "arm": "claude-opus5", "metric": "testsPassing", "value": null },
     { "arm": "claude-opus5", "metric": "defectsFound", "value": 5 },
     { "arm": "claude-opus5", "metric": "meanFps", "value": null },
-
     { "arm": "codex-astra", "metric": "wallMinutes", "value": 67 },
     { "arm": "codex-astra", "metric": "activeMinutes", "value": null },
     { "arm": "codex-astra", "metric": "tokensOutput", "value": 98882 },
@@ -387,7 +384,27 @@ const DATA = {
     { "arm": "codex-astra", "metric": "buildSeconds", "value": null },
     { "arm": "codex-astra", "metric": "testsPassing", "value": 50 },
     { "arm": "codex-astra", "metric": "defectsFound", "value": null },
-    { "arm": "codex-astra", "metric": "meanFps", "value": 60.00 }
+    { "arm": "codex-astra", "metric": "meanFps", "value": 60.0 },
+    { "arm": "claude-qwen38", "metric": "wallMinutes", "value": 144 },
+    { "arm": "claude-qwen38", "metric": "activeMinutes", "value": null },
+    { "arm": "claude-qwen38", "metric": "tokensOutput", "value": 149235 },
+    { "arm": "claude-qwen38", "metric": "tokensInputUncached", "value": 3538572 },
+    { "arm": "claude-qwen38", "metric": "tokensCacheRead", "value": 3194985 },
+    { "arm": "claude-qwen38", "metric": "tokensReasoning", "value": null },
+    { "arm": "claude-qwen38", "metric": "userPrompts", "value": 6 },
+    { "arm": "claude-qwen38", "metric": "questionsAsked", "value": 4 },
+    { "arm": "claude-qwen38", "metric": "toolCalls", "value": 127 },
+    { "arm": "claude-qwen38", "metric": "sourceLines", "value": 2135 },
+    { "arm": "claude-qwen38", "metric": "sourceFiles", "value": 19 },
+    { "arm": "claude-qwen38", "metric": "docLines", "value": 343 },
+    { "arm": "claude-qwen38", "metric": "directDeps", "value": 3 },
+    { "arm": "claude-qwen38", "metric": "installedPackages", "value": 15 },
+    { "arm": "claude-qwen38", "metric": "bundleRawKB", "value": 6868.46 },
+    { "arm": "claude-qwen38", "metric": "bundleGzipKB", "value": 1516.54 },
+    { "arm": "claude-qwen38", "metric": "buildSeconds", "value": 35.5 },
+    { "arm": "claude-qwen38", "metric": "testsPassing", "value": null },
+    { "arm": "claude-qwen38", "metric": "defectsFound", "value": 7 },
+    { "arm": "claude-qwen38", "metric": "meanFps", "value": null }
   ]
 };
 

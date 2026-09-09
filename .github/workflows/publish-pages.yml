@@ -35,7 +35,7 @@ jobs:
       - name: Build the Agent Build-Off demos
         run: |
           set -euo pipefail
-          for arm in opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra; do
+          for arm in opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra claude-qwen38; do
             echo "::group::$arm"
             pushd "bench/agent-build-off/demos/$arm"
             npm ci
@@ -60,7 +60,7 @@ jobs:
           mkdir -p site/demos/build-off site/demos/layout
           cp -R reports/. site/
           touch site/.nojekyll
-          for arm in opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra; do
+          for arm in opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra claude-qwen38; do
             cp -R "bench/agent-build-off/demos/$arm/dist" "site/demos/build-off/$arm"
           done
           cp -R bench/layout-skill-bench/demos/taste-skill/dist site/demos/layout/taste-skill
@@ -105,7 +105,7 @@ jobs:
           test -f site/harness-matrix-svgbench.html
           test -f site/artifacts.html
           test -f site/charts-common.js
-          for arm in opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra; do
+          for arm in opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra claude-qwen38; do
             test -f "site/demos/build-off/$arm/index.html"
           done
           for arm in design-skill taste-skill taste2; do

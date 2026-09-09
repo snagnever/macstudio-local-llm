@@ -103,7 +103,7 @@ TONE = {
     "claude-opus-5": 1, "claude-opus-4-8": 0, "fable-5-1": 2,
     "gpt-5.6-terra": 1,
     # agent-build-off arms: one model, one arm adds the superpowers skills
-    "opencode-qwen38": 1, "opencode-qwen38-superpowers": 2,
+    "opencode-qwen38": 1, "opencode-qwen38-superpowers": 2, "claude-qwen38": 0,
     "claude-opus5": 1, "codex-astra": 1,
     # layout-skill-bench arms: one model, one tone per design skill
     "design-skill": 0, "taste-skill": 1, "taste2": 2,

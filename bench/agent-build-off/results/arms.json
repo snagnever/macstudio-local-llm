@@ -1,6 +1,6 @@
 {
   "campaign": "agent-build-off",
-  "description": "Four coding-agent stacks, the same verbatim brief, each building the same 3D game from an empty folder in one session, in parallel, on 2026-09-07 (2026-09-06 BRT evening for codex-astra). Source vendored under demos/<arm>; per-arm self-reports under results/<arm>.md; this file is the single source of numbers for the dashboard.",
+  "description": "Five coding-agent stacks, the same verbatim brief, each building the same 3D game from an empty folder in one session, in parallel, on 2026-09-07 (2026-09-06 BRT evening for codex-astra; claude-qwen38 ran later the same day, after the first four). Source vendored under demos/<arm>; per-arm self-reports under results/<arm>.md; this file is the single source of numbers for the dashboard.",
   "brief": "You are going to create a complete and impressive 3D demo runner game, using modules and libraries to reduce the need of new code. You should search the web for most updated information, stack and best practices. Select the stack based on easiness to implement a functional demo on reduced time. Question me for decisions and ambiguities while creating the plan.\n\n- SAVE a detailed SPEC AND PLAN to SPEC.md and PLAN.md on the folder before building\n- Create an AGENTS.md explaining the repo objective, poiting to both PLAN and SPEC files",
   "arms": [
     {
@@ -97,6 +97,30 @@
         "source": "bench/agent-build-off/results/codex-astra.md"
       },
       "short": "gpt-6-astra"
+    },
+    {
+      "id": "claude-qwen38",
+      "harness": "claude",
+      "model": "qwen3.8-flash-next",
+      "hosted": false,
+      "label": "Claude Code + Qwen3.8 Flash Next (local)",
+      "color": "#146b5b",
+      "sourceFolder": "~/LocalProjects/hyper-runner-qwen-cc",
+      "statsSessionIncluded": true,
+      "statsSessionNote": "Its own STATS.md counts the stats request as one of its six user prompts and runs its wall clock to the extraction moment, so the session that wrote the file is inside its own totals.",
+      "multiModel": false,
+      "skills": [
+        "superpowers"
+      ],
+      "config": {
+        "harness": "Claude Code",
+        "harnessVersion": null,
+        "modelId": "ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit",
+        "runtime": "served locally on the rig, MLX proxy, variant xhigh",
+        "effort": "xhigh",
+        "source": "bench/agent-build-off/results/claude-qwen38.md"
+      },
+      "short": "Qwen3.8 on Claude Code"
     }
   ],
   "results": [
@@ -547,9 +571,126 @@
       "metric": "meanFps",
       "value": 60.0,
       "note": "mean over a 125.076 s desktop sample, Chromium 153, 1440×900, Apple M5 Pro through ANGLE Metal; codex-astra is the only one of the four arms with a measured frame rate — a gap in the other three arms' verification, not a win to credit to this one"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "wallMinutes",
+      "value": 144,
+      "note": "14:13:06–16:37 UTC, first prompt to extraction, ≈ 2 h 24 min. The report calls the session \"still open at extraction\" and its own compaction table lists rollovers at 16:46 and 17:08 UTC, after the end it quotes, so this span is a snapshot and includes the stats investigation from 16:28 on."
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "activeMinutes",
+      "value": null,
+      "note": "not separated; the report gives only a phase split it calls rough — planning and research 15 min, documentation 1 min, code, builds and fixes ≈ 70 min"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "tokensOutput",
+      "value": 149235,
+      "note": "134,933 main session + 14,302 planning subagent; deduplicated by message id, keeping the maximum usage seen per id"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "tokensInputUncached",
+      "value": 3538572,
+      "note": "3,524,225 main + 14,347 subagent"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "tokensCacheRead",
+      "value": 3194985,
+      "note": "3,188,860 main + 6,125 subagent; cache creation is 0 because the local proxy never reports it"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "tokensReasoning",
+      "value": null,
+      "note": "not stated; this arm's Tokens table has no reasoning row"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "userPrompts",
+      "value": 6,
+      "note": "includes the prompt that requested the stats file"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "questionsAsked",
+      "value": 4,
+      "note": "one AskUserQuestion round of four questions, all answered with the recommended option"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "toolCalls",
+      "value": 127,
+      "note": "124 main session + 3 in the planning subagent, deduplicated by call id"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "sourceLines",
+      "value": 2135,
+      "note": "src/*.ts 1,824 + hud.css 246 + index.html 65"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "sourceFiles",
+      "value": 19
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "docLines",
+      "value": 343,
+      "note": "SPEC.md 181, PLAN.md 90, AGENTS.md 72"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "directDeps",
+      "value": 3,
+      "note": "1 runtime + 2 dev in package.json; the arm's STATS.md says \"3 runtime + 2 dev\", which its own Libraries table does not support"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "installedPackages",
+      "value": 15,
+      "note": "packages under node_modules on the rig; the arm's STATS.md says 20, and package-lock.json lists 66 entries, most of them platform binaries that are never installed"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "bundleRawKB",
+      "value": 6868.46,
+      "note": "dist/assets/index-*.js; the build warns about chunk size because all of @babylonjs/core is imported"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "bundleGzipKB",
+      "value": 1516.54
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "buildSeconds",
+      "value": 35.5
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "testsPassing",
+      "value": null,
+      "note": "no test framework was used; five plan items marked [browser] were never executed"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "defectsFound",
+      "value": 7,
+      "note": "found during the arm's own verification and fixed, including three that a type check alone would not have caught"
+    },
+    {
+      "arm": "claude-qwen38",
+      "metric": "meanFps",
+      "value": null,
+      "note": "not collected; the report lists sustained 60 fps under Not verified"
     }
   ],
   "configNote": "Run configuration for each arm, transcribed from that arm's own report named in `source`. A field the report does not state is null, never guessed; none of these reports records a reasoning effort or thinking level.",
   "shortNote": "A short display name for each arm, for chart rows and other narrow places. It names the same arm as `label`; it measures nothing.",
-  "skillsNote": "`skills` lists the skill libraries loaded in that arm's session. Three of the four ran with superpowers; opencode-qwen38 is the arm without it. Stated by the operator on 2026-09-08; the per-arm reports do not record it."
+  "skillsNote": "`skills` lists the skill libraries loaded in that arm's session. Four of the five ran with superpowers; opencode-qwen38 is the arm without it. For the first four the operator stated it on 2026-09-08 and the per-arm reports do not record it; for claude-qwen38 the session transcript carries the library, though the build session invoked no skill through the Skill tool."
 }

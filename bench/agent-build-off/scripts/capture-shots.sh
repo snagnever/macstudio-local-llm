@@ -34,7 +34,7 @@ PORT="${PORT:-$(python3 -c 'import socket;s=socket.socket();s.bind(("",0));print
 BUDGET_MS="${BUDGET_MS:-10000}"
 MAX_BYTES=$((300 * 1024))
 
-ALL_ARMS=(opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra)
+ALL_ARMS=(opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra claude-qwen38)
 if [ "$#" -gt 0 ]; then ARMS=("$@"); else ARMS=("${ALL_ARMS[@]}"); fi
 
 [ -x "$CHROME" ] || { echo "no headless Chrome at $CHROME" >&2; exit 1; }

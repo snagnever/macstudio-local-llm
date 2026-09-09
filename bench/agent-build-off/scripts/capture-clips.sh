@@ -71,7 +71,7 @@ CRF_LADDER=(23 26 29 32 35 38)
 # Mean inter-frame luma difference below this is compression noise, not motion.
 MIN_MOTION="${MIN_MOTION:-0.5}"
 
-ALL_ARMS=(opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra)
+ALL_ARMS=(opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra claude-qwen38)
 if [ "$#" -gt 0 ]; then ARMS=("$@"); else ARMS=("${ALL_ARMS[@]}"); fi
 
 # What starts each game, read out of its own source rather than guessed:
@@ -82,12 +82,15 @@ if [ "$#" -gt 0 ]; then ARMS=("$@"); else ARMS=("${ALL_ARMS[@]}"); fi
 #   claude-opus5                 src/ui/Overlays.tsx renders the START RUN button
 #                                as button.primary inside the menu .panel.
 #   codex-astra                  src/ui.ts renders <button data-action="start">Start run</button>.
+#   claude-qwen38                index.html renders <button id="btn-start">START RUN</button>;
+#                                src/game.ts starts the run on the 'confirm' or 'tap' intent.
 start_input() {
   case "$1" in
     opencode-qwen38) echo 'key:Enter' ;;
     opencode-qwen38-superpowers) echo 'key:Enter' ;;
     claude-opus5) echo 'click:.panel button.primary' ;;
     codex-astra) echo 'click:[data-action="start"]' ;;
+    claude-qwen38) echo 'click:#btn-start' ;;
     *) echo '' ;;
   esac
 }
