@@ -164,9 +164,10 @@ class TestDrawings(unittest.TestCase):
 
     def test_pairs_carry_label_colour_and_hosting(self):
         by = {p["key"]: p for p in self.d["pairs"]}
-        self.assertEqual(by["opencode/qwen3.8-flash-next"]["color"], "#2a9d8f")
-        self.assertEqual(by["claude/claude-opus-5"]["color"], "#e76f51")
-        self.assertEqual(by["opencode/gpt-5.6-terra"]["color"], "#5c6f8a")
+        # hue by family, tone by model inside it
+        self.assertEqual(by["opencode/qwen3.8-flash-next"]["color"], ad.FAMILY_RAMP["qwen"][1])
+        self.assertEqual(by["claude/claude-opus-5"]["color"], ad.FAMILY_RAMP["claude"][1])
+        self.assertEqual(by["opencode/gpt-5.6-terra"]["color"], ad.FAMILY_RAMP["gpt"][1])
         self.assertIs(by["claude/claude-opus-5"]["hosted"], True)
         self.assertIs(by["opencode/qwen3.8-flash-next"]["hosted"], False)
 
@@ -283,6 +284,58 @@ class TestAspect(unittest.TestCase):
         self.assertAlmostEqual(ad.aspect_of(p), 4 / 3)
 
 
+class TestTakeRank(unittest.TestCase):
+    """The page reads a take chain first to last, so every take carries the
+    order it was made in and never re-derives the rule in JavaScript."""
+
+    def setUp(self):
+        self.d = ad.build_drawings(SCORES)
+
+    def test_every_take_carries_its_rank(self):
+        for q in self.d["questions"]:
+            for t in q["takes"]:
+                self.assertEqual(t["rank"], ad.TAKE_RANK[t["take"]])
+
+    def test_rank_sorts_a_chain_first_to_last(self):
+        takes = [t for q in self.d["questions"] for t in q["takes"]]
+        chain = [t for t in takes if t["pair"] == "opencode/qwen3.8-flash-next"]
+        chain.sort(key=lambda t: t["rank"])
+        self.assertEqual([t["take"] for t in chain][:1], ["v1"])
+        self.assertGreaterEqual(chain[-1]["rank"], chain[0]["rank"])
+
+
+class TestFamilyColour(unittest.TestCase):
+    """Hue by model family, tone by stack inside it."""
+
+    def test_family_of_maps_every_model_in_the_campaigns(self):
+        self.assertEqual(ad.family_of("qwen3.8-flash-next"), "qwen")
+        self.assertEqual(ad.family_of("claude-opus-5"), "claude")
+        self.assertEqual(ad.family_of("fable-5-1"), "claude")
+        self.assertEqual(ad.family_of("gpt-5.6-terra"), "gpt")
+        self.assertEqual(ad.family_of("gpt-6-astra"), "gpt")
+
+    def test_an_unknown_model_still_gets_a_colour(self):
+        self.assertIn(ad.color_for("something-new"), ad.FAMILY_RAMP["gpt"])
+
+    def test_two_stacks_of_one_model_share_the_hue_and_differ_by_tone(self):
+        plain = ad.color_for("qwen3.8-flash-next", "opencode-qwen38")
+        powered = ad.color_for("qwen3.8-flash-next", "opencode-qwen38-superpowers")
+        self.assertNotEqual(plain, powered)
+        self.assertIn(plain, ad.FAMILY_RAMP["qwen"])
+        self.assertIn(powered, ad.FAMILY_RAMP["qwen"])
+
+    def test_an_unknown_variant_falls_back_to_the_models_own_tone(self):
+        self.assertEqual(ad.color_for("claude-opus-5", "no-such-arm"),
+                         ad.color_for("claude-opus-5"))
+
+    def test_families_legend_is_one_row_per_family(self):
+        fams = ad.build_families()
+        self.assertEqual([f["key"] for f in fams], ["qwen", "claude", "gpt"])
+        for f in fams:
+            self.assertEqual(f["color"], ad.FAMILY_RAMP[f["key"]][1])
+            self.assertTrue(f["label"])
+
+
 class TestSelfJudged(unittest.TestCase):
     """The judge drew some of what it judged; the page marks those drawings."""
 
@@ -355,7 +408,7 @@ class TestGame(unittest.TestCase):
 
     def test_arm_keeps_identity_and_colour(self):
         a = self.g["arms"][0]
-        self.assertEqual(a["color"], "#2a9d8f")
+        self.assertEqual(a["color"], ad.FAMILY_RAMP["qwen"][1])
         self.assertIs(a["hosted"], False)
         self.assertEqual(a["label"], "opencode + Qwen3.8 Flash Next (local)")
 
@@ -403,14 +456,19 @@ class TestSkills(unittest.TestCase):
     def test_skill_config_is_carried(self):
         self.assertEqual(self.s["arms"][0]["skillConfig"], "frontend-design")
 
-    def test_colour_comes_from_the_model_not_the_arms_series_colour(self):
-        """All three arms are the same local model, and the legend reads the
-        colour as who ran it, so all three paint Qwen's colour."""
-        self.assertEqual([a["color"] for a in self.s["arms"]], ["#2a9d8f"] * 3)
+    def test_three_skill_arms_are_three_tones_of_one_family(self):
+        """All three arms are the same local model, so they share the Qwen hue
+        and take one tone each: one family at a glance, still told apart."""
+        got = [a["color"] for a in self.s["arms"]]
+        self.assertEqual(got, list(ad.FAMILY_RAMP["qwen"]))
+        self.assertEqual(len(set(got)), 3)
 
-    def test_game_arms_keep_their_own_series_colour(self):
+    def test_game_colour_is_the_family_ramp_not_the_arms_series_colour(self):
+        """arms.json carries its own series colours for the other reports; this
+        page paints the family ramp so two arms of one model read as one hue."""
         g = ad.build_game(GAME)
-        self.assertEqual([a["color"] for a in g["arms"]], ["#2a9d8f", "#f4a261"])
+        self.assertEqual([a["color"] for a in g["arms"]],
+                         [ad.FAMILY_RAMP["qwen"][1], ad.FAMILY_RAMP["gpt"][1]])
 
 
 class TestBlock(unittest.TestCase):
@@ -460,7 +518,8 @@ class TestBlock(unittest.TestCase):
 class TestBuildAll(unittest.TestCase):
     def test_top_level_shape(self):
         data = ad.build_all(SCORES, GAME, SKILLS)
-        self.assertEqual(sorted(data.keys()), ["drawings", "game", "generated_at", "skills"])
+        self.assertEqual(sorted(data.keys()),
+                         ["drawings", "families", "game", "generated_at", "skills"])
         self.assertTrue(data["generated_at"])
 
     def test_serialises_without_surrogates_or_nan(self):

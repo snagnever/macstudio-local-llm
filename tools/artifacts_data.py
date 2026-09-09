@@ -55,14 +55,46 @@ TAKE_LABEL = {"v1": "take 1", "v2": "take 2", "v3": "take 3", "animated": "anima
 # Contestant colours, from the design, and the page's legend reads them as who
 # ran the artifact. Drawings and layout arms colour by model family; the
 # build-off arms carry their own colour in arms.json and it already agrees.
-MODEL_COLOR = (
-    ("qwen", "#2a9d8f"),
-    ("claude", "#e76f51"),
-    ("fable", "#e76f51"),
-    ("gpt-5.6-terra", "#5c6f8a"),
-    ("codex", "#f4a261"),
+# One hue per model family, one tone per stack inside that family. The three
+# family hues pass every check in the dataviz palette validator (light surface,
+# all pairs). The tones inside one family sit about 12 delta-E apart, which the
+# eye separates but which the validator's categorical floor of 15 would reject:
+# they are a ramp, not a categorical palette, and every row that carries a tone
+# also carries the model name, the family mark and the number in text.
+FAMILY_RAMP = {
+    "qwen": ("#00764f", "#019d7e", "#18c5b4"),
+    "claude": ("#a04034", "#c66846", "#e9925f"),
+    "gpt": ("#445dad", "#6e7ed4", "#9ca1f8"),
+}
+MODEL_FAMILY = (
+    ("qwen", "qwen"),
+    ("claude", "claude"),
+    ("fable", "claude"),
+    ("opus", "claude"),
+    ("gpt", "gpt"),
+    ("codex", "gpt"),
+    ("astra", "gpt"),
+    ("terra", "gpt"),
 )
-FALLBACK_COLOR = "#4a4e49"
+FAMILY_FALLBACK = "gpt"
+
+# Which tone an identity takes inside its family. Keyed by the model, or by the
+# arm id where the campaign held the model fixed and varied something else.
+# The assignment is fixed here, never derived from row order, so a colour
+# follows its entity and a filter can never repaint it.
+TONE = {
+    # svgbench pairs
+    "qwen3.8-flash-next": 1, "qwen3.8-27b-8bit": 2,
+    "claude-opus-5": 1, "claude-opus-4-8": 0, "fable-5-1": 2,
+    "gpt-5.6-terra": 1,
+    # agent-build-off arms: one model, one arm adds the superpowers skills
+    "opencode-qwen38": 1, "opencode-qwen38-superpowers": 2,
+    "claude-opus5": 1, "codex-astra": 1,
+    # layout-skill-bench arms: one model, one tone per design skill
+    "design-skill": 0, "taste-skill": 1, "taste2": 2,
+}
+DEFAULT_TONE = 1
+FALLBACK_COLOR = FAMILY_RAMP["gpt"][DEFAULT_TONE]
 
 HARNESS_LABEL = {"opencode": "opencode", "claude": "Claude Code", "codex": "Codex"}
 
@@ -84,12 +116,25 @@ class MarkerError(RuntimeError):
     """The HTML has no single DATA:begin/DATA:end pair."""
 
 
-def color_for(model):
-    m = model.lower()
-    for needle, color in MODEL_COLOR:
+def family_of(model):
+    m = (model or "").lower()
+    for needle, fam in MODEL_FAMILY:
         if needle in m:
-            return color
-    return FALLBACK_COLOR
+            return fam
+    return FAMILY_FALLBACK
+
+
+def color_for(model, variant=None):
+    """The hue says which model family; the tone says which stack inside it.
+
+    `variant` is the arm id, for a campaign that kept the model fixed and varied
+    a skill or a skill stack. Those arms share a hue and differ by tone.
+    """
+    ramp = FAMILY_RAMP[family_of(model)]
+    tone = TONE.get(variant) if variant else None
+    if tone is None:
+        tone = TONE.get(model, DEFAULT_TONE)
+    return ramp[tone % len(ramp)]
 
 
 def metric_text(value, unit=""):
@@ -204,6 +249,9 @@ def build_drawings(scores):
             "color": p["color"], "hosted": p["hosted"],
             "slug": a["slug"], "base": base, "take": take,
             "takeLabel": TAKE_LABEL[take],
+            # the order the takes were made in, so the page can read a chain
+            # first to last without repeating the ranking rule in JavaScript
+            "rank": TAKE_RANK[take],
             "file": SVG_PREFIX + a["artifact"],
             "aspect": round(aspect_of(os.path.join(HARNESS_ROOT, a["artifact"])), 4),
             "animated": bool(a.get("animated")),
@@ -323,7 +371,10 @@ def build_game(arms):
         out.append({
             "id": a["id"], "label": a["label"], "short": a.get("short") or a["label"],
             "harness": a["harness"], "model": a["model"],
-            "hosted": bool(a["hosted"]), "color": a.get("color", FALLBACK_COLOR),
+            # The colour line means who ran it, so it comes from the family ramp,
+            # not from the arm's own series colour in arms.json: two arms here are
+            # the same model and must read as two tones of one hue.
+            "hosted": bool(a["hosted"]), "color": color_for(a["model"], a["id"]),
             "shot": GAME_SHOTS + a["id"] + ".webp",
             # A 60 fps loop of the start screen, when one was recorded. The page
             # plays it over the still and falls back to the still without it.
@@ -364,11 +415,9 @@ def build_skills(arms):
             "id": a["id"], "label": a["label"], "short": a.get("short") or a["skillConfig"],
             "skillConfig": a["skillConfig"],
             "harness": a["harness"], "model": a["model"], "hosted": bool(a["hosted"]),
-            # The colour line on this page means who ran it, so it comes from the
-            # model, not from the arm's own series colour. All three skill arms are
-            # the same local model, so all three share the Qwen colour; the skill
-            # name is the cell title and tells the arms apart.
-            "color": color_for(a["model"]), "form": a.get("form", ""),
+            # All three arms are the same local model, so they share the Qwen hue
+            # and take one tone each: same family at a glance, still told apart.
+            "color": color_for(a["model"], a["id"]), "form": a.get("form", ""),
             "shots": [{"n": n, "src": "%s%s-%d.webp" % (SKILL_SHOTS, a["id"], n),
                        "page": page_for(a["id"], n)} for n in ITERATIONS],
             "metrics": _metrics(arms["results"], a["id"], SKILL_METRICS),
@@ -386,9 +435,24 @@ def build_skills(arms):
 
 # ------------------------------------------------------------------ block
 
+def build_families():
+    """The legend: one entry per model family, standing at its middle tone.
+
+    The page says in words that the tone tells the stacks of one family apart,
+    so the legend stays three lines instead of one line per contestant.
+    """
+    return [
+        {"key": "qwen", "color": FAMILY_RAMP["qwen"][1], "label": "Qwen, on the rig"},
+        {"key": "claude", "color": FAMILY_RAMP["claude"][1], "label": "Claude, hosted"},
+        {"key": "gpt", "color": FAMILY_RAMP["gpt"][1],
+         "label": "GPT family: gpt-5.6-terra on the rig, gpt-6-astra hosted"},
+    ]
+
+
 def build_all(scores, game, skills):
     return {
         "generated_at": datetime.date.today().isoformat(),
+        "families": build_families(),
         "drawings": build_drawings(scores),
         "game": build_game(game),
         "skills": build_skills(skills),
