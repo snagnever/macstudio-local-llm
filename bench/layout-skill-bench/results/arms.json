@@ -2,7 +2,7 @@
   "campaign": "layout-skill-bench",
   "description": "Three opencode sessions, one local model (Qwen3.8 Flash Next MLX), one byte-identical verbatim brief, each loading a different design skill, each producing a five-iteration landing-page design for the same note-taking app. Source vendored under demos/<arm>; per-arm self-reports (recovered from the opencode session database) under results/<arm>.md; this file is the single source of numbers for the dashboard.",
   "brief": "I want you to design the landing page for a note-taking application as essentially a second brain. You should design five iterations and each of them should be accessible within the slash one, slash two, slash three like pages directory. And then you should add a little button that lets me switch between them easily.",
-  "briefNote": "Byte-identical across all three arms (SHA eaebe847..., 318 characters), confirmed against the opencode session database in Task 2. It is carried per-arm below (rather than only once at the top) so each arm record is self-contained for the dashboard, but it is the same string three times, not three different briefs.",
+  "briefNote": "Byte-identical across all three arms (SHA eaebe847..., 318 characters), confirmed against the opencode session database in Task 2. It is carried per-arm below (rather than only once at the top) so each arm record is self-contained for the dashboard, but it is the same string three times, not three different briefs. The prompt originates from whichai.dev (\"Which AI Made This?\"), which runs the same exercise on frontier models with and without a design skill; this campaign runs it on one local model.",
   "arms": [
     {
       "id": "design-skill",

@@ -357,6 +357,68 @@ class TestFamilyColour(unittest.TestCase):
             self.assertEqual(f["color"], ad.FAMILY_RAMP[f["key"]][1])
             self.assertTrue(f["label"])
 
+class TestRig(unittest.TestCase):
+    """The stack line: the machine, and one decode speed read from a results file."""
+
+    def _jsonl(self, rows):
+        fh = tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False)
+        for r in rows:
+            fh.write(json.dumps(r) + "\n")
+        fh.close()
+        self.addCleanup(os.unlink, fh.name)
+        return fh.name
+
+    def _run(self, tps):
+        return {"decode_tps": tps, "context_target": 32768, "runtime": "mlx-serve",
+                "runtime_revision": "v26.9.1", "model_id": "ddalcu/Qwen3.8-Flash-Next"}
+
+    def _with(self, path):
+        old = ad.RIG_DECODE
+        ad.RIG_DECODE = path
+        self.addCleanup(setattr, ad, "RIG_DECODE", old)
+        return ad.build_rig()
+
+    def test_decode_is_the_median_of_the_runs(self):
+        rig = self._with(self._jsonl([self._run(50.0), self._run(60.0), self._run(70.0)]))
+        self.assertEqual(rig["decode"]["tps"], 60.0)
+        self.assertEqual(rig["decode"]["n"], 3)
+
+    def test_decode_names_the_runtime_build_and_its_file(self):
+        rig = self._with(self._jsonl([self._run(61.0)]))
+        self.assertEqual(rig["decode"]["runtime"], "mlx-serve v26.9.1")
+        self.assertTrue(rig["decode"]["source"].endswith(".jsonl"))
+
+    def test_a_missing_file_leaves_the_machine_but_no_speed(self):
+        rig = self._with(os.path.join(tempfile.gettempdir(), "no-such-decode-file.jsonl"))
+        self.assertIn("machine", rig)
+        self.assertNotIn("decode", rig)
+
+    def test_rows_without_a_decode_number_are_ignored(self):
+        rig = self._with(self._jsonl([{"decode_tps": None}, self._run(40.0)]))
+        self.assertEqual(rig["decode"]["tps"], 40.0)
+        self.assertEqual(rig["decode"]["n"], 1)
+
+
+class TestBenchmarkProvenance(unittest.TestCase):
+    """The drawings carry where their prompts came from."""
+
+    def test_source_and_question_count_are_passed_through(self):
+        scores = json.loads(json.dumps(SCORES))
+        scores["benchmark"] = {"name": "SVGBench", "source": "https://example.invalid/svgbench",
+                               "questions": {"question_count": 105},
+                               "comparability": "not the upstream run"}
+        b = ad.build_drawings(scores)["benchmark"]
+        self.assertEqual(b["source"], "https://example.invalid/svgbench")
+        self.assertEqual(b["questionCount"], 105)
+        self.assertEqual(b["comparability"], "not the upstream run")
+
+    def test_a_scores_file_without_a_benchmark_block_gives_empty_strings(self):
+        scores = json.loads(json.dumps(SCORES))
+        scores.pop("benchmark", None)
+        b = ad.build_drawings(scores)["benchmark"]
+        self.assertEqual(b["source"], "")
+        self.assertIsNone(b["questionCount"])
+
 
 class TestSelfJudged(unittest.TestCase):
     """The judge drew some of what it judged; the page marks those drawings."""
@@ -541,7 +603,8 @@ class TestBuildAll(unittest.TestCase):
     def test_top_level_shape(self):
         data = ad.build_all(SCORES, GAME, SKILLS)
         self.assertEqual(sorted(data.keys()),
-                         ["drawings", "families", "game", "generated_at", "skills"])
+                         ["drawings", "families", "game", "generated_at",
+                          "rig", "skills"])
         self.assertTrue(data["generated_at"])
 
     def test_serialises_without_surrogates_or_nan(self):
