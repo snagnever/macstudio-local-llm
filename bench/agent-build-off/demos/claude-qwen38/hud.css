@@ -1,0 +1,246 @@
+/* Neon HUD overlay. Canvas fills the screen; #ui floats on top and only
+   lets clicks through on buttons and open screens. */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  background: #05000a;
+  font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#c {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+#ui {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  color: #e8f6ff;
+}
+
+#ui .screen,
+#ui #hud {
+  display: none;
+}
+
+#ui[data-state="menu"] #menu,
+#ui[data-state="playing"] #hud,
+#ui[data-state="gameover"] #gameover,
+#ui[data-state="lost"] #lost {
+  display: flex;
+}
+
+/* ---- full-screen panels ---- */
+
+.screen {
+  position: absolute;
+  inset: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+  background: radial-gradient(ellipse at 50% 120%, rgba(120, 10, 120, 0.35), rgba(5, 0, 10, 0.75));
+  pointer-events: auto;
+}
+
+h1 {
+  font-size: clamp(42px, 9vw, 96px);
+  letter-spacing: 0.12em;
+  color: #aef4ff;
+  text-shadow:
+    0 0 8px #35e0ff,
+    0 0 32px #0aa4ff,
+    0 0 80px #0aa4ff;
+}
+
+h1 em {
+  font-style: normal;
+  color: #ffb3f0;
+  text-shadow:
+    0 0 8px #ff4fd8,
+    0 0 32px #d400ff;
+}
+
+h2 {
+  font-size: clamp(28px, 6vw, 56px);
+  letter-spacing: 0.2em;
+  color: #ff7ad9;
+  text-shadow: 0 0 12px #ff2fb0, 0 0 48px #ff2fb0;
+}
+
+.sub {
+  letter-spacing: 0.5em;
+  font-size: 14px;
+  color: #8fd8ff;
+}
+
+.keys {
+  font-size: 12px;
+  line-height: 2;
+  letter-spacing: 0.18em;
+  color: #6f7fa8;
+}
+
+.screen p b {
+  color: #aef4ff;
+}
+
+#new-record {
+  display: none;
+  padding: 6px 18px;
+  border: 1px solid #ffd94f;
+  color: #ffd94f;
+  letter-spacing: 0.3em;
+  text-shadow: 0 0 12px #ffb400;
+  animation: pulse 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+button {
+  pointer-events: auto;
+  font: inherit;
+  letter-spacing: 0.3em;
+  font-size: 16px;
+  color: #05000a;
+  background: #35e0ff;
+  border: 0;
+  padding: 14px 42px;
+  cursor: pointer;
+  box-shadow: 0 0 16px #19b8ff, 0 0 64px rgba(25, 184, 255, 0.45);
+}
+
+button:hover {
+  background: #7defff;
+}
+
+button:active {
+  transform: translateY(2px);
+}
+
+/* ---- in-run HUD ---- */
+
+#hud {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px;
+}
+
+#ui[data-state="playing"] #hud {
+  display: flex;
+}
+
+#hud .top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+#score {
+  font-size: clamp(28px, 5vw, 44px);
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 10px #35e0ff;
+  font-variant-numeric: tabular-nums;
+}
+
+#combo {
+  font-size: 18px;
+  color: #ffd94f;
+  text-shadow: 0 0 10px #ffb400;
+  min-height: 22px;
+}
+
+.small {
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: #8fa3c8;
+  margin-bottom: 6px;
+}
+
+.right {
+  text-align: right;
+}
+
+#btn-mute {
+  font-size: 11px;
+  padding: 8px 14px;
+  letter-spacing: 0.2em;
+  background: transparent;
+  color: #8fd8ff;
+  border: 1px solid #2b6d8f;
+  box-shadow: none;
+}
+
+#btn-mute:hover {
+  background: rgba(53, 224, 255, 0.12);
+}
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: min(240px, 45vw);
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: #6f7fa8;
+}
+
+.track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.track b {
+  display: block;
+  height: 100%;
+  width: 0%;
+}
+
+.bar-row:nth-child(1) .track b {
+  background: #35e0ff;
+  box-shadow: 0 0 8px #35e0ff;
+}
+
+.bar-row:nth-child(2) .track b {
+  background: #ff4fd8;
+  box-shadow: 0 0 8px #ff4fd8;
+}
+
+.bar-row:nth-child(3) .track b {
+  background: #a86bff;
+  box-shadow: 0 0 8px #a86bff;
+}

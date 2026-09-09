@@ -181,22 +181,11 @@
   .ava.lg svg { width: 22px; height: 22px; }
 
   /* ---------- contents ---------- */
-  .toc { margin: 34px 0 0; border-top: 1px solid var(--hair-2); }
-  .toc a {
-    display: grid; grid-template-columns: 2.4rem minmax(0, 1fr) auto; align-items: baseline;
-    gap: 4px 14px; padding: 15px 2px; text-decoration: none;
-    border-bottom: 1px solid var(--hair-2);
-    transition: background-color .45s var(--ease);
-  }
-  .toc a:hover { background: rgba(27, 27, 24, .028); }
-  .toc .n { font: 500 11.5px/1.4 var(--ui); color: var(--soft); font-variant-numeric: tabular-nums; }
-  .toc .t { font: 500 16.5px/1.35 var(--ui); color: var(--ink); }
-  .toc .c { font: 400 12.5px/1.4 var(--ui); color: var(--soft); font-variant-numeric: tabular-nums; }
-  .toc a:hover .t { text-decoration: underline; text-underline-offset: 3px; }
-  @media (max-width: 620px) {
-    .toc a { grid-template-columns: 2rem minmax(0, 1fr); }
-    .toc .c { grid-column: 2; }
-  }
+  .toc { margin: 0 0 24px; padding-left: 1.15em; }
+  .toc li { margin: 0 0 5px; line-height: 1.6; color: var(--read); }
+  .toc a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--hair); }
+  .toc a:hover { border-bottom-color: var(--ink); }
+  .toc .c { color: var(--soft); font-size: .86em; }
 
   /* ---------- sections ---------- */
   section { padding: 128px 0 0; }
@@ -617,9 +606,9 @@
       and they say less than the artifacts do. Every picture is the model's own work &mdash; the
       SVG file it wrote, or a screenshot of the app it built. A <b>stack</b> is one harness running
       one model.</p>
+    <ul class="toc" id="toc"></ul>
     <p class="stack" id="stack"></p>
     <ul class="legend" id="legend"></ul>
-    <nav class="toc" id="toc" aria-label="Contents"></nav>
   </div>
 </header>
 
@@ -861,15 +850,15 @@ var DATA = {"generated_at": "2026-09-08", "families": [{"key": "qwen", "color": 
       { id: "skills", count: (DATA.skills.arms.length * 5) + " pages · " +
         DATA.skills.arms.length + " skills" }
     ];
-    rows.forEach(function (r, i) {
+    rows.forEach(function (r) {
       var h2 = document.querySelector("#" + r.id + " h2");
       if (!h2) return;
-      var a = el("a");
+      var li = el("li");
+      var a = el("a", null, esc(h2.textContent));
       a.href = "#" + r.id;
-      a.appendChild(el("span", "n", (i + 1).toString().padStart(2, "0")));
-      a.appendChild(el("span", "t", esc(h2.textContent)));
-      a.appendChild(el("span", "c", esc(r.count)));
-      host.appendChild(a);
+      li.appendChild(a);
+      li.appendChild(el("span", "c", " \u2014 " + esc(r.count)));
+      host.appendChild(li);
     });
   })();
 
