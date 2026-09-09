@@ -4,7 +4,8 @@
 // cadence.
 //
 //   node screencast.mjs --port <devtools-port> --out <dir> \
-//                       [--settle 2500] [--capture 9000] [--url-hint <substr>]
+//                       [--settle 2500] [--capture 9000] [--url-hint <substr>] \
+//                       [--start <spec>] [--start-at 1000] [--play <script>]
 //
 // Headless Chrome cannot encode video, so we drive Page.startScreencast over
 // the DevTools WebSocket instead. Frames arrive at whatever rate the compositor
@@ -15,6 +16,24 @@
 //
 // Every frame MUST be acknowledged with Page.screencastFrameAck or Chrome
 // stops sending after a few frames.
+//
+// These games gate their world update on a running phase, so an unattended
+// capture records one still title frame forever. --start sends the game's own
+// start input --start-at ms into the kept footage, so the clip opens on the
+// title and then shows the world moving. Two spec forms:
+//
+//   key:<Enter|Space|...>   Input.dispatchKeyEvent, a real keydown/keyup pair
+//   click:<css selector>    Runtime.evaluate for the element's viewport-space
+//                           centre, then Input.dispatchMouseEvent there
+//
+// A click spec waits (up to CLICK_WAIT_MS) for the selector to exist and have a
+// non-zero box, so an arm whose start button only appears once its scene is
+// ready is not clicked at empty space.
+//
+// --play is an optional "<ms>:<Key>,..." script of control presses, offsets
+// measured from the start input. It is not there to score well — it is there so
+// the clip shows the avatar answering the controls, not just the track sliding
+// past. All four arms accept the same arrow/space vocabulary.
 //
 // No dependencies: Node 22+ has a global WebSocket and fetch.
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
@@ -30,9 +49,27 @@ const outDir = arg("out");
 const settleMs = Number(arg("settle", 2500));
 const captureMs = Number(arg("capture", 9000));
 const urlHint = arg("url-hint", "");
+const startSpec = arg("start", "");
+const startAtMs = Number(arg("start-at", 1000));
+const playScript = (arg("play", "") || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean)
+  .map((s) => {
+    const [at, key] = s.split(":");
+    return { at: Number(at), key };
+  })
+  .sort((a, b) => a.at - b.at);
 
 if (!port || !outDir) {
-  console.error("usage: screencast.mjs --port <n> --out <dir> [--settle ms] [--capture ms]");
+  console.error(
+    "usage: screencast.mjs --port <n> --out <dir> [--settle ms] [--capture ms]" +
+      " [--start key:Enter|click:<selector>] [--start-at ms]",
+  );
+  process.exit(2);
+}
+if (startSpec && !/^(key|click):/.test(startSpec)) {
+  console.error(`screencast: --start must be key:<Key> or click:<selector>, got ${startSpec}`);
   process.exit(2);
 }
 
@@ -127,11 +164,103 @@ await send("Page.startScreencast", {
   everyNthFrame: 1,
 });
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Enough of a key descriptor that a `code`-matching listener (claude-opus5
+// checks event.code) and a `key`-matching one (the opencode arms check
+// event.key) both see what they expect.
+const KEYS = {
+  Enter: { key: "Enter", code: "Enter", keyCode: 13, text: "\r" },
+  Space: { key: " ", code: "Space", keyCode: 32, text: " " },
+  ArrowLeft: { key: "ArrowLeft", code: "ArrowLeft", keyCode: 37 },
+  ArrowUp: { key: "ArrowUp", code: "ArrowUp", keyCode: 38 },
+  ArrowRight: { key: "ArrowRight", code: "ArrowRight", keyCode: 39 },
+  ArrowDown: { key: "ArrowDown", code: "ArrowDown", keyCode: 40 },
+};
+
+async function pressKey(name) {
+  const k = KEYS[name];
+  if (!k) die(`unknown key ${name} (known: ${Object.keys(KEYS).join(", ")})`);
+  const base = {
+    key: k.key,
+    code: k.code,
+    windowsVirtualKeyCode: k.keyCode,
+    nativeVirtualKeyCode: k.keyCode,
+  };
+  await send("Input.dispatchKeyEvent", {
+    type: k.text ? "keyDown" : "rawKeyDown",
+    ...base,
+    ...(k.text ? { text: k.text, unmodifiedText: k.text } : {}),
+  });
+  await sleep(40);
+  await send("Input.dispatchKeyEvent", { type: "keyUp", ...base });
+}
+
+const CLICK_WAIT_MS = 4000;
+
+async function clickSelector(selector) {
+  const probe = `(() => {
+    const el = document.querySelector(${JSON.stringify(selector)});
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) return null;
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  })()`;
+  const deadline = Date.now() + CLICK_WAIT_MS;
+  let box = null;
+  while (Date.now() < deadline) {
+    const res = await send("Runtime.evaluate", { expression: probe, returnByValue: true });
+    box = res?.result?.value ?? null;
+    if (box) break;
+    await sleep(100);
+  }
+  if (!box) die(`start selector ${selector} never became clickable within ${CLICK_WAIT_MS}ms`);
+  const at = { x: Math.round(box.x), y: Math.round(box.y), button: "left", clickCount: 1 };
+  await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: at.x, y: at.y });
+  await send("Input.dispatchMouseEvent", { type: "mousePressed", ...at });
+  await sleep(40);
+  await send("Input.dispatchMouseEvent", { type: "mouseReleased", ...at });
+  return at;
+}
+
+async function sendStart() {
+  const [kind, ...rest] = startSpec.split(":");
+  const value = rest.join(":");
+  // A background headless tab still delivers input, but focusing first matches
+  // what a viewer would do and keeps window-level keydown listeners live.
+  await send("Page.bringToFront").catch(() => {});
+  if (kind === "key") {
+    await pressKey(value);
+    console.log(`start: key ${value}`);
+  } else {
+    const at = await clickSelector(value);
+    console.log(`start: click ${value} at ${at.x},${at.y}`);
+  }
+}
+
 // Let the scene warm up (shaders compile, intro fades finish) before the first
 // frame we keep, then capture longer than the target clip so we can trim.
-await new Promise((r) => setTimeout(r, settleMs));
+await sleep(settleMs);
 collecting = true;
-await new Promise((r) => setTimeout(r, captureMs));
+if (startSpec) {
+  // Hold the title for a beat of kept footage, start the game, then let the
+  // rest of the capture be gameplay.
+  await sleep(Math.min(startAtMs, captureMs));
+  await sendStart();
+  let cursor = 0; // ms since the start input
+  let pressed = 0;
+  for (const step of playScript) {
+    if (startAtMs + step.at >= captureMs) break;
+    await sleep(Math.max(0, step.at - cursor));
+    cursor = step.at;
+    await pressKey(step.key);
+    pressed += 1;
+  }
+  if (pressed) console.log(`play: ${pressed} presses through +${cursor}ms`);
+  await sleep(Math.max(0, captureMs - startAtMs - cursor));
+} else {
+  await sleep(captureMs);
+}
 collecting = false;
 
 if (stamps.length < 30) die(`only ${stamps.length} frames captured — screencast did not run`);

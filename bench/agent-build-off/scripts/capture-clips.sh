@@ -16,8 +16,19 @@
 # timestamp into an ffmpeg concat playlist and the encode below resamples that
 # to true constant 60 fps with -fps_mode cfr -r 60.
 #
-# Whatever the app paints on load is the artifact — the idle start screen. No
-# clicks are scripted.
+# The clip has to show the game running, not its menu. All four arms gate their
+# world update on a running phase (opencode-qwen38-superpowers is the clearest:
+# src/three/GameLoop.tsx steps the world only `if (world.phase === 'running')`),
+# so an unattended capture records one still title frame and nothing else. Each
+# arm therefore gets its own start input, sent START_AT_MS into the kept footage
+# by screencast.mjs over the DevTools Input domain: the clip opens on the title,
+# the game starts, and the rest is gameplay. See START_INPUT below for which
+# input each arm takes and where that is defined in its source.
+#
+# Because "it moved" is the whole point, the encode is followed by a motion
+# check: mean inter-frame luma difference via tblend=difference + signalstats.
+# A clip under MIN_MOTION is deleted and fails the run, so a silently static
+# capture cannot ship again.
 #
 # Output: results/clips/<arm>.mp4, 960x600, H.264 yuv420p, +faststart, no audio,
 # CLIP_SECONDS long. Each file must stay under MAX_BYTES (the repo's guideline
@@ -40,15 +51,54 @@ CDP_PORT="${CDP_PORT:-$(free_port)}"
 
 SETTLE_MS="${SETTLE_MS:-2500}"   # warm-up discarded before the first kept frame
 CAPTURE_MS="${CAPTURE_MS:-9000}" # captured raw, longer than needed, so we trim
+START_AT_MS="${START_AT_MS:-1000}" # title held this long before the start input
+# Control presses sent during the run, offsets in ms from the start input. Not
+# an attempt to play well or survive: it is there so the clip shows the avatar
+# answering the controls and not just the track scrolling. All four arms take
+# the same arrow/space vocabulary (each arm's input module maps ArrowLeft /
+# ArrowRight to lane changes and Space to jump), so one script serves all.
+PLAY_SCRIPT="${PLAY_SCRIPT:-500:ArrowLeft,1100:Space,1700:ArrowRight,2300:ArrowRight,2900:Space,3400:ArrowLeft,3900:Space,4400:ArrowRight,4900:Space}"
 CLIP_SECONDS="${CLIP_SECONDS:-6}"
 FALLBACK_SECONDS="${FALLBACK_SECONDS:-5}"
 WIDTH=960
 HEIGHT=600
-MAX_BYTES=$((900 * 1024))
+# 900 kB read the strict way (900,000 B, not 900 KiB), so the tracked files are
+# under the guideline however you count. Gameplay costs a lot more bits than the
+# idle title screens the first pass encoded, so this is the binding constraint
+# for the busier arms now, not a formality.
+MAX_BYTES=900000
 CRF_LADDER=(23 26 29 32 35 38)
+# Mean inter-frame luma difference below this is compression noise, not motion.
+MIN_MOTION="${MIN_MOTION:-0.5}"
 
 ALL_ARMS=(opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra)
 if [ "$#" -gt 0 ]; then ARMS=("$@"); else ARMS=("${ALL_ARMS[@]}"); fi
+
+# What starts each game, read out of its own source rather than guessed:
+#   opencode-qwen38              src/hooks/useControls.ts maps 'enter' (and 'r')
+#                                to startOrRestart(); the title says "press enter".
+#   opencode-qwen38-superpowers  src/game/input.ts maps Enter to the 'confirm'
+#                                intent, the same thing its PRESS START button fires.
+#   claude-opus5                 src/ui/Overlays.tsx renders the START RUN button
+#                                as button.primary inside the menu .panel.
+#   codex-astra                  src/ui.ts renders <button data-action="start">Start run</button>.
+start_input() {
+  case "$1" in
+    opencode-qwen38) echo 'key:Enter' ;;
+    opencode-qwen38-superpowers) echo 'key:Enter' ;;
+    claude-opus5) echo 'click:.panel button.primary' ;;
+    codex-astra) echo 'click:[data-action="start"]' ;;
+    *) echo '' ;;
+  esac
+}
+
+# Mean inter-frame luma difference of a clip; the number the report quotes.
+motion() {
+  ffmpeg -v error -i "$1" \
+    -vf "tblend=all_mode=difference,signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=-" \
+    -f null - 2>/dev/null |
+    awk -F= '/YAVG/{s+=$2;c++} END{if(c) printf "%.4f", s/c; else printf "0.0000"}'
+}
 
 [ -x "$CHROME" ] || { echo "no headless Chrome at $CHROME" >&2; exit 1; }
 command -v ffmpeg >/dev/null || { echo "ffmpeg not on PATH (brew install ffmpeg)" >&2; exit 1; }
@@ -141,8 +191,11 @@ for arm in "${ARMS[@]}"; do
 
   frames="$WORK/$arm.frames"
   cast_ok=1
+  start="$(start_input "$arm")"
+  [ -n "$start" ] || echo "!! $arm: no start input defined, capturing the idle title" >&2
   node "$SCRIPTS/screencast.mjs" --port "$CDP_PORT" --out "$frames" \
-    --settle "$SETTLE_MS" --capture "$CAPTURE_MS" || cast_ok=0
+    --settle "$SETTLE_MS" --capture "$CAPTURE_MS" \
+    ${start:+--start "$start" --start-at "$START_AT_MS" --play "$PLAY_SCRIPT"} || cast_ok=0
 
   kill "$CHROME_PID" 2>/dev/null || true
   wait "$CHROME_PID" 2>/dev/null || true
@@ -172,7 +225,18 @@ for arm in "${ARMS[@]}"; do
   fi
   bytes="${result%% *}"
   crf="${result##* }"
-  printf '   %-40s %8s B  crf=%s  %ss\n' "$arm.mp4" "$bytes" "$crf" "$secs"
+
+  # The point of the clip is that the game moves. Prove it, or throw the clip
+  # away so the gallery falls back to the arm's still.
+  mv="$(motion "$dest")"
+  printf '   %-40s %8s B  crf=%s  %ss  motion=%s\n' "$arm.mp4" "$bytes" "$crf" "$secs" "$mv"
+  if awk -v m="$mv" -v t="$MIN_MOTION" 'BEGIN{exit !(m < t)}'; then
+    echo "!! $arm: motion $mv < $MIN_MOTION — the clip is static, so it is not shipped." >&2
+    echo "!! $arm: check that '$start' still starts this build." >&2
+    rm -f "$dest"
+    fail=1
+    continue
+  fi
 done
 
 echo
@@ -181,6 +245,7 @@ for f in "$CLIPS"/*.mp4; do
   ffprobe -v error -select_streams v:0 \
     -show_entries stream=codec_name,width,height,r_frame_rate,nb_frames \
     -show_entries format=duration,size -of default=nw=1:nk=1 "$f" |
-    paste -sd' ' - | sed "s|^|$(basename "$f") |"
+    paste -sd' ' - | sed "s|^|$(basename "$f") |" | tr -d '\n'
+  printf ' motion=%s\n' "$(motion "$f")"
 done
 exit "$fail"
