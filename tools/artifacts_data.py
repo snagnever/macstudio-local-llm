@@ -228,8 +228,26 @@ def judge_of(artifact):
     return j.get("model") or ""
 
 
+def _participants():
+    """Who ran each pair, as transcribed in participants.json."""
+    try:
+        with open(PARTICIPANTS, "r", encoding="utf-8") as fh:
+            return {c["key"]: c for c in json.load(fh)["pairs"]}
+    except (OSError, ValueError, KeyError):
+        return {}
+
+
+def _hosted(cfg, harness):
+    """Who served the model. The participants file states it per pair; without a
+    record, a Claude Code run is the hosted control arm."""
+    if cfg and cfg.get("hosted") is not None:
+        return bool(cfg["hosted"])
+    return harness == "claude"
+
+
 def build_drawings(scores):
     prompts = {q["question_index"]: q["prompt"] for q in scores.get("questions", [])}
+    cfgs = _participants()
     pairs = {}
     by_q = {}
     for a in scores["artifacts"]:
@@ -241,7 +259,8 @@ def build_drawings(scores):
         p = pairs.setdefault(key, {
             "key": key, "harness": a["harness"], "model": a["model"],
             "label": a["model"], "harnessLabel": HARNESS_LABEL.get(a["harness"], a["harness"]),
-            "color": color_for(a["model"]), "hosted": a["harness"] == "claude",
+            "color": color_for(a["model"]),
+            "hosted": _hosted(cfgs.get(key), a["harness"]),
             "n": 0, "qs": [], "selfJudged": False,
         })
         p["n"] += 1
@@ -306,12 +325,6 @@ def build_drawings(scores):
 
     # Who ran each pair, and the mean it scored. The means cover different
     # question sets, which the summary says rather than hiding.
-    cfgs = {}
-    try:
-        with open(PARTICIPANTS, "r", encoding="utf-8") as fh:
-            cfgs = {c["key"]: c for c in json.load(fh)["pairs"]}
-    except (OSError, ValueError, KeyError):
-        cfgs = {}
     means = {"%s/%s" % (p["harness"], p["model"]): p for p in scores.get("pairs", [])}
     roster = []
     for p in sorted(pairs.values(), key=lambda p: (p["hosted"], p["key"])):
@@ -453,7 +466,7 @@ def build_families():
         {"key": "qwen", "color": FAMILY_RAMP["qwen"][1], "label": "Qwen, on the rig"},
         {"key": "claude", "color": FAMILY_RAMP["claude"][1], "label": "Claude, hosted"},
         {"key": "gpt", "color": FAMILY_RAMP["gpt"][1],
-         "label": "OpenAI: gpt-5.6-terra on the rig, gpt-6-astra hosted"},
+         "label": "OpenAI, hosted"},
     ]
 
 

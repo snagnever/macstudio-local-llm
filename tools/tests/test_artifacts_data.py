@@ -304,6 +304,28 @@ class TestTakeRank(unittest.TestCase):
         self.assertGreaterEqual(chain[-1]["rank"], chain[0]["rank"])
 
 
+class TestHosted(unittest.TestCase):
+    """Who served the model is transcribed per pair, not guessed from the harness."""
+
+    def test_a_recorded_pair_wins_over_the_harness_rule(self):
+        # an OpenAI model run through opencode is still served by OpenAI
+        self.assertTrue(ad._hosted({"hosted": True}, "opencode"))
+        self.assertFalse(ad._hosted({"hosted": False}, "claude"))
+
+    def test_without_a_record_claude_code_is_the_hosted_control_arm(self):
+        self.assertTrue(ad._hosted(None, "claude"))
+        self.assertFalse(ad._hosted(None, "opencode"))
+        self.assertFalse(ad._hosted({}, "opencode"))
+
+    def test_the_participants_file_marks_every_pair(self):
+        cfgs = ad._participants()
+        self.assertTrue(cfgs, "participants.json should load")
+        for key, c in cfgs.items():
+            self.assertIn("hosted", c, key)
+        self.assertTrue(cfgs["opencode/gpt-5.6-terra"]["hosted"])
+        self.assertFalse(cfgs["opencode/qwen3.8-flash-next"]["hosted"])
+
+
 class TestFamilyColour(unittest.TestCase):
     """Hue by model family, tone by stack inside it."""
 
