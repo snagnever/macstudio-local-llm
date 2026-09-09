@@ -38,6 +38,9 @@ RIG_DECODE = os.path.join(ROOT, "bench", "qwen38-flash-next", "results",
                           "refresh-20260904-v2691-32k.jsonl")
 # The machine itself, as docs/local-llm-reference.md records it.
 RIG_MACHINE = "Mac Studio M4 Max, 128 GB unified memory"
+# The local model's size, as bench/qwen38-flash-next/references.md records it:
+# a mixture of experts, so the number that matters per token is the active one.
+RIG_PARAMS = "125B total, 6B active per token"
 HTML = os.path.join(ROOT, "reports", "artifacts.html")
 
 BEGIN, END = "/* DATA:begin */", "/* DATA:end */"
@@ -404,7 +407,7 @@ def build_rig():
     campaign, recorded on the same runtime build and model the local SVGBench
     pair used. No file, no number: the page then says nothing about speed.
     """
-    rig = {"machine": RIG_MACHINE}
+    rig = {"machine": RIG_MACHINE, "params": RIG_PARAMS}
     try:
         with open(RIG_DECODE, "r", encoding="utf-8") as fh:
             rows = [json.loads(line) for line in fh if line.strip()]
