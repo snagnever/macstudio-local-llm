@@ -944,7 +944,9 @@ var DATA = {"generated_at": "2026-09-08", "drawings": {"questions": [{"q": 7, "l
       src: shot.src, aspect: 1.6, alt: a.skillConfig + ", iteration " + n,
       pending: "Screenshot pending",
       who: grouping === "skill" ? "Iteration " + n : a.skillConfig,
-      sub: grouping === "skill" ? a.model + " · " + a.harness : "Iteration " + n,
+      // grouped by skill the model is the same on every tile and already named
+      // in the roster above, so the caption does not repeat it
+      sub: grouping === "skill" ? "" : "Iteration " + n,
       link: shot.page, linkText: "Open iteration " + n,
       title: a.skillConfig + " · iteration " + n,
       metaLines: [esc(a.label), esc(a.form)].concat(a.metrics.map(metaMetric)),
@@ -977,8 +979,9 @@ var DATA = {"generated_at": "2026-09-08", "drawings": {"questions": [{"q": 7, "l
       var group = [];
       [1, 2, 3, 4, 5].forEach(function (n) { group.push(skillSpec(a, n, group)); });
       var m = a.metrics.map(function (x) { return x.label.toLowerCase() + " " + x.text; }).join(", ");
+      // five pages read as a series, so every skill gets the strip, not a grid
       row(skillRows, a.skillConfig,
-        "Five iterations in one session — " + m, group, "skill", i === 0);
+        "Five iterations in one session — " + m, group, "skill", true);
     });
   }
 
