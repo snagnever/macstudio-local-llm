@@ -304,6 +304,9 @@
      the rest, so the label needs a floor, not just a ceiling */
   .session.is-collapsed .chart th { max-width: none; white-space: nowrap; }
   .session.is-collapsed .caveat { display: none; }
+  /* a section whose stacks are already named on every drawing below shows only
+     its chart while collapsed */
+  .session.is-collapsed.chart-only .s-who { display: none; }
   .session.is-collapsed.has-more .s-data {
     -webkit-mask-image: linear-gradient(#000 58%, rgba(0, 0, 0, .07) 100%);
     mask-image: linear-gradient(#000 58%, rgba(0, 0, 0, .07) 100%);
@@ -1303,6 +1306,10 @@ var DATA = {"generated_at": "2026-09-08", "families": [{"key": "qwen", "color": 
       DATA.drawings.questions.reduce(function (n, q) { return n + q.takes.length; }, 0) +
       " drawings · " + DATA.drawings.questions.length + " prompts, judged by " +
       (DATA.drawings.judge && DATA.drawings.judge.model ? DATA.drawings.judge.model : "one model"));
+
+  // every drawing below carries its stack's name and mark, so this block leads
+  // with the chart alone and keeps the roster for the open state
+  document.getElementById("drawSession").classList.add("chart-only");
 
   var VIEWS = [
     { id: "last", label: "Last take" },
