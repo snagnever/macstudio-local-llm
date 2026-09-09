@@ -442,8 +442,9 @@
 <header class="mast">
   <div class="read">
     <span class="eyebrow">SVGBench &middot; Build-off &middot; Design skills</span>
-    <h1>What each model <em>produced</em></h1>
-    <p class="lede">Three benchmarks ran on this rig. Every picture is the model's own work: the
+    <h1>Qwen3.8 Flash Next brings local models to <em>competitive</em> quality</h1>
+    <p class="lede"><span id="claimNums"></span> Three benchmarks ran here.
+      Every picture is the model's own work: the
       SVG file it wrote, or a screenshot of the app it built. SVGBench:
       <b id="nDraw">graded drawings</b>. Build-off: <b>one 3D game</b>, built four times from one
       brief. Design skills: <b>one landing page</b>, written five ways by one local model. A
@@ -606,6 +607,21 @@ var DATA = {"generated_at": "2026-09-08", "drawings": {"questions": [{"q": 7, "l
   document.getElementById("nDraw").textContent =
     DATA.drawings.questions.reduce(function (n, q) { return n + q.takes.length; }, 0) +
     " graded drawings";
+
+  /* The headline names a model, so the sentence under it carries that model's
+     own score and the two it is read against. Written from the data block, so
+     it cannot drift from scores.json; if a pair is missing, nothing is said. */
+  (function () {
+    var by = {};
+    DATA.drawings.roster.forEach(function (r) { by[r.label] = r; });
+    var q = by["qwen3.8-flash-next"], c = by["claude-opus-5"], g = by["gpt-5.6-terra"];
+    if (!q || !c || !g || q.mean == null || c.mean == null || g.mean == null) return;
+    document.getElementById("claimNums").innerHTML =
+      "Qwen3.8 Flash Next runs on this Mac Studio and meets <b>" + q.mean.toFixed(3) +
+      "</b> of the requirements per SVG drawing, over " + q.n + " drawings. Hosted " +
+      "claude-opus-5 meets <b>" + c.mean.toFixed(3) + "</b>; gpt-5.6-terra on the same rig " +
+      "meets <b>" + g.mean.toFixed(3) + "</b>.";
+  })();
 
   /* the judge drew some of what it judged; say how many, and mark those cells */
   (function () {
