@@ -768,7 +768,7 @@ var DATA = {"generated_at": "2026-09-08", "rig": {"machine": "Mac Studio M4 Max,
     }
 
     var left = el("div");
-    left.appendChild(el("h3", null, "Who ran it"));
+    left.appendChild(el("h3", null, "Stacks"));
     var ul = el("ul", "roster");
     people.forEach(function (p) {
       var li = el("li");
@@ -796,13 +796,13 @@ var DATA = {"generated_at": "2026-09-08", "rig": {"machine": "Mac Studio M4 Max,
 
     var right = el("div");
     if (charts && charts.length) {
-      right.appendChild(el("h3", null, "What the campaign measured"));
+      right.appendChild(el("h3", null, "Results"));
       var grid = el("div", "charts");
       charts.forEach(function (c) { grid.appendChild(chart(c.title, c.rows)); });
       right.appendChild(grid);
-      right.appendChild(el("h3", null, "Ends of the range")).style.marginTop = "24px";
+      right.appendChild(el("h3", null, "Highs and lows")).style.marginTop = "24px";
     } else {
-      right.appendChild(el("h3", null, "Ends of the range"));
+      right.appendChild(el("h3", null, "Highs and lows"));
     }
     var sl = el("ul", "marks-summary");
     summary.forEach(function (s) {
