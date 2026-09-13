@@ -80,6 +80,33 @@ case "$CAND" in
           echo "run-candidate: run scripts/make-yarn-overlay.py --src $MTPLXPACK --dst-root $YARN_MODEL_ROOT --factor $YARN --ctx $CTX first" >&2
           exit 66
         }
+        # The overlay dir is named yarn${factor%%.*}, so e.g. factor 2.0 and
+        # 2.5 alias to the same "yarn2" dir -- existence alone doesn't prove
+        # this overlay was actually built for THIS factor/ctx. Read its
+        # patched config.json back and compare, so a stale/mismatched overlay
+        # fails loudly instead of silently serving the wrong rope scaling.
+        YARN_CHECK="$(python3 -c '
+import json, sys
+path, want_factor, want_ctx = sys.argv[1], float(sys.argv[2]), int(sys.argv[3])
+cfg = json.load(open(path))
+tc = cfg.get("text_config", cfg)
+rope = tc.get("rope_parameters") or tc.get("rope_scaling") or {}
+found_factor = rope.get("factor")
+found_ctx = tc.get("max_position_embeddings")
+ok = (
+    found_factor is not None
+    and found_ctx is not None
+    and abs(float(found_factor) - want_factor) < 1e-9
+    and int(found_ctx) == want_ctx
+)
+print(f"{int(ok)} {found_factor} {found_ctx}")
+' "$YARN_MODEL_DIR/config.json" "$YARN" "$CTX")"
+        read -r YARN_OK YARN_FOUND_FACTOR YARN_FOUND_CTX <<<"$YARN_CHECK"
+        [[ "$YARN_OK" == "1" ]] || {
+          echo "run-candidate: overlay config mismatch at $YARN_MODEL_DIR/config.json: found factor=$YARN_FOUND_FACTOR ctx=$YARN_FOUND_CTX, wanted factor=$YARN ctx=$CTX" >&2
+          echo "run-candidate: rebuild with: python3 $HERE/scripts/make-yarn-overlay.py --src $MTPLXPACK --dst-root $YARN_MODEL_ROOT --factor $YARN --ctx $CTX" >&2
+          exit 66
+        }
         MODEL_DIR="$YARN_MODEL_DIR"; TOKENIZER="$YARN_MODEL_DIR"
         REV="v2.11.2-yarn${YARN}"
       fi ;;

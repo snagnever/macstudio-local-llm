@@ -12,7 +12,13 @@ This script does that without touching the source pack: it creates a
 sibling directory (same basename as the source, so run-mtplx.sh's
 MODEL_ROOT/MODEL_NAME-MODEL_REVISION lookup still finds it when pointed at
 the overlay root) containing symlinks to every file/subdirectory of the
-source pack except config.json, plus a patched config.json.
+source pack except config.json and .cache, plus a patched config.json and a
+real, empty .cache directory of its own.
+
+.cache is deliberately NOT a symlink: MTPLX's hf_loader treats
+<model dir>/.cache as writable hub bookkeeping (lock files, download
+metadata), so a symlinked .cache would make the overlay write through into
+the source pack the moment the server touched it.
 
 No server is started. This only creates symlinks and writes one JSON file.
 """
@@ -123,6 +129,21 @@ def _is_correct_symlink(link: Path, expected_target: Path) -> bool:
         return False
 
 
+def _ensure_real_empty_cache_dir(path: Path) -> None:
+    """Give the overlay its own real, empty .cache instead of symlinking the
+    source pack's. If an earlier (buggy) build left a symlink here, replace
+    only the symlink entry itself -- unlink() removes the directory-entry,
+    never the target it used to point at, so the source pack's real .cache
+    (and whatever MTPLX has written into it) is never touched."""
+    if path.is_symlink():
+        path.unlink()
+    if path.exists():
+        if path.is_dir():
+            return  # already a real dir (idempotent rerun); leave contents alone
+        raise OverlayError(f"refusing to replace non-directory path: {path}")
+    path.mkdir(parents=True)
+
+
 def make_overlay(src: Path, dst_root: Path, factor: float, ctx: int) -> Path:
     src = Path(src)
     dst_root = Path(dst_root)
@@ -144,6 +165,9 @@ def make_overlay(src: Path, dst_root: Path, factor: float, ctx: int) -> Path:
         if entry.name == "config.json":
             continue
         link = dst / entry.name
+        if entry.name == ".cache":
+            _ensure_real_empty_cache_dir(link)
+            continue
         if link.exists() or link.is_symlink():
             if _is_correct_symlink(link, entry):
                 continue

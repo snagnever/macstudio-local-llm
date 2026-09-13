@@ -44,6 +44,8 @@ def _build_fake_pack(tmp_path: Path) -> Path:
     (pack / "model.safetensors").write_text("fake-weights")
     (pack / "sub").mkdir()
     (pack / "sub" / "inner.bin").write_text("fake-inner")
+    (pack / ".cache").mkdir()
+    (pack / ".cache" / "hub-lock.json").write_text("fake-hub-bookkeeping")
     return pack
 
 
@@ -104,3 +106,54 @@ def test_make_overlay_refuses_dst_root_inside_prefix_cache(tmp_path):
 
     with pytest.raises(OverlayError):
         make_overlay(src=src, dst_root=dst_root, factor=2.0, ctx=524288)
+
+
+def test_cache_dir_is_real_not_symlink(tmp_path):
+    src = _build_fake_pack(tmp_path)
+    src_cache_file = src / ".cache" / "hub-lock.json"
+    src_cache_before = src_cache_file.read_text()
+    dst_root = tmp_path / "overlays" / "yarn2"
+
+    dst = make_overlay(src=src, dst_root=dst_root, factor=2.0, ctx=524288)
+
+    overlay_cache = dst / ".cache"
+    assert overlay_cache.exists()
+    assert not overlay_cache.is_symlink()
+    assert overlay_cache.is_dir()
+    assert list(overlay_cache.iterdir()) == []
+
+    # A write MTPLX makes into the overlay's .cache must never reach the source.
+    assert src_cache_file.read_text() == src_cache_before
+
+    # Migration: an overlay built by the older, buggy script left .cache as a
+    # symlink into the source. Simulate that, then rebuild and confirm it is
+    # replaced by a real empty dir without touching the source file.
+    overlay_cache.rmdir()
+    overlay_cache.symlink_to((src / ".cache").absolute(), target_is_directory=True)
+    assert overlay_cache.is_symlink()
+
+    make_overlay(src=src, dst_root=dst_root, factor=2.0, ctx=524288)
+
+    assert overlay_cache.exists()
+    assert not overlay_cache.is_symlink()
+    assert overlay_cache.is_dir()
+    assert list(overlay_cache.iterdir()) == []
+    assert src_cache_file.exists()
+    assert src_cache_file.read_text() == src_cache_before
+
+
+def test_rebuild_with_new_factor_rewrites_config(tmp_path):
+    src = _build_fake_pack(tmp_path)
+    dst_root = tmp_path / "overlays" / "yarn2"
+
+    dst = make_overlay(src=src, dst_root=dst_root, factor=2.0, ctx=524288)
+    config = json.loads((dst / "config.json").read_text())
+    rope = config["text_config"]["rope_parameters"]
+    assert rope["factor"] == 2.0
+    assert config["text_config"]["max_position_embeddings"] == 524288
+
+    dst = make_overlay(src=src, dst_root=dst_root, factor=2.5, ctx=655360)
+    config = json.loads((dst / "config.json").read_text())
+    rope = config["text_config"]["rope_parameters"]
+    assert rope["factor"] == 2.5
+    assert config["text_config"]["max_position_embeddings"] == 655360
