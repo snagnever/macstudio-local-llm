@@ -108,6 +108,19 @@ def load_sonda(path: str | None) -> dict[str, Any]:
     return load_json(path)
 
 
+def js_json(obj: Any) -> str:
+    """Serialize `obj` for embedding inside the page's inline <script> block.
+
+    Plain `json.dumps` is not safe here: a free-text field (e.g. a sonda
+    `note` that quotes a log line) could contain the literal substring
+    `</script>` and prematurely close the tag, letting whatever follows run
+    as markup/script. Escaping "</" as "<\\/" defuses that — "\\/" is a legal
+    JSON escape for "/", so `JSON.parse` in the browser (and `json.loads` in
+    a test) round-trips it back to "/" unchanged.
+    """
+    return json.dumps(obj, ensure_ascii=False, indent=1).replace("</", "<\\/")
+
+
 def render_verdict_html(path: str | None) -> str:
     if not path:
         return f"<p>{PLACEHOLDER_VERDICT}</p>"
@@ -193,6 +206,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
   table.scoreboard thead th[data-sorted="desc"]::after { content: '▼'; }
   table.scoreboard tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
   table.scoreboard tbody td.dash { color: #555; }
+  table.scoreboard tbody td.best { color: #7ee787; font-weight: 600; }
   table.scoreboard tbody tr:hover { background: rgba(255,255,255,0.03); }
   table.scoreboard td.model-cell { white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd1d6; }
   tr.filtered-out { display: none; }
@@ -234,7 +248,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 
   <section class="card wide">
     <h2>Placar</h2>
-    <p class="sub">T_turno = TTFT quente do cenário <code>tool_turn</code> + tempo de decode de 512 tokens de resposta — o que o usuário sente por turno. Wired pico é o máximo de <code>wired_peak_gb</code> entre as bandas medidas. Gates falhados usa os limiares da campanha (hit ≥0.90 a 32K/128K, sem erro HTTP, wired ≤102 GB, swap ≤0.5 GB, resposta correta). Menor é melhor para T_turno/TTFT/wired e maior é melhor para decode — colunas com semânticas opostas, por isso esta tabela não destaca automaticamente uma "melhor" célula por coluna (só ordena ao clicar no cabeçalho).</p>
+    <p class="sub">T_turno = TTFT quente do cenário <code>tool_turn</code> + tempo de decode de 512 tokens de resposta — o que o usuário sente por turno. Wired pico é o máximo de <code>wired_peak_gb</code> entre as bandas medidas. Gates falhados usa os limiares da campanha (hit ≥0.90 a 32K/128K, sem erro HTTP, wired ≤102 GB, swap ≤0.5 GB, resposta correta). Ordenada por padrão por T_turno @32K (menor primeiro — clique num cabeçalho para reordenar). Menor é melhor para T_turno/TTFT/wired e maior é melhor para decode; a melhor célula visível de cada coluna aparece em verde, respeitando essa direção por coluna.</p>
     <div class="scoreboard-wrap">
       <table class="scoreboard" id="scoreboardDriver">
         <thead>
@@ -449,8 +463,41 @@ C.buildScoreboard(document.getElementById('scoreboardDriver'), MODELS, RESULTS, 
   { kind:'str', get: m => { const v = wiredPeak(m.id); return v == null ? '—' : v.toFixed(1); } },
   { kind:'str', get: m => gatesCell(m.id) }
 ]);
-C.setupSortableTable('scoreboardDriver');
-state.onChange(st => C.applyTableFilter('scoreboardDriver', state, {}));
+// Default sort: ascending on T_turno @32K (column index 1 — 0 is the
+// Candidato column). Lower is better for T_turno, so ascending (dir=1) puts
+// the best candidate on top without the user having to click anything.
+C.setupSortableTable('scoreboardDriver', 1, 1);
+
+// charts-common's highlightBestPerColumn always marks the column MAX as
+// "best" — wrong here, since T_turno/TTFT/wired are lower-is-better and only
+// decode is higher-is-better. Do a small direction-aware highlight locally
+// instead of changing the shared helper (which every other report page also
+// uses with max-is-best semantics).
+const SCOREBOARD_DIRECTIONS = { 1:'min', 2:'min', 3:'min', 4:'max', 5:'min' };
+function highlightScoreboardBest() {
+  const table = document.getElementById('scoreboardDriver');
+  if (!table) return;
+  const rows = Array.prototype.slice.call(table.querySelectorAll('tbody tr'));
+  Array.prototype.slice.call(table.querySelectorAll('td.best')).forEach(td => td.classList.remove('best'));
+  Object.keys(SCOREBOARD_DIRECTIONS).forEach(key => {
+    const idx = Number(key);
+    const dir = SCOREBOARD_DIRECTIONS[key];
+    let best = null;
+    let bestCells = [];
+    rows.forEach(r => {
+      if (r.classList.contains('filtered-out')) return;
+      const cell = r.children[idx];
+      if (!cell) return;
+      const v = parseFloat(cell.textContent.trim());
+      if (isNaN(v)) return;
+      if (best === null || (dir === 'min' ? v < best : v > best)) { best = v; bestCells = [cell]; }
+      else if (v === best) { bestCells.push(cell); }
+    });
+    bestCells.forEach(c => c.classList.add('best'));
+  });
+}
+highlightScoreboardBest();
+state.onChange(st => { C.applyTableFilter('scoreboardDriver', state, {}); highlightScoreboardBest(); });
 
 // --- Cache-hit table (custom markup, driven by RESULTS) ---
 (function renderHitTable() {
@@ -512,10 +559,10 @@ def render_page(
     verdict_html: str,
 ) -> str:
     page = PAGE_TEMPLATE
-    page = page.replace("@@MODELS_JSON@@", json.dumps(models, ensure_ascii=False, indent=1))
-    page = page.replace("@@RESULTS_JSON@@", json.dumps(results, ensure_ascii=False, indent=1))
-    page = page.replace("@@GATES_JSON@@", json.dumps(gates, ensure_ascii=False, indent=1))
-    page = page.replace("@@SONDA_JSON@@", json.dumps(sonda, ensure_ascii=False, indent=1))
+    page = page.replace("@@MODELS_JSON@@", js_json(models))
+    page = page.replace("@@RESULTS_JSON@@", js_json(results))
+    page = page.replace("@@GATES_JSON@@", js_json(gates))
+    page = page.replace("@@SONDA_JSON@@", js_json(sonda))
     page = page.replace("@@VERDICT_HTML@@", verdict_html)
     return page
 

@@ -116,3 +116,66 @@ def test_render_verdict_html_renders_paragraphs(tmp_path):
     assert "Primeiro parágrafo." in out
     assert "&lt;tag&gt;" in out
     assert "&amp;" in out
+
+
+def test_sonda_note_with_script_breakout_is_escaped(tmp_path):
+    """A free-text sonda `note` quoting "</script>" must not be able to close
+    the page's inline <script> tag early — see finding 1, review round 1."""
+    summary_path = tmp_path / "summary.json"
+    summary_path.write_text(json.dumps({"c1@32768": _row()}), encoding="utf-8")
+    sonda_path = tmp_path / "sonda.json"
+    malicious_note = "x</script><script>alert(1)</script>"
+    sonda_path.write_text(
+        json.dumps(
+            {
+                "c1": {
+                    "reaches": True,
+                    "followup": True,
+                    "decode_tps": 10.0,
+                    "cold_ttft_s": 5.0,
+                    "note": malicious_note,
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    out_path = tmp_path / "out.html"
+
+    rc = rd.main(
+        ["--summary", str(summary_path), "--sonda", str(sonda_path), "--out", str(out_path)]
+    )
+    assert rc == 0
+
+    page = out_path.read_text(encoding="utf-8")
+    assert "</script><script>alert" not in page
+    # Exactly the 3 CDN `<script src=...>` tags plus the one inline <script>
+    # block close with `</script>` in the static template — nothing extra
+    # sneaked in from embedded JSON data.
+    assert page.count("</script>") == 4
+
+    m = re.search(r"const SONDA = (\{.*?\});\n", page, re.S)
+    assert m, "const SONDA not found in generated HTML"
+    sonda = json.loads(m.group(1))
+    assert sonda["c1"]["note"] == malicious_note
+
+
+def test_scoreboard_default_sort_and_direction_aware_highlight(tmp_path):
+    """Finding 2, review round 1: the scoreboard must default-sort ascending
+    on T_turno@32K (column index 1) and highlight the best cell per column
+    with the correct direction (min for time/memory, max for decode) instead
+    of the shared helper's always-max semantics."""
+    summary_path = tmp_path / "summary.json"
+    summary_path.write_text(json.dumps({"c1@32768": _row()}), encoding="utf-8")
+    out_path = tmp_path / "out.html"
+    rc = rd.main(["--summary", str(summary_path), "--out", str(out_path)])
+    assert rc == 0
+
+    page = out_path.read_text(encoding="utf-8")
+    assert "C.setupSortableTable('scoreboardDriver', 1, 1)" in page
+    assert "SCOREBOARD_DIRECTIONS" in page
+    assert "1:'min'" in page
+    assert "4:'max'" in page
+    assert "highlightScoreboardBest" in page
+    # highlightBestPerColumn (always max-is-best) must not be wired onto this
+    # scoreboard — that would mis-highlight the slowest T_turno as "best".
+    assert "highlightBestPerColumn('scoreboardDriver')" not in page

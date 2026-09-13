@@ -61,6 +61,7 @@
   table.scoreboard thead th[data-sorted="desc"]::after { content: '▼'; }
   table.scoreboard tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
   table.scoreboard tbody td.dash { color: #555; }
+  table.scoreboard tbody td.best { color: #7ee787; font-weight: 600; }
   table.scoreboard tbody tr:hover { background: rgba(255,255,255,0.03); }
   table.scoreboard td.model-cell { white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd1d6; }
   tr.filtered-out { display: none; }
@@ -102,7 +103,7 @@
 
   <section class="card wide">
     <h2>Placar</h2>
-    <p class="sub">T_turno = TTFT quente do cenário <code>tool_turn</code> + tempo de decode de 512 tokens de resposta — o que o usuário sente por turno. Wired pico é o máximo de <code>wired_peak_gb</code> entre as bandas medidas. Gates falhados usa os limiares da campanha (hit ≥0.90 a 32K/128K, sem erro HTTP, wired ≤102 GB, swap ≤0.5 GB, resposta correta). Menor é melhor para T_turno/TTFT/wired e maior é melhor para decode — colunas com semânticas opostas, por isso esta tabela não destaca automaticamente uma "melhor" célula por coluna (só ordena ao clicar no cabeçalho).</p>
+    <p class="sub">T_turno = TTFT quente do cenário <code>tool_turn</code> + tempo de decode de 512 tokens de resposta — o que o usuário sente por turno. Wired pico é o máximo de <code>wired_peak_gb</code> entre as bandas medidas. Gates falhados usa os limiares da campanha (hit ≥0.90 a 32K/128K, sem erro HTTP, wired ≤102 GB, swap ≤0.5 GB, resposta correta). Ordenada por padrão por T_turno @32K (menor primeiro — clique num cabeçalho para reordenar). Menor é melhor para T_turno/TTFT/wired e maior é melhor para decode; a melhor célula visível de cada coluna aparece em verde, respeitando essa direção por coluna.</p>
     <div class="scoreboard-wrap">
       <table class="scoreboard" id="scoreboardDriver">
         <thead>
@@ -252,6 +253,84 @@ const RESULTS = [
  {
   "model": "c1",
   "metric": "t_turno_s",
+  "context": 131072,
+  "value": null
+ },
+ {
+  "model": "c1",
+  "metric": "cold_ttft_s",
+  "context": 131072,
+  "value": 177.8
+ },
+ {
+  "model": "c1",
+  "metric": "decode_tps",
+  "context": 131072,
+  "value": 57.5
+ },
+ {
+  "model": "c1",
+  "metric": "prefill_tps",
+  "context": 131072,
+  "value": 706.5
+ },
+ {
+  "model": "c1",
+  "metric": "wired_peak_gb",
+  "context": 131072,
+  "value": null
+ },
+ {
+  "model": "c1",
+  "metric": "mtp_acceptance",
+  "context": 131072,
+  "value": null
+ },
+ {
+  "model": "c1",
+  "metric": "warm_ttft_s",
+  "context": 131072,
+  "scenario": "identical",
+  "value": 0.2
+ },
+ {
+  "model": "c1",
+  "metric": "hit",
+  "context": 131072,
+  "scenario": "identical",
+  "value": 1.0
+ },
+ {
+  "model": "c1",
+  "metric": "warm_ttft_s",
+  "context": 131072,
+  "scenario": "append",
+  "value": 2.2
+ },
+ {
+  "model": "c1",
+  "metric": "hit",
+  "context": 131072,
+  "scenario": "append",
+  "value": 0.992
+ },
+ {
+  "model": "c1",
+  "metric": "warm_ttft_s",
+  "context": 131072,
+  "scenario": "tool_turn",
+  "value": null
+ },
+ {
+  "model": "c1",
+  "metric": "hit",
+  "context": 131072,
+  "scenario": "tool_turn",
+  "value": null
+ },
+ {
+  "model": "c1",
+  "metric": "t_turno_s",
   "context": 32768,
   "value": 10.8
  },
@@ -283,7 +362,7 @@ const RESULTS = [
   "model": "c1",
   "metric": "mtp_acceptance",
   "context": 32768,
-  "value": 0.6
+  "value": 0.552
  },
  {
   "model": "c1",
@@ -311,7 +390,7 @@ const RESULTS = [
   "metric": "hit",
   "context": 32768,
   "scenario": "append",
-  "value": 1.0
+  "value": 0.962
  },
  {
   "model": "c1",
@@ -325,7 +404,7 @@ const RESULTS = [
   "metric": "hit",
   "context": 32768,
   "scenario": "tool_turn",
-  "value": 1.0
+  "value": 0.962
  },
  {
   "model": "c1",
@@ -361,7 +440,7 @@ const RESULTS = [
   "model": "c1",
   "metric": "mtp_acceptance",
   "context": 8192,
-  "value": 0.5
+  "value": 0.545
  },
  {
   "model": "c1",
@@ -403,7 +482,7 @@ const RESULTS = [
   "metric": "hit",
   "context": 8192,
   "scenario": "tool_turn",
-  "value": 0.7
+  "value": 0.718
  },
  {
   "model": "c2",
@@ -453,7 +532,7 @@ const RESULTS = [
   "metric": "hit",
   "context": 32768,
   "scenario": "identical",
-  "value": 1.0
+  "value": 0.975
  },
  {
   "model": "c2",
@@ -467,7 +546,7 @@ const RESULTS = [
   "metric": "hit",
   "context": 32768,
   "scenario": "append",
-  "value": 0.9
+  "value": 0.94
  },
  {
   "model": "c2",
@@ -481,7 +560,7 @@ const RESULTS = [
   "metric": "hit",
   "context": 32768,
   "scenario": "tool_turn",
-  "value": 0.9
+  "value": 0.938
  },
  {
   "model": "c2",
@@ -531,7 +610,7 @@ const RESULTS = [
   "metric": "hit",
   "context": 8192,
   "scenario": "identical",
-  "value": 0.7
+  "value": 0.75
  },
  {
   "model": "c2",
@@ -559,13 +638,13 @@ const RESULTS = [
   "metric": "hit",
   "context": 8192,
   "scenario": "tool_turn",
-  "value": 0.5
+  "value": 0.539
  },
  {
   "model": "c3",
   "metric": "t_turno_s",
   "context": 32768,
-  "value": null
+  "value": 12.6
  },
  {
   "model": "c3",
@@ -577,7 +656,7 @@ const RESULTS = [
   "model": "c3",
   "metric": "decode_tps",
   "context": 32768,
-  "value": 54.6
+  "value": 59.2
  },
  {
   "model": "c3",
@@ -589,7 +668,7 @@ const RESULTS = [
   "model": "c3",
   "metric": "wired_peak_gb",
   "context": 32768,
-  "value": null
+  "value": 90.84
  },
  {
   "model": "c3",
@@ -609,7 +688,7 @@ const RESULTS = [
   "metric": "hit",
   "context": 32768,
   "scenario": "identical",
-  "value": 1.0
+  "value": 0.975
  },
  {
   "model": "c3",
@@ -623,21 +702,21 @@ const RESULTS = [
   "metric": "hit",
   "context": 32768,
   "scenario": "append",
-  "value": 0.9
+  "value": 0.94
  },
  {
   "model": "c3",
   "metric": "warm_ttft_s",
   "context": 32768,
   "scenario": "tool_turn",
-  "value": null
+  "value": 4.0
  },
  {
   "model": "c3",
   "metric": "hit",
   "context": 32768,
   "scenario": "tool_turn",
-  "value": null
+  "value": 0.938
  },
  {
   "model": "c3",
@@ -687,7 +766,7 @@ const RESULTS = [
   "metric": "hit",
   "context": 8192,
   "scenario": "identical",
-  "value": 0.7
+  "value": 0.75
  },
  {
   "model": "c3",
@@ -715,7 +794,85 @@ const RESULTS = [
   "metric": "hit",
   "context": 8192,
   "scenario": "tool_turn",
-  "value": 0.5
+  "value": 0.539
+ },
+ {
+  "model": "c4",
+  "metric": "t_turno_s",
+  "context": 32768,
+  "value": 10.6
+ },
+ {
+  "model": "c4",
+  "metric": "cold_ttft_s",
+  "context": 32768,
+  "value": 47.9
+ },
+ {
+  "model": "c4",
+  "metric": "decode_tps",
+  "context": 32768,
+  "value": 70.3
+ },
+ {
+  "model": "c4",
+  "metric": "prefill_tps",
+  "context": 32768,
+  "value": 569.8
+ },
+ {
+  "model": "c4",
+  "metric": "wired_peak_gb",
+  "context": 32768,
+  "value": 100.86
+ },
+ {
+  "model": "c4",
+  "metric": "mtp_acceptance",
+  "context": 32768,
+  "value": 0.321
+ },
+ {
+  "model": "c4",
+  "metric": "warm_ttft_s",
+  "context": 32768,
+  "scenario": "identical",
+  "value": 0.1
+ },
+ {
+  "model": "c4",
+  "metric": "hit",
+  "context": 32768,
+  "scenario": "identical",
+  "value": 1.0
+ },
+ {
+  "model": "c4",
+  "metric": "warm_ttft_s",
+  "context": 32768,
+  "scenario": "append",
+  "value": 3.7
+ },
+ {
+  "model": "c4",
+  "metric": "hit",
+  "context": 32768,
+  "scenario": "append",
+  "value": 0.958
+ },
+ {
+  "model": "c4",
+  "metric": "warm_ttft_s",
+  "context": 32768,
+  "scenario": "tool_turn",
+  "value": 3.3
+ },
+ {
+  "model": "c4",
+  "metric": "hit",
+  "context": 32768,
+  "scenario": "tool_turn",
+  "value": 0.962
  },
  {
   "model": "c4",
@@ -751,7 +908,7 @@ const RESULTS = [
   "model": "c4",
   "metric": "mtp_acceptance",
   "context": 8192,
-  "value": 0.4
+  "value": 0.366
  },
  {
   "model": "c4",
@@ -798,14 +955,14 @@ const RESULTS = [
 ];
 
 const GATES = {
- "c1@32768": [
-  "http_errors"
- ],
+ "c1@131072": [],
+ "c1@32768": [],
  "c1@8192": [],
  "c2@32768": [],
  "c2@8192": [],
  "c3@32768": [],
  "c3@8192": [],
+ "c4@32768": [],
  "c4@8192": []
 };
 
@@ -915,8 +1072,41 @@ C.buildScoreboard(document.getElementById('scoreboardDriver'), MODELS, RESULTS, 
   { kind:'str', get: m => { const v = wiredPeak(m.id); return v == null ? '—' : v.toFixed(1); } },
   { kind:'str', get: m => gatesCell(m.id) }
 ]);
-C.setupSortableTable('scoreboardDriver');
-state.onChange(st => C.applyTableFilter('scoreboardDriver', state, {}));
+// Default sort: ascending on T_turno @32K (column index 1 — 0 is the
+// Candidato column). Lower is better for T_turno, so ascending (dir=1) puts
+// the best candidate on top without the user having to click anything.
+C.setupSortableTable('scoreboardDriver', 1, 1);
+
+// charts-common's highlightBestPerColumn always marks the column MAX as
+// "best" — wrong here, since T_turno/TTFT/wired are lower-is-better and only
+// decode is higher-is-better. Do a small direction-aware highlight locally
+// instead of changing the shared helper (which every other report page also
+// uses with max-is-best semantics).
+const SCOREBOARD_DIRECTIONS = { 1:'min', 2:'min', 3:'min', 4:'max', 5:'min' };
+function highlightScoreboardBest() {
+  const table = document.getElementById('scoreboardDriver');
+  if (!table) return;
+  const rows = Array.prototype.slice.call(table.querySelectorAll('tbody tr'));
+  Array.prototype.slice.call(table.querySelectorAll('td.best')).forEach(td => td.classList.remove('best'));
+  Object.keys(SCOREBOARD_DIRECTIONS).forEach(key => {
+    const idx = Number(key);
+    const dir = SCOREBOARD_DIRECTIONS[key];
+    let best = null;
+    let bestCells = [];
+    rows.forEach(r => {
+      if (r.classList.contains('filtered-out')) return;
+      const cell = r.children[idx];
+      if (!cell) return;
+      const v = parseFloat(cell.textContent.trim());
+      if (isNaN(v)) return;
+      if (best === null || (dir === 'min' ? v < best : v > best)) { best = v; bestCells = [cell]; }
+      else if (v === best) { bestCells.push(cell); }
+    });
+    bestCells.forEach(c => c.classList.add('best'));
+  });
+}
+highlightScoreboardBest();
+state.onChange(st => { C.applyTableFilter('scoreboardDriver', state, {}); highlightScoreboardBest(); });
 
 // --- Cache-hit table (custom markup, driven by RESULTS) ---
 (function renderHitTable() {
