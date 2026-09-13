@@ -11,14 +11,17 @@ Footprint = **memória wired** (o RSS via ps subconta buffers Metal). Swap e dis
 | mlx-serve 26.9.2 @128K  | 57.8 | 703 | 179 s  | 1.00 | ~105G | ~1.7G | — | ok |
 | mlx-serve 26.9.2 @262K  | 56.8 | 676 | 380 s  | 1.00 | ~105G | ~1.7G | ~8G | ok* |
 | mlx-serve YaRN @512K    | 51.4 | 615 | 844 s  | 1.00 | 111.4G | 1.7G | 19.8G | ok |
-| mlx-serve YaRN @1M      | 17.3 | 502 | 2079 s | — | 105.2G | 1.6G | 26.5G | cold ok** |
+| mlx-serve YaRN @1M      | 34.7 | 502 | 2079 s | n/d | 105.2G | 1.6G | 26.5G | cold ok** |
 | ds4 (fork) @32K         | 40.4 | 577 | 47 s   | 0.00† | 80.6G | 1.8G | — | ok*** |
 | ds4 (fork) @128K        | 39.2 | 572 | 220 s  | 0.00† | 83.8G | 1.7G | — | ok |
 | ds4 (fork) @256K        | 36.1 | 561 | 458 s  | 0.00† | 88.1G | 1.7G | — | ok |
 | ds4 (fork) @32K +kv-disk| 40.6 | 580 | 47 s   | **0.98/0.94** | ~81G | 1.8G | — | ok |
 
-\* 262K tool_turn truncou em max_tokens (não é erro). \** 1M: o cold gerou needles corretas; a 2ª
-request (identical) deu erro transitório. \*** ds4 32K append falhou (1 cenário).
+\* 262K tool_turn truncou em max_tokens (não é erro). \** 1M: só o **cold** rodou (decode 34.7,
+needles ok). A 2ª request (identical) foi **recusada por memória** (`PrefillDoesNotFit`): com a KV do
+1º prompt pinada (~15.6G), o working set de prefill do 2º (~28G) não cabe nos ~23G restantes, nem no
+chunk mais estreito. **1M em 128 GB é regime "one-shot cold"** — sem folga para follow-up/cache. Teto
+prático utilizável = **512K** (lá todos os cenários completaram). \*** ds4 32K append falhou (1 cenário).
 † ds4 SEM `--kv-disk-dir` (default): não persiste/reusa. **Com `--kv-disk-dir` o ds4 REUSA** o prefixo:
 identical TTFT 2.0s (cache 0.98), tool_turn 3.3s (0.94) — ver linha "+kv-disk". Decode inalterado (40.6).
 
@@ -28,7 +31,8 @@ identical TTFT 2.0s (cache 0.98), tool_turn 3.3s (0.94) — ver linha "+kv-disk"
 todo contexto (67/58/57/51 vs ds4 40/39/36) e ganha prefill. Ambos reusam prefix-cache — mlx-serve
 por default (identical 0.1s), o **ds4 só com `--kv-disk-dir`** (identical 2.0s/0.98, tool_turn 3.3s/0.94);
 o caminho quente do mlx-serve é um pouco mais rápido. Estende via YaRN a **512K com decode ainda forte
-(51)** e alcança **1M com needle correta** (decode cai a 17, cold ~35 min — teto prático ~512K).
+(51)** e alcança **1M no cold** (decode 34.7, needle ok, ~35 min), mas a 2ª request a 1M é recusada por
+memória — **1M = one-shot cold em 128 GB; teto prático utilizável = 512K**.
 
 **ds4 (fork ivanfioravanti):** footprint menor (80–88G wired vs 105–111G), mas **mais lento em decode
 e prefill** no M4 Max. Reusa prefix-cache com `--kv-disk-dir` (sem ele, default, não reusa). Os números
