@@ -631,6 +631,7 @@ def _record(
         "error": (
             "finish_reason:length" if result.finish_reason == "length" else None
         ),
+        "error_stage": None,
     }
 
 
@@ -646,10 +647,16 @@ def _error_record(
     mutation_tokens: int,
     code_expected_result: Optional[int] = None,
     sampling_controls: Optional[dict[str, Any]] = None,
+    *,
+    error_stage: str,
 ) -> dict[str, Any]:
     """Build a full-schema record for a request that failed before any
     response could be parsed (HTTP refusal or connection failure), so a
     memory guard's rejection becomes a record instead of a crash.
+
+    `error_stage` says which request failed -- "warmup", "prime", or
+    "measured" -- so a refused prime (the likely case at 256K) is
+    distinguishable from a refused measured request.
 
     Reuses `_record` against a StreamResult-like failed result so the record
     keeps every usual identifying/sampling field with the same schema
@@ -681,6 +688,7 @@ def _error_record(
         sampling_controls=sampling_controls,
     )
     record["error"] = failure.message
+    record["error_stage"] = error_stage
     record["correct"] = False
     record["cache_hit_ratio"] = None
     return record
@@ -714,6 +722,26 @@ def _run_scenario_repeat(
         if scenario == "cold"
         else _priming_messages(fixture.text, repeat, fixture.question)
     )
+    messages = _messages_for_scenario(
+        scenario,
+        fixture.text,
+        mutated_text,
+        suffix,
+        repeat,
+        fixture.question,
+    )
+    # Assign THIS scenario's identity/hash on `args` before sending anything --
+    # if the prime below is refused (the likely case at 256K), the error
+    # record must carry this scenario's identity, not whatever the previous
+    # scenario/repeat left behind.
+    args.messages = messages
+    args.static_prefix_hash = _static_prefix_hash(
+        prime_messages if prime_messages is not None else messages
+    )
+    args.static_prefix_prior_match = prime_messages is not None
+    args.static_prefix_matches = prime_messages is not None
+
+    stage = "prime"
     try:
         if prime_messages is not None:
             _stream_chat_checked(
@@ -727,20 +755,7 @@ def _run_scenario_repeat(
                     sampling_controls=sampling_controls,
                 ),
             )
-        messages = _messages_for_scenario(
-            scenario,
-            fixture.text,
-            mutated_text,
-            suffix,
-            repeat,
-            fixture.question,
-        )
-        args.messages = messages
-        args.static_prefix_hash = _static_prefix_hash(
-            prime_messages if prime_messages is not None else messages
-        )
-        args.static_prefix_prior_match = prime_messages is not None
-        args.static_prefix_matches = prime_messages is not None
+        stage = "measured"
         metrics_before = _metrics_snapshot(args.metrics_url, args.runtime)
         result = _stream_chat_checked(
             args.base_url,
@@ -754,6 +769,8 @@ def _run_scenario_repeat(
             ),
         )
     except RequestFailure as failure:
+        # A refused prime (stage == "prime") must not fall through to the
+        # measured request -- returning here skips it.
         record = _error_record(
             args,
             scenario,
@@ -766,6 +783,7 @@ def _run_scenario_repeat(
             mutation_tokens,
             fixture.expected_result,
             sampling_controls,
+            error_stage=stage,
         )
         return record, failure.fatal
 
@@ -929,18 +947,47 @@ def main() -> int:
         fixture.text, 64, tokenizer
     )
     warmup_text, _ = build_suffix(512, tokenizer, "Warmup complete.")
-    stream_chat(
-        args.base_url,
-        _warmup_payload(
-            api_model, warmup_text, sampling_controls=sampling_controls
-        ),
-    )
     scenarios = selected_scenarios(args.scenarios, args.scenario_order)
     repeat_overrides = scenario_repeat_overrides(args.scenario_repeats)
     args.output.parent.mkdir(parents=True, exist_ok=True)
+
     had_request_failure = False
+    stop = False
+    warmup_record = None
+    try:
+        _stream_chat_checked(
+            args.base_url,
+            _warmup_payload(
+                api_model, warmup_text, sampling_controls=sampling_controls
+            ),
+        )
+    except RequestFailure as failure:
+        # The warmup isn't scenario-scoped, so attribute its failure record to
+        # the first requested scenario per the spec. A plain HTTP refusal
+        # doesn't mean the server can't serve the (usually much smaller)
+        # scenario prompts, so only a dead connection stops the run here.
+        warmup_record = _error_record(
+            args,
+            scenarios[0] if scenarios else "cold",
+            1,
+            failure,
+            fixture.needles,
+            fixture_hash,
+            len(suffix_token_ids),
+            mutation_prefix_tokens,
+            mutation_tokens,
+            fixture.expected_result,
+            sampling_controls,
+            error_stage="warmup",
+        )
+        stop = failure.fatal
+
     with args.output.open("a", encoding="utf-8") as output:
-        stop = False
+        if warmup_record is not None:
+            output.write(json.dumps(warmup_record, sort_keys=True) + "\n")
+            output.flush()
+            print(json.dumps(warmup_record, sort_keys=True), flush=True)
+            had_request_failure = True
         for scenario in scenarios:
             if stop:
                 break

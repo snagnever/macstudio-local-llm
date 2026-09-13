@@ -216,7 +216,12 @@ PROBE_EXIT=0
 kill "$SAMPLER_PID" 2>/dev/null || true; SAMPLER_PID=""
 python3 "$HERE/scripts/attach_memory.py" --results "$OUT" --sampler "$MEM" || true
 python3 "$HERE/scripts/attach_mtp.py" --results "$OUT" --log "$BOOT" || true
-kill "$SERVER_PID" 2>/dev/null || true; SERVER_PID=""; wait_port_free
+kill "$SERVER_PID" 2>/dev/null || true; SERVER_PID=""
+# Every command from here on must be guarded: under `set -e` a non-zero
+# return (e.g. wait_port_free timing out) would abort before `exit
+# "$PROBE_EXIT"`, silently turning a flagged probe failure into a script
+# exit of 0 for the supervisor. The EXIT trap still runs cleanup regardless.
+wait_port_free || true
 if [[ "$PROBE_EXIT" -ne 0 ]]; then
   echo ">>> $NAME: probe exited $PROBE_EXIT (see $OUT for any refusal records)" >&2
 else
