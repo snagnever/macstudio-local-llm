@@ -98,10 +98,18 @@ def build_results(summary: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
-def build_gates(summary: dict[str, Any]) -> dict[str, list[str]]:
-    """`<cand>@<ctx>` -> lista de gates falhados (fora do modelo RESULTS: não é
-    um valor numérico medido, é um veredito derivado que só o scoreboard usa)."""
-    return {key: list((r or {}).get("gates_failed", []) or []) for key, r in summary.items()}
+def build_gates(summary: dict[str, Any]) -> dict[str, dict[str, list[str]]]:
+    """`<cand>@<ctx>` -> `{"gates": [...falhados...], "warnings": [...alertas
+    nao eliminatorios...]}` (fora do modelo RESULTS: são veredictos derivados
+    que só o scoreboard usa). `wired>102` sai daqui como warning, não gate —
+    ver `summarize_driver.apply_warnings`."""
+    return {
+        key: {
+            "gates": list((r or {}).get("gates_failed", []) or []),
+            "warnings": list((r or {}).get("warnings", []) or []),
+        }
+        for key, r in summary.items()
+    }
 
 
 def load_sonda(path: str | None) -> dict[str, Any]:
@@ -248,7 +256,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 
   <section class="card wide">
     <h2>Placar</h2>
-    <p class="sub">T_turno = TTFT quente do cenário <code>tool_turn</code> + tempo de decode de 512 tokens de resposta — o que o usuário sente por turno. Wired pico é o máximo de <code>wired_peak_gb</code> entre as bandas medidas. Gates falhados usa os limiares da campanha (hit ≥0.90 a 32K/128K, sem erro HTTP, wired ≤102 GB, swap ≤0.5 GB, resposta correta). Ordenada por padrão por T_turno @32K (menor primeiro — clique num cabeçalho para reordenar). Menor é melhor para T_turno/TTFT/wired e maior é melhor para decode; a melhor célula visível de cada coluna aparece em verde, respeitando essa direção por coluna.</p>
+    <p class="sub">T_turno = TTFT quente do cenário <code>tool_turn</code> + tempo de decode de 512 tokens de resposta — o que o usuário sente por turno. Wired pico é o máximo de <code>wired_peak_gb</code> entre as bandas medidas. Gates falhados elimina o candidato (hit ≥0.90 a 32K/128K, sem erro HTTP, swap ≤0.5 GB, resposta correta). Wired acima de 102 GB é um alerta (coluna à parte), não uma eliminação — é o ponto de operação normal do mlx-serve (KV + prefix cache de 16 GB fixados em wired) quando não há crescimento de swap. Ordenada por padrão por T_turno @32K (menor primeiro — clique num cabeçalho para reordenar). Menor é melhor para T_turno/TTFT/wired e maior é melhor para decode; a melhor célula visível de cada coluna aparece em verde, respeitando essa direção por coluna.</p>
     <div class="scoreboard-wrap">
       <table class="scoreboard" id="scoreboardDriver">
         <thead>
@@ -260,6 +268,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
             <th class="num" data-sort="num">decode @128K (tok/s)</th>
             <th class="num" data-sort="num">wired pico (GB)</th>
             <th data-sort="str">gates falhados</th>
+            <th data-sort="str">alertas</th>
           </tr>
         </thead>
         <tbody><!-- gerado por charts-common.js --></tbody>
@@ -450,9 +459,19 @@ function gatesCell(id) {
   const fmt = key => {
     const g = GATES[id + '@' + key];
     if (g === undefined) return '—';
-    return g.length ? g.join(', ') : 'passa';
+    return g.gates.length ? g.gates.join(', ') : 'passa';
   };
   return '32K: ' + fmt('32768') + ' · 128K: ' + fmt('131072');
+}
+function warningsCell(id) {
+  const parts = [];
+  ['32768', '131072'].forEach(key => {
+    const g = GATES[id + '@' + key];
+    if (g && g.warnings && g.warnings.length) {
+      parts.push(g.warnings.join(', ') + ' @' + ctxLabel(Number(key)));
+    }
+  });
+  return parts.length ? parts.join(' · ') : '—';
 }
 
 C.buildScoreboard(document.getElementById('scoreboardDriver'), MODELS, RESULTS, [
@@ -461,7 +480,8 @@ C.buildScoreboard(document.getElementById('scoreboardDriver'), MODELS, RESULTS, 
   { kind:'num', query:{metric:'cold_ttft_s', context:131072} },
   { kind:'num', query:{metric:'decode_tps', context:131072} },
   { kind:'str', get: m => { const v = wiredPeak(m.id); return v == null ? '—' : v.toFixed(1); } },
-  { kind:'str', get: m => gatesCell(m.id) }
+  { kind:'str', get: m => gatesCell(m.id) },
+  { kind:'str', get: m => warningsCell(m.id) }
 ]);
 // Default sort: ascending on T_turno @32K (column index 1 — 0 is the
 // Candidato column). Lower is better for T_turno, so ascending (dir=1) puts

@@ -11,7 +11,7 @@ import render_dashboard as rd  # noqa: E402
 CANDIDATE_IDS = ["c1", "c2", "c3", "c4"]
 
 
-def _row(t_turno_s=5.0, cold_ttft_s=30.0, decode=64.0, hit=0.96, wired=90.0):
+def _row(t_turno_s=5.0, cold_ttft_s=30.0, decode=64.0, hit=0.96, wired=90.0, warnings=None):
     return {
         "cold_ttft_s": cold_ttft_s,
         "warm_ttft_s": {"identical": 0.1, "append": 1.9, "tool_turn": 2.0},
@@ -26,6 +26,7 @@ def _row(t_turno_s=5.0, cold_ttft_s=30.0, decode=64.0, hit=0.96, wired=90.0):
         "errors": 0,
         "n": 1,
         "gates_failed": [] if hit >= 0.90 else ["hit_append<0.90"],
+        "warnings": warnings if warnings is not None else [],
     }
 
 
@@ -157,6 +158,37 @@ def test_sonda_note_with_script_breakout_is_escaped(tmp_path):
     assert m, "const SONDA not found in generated HTML"
     sonda = json.loads(m.group(1))
     assert sonda["c1"]["note"] == malicious_note
+
+
+def test_wired_warning_shown_separately_from_gates(tmp_path):
+    """The wired>102 ruling: a candidate with no failed gates but a wired
+    warning must carry that warning in GATES[...]['warnings'], never inside
+    GATES[...]['gates'] — the scoreboard's gates-falhados cell must read
+    "passa" for this row, and the warning must show up in its own alertas
+    column/data instead."""
+    summary_path = tmp_path / "summary.json"
+    summary_path.write_text(
+        json.dumps({"c1@131072": _row(wired=106.35, warnings=["wired>102"])}),
+        encoding="utf-8",
+    )
+    out_path = tmp_path / "out.html"
+    rc = rd.main(["--summary", str(summary_path), "--out", str(out_path)])
+    assert rc == 0
+
+    page = out_path.read_text(encoding="utf-8")
+    m = re.search(r"const GATES = (\{.*?\});\n", page, re.S)
+    assert m, "const GATES not found in generated HTML"
+    gates = json.loads(m.group(1))
+    entry = gates["c1@131072"]
+    assert entry["gates"] == []
+    assert entry["warnings"] == ["wired>102"]
+    assert "wired>102" in page  # present in the embedded page data
+
+    # The scoreboard has its own "alertas" column/JS path, separate from the
+    # gates-falhados one, and must not conflate the two.
+    assert "alertas" in page
+    assert "warningsCell" in page
+    assert "gatesCell" in page
 
 
 def test_scoreboard_default_sort_and_direction_aware_highlight(tmp_path):

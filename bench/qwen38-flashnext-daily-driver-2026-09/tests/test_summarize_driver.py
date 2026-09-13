@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from summarize_driver import summarize, apply_gates, t_turno  # noqa: E402
+from summarize_driver import summarize, apply_gates, apply_warnings, t_turno  # noqa: E402
 
 
 def rec(cand, ctx, scen, ttft_s, decode, hit, correct=True, fin="stop", rep=1, wired=100.0, swap=0.1, error=None):
@@ -30,7 +30,22 @@ def test_summarize_medians_and_correctness():
 
 def test_gates():
     row = {"hit": {"append": 0.85, "tool_turn": 0.96}, "correctness": "ok", "wired_peak_gb": 104.0, "swap_delta_gb": 0.1, "errors": 0}
-    assert apply_gates(row, 32768) == ["hit_append<0.90", "wired>102"]
+    assert apply_gates(row, 32768) == ["hit_append<0.90"]
+
+
+def test_wired_is_warning_not_gate():
+    rs = [rec("c1", 131072, "cold", 37.0, 66.0, 0.0), rec("c1", 131072, "tool_turn", 2.0, 60.0, 0.96, wired=106.35),
+          rec("c1", 131072, "append", 1.9, 64.0, 0.96, wired=106.35), rec("c1", 131072, "identical", 0.1, 65.0, 1.0, wired=106.35, swap=0.0)]
+    s = summarize(rs)[("c1", 131072)]
+    assert s["gates_failed"] == []
+    assert s["warnings"] == ["wired>102"]
+
+
+def test_swap_still_gates():
+    rs = [rec("c1", 32768, "cold", 37.0, 66.0, 0.0), rec("c1", 32768, "tool_turn", 2.0, 60.0, 0.96, swap=0.8),
+          rec("c1", 32768, "append", 1.9, 64.0, 0.96), rec("c1", 32768, "identical", 0.1, 65.0, 1.0)]
+    s = summarize(rs)[("c1", 32768)]
+    assert "swap>0.5" in s["gates_failed"]
 
 
 def test_hit_gate_uses_unrounded_values():

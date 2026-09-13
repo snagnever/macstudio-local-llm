@@ -5,6 +5,7 @@ from pathlib import Path
 
 WARM = ("identical", "append", "tool_turn")
 GATE_CTX = (32768, 131072)
+WIRED_WARN_GB = 102
 
 
 def t_turno(ttft_tool_turn_s: float, decode_tps: float, reply_tokens: int = 512) -> float:
@@ -70,11 +71,17 @@ def summarize(records: list[dict]) -> dict:
         gate_row = dict(row)
         gate_row["hit"] = hit_raw
         row["gates_failed"] = apply_gates(gate_row, key[1])
+        row["warnings"] = apply_warnings(gate_row, key[1])
         out[key] = row
     return out
 
 
 def apply_gates(row: dict, ctx: int) -> list[str]:
+    """Failing one of these eliminates the candidate. Wired memory above
+    WIRED_WARN_GB is NOT here — mlx-serve's normal operating point (KV +
+    a 16 GB prefix cache pinned in wired) can sit above it with no swap
+    growth and correct output, so it is a warning (see apply_warnings),
+    not an elimination criterion."""
     failed = []
     if ctx in GATE_CTX:
         for s in ("append", "tool_turn"):
@@ -83,8 +90,6 @@ def apply_gates(row: dict, ctx: int) -> list[str]:
                 failed.append(f"hit_{s}<0.90")
         if row["correctness"] == "falha":
             failed.append("needle")
-    if row.get("wired_peak_gb") and row["wired_peak_gb"] > 102:
-        failed.append("wired>102")
     if row.get("swap_delta_gb", 0) > 0.5:
         failed.append("swap>0.5")
     if row.get("errors", 0) and ctx in GATE_CTX:
@@ -92,17 +97,27 @@ def apply_gates(row: dict, ctx: int) -> list[str]:
     return failed
 
 
+def apply_warnings(row: dict, ctx: int) -> list[str]:
+    """Non-eliminating flags. `wired_peak_gb` here is the raw (unrounded)
+    value already stored on the row — never re-derive it from a rounded
+    display figure."""
+    warnings = []
+    if row.get("wired_peak_gb") and row["wired_peak_gb"] > WIRED_WARN_GB:
+        warnings.append("wired>102")
+    return warnings
+
+
 def markdown(summary: dict) -> str:
     lines = []
     for ctx in sorted({k[1] for k in summary}):
-        lines.append(f"\n### {ctx // 1024}K\n\n| cand | T_turno s | cold TTFT s | warm TTFT id/app/tool s | hit id/app/tool | prefill | decode | MTP acc | correção | wired GB | swap Δ | gates |")
-        lines.append("|---|---:|---:|---|---|---:|---:|---:|---|---:|---:|---|")
+        lines.append(f"\n### {ctx // 1024}K\n\n| cand | T_turno s | cold TTFT s | warm TTFT id/app/tool s | hit id/app/tool | prefill | decode | MTP acc | correção | wired GB | swap Δ | gates | alertas |")
+        lines.append("|---|---:|---:|---|---|---:|---:|---:|---|---:|---:|---|---|")
         for (cand, c), r in sorted(summary.items()):
             if c != ctx:
                 continue
             w = r["warm_ttft_s"]; h = r["hit"]
             f = lambda d: "/".join("—" if d[s] is None else f"{d[s]:.2f}" if d[s] < 10 else f"{d[s]:.0f}" for s in WARM)
-            lines.append(f"| {cand} | {r['t_turno_s']} | {r['cold_ttft_s']} | {f(w)} | {f(h)} | {r['prefill_tps']} | {r['decode_tps']} | {r['mtp_acceptance']} | {r['correctness']} | {r['wired_peak_gb']} | {r['swap_delta_gb']} | {', '.join(r['gates_failed']) or 'passa'} |")
+            lines.append(f"| {cand} | {r['t_turno_s']} | {r['cold_ttft_s']} | {f(w)} | {f(h)} | {r['prefill_tps']} | {r['decode_tps']} | {r['mtp_acceptance']} | {r['correctness']} | {r['wired_peak_gb']} | {r['swap_delta_gb']} | {', '.join(r['gates_failed']) or 'passa'} | {', '.join(r.get('warnings') or []) or '—'} |")
     return "\n".join(lines)
 
 
