@@ -6,7 +6,7 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, Union
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from fixtures import (
@@ -213,6 +213,11 @@ def _metrics_snapshot(
         if error.code in (404, 405):
             return {}
         raise
+    except (URLError, OSError):
+        # Diagnostic snapshot only — a reset/timeout/etc. must never abort
+        # the benchmark (e.g. ConnectionResetError right after the server
+        # reports ready).
+        return {}
 
 
 def _json_snapshot(url: Optional[str]) -> dict[str, Any]:

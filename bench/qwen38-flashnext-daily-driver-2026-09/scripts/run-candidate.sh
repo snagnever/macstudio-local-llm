@@ -34,7 +34,11 @@ MTPLXPACK="$MODEL_ROOT/Youssofal-Qwen3.8-Flash-Next-MTPLX-Optimized-Speed-6bc2f6
 case "$CAND" in
   c1) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.9.2
       MODEL_DIR="$DDALCU"; MODEL_REV=ef5b919d31534faa1997666f1a22d362cd6383cd
-      PROBE_PY=python3; TOKENIZER=""; METRICS="http://127.0.0.1:$PORT/metrics"; SERVER_NAME=mlx-serve
+      PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve
+      # mlx-serve /metrics exposes no MTP counter (acceptance comes from the
+      # server log via attach_mtp), so skip it entirely and avoid the
+      # intermittent connection-reset race on that endpoint.
+      METRICS=""
       export QWEN38_MLX_SERVE_BIN="$HOME/.local/opt/qwen38/mlx-serve-v26.9.2/mlx-serve"
       export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
