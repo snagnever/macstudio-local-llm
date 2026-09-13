@@ -1,6 +1,14 @@
 # 2026-09-12 — Qwen: testar as atualizações de setembro
 
-> **Status (2026-09-13):** P1 fechado. **Item 1 mlx-serve 26.9.2 PROMOVIDO** (+7% decode @32K,
+> **Status (2026-09-13): CAMPANHA FECHADA.** Resultados canônicos em
+> [results/flashnext-stacks-summary.md](results/flashnext-stacks-summary.md). Resumo:
+> mlx-serve 26.9.2 e MTPLX 2.11.2 PROMOVIDOS (defaults do rig). mlx-serve 26.9.2 é a melhor stack do
+> Flash-Next no M4 Max em todo o range (decode/prefill/cache); estende via YaRN a 512K (teto prático,
+> decode 51) e 1M (nicho: one-shot ~35 tok/s kv8, ou multi-turno ~5 tok/s turbo4). ds4 (fork) roda mas
+> perde em decode/prefill; footprint menor não compensa. Itens 3/7 pulados; 4 (oMLX 0.7) e 5 (json trio)
+> deferidos. Histórico do andamento abaixo.
+>
+> P1 fechado. **Item 1 mlx-serve 26.9.2 PROMOVIDO** (+7% decode @32K,
 > +20–40% @128K). **Item 2 MTPLX 2.11.2 PROMOVIDO por correção** (a MTP do 2.11.1 é lossy a 32K).
 > Item 3 (1M) e item 7 (3.6-35B) pulados a pedido. Item 4 (oMLX 0.7 dev2) e item 5 (json do trio 27B)
 > deferidos (ver headings). Item 6 (DFlash2) exige Terminal-Bench, corrida à parte. Vereditos:
