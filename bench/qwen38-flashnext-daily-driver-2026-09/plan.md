@@ -183,16 +183,22 @@ A needle do `cold` one-shot é o sinal principal ali.
 
 ## Critério de decisão (responsividade)
 
-**Métrica de manchete por banda:** `T_turno = TTFT(tool_turn) + 512 / decode` — o que o usuário
-espera num turno de agente com resposta de 512 tokens. Incumbente hoje (a temp 0, referência apenas): 9.8 s @32K, 11.6 s @128K.
+**Métrica de manchete por banda:** `T_turno = TTFT do tool_turn + 512 / mediana do decode dos
+cenários quentes servidos (identical, append, tool_turn)` — o que o usuário espera num turno de
+agente com resposta de 512 tokens. Incumbente hoje (a temp 0, referência apenas): 9.8 s @32K, 11.6 s
+@128K.
 **Primeiro turno:** cold TTFT.
 
 Gates eliminatórios (herdados da densa, ajustados ao rig):
 
 - Cache: hit ≥ 0.90 em `append` e `tool_turn` a 32K e 128K.
 - Correção: needle 3/3 a 32K e 128K; truncado não conta como erro, mas fica na tabela.
-- Memória: pico wired ≤ 102 GB (5 GB abaixo do teto de 107.5), swap delta ≤ 0.5 GB.
+- Memória: swap delta ≤ 0.5 GB.
 - Zero HTTP 4xx/5xx nas bandas diárias. A recusa a 256K é dado, fora do gate.
+
+Pico wired acima de 102 GB (5 GB abaixo do teto de 107.5) é alerta, não elimina: é o ponto de
+operação normal do mlx-serve (KV + prefix cache de 16 GB fixados em wired) quando não há
+crescimento de swap.
 
 Entre os que passam, vence o menor `T_turno` a 32K e 128K. Decode só desempata. O teto de contexto
 entra como capacidade, não como critério diário. Qualidade de agente não entra — depende do

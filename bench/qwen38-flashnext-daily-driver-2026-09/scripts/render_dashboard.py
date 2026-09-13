@@ -266,7 +266,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 
   <section class="card wide">
     <h2>Placar</h2>
-    <p class="sub">T_turno = TTFT quente do cenário <code>tool_turn</code> + tempo de decode de 512 tokens de resposta — o que o usuário sente por turno. Wired pico é o máximo de <code>wired_peak_gb</code> entre as bandas medidas. Gates falhados elimina o candidato (hit ≥0.90 a 32K/128K, sem erro HTTP, swap ≤0.5 GB, resposta correta). Wired acima de 102 GB é um alerta (coluna à parte), não uma eliminação — é o ponto de operação normal do mlx-serve (KV + prefix cache de 16 GB fixados em wired) quando não há crescimento de swap. Ordenada por padrão por T_turno @32K (menor primeiro — clique num cabeçalho para reordenar). Menor é melhor para T_turno/TTFT/wired e maior é melhor para decode; a melhor célula visível de cada coluna aparece em verde, respeitando essa direção por coluna.</p>
+    <p class="sub">T_turno = TTFT do <code>tool_turn</code> + 512 / mediana do decode dos cenários quentes servidos (<code>identical</code>, <code>append</code>, <code>tool_turn</code>) — o que o usuário sente por turno. Wired pico é o máximo de <code>wired_peak_gb</code> entre as bandas medidas. Gates falhados elimina o candidato (hit ≥0.90 a 32K/128K, sem erro HTTP, swap ≤0.5 GB, resposta correta). Wired acima de 102 GB é um alerta (coluna à parte), não uma eliminação — é o ponto de operação normal do mlx-serve (KV + prefix cache de 16 GB fixados em wired) quando não há crescimento de swap. Ordenada por padrão por T_turno @32K (menor primeiro — clique num cabeçalho para reordenar). Menor é melhor para T_turno/TTFT/wired e maior é melhor para decode; a melhor célula visível de cada coluna aparece em verde, respeitando essa direção por coluna.</p>
     <div class="scoreboard-wrap">
       <table class="scoreboard" id="scoreboardDriver">
         <thead>
@@ -290,7 +290,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 
   <section class="card">
     <h2>T_turno vs contexto</h2>
-    <p class="sub">TTFT quente (tool_turn) + decode de 512 tokens, por banda de contexto. Lacuna na linha = banda não medida.</p>
+    <p class="sub">T_turno = TTFT do tool_turn + 512 / mediana do decode dos cenários quentes servidos (identical, append, tool_turn), por banda de contexto. Lacuna na linha = banda não medida.</p>
     <div class="chart-wrap"><canvas id="chartTturno"></canvas></div>
   </section>
 

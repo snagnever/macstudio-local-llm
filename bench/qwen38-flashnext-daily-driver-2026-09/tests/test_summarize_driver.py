@@ -1,4 +1,5 @@
 import json
+import statistics
 import sys
 from pathlib import Path
 
@@ -6,11 +7,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from summarize_driver import summarize, apply_gates, apply_warnings, t_turno, main  # noqa: E402
 
 
-def rec(cand, ctx, scen, ttft_s, decode, hit, correct=True, fin="stop", rep=1, wired=100.0, swap=0.1, error=None):
+def rec(cand, ctx, scen, ttft_s, decode, hit, correct=True, fin="stop", rep=1, wired=100.0, swap=0.1, error=None,
+        session_id="sess-1"):
     return {"arm": cand, "context_target": ctx, "scenario": scen, "repeat": rep, "ttft_ms": ttft_s * 1000,
             "decode_tps": decode, "prompt_tps": 700.0, "cache_hit_ratio": hit, "correct": correct,
             "finish_reason": fin, "ram_peak_gb": wired, "swap_delta_gb": swap, "mtp_acceptance": 0.8,
-            "error": error}
+            "error": error, "session_id": session_id}
 
 
 def test_t_turno_formula():
@@ -97,3 +99,95 @@ def test_default_glob_selects_etapa_a_only(tmp_path):
     summary = json.loads(out_path.read_text(encoding="utf-8"))
     assert summary["c1@32768"]["n"] == 1  # only the Etapa A file's single record
     assert "c1@524288" not in summary
+
+
+def test_cold_median_ignores_http_refusal():
+    """A served cold plus an http_507 cold in the same group: cold_ttft_s
+    must be the served record's value, not a median blended with the
+    time-to-failure of the refusal."""
+    rs = [
+        rec("c1", 131072, "cold", 37.0, 66.0, 0.0),
+        rec("c1", 131072, "cold", 0.2, 0.0, 0.0, correct=False, fin=None,
+            error="http_507: Insufficient Storage", rep=2),
+        rec("c1", 131072, "tool_turn", 2.0, 60.0, 0.96),
+        rec("c1", 131072, "append", 1.9, 64.0, 0.96),
+        rec("c1", 131072, "identical", 1.8, 65.0, 1.0),
+    ]
+    s = summarize(rs)[("c1", 131072)]
+    assert s["cold_ttft_s"] == 37.0
+    assert s["n"] == 5
+    assert s["errors"] == 1
+
+
+def test_failed_tool_turn_makes_t_turno_none():
+    """An http-error tool_turn record must not produce a served TTFT for
+    T_turno's tool_turn term — with no served tool_turn, t_turno_s is None
+    (no falling back to a median over all records)."""
+    rs = [
+        rec("c1", 32768, "cold", 37.0, 66.0, 0.0),
+        rec("c1", 32768, "tool_turn", 0.1, 0.0, 0.0, correct=False, fin=None,
+            error="http_507: Insufficient Storage"),
+        rec("c1", 32768, "append", 1.9, 64.0, 0.96),
+        rec("c1", 32768, "identical", 1.8, 65.0, 1.0),
+    ]
+    s = summarize(rs)[("c1", 32768)]
+    assert s["t_turno_s"] is None
+
+
+def test_all_refusals_group_warns_sem_dados_and_nulls_decode():
+    rs = [
+        rec("c4", 131072, "cold", 0.2, 0.0, 0.0, correct=False, fin=None,
+            error="http_507: Insufficient Storage"),
+        rec("c4", 131072, "tool_turn", 0.1, 0.0, 0.0, correct=False, fin=None,
+            error="http_507: Insufficient Storage"),
+    ]
+    s = summarize(rs)[("c4", 131072)]
+    assert s["decode_tps"] is None
+    assert s["cold_ttft_s"] is None
+    assert s["t_turno_s"] is None
+    assert "sem_dados" in s["warnings"]
+
+
+def test_mixed_session_ids_warns_on_stderr(capsys):
+    rs = [
+        rec("c1", 32768, "cold", 37.0, 66.0, 0.0, session_id="run-a"),
+        rec("c1", 32768, "tool_turn", 2.0, 60.0, 0.96, session_id="run-b"),
+        rec("c1", 32768, "append", 1.9, 64.0, 0.96, session_id="run-a"),
+        rec("c1", 32768, "identical", 1.8, 65.0, 1.0, session_id="run-a"),
+    ]
+    summarize(rs)
+    err = capsys.readouterr().err
+    assert "c1" in err
+    assert "32768" in err
+    assert "run-a" in err and "run-b" in err
+
+
+def test_t_turno_uses_raw_medians_not_rounded_first():
+    # warm decode raw median = (6.00 + 6.08) / 2 = 6.04, which rounds to 6.0
+    # at 1 decimal. Dividing 512 by the *rounded* 6.0 first gives 85.33...,
+    # while dividing by the raw 6.04 gives 84.77... -- a ~0.57s difference,
+    # comfortably over the 0.05s bar the spec asks for.
+    rs = [
+        rec("c1", 32768, "cold", 37.0, 66.0, 0.0),
+        rec("c1", 32768, "tool_turn", 2.0, 6.00, 0.96),
+        rec("c1", 32768, "append", 1.9, 6.08, 0.96),
+    ]
+    s = summarize(rs)[("c1", 32768)]
+    raw_decode = statistics.median([6.00, 6.08])
+    expected = round(2.0 + 512 / raw_decode, 1)
+    rounded_first = round(2.0 + 512 / round(raw_decode, 1), 1)
+    assert abs(expected - rounded_first) >= 0.05
+    assert s["t_turno_s"] == expected
+
+
+def test_out_not_written_by_default(tmp_path, capsys):
+    """Without --out, main() must print the markdown and must NOT write
+    results/summary.json."""
+    a_rec = rec("c1", 32768, "cold", 37.0, 66.0, 0.96)
+    (tmp_path / "c1-32768-t1.0.jsonl").write_text(json.dumps(a_rec) + "\n", encoding="utf-8")
+
+    rc = main(["--results-dir", str(tmp_path)])
+    assert rc == 0
+    assert not (tmp_path / "summary.json").exists()
+    out = capsys.readouterr().out
+    assert "32K" in out
