@@ -29,3 +29,16 @@ Dados: p1-mlxserve-v26.9.{1,2}-32768.jsonl.
 Ganho cresce com contexto: 26.9.1 cai para ~44 tok/s a 128K; 26.9.2 segura ~55-63.
 Ambos cold sao frios reais (TTFT ~180-195 s). Sem falhas. 262K adiado.
 Dados: p1-mlxserve-v26.9.{1,2}-131072.jsonl.
+
+## 262K (262144) — mlx-serve 26.9.2 (leve: cold/identical/tool_turn x1)
+
+| cenario | decode | prefill | TTFT | cache | nota |
+|---|---:|---:|---:|---:|---|
+| cold      | 58.8 | 676 | 379.6 s | 0.00 | correto |
+| identical | 55.4 |   — |   1.0 s | 1.00 | correto (reusa) |
+| tool_turn | 56.2 | 409 |   2.6 s | 1.00 | needle FALHA = truncou em max_tokens 4096 (11.6k chars de reasoning), nao erro |
+
+**Cabe e nao colapsa a 262K:** decode ~56-59 tok/s, quase igual a 128K (58). Contra oMLX 0.6.4
+@262K (27 tok/s, prefill 217, cold 1185 s): **~2.1x decode, ~3.1x prefill, ~3x cold**. O v26.8.11
+caia a 17.6 tok/s. Decode praticamente plano 32K->262K (67->58->56). Cache reusa a 262K (identical/
+tool_turn 1.00). O 26.9.2 e o caminho recomendado para Flash-Next em todo o range de contexto.

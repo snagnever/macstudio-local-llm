@@ -119,7 +119,8 @@ run_one() {
     --runtime mlx-serve --runtime-revision "$ver" \
     --model-revision "$MODEL_REV" \
     --arm FS --session-id "${ts}-FS-${CTX}-${ver}" \
-    --context "$CTX" --content-class audit_retrieval --repeat 3 \
+    --context "$CTX" --content-class audit_retrieval --repeat "${P1_REPEAT:-3}" \
+    ${P1_SCENARIOS:+--scenarios "$P1_SCENARIOS"} \
     --output "$out" \
     --metrics-url "$BASE/metrics" \
     --cache-enabled --mtp-enabled
