@@ -41,6 +41,15 @@ NUMERIC_METRICS = (
 )
 SCENARIOS = ("identical", "append", "tool_turn")
 CONTEXTS = (8192, 32768, 131072, 262144)
+CONTEXT_LABELS: dict[int, str] = {8192: "8K", 32768: "32K", 131072: "128K", 262144: "256K"}
+
+# The 4 line charts (T_turno / warm TTFT / cold TTFT / decode vs. context) plot
+# only the Etapa A daily bands. The 8K smoke context is deliberately excluded:
+# c4@8K is a known MTPLX telemetry outlier (tool_turn TTFT ~75s, T_turno ~82s —
+# see results/etapa0-smoke.md) that squashes every 32K/128K/256K point near
+# zero on a shared axis. 8K stays everywhere else (cache-hit table, wired bar
+# chart, RESULTS/scoreboard).
+LINE_CHART_CONTEXTS: tuple[int, ...] = (32768, 131072, 262144)
 
 PLACEHOLDER_VERDICT = "Veredito pendente — campanha em andamento"
 
@@ -226,6 +235,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
   td.hit-na  { color: #555; text-align: right; }
   ul.caveats { margin: 0; padding-left: 20px; font-size: 13px; }
   ul.caveats li { margin-bottom: 6px; }
+  p.chart-note { grid-column: 1 / -1; margin: 0; font-size: 12px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -275,6 +285,8 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
       </table>
     </div>
   </section>
+
+  <p class="chart-note">O smoke de 8K fica fora dos gráficos: telemetria do MTPLX incoerente a 8K; ver etapa0-smoke.md.</p>
 
   <section class="card">
     <h2>T_turno vs contexto</h2>
@@ -372,6 +384,13 @@ const CONTEXTS = [8192, 32768, 131072, 262144];
 const CONTEXT_LABELS = { 8192:'8K', 32768:'32K', 131072:'128K', 262144:'256K' };
 function ctxLabel(ctx) { return CONTEXT_LABELS[ctx] || String(ctx); }
 
+// The 4 "vs contexto" line charts use only the daily bands (8K excluded — see
+// the chart-note in the markup above). Categorical axis (evenly spaced ticks
+// from LINE_CONTEXT_LABELS), not linear-in-tokens, so 32K/128K/256K don't get
+// bunched at one edge.
+const LINE_CONTEXTS = @@LINE_CONTEXTS_JSON@@;
+const LINE_CONTEXT_LABELS = @@LINE_CONTEXT_LABELS_JSON@@;
+
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -386,9 +405,12 @@ function dset(id, extra) {
 }
 
 function lineOptions(yLabel) {
+  // Categorical x-axis (the default Chart.js category scale, not a linear
+  // one) — same style as the wired bar chart below, so the 3 daily bands
+  // sit evenly spaced instead of bunched together by their raw token counts.
   return Object.assign({}, C.gridOpts(yLabel), {
     scales: {
-      x: { type:'linear', grid:{color:'#262a33'}, ticks:{color:'#9aa0a6'}, title:{display:true,text:'Contexto (tokens)',color:'#9aa0a6'} },
+      x: { grid:{color:'#262a33'}, ticks:{color:'#9aa0a6'} },
       y: { grid:{color:'#262a33'}, ticks:{color:'#9aa0a6'}, title:{display:true,text:yLabel,color:'#9aa0a6'}, beginAtZero:true }
     }
   });
@@ -397,9 +419,9 @@ function lineOptions(yLabel) {
 // --- T_turno vs contexto (linha) ---
 C.buildGroupedChart('chartTturno', {
   state: state, type: 'line',
-  labels: CONTEXTS,
+  labels: LINE_CONTEXT_LABELS,
   datasets: MODELS.map(m => dset(m.id, {
-    data: C.seriesFor(RESULTS, m.id, {metric:'t_turno_s'}, CONTEXTS, 'context'),
+    data: C.seriesFor(RESULTS, m.id, {metric:'t_turno_s'}, LINE_CONTEXTS, 'context'),
     tension: 0.25, fill: false
   })),
   options: lineOptions('T_turno (s)')
@@ -408,9 +430,9 @@ C.buildGroupedChart('chartTturno', {
 // --- TTFT quente (tool_turn) vs contexto (linha) ---
 C.buildGroupedChart('chartWarmTtft', {
   state: state, type: 'line',
-  labels: CONTEXTS,
+  labels: LINE_CONTEXT_LABELS,
   datasets: MODELS.map(m => dset(m.id, {
-    data: C.seriesFor(RESULTS, m.id, {metric:'warm_ttft_s', scenario:'tool_turn'}, CONTEXTS, 'context'),
+    data: C.seriesFor(RESULTS, m.id, {metric:'warm_ttft_s', scenario:'tool_turn'}, LINE_CONTEXTS, 'context'),
     tension: 0.25, fill: false
   })),
   options: lineOptions('TTFT quente — tool_turn (s)')
@@ -419,9 +441,9 @@ C.buildGroupedChart('chartWarmTtft', {
 // --- TTFT frio vs contexto (linha) ---
 C.buildGroupedChart('chartColdTtft', {
   state: state, type: 'line',
-  labels: CONTEXTS,
+  labels: LINE_CONTEXT_LABELS,
   datasets: MODELS.map(m => dset(m.id, {
-    data: C.seriesFor(RESULTS, m.id, {metric:'cold_ttft_s'}, CONTEXTS, 'context'),
+    data: C.seriesFor(RESULTS, m.id, {metric:'cold_ttft_s'}, LINE_CONTEXTS, 'context'),
     tension: 0.25, fill: false
   })),
   options: lineOptions('TTFT frio (s)')
@@ -430,9 +452,9 @@ C.buildGroupedChart('chartColdTtft', {
 // --- Decode vs contexto (linha) ---
 C.buildGroupedChart('chartDecode', {
   state: state, type: 'line',
-  labels: CONTEXTS,
+  labels: LINE_CONTEXT_LABELS,
   datasets: MODELS.map(m => dset(m.id, {
-    data: C.seriesFor(RESULTS, m.id, {metric:'decode_tps'}, CONTEXTS, 'context'),
+    data: C.seriesFor(RESULTS, m.id, {metric:'decode_tps'}, LINE_CONTEXTS, 'context'),
     tension: 0.25, fill: false
   })),
   options: lineOptions('decode (tok/s)')
@@ -583,6 +605,10 @@ def render_page(
     page = page.replace("@@RESULTS_JSON@@", js_json(results))
     page = page.replace("@@GATES_JSON@@", js_json(gates))
     page = page.replace("@@SONDA_JSON@@", js_json(sonda))
+    page = page.replace("@@LINE_CONTEXTS_JSON@@", js_json(list(LINE_CHART_CONTEXTS)))
+    page = page.replace(
+        "@@LINE_CONTEXT_LABELS_JSON@@", js_json([CONTEXT_LABELS[c] for c in LINE_CHART_CONTEXTS])
+    )
     page = page.replace("@@VERDICT_HTML@@", verdict_html)
     return page
 

@@ -211,3 +211,44 @@ def test_scoreboard_default_sort_and_direction_aware_highlight(tmp_path):
     # highlightBestPerColumn (always max-is-best) must not be wired onto this
     # scoreboard — that would mis-highlight the slowest T_turno as "best".
     assert "highlightBestPerColumn('scoreboardDriver')" not in page
+
+
+def test_line_charts_drop_8k_but_hit_table_keeps_it(tmp_path):
+    """Review round 2: the 4 "vs contexto" line charts must plot only the
+    daily bands (32K/128K/256K) — the c4@8K smoke telemetry is a known outlier
+    that squashes every other point near zero. 8K must still flow through to
+    RESULTS (and therefore the cache-hit table), just not into the line
+    charts' own context/label lists."""
+    summary_path = tmp_path / "summary.json"
+    summary_path.write_text(
+        json.dumps({"c1@8192": _row(t_turno_s=82.0), "c1@32768": _row(t_turno_s=10.8)}),
+        encoding="utf-8",
+    )
+    out_path = tmp_path / "out.html"
+    rc = rd.main(["--summary", str(summary_path), "--out", str(out_path)])
+    assert rc == 0
+
+    page = out_path.read_text(encoding="utf-8")
+
+    line_contexts = _extract_const_array(page, "LINE_CONTEXTS")
+    assert line_contexts == [32768, 131072, 262144]
+    line_labels = _extract_const_array(page, "LINE_CONTEXT_LABELS")
+    assert line_labels == ["32K", "128K", "256K"]
+
+    # The line charts must be wired off LINE_CONTEXT_LABELS/LINE_CONTEXTS, not
+    # the full (8K-including) CONTEXTS/CONTEXT_LABELS, and use a categorical
+    # (not linear) x-axis.
+    assert "labels: LINE_CONTEXT_LABELS" in page
+    assert "LINE_CONTEXTS, 'context'" in page
+    assert "type:'linear'" not in page
+
+    # 8192 is still present in RESULTS (and therefore the hit-table's data
+    # path, which filters CONTEXTS — the full 4-band list — against RESULTS).
+    results = _extract_const_array(page, "RESULTS")
+    assert any(r["context"] == 8192 for r in results)
+    contexts = _extract_const_array(page, "CONTEXTS")
+    assert 8192 in contexts
+
+    # The one-line caveat about the 8K exclusion is present.
+    assert "O smoke de 8K fica fora dos gráficos" in page
+    assert "etapa0-smoke.md" in page
