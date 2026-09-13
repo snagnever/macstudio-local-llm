@@ -52,6 +52,10 @@ com sufixo `/v1` (sem ele, a tokenização falha com `content is required`). ID 
   top-k 20, reasoning xhigh, limite 4096 tokens.
 - Um knob por rodada ([[isolate-the-variable-when-measuring]]). Reprobar o baseline instalado na
   mesma sessão antes de declarar ganho ([[runtime-gains-stale-baselines]]).
+- Reúso de histórico: só quando o baseline foi medido no mesmo protocolo e o runtime/quant não mudou
+  desde então. Vale para o item 4 (baseline oMLX 0.6.4 de 04/09) com um re-probe de drift a 32K. Não
+  vale para A/B de versão de runtime recente (itens 1 e 2): o histórico é 1-rep ou de runtime mais
+  antigo, então os dois braços rodam juntos na mesma sessão.
 - Coletar telemetria RAM/swap/temperatura (faltou no refresh de 04/09).
 
 ### Troca de versão
@@ -92,7 +96,10 @@ Probe: `cache_probe.py --base-url http://127.0.0.1:8000/v1 --runtime mtplx --run
 --arm V … --cache-enabled --mtp-enabled`. Baseline: repetir com o bin 2.11.1. Validar o gate de
 memória: forçar 128K e confirmar recusa (HTTP 507) antes do swap, sem crash.
 
-### 3 — Config de 1M no mlx-serve (P1)
+### 3 — Config de 1M no mlx-serve (P1) — PULADO por ora (2026-09-12)
+
+Adiado a pedido: o prefill de 1M é caro (~15–25 min/cold) e não bloqueia os demais itens. Retomar
+depois. Procedimento preservado abaixo.
 
 Sem A/B de versão. Exercitar a feature já na 26.9.1, no build ddalcu, com a config da comunidade:
 
@@ -123,6 +130,13 @@ OMLX_MODEL_ROOT=~/.cache/local-llms/qwen3.8-prefix-cache \
 Probe idem, `--runtime omlx --runtime-revision v0.7.0.dev2`. Comparar prefill (validar +8–20%) e
 custo de decode. Pré-release: não promover a estável.
 
+**Reúso de histórico (baseline 0.6.4):** o braço 0.6.4 já foi medido em 04/09 no mesmo protocolo
+(arm FN, oQ4e, cache_probe): `../qwen38-flash-next/results/refresh-flashnext-{32k,128k,262k}-v064-ssdple.jsonl`.
+Rodar **só a 0.7.0.dev2** nos três contextos e comparar contra esses arquivos, em vez de re-rodar a
+0.6.4 inteira. Guarda contra drift: um **re-probe da 0.6.4 só a 32K** na mesma sessão; se casar com o
+histórico dentro do ruído, a comparação cross-session dos contextos longos vale ([[runtime-gains-stale-baselines]]).
+Se divergir, re-rodar a 0.6.4 nos contextos longos também.
+
 ### 5 — Trio 27B MTPLX, só runtime json (P2)
 
 Pesos inalterados; mudou só `mtplx_runtime.json` (03/09). Re-baixar o json das revisões novas
@@ -137,7 +151,9 @@ Gate de disco primeiro (`df -h`). Baixar `incoai/Qwen3.8-27B-DFlash2` (MLX) ou
 a draft head (mlx-serve para MLX; llama.cpp para GGUF), MTP ligado. **Gate de qualidade:**
 Terminal-Bench (protocolo do 27B) antes do veredito. Comparar contra a densa 27B sem DFlash2.
 
-### 7 — ddalcu Qwen3.6-35B-A3B 4bit (P3)
+### 7 — ddalcu Qwen3.6-35B-A3B 4bit (P3) — PULADO por ora (2026-09-12)
+
+Adiado a pedido. Procedimento preservado abaixo.
 
 Gate de disco. Baixar `ddalcu/Qwen3.6-35B-A3B-MLX-Serve-4bit` (revisão pinada) para o MODEL_ROOT.
 Rodar em mlx-serve. Medir decode vs densa 27B; **Terminal-Bench** para qualidade antes do veredito.

@@ -37,6 +37,29 @@ wait_port_free() {
   echo "porta ${PORT} nao liberou" >&2; return 1
 }
 
+# Espera a memoria do servidor anterior ser reclamada. O modelo Flash-Next pesa
+# ~70 GB; o preflight do mlx-serve recusa se o "available" for menor. Entre bracos
+# do A/B, o kill libera a porta mas as paginas mmap demoram a voltar. Exige memoria
+# livre suficiente antes de subir o proximo servidor.
+wait_mem_free() {
+  local need_gb="${1:-82}" t
+  for t in $(seq 1 24); do
+    local free_gb
+    free_gb="$(python3 - <<'PY'
+import subprocess, re
+out = subprocess.check_output(["vm_stat"]).decode()
+ps = int(re.search(r'page size of (\d+)', out).group(1))
+m = re.search(r'Pages free:\s+(\d+)\.', out)
+print(int(m.group(1)) * ps / 1e9 if m else 0)
+PY
+)"
+    awk "BEGIN{exit !($free_gb >= $need_gb)}" && { echo "    memoria livre ~${free_gb} GB (>= ${need_gb})"; return 0; }
+    sleep 5
+  done
+  echo "    aviso: memoria nao assentou em 120s; seguindo mesmo assim" >&2
+  return 0
+}
+
 server_ready() {
   curl -s --max-time 3 "$BASE/v1/models" 2>/dev/null | python3 -c '
 import sys, json
@@ -55,6 +78,16 @@ run_one() {
   [[ -f "$MODEL_DIR/config.json" ]] || { echo "modelo ausente: $MODEL_DIR" >&2; exit 66; }
   mkdir -p "$RESULTS" "$LOGS"
   wait_port_free
+  wait_mem_free 82
+
+  # Cold real e isolamento entre bracos: o disk cache (--prefix-cache-disk) persiste
+  # em ~/.mlx-serve/kv-cache e e compartilhado. Sem limpar, o 2o braco acerta o cache
+  # que o 1o gravou e o "cold" deixa de ser frio. Limpar da a ambos o mesmo estado vazio.
+  local disk_cache="$HOME/.mlx-serve/kv-cache"
+  if [[ "${P1_CLEAR_DISK_CACHE:-1}" == "1" && -d "$disk_cache" ]]; then
+    echo "    limpando disk cache para cold real: $disk_cache"
+    rm -rf "${disk_cache:?}/"* 2>/dev/null || true
+  fi
 
   local ts boot_log out
   ts="$(date -u +%Y%m%dT%H%M%SZ)"
