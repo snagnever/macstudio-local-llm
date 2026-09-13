@@ -1,8 +1,9 @@
+import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from summarize_driver import summarize, apply_gates, apply_warnings, t_turno  # noqa: E402
+from summarize_driver import summarize, apply_gates, apply_warnings, t_turno, main  # noqa: E402
 
 
 def rec(cand, ctx, scen, ttft_s, decode, hit, correct=True, fin="stop", rep=1, wired=100.0, swap=0.1, error=None):
@@ -75,3 +76,24 @@ def test_truncation_is_not_http_error():
     assert s["errors"] == 0
     assert s["correctness"] == "truncado"
     assert "http_errors" not in s["gates_failed"]
+
+
+def test_default_glob_selects_etapa_a_only(tmp_path):
+    # Etapa A: the one file the default glob must pick up.
+    a_rec = rec("c1", 32768, "cold", 37.0, 66.0, 0.96)
+    (tmp_path / "c1-32768-t1.0.jsonl").write_text(json.dumps(a_rec) + "\n", encoding="utf-8")
+    # Etapa B: same band, would inflate n if the default glob matched it too.
+    b_rec = rec("c1", 32768, "cold", 1.0, 1.0, 1.0)
+    (tmp_path / "c1-32768-t1.0-b.jsonl").write_text(
+        "\n".join(json.dumps(b_rec) for _ in range(4)) + "\n", encoding="utf-8"
+    )
+    # 512K probe: a different band/suffix entirely, must not show up at all.
+    probe_rec = rec("c1", 524288, "cold", 5.0, 5.0, 1.0)
+    (tmp_path / "c1-524288-t1.0-yarn2.jsonl").write_text(json.dumps(probe_rec) + "\n", encoding="utf-8")
+
+    out_path = tmp_path / "summary.json"
+    rc = main(["--results-dir", str(tmp_path), "--out", str(out_path)])
+    assert rc == 0
+    summary = json.loads(out_path.read_text(encoding="utf-8"))
+    assert summary["c1@32768"]["n"] == 1  # only the Etapa A file's single record
+    assert "c1@524288" not in summary

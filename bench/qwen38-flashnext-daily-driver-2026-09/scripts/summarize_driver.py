@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Consolida os JSONL da campanha flashnext-daily-driver: medianas, T_turno, gates."""
+from __future__ import annotations
+
 import argparse, glob, json, statistics
 from pathlib import Path
 
@@ -121,12 +123,19 @@ def markdown(summary: dict) -> str:
     return "\n".join(lines)
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--results-dir", default="bench/qwen38-flashnext-daily-driver-2026-09/results")
-    ap.add_argument("--glob", default="c*-*-t1.0*.jsonl")
+    ap.add_argument(
+        "--glob",
+        default="c*-*-t1.0.jsonl",
+        help="Glob relativo a --results-dir. Default = Etapa A apenas "
+             "('c*-*-t1.0.jsonl'). Etapa B usa 'c*-*-t1.0-b.jsonl'; a sonda "
+             "512K e os diagnosticos t0 tem os proprios sufixos e ficam de "
+             "fora por padrao — passe --glob explicitamente para incluir.",
+    )
     ap.add_argument("--out", default=None)
-    a = ap.parse_args()
+    a = ap.parse_args(argv)
     records = []
     for f in sorted(glob.glob(str(Path(a.results_dir) / a.glob))):
         records += [json.loads(l) for l in open(f, encoding="utf-8") if l.strip()]

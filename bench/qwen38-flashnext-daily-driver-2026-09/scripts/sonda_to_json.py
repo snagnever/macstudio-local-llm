@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+"""Converte os JSONL da sonda de capacidade a 512K no `sonda-512k.json` que
+`render_dashboard.py --sonda` lê (ver a tabela "Sonda de capacidade a 512K"
+em `scripts/render_dashboard.py`: chaves `reaches`, `followup`, `decode_tps`,
+`cold_ttft_s`, `note` — além de `wired_peak_gb` e `mechanism`, guardados
+aqui mesmo que a página ainda não os exiba).
+
+Não roda benchmark nenhum: só lê JSONL já escrito em disco.
+
+Uso:
+    python3 scripts/sonda_to_json.py --results-dir results \\
+        [--glob 'c*-524288-t1.0-yarn2.jsonl'] [--no-yarn c2,c3] \\
+        --out /tmp/sonda-512k.json
+"""
+from __future__ import annotations
+
+import argparse
+import glob
+import json
+from pathlib import Path
+from typing import Any
+
+DEFAULT_GLOB = "c*-524288-t1.0-yarn2.jsonl"
+NOTE_MAXLEN = 160
+
+
+def _candidate_id(record: dict[str, Any], path: str) -> str:
+    arm = record.get("arm")
+    if arm:
+        return str(arm)
+    return Path(path).name.split("-", 1)[0]
+
+
+def _truncate(s: Any, n: int = NOTE_MAXLEN) -> str:
+    s = str(s)
+    return s if len(s) <= n else s[: n - 1] + "…"
+
+
+def load_records(results_dir: str, pattern: str) -> dict[str, list[dict[str, Any]]]:
+    """`<candidate id>` -> its probe records, in file/line order."""
+    by_cand: dict[str, list[dict[str, Any]]] = {}
+    for f in sorted(glob.glob(str(Path(results_dir) / pattern))):
+        with open(f, encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                r = json.loads(line)
+                cid = _candidate_id(r, f)
+                by_cand.setdefault(cid, []).append(r)
+    return by_cand
+
+
+def convert(by_cand: dict[str, list[dict[str, Any]]], no_yarn: list[str]) -> dict[str, dict[str, Any]]:
+    out: dict[str, dict[str, Any]] = {}
+
+    for cid, records in by_cand.items():
+        cold = next((r for r in records if r.get("scenario") == "cold"), None)
+
+        if cold is None:
+            # Server refused or crashed before writing the cold record at all.
+            out[cid] = {
+                "reaches": False,
+                "followup": None,
+                "note": "sem registro cold (recusa ou crash; ver boot log)",
+            }
+            continue
+
+        identical = next((r for r in records if r.get("scenario") == "identical"), None)
+
+        reaches = bool(cold.get("correct")) and not cold.get("error")
+        if identical is None:
+            followup: bool | None = None
+        else:
+            followup = bool(identical.get("correct")) and not identical.get("error")
+
+        decode_tps = cold.get("decode_tps")
+        cold_ttft_s = cold.get("ttft_ms") / 1000 if cold.get("ttft_ms") is not None else None
+        wired_vals = [r.get("ram_peak_gb") for r in records if r.get("ram_peak_gb") is not None]
+
+        note = ""
+        if not reaches:
+            err = cold.get("error")
+            if err:
+                note = _truncate(err)
+        elif followup is False:
+            note = "follow-up recusado"
+
+        out[cid] = {
+            "reaches": reaches,
+            "followup": followup,
+            "decode_tps": round(decode_tps, 1) if decode_tps is not None else None,
+            "cold_ttft_s": round(cold_ttft_s, 1) if cold_ttft_s is not None else None,
+            "wired_peak_gb": max(wired_vals) if wired_vals else None,
+            "mechanism": cold.get("runtime_revision"),
+            "note": note,
+        }
+
+    for cid in no_yarn:
+        if cid in out:
+            continue  # a probe file exists for this candidate — use it, not the fixed row
+        out[cid] = {
+            "reaches": False,
+            "followup": None,
+            "note": "runtime sem YaRN (oMLX): teto 262K",
+        }
+
+    return out
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--results-dir", required=True)
+    ap.add_argument("--glob", default=DEFAULT_GLOB)
+    ap.add_argument(
+        "--no-yarn",
+        default="",
+        help="IDs de candidatos separados por virgula sem suporte a YaRN "
+             "(ex.: c2,c3) — recebem uma linha fixa 'runtime sem YaRN', a "
+             "menos que ja exista arquivo de sonda para o candidato.",
+    )
+    ap.add_argument("--out", required=True)
+    a = ap.parse_args(argv)
+
+    by_cand = load_records(a.results_dir, a.glob)
+    no_yarn = [c.strip() for c in a.no_yarn.split(",") if c.strip()]
+    sonda = convert(by_cand, no_yarn)
+
+    out_path = Path(a.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(sonda, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"wrote {out_path} ({len(sonda)} candidatos)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
