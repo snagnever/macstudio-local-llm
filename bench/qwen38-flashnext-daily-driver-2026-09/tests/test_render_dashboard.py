@@ -36,6 +36,12 @@ def _extract_const_array(html: str, name: str):
     return json.loads(m.group(1))
 
 
+def _extract_const_object(html: str, name: str):
+    m = re.search(r"const " + name + r" = (\{.*?\});\n", html, re.S)
+    assert m, f"const {name} not found in generated HTML"
+    return json.loads(m.group(1))
+
+
 def test_generated_page_has_data_model_and_placeholder_verdict(tmp_path):
     summary_path = tmp_path / "summary.json"
     summary_path.write_text(
@@ -252,3 +258,122 @@ def test_line_charts_drop_8k_but_hit_table_keeps_it(tmp_path):
     # The one-line caveat about the 8K exclusion is present.
     assert "O smoke de 8K fica fora dos gráficos" in page
     assert "etapa0-smoke.md" in page
+
+
+def test_eliminated_candidate_detected_and_grouped(tmp_path):
+    """Finding 1, review round 3: a candidate with a failed gate at 128K must
+    be marked eliminated — even though it still has a real 32K value, the
+    opposite of what let it read as "winning" the scoreboard — and the page
+    must carry the bottom-group re-sorting code path."""
+    summary_path = tmp_path / "summary.json"
+    summary_path.write_text(
+        json.dumps(
+            {
+                "c4@32768": _row(t_turno_s=10.6),
+                "c4@131072": {"gates_failed": ["needle", "http_errors"]},
+            }
+        ),
+        encoding="utf-8",
+    )
+    out_path = tmp_path / "out.html"
+    rc = rd.main(["--summary", str(summary_path), "--out", str(out_path)])
+    assert rc == 0
+
+    # Directly at the Python level (build_eliminated).
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    assert rd.build_eliminated(summary) == ["c4"]
+
+    page = out_path.read_text(encoding="utf-8")
+    eliminated = _extract_const_array(page, "ELIMINATED")
+    assert eliminated == ["c4"]
+    assert "ELIMINATED_SET" in page
+    assert "regroupEliminated" in page
+    assert "badge-eliminated" in page
+
+
+def test_source_tagging_marks_etapa_b_override(tmp_path):
+    """Finding 2, review round 3: a `<cand>@<ctx>` key overridden by
+    --summary-b must be tagged source "B" (3-rep median); everything else
+    stays "A" (1-rep) — surfaced as a scoreboard superscript and in the
+    T_turno chart tooltip so the two are never read as apples-to-apples."""
+    summary_path = tmp_path / "summary.json"
+    summary_path.write_text(
+        json.dumps({"c1@32768": _row(t_turno_s=11.0), "c1@262144": _row(t_turno_s=14.2)}),
+        encoding="utf-8",
+    )
+    summary_b_path = tmp_path / "summary-b.json"
+    summary_b_path.write_text(json.dumps({"c1@32768": _row(t_turno_s=11.03)}), encoding="utf-8")
+    out_path = tmp_path / "out.html"
+    rc = rd.main(
+        ["--summary", str(summary_path), "--summary-b", str(summary_b_path), "--out", str(out_path)]
+    )
+    assert rc == 0
+
+    base = json.loads(summary_path.read_text(encoding="utf-8"))
+    override = json.loads(summary_b_path.read_text(encoding="utf-8"))
+    assert rd.build_sources(base, override) == {"c1@32768": "B", "c1@262144": "A"}
+
+    page = out_path.read_text(encoding="utf-8")
+    sources = _extract_const_object(page, "SOURCES")
+    assert sources["c1@32768"] == "B"
+    assert sources["c1@262144"] == "A"
+    assert "src-marker" in page
+    assert "srcCaption" in page
+
+
+def test_sem_dados_renders_as_recusa(tmp_path):
+    """Finding 3, review round 3: a band that ran and refused every request
+    (`warnings` carries "sem_dados") must read "recusa / sem dados", not the
+    plain "não testado" reserved for a band with no summary row at all."""
+    summary_path = tmp_path / "summary.json"
+    summary_path.write_text(
+        json.dumps(
+            {
+                "c4@131072": {
+                    "cold_ttft_s": None,
+                    "warm_ttft_s": {"identical": None, "append": None, "tool_turn": None},
+                    "hit": {"identical": None, "append": None, "tool_turn": None},
+                    "prefill_tps": None,
+                    "decode_tps": None,
+                    "t_turno_s": None,
+                    "correctness": "falha",
+                    "wired_peak_gb": 90.12,
+                    "swap_delta_gb": -0.01,
+                    "mtp_acceptance": None,
+                    "errors": 5,
+                    "n": 5,
+                    "gates_failed": ["needle", "http_errors"],
+                    "warnings": ["sem_dados"],
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    out_path = tmp_path / "out.html"
+    rc = rd.main(["--summary", str(summary_path), "--out", str(out_path)])
+    assert rc == 0
+
+    page = out_path.read_text(encoding="utf-8")
+    assert "recusa / sem dados" in page
+    assert "hit-refused" in page
+
+    gates = _extract_const_object(page, "GATES")
+    assert gates["c4@131072"]["warnings"] == ["sem_dados"]
+
+
+def test_null_t_turno_renders_without_error(tmp_path):
+    """Coverage gap flagged in the last review round: a row with
+    `t_turno_s: null` (a band that served nothing) must render cleanly, not
+    raise, and round-trip as a null RESULTS value."""
+    summary_path = tmp_path / "summary.json"
+    summary_path.write_text(json.dumps({"c1@32768": _row(t_turno_s=None)}), encoding="utf-8")
+    out_path = tmp_path / "out.html"
+    rc = rd.main(["--summary", str(summary_path), "--out", str(out_path)])
+    assert rc == 0
+
+    page = out_path.read_text(encoding="utf-8")
+    results = _extract_const_array(page, "RESULTS")
+    rec = next(
+        r for r in results if r["model"] == "c1" and r["metric"] == "t_turno_s" and r["context"] == 32768
+    )
+    assert rec["value"] is None

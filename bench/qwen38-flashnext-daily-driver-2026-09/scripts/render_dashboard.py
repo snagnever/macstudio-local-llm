@@ -51,6 +51,12 @@ CONTEXT_LABELS: dict[int, str] = {8192: "8K", 32768: "32K", 131072: "128K", 2621
 # chart, RESULTS/scoreboard).
 LINE_CHART_CONTEXTS: tuple[int, ...] = (32768, 131072, 262144)
 
+# A candidate is eliminated if it failed a gate at either daily decisive band
+# (32K or 128K) — even if it still carries a value at some other context (e.g.
+# c4 has a real 32K number but is refused at 128K). Elimination must not be
+# inferred from a single band in isolation.
+ELIMINATION_CONTEXTS: tuple[int, ...] = (32768, 131072)
+
 PLACEHOLDER_VERDICT = "Veredito pendente — campanha em andamento"
 
 
@@ -119,6 +125,35 @@ def build_gates(summary: dict[str, Any]) -> dict[str, dict[str, list[str]]]:
         }
         for key, r in summary.items()
     }
+
+
+def build_eliminated(summary: dict[str, Any]) -> list[str]:
+    """Candidate ids eliminated by a failed gate at 32K or 128K. Used to keep
+    a gate-failed candidate out of the scoreboard's default-sort lead and its
+    best-cell highlight — it must never read as "winning" just because it
+    still carries a value at some other band (see review round 3, finding 1:
+    c4 sat first with a green T_turno@32K despite failing gates at 128K)."""
+    eliminated = []
+    for cid, _, _ in CANDIDATES:
+        for ctx in ELIMINATION_CONTEXTS:
+            r = summary.get(f"{cid}@{ctx}") or {}
+            if r.get("gates_failed"):
+                eliminated.append(cid)
+                break
+    return eliminated
+
+
+def build_sources(base: dict[str, Any], override: dict[str, Any]) -> dict[str, str]:
+    """Which summary file each `<cand>@<ctx>` key's value came from after the
+    Etapa B override — "B" when overridden (a 3-rep median), "A" otherwise (a
+    1-rep Etapa A value). Surfaced in the scoreboard (superscript marker) and
+    the T_turno chart tooltip so a 3-rep median is never silently read next to
+    a 1-rep value as if they were on equal footing (review round 3, finding 2).
+    """
+    sources: dict[str, str] = {key: "A" for key in base}
+    for key in override:
+        sources[key] = "B"
+    return sources
 
 
 def load_sonda(path: str | None) -> dict[str, Any]:
@@ -227,12 +262,16 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
   table.scoreboard tbody tr:hover { background: rgba(255,255,255,0.03); }
   table.scoreboard td.model-cell { white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd1d6; }
   tr.filtered-out { display: none; }
+  .scoreboard-hint { font-size: 11px; color: var(--muted); margin: 8px 0 0; }
+  .badge-eliminated { margin-left: 6px; font-size: 10px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); background: #262a33; border-radius: 8px; padding: 1px 6px; font-weight: 600; }
+  sup.src-marker { color: var(--accent); margin-left: 1px; }
   /* Cache-hit table */
   .hit-table { margin-bottom: 18px; }
   .hit-table h3 { margin: 0 0 6px; font-size: 12px; color: var(--muted); font-weight: 600; }
   td.hit-ok  { color: #7ee787; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
   td.hit-bad { color: #ff6b6b; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
   td.hit-na  { color: #555; text-align: right; }
+  td.hit-refused { color: #e8a33d; font-style: italic; text-align: right; }
   ul.caveats { margin: 0; padding-left: 20px; font-size: 13px; }
   ul.caveats li { margin-bottom: 6px; }
   p.chart-note { grid-column: 1 / -1; margin: 0; font-size: 12px; color: var(--muted); }
@@ -284,6 +323,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         <tbody><!-- gerado por charts-common.js --></tbody>
       </table>
     </div>
+    <p class="scoreboard-hint" id="srcCaption" hidden>³ mediana de 3 reps (Etapa B); demais valores: 1 rep (Etapa A).</p>
   </section>
 
   <p class="chart-note">O smoke de 8K fica fora dos gráficos: telemetria do MTPLX incoerente a 8K; ver etapa0-smoke.md.</p>
@@ -380,6 +420,17 @@ const GATES = @@GATES_JSON@@;
 
 const SONDA = @@SONDA_JSON@@;
 
+// Candidate ids eliminated by a failed gate at 32K or 128K (see
+// build_eliminated in render_dashboard.py) — kept out of the scoreboard's
+// default-sort lead and best-cell highlight, and flagged with a badge.
+const ELIMINATED = @@ELIMINATED_JSON@@;
+const ELIMINATED_SET = new Set(ELIMINATED);
+
+// "<cand>@<ctx>" -> "A" (Etapa A, 1 rep) | "B" (Etapa B override, 3 reps).
+// Surfaced as a superscript in the scoreboard and in the T_turno tooltip so a
+// 3-rep median is never silently read next to a 1-rep value.
+const SOURCES = @@SOURCES_JSON@@;
+
 const CONTEXTS = [8192, 32768, 131072, 262144];
 const CONTEXT_LABELS = { 8192:'8K', 32768:'32K', 131072:'128K', 262144:'256K' };
 function ctxLabel(ctx) { return CONTEXT_LABELS[ctx] || String(ctx); }
@@ -416,6 +467,30 @@ function lineOptions(yLabel) {
   });
 }
 
+// T_turno vs contexto's tooltip additionally tags each point with its rep
+// count (Etapa A = 1 rep, Etapa B override = 3 reps) — this is the chart the
+// verdict quotes numbers from, so the source must be visible point-by-point,
+// not just in the scoreboard's footnote.
+function tturnoOptions(yLabel) {
+  const opts = lineOptions(yLabel);
+  opts.plugins = Object.assign({}, opts.plugins, {
+    tooltip: Object.assign({}, opts.plugins.tooltip, {
+      callbacks: {
+        label: function (item) {
+          const modelId = item.dataset.modelId;
+          const ctx = LINE_CONTEXTS[item.dataIndex];
+          const m = byId.get(modelId);
+          const base = (m ? m.chartLabel : item.dataset.label) + ': ' + item.formattedValue;
+          const value = C.metricValue(RESULTS, modelId, {metric:'t_turno_s', context:ctx});
+          if (value == null) return base;
+          return base + (SOURCES[modelId + '@' + ctx] === 'B' ? ' (3 reps)' : ' (1 rep)');
+        }
+      }
+    })
+  });
+  return opts;
+}
+
 // --- T_turno vs contexto (linha) ---
 C.buildGroupedChart('chartTturno', {
   state: state, type: 'line',
@@ -424,7 +499,7 @@ C.buildGroupedChart('chartTturno', {
     data: C.seriesFor(RESULTS, m.id, {metric:'t_turno_s'}, LINE_CONTEXTS, 'context'),
     tension: 0.25, fill: false
   })),
-  options: lineOptions('T_turno (s)')
+  options: tturnoOptions('T_turno (s)')
 });
 
 // --- TTFT quente (tool_turn) vs contexto (linha) ---
@@ -505,16 +580,99 @@ C.buildScoreboard(document.getElementById('scoreboardDriver'), MODELS, RESULTS, 
   { kind:'str', get: m => gatesCell(m.id) },
   { kind:'str', get: m => warningsCell(m.id) }
 ]);
+
+// The single decisive context behind each of the 4 per-band numeric columns
+// (0 is the Candidato column, 5-7 are wired/gates/alertas — not per-context).
+const SB_CONTEXT_BY_COL = { 1:32768, 2:131072, 3:131072, 4:131072 };
+
+// "eliminado" badge next to the candidate name — a candidate a gate
+// eliminated must never read as "winning" just because it still has *a*
+// T_turno number at some other band (review round 3, finding 1).
+(function addEliminatedBadges() {
+  Array.prototype.slice.call(document.querySelectorAll('#scoreboardDriver tbody tr')).forEach(tr => {
+    if (!ELIMINATED_SET.has(tr.dataset.modelId)) return;
+    const cell = tr.children[0];
+    if (!cell) return;
+    const badge = document.createElement('span');
+    badge.className = 'badge-eliminated';
+    badge.textContent = 'eliminado';
+    cell.appendChild(badge);
+  });
+})();
+
+// Etapa B ("N reps") superscript on the 4 single-context numeric columns —
+// c1/c3 @32K/128K are 3-rep medians while everything else is 1 rep; an
+// unlabeled mix reads as apples-to-apples when it isn't (finding 2).
+(function addSourceMarkers() {
+  Array.prototype.slice.call(document.querySelectorAll('#scoreboardDriver tbody tr')).forEach(tr => {
+    const id = tr.dataset.modelId;
+    Object.keys(SB_CONTEXT_BY_COL).forEach(colKey => {
+      const idx = Number(colKey);
+      const ctx = SB_CONTEXT_BY_COL[colKey];
+      const cell = tr.children[idx];
+      if (!cell || cell.classList.contains('dash')) return;
+      if (SOURCES[id + '@' + ctx] === 'B') {
+        const sup = document.createElement('sup');
+        sup.className = 'src-marker';
+        sup.textContent = '³';
+        cell.appendChild(sup);
+      }
+    });
+  });
+  if (Object.keys(SOURCES).some(k => SOURCES[k] === 'B')) {
+    const caption = document.getElementById('srcCaption');
+    if (caption) caption.hidden = false;
+  }
+})();
+
+// A band that ran and refused every request ("sem_dados") reads "recusa"
+// instead of a plain "—" — a genuinely untested band and a fully-refused one
+// must not look identical (finding 3).
+(function markRefusedCells() {
+  Array.prototype.slice.call(document.querySelectorAll('#scoreboardDriver tbody tr')).forEach(tr => {
+    const id = tr.dataset.modelId;
+    Object.keys(SB_CONTEXT_BY_COL).forEach(colKey => {
+      const idx = Number(colKey);
+      const ctx = SB_CONTEXT_BY_COL[colKey];
+      const cell = tr.children[idx];
+      if (!cell || !cell.classList.contains('dash')) return;
+      const g = GATES[id + '@' + ctx];
+      if (g && g.warnings && g.warnings.indexOf('sem_dados') !== -1) {
+        cell.textContent = 'recusa';
+      }
+    });
+  });
+})();
+
 // Default sort: ascending on T_turno @32K (column index 1 — 0 is the
 // Candidato column). Lower is better for T_turno, so ascending (dir=1) puts
 // the best candidate on top without the user having to click anything.
 C.setupSortableTable('scoreboardDriver', 1, 1);
 
+// Eliminated candidates always sort into a bottom group, in their own
+// relative order under whatever column was just sorted — charts-common's
+// setupSortableTable has no notion of "eliminated," so this re-groups the
+// tbody (a real-DOM appendChild *moves* a row already in the table, it
+// doesn't duplicate it) right after every sort instead of patching the
+// shared helper.
+function regroupEliminated() {
+  const table = document.getElementById('scoreboardDriver');
+  if (!table) return;
+  const tbody = table.querySelector('tbody');
+  const rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+  const kept = rows.filter(r => !ELIMINATED_SET.has(r.dataset.modelId));
+  const dropped = rows.filter(r => ELIMINATED_SET.has(r.dataset.modelId));
+  kept.concat(dropped).forEach(r => tbody.appendChild(r));
+}
+regroupEliminated();
+
 // charts-common's highlightBestPerColumn always marks the column MAX as
 // "best" — wrong here, since T_turno/TTFT/wired are lower-is-better and only
 // decode is higher-is-better. Do a small direction-aware highlight locally
 // instead of changing the shared helper (which every other report page also
-// uses with max-is-best semantics).
+// uses with max-is-best semantics). Eliminated candidates are excluded from
+// consideration entirely: a gate-failed row must never read as "winning" a
+// column just because it has the extreme number.
 const SCOREBOARD_DIRECTIONS = { 1:'min', 2:'min', 3:'min', 4:'max', 5:'min' };
 function highlightScoreboardBest() {
   const table = document.getElementById('scoreboardDriver');
@@ -528,6 +686,7 @@ function highlightScoreboardBest() {
     let bestCells = [];
     rows.forEach(r => {
       if (r.classList.contains('filtered-out')) return;
+      if (ELIMINATED_SET.has(r.dataset.modelId)) return;
       const cell = r.children[idx];
       if (!cell) return;
       const v = parseFloat(cell.textContent.trim());
@@ -539,9 +698,37 @@ function highlightScoreboardBest() {
   });
 }
 highlightScoreboardBest();
+
+// Re-group + re-highlight after any header-driven sort or the dblclick
+// reset — charts-common's own click/dblclick handlers (attached by
+// setupSortableTable above) run first; same-element listeners fire in
+// registration order, so ours runs right after on every click.
+Array.prototype.slice.call(document.querySelectorAll('#scoreboardDriver thead th[data-sort]')).forEach(th => {
+  th.addEventListener('click', function () { regroupEliminated(); highlightScoreboardBest(); });
+  th.addEventListener('dblclick', function () { regroupEliminated(); highlightScoreboardBest(); });
+});
+
 state.onChange(st => { C.applyTableFilter('scoreboardDriver', state, {}); highlightScoreboardBest(); });
 
 // --- Cache-hit table (custom markup, driven by RESULTS) ---
+// A cell reads "não testado" only when there is no summary row at all for
+// that <cand>@<ctx>. When the row exists but its `warnings` carry
+// "sem_dados" (the band ran and every request was refused), it reads
+// "recusa / sem dados" instead — a genuinely untested band and a
+// fully-refused one must not look identical (finding 3).
+function hitCellHtml(id, ctx, sc) {
+  const v = C.metricValue(RESULTS, id, {metric:'hit', context:ctx, scenario:sc});
+  if (v != null) {
+    const cls = v >= 0.90 ? 'hit-ok' : 'hit-bad';
+    return '<td class="' + cls + '">' + v.toFixed(2) + '</td>';
+  }
+  const g = GATES[id + '@' + ctx];
+  if (g && g.warnings && g.warnings.indexOf('sem_dados') !== -1) {
+    return '<td class="hit-refused">recusa / sem dados</td>';
+  }
+  return '<td class="hit-na">não testado</td>';
+}
+
 (function renderHitTable() {
   const el = document.getElementById('hitTable');
   const present = CONTEXTS.filter(ctx => RESULTS.some(r => r.context === ctx && r.metric === 'hit'));
@@ -551,12 +738,7 @@ state.onChange(st => { C.applyTableFilter('scoreboardDriver', state, {}); highli
     out += '<div class="hit-table"><h3>' + ctxLabel(ctx) + '</h3><table><thead><tr><th>Cenário</th>' +
       MODELS.map(m => '<th class="num">' + escapeHtml(m.label) + '</th>').join('') + '</tr></thead><tbody>';
     ['identical', 'append', 'tool_turn'].forEach(sc => {
-      out += '<tr><td>' + sc + '</td>' + MODELS.map(m => {
-        const v = C.metricValue(RESULTS, m.id, {metric:'hit', context:ctx, scenario:sc});
-        if (v == null) return '<td class="hit-na">não testado</td>';
-        const cls = v >= 0.90 ? 'hit-ok' : 'hit-bad';
-        return '<td class="' + cls + '">' + v.toFixed(2) + '</td>';
-      }).join('') + '</tr>';
+      out += '<tr><td>' + sc + '</td>' + MODELS.map(m => hitCellHtml(m.id, ctx, sc)).join('') + '</tr>';
     });
     out += '</tbody></table></div>';
   });
@@ -599,6 +781,8 @@ def render_page(
     gates: dict[str, list[str]],
     sonda: dict[str, Any],
     verdict_html: str,
+    eliminated: list[str],
+    sources: dict[str, str],
 ) -> str:
     page = PAGE_TEMPLATE
     page = page.replace("@@MODELS_JSON@@", js_json(models))
@@ -609,6 +793,8 @@ def render_page(
     page = page.replace(
         "@@LINE_CONTEXT_LABELS_JSON@@", js_json([CONTEXT_LABELS[c] for c in LINE_CHART_CONTEXTS])
     )
+    page = page.replace("@@ELIMINATED_JSON@@", js_json(eliminated))
+    page = page.replace("@@SOURCES_JSON@@", js_json(sources))
     page = page.replace("@@VERDICT_HTML@@", verdict_html)
     return page
 
@@ -636,8 +822,10 @@ def main(argv: list[str] | None = None) -> int:
     gates = build_gates(summary)
     sonda = load_sonda(a.sonda)
     verdict_html = render_verdict_html(a.verdict)
+    eliminated = build_eliminated(summary)
+    sources = build_sources(base, override)
 
-    page = render_page(models, results, gates, sonda, verdict_html)
+    page = render_page(models, results, gates, sonda, verdict_html, eliminated, sources)
     out_path = Path(a.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(page, encoding="utf-8")
