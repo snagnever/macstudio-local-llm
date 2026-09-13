@@ -118,7 +118,18 @@ export QWEN38_MODEL_ROOT="$MODEL_ROOT"
 [[ -n "${YARN_MODEL_ROOT:-}" ]] && export QWEN38_MODEL_ROOT="$YARN_MODEL_ROOT"
 BASE="http://127.0.0.1:$PORT"
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
-NAME="${CAND}-${CTX}-t${TEMP}${TAG:+-$TAG}"
+# --tag given: name stays exactly "<cand>-<ctx>-t<temp>-<tag>" (a pending run
+# depends on this, e.g. c1-524288-t1.0-yarn2 from --yarn 2.0 --tag yarn2).
+# --tag omitted: fold --yarn/--generation-mode into the name so an untagged
+# YaRN or non-mtp run never collides with (or overwrites) the base variant's
+# file -- mtp is the default generation mode so it never suffixes the name.
+if [[ -n "$TAG" ]]; then
+  NAME="${CAND}-${CTX}-t${TEMP}-${TAG}"
+else
+  NAME="${CAND}-${CTX}-t${TEMP}"
+  [[ -n "$YARN" ]] && NAME="${NAME}-yarn${YARN}"
+  [[ -n "$GENMODE" && "$GENMODE" != "mtp" ]] && NAME="${NAME}-${GENMODE}"
+fi
 OUT="$RESULTS/$NAME.jsonl"; BOOT="$LOGS/$NAME-boot.log"; MEM="$LOGS/$NAME-mem.jsonl"
 
 # Etapa B: with REPEAT>1 pin middle_mutation (prefill-bound, deterministic) to
@@ -135,6 +146,21 @@ if [[ -n "$PRINT" ]]; then
 fi
 
 mkdir -p "$RESULTS" "$LOGS"
+
+# cache_probe.py appends to --output, and mem-sampler.sh appends to its own
+# output too -- neither ever truncates on its own (other campaigns rely on
+# that append behavior in cache_probe.py). Without rotating here, a second
+# run under the same name (a retry, or an untagged run sharing a name with an
+# earlier one) would append its records onto a stale prior run's JSONL/
+# memory-sample file instead of starting clean, silently inflating `n` and
+# corrupting the medians summarize_driver computes downstream.
+if [[ -s "$OUT" ]]; then
+  BAK="$OUT.bak.$(date -u +%Y%m%dT%H%M%SZ)"
+  mv "$OUT" "$BAK"
+  echo "    $NAME: OUT pre-existente movido para $BAK"
+fi
+: > "$MEM"
+
 SERVER_PID=""; SAMPLER_PID=""
 cleanup() {
   [[ -n "$SAMPLER_PID" ]] && kill "$SAMPLER_PID" 2>/dev/null || true
