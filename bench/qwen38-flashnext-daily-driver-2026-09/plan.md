@@ -10,6 +10,11 @@
 >
 > Contexto do modelo e das builds: [../qwen38-flash-next/references.md](../qwen38-flash-next/references.md).
 > Lições herdadas da campanha da densa 27B: [../qwen3.8-prefix-cache/plan.md](../qwen3.8-prefix-cache/plan.md).
+> **Status (2026-09-13): CAMPANHA FECHADA.** Veredito em [results/summary.md](results/summary.md).
+> Driver mais responsivo: **ddalcu mixed-4/8 @ mlx-serve 26.9.2** (incumbente), `T_turno` 11.03 s @32K /
+> 12.35 s @128K (mediana de 3 reps), 18% à frente do oQ4e @ oMLX 0.7.0.dev2. Dashboard:
+> [reports/qwen38-flashnext-driver.html](../../reports/qwen38-flashnext-driver.html).
+>
 > Plano de execução (tasks, scripts, testes, checkpoints):
 > [docs/superpowers/plans/2026-09-13-qwen38-flashnext-daily-driver.md](../../docs/superpowers/plans/2026-09-13-qwen38-flashnext-daily-driver.md).
 
