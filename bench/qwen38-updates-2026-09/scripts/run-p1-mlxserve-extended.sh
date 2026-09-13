@@ -31,13 +31,13 @@ trap cleanup EXIT
 for _ in $(seq 1 30); do lsof -nP -iTCP:${PORT} -sTCP:LISTEN >/dev/null 2>&1 || break; sleep 1; done
 
 ts="$(date -u +%Y%m%dT%H%M%SZ)"
-boot_log="$LOGS/p1-ext-${CTX}-boot.log"
-out="$RESULTS/p1-mlxserve-ext-${CTX}-yarn${FACTOR}.jsonl"
+boot_log="$LOGS/p1-ext-${CTX}-kv${KV_QUANT:-8}-boot.log"
+out="$RESULTS/p1-mlxserve-ext-${CTX}-yarn${FACTOR}-kv${KV_QUANT:-8}.jsonl"
 
 echo ">>> mlx-serve 26.9.2 YaRN: ctx ${CTX} factor ${FACTOR}"
 # kv-quant 8 e prefill-chunk menores ajudam a caber KV/working set em contexto enorme
 nohup "$MLX_BIN" --model "$MODEL" --serve --host 0.0.0.0 --port "$PORT" \
-  --ctx-size "$CTX" --kv-quant 8 --mtp --metrics \
+  --ctx-size "$CTX" --kv-quant "${KV_QUANT:-8}" --mtp --metrics \
   --prefix-cache-mem 16GB --prefix-cache-disk 100GB --prefix-cache-entries 8 \
   --config-overrides "$OVERRIDES" >"$boot_log" 2>&1 &
 SERVER_PID=$!
@@ -56,7 +56,7 @@ echo ">>> pronto. model_id=${model_id}. cache_probe -> $out"
 python3 "$HARNESS/cache_probe.py" \
   --base-url "$BASE/v1" \
   --model "$model_id" --api-model "$model_id" \
-  --runtime mlx-serve --runtime-revision "v26.9.2-yarn${FACTOR}" \
+  --runtime mlx-serve --runtime-revision "v26.9.2-yarn${FACTOR}-kv${KV_QUANT:-8}" \
   --model-revision "$MODEL_REV" \
   --arm FS --session-id "${ts}-ext-${CTX}" \
   --context "$CTX" --content-class audit_retrieval --repeat "${P1_REPEAT:-1}" \

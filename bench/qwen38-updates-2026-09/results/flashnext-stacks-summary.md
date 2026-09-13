@@ -20,8 +20,10 @@ Footprint = **memória wired** (o RSS via ps subconta buffers Metal). Swap e dis
 \* 262K tool_turn truncou em max_tokens (não é erro). \** 1M: só o **cold** rodou (decode 34.7,
 needles ok). A 2ª request (identical) foi **recusada por memória** (`PrefillDoesNotFit`): com a KV do
 1º prompt pinada (~15.6G), o working set de prefill do 2º (~28G) não cabe nos ~23G restantes, nem no
-chunk mais estreito. **1M em 128 GB é regime "one-shot cold"** — sem folga para follow-up/cache. Teto
-prático utilizável = **512K** (lá todos os cenários completaram). \*** ds4 32K append falhou (1 cenário).
+chunk mais estreito. **Com kv-quant `turbo4` o follow-up CABE** (KV ~metade): identical cache 1.00,
+TTFT 1.6s, needle ok — cache a 1M é possível. **Mas o decode desaba a ~5 tok/s** (vs 34.7 kv8 no cold).
+1M = "one-shot ~35 tok/s (kv8)" OU "multi-turno viável mas ~5 tok/s (turbo4)". Teto prático utilizável =
+**512K** (decode 51, cache reusa, needle ok). \*** ds4 32K append falhou (1 cenário).
 † ds4 SEM `--kv-disk-dir` (default): não persiste/reusa. **Com `--kv-disk-dir` o ds4 REUSA** o prefixo:
 identical TTFT 2.0s (cache 0.98), tool_turn 3.3s (0.94) — ver linha "+kv-disk". Decode inalterado (40.6).
 
