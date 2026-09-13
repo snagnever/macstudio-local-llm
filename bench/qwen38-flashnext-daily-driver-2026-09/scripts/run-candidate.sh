@@ -116,7 +116,23 @@ for _ in $(seq 1 200); do
   sleep 3
 done
 [[ -n "$ready" ]] || { echo "servidor nao ficou pronto em 10 min; ver $BOOT" >&2; exit 69; }
-MODEL_ID="$(curl -fsS "$BASE/v1/models" | python3 -c 'import sys,json;print(json.load(sys.stdin)["data"][0]["id"])')"
+MODELS_JSON="$(curl -fsS "$BASE/v1/models")"
+MODEL_BASENAME="$(basename "$MODEL_DIR")"
+MODEL_ID="$(python3 -c '
+import sys, json
+data = json.load(sys.stdin)["data"]
+ids = [m["id"] for m in data]
+basename = sys.argv[1]
+if basename in ids:
+    print(basename)
+elif len(ids) == 1:
+    print(ids[0])
+else:
+    print(f"nenhum id casa com basename={basename!r} entre {len(ids)} ids servidos: {ids}", file=sys.stderr)
+    sys.exit(1)
+' "$MODEL_BASENAME" <<<"$MODELS_JSON")" || true
+[[ -n "$MODEL_ID" ]] || { echo "run-candidate: could not select model id for $CAND (basename=$MODEL_BASENAME); see /v1/models" >&2; exit 69; }
+echo ">>> $NAME: model_id=$MODEL_ID"
 echo ">>> $NAME: pronto. model_id=$MODEL_ID -> $OUT"
 
 "$PROBE_PY" "$HARNESS/cache_probe.py" \
