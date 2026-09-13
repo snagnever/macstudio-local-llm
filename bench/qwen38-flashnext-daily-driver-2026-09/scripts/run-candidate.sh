@@ -139,6 +139,12 @@ SERVER_PID=""; SAMPLER_PID=""
 cleanup() {
   [[ -n "$SAMPLER_PID" ]] && kill "$SAMPLER_PID" 2>/dev/null || true
   [[ -n "$SERVER_PID" ]] && kill "$SERVER_PID" 2>/dev/null || true
+  # SERVER_PID is the `nohup bash "$LAUNCHER" ...` wrapper, not necessarily the
+  # runtime process itself -- kill whatever is actually listening on $PORT too,
+  # or a dead probe leaves the server (and the port) held by an orphan.
+  local listeners
+  listeners="$(lsof -nP -tiTCP:${PORT} -sTCP:LISTEN 2>/dev/null || true)"
+  [[ -n "$listeners" ]] && kill $listeners 2>/dev/null || true
 }
 trap cleanup EXIT
 
@@ -188,6 +194,12 @@ else:
 echo ">>> $NAME: model_id=$MODEL_ID"
 echo ">>> $NAME: pronto. model_id=$MODEL_ID -> $OUT"
 
+# Probe can exit non-zero on purpose (e.g. a memory-guard HTTP refusal was
+# recorded as data) -- capture that instead of letting `set -e` abort before
+# cleanup runs (attach_memory/attach_mtp on whatever records exist, kill the
+# server). `|| PROBE_EXIT=$?` keeps errexit happy since the assignment itself
+# succeeds.
+PROBE_EXIT=0
 "$PROBE_PY" "$HARNESS/cache_probe.py" \
   --base-url "$BASE/v1" --model "$MODEL_ID" --api-model "$MODEL_ID" \
   --runtime "$RUNTIME" --runtime-revision "$REV" --model-revision "$MODEL_REV" \
@@ -198,10 +210,16 @@ echo ">>> $NAME: pronto. model_id=$MODEL_ID -> $OUT"
   ${TOKENIZER:+--tokenizer-path "$TOKENIZER"} \
   ${METRICS:+--metrics-url "$METRICS"} \
   ${SCENARIO_REPEATS:+--scenario-repeats "$SCENARIO_REPEATS"} \
-  --output "$OUT" --cache-enabled $([[ "$GENMODE" == "" || "$GENMODE" == mtp ]] && echo --mtp-enabled)
+  --output "$OUT" --cache-enabled $([[ "$GENMODE" == "" || "$GENMODE" == mtp ]] && echo --mtp-enabled) \
+  || PROBE_EXIT=$?
 
 kill "$SAMPLER_PID" 2>/dev/null || true; SAMPLER_PID=""
-python3 "$HERE/scripts/attach_memory.py" --results "$OUT" --sampler "$MEM"
+python3 "$HERE/scripts/attach_memory.py" --results "$OUT" --sampler "$MEM" || true
 python3 "$HERE/scripts/attach_mtp.py" --results "$OUT" --log "$BOOT" || true
 kill "$SERVER_PID" 2>/dev/null || true; SERVER_PID=""; wait_port_free
-echo ">>> $NAME: OK"
+if [[ "$PROBE_EXIT" -ne 0 ]]; then
+  echo ">>> $NAME: probe exited $PROBE_EXIT (see $OUT for any refusal records)" >&2
+else
+  echo ">>> $NAME: OK"
+fi
+exit "$PROBE_EXIT"

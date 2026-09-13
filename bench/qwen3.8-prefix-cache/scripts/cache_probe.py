@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import time
 from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
@@ -46,6 +47,53 @@ SAMPLING_CONTROLS = {
 WARMUP_ID = "cache-probe-independent-v2"
 MAX_TOKENS = 4096
 REQUEST_RESERVE_TOKENS = MAX_TOKENS + 1024 + 512
+
+
+class RequestFailure(Exception):
+    """A chat request failed before any response could be parsed.
+
+    Covers both a memory-guard refusal (HTTPError, e.g. MTPLX 507 or
+    mlx-serve 400 for a prompt that doesn't fit) and a dead connection
+    (URLError/OSError). `fatal` distinguishes the latter: there is no point
+    issuing further requests once the server itself is gone.
+    """
+
+    def __init__(self, message: str, *, elapsed_ms: float, fatal: bool):
+        super().__init__(message)
+        self.message = message
+        self.elapsed_ms = elapsed_ms
+        self.fatal = fatal
+
+
+def _stream_chat_checked(base_url: str, payload: dict[str, Any]) -> StreamResult:
+    """Call stream_chat, translating a memory-guard refusal or connection
+    failure into a RequestFailure instead of letting it crash the probe.
+
+    A 256K-band refusal (HTTP 400/507/etc. because the prompt doesn't fit)
+    is DATA the campaign wants recorded, not a traceback that leaves the
+    scenario's JSONL output silently missing.
+    """
+    started = time.perf_counter()
+    try:
+        return stream_chat(base_url, payload)
+    except HTTPError as error:
+        elapsed_ms = (time.perf_counter() - started) * 1000
+        body = ""
+        try:
+            raw = error.read()
+            if raw:
+                body = raw.decode("utf-8", "replace")[:300]
+        except Exception:
+            body = ""
+        message = f"http_{error.code}: {error.reason}"
+        if body:
+            message = f"{message}: {body}"
+        raise RequestFailure(message, elapsed_ms=elapsed_ms, fatal=False) from error
+    except (URLError, OSError) as error:
+        elapsed_ms = (time.perf_counter() - started) * 1000
+        raise RequestFailure(
+            f"connection: {error}", elapsed_ms=elapsed_ms, fatal=True
+        ) from error
 
 
 def fixture_token_target(context_size: int) -> int:
@@ -586,6 +634,167 @@ def _record(
     }
 
 
+def _error_record(
+    args: argparse.Namespace,
+    scenario: str,
+    repeat: int,
+    failure: RequestFailure,
+    expected_needles: Union[str, tuple[str, ...]],
+    fixture_hash: str,
+    suffix_tokens: int,
+    mutation_prefix_tokens: int,
+    mutation_tokens: int,
+    code_expected_result: Optional[int] = None,
+    sampling_controls: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    """Build a full-schema record for a request that failed before any
+    response could be parsed (HTTP refusal or connection failure), so a
+    memory guard's rejection becomes a record instead of a crash.
+
+    Reuses `_record` against a StreamResult-like failed result so the record
+    keeps every usual identifying/sampling field with the same schema
+    consumers already expect, then overrides the handful of fields the spec
+    calls out explicitly for a failed request.
+    """
+    failed_result = StreamResult(
+        text="",
+        reasoning_text="",
+        finish_reason=None,
+        ttft_ms=failure.elapsed_ms,
+        e2e_ms=failure.elapsed_ms,
+        usage={},
+        raw_chunks=0,
+    )
+    record = _record(
+        args,
+        scenario,
+        repeat,
+        failed_result,
+        expected_needles,
+        fixture_hash,
+        {},
+        {},
+        suffix_tokens,
+        mutation_prefix_tokens,
+        mutation_tokens,
+        code_expected_result,
+        sampling_controls=sampling_controls,
+    )
+    record["error"] = failure.message
+    record["correct"] = False
+    record["cache_hit_ratio"] = None
+    return record
+
+
+def _run_scenario_repeat(
+    args: argparse.Namespace,
+    api_model: str,
+    scenario: str,
+    repeat: int,
+    fixture: Any,
+    mutated_text: str,
+    suffix: str,
+    suffix_token_ids: list[int],
+    mutation_prefix_tokens: int,
+    mutation_tokens: int,
+    fixture_hash: str,
+    tokenizer: Any,
+    sampling_controls: dict[str, Any],
+) -> tuple[dict[str, Any], bool]:
+    """Run one scenario/repeat (prime + measure) and build its record.
+
+    Returns (record, stop). `stop=True` tells the caller the connection is
+    gone and no further scenarios/repeats should be attempted this run; a
+    plain HTTP refusal (the server is alive, it just rejected this prompt)
+    returns stop=False so e.g. a refused `cold` doesn't hide whether
+    `tool_turn` is also refused.
+    """
+    prime_messages = (
+        None
+        if scenario == "cold"
+        else _priming_messages(fixture.text, repeat, fixture.question)
+    )
+    try:
+        if prime_messages is not None:
+            _stream_chat_checked(
+                args.base_url,
+                _prime_payload(
+                    api_model,
+                    prime_messages,
+                    specprefill=args.specprefill,
+                    specprefill_keep_pct=args.specprefill_keep_pct,
+                    specprefill_threshold=args.specprefill_threshold,
+                    sampling_controls=sampling_controls,
+                ),
+            )
+        messages = _messages_for_scenario(
+            scenario,
+            fixture.text,
+            mutated_text,
+            suffix,
+            repeat,
+            fixture.question,
+        )
+        args.messages = messages
+        args.static_prefix_hash = _static_prefix_hash(
+            prime_messages if prime_messages is not None else messages
+        )
+        args.static_prefix_prior_match = prime_messages is not None
+        args.static_prefix_matches = prime_messages is not None
+        metrics_before = _metrics_snapshot(args.metrics_url, args.runtime)
+        result = _stream_chat_checked(
+            args.base_url,
+            _payload(
+                api_model,
+                messages,
+                specprefill=args.specprefill,
+                specprefill_keep_pct=args.specprefill_keep_pct,
+                specprefill_threshold=args.specprefill_threshold,
+                sampling_controls=sampling_controls,
+            ),
+        )
+    except RequestFailure as failure:
+        record = _error_record(
+            args,
+            scenario,
+            repeat,
+            failure,
+            fixture.needles,
+            fixture_hash,
+            len(suffix_token_ids),
+            mutation_prefix_tokens,
+            mutation_tokens,
+            fixture.expected_result,
+            sampling_controls,
+        )
+        return record, failure.fatal
+
+    metrics_after = _metrics_snapshot(args.metrics_url, args.runtime)
+    dspark_machine = _json_snapshot(args.machine_url)
+    dspark_metrics = _json_snapshot(args.mlx_dspark_metrics_url)
+    args.greedy_tokens_hash = sha256_tokens(tokenizer(result.text))
+    record = _record(
+        args,
+        scenario,
+        repeat,
+        result,
+        fixture.needles,
+        fixture_hash,
+        metrics_before,
+        metrics_after,
+        len(suffix_token_ids),
+        mutation_prefix_tokens,
+        mutation_tokens,
+        fixture.expected_result,
+        dspark_machine,
+        dspark_metrics,
+        args.drafter_id,
+        args.drafter_revision,
+        sampling_controls,
+    )
+    return record, False
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Measure Qwen3.8 prefix-cache scenarios through an OpenAI API."
@@ -729,80 +938,40 @@ def main() -> int:
     scenarios = selected_scenarios(args.scenarios, args.scenario_order)
     repeat_overrides = scenario_repeat_overrides(args.scenario_repeats)
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    had_request_failure = False
     with args.output.open("a", encoding="utf-8") as output:
+        stop = False
         for scenario in scenarios:
+            if stop:
+                break
             scenario_repeats = repeat_overrides.get(scenario, args.repeat)
             for repeat in range(1, scenario_repeats + 1):
-                prime_messages = (
-                    None
-                    if scenario == "cold"
-                    else _priming_messages(fixture.text, repeat, fixture.question)
-                )
-                if prime_messages is not None:
-                    stream_chat(
-                        args.base_url,
-                        _prime_payload(
-                            api_model,
-                            prime_messages,
-                            specprefill=args.specprefill,
-                            specprefill_keep_pct=args.specprefill_keep_pct,
-                            specprefill_threshold=args.specprefill_threshold,
-                            sampling_controls=sampling_controls,
-                        ),
-                    )
-                messages = _messages_for_scenario(
+                record, stop = _run_scenario_repeat(
+                    args,
+                    api_model,
                     scenario,
-                    fixture.text,
+                    repeat,
+                    fixture,
                     mutated_text,
                     suffix,
-                    repeat,
-                    fixture.question,
-                )
-                args.messages = messages
-                args.static_prefix_hash = _static_prefix_hash(
-                    prime_messages if prime_messages is not None else messages
-                )
-                args.static_prefix_prior_match = prime_messages is not None
-                args.static_prefix_matches = prime_messages is not None
-                metrics_before = _metrics_snapshot(args.metrics_url, args.runtime)
-                result = stream_chat(
-                    args.base_url,
-                    _payload(
-                        api_model,
-                        messages,
-                        specprefill=args.specprefill,
-                        specprefill_keep_pct=args.specprefill_keep_pct,
-                        specprefill_threshold=args.specprefill_threshold,
-                        sampling_controls=sampling_controls,
-                    ),
-                )
-                metrics_after = _metrics_snapshot(args.metrics_url, args.runtime)
-                dspark_machine = _json_snapshot(args.machine_url)
-                dspark_metrics = _json_snapshot(args.mlx_dspark_metrics_url)
-                args.greedy_tokens_hash = sha256_tokens(tokenizer(result.text))
-                record = _record(
-                    args,
-                    scenario,
-                    repeat,
-                    result,
-                    fixture.needles,
-                    fixture_hash,
-                    metrics_before,
-                    metrics_after,
-                    len(suffix_token_ids),
+                    suffix_token_ids,
                     mutation_prefix_tokens,
                     mutation_tokens,
-                    fixture.expected_result,
-                    dspark_machine,
-                    dspark_metrics,
-                    args.drafter_id,
-                    args.drafter_revision,
+                    fixture_hash,
+                    tokenizer,
                     sampling_controls,
                 )
                 output.write(json.dumps(record, sort_keys=True) + "\n")
                 output.flush()
                 print(json.dumps(record, sort_keys=True), flush=True)
-    return 0
+                error = record.get("error")
+                if isinstance(error, str) and (
+                    error.startswith("http_") or error.startswith("connection:")
+                ):
+                    had_request_failure = True
+                if stop:
+                    break
+    return 3 if had_request_failure else 0
 
 
 if __name__ == "__main__":
