@@ -12,26 +12,29 @@ Footprint = **memória wired** (o RSS via ps subconta buffers Metal). Swap e dis
 | mlx-serve 26.9.2 @262K  | 56.8 | 676 | 380 s  | 1.00 | ~105G | ~1.7G | ~8G | ok* |
 | mlx-serve YaRN @512K    | 51.4 | 615 | 844 s  | 1.00 | 111.4G | 1.7G | 19.8G | ok |
 | mlx-serve YaRN @1M      | 17.3 | 502 | 2079 s | — | 105.2G | 1.6G | 26.5G | cold ok** |
-| ds4 (fork) @32K         | 40.4 | 577 | 47 s   | **0.00** | 80.6G | 1.8G | — | ok*** |
-| ds4 (fork) @128K        | 39.2 | 572 | 220 s  | **0.00** | 83.8G | 1.7G | — | ok |
-| ds4 (fork) @256K        | 36.1 | 561 | 458 s  | **0.00** | 88.1G | 1.7G | — | ok |
+| ds4 (fork) @32K         | 40.4 | 577 | 47 s   | 0.00† | 80.6G | 1.8G | — | ok*** |
+| ds4 (fork) @128K        | 39.2 | 572 | 220 s  | 0.00† | 83.8G | 1.7G | — | ok |
+| ds4 (fork) @256K        | 36.1 | 561 | 458 s  | 0.00† | 88.1G | 1.7G | — | ok |
+| ds4 (fork) @32K +kv-disk| 40.6 | 580 | 47 s   | **0.98/0.94** | ~81G | 1.8G | — | ok |
 
 \* 262K tool_turn truncou em max_tokens (não é erro). \** 1M: o cold gerou needles corretas; a 2ª
 request (identical) deu erro transitório. \*** ds4 32K append falhou (1 cenário).
+† ds4 SEM `--kv-disk-dir` (default): não persiste/reusa. **Com `--kv-disk-dir` o ds4 REUSA** o prefixo:
+identical TTFT 2.0s (cache 0.98), tool_turn 3.3s (0.94) — ver linha "+kv-disk". Decode inalterado (40.6).
 
 ## Veredito
 
 **mlx-serve 26.9.2 é a melhor stack do Flash-Next no M4 Max, em todo o range.** Ganha decode em
-todo contexto (67/58/57/51 vs ds4 40/39/36), ganha prefill, e **reusa prefix-cache** (ds4 não reusa
-neste harness — todo turno re-prefila). Estende via YaRN a **512K com decode ainda forte (51)** e
-alcança **1M com needle correta** (decode cai a 17, cold ~35 min — teto prático ~512K).
+todo contexto (67/58/57/51 vs ds4 40/39/36) e ganha prefill. Ambos reusam prefix-cache — mlx-serve
+por default (identical 0.1s), o **ds4 só com `--kv-disk-dir`** (identical 2.0s/0.98, tool_turn 3.3s/0.94);
+o caminho quente do mlx-serve é um pouco mais rápido. Estende via YaRN a **512K com decode ainda forte
+(51)** e alcança **1M com needle correta** (decode cai a 17, cold ~35 min — teto prático ~512K).
 
-**ds4 (fork ivanfioravanti):** footprint menor (80–88G wired vs 105–111G), mas **mais lento em tudo**
-no M4 Max e **sem reuso de cache**. Os números do card (M3 Ultra: decode 45–56, prefill ~1100) NÃO
-se sustentam aqui (40 / 580) — gap de banda/compute. A hipótese "footprint menor → ganho em contexto
-longo" **não se confirmou**: a 256K o mlx-serve entrega 57 tok/s vs 36 do ds4, e vai além (512K/1M).
-Ressalva: o "sem reuso" do ds4 pode ser flag ausente (`--kv-disk-dir`); decode/prefill/footprint são
-comparações limpas, a de cache pode estar desfavorável ao ds4.
+**ds4 (fork ivanfioravanti):** footprint menor (80–88G wired vs 105–111G), mas **mais lento em decode
+e prefill** no M4 Max. Reusa prefix-cache com `--kv-disk-dir` (sem ele, default, não reusa). Os números
+do card (M3 Ultra: decode 45–56, prefill ~1100) NÃO se sustentam aqui (40 / 580) — gap de banda/compute.
+A hipótese "footprint menor → ganho em contexto longo" **não se confirmou**: a 256K o mlx-serve entrega
+57 tok/s vs 36 do ds4, e vai além (512K/1M). Ganho do ds4 fica só no footprint.
 
 ## Spill (resposta direta)
 
