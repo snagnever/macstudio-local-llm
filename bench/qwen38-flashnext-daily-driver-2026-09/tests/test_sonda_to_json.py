@@ -132,6 +132,60 @@ def test_truncated_followup_is_served(tmp_path):
     assert "follow-up truncado" in row["note"]
 
 
+def test_length_with_unrelated_error_is_failure(tmp_path):
+    """finish_reason == "length" alone is not enough to call it a clean
+    truncation: a record can be capped at max_tokens AND carry an unrelated
+    failure (e.g. a socket error hit while streaming). That must fall
+    through to the normal failure path, not hide behind "truncated"."""
+    write_jsonl(
+        tmp_path / "c7-524288-t1.0-yarn2.jsonl",
+        [
+            probe_rec(
+                "c7", "cold", correct=False, error="some unrelated socket error",
+                finish_reason="length", max_tokens=4096,
+            )
+        ],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c7"]
+    assert row["reaches"] is False
+    assert row["truncated"] is False
+    assert "socket error" in row["note"]
+
+
+def test_length_without_error_is_truncated(tmp_path):
+    """finish_reason == "length" with a null error is a clean truncation —
+    equally valid as the cache_probe "finish_reason:length" error marker."""
+    write_jsonl(
+        tmp_path / "c8-524288-t1.0-yarn2.jsonl",
+        [probe_rec("c8", "cold", correct=False, error=None, finish_reason="length", max_tokens=4096)],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c8"]
+    assert row["reaches"] is True
+    assert row["truncated"] is True
+
+
+def test_length_with_unrelated_error_on_followup_is_refused(tmp_path):
+    write_jsonl(
+        tmp_path / "c9-524288-t1.0-yarn2.jsonl",
+        [
+            probe_rec("c9", "cold", ttft_s=8.0, decode=70.0),
+            probe_rec(
+                "c9", "identical", correct=False, error="some unrelated socket error",
+                finish_reason="length", max_tokens=4096,
+            ),
+        ],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c9"]
+    assert row["followup"] is False
+    assert "follow-up recusado" in row["note"]
+
+
 def test_no_yarn_ids_without_a_probe_file(tmp_path):
     # No probe files at all for c2/c3 in this results dir.
     by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)

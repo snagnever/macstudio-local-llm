@@ -47,14 +47,21 @@ DEFAULT_MAX_TOKENS = 4096
 
 def _is_truncated(record: dict[str, Any]) -> bool:
     """cache_probe's truncation convention: `finish_reason: "length"`, with
-    `error` set to the matching `"finish_reason:length"` string. At 512K with
-    reasoning xhigh and a small max_tokens cap, this is a plausible and
-    meaningful outcome — the server ran the prefill and generated tokens —
-    not a refusal or a crash, so it must not be scored like one."""
-    if record.get("finish_reason") == "length":
-        return True
+    `error` either null/empty or set to the matching `"finish_reason:length"`
+    string. At 512K with reasoning xhigh and a small max_tokens cap, this is
+    a plausible and meaningful outcome — the server ran the prefill and
+    generated tokens — not a refusal or a crash, so it must not be scored
+    like one.
+
+    `finish_reason == "length"` alone is NOT enough: a record can be capped
+    at max_tokens AND carry an unrelated failure (e.g. a socket error hit
+    while streaming the truncated response) in `error`. Any `error` other
+    than the `finish_reason:length` marker itself means a real failure, not
+    a clean truncation — it must fall through to the normal failure path."""
+    if record.get("finish_reason") != "length":
+        return False
     err = record.get("error")
-    return bool(err) and str(err).startswith("finish_reason:length")
+    return not err or str(err).startswith("finish_reason:length")
 
 
 def load_records(results_dir: str, pattern: str) -> dict[str, list[dict[str, Any]]]:
