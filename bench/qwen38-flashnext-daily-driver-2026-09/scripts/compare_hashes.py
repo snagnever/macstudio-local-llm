@@ -17,8 +17,18 @@ def compare(a: list[dict], b: list[dict]) -> list[dict]:
     ha = {(r["scenario"], r.get("repeat", 1)): r.get("greedy_tokens_hash") for r in a}
     hb = {(r["scenario"], r.get("repeat", 1)): r.get("greedy_tokens_hash") for r in b}
     rows = []
-    for key in sorted(ha.keys() & hb.keys(), key=lambda k: (ORDER.index(k[0]) if k[0] in ORDER else 99, k[1])):
-        rows.append({"scenario": key[0], "same": ha[key] == hb[key], "hash_a": ha[key], "hash_b": hb[key]})
+    # Use union of keys to catch missing scenarios
+    all_keys = sorted(ha.keys() | hb.keys(), key=lambda k: (ORDER.index(k[0]) if k[0] in ORDER else 99, k[1]))
+    for key in all_keys:
+        hash_a = ha.get(key)
+        hash_b = hb.get(key)
+        # Determine same: True only if both hashes are non-empty strings and equal
+        # None if either hash is missing/None, or if one is None and the other isn't
+        if hash_a is None or hash_b is None:
+            same = None
+        else:
+            same = hash_a == hash_b
+        rows.append({"scenario": key[0], "same": same, "hash_a": hash_a, "hash_b": hash_b})
     return rows
 
 
@@ -30,8 +40,22 @@ def main() -> int:
     rows = compare(load(args.a), load(args.b))
     print("| cenário | iguais | hash A | hash B |\n|---|---|---|---|")
     for r in rows:
-        print(f"| {r['scenario']} | {'sim' if r['same'] else '**não**'} | `{(r['hash_a'] or '')[:12]}` | `{(r['hash_b'] or '')[:12]}` |")
-    return 0 if all(r["same"] for r in rows) else 1
+        if r["same"] is None:
+            # Determine if hash is missing on A or B
+            if r["hash_a"] is None:
+                status = "**ausente em A**"
+            elif r["hash_b"] is None:
+                status = "**ausente em B**"
+            else:
+                # Both present but one is None, shouldn't happen but mark as undetermined
+                status = "**indeterminado**"
+        elif r["same"]:
+            status = "sim"
+        else:
+            status = "**não**"
+        print(f"| {r['scenario']} | {status} | `{(r['hash_a'] or '')[:12]}` | `{(r['hash_b'] or '')[:12]}` |")
+    # Exit 1 if any row has same not True (False or None)
+    return 0 if all(r["same"] is True for r in rows) else 1
 
 
 if __name__ == "__main__":
