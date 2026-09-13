@@ -11,11 +11,12 @@ import render_dashboard as rd  # noqa: E402
 
 
 def probe_rec(cand, scen, ttft_s=5.0, decode=70.0, wired=95.0, correct=True, error=None,
-              runtime_revision="v26.9.2-yarn2.0-kv8"):
+              runtime_revision="v26.9.2-yarn2.0-kv8", finish_reason=None, max_tokens=None):
     return {
         "arm": cand, "context_target": 524288, "scenario": scen,
         "ttft_ms": ttft_s * 1000, "decode_tps": decode, "ram_peak_gb": wired,
         "correct": correct, "error": error, "runtime_revision": runtime_revision,
+        "finish_reason": finish_reason, "max_tokens": max_tokens,
     }
 
 
@@ -84,6 +85,51 @@ def test_cold_refused_note_truncated(tmp_path):
     assert row["reaches"] is False
     assert len(row["note"]) <= 160
     assert row["note"] == sj._truncate(long_error)
+
+
+def test_truncated_cold_counts_as_reach(tmp_path):
+    """A cold record truncated at the model's own max_tokens cap (finish_reason
+    "length", cache_probe's error:"finish_reason:length" convention) proves
+    the opposite of a refusal: the server ran the 512K prefill and generated
+    tokens. It must count as reaching the band, not as a crash/refusal."""
+    write_jsonl(
+        tmp_path / "c5-524288-t1.0-yarn2.jsonl",
+        [
+            probe_rec(
+                "c5", "cold", correct=False, error="finish_reason:length",
+                finish_reason="length", max_tokens=4096,
+            )
+        ],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c5"]
+    assert row["reaches"] is True
+    assert row["truncated"] is True
+    assert "truncado em 4096 tokens" in row["note"]
+    assert "finish_reason:length" not in row["note"]
+
+
+def test_truncated_followup_is_served(tmp_path):
+    """A truncated identical record means the follow-up request was accepted
+    and served (truncated at the cap), not refused."""
+    write_jsonl(
+        tmp_path / "c6-524288-t1.0-yarn2.jsonl",
+        [
+            probe_rec("c6", "cold", ttft_s=8.0, decode=70.0),
+            probe_rec(
+                "c6", "identical", correct=False, error="finish_reason:length",
+                finish_reason="length", max_tokens=4096,
+            ),
+        ],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c6"]
+    assert row["reaches"] is True
+    assert row["truncated"] is False  # cold itself was clean
+    assert row["followup"] is True
+    assert "follow-up truncado" in row["note"]
 
 
 def test_no_yarn_ids_without_a_probe_file(tmp_path):

@@ -2,8 +2,14 @@
 """Converte os JSONL da sonda de capacidade a 512K no `sonda-512k.json` que
 `render_dashboard.py --sonda` lê (ver a tabela "Sonda de capacidade a 512K"
 em `scripts/render_dashboard.py`: chaves `reaches`, `followup`, `decode_tps`,
-`cold_ttft_s`, `note` — além de `wired_peak_gb` e `mechanism`, guardados
-aqui mesmo que a página ainda não os exiba).
+`cold_ttft_s`, `note` — além de `wired_peak_gb`, `mechanism` e `truncated`,
+guardados aqui mesmo que a página ainda não os exiba).
+
+Truncamento (`finish_reason: "length"`) no `cold` conta como alcançar a
+banda, não como recusa: a 512K com reasoning xhigh e um teto de tokens
+pequeno, truncar é esperado e prova o oposto de uma recusa — o servidor
+rodou o prefill de 512K e gerou tokens. Um `identical` truncado conta como
+follow-up servido pelo mesmo motivo.
 
 Não roda benchmark nenhum: só lê JSONL já escrito em disco.
 
@@ -34,6 +40,21 @@ def _candidate_id(record: dict[str, Any], path: str) -> str:
 def _truncate(s: Any, n: int = NOTE_MAXLEN) -> str:
     s = str(s)
     return s if len(s) <= n else s[: n - 1] + "…"
+
+
+DEFAULT_MAX_TOKENS = 4096
+
+
+def _is_truncated(record: dict[str, Any]) -> bool:
+    """cache_probe's truncation convention: `finish_reason: "length"`, with
+    `error` set to the matching `"finish_reason:length"` string. At 512K with
+    reasoning xhigh and a small max_tokens cap, this is a plausible and
+    meaningful outcome — the server ran the prefill and generated tokens —
+    not a refusal or a crash, so it must not be scored like one."""
+    if record.get("finish_reason") == "length":
+        return True
+    err = record.get("error")
+    return bool(err) and str(err).startswith("finish_reason:length")
 
 
 def load_records(results_dir: str, pattern: str) -> dict[str, list[dict[str, Any]]]:
@@ -68,9 +89,16 @@ def convert(by_cand: dict[str, list[dict[str, Any]]], no_yarn: list[str]) -> dic
 
         identical = next((r for r in records if r.get("scenario") == "identical"), None)
 
-        reaches = bool(cold.get("correct")) and not cold.get("error")
+        cold_truncated = _is_truncated(cold)
+        reaches = (bool(cold.get("correct")) and not cold.get("error")) or cold_truncated
+
+        identical_truncated = identical is not None and _is_truncated(identical)
         if identical is None:
             followup: bool | None = None
+        elif identical_truncated:
+            # The follow-up request was accepted and served (truncated at the
+            # cap, not refused) — that is a served follow-up.
+            followup = True
         else:
             followup = bool(identical.get("correct")) and not identical.get("error")
 
@@ -78,22 +106,28 @@ def convert(by_cand: dict[str, list[dict[str, Any]]], no_yarn: list[str]) -> dic
         cold_ttft_s = cold.get("ttft_ms") / 1000 if cold.get("ttft_ms") is not None else None
         wired_vals = [r.get("ram_peak_gb") for r in records if r.get("ram_peak_gb") is not None]
 
-        note = ""
-        if not reaches:
+        note_parts: list[str] = []
+        if cold_truncated:
+            max_tokens = cold.get("max_tokens") or DEFAULT_MAX_TOKENS
+            note_parts.append(f"truncado em {max_tokens} tokens (chegou a 512K)")
+        elif not reaches:
             err = cold.get("error")
             if err:
-                note = _truncate(err)
+                note_parts.append(_truncate(err))
+        if identical_truncated:
+            note_parts.append("follow-up truncado")
         elif followup is False:
-            note = "follow-up recusado"
+            note_parts.append("follow-up recusado")
 
         out[cid] = {
             "reaches": reaches,
+            "truncated": cold_truncated,
             "followup": followup,
             "decode_tps": round(decode_tps, 1) if decode_tps is not None else None,
             "cold_ttft_s": round(cold_ttft_s, 1) if cold_ttft_s is not None else None,
             "wired_peak_gb": max(wired_vals) if wired_vals else None,
             "mechanism": cold.get("runtime_revision"),
-            "note": note,
+            "note": "; ".join(note_parts),
         }
 
     for cid in no_yarn:
