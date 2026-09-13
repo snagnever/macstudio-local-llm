@@ -16,6 +16,21 @@ def _median(xs):
     return round(statistics.median(xs), 1) if xs else None
 
 
+def _median_raw(xs):
+    """Like _median but without rounding — gate comparisons must use this,
+    never the display-rounded value (rounding a 0.86 hit to 0.9 would let it
+    pass a >=0.90 gate that should have failed)."""
+    xs = [x for x in xs if x is not None]
+    return statistics.median(xs) if xs else None
+
+
+def _is_http_error(error) -> bool:
+    """cache_probe writes `"error": "finish_reason:length"` on truncated
+    records — that is a correctness/truncation signal (already captured by
+    `correctness`), not an HTTP/transport error, so it must not count here."""
+    return bool(error) and not str(error).startswith("finish_reason:length")
+
+
 def summarize(records: list[dict]) -> dict:
     groups: dict[tuple, list[dict]] = {}
     for r in records:
@@ -26,9 +41,12 @@ def summarize(records: list[dict]) -> dict:
         for r in rs:
             by.setdefault(r["scenario"], []).append(r)
         warm_ttft = {s: _median([r["ttft_ms"] / 1000 for r in by.get(s, [])]) for s in WARM}
-        hit = {s: _median([r.get("cache_hit_ratio") for r in by.get(s, [])]) for s in WARM}
+        hit_raw = {s: _median_raw([r.get("cache_hit_ratio") for r in by.get(s, [])]) for s in WARM}
+        hit = {s: (round(v, 3) if v is not None else None) for s, v in hit_raw.items()}
         warm_decode = [r["decode_tps"] for s in WARM for r in by.get(s, [])]
         decode = _median(warm_decode) or _median([r["decode_tps"] for r in rs])
+        mtp_raw = _median_raw([r.get("mtp_acceptance") for r in rs])
+        mtp_acceptance = round(mtp_raw, 3) if mtp_raw is not None else None
         fins = [r.get("finish_reason") for r in rs]
         if all(r.get("correct") for r in rs):
             correctness = "ok"
@@ -45,11 +63,13 @@ def summarize(records: list[dict]) -> dict:
             "correctness": correctness,
             "wired_peak_gb": max((r.get("ram_peak_gb") or 0) for r in rs) or None,
             "swap_delta_gb": max((r.get("swap_delta_gb") or 0) for r in rs),
-            "mtp_acceptance": _median([r.get("mtp_acceptance") for r in rs]),
-            "errors": sum(1 for r in rs if r.get("error")),
+            "mtp_acceptance": mtp_acceptance,
+            "errors": sum(1 for r in rs if _is_http_error(r.get("error"))),
             "n": len(rs),
         }
-        row["gates_failed"] = apply_gates(row, key[1])
+        gate_row = dict(row)
+        gate_row["hit"] = hit_raw
+        row["gates_failed"] = apply_gates(gate_row, key[1])
         out[key] = row
     return out
 

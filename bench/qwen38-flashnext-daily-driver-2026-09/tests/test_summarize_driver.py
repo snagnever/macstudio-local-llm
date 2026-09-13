@@ -5,10 +5,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from summarize_driver import summarize, apply_gates, t_turno  # noqa: E402
 
 
-def rec(cand, ctx, scen, ttft_s, decode, hit, correct=True, fin="stop", rep=1, wired=100.0, swap=0.1):
+def rec(cand, ctx, scen, ttft_s, decode, hit, correct=True, fin="stop", rep=1, wired=100.0, swap=0.1, error=None):
     return {"arm": cand, "context_target": ctx, "scenario": scen, "repeat": rep, "ttft_ms": ttft_s * 1000,
             "decode_tps": decode, "prompt_tps": 700.0, "cache_hit_ratio": hit, "correct": correct,
-            "finish_reason": fin, "ram_peak_gb": wired, "swap_delta_gb": swap, "mtp_acceptance": 0.8}
+            "finish_reason": fin, "ram_peak_gb": wired, "swap_delta_gb": swap, "mtp_acceptance": 0.8,
+            "error": error}
 
 
 def test_t_turno_formula():
@@ -30,3 +31,32 @@ def test_summarize_medians_and_correctness():
 def test_gates():
     row = {"hit": {"append": 0.85, "tool_turn": 0.96}, "correctness": "ok", "wired_peak_gb": 104.0, "swap_delta_gb": 0.1, "errors": 0}
     assert apply_gates(row, 32768) == ["hit_append<0.90", "wired>102"]
+
+
+def test_hit_gate_uses_unrounded_values():
+    # 0.86 rounds to 0.9 at 1 decimal, which would wrongly pass a >=0.90
+    # gate under the old rounding-before-gating behaviour.
+    rs = [rec("c1", 32768, "cold", 37.0, 66.0, 0.0), rec("c1", 32768, "tool_turn", 2.0, 60.0, 0.96),
+          rec("c1", 32768, "append", 1.9, 64.0, 0.86), rec("c1", 32768, "identical", 0.1, 65.0, 1.0)]
+    s = summarize(rs)[("c1", 32768)]
+    assert s["hit"]["append"] == 0.86
+    assert "hit_append<0.90" in s["gates_failed"]
+
+
+def test_hit_keeps_three_decimals():
+    rs = [rec("c1", 32768, "cold", 37.0, 66.0, 0.0), rec("c1", 32768, "tool_turn", 2.0, 60.0, 0.9622),
+          rec("c1", 32768, "append", 1.9, 64.0, 0.96), rec("c1", 32768, "identical", 0.1, 65.0, 1.0)]
+    s = summarize(rs)[("c1", 32768)]
+    assert s["hit"]["tool_turn"] == 0.962
+
+
+def test_truncation_is_not_http_error():
+    rs = [rec("c1", 32768, "cold", 37.0, 66.0, 0.0), rec("c1", 32768, "tool_turn", 2.0, 60.0, 0.96),
+          rec("c1", 32768, "append", 1.9, 64.0, 0.96), rec("c1", 32768, "identical", 0.1, 65.0, 1.0)]
+    trunc = rec("c1", 32768, "middle_mutation", 2.5, 62.0, 0.95, correct=False, fin="length",
+                error="finish_reason:length")
+    rs.append(trunc)
+    s = summarize(rs)[("c1", 32768)]
+    assert s["errors"] == 0
+    assert s["correctness"] == "truncado"
+    assert "http_errors" not in s["gates_failed"]
