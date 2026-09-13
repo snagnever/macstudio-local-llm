@@ -114,15 +114,30 @@ def convert(by_cand: dict[str, list[dict[str, Any]]], no_yarn: list[str]) -> dic
         wired_vals = [r.get("ram_peak_gb") for r in records if r.get("ram_peak_gb") is not None]
 
         note_parts: list[str] = []
+        cold_error = cold.get("error")
+        cold_stream_error = isinstance(cold_error, str) and cold_error.startswith("stream_error:")
         if cold_truncated:
             max_tokens = cold.get("max_tokens") or DEFAULT_MAX_TOKENS
             note_parts.append(f"truncado em {max_tokens} tokens (chegou a 512K)")
         elif not reaches:
-            err = cold.get("error")
-            if err:
-                note_parts.append(_truncate(err))
+            if cold_stream_error:
+                # cache_probe's in-stream-error marker (finish_reason "error"/
+                # None with no HTTP failure) -- name the failing finish_reason
+                # instead of the raw "stream_error:<x>" string.
+                note_parts.append(f"erro no stream ({cold.get('finish_reason')})")
+            elif cold_error:
+                note_parts.append(_truncate(cold_error))
+            elif cold.get("correct") is False:
+                # Correct=False with no error at all: the server answered, the
+                # answer was just wrong -- distinct from a refusal/crash.
+                note_parts.append("resposta incorreta")
+
+        identical_error = identical.get("error") if identical is not None else None
+        identical_stream_error = isinstance(identical_error, str) and identical_error.startswith("stream_error:")
         if identical_truncated:
             note_parts.append("follow-up truncado")
+        elif identical_stream_error:
+            note_parts.append("follow-up com erro no stream")
         elif followup is False:
             note_parts.append("follow-up recusado")
 

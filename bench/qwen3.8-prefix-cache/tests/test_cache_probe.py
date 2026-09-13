@@ -100,6 +100,86 @@ class CacheProbeTests(unittest.TestCase):
         self.assertTrue(record["prompt_identity"])
         self.assertIn("10", record["needle_verdicts"])
 
+    def test_in_stream_error_finish_reason_is_flagged_as_stream_error(self):
+        """A stream that ends with finish_reason "error" completes without any
+        HTTPError/URLError -- it never goes through RequestFailure/
+        _error_record -- so it used to report error=None and get scored as a
+        plain wrong answer. It must be flagged explicitly instead."""
+        args = SimpleNamespace(
+            arm="M", context=16384, session_id="session", runtime="oMLX",
+            runtime_revision="v0.6.3rc2", model="awq5", model_revision="target",
+            cache_enabled=True, mtp_enabled=True, specprefill=None,
+            specprefill_keep_pct=None, specprefill_threshold=None,
+            ane_prefill_enabled=False,
+        )
+        result = StreamResult(
+            text="", reasoning_text="", finish_reason="error", ttft_ms=10.0,
+            e2e_ms=20.0, usage={"prompt_tokens": 100, "completion_tokens": 0},
+            raw_chunks=1,
+        )
+
+        record = _record(
+            args, "cold", 1, result, "XENON", "fixture", {}, {}, 0, 0, 0
+        )
+
+        self.assertTrue(record["error"].startswith("stream_error:"))
+        self.assertEqual(record["error"], "stream_error:error")
+        self.assertEqual(record["error_stage"], "measured")
+        self.assertFalse(record["correct"])
+
+    def test_missing_finish_reason_with_no_content_is_stream_error_none(self):
+        """finish_reason None (no finish_reason chunk ever arrived) must be
+        named "stream_error:none", not the Python-ism "stream_error:None"."""
+        args = SimpleNamespace(
+            arm="M", context=16384, session_id="session", runtime="oMLX",
+            runtime_revision="v0.6.3rc2", model="awq5", model_revision="target",
+            cache_enabled=True, mtp_enabled=True, specprefill=None,
+            specprefill_keep_pct=None, specprefill_threshold=None,
+            ane_prefill_enabled=False,
+        )
+        result = StreamResult(
+            text="", reasoning_text="", finish_reason=None, ttft_ms=10.0,
+            e2e_ms=20.0, usage={"prompt_tokens": 100, "completion_tokens": 0},
+            raw_chunks=0,
+        )
+
+        record = _record(
+            args, "cold", 1, result, "XENON", "fixture", {}, {}, 0, 0, 0
+        )
+
+        self.assertEqual(record["error"], "stream_error:none")
+        self.assertEqual(record["error_stage"], "measured")
+
+    def test_normal_stop_and_length_are_not_flagged_as_stream_errors(self):
+        """Regression guard for the two fix above: a clean stop and a clean
+        max_tokens truncation must keep their existing error/error_stage
+        contract untouched."""
+        args = SimpleNamespace(
+            arm="M", context=16384, session_id="session", runtime="oMLX",
+            runtime_revision="v0.6.3rc2", model="awq5", model_revision="target",
+            cache_enabled=True, mtp_enabled=True, specprefill=None,
+            specprefill_keep_pct=None, specprefill_threshold=None,
+            ane_prefill_enabled=False,
+        )
+        stop_result = StreamResult(
+            text="XENON", reasoning_text="", finish_reason="stop", ttft_ms=10.0,
+            e2e_ms=20.0, usage={"prompt_tokens": 100, "completion_tokens": 1},
+            raw_chunks=1,
+        )
+        length_result = StreamResult(
+            text="XENON", reasoning_text="", finish_reason="length", ttft_ms=10.0,
+            e2e_ms=20.0, usage={"prompt_tokens": 100, "completion_tokens": 4096},
+            raw_chunks=1,
+        )
+
+        stop_record = _record(args, "cold", 1, stop_result, "XENON", "fixture", {}, {}, 0, 0, 0)
+        length_record = _record(args, "cold", 1, length_result, "XENON", "fixture", {}, {}, 0, 0, 0)
+
+        self.assertIsNone(stop_record["error"])
+        self.assertIsNone(stop_record["error_stage"])
+        self.assertEqual(length_record["error"], "finish_reason:length")
+        self.assertIsNone(length_record["error_stage"])
+
     def test_specprefill_request_options_are_sent_exactly(self):
         """Dropping a request override must make the runtime profile unobservable."""
         payload = _payload(

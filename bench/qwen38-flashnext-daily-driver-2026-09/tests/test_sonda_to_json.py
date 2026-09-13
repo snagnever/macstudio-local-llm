@@ -186,6 +186,49 @@ def test_length_with_unrelated_error_on_followup_is_refused(tmp_path):
     assert "follow-up recusado" in row["note"]
 
 
+def test_cold_incorrect_with_no_error_notes_resposta_incorreta(tmp_path):
+    """correct=False with error=None means the server answered and the
+    answer was simply wrong -- distinct from a refusal/crash, and previously
+    fell through to an empty note."""
+    write_jsonl(
+        tmp_path / "c10-524288-t1.0-yarn2.jsonl",
+        [probe_rec("c10", "cold", correct=False, error=None, finish_reason="stop")],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c10"]
+    assert row["reaches"] is False
+    assert row["note"] == "resposta incorreta"
+
+
+def test_stream_error_cold_is_refused_with_stream_note(tmp_path):
+    write_jsonl(
+        tmp_path / "c11-524288-t1.0-yarn2.jsonl",
+        [probe_rec("c11", "cold", correct=False, error="stream_error:error", finish_reason="error")],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c11"]
+    assert row["reaches"] is False
+    assert row["note"] == "erro no stream (error)"
+
+
+def test_stream_error_followup_is_refused_with_stream_note(tmp_path):
+    write_jsonl(
+        tmp_path / "c12-524288-t1.0-yarn2.jsonl",
+        [
+            probe_rec("c12", "cold", ttft_s=8.0, decode=70.0),
+            probe_rec("c12", "identical", correct=False, error="stream_error:none", finish_reason=None),
+        ],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c12"]
+    assert row["reaches"] is True
+    assert row["followup"] is False
+    assert row["note"] == "follow-up com erro no stream"
+
+
 def test_no_yarn_ids_without_a_probe_file(tmp_path):
     # No probe files at all for c2/c3 in this results dir.
     by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)

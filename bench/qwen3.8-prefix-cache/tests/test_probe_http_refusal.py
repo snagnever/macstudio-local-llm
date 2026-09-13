@@ -463,5 +463,40 @@ class MainEndToEndRefusalTests(unittest.TestCase):
         self.assertEqual(records[0]["error_stage"], "measured")
 
 
+class GreedyTokensHashResetTests(unittest.TestCase):
+    def test_prime_refusal_after_a_successful_scenario_clears_greedy_tokens_hash(self):
+        """Regression: greedy_tokens_hash was only ever (re)assigned on a
+        successful measured request, so a refused PRIME on the next
+        scenario/repeat inherited whatever the previous successful scenario
+        left on `args` instead of reporting that THIS request produced no
+        greedy decode at all."""
+        args = _args()
+        fixture = _fixture()
+        success = StreamResult(
+            text="XENON-7592-FALCON ARGON-1844-EMBER NEON-6301-ORBIT",
+            reasoning_text="", finish_reason="stop", ttft_ms=1.0, e2e_ms=2.0,
+            usage={"prompt_tokens": 10, "completion_tokens": 3}, raw_chunks=1,
+        )
+
+        with patch.object(cache_probe, "stream_chat", return_value=success):
+            cold_record, cold_stop = _run_scenario_repeat(
+                args, "model-id", "cold", 1, fixture, "mutated", "suffix",
+                [1, 2], 0, 0, "fixturehash", lambda text: [1, 2, 3], cache_probe.SAMPLING_CONTROLS,
+            )
+        self.assertFalse(cold_stop)
+        self.assertIsNotNone(cold_record["greedy_tokens_hash"])
+        self.assertEqual(args.greedy_tokens_hash, cold_record["greedy_tokens_hash"])
+
+        with patch.object(cache_probe, "stream_chat", side_effect=_mtplx_507()):
+            append_record, append_stop = _run_scenario_repeat(
+                args, "model-id", "append", 1, fixture, "mutated", "suffix",
+                [1, 2], 0, 0, "fixturehash", lambda text: [1, 2, 3], cache_probe.SAMPLING_CONTROLS,
+            )
+
+        self.assertFalse(append_stop)
+        self.assertEqual(append_record["error_stage"], "prime")
+        self.assertIsNone(append_record["greedy_tokens_hash"])
+
+
 if __name__ == "__main__":
     unittest.main()

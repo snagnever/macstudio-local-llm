@@ -529,6 +529,20 @@ def _record(
         mtp_acceptance = min(
             1.0, max(0.0, server["accepted_tokens"] / server["drafted_tokens"])
         )
+    # A stream that ends with finish_reason "error" (or anything else outside
+    # {"stop", "length"} -- including None, e.g. the connection dropped mid-
+    # stream with no content and no finish_reason chunk at all) is a real
+    # failure that happened without an HTTPError/URLError, so it never went
+    # through RequestFailure/_error_record. Left alone it would report
+    # error=None and get scored as a plain wrong answer. Flag it explicitly
+    # instead, distinguishable from the finish_reason:length truncation
+    # marker and from the RequestFailure-derived "http_"/"connection:" tags.
+    if result.finish_reason in ("stop", "length"):
+        stream_error = None
+        error_stage = None
+    else:
+        stream_error = f"stream_error:{result.finish_reason or 'none'}"
+        error_stage = "measured"
     return {
         "schema_version": 3,
         "run_id": (
@@ -629,9 +643,11 @@ def _record(
         "reasoning_effort": controls["reasoning_effort"],
         "max_tokens": MAX_TOKENS,
         "error": (
-            "finish_reason:length" if result.finish_reason == "length" else None
+            stream_error
+            if stream_error is not None
+            else ("finish_reason:length" if result.finish_reason == "length" else None)
         ),
-        "error_stage": None,
+        "error_stage": error_stage,
     }
 
 
@@ -740,6 +756,12 @@ def _run_scenario_repeat(
     )
     args.static_prefix_prior_match = prime_messages is not None
     args.static_prefix_matches = prime_messages is not None
+    # Reset alongside the identity fields above -- otherwise a refused/failed
+    # request this scenario/repeat would leave THIS scenario's error record
+    # carrying the previous successful scenario's greedy_tokens_hash (it is
+    # only reassigned below on success), silently misattributing which
+    # request produced which greedy-decode hash.
+    args.greedy_tokens_hash = None
 
     stage = "prime"
     try:
@@ -1013,7 +1035,9 @@ def main() -> int:
                 print(json.dumps(record, sort_keys=True), flush=True)
                 error = record.get("error")
                 if isinstance(error, str) and (
-                    error.startswith("http_") or error.startswith("connection:")
+                    error.startswith("http_")
+                    or error.startswith("connection:")
+                    or error.startswith("stream_error:")
                 ):
                     had_request_failure = True
                 if stop:
