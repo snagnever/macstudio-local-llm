@@ -1,9 +1,16 @@
 # 2026-09-12 — Qwen: testar as atualizações de setembro
 
-> **Status:** aberta. Campanha de teste do lote de atualizações que apareceu depois do
-> refresh de 04/09 ([qwen38-flash-next/plan-refresh-20260904.md](../qwen38-flash-next/plan-refresh-20260904.md)).
-> Escopo: só Qwen (Flash-Next, densa 27B, MoE 3.6). Inventário e procedência em
-> [references.md](references.md); manifesto em [results/update-inventory-20260912.json](results/update-inventory-20260912.json).
+> **Status (2026-09-13):** P1 fechado. **Item 1 mlx-serve 26.9.2 PROMOVIDO** (+7% decode @32K,
+> +20–40% @128K). **Item 2 MTPLX 2.11.2 PROMOVIDO por correção** (a MTP do 2.11.1 é lossy a 32K).
+> Item 3 (1M) e item 7 (3.6-35B) pulados a pedido. Item 4 (oMLX 0.7 dev2) e item 5 (json do trio 27B)
+> deferidos (ver headings). Item 6 (DFlash2) exige Terminal-Bench, corrida à parte. Vereditos:
+> [results/p1-item1-mlxserve-ab-summary.md](results/p1-item1-mlxserve-ab-summary.md),
+> [results/p2-item2-mtplx-verdict.md](results/p2-item2-mtplx-verdict.md).
+>
+> Campanha de teste do lote de atualizações depois do refresh de 04/09
+> ([qwen38-flash-next/plan-refresh-20260904.md](../qwen38-flash-next/plan-refresh-20260904.md)).
+> Escopo: só Qwen. Inventário em [references.md](references.md); manifesto em
+> [results/update-inventory-20260912.json](results/update-inventory-20260912.json).
 
 ## Baseline instalado (do refresh de 04/09)
 
@@ -114,7 +121,13 @@ Sem A/B de versão. Exercitar a feature já na 26.9.1, no build ddalcu, com a co
 Medir: sobe sem estourar 128 GB? TTFT/decode a 262144 e além; needle no `cold`. Coletar RAM/swap.
 Comparar contra a config FS atual (prefix-cache 16GB, entries 64).
 
-### 4 — oMLX 0.7.0.dev2 (P2)
+### 4 — oMLX 0.7.0.dev2 (P2) — DEFERIDO (2026-09-13)
+
+Instalado (`git+…@v0.7.0.dev2`), mas o Flash-Next oQ4e carrega PLE **residente** (~98 GB) e não
+sobra memória em 128 GB; o offload por mmap (que dava folga na 0.6.x via `qwen4_ple_ssd_offload`) é
+sobreposto pelo setting por-modelo na 0.7 — o env `OMLX_QWEN4_PLE_MODE=mmap` não pega. Detalhe e
+próximo passo em [results/p4-item4-omlx-dev2-blocked.md](results/p4-item4-omlx-dev2-blocked.md).
+Procedimento original preservado abaixo.
 
 Instalar o pré-release no env `~/.local/opt/qwen38/omlx-v0.7.0.dev2` (pip `--pre`; confirmar o
 pacote). A/B isola só o offload de PLE-SSD: mesma config, modelo `Jundot oQ4e-mtp`, arm FN nas duas
@@ -137,7 +150,11 @@ Rodar **só a 0.7.0.dev2** nos três contextos e comparar contra esses arquivos,
 histórico dentro do ruído, a comparação cross-session dos contextos longos vale ([[runtime-gains-stale-baselines]]).
 Se divergir, re-rodar a 0.6.4 nos contextos longos também.
 
-### 5 — Trio 27B MTPLX, só runtime json (P2)
+### 5 — Trio 27B MTPLX, só runtime json (P2) — DEFERIDO (2026-09-13)
+
+Marginal e superado: só o `mtplx_runtime.json` (micro-tuning de vendor) mudou em 03/09, e o item 2
+já promoveu a **MTPLX 2.11.2** como runtime, que traz o próprio tuning. Um A/B do json antigo vs novo
+sob a 2.11.2 tem baixo retorno. Retomar só se um workload específico pedir. Procedimento abaixo.
 
 Pesos inalterados; mudou só `mtplx_runtime.json` (03/09). Re-baixar o json das revisões novas
 (Speed/Quality/Bare) por cima dos snapshots pinados. Rodar `run-mtplx.sh V` (e `Y`) com o json novo
