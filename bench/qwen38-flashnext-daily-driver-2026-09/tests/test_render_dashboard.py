@@ -1,0 +1,118 @@
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+import render_dashboard as rd  # noqa: E402
+
+CANDIDATE_IDS = ["c1", "c2", "c3", "c4"]
+
+
+def _row(t_turno_s=5.0, cold_ttft_s=30.0, decode=64.0, hit=0.96, wired=90.0):
+    return {
+        "cold_ttft_s": cold_ttft_s,
+        "warm_ttft_s": {"identical": 0.1, "append": 1.9, "tool_turn": 2.0},
+        "hit": {"identical": 1.0, "append": hit, "tool_turn": hit},
+        "prefill_tps": 700.0,
+        "decode_tps": decode,
+        "t_turno_s": t_turno_s,
+        "correctness": "ok",
+        "wired_peak_gb": wired,
+        "swap_delta_gb": 0.0,
+        "mtp_acceptance": 0.8,
+        "errors": 0,
+        "n": 1,
+        "gates_failed": [] if hit >= 0.90 else ["hit_append<0.90"],
+    }
+
+
+def _extract_const_array(html: str, name: str):
+    m = re.search(r"const " + name + r" = (\[.*?\]);\n", html, re.S)
+    assert m, f"const {name} not found in generated HTML"
+    return json.loads(m.group(1))
+
+
+def test_generated_page_has_data_model_and_placeholder_verdict(tmp_path):
+    summary_path = tmp_path / "summary.json"
+    summary_path.write_text(
+        json.dumps({"c1@32768": _row(t_turno_s=5.0), "c2@32768": _row(t_turno_s=6.0)}),
+        encoding="utf-8",
+    )
+    out_path = tmp_path / "qwen38-flashnext-driver.html"
+
+    rc = rd.main(["--summary", str(summary_path), "--out", str(out_path)])
+    assert rc == 0
+
+    page = out_path.read_text(encoding="utf-8")
+    assert "const MODELS" in page
+    assert "const RESULTS" in page
+    for cid in CANDIDATE_IDS:
+        assert f'"{cid}"' in page
+    assert 'charts-common.js' in page
+    assert rd.PLACEHOLDER_VERDICT in page
+
+    results = _extract_const_array(page, "RESULTS")
+    rec = next(
+        r for r in results if r["model"] == "c1" and r["metric"] == "t_turno_s" and r["context"] == 32768
+    )
+    assert rec["value"] == 5.0
+
+
+def test_summary_b_overrides_matching_key(tmp_path):
+    summary_path = tmp_path / "summary.json"
+    summary_path.write_text(json.dumps({"c1@32768": _row(t_turno_s=5.0)}), encoding="utf-8")
+    summary_b_path = tmp_path / "summary-b.json"
+    summary_b_path.write_text(json.dumps({"c1@32768": _row(t_turno_s=4.2)}), encoding="utf-8")
+    out_path = tmp_path / "out.html"
+
+    rc = rd.main(
+        [
+            "--summary",
+            str(summary_path),
+            "--summary-b",
+            str(summary_b_path),
+            "--out",
+            str(out_path),
+        ]
+    )
+    assert rc == 0
+
+    page = out_path.read_text(encoding="utf-8")
+    results = _extract_const_array(page, "RESULTS")
+    rec = next(
+        r for r in results if r["model"] == "c1" and r["metric"] == "t_turno_s" and r["context"] == 32768
+    )
+    assert rec["value"] == 4.2
+
+
+def test_merge_summaries_override_wins_whole_record():
+    base = {"c1@32768": {"t_turno_s": 5.0}, "c1@8192": {"t_turno_s": 1.0}}
+    override = {"c1@32768": {"t_turno_s": 4.2}}
+    merged = rd.merge_summaries(base, override)
+    assert merged["c1@32768"] == {"t_turno_s": 4.2}
+    assert merged["c1@8192"] == {"t_turno_s": 1.0}
+
+
+def test_build_results_missing_context_yields_null_value():
+    summary = {"c1@32768": _row(t_turno_s=5.0)}
+    del summary["c1@32768"]["wired_peak_gb"]
+    rows = rd.build_results(summary)
+    rec = next(r for r in rows if r["model"] == "c1" and r["metric"] == "wired_peak_gb")
+    assert rec["value"] is None
+
+
+def test_render_verdict_html_placeholder_when_absent():
+    assert rd.PLACEHOLDER_VERDICT in rd.render_verdict_html(None)
+
+
+def test_render_verdict_html_renders_paragraphs(tmp_path):
+    md = tmp_path / "verdict.md"
+    md.write_text("Primeiro parágrafo.\n\nSegundo parágrafo com <tag> e & escapado.", encoding="utf-8")
+    out = rd.render_verdict_html(str(md))
+    assert out.count("<p>") == 2
+    assert "Primeiro parágrafo." in out
+    assert "&lt;tag&gt;" in out
+    assert "&amp;" in out
