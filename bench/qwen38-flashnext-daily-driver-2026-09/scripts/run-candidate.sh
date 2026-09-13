@@ -66,18 +66,44 @@ case "$CAND" in
       export QWEN38_MTPLX_BIN="$HOME/.local/opt/qwen38/mtplx-v2.11.2/bin/mtplx" QWEN38_MTPLX_EXPECTED_VERSION=2.11.2
       export QWEN38_CTX_SIZE="$CTX"
       [[ -n "$GENMODE" ]] && export QWEN38_MTPLX_GENERATION_MODE="$GENMODE"
-      [[ -n "$GENMODE" && "$GENMODE" != mtp ]] && REV="v2.11.2-${GENMODE}" ;;
+      [[ -n "$GENMODE" && "$GENMODE" != mtp ]] && REV="v2.11.2-${GENMODE}"
+      # --yarn F: MTPLX 2.11.2's qwen4_exp code implements static YaRN correctly
+      # but has no runtime flag to inject rope_type/factor/original_max_position_embeddings
+      # (task-11-yarn-mapping.md) -- the only way in is a config.json baked ahead of
+      # time by scripts/make-yarn-overlay.py. Point the launcher at that overlay root
+      # instead of the plain prefix-cache root, and serve/probe from the overlay dir.
+      if [[ -n "$YARN" ]]; then
+        YARN_MODEL_ROOT="$HOME/.cache/local-llms/qwen3.8-flashnext-overlays/yarn${YARN%%.*}"
+        YARN_MODEL_DIR="$YARN_MODEL_ROOT/$(basename "$MTPLXPACK")"
+        [[ -d "$YARN_MODEL_DIR" ]] || {
+          echo "run-candidate: overlay model dir missing: $YARN_MODEL_DIR" >&2
+          echo "run-candidate: run scripts/make-yarn-overlay.py --src $MTPLXPACK --dst-root $YARN_MODEL_ROOT --factor $YARN --ctx $CTX first" >&2
+          exit 66
+        }
+        MODEL_DIR="$YARN_MODEL_DIR"; TOKENIZER="$YARN_MODEL_DIR"
+        REV="v2.11.2-yarn${YARN}"
+      fi ;;
   *) echo "candidato desconhecido: $CAND" >&2; exit 64 ;;
 esac
 export QWEN38_MODEL_ROOT="$MODEL_ROOT"
+# c4 --yarn points the launcher at the overlay root instead; must win over the
+# line above (which is unconditional for every other candidate/path).
+[[ -n "${YARN_MODEL_ROOT:-}" ]] && export QWEN38_MODEL_ROOT="$YARN_MODEL_ROOT"
 BASE="http://127.0.0.1:$PORT"
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 NAME="${CAND}-${CTX}-t${TEMP}${TAG:+-$TAG}"
 OUT="$RESULTS/$NAME.jsonl"; BOOT="$LOGS/$NAME-boot.log"; MEM="$LOGS/$NAME-mem.jsonl"
 
+# Etapa B: with REPEAT>1 pin middle_mutation (prefill-bound, deterministic) to
+# a single rep and spend the extra reps on the cache-reuse scenarios instead;
+# cache_probe.py already supports --scenario-repeats for this. REPEAT=1 keeps
+# the probe invocation unchanged.
+SCENARIO_REPEATS=""
+[[ "$REPEAT" -gt 1 ]] && SCENARIO_REPEATS="middle_mutation=1"
+
 if [[ -n "$PRINT" ]]; then
   echo "launcher: $LAUNCHER $ARM"; bash "$LAUNCHER" "$ARM" --print; echo
-  echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS}"
+  echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS}"
   echo "saida: $OUT"; exit 0
 fi
 
@@ -144,6 +170,7 @@ echo ">>> $NAME: pronto. model_id=$MODEL_ID -> $OUT"
   ${SCENARIOS:+--scenarios "$SCENARIOS"} \
   ${TOKENIZER:+--tokenizer-path "$TOKENIZER"} \
   ${METRICS:+--metrics-url "$METRICS"} \
+  ${SCENARIO_REPEATS:+--scenario-repeats "$SCENARIO_REPEATS"} \
   --output "$OUT" --cache-enabled $([[ "$GENMODE" == "" || "$GENMODE" == mtp ]] && echo --mtp-enabled)
 
 kill "$SAMPLER_PID" 2>/dev/null || true; SAMPLER_PID=""
