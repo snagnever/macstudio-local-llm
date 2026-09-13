@@ -128,5 +128,6 @@ echo ">>> $NAME: pronto. model_id=$MODEL_ID -> $OUT"
 
 kill "$SAMPLER_PID" 2>/dev/null || true; SAMPLER_PID=""
 python3 "$HERE/scripts/attach_memory.py" --results "$OUT" --sampler "$MEM"
+python3 "$HERE/scripts/attach_mtp.py" --results "$OUT" --log "$BOOT" || true
 kill "$SERVER_PID" 2>/dev/null || true; SERVER_PID=""; wait_port_free
 echo ">>> $NAME: OK"
