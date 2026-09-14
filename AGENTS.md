@@ -49,6 +49,15 @@ closest rule below rather than inventing a new top-level directory.
 - **A dashboard** → `reports/` (keep it self-contained; it may be published).
 - **A cross-model analysis note** → `research/`.
 
+**Real-world performance data source.** Beyond the controlled benchmarks, the
+local opencode usage database (`~/.local/share/opencode/opencode.db`) is a
+possible source of **observed** per-model and per-provider performance — TPS,
+TTFT, prefill, context size, cache hit, cost — from day-to-day use.
+`reports/opencode-metrics.html` visualizes it (built by
+`tools/opencode_metrics.py` + `tools/build_opencode_metrics.sh`). It is
+uncontrolled field usage, so treat it as a trend, not a clean benchmark; see
+`reports/README.md` for the metric definitions and caveats.
+
 ## The results boundary (important)
 
 Benchmark results live in two places on purpose:

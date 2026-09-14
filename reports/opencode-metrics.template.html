@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>opencode — métricas de desempenho</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root { color-scheme: light dark; --bg:#0f1115; --card:#171a21; --fg:#e6e9ef; --mut:#9aa4b2; --line:#262b36; --accent:#6ea8fe; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.5 -apple-system,system-ui,Segoe UI,sans-serif; }
+  header { padding:20px 24px; border-bottom:1px solid var(--line); }
+  h1 { margin:0 0 4px; font-size:19px; }
+  .sub { color:var(--mut); font-size:12px; }
+  .controls { display:flex; gap:16px; flex-wrap:wrap; padding:14px 24px; border-bottom:1px solid var(--line); align-items:center; }
+  select { background:var(--card); color:var(--fg); border:1px solid var(--line); border-radius:6px; padding:5px 8px; }
+  main { padding:8px 24px 20px; display:grid; gap:20px; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); }
+  h2.section { margin:22px 24px 4px; font-size:15px; border-left:3px solid var(--accent); padding-left:10px; }
+  h2.section .inline { margin-left:6px; }
+  select.inline { background:var(--card); color:var(--fg); border:1px solid var(--line); border-radius:6px; padding:3px 6px; font-size:13px; }
+  #selName { color:var(--accent); }
+  .kpis { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); padding:8px 24px 0; }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  .kpi .v { font-size:20px; font-weight:600; }
+  .kpi .l { color:var(--mut); font-size:11px; text-transform:uppercase; letter-spacing:.04em; margin-top:2px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h2 { margin:0 0 10px; font-size:13px; font-weight:600; color:var(--mut); text-transform:uppercase; letter-spacing:.04em; }
+  .full { grid-column:1/-1; }
+  canvas { max-height:320px; }
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  th,td { text-align:right; padding:6px 8px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  th:first-child,td:first-child { text-align:left; }
+  th { color:var(--mut); font-weight:600; cursor:pointer; }
+  tbody tr:hover { background:rgba(110,168,254,.08); }
+  footer { padding:16px 24px; color:var(--mut); font-size:11px; border-top:1px solid var(--line); }
+  footer li { margin:2px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>opencode — métricas de desempenho por modelo</h1>
+  <div class="sub" id="meta"></div>
+</header>
+<div class="controls">
+  <label>Janela
+    <select id="win">
+      <option value="0">tudo</option>
+      <option value="7">7 dias</option>
+      <option value="30">30 dias</option>
+    </select>
+  </label>
+  <label>Dimensão
+    <select id="dim">
+      <option value="model">por modelo</option>
+      <option value="provider">por provider</option>
+    </select>
+  </label>
+</div>
+<h2 class="section">Visão geral — comparação entre todos</h2>
+<main>
+  <div class="card full"><h2 id="tpsTimeTitle">TPS mediano ao longo do tempo</h2><canvas id="tpsTime"></canvas></div>
+  <div class="card"><h2 id="tpsBarTitle">TPS mediano</h2><canvas id="tpsBar"></canvas></div>
+  <div class="card"><h2>TTFT mediano (ms) — só runtime local é confiável</h2><canvas id="ttftBar"></canvas></div>
+  <div class="card"><h2>Custo acumulado (USD) — só itens com custo &gt; 0</h2><canvas id="costBar"></canvas></div>
+  <div class="card full">
+    <h2 id="tblTitle">Resumo por modelo</h2>
+    <table id="tbl"><thead><tr>
+      <th data-k="model">modelo</th><th data-k="messages">msgs</th>
+      <th data-k="tps">TPS med</th><th data-k="tps_p90">TPS p90</th>
+      <th data-k="ttft">TTFT med</th><th data-k="prefill">prefill med</th>
+      <th data-k="tps_per_kctx">TPS/kctx</th><th data-k="context">ctx med</th>
+      <th data-k="cache">cache%</th><th data-k="cost">custo</th>
+    </tr></thead><tbody></tbody></table>
+  </div>
+</main>
+
+<h2 class="section">Item selecionado — <span id="selName"></span>
+  <select id="model" class="inline"></select>
+</h2>
+<div class="kpis" id="kpis"></div>
+<main>
+  <div class="card"><h2>TPS mediano por dia</h2><canvas id="tpsOne"></canvas></div>
+  <div class="card"><h2>TTFT mediano por dia (ms)</h2><canvas id="ttftOne"></canvas></div>
+  <div class="card"><h2>Contexto mediano por dia</h2><canvas id="ctxTime"></canvas></div>
+  <div class="card"><h2>Tokens de saída por dia</h2><canvas id="outOne"></canvas></div>
+</main>
+<footer>
+  <div id="gen"></div>
+  <ul>
+    <li>TTFT e prefill são proxies. O opencode não grava o primeiro token real do stream. Providers remotos gravam o start junto do step-start, então o TTFT deles fica perto de zero e não é confiável. Só runtime local (MLX, lmstudio) dá TTFT real.</li>
+    <li>Custo é $0 para provider fora do models.dev.</li>
+    <li>Métricas escopadas ao primeiro step de cada mensagem, para não misturar tempo de tool call.</li>
+  </ul>
+</footer>
+<script>
+const DATA = /*__DATA__*/{}/*__END__*/;
+const $ = s => document.querySelector(s);
+const charts = {};
+const fmt = (v,d=1) => v==null ? "—" : (typeof v==="number" ? v.toLocaleString("en-US",{maximumFractionDigits:d}) : v);
+const palette = ["#6ea8fe","#63e6be","#ffd43b","#ff8787","#b197fc","#69db7c","#ffa94d","#4dabf7","#e599f7","#ced4da","#f783ac","#a9e34b","#3bc9db","#ffc078"];
+const shortName = m => m.replace(/^[^/]+\//,"").slice(0,26);
+const curDim = () => $("#dim").value; // "model" | "provider"
+const cutDay = days => days ? new Date(Date.now()-days*864e5).toISOString().slice(0,10) : "0000";
+const med=a=>{if(!a.length)return null;const s=[...a].sort((x,y)=>x-y);return s[Math.floor(s.length/2)];};
+const p90=a=>{if(!a.length)return null;const s=[...a].sort((x,y)=>x-y);return s[Math.min(s.length-1,Math.round(.9*(s.length-1)))];};
+
+// Aggregate rows for the chosen window+dimension. days=0 uses precomputed all-time.
+function groups(days,dim){
+  const key=dim;
+  if(!days) return dim==="provider" ? DATA.by_provider : DATA.by_model;
+  const cut=cutDay(days), agg={};
+  DATA.rows.filter(r=>r.day>=cut).forEach(r=>{
+    const k=r[key];
+    (agg[k] ||= {[key]:k,tps:[],ttft:[],ctx:[],prefill:[],tpk:[],cache:[],cost:0,messages:0});
+    const a=agg[k]; a.messages++; a.cost+=r.cost||0;
+    if(r.tps!=null)a.tps.push(r.tps); if(r.ttft_ms!=null)a.ttft.push(r.ttft_ms);
+    if(r.context!=null)a.ctx.push(r.context); if(r.prefill_tps!=null)a.prefill.push(r.prefill_tps);
+    if(r.tps_per_kctx!=null)a.tpk.push(r.tps_per_kctx); if(r.cache_hit_ratio!=null)a.cache.push(r.cache_hit_ratio);
+  });
+  return Object.values(agg).map(a=>({
+    [key]:a[key], messages:a.messages, cost_sum:a.cost,
+    tps:{median:med(a.tps),p90:p90(a.tps)}, ttft_ms:{median:med(a.ttft)},
+    prefill_tps:{median:med(a.prefill)}, tps_per_kctx:{median:med(a.tpk)},
+    context:{median:med(a.ctx)}, cache_hit_ratio:{median:med(a.cache)}
+  })).sort((x,y)=>y.messages-x.messages);
+}
+
+// Per-day series for one item. agg="median" (default) or "sum".
+function daySeries(days,dim,name,metric,agg){
+  const cut=cutDay(days);
+  if(!days && agg!=="sum"){
+    const src = dim==="provider" ? DATA.by_day_provider : DATA.by_day_model;
+    const byDay={}; src.filter(r=>r[dim]===name).forEach(r=>byDay[r.day]=r[metric].median);
+    return byDay;
+  }
+  const buckets={};
+  DATA.rows.filter(r=>r[dim]===name && r.day>=cut).forEach(r=>{ (buckets[r.day] ||= []).push(r[metric]); });
+  const byDay={};
+  for(const d in buckets){
+    const vals=buckets[d].filter(v=>v!=null);
+    byDay[d] = agg==="sum" ? vals.reduce((a,b)=>a+b,0) : med(vals);
+  }
+  return byDay;
+}
+const oneLine = (canvas,days_set,byDay,name,color) =>
+  mkChart(canvas,{type:"line",data:{labels:days_set,datasets:[{label:name,
+    data:days_set.map(d=>byDay[d]??null),borderColor:color,backgroundColor:color,
+    spanGaps:true,tension:.3,pointRadius:3}]},options:baseOpts});
+
+function mkChart(id,cfg){ if(charts[id])charts[id].destroy(); charts[id]=new Chart($("#"+id),cfg); }
+const baseOpts = {responsive:true,plugins:{legend:{labels:{color:"#9aa4b2",font:{size:10}}}},
+  scales:{x:{ticks:{color:"#9aa4b2",font:{size:10}},grid:{color:"#262b36"}},y:{ticks:{color:"#9aa4b2"},grid:{color:"#262b36"}}}};
+// Horizontal bars: value axis = x (linear), category axis = y. Do not inherit
+// baseOpts scales, or the category axis becomes linear and nothing draws.
+const hbarOpts = {responsive:true,plugins:{legend:{display:false}},indexAxis:"y",
+  scales:{x:{beginAtZero:true,ticks:{color:"#9aa4b2",font:{size:10}},grid:{color:"#262b36"}},
+          y:{type:"category",ticks:{color:"#9aa4b2",font:{size:10}},grid:{color:"#262b36"}}}};
+
+function render(){
+  const days=+$("#win").value, dim=curDim();
+  const items=groups(days,dim);
+  const noun = dim==="provider" ? "provider" : "modelo";
+  const cut=cutDay(days);
+  const days_set=[...new Set(DATA.rows.filter(r=>r.day>=cut).map(r=>r.day))].sort();
+  renderGeneral(items,dim,noun,days,days_set);
+  renderSelected(items,dim,days,days_set);
+}
+
+function renderGeneral(items,dim,noun,days,days_set){
+  const label = it => shortName(it[dim]);
+  $("#tpsBarTitle").textContent = "TPS mediano por "+noun;
+  $("#tpsTimeTitle").textContent = "TPS mediano por "+noun+" ao longo do tempo";
+  $("#tblTitle").textContent = "Resumo por "+noun;
+
+  mkChart("tpsBar",{type:"bar",data:{labels:items.map(label),
+    datasets:[{data:items.map(m=>m.tps.median),backgroundColor:palette}]},options:hbarOpts});
+  const localish=items.filter(m=>m.ttft_ms.median!=null);
+  mkChart("ttftBar",{type:"bar",data:{labels:localish.map(label),
+    datasets:[{data:localish.map(m=>m.ttft_ms.median),backgroundColor:"#ffa94d"}]},options:hbarOpts});
+  const paid=items.filter(m=>m.cost_sum>0);
+  mkChart("costBar",{type:"bar",data:{labels:paid.map(label),
+    datasets:[{data:paid.map(m=>m.cost_sum),backgroundColor:"#63e6be"}]},options:hbarOpts});
+
+  const ds=items.map((it,i)=>{
+    const byDay=daySeries(days,dim,it[dim],"tps");
+    return {label:label(it),data:days_set.map(d=>byDay[d]??null),
+      borderColor:palette[i%palette.length],backgroundColor:palette[i%palette.length],
+      spanGaps:true,tension:.3,pointRadius:3,hidden:i>=6};
+  });
+  mkChart("tpsTime",{type:"line",data:{labels:days_set,datasets:ds},options:baseOpts});
+  renderTable(items,dim);
+}
+
+function renderSelected(items,dim,days,days_set){
+  const name=$("#model").value;
+  $("#selName").textContent=shortName(name);
+  const it=items.find(x=>x[dim]===name);
+  const kpi=(v,l)=>`<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`;
+  if(it){
+    $("#kpis").innerHTML=[
+      kpi(it.messages,"mensagens"),
+      kpi(fmt(it.tps.median),"TPS med"),
+      kpi(fmt(it.tps.p90),"TPS p90"),
+      kpi(it.ttft_ms.median!=null?fmt(it.ttft_ms.median,0)+" ms":"—","TTFT med"),
+      kpi(fmt(it.context.median,0),"contexto med"),
+      kpi(fmt(it.tps_per_kctx.median,3),"TPS/kctx"),
+      kpi(it.cache_hit_ratio.median!=null?fmt(it.cache_hit_ratio.median*100,0)+"%":"—","cache hit"),
+      kpi("$"+fmt(it.cost_sum,4),"custo"),
+    ].join("");
+  } else { $("#kpis").innerHTML=""; }
+  oneLine("tpsOne",days_set,daySeries(days,dim,name,"tps"),shortName(name),"#6ea8fe");
+  oneLine("ttftOne",days_set,daySeries(days,dim,name,"ttft_ms"),shortName(name),"#ffa94d");
+  oneLine("ctxTime",days_set,daySeries(days,dim,name,"context"),shortName(name),"#b197fc");
+  oneLine("outOne",days_set,daySeries(days,dim,name,"output","sum"),shortName(name),"#63e6be");
+}
+
+function renderTable(items,dim){
+  $("#tbl thead th").textContent = dim==="provider" ? "provider" : "modelo";
+  $("#tbl tbody").innerHTML=items.map(m=>`<tr>
+    <td>${m[dim]}</td><td>${m.messages}</td>
+    <td>${fmt(m.tps.median)}</td><td>${fmt(m.tps.p90)}</td>
+    <td>${fmt(m.ttft_ms.median,0)}</td><td>${fmt(m.prefill_tps.median,0)}</td>
+    <td>${fmt(m.tps_per_kctx.median,3)}</td><td>${fmt(m.context.median,0)}</td>
+    <td>${m.cache_hit_ratio.median!=null?fmt(m.cache_hit_ratio.median*100,0)+"%":"—"}</td>
+    <td>$${fmt(m.cost_sum,4)}</td></tr>`).join("");
+}
+
+function fillCtxSelector(){
+  const dim=curDim();
+  const src = dim==="provider" ? DATA.by_provider : DATA.by_model;
+  $("#model").innerHTML=src.map(m=>`<option value="${m[dim]}">${shortName(m[dim])}</option>`).join("");
+}
+
+function init(){
+  $("#meta").textContent=`${DATA.message_count} mensagens · ${DATA.by_model.length} modelos · ${DATA.by_provider.length} providers · banco ${DATA.db}`;
+  $("#gen").textContent=`Gerado em ${DATA.generated_at}`;
+  fillCtxSelector();
+  $("#win").onchange=render;
+  $("#model").onchange=render;
+  $("#dim").onchange=()=>{ fillCtxSelector(); render(); };
+  render();
+}
+init();
+</script>
+</body>
+</html>
