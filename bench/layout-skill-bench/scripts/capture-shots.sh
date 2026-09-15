@@ -44,7 +44,7 @@ PORT="${PORT:-$(python3 -c 'import socket;s=socket.socket();s.bind(("",0));print
 BUDGET_MS="${BUDGET_MS:-10000}"
 MAX_BYTES=$((300 * 1024))
 
-ALL_ARMS=(design-skill taste-skill taste2)
+ALL_ARMS=(design-skill taste-skill taste2 vanilla)
 if [ "$#" -gt 0 ]; then ARMS=("$@"); else ARMS=("${ALL_ARMS[@]}"); fi
 
 [ -x "$CHROME" ] || { echo "no headless Chrome at $CHROME" >&2; exit 1; }
@@ -66,10 +66,10 @@ fail=0
 stage() {
   local arm="$1" root="$2" n
   case "$arm" in
-    design-skill)
+    design-skill|vanilla)
       for n in 1 2 3 4 5; do
         mkdir -p "$root/$n"
-        cp "$DEMOS/design-skill/$n/index.html" "$root/$n/index.html"
+        cp "$DEMOS/$arm/$n/index.html" "$root/$n/index.html"
         echo "/$n/"
       done
       ;;

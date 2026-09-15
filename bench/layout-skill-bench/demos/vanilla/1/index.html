@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cortex — Your Second Brain</title>
+<meta name="description" content="Cortex is a note-taking app that thinks back. Capture, connect, recall.">
+<style>
+  :root{
+    --paper:#f7f3ec;
+    --ink:#1c1a17;
+    --ink-soft:#5c574e;
+    --rule:#d9d2c4;
+    --accent:#b3541e;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+  header{border-bottom:1px solid var(--rule)}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;padding:22px 0}
+  .wordmark{font-size:22px;letter-spacing:.02em}
+  .wordmark b{color:var(--accent)}
+  nav a{font-family:ui-sans-serif,system-ui,sans-serif;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);text-decoration:none;margin-left:28px}
+  nav a:hover{color:var(--ink)}
+
+  .hero{padding:96px 0 72px;text-align:center}
+  .kicker{font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);margin-bottom:26px}
+  h1{font-size:clamp(40px,7vw,68px);font-weight:500;line-height:1.12;letter-spacing:-.01em;max-width:15ch;margin:0 auto}
+  h1 i{font-style:italic;color:var(--ink-soft)}
+  .lede{font-size:20px;color:var(--ink-soft);max-width:52ch;margin:28px auto 0}
+  .cta-row{margin-top:44px;display:flex;gap:18px;justify-content:center;align-items:center;flex-wrap:wrap}
+  .btn{font-family:ui-sans-serif,system-ui,sans-serif;font-size:14px;letter-spacing:.04em;padding:14px 30px;background:var(--ink);color:var(--paper);text-decoration:none;border:1px solid var(--ink)}
+  .btn:hover{background:var(--accent);border-color:var(--accent)}
+  .btn-ghost{background:transparent;color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:transparent}
+  .fine{font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;color:var(--ink-soft);margin-top:16px}
+
+  .divider{display:flex;align-items:center;gap:20px;color:var(--rule);margin:24px 0}
+  .divider::before,.divider::after{content:"";flex:1;border-top:1px solid var(--rule)}
+  .divider span{font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-soft)}
+
+  section{padding:72px 0}
+  h2{font-size:clamp(28px,4vw,40px);font-weight:500;text-align:center;margin-bottom:12px}
+  .sub{text-align:center;color:var(--ink-soft);max-width:48ch;margin:0 auto 56px}
+
+  .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--rule);border-left:1px solid var(--rule)}
+  .feature{padding:36px 28px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .feature .num{font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;letter-spacing:.24em;color:var(--accent)}
+  .feature h3{font-size:21px;font-weight:500;margin:12px 0 10px}
+  .feature p{font-size:15.5px;color:var(--ink-soft)}
+
+  .quote{padding:72px 0;text-align:center}
+  blockquote{font-size:clamp(22px,3.5vw,32px);font-style:italic;max-width:24ch;margin:0 auto;line-height:1.4}
+  blockquote::before{content:"“";display:block;font-size:72px;line-height:.4;color:var(--accent);margin-bottom:20px}
+  cite{display:block;font-style:normal;font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);margin-top:26px}
+
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;counter-reset:step}
+  .step{text-align:center}
+  .step::before{counter-increment:step;content:counter(step,upper-roman);display:block;font-size:30px;color:var(--accent);margin-bottom:14px}
+  .step h3{font-size:19px;font-weight:500;margin-bottom:8px}
+  .step p{font-size:15px;color:var(--ink-soft)}
+
+  .end{text-align:center;background:var(--ink);color:var(--paper)}
+  .end .wrap{padding:88px 24px}
+  .end h2{color:var(--paper)}
+  .end .sub{color:#b8b0a2}
+  .end .btn{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+  .end .btn:hover{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+
+  footer{padding:26px 0;font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;color:var(--ink-soft);display:flex;justify-content:space-between}
+
+  /* ── iteration switcher ─────────────────── */
+  .iter-switcher{position:fixed;right:20px;bottom:20px;z-index:99;display:flex;align-items:center;gap:4px;
+    background:rgba(28,26,23,.92);color:#fff;padding:8px 10px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.28)}
+  .iter-switcher .lbl{font-family:ui-sans-serif,system-ui,sans-serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;opacity:.6;padding:0 8px 0 4px}
+  .iter-switcher a{font-family:ui-sans-serif,system-ui,sans-serif;font-size:13px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+    color:#fff;text-decoration:none;border-radius:999px;transition:background .15s}
+  .iter-switcher a:hover{background:rgba(255,255,255,.16)}
+  .iter-switcher a[aria-current="page"]{background:var(--accent);font-weight:700}
+
+  @media(max-width:820px){
+    .feature-grid,.steps{grid-template-columns:1fr}
+    .feature-grid{border-left:none}
+    nav a{margin-left:16px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap masthead">
+    <div class="wordmark"><b>Cortex</b> — a notebook that thinks back</div>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#start">Get it</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <p class="kicker">Second-brain note taking</p>
+    <h1>Think in pages, <i>not in tabs.</i></h1>
+    <p class="lede">Cortex captures every note, idea, and half-formed thought — then quietly connects them, so the right thing surfaces exactly when you need it.</p>
+    <div class="cta-row">
+      <a class="btn" href="#start">Start writing free</a>
+      <a class="btn btn-ghost" href="#how">See how it works</a>
+    </div>
+    <p class="fine">No credit card · End-to-end encrypted · Mac, Windows, iOS, web</p>
+  </section>
+
+  <div class="wrap divider"><span>The case for a second brain</span></div>
+
+  <section id="features" class="wrap">
+    <h2>Everything you know, in one place</h2>
+    <p class="sub">Four capabilities that turn a pile of notes into a mind you can consult.</p>
+    <div class="feature-grid">
+      <article class="feature">
+        <div class="num">01 — CAPTURE</div>
+        <h3>Inbox for everything</h3>
+        <p>Quick-capture from any app. Web clips, voice memos, PDFs, and fleeting thoughts land in one place and get filed automatically.</p>
+      </article>
+      <article class="feature">
+        <div class="num">02 — CONNECT</div>
+        <h3>Links, not folders</h3>
+        <p>Bi-directional backlinks weave each note into the rest of your thinking. Related ideas appear beside you as you write.</p>
+      </article>
+      <article class="feature">
+        <div class="num">03 — RECALL</div>
+        <h3>Semantic search</h3>
+        <p>Ask in plain language. Cortex searches meaning, not keywords — "that pricing insight from the March call," found instantly.</p>
+      </article>
+      <article class="feature">
+        <div class="num">04 — TRUST</div>
+        <h3>Your data, yours</h3>
+        <p>Local-first storage, end-to-end sync, plain-text export whenever you want. No lock-in, ever.</p>
+      </article>
+      <article class="feature">
+        <div class="num">05 — REVIEW</div>
+        <h3>Spaced echoes</h3>
+        <p>Cortex resurfaces old notes at the right interval, so ideas compound instead of rotting in an archive.</p>
+      </article>
+      <article class="feature">
+        <div class="num">06 — SHARE</div>
+        <h3>Publish a thought</h3>
+        <p>Turn any note into a private page or a public essay with one keystroke. Your second brain, on your terms.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="quote wrap">
+    <blockquote>It's the first tool that makes me feel like my notes are working back.</blockquote>
+    <cite>Maya O. — product researcher</cite>
+  </section>
+
+  <section id="how" class="wrap">
+    <h2>From scattered to systematic in three steps</h2>
+    <p class="sub">No methodology degree required.</p>
+    <div class="steps">
+      <div class="step">
+        <h3>Dump</h3>
+        <p>Write freely. Cortex handles formatting, tagging, and dates behind the scenes.</p>
+      </div>
+      <div class="step">
+        <h3>Link</h3>
+        <p>Accept a suggested connection and watch two old ideas become one new one.</p>
+      </div>
+      <div class="step">
+        <h3>Ask</h3>
+        <p>Query your own mind. Get sourced answers drawn from years of thinking.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="end" id="start">
+    <div class="wrap">
+      <h2>Your best ideas deserve a home.</h2>
+      <p class="sub">Join 240,000 thinkers building their second brain with Cortex.</p>
+      <a class="btn" href="#">Download Cortex — Free</a>
+    </div>
+  </section>
+</main>
+
+<div class="wrap footer" style="display:flex;justify-content:space-between">
+  <span>© 2026 Cortex Labs</span>
+  <span>Crafted slowly, on paper first</span>
+</div>
+
+<nav class="iter-switcher" aria-label="Design iterations">
+  <span class="lbl">Style</span>
+  <a href="../1/" aria-current="page" title="1 · Editorial">1</a>
+  <a href="../2/" title="2 · Terminal">2</a>
+  <a href="../3/" title="3 · Playground">3</a>
+  <a href="../4/" title="4 · Bento">4</a>
+  <a href="../5/" title="5 · Atelier">5</a>
+</nav>
+
+</body>
+</html>

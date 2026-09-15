@@ -1,8 +1,8 @@
 {
   "campaign": "layout-skill-bench",
-  "description": "Three opencode sessions, one local model (Qwen3.8 Flash Next MLX), one byte-identical verbatim brief, each loading a different design skill, each producing a five-iteration landing-page design for the same note-taking app. Source vendored under demos/<arm>; per-arm self-reports (recovered from the opencode session database) under results/<arm>.md; this file is the single source of numbers for the dashboard.",
+  "description": "Four opencode sessions, one verbatim brief, three of them on one local model (Qwen3.8 Flash Next MLX) each loading a different design skill, plus a no-skill baseline (`vanilla`) that ran a hosted model and is not like-for-like — see its comparabilityNote, each producing a five-iteration landing-page design for the same note-taking app. Source vendored under demos/<arm>; per-arm self-reports (recovered from the opencode session database) under results/<arm>.md; this file is the single source of numbers for the dashboard.",
   "brief": "I want you to design the landing page for a note-taking application as essentially a second brain. You should design five iterations and each of them should be accessible within the slash one, slash two, slash three like pages directory. And then you should add a little button that lets me switch between them easily.",
-  "briefNote": "Byte-identical across all three arms (SHA eaebe847..., 318 characters), confirmed against the opencode session database in Task 2. It is carried per-arm below (rather than only once at the top) so each arm record is self-contained for the dashboard, but it is the same string three times, not three different briefs. The prompt originates from whichai.dev (\"Which AI Made This?\"), which runs the same exercise on frontier models with and without a design skill; this campaign runs it on one local model.",
+  "briefNote": "Byte-identical across the three skill arms; the vanilla baseline adds a two-line no-skills preface and one trailing space, which its own briefNote records. Otherwise byte-identical across all four (SHA eaebe847..., 318 characters), confirmed against the opencode session database in Task 2. It is carried per-arm below (rather than only once at the top) so each arm record is self-contained for the dashboard, but it is the same string three times, not three different briefs. The prompt originates from whichai.dev (\"Which AI Made This?\"), which runs the same exercise on frontier models with and without a design skill; this campaign runs it on one local model.",
   "arms": [
     {
       "id": "design-skill",
@@ -69,6 +69,30 @@
         "source": "bench/layout-skill-bench/results/taste2.md"
       },
       "short": "high-end-visual"
+    },
+    {
+      "id": "vanilla",
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "hosted": true,
+      "label": "opencode + Qwen3.8 Flash (hosted), no skill",
+      "color": "#264653",
+      "sourceFolder": "~/LocalProjects/qwen38-next-layout-bench/vanilla",
+      "skillConfig": "no skill",
+      "skillConfigNote": "The baseline the other three lacked: the prompt opens \"do not use any skills. do not look at other files.\" No skill directory was loaded and the session invoked none.",
+      "brief": "do not use any skills.\ndo not look at other files.\n\nI want you to design the landing page for a note-taking application as essentially a second brain. You should design five iterations and each of them should be accessible within the slash one, slash two, slash three like pages directory. And then you should add a little button that lets me switch between them easily. ",
+      "briefNote": "The body matches the campaign brief except for one trailing space (319 characters against 318); the two lines above it are what makes this arm the baseline.",
+      "comparabilityNote": "Not like-for-like with the other three. They ran ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit on the rig at variant xhigh for no cost; this arm ran qwen/qwen3.8-flash through openrouter at variant high and billed US$0.028931. Different model build, different thinking level, hosted rather than local: its wall time and token counts do not compare across that line.",
+      "form": "Five static HTML directories, no build step, no framework (index.html plus 1/ 2/ 3/ 4/ 5/, each with its own index.html)",
+      "config": {
+        "harness": "opencode",
+        "harnessVersion": null,
+        "modelId": "qwen/qwen3.8-flash via openrouter",
+        "runtime": "hosted by openrouter",
+        "effort": "high",
+        "source": "bench/layout-skill-bench/results/vanilla.md"
+      },
+      "short": "no skill"
     }
   ],
   "results": [
@@ -183,6 +207,44 @@
     },
     {
       "arm": "taste2",
+      "metric": "pageCount",
+      "value": 5
+    },
+    {
+      "arm": "vanilla",
+      "metric": "wallMinutes",
+      "value": 15.5,
+      "note": "932.9 s, first message to last recorded token event"
+    },
+    {
+      "arm": "vanilla",
+      "metric": "tokensOutput",
+      "value": 30166
+    },
+    {
+      "arm": "vanilla",
+      "metric": "tokensInputUncached",
+      "value": 37981
+    },
+    {
+      "arm": "vanilla",
+      "metric": "tokensCacheRead",
+      "value": 472064
+    },
+    {
+      "arm": "vanilla",
+      "metric": "toolCalls",
+      "value": 24,
+      "note": "8 write + 5 bash + 2 edit + 2 todowrite + 1 grep + 1 read, and 5 parts that aborted"
+    },
+    {
+      "arm": "vanilla",
+      "metric": "messages",
+      "value": 24,
+      "note": "3 user + 21 assistant; the two extra user turns are nudges after failures (\"continue, algo ralhou\", \"try again\"), not design direction"
+    },
+    {
+      "arm": "vanilla",
       "metric": "pageCount",
       "value": 5
     }
