@@ -7,12 +7,53 @@ import argparse
 import copy
 import json
 import math
+import os
 from pathlib import Path
 from typing import Any
 
 
 GLOBAL_SETTINGS_VERSION = "1.0"
 MODEL_SETTINGS_VERSION = 1
+# model_settings.json schema version ({"version": N, "models": {...}}) that
+# each oMLX release line reads back, keyed by the release's "major.minor".
+# Verified 2026-09-13 by loading a generated model_settings.json (version 1,
+# per-model "qwen4_ple_ssd_offload") straight into each release's own
+# omlx.model_settings.ModelSettingsManager: 0.6.4 and 0.7.0.dev2 both read
+# SETTINGS_VERSION = 1 and the same per-model key/shape (see
+# bench/qwen38-flashnext-daily-driver-2026-09/results/c3-dev2-ple-config.md).
+# An oMLX line not listed here has not been checked against this generator's
+# output -- fail loudly instead of silently writing a file that line's
+# ModelSettingsManager might refuse or misread.
+MODEL_SETTINGS_VERSION_BY_OMLX_LINE = {
+    "0.6": 1,
+    "0.7": 1,
+}
+
+
+def model_settings_version_for(omlx_version: str | None) -> int:
+    """Resolve the model_settings.json "version" int for a target oMLX release.
+
+    ``omlx_version`` is the free-form version string reported by
+    ``omlx --version`` / pinned in config (e.g. "v0.6.3rc2", "0.7.0.dev2").
+    Returns the default MODEL_SETTINGS_VERSION when no version is known
+    (preserves prior behavior for callers that don't pass one); raises when
+    a version IS given but its release line has not been verified above.
+    """
+    if not omlx_version:
+        return MODEL_SETTINGS_VERSION
+    normalized = omlx_version.strip().lstrip("vV")
+    line = ".".join(normalized.split(".")[:2])
+    try:
+        return MODEL_SETTINGS_VERSION_BY_OMLX_LINE[line]
+    except KeyError as exc:
+        raise ValueError(
+            f"omlx_config.py has not verified the model_settings.json schema "
+            f"for oMLX {omlx_version!r} (release line {line!r}); confirm the "
+            "schema against that release's omlx.model_settings before adding "
+            "it to MODEL_SETTINGS_VERSION_BY_OMLX_LINE"
+        ) from exc
+
+
 ANE_BOOL_FIELDS = frozenset(
     {
         "qwen35_ane_prefill_enabled",
@@ -55,6 +96,23 @@ def load_arm(path: Path, arm: str) -> dict:
     profile["model"]["key"] = model_key
     profile["arm"] = arm
     return profile
+
+
+def _config_omlx_version(path: Path) -> str | None:
+    """Read the campaign-wide oMLX pin from the arms config's top level.
+
+    This is the same "omlx_version" field run-omlx.sh reads for its own
+    version-pin gate; it is the last fallback here (behind an explicit
+    --omlx-version and $QWEN38_OMLX_EXPECTED_VERSION) because it reflects
+    the static campaign default, not necessarily the release actually
+    driving the current process.
+    """
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    version = data.get("omlx_version")
+    return version if isinstance(version, str) else None
 
 
 def _read_ane_profile(path: Path) -> dict[str, Any]:
@@ -143,13 +201,23 @@ def write_omlx_state(
     model_paths: dict[str, Path],
     *,
     skip_auth: bool = False,
+    omlx_version: str | None = None,
 ) -> None:
-    """Write the oMLX v0.6.3rc2 global and per-model state envelopes."""
+    """Write the oMLX global and per-model state envelopes.
+
+    ``omlx_version`` selects the model_settings.json schema version via
+    ``model_settings_version_for``; omit it (default) to keep the prior,
+    version-agnostic behavior (always MODEL_SETTINGS_VERSION). Both the
+    0.6.x driver and 0.7.0.dev2 read schema version 1 with an identical
+    per-model shape, so passing either version today writes byte-identical
+    output -- see MODEL_SETTINGS_VERSION_BY_OMLX_LINE above.
+    """
     validate_arm(profile, model_paths)
     model_root = model_paths["model_root"]
     target_dir = _target_model_dir(profile, model_root)
 
     model_settings = _resolved_model_settings(profile, model_paths)
+    model_settings_version = model_settings_version_for(omlx_version)
 
     global_state = {
         "version": GLOBAL_SETTINGS_VERSION,
@@ -163,7 +231,7 @@ def write_omlx_state(
             "skip_api_key_verification": True,
         }
     per_model_state = {
-        "version": MODEL_SETTINGS_VERSION,
+        "version": model_settings_version,
         "models": {target_dir.name: model_settings},
     }
 
@@ -187,9 +255,23 @@ def main() -> None:
     parser.add_argument("--ane-profile", type=Path)
     parser.add_argument("--skip-auth", action="store_true")
     parser.add_argument("--print-profile", action="store_true")
+    parser.add_argument(
+        "--omlx-version",
+        help=(
+            "oMLX release actually being driven (e.g. 0.7.0.dev2); defaults to "
+            "$QWEN38_OMLX_EXPECTED_VERSION, then the config file's own "
+            "omlx_version pin. Selects the model_settings.json schema version "
+            "via model_settings_version_for()."
+        ),
+    )
     args = parser.parse_args()
 
     profile = load_arm(args.config, args.arm)
+    omlx_version = (
+        args.omlx_version
+        or os.environ.get("QWEN38_OMLX_EXPECTED_VERSION")
+        or _config_omlx_version(args.config)
+    )
     model_paths = {
         "model_root": args.model_root,
         "draft-2b": args.draft_2b_path,
@@ -200,11 +282,16 @@ def main() -> None:
     model_paths = {key: value for key, value in model_paths.items() if value is not None}
     validate_arm(profile, model_paths)
     write_omlx_state(
-        args.base_path, profile, model_paths, skip_auth=args.skip_auth
+        args.base_path,
+        profile,
+        model_paths,
+        skip_auth=args.skip_auth,
+        omlx_version=omlx_version,
     )
     if args.print_profile:
         resolved = copy.deepcopy(profile)
         resolved["model_settings"] = _resolved_model_settings(profile, model_paths)
+        resolved["omlx_version"] = omlx_version
         print(json.dumps(resolved, sort_keys=True))
 
 

@@ -1,0 +1,297 @@
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+import sonda_to_json as sj  # noqa: E402
+import render_dashboard as rd  # noqa: E402
+
+
+def probe_rec(cand, scen, ttft_s=5.0, decode=70.0, wired=95.0, correct=True, error=None,
+              runtime_revision="v26.9.2-yarn2.0-kv8", finish_reason=None, max_tokens=None):
+    return {
+        "arm": cand, "context_target": 524288, "scenario": scen,
+        "ttft_ms": ttft_s * 1000, "decode_tps": decode, "ram_peak_gb": wired,
+        "correct": correct, "error": error, "runtime_revision": runtime_revision,
+        "finish_reason": finish_reason, "max_tokens": max_tokens,
+    }
+
+
+def write_jsonl(path: Path, records: list[dict]) -> None:
+    path.write_text("\n".join(json.dumps(r) for r in records) + "\n", encoding="utf-8")
+
+
+def test_success_case(tmp_path):
+    write_jsonl(
+        tmp_path / "c1-524288-t1.0-yarn2.jsonl",
+        [
+            probe_rec("c1", "cold", ttft_s=8.0, decode=72.3, wired=101.2),
+            probe_rec("c1", "identical", ttft_s=0.2, decode=71.0, wired=103.9),
+        ],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c1"]
+    assert row["reaches"] is True
+    assert row["followup"] is True
+    assert row["decode_tps"] == 72.3
+    assert row["cold_ttft_s"] == 8.0
+    assert row["wired_peak_gb"] == 103.9  # max across both records
+    assert row["mechanism"] == "v26.9.2-yarn2.0-kv8"
+    assert row["note"] == ""
+
+
+def test_followup_refused(tmp_path):
+    write_jsonl(
+        tmp_path / "c2-524288-t1.0-yarn2.jsonl",
+        [
+            probe_rec("c2", "cold", ttft_s=9.0, decode=60.0),
+            probe_rec("c2", "identical", correct=False, error="server refused the follow-up request"),
+        ],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c2"]
+    assert row["reaches"] is True
+    assert row["followup"] is False
+    assert row["note"] == "follow-up recusado"
+
+
+def test_cold_missing(tmp_path):
+    write_jsonl(
+        tmp_path / "c3-524288-t1.0-yarn2.jsonl",
+        [probe_rec("c3", "identical", ttft_s=0.3, decode=50.0)],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c3"]
+    assert row["reaches"] is False
+    assert row["followup"] is None
+    assert row["note"] == "sem registro cold (recusa ou crash; ver boot log)"
+
+
+def test_cold_refused_note_truncated(tmp_path):
+    long_error = "connection reset by peer " * 10  # > 160 chars
+    write_jsonl(
+        tmp_path / "c4-524288-t1.0-yarn2.jsonl",
+        [probe_rec("c4", "cold", correct=False, error=long_error)],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c4"]
+    assert row["reaches"] is False
+    assert len(row["note"]) <= 160
+    assert row["note"] == sj._truncate(long_error)
+
+
+def test_truncated_cold_counts_as_reach(tmp_path):
+    """A cold record truncated at the model's own max_tokens cap (finish_reason
+    "length", cache_probe's error:"finish_reason:length" convention) proves
+    the opposite of a refusal: the server ran the 512K prefill and generated
+    tokens. It must count as reaching the band, not as a crash/refusal."""
+    write_jsonl(
+        tmp_path / "c5-524288-t1.0-yarn2.jsonl",
+        [
+            probe_rec(
+                "c5", "cold", correct=False, error="finish_reason:length",
+                finish_reason="length", max_tokens=4096,
+            )
+        ],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c5"]
+    assert row["reaches"] is True
+    assert row["truncated"] is True
+    assert "truncado em 4096 tokens" in row["note"]
+    assert "finish_reason:length" not in row["note"]
+
+
+def test_truncated_followup_is_served(tmp_path):
+    """A truncated identical record means the follow-up request was accepted
+    and served (truncated at the cap), not refused."""
+    write_jsonl(
+        tmp_path / "c6-524288-t1.0-yarn2.jsonl",
+        [
+            probe_rec("c6", "cold", ttft_s=8.0, decode=70.0),
+            probe_rec(
+                "c6", "identical", correct=False, error="finish_reason:length",
+                finish_reason="length", max_tokens=4096,
+            ),
+        ],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c6"]
+    assert row["reaches"] is True
+    assert row["truncated"] is False  # cold itself was clean
+    assert row["followup"] is True
+    assert "follow-up truncado" in row["note"]
+
+
+def test_length_with_unrelated_error_is_failure(tmp_path):
+    """finish_reason == "length" alone is not enough to call it a clean
+    truncation: a record can be capped at max_tokens AND carry an unrelated
+    failure (e.g. a socket error hit while streaming). That must fall
+    through to the normal failure path, not hide behind "truncated"."""
+    write_jsonl(
+        tmp_path / "c7-524288-t1.0-yarn2.jsonl",
+        [
+            probe_rec(
+                "c7", "cold", correct=False, error="some unrelated socket error",
+                finish_reason="length", max_tokens=4096,
+            )
+        ],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c7"]
+    assert row["reaches"] is False
+    assert row["truncated"] is False
+    assert "socket error" in row["note"]
+
+
+def test_length_without_error_is_truncated(tmp_path):
+    """finish_reason == "length" with a null error is a clean truncation —
+    equally valid as the cache_probe "finish_reason:length" error marker."""
+    write_jsonl(
+        tmp_path / "c8-524288-t1.0-yarn2.jsonl",
+        [probe_rec("c8", "cold", correct=False, error=None, finish_reason="length", max_tokens=4096)],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c8"]
+    assert row["reaches"] is True
+    assert row["truncated"] is True
+
+
+def test_length_with_unrelated_error_on_followup_is_refused(tmp_path):
+    write_jsonl(
+        tmp_path / "c9-524288-t1.0-yarn2.jsonl",
+        [
+            probe_rec("c9", "cold", ttft_s=8.0, decode=70.0),
+            probe_rec(
+                "c9", "identical", correct=False, error="some unrelated socket error",
+                finish_reason="length", max_tokens=4096,
+            ),
+        ],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c9"]
+    assert row["followup"] is False
+    assert "follow-up recusado" in row["note"]
+
+
+def test_cold_incorrect_with_no_error_notes_resposta_incorreta(tmp_path):
+    """correct=False with error=None means the server answered and the
+    answer was simply wrong -- distinct from a refusal/crash, and previously
+    fell through to an empty note."""
+    write_jsonl(
+        tmp_path / "c10-524288-t1.0-yarn2.jsonl",
+        [probe_rec("c10", "cold", correct=False, error=None, finish_reason="stop")],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c10"]
+    assert row["reaches"] is False
+    assert row["note"] == "resposta incorreta"
+
+
+def test_stream_error_cold_is_refused_with_stream_note(tmp_path):
+    write_jsonl(
+        tmp_path / "c11-524288-t1.0-yarn2.jsonl",
+        [probe_rec("c11", "cold", correct=False, error="stream_error:error", finish_reason="error")],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c11"]
+    assert row["reaches"] is False
+    assert row["note"] == "erro no stream (error)"
+
+
+def test_stream_error_followup_is_refused_with_stream_note(tmp_path):
+    write_jsonl(
+        tmp_path / "c12-524288-t1.0-yarn2.jsonl",
+        [
+            probe_rec("c12", "cold", ttft_s=8.0, decode=70.0),
+            probe_rec("c12", "identical", correct=False, error="stream_error:none", finish_reason=None),
+        ],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, [])
+    row = sonda["c12"]
+    assert row["reaches"] is True
+    assert row["followup"] is False
+    assert row["note"] == "follow-up com erro no stream"
+
+
+def test_no_yarn_ids_without_a_probe_file(tmp_path):
+    # No probe files at all for c2/c3 in this results dir.
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, ["c2", "c3"])
+    assert sonda["c2"] == {
+        "reaches": False,
+        "followup": None,
+        "note": "runtime sem YaRN (oMLX): teto 262K",
+    }
+    assert sonda["c3"] == {
+        "reaches": False,
+        "followup": None,
+        "note": "runtime sem YaRN (oMLX): teto 262K",
+    }
+
+
+def test_no_yarn_id_with_existing_probe_file_is_not_overridden(tmp_path):
+    write_jsonl(
+        tmp_path / "c2-524288-t1.0-yarn2.jsonl",
+        [probe_rec("c2", "cold", ttft_s=3.0, decode=40.0)],
+    )
+    by_cand = sj.load_records(str(tmp_path), sj.DEFAULT_GLOB)
+    sonda = sj.convert(by_cand, ["c2"])
+    assert sonda["c2"]["reaches"] is True
+    assert sonda["c2"]["note"] != "runtime sem YaRN (oMLX): teto 262K"
+
+
+def test_main_writes_json(tmp_path):
+    write_jsonl(
+        tmp_path / "c1-524288-t1.0-yarn2.jsonl",
+        [probe_rec("c1", "cold"), probe_rec("c1", "identical")],
+    )
+    out_path = tmp_path / "sonda-512k.json"
+    rc = sj.main(["--results-dir", str(tmp_path), "--out", str(out_path)])
+    assert rc == 0
+    data = json.loads(out_path.read_text(encoding="utf-8"))
+    assert data["c1"]["reaches"] is True
+
+
+def test_integration_feeds_render_dashboard(tmp_path):
+    """The converter's output must be exactly what render_dashboard.py's
+    --sonda expects: no exception, and the sonda values land in the page's
+    embedded SONDA data untouched."""
+    write_jsonl(
+        tmp_path / "c1-524288-t1.0-yarn2.jsonl",
+        [probe_rec("c1", "cold", ttft_s=8.0, decode=72.3), probe_rec("c1", "identical")],
+    )
+    sonda_path = tmp_path / "sonda-512k.json"
+    rc = sj.main(["--results-dir", str(tmp_path), "--out", str(sonda_path)])
+    assert rc == 0
+
+    summary_path = tmp_path / "summary.json"
+    summary_path.write_text(json.dumps({}), encoding="utf-8")
+    out_path = tmp_path / "out.html"
+    rc = rd.main(
+        ["--summary", str(summary_path), "--sonda", str(sonda_path), "--out", str(out_path)]
+    )
+    assert rc == 0
+
+    page = out_path.read_text(encoding="utf-8")
+    m = re.search(r"const SONDA = (\{.*?\});\n", page, re.S)
+    assert m, "const SONDA not found in generated HTML"
+    sonda = json.loads(m.group(1))
+    assert sonda["c1"]["reaches"] is True
+    assert sonda["c1"]["decode_tps"] == 72.3
+    assert sonda["c1"]["cold_ttft_s"] == 8.0

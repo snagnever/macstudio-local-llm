@@ -1,0 +1,127 @@
+{
+  "collected_at": "2026-09-12",
+  "scope": "qwen-only",
+  "rig": "Mac Studio M4 Max 128GB",
+  "baseline_installed": {
+    "mlx-serve": "26.9.1",
+    "mtplx": "2.11.1",
+    "mlx-dspark": "0.18.0",
+    "omlx": "0.6.4"
+  },
+  "quants_in_use_unchanged": {
+    "ddalcu/Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit": {
+      "pinned": "ef5b919d31534faa1997666f1a22d362cd6383cd",
+      "hf_main_sha": "ef5b919d31534faa1997666f1a22d362cd6383cd",
+      "status": "unchanged"
+    },
+    "Jundot/Qwen3.8-Flash-Next-oQ4e-mtp": {
+      "pinned": "2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8",
+      "hf_main_sha": "2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8",
+      "status": "unchanged"
+    },
+    "Jundot/Qwen3.8-27B-oQ8e-mtp": {
+      "pinned": "c99e5aad8a478f71c10b9a3dde6709158b690da6",
+      "hf_main_sha": "c99e5aad8a478f71c10b9a3dde6709158b690da6",
+      "status": "unchanged"
+    },
+    "Jundot/Qwen3.8-27B-oQ8e-fp16-mtp": {
+      "pinned": "4761782b9455f335292f4d6cb0c89570dff27a11",
+      "hf_main_sha": "4761782b9455f335292f4d6cb0c89570dff27a11",
+      "status": "unchanged"
+    },
+    "unsloth/Qwen3.8-27B-GGUF": {
+      "pinned": "4ca720788d1e01f1bff70c033e0d0028fd02e502",
+      "hf_main_sha": "4ca720788d1e01f1bff70c033e0d0028fd02e502",
+      "status": "unchanged"
+    }
+  },
+  "deltas": [
+    {
+      "id": 1,
+      "kind": "runtime",
+      "component": "mlx-serve",
+      "from": "26.9.1",
+      "to": "26.9.2",
+      "download": false,
+      "priority": "P1",
+      "claims": [
+        "speculative decoding at full speed on first request",
+        "draft from shortlist not full vocab",
+        "--max-mtp-ctx",
+        "--prefix-cache-disk"
+      ],
+      "caveats": ["some gains use M5 NAX kernels, not applicable to M4 Max"],
+      "already_in_baseline": ["1M context", "+10% decode", "n-gram warm at boot"],
+      "source": "https://github.com/ddalcu/mlx-serve/blob/main/CHANGELOG.md"
+    },
+    {
+      "id": 2,
+      "kind": "runtime",
+      "component": "mtplx",
+      "from": "2.11.1",
+      "to": "2.11.2",
+      "download": false,
+      "priority": "P1",
+      "claims": ["memory guard refuses before swap on 128GB", "vision for Flash-Next"],
+      "caveats": ["flash-decoding verify gated to M5+"],
+      "source": "https://github.com/youssofal/MTPLX/releases"
+    },
+    {
+      "id": 3,
+      "kind": "config",
+      "component": "mlx-serve",
+      "feature": "1M context (already in 26.9.1)",
+      "download": false,
+      "priority": "P1",
+      "launch_params": "--ctx-size 1048576 --kv-quant 8 --mtp --prefix-cache-mem 10GB --prefix-cache-entries 1 --ssm-checkpoint-max 16 --metrics",
+      "source": "https://www.reddit.com/r/LocalLLaMA/comments/1wb7p70/"
+    },
+    {
+      "id": 4,
+      "kind": "runtime",
+      "component": "omlx",
+      "from": "0.6.4",
+      "to": "0.7.0.dev2",
+      "download": false,
+      "priority": "P2",
+      "prerelease": true,
+      "claims": ["+8-20% Qwen3.8 prefill with SSD-backed PLE", "Flash-Next first-class qwen4_exp", "oQ2-oQ8"],
+      "test": "isolate the PLE-SSD knob only",
+      "source": "https://github.com/jundot/omlx/releases"
+    },
+    {
+      "id": 5,
+      "kind": "quant-runtime-json",
+      "component": "Youssofal/Qwen3.8-27B-MTPLX-* (Speed/Quality/Bare)",
+      "download": "partial",
+      "priority": "P2",
+      "note": "weights unchanged; only mtplx_runtime.json changed on 2026-09-03",
+      "weights_total_params": 27356723952,
+      "source": "../qwen38-flash-next/results/quant-refresh-20260904.json"
+    },
+    {
+      "id": 6,
+      "kind": "model-quant",
+      "component": "Qwen3.8-27B-DFlash2",
+      "repos": ["incoai/Qwen3.8-27B-DFlash2", "z-lab/Qwen3.8-27B-DFlash2-GGUF"],
+      "download": true,
+      "priority": "P3",
+      "gate": "Terminal-Bench before verdict",
+      "note": "new draft head for dense 27B; MTP on GGUF path"
+    },
+    {
+      "id": 7,
+      "kind": "model-quant",
+      "component": "ddalcu/Qwen3.6-35B-A3B-MLX-Serve-4bit",
+      "hf_lastModified": "2026-09-08",
+      "download": true,
+      "priority": "P3",
+      "gate": "Terminal-Bench before verdict",
+      "note": "new MoE 3.6 quant on mlx-serve"
+    }
+  ],
+  "out_of_scope": {
+    "qwen4": "not released; rumored Apsara 2026-09-22..24",
+    "deepseek-v4.1-flash": "~763B, does not fit resident in 128GB; not Qwen"
+  }
+}

@@ -2,7 +2,13 @@
 
 > **Status: 🟡 PROMOÇÃO CONDICIONAL.** MoE de geração "Qwen4", mais rápido que a densa 3.8-27B
 > e reusa cache melhor, mas não desloca a densa em trabalho de agente sustentado (qualidade).
-> Rodado no rig em 2026-08-31 (oMLX 0.6.4, build oQ4e): decode ~40 tok/s @32K, ~33 @128K.
+> **Driver do rig (2026-09-13): ddalcu mixed-4/8 no mlx-serve 26.9.2**, `--mtp` + prefix-cache
+> 16GB/100GB/64 — decode 67/58/57 tok/s a 32K/128K/262K, cache reusa em todo o range, YaRN a 512K
+> (51 tok/s). Fechamento em
+> [../qwen38-updates-2026-09/results/flashnext-stacks-summary.md](../qwen38-updates-2026-09/results/flashnext-stacks-summary.md).
+> Campanha seguinte (driver mais responsivo, quants × runtimes):
+> [../qwen38-flashnext-daily-driver-2026-09/plan.md](../qwen38-flashnext-daily-driver-2026-09/plan.md).
+> Primeira medição no rig em 2026-08-31 (oMLX 0.6.4, build oQ4e): decode ~40 tok/s @32K, ~33 @128K.
 > Fonte da research: notas consolidadas em 2026-08-29 (branch absorvida `worktree-bench+qwen38-flash-next`).
 
 Marcar a procedência de cada número: **fabricante** (Alibaba/Qwen), **terceiro** (card HF / blog / Reddit),
@@ -85,6 +91,57 @@ PLE at layer 1, QSA budget 2048/4`), MTP forçado ON. **Sem hack de offload, sem
 | 32K | ~60-64 | 0.961 | 105.8GB | 0 |
 | 128K | ~44 | 0.991 | 120.5GB | 0 |
 | 256K (nativo) | 33.4 (cold) | HTTP 400 (memória) | 119.7GB | 0 |
+
+> **Fechamento 2026-09-13 (mlx-serve 26.9.2, campanha `qwen38-updates-2026-09`).** A tabela acima é do
+> v26.8.11; o 26.9.2 (promovido, A/B limpo vs 26.9.1: +7% @32K, +20–40% @128K) muda o quadro:
+>
+> | Contexto | decode | prefill | cold TTFT | cache (identical/tool_turn) | wired | kv-disk |
+> |---|---:|---:|---:|---|---:|---:|
+> | 32K | 67.1 | 732 | 37 s | 1.00 / 0.96 | ~105 GB | 0 |
+> | 128K | 57.8 | 703 | 179 s | 1.00 / 0.99 | ~105 GB | — |
+> | 262K (nativo) | 56.8 | 676 | 380 s | 1.00 / 1.00 | ~105 GB | ~8 GB |
+> | 512K (YaRN 2.0, kv8) | 51.4 | 615 | 844 s | 1.00 | 111.4 GB | 19.8 GB |
+> | 1M (YaRN 4.0, kv8) | 34.7 | 502 | 2079 s | follow-up **recusado** | 105.2 GB | 26.5 GB |
+>
+> Decode quase plano de 32K a 262K; o 400 da 2ª request a 256K não apareceu com o prefix-cache em
+> disco (a KV longa spilla para `~/.mlx-serve/kv-cache` por design; swap ~1.7 GB constante). **Teto
+> prático = 512K.** 1M é one-shot cold (kv8) ou multi-turno a ~5 tok/s (`turbo4`) — nicho, fora do
+> uso diário. ds4 (fork ivanfioravanti): footprint 80–88 GB, mas decode 40/39/36 e prefill ~575 —
+> perde em tudo no M4 Max; cache só com `--kv-disk-dir`. MTPLX 2.11.2 promovido por correção (a MTP
+> da 2.11.1 é lossy a 32K na densa 27B). oMLX 0.7.0.dev2 deferida: o offload de PLE por env é
+> sobreposto pelo setting por-modelo da 0.7 e o oQ4e carrega residente (~98 GB).
+> Dados: `../qwen38-updates-2026-09/results/p1-*.jsonl`, `p4c-*.jsonl`.
+
+> **Atualização 2026-09-07 — o `append`/`middle` a 0.00 era CAP de 2 GB, não design.** A/B no mesmo
+> binário v26.9.1, Flash-Next @128K, só a config de prefix-cache mudou (`--prefix-cache-mem/-disk/-entries`):
+>
+> | Cenário | KNOBS 16GB/100GB/64 | DEFAULT 2GB/off/32 |
+> |---|---|---|
+> | identical | **1.00 · 0.2s** | 0.00 · 183.7s |
+> | append | **0.99 · 2.2s** | 0.00 · 185.1s |
+> | tool_turn | **0.99 · 2.2s** | 0.58 · 81.3s |
+> | middle_mutation | 0.46 · 108.7s | 0.00 · 183.6s |
+> | decode médio | 44.6 tok/s | 43.5 tok/s |
+>
+> O default de 2 GB não cabe um prefixo de 128K (~3.7 GB): a resposta traz `static_prefix_prior_match:true`
+> mas `cache_hit_ratio:0.0` (casa, mas não retém). 16 GB retém → identical/append/tool_turn ~2 s, custo zero
+> de decode. Ou seja, o mlx-serve **reusa `append` a 128K** com o cap adequado; só o `middle_mutation` fica
+> parcial (0.46, intrínseco à mutação do miolo). Isso corrige a caracterização acima ("re-prefila
+> append/middle") — era o cap, não design. Dados: `bench/qwen3.8-prefix-cache/results/knob-ab-128k-*.jsonl`;
+> fixado no `run-mlx-serve.sh` (arm FS). **Driver principal em uso e teste hoje: Flash-Next ddalcu no
+> mlx-serve 26.9.1 @128K, `--mtp` + prefix-cache 16GB/100GB/64.**
+
+> **Concorrência 2026-09-08 — batched decode NÃO engaja no Flash-Next (MoE); execução serial, limite 1.**
+> Teste no rig (v26.9.1, servidor no ar): 1 request = 4.7s / decode 106.6 tok/s; 4 requests concorrentes =
+> escada 3.6 / 7.2 / 10.8 / 14.4s, cada stream com decode **cheio** (113.7 tok/s) e **zero** eventos
+> `[batched] slots=N`. Com `MLX_SERVE_FORCE_BATCHED=1` + `MLX_SERVE_MOE_BATCHED_DECODE=1` o servidor loga
+> `force_batched=on — single-slot ticks will route through batched kernel`: troca o kernel de UM slot, não roda
+> vários juntos. O batched decode multi-request da changelog (2.76× em 4 streams) é dos trunks **densos**
+> Qwen 3.5/3.6/3.8; o `qwen4_exp` (MoE) mantém 1 slot — a especulação MoE (MTP) ocupa o slot único.
+> Consequência p/ OpenCode: rodar N agentes em paralelo **não soma throughput** (enfileiram); concorrência
+> real de decode exige um modelo denso. Distinto do outro sentido de "concorrente": sessões **quentes no
+> cache** (`--prefix-cache-entries`, hoje 64) — essas sim são configuráveis dentro do orçamento de memória
+> (16GB RAM / 100GB SSD): ~4 sessões de 128K na RAM, dezenas em contextos típicos de OpenCode (20–40K).
 
 O mlx-serve mantém a liderança de decode em todo contexto (@128K ~44 vs oQ4e/oMLX ~33; @256K 33.4 vs
 oMLX ~27 vs densas ~7-14). Cabe até o máximo nativo (256K, pico 119.7GB, sem swap) para UM request.
@@ -195,24 +252,73 @@ agente muito longas** ("promete o entregável, declara 'done', não gera nada" �
 → ruidoso; servem para comparar quants do MESMO modelo, não como leaderboard. Sinal independente positivo:
 no Aider polyglot local (u/returnity), Flash-Next em Q4 domina o 3.8-27B.
 
-## Suporte nos runtimes (2026-08-31)
+### Fidelidade por bpw — compilação PPL/KLD dos quants GGUF/EXL3 (Reddit, 2026-09-11)
 
-- **oMLX 0.6.4:** serve `qwen4_exp` nativo, Lightning MTP, **warm-prefix restoration do MTP** (resolve a
-  restrição "sem cache, 65K" da 0.6.3rc). Prefill com n-gram no SSD ainda depende de PR aberta ([#3235](https://github.com/jundot/omlx/pull/3235),
-  batched prefetch 2,6–4,35x) — por isso o offload custa decode hoje. **Caminho usado nesta campanha.**
-- **MTPLX 2.10.0:** família nativa; packs "Bare Speed" e "Optimized Speed"; **n-gram faz stream do SSD →
-  cabe em 96 GB**; hot-row cache. A 147K num M5 Max, decode 18,4 tok/s (+54% vs 12,0). Bom caminho para cache.
+Fonte: u/Right-Band3478, [r/LocalLLM](https://www.reddit.com/r/LocalLLM/comments/1wdjso1/accuracy_of_qwen38_flash_next_quants_a_compilation/).
+Compilação (com IA) dos PPL Δ% e KLD absolutos **publicados nos cards HF** por Unsloth, AesSedai,
+Agentonai, AtomicChat e turboderp (EXL3). O eixo x é o "backbone" em GiB (exclui a tabela n-gram).
+Traces diferentes foram normalizadas pelo autor; ele não rodou nada. Lido dos gráficos (±10%).
+
+| Faixa | Exemplo | Backbone | PPL Δ% | KLD |
+|---|---|---:|---:|---:|
+| < 4 bpw | UD-IQ1_M / AD-3.84 / IQ2_S / IQ3_S | 42–52 GiB | 6–10 | 0.16–0.30 |
+| ~4.3 bpw (joelho) | AtomicChat AD-4.27 Q4_K_M, EXL3 3.05 | 44–51 GiB | 2.6 | 0.085 |
+| ~4.5–5 bpw | UD-IQ4_XS, AD-5.00 Q5_K_M, EXL3 4.05 | 52–60 GiB | 1.2–2.6 | 0.04–0.08 |
+| ~4.8–5.5 bpw | UD-Q4_K_XL, Q4_K_M, AP-Q5_K_XL | 75–85 GiB | 0.3–0.9 | 0.025–0.045 |
+| ≥ 5.5 bpw | Q5_K_M, UD-Q5/Q6_K_XL, Q8_0 | 100–128 GiB | ≤ 0.3 | ≤ 0.03 |
+
+O que isso diz para o rig (leitura própria):
+
+1. **O joelho da curva fica em ~4.0–4.3 bpw.** Abaixo, a perda cresce rápido (IQ3 ~6%, IQ2 ~10%).
+   Acima de ~4.3 a curva é quase plana: de 4.3 para 5.5 bpw ganha-se ~2 pp de PPL e ~0.05 de KLD ao
+   custo de +30 GiB. Os nossos três quants MLX (ddalcu mixed-4/8, Jundot oQ4e, MTPLX Optimized-Speed)
+   ficam todos na parte plana, em ~4.5–5.5 bpw efetivos. **Fidelidade não deve ser o que os separa;
+   responsividade é o eixo certo para escolher entre eles.**
+2. **Quantizar a tabela n-gram/PLE para 4-bit custa pouco.** As variantes `(Q4PLE)` da AesSedai ficam
+   +0.2–0.3 pp de PPL e +0.005 de KLD acima das irmãs com PLE cheia. Sustenta a receita ddalcu (n-gram
+   4-bit em mmap) e o offload do oQ4e: a memória vem de graça em fidelidade.
+3. **Não descer abaixo de ~4 bpw para caber.** Um 3-bit ou um REAP/podado para ganhar folga de KV a
+   256K+ paga 6–10% de PPL. A alavanca de memória certa é o offload do n-gram e o `iogpu.wired_limit_mb`.
+4. **Fallback GGUF com melhor fidelidade por GiB:** AtomicChat AD-4.27 Q4_K_M está na fronteira
+   (2.6% / 0.085 a 51 GiB). Continua fora da campanha de responsividade (sem MTP), mas é o candidato
+   se a memória virar o bloqueio. O EXL3 não roda em Mac.
+5. **Falha de needle na campanha aponta para runtime, não para o quant.** A ≥4.3 bpw todos os quants
+   passam retrieval simples; um needle errado na Etapa A é sintoma de MTP lossy ou de cache, como o
+   caso MTPLX 2.11.1.
+
+**Limites:** nenhum quant MLX está no gráfico. A quantização afim do MLX (grupo 64, sem imatrix)
+não é o K-quant nem o IQ do llama.cpp; a mesma bpw pode dar KLD diferente. Os packs Jundot (oQe) e
+MTPLX publicam KLD nos cards — compilar os três MLX na mesma tabela é um item da campanha
+[qwen38-flashnext-daily-driver-2026-09](../qwen38-flashnext-daily-driver-2026-09/plan.md). PPL/KLD
+não medem qualidade de agente: o MiniMax IQ2_M empatou com o Q3_K_S no Terminal-Bench.
+
+## Suporte nos runtimes (2026-09-13)
+
+- **mlx-serve 26.9.2 (default do rig):** `qwen4_exp` nativo, n-gram mmapped por design, MTP, prefix-cache
+  em RAM + disco (`--prefix-cache-mem/-disk/-entries`), YaRN via `--config-overrides`, `--max-mtp-ctx`,
+  `--kv-quant {4,8,turbo2,turbo4}`. Batched decode **não** engaja no MoE (1 slot). Ganhos NAX são de M5.
+- **oMLX 0.6.4 (estável):** `qwen4_exp` nativo, Lightning MTP, warm-prefix restoration. Flash-Next só cabe
+  com `qwen4_ple_ssd_offload: true` (residente 99.6 → 69.6 GB; custo ~15% de decode). @262K: 27 tok/s,
+  prefill 217. **0.7.0.dev2 (pré-release):** declara +8–20% de prefill com PLE via SSD; no rig o offload
+  por env não pega (setting por-modelo da 0.7) — bloqueio de config, não de engine
+  ([p4-item4](../qwen38-updates-2026-09/results/p4-item4-omlx-dev2-blocked.md)).
+- **MTPLX 2.11.2 (default do rig):** pack `Youssofal/Qwen3.8-Flash-Next-MTPLX-Optimized-Speed` (112 GB,
+  em disco, nunca medido no rig). Notas da 2.10: n-gram faz stream do SSD, hot-row cache. 2.11.2 corrige a
+  MTP lossy da 2.11.1 e recusa antes do swap em 128 GB; verify de flash-decoding gated a M5.
+- **ds4 (fork ivanfioravanti, branch `qwen3.8-flash-next`):** roda com `ds4-server` + `--ple` sidecar;
+  perde em decode/prefill para o mlx-serve ([p4b](../qwen38-updates-2026-09/results/p4b-ds4-blocked.md)).
 - **llama.cpp mainline:** `qwen4_exp` desde 2026-08-28 (PR #27742). Offload de n-gram sem repack:
-  `--load-mode mmap --override-tensor per_layer_token_embd.weight=CPU`. ~36 tok/s (sem MTP). Lida melhor
-  que o oMLX com o offload de n-gram hoje (u/returnity).
-- **mlx-dspark 0.17.2:** SEM suporte a `qwen4_exp`. Fora do braço até haver suporte.
+  `--load-mode mmap --override-tensor per_layer_token_embd.weight=CPU`. ~36 tok/s (sem MTP).
+- **mlx-dspark 0.18.0:** SEM suporte a `qwen4_exp`. Fora do braço até haver suporte.
 
 ## Próximos passos
 
-1. Rodar o build **ddalcu MLX-Serve mixed-4/8** (75 GB, n-gram mmap nativo) — deve dar mais decode e mais
-   folga que o oQ4e; comparar com os números medidos acima.
-2. **Terminal-Bench** (do driver com Docker) — o gate decisivo de qualidade de agente.
-3. Avaliar MTPLX pack e llama.cpp GGUF como caminhos de cache alternativos.
+1. ~~Rodar o build ddalcu MLX-Serve mixed-4/8~~ — feito (31/08 → 13/09): é o driver do rig.
+2. **Terminal-Bench** (do driver com Docker) — o gate decisivo de qualidade de agente. Ainda não rodou.
+3. ~~Avaliar MTPLX pack e llama.cpp GGUF como caminhos de cache~~ → virou a campanha
+   [qwen38-flashnext-daily-driver-2026-09](../qwen38-flashnext-daily-driver-2026-09/plan.md): driver
+   mais responsivo entre ddalcu/mlx-serve, oQ4e/oMLX 0.6.4, oQ4e/oMLX 0.7.0.dev2 e MTPLX pack.
+   GGUF fica fora (sem MTP).
 
 Empírico desta campanha: `results/refresh-flashnext-*.jsonl` (movidos do smoke R5 do runtime-refresh).
 Runbook: [plan.md](plan.md). O smoke R5 original: `../qwen3.8-prefix-cache/plan-runtime-refresh.md` (seção R5, agora um ponteiro).
