@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-15T18:59:34",
+  "generated_at": "2026-09-15T19:10:26",
   "artifacts": [
     {
       "harness": "claude",
@@ -1588,83 +1588,6 @@
       "question_index": 13,
       "animated": false,
       "bytes": 8350
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash",
-      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds-animated.svg",
-      "slug": "picnic-above-clouds-animated",
-      "question_index": 5,
-      "animated": true,
-      "bytes": 14703,
-      "question_index_override": 5
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash",
-      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds-v2.svg",
-      "slug": "picnic-above-clouds-v2",
-      "question_index": 5,
-      "animated": false,
-      "bytes": 12196,
-      "question_index_override": 5
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash",
-      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds-v3.svg",
-      "slug": "picnic-above-clouds-v3",
-      "question_index": 5,
-      "animated": false,
-      "bytes": 12785,
-      "question_index_override": 5
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash",
-      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds-v4.svg",
-      "slug": "picnic-above-clouds-v4",
-      "question_index": 5,
-      "animated": false,
-      "bytes": 13636,
-      "question_index_override": 5
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash",
-      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds.svg",
-      "slug": "picnic-above-clouds",
-      "question_index": 5,
-      "animated": false,
-      "bytes": 10775,
-      "question_index_override": 5
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash",
-      "artifact": "logs/opencode/qwen3.8-flash/treasure-barrel-v2.svg",
-      "slug": "treasure-barrel-v2",
-      "question_index": 13,
-      "animated": false,
-      "bytes": 9552
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash",
-      "artifact": "logs/opencode/qwen3.8-flash/treasure-barrel-v3.svg",
-      "slug": "treasure-barrel-v3",
-      "question_index": 13,
-      "animated": true,
-      "bytes": 11833
-    },
-    {
-      "harness": "opencode",
-      "model": "qwen3.8-flash",
-      "artifact": "logs/opencode/qwen3.8-flash/treasure-barrel.svg",
-      "slug": "treasure-barrel",
-      "question_index": 13,
-      "animated": false,
-      "bytes": 4927
     },
     {
       "harness": "opencode",

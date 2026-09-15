@@ -379,7 +379,6 @@ class TestFamilyColour(unittest.TestCase):
         self.assertEqual(ad.family_of("gpt-6-astra"), "gpt")
         self.assertEqual(ad.family_of("deepseek-v4.1-flash-high"), "deepseek")
         self.assertEqual(ad.family_of("deepseek-v4-flash-0731-high"), "deepseek")
-        self.assertEqual(ad.family_of("qwen3.8-flash"), "qwen")
 
     def test_sol_and_terra_use_different_tones(self):
         self.assertNotEqual(ad.color_for("gpt-5.6-sol"), ad.color_for("gpt-5.6-terra"))

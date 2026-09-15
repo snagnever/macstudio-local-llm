@@ -105,7 +105,6 @@ TONE = {
     "qwen3.8-flash-next": 1, "qwen3.8-27b-8bit": 2,
     "claude-opus-5": 1, "claude-opus-4-8": 0, "fable-5-1": 2,
     "gpt-5.6-terra": 1, "gpt-5.6-sol": 0, "gpt-6-astra": 2,
-    "qwen3.8-flash": 0,
     "deepseek-v4.1-flash-high": 1, "deepseek-v4-flash-0731-high": 0,
     # agent-build-off arms: one model, one arm adds the superpowers skills
     "opencode-qwen38": 1, "opencode-qwen38-superpowers": 2, "claude-qwen38": 0,
@@ -502,7 +501,7 @@ def build_families():
     so the legend stays one line per family instead of one line per contestant.
     """
     return [
-        {"key": "qwen", "color": FAMILY_RAMP["qwen"][1], "label": "Qwen, on the rig or hosted"},
+        {"key": "qwen", "color": FAMILY_RAMP["qwen"][1], "label": "Qwen, on the rig"},
         {"key": "claude", "color": FAMILY_RAMP["claude"][1], "label": "Claude, hosted"},
         {"key": "gpt", "color": FAMILY_RAMP["gpt"][1],
          "label": "OpenAI, hosted"},
