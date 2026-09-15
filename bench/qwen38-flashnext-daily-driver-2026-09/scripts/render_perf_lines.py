@@ -69,10 +69,11 @@ def point(g: dict) -> dict:
 
 
 def build_payload(data: dict) -> dict:
+    chart_cands = [c for c in data["candidates"] if c.get("chart", True)]
     canon = {(g["cand"], g["context"]): g for g in data["groups"] if g["canonical"]}
     points: dict = {}
     hitmap: dict = {}
-    for c in data["candidates"]:
+    for c in chart_cands:
         cid = c["id"]
         points[cid], hitmap[cid] = {}, {}
         for ctx in TABLE_CTX:
@@ -87,13 +88,13 @@ def build_payload(data: dict) -> dict:
                 for s in g["scenarios_run"]
             }
     series = [{"id": c["id"], "name": c["name"], "short": c["short"], "cv": SERIES_COLOR[c["id"]]}
-              for c in data["candidates"]]
+              for c in chart_cands]
     cfg = {c["id"]: {"runtime": f'{c["runtime"]} {c["runtime_version"]}',
                      "model": f'{c["model"]} ({c["revision"]})',
                      "quant": f'{c["quant"]} · {c["bpw"]} bpw · {c["disk_gb"]:.0f} GB',
                      "cache": c["cache"], "spec": c["spec"], "ceiling": c["ceiling"],
                      "status": c["status"], "state": c["state"]}
-           for c in data["candidates"]}
+           for c in chart_cands}
     return {"points": points, "hitmap": hitmap, "series": series, "cfg": cfg,
             "rig": data["rig"], "takeaways": data["takeaways"], "tech": TECH,
             "tech_src": TECH_SRC, "line_ctx": LINE_CTX, "table_ctx": TABLE_CTX,
@@ -369,7 +370,7 @@ const P = __PAYLOAD__;
 const DATA = P.points, HITMAP = P.hitmap, SERIES = P.series, CFG = P.cfg;
 const CTX = P.line_ctx, TCTX = P.table_ctx;
 const ctxLab = c => (c/1024)+"K";
-const STAGE = {"0":"Stage 0 · 1 rep","A":"Stage A · 1 rep","B":"Stage B · 3 reps","probe":"512K probe · 1 rep"};
+const STAGE = {"0":"Stage 0 · 1 rep","A":"Stage A · 1 rep","B":"Stage B · 3 reps","C":"Stage C","probe":"512K probe · 1 rep"};
 const MISS = {t_turno:"probe has no tool_turn", ttft_tool:"probe has no tool_turn"};
 const PANELS = [
   {key:"t_turno", title:"T_turn", unit:"s", dir:"↓ better", fmt:v=>v.toFixed(1),
@@ -533,7 +534,7 @@ function attachHover(panel, svg, p){
     SERIES.forEach(s=>{
       const d=(DATA[s.id]||{})[c]; const v=d?d[p.key]:null;
       const shown = v==null ? `<span class="t-na">${missText(s.id,c,p.key)}</span>`
-        : tf(v)+" "+p.unit+(d.stage==="B"?" · 3 reps":"");
+        : tf(v)+" "+p.unit+(d.reps>1?" · "+d.reps+" reps":"");
       rows+=`<div class="t-row"><span class="t-left"><span class="sw" style="background:var(${s.cv})"></span><span class="code">${s.short}</span></span><span class="t-val">${shown}</span></div>`;
     });
     tip.innerHTML=rows; tip.style.opacity=1;

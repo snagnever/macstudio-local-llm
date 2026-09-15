@@ -29,6 +29,8 @@ def test_stage_for_maps_file_suffixes():
     assert cr.stage_for(32768, "1.0", None) == ("A", "canonical", "")
     assert cr.stage_for(32768, "1.0", "b")[0] == "B"
     assert cr.stage_for(524288, "1.0", "yarn2")[0] == "probe"
+    assert cr.stage_for(262144, "1.0", "c") == ("C", "canonical", "")
+    assert cr.stage_for(524288, "1.0", "yarn2-c") == ("C", "canonical", "YaRN 2.0 + KV 8-bit")
     assert cr.stage_for(32768, "0", None) == ("diag", "diag", "temp 0")
     assert cr.stage_for(32768, "0", "nomtp")[2] == "temp 0 · MTP off"
     assert cr.stage_for(131072, "1.0", "mem102g")[1] == "diag"
@@ -49,6 +51,16 @@ def test_build_group_uses_raw_medians_and_counts_truncation(tmp_path):
     assert not g["refused"]
 
 
+def test_build_group_accepts_uncensored_candidate(tmp_path):
+    records = [
+        _record("cold", ttft_s=37.0, hit=0.0),
+        _record("identical", ttft_s=0.1, decode=56.0, hit=1.0),
+        _record("tool_turn", ttft_s=1.9, decode=55.0),
+    ]
+    g = cr.build_group(tmp_path / "u1-32768-t1.0-b.jsonl", records)
+    assert g["cand"] == "u1" and g["stage"] == "B"
+
+
 def test_build_group_marks_http_refusal(tmp_path):
     records = [_record(s, decode=0.0, hit=None, finish=None, error="http_507: Insufficient Storage",
                        correct=False, ctx=262144)
@@ -56,6 +68,17 @@ def test_build_group_marks_http_refusal(tmp_path):
     g = cr.build_group(tmp_path / "c4-262144-t1.0.jsonl", records)
     assert g["refused"] and g["error_kinds"] == ["http_507"]
     assert g["t_turno_s"] is None and g["scenarios_served"] == []
+
+
+def test_mark_canonical_prefers_stage_c_over_probe_and_a():
+    groups = [
+        {"cand": "c1", "context": 524288, "stage": "probe", "mode": "canonical", "canonical": False},
+        {"cand": "c1", "context": 524288, "stage": "C", "mode": "canonical", "canonical": False},
+        {"cand": "c3", "context": 262144, "stage": "A", "mode": "canonical", "canonical": False},
+        {"cand": "c3", "context": 262144, "stage": "C", "mode": "canonical", "canonical": False},
+    ]
+    cr.mark_canonical(groups)
+    assert [g["canonical"] for g in groups] == [False, True, False, True]
 
 
 def test_mark_canonical_prefers_stage_b():
@@ -76,7 +99,7 @@ def test_campaign_data_matches_summary_verdict():
     assert _canon(data, "c3", 131072)["t_turno_s"] == 15.03
     c4 = _canon(data, "c4", 131072)
     assert c4["refused"] and "http_errors" in c4["gates_failed"]
-    assert _canon(data, "c1", 524288)["stage"] == "probe"
+    assert _canon(data, "c1", 524288)["stage"] == "C"
     assert ro.gate_passers(data) == ["c1", "c2", "c3"]
 
 
@@ -92,4 +115,9 @@ def test_renderers_fill_every_placeholder(tmp_path):
     assert payload["points"]["c4"]["524288"]["status"] == rpl.ABSENT[("c4", 524288)]
     assert set(payload["hitmap"]["c4"]["131072"].values()) == {"x"}
     embedded = json.loads(overview.split('type="application/json">', 1)[1].split("</script>", 1)[0])
-    assert len(embedded["groups"]) == len(data["groups"])
+    # the overview embeds only the charted candidates; u1 (chart:False) is rendered
+    # in its own Stage U section instead of the shared charts.
+    chart_ids = {c["id"] for c in data["candidates"] if c.get("chart", True)}
+    assert len(embedded["groups"]) == len([g for g in data["groups"] if g["cand"] in chart_ids])
+    assert "u1" not in {g["cand"] for g in embedded["groups"]}
+    assert "Refusal probe" in overview and "Responsiveness: c1 vs u1" in overview

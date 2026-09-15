@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "generated_at": "2026-09-15T01:38:01Z",
+ "generated_at": "2026-09-15T07:36:58Z",
  "campaign": "bench/qwen38-flashnext-daily-driver-2026-09",
  "rig": [
   {
@@ -109,6 +109,26 @@
    "state": "fail",
    "status": "eliminated",
    "note": "Highest decode at 32K (~70 tok/s), but refuses 128K and 256K with HTTP 507: the memory plan fit is 114,688 tokens."
+  },
+  {
+   "id": "u1",
+   "name": "Uncensored (abliterated) · mlx-serve 26.9.2",
+   "short": "u1 uncensored",
+   "runtime": "mlx-serve",
+   "runtime_version": "26.9.2",
+   "model": "ARC4NUM/Qwen3.8-Flash-Next-Uncensored-MLX-Serve-4bit",
+   "revision": "9ebf999",
+   "quant": "mixed 4/8-bit",
+   "bpw": 4.85,
+   "disk_gb": 107.3,
+   "port": 11234,
+   "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
+   "spec": "native MTP depth 6 + PLD (n-gram) · acceptance 0.58",
+   "ceiling": "same pack as c1 (not re-probed above 128K)",
+   "state": "pass",
+   "status": "alt driver",
+   "note": "Abliterated weights (orcarouter), same config.json as c1. Matches c1's T_turn within 1% at 32K and 128K; MTP acceptance 0.58.",
+   "chart": false
   }
  ],
  "groups": [
@@ -420,6 +440,67 @@
   {
    "cand": "c1",
    "context": 262144,
+   "stage": "C",
+   "mode": "canonical",
+   "tag": "",
+   "file": "c1-262144-t1.0-c.jsonl",
+   "reps": 3,
+   "n": 12,
+   "served_n": 12,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "tool_turn"
+   ],
+   "t_turno_s": 13.9,
+   "cold_ttft_s": 378.75,
+   "ttft_s": {
+    "cold": 378.75,
+    "identical": 0.36,
+    "append": 2.2,
+    "middle_mutation": null,
+    "tool_turn": 2.22
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.996,
+    "middle_mutation": null,
+    "tool_turn": 0.996
+   },
+   "decode_tps": 43.8,
+   "decode_range": [
+    42.7,
+    67.7
+   ],
+   "prefill_tps": 678.0,
+   "wired_peak_gb": 113.2,
+   "mem_free_min_gb": 0.01,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.39,
+   "correct": 11,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true
+  },
+  {
+   "cand": "c1",
+   "context": 262144,
    "stage": "A",
    "mode": "canonical",
    "tag": "",
@@ -465,6 +546,65 @@
    "mtp_acceptance": 0.57,
    "correct": 2,
    "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": false
+  },
+  {
+   "cand": "c1",
+   "context": 524288,
+   "stage": "C",
+   "mode": "canonical",
+   "tag": "YaRN 2.0 + KV 8-bit",
+   "file": "c1-524288-t1.0-yarn2-c.jsonl",
+   "reps": 2,
+   "n": 6,
+   "served_n": 6,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "t_turno_s": 13.64,
+   "cold_ttft_s": 844.87,
+   "ttft_s": {
+    "cold": 844.87,
+    "identical": 0.63,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 3.08
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 0.998
+   },
+   "decode_tps": 48.5,
+   "decode_range": [
+    39.7,
+    49.5
+   ],
+   "prefill_tps": 614.0,
+   "wired_peak_gb": 113.4,
+   "mem_free_min_gb": 0.02,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.56,
+   "correct": 6,
+   "truncated": 0,
    "failed": 0,
    "refused": false,
    "error_kinds": [],
@@ -531,7 +671,7 @@
     "wired>102"
    ],
    "note": "probe: only cold and identical; warm decode = identical; cold decode 42.6 tok/s",
-   "canonical": true
+   "canonical": false
   },
   {
    "cand": "c2",
@@ -776,6 +916,67 @@
   {
    "cand": "c2",
    "context": 262144,
+   "stage": "C",
+   "mode": "canonical",
+   "tag": "",
+   "file": "c2-262144-t1.0-c.jsonl",
+   "reps": 3,
+   "n": 12,
+   "served_n": 12,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "tool_turn"
+   ],
+   "t_turno_s": 27.32,
+   "cold_ttft_s": 1185.97,
+   "ttft_s": {
+    "cold": 1185.97,
+    "identical": 3.38,
+    "append": 6.49,
+    "middle_mutation": null,
+    "tool_turn": 6.66
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.997,
+    "append": 0.993,
+    "middle_mutation": null,
+    "tool_turn": 0.993
+   },
+   "decode_tps": 24.8,
+   "decode_range": [
+    21.9,
+    26.9
+   ],
+   "prefill_tps": 216.0,
+   "wired_peak_gb": 113.2,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 11,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true
+  },
+  {
+   "cand": "c2",
+   "context": 262144,
    "stage": "A",
    "mode": "canonical",
    "tag": "",
@@ -828,7 +1029,7 @@
    "gates_failed": [],
    "warnings": [],
    "note": "",
-   "canonical": true
+   "canonical": false
   },
   {
    "cand": "c3",
@@ -1195,6 +1396,65 @@
   {
    "cand": "c3",
    "context": 262144,
+   "stage": "C",
+   "mode": "canonical",
+   "tag": "",
+   "file": "c3-262144-t1.0-c.jsonl",
+   "reps": 3,
+   "n": 12,
+   "served_n": 12,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "tool_turn"
+   ],
+   "t_turno_s": 17.66,
+   "cold_ttft_s": 578.07,
+   "ttft_s": {
+    "cold": 578.07,
+    "identical": 3.27,
+    "append": 5.72,
+    "middle_mutation": null,
+    "tool_turn": 5.8
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.997,
+    "append": 0.993,
+    "middle_mutation": null,
+    "tool_turn": 0.993
+   },
+   "decode_tps": 43.2,
+   "decode_range": [
+    38.6,
+    48.2
+   ],
+   "prefill_tps": 444.0,
+   "wired_peak_gb": 101.6,
+   "mem_free_min_gb": 0.05,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 10,
+   "truncated": 2,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true
+  },
+  {
+   "cand": "c3",
+   "context": 262144,
    "stage": "A",
    "mode": "canonical",
    "tag": "",
@@ -1247,7 +1507,7 @@
    "gates_failed": [],
    "warnings": [],
    "note": "",
-   "canonical": true
+   "canonical": false
   },
   {
    "cand": "c4",
@@ -1662,6 +1922,187 @@
    ],
    "note": "refused with HTTP 507: memory plan fit of 114,688 tokens",
    "canonical": true
+  },
+  {
+   "cand": "u1",
+   "context": 8192,
+   "stage": "0",
+   "mode": "canonical",
+   "tag": "",
+   "file": "u1-8192-t1.0.jsonl",
+   "reps": 1,
+   "n": 3,
+   "served_n": 3,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "t_turno_s": 10.85,
+   "cold_ttft_s": 3.59,
+   "ttft_s": {
+    "cold": 3.59,
+    "identical": 0.08,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 1.73
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 0.718
+   },
+   "decode_tps": 56.1,
+   "decode_range": [
+    51.3,
+    61.0
+   ],
+   "prefill_tps": 761.0,
+   "wired_peak_gb": 81.1,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.49,
+   "correct": 3,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true
+  },
+  {
+   "cand": "u1",
+   "context": 32768,
+   "stage": "B",
+   "mode": "canonical",
+   "tag": "",
+   "file": "u1-32768-t1.0-b.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 11.13,
+   "cold_ttft_s": 36.99,
+   "ttft_s": {
+    "cold": 36.99,
+    "identical": 0.1,
+    "append": 1.86,
+    "middle_mutation": 26.64,
+    "tool_turn": 1.87
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.962,
+    "middle_mutation": 0.3,
+    "tool_turn": 0.962
+   },
+   "decode_tps": 55.3,
+   "decode_range": [
+    53.4,
+    60.8
+   ],
+   "prefill_tps": 738.0,
+   "wired_peak_gb": 97.8,
+   "mem_free_min_gb": 0.01,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.58,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true
+  },
+  {
+   "cand": "u1",
+   "context": 131072,
+   "stage": "B",
+   "mode": "canonical",
+   "tag": "",
+   "file": "u1-131072-t1.0-b.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 12.46,
+   "cold_ttft_s": 178.33,
+   "ttft_s": {
+    "cold": 178.33,
+    "identical": 0.25,
+    "append": 2.05,
+    "middle_mutation": 99.15,
+    "tool_turn": 2.03
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.992,
+    "middle_mutation": 0.456,
+    "tool_turn": 0.992
+   },
+   "decode_tps": 49.1,
+   "decode_range": [
+    45.5,
+    59.4
+   ],
+   "prefill_tps": 704.0,
+   "wired_peak_gb": 107.4,
+   "mem_free_min_gb": 0.01,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.58,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true
   }
  ],
  "runtime_profiles": [
@@ -1832,6 +2273,14 @@
    "status": "done"
   },
   {
+   "stage": "Stage C: 3 reps at 256K (c1, c3, c2) and 2 reps at 512K (c1) with tool_turn",
+   "status": "done"
+  },
+  {
+   "stage": "Stage U: uncensored u1 at 8K/32K/128K + refusal probe (c1 vs u1)",
+   "status": "done"
+  },
+  {
    "stage": "Daily driver record (c1)",
    "status": "done"
   }
@@ -1872,16 +2321,22 @@
    "arm": "c4 · temp 0",
    "state": "pass",
    "note": "MTP on 5/5 needles and 1.8× decode; MTP off 4/5 (one truncated). No sign of lossy MTP."
+  },
+  {
+   "gate": "Uncensored alt",
+   "arm": "u1 · mlx-serve 26.9.2",
+   "state": "pass",
+   "note": "Abliterated pack, same config.json as c1. T_turn within 1% at 32K/128K, MTP acceptance 0.58, zero stream failures. Refuses 0/50 legitimate prompts, same as c1 — no over-refusal to fix on this set."
   }
  ],
  "takeaways": [
   [
    "T_turn nearly flat",
-   "c1 goes from 11.0 s at 32K to 12.35 s at 128K and 14.2 s at 256K; c3 from 13.5 to 16.7 s; c2 from 17.1 to 28.8 s."
+   "c1 goes from 11.0 s at 32K to 12.35 s at 128K, 13.9 s at 256K and 13.6 s at 512K; c3 from 13.5 to 17.7 s; c2 from 17.1 to 27.3 s (3 reps, Stage C at 256K/512K)."
   ],
   [
    "TTFT decides, not decode",
-   "at 128K c1 and c3 both decode ~50 tok/s; the warm turn responds in 2.1 s on c1 and 4.8 s on c3."
+   "at 128K c1 and c3 both decode ~50 tok/s; the warm turn responds in 2.1 s on c1 and 4.8 s on c3. At 256K the tool turn is 2.2 s on c1 vs 5.8 s on c3."
   ],
   [
    "c4 does not serve 128K",
@@ -1889,11 +2344,15 @@
   ],
   [
    "dev2 vs 0.6.4 on the same weights",
-   "at 256K, cold 578 vs 1187 s and decode 47.5 vs 23.6 tok/s."
+   "at 256K, cold 578 vs 1186 s and decode 43.2 vs 24.8 tok/s (3 reps)."
   ],
   [
    "512K on c1",
-   "cold 844.6 s, follow-up in 0.6 s with hit 1.00, wired 104.3 GB, minimum free memory 0.01 GB, swap 0."
+   "T_turn 13.6 s with a tool turn in 3.1 s and hit 1.00 (2 reps, YaRN 2.0 + KV 8-bit); cold 845 s, decode 48.5 tok/s, wired 104 GB, swap 0."
+  ],
+  [
+   "uncensored matches c1",
+   "u1 (abliterated, same runtime and quant) lands T_turn within 1% of c1 at 32K and 128K, MTP acceptance 0.58, zero stream failures. Both c1 and u1 refuse 0/50 legitimate prompts."
   ]
  ],
  "deltas": [
@@ -1949,5 +2408,144 @@
     "diag:temp 0 · MTP off"
    ]
   }
- ]
+ ],
+ "stage_u": {
+  "bands": [
+   {
+    "context": 8192,
+    "c1": {
+     "t_turno": 10.08,
+     "ttft_tool": 1.72,
+     "decode": 61.3,
+     "mtp": 0.55,
+     "hit_tool": 0.718,
+     "reps": 1
+    },
+    "u1": {
+     "t_turno": 10.85,
+     "ttft_tool": 1.73,
+     "decode": 56.1,
+     "mtp": 0.49,
+     "hit_tool": 0.718,
+     "reps": 1
+    }
+   },
+   {
+    "context": 32768,
+    "c1": {
+     "t_turno": 11.03,
+     "ttft_tool": 1.87,
+     "decode": 55.9,
+     "mtp": 0.62,
+     "hit_tool": 0.962,
+     "reps": 3
+    },
+    "u1": {
+     "t_turno": 11.13,
+     "ttft_tool": 1.87,
+     "decode": 55.3,
+     "mtp": 0.58,
+     "hit_tool": 0.962,
+     "reps": 3
+    }
+   },
+   {
+    "context": 131072,
+    "c1": {
+     "t_turno": 12.35,
+     "ttft_tool": 2.05,
+     "decode": 49.7,
+     "mtp": 0.5,
+     "hit_tool": 0.992,
+     "reps": 3
+    },
+    "u1": {
+     "t_turno": 12.46,
+     "ttft_tool": 2.03,
+     "decode": 49.1,
+     "mtp": 0.58,
+     "hit_tool": 0.992,
+     "reps": 3
+    }
+   }
+  ],
+  "refusal": {
+   "c1": {
+    "by_category": {
+     "security": {
+      "n": 10,
+      "refused": 0,
+      "no_answer": 0
+     },
+     "medical": {
+      "n": 10,
+      "refused": 0,
+      "no_answer": 0
+     },
+     "harm_reduction": {
+      "n": 10,
+      "refused": 0,
+      "no_answer": 0
+     },
+     "fiction": {
+      "n": 10,
+      "refused": 0,
+      "no_answer": 0
+     },
+     "control": {
+      "n": 10,
+      "refused": 0,
+      "no_answer": 0
+     }
+    },
+    "total": {
+     "n": 50,
+     "refused": 0,
+     "no_answer": 0
+    }
+   },
+   "u1": {
+    "by_category": {
+     "security": {
+      "n": 10,
+      "refused": 0,
+      "no_answer": 0
+     },
+     "medical": {
+      "n": 10,
+      "refused": 0,
+      "no_answer": 0
+     },
+     "harm_reduction": {
+      "n": 10,
+      "refused": 0,
+      "no_answer": 0
+     },
+     "fiction": {
+      "n": 10,
+      "refused": 0,
+      "no_answer": 0
+     },
+     "control": {
+      "n": 10,
+      "refused": 0,
+      "no_answer": 0
+     }
+    },
+    "total": {
+     "n": 50,
+     "refused": 0,
+     "no_answer": 0
+    }
+   },
+   "categories": [
+    "security",
+    "medical",
+    "harm_reduction",
+    "fiction",
+    "control"
+   ]
+  },
+  "note": "u1 is the abliterated pack on the same runtime and quant as c1 (identical config.json). The refusal probe scores 40 legitimate prompts in four categories that aligned models often over-refuse, plus 10 neutral controls; it stores only the verdict and 200 characters per answer."
+ }
 }
