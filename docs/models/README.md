@@ -36,6 +36,7 @@ Per-model deep dives for every model with local experience on this rig (Mac Stud
 ### Planned
 | Model | Status | Next step |
 |---|---|---|
+| [minicpm5-2b](minicpm5-2b.md) | ⚪ PLANNED (2026-09-15) | support-model candidate: runs in parallel with the Flash-Next driver for short non-reasoning turns. Two MLX quants on disk; campaign: [`bench/minicpm5-2b-support-2026-09/plan.md`](../../bench/minicpm5-2b-support-2026-09/plan.md) |
 | [mellum2-12b](mellum2-12b.md) | ⚪ PLANNED (Phase 5 seq 5) | load-probe — `mellum` arch likely needs the maintainer's mlx-lm fork |
 | [gemma-4-31b](gemma-4-31b.md) QAT GGUF | ⚪ PLANNED (Phase 5 seq 2) | engine A/B (llama.cpp Q4_0 QAT vs MLX 8-bit) |
 
