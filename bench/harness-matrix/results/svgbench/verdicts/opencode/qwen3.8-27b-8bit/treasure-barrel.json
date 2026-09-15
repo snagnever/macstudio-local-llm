@@ -1,0 +1,63 @@
+{
+  "artifact": "logs/opencode/qwen3.8-27b-8bit/treasure-barrel.svg",
+  "question_index": 13,
+  "render": "logs/renders/opencode/qwen3.8-27b-8bit/treasure-barrel.png",
+  "judge": {
+    "kind": "claude-vision",
+    "model": "claude-opus-5",
+    "date": "2026-09-07",
+    "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {
+      "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Show the sand mounded up slightly around the visible base of the barrel.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "The barrel must be open at the top and filled with treasure items.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+      "met": false,
+      "note": "The coin heap does mound above the rim, but nothing spills down a side onto the sand: the four coins on the barrel face are symmetric studs on the two hoops, and the six coins on the sand are scattered evenly to both sides with no connected trail."
+    },
+    {
+      "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+      "met": false,
+      "note": "Outside the barrel there are only six flat coins spread singly across the whole width of the sand, which is not a large pile."
+    },
+    {
+      "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+      "met": false,
+      "note": "Neither green nor blue is present: the gems are a red diamond, a yellow diamond and a teal diamond (35,165,154, hue 175 degrees), so there is no green emerald and no blue sapphire."
+    },
+    {
+      "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+      "met": false,
+      "note": "No pearls appear anywhere in the render."
+    },
+    {
+      "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+      "met": false,
+      "note": "No goblet appears anywhere in the render; the gold object above the coin heap is a crown."
+    },
+    {
+      "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
+      "met": false,
+      "note": "There is no goblet in the render, so the required glint on the goblet cannot be present."
+    }
+  ]
+}

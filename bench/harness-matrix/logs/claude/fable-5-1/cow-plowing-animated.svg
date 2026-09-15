@@ -1,0 +1,231 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8ec9ef"/>
+      <stop offset="1" stop-color="#d9eefb"/>
+    </linearGradient>
+    <linearGradient id="soil" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a5a33"/>
+      <stop offset="1" stop-color="#6b4423"/>
+    </linearGradient>
+  </defs>
+
+  <!-- sky -->
+  <rect x="0" y="0" width="960" height="330" fill="url(#sky)"/>
+  <circle cx="850" cy="80" r="46" fill="#ffd94d"/>
+  <circle cx="850" cy="80" r="60" fill="#ffd94d" opacity="0.25">
+    <animate attributeName="opacity" values="0.25;0.42;0.25" dur="4s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- clouds drifting -->
+  <g fill="#ffffff" opacity="0.9">
+    <g>
+      <ellipse cx="180" cy="80" rx="60" ry="22"/>
+      <ellipse cx="230" cy="70" rx="45" ry="18"/>
+      <ellipse cx="140" cy="70" rx="35" ry="15"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 50 3; 0 0" dur="40s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <ellipse cx="520" cy="120" rx="55" ry="18"/>
+      <ellipse cx="565" cy="110" rx="38" ry="14"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0; -60 -4; 0 0" dur="55s" repeatCount="indefinite"/>
+    </g>
+  </g>
+
+  <!-- distant hills -->
+  <path d="M0,330 Q160,240 340,320 Q480,260 640,315 Q800,250 960,320 L960,340 L0,340 Z" fill="#7fb069"/>
+
+  <!-- barn on the hill -->
+  <g>
+    <rect x="70" y="270" width="90" height="55" fill="#b5432e"/>
+    <polygon points="60,270 115,235 170,270" fill="#7c2d1c"/>
+    <rect x="103" y="295" width="24" height="30" fill="#5a1f12"/>
+    <rect x="82" y="282" width="16" height="14" fill="#e8d8b0"/>
+    <rect x="132" y="282" width="16" height="14" fill="#e8d8b0"/>
+  </g>
+
+  <!-- tree with gentle sway -->
+  <g>
+    <rect x="640" y="270" width="14" height="55" fill="#6b4a2b"/>
+    <g>
+      <circle cx="647" cy="250" r="38" fill="#4e8c3f"/>
+      <circle cx="620" cy="265" r="26" fill="#5da24c"/>
+      <circle cx="675" cy="265" r="26" fill="#5da24c"/>
+      <animateTransform attributeName="transform" type="rotate" values="0 647 325; 1.6 647 325; 0 647 325; -1.2 647 325; 0 647 325" dur="6s" repeatCount="indefinite"/>
+    </g>
+  </g>
+
+  <!-- grass field -->
+  <rect x="0" y="330" width="960" height="270" fill="#7cae5a"/>
+
+  <!-- plowed soil behind the plow -->
+  <path d="M694,600 L668,556 L678,512 L656,470 L668,428 L650,392 L666,358 L658,340
+           L960,340 L960,600 Z" fill="url(#soil)"/>
+  <g fill="#6b4423">
+    <ellipse cx="662" cy="352" rx="9" ry="5"/>
+    <ellipse cx="654" cy="398" rx="10" ry="6"/>
+    <ellipse cx="662" cy="434" rx="9" ry="5"/>
+    <ellipse cx="652" cy="474" rx="11" ry="6"/>
+    <ellipse cx="668" cy="518" rx="10" ry="6"/>
+    <ellipse cx="664" cy="560" rx="11" ry="6"/>
+  </g>
+
+  <!-- furrow lines -->
+  <g stroke="#4a2e14" stroke-width="6" fill="none" stroke-linecap="round">
+    <path d="M688,372 L960,372"/>
+    <path d="M678,415 L960,422"/>
+    <path d="M672,468 L960,482"/>
+    <path d="M690,535 L960,552"/>
+  </g>
+  <g stroke="#a4744a" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8">
+    <path d="M682,393 L960,396"/>
+    <path d="M674,440 L960,450"/>
+    <path d="M680,500 L960,515"/>
+  </g>
+
+  <!-- grass tufts -->
+  <g stroke="#4e7a34" stroke-width="3" fill="none" stroke-linecap="round">
+    <path d="M60,420 l-6,-18 M60,420 l0,-20 M60,420 l6,-18"/>
+    <path d="M150,500 l-6,-20 M150,500 l0,-24 M150,500 l6,-20"/>
+    <path d="M90,560 l-7,-22 M90,560 l0,-26 M90,560 l7,-22"/>
+    <path d="M230,440 l-6,-18 M230,440 l0,-22 M230,440 l6,-18"/>
+    <path d="M40,470 l-6,-18 M40,470 l0,-20 M40,470 l6,-18"/>
+    <path d="M180,560 l-6,-20 M180,560 l0,-24 M180,560 l6,-20"/>
+    <path d="M300,555 l-6,-20 M300,555 l0,-24 M300,555 l6,-20"/>
+    <path d="M560,570 l-6,-20 M560,570 l0,-24 M560,570 l6,-20"/>
+  </g>
+
+  <!-- ground shadows -->
+  <ellipse cx="400" cy="512" rx="150" ry="16" fill="#000000" opacity="0.12"/>
+  <ellipse cx="790" cy="550" rx="55" ry="10" fill="#000000" opacity="0.12"/>
+  <ellipse cx="668" cy="530" rx="45" ry="9" fill="#000000" opacity="0.10"/>
+
+  <!-- ==================== COW (facing left) ==================== -->
+  <g>
+    <!-- tail swishing -->
+    <g>
+      <path d="M512,362 Q544,398 534,458" stroke="#c8935f" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <ellipse cx="534" cy="466" rx="9" ry="14" fill="#6b4423"/>
+      <animateTransform attributeName="transform" type="rotate" values="0 512 362; 9 512 362; 0 512 362; -6 512 362; 0 512 362" dur="2.4s" repeatCount="indefinite"/>
+    </g>
+
+    <!-- far legs (darker), diagonal gait phase B -->
+    <g>
+      <rect x="330" y="430" width="20" height="72" rx="8" fill="#b07d4a"/>
+      <rect x="330" y="492" width="20" height="14" rx="4" fill="#4a3320"/>
+      <animateTransform attributeName="transform" type="rotate" values="0 340 434; -7 340 434; 0 340 434; 7 340 434; 0 340 434" dur="1.2s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <rect x="455" y="430" width="20" height="72" rx="8" fill="#b07d4a"/>
+      <rect x="455" y="492" width="20" height="14" rx="4" fill="#4a3320"/>
+      <animateTransform attributeName="transform" type="rotate" values="0 465 434; 7 465 434; 0 465 434; -7 465 434; 0 465 434" dur="1.2s" repeatCount="indefinite"/>
+    </g>
+
+    <!-- body -->
+    <ellipse cx="400" cy="388" rx="118" ry="64" fill="#d9a066"/>
+    <ellipse cx="448" cy="366" rx="40" ry="26" fill="#ffffff" opacity="0.85"/>
+    <ellipse cx="372" cy="414" rx="32" ry="22" fill="#ffffff" opacity="0.85"/>
+
+    <!-- udder -->
+    <ellipse cx="446" cy="444" rx="24" ry="17" fill="#f2b8c0"/>
+    <line x1="438" y1="452" x2="438" y2="462" stroke="#f2b8c0" stroke-width="6" stroke-linecap="round"/>
+    <line x1="452" y1="452" x2="452" y2="462" stroke="#f2b8c0" stroke-width="6" stroke-linecap="round"/>
+
+    <!-- near legs, diagonal gait phase A -->
+    <g>
+      <rect x="300" y="432" width="22" height="76" rx="8" fill="#d9a066"/>
+      <rect x="300" y="496" width="22" height="14" rx="4" fill="#3a2814"/>
+      <animateTransform attributeName="transform" type="rotate" values="0 311 436; 7 311 436; 0 311 436; -7 311 436; 0 311 436" dur="1.2s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <rect x="485" y="432" width="22" height="76" rx="8" fill="#d9a066"/>
+      <rect x="485" y="496" width="22" height="14" rx="4" fill="#3a2814"/>
+      <animateTransform attributeName="transform" type="rotate" values="0 496 436; -7 496 436; 0 496 436; 7 496 436; 0 496 436" dur="1.2s" repeatCount="indefinite"/>
+    </g>
+
+    <!-- head + neck nodding with the pull -->
+    <g>
+      <path d="M310,338 Q276,322 258,336 L268,392 Q300,408 322,392 Z" fill="#d9a066"/>
+      <ellipse cx="252" cy="352" rx="40" ry="33" fill="#d9a066"/>
+      <ellipse cx="226" cy="370" rx="27" ry="20" fill="#e8b98e"/>
+      <ellipse cx="218" cy="368" rx="4" ry="5" fill="#7a4a2a"/>
+      <ellipse cx="232" cy="372" rx="4" ry="5" fill="#7a4a2a"/>
+      <circle cx="262" cy="340" r="8" fill="#2b1b10"/>
+      <circle cx="265" cy="337" r="2.6" fill="#ffffff"/>
+      <ellipse cx="292" cy="326" rx="20" ry="11" fill="#c8935f" transform="rotate(-30 292 326)"/>
+      <ellipse cx="294" cy="325" rx="12" ry="6" fill="#e8b98e" transform="rotate(-30 294 325)"/>
+      <path d="M248,324 Q240,302 252,292" stroke="#e8dcc0" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M272,322 Q282,302 272,290" stroke="#e8dcc0" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <animateTransform attributeName="transform" type="rotate" values="0 314 364; 2.5 314 364; 0 314 364; -1.5 314 364; 0 314 364" dur="2.4s" repeatCount="indefinite"/>
+    </g>
+
+    <!-- girth band and collar -->
+    <path d="M337,330 Q327,388 335,448" stroke="#5a3a1e" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M304,332 Q294,362 300,398" stroke="#5a3a1e" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.9"/>
+  </g>
+
+  <!-- trace rope with a working tug -->
+  <path d="M336,446 Q470,486 612,464" stroke="#5a3a1e" stroke-width="7" fill="none" stroke-linecap="round">
+    <animate attributeName="d" values="M336,446 Q470,486 612,464; M336,446 Q470,478 612,464; M336,446 Q470,486 612,464" dur="1.2s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- ==================== PLOW ==================== -->
+  <g>
+    <path d="M608,462 L664,486" stroke="#8a5a2e" stroke-width="13" fill="none" stroke-linecap="round"/>
+    <path d="M646,470 Q676,468 692,498 Q698,514 682,522 L650,522 Q636,500 646,470 Z" fill="#a8adb2"/>
+    <path d="M650,522 L682,522 Q696,516 692,502 L706,522 L662,534 Z" fill="#7c8187"/>
+    <polygon points="640,516 668,528 636,532" fill="#5f6468"/>
+    <path d="M664,484 L740,408" stroke="#8a5a2e" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M680,500 L756,430" stroke="#6e4722" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <!-- turned earth curling off the blade -->
+    <path d="M636,530 Q668,504 706,524 Q690,544 650,542 Q634,540 636,530 Z" fill="#5a3a1c"/>
+    <ellipse cx="655" cy="537" rx="6" ry="4" fill="#4a2e14"/>
+    <ellipse cx="688" cy="534" rx="7" ry="4" fill="#4a2e14"/>
+    <!-- clod kicked up by the share -->
+    <ellipse cx="712" cy="530" rx="5" ry="3" fill="#4a2e14">
+      <animateTransform attributeName="transform" type="translate" values="0 0; -8 -12; -14 -4; 0 0" dur="0.9s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.9;0.5;1" dur="0.9s" repeatCount="indefinite"/>
+    </ellipse>
+    <ellipse cx="648" cy="536" rx="4" ry="3" fill="#4a2e14">
+      <animateTransform attributeName="transform" type="translate" values="0 0; -6 -10; -10 -2; 0 0" dur="0.7s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.85;0.4;1" dur="0.7s" repeatCount="indefinite"/>
+    </ellipse>
+  </g>
+
+  <!-- ==================== FARMER, trudging behind ==================== -->
+  <g>
+    <g>
+      <path d="M796,478 L776,545" stroke="#3f5d8a" stroke-width="14" fill="none" stroke-linecap="round"/>
+      <rect x="762" y="541" width="26" height="12" rx="4" fill="#3a2814"/>
+      <animateTransform attributeName="transform" type="rotate" values="0 796 478; 6 796 478; 0 796 478; -6 796 478; 0 796 478" dur="1.2s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <path d="M796,478 L816,545" stroke="#3f5d8a" stroke-width="14" fill="none" stroke-linecap="round"/>
+      <rect x="808" y="541" width="26" height="12" rx="4" fill="#3a2814"/>
+      <animateTransform attributeName="transform" type="rotate" values="0 796 478; -6 796 478; 0 796 478; 6 796 478; 0 796 478" dur="1.2s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <path d="M796,482 L788,418" stroke="#b5432e" stroke-width="22" fill="none" stroke-linecap="round"/>
+      <path d="M788,428 L744,410" stroke="#b5432e" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path d="M790,448 L760,432" stroke="#b5432e" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <circle cx="742" cy="409" r="7" fill="#e8b98e"/>
+      <circle cx="758" cy="431" r="7" fill="#e8b98e"/>
+      <circle cx="790" cy="396" r="16" fill="#e8b98e"/>
+      <path d="M768,388 L812,388 L808,380 Q790,368 774,380 Z" fill="#d8a832"/>
+      <ellipse cx="790" cy="388" rx="24" ry="5" fill="#c09428"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 0 2; 0 0; 0 2; 0 0" dur="1.2s" repeatCount="indefinite"/>
+    </g>
+  </g>
+
+  <!-- birds circling -->
+  <g stroke="#3c4c5a" stroke-width="3" fill="none" stroke-linecap="round">
+    <g>
+      <path d="M380,90 q10,-10 20,0 q10,-10 20,0"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0; -45 -10; 0 0" dur="14s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <path d="M450,60 q8,-8 16,0 q8,-8 16,0"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 35 8; 0 0" dur="18s" repeatCount="indefinite"/>
+    </g>
+  </g>
+</svg>

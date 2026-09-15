@@ -1,0 +1,268 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fd3ee"/>
+      <stop offset="1" stop-color="#eaf8fd"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dcc79b"/>
+      <stop offset="1" stop-color="#c2a670"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b57f45"/>
+      <stop offset="1" stop-color="#8a5a2b"/>
+    </linearGradient>
+    <radialGradient id="gApple" cx="35%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#ff8a80"/><stop offset="1" stop-color="#c62828"/>
+    </radialGradient>
+    <radialGradient id="gOrange" cx="35%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#ffcc80"/><stop offset="1" stop-color="#e65100"/>
+    </radialGradient>
+    <radialGradient id="gLemon" cx="35%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#fff59d"/><stop offset="1" stop-color="#f9a825"/>
+    </radialGradient>
+    <radialGradient id="gGrape" cx="35%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#ce93d8"/><stop offset="1" stop-color="#6a1b9a"/>
+    </radialGradient>
+    <radialGradient id="gMelon" cx="35%" cy="30%" r="85%">
+      <stop offset="0" stop-color="#66bb6a"/><stop offset="1" stop-color="#1b5e20"/>
+    </radialGradient>
+    <radialGradient id="gFlesh" cx="45%" cy="40%" r="75%">
+      <stop offset="0" stop-color="#ff8a80"/><stop offset="1" stop-color="#e53935"/>
+    </radialGradient>
+    <radialGradient id="gBanana" cx="35%" cy="30%" r="85%">
+      <stop offset="0" stop-color="#fff59d"/><stop offset="1" stop-color="#e0a800"/>
+    </radialGradient>
+    <clipPath id="clipW1"><circle cx="340" cy="806" r="52"/></clipPath>
+    <clipPath id="clipW2"><circle cx="436" cy="820" r="40"/></clipPath>
+  </defs>
+
+  <!-- sky -->
+  <rect width="1200" height="840" fill="url(#sky)"/>
+  <!-- sun -->
+  <circle cx="1052" cy="148" r="78" fill="#ffe08a" opacity="0.4"/>
+  <circle cx="1052" cy="148" r="50" fill="#ffd75e"/>
+  <!-- clouds -->
+  <g fill="#ffffff">
+    <ellipse cx="250" cy="205" rx="72" ry="26"/><ellipse cx="310" cy="188" rx="52" ry="20"/><ellipse cx="206" cy="192" rx="42" ry="17"/>
+    <ellipse cx="770" cy="150" rx="60" ry="20"/><ellipse cx="822" cy="140" rx="42" ry="15"/>
+  </g>
+
+  <!-- background shop left -->
+  <g>
+    <rect x="15" y="585" width="215" height="255" fill="#cfe2ea"/>
+    <rect x="15" y="585" width="215" height="18" fill="#b7d2dc"/>
+    <rect x="60" y="700" width="55" height="140" fill="#b7d2dc"/>
+    <rect x="150" y="640" width="52" height="52" fill="#b7d2dc"/>
+  </g>
+  <!-- background shop right -->
+  <g>
+    <rect x="985" y="625" width="210" height="215" fill="#d8e8ee"/>
+    <rect x="985" y="625" width="210" height="16" fill="#bdd6de"/>
+    <rect x="1030" y="680" width="55" height="55" fill="#bdd6de"/>
+  </g>
+  <!-- tree right -->
+  <rect x="1100" y="585" width="20" height="255" fill="#8d6e63"/>
+  <g>
+    <circle cx="1112" cy="540" r="72" fill="#8bc34a"/>
+    <circle cx="1172" cy="582" r="55" fill="#7cb342"/>
+    <circle cx="1050" cy="588" r="50" fill="#7cb342"/>
+  </g>
+
+  <!-- ground -->
+  <rect y="840" width="1200" height="360" fill="url(#ground)"/>
+  <rect y="840" width="1200" height="10" fill="#b39a6a"/>
+  <!-- stall ground shadow -->
+  <ellipse cx="600" cy="852" rx="430" ry="14" fill="#000" opacity="0.12"/>
+  <polygon points="220,846 980,846 900,930 150,930" fill="#000" opacity="0.06"/>
+
+  <!-- stall back wall -->
+  <rect x="240" y="400" width="720" height="300" fill="#f2e6cf"/>
+  <rect x="240" y="400" width="720" height="60" fill="#000" opacity="0.08"/>
+  <rect x="240" y="400" width="720" height="300" fill="none" stroke="#7a4a22" stroke-width="6"/>
+
+  <!-- awning canopy stripes -->
+  <g>
+    <polygon points="220,320 296,320 328,256 260,256" fill="#d94f3d"/>
+    <polygon points="296,320 372,320 396,256 328,256" fill="#fdf0e0"/>
+    <polygon points="372,320 448,320 464,256 396,256" fill="#d94f3d"/>
+    <polygon points="448,320 524,320 532,256 464,256" fill="#fdf0e0"/>
+    <polygon points="524,320 600,320 600,256 532,256" fill="#d94f3d"/>
+    <polygon points="600,320 676,320 668,256 600,256" fill="#fdf0e0"/>
+    <polygon points="676,320 752,320 736,256 668,256" fill="#d94f3d"/>
+    <polygon points="752,320 828,320 804,256 736,256" fill="#fdf0e0"/>
+    <polygon points="828,320 904,320 872,256 804,256" fill="#d94f3d"/>
+    <polygon points="904,320 980,320 940,256 872,256" fill="#fdf0e0"/>
+  </g>
+  <!-- awning front band -->
+  <g>
+    <rect x="220" y="320" width="76" height="82" fill="#d94f3d"/>
+    <rect x="296" y="320" width="76" height="82" fill="#fdf0e0"/>
+    <rect x="372" y="320" width="76" height="82" fill="#d94f3d"/>
+    <rect x="448" y="320" width="76" height="82" fill="#fdf0e0"/>
+    <rect x="524" y="320" width="76" height="82" fill="#d94f3d"/>
+    <rect x="600" y="320" width="76" height="82" fill="#fdf0e0"/>
+    <rect x="676" y="320" width="76" height="82" fill="#d94f3d"/>
+    <rect x="752" y="320" width="76" height="82" fill="#fdf0e0"/>
+    <rect x="828" y="320" width="76" height="82" fill="#d94f3d"/>
+    <rect x="904" y="320" width="76" height="82" fill="#fdf0e0"/>
+  </g>
+  <rect x="214" y="312" width="772" height="10" rx="5" fill="#b23b2c"/>
+  <!-- scallops, colors matching stripes -->
+  <g>
+    <path d="M220 402 a38 38 0 0 0 76 0 Z" fill="#d94f3d"/>
+    <path d="M296 402 a38 38 0 0 0 76 0 Z" fill="#fdf0e0"/>
+    <path d="M372 402 a38 38 0 0 0 76 0 Z" fill="#d94f3d"/>
+    <path d="M448 402 a38 38 0 0 0 76 0 Z" fill="#fdf0e0"/>
+    <path d="M524 402 a38 38 0 0 0 76 0 Z" fill="#d94f3d"/>
+    <path d="M600 402 a38 38 0 0 0 76 0 Z" fill="#fdf0e0"/>
+    <path d="M676 402 a38 38 0 0 0 76 0 Z" fill="#d94f3d"/>
+    <path d="M752 402 a38 38 0 0 0 76 0 Z" fill="#fdf0e0"/>
+    <path d="M828 402 a38 38 0 0 0 76 0 Z" fill="#d94f3d"/>
+    <path d="M904 402 a38 38 0 0 0 76 0 Z" fill="#fdf0e0"/>
+  </g>
+
+  <!-- poles -->
+  <rect x="218" y="400" width="14" height="455" fill="#7a4a22"/>
+  <rect x="966" y="400" width="14" height="455" fill="#6e421d"/>
+
+  <!-- shelf -->
+  <rect x="470" y="560" width="490" height="14" fill="#8a5a2b"/>
+  <rect x="470" y="574" width="490" height="10" fill="#000" opacity="0.07"/>
+  <!-- oranges pyramid on shelf -->
+  <g fill="url(#gOrange)">
+    <circle cx="510" cy="534" r="25"/><circle cx="562" cy="534" r="25"/><circle cx="614" cy="534" r="25"/>
+    <circle cx="536" cy="502" r="25"/><circle cx="588" cy="502" r="25"/>
+    <circle cx="562" cy="472" r="25"/>
+  </g>
+  <!-- apples on shelf -->
+  <g>
+    <circle cx="680" cy="534" r="25" fill="url(#gApple)"/>
+    <circle cx="732" cy="534" r="25" fill="url(#gApple)"/>
+    <circle cx="784" cy="534" r="25" fill="url(#gApple)"/>
+    <circle cx="706" cy="502" r="25" fill="url(#gApple)"/>
+    <circle cx="758" cy="502" r="25" fill="url(#gApple)"/>
+    <g stroke="#5d4037" stroke-width="3">
+      <line x1="680" y1="511" x2="680" y2="503"/><line x1="732" y1="511" x2="732" y2="503"/><line x1="784" y1="511" x2="784" y2="503"/>
+    </g>
+    <g fill="#43a047">
+      <path d="M682 503 q10 -12 22 -8 q-6 14 -22 8 z"/>
+      <path d="M734 503 q10 -12 22 -8 q-6 14 -22 8 z"/>
+    </g>
+  </g>
+  <!-- grapes in basket -->
+  <g>
+    <circle cx="856" cy="516" r="13" fill="url(#gGrape)"/><circle cx="886" cy="516" r="13" fill="url(#gGrape)"/><circle cx="916" cy="516" r="13" fill="url(#gGrape)"/>
+    <circle cx="871" cy="492" r="13" fill="url(#gGrape)"/><circle cx="901" cy="492" r="13" fill="url(#gGrape)"/>
+    <circle cx="886" cy="468" r="13" fill="url(#gGrape)"/>
+    <path d="M886 452 q4 -12 14 -14" stroke="#5d4037" stroke-width="3" fill="none"/>
+    <path d="M834 528 h104 l-12 34 h-80 z" fill="#a1662f"/>
+    <path d="M838 540 h96" stroke="#7a4a22" stroke-width="4"/>
+  </g>
+
+  <!-- hanging chalkboard -->
+  <g>
+    <line x1="300" y1="440" x2="308" y2="486" stroke="#4a4a4a" stroke-width="3"/>
+    <line x1="420" y1="440" x2="412" y2="486" stroke="#4a4a4a" stroke-width="3"/>
+    <rect x="282" y="484" width="156" height="118" rx="8" fill="#33443a" stroke="#7a4a22" stroke-width="8"/>
+    <text x="360" y="524" text-anchor="middle" font-family="'Marker Felt','Chalkduster','Segoe Print',sans-serif" font-size="27" fill="#f4f1e4">FRESH</text>
+    <text x="360" y="556" text-anchor="middle" font-family="'Marker Felt','Chalkduster','Segoe Print',sans-serif" font-size="27" fill="#f4f1e4">FRUIT</text>
+    <text x="360" y="588" text-anchor="middle" font-family="'Marker Felt','Chalkduster','Segoe Print',sans-serif" font-size="22" fill="#ffd75e">$2 / kg</text>
+  </g>
+
+  <!-- counter -->
+  <rect x="205" y="700" width="790" height="30" fill="url(#wood)"/>
+  <rect x="205" y="730" width="790" height="12" fill="#000" opacity="0.12"/>
+  <rect x="215" y="742" width="770" height="98" fill="#7c4f26"/>
+  <g stroke="#6a4220" stroke-width="4">
+    <line x1="310" y1="742" x2="310" y2="840"/><line x1="410" y1="742" x2="410" y2="840"/>
+    <line x1="510" y1="742" x2="510" y2="840"/><line x1="610" y1="742" x2="610" y2="840"/>
+    <line x1="710" y1="742" x2="710" y2="840"/><line x1="810" y1="742" x2="810" y2="840"/>
+    <line x1="910" y1="742" x2="910" y2="840"/>
+  </g>
+  <rect x="215" y="828" width="770" height="12" fill="#5f3a1c"/>
+
+  <!-- crate A: apples -->
+  <g>
+    <g fill="url(#gApple)">
+      <circle cx="295" cy="644" r="27"/><circle cx="350" cy="644" r="27"/><circle cx="405" cy="644" r="27"/>
+      <circle cx="322" cy="614" r="27"/><circle cx="377" cy="614" r="27"/>
+    </g>
+    <g stroke="#5d4037" stroke-width="3">
+      <line x1="322" y1="589" x2="322" y2="581"/><line x1="377" y1="589" x2="377" y2="581"/>
+    </g>
+    <path d="M324 581 q10 -12 22 -8 q-6 14 -22 8 z" fill="#43a047"/>
+    <rect x="255" y="656" width="180" height="46" fill="#b57f45" stroke="#7a4a22" stroke-width="4"/>
+    <line x1="259" y1="678" x2="431" y2="678" stroke="#96692f" stroke-width="4"/>
+  </g>
+  <!-- crate B: oranges -->
+  <g>
+    <g fill="url(#gOrange)">
+      <circle cx="497" cy="644" r="27"/><circle cx="552" cy="644" r="27"/><circle cx="607" cy="644" r="27"/>
+      <circle cx="524" cy="614" r="27"/><circle cx="579" cy="614" r="27"/>
+    </g>
+    <rect x="457" y="656" width="180" height="46" fill="#b57f45" stroke="#7a4a22" stroke-width="4"/>
+    <line x1="461" y1="678" x2="633" y2="678" stroke="#96692f" stroke-width="4"/>
+  </g>
+  <!-- crate C: lemons -->
+  <g>
+    <g fill="url(#gLemon)">
+      <ellipse cx="699" cy="646" rx="28" ry="21"/><ellipse cx="754" cy="646" rx="28" ry="21"/><ellipse cx="809" cy="646" rx="28" ry="21"/>
+      <ellipse cx="726" cy="618" rx="28" ry="21"/><ellipse cx="781" cy="618" rx="28" ry="21"/>
+    </g>
+    <rect x="659" y="656" width="180" height="46" fill="#b57f45" stroke="#7a4a22" stroke-width="4"/>
+    <line x1="663" y1="678" x2="835" y2="678" stroke="#96692f" stroke-width="4"/>
+  </g>
+  <!-- banana bunch -->
+  <g transform="translate(898,704)" stroke="#c79100" stroke-width="2.5">
+    <g transform="rotate(-18)"><path d="M0 0 C 10 -30 48 -46 80 -32 C 66 -10 30 4 8 8 Z" fill="url(#gBanana)"/></g>
+    <g transform="rotate(-4)"><path d="M0 0 C 10 -30 48 -46 80 -32 C 66 -10 30 4 8 8 Z" fill="url(#gBanana)"/></g>
+    <g transform="rotate(10)"><path d="M0 0 C 10 -30 48 -46 80 -32 C 66 -10 30 4 8 8 Z" fill="url(#gBanana)"/></g>
+    <circle cx="2" cy="2" r="6" fill="#6d4c41" stroke="none"/>
+  </g>
+
+  <!-- watermelons front -->
+  <ellipse cx="345" cy="866" rx="66" ry="10" fill="#000" opacity="0.14"/>
+  <ellipse cx="440" cy="868" rx="52" ry="9" fill="#000" opacity="0.14"/>
+  <circle cx="340" cy="806" r="52" fill="url(#gMelon)"/>
+  <g clip-path="url(#clipW1)" stroke="#124d19" stroke-width="9" fill="none" stroke-linecap="round">
+    <path d="M318 756 C 302 784 302 830 322 856"/>
+    <path d="M340 754 C 334 782 334 832 342 858"/>
+    <path d="M362 758 C 374 786 374 826 360 852"/>
+  </g>
+  <circle cx="436" cy="820" r="40" fill="url(#gMelon)"/>
+  <g clip-path="url(#clipW2)" stroke="#124d19" stroke-width="8" fill="none" stroke-linecap="round">
+    <path d="M418 782 C 406 802 406 838 420 858"/>
+    <path d="M436 780 C 431 800 431 840 438 860"/>
+    <path d="M456 784 C 466 804 466 836 454 856"/>
+  </g>
+  <!-- cut half -->
+  <ellipse cx="516" cy="870" rx="48" ry="8" fill="#000" opacity="0.14"/>
+  <circle cx="516" cy="824" r="46" fill="#2e7d32"/>
+  <circle cx="516" cy="824" r="39" fill="#f1f8e9"/>
+  <circle cx="516" cy="824" r="33" fill="url(#gFlesh)"/>
+  <g fill="#331b1b">
+    <ellipse cx="506" cy="812" rx="3.5" ry="6"/>
+    <ellipse cx="528" cy="818" rx="3.5" ry="6"/>
+    <ellipse cx="514" cy="838" rx="3.5" ry="6"/>
+  </g>
+
+  <!-- stacked crates right -->
+  <ellipse cx="1082" cy="860" rx="78" ry="11" fill="#000" opacity="0.14"/>
+  <rect x="1010" y="790" width="150" height="60" fill="#b57f45" stroke="#7a4a22" stroke-width="4"/>
+  <line x1="1014" y1="820" x2="1156" y2="820" stroke="#96692f" stroke-width="4"/>
+  <rect x="1030" y="736" width="140" height="54" fill="#b57f45" stroke="#7a4a22" stroke-width="4"/>
+  <g fill="url(#gOrange)">
+    <circle cx="1062" cy="726" r="22"/><circle cx="1106" cy="726" r="22"/><circle cx="1150" cy="726" r="22"/>
+    <circle cx="1084" cy="700" r="22"/>
+  </g>
+
+  <!-- cobble hints -->
+  <g fill="#000" opacity="0.05">
+    <ellipse cx="140" cy="980" rx="70" ry="16"/>
+    <ellipse cx="380" cy="1050" rx="90" ry="18"/>
+    <ellipse cx="820" cy="1000" rx="80" ry="16"/>
+    <ellipse cx="1060" cy="1060" rx="70" ry="15"/>
+    <ellipse cx="600" cy="1120" rx="110" ry="20"/>
+  </g>
+</svg>

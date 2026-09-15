@@ -1,0 +1,321 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <title>A draft cow plowing a field (v4, animated)</title>
+  <desc>The cow plods left on a short thick neck with an alert raised head, solid tapered limbs cycling in a slow walk; a clean trace runs from collar to a dark angled moldboard half-buried in tumbling clods, a single rein arcs from halter to the leaning farmer's hands; clouds drift, birds glide, the sun halo pulses.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7ec8ea"/>
+      <stop offset="1" stop-color="#eaf5fb"/>
+    </linearGradient>
+    <linearGradient id="field" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b98d5e"/>
+      <stop offset="0.45" stop-color="#8a5a33"/>
+      <stop offset="1" stop-color="#63401f"/>
+    </linearGradient>
+    <linearGradient id="tilth" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c28c50"/>
+      <stop offset="1" stop-color="#8f5f33"/>
+    </linearGradient>
+    <clipPath id="stripClip">
+      <path d="M496,502 L800,552 L800,600 L556,600 C530,560 508,528 496,502 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- sky -->
+  <rect x="0" y="0" width="800" height="600" fill="#eaf5fb"/>
+  <rect x="0" y="0" width="800" height="274" fill="url(#sky)"/>
+
+  <!-- sun upper-left with pulsing halo (4.8s = two walk beats) -->
+  <circle cx="98" cy="86" r="52" fill="#ffdf6b" opacity="0.3">
+    <animate attributeName="r" values="52;60;52" dur="4.8s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    <animate attributeName="opacity" values="0.3;0.16;0.3" dur="4.8s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+  </circle>
+  <circle cx="98" cy="86" r="34" fill="#ffdf6b" stroke="#f4c542" stroke-width="2"/>
+
+  <!-- clouds drifting left->right, duplicated one canvas-width back for a seamless 30s loop -->
+  <g fill="#ffffff" opacity="0.92">
+    <animateTransform attributeName="transform" type="translate" from="0 0" to="800 0" dur="30s" repeatCount="indefinite"/>
+    <ellipse cx="554" cy="76" rx="28" ry="13"/>
+    <ellipse cx="580" cy="64" rx="42" ry="16"/>
+    <ellipse cx="608" cy="76" rx="30" ry="13"/>
+    <ellipse cx="312" cy="102" rx="20" ry="9"/>
+    <ellipse cx="334" cy="94" rx="29" ry="11"/>
+    <ellipse cx="356" cy="102" rx="20" ry="9"/>
+    <ellipse cx="-246" cy="76" rx="28" ry="13"/>
+    <ellipse cx="-220" cy="64" rx="42" ry="16"/>
+    <ellipse cx="-192" cy="76" rx="30" ry="13"/>
+    <ellipse cx="-488" cy="102" rx="20" ry="9"/>
+    <ellipse cx="-466" cy="94" rx="29" ry="11"/>
+    <ellipse cx="-444" cy="102" rx="20" ry="9"/>
+  </g>
+
+  <!-- gliding birds -->
+  <g fill="none" stroke="#4a4a4a" stroke-width="2.4" stroke-linecap="round">
+    <g>
+      <animateMotion path="M-40,100 C240,84 520,118 850,96" dur="26s" begin="-4s" repeatCount="indefinite"/>
+      <path d="M-8,0 Q-4,-7 0,0 Q4,-7 8,0">
+        <animate attributeName="d" values="M-8,0 Q-4,-7 0,0 Q4,-7 8,0;M-8,1 Q-4,4 0,0 Q4,4 8,1;M-8,0 Q-4,-7 0,0 Q4,-7 8,0" dur="0.7s" repeatCount="indefinite"/>
+      </path>
+    </g>
+    <g>
+      <animateMotion path="M-40,134 C260,118 540,146 850,128" dur="26s" begin="-16s" repeatCount="indefinite"/>
+      <path d="M-6,0 Q-3,-6 0,0 Q3,-6 6,0">
+        <animate attributeName="d" values="M-6,0 Q-3,-6 0,0 Q3,-6 6,0;M-6,1 Q-3,4 0,0 Q3,4 6,1;M-6,0 Q-3,-6 0,0 Q3,-6 6,0" dur="0.86s" repeatCount="indefinite"/>
+      </path>
+    </g>
+  </g>
+
+  <!-- distant hills, barn, trees -->
+  <path d="M0,248 Q140,200 300,244 Q450,272 620,240 Q720,224 800,246 L800,278 L0,278 Z" fill="#9dbb85"/>
+  <path d="M0,262 Q200,238 420,260 Q620,278 800,254 L800,280 L0,280 Z" fill="#6f9463"/>
+  <g>
+    <rect x="672" y="228" width="52" height="32" fill="#a5432e"/>
+    <path d="M664,230 L698,206 L732,230 Z" fill="#5a3a2e"/>
+    <rect x="690" y="242" width="14" height="18" fill="#3d2b22"/>
+    <rect x="66" y="232" width="6" height="28" fill="#5f4630"/>
+    <circle cx="69" cy="226" r="16" fill="#4f7a44"/>
+    <rect x="104" y="242" width="5" height="20" fill="#5f4630"/>
+    <circle cx="106" cy="236" r="12" fill="#59844d"/>
+    <rect x="762" y="238" width="5" height="24" fill="#5f4630"/>
+    <circle cx="764" cy="232" r="14" fill="#4f7a44"/>
+  </g>
+
+  <!-- field base -->
+  <rect x="0" y="272" width="800" height="328" fill="url(#field)"/>
+
+  <!-- furrows converging gently to the far left -->
+  <g fill="none" stroke="#6d4526" stroke-linecap="round">
+    <path d="M0,282 L800,292" stroke-width="1.2"/>
+    <path d="M0,291 L800,306" stroke-width="1.6"/>
+    <path d="M0,302 L800,322" stroke-width="2"/>
+    <path d="M0,315 L800,342" stroke-width="2.4"/>
+    <path d="M0,330 L800,366" stroke-width="2.8"/>
+    <path d="M0,348 L800,396" stroke-width="3.4"/>
+    <path d="M0,369 L800,434" stroke-width="4"/>
+    <path d="M0,395 L800,482" stroke-width="4.8"/>
+    <path d="M0,426 L800,540" stroke-width="5.6"/>
+    <path d="M0,468 L620,600" stroke-width="6.5"/>
+    <path d="M0,528 L250,600" stroke-width="7.5"/>
+  </g>
+  <g fill="none" stroke="#c39a67" stroke-width="1.4" opacity="0.35">
+    <path d="M0,295 L800,310"/>
+    <path d="M0,320 L800,347"/>
+    <path d="M0,354 L800,402"/>
+    <path d="M0,402 L800,489"/>
+    <path d="M0,474 L620,600"/>
+  </g>
+  <g stroke="#8a6136" stroke-width="2.5" opacity="0.7" stroke-linecap="round">
+    <path d="M650,346 v-6"/>
+    <path d="M726,375 v-6"/>
+    <path d="M560,352 v-6"/>
+    <path d="M760,410 v-7"/>
+    <path d="M688,442 v-7"/>
+    <path d="M210,340 v-6"/>
+  </g>
+
+  <!-- fresh plowed strip widening to the lower-right -->
+  <path d="M496,502 L800,552 L800,600 L556,600 C530,560 508,528 496,502 Z" fill="url(#tilth)"/>
+  <g clip-path="url(#stripClip)" fill="none">
+    <path d="M506,512 C600,540 700,562 800,572" stroke="#7a4e26" stroke-width="3" opacity="0.8"/>
+    <path d="M502,508 C610,552 710,576 800,592" stroke="#7a4e26" stroke-width="2.5" opacity="0.8"/>
+    <path d="M508,506 C612,546 712,570 800,585" stroke="#c89258" stroke-width="1.5" opacity="0.5"/>
+  </g>
+  <!-- irregular clods scattered in a V that widens behind the plow -->
+  <g clip-path="url(#stripClip)" stroke="#4f3015" stroke-width="1">
+    <path d="M530,526 L540,524 L544,531 L536,535 L529,532 Z" fill="#6b4423"/>
+    <path d="M552,550 L565,548 L570,557 L561,563 L552,559 Z" fill="#5f3d1d"/>
+    <path d="M590,544 L601,542 L604,550 L594,554 Z" fill="#75491f"/>
+    <path d="M568,585 L581,583 L585,592 L574,596 Z" fill="#6b4423"/>
+    <path d="M600,570 L615,567 L621,577 L611,584 L601,579 Z" fill="#6b4423"/>
+    <path d="M644,556 L656,554 L659,562 L648,565 Z" fill="#a56f3a"/>
+    <path d="M652,585 L668,582 L675,593 L664,600 L653,594 Z" fill="#573619"/>
+    <path d="M693,568 L707,565 L712,575 L701,580 L692,576 Z" fill="#6b4423"/>
+    <path d="M721,590 L737,588 L742,597 L730,600 L720,597 Z" fill="#a56f3a"/>
+    <path d="M754,578 L767,576 L770,584 L758,587 Z" fill="#5f3d1d"/>
+    <path d="M776,592 L792,589 L796,598 L782,600 Z" fill="#6b4423"/>
+    <path d="M518,518 L527,515 L532,521 L528,528 L520,529 Z" fill="#75491f" transform="rotate(16 525 522)"/>
+    <path d="M546,566 L558,563 L564,570 L559,578 L549,579 Z" fill="#573619"/>
+    <path d="M620,534 L630,530 L637,536 L633,544 L624,545 Z" fill="#8a5a2f" transform="rotate(-18 628 538)"/>
+    <path d="M676,542 L684,539 L689,544 L686,550 L679,551 Z" fill="#6b4423"/>
+    <path d="M712,558 L723,555 L729,561 L725,568 L716,569 Z" fill="#4f3015"/>
+    <path d="M744,570 L753,567 L759,573 L755,580 L747,581 Z" fill="#75491f"/>
+  </g>
+  <path d="M496,502 L800,552" fill="none" stroke="#4a2d12" stroke-width="3" stroke-linecap="round"/>
+  <path d="M498,499 L800,549" fill="none" stroke="#d0a068" stroke-width="1.2" opacity="0.6"/>
+  <!-- clods thrown clear of the slice, widening the V -->
+  <g stroke="#4f3015" stroke-width="1">
+    <path d="M500,508 L508,505 L513,510 L507,515 L500,512 Z" fill="#6b4423"/>
+    <path d="M514,500 L523,498 L527,504 L520,508 L514,505 Z" fill="#75491f"/>
+    <path d="M490,514 L499,512 L503,518 L495,522 L489,519 Z" fill="#5f3d1d"/>
+    <path d="M472,502 L481,499 L485,505 L479,509 L472,507 Z" fill="#6b4423"/>
+    <path d="M460,508 L467,506 L470,511 L465,514 Z" fill="#5f3d1d"/>
+  </g>
+
+  <!-- cast shadows: sun at upper-left, shadows to the lower-right -->
+  <g fill="#000000" transform="rotate(6 400 520)">
+    <ellipse cx="330" cy="530" rx="150" ry="14" opacity="0.16"/>
+    <ellipse cx="532" cy="520" rx="46" ry="9" opacity="0.15"/>
+    <ellipse cx="632" cy="552" rx="46" ry="9" opacity="0.15"/>
+    <ellipse cx="262" cy="528" rx="26" ry="6" opacity="0.14"/>
+    <ellipse cx="360" cy="516" rx="22" ry="5" opacity="0.14"/>
+    <ellipse cx="470" cy="528" rx="24" ry="6" opacity="0.14"/>
+    <ellipse cx="408" cy="516" rx="20" ry="5" opacity="0.14"/>
+  </g>
+
+  <!-- ================= COW (bob group: +-3px at the 2.4s cadence) ================= -->
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0;0 3;0 0" keyTimes="0;0.5;1" dur="2.4s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+
+    <!-- tail: thin tapering rope with a tuft, slow flick every two beats -->
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="0 456 350;12 456 350;0 456 350;-6 456 350;0 456 350" keyTimes="0;0.3;0.5;0.75;1" dur="4.8s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1;0.42 0 0.58 1;0.42 0 0.58 1"/>
+      <path d="M454,346 C470,368 476,394 472,418" fill="none" stroke="#2b2b2b" stroke-width="6" stroke-linecap="round"/>
+      <path d="M471,413 c-7,9 -5,19 2,25 c8,-6 9,-18 3,-26 Z" fill="#2b2b2b"/>
+    </g>
+
+    <!-- far legs: darker shade of the coat, opposite phase to the near foreleg -->
+    <g fill="#ded5c3" stroke="#2b2b2b" stroke-width="3" stroke-linejoin="round">
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="11 306 414;-13 306 414;11 306 414" keyTimes="0;0.5;1" dur="2.4s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+        <path d="M294,412 L320,414 L314,456 L306,498 L290,498 L296,456 Z"/>
+        <path d="M288,494 L310,494 L312,512 L284,512 Z" fill="#2b2b2b"/>
+      </g>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="-13 422 438;11 422 438;-13 422 438" keyTimes="0;0.5;1" dur="2.4s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+        <path d="M408,436 L436,432 L446,468 L448,486 L442,500 L426,500 L428,486 L420,468 Z"/>
+        <path d="M424,496 L446,496 L450,514 L420,514 Z" fill="#2b2b2b"/>
+      </g>
+    </g>
+
+    <!-- head on a short thick neck, straight topline, alert forward ears; nods with the stride -->
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="-1.6 286 348;1.6 286 348;-1.6 286 348" keyTimes="0;0.5;1" dur="2.4s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+      <g transform="translate(24,8)">
+      <path d="M196,300 C184,288 170,282 156,284 C154,294 162,306 176,312 Z" fill="#e2d6b4" stroke="#2b2b2b" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M206,286 C202,272 192,264 180,262 C178,272 186,284 198,292 Z" fill="#d8caa8" stroke="#2b2b2b" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M296,342 L212,288 C200,296 195,312 200,328 C222,358 252,384 284,402 C298,384 302,362 296,342 Z" fill="#f6f1e6" stroke="#2b2b2b" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M214,292 C197,284 177,288 164,300 C152,311 145,324 146,335 C148,345 157,350 168,348 C182,345 196,336 206,325 C214,315 218,301 214,292 Z" fill="#f6f1e6" stroke="#2b2b2b" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M164,300 C152,311 145,324 146,335 C148,345 157,350 168,348 C176,346 183,342 189,337 C180,326 171,312 164,300 Z" fill="#e3c3ba"/>
+      <path d="M150,338 Q160,347 171,344" fill="none" stroke="#8a6156" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="157" cy="327" r="2.6" fill="#2b2b2b"/>
+      <circle cx="190" cy="308" r="6" fill="#2b2b2b"/>
+      <circle cx="192.2" cy="305.8" r="1.8" fill="#ffffff"/>
+      <path d="M218,292 C216,274 204,262 188,258 C185,270 192,286 206,296 Z" fill="#efe6d4" stroke="#2b2b2b" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M150,316 Q166,328 184,326" fill="none" stroke="#4a3018" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="162" cy="346" r="4.5" fill="none" stroke="#4a3018" stroke-width="2.5"/>
+      </g>
+    </g>
+
+    <!-- body -->
+    <path d="M272,348 C310,336 352,334 396,340 C428,345 452,352 462,364 C470,376 470,396 466,414 C460,434 448,450 436,452 C402,462 352,462 320,454 C294,448 278,436 272,420 C268,400 268,368 272,348 Z" fill="#f6f1e6" stroke="#2b2b2b" stroke-width="3.5" stroke-linejoin="round"/>
+    <g fill="#332f2c">
+      <path d="M282,352 Q304,342 322,352 Q328,376 314,392 Q298,396 292,382 Q282,368 282,352 Z"/>
+      <path d="M376,340 Q408,334 430,348 Q438,366 424,376 Q400,380 384,370 Q372,356 376,340 Z"/>
+      <path d="M444,356 Q458,356 464,368 Q460,380 448,376 Q440,366 444,356 Z"/>
+    </g>
+
+    <!-- near foreleg: solid tapered limb, one silhouette segment -->
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="-13 282 416;11 282 416;-13 282 416" keyTimes="0;0.5;1" dur="2.4s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+      <path d="M266,416 L296,418 L288,462 L280,512 L262,512 L266,462 Z" fill="#f6f1e6" stroke="#2b2b2b" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M260,508 L282,508 L286,530 L254,530 Z" fill="#2b2b2b"/>
+    </g>
+    <ellipse cx="284" cy="394" rx="24" ry="16" fill="#f6f1e6"/>
+
+    <!-- near hind leg: opposite phase -->
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="11 446 436;-13 446 436;11 446 436" keyTimes="0;0.5;1" dur="2.4s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+      <path d="M430,436 L458,432 L470,468 L474,488 L468,512 L452,512 L454,488 L442,468 Z" fill="#f6f1e6" stroke="#2b2b2b" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M450,508 L472,508 L476,530 L446,530 Z" fill="#2b2b2b"/>
+    </g>
+    <ellipse cx="446" cy="428" rx="22" ry="14" fill="#f6f1e6"/>
+
+    <!-- collar at the neck root, hook at the brisket -->
+    <path d="M256,330 C266,346 270,364 268,382" fill="none" stroke="#6b4423" stroke-width="9" stroke-linecap="round"/>
+    <path d="M258,334 C266,348 270,362 268,378" fill="none" stroke="#9a6a3a" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="272" cy="398" r="4" fill="#38230f"/>
+  </g>
+
+  <!-- one taut trace from collar hook to the plow beam -->
+  <path d="M276,400 C334,428 394,448 448,464" fill="none" stroke="#4a3018" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- walking plow: beam, standard, dark angled moldboard, handles -->
+  <circle cx="450" cy="465" r="5" fill="none" stroke="#38230f" stroke-width="3"/>
+  <path d="M450,465 L518,482" fill="none" stroke="#4a2d12" stroke-width="8" stroke-linecap="round"/>
+  <path d="M452,463 L512,479" fill="none" stroke="#9a6a3a" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M516,478 L526,502" fill="none" stroke="#5a3a1e" stroke-width="7" stroke-linecap="round"/>
+  <path d="M494,506 L534,464 L554,476 L520,514 Z" fill="#3a3f47" stroke="#262a30" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M534,465 L552,476" fill="none" stroke="#8b93a0" stroke-width="3" stroke-linecap="round"/>
+  <path d="M504,502 L538,470" fill="none" stroke="#59616c" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+  <path d="M494,507 L520,514" fill="none" stroke="#20242a" stroke-width="4" stroke-linecap="round"/>
+  <path d="M530,462 L566,400" fill="none" stroke="#4a2d12" stroke-width="6" stroke-linecap="round"/>
+  <path d="M536,466 L582,412" fill="none" stroke="#5a3a1e" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- clods tumbling from the moldboard down into the tilth, staggered on the 2.4s beat -->
+  <g transform="translate(504,500)">
+    <g>
+      <animateMotion path="M0,0 C10,-12 24,-10 34,6" dur="2.4s" begin="0s" repeatCount="indefinite"/>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.08;0.62;1" dur="2.4s" begin="0s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="rotate" from="0" to="280" dur="2.4s" begin="0s" repeatCount="indefinite"/>
+        <path d="M-4,-2 L2,-5 L6,-1 L4,3 L-2,4 Z" fill="#6b4423" stroke="#4f3015" stroke-width="1"/>
+      </g>
+    </g>
+  </g>
+  <g transform="translate(514,494)">
+    <g>
+      <animateMotion path="M0,0 C12,-14 26,-8 36,10" dur="2.4s" begin="-0.8s" repeatCount="indefinite"/>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.08;0.62;1" dur="2.4s" begin="-0.8s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="rotate" from="0" to="-260" dur="2.4s" begin="-0.8s" repeatCount="indefinite"/>
+        <path d="M-5,-1 L1,-5 L6,-2 L5,3 L-1,5 Z" fill="#75491f" stroke="#4f3015" stroke-width="1"/>
+      </g>
+    </g>
+  </g>
+  <g transform="translate(494,504)">
+    <g>
+      <animateMotion path="M0,0 C8,-10 20,-8 28,8" dur="2.4s" begin="-1.6s" repeatCount="indefinite"/>
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.08;0.62;1" dur="2.4s" begin="-1.6s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="rotate" from="0" to="220" dur="2.4s" begin="-1.6s" repeatCount="indefinite"/>
+        <path d="M-4,-3 L2,-4 L5,0 L2,4 L-3,3 Z" fill="#5f3d1d" stroke="#4f3015" stroke-width="1"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- one rein from the halter ring to the farmer's near hand, slight natural sag -->
+  <path d="M186,356 C230,366 440,404 566,402" fill="none" stroke="#4a3018" stroke-width="2.5"/>
+
+  <!-- ================= FARMER leaning over the handles ================= -->
+  <g>
+    <path d="M610,408 L590,412 L566,401" fill="none" stroke="#35507a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="-7 640 462;7 640 462;-7 640 462" keyTimes="0;0.5;1" dur="2.4s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+      <path d="M628,456 L648,460 L654,500 L657,530 L641,533 L637,502 L621,468 Z" fill="#2b3850"/>
+      <path d="M637,526 L659,528 L662,543 L631,543 Q629,534 637,526 Z" fill="#2b2b2b"/>
+    </g>
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="7 616 464;-7 616 464;7 616 464" keyTimes="0;0.5;1" dur="2.4s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+      <path d="M608,458 L632,464 L620,504 L615,536 L597,536 L601,506 Z" fill="#33415c" stroke="#2b3850" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M595,532 L617,534 L617,546 L587,546 Q585,536 595,532 Z" fill="#2b2b2b"/>
+    </g>
+
+    <!-- torso + head dip with the rhythm; hands are anchored separately on the handles -->
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 2.2;0 0" keyTimes="0;0.5;1" dur="2.4s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+      <path d="M602,412 L622,399 L652,455 Q658,469 644,474 L624,472 Q610,464 604,448 Z" fill="#46648f" stroke="#2b3850" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="595" cy="382" r="13" fill="#cf9a6b" stroke="#8a6136" stroke-width="2"/>
+      <path d="M583,384 l-5,3 6,2 Z" fill="#cf9a6b" stroke="#8a6136" stroke-width="1.5"/>
+      <circle cx="586" cy="379" r="1.8" fill="#2b2b2b"/>
+      <path d="M584,391 q5,3 9,0" fill="none" stroke="#8a6136" stroke-width="1.5" stroke-linecap="round"/>
+      <g transform="rotate(-8 595 366)">
+        <ellipse cx="595" cy="368" rx="21" ry="5.5" fill="#e7c766" stroke="#a2812f" stroke-width="2"/>
+        <path d="M584,367 Q583,348 595,347 Q607,348 606,367 Z" fill="#e7c766" stroke="#a2812f" stroke-width="2"/>
+      </g>
+    </g>
+
+    <path d="M618,412 L597,421 L581,413" fill="none" stroke="#46648f" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="566" cy="401" r="4.5" fill="#cf9a6b" stroke="#8a6136" stroke-width="1.5"/>
+    <circle cx="581" cy="412" r="5" fill="#cf9a6b" stroke="#8a6136" stroke-width="1.5"/>
+  </g>
+</svg>

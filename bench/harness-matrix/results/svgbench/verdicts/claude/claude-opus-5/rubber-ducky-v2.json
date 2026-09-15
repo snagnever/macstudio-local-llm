@@ -1,0 +1,58 @@
+{
+  "artifact": "logs/claude/claude-opus-5/rubber-ducky-v2.svg",
+  "question_index": 4,
+  "render": "logs/renders/claude/claude-opus-5/rubber-ducky-v2.png",
+  "judge": {
+    "kind": "claude-vision",
+    "model": "claude-opus-5",
+    "date": "2026-09-07",
+    "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {
+      "text": "Create a classic rubber ducky shape with a distinct body and head, colored bright yellow.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "The duck must have an orange beak and a simple black dot for an eye.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Draw a white, claw-foot bathtub shape, showing the inside view with a visible rim.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Fill the lower portion of the bathtub with light blue water.",
+      "met": false,
+      "note": "The tub interior is solid white foam edge to edge; the only light blue water visible is an 8-pixel sliver at the right rim (1.2% of the interior area). No blue water fills the lower portion of the tub in the render."
+    },
+    {
+      "text": "Ensure the water line is clearly visible across the duck's body, showing the lower third of the duck submerged.",
+      "met": false,
+      "note": "No water line is drawn anywhere across the duck - its yellow body simply ends where the white foam begins, so nothing shows a lower third submerged."
+    },
+    {
+      "text": "Position the duck so it is floating on the water's surface, creating small, concentric circular ripples in the water around its base.",
+      "met": false,
+      "note": "No water surface is visible in the tub, and there are no ripple lines of any kind around the duck's base."
+    },
+    {
+      "text": "Depict soap bubbles as clusters of overlapping circles with a slight iridescence, using semi-transparent white, light pink, and light blue fills.",
+      "met": false,
+      "note": "The foam bubbles are white only. The pink on the airborne bubbles is a hairline iridescent crescent of 4-21 pixels, invisible at render scale, so there is no light pink fill."
+    },
+    {
+      "text": "Place a small cluster of bubbles on top of the duck's head.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Place a large pile of bubbles against one side of the tub and a few floating on the water's surface around the duck.",
+      "met": true,
+      "note": ""
+    }
+  ]
+}

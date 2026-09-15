@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steno — a desk that never closes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Karla:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --desk:#33503F; --desk-dark:#2A4234; --paper:#FAF7EF; --ink:#282A25; --fade:#6B6E63;
+    --brass:#C99B2F; --tape:rgba(226,219,187,.92); --tape2:rgba(226,219,187,.8);
+    --thread:#A93226; --line:#E5DECB;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--desk);color:var(--paper);font:400 17px/1.65 "Karla",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  :focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 28px}
+  h1,h2,h3{font-family:"Libre Caslon Display",Georgia,serif;font-weight:400;letter-spacing:-.01em;line-height:1.08}
+  a{color:var(--paper)}
+
+  header{padding:26px 0}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:24px}
+  .wordmark{font-family:"Libre Caslon Display",serif;font-size:25px;color:var(--paper);text-decoration:none}
+  .nav nav{display:flex;gap:28px;font-size:15px}
+  .nav nav a{text-decoration:none;color:rgba(250,247,239,.75)}
+  .nav nav a:hover{color:var(--brass)}
+  .btn{display:inline-block;background:var(--brass);color:#241F0E;font-weight:700;font-size:15.5px;
+    padding:13px 24px;border-radius:4px;text-decoration:none;border:0;cursor:pointer;box-shadow:0 2px 0 #8a6a1d}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 3px 0 #8a6a1d}
+  .btn:active{transform:translateY(1px);box-shadow:0 1px 0 #8a6a1d}
+
+  /* hero */
+  .hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,.95fr);gap:56px;align-items:center;padding:56px 0 96px;min-height:78vh}
+  .hero h1{font-size:clamp(44px,6vw,84px)}
+  .hero .sub{color:rgba(250,247,239,.8);font-size:19px;max-width:42ch;margin:26px 0 34px}
+  .hero-cta{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .hero-cta .fine{color:rgba(250,247,239,.55);font-size:14px}
+
+  .pile{position:relative;height:560px}
+  .note{
+    position:absolute;background:var(--paper);color:var(--ink);border-radius:2px;
+    box-shadow:0 14px 30px rgba(10,25,15,.45);padding:26px 28px;
+  }
+  .note .tape{position:absolute;width:96px;height:26px;background:var(--tape);top:-13px;left:26px;transform:rotate(-4deg);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+  .note .tape--r{left:auto;right:22px;transform:rotate(5deg);background:var(--tape2)}
+  .note h3{font-size:19px;margin-bottom:8px}
+  .note p{font-size:15px;line-height:1.5;color:#43463d}
+  .note .pin-date{font-size:12px;color:var(--fade);display:block;margin-bottom:8px;letter-spacing:.03em}
+  .note mark{background:#F7E27A;color:var(--ink);padding:0 3px}
+  .note ul{margin:8px 0 0 18px;font-size:15px;color:#43463d}
+  .note .done{text-decoration:line-through;color:var(--fade)}
+  .n1{top:0;left:2%;width:300px;--r:-3deg}
+  .n2{top:44px;right:0;width:290px;--r:2.5deg}
+  .n3{top:240px;left:16%;width:300px;--r:1.5deg}
+  .n4{top:356px;right:4%;width:270px;--r:-2deg}
+  .n1,.n2,.n3,.n4{transform:rotate(var(--r))}
+  @media (prefers-reduced-motion:no-preference){
+    .note{animation:settle .7s cubic-bezier(.2,.7,.3,1) both}
+    .n1{animation-delay:.05s}.n2{animation-delay:.2s}.n3{animation-delay:.35s}.n4{animation-delay:.5s}
+    @keyframes settle{
+      from{opacity:0;transform:translateY(30px) rotate(var(--r)) scale(.97)}
+      to{opacity:1;transform:translateY(0) rotate(var(--r))}
+    }
+  }
+
+  /* drawers */
+  .section-head{padding:8px 0 44px}
+  .section-head h2{font-size:clamp(30px,4vw,48px)}
+  .section-head p{color:rgba(250,247,239,.7);max-width:52ch;margin-top:12px}
+  .drawers{display:grid;grid-template-columns:1.15fr .85fr;gap:36px;align-items:start;padding-bottom:36px}
+  .ruled{
+    background:var(--paper);color:var(--ink);border-radius:3px;box-shadow:0 16px 34px rgba(10,25,15,.45);
+    padding:30px 34px;position:relative;
+    background-image:repeating-linear-gradient(transparent 0 31px, var(--line) 31px 32px);
+    background-position:0 66px;
+  }
+  .ruled .tape{position:absolute;width:120px;height:28px;background:var(--tape);top:-14px;left:50%;transform:translateX(-50%) rotate(-2deg)}
+  .ruled h3{font-size:23px;line-height:32px}
+  .ruled .stream{margin-top:10px;font-size:15.5px;line-height:32px;color:#3c3f37}
+  .ruled .stream time{font-size:12px;color:var(--fade);letter-spacing:.03em;margin-right:12px}
+  .ruled .stream .item{display:block}
+  .ruled ul.checks{margin:10px 0 0 4px;list-style:none;font-size:15.5px;line-height:32px;color:#3c3f37}
+  .ruled .box{display:inline-grid;place-items:center;width:16px;height:16px;border:1.5px solid #8b8d80;margin-right:10px;font-size:12px;color:var(--thread);vertical-align:-2px}
+
+  /* stickies */
+  .stickies{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:30px;padding:56px 0 8px}
+  .sticky{background:#EFE29B;color:#3a3305;padding:26px 24px 30px;box-shadow:0 10px 22px rgba(10,25,15,.4)}
+  .sticky:nth-child(1){transform:rotate(-1.6deg)}
+  .sticky:nth-child(2){transform:rotate(1deg);background:#E7EFC2;color:#263b12}
+  .sticky:nth-child(3){transform:rotate(-.8deg);background:#F3CDB0;color:#54280a}
+  .sticky h3{font-family:"Karla";font-weight:700;font-size:17px;margin-bottom:8px}
+  .sticky p{font-size:15px;line-height:1.5}
+
+  /* postcard quote */
+  .postcard{margin:88px auto 0;max-width:720px;background:var(--paper);color:var(--ink);border-radius:3px;
+    box-shadow:0 16px 34px rgba(10,25,15,.45);padding:44px 48px 38px;position:relative;transform:rotate(-.8deg)}
+  .postcard .tape{position:absolute;width:110px;height:28px;background:var(--tape);top:-14px;left:36px;transform:rotate(-6deg)}
+  .postcard blockquote{font-family:"Libre Caslon Display",serif;font-size:clamp(21px,2.6vw,28px);line-height:1.35}
+  .postcard cite{display:block;font-style:italic;color:var(--fade);margin-top:18px;font-size:15px}
+
+  /* cta */
+  .cta{margin:96px 0 80px;background:var(--desk-dark);border-radius:6px;padding:72px 48px;text-align:center}
+  .cta h2{font-size:clamp(30px,4.2vw,52px)}
+  .cta p{color:rgba(250,247,239,.65);margin:14px 0 32px}
+
+  footer{padding:8px 0 48px;color:rgba(250,247,239,.55);font-size:14px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  footer a{color:rgba(250,247,239,.55);text-decoration:none}
+
+  .iter-switch{position:fixed;right:16px;bottom:16px;display:flex;gap:4px;padding:6px 8px;align-items:center;
+    background:#141a15;border:1px solid rgba(250,247,239,.15);border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.4);z-index:99}
+  .iter-switch span{color:#8fa093;font:11px/1 ui-monospace,monospace;padding:0 4px}
+  .iter-switch a{display:grid;place-items:center;width:28px;height:28px;border-radius:999px;
+    color:#e8e5da;text-decoration:none;font:13px/1 ui-monospace,monospace}
+  .iter-switch a:hover{background:rgba(255,255,255,.14)}
+  .iter-switch a[aria-current]{background:var(--brass);color:#241F0E;font-weight:700}
+
+  @media (max-width:980px){
+    .hero{grid-template-columns:1fr;padding-bottom:48px}
+    .pile{height:0;display:flex;flex-direction:column;gap:18px;position:static}
+    .note{position:static;width:auto!important;transform:rotate(0)!important}
+    .drawers{grid-template-columns:1fr}
+    .nav nav{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="wordmark" href="../4/">Steno</a>
+    <nav aria-label="Main">
+      <a href="#drawers">The drawers</a>
+      <a href="#habits">Habits</a>
+      <a href="#get">Pricing</a>
+    </nav>
+    <a class="btn" href="#get">Download</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <div>
+      <h1>A desk that never closes.</h1>
+      <p class="sub">Stack your notes like index cards on a library desk. Steno keeps the pile sorted, searchable, and always within reach — 3 a.m. included.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#get">Start your desk — free</a>
+        <span class="fine">Free for personal notes</span>
+      </div>
+    </div>
+    <div class="pile" aria-label="A pile of desk notes" role="img">
+      <div class="note n1">
+        <span class="tape" aria-hidden="true"></span>
+        <span class="pin-date">MON · 08:41</span>
+        <h3>idea</h3>
+        <p>the pitch deck should read like a <mark>garden, not a pipeline</mark></p>
+      </div>
+      <div class="note n2">
+        <span class="tape tape--r" aria-hidden="true"></span>
+        <span class="pin-date">TUE · 13:02</span>
+        <h3>reading</h3>
+        <p><em>Seeing Like a State</em>, ch. 2 — “legibility” explains why dashboards lie</p>
+      </div>
+      <div class="note n3">
+        <span class="tape" aria-hidden="true"></span>
+        <span class="pin-date">TUE · 17:26</span>
+        <h3>errands</h3>
+        <ul>
+          <li class="done">book the plumber</li>
+          <li>ask Mia about Iceland</li>
+          <li>return the Scott book (don’t lose it)</li>
+        </ul>
+      </div>
+      <div class="note n4">
+        <span class="tape tape--r" aria-hidden="true"></span>
+        <span class="pin-date">WED · 01:07</span>
+        <h3>didn’t want to lose this</h3>
+        <p>charts should be read, not decoded</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="drawers">
+    <div class="section-head">
+      <h2>Two drawers, and no folders.</h2>
+      <p>Everything goes in the catch-all on the way in. The morning page brings back what your notes think deserves a second look.</p>
+    </div>
+    <div class="drawers">
+      <div class="ruled">
+        <span class="tape" aria-hidden="true"></span>
+        <h3>The catch‑all</h3>
+        <div class="stream">
+          <span class="item"><time>08:41</time>the pitch deck should read like a garden, not a pipeline</span>
+          <span class="item"><time>13:02</time>“legibility” — Scott ch. 2, underline the dashboard passage</span>
+          <span class="item"><time>17:26</time>ask Mia about Iceland before August</span>
+          <span class="item"><time>01:07</time>charts should be read, not decoded</span>
+        </div>
+      </div>
+      <div class="ruled">
+        <span class="tape" aria-hidden="true"></span>
+        <h3>The morning page</h3>
+        <ul class="checks">
+          <li><span class="box">✓</span>the Iceland note, because August is close</li>
+          <li><span class="box">✓</span>last week’s garden idea, quoted in two new notes</li>
+          <li><span class="box">•</span>the dashboard passage you keep rereading</li>
+          <li><span class="box">•</span>one old someday note, at random</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="stickies" id="habits">
+      <div class="sticky">
+        <h3>Catch it in one keystroke</h3>
+        <p>⌥Space opens over any window. Type the fragment, hit Enter, forget about it — Steno kept it.</p>
+      </div>
+      <div class="sticky">
+        <h3>Notes thread themselves</h3>
+        <p>Quotes, names, and ideas that rhyme get stitched together — you approve each thread, nothing moves without you.</p>
+      </div>
+      <div class="sticky">
+        <h3>Ask, don’t hunt</h3>
+        <p>“that book about dashboards lying” brings the note back, with the two that quoted it.</p>
+      </div>
+    </div>
+
+    <div class="postcard">
+      <span class="tape" aria-hidden="true"></span>
+      <blockquote>“It feels like packing a bag, not filing a report.”</blockquote>
+      <cite>— Theo Lindqvist, graduate student, on his third month</cite>
+    </div>
+  </section>
+
+  <section class="cta" id="get">
+    <h2>Pull up a chair.</h2>
+    <p>Free for personal notes. End‑to‑end encrypted sync when you want it.</p>
+    <a class="btn" href="#get">Start taking notes — free</a>
+  </section>
+
+  <footer>
+    <span>Steno © 2026</span>
+    <span><a href="#drawers">The drawers</a> · <a href="#get">Pricing</a> · Privacy</span>
+  </footer>
+
+</main>
+
+<nav class="iter-switch" aria-label="Design directions">
+  <span>dir.</span>
+  <a href="../1/">1</a>
+  <a href="../2/">2</a>
+  <a href="../3/">3</a>
+  <a href="../4/" aria-current="page">4</a>
+  <a href="../5/">5</a>
+</nav>
+
+</body>
+</html>

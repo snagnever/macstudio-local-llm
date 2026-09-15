@@ -1,0 +1,68 @@
+{
+  "artifact": "logs/opencode/gpt-5.6-terra/fruit-stall-market-v2.svg",
+  "question_index": 12,
+  "render": "logs/renders/opencode/gpt-5.6-terra/fruit-stall-market-v2.png",
+  "judge": {
+    "kind": "claude-vision",
+    "model": "claude-opus-5",
+    "date": "2026-09-07",
+    "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {
+      "text": "Create a main structure for a wooden fruit stall, including a counter.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Add a red and white striped canopy over the stall, supported by two vertical wooden posts.",
+      "met": false,
+      "note": "The canopy's light stripe is a cream, not white: it measures RGB 251,233,186, a spread of 65, against the binding white test of all channels >= 200 with spread <= 40. Two vertical wooden posts are present."
+    },
+    {
+      "text": "Display exactly four different, recognizable fruits.",
+      "met": false,
+      "note": "Six fruit kinds are shown, not exactly four: oranges, red apples, green pears, yellow bananas, purple grapes and a watermelon."
+    },
+    {
+      "text": "First fruit: A pile of red apples in a wicker basket on the left side of the counter.",
+      "met": false,
+      "note": "The red apples sit in the top-CENTRE crate, not on the left side of the counter (the oranges occupy the left crate), and the container is a plain trapezoidal wooden crate with plank lines, not a wicker basket."
+    },
+    {
+      "text": "Second fruit: A bunch of yellow bananas placed next to the apples.",
+      "met": false,
+      "note": "The bananas are in the bottom-LEFT crate and the apples in the top-CENTRE crate, with the orange crate lying directly between them; measured centre to centre the bananas are the farthest of the five other fruit groups from the apples (about 330 px, against about 150 px for the grapes and 180 px for the pears), so they are not placed next to the apples."
+    },
+    {
+      "text": "Third fruit: A pile of oranges in another wicker basket on the right side of the counter.",
+      "met": false,
+      "note": "The oranges sit in the top-LEFT crate, not on the right side of the counter, and the container is a plain trapezoidal wooden crate with plank lines, not a wicker basket."
+    },
+    {
+      "text": "Fourth fruit: A single, large slice of watermelon resting directly on the counter in the center.",
+      "met": false,
+      "note": "The watermelon is a dome shape sitting inside the bottom-RIGHT crate; it is neither resting directly on the counter nor in the centre."
+    },
+    {
+      "text": "Include a character representing the stall vendor, a smiling man with a mustache, positioned behind the counter and between the baskets.",
+      "met": false,
+      "note": "No human figure appears anywhere in the render - the stall is empty."
+    },
+    {
+      "text": "Add a small, hanging chalkboard sign from the canopy that reads 'Fresh Fruit'.",
+      "met": false,
+      "note": "The sign is a cream board with dark brown lettering (FRESH FRUIT over PICKED THIS MORNING) fixed flat against the awning valance with no cord, rope or hook - it is a painted board, not a hanging chalkboard."
+    },
+    {
+      "text": "Depict a cobblestone ground surface in front of the stall.",
+      "met": false,
+      "note": "The ground is a brown fill with two soft wave bands and a shadow ellipse; no paving stones are drawn."
+    },
+    {
+      "text": "Include the silhouette of another market stall in the background to suggest a larger market setting.",
+      "met": false,
+      "note": "The two background shapes are tan buildings with red pitched roofs and a door/window panel; neither carries an awning, canopy or open counter, so neither reads as another market stall."
+    }
+  ]
+}

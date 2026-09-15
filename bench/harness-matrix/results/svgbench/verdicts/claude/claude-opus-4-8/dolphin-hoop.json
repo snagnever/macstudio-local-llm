@@ -1,0 +1,20 @@
+{
+  "artifact": "logs/claude/claude-opus-4-8/dolphin-hoop.svg",
+  "question_index": 7,
+  "render": "logs/renders/claude/claude-opus-4-8/dolphin-hoop.png",
+  "judge": {
+    "kind": "claude-vision",
+    "model": "claude-opus-5",
+    "date": "2026-09-07",
+    "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {"text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.", "met": true, "note": ""},
+    {"text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.", "met": false, "note": "Water surface is present, but the splash is a small three-bump cluster with three bubbles sitting ~80px to the left of where the dolphin crosses the waterline; it is neither large nor at the exit point."},
+    {"text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.", "met": false, "note": "The tail stock and fluke are drawn below the water surface line, so the body is not entirely in mid-air; the pose is also a straight diagonal rather than an arc."},
+    {"text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.", "met": true, "note": ""},
+    {"text": "Include a human trainer's arm and hand extending into the frame.", "met": true, "note": ""},
+    {"text": "The trainer's hand must be holding a small fish by the tail.", "met": true, "note": ""},
+    {"text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.", "met": true, "note": ""}
+  ]
+}

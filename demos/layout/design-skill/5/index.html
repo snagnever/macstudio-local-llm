@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steno — your second brain, at a blinking caret</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F3EE; --ink:#17181A; --mid:#6E7068; --line:#DEDDD4; --hair:#C9C8BE;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font:400 17px/1.6 "Archivo",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  :focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 28px}
+  h1,h2{font-weight:800;letter-spacing:-.025em;line-height:1.02}
+  a{color:var(--ink)}
+  .mono{font-family:"IBM Plex Mono",monospace}
+
+  header{padding:26px 0;border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:24px}
+  .wordmark{font-weight:800;font-size:21px;letter-spacing:-.02em;text-decoration:none}
+  .nav nav{display:flex;gap:26px;font-size:15px;font-weight:500}
+  .nav nav a{text-decoration:none;color:var(--mid)}
+  .nav nav a:hover{color:var(--ink)}
+
+  /* capture hero */
+  .hero{padding:96px 0 88px}
+  .hero h1{font-size:clamp(36px,5vw,64px);max-width:16ch}
+  .hero .sub{color:var(--mid);font-size:19px;max-width:46ch;margin:22px 0 52px}
+  .capture{max-width:760px}
+  .capture label{display:block;font-size:14px;font-weight:600;color:var(--mid);margin-bottom:14px}
+  .capture-line{display:flex;gap:14px;align-items:stretch}
+  .capture input{
+    flex:1;background:transparent;border:0;border-bottom:2px solid var(--ink);
+    font:400 26px/1.4 "IBM Plex Mono",monospace;color:var(--ink);padding:10px 2px;min-width:0;
+  }
+  .capture input::placeholder{color:#B4B3A8}
+  .capture input:focus{outline:none;border-bottom-color:var(--ink);border-bottom-width:2px;box-shadow:0 2px 0 -1px var(--ink)}
+  .save{background:var(--ink);color:var(--bg);border:0;border-radius:6px;font:600 16px "Archivo",sans-serif;
+    padding:0 26px;cursor:pointer}
+  .save:hover{background:#000}
+  .hint{color:var(--mid);font-size:14.5px;margin-top:16px}
+  .hint--warn{color:#8A3A2E}
+
+  .inbox{max-width:760px;margin-top:56px}
+  .inbox-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink);padding-bottom:10px;margin-bottom:4px}
+  .inbox-head h2{font-size:16px;font-weight:700;letter-spacing:0}
+  .inbox-head .count{font-size:13px;color:var(--mid)}
+  .inbox li{list-style:none;display:flex;gap:18px;align-items:baseline;padding:14px 2px;border-bottom:1px solid var(--line)}
+  .inbox .t{font:13px "IBM Plex Mono",monospace;color:var(--mid);white-space:nowrap}
+  .inbox .x{font-size:16px}
+  .inbox li.fresh{animation:land .45s ease both}
+  @keyframes land{from{opacity:0;transform:translateY(-8px);background:#E9E8DF}to{opacity:1;transform:none;background:transparent}}
+  @media (prefers-reduced-motion:reduce){.inbox li.fresh{animation:none}}
+
+  /* meta strip */
+  .meta{display:inline-flex;border:1px solid var(--hair);border-radius:8px;overflow:hidden;margin-top:64px;flex-wrap:wrap}
+  .meta span{padding:12px 20px;font-size:14.5px;color:var(--mid);border-right:1px solid var(--line)}
+  .meta span:last-child{border-right:0}
+
+  /* why, as a dense dl */
+  .why{border-top:1px solid var(--line);padding:72px 0}
+  .why h2{font-size:clamp(26px,3.4vw,40px);margin-bottom:44px}
+  .why dl{display:grid;grid-template-columns:260px minmax(0,1fr)}
+  .why dt{font-weight:700;font-size:17px;padding:22px 24px 22px 0;border-top:1px solid var(--line)}
+  .why dd{color:var(--mid);font-size:16.5px;padding:22px 0;border-top:1px solid var(--line);margin:0}
+  .why dd b{color:var(--ink);font-weight:600}
+
+  /* quote */
+  .quote{border-top:1px solid var(--line);padding:72px 0}
+  .quote blockquote{font-size:clamp(22px,2.8vw,30px);font-weight:600;letter-spacing:-.02em;max-width:30ch;line-height:1.2}
+  .quote cite{display:block;font-style:normal;color:var(--mid);margin-top:16px;font-size:15px}
+
+  /* cta */
+  .cta{background:var(--ink);color:var(--bg);margin:0 -28px;border-radius:14px;padding:80px 56px;
+    display:flex;justify-content:space-between;align-items:center;gap:36px;flex-wrap:wrap}
+  .cta h2{font-size:clamp(28px,3.6vw,46px);color:var(--bg)}
+  .cta .fine{color:#A5A69C;margin-top:12px;font-size:15px}
+  .cta .btn{display:inline-block;background:var(--bg);color:var(--ink);font-weight:700;font-size:17px;
+    padding:16px 30px;border-radius:8px;text-decoration:none}
+  .cta .btn:hover{background:#fff}
+  .platforms{margin-top:16px;font-size:14px;color:#A5A69C}
+  .platforms a{color:#A5A69C;margin-right:14px}
+  .platforms a:hover{color:var(--bg)}
+
+  footer{padding:44px 0 56px;color:var(--mid);font-size:14px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  footer a{color:var(--mid)}
+
+  .iter-switch{position:fixed;right:16px;bottom:16px;display:flex;gap:4px;padding:6px 8px;align-items:center;
+    background:#15161a;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.3);z-index:99}
+  .iter-switch span{color:#8a8c93;font:11px/1 ui-monospace,monospace;padding:0 4px}
+  .iter-switch a{display:grid;place-items:center;width:28px;height:28px;border-radius:999px;
+    color:#e9e9e6;text-decoration:none;font:13px/1 ui-monospace,monospace}
+  .iter-switch a:hover{background:rgba(255,255,255,.14)}
+  .iter-switch a[aria-current]{background:#fff;color:#111;font-weight:700}
+
+  @media (max-width:860px){
+    .why dl{grid-template-columns:1fr}
+    .why dd{padding-top:0;border-top:0;padding-bottom:22px}
+    .why dt{padding-bottom:6px}
+    .nav nav{display:none}
+    .capture input{font-size:20px}
+    .cta{padding:56px 32px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="wordmark" href="../5/">Steno</a>
+    <nav aria-label="Main">
+      <a href="#why">Why</a>
+      <a href="#get">Pricing</a>
+    </nav>
+    <span style="font-size:14px;color:var(--mid)">⌥ Space anywhere</span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <h1>Your second brain, at a blinking caret.</h1>
+    <p class="sub">Steno is one capture bar and zero systems. Write down what you just thought; Steno keeps the rest — date, links, and the way back.</p>
+
+    <form class="capture" id="capture">
+      <label for="note">What are you thinking right now?</label>
+      <div class="capture-line">
+        <input id="note" type="text" placeholder="the pitch deck should read like a garden…" autocomplete="off" spellcheck="false">
+        <button class="save" type="submit">Save note</button>
+      </div>
+      <p class="hint" id="hint">Press Enter to keep it.</p>
+    </form>
+
+    <section class="inbox" aria-label="Notes saved today">
+      <div class="inbox-head">
+        <h2>Inbox — today</h2>
+        <span class="count" id="count">3 notes</span>
+      </div>
+      <ul id="inbox">
+        <li><span class="t">08:41</span><span class="x">the pitch deck should read like a garden, not a pipeline</span></li>
+        <li><span class="t">13:02</span><span class="x">Seeing Like a State ch. 2 — legibility explains dashboards</span></li>
+        <li><span class="t">17:26</span><span class="x">ask Mia about the Iceland trip before August</span></li>
+      </ul>
+    </section>
+
+    <div class="meta">
+      <span>Works offline</span>
+      <span>End‑to‑end encrypted sync</span>
+      <span>Free for personal notes</span>
+    </div>
+  </section>
+
+  <section class="why" id="why">
+    <h2>Why people switch</h2>
+    <dl>
+      <dt>Opens anywhere</dt>
+      <dd><b>One keystroke over any window.</b> The note you save was never interrupted by saving it.</dd>
+      <dt>No folders, ever</dt>
+      <dd><b>Files by context</b> — the project you were in, the person you named, the book you quoted.</dd>
+      <dt>Links, by suggestion</dt>
+      <dd><b>Steno proposes connections</b> between notes that quote or contradict each other. You approve; nothing moves silently.</dd>
+      <dt>Recall in your words</dt>
+      <dd><b>“That book about dashboards lying” is a valid query.</b> You get the note, and the two that orbit it.</dd>
+      <dt>Yours on a plane</dt>
+      <dd><b>The archive lives on your machine.</b> Sync is encrypted, optional, and never required to remember.</dd>
+    </dl>
+  </section>
+
+  <section class="quote">
+    <blockquote>“Every other app made me maintain a system. Steno just kept what I said.”
+      <cite>Jonas Petersen · researcher</cite>
+    </blockquote>
+  </section>
+
+  <section id="get" style="padding:72px 0 96px">
+    <div class="cta" style="position:relative">
+      <div>
+        <h2>Keep your next thought.</h2>
+        <p class="fine">Free forever for personal notes. Nothing to configure.</p>
+        <p class="platforms"><a href="#get">Windows</a><a href="#get">iOS</a><a href="#get">Android</a><a href="#get">Web</a></p>
+      </div>
+      <a class="btn" href="#get">Download for macOS</a>
+    </div>
+  </section>
+
+  <footer>
+    <span>Steno © 2026</span>
+    <span><a href="#why">Why</a> · <a href="#get">Pricing</a> · Privacy</span>
+  </footer>
+
+</main>
+
+<nav class="iter-switch" aria-label="Design directions">
+  <span>dir.</span>
+  <a href="../1/">1</a>
+  <a href="../2/">2</a>
+  <a href="../3/">3</a>
+  <a href="../4/">4</a>
+  <a href="../5/" aria-current="page">5</a>
+</nav>
+
+<script>
+  (function(){
+    var form=document.getElementById('capture'),
+        input=document.getElementById('note'),
+        hint=document.getElementById('hint'),
+        inbox=document.getElementById('inbox'),
+        count=document.getElementById('count');
+    function stamp(){
+      var d=new Date(),p=function(n){return String(n).padStart(2,'0')};
+      return p(d.getHours())+':'+p(d.getMinutes());
+    }
+    form.addEventListener('submit',function(e){
+      e.preventDefault();
+      var v=input.value.trim();
+      if(!v){
+        hint.textContent='Type something first — anything will do.';
+        hint.classList.add('hint--warn');
+        input.focus();
+        return;
+      }
+      var li=document.createElement('li');
+      li.className='fresh';
+      var t=document.createElement('span');t.className='t';t.textContent=stamp();
+      var x=document.createElement('span');x.className='x';x.textContent=v;
+      li.appendChild(t);li.appendChild(x);
+      inbox.insertBefore(li,inbox.firstChild);
+      count.textContent=inbox.children.length+' notes';
+      input.value='';
+      hint.textContent='Saved. Steno will find its links while you forget about it.';
+      hint.classList.remove('hint--warn');
+      input.focus();
+    });
+    input.addEventListener('input',function(){
+      hint.textContent='Press Enter to keep it.';
+      hint.classList.remove('hint--warn');
+    });
+  })();
+</script>
+
+</body>
+</html>

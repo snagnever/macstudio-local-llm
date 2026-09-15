@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Mac Studio Local LLM — Index</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Index of all published work: Qwen3.8 campaigns, local benchmarks, harness and agent pages, and demos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --plane:#f9f9f7; --surface:#fcfcfb; --surface-2:#f3f2ee;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --border:rgba(11,11,11,0.10); --baseline:#c3c2b7;
+  --accent:#2a78d6; --warn:#b06a00; --warn-bg:#fbf1dd;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232321;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --border:rgba(255,255,255,0.10); --baseline:#383835;
+    --accent:#3987e5; --warn:#e0a63a; --warn-bg:#2a2312;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232321;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --border:rgba(255,255,255,0.10); --baseline:#383835;
+  --accent:#3987e5; --warn:#e0a63a; --warn-bg:#2a2312;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--plane); color:var(--ink); font-family:var(--sans); line-height:1.5; -webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px; margin:0 auto; padding:32px 20px 64px}
+header{display:flex; flex-wrap:wrap; gap:20px 32px; align-items:flex-end; justify-content:space-between}
+h1{font-size:1.7rem; font-weight:700; letter-spacing:-0.02em; margin:0; text-wrap:balance}
+.sub{color:var(--ink-2); max-width:70ch; margin:8px 0 0; font-size:0.98rem}
+.eyebrow{font-family:var(--mono); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin:0 0 6px}
+.tools{display:flex; gap:10px; align-items:center}
+button.theme, input.filter{font-family:var(--mono); font-size:0.78rem; color:var(--ink); background:var(--surface);
+  border:1px solid var(--border); border-radius:7px; padding:7px 12px}
+button.theme{cursor:pointer; color:var(--ink-2)}
+input.filter{width:220px}
+button.theme:focus-visible, input.filter:focus-visible, a:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+nav.jump{display:flex; flex-wrap:wrap; gap:8px; margin:22px 0 0}
+nav.jump a{font-family:var(--mono); font-size:0.74rem; color:var(--ink-2); text-decoration:none;
+  border:1px solid var(--border); border-radius:999px; padding:4px 11px; background:var(--surface)}
+nav.jump a:hover{border-color:var(--baseline); color:var(--ink)}
+section.block{margin-top:34px}
+h2.sec{font-size:1.05rem; margin:0 0 4px; letter-spacing:-0.01em; display:flex; align-items:center; gap:9px}
+h2.sec .sw{width:10px; height:10px; border-radius:2px}
+.s-note{color:var(--ink-2); font-size:0.88rem; margin:0 0 14px; max-width:82ch}
+.s-note code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px}
+a.card{display:flex; flex-direction:column; gap:8px; background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; padding:15px 16px 13px; color:inherit; text-decoration:none; border-top:3px solid var(--c, var(--accent))}
+a.card:hover{border-color:var(--baseline); border-top-color:var(--c, var(--accent))}
+.c-title{font-size:1rem; font-weight:700; letter-spacing:-0.01em}
+.c-desc{font-size:0.86rem; color:var(--ink-2); line-height:1.45; margin:0; flex:1}
+.c-desc b{color:var(--ink); font-weight:600}
+.c-meta{display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; font-family:var(--mono); font-size:0.7rem; color:var(--muted);
+  border-top:1px solid var(--border); padding-top:8px}
+.tag{border:1px solid var(--border); border-radius:999px; padding:0 7px; color:var(--ink-2)}
+.tag.hist{color:var(--warn); border-color:var(--warn); background:var(--warn-bg)}
+.path{margin-left:auto}
+.empty{display:none; color:var(--muted); font-size:0.9rem; margin-top:24px}
+footer{margin-top:40px; color:var(--ink-2); font-size:0.82rem; max-width:82ch}
+footer code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+footer a{color:var(--accent)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <p class="eyebrow">Mac Studio M4 Max · 128 GB · local benchmarks</p>
+      <h1>Index of published work</h1>
+      <p class="sub">Every dashboard, report and demo on this site, grouped by line of work.
+      Each card says what the page shows and when it was last updated.</p>
+    </div>
+    <div class="tools">
+      <input class="filter" id="filter" type="search" placeholder="filter: mtp, svg, 27B…" aria-label="Filter work">
+      <button class="theme" id="themeBtn" type="button">theme: auto</button>
+    </div>
+  </header>
+
+  <nav class="jump" aria-label="Sections">
+    <a href="#flashnext">Qwen3.8-Flash-Next</a>
+    <a href="#dense">Qwen3.8-27B</a>
+    <a href="#benchmarks">Local benchmarks</a>
+    <a href="#agents">Harnesses and agents</a>
+    <a href="#demos">Demos</a>
+  </nav>
+
+  <section class="block" id="flashnext">
+    <h2 class="sec"><span class="sw" style="background:var(--s1)"></span>Qwen3.8-Flash-Next — daily driver</h2>
+    <p class="s-note">Campaign <code>bench/qwen38-flashnext-daily-driver-2026-09</code>: 4 quant × runtime combinations of
+    Flash-Next (MoE), to pick the most responsive setup. Verdict: ddalcu mixed-4/8 on mlx-serve 26.9.2.</p>
+    <div class="cards">
+      <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-overview.html">
+        <span class="c-title">Campaign dashboard</span>
+        <p class="c-desc">Headline numbers, bars per metric (T_turn, TTFT, decode, cache hit, wired), gates per band,
+        test coverage and glossary. c1 wins with <b>T_turn 11.03 s at 32K and 12.35 s at 128K</b>.</p>
+        <span class="c-meta"><span>2026-09-14</span><span class="path">qwen38-flashnext-overview.html</span></span>
+      </a>
+      <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-perf-lines.html">
+        <span class="c-title">Responsiveness from 32K to 512K</span>
+        <p class="c-desc">Lines per context for the 4 candidates: T_turn, warm TTFT, cold TTFT, decode, prefill and wired
+        memory; cache-hit heatmap; setup and runtimes compared. <b>Only c1 reaches 512K.</b></p>
+        <span class="c-meta"><span>2026-09-14</span><span class="path">qwen38-flashnext-perf-lines.html</span></span>
+      </a>
+      <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-driver.html">
+        <span class="c-title">Responsive driver — scoreboard</span>
+        <p class="c-desc">The campaign's first dashboard: verdict in prose, scoreboard per band, T_turn and TTFT lines,
+        cache hit per scenario, wired memory and the 512K probe.</p>
+        <span class="c-meta"><span>2026-09-14</span><span class="path">qwen38-flashnext-driver.html</span></span>
+      </a>
+    </div>
+  </section>
+
+  <section class="block" id="dense">
+    <h2 class="sec"><span class="sw" style="background:var(--s2)"></span>Qwen3.8-27B — prefix cache, MTP and runtime</h2>
+    <p class="s-note">The dense 27B campaign: selection of runtime, quant, prefix cache and speculation. These pages are
+    kept as they were and are not maintained.</p>
+    <div class="cards">
+      <a class="card" style="--c:var(--s2)" href="overview.html">
+        <span class="c-title">Prefix cache, MTP and runtime</span>
+        <p class="c-desc">Campaign dashboard: sustained decode per arm, runtimes and quants, tests, gate verdicts,
+        queue and coverage matrix.</p>
+        <span class="c-meta"><span class="tag hist">historical</span><span>2026-09-07</span><span class="path">overview.html</span></span>
+      </a>
+      <a class="card" style="--c:var(--s2)" href="perf-lines.html">
+        <span class="c-title">End-to-end speed to 256K</span>
+        <p class="c-desc">Five configurations that reached the native context: decode, prefill, warm and cold effective
+        throughput, total wait, peak RAM and cache hit per scenario.</p>
+        <span class="c-meta"><span class="tag hist">historical</span><span>2026-09-07</span><span class="path">perf-lines.html</span></span>
+      </a>
+    </div>
+  </section>
+
+  <section class="block" id="benchmarks">
+    <h2 class="sec"><span class="sw" style="background:var(--s3)"></span>Local benchmarks</h2>
+    <p class="s-note">Speed and quality of local models measured on this rig, compared with frontier models.</p>
+    <div class="cards">
+      <a class="card" style="--c:var(--s3)" href="benchmarks.html">
+        <span class="c-title">Benchmark dashboard</span>
+        <p class="c-desc">One-page summary of the 9 datasets: decode by model size, long-context wait, quality,
+        hallucination and RAG, reasoning probes, cross-harness consistency and SVG quality.
+        It was the site's landing page until 2026-09-14.</p>
+        <span class="c-meta"><span>2026-09-14</span><span class="path">benchmarks.html</span></span>
+      </a>
+      <a class="card" style="--c:var(--s3)" href="benchmark-charts.html">
+        <span class="c-title">On-rig measurements</span>
+        <p class="c-desc">Accuracy (n=100), LiveCodeBench (n=50), tool calling, throughput, speed probe, prefill and elapsed
+        time of the local models on LM Studio / MLX. Filters by model, tier, architecture and quant.</p>
+        <span class="c-meta"><span>2026-07-12</span><span class="path">benchmark-charts.html</span></span>
+      </a>
+      <a class="card" style="--c:var(--s3)" href="quality-benchmarks-charts.html">
+        <span class="c-title">Local quality vs frontier</span>
+        <p class="c-desc">Published scores (MMLU-Pro, GPQA, SWE-V, AIME, LCB v6, T-Bench, MMMU) of the local models against
+        frontier and open-weight reference models.</p>
+        <span class="c-meta"><span>2026-07-12</span><span class="path">quality-benchmarks-charts.html</span></span>
+      </a>
+      <a class="card" style="--c:var(--s3)" href="terminal-bench-scoreboard.html">
+        <span class="c-title">Terminal-Bench 2.0 scoreboard</span>
+        <p class="c-desc">Ranking of 9 local models and an 89-task × 9-model matrix: who solved what, by category,
+        difficulty and time budget.</p>
+        <span class="c-meta"><span>2026-07-12</span><span class="path">terminal-bench-scoreboard.html</span></span>
+      </a>
+    </div>
+  </section>
+
+  <section class="block" id="agents">
+    <h2 class="sec"><span class="sw" style="background:var(--s4)"></span>Harnesses and agents</h2>
+    <p class="s-note">What local and frontier models produce inside coding harnesses from the same prompt: SVG drawings,
+    a game and landing pages. Also field performance from day-to-day opencode use.</p>
+    <div class="cards">
+      <a class="card" style="--c:var(--s4)" href="harness-matrix-svgbench.html">
+        <span class="c-title">SVGBench on the harness matrix</span>
+        <p class="c-desc">84 SVGs from 6 harness × model pairs, graded requirement by requirement by a single judge:
+        leaderboard, head-to-head, per-question detail and a filterable gallery.</p>
+        <span class="c-meta"><span>2026-09-08</span><span class="path">harness-matrix-svgbench.html</span></span>
+      </a>
+      <a class="card" style="--c:var(--s4)" href="agent-build-off.html">
+        <span class="c-title">Agent Build-Off</span>
+        <p class="c-desc">Five agent stacks build the same 3D game from the same brief in one session: time, output
+        tokens, lines shipped, bundle size and defects found.</p>
+        <span class="c-meta"><span>2026-09-08</span><span class="path">agent-build-off.html</span></span>
+      </a>
+      <a class="card" style="--c:var(--s4)" href="layout-skill-bench.html">
+        <span class="c-title">Layout Skill Bench</span>
+        <p class="c-desc">One local model (Qwen3.8-Flash-Next), three design skills and a no-skill baseline build five
+        landing-page iterations: time, output tokens and the pages side by side.</p>
+        <span class="c-meta"><span>2026-09-08</span><span class="path">layout-skill-bench.html</span></span>
+      </a>
+      <a class="card" style="--c:var(--s4)" href="opencode-metrics.html">
+        <span class="c-title">opencode — field usage metrics</span>
+        <p class="c-desc">Performance observed in day-to-day opencode use, per model and provider: TPS, TTFT, prefill,
+        TPS per context, context size, cache hit and cost. <b>Field usage, not a controlled benchmark.</b></p>
+        <span class="c-meta"><span>2026-09-14</span><span class="path">opencode-metrics.html</span></span>
+      </a>
+      <a class="card" style="--c:var(--s4)" href="artifacts.html">
+        <span class="c-title">Artifacts gallery</span>
+        <p class="c-desc">Qwen3.8-Flash-Next's work next to frontier models' work on the same tasks: graded SVG drawings,
+        the built games and the landing pages, each with its numbers. 112 drawings from four newer pairs (gpt-5.6-sol, gpt-6-astra and two DeepSeek
+        models) have no verdict yet and are marked unscored.</p>
+        <span class="c-meta"><span>2026-09-15</span><span class="path">artifacts.html</span></span>
+      </a>
+    </div>
+  </section>
+
+  <section class="block" id="demos">
+    <h2 class="sec"><span class="sw" style="background:var(--s5)"></span>Demos</h2>
+    <p class="s-note">The builds the agents delivered, published as they are. They run in the browser.</p>
+    <div class="cards">
+      <a class="card" style="--c:var(--s5)" href="demos/build-off/opencode-qwen38/">
+        <span class="c-title">Build-Off · opencode + Qwen3.8</span>
+        <p class="c-desc">The Agent Build-Off 3D game built by opencode with local Qwen3.8.</p>
+        <span class="c-meta"><span class="tag">game</span><span class="path">demos/build-off/opencode-qwen38/</span></span>
+      </a>
+      <a class="card" style="--c:var(--s5)" href="demos/build-off/opencode-qwen38-superpowers/">
+        <span class="c-title">Build-Off · opencode + Qwen3.8 + superpowers</span>
+        <p class="c-desc">The same stack with the superpowers skills enabled.</p>
+        <span class="c-meta"><span class="tag">game</span><span class="path">demos/build-off/opencode-qwen38-superpowers/</span></span>
+      </a>
+      <a class="card" style="--c:var(--s5)" href="demos/build-off/claude-qwen38/">
+        <span class="c-title">Build-Off · Claude Code + Qwen3.8</span>
+        <p class="c-desc">The 3D game built by Claude Code running local Qwen3.8.</p>
+        <span class="c-meta"><span class="tag">game</span><span class="path">demos/build-off/claude-qwen38/</span></span>
+      </a>
+      <a class="card" style="--c:var(--s5)" href="demos/build-off/claude-opus5/">
+        <span class="c-title">Build-Off · Claude Code + Opus 5</span>
+        <p class="c-desc">The 3D game built by Claude Code with hosted Claude Opus 5.</p>
+        <span class="c-meta"><span class="tag">game</span><span class="path">demos/build-off/claude-opus5/</span></span>
+      </a>
+      <a class="card" style="--c:var(--s5)" href="demos/build-off/codex-astra/">
+        <span class="c-title">Build-Off · Codex + gpt-6-astra</span>
+        <p class="c-desc">The 3D game built by Codex with hosted gpt-6-astra (multi-model).</p>
+        <span class="c-meta"><span class="tag">game</span><span class="path">demos/build-off/codex-astra/</span></span>
+      </a>
+      <a class="card" style="--c:var(--s5)" href="demos/layout/design-skill/">
+        <span class="c-title">Layout · design-skill</span>
+        <p class="c-desc">Five Layout Skill Bench landing pages built with the design skill, with a switcher between them.</p>
+        <span class="c-meta"><span class="tag">landing pages</span><span class="path">demos/layout/design-skill/</span></span>
+      </a>
+      <a class="card" style="--c:var(--s5)" href="demos/layout/taste-skill/">
+        <span class="c-title">Layout · taste-skill</span>
+        <p class="c-desc">Five Layout Skill Bench landing pages built with the taste skill.</p>
+        <span class="c-meta"><span class="tag">landing pages</span><span class="path">demos/layout/taste-skill/</span></span>
+      </a>
+      <a class="card" style="--c:var(--s5)" href="demos/layout/taste2/">
+        <span class="c-title">Layout · taste2</span>
+        <p class="c-desc">Five Layout Skill Bench landing pages built with the second version of the taste skill.</p>
+        <span class="c-meta"><span class="tag">landing pages</span><span class="path">demos/layout/taste2/</span></span>
+      </a>
+      <a class="card" style="--c:var(--s5)" href="demos/layout/vanilla/">
+        <span class="c-title">Layout · vanilla (no skill)</span>
+        <p class="c-desc">Five Layout Skill Bench landing pages from the baseline run, built without a design skill.</p>
+        <span class="c-meta"><span class="tag">landing pages</span><span class="path">demos/layout/vanilla/</span></span>
+      </a>
+    </div>
+  </section>
+
+  <p class="empty" id="empty">No work matches the filter.</p>
+
+  <footer>Source: <code>reports/index.html</code>, published by the <code>publish-pages.yml</code> workflow on every push to
+  <code>main</code> that touches <code>reports/</code>. When you publish a new page, add its card here.
+  Code and data: <a href="https://github.com/snagnever/macstudio-local-llm">snagnever/macstudio-local-llm</a>.</footer>
+</div>
+
+<script>
+const input=document.getElementById("filter");
+input.addEventListener("input",()=>{
+  const q=input.value.trim().toLowerCase(); let shown=0;
+  document.querySelectorAll("section.block").forEach(sec=>{
+    let n=0;
+    const secText=sec.querySelector("h2").textContent+" "+sec.querySelector(".s-note").textContent;
+    sec.querySelectorAll("a.card").forEach(c=>{
+      const hit=!q || (secText+" "+c.textContent+" "+c.getAttribute("href")).toLowerCase().includes(q);
+      c.hidden=!hit; if(hit) n++;
+    });
+    sec.hidden = n===0; shown+=n;
+  });
+  document.getElementById("empty").style.display = shown ? "none" : "block";
+});
+const btn=document.getElementById("themeBtn");
+function applyLabel(){ btn.textContent="theme: "+(document.documentElement.getAttribute("data-theme")||"auto"); }
+btn.addEventListener("click",()=>{
+  const cur=document.documentElement.getAttribute("data-theme");
+  const next=cur==null?"light":cur==="light"?"dark":null;
+  if(next) document.documentElement.setAttribute("data-theme",next); else document.documentElement.removeAttribute("data-theme");
+  try{ next?localStorage.setItem("theme",next):localStorage.removeItem("theme"); }catch(e){}
+  applyLabel();
+});
+try{ const s=localStorage.getItem("theme"); if(s) document.documentElement.setAttribute("data-theme",s); }catch(e){}
+applyLabel();
+</script>

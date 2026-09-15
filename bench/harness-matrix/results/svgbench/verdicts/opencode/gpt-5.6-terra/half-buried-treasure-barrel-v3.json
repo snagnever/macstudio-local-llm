@@ -1,0 +1,63 @@
+{
+  "artifact": "logs/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v3.svg",
+  "question_index": 13,
+  "render": "logs/renders/opencode/gpt-5.6-terra/half-buried-treasure-barrel-v3.png",
+  "judge": {
+    "kind": "claude-vision",
+    "model": "claude-opus-5",
+    "date": "2026-09-07",
+    "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {
+      "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+      "met": false,
+      "note": "Three metal hoops are strapped across the barrel body, not two."
+    },
+    {
+      "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
+      "met": false,
+      "note": "More than the top half shows: the barrel stands about 425 px tall above the dune against a drawn width of about 437 px (ratio 0.97, where half a barrel is roughly 0.7 of its width), and its lower-left base curve is drawn above the sand."
+    },
+    {
+      "text": "Show the sand mounded up slightly around the visible base of the barrel.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "The barrel must be open at the top and filled with treasure items.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+      "met": false,
+      "note": "Nothing overflows the rim and nothing spills down any side of the barrel; the three coins and two pearls on the dune are isolated objects with no trail connecting them to the barrel."
+    },
+    {
+      "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+      "met": false,
+      "note": "Outside the barrel there are only three isolated coins scattered on the dune, which is not a large pile."
+    },
+    {
+      "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+      "met": false,
+      "note": "Neither green nor blue is present: the two non-red gems are teal (43,189,163, hue 169 degrees) and the other two are crimson, so there is no green emerald and no blue sapphire."
+    },
+    {
+      "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+      "met": false,
+      "note": "The pearls are three loose beads lying among the coins inside the barrel and two more sitting on the dune; there is no string, and nothing is draped over the barrel's edge."
+    },
+    {
+      "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+      "met": false,
+      "note": "No goblet appears anywhere in the render."
+    },
+    {
+      "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
+      "met": false,
+      "note": "There is no goblet in the render, so the required glint on the goblet cannot be present."
+    }
+  ]
+}

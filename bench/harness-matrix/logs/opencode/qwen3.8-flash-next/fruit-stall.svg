@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7ec8e3"/>
+      <stop offset="1" stop-color="#dff3fb"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a9743f"/>
+      <stop offset="1" stop-color="#8a5a2b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- sky -->
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <!-- sun -->
+  <circle cx="1060" cy="110" r="55" fill="#ffd75e"/>
+  <!-- clouds -->
+  <g fill="#ffffff" opacity="0.9">
+    <ellipse cx="200" cy="120" rx="70" ry="24"/>
+    <ellipse cx="260" cy="105" rx="50" ry="20"/>
+    <ellipse cx="720" cy="80" rx="60" ry="20"/>
+    <ellipse cx="780" cy="95" rx="45" ry="16"/>
+  </g>
+
+  <!-- ground -->
+  <rect y="620" width="1200" height="180" fill="#c9b18a"/>
+  <rect y="620" width="1200" height="12" fill="#b39a72"/>
+
+  <!-- stall back wall -->
+  <rect x="240" y="220" width="720" height="420" fill="#e8dcc8"/>
+  <rect x="240" y="220" width="720" height="420" fill="none" stroke="#8a5a2b" stroke-width="6"/>
+
+  <!-- awning -->
+  <g>
+    <path d="M200 140 H1000 L1030 230 H170 Z" fill="#d94f3d"/>
+    <path d="M280 140 H360 L350 230 H262 Z" fill="#fdf0e0"/>
+    <path d="M440 140 H520 L516 230 H428 Z" fill="#fdf0e0"/>
+    <path d="M600 140 H680 L682 230 H594 Z" fill="#fdf0e0"/>
+    <path d="M760 140 H840 L848 230 H760 Z" fill="#fdf0e0"/>
+    <path d="M920 140 H1000 L1014 230 H926 Z" fill="#fdf0e0"/>
+  </g>
+  <!-- scallops -->
+  <g>
+    <path d="M170 230 a30 24 0 0 0 60 0 Z" fill="#d94f3d"/>
+    <path d="M230 230 a30 24 0 0 0 60 0 Z" fill="#fdf0e0"/>
+    <path d="M290 230 a30 24 0 0 0 60 0 Z" fill="#d94f3d"/>
+    <path d="M350 230 a30 24 0 0 0 60 0 Z" fill="#fdf0e0"/>
+    <path d="M410 230 a30 24 0 0 0 60 0 Z" fill="#d94f3d"/>
+    <path d="M470 230 a30 24 0 0 0 60 0 Z" fill="#fdf0e0"/>
+    <path d="M530 230 a30 24 0 0 0 60 0 Z" fill="#d94f3d"/>
+    <path d="M590 230 a30 24 0 0 0 60 0 Z" fill="#fdf0e0"/>
+    <path d="M650 230 a30 24 0 0 0 60 0 Z" fill="#d94f3d"/>
+    <path d="M710 230 a30 24 0 0 0 60 0 Z" fill="#fdf0e0"/>
+    <path d="M770 230 a30 24 0 0 0 60 0 Z" fill="#d94f3d"/>
+    <path d="M830 230 a30 24 0 0 0 60 0 Z" fill="#fdf0e0"/>
+    <path d="M890 230 a30 24 0 0 0 60 0 Z" fill="#d94f3d"/>
+    <path d="M950 230 a30 24 0 0 0 60 0 Z" fill="#fdf0e0"/>
+  </g>
+
+  <!-- poles -->
+  <rect x="250" y="254" width="14" height="386" fill="#7a4a22"/>
+  <rect x="936" y="254" width="14" height="386" fill="#7a4a22"/>
+
+  <!-- counter -->
+  <rect x="240" y="470" width="720" height="30" fill="url(#wood)"/>
+  <rect x="260" y="500" width="680" height="140" fill="#93602f"/>
+  <g stroke="#7a4a22" stroke-width="4">
+    <line x1="380" y1="500" x2="380" y2="640"/>
+    <line x1="500" y1="500" x2="500" y2="640"/>
+    <line x1="620" y1="500" x2="620" y2="640"/>
+    <line x1="740" y1="500" x2="740" y2="640"/>
+    <line x1="860" y1="500" x2="860" y2="640"/>
+  </g>
+
+  <!-- shelf on back wall -->
+  <rect x="290" y="330" width="620" height="14" fill="#8a5a2b"/>
+
+  <!-- shelf fruits: oranges -->
+  <g fill="#ff8c1a">
+    <circle cx="330" cy="305" r="22"/>
+    <circle cx="374" cy="305" r="22"/>
+    <circle cx="418" cy="305" r="22"/>
+    <circle cx="352" cy="270" r="22"/>
+    <circle cx="396" cy="270" r="22"/>
+  </g>
+  <!-- shelf fruits: apples -->
+  <g fill="#d32f2f">
+    <circle cx="520" cy="305" r="22"/>
+    <circle cx="564" cy="305" r="22"/>
+    <circle cx="608" cy="305" r="22"/>
+    <circle cx="542" cy="270" r="22"/>
+    <circle cx="586" cy="270" r="22"/>
+  </g>
+  <!-- shelf fruits: pears -->
+  <g fill="#8bc34a">
+    <ellipse cx="700" cy="300" rx="18" ry="26"/>
+    <ellipse cx="740" cy="300" rx="18" ry="26"/>
+    <ellipse cx="780" cy="300" rx="18" ry="26"/>
+  </g>
+
+  <!-- crates on counter -->
+  <!-- crate 1 apples -->
+  <g>
+    <g fill="#c62828">
+      <circle cx="310" cy="440" r="24"/>
+      <circle cx="358" cy="440" r="24"/>
+      <circle cx="406" cy="440" r="24"/>
+      <circle cx="334" cy="410" r="24"/>
+      <circle cx="382" cy="410" r="24"/>
+    </g>
+    <rect x="280" y="452" width="160" height="50" fill="#b07a43" stroke="#7a4a22" stroke-width="4"/>
+  </g>
+  <!-- crate 2 oranges -->
+  <g>
+    <g fill="#f57c00">
+      <circle cx="500" cy="440" r="24"/>
+      <circle cx="548" cy="440" r="24"/>
+      <circle cx="596" cy="440" r="24"/>
+      <circle cx="524" cy="410" r="24"/>
+      <circle cx="572" cy="410" r="24"/>
+    </g>
+    <rect x="470" y="452" width="160" height="50" fill="#b07a43" stroke="#7a4a22" stroke-width="4"/>
+  </g>
+  <!-- crate 3 lemons -->
+  <g>
+    <g fill="#fdd835">
+      <ellipse cx="690" cy="440" rx="26" ry="20"/>
+      <ellipse cx="740" cy="440" rx="26" ry="20"/>
+      <ellipse cx="790" cy="440" rx="26" ry="20"/>
+      <ellipse cx="715" cy="412" rx="26" ry="20"/>
+      <ellipse cx="765" cy="412" rx="26" ry="20"/>
+    </g>
+    <rect x="660" y="452" width="160" height="50" fill="#b07a43" stroke="#7a4a22" stroke-width="4"/>
+  </g>
+  <!-- banana bunch -->
+  <g fill="#fbc02d" stroke="#c79100" stroke-width="3">
+    <path d="M860 470 q40 -60 90 -40 q-30 10 -40 40 z"/>
+    <path d="M870 476 q50 -50 100 -20 q-35 4 -50 30 z"/>
+    <path d="M880 482 q55 -35 95 0 q-35 0 -45 22 z"/>
+  </g>
+
+  <!-- grapes -->
+  <g fill="#7b1fa2">
+    <circle cx="905" cy="300" r="12"/>
+    <circle cx="930" cy="300" r="12"/>
+    <circle cx="955" cy="300" r="12"/>
+    <circle cx="917" cy="322" r="12"/>
+    <circle cx="942" cy="322" r="12"/>
+    <circle cx="929" cy="344" r="12"/>
+  </g>
+
+  <!-- watermelons on ground -->
+  <g>
+    <circle cx="320" cy="600" r="46" fill="#2e7d32"/>
+    <circle cx="400" cy="606" r="40" fill="#388e3c"/>
+    <circle cx="360" cy="570" r="36" fill="#1b5e20"/>
+  </g>
+
+  <!-- chalkboard sign -->
+  <g>
+    <rect x="540" y="360" width="180" height="90" rx="6" fill="#2f3e34" stroke="#7a4a22" stroke-width="8"/>
+    <text x="630" y="398" text-anchor="middle" font-family="Comic Sans MS, sans-serif" font-size="26" fill="#fdf6e3">FRESH</text>
+    <text x="630" y="430" text-anchor="middle" font-family="Comic Sans MS, sans-serif" font-size="26" fill="#fdf6e3">FRUIT</text>
+  </g>
+
+  <!-- hanging scale -->
+  <g stroke="#555" stroke-width="4" fill="#999">
+    <line x1="960" y1="260" x2="960" y2="320"/>
+    <path d="M930 320 h60 l-10 26 h-40 z"/>
+  </g>
+</svg>
