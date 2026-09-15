@@ -215,6 +215,73 @@ em ~4.0–4.3 bpw e uma parte plana acima disso. Os três quants MLX candidatos 
 (~4.5–5.5 bpw efetivos); a diferença esperada de fidelidade entre eles é de ~1–2 pp de PPL. Uma
 needle errada na Etapa A é sintoma de runtime (MTP lossy, cache), não do quant.
 
+## Etapa C — contexto longo com reps (adicionada em 14/09)
+
+Motivo: a 256K a Etapa A tem 1 rep sem `append`, e a 512K a sonda não tem `tool_turn`, então as duas
+bandas não têm `T_turno` comparável. A Etapa C não muda o veredito; ela dá `T_turno` a 256K e 512K.
+
+- **c1, c3, c2 @ 262144:** `cold, identical, append, tool_turn` × 3 reps. Arquivo `<cand>-262144-t1.0-c.jsonl`.
+- **c1 @ 524288:** YaRN 2.0 + KV 8-bit, `cold, identical, tool_turn` × 2 reps. Arquivo `c1-524288-t1.0-yarn2-c.jsonl`.
+- **Fora:** c4 a 256K (HTTP 507 já registrado); c2/c3/c4 a 512K (oMLX sem YaRN; MTPLX recusa já a 128K).
+- Ordem: c1 256K → c1 512K → c3 256K → c2 256K; o daily driver fica parado durante a etapa.
+- No `consolidate_reports.py` o estágio `C` tem o mesmo peso da Etapa B: substitui a Etapa A e a sonda
+  na mesma banda.
+
+## Etapa U — variantes uncensored (adicionada em 14/09)
+
+Pergunta: uma variante uncensored do Flash-Next serve como driver diário **sem perder responsividade**
+nem capacidade? A variável isolada é o peso ([[isolate-the-variable-when-measuring]]): mesmo runtime,
+mesmo layout de quant e mesmos flags do candidato de referência.
+
+### Braços
+
+| braço | pesos | runtime | referência | tamanho | método |
+|---|---|---|---|---:|---|
+| **u1** | `ARC4NUM/Qwen3.8-Flash-Next-Uncensored-MLX-Serve-4bit` @ `9ebf999` | mlx-serve 26.9.2 | c1 | 107.3 GB | abliteration (orcarouter, BF16 `8336e61`) |
+| u2 (opcional) | `latent-variable/Qwen3.8-Flash-Next-heretic-2-oQ4e-mtp` @ `65b0cd6` | oMLX 0.7.0.dev2 | c3 | 106.3 GB | Heretic 1.3 (card: KL 0.082, recusas 0/100) |
+
+- **u1 é o braço principal.** O `config.json` do pack é idêntico ao do ddalcu (94 chaves, 0 diferenças):
+  mixed 4/8, n-gram 4-bit mmap, cabeça MTP incluída. O `yomie4343/...-MLX-Serve-mixed-4-8bit` é um
+  mirror byte a byte do mesmo pack (102/102 SHA-256); não baixar os dois.
+- u2 roda só se u1 perder no gate de responsividade ou de correção. O MTPLX (`grant-ai/...-Abliterated-MTPLX-4bit`)
+  fica fora: o runtime recusa 128K ([[mtplx-flashnext-128k-fit]]). GGUF fica fora: não roda nos stacks da campanha.
+- O 27B denso (`OBLITERATUS/Qwen3.8-27B-OBLITERATED`) fica fora desta campanha: a densa 3.8-27B já é NO-GO
+  ([[qwen38-27b-nogo-verdict]]).
+
+### Hipóteses a medir
+
+1. **Aceitação da MTP cai.** A abliteration edita o modelo principal, mas a cabeça MTP não foi re-treinada.
+   Se a distribuição do principal muda, a MTP aceita menos drafts e o decode cai. Medir `mtp_acceptance`
+   do log contra o c1 na mesma banda.
+2. **Velocidade de prefill e cache não mudam** (mesmas shapes). Diferença acima do ruído é sinal de pack diferente.
+3. **Crash de MTP no reload do cache.** O card da yomie4343 relata um crash de shape na quantização
+   ao recarregar a MTP num engine antigo e publica um patch. Verificar se a 26.9.2 upstream já cobre
+   isso: `stream_failures` e HTTP 5xx nas 3 reps contam como falha.
+
+### Protocolo
+
+- **Download após a Etapa C** (I/O de disco perturba o page-in do n-gram durante as runs). `df` antes:
+  ≥ 150 GB livres por pack ([[check-disk-before-model-downloads]]). Pinar a revisão.
+- `run-candidate.sh` ganha `u1` (e `u2`): cópia do case `c1` (`c3`) com outro `MODEL_DIR`/`MODEL_REV`.
+- **Smoke 8K** (`cold/identical/tool_turn`, 1 rep): carrega, MTP ativa no log, needles ok.
+- **32K e 128K × 3 reps**, mesmo protocolo da Etapa B. Arquivos `u1-<ctx>-t1.0-b.jsonl`.
+- **Sonda de recusa (nova, `scripts/refusal_probe.py`):** 40 prompts legítimos que modelos alinhados
+  costumam recusar, em 4 categorias de 10: segurança ofensiva em contexto autorizado (pentest, CTF),
+  dose e interação de medicamentos, redução de danos, e ficção com tema adulto ou violento. Mais 10
+  controles neutros. Perfil do vendor, 1 amostra por prompt, no c1 e no u1 em sequência no mesmo
+  servidor de cada braço. Classificação: regex de recusa + revisão manual das divergências. Saída:
+  `results/refusal-<cand>.jsonl`, só com o veredito e os primeiros 200 caracteres da resposta
+  (a resposta completa não entra no repo).
+
+### Critério
+
+- **u1 vira driver alternativo** (não substitui o c1 por padrão) se: `T_turno` a 32K e 128K dentro de 5%
+  do c1, aceitação da MTP ≥ c1 − 0.05, needles 3/3, zero falhas de stream/HTTP, e recusas nas 4
+  categorias abaixo do c1.
+- Qualidade de agente não entra no ranking (mesma regra do plano). Referência publicada, não medida:
+  o card da yomie4343 dá 21/25 no uncensored contra 22/25 no original, 1 trial.
+- Resultado em `results/etapa-u.md`; as páginas do Flash-Next ganham os braços u1/u2.
+
 ## Entregáveis
 
 - `results/*.jsonl` — telemetria por candidato e banda (distilado, ≤1 MB por arquivo), com o

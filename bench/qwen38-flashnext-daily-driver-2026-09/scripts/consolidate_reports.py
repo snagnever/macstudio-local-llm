@@ -39,8 +39,10 @@ SUFFIX_STAGE = {
     "yarn2": ("probe", "canonical", "YaRN 2.0 + KV 8-bit"),
     "nomtp": ("diag", "diag", "temp 0 · MTP off"),
     "mem102g": ("diag", "diag", "MTPLX_MEMORY_LIMIT_BYTES=102G"),
+    "c": ("C", "canonical", ""),
+    "yarn2-c": ("C", "canonical", "YaRN 2.0 + KV 8-bit"),
 }
-STAGE_RANK = {"B": 3, "A": 2, "0": 2, "probe": 2, "diag": 0}
+STAGE_RANK = {"B": 3, "C": 3, "A": 2, "0": 2, "probe": 2, "diag": 0}
 
 CANDIDATES = [
     {

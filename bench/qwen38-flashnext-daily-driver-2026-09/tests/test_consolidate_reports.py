@@ -29,6 +29,8 @@ def test_stage_for_maps_file_suffixes():
     assert cr.stage_for(32768, "1.0", None) == ("A", "canonical", "")
     assert cr.stage_for(32768, "1.0", "b")[0] == "B"
     assert cr.stage_for(524288, "1.0", "yarn2")[0] == "probe"
+    assert cr.stage_for(262144, "1.0", "c") == ("C", "canonical", "")
+    assert cr.stage_for(524288, "1.0", "yarn2-c") == ("C", "canonical", "YaRN 2.0 + KV 8-bit")
     assert cr.stage_for(32768, "0", None) == ("diag", "diag", "temp 0")
     assert cr.stage_for(32768, "0", "nomtp")[2] == "temp 0 · MTP off"
     assert cr.stage_for(131072, "1.0", "mem102g")[1] == "diag"
@@ -56,6 +58,17 @@ def test_build_group_marks_http_refusal(tmp_path):
     g = cr.build_group(tmp_path / "c4-262144-t1.0.jsonl", records)
     assert g["refused"] and g["error_kinds"] == ["http_507"]
     assert g["t_turno_s"] is None and g["scenarios_served"] == []
+
+
+def test_mark_canonical_prefers_stage_c_over_probe_and_a():
+    groups = [
+        {"cand": "c1", "context": 524288, "stage": "probe", "mode": "canonical", "canonical": False},
+        {"cand": "c1", "context": 524288, "stage": "C", "mode": "canonical", "canonical": False},
+        {"cand": "c3", "context": 262144, "stage": "A", "mode": "canonical", "canonical": False},
+        {"cand": "c3", "context": 262144, "stage": "C", "mode": "canonical", "canonical": False},
+    ]
+    cr.mark_canonical(groups)
+    assert [g["canonical"] for g in groups] == [False, True, False, True]
 
 
 def test_mark_canonical_prefers_stage_b():

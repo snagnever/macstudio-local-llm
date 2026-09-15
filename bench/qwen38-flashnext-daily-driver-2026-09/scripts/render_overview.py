@@ -493,7 +493,7 @@ const G = DATA.groups, CANDS = DATA.candidates;
 const CAND = Object.fromEntries(CANDS.map(c => [c.id, c]));
 const GATE_CTX = [32768, 131072];
 const ctxK = (c) => (c/1024)+"K";
-const STAGE_LABEL = {"0":"Stage 0","A":"Stage A","B":"Stage B","probe":"Probe","diag":"Diag"};
+const STAGE_LABEL = {"0":"Stage 0","A":"Stage A","B":"Stage B","C":"Stage C","probe":"Probe","diag":"Diag"};
 const rt = (g) => `${CAND[g.cand].runtime} ${CAND[g.cand].runtime_version}`;
 const METRICS = {
   tturno:  {btn:"T_turn",      label:"T_turn",                  get:g=>g.t_turno_s,        better:"low",  fmt:v=>v.toFixed(2)+" s"},
@@ -753,7 +753,7 @@ function initControls(){
   seg(document.getElementById("f-ctx"),
     [{val:"all",label:"all"}].concat(ctxs.map(c=>({val:String(c),label:ctxK(c)}))),
     state.ctx, v=>{ state.ctx=v; renderTable(); });
-  const stages = ["0","A","B","probe","diag"].filter(s=>G.some(g=>g.stage===s));
+  const stages = ["0","A","B","C","probe","diag"].filter(s=>G.some(g=>g.stage===s));
   seg(document.getElementById("f-stage"),
     [{val:"all",label:"all"}].concat(stages.map(s=>({val:s,label:STAGE_LABEL[s]}))),
     state.stage, v=>{ state.stage=v; refresh(); });
