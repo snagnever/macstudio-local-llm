@@ -108,8 +108,8 @@ PLE at layer 1, QSA budget 2048/4`), MTP forçado ON. **Sem hack de offload, sem
 > prático = 512K.** 1M é one-shot cold (kv8) ou multi-turno a ~5 tok/s (`turbo4`) — nicho, fora do
 > uso diário. ds4 (fork ivanfioravanti): footprint 80–88 GB, mas decode 40/39/36 e prefill ~575 —
 > perde em tudo no M4 Max; cache só com `--kv-disk-dir`. MTPLX 2.11.2 promovido por correção (a MTP
-> da 2.11.1 é lossy a 32K na densa 27B). oMLX 0.7.0.dev2 deferida: o offload de PLE por env é
-> sobreposto pelo setting por-modelo da 0.7 e o oQ4e carrega residente (~98 GB).
+> da 2.11.1 é lossy a 32K na densa 27B). oMLX 0.7.0.dev2 deferida aqui, depois medida
+> na campanha do driver diário (c3, 2º lugar; PLE offload via `model_settings.json`).
 > Dados: `../qwen38-updates-2026-09/results/p1-*.jsonl`, `p4c-*.jsonl`.
 
 > **Atualização 2026-09-07 — o `append`/`middle` a 0.00 era CAP de 2 GB, não design.** A/B no mesmo
@@ -299,9 +299,11 @@ não medem qualidade de agente: o MiniMax IQ2_M empatou com o Q3_K_S no Terminal
   `--kv-quant {4,8,turbo2,turbo4}`. Batched decode **não** engaja no MoE (1 slot). Ganhos NAX são de M5.
 - **oMLX 0.6.4 (estável):** `qwen4_exp` nativo, Lightning MTP, warm-prefix restoration. Flash-Next só cabe
   com `qwen4_ple_ssd_offload: true` (residente 99.6 → 69.6 GB; custo ~15% de decode). @262K: 27 tok/s,
-  prefill 217. **0.7.0.dev2 (pré-release):** declara +8–20% de prefill com PLE via SSD; no rig o offload
-  por env não pega (setting por-modelo da 0.7) — bloqueio de config, não de engine
-  ([p4-item4](../qwen38-updates-2026-09/results/p4-item4-omlx-dev2-blocked.md)).
+  prefill 217. **0.7.0.dev2 (pré-release):** declara +8–20% de prefill com PLE via SSD. Medida no rig
+  em 2026-09-13 (c3): `T_turno` 13.48 / 15.03 s a 32K / 128K, 2º atrás do mlx-serve; PLE offload via
+  `qwen4_ple_ssd_offload: true` no `model_settings.json`
+  ([summary](../qwen38-flashnext-daily-driver-2026-09/results/summary.md)). O bloqueio de
+  [p4-item4](../qwen38-updates-2026-09/results/p4-item4-omlx-dev2-blocked.md) não se confirmou.
 - **MTPLX 2.11.2 (default do rig):** pack `Youssofal/Qwen3.8-Flash-Next-MTPLX-Optimized-Speed` (112 GB,
   em disco, nunca medido no rig). Notas da 2.10: n-gram faz stream do SSD, hot-row cache. 2.11.2 corrige a
   MTP lossy da 2.11.1 e recusa antes do swap em 128 GB; verify de flash-decoding gated a M5.

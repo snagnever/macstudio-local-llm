@@ -1,5 +1,11 @@
 # P2 item 4 — oMLX 0.7.0.dev2: DEFERIDO (incompatibilidade de PLE offload em pre-release)
 
+> **Superado (2026-09-13).** A hipótese deste arquivo não se confirmou. O offload de PLE da dev2 usa o
+> mesmo `model_settings.json` da 0.6.4
+> ([c3-dev2-ple-config.md](../../qwen38-flashnext-daily-driver-2026-09/results/c3-dev2-ple-config.md)).
+> A dev2 foi medida como candidato c3
+> ([summary.md](../../qwen38-flashnext-daily-driver-2026-09/results/summary.md)). O texto abaixo é histórico.
+
 Instalado: omlx v0.7.0.dev2 em venv isolado (git+https://github.com/jundot/omlx.git@v0.7.0.dev2).
 Serve 0.7 e multi-modelo (--model-dir descobre subpastas); flags: --memory-guard {off,safe,
 balanced,aggressive}, --paged-ssd-cache-dir, etc.

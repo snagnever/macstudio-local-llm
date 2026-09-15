@@ -153,5 +153,11 @@ before pointing a harness at it; the port and quant change as arms come and go.
 - Reference other files by repo-relative path so links stay clickable on GitHub.
 - Each `bench/<campaign>/plan.md` preserves the original dated title so the
   chronology isn't lost.
+- When a later campaign resolves an item that an earlier campaign marked
+  deferred or blocked, update the earlier `plan.md` status and the blocker note
+  with a link to the new result. Stale "deferred" labels make agents propose
+  tests that already ran.
+- Before proposing a test of a runtime or quant version, search
+  `bench/*/results/` and `docs/models/` for that version string.
 - Don't add a new top-level directory without a reason that none of the above
   cover.
