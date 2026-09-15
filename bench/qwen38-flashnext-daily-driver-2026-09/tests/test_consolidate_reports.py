@@ -28,7 +28,7 @@ def test_stage_for_maps_file_suffixes():
     assert cr.stage_for(8192, "1.0", None) == ("0", "canonical", "")
     assert cr.stage_for(32768, "1.0", None) == ("A", "canonical", "")
     assert cr.stage_for(32768, "1.0", "b")[0] == "B"
-    assert cr.stage_for(524288, "1.0", "yarn2")[0] == "sonda"
+    assert cr.stage_for(524288, "1.0", "yarn2")[0] == "probe"
     assert cr.stage_for(32768, "0", None) == ("diag", "diag", "temp 0")
     assert cr.stage_for(32768, "0", "nomtp")[2] == "temp 0 · MTP off"
     assert cr.stage_for(131072, "1.0", "mem102g")[1] == "diag"
@@ -76,7 +76,7 @@ def test_campaign_data_matches_summary_verdict():
     assert _canon(data, "c3", 131072)["t_turno_s"] == 15.03
     c4 = _canon(data, "c4", 131072)
     assert c4["refused"] and "http_errors" in c4["gates_failed"]
-    assert _canon(data, "c1", 524288)["stage"] == "sonda"
+    assert _canon(data, "c1", 524288)["stage"] == "probe"
     assert ro.gate_passers(data) == ["c1", "c2", "c3"]
 
 
@@ -87,7 +87,7 @@ def test_renderers_fill_every_placeholder(tmp_path):
     for page in (overview, perf):
         for marker in ("__DATA__", "__TILES__", "__PAYLOAD__", "/*__CSS__*/", "__DENSE_CSS__", "__PERF_CSS__"):
             assert marker not in page
-    assert "12.35" in overview and "Veredito: c1 mlx-serve 26.9.2" in overview
+    assert "12.35" in overview and "Verdict: c1 mlx-serve 26.9.2" in overview
     payload = rpl.build_payload(data)
     assert payload["points"]["c4"]["524288"]["status"] == rpl.ABSENT[("c4", 524288)]
     assert set(payload["hitmap"]["c4"]["131072"].values()) == {"x"}

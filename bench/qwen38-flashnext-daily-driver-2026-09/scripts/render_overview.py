@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Renderiza results/reports.json em reports/qwen38-flashnext-overview.html.
+"""Render results/reports.json into reports/qwen38-flashnext-overview.html.
 
-Mesmo layout do reports/overview.html da campanha densa: tiles, abas
-(Performance, Runtimes e quants, Testes, Gates e fila, Glossário), gráfico de
-barras com seletor de métrica, matriz por contexto e tabela filtrável. Os dados
-vão embutidos como JSON; gráfico, filtros e tabelas são montados no cliente.
+Same layout as the dense campaign's reports/overview.html: tiles, tabs
+(Performance, Runtimes & quants, Tests, Gates & queue, Glossary), a bar chart
+with a metric selector, a matrix by context and a filterable table. The data is
+embedded as JSON; the browser builds the chart, filters and tables.
 
     python3 bench/qwen38-flashnext-daily-driver-2026-09/scripts/consolidate_reports.py
     python3 bench/qwen38-flashnext-daily-driver-2026-09/scripts/render_overview.py
@@ -23,8 +23,8 @@ OUT = CAMPAIGN.parents[1] / "reports" / "qwen38-flashnext-overview.html"
 GATE_CTX = (32768, 131072)
 STATE_CLASS = {"pass": "ok", "done": "ok", "control": "neutral", "fail": "bad",
                "running": "run", "pending": "wait"}
-STATE_LABEL = {"pass": "passa", "fail": "falha", "control": "controle", "done": "feito",
-               "running": "rodando", "pending": "pendente"}
+STATE_LABEL = {"pass": "pass", "fail": "fail", "control": "control", "done": "done",
+               "running": "running", "pending": "pending"}
 
 
 def esc(value) -> str:
@@ -65,7 +65,7 @@ def build_tiles(data: dict) -> str:
         val = f'{best["t_turno_s"]:.2f}<span class="unit">s</span>'
         sub = f'{best["cand"]} · {best["reps"]} reps'
         if len(rows) > 1:
-            sub += f' · 2º {rows[1]["cand"]} {rows[1]["t_turno_s"]:.2f} s'
+            sub += f' · 2nd {rows[1]["cand"]} {rows[1]["t_turno_s"]:.2f} s'
         return val, sub
 
     reach = [g for g in canon.values() if g["served_n"]]
@@ -73,13 +73,13 @@ def build_tiles(data: dict) -> str:
     v32, s32 = t_tile(r32)
     v128, s128 = t_tile(r128)
     tiles = [
-        ("Driver diário", esc(winner["id"]) if winner else "—",
+        ("Daily driver", esc(winner["id"]) if winner else "—",
          f'{winner["quant"]} · {winner["runtime"]} {winner["runtime_version"]}' if winner else ""),
-        ("T_turno · 32K", v32, s32),
-        ("T_turno · 128K", v128, s128),
-        ("Passam nos gates", f'{len(passers)}<span class="unit">/{len(data["candidates"])}</span>',
-         "32K e 128K · " + ", ".join(passers)),
-        ("Teto de contexto", f'{top["context"] // 1024}<span class="unit">K</span>' if top else "—",
+        ("T_turn · 32K", v32, s32),
+        ("T_turn · 128K", v128, s128),
+        ("Pass the gates", f'{len(passers)}<span class="unit">/{len(data["candidates"])}</span>',
+         "32K and 128K · " + ", ".join(passers)),
+        ("Context ceiling", f'{top["context"] // 1024}<span class="unit">K</span>' if top else "—",
          f'{top["cand"]} · {top["tag"]}' if top else ""),
     ]
     return "".join(
@@ -113,9 +113,9 @@ def build_queue(queue: list[dict]) -> str:
 
 def render(data: dict) -> str:
     passers = gate_passers(data)
-    winner = next((c for c in data["candidates"] if c["state"] == "pass" and c["status"] == "vencedor"), None)
-    verdict_line = (f'Veredito: {winner["id"]} {winner["runtime"]} {winner["runtime_version"]}'
-                    if winner else "Veredito pendente")
+    winner = next((c for c in data["candidates"] if c["state"] == "pass" and c["status"] == "winner"), None)
+    verdict_line = (f'Verdict: {winner["id"]} {winner["runtime"]} {winner["runtime_version"]}'
+                    if winner else "Verdict pending")
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
     return (
         TEMPLATE
@@ -126,7 +126,7 @@ def render(data: dict) -> str:
         .replace("__QUEUE__", build_queue(data["queue"]))
         .replace("__GENERATED__", esc(data["generated_at"]))
         .replace("__VERDICTLINE__", esc(verdict_line))
-        .replace("__PASSERS__", esc(f"{len(passers)}/{len(data['candidates'])} passam nos gates"))
+        .replace("__PASSERS__", esc(f"{len(passers)}/{len(data['candidates'])} pass the gates"))
     )
 
 
@@ -355,7 +355,10 @@ td.num .chip{font-size:11px;}
 .tturno code{font-family:"IBM Plex Mono",monospace;font-size:12.5px;}
 """
 
-TEMPLATE = r"""<title>Qwen3.8-Flash-Next Daily Driver Campaign</title>
+TEMPLATE = r"""<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Qwen3.8-Flash-Next Daily Driver Campaign</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -364,10 +367,10 @@ TEMPLATE = r"""<title>Qwen3.8-Flash-Next Daily Driver Campaign</title>
 <script id="campaign-data" type="application/json">__DATA__</script>
 <div class="wrap">
   <header class="head">
-    <div class="eyebrow">Mac Studio M4 Max · 128 GB · benchmark local</div>
-    <h1>Qwen3.8-Flash-Next — driver diário: quant × runtime</h1>
-    <p class="sub">Seleção do setup mais responsivo para uso diário. Os gates de cache, correção, swap e
-    servidor eliminam; entre os aprovados, decide o T_turno a 32K e 128K. Decode só desempata.</p>
+    <div class="eyebrow">Mac Studio M4 Max · 128 GB · local benchmark</div>
+    <h1>Qwen3.8-Flash-Next daily driver: quant × runtime</h1>
+    <p class="sub">Picks the most responsive setup for daily use. The cache, correctness, swap and server
+    gates eliminate candidates. Among those that pass, T_turn at 32K and 128K decides. Decode only breaks ties.</p>
     <div class="meta"><span class="mono">__GENERATED__</span>
       <span class="sep">·</span><span>__VERDICTLINE__</span>
       <span class="sep">·</span><span>__PASSERS__</span></div>
@@ -375,112 +378,112 @@ TEMPLATE = r"""<title>Qwen3.8-Flash-Next Daily Driver Campaign</title>
 
   <section class="tiles">__TILES__</section>
 
-  <nav class="tabs" role="tablist" aria-label="Seções do dashboard">
+  <nav class="tabs" role="tablist" aria-label="Dashboard sections">
     <button role="tab" data-tab="perf" aria-selected="true">Performance</button>
     <button role="tab" data-tab="compare" aria-selected="false">Runtimes &amp; quants</button>
-    <button role="tab" data-tab="tests" aria-selected="false">Testes</button>
-    <button role="tab" data-tab="gates" aria-selected="false">Gates &amp; fila</button>
-    <button role="tab" data-tab="glossary" aria-selected="false">Glossário</button>
+    <button role="tab" data-tab="tests" aria-selected="false">Tests</button>
+    <button role="tab" data-tab="gates" aria-selected="false">Gates &amp; queue</button>
+    <button role="tab" data-tab="glossary" aria-selected="false">Glossary</button>
   </nav>
 
   <div class="tabpanel" data-panel="perf" role="tabpanel">
     <section class="panel">
-      <h2 id="chart-title">Responsividade por candidato <span class="h2sub" id="chart-sub"></span></h2>
+      <h2 id="chart-title">Responsiveness by candidate <span class="h2sub" id="chart-sub"></span></h2>
       <div class="controls" style="margin-bottom:14px;">
-        <div class="fgroup"><span class="fglabel">Métrica</span><div class="seg" id="metric-seg"></div></div>
-        <div class="fgroup"><span class="fglabel">Banda</span><div class="seg" id="band-seg"></div></div>
+        <div class="fgroup"><span class="fglabel">Metric</span><div class="seg" id="metric-seg"></div></div>
+        <div class="fgroup"><span class="fglabel">Band</span><div class="seg" id="band-seg"></div></div>
       </div>
       <div id="chart-host"></div>
       <div class="deltas" id="deltas"></div>
     </section>
 
     <section class="panel">
-      <h2>Mesmo candidato por contexto <span class="h2sub" id="matrix-sub"></span></h2>
+      <h2>Same candidate by context <span class="h2sub" id="matrix-sub"></span></h2>
       <div class="matrix" id="matrix"></div>
     </section>
 
     <section class="panel">
-      <h2>Grupos medidos <span class="h2sub" id="table-count"></span></h2>
+      <h2>Measured groups <span class="h2sub" id="table-count"></span></h2>
       <div class="controls">
-        <div class="fgroup"><span class="fglabel">Modo</span><div class="seg" id="f-mode"></div></div>
-        <div class="fgroup"><span class="fglabel">Candidato</span><div class="seg" id="f-cand"></div></div>
-        <div class="fgroup"><span class="fglabel">Contexto</span><div class="seg" id="f-ctx"></div></div>
-        <div class="fgroup"><span class="fglabel">Etapa</span><div class="seg" id="f-stage"></div></div>
-        <div class="fgroup search"><span class="fglabel">Buscar candidato / runtime</span>
-          <input id="search" type="text" placeholder="ex.: mlx-serve, oQ4e, c3" autocomplete="off"></div>
+        <div class="fgroup"><span class="fglabel">Mode</span><div class="seg" id="f-mode"></div></div>
+        <div class="fgroup"><span class="fglabel">Candidate</span><div class="seg" id="f-cand"></div></div>
+        <div class="fgroup"><span class="fglabel">Context</span><div class="seg" id="f-ctx"></div></div>
+        <div class="fgroup"><span class="fglabel">Stage</span><div class="seg" id="f-stage"></div></div>
+        <div class="fgroup search"><span class="fglabel">Search candidate / runtime</span>
+          <input id="search" type="text" placeholder="e.g. mlx-serve, oQ4e, c3" autocomplete="off"></div>
       </div>
       <div class="scroll"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
-      <p class="foot"><span class="chip neutral">canônico</span> = perfil do vendor (temp 1.0), o grupo que
-      conta no veredito: Etapa B quando existe, senão Etapa A, Etapa 0 ou sonda.
-      <span class="chip wait">substituído</span> = Etapa A de uma banda que a Etapa B refez com 3 reps.
-      <span class="chip wait">diag</span> = controle fora do ranking (temp 0, MTP off, budget 102G).
-      <span class="flag">⚠</span> wired acima de 102 GB (alerta). <span class="flag">⚑</span> ressalva do
-      grupo; passe o mouse. Clique no cabeçalho para ordenar.</p>
+      <p class="foot"><span class="chip neutral">canonical</span> = vendor profile (temp 1.0), the group that
+      counts toward the verdict: Stage B when it exists, otherwise Stage A, Stage 0 or probe.
+      <span class="chip wait">superseded</span> = Stage A of a band that Stage B re-ran with 3 reps.
+      <span class="chip wait">diag</span> = control outside the ranking (temp 0, MTP off, 102G budget).
+      <span class="flag">⚠</span> wired above 102 GB (warning). <span class="flag">⚑</span> group
+      caveat; hover to read it. Click a column header to sort.</p>
     </section>
   </div>
 
   <div class="tabpanel" data-panel="compare" role="tabpanel" hidden>
     <section class="panel">
-      <h2>Runtimes <span class="h2sub">o que cada um busca, como, e o custo</span></h2>
+      <h2>Runtimes <span class="h2sub">what each one aims for, how, and the cost</span></h2>
       <div class="profgrid" id="runtime-profiles"></div>
     </section>
     <section class="panel">
-      <h2>Quants <span class="h2sub">alvo de cada pack e o trade-off · bpw calculado do disco</span></h2>
+      <h2>Quants <span class="h2sub">target of each pack and the trade-off · bpw computed from disk size</span></h2>
       <div class="profgrid" id="quant-profiles"></div>
     </section>
     <section class="panel">
-      <h2>T_turno por runtime · 32K <span class="h2sub">grupo canônico · menor é melhor</span></h2>
+      <h2>T_turn by runtime · 32K <span class="h2sub">canonical group · lower is better</span></h2>
       <div class="cmp" id="cmp-32"></div>
     </section>
     <section class="panel">
-      <h2>T_turno por runtime · 128K <span class="h2sub">grupo canônico · menor é melhor</span></h2>
+      <h2>T_turn by runtime · 128K <span class="h2sub">canonical group · lower is better</span></h2>
       <div class="cmp" id="cmp-128"></div>
     </section>
     <section class="panel">
-      <h2>Decode quente por quant · 32K <span class="h2sub">melhor grupo canônico de cada pack · maior é melhor</span></h2>
+      <h2>Warm decode by quant · 32K <span class="h2sub">best canonical group of each pack · higher is better</span></h2>
       <div class="cmp" id="cmp-quant"></div>
     </section>
   </div>
 
   <div class="tabpanel" data-panel="tests" role="tabpanel" hidden>
     <section class="panel">
-      <h2>O que cada teste avalia <span class="h2sub">cache_probe · 5 cenários · perfil do vendor + diagnósticos</span></h2>
+      <h2>What each test evaluates <span class="h2sub">cache_probe · 5 scenarios · vendor profile + diagnostics</span></h2>
       <div id="test-catalog"></div>
     </section>
     <section class="panel">
-      <h2>Quem rodou o quê <span class="h2sub">cenário por grupo · etapa e contexto</span></h2>
+      <h2>Who ran what <span class="h2sub">scenario by group · stage and context</span></h2>
       <div class="scroll"><table id="tcov-table"><thead id="tcov-head"></thead><tbody id="tcov-body"></tbody></table></div>
-      <p class="foot"><span class="cov-y">■</span> servido no modo canônico ·
-      <span class="cov-p">■</span> servido em diagnóstico ·
-      <span class="cov-n">✗</span> recusado ou falhou ·
-      <span class="cov-d">—</span> fora do protocolo da etapa.</p>
+      <p class="foot"><span class="cov-y">■</span> served in canonical mode ·
+      <span class="cov-p">■</span> served in a diagnostic ·
+      <span class="cov-n">✗</span> refused or failed ·
+      <span class="cov-d">—</span> outside the stage protocol.</p>
     </section>
   </div>
 
   <div class="tabpanel" data-panel="gates" role="tabpanel" hidden>
-    <section class="panel"><h2>Veredito por candidato</h2><div class="vgrid">__VERDICTS__</div></section>
+    <section class="panel"><h2>Verdict by candidate</h2><div class="vgrid">__VERDICTS__</div></section>
     <section class="panel">
-      <h2>Gates por banda <span class="h2sub">grupo canônico a 32K e 128K</span></h2>
+      <h2>Gates by band <span class="h2sub">canonical group at 32K and 128K</span></h2>
       <div class="scroll"><table id="gate-table"><thead id="gate-head"></thead><tbody id="gate-body"></tbody></table></div>
-      <p class="foot">Cache = menor hit entre append e tool_turn. Correção conta needles; truncado não elimina.
-      Servidor = recusa HTTP ou erro no stream. Wired acima de 102 GB é alerta, não gate.</p>
+      <p class="foot">Cache = lowest hit between append and tool_turn. Correctness counts needles; a truncated answer
+      does not eliminate. Server = HTTP refusal or stream error. Wired above 102 GB is a warning, not a gate.</p>
     </section>
-    <section class="panel"><h2>Fila da campanha</h2><ol class="queue">__QUEUE__</ol></section>
+    <section class="panel"><h2>Campaign queue</h2><ol class="queue">__QUEUE__</ol></section>
   </div>
 
   <div class="tabpanel" data-panel="glossary" role="tabpanel" hidden>
     <section class="panel">
-      <h2>Matriz de cobertura <span class="h2sub">candidato × o que foi medido · cache, MTP, contexto</span></h2>
+      <h2>Coverage matrix <span class="h2sub">candidate × what was measured · cache, MTP, context</span></h2>
       <div class="scroll"><table id="cov-table"><thead id="cov-head"></thead><tbody id="cov-body"></tbody></table></div>
-      <p class="foot">Ctx canônico = bandas com grupo servido no perfil do vendor. Ctx diag = bandas com
-      controle fora do ranking. Recusa aparece em vermelho.</p>
+      <p class="foot">Canonical ctx = bands with a group served on the vendor profile. Diag ctx = bands with a
+      control outside the ranking. Refusals show in red.</p>
     </section>
-    <section class="panel"><h2>O que é cada candidato</h2><div class="gloss" id="arm-gloss"></div></section>
-    <section class="panel"><h2>O que é cada gate</h2><div class="gatelist" id="gate-gloss"></div></section>
+    <section class="panel"><h2>What each candidate is</h2><div class="gloss" id="arm-gloss"></div></section>
+    <section class="panel"><h2>What each gate is</h2><div class="gatelist" id="gate-gloss"></div></section>
   </div>
-  <footer class="pfoot">Gerado por <span class="mono">consolidate_reports.py</span> +
-    <span class="mono">render_overview.py</span> a partir de <span class="mono">results/*.jsonl</span>
-    (dados em <span class="mono">results/reports.json</span>). Veredito em prosa:
+  <footer class="pfoot">Generated by <span class="mono">consolidate_reports.py</span> +
+    <span class="mono">render_overview.py</span> from <span class="mono">results/*.jsonl</span>
+    (data in <span class="mono">results/reports.json</span>). Verdict in prose:
     <span class="mono">results/summary.md</span>.</footer>
 </div>
 <div id="tip" role="tooltip"></div>
@@ -490,21 +493,21 @@ const G = DATA.groups, CANDS = DATA.candidates;
 const CAND = Object.fromEntries(CANDS.map(c => [c.id, c]));
 const GATE_CTX = [32768, 131072];
 const ctxK = (c) => (c/1024)+"K";
-const STAGE_LABEL = {"0":"Etapa 0","A":"Etapa A","B":"Etapa B","sonda":"Sonda","diag":"Diag"};
+const STAGE_LABEL = {"0":"Stage 0","A":"Stage A","B":"Stage B","probe":"Probe","diag":"Diag"};
 const rt = (g) => `${CAND[g.cand].runtime} ${CAND[g.cand].runtime_version}`;
 const METRICS = {
-  tturno:  {btn:"T_turno",     label:"T_turno",                 get:g=>g.t_turno_s,        better:"low",  fmt:v=>v.toFixed(2)+" s"},
-  tool:    {btn:"TTFT quente", label:"TTFT quente (tool_turn)", get:g=>g.ttft_s.tool_turn, better:"low",  fmt:v=>v.toFixed(2)+" s"},
-  cold:    {btn:"TTFT frio",   label:"cold TTFT",               get:g=>g.cold_ttft_s,      better:"low",  fmt:v=>v.toFixed(1)+" s"},
-  decode:  {btn:"decode",      label:"decode quente tok/s",     get:g=>g.decode_tps,       better:"high", fmt:v=>v.toFixed(1)},
+  tturno:  {btn:"T_turn",      label:"T_turn",                  get:g=>g.t_turno_s,        better:"low",  fmt:v=>v.toFixed(2)+" s"},
+  tool:    {btn:"warm TTFT",   label:"warm TTFT (tool_turn)",   get:g=>g.ttft_s.tool_turn, better:"low",  fmt:v=>v.toFixed(2)+" s"},
+  cold:    {btn:"cold TTFT",   label:"cold TTFT",               get:g=>g.cold_ttft_s,      better:"low",  fmt:v=>v.toFixed(1)+" s"},
+  decode:  {btn:"decode",      label:"warm decode tok/s",       get:g=>g.decode_tps,       better:"high", fmt:v=>v.toFixed(1)},
   prefill: {btn:"prefill",     label:"prefill tok/s",           get:g=>g.prefill_tps,      better:"high", fmt:v=>v.toFixed(0)},
   hit:     {btn:"cache hit",   label:"cache hit (tool_turn)",   get:g=>g.hit.tool_turn,    better:"high", fmt:v=>Math.round(v*100)+"%"},
-  wired:   {btn:"wired",       label:"wired pico GB",           get:g=>g.wired_peak_gb,    better:"low",  fmt:v=>v.toFixed(1)+" GB"},
+  wired:   {btn:"wired",       label:"wired peak GB",           get:g=>g.wired_peak_gb,    better:"low",  fmt:v=>v.toFixed(1)+" GB"},
 };
 const state = {metric:"tturno", chartBand:"131072", mode:"canonical", cand:"all", ctx:"all",
   stage:"all", search:"", sortKey:null, sortDir:1};
 const uniq = (arr) => [...new Set(arr)];
-const refusalTxt = (g) => "recusa " + (g.error_kinds.length ? g.error_kinds.map(k=>k.replace("http_","HTTP ")).join(", ") : "");
+const refusalTxt = (g) => "refused " + (g.error_kinds.length ? g.error_kinds.map(k=>k.replace("http_","HTTP ")).join(", ") : "");
 const candBadge = (id) => { const s = CAND[id].state;
   const cls = s==="fail"?"bad":(s==="pass"?"ok":"neutral");
   const txt = s==="pass"?"✓":(s==="fail"?"✗":"ctrl"); return `<span class="badge ${cls}">${txt}</span>`; };
@@ -537,18 +540,18 @@ function matchSearch(g){ const q = state.search.trim().toLowerCase(); if(!q) ret
 function renderChart(){
   const m = METRICS[state.metric], host = document.getElementById("chart-host");
   document.getElementById("chart-sub").textContent =
-    m.label + " · " + (m.better==="high"?"maior é melhor":"menor é melhor") + " · melhor canônico em destaque";
+    m.label + " · " + (m.better==="high"?"higher is better":"lower is better") + " · best canonical highlighted";
   let rows = filtered(false).filter(g => state.chartBand==="all" || String(g.context)===state.chartBand);
   const refused = rows.filter(g => m.get(g)==null && g.refused);
   rows = rows.filter(g => m.get(g)!=null);
   rows.sort((x,y) => m.better==="high" ? m.get(y)-m.get(x) : m.get(x)-m.get(y));
   rows = rows.slice(0, 18);
-  if(!rows.length && !refused.length){ host.innerHTML = '<p class="empty">Nenhum grupo com esta métrica no filtro atual.</p>'; renderDeltas(); return; }
+  if(!rows.length && !refused.length){ host.innerHTML = '<p class="empty">No group has this metric under the current filter.</p>'; renderDeltas(); return; }
   const max = rows.length ? Math.max(...rows.map(m.get)) : 1;
   const searching = !!state.search.trim();
   const H=34, GAP=11, PL=236, PR=74, W=820, all=rows.concat(refused), height=all.length*(H+GAP)+GAP;
   const lead = rows.find(g => g.canonical);
-  let svg = `<svg viewBox="0 0 ${W} ${height}" class="chart" role="img" aria-label="${m.label} por grupo">`;
+  let svg = `<svg viewBox="0 0 ${W} ${height}" class="chart" role="img" aria-label="${m.label} by group">`;
   all.forEach((g,i)=>{
     const y=GAP+i*(H+GAP), v=m.get(g);
     const dim = searching && !matchSearch(g) ? " dim":"";
@@ -594,16 +597,16 @@ function renderDeltas(){
 /* ---------- context matrix ---------- */
 function renderMatrix(){
   const m = METRICS[state.metric], host = document.getElementById("matrix");
-  document.getElementById("matrix-sub").textContent = m.label + " · canônico · barras em escala de 32K+";
+  document.getElementById("matrix-sub").textContent = m.label + " · canonical · bars scaled to 32K+";
   const canon = G.filter(g => g.canonical);
   const scale = Math.max(...canon.filter(g => g.context>=32768 && m.get(g)!=null).map(m.get), 1e-9);
   host.innerHTML = CANDS.map(c => {
     const pts = canon.filter(g => g.cand===c.id).sort((a,b)=>a.context-b.context);
-    const win = c.state==="pass" && c.status==="vencedor" ? ' style="border-color:var(--accent)"' : '';
+    const win = c.state==="pass" && c.status==="winner" ? ' style="border-color:var(--accent)"' : '';
     const bars = pts.map(g => {
       const v = m.get(g);
       if(v==null){
-        const txt = g.refused ? (g.error_kinds[0]||"recusa").replace("http_","") : "—";
+        const txt = g.refused ? (g.error_kinds[0]||"refused").replace("http_","") : "—";
         return `<div class="mbar"><span class="mctx">${ctxK(g.context)}</span><span class="mtrack"></span>`
           + `<span class="mval${g.refused?' bad':''}">${txt}</span></div>`;
       }
@@ -622,19 +625,19 @@ const COLS = [
   {key:"cand", label:"Cand", cls:"", get:g=>g.cand},
   {key:"runtime", label:"Runtime", cls:"", get:g=>rt(g)},
   {key:"quant", label:"Quant", cls:""},
-  {key:"stage", label:"Etapa", cls:"", get:g=>g.stage},
+  {key:"stage", label:"Stage", cls:"", get:g=>g.stage},
   {key:"context", label:"Ctx", cls:"num", get:g=>g.context},
   {key:"reps", label:"Reps", cls:"num", get:g=>g.reps},
-  {key:"t_turno_s", label:"T_turno", cls:"num", get:g=>g.t_turno_s},
+  {key:"t_turno_s", label:"T_turn", cls:"num", get:g=>g.t_turno_s},
   {key:"tool", label:"TTFT tool", cls:"num", get:g=>g.ttft_s.tool_turn},
-  {key:"cold", label:"TTFT frio", cls:"num", get:g=>g.cold_ttft_s},
+  {key:"cold", label:"cold TTFT", cls:"num", get:g=>g.cold_ttft_s},
   {key:"decode", label:"decode", cls:"num", get:g=>g.decode_tps},
   {key:"prefill", label:"prefill", cls:"num", get:g=>g.prefill_tps},
   {key:"hit", label:"hit tool", cls:"num", get:g=>g.hit.tool_turn},
   {key:"wired", label:"wired", cls:"num", get:g=>g.wired_peak_gb},
-  {key:"correct", label:"correção", cls:"num", get:g=>g.correct/(g.n||1)},
+  {key:"correct", label:"correctness", cls:"num", get:g=>g.correct/(g.n||1)},
   {key:"gates", label:"gates", cls:""},
-  {key:"mode", label:"Modo", cls:""},
+  {key:"mode", label:"Mode", cls:""},
 ];
 const COLMAP = Object.fromEntries(COLS.map(c=>[c.key,c]));
 function renderHead(){
@@ -657,20 +660,20 @@ function corrChip(g){
   return `<span class="chip ${cls}">${g.correct}/${g.n}${tr}</span>`;
 }
 function gateChip(g){
-  if(g.mode==="diag") return '<span class="chip wait">fora</span>';
-  if(g.gates_failed.length) return `<span class="chip bad" title="${g.gates_failed.join(', ')}">falha</span>`;
-  if(!GATE_CTX.includes(g.context)) return '<span class="chip wait">sem gate</span>';
-  return '<span class="chip ok">passa</span>';
+  if(g.mode==="diag") return '<span class="chip wait">excluded</span>';
+  if(g.gates_failed.length) return `<span class="chip bad" title="${g.gates_failed.join(', ')}">fail</span>`;
+  if(!GATE_CTX.includes(g.context)) return '<span class="chip wait">no gate</span>';
+  return '<span class="chip ok">pass</span>';
 }
 function modeChip(g){
   if(g.mode==="diag") return '<span class="chip wait">diag</span>';
-  return g.canonical ? '<span class="chip neutral">canônico</span>' : '<span class="chip wait">substituído</span>';
+  return g.canonical ? '<span class="chip neutral">canonical</span>' : '<span class="chip wait">superseded</span>';
 }
 function cell(g){
   const c = CAND[g.cand];
   const flag = g.note ? `<span class="flag" title="${g.note}">⚑</span>` : "";
-  const warn = (g.warnings||[]).includes("wired>102") ? '<span class="flag" title="wired acima de 102 GB (alerta)">⚠</span>' : "";
-  const tt = g.refused ? `<span class="chip bad">${(g.error_kinds[0]||"recusa").replace("http_","")}</span>`
+  const warn = (g.warnings||[]).includes("wired>102") ? '<span class="flag" title="wired above 102 GB (warning)">⚠</span>' : "";
+  const tt = g.refused ? `<span class="chip bad">${(g.error_kinds[0]||"refused").replace("http_","")}</span>`
     : num(g.t_turno_s, v=>v.toFixed(2)+'s');
   return `<td class="mono arm">${g.cand}${candBadge(g.cand)}</td>`
     + `<td>${rt(g)}</td>`
@@ -681,7 +684,7 @@ function cell(g){
     + `<td class="num mono strong">${tt}</td>`
     + `<td class="num mono">${num(g.ttft_s.tool_turn, v=>v.toFixed(2)+'s')}</td>`
     + `<td class="num mono">${num(g.cold_ttft_s, v=>v.toFixed(1)+'s')}</td>`
-    + `<td class="num mono" title="${g.decode_range?'faixa '+g.decode_range.join('–'):''}">${num(g.decode_tps, v=>v.toFixed(1))}</td>`
+    + `<td class="num mono" title="${g.decode_range?'range '+g.decode_range.join('–'):''}">${num(g.decode_tps, v=>v.toFixed(1))}</td>`
     + `<td class="num mono">${num(g.prefill_tps, v=>v.toFixed(0))}</td>`
     + `<td class="num mono">${num(g.hit.tool_turn, v=>Math.round(v*100)+'%')}</td>`
     + `<td class="num mono">${num(g.wired_peak_gb, v=>v.toFixed(1))}${warn}</td>`
@@ -693,7 +696,7 @@ function renderTable(){
   let rows = filtered();
   const q = state.search.trim();
   document.getElementById("table-count").textContent =
-    `${rows.length} de ${G.length} grupos` + (q?` · busca "${q}"`:"");
+    `${rows.length} of ${G.length} groups` + (q?` · search "${q}"`:"");
   if(state.sortKey){
     const get = COLMAP[state.sortKey].get, d = state.sortDir;
     rows = rows.slice().sort((x,y)=>{ const a=get(x), b=get(y);
@@ -701,7 +704,7 @@ function renderTable(){
       return typeof a==="string" ? d*a.localeCompare(b) : d*(a-b); });
   }
   const tb = document.getElementById("tbody");
-  if(!rows.length){ tb.innerHTML = `<tr><td colspan="${COLS.length}" class="empty">Nada corresponde ao filtro.</td></tr>`; return; }
+  if(!rows.length){ tb.innerHTML = `<tr><td colspan="${COLS.length}" class="empty">Nothing matches the filter.</td></tr>`; return; }
   tb.innerHTML = rows.map(g => {
     const hl = q && matchSearch(g) ? " hl" : "";
     return `<tr class="${g.canonical?'':'greedy'}${hl}">${cell(g)}</tr>`;
@@ -714,15 +717,15 @@ function showTip(e, g){
   const c = CAND[g.cand], s = (v,d)=> v==null?'—':v.toFixed(d)+' s';
   tip.innerHTML = `<div class="tt">${g.cand} · ${c.quant}</div>`
     + `<div class="tl">${rt(g)} · ${STAGE_LABEL[g.stage]}${g.tag?' · '+g.tag:''}</div>`
-    + `<dl><dt>contexto</dt><dd>${ctxK(g.context)} · ${g.reps} rep${g.reps>1?'s':''}</dd>`
-    + (g.refused ? `<dt>resultado</dt><dd>${refusalTxt(g)}</dd>` : "")
-    + `<dt>T_turno</dt><dd>${s(g.t_turno_s,2)}</dd>`
+    + `<dl><dt>context</dt><dd>${ctxK(g.context)} · ${g.reps} rep${g.reps>1?'s':''}</dd>`
+    + (g.refused ? `<dt>result</dt><dd>${refusalTxt(g)}</dd>` : "")
+    + `<dt>T_turn</dt><dd>${s(g.t_turno_s,2)}</dd>`
     + `<dt>TTFT tool</dt><dd>${s(g.ttft_s.tool_turn,2)}</dd>`
-    + `<dt>TTFT frio</dt><dd>${s(g.cold_ttft_s,1)}</dd>`
+    + `<dt>cold TTFT</dt><dd>${s(g.cold_ttft_s,1)}</dd>`
     + `<dt>decode</dt><dd>${g.decode_tps!=null?g.decode_tps.toFixed(1)+' tok/s':'—'}</dd>`
     + `<dt>hit tool</dt><dd>${g.hit.tool_turn!=null?Math.round(g.hit.tool_turn*100)+'%':'—'}</dd>`
     + `<dt>wired</dt><dd>${g.wired_peak_gb!=null?g.wired_peak_gb.toFixed(1)+' GB':'—'}</dd>`
-    + `<dt>correção</dt><dd>${g.correct}/${g.n}${g.truncated?' · '+g.truncated+' trunc.':''}</dd></dl>`
+    + `<dt>correctness</dt><dd>${g.correct}/${g.n}${g.truncated?' · '+g.truncated+' trunc.':''}</dd></dl>`
     + (g.note ? `<div class="tl" style="margin-top:5px">${g.note}</div>` : "");
   tip.classList.add("on");
   const pad=14; let x=e.clientX+pad, y=e.clientY+pad;
@@ -739,20 +742,20 @@ function initControls(){
     Object.entries(METRICS).map(([k,m])=>({val:k,label:m.btn})),
     state.metric, v=>{ state.metric=v; renderChart(); renderMatrix(); });
   seg(document.getElementById("band-seg"),
-    ctxs.map(c=>({val:String(c),label:ctxK(c)})).concat([{val:"all",label:"todas"}]),
+    ctxs.map(c=>({val:String(c),label:ctxK(c)})).concat([{val:"all",label:"all"}]),
     state.chartBand, v=>{ state.chartBand=v; renderChart(); });
   seg(document.getElementById("f-mode"),
-    [{val:"canonical",label:"canônico"},{val:"diag",label:"diag"},{val:"all",label:"todos"}],
+    [{val:"canonical",label:"canonical"},{val:"diag",label:"diag"},{val:"all",label:"all"}],
     state.mode, v=>{ state.mode=v; refresh(); });
   seg(document.getElementById("f-cand"),
-    [{val:"all",label:"todos"}].concat(CANDS.map(c=>({val:c.id,label:c.id}))),
+    [{val:"all",label:"all"}].concat(CANDS.map(c=>({val:c.id,label:c.id}))),
     state.cand, v=>{ state.cand=v; refresh(); });
   seg(document.getElementById("f-ctx"),
-    [{val:"all",label:"todos"}].concat(ctxs.map(c=>({val:String(c),label:ctxK(c)}))),
+    [{val:"all",label:"all"}].concat(ctxs.map(c=>({val:String(c),label:ctxK(c)}))),
     state.ctx, v=>{ state.ctx=v; renderTable(); });
-  const stages = ["0","A","B","sonda","diag"].filter(s=>G.some(g=>g.stage===s));
+  const stages = ["0","A","B","probe","diag"].filter(s=>G.some(g=>g.stage===s));
   seg(document.getElementById("f-stage"),
-    [{val:"all",label:"todas"}].concat(stages.map(s=>({val:s,label:STAGE_LABEL[s]}))),
+    [{val:"all",label:"all"}].concat(stages.map(s=>({val:s,label:STAGE_LABEL[s]}))),
     state.stage, v=>{ state.stage=v; refresh(); });
 }
 
@@ -781,16 +784,16 @@ function renderCmpQuant(){
   const rows = Object.entries(by).sort((a,b)=>b[1].decode_tps-a[1].decode_tps);
   const max = Math.max(...rows.map(r=>r[1].decode_tps));
   document.getElementById("cmp-quant").innerHTML = rows.map(([q,g]) =>
-    cmpBar(q, `${CAND[g.cand].bpw} bpw · ${CAND[g.cand].disk_gb.toFixed(0)} GB · melhor ${g.cand}`,
+    cmpBar(q, `${CAND[g.cand].bpw} bpw · ${CAND[g.cand].disk_gb.toFixed(0)} GB · best ${g.cand}`,
       g.decode_tps, max, `${g.decode_tps.toFixed(1)} <small>tok/s</small>`)).join("");
 }
 function profCard(p){
   const tagRow = p.bpw ? `<span class="ptag">${p.bpw} bpw · ${p.runtime}</span>` : `<span class="ptag">${p.tag}</span>`;
-  const arm = p.arms ? `<div class="parm mono">candidato ${p.arms}</div>` : "";
-  const how = p.how ? `<div><dt>Como</dt><dd>${p.how}</dd></div>` : "";
+  const arm = p.arms ? `<div class="parm mono">candidate ${p.arms}</div>` : "";
+  const how = p.how ? `<div><dt>How</dt><dd>${p.how}</dd></div>` : "";
   return `<div class="prof"><div class="ptop"><span class="pname">${p.name}</span>${tagRow}</div>`
     + arm + `<p class="pgoal">${p.goal}</p>`
-    + `<dl class="pmeta">${how}<div><dt>Custo</dt><dd>${p.cost}</dd></div></dl></div>`;
+    + `<dl class="pmeta">${how}<div><dt>Cost</dt><dd>${p.cost}</dd></div></dl></div>`;
 }
 function renderProfiles(){
   document.getElementById("runtime-profiles").innerHTML = (DATA.runtime_profiles||[]).map(profCard).join("");
@@ -805,18 +808,18 @@ function renderTests(){
       + items.map(x=>`<div class="gitem"><span class="gk kw">${x.key}</span><span>${x.eval}</span></div>`).join("")
       + `</div></div>` : "";
   let html = "";
-  if(c.t_turno) html += `<div class="tblock"><div class="subhead">Métrica de decisão</div><p class="tturno">${c.t_turno}</p></div>`;
-  html += gloss(c.scenarios, "Cenários do cache_probe");
-  html += gloss(c.modes, "Modos de amostragem");
-  html += gloss(c.correctness, "Correção");
-  if(c.metrics) html += `<div class="tblock"><div class="subhead">Métricas por registro</div>`
+  if(c.t_turno) html += `<div class="tblock"><div class="subhead">Decision metric</div><p class="tturno">${c.t_turno}</p></div>`;
+  html += gloss(c.scenarios, "cache_probe scenarios");
+  html += gloss(c.modes, "Sampling modes");
+  html += gloss(c.correctness, "Correctness");
+  if(c.metrics) html += `<div class="tblock"><div class="subhead">Per-record metrics</div>`
     + `<div class="mchips">${c.metrics.map(m=>`<span class="mchip">${m}</span>`).join("")}</div></div>`;
   document.getElementById("test-catalog").innerHTML = html;
 }
 function renderTestCoverage(){
   const scen = ["cold","identical","append","middle_mutation","tool_turn"];
   const short = {cold:"cold",identical:"ident.",append:"append",middle_mutation:"mid.mut",tool_turn:"tool_turn"};
-  document.getElementById("tcov-head").innerHTML = "<tr><th>Cand</th><th>Runtime</th><th>Etapa</th><th>Ctx</th><th>Reps</th>"
+  document.getElementById("tcov-head").innerHTML = "<tr><th>Cand</th><th>Runtime</th><th>Stage</th><th>Ctx</th><th>Reps</th>"
     + scen.map(s=>`<th class="cov-c">${short[s]}</th>`).join("") + "</tr>";
   document.getElementById("tcov-body").innerHTML = G.map(g=>{
     const cellFor = s => !g.scenarios_run.includes(s) ? '<span class="cov-d">—</span>'
@@ -831,9 +834,9 @@ function renderTestCoverage(){
 
 /* ---------- gates ---------- */
 function renderGateTable(){
-  document.getElementById("gate-head").innerHTML = "<tr><th>Cand</th><th>Runtime</th><th>Banda</th><th>Fonte</th>"
-    + "<th class='cov-c'>Cache ≥ 0.90</th><th class='cov-c'>Correção</th><th class='cov-c'>Swap ≤ 0.5</th>"
-    + "<th class='cov-c'>Servidor</th><th class='cov-c'>Wired</th><th>Resultado</th></tr>";
+  document.getElementById("gate-head").innerHTML = "<tr><th>Cand</th><th>Runtime</th><th>Band</th><th>Source</th>"
+    + "<th class='cov-c'>Cache ≥ 0.90</th><th class='cov-c'>Correctness</th><th class='cov-c'>Swap ≤ 0.5</th>"
+    + "<th class='cov-c'>Server</th><th class='cov-c'>Wired</th><th>Result</th></tr>";
   const y = t => `<span class="cov-y">✓ ${t}</span>`, n = t => `<span class="cov-n">✗ ${t}</span>`;
   const rows = [];
   CANDS.forEach(c => GATE_CTX.forEach(ctx => {
@@ -841,14 +844,14 @@ function renderGateTable(){
     if(!g) return;
     const hits = [g.hit.append, g.hit.tool_turn].filter(v=>v!=null);
     const cache = hits.length ? (Math.min(...hits)>=0.90 ? y(Math.min(...hits).toFixed(2)) : n(Math.min(...hits).toFixed(2)))
-      : (g.refused ? n("sem dado") : '<span class="cov-d">—</span>');
-    const corr = g.refused ? n("recusa") : (g.failed ? n(g.failed+" falha") : y(g.truncated? g.truncated+" trunc." : g.correct+"/"+g.n));
+      : (g.refused ? n("no data") : '<span class="cov-d">—</span>');
+    const corr = g.refused ? n("refused") : (g.failed ? n(g.failed+" failed") : y(g.truncated? g.truncated+" trunc." : g.correct+"/"+g.n));
     const swap = g.swap_delta_gb<=0.5 ? y(g.swap_delta_gb.toFixed(2)) : n(g.swap_delta_gb.toFixed(2));
     const srv = (g.refused || g.error_kinds.length || g.stream_failures)
-      ? n(g.error_kinds.map(k=>k.replace("http_","")).join(",")||"erro") : y("0 erro");
+      ? n(g.error_kinds.map(k=>k.replace("http_","")).join(",")||"error") : y("0 errors");
     const wired = g.wired_peak_gb==null ? '<span class="cov-d">—</span>'
       : (g.wired_peak_gb>102 ? `<span class="cov-p">⚠ ${g.wired_peak_gb.toFixed(1)}</span>` : `<span class="mono">${g.wired_peak_gb.toFixed(1)}</span>`);
-    const res = g.gates_failed.length ? `<span class="chip bad" title="${g.gates_failed.join(', ')}">falha</span>` : '<span class="chip ok">passa</span>';
+    const res = g.gates_failed.length ? `<span class="chip bad" title="${g.gates_failed.join(', ')}">fail</span>` : '<span class="chip ok">pass</span>';
     rows.push(`<tr><td class="mono arm">${c.id}</td><td>${c.runtime} ${c.runtime_version}</td><td class="mono">${ctxK(ctx)}</td>`
       + `<td>${STAGE_LABEL[g.stage]} · ${g.reps} rep${g.reps>1?'s':''}</td>`
       + `<td class="cov-c">${cache}</td><td class="cov-c">${corr}</td><td class="cov-c">${swap}</td>`
@@ -859,7 +862,7 @@ function renderGateTable(){
 
 /* ---------- glossary ---------- */
 function renderCoverage(){
-  const cols = ["Cand","Runtime","Quant / modelo","bpw","Disco","Cache","Especulação","Ctx canônico","Ctx diag","Teto","Status"];
+  const cols = ["Cand","Runtime","Quant / model","bpw","Disk","Cache","Speculation","Canonical ctx","Diag ctx","Ceiling","Status"];
   document.getElementById("cov-head").innerHTML = "<tr>" + cols.map(c=>`<th>${c}</th>`).join("") + "</tr>";
   document.getElementById("cov-body").innerHTML = CANDS.map(c=>{
     const mine = G.filter(g=>g.cand===c.id);

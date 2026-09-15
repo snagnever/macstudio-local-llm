@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "generated_at": "2026-09-14T00:22:17Z",
+ "generated_at": "2026-09-15T01:38:01Z",
  "campaign": "bench/qwen38-flashnext-daily-driver-2026-09",
  "rig": [
   {
@@ -16,7 +16,7 @@
    "val": "40 cores · Metal 4"
   },
   {
-   "lab": "Memória unificada",
+   "lab": "Unified memory",
    "val": "128 GB"
   },
   {
@@ -25,10 +25,10 @@
   },
   {
    "lab": "Wired limit",
-   "val": "default (iogpu 0) · sem sudo"
+   "val": "default (iogpu 0) · no sudo"
   },
   {
-   "lab": "Portas",
+   "lab": "Ports",
    "val": "mlx-serve :11234 · oMLX/MTPLX :8000"
   }
  ],
@@ -46,12 +46,12 @@
    "bpw": 4.85,
    "disk_gb": 107.3,
    "port": 11234,
-   "cache": "hot cache em RAM 16 GB + disco 100 GB · 64 entradas · ssm-checkpoint 16",
-   "spec": "MTP nativa depth 6 + PLD (n-gram) · aceitação 0.50–0.67",
-   "ceiling": "512K com follow-up",
+   "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
+   "spec": "native MTP depth 6 + PLD (n-gram) · acceptance 0.50–0.67",
+   "ceiling": "512K with follow-up",
    "state": "pass",
-   "status": "vencedor",
-   "note": "Menor T_turno nas duas bandas: 11.03 s a 32K e 12.35 s a 128K (3 reps)."
+   "status": "winner",
+   "note": "Lowest T_turn in both bands: 11.03 s at 32K and 12.35 s at 128K (3 reps)."
   },
   {
    "id": "c2",
@@ -65,12 +65,12 @@
    "bpw": 5.97,
    "disk_gb": 132.2,
    "port": 8000,
-   "cache": "paged SSD cache · PLE em mmap (qwen4_ple_ssd_offload)",
-   "spec": "MTP do checkpoint · aceitação não exposta na telemetria",
-   "ceiling": "262K (oMLX sem YaRN)",
+   "cache": "paged SSD cache · PLE in mmap (qwen4_ple_ssd_offload)",
+   "spec": "checkpoint MTP · acceptance not exposed in telemetry",
+   "ceiling": "262K (oMLX has no YaRN)",
    "state": "control",
-   "status": "dominado",
-   "note": "Passa nos gates, mas o c3 roda os mesmos pesos mais rápido em todas as bandas. Sai antes da Etapa B."
+   "status": "dominated",
+   "note": "Passes the gates, but c3 runs the same weights faster in every band. Dropped before Stage B."
   },
   {
    "id": "c3",
@@ -84,12 +84,12 @@
    "bpw": 5.97,
    "disk_gb": 132.2,
    "port": 8000,
-   "cache": "paged SSD cache · PLE em mmap via model_settings.json",
-   "spec": "MTP do checkpoint · aceitação não exposta na telemetria",
-   "ceiling": "262K (oMLX sem YaRN)",
+   "cache": "paged SSD cache · PLE in mmap via model_settings.json",
+   "spec": "checkpoint MTP · acceptance not exposed in telemetry",
+   "ceiling": "262K (oMLX has no YaRN)",
    "state": "pass",
-   "status": "2º lugar",
-   "note": "Finalista: T_turno 13.48 s a 32K e 15.03 s a 128K (3 reps), +18% sobre o c1."
+   "status": "2nd place",
+   "note": "Finalist: T_turn 13.48 s at 32K and 15.03 s at 128K (3 reps), +18% over c1."
   },
   {
    "id": "c4",
@@ -103,12 +103,12 @@
    "bpw": 5.43,
    "disk_gb": 120.2,
    "port": 8000,
-   "cache": "session bank em RAM + SSD session cache on",
-   "spec": "MTP nativa · perfil turbo depth 3 · aceitação 0.24–0.46",
-   "ceiling": "114.688 tokens (fit do memory plan)",
+   "cache": "session bank in RAM + SSD session cache on",
+   "spec": "native MTP · turbo profile depth 3 · acceptance 0.24–0.46",
+   "ceiling": "114,688 tokens (memory plan fit)",
    "state": "fail",
-   "status": "eliminado",
-   "note": "Maior decode a 32K (~70 tok/s), mas recusa 128K e 256K com HTTP 507: o fit do memory plan é 114.688 tokens."
+   "status": "eliminated",
+   "note": "Highest decode at 32K (~70 tok/s), but refuses 128K and 256K with HTTP 507: the memory plan fit is 114,688 tokens."
   }
  ],
  "groups": [
@@ -479,7 +479,7 @@
   {
    "cand": "c1",
    "context": 524288,
-   "stage": "sonda",
+   "stage": "probe",
    "mode": "canonical",
    "tag": "YaRN 2.0 + KV 8-bit",
    "file": "c1-524288-t1.0-yarn2.jsonl",
@@ -530,7 +530,7 @@
    "warnings": [
     "wired>102"
    ],
-   "note": "sonda: só cold e identical; decode quente = identical; cold decode 42.6 tok/s",
+   "note": "probe: only cold and identical; warm decode = identical; cold decode 42.6 tok/s",
    "canonical": true
   },
   {
@@ -1303,7 +1303,7 @@
    "stream_failures": 0,
    "gates_failed": [],
    "warnings": [],
-   "note": "telemetria de cache incoerente: hit 1.00 no cold e tool_turn de 75 s",
+   "note": "incoherent cache telemetry: hit 1.00 on cold and a 75 s tool_turn",
    "canonical": true
   },
   {
@@ -1545,7 +1545,7 @@
    "warnings": [
     "sem_dados"
    ],
-   "note": "recusa HTTP 507: fit do memory plan de 114.688 tokens",
+   "note": "refused with HTTP 507: memory plan fit of 114,688 tokens",
    "canonical": true
   },
   {
@@ -1606,7 +1606,7 @@
    "warnings": [
     "wired>102"
    ],
-   "note": "3/5 servidos: middle_mutation e tool_turn falham por alocação",
+   "note": "3/5 served: middle_mutation and tool_turn fail on allocation",
    "canonical": false
   },
   {
@@ -1660,42 +1660,42 @@
    "warnings": [
     "sem_dados"
    ],
-   "note": "recusa HTTP 507: fit do memory plan de 114.688 tokens",
+   "note": "refused with HTTP 507: memory plan fit of 114,688 tokens",
    "canonical": true
   }
  ],
  "runtime_profiles": [
   {
    "name": "mlx-serve 26.9.2",
-   "tag": "incumbente",
+   "tag": "incumbent",
    "arms": "c1",
-   "goal": "Servir o Flash-Next com MTP nativa e cache de prefixo em dois níveis.",
-   "how": "MTP depth 6 com PLD; hot cache em RAM mais disco; checkpoint do estado DeltaNet; YaRN via --config-overrides.",
-   "cost": "Pina KV e hot cache em wired: opera a 106–108 GB a 128K/256K, sem swap."
+   "goal": "Serves Flash-Next with native MTP and a two-tier prefix cache.",
+   "how": "MTP depth 6 with PLD; hot cache in RAM plus disk; DeltaNet state checkpoints; YaRN via --config-overrides.",
+   "cost": "Pins KV and hot cache as wired memory: runs at 106–108 GB at 128K/256K, no swap."
   },
   {
    "name": "oMLX 0.6.4",
-   "tag": "baseline oMLX",
+   "tag": "oMLX baseline",
    "arms": "c2",
-   "goal": "Servidor MLX para agentes, com cache paginado que transborda para SSD.",
-   "how": "Paged SSD cache; PLE do oQ4e em mmap por model_settings.json.",
-   "cost": "Decode e prefill mais lentos que a dev2 nos mesmos pesos; sem YaRN (teto 262K)."
+   "goal": "MLX server for agents, with a paged cache that spills over to SSD.",
+   "how": "Paged SSD cache; oQ4e PLE in mmap via model_settings.json.",
+   "cost": "Slower decode and prefill than dev2 on the same weights; no YaRN (262K ceiling)."
   },
   {
    "name": "oMLX 0.7.0.dev2",
    "tag": "dev",
    "arms": "c3",
-   "goal": "Mesmo servidor, com kernels novos (prefill anunciado para M5).",
-   "how": "Mesma config de cache e PLE da 0.6.4; muda só o runtime.",
-   "cost": "Build de desenvolvimento; TTFT quente 2× o do mlx-serve; sem YaRN."
+   "goal": "Same server with new kernels (prefill announced for M5).",
+   "how": "Same cache and PLE config as 0.6.4; only the runtime changes.",
+   "cost": "Development build; warm TTFT 2× that of mlx-serve; no YaRN."
   },
   {
    "name": "MTPLX 2.11.2",
-   "tag": "MTP no pack",
+   "tag": "MTP in the pack",
    "arms": "c4",
-   "goal": "Decode máximo com MTP embutida no checkpoint quantizado.",
-   "how": "Session bank em RAM + SSD session cache; memory plan calcula o contexto que cabe.",
-   "cost": "Recusa prompts acima de 114.688 tokens (HTTP 507) no 128 GB."
+   "goal": "Maximum decode with MTP built into the quantized checkpoint.",
+   "how": "Session bank in RAM + SSD session cache; a memory plan computes the context that fits.",
+   "cost": "Refuses prompts above 114,688 tokens (HTTP 507) on the 128 GB machine."
   }
  ],
  "quant_profiles": [
@@ -1703,94 +1703,94 @@
    "name": "ddalcu mixed-4/8",
    "bpw": "4.85",
    "runtime": "mlx-serve",
-   "goal": "Experts em 4-bit e atenção em 8-bit, com tabela n-gram de 32 GB para o PLD.",
-   "cost": "107 GB em disco; o menor dos três."
+   "goal": "Experts in 4-bit and attention in 8-bit, with a 32 GB n-gram table for PLD.",
+   "cost": "107 GB on disk; the smallest of the three."
   },
   {
    "name": "Jundot oQ4e-mtp",
    "bpw": "5.97",
    "runtime": "oMLX",
-   "goal": "Quant oQ do oMLX com cabeça MTP e PLE descarregável para SSD.",
-   "cost": "132 GB em disco; sem o offload de PLE satura os 128 GB."
+   "goal": "oMLX oQ quant with an MTP head and PLE that can be offloaded to SSD.",
+   "cost": "132 GB on disk; without PLE offload it saturates the 128 GB."
   },
   {
    "name": "Youssofal MTPLX Optimized-Speed",
    "bpw": "5.43",
    "runtime": "MTPLX",
-   "goal": "Pack com MTP nativa e n-gram de 32 GB em sidecar, otimizado para decode.",
-   "cost": "120 GB em disco; pesos de 77.3 GiB limitam o fit de contexto."
+   "goal": "Pack with native MTP and a 32 GB n-gram sidecar, tuned for decode.",
+   "cost": "120 GB on disk; 77.3 GiB of weights limit the context fit."
   }
  ],
  "gates_glossary": [
   {
    "gate": "Cache",
-   "desc": "hit ≥ 0.90 em append e tool_turn a 32K e 128K."
+   "desc": "hit ≥ 0.90 on append and tool_turn at 32K and 128K."
   },
   {
-   "gate": "Correção",
-   "desc": "needles 10/50/90 corretas a 32K e 128K; truncado (reasoning > 4096 tokens) não conta como falha."
+   "gate": "Correctness",
+   "desc": "needles at 10/50/90 correct at 32K and 128K; a truncated answer (reasoning > 4096 tokens) does not count as a failure."
   },
   {
-   "gate": "Memória",
-   "desc": "swap delta ≤ 0.5 GB em qualquer banda."
+   "gate": "Memory",
+   "desc": "swap delta ≤ 0.5 GB in every band."
   },
   {
-   "gate": "Servidor",
-   "desc": "zero erro HTTP 4xx/5xx ou erro no stream a 32K e 128K."
+   "gate": "Server",
+   "desc": "zero HTTP 4xx/5xx errors or stream errors at 32K and 128K."
   },
   {
-   "gate": "Wired (alerta)",
-   "desc": "pico acima de 102 GB gera alerta, não elimina: é o ponto de operação normal do mlx-serve."
+   "gate": "Wired (warning)",
+   "desc": "a peak above 102 GB raises a warning and does not eliminate: it is the normal operating point of mlx-serve."
   }
  ],
  "test_catalog": {
   "scenarios": [
    {
     "key": "cold",
-    "eval": "Prompt inteiro sem cache. Mede o primeiro turno (cold TTFT) e o prefill; prima o cache."
+    "eval": "Full prompt with no cache. Measures the first turn (cold TTFT) and prefill; primes the cache."
    },
    {
     "key": "identical",
-    "eval": "Mesmo prompt de novo. Melhor caso sintético do reuso."
+    "eval": "Same prompt again. Best synthetic case for reuse."
    },
    {
     "key": "append",
-    "eval": "Prompt anterior + sufixo novo. Turno de conversa."
+    "eval": "Previous prompt + new suffix. A conversation turn."
    },
    {
     "key": "middle_mutation",
-    "eval": "Edição no meio do prompt. Reuso esperado ~metade; fica fora do T_turno."
+    "eval": "Edit in the middle of the prompt. Expected reuse is ~half; excluded from T_turn."
    },
    {
     "key": "tool_turn",
-    "eval": "Prompt anterior + resultado de ferramenta. Turno de agente; entra no T_turno."
+    "eval": "Previous prompt + tool result. An agent turn; included in T_turn."
    }
   ],
   "modes": [
    {
-    "key": "canônico",
-    "eval": "temperature 1.0 · top_p 0.95 · top_k 20 · reasoning xhigh · max_tokens 4096. Conta no veredito."
+    "key": "canonical",
+    "eval": "temperature 1.0 · top_p 0.95 · top_k 20 · reasoning xhigh · max_tokens 4096. Counts toward the verdict."
    },
    {
     "key": "diag temp 0",
-    "eval": "temperature 0 a 32K. Compara resposta c2 × c3 e MTP on × off no c4. Fora do ranking."
+    "eval": "temperature 0 at 32K. Compares c2 vs c3 answers and MTP on vs off on c4. Outside the ranking."
    },
    {
     "key": "diag 102G",
-    "eval": "c4 a 128K com MTPLX_MEMORY_LIMIT_BYTES=102G. Testa se o fit maior serve a banda."
+    "eval": "c4 at 128K with MTPLX_MEMORY_LIMIT_BYTES=102G. Tests whether the larger fit serves the band."
    }
   ],
   "correctness": [
    {
     "key": "audit_retrieval",
-    "eval": "Needles a 10%, 50% e 90% da fixture. Correto = as três na resposta."
+    "eval": "Needles at 10%, 50% and 90% of the fixture. Correct = all three in the answer."
    },
    {
-    "key": "truncado",
-    "eval": "finish_reason=length com 4096 tokens de reasoning. Registrado, não elimina."
+    "key": "truncated",
+    "eval": "finish_reason=length with 4096 reasoning tokens. Recorded, does not eliminate."
    }
   ],
-  "t_turno": "T_turno = TTFT do tool_turn + 512 / mediana do decode dos cenários quentes servidos (identical, append, tool_turn). É a espera de um turno de agente com resposta de 512 tokens. Menor é melhor.",
+  "t_turno": "T_turn = tool_turn TTFT + 512 / median decode of the served warm scenarios (identical, append, tool_turn). It is the wait for one agent turn with a 512-token reply. Lower is better.",
   "metrics": [
    "ttft_ms (TTFT)",
    "decode_tps (decode)",
@@ -1808,97 +1808,97 @@
  },
  "queue": [
   {
-   "stage": "Etapa 0 — smoke a 8K, 4 candidatos",
+   "stage": "Stage 0: smoke test at 8K, 4 candidates",
    "status": "done"
   },
   {
-   "stage": "Etapa A — triagem 1 rep a 32K, 128K e 256K",
+   "stage": "Stage A: 1-rep triage at 32K, 128K and 256K",
    "status": "done"
   },
   {
-   "stage": "Diagnóstico temp 0 a 32K (c2 × c3; c4 MTP on × off)",
+   "stage": "Diagnostic temp 0 at 32K (c2 vs c3; c4 MTP on vs off)",
    "status": "done"
   },
   {
-   "stage": "c4 a 128K com budget de 102G",
+   "stage": "c4 at 128K with a 102G budget",
    "status": "done"
   },
   {
-   "stage": "Etapa B — 3 reps a 32K e 128K (c1, c3)",
+   "stage": "Stage B: 3 reps at 32K and 128K (c1, c3)",
    "status": "done"
   },
   {
-   "stage": "Sonda de capacidade a 512K",
+   "stage": "Capacity probe at 512K",
    "status": "done"
   },
   {
-   "stage": "Registro do daily driver (c1)",
+   "stage": "Daily driver record (c1)",
    "status": "done"
   }
  ],
  "verdicts": [
   {
-   "gate": "Veredito",
+   "gate": "Verdict",
    "arm": "c1 · mlx-serve 26.9.2",
    "state": "pass",
-   "note": "Driver diário. Vence c3 por 18% nas duas bandas; o TTFT quente decide (2.1 × 4.8 s a 128K)."
+   "note": "Daily driver. Beats c3 by 18% in both bands; warm TTFT decides it (2.1 vs 4.8 s at 128K)."
   },
   {
-   "gate": "Finalista",
+   "gate": "Finalist",
    "arm": "c3 · oMLX 0.7.0.dev2",
    "state": "pass",
-   "note": "Passa em todos os gates. Decode empata com o c1 (~50 tok/s a 128K); perde no TTFT."
+   "note": "Passes every gate. Decode ties with c1 (~50 tok/s at 128K); loses on TTFT."
   },
   {
-   "gate": "Dominado",
+   "gate": "Dominated",
    "arm": "c2 · oMLX 0.6.4",
    "state": "control",
-   "note": "Passa nos gates. Mesmos pesos do c3, mais lento em todas as bandas: cold a 256K 1187 × 578 s."
+   "note": "Passes the gates. Same weights as c3, slower in every band: cold at 256K 1187 vs 578 s."
   },
   {
-   "gate": "Servidor a 128K",
+   "gate": "Server at 128K",
    "arm": "c4 · MTPLX 2.11.2",
    "state": "fail",
-   "note": "HTTP 507 a 128K e 256K. Com 102G o fit cobre 128K, mas middle_mutation e tool_turn falham por alocação."
+   "note": "HTTP 507 at 128K and 256K. With 102G the fit covers 128K, but middle_mutation and tool_turn fail on allocation."
   },
   {
    "gate": "Wired > 102 GB",
    "arm": "c1 @128K / 256K / 512K",
    "state": "control",
-   "note": "Alerta, não elimina: 104–109 GB, swap 0, memória livre mínima 0.01–0.06 GB."
+   "note": "Warning, does not eliminate: 104–109 GB, swap 0, minimum free memory 0.01–0.06 GB."
   },
   {
    "gate": "MTP lossless",
    "arm": "c4 · temp 0",
    "state": "pass",
-   "note": "MTP on 5/5 needles e 1.8× de decode; MTP off 4/5 (um truncado). Sem sinal de MTP lossy."
+   "note": "MTP on 5/5 needles and 1.8× decode; MTP off 4/5 (one truncated). No sign of lossy MTP."
   }
  ],
  "takeaways": [
   [
-   "T_turno quase plano",
-   "o c1 vai de 11.0 s a 32K para 12.35 s a 128K e 14.2 s a 256K; o c3, de 13.5 a 16.7 s; o c2, de 17.1 a 28.8 s."
+   "T_turn nearly flat",
+   "c1 goes from 11.0 s at 32K to 12.35 s at 128K and 14.2 s at 256K; c3 from 13.5 to 16.7 s; c2 from 17.1 to 28.8 s."
   ],
   [
-   "O TTFT decide, não o decode",
-   "a 128K c1 e c3 decodificam ~50 tok/s; o turno quente responde em 2.1 s no c1 e 4.8 s no c3."
+   "TTFT decides, not decode",
+   "at 128K c1 and c3 both decode ~50 tok/s; the warm turn responds in 2.1 s on c1 and 4.8 s on c3."
   ],
   [
-   "c4 não serve 128K",
-   "melhor decode a 32K (~70 tok/s), mas o MTPLX 2.11.2 recusa acima de 114.688 tokens com HTTP 507."
+   "c4 does not serve 128K",
+   "best decode at 32K (~70 tok/s), but MTPLX 2.11.2 refuses anything above 114,688 tokens with HTTP 507."
   ],
   [
-   "dev2 × 0.6.4 nos mesmos pesos",
-   "a 256K, cold 578 × 1187 s e decode 47.5 × 23.6 tok/s."
+   "dev2 vs 0.6.4 on the same weights",
+   "at 256K, cold 578 vs 1187 s and decode 47.5 vs 23.6 tok/s."
   ],
   [
-   "512K no c1",
-   "cold 844.6 s, follow-up em 0.6 s com hit 1.00, wired 104.3 GB, memória livre mínima 0.01 GB, swap 0."
+   "512K on c1",
+   "cold 844.6 s, follow-up in 0.6 s with hit 1.00, wired 104.3 GB, minimum free memory 0.01 GB, swap 0."
   ]
  ],
  "deltas": [
   {
-   "label": "c1 × c3 · 128K",
+   "label": "c1 vs c3 · 128K",
    "a": [
     "c1",
     131072,
@@ -1911,7 +1911,7 @@
    ]
   },
   {
-   "label": "c1 × c3 · 32K",
+   "label": "c1 vs c3 · 32K",
    "a": [
     "c1",
     32768,
@@ -1924,7 +1924,7 @@
    ]
   },
   {
-   "label": "dev2 × 0.6.4 · 256K",
+   "label": "dev2 vs 0.6.4 · 256K",
    "a": [
     "c3",
     262144,
@@ -1937,7 +1937,7 @@
    ]
   },
   {
-   "label": "MTP on × off · c4 32K t0",
+   "label": "MTP on vs off · c4 32K t0",
    "a": [
     "c4",
     32768,

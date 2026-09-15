@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Renderiza results/reports.json em reports/qwen38-flashnext-perf-lines.html.
+"""Render results/reports.json into reports/qwen38-flashnext-perf-lines.html.
 
-Mesmo layout do reports/perf-lines.html da campanha densa: faixa do rig, setup
-por candidato, cards de runtime, takeaways, painéis de linha por contexto em
-SVG, heatmap de cache hit e tabela com todos os valores. Os pontos são os
-grupos canônicos de cada banda (Etapa B quando existe, senão Etapa A ou sonda).
+Same layout as the dense campaign's reports/perf-lines.html: rig strip, setup
+by candidate, runtime cards, takeaways, SVG line panels by context, a cache hit
+heatmap and a table with every value. The points are the canonical groups of
+each band (Stage B when it exists, otherwise Stage A or the probe).
 
     python3 bench/qwen38-flashnext-daily-driver-2026-09/scripts/consolidate_reports.py
     python3 bench/qwen38-flashnext-daily-driver-2026-09/scripts/render_perf_lines.py
@@ -23,28 +23,28 @@ LINE_CTX = [32768, 131072, 262144, 524288]
 TABLE_CTX = [8192, 32768, 131072, 262144, 524288]
 SERIES_COLOR = {"c1": "--s1", "c2": "--s2", "c3": "--s3", "c4": "--s5"}
 
-# Bandas sem grupo medido: o motivo aparece no tooltip e na tabela.
+# Bands with no measured group: the reason shows in the tooltip and the table.
 ABSENT = {
-    ("c2", 524288): "sem YaRN: teto 262K",
-    ("c3", 524288): "sem YaRN: teto 262K",
-    ("c4", 524288): "não rodou: recusa já a 128K",
+    ("c2", 524288): "no YaRN: 262K ceiling",
+    ("c3", 524288): "no YaRN: 262K ceiling",
+    ("c4", 524288): "not run: refused already at 128K",
 }
 
 TECH = [
     {"name": "mlx-serve", "repo": "ddalcu/mlx-serve",
-     "what": "Servidor MLX com <b>MTP nativa para o Flash-Next</b> e cache de prefixo em dois níveis. É o runtime do pack ddalcu.",
-     "cache": "Hot cache em RAM (<b>16 GB, 64 entradas</b>) e cache em disco (100 GB). O <code>--ssm-checkpoint-max 16</code> guarda checkpoints do estado DeltaNet; o turno quente reusa o prefixo sem re-prefill.",
-     "spec": "MTP <b>depth 6 com PLD</b> (prompt lookup pela tabela n-gram do pack). Aceitação 0.50–0.67, lida do log <code>[spec-stats]</code>: o <code>/metrics</code> não expõe contador.",
+     "what": "MLX server with <b>native MTP for Flash-Next</b> and a two-tier prefix cache. It is the runtime for the ddalcu pack.",
+     "cache": "Hot cache in RAM (<b>16 GB, 64 entries</b>) and a disk cache (100 GB). <code>--ssm-checkpoint-max 16</code> keeps checkpoints of the DeltaNet state; the warm turn reuses the prefix without a re-prefill.",
+     "spec": "MTP <b>depth 6 with PLD</b> (prompt lookup through the pack's n-gram table). Acceptance 0.50–0.67, read from the <code>[spec-stats]</code> log: <code>/metrics</code> exposes no counter.",
      "configs": "c1 ddalcu mixed-4/8"},
     {"name": "oMLX", "repo": "jundot/omlx",
-     "what": "Servidor MLX para agentes: continuous batching e <b>KV cache paginado em dois níveis</b>. A especulação vem do checkpoint.",
-     "cache": "Blocos em RAM que <b>transbordam para um tier em SSD</b>. O PLE do oQ4e fica em mmap (<code>qwen4_ple_ssd_offload</code> no <code>model_settings.json</code>); sem isso o pack satura os 128 GB.",
-     "spec": "MTP do checkpoint oQ4e-mtp (<code>mtp_enabled</code>). A telemetria do oMLX não expõe a aceitação. O oMLX não tem YaRN: o teto é 262K.",
+     "what": "MLX server for agents: continuous batching and a <b>two-tier paged KV cache</b>. Speculation comes from the checkpoint.",
+     "cache": "Blocks in RAM that <b>spill over to an SSD tier</b>. The oQ4e PLE stays in mmap (<code>qwen4_ple_ssd_offload</code> in <code>model_settings.json</code>); without it the pack saturates the 128 GB.",
+     "spec": "MTP from the oQ4e-mtp checkpoint (<code>mtp_enabled</code>). oMLX telemetry does not expose acceptance. oMLX has no YaRN, so the ceiling is 262K.",
      "configs": "c2 oMLX 0.6.4 · c3 oMLX 0.7.0.dev2"},
     {"name": "MTPLX", "repo": "youssofal/MTPLX",
-     "what": "A especulação <b>vem no checkpoint quantizado</b>: as cabeças MTP do próprio modelo fazem o draft, sem modelo externo.",
-     "cache": "Session bank em RAM e <b>SSD session cache on</b> (default do vendor). Um memory plan calcula o contexto que cabe e recusa o prompt acima dele com HTTP 507.",
-     "spec": "Perfil <b>turbo, depth 3</b>, verificação por rejection sampling (lossless). Aceitação 0.24–0.46; a 32K dá 1.8× de decode sobre MTP off.",
+     "what": "Speculation <b>ships in the quantized checkpoint</b>: the model's own MTP heads draft tokens, with no external model.",
+     "cache": "Session bank in RAM and <b>SSD session cache on</b> (vendor default). A memory plan computes the context that fits and refuses any prompt above it with HTTP 507.",
+     "spec": "<b>Turbo profile, depth 3</b>, verified by rejection sampling (lossless). Acceptance 0.24–0.46; at 32K it gives 1.8× decode over MTP off.",
      "configs": "c4 MTPLX Optimized-Speed"},
 ]
 TECH_SRC = [
@@ -63,7 +63,7 @@ def point(g: dict) -> dict:
         "free": g["mem_free_min_gb"], "hit_tool": g["hit"]["tool_turn"],
         "mtp": g["mtp_acceptance"], "reps": g["reps"], "stage": g["stage"],
         "note": g["note"],
-        "status": ("recusa " + ", ".join(k.replace("http_", "HTTP ") for k in g["error_kinds"])
+        "status": ("refused " + ", ".join(k.replace("http_", "HTTP ") for k in g["error_kinds"])
                    if g["refused"] else ""),
     }
 
@@ -282,7 +282,10 @@ EXTRA_CSS = r"""
 td.stat{color:var(--warn); font-family:var(--sans); text-align:left}
 """
 
-TEMPLATE = r"""<title>Flash-Next — responsividade até 512K</title>
+TEMPLATE = r"""<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Qwen3.8-Flash-Next Responsiveness to 512K</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -295,13 +298,13 @@ TEMPLATE = r"""<title>Flash-Next — responsividade até 512K</title>
 <div class="wrap">
   <header>
     <div>
-      <p class="eyebrow">Teste de responsividade por contexto</p>
-      <h1>Qwen3.8-Flash-Next: responsividade de 32K a 512K</h1>
-      <p class="sub">Quatro candidatos quant × runtime com o mesmo modelo, a mesma fixture e a amostragem do
-      vendor. Cada painel é uma métrica; cada linha é um candidato. Passe o mouse num gráfico para ler os
-      valores por contexto.</p>
+      <p class="eyebrow">Responsiveness test by context</p>
+      <h1>Qwen3.8-Flash-Next: responsiveness from 32K to 512K</h1>
+      <p class="sub">Four quant × runtime candidates with the same model, the same fixture and the vendor
+      sampling. Each panel is one metric; each line is one candidate. Hover over a chart to read the
+      values by context.</p>
     </div>
-    <button class="theme" id="themeBtn" type="button">tema: auto</button>
+    <button class="theme" id="themeBtn" type="button">theme: auto</button>
   </header>
 
   <section class="block">
@@ -310,20 +313,20 @@ TEMPLATE = r"""<title>Flash-Next — responsividade até 512K</title>
   </section>
 
   <section class="block">
-    <h2 class="sec">Setup por candidato</h2>
-    <p class="s-note">O que muda entre os candidatos: runtime, quant, mecanismo de prefix cache e especulação.
-    A amostragem é igual para todos (vendor): <code>temperature 1.0</code>, <code>top_p 0.95</code>,
+    <h2 class="sec">Setup by candidate</h2>
+    <p class="s-note">What changes between candidates: runtime, quant, prefix cache mechanism and speculation.
+    Sampling is the same for all of them (vendor): <code>temperature 1.0</code>, <code>top_p 0.95</code>,
     <code>top_k 20</code>, <code>reasoning xhigh</code>, <code>max_tokens 4096</code>. Fixture
-    <code>audit_retrieval</code> com needles a 10/50/90%. Contexto nativo: 262.144 tokens; 512K usa YaRN 2.0.
-    c2 e c3 rodam os mesmos pesos: isolam só o runtime.</p>
+    <code>audit_retrieval</code> with needles at 10/50/90%. Native context: 262,144 tokens; 512K uses YaRN 2.0.
+    c2 and c3 run the same weights, so they isolate the runtime.</p>
     <div class="tbl-scroll"><table id="cfgTable"></table></div>
   </section>
 
   <section class="block">
-    <h2 class="sec">Runtimes comparados</h2>
-    <p class="s-note">Os três runtimes fazem decodificação especulativa com MTP e cache de prefixo no Apple
-    Silicon. Eles diferem em <b>onde o KV cache mora</b> (RAM, disco ou SSD paginado) e em <b>como tratam o
-    limite de memória</b>: o mlx-serve pina em wired, o oMLX transborda para SSD e o MTPLX recusa o prompt.</p>
+    <h2 class="sec">Runtimes compared</h2>
+    <p class="s-note">All three runtimes do speculative decoding with MTP and prefix caching on Apple
+    Silicon. They differ in <b>where the KV cache lives</b> (RAM, disk or paged SSD) and in <b>how they handle
+    the memory limit</b>: mlx-serve pins it as wired memory, oMLX spills over to SSD and MTPLX refuses the prompt.</p>
     <div class="tech" id="tech"></div>
     <p class="tech-src" id="techSrc"></p>
   </section>
@@ -335,24 +338,24 @@ TEMPLATE = r"""<title>Flash-Next — responsividade até 512K</title>
   <div class="grid" id="grid"></div>
 
   <section class="block">
-    <h2 class="sec">Cache hit por cenário</h2>
-    <p class="s-note">Fração do prefixo reusada em cada cenário, no grupo canônico da banda. <code>cold</code>
-    = primeira passada (≈0 por design). <code>middle_mutation</code> = prefixo divergente no meio: o oMLX e o
-    mlx-serve reusam a parte intacta (0.30–0.49); o MTPLX re-prefila (0.07). <code>append</code> e
-    <code>tool_turn</code> são o gate: ≥ 0.90 a 32K e 128K.</p>
+    <h2 class="sec">Cache hit by scenario</h2>
+    <p class="s-note">Fraction of the prefix reused in each scenario, for the band's canonical group. <code>cold</code>
+    = first pass (≈0 by design). <code>middle_mutation</code> = the prefix diverges in the middle: oMLX and
+    mlx-serve reuse the intact part (0.30–0.49); MTPLX re-prefills (0.07). <code>append</code> and
+    <code>tool_turn</code> are the gate: ≥ 0.90 at 32K and 128K.</p>
     <div class="tbl-scroll"><table id="hitTable"></table></div>
-    <div class="hit-legend"><span>0</span><span class="bar"></span><span>1 (reuso total)</span></div>
-    <p class="est-note"><span class="star">*</span> c4 a 8K: telemetria de cache incoerente (hit 1.00 até no
-    <code>cold</code>; TTFT do <code>tool_turn</code> de 75 s). <b>507</b> = cenário recusado com HTTP 507.
-    <b>—</b> = cenário fora do protocolo da banda: a Etapa 0 (8K) roda cold, identical e tool_turn; 256K pula
-    append e middle_mutation; a sonda de 512K roda cold e identical.</p>
+    <div class="hit-legend"><span>0</span><span class="bar"></span><span>1 (full reuse)</span></div>
+    <p class="est-note"><span class="star">*</span> c4 at 8K: incoherent cache telemetry (hit 1.00 even on
+    <code>cold</code>; <code>tool_turn</code> TTFT of 75 s). <b>507</b> = scenario refused with HTTP 507.
+    <b>—</b> = scenario outside the band's protocol: Stage 0 (8K) runs cold, identical and tool_turn; 256K skips
+    append and middle_mutation; the 512K probe runs cold and identical.</p>
   </section>
 
   <section class="block">
-    <h2 class="sec">Todos os valores</h2>
-    <p class="tbl-note">Fonte única: <code>results/reports.json</code>, gerado de <code>results/*.jsonl</code>.
-    Valores do grupo canônico de cada banda. <code>T_turno</code> = TTFT do tool_turn + 512 / decode quente.
-    Decode quente = mediana de identical, append e tool_turn servidos (faixa entre registros).</p>
+    <h2 class="sec">All values</h2>
+    <p class="tbl-note">Single source: <code>results/reports.json</code>, generated from <code>results/*.jsonl</code>.
+    Values from each band's canonical group. <code>T_turn</code> = tool_turn TTFT + 512 / warm decode.
+    Warm decode = median of served identical, append and tool_turn (range across records).</p>
     <div class="tbl-scroll"><table id="table"></table></div>
   </section>
 
@@ -366,26 +369,26 @@ const P = __PAYLOAD__;
 const DATA = P.points, HITMAP = P.hitmap, SERIES = P.series, CFG = P.cfg;
 const CTX = P.line_ctx, TCTX = P.table_ctx;
 const ctxLab = c => (c/1024)+"K";
-const STAGE = {"0":"Etapa 0 · 1 rep","A":"Etapa A · 1 rep","B":"Etapa B · 3 reps","sonda":"sonda 512K · 1 rep"};
-const MISS = {t_turno:"sonda sem tool_turn", ttft_tool:"sonda sem tool_turn"};
+const STAGE = {"0":"Stage 0 · 1 rep","A":"Stage A · 1 rep","B":"Stage B · 3 reps","probe":"512K probe · 1 rep"};
+const MISS = {t_turno:"probe has no tool_turn", ttft_tool:"probe has no tool_turn"};
 const PANELS = [
-  {key:"t_turno", title:"T_turno", unit:"s", dir:"↓ melhor", fmt:v=>v.toFixed(1),
+  {key:"t_turno", title:"T_turn", unit:"s", dir:"↓ better", fmt:v=>v.toFixed(1),
    tipFmt:v=>v.toFixed(2),
-   note:"32K e 128K de c1 e c3 = mediana de 3 reps (Etapa B). Os outros pontos têm 1 rep.",
-   interp:"O <b>c1 fica quase plano</b> (11.0 → 12.35 → 14.2 s). O c2 passa de 17 para 29 s. O c4 só tem o ponto de 32K."},
-  {key:"ttft_tool", title:"TTFT quente · tool_turn", unit:"s", dir:"↓ melhor", fmt:v=>v.toFixed(1),
+   note:"c1 and c3 at 32K and 128K = median of 3 reps (Stage B). The other points have 1 rep.",
+   interp:"<b>c1 stays nearly flat</b> (11.0 → 12.35 → 14.2 s). c2 goes from 17 to 29 s. c4 has only the 32K point."},
+  {key:"ttft_tool", title:"Warm TTFT · tool_turn", unit:"s", dir:"↓ better", fmt:v=>v.toFixed(1),
    tipFmt:v=>v.toFixed(2),
-   interp:"É o termo que separa c1 e c3: <b>2.1 × 4.8 s a 128K</b>. O TTFT foi igual nas 3 reps."},
-  {key:"cold", title:"Cold TTFT · primeiro turno", unit:"s", dir:"↓ melhor", fmt:v=>v.toFixed(0),
-   interp:"A 256K a dev2 leva <b>578 s contra 1187 s</b> da 0.6.4; o c1 leva 379 s. A 512K o c1 leva 845 s."},
-  {key:"decode", title:"Decode quente", unit:"tok/s", dir:"↑ melhor", fmt:v=>v.toFixed(1),
-   note:"512K: decode do identical (a sonda não roda append nem tool_turn).",
-   interp:"O c4 lidera a 32K (~70 tok/s). A 128K <b>c1 e c3 empatam em ~50</b>; a 256K o c2 cai para 24."},
-  {key:"prefill", title:"Prefill · cold", unit:"tok/s", dir:"↑ melhor", fmt:v=>v.toFixed(0),
-   interp:"O mlx-serve mantém <b>~700 tok/s até 256K</b>. A dev2 fica em 440–520; a 0.6.4 cai para 216 a 256K."},
-  {key:"wired", title:"Wired · pico", unit:"GB", dir:"↓ melhor", fmt:v=>v.toFixed(0),
-   tipFmt:v=>v.toFixed(1), ref:{v:102, lab:"alerta 102"},
-   interp:"O c1 passa do alerta a partir de 128K (<b>104–109 GB, swap 0</b>). Os oMLX ficam em até 101 GB."},
+   interp:"This term separates c1 and c3: <b>2.1 vs 4.8 s at 128K</b>. TTFT was the same in all 3 reps."},
+  {key:"cold", title:"Cold TTFT · first turn", unit:"s", dir:"↓ better", fmt:v=>v.toFixed(0),
+   interp:"At 256K dev2 takes <b>578 s vs 1187 s</b> for 0.6.4; c1 takes 379 s. At 512K c1 takes 845 s."},
+  {key:"decode", title:"Warm decode", unit:"tok/s", dir:"↑ better", fmt:v=>v.toFixed(1),
+   note:"512K: identical decode (the probe runs neither append nor tool_turn).",
+   interp:"c4 leads at 32K (~70 tok/s). At 128K <b>c1 and c3 tie at ~50</b>; at 256K c2 drops to 24."},
+  {key:"prefill", title:"Prefill · cold", unit:"tok/s", dir:"↑ better", fmt:v=>v.toFixed(0),
+   interp:"mlx-serve holds <b>~700 tok/s up to 256K</b>. dev2 stays at 440–520; 0.6.4 drops to 216 at 256K."},
+  {key:"wired", title:"Wired · peak", unit:"GB", dir:"↓ better", fmt:v=>v.toFixed(0),
+   tipFmt:v=>v.toFixed(1), ref:{v:102, lab:"warning 102"},
+   interp:"c1 goes above the warning line from 128K up (<b>104–109 GB, swap 0</b>). The oMLX candidates stay at or below 101 GB."},
 ];
 
 function cssv(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
@@ -400,7 +403,7 @@ function buildRig(){
 }
 function buildConfigTable(){
   const t=document.getElementById("cfgTable");
-  const cols=["Candidato","Runtime","Modelo / quant","Prefix cache","Especulação","Teto de contexto","Resultado"];
+  const cols=["Candidate","Runtime","Model / quant","Prefix cache","Speculation","Context ceiling","Result"];
   let h="<thead><tr>"+cols.map(c=>`<th>${c}</th>`).join("")+"</tr></thead><tbody>";
   SERIES.forEach(s=>{
     const c=CFG[s.id];
@@ -421,12 +424,12 @@ function buildTech(){
       `<div class="t-name">${t.name} <span class="t-repo">${t.repo}</span></div>`+
       `<p class="t-what">${t.what}</p>`+
       `<dl><div><dt>Prefix cache</dt><dd>${t.cache}</dd></div>`+
-      `<div><dt>Especulação</dt><dd>${t.spec}</dd></div></dl>`+
-      `<p class="t-configs">Candidatos aqui: <b>${t.configs}</b></p>`;
+      `<div><dt>Speculation</dt><dd>${t.spec}</dd></div></dl>`+
+      `<p class="t-configs">Candidates here: <b>${t.configs}</b></p>`;
     el.appendChild(d);
   });
   document.getElementById("techSrc").innerHTML =
-    "Fontes: "+P.tech_src.map(s=>`<a href="${s[1]}" target="_blank" rel="noopener">${s[0]}</a>`).join(" · ");
+    "Sources: "+P.tech_src.map(s=>`<a href="${s[1]}" target="_blank" rel="noopener">${s[0]}</a>`).join(" · ");
 }
 function buildTakeaways(){
   document.getElementById("takeaways").innerHTML=`<h2>Takeaways</h2><ul>`+
@@ -465,7 +468,7 @@ function buildPanel(p){
   const NS="http://www.w3.org/2000/svg";
   const svg=document.createElementNS(NS,"svg");
   svg.setAttribute("viewBox",`0 0 ${W} ${H}`); svg.setAttribute("class","chart");
-  svg.setAttribute("role","img"); svg.setAttribute("aria-label",`${p.title} (${p.unit}) por contexto`);
+  svg.setAttribute("role","img"); svg.setAttribute("aria-label",`${p.title} (${p.unit}) by context`);
   let g="";
   const TICKS=4;
   for(let t=0;t<=TICKS;t++){
@@ -511,9 +514,9 @@ function buildPanel(p){
 const tip=document.getElementById("tip");
 function missText(sid, c, key){
   const d=(DATA[sid]||{})[c];
-  if(!d) return "sem dado";
+  if(!d) return "no data";
   if(d.status) return d.status;
-  return MISS[key] || "sem dado";
+  return MISS[key] || "no data";
 }
 function attachHover(panel, svg, p){
   const ch=svg.querySelector(`#ch-${p.key}`);
@@ -526,7 +529,7 @@ function attachHover(panel, svg, p){
     const cx=xAt(idx);
     ch.setAttribute("x1",cx); ch.setAttribute("x2",cx); ch.style.opacity=1;
     const c=CTX[idx];
-    let rows=`<div class="t-ctx">contexto ${ctxLab(c)} · ${p.title}</div>`;
+    let rows=`<div class="t-ctx">context ${ctxLab(c)} · ${p.title}</div>`;
     SERIES.forEach(s=>{
       const d=(DATA[s.id]||{})[c]; const v=d?d[p.key]:null;
       const shown = v==null ? `<span class="t-na">${missText(s.id,c,p.key)}</span>`
@@ -557,7 +560,7 @@ const HIT_FLAG = {"c4":{"8192":true}};
 function hitBg(v){ const a=0.10+v*0.78; return `rgba(var(--accent-rgb),${a.toFixed(3)})`; }
 function buildHitTable(){
   const t=document.getElementById("hitTable");
-  let h="<thead><tr><th>contexto</th>"+SCEN.map(s=>`<th>${s[1]}</th>`).join("")+"</tr></thead><tbody>";
+  let h="<thead><tr><th>context</th>"+SCEN.map(s=>`<th>${s[1]}</th>`).join("")+"</tr></thead><tbody>";
   SERIES.forEach(s=>{
     h+=`<tr><td class="grp" colspan="${SCEN.length+1}"><span class="arm-cell"><span class="sw" style="background:var(${s.cv})"></span> ${s.name}</span></td></tr>`;
     TCTX.forEach(c=>{
@@ -568,10 +571,10 @@ function buildHitTable(){
         const v=row[sc[0]];
         if(v===undefined) return `<td class="hcell na">—</td>`;
         if(v==="x"){ const d=DATA[s.id][c]; const code=d&&d.status?d.status.replace(/\D/g,""):"✗";
-          return `<td class="hcell ref" title="${d&&d.status?d.status:'não servido'}">${code||"✗"}</td>`; }
+          return `<td class="hcell ref" title="${d&&d.status?d.status:'not served'}">${code||"✗"}</td>`; }
         if(v==null) return `<td class="hcell na">—</td>`;
         const txt = v>=0.55 ? "#ffffff" : "var(--ink)";
-        if(flag) return `<td class="hcell est" title="telemetria incoerente" style="background:${hitBg(v)};color:${txt}">${v.toFixed(2)}<span class="star">*</span></td>`;
+        if(flag) return `<td class="hcell est" title="incoherent telemetry" style="background:${hitBg(v)};color:${txt}">${v.toFixed(2)}<span class="star">*</span></td>`;
         return `<td class="hcell" style="background:${hitBg(v)};color:${txt}">${v.toFixed(2)}</td>`;
       }).join("")+"</tr>";
     });
@@ -581,10 +584,10 @@ function buildHitTable(){
 
 function buildTable(){
   const t=document.getElementById("table");
-  const cols=[["t_turno","T_turno (s)"],["ttft_tool","TTFT tool (s)"],["ttft_append","TTFT append (s)"],
+  const cols=[["t_turno","T_turn (s)"],["ttft_tool","TTFT tool (s)"],["ttft_append","TTFT append (s)"],
     ["cold","cold TTFT (s)"],["decode","decode"],["prefill","prefill"],["hit_tool","hit tool"],
-    ["wired","wired (GB)"],["free","livre mín (GB)"],["mtp","MTP acc"],["reps","reps"]];
-  let h="<thead><tr><th>candidato</th><th>ctx</th>"+cols.map(c=>`<th>${c[1]}</th>`).join("")+"</tr></thead><tbody>";
+    ["wired","wired (GB)"],["free","min free (GB)"],["mtp","MTP acc"],["reps","reps"]];
+  let h="<thead><tr><th>candidate</th><th>ctx</th>"+cols.map(c=>`<th>${c[1]}</th>`).join("")+"</tr></thead><tbody>";
   SERIES.forEach(s=>{
     h+=`<tr class="grp-row"><td colspan="${cols.length+2}"><span class="arm-cell"><span class="sw" style="background:var(${s.cv})"></span>${s.name}</span></td></tr>`;
     TCTX.forEach(c=>{
@@ -599,7 +602,7 @@ function buildTable(){
       h+=`<tr title="${d.note||''}"><td></td><td>${ctxLab(c)}${d.note?' ⚑':''}</td>`+cols.map(col=>{
         const v=d[col[0]];
         if(v==null) return `<td class="na">—</td>`;
-        if(col[0]==="decode") return `<td title="faixa ${d.decode_range?d.decode_range.join('–'):''}">${v.toFixed(1)}</td>`;
+        if(col[0]==="decode") return `<td title="range ${d.decode_range?d.decode_range.join('–'):''}">${v.toFixed(1)}</td>`;
         if(col[0]==="t_turno"||col[0]==="ttft_tool"||col[0]==="ttft_append"||col[0]==="hit_tool"||col[0]==="free"||col[0]==="mtp") return `<td>${v.toFixed(2)}</td>`;
         if(col[0]==="cold"||col[0]==="wired") return `<td>${v.toFixed(1)}</td>`;
         if(col[0]==="reps") return `<td>${v}</td>`;
@@ -612,12 +615,12 @@ function buildTable(){
 
 function buildFoot(){
   document.getElementById("foot").innerHTML=
-   `<b>Como ler.</b> Eixo x = contexto (32K, 128K, 256K, 512K; eixo categórico). Uma linha por candidato. `+
-   `Cada ponto é o grupo canônico da banda: <b>Etapa B</b> (3 reps) quando existe, senão Etapa A (1 rep) ou a sonda. `+
-   `Uma lacuna na linha é recusa ou banda fora do alcance do runtime; o tooltip diz qual. `+
-   `8K (smoke da Etapa 0) fica fora das linhas: o c4 marca T_turno de 83 s ali por telemetria incoerente; os valores de 8K estão na tabela. `+
-   `Wired acima de 102 GB é alerta, não gate: o mlx-serve pina KV e hot cache em wired e roda sem swap. `+
-   `Gerado em <code>${P.generated_at}</code> por <code>consolidate_reports.py</code> + <code>render_perf_lines.py</code>.`;
+   `<b>How to read.</b> x axis = context (32K, 128K, 256K, 512K; categorical axis). One line per candidate. `+
+   `Each point is the band's canonical group: <b>Stage B</b> (3 reps) when it exists, otherwise Stage A (1 rep) or the probe. `+
+   `A gap in a line is a refusal or a band outside the runtime's reach; the tooltip says which. `+
+   `8K (the Stage 0 smoke test) is left out of the lines: c4 shows a T_turn of 83 s there because of incoherent telemetry; the 8K values are in the table. `+
+   `Wired above 102 GB is a warning, not a gate: mlx-serve pins KV and hot cache as wired memory and runs without swap. `+
+   `Generated at <code>${P.generated_at}</code> by <code>consolidate_reports.py</code> + <code>render_perf_lines.py</code>.`;
 }
 
 buildRig(); buildConfigTable(); buildTech(); buildTakeaways(); buildLegend();
@@ -626,7 +629,7 @@ buildGrid(); buildHitTable(); buildTable(); buildFoot();
 const btn=document.getElementById("themeBtn");
 function applyLabel(){
   const t=document.documentElement.getAttribute("data-theme");
-  btn.textContent = "tema: " + (t||"auto");
+  btn.textContent = "theme: " + (t||"auto");
 }
 btn.addEventListener("click",()=>{
   const cur=document.documentElement.getAttribute("data-theme");

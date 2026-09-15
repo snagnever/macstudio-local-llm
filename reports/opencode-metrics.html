@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>opencode — métricas de desempenho</title>
+<title>opencode — performance metrics</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root { color-scheme: light dark; --bg:#0f1115; --card:#171a21; --fg:#e6e9ef; --mut:#9aa4b2; --line:#262b36; --accent:#6ea8fe; }
@@ -38,58 +38,58 @@
 </head>
 <body>
 <header>
-  <h1>opencode — métricas de desempenho por modelo</h1>
+  <h1>opencode — performance metrics by model</h1>
   <div class="sub" id="meta"></div>
 </header>
 <div class="controls">
-  <label>Janela
+  <label>Window
     <select id="win">
-      <option value="0">tudo</option>
-      <option value="7">7 dias</option>
-      <option value="30">30 dias</option>
+      <option value="0">all time</option>
+      <option value="7">last 7 days</option>
+      <option value="30">last 30 days</option>
     </select>
   </label>
-  <label>Dimensão
+  <label>Group by
     <select id="dim">
-      <option value="model">por modelo</option>
-      <option value="provider">por provider</option>
+      <option value="model">model</option>
+      <option value="provider">provider</option>
     </select>
   </label>
 </div>
-<h2 class="section">Visão geral — comparação entre todos</h2>
+<h2 class="section">Overview of all items</h2>
 <main>
-  <div class="card full"><h2 id="tpsTimeTitle">TPS mediano ao longo do tempo</h2><canvas id="tpsTime"></canvas></div>
-  <div class="card"><h2 id="tpsBarTitle">TPS mediano</h2><canvas id="tpsBar"></canvas></div>
-  <div class="card"><h2>TTFT mediano (ms) — só runtime local é confiável</h2><canvas id="ttftBar"></canvas></div>
-  <div class="card"><h2>Custo acumulado (USD) — só itens com custo &gt; 0</h2><canvas id="costBar"></canvas></div>
+  <div class="card full"><h2 id="tpsTimeTitle">Median TPS over time</h2><canvas id="tpsTime"></canvas></div>
+  <div class="card"><h2 id="tpsBarTitle">Median TPS</h2><canvas id="tpsBar"></canvas></div>
+  <div class="card"><h2>Median TTFT (ms), reliable for local runtimes only</h2><canvas id="ttftBar"></canvas></div>
+  <div class="card"><h2>Total cost (USD), items with cost &gt; 0 only</h2><canvas id="costBar"></canvas></div>
   <div class="card full">
-    <h2 id="tblTitle">Resumo por modelo</h2>
+    <h2 id="tblTitle">Summary by model</h2>
     <table id="tbl"><thead><tr>
-      <th data-k="model">modelo</th><th data-k="messages">msgs</th>
+      <th data-k="model">model</th><th data-k="messages">msgs</th>
       <th data-k="tps">TPS med</th><th data-k="tps_p90">TPS p90</th>
       <th data-k="ttft">TTFT med</th><th data-k="prefill">prefill med</th>
       <th data-k="tps_per_kctx">TPS/kctx</th><th data-k="context">ctx med</th>
-      <th data-k="cache">cache%</th><th data-k="cost">custo</th>
+      <th data-k="cache">cache%</th><th data-k="cost">cost</th>
     </tr></thead><tbody></tbody></table>
   </div>
 </main>
 
-<h2 class="section">Item selecionado — <span id="selName"></span>
+<h2 class="section">Selected item: <span id="selName"></span>
   <select id="model" class="inline"></select>
 </h2>
 <div class="kpis" id="kpis"></div>
 <main>
-  <div class="card"><h2>TPS mediano por dia</h2><canvas id="tpsOne"></canvas></div>
-  <div class="card"><h2>TTFT mediano por dia (ms)</h2><canvas id="ttftOne"></canvas></div>
-  <div class="card"><h2>Contexto mediano por dia</h2><canvas id="ctxTime"></canvas></div>
-  <div class="card"><h2>Tokens de saída por dia</h2><canvas id="outOne"></canvas></div>
+  <div class="card"><h2>Median TPS per day</h2><canvas id="tpsOne"></canvas></div>
+  <div class="card"><h2>Median TTFT per day (ms)</h2><canvas id="ttftOne"></canvas></div>
+  <div class="card"><h2>Median context size per day</h2><canvas id="ctxTime"></canvas></div>
+  <div class="card"><h2>Output tokens per day</h2><canvas id="outOne"></canvas></div>
 </main>
 <footer>
   <div id="gen"></div>
   <ul>
-    <li>TTFT e prefill são proxies. O opencode não grava o primeiro token real do stream. Providers remotos gravam o start junto do step-start, então o TTFT deles fica perto de zero e não é confiável. Só runtime local (MLX, lmstudio) dá TTFT real.</li>
-    <li>Custo é $0 para provider fora do models.dev.</li>
-    <li>Métricas escopadas ao primeiro step de cada mensagem, para não misturar tempo de tool call.</li>
+    <li>TTFT and prefill are proxies. opencode does not record the real first stream token. Remote providers stamp the part start next to step-start, so their TTFT sits near zero and is not reliable. Only local runtimes (MLX, lmstudio) give a real TTFT.</li>
+    <li>Cost is $0 for any provider not priced in models.dev.</li>
+    <li>Metrics cover only the first step of each message, so tool call time stays out of them.</li>
   </ul>
 </footer>
 <script>
@@ -58874,7 +58874,7 @@ const hbarOpts = {responsive:true,plugins:{legend:{display:false}},indexAxis:"y"
 function render(){
   const days=+$("#win").value, dim=curDim();
   const items=groups(days,dim);
-  const noun = dim==="provider" ? "provider" : "modelo";
+  const noun = dim==="provider" ? "provider" : "model";
   const cut=cutDay(days);
   const days_set=[...new Set(DATA.rows.filter(r=>r.day>=cut).map(r=>r.day))].sort();
   renderGeneral(items,dim,noun,days,days_set);
@@ -58883,9 +58883,9 @@ function render(){
 
 function renderGeneral(items,dim,noun,days,days_set){
   const label = it => shortName(it[dim]);
-  $("#tpsBarTitle").textContent = "TPS mediano por "+noun;
-  $("#tpsTimeTitle").textContent = "TPS mediano por "+noun+" ao longo do tempo";
-  $("#tblTitle").textContent = "Resumo por "+noun;
+  $("#tpsBarTitle").textContent = "Median TPS by "+noun;
+  $("#tpsTimeTitle").textContent = "Median TPS by "+noun+" over time";
+  $("#tblTitle").textContent = "Summary by "+noun;
 
   mkChart("tpsBar",{type:"bar",data:{labels:items.map(label),
     datasets:[{data:items.map(m=>m.tps.median),backgroundColor:palette}]},options:hbarOpts});
@@ -58913,14 +58913,14 @@ function renderSelected(items,dim,days,days_set){
   const kpi=(v,l)=>`<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`;
   if(it){
     $("#kpis").innerHTML=[
-      kpi(it.messages,"mensagens"),
+      kpi(it.messages,"messages"),
       kpi(fmt(it.tps.median),"TPS med"),
       kpi(fmt(it.tps.p90),"TPS p90"),
       kpi(it.ttft_ms.median!=null?fmt(it.ttft_ms.median,0)+" ms":"—","TTFT med"),
-      kpi(fmt(it.context.median,0),"contexto med"),
+      kpi(fmt(it.context.median,0),"context med"),
       kpi(fmt(it.tps_per_kctx.median,3),"TPS/kctx"),
       kpi(it.cache_hit_ratio.median!=null?fmt(it.cache_hit_ratio.median*100,0)+"%":"—","cache hit"),
-      kpi("$"+fmt(it.cost_sum,4),"custo"),
+      kpi("$"+fmt(it.cost_sum,4),"cost"),
     ].join("");
   } else { $("#kpis").innerHTML=""; }
   oneLine("tpsOne",days_set,daySeries(days,dim,name,"tps"),shortName(name),"#6ea8fe");
@@ -58930,7 +58930,7 @@ function renderSelected(items,dim,days,days_set){
 }
 
 function renderTable(items,dim){
-  $("#tbl thead th").textContent = dim==="provider" ? "provider" : "modelo";
+  $("#tbl thead th").textContent = dim==="provider" ? "provider" : "model";
   $("#tbl tbody").innerHTML=items.map(m=>`<tr>
     <td>${m[dim]}</td><td>${m.messages}</td>
     <td>${fmt(m.tps.median)}</td><td>${fmt(m.tps.p90)}</td>
@@ -58947,8 +58947,8 @@ function fillCtxSelector(){
 }
 
 function init(){
-  $("#meta").textContent=`${DATA.message_count} mensagens · ${DATA.by_model.length} modelos · ${DATA.by_provider.length} providers · banco ${DATA.db}`;
-  $("#gen").textContent=`Gerado em ${DATA.generated_at}`;
+  $("#meta").textContent=`${DATA.message_count} messages · ${DATA.by_model.length} models · ${DATA.by_provider.length} providers · DB ${DATA.db}`;
+  $("#gen").textContent=`Generated at ${DATA.generated_at}`;
   fillCtxSelector();
   $("#win").onchange=render;
   $("#model").onchange=render;
