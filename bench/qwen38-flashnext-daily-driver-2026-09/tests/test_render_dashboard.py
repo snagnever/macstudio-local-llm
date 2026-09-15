@@ -117,17 +117,17 @@ def test_render_verdict_html_placeholder_when_absent():
 
 def test_render_verdict_html_renders_paragraphs(tmp_path):
     md = tmp_path / "verdict.md"
-    md.write_text("Primeiro parágrafo.\n\nSegundo parágrafo com <tag> e & escapado.", encoding="utf-8")
+    md.write_text("First paragraph.\n\nSecond paragraph with <tag> and & escaped.", encoding="utf-8")
     out = rd.render_verdict_html(str(md))
     assert out.count("<p>") == 2
-    assert "Primeiro parágrafo." in out
+    assert "First paragraph." in out
     assert "&lt;tag&gt;" in out
     assert "&amp;" in out
 
 
 def test_sonda_note_with_script_breakout_is_escaped(tmp_path):
-    """A free-text sonda `note` quoting "</script>" must not be able to close
-    the page's inline <script> tag early — see finding 1, review round 1."""
+    """A free-text probe `note` quoting "</script>" must not be able to close
+    the page's inline <script> tag early. See finding 1, review round 1."""
     summary_path = tmp_path / "summary.json"
     summary_path.write_text(json.dumps({"c1@32768": _row()}), encoding="utf-8")
     sonda_path = tmp_path / "sonda.json"
@@ -156,7 +156,7 @@ def test_sonda_note_with_script_breakout_is_escaped(tmp_path):
     page = out_path.read_text(encoding="utf-8")
     assert "</script><script>alert" not in page
     # Exactly the 3 CDN `<script src=...>` tags plus the one inline <script>
-    # block close with `</script>` in the static template — nothing extra
+    # block close with `</script>` in the static template; nothing extra
     # sneaked in from embedded JSON data.
     assert page.count("</script>") == 4
 
@@ -166,11 +166,29 @@ def test_sonda_note_with_script_breakout_is_escaped(tmp_path):
     assert sonda["c1"]["note"] == malicious_note
 
 
+def test_known_portuguese_sonda_note_is_translated(tmp_path):
+    """The probe JSON stores notes in Portuguese. The English page must show
+    the translated note; an unknown note passes through unchanged."""
+    sonda_path = tmp_path / "sonda.json"
+    sonda_path.write_text(
+        json.dumps(
+            {
+                "c2": {"reaches": False, "followup": None, "note": "runtime sem YaRN (oMLX): teto 262K"},
+                "c3": {"reaches": False, "followup": None, "note": "free text"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    sonda = rd.load_sonda(str(sonda_path))
+    assert sonda["c2"]["note"] == "runtime has no YaRN (oMLX): 262K ceiling"
+    assert sonda["c3"]["note"] == "free text"
+
+
 def test_wired_warning_shown_separately_from_gates(tmp_path):
     """The wired>102 ruling: a candidate with no failed gates but a wired
     warning must carry that warning in GATES[...]['warnings'], never inside
-    GATES[...]['gates'] — the scoreboard's gates-falhados cell must read
-    "passa" for this row, and the warning must show up in its own alertas
+    GATES[...]['gates']. The scoreboard's failed-gates cell must read "pass"
+    for this row, and the warning must show up in its own warnings
     column/data instead."""
     summary_path = tmp_path / "summary.json"
     summary_path.write_text(
@@ -190,16 +208,17 @@ def test_wired_warning_shown_separately_from_gates(tmp_path):
     assert entry["warnings"] == ["wired>102"]
     assert "wired>102" in page  # present in the embedded page data
 
-    # The scoreboard has its own "alertas" column/JS path, separate from the
-    # gates-falhados one, and must not conflate the two.
-    assert "alertas" in page
+    # The scoreboard has its own "warnings" column/JS path, separate from the
+    # failed-gates one, and must not conflate the two.
+    assert '<th data-sort="str">failed gates</th>' in page
+    assert '<th data-sort="str">warnings</th>' in page
     assert "warningsCell" in page
     assert "gatesCell" in page
 
 
 def test_scoreboard_default_sort_and_direction_aware_highlight(tmp_path):
     """Finding 2, review round 1: the scoreboard must default-sort ascending
-    on T_turno@32K (column index 1) and highlight the best cell per column
+    on T_turn@32K (column index 1) and highlight the best cell per column
     with the correct direction (min for time/memory, max for decode) instead
     of the shared helper's always-max semantics."""
     summary_path = tmp_path / "summary.json"
@@ -215,13 +234,13 @@ def test_scoreboard_default_sort_and_direction_aware_highlight(tmp_path):
     assert "4:'max'" in page
     assert "highlightScoreboardBest" in page
     # highlightBestPerColumn (always max-is-best) must not be wired onto this
-    # scoreboard — that would mis-highlight the slowest T_turno as "best".
+    # scoreboard. That would mis-highlight the slowest T_turn as "best".
     assert "highlightBestPerColumn('scoreboardDriver')" not in page
 
 
 def test_line_charts_drop_8k_but_hit_table_keeps_it(tmp_path):
-    """Review round 2: the 4 "vs contexto" line charts must plot only the
-    daily bands (32K/128K/256K) — the c4@8K smoke telemetry is a known outlier
+    """Review round 2: the 4 "vs context" line charts must plot only the
+    daily bands (32K/128K/256K). The c4@8K smoke telemetry is a known outlier
     that squashes every other point near zero. 8K must still flow through to
     RESULTS (and therefore the cache-hit table), just not into the line
     charts' own context/label lists."""
@@ -249,21 +268,21 @@ def test_line_charts_drop_8k_but_hit_table_keeps_it(tmp_path):
     assert "type:'linear'" not in page
 
     # 8192 is still present in RESULTS (and therefore the hit-table's data
-    # path, which filters CONTEXTS — the full 4-band list — against RESULTS).
+    # path, which filters CONTEXTS, the full 4-band list, against RESULTS).
     results = _extract_const_array(page, "RESULTS")
     assert any(r["context"] == 8192 for r in results)
     contexts = _extract_const_array(page, "CONTEXTS")
     assert 8192 in contexts
 
     # The one-line caveat about the 8K exclusion is present.
-    assert "O smoke de 8K fica fora dos gráficos" in page
+    assert "The 8K smoke run is left out of the charts" in page
     assert "etapa0-smoke.md" in page
 
 
 def test_eliminated_candidate_detected_and_grouped(tmp_path):
     """Finding 1, review round 3: a candidate with a failed gate at 128K must
-    be marked eliminated — even though it still has a real 32K value, the
-    opposite of what let it read as "winning" the scoreboard — and the page
+    be marked eliminated, even though it still has a real 32K value (the
+    thing that let it read as "winning" the scoreboard), and the page
     must carry the bottom-group re-sorting code path."""
     summary_path = tmp_path / "summary.json"
     summary_path.write_text(
@@ -291,11 +310,11 @@ def test_eliminated_candidate_detected_and_grouped(tmp_path):
     assert "badge-eliminated" in page
 
 
-def test_source_tagging_marks_etapa_b_override(tmp_path):
+def test_source_tagging_marks_stage_b_override(tmp_path):
     """Finding 2, review round 3: a `<cand>@<ctx>` key overridden by
     --summary-b must be tagged source "B" (3-rep median); everything else
-    stays "A" (1-rep) — surfaced as a scoreboard superscript and in the
-    T_turno chart tooltip so the two are never read as apples-to-apples."""
+    stays "A" (1-rep). The page shows the tag as a scoreboard superscript and
+    in the T_turn chart tooltip so the two are never read as apples-to-apples."""
     summary_path = tmp_path / "summary.json"
     summary_path.write_text(
         json.dumps({"c1@32768": _row(t_turno_s=11.0), "c1@262144": _row(t_turno_s=14.2)}),
@@ -321,10 +340,10 @@ def test_source_tagging_marks_etapa_b_override(tmp_path):
     assert "srcCaption" in page
 
 
-def test_sem_dados_renders_as_recusa(tmp_path):
+def test_sem_dados_renders_as_refused(tmp_path):
     """Finding 3, review round 3: a band that ran and refused every request
-    (`warnings` carries "sem_dados") must read "recusa / sem dados", not the
-    plain "não testado" reserved for a band with no summary row at all."""
+    (`warnings` carries "sem_dados") must read "refused / no data", not the
+    plain "not tested" reserved for a band with no summary row at all."""
     summary_path = tmp_path / "summary.json"
     summary_path.write_text(
         json.dumps(
@@ -354,8 +373,11 @@ def test_sem_dados_renders_as_recusa(tmp_path):
     assert rc == 0
 
     page = out_path.read_text(encoding="utf-8")
-    assert "recusa / sem dados" in page
+    assert "refused / no data" in page
     assert "hit-refused" in page
+    # The warning key stays "sem_dados" in the data; the page maps it to an
+    # English display label.
+    assert "'sem_dados': 'no_data'" in page
 
     gates = _extract_const_object(page, "GATES")
     assert gates["c4@131072"]["warnings"] == ["sem_dados"]

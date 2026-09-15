@@ -100,4 +100,6 @@ A sonda rodou sem `sudo` (`iogpu.wired_limit_mb` = 0). O c1 alcança 524288 toke
 - Uma fixture (`audit_retrieval`); cargas de código ou chat podem mudar o decode com MTP.
 - 256K e 512K com 1 rep.
 
+Reports: `reports/qwen38-flashnext-overview.html` e `reports/qwen38-flashnext-perf-lines.html`, gerados de `reports.json` por `scripts/consolidate_reports.py`, `render_overview.py` e `render_perf_lines.py`.
+
 Arquivos: `etapa0-smoke.md`, `diag-temp0.md`, `etapa-a.md`, `quant-fidelity.md`, `c3-dev2-ple-config.md`, `etapa-b.md`, `sonda-512k.md`.

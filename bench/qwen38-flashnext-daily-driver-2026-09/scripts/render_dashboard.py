@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Gera reports/qwen38-flashnext-driver.html a partir do(s) summary.json da
-campanha flashnext-daily-driver (ver scripts/summarize_driver.py).
+"""Build reports/qwen38-flashnext-driver.html from the summary.json file(s) of
+the flashnext-daily-driver campaign (see scripts/summarize_driver.py).
 
-Não roda benchmark nenhum: só lê JSON já escrito em disco e escreve uma página
-HTML self-contained (MODELS + RESULTS inline, `charts-common.js` por caminho
-relativo), seguindo as convenções descritas em reports/README.md.
+It runs no benchmark. It reads JSON already on disk and writes one
+self-contained HTML page (MODELS + RESULTS inline, `charts-common.js` by
+relative path), following the conventions in reports/README.md.
 
-Uso:
+Usage:
     python3 scripts/render_dashboard.py --summary results/summary.json \\
         [--summary-b results/summary-b.json] [--sonda results/sonda-512k.json] \\
-        [--verdict results/verdict.md] --out ../../reports/qwen38-flashnext-driver.html
+        [--verdict results/verdict-en.md] --out ../../reports/qwen38-flashnext-driver.html
 """
 from __future__ import annotations
 
@@ -43,21 +43,31 @@ SCENARIOS = ("identical", "append", "tool_turn")
 CONTEXTS = (8192, 32768, 131072, 262144)
 CONTEXT_LABELS: dict[int, str] = {8192: "8K", 32768: "32K", 131072: "128K", 262144: "256K"}
 
-# The 4 line charts (T_turno / warm TTFT / cold TTFT / decode vs. context) plot
-# only the Etapa A daily bands. The 8K smoke context is deliberately excluded:
-# c4@8K is a known MTPLX telemetry outlier (tool_turn TTFT ~75s, T_turno ~82s —
+# The 4 line charts (T_turn / warm TTFT / cold TTFT / decode vs. context) plot
+# only the Stage A daily bands. The 8K smoke context is left out on purpose:
+# c4@8K is a known MTPLX telemetry outlier (tool_turn TTFT ~75s, T_turn ~82s;
 # see results/etapa0-smoke.md) that squashes every 32K/128K/256K point near
 # zero on a shared axis. 8K stays everywhere else (cache-hit table, wired bar
 # chart, RESULTS/scoreboard).
 LINE_CHART_CONTEXTS: tuple[int, ...] = (32768, 131072, 262144)
 
 # A candidate is eliminated if it failed a gate at either daily decisive band
-# (32K or 128K) — even if it still carries a value at some other context (e.g.
+# (32K or 128K), even if it still carries a value at some other context (e.g.
 # c4 has a real 32K number but is refused at 128K). Elimination must not be
 # inferred from a single band in isolation.
 ELIMINATION_CONTEXTS: tuple[int, ...] = (32768, 131072)
 
-PLACEHOLDER_VERDICT = "Veredito pendente — campanha em andamento"
+PLACEHOLDER_VERDICT = "Verdict pending. The campaign is still running."
+
+# The probe JSON (sonda-512k.json) carries free-text notes written in
+# Portuguese. The page is in English, so known notes are translated at render
+# time. An unknown note passes through unchanged.
+SONDA_NOTE_EN: dict[str, str] = {
+    "runtime sem YaRN (oMLX): teto 262K": "runtime has no YaRN (oMLX): 262K ceiling",
+    "MTPLX 2.11.2 recusa já a 128K (fit de 114.688 tokens); a sonda não rodou": (
+        "MTPLX 2.11.2 already refuses at 128K (fit of 114,688 tokens); the probe did not run"
+    ),
+}
 
 
 def load_json(path: str | None) -> dict[str, Any]:
@@ -67,8 +77,8 @@ def load_json(path: str | None) -> dict[str, Any]:
 
 
 def merge_summaries(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
-    """Etapa B (override) substitui integralmente a entrada `<cand>@<ctx>` da
-    etapa A (base) — não faz merge campo a campo."""
+    """Stage B (override) replaces the whole `<cand>@<ctx>` entry from Stage A
+    (base). It does not merge field by field."""
     merged = dict(base)
     merged.update(override)
     return merged
@@ -114,10 +124,10 @@ def build_results(summary: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def build_gates(summary: dict[str, Any]) -> dict[str, dict[str, list[str]]]:
-    """`<cand>@<ctx>` -> `{"gates": [...falhados...], "warnings": [...alertas
-    nao eliminatorios...]}` (fora do modelo RESULTS: são veredictos derivados
-    que só o scoreboard usa). `wired>102` sai daqui como warning, não gate —
-    ver `summarize_driver.apply_warnings`."""
+    """`<cand>@<ctx>` -> `{"gates": [...failed...], "warnings": [...non-eliminating
+    warnings...]}`. This sits outside the RESULTS model: these are derived
+    rulings that only the scoreboard uses. `wired>102` comes out as a warning,
+    not a gate; see `summarize_driver.apply_warnings`."""
     return {
         key: {
             "gates": list((r or {}).get("gates_failed", []) or []),
@@ -130,9 +140,9 @@ def build_gates(summary: dict[str, Any]) -> dict[str, dict[str, list[str]]]:
 def build_eliminated(summary: dict[str, Any]) -> list[str]:
     """Candidate ids eliminated by a failed gate at 32K or 128K. Used to keep
     a gate-failed candidate out of the scoreboard's default-sort lead and its
-    best-cell highlight — it must never read as "winning" just because it
+    best-cell highlight. It must never read as "winning" just because it
     still carries a value at some other band (see review round 3, finding 1:
-    c4 sat first with a green T_turno@32K despite failing gates at 128K)."""
+    c4 sat first with a green T_turn@32K despite failing gates at 128K)."""
     eliminated = []
     for cid, _, _ in CANDIDATES:
         for ctx in ELIMINATION_CONTEXTS:
@@ -145,10 +155,10 @@ def build_eliminated(summary: dict[str, Any]) -> list[str]:
 
 def build_sources(base: dict[str, Any], override: dict[str, Any]) -> dict[str, str]:
     """Which summary file each `<cand>@<ctx>` key's value came from after the
-    Etapa B override — "B" when overridden (a 3-rep median), "A" otherwise (a
-    1-rep Etapa A value). Surfaced in the scoreboard (superscript marker) and
-    the T_turno chart tooltip so a 3-rep median is never silently read next to
-    a 1-rep value as if they were on equal footing (review round 3, finding 2).
+    Stage B override: "B" when overridden (a 3-rep median), "A" otherwise (a
+    1-rep Stage A value). The scoreboard (superscript marker) and the T_turn
+    chart tooltip show it, so a reader never compares a 3-rep median with a
+    1-rep value as if they were equal (review round 3, finding 2).
     """
     sources: dict[str, str] = {key: "A" for key in base}
     for key in override:
@@ -157,16 +167,21 @@ def build_sources(base: dict[str, Any], override: dict[str, Any]) -> dict[str, s
 
 
 def load_sonda(path: str | None) -> dict[str, Any]:
-    return load_json(path)
+    """Load the 512K probe JSON and translate known Portuguese notes."""
+    sonda = load_json(path)
+    for entry in sonda.values():
+        if isinstance(entry, dict) and entry.get("note") in SONDA_NOTE_EN:
+            entry["note"] = SONDA_NOTE_EN[entry["note"]]
+    return sonda
 
 
 def js_json(obj: Any) -> str:
     """Serialize `obj` for embedding inside the page's inline <script> block.
 
-    Plain `json.dumps` is not safe here: a free-text field (e.g. a sonda
+    Plain `json.dumps` is not safe here: a free-text field (e.g. a probe
     `note` that quotes a log line) could contain the literal substring
-    `</script>` and prematurely close the tag, letting whatever follows run
-    as markup/script. Escaping "</" as "<\\/" defuses that — "\\/" is a legal
+    `</script>` and close the tag early, letting whatever follows run
+    as markup/script. Escaping "</" as "<\\/" prevents that. "\\/" is a legal
     JSON escape for "/", so `JSON.parse` in the browser (and `json.loads` in
     a test) round-trips it back to "/" unchanged.
     """
@@ -196,10 +211,10 @@ def render_verdict_html(path: str | None) -> str:
 # ---------------------------------------------------------------------------
 
 PAGE_TEMPLATE = """<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Flash-Next — driver responsivo</title>
+<title>Qwen3.8-Flash-Next — Responsive Daily Driver</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script src="charts-common.js"></script>
@@ -282,13 +297,13 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <header>
   <div class="header-inner">
     <div>
-      <h1>Flash-Next — driver responsivo</h1>
-      <p>Apple Mac Studio · M4 Max · 128 GB unificados · Qwen3.8-Flash-Next (MoE) · 4 candidatos (quant × runtime) · campanha <code>bench/qwen38-flashnext-daily-driver-2026-09</code></p>
+      <h1>Qwen3.8-Flash-Next — Responsive Daily Driver</h1>
+      <p>Apple Mac Studio · M4 Max · 128 GB unified · Qwen3.8-Flash-Next (MoE) · 4 candidates (quant × runtime) · campaign <code>bench/qwen38-flashnext-daily-driver-2026-09</code></p>
     </div>
     <div class="header-actions">
       <label class="toggle">
         <input type="checkbox" id="toggleLabels" checked />
-        Mostrar rótulos nos gráficos
+        Show chart labels
       </label>
     </div>
   </div>
@@ -299,103 +314,103 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <main>
 
   <section class="card wide" id="sec-verdict">
-    <h2>Veredito</h2>
+    <h2>Verdict</h2>
     @@VERDICT_HTML@@
   </section>
 
   <section class="card wide">
-    <h2>Placar</h2>
-    <p class="sub">T_turno = TTFT do <code>tool_turn</code> + 512 / mediana do decode dos cenários quentes servidos (<code>identical</code>, <code>append</code>, <code>tool_turn</code>) — o que o usuário sente por turno. Wired pico é o máximo de <code>wired_peak_gb</code> entre as bandas medidas. Gates falhados elimina o candidato (hit ≥0.90 a 32K/128K, sem erro HTTP, swap ≤0.5 GB, resposta correta). Wired acima de 102 GB é um alerta (coluna à parte), não uma eliminação — é o ponto de operação normal do mlx-serve (KV + prefix cache de 16 GB fixados em wired) quando não há crescimento de swap. Ordenada por padrão por T_turno @32K (menor primeiro — clique num cabeçalho para reordenar). Menor é melhor para T_turno/TTFT/wired e maior é melhor para decode; a melhor célula visível de cada coluna aparece em verde, respeitando essa direção por coluna.</p>
+    <h2>Scoreboard</h2>
+    <p class="sub">T_turn = <code>tool_turn</code> TTFT + 512 / median decode of the served warm scenarios (<code>identical</code>, <code>append</code>, <code>tool_turn</code>). It is the wait the user feels per turn. Wired peak is the highest <code>wired_peak_gb</code> across the measured bands. A failed gate eliminates the candidate (hit ≥0.90 at 32K/128K, no HTTP errors, swap ≤0.5 GB, correct answer). Wired above 102 GB is a warning in its own column, not an elimination. It is the normal operating point of mlx-serve (KV + a 16 GB prefix cache held in wired memory) when swap does not grow. Default sort is T_turn @32K, lowest first. Click a header to re-sort. Lower is better for T_turn, TTFT and wired; higher is better for decode. The best visible cell in each column is green, using that column's direction.</p>
     <div class="scoreboard-wrap">
       <table class="scoreboard" id="scoreboardDriver">
         <thead>
           <tr>
-            <th data-sort="str">Candidato</th>
-            <th class="num" data-sort="num">T_turno @32K (s)</th>
-            <th class="num" data-sort="num">T_turno @128K (s)</th>
+            <th data-sort="str">Candidate</th>
+            <th class="num" data-sort="num">T_turn @32K (s)</th>
+            <th class="num" data-sort="num">T_turn @128K (s)</th>
             <th class="num" data-sort="num">cold TTFT @128K (s)</th>
             <th class="num" data-sort="num">decode @128K (tok/s)</th>
-            <th class="num" data-sort="num">wired pico (GB)</th>
-            <th data-sort="str">gates falhados</th>
-            <th data-sort="str">alertas</th>
+            <th class="num" data-sort="num">wired peak (GB)</th>
+            <th data-sort="str">failed gates</th>
+            <th data-sort="str">warnings</th>
           </tr>
         </thead>
-        <tbody><!-- gerado por charts-common.js --></tbody>
+        <tbody><!-- built by charts-common.js --></tbody>
       </table>
     </div>
-    <p class="scoreboard-hint" id="srcCaption" hidden>³ mediana de 3 reps (Etapa B); demais valores: 1 rep (Etapa A).</p>
+    <p class="scoreboard-hint" id="srcCaption" hidden>³ median of 3 reps (Stage B); other values: 1 rep (Stage A).</p>
   </section>
 
-  <p class="chart-note">O smoke de 8K fica fora dos gráficos: telemetria do MTPLX incoerente a 8K; ver etapa0-smoke.md.</p>
+  <p class="chart-note">The 8K smoke run is left out of the charts because MTPLX telemetry is inconsistent at 8K. See etapa0-smoke.md.</p>
 
   <section class="card">
-    <h2>T_turno vs contexto</h2>
-    <p class="sub">T_turno = TTFT do tool_turn + 512 / mediana do decode dos cenários quentes servidos (identical, append, tool_turn), por banda de contexto. Lacuna na linha = banda não medida.</p>
+    <h2>T_turn vs context</h2>
+    <p class="sub">T_turn = tool_turn TTFT + 512 / median decode of the served warm scenarios (identical, append, tool_turn), per context band. A gap in a line means the band was not measured.</p>
     <div class="chart-wrap"><canvas id="chartTturno"></canvas></div>
   </section>
 
   <section class="card">
-    <h2>TTFT quente (tool_turn) vs contexto</h2>
-    <p class="sub">Tempo até o primeiro token no cenário de turno de ferramenta, cache já aquecido.</p>
+    <h2>Warm TTFT (tool_turn) vs context</h2>
+    <p class="sub">Time to first token in the tool-turn scenario, with the cache already warm.</p>
     <div class="chart-wrap"><canvas id="chartWarmTtft"></canvas></div>
   </section>
 
   <section class="card">
-    <h2>TTFT frio vs contexto</h2>
-    <p class="sub">Tempo até o primeiro token com cache vazio (primeira carga do prompt na banda).</p>
+    <h2>Cold TTFT vs context</h2>
+    <p class="sub">Time to first token with an empty cache (first load of the prompt at that band).</p>
     <div class="chart-wrap"><canvas id="chartColdTtft"></canvas></div>
   </section>
 
   <section class="card">
-    <h2>Decode vs contexto</h2>
-    <p class="sub">Velocidade de geração (tok/s), mediana dos cenários quentes.</p>
+    <h2>Decode vs context</h2>
+    <p class="sub">Generation speed (tok/s), median of the warm scenarios.</p>
     <div class="chart-wrap"><canvas id="chartDecode"></canvas></div>
   </section>
 
   <section class="card wide">
-    <h2>Cache hit por cenário</h2>
-    <p class="sub">Fração de tokens reaproveitados do prefix cache, por cenário e candidato, banda a banda. Verde = ≥0.90 (gate passa); vermelho = abaixo; cinza = não medido.</p>
+    <h2>Cache hit by scenario</h2>
+    <p class="sub">Share of tokens reused from the prefix cache, per scenario and candidate, band by band. Green = ≥0.90 (gate passes); red = below; gray = not measured.</p>
     <div id="hitTable"></div>
   </section>
 
   <section class="card wide">
-    <h2>Wired (memória) por contexto</h2>
-    <p class="sub">Pico de memória unificada residente (<code>wired_peak_gb</code>) por banda de contexto.</p>
+    <h2>Wired memory by context</h2>
+    <p class="sub">Peak resident unified memory (<code>wired_peak_gb</code>) per context band.</p>
     <div class="chart-wrap"><canvas id="chartWired"></canvas></div>
   </section>
 
   <section class="card wide">
-    <h2>Sonda de capacidade a 512K</h2>
-    <p class="sub">Cada candidato alcança a banda de 512K e sustenta um follow-up sem estourar memória? "não testado" quando a sonda não rodou para o candidato.</p>
+    <h2>512K capacity probe</h2>
+    <p class="sub">Does each candidate reach the 512K band and hold a follow-up without running out of memory? "not tested" means the probe did not run for that candidate.</p>
     <div class="scoreboard-wrap">
       <table class="scoreboard" id="sondaTable">
         <thead>
           <tr>
-            <th data-sort="str">Candidato</th>
-            <th class="num">Alcança 512K</th>
+            <th data-sort="str">Candidate</th>
+            <th class="num">Reaches 512K</th>
             <th class="num">Follow-up ok</th>
             <th class="num">decode (tok/s)</th>
             <th class="num">cold TTFT (s)</th>
-            <th>Nota</th>
+            <th>Note</th>
           </tr>
         </thead>
-        <tbody><!-- gerado via JS a partir de SONDA --></tbody>
+        <tbody><!-- built in JS from SONDA --></tbody>
       </table>
     </div>
   </section>
 
   <section class="card wide">
-    <h2>Lacunas e ressalvas</h2>
+    <h2>Gaps and caveats</h2>
     <ul class="caveats">
-      <li>A telemetria de cache do MTPLX não é confiável a 8K.</li>
-      <li>O hash de verificação cobre só a resposta final, não a cadeia de raciocínio inteira.</li>
-      <li>O oMLX não implementa YaRN — o teto prático de contexto fica em 262K.</li>
+      <li>MTPLX cache telemetry is not reliable at 8K.</li>
+      <li>The verification hash covers only the final answer, not the full reasoning chain.</li>
+      <li>oMLX does not implement YaRN, so its practical context ceiling is 262K.</li>
     </ul>
   </section>
 
 </main>
 
-<footer>Gerado por <code>bench/qwen38-flashnext-daily-driver-2026-09/scripts/render_dashboard.py</code> a partir de <code>summary.json</code> (+ <code>summary-b.json</code> quando presente).</footer>
+<footer>Generated by <code>bench/qwen38-flashnext-daily-driver-2026-09/scripts/render_dashboard.py</code> from <code>summary.json</code> (+ <code>summary-b.json</code> when present).</footer>
 
 <script>
 const C = ChartsCommon;
@@ -408,9 +423,10 @@ C.initTheme();
 //   metric='t_turno_s'|'cold_ttft_s'|'decode_tps'|'prefill_tps'|'wired_peak_gb'|'mtp_acceptance'
 //     context=8192|32768|131072|262144
 //   metric='warm_ttft_s'|'hit'  context=<as above>  scenario=identical|append|tool_turn
+// ('t_turno_s' is the data key for T_turn.)
 // GATES and SONDA are supplementary lookups (not RESULTS metrics): GATES is
-// keyed "<cand>@<ctx>" -> list of failed gate names; SONDA is keyed by
-// candidate id -> 512K capacity-probe fields.
+// keyed "<cand>@<ctx>" -> {gates: failed gate names, warnings: [...]}; SONDA
+// is keyed by candidate id -> 512K capacity-probe fields.
 // ---------------------------------------------------------------------------
 const MODELS = @@MODELS_JSON@@;
 
@@ -421,21 +437,21 @@ const GATES = @@GATES_JSON@@;
 const SONDA = @@SONDA_JSON@@;
 
 // Candidate ids eliminated by a failed gate at 32K or 128K (see
-// build_eliminated in render_dashboard.py) — kept out of the scoreboard's
-// default-sort lead and best-cell highlight, and flagged with a badge.
+// build_eliminated in render_dashboard.py). They stay out of the scoreboard's
+// default-sort lead and best-cell highlight, and carry a badge.
 const ELIMINATED = @@ELIMINATED_JSON@@;
 const ELIMINATED_SET = new Set(ELIMINATED);
 
-// "<cand>@<ctx>" -> "A" (Etapa A, 1 rep) | "B" (Etapa B override, 3 reps).
-// Surfaced as a superscript in the scoreboard and in the T_turno tooltip so a
-// 3-rep median is never silently read next to a 1-rep value.
+// "<cand>@<ctx>" -> "A" (Stage A, 1 rep) | "B" (Stage B override, 3 reps).
+// Shown as a superscript in the scoreboard and in the T_turn tooltip so a
+// reader never compares a 3-rep median with a 1-rep value unawares.
 const SOURCES = @@SOURCES_JSON@@;
 
 const CONTEXTS = [8192, 32768, 131072, 262144];
 const CONTEXT_LABELS = { 8192:'8K', 32768:'32K', 131072:'128K', 262144:'256K' };
 function ctxLabel(ctx) { return CONTEXT_LABELS[ctx] || String(ctx); }
 
-// The 4 "vs contexto" line charts use only the daily bands (8K excluded — see
+// The 4 "vs context" line charts use only the daily bands (8K excluded; see
 // the chart-note in the markup above). Categorical axis (evenly spaced ticks
 // from LINE_CONTEXT_LABELS), not linear-in-tokens, so 32K/128K/256K don't get
 // bunched at one edge.
@@ -457,7 +473,7 @@ function dset(id, extra) {
 
 function lineOptions(yLabel) {
   // Categorical x-axis (the default Chart.js category scale, not a linear
-  // one) — same style as the wired bar chart below, so the 3 daily bands
+  // one), same style as the wired bar chart below, so the 3 daily bands
   // sit evenly spaced instead of bunched together by their raw token counts.
   return Object.assign({}, C.gridOpts(yLabel), {
     scales: {
@@ -467,10 +483,10 @@ function lineOptions(yLabel) {
   });
 }
 
-// T_turno vs contexto's tooltip additionally tags each point with its rep
-// count (Etapa A = 1 rep, Etapa B override = 3 reps) — this is the chart the
-// verdict quotes numbers from, so the source must be visible point-by-point,
-// not just in the scoreboard's footnote.
+// The T_turn vs context tooltip also tags each point with its rep count
+// (Stage A = 1 rep, Stage B override = 3 reps). The verdict quotes numbers
+// from this chart, so the source must be visible point by point, not only in
+// the scoreboard's footnote.
 function tturnoOptions(yLabel) {
   const opts = lineOptions(yLabel);
   opts.plugins = Object.assign({}, opts.plugins, {
@@ -491,7 +507,7 @@ function tturnoOptions(yLabel) {
   return opts;
 }
 
-// --- T_turno vs contexto (linha) ---
+// --- T_turn vs context (line) ---
 C.buildGroupedChart('chartTturno', {
   state: state, type: 'line',
   labels: LINE_CONTEXT_LABELS,
@@ -499,10 +515,10 @@ C.buildGroupedChart('chartTturno', {
     data: C.seriesFor(RESULTS, m.id, {metric:'t_turno_s'}, LINE_CONTEXTS, 'context'),
     tension: 0.25, fill: false
   })),
-  options: tturnoOptions('T_turno (s)')
+  options: tturnoOptions('T_turn (s)')
 });
 
-// --- TTFT quente (tool_turn) vs contexto (linha) ---
+// --- Warm TTFT (tool_turn) vs context (line) ---
 C.buildGroupedChart('chartWarmTtft', {
   state: state, type: 'line',
   labels: LINE_CONTEXT_LABELS,
@@ -510,10 +526,10 @@ C.buildGroupedChart('chartWarmTtft', {
     data: C.seriesFor(RESULTS, m.id, {metric:'warm_ttft_s', scenario:'tool_turn'}, LINE_CONTEXTS, 'context'),
     tension: 0.25, fill: false
   })),
-  options: lineOptions('TTFT quente — tool_turn (s)')
+  options: lineOptions('warm TTFT, tool_turn (s)')
 });
 
-// --- TTFT frio vs contexto (linha) ---
+// --- Cold TTFT vs context (line) ---
 C.buildGroupedChart('chartColdTtft', {
   state: state, type: 'line',
   labels: LINE_CONTEXT_LABELS,
@@ -521,10 +537,10 @@ C.buildGroupedChart('chartColdTtft', {
     data: C.seriesFor(RESULTS, m.id, {metric:'cold_ttft_s'}, LINE_CONTEXTS, 'context'),
     tension: 0.25, fill: false
   })),
-  options: lineOptions('TTFT frio (s)')
+  options: lineOptions('cold TTFT (s)')
 });
 
-// --- Decode vs contexto (linha) ---
+// --- Decode vs context (line) ---
 C.buildGroupedChart('chartDecode', {
   state: state, type: 'line',
   labels: LINE_CONTEXT_LABELS,
@@ -535,14 +551,14 @@ C.buildGroupedChart('chartDecode', {
   options: lineOptions('decode (tok/s)')
 });
 
-// --- Wired por contexto (barras) ---
+// --- Wired by context (bars) ---
 C.buildGroupedChart('chartWired', {
   state: state,
   labels: CONTEXTS.map(ctxLabel),
   datasets: MODELS.map(m => dset(m.id, {
     data: C.seriesFor(RESULTS, m.id, {metric:'wired_peak_gb'}, CONTEXTS, 'context')
   })),
-  options: C.gridOpts('wired pico (GB)')
+  options: C.gridOpts('wired peak (GB)')
 });
 
 // --- Scoreboard ---
@@ -556,16 +572,19 @@ function gatesCell(id) {
   const fmt = key => {
     const g = GATES[id + '@' + key];
     if (g === undefined) return '—';
-    return g.gates.length ? g.gates.join(', ') : 'passa';
+    return g.gates.length ? g.gates.join(', ') : 'pass';
   };
   return '32K: ' + fmt('32768') + ' · 128K: ' + fmt('131072');
 }
+// Display names for warning keys. The data key stays "sem_dados" (it comes
+// from summarize_driver.py); the page shows it in English.
+const WARNING_LABELS = { 'sem_dados': 'no_data' };
 function warningsCell(id) {
   const parts = [];
   ['32768', '131072'].forEach(key => {
     const g = GATES[id + '@' + key];
     if (g && g.warnings && g.warnings.length) {
-      parts.push(g.warnings.join(', ') + ' @' + ctxLabel(Number(key)));
+      parts.push(g.warnings.map(w => WARNING_LABELS[w] || w).join(', ') + ' @' + ctxLabel(Number(key)));
     }
   });
   return parts.length ? parts.join(' · ') : '—';
@@ -582,12 +601,12 @@ C.buildScoreboard(document.getElementById('scoreboardDriver'), MODELS, RESULTS, 
 ]);
 
 // The single decisive context behind each of the 4 per-band numeric columns
-// (0 is the Candidato column, 5-7 are wired/gates/alertas — not per-context).
+// (0 is the Candidate column; 5-7 are wired/gates/warnings, not per-context).
 const SB_CONTEXT_BY_COL = { 1:32768, 2:131072, 3:131072, 4:131072 };
 
-// "eliminado" badge next to the candidate name — a candidate a gate
+// "eliminated" badge next to the candidate name. A candidate that a gate
 // eliminated must never read as "winning" just because it still has *a*
-// T_turno number at some other band (review round 3, finding 1).
+// T_turn number at some other band (review round 3, finding 1).
 (function addEliminatedBadges() {
   Array.prototype.slice.call(document.querySelectorAll('#scoreboardDriver tbody tr')).forEach(tr => {
     if (!ELIMINATED_SET.has(tr.dataset.modelId)) return;
@@ -595,12 +614,12 @@ const SB_CONTEXT_BY_COL = { 1:32768, 2:131072, 3:131072, 4:131072 };
     if (!cell) return;
     const badge = document.createElement('span');
     badge.className = 'badge-eliminated';
-    badge.textContent = 'eliminado';
+    badge.textContent = 'eliminated';
     cell.appendChild(badge);
   });
 })();
 
-// Etapa B ("N reps") superscript on the 4 single-context numeric columns —
+// Stage B ("N reps") superscript on the 4 single-context numeric columns.
 // c1/c3 @32K/128K are 3-rep medians while everything else is 1 rep; an
 // unlabeled mix reads as apples-to-apples when it isn't (finding 2).
 (function addSourceMarkers() {
@@ -625,9 +644,9 @@ const SB_CONTEXT_BY_COL = { 1:32768, 2:131072, 3:131072, 4:131072 };
   }
 })();
 
-// A band that ran and refused every request ("sem_dados") reads "recusa"
-// instead of a plain "—" — a genuinely untested band and a fully-refused one
-// must not look identical (finding 3).
+// A band that ran and refused every request ("sem_dados") reads "refused"
+// instead of a plain "—". An untested band and a fully refused one must not
+// look identical (finding 3).
 (function markRefusedCells() {
   Array.prototype.slice.call(document.querySelectorAll('#scoreboardDriver tbody tr')).forEach(tr => {
     const id = tr.dataset.modelId;
@@ -638,19 +657,19 @@ const SB_CONTEXT_BY_COL = { 1:32768, 2:131072, 3:131072, 4:131072 };
       if (!cell || !cell.classList.contains('dash')) return;
       const g = GATES[id + '@' + ctx];
       if (g && g.warnings && g.warnings.indexOf('sem_dados') !== -1) {
-        cell.textContent = 'recusa';
+        cell.textContent = 'refused';
       }
     });
   });
 })();
 
-// Default sort: ascending on T_turno @32K (column index 1 — 0 is the
-// Candidato column). Lower is better for T_turno, so ascending (dir=1) puts
+// Default sort: ascending on T_turn @32K (column index 1; 0 is the
+// Candidate column). Lower is better for T_turn, so ascending (dir=1) puts
 // the best candidate on top without the user having to click anything.
 C.setupSortableTable('scoreboardDriver', 1, 1);
 
 // Eliminated candidates always sort into a bottom group, in their own
-// relative order under whatever column was just sorted — charts-common's
+// relative order under whatever column was just sorted. charts-common's
 // setupSortableTable has no notion of "eliminated," so this re-groups the
 // tbody (a real-DOM appendChild *moves* a row already in the table, it
 // doesn't duplicate it) right after every sort instead of patching the
@@ -667,7 +686,7 @@ function regroupEliminated() {
 regroupEliminated();
 
 // charts-common's highlightBestPerColumn always marks the column MAX as
-// "best" — wrong here, since T_turno/TTFT/wired are lower-is-better and only
+// "best". That is wrong here: T_turn/TTFT/wired are lower-is-better and only
 // decode is higher-is-better. Do a small direction-aware highlight locally
 // instead of changing the shared helper (which every other report page also
 // uses with max-is-best semantics). Eliminated candidates are excluded from
@@ -700,7 +719,7 @@ function highlightScoreboardBest() {
 highlightScoreboardBest();
 
 // Re-group + re-highlight after any header-driven sort or the dblclick
-// reset — charts-common's own click/dblclick handlers (attached by
+// reset. charts-common's own click/dblclick handlers (attached by
 // setupSortableTable above) run first; same-element listeners fire in
 // registration order, so ours runs right after on every click.
 Array.prototype.slice.call(document.querySelectorAll('#scoreboardDriver thead th[data-sort]')).forEach(th => {
@@ -711,11 +730,11 @@ Array.prototype.slice.call(document.querySelectorAll('#scoreboardDriver thead th
 state.onChange(st => { C.applyTableFilter('scoreboardDriver', state, {}); highlightScoreboardBest(); });
 
 // --- Cache-hit table (custom markup, driven by RESULTS) ---
-// A cell reads "não testado" only when there is no summary row at all for
+// A cell reads "not tested" only when there is no summary row at all for
 // that <cand>@<ctx>. When the row exists but its `warnings` carry
 // "sem_dados" (the band ran and every request was refused), it reads
-// "recusa / sem dados" instead — a genuinely untested band and a
-// fully-refused one must not look identical (finding 3).
+// "refused / no data" instead. An untested band and a fully refused one
+// must not look identical (finding 3).
 function hitCellHtml(id, ctx, sc) {
   const v = C.metricValue(RESULTS, id, {metric:'hit', context:ctx, scenario:sc});
   if (v != null) {
@@ -724,18 +743,18 @@ function hitCellHtml(id, ctx, sc) {
   }
   const g = GATES[id + '@' + ctx];
   if (g && g.warnings && g.warnings.indexOf('sem_dados') !== -1) {
-    return '<td class="hit-refused">recusa / sem dados</td>';
+    return '<td class="hit-refused">refused / no data</td>';
   }
-  return '<td class="hit-na">não testado</td>';
+  return '<td class="hit-na">not tested</td>';
 }
 
 (function renderHitTable() {
   const el = document.getElementById('hitTable');
   const present = CONTEXTS.filter(ctx => RESULTS.some(r => r.context === ctx && r.metric === 'hit'));
-  if (!present.length) { el.innerHTML = '<p>Sem dados de cache hit ainda.</p>'; return; }
+  if (!present.length) { el.innerHTML = '<p>No cache-hit data yet.</p>'; return; }
   let out = '';
   present.forEach(ctx => {
-    out += '<div class="hit-table"><h3>' + ctxLabel(ctx) + '</h3><table><thead><tr><th>Cenário</th>' +
+    out += '<div class="hit-table"><h3>' + ctxLabel(ctx) + '</h3><table><thead><tr><th>Scenario</th>' +
       MODELS.map(m => '<th class="num">' + escapeHtml(m.label) + '</th>').join('') + '</tr></thead><tbody>';
     ['identical', 'append', 'tool_turn'].forEach(sc => {
       out += '<tr><td>' + sc + '</td>' + MODELS.map(m => hitCellHtml(m.id, ctx, sc)).join('') + '</tr>';
@@ -752,10 +771,10 @@ function hitCellHtml(id, ctx, sc) {
     const s = SONDA[m.id];
     const nameCell = '<td class="model-cell" data-model-id="' + m.id + '"><span class="swatch" style="background:' + m.color + '"></span>' + escapeHtml(m.label) + '</td>';
     if (!s) {
-      return '<tr data-model-id="' + m.id + '">' + nameCell + '<td class="num" colspan="4">não testado</td><td></td></tr>';
+      return '<tr data-model-id="' + m.id + '">' + nameCell + '<td class="num" colspan="4">not tested</td><td></td></tr>';
     }
-    const reaches = s.reaches == null ? '—' : (s.reaches ? 'sim' : 'não');
-    const followup = s.followup == null ? '—' : (s.followup ? 'sim' : 'não');
+    const reaches = s.reaches == null ? '—' : (s.reaches ? 'yes' : 'no');
+    const followup = s.followup == null ? '—' : (s.followup ? 'yes' : 'no');
     const decode = s.decode_tps == null ? '—' : s.decode_tps;
     const ttft = s.cold_ttft_s == null ? '—' : s.cold_ttft_s;
     const note = s.note ? escapeHtml(s.note) : '';
@@ -806,11 +825,11 @@ def render_page(
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--summary", required=True, help="summary.json (etapa A)")
-    ap.add_argument("--summary-b", default=None, help="summary-b.json (etapa B; sobrescreve chaves iguais)")
-    ap.add_argument("--sonda", default=None, help="sonda-512k.json (sonda de capacidade a 512K)")
-    ap.add_argument("--verdict", default=None, help="markdown com o veredito em prosa")
-    ap.add_argument("--out", required=True, help="caminho de saída (reports/qwen38-flashnext-driver.html)")
+    ap.add_argument("--summary", required=True, help="summary.json (Stage A)")
+    ap.add_argument("--summary-b", default=None, help="summary-b.json (Stage B; overrides matching keys)")
+    ap.add_argument("--sonda", default=None, help="sonda-512k.json (512K capacity probe)")
+    ap.add_argument("--verdict", default=None, help="markdown file with the verdict prose")
+    ap.add_argument("--out", required=True, help="output path (reports/qwen38-flashnext-driver.html)")
     a = ap.parse_args(argv)
 
     base = load_json(a.summary)
