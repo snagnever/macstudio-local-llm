@@ -65,6 +65,7 @@ jobs:
           done
           cp -R bench/layout-skill-bench/demos/taste-skill/dist site/demos/layout/taste-skill
           cp -R bench/layout-skill-bench/demos/design-skill  site/demos/layout/design-skill
+          cp -R bench/layout-skill-bench/demos/vanilla       site/demos/layout/vanilla
           mkdir -p site/demos/layout/taste2
           cp -R bench/layout-skill-bench/demos/taste2/pages/. site/demos/layout/taste2/
           rm -f site/demos/layout/design-skill/skills-lock.json
@@ -108,7 +109,7 @@ jobs:
           for arm in opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra claude-qwen38; do
             test -f "site/demos/build-off/$arm/index.html"
           done
-          for arm in design-skill taste-skill taste2; do
+          for arm in design-skill taste-skill taste2 vanilla; do
             test -f "site/demos/layout/$arm/index.html"
           done
           test -f site/demos/layout/taste-skill/404.html

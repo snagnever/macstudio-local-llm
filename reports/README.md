@@ -10,6 +10,7 @@ Five self-contained dashboards for local-LLM benchmarks on the Mac Studio (M4 Ma
 | `quality-benchmarks-charts.html` | Local-vs-frontier comparison using **published** scores (MMLU-Pro, GPQA, SWE-V, AIME, LCB v6, T-Bench, MMMU) | How the local models rank against frontier / open-weight references |
 | `terminal-bench-scoreboard.html` | **Dedicated Terminal-Bench 2.0 page** — 9-model ranking + interactive 89-task × 9-model pass/fail matrix (per-question descriptions, category/difficulty/budget, solve-rate column, MiniMax budget-recovery markers) | Task-by-task T-Bench detail: who solved what, where the local frontier sits |
 | `harness-matrix-svgbench.html` | **Dedicated SVGBench page** — 84 artifacts across 6 harness × model pairs: leaderboard, take series, head-to-head, by-question breakdown, what one judge changed vs the old board, the unscored list, and a filterable gallery of all 89 SVGs with their scores. Built from `bench/harness-matrix/results/svgbench/scores.json` | Agentic SVG drawing quality: what each pair drew and how it scored under a single judge |
+| `opencode-metrics.html` | **Real-world opencode usage** per model and provider: TPS, TTFT, prefill, TPS/context, context size, cache hit, cost. Two sections — overview (compares all) and one selected model/provider (KPIs + per-day series). Built from the local `opencode.db`, not from a controlled benchmark | Observed field performance from day-to-day opencode use on this machine |
 | `qwen38-flashnext-driver.html` | Flash-Next: T_turno, TTFT quente/frio, cache hit, wired, teto 512K por quant × runtime. Gerado por `render_dashboard.py` from `summary.json`/`summary-b.json` | Campanha `bench/qwen38-flashnext-daily-driver-2026-09` |
 | `qwen38-flashnext-overview.html` | Flash-Next: dashboard da campanha no layout do `overview.html` da densa — tiles, abas Performance / Runtimes & quants / Testes / Gates & fila / Glossário, barras com seletor de métrica, matriz por contexto, tabela filtrável de grupos, gates por banda. Gerado por `consolidate_reports.py` + `render_overview.py` a partir de `results/*.jsonl` | Campanha `bench/qwen38-flashnext-daily-driver-2026-09` |
 | `qwen38-flashnext-perf-lines.html` | Flash-Next: linhas por contexto (32K→512K) no layout do `perf-lines.html` da densa — rig, setup por candidato, cards de runtime, T_turno / TTFT quente / cold TTFT / decode / prefill / wired, heatmap de cache hit, todos os valores. Gerado por `consolidate_reports.py` + `render_perf_lines.py` | Campanha `bench/qwen38-flashnext-daily-driver-2026-09` |
@@ -372,6 +373,32 @@ grep -A2 "Avg effective" benchmarking/local-llm-bench/results/*/*/m4-max-128gb-4
 # 3. List speed probe runs
 ls local-llm-bench-m4-32gb/results/speed_probe/*_results.json
 ```
+
+## opencode usage as a performance data source
+
+`opencode-metrics.html` does not come from a controlled benchmark. It reads the
+local opencode SQLite database and reports **observed field performance** per
+model and provider: what actually happened during day-to-day opencode use.
+
+- **Source**: `~/.local/share/opencode/opencode.db` (or `$OPENCODE_DATA_DIR`).
+  Read-only. Every metric is derived per assistant message from the `message`
+  and `part` tables.
+- **Builder**: `../tools/opencode_metrics.py` extracts a `metrics.json`;
+  `../tools/build_opencode_metrics.sh` injects it into
+  `opencode-metrics.template.html` and writes the self-contained
+  `opencode-metrics.html`. Re-run the build script to refresh.
+- **Metrics**: TPS, TTFT, prefill, TPS/context, context size, cache hit ratio,
+  reasoning ratio, tool latency, cost. Aggregated by model, by provider, and by
+  day. Medians and p90, not means.
+- **Caveats**: this is uncontrolled usage, so context length, prompt, network,
+  and concurrency vary run to run — treat it as a trend, not a clean
+  benchmark. TTFT and prefill are proxies: opencode does not record the real
+  first stream token, so values under 50 ms (typical of remote providers) are
+  dropped and only local runtimes give reliable TTFT. Cost is `$0` for any
+  provider not priced in models.dev.
+- **Not committed like benchmark results**: the source DB is personal and
+  machine-local. The dashboard is a snapshot regenerated on demand, not an
+  irreplaceable measurement under the results boundary.
 
 ## Source-of-truth files outside this directory
 

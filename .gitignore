@@ -38,6 +38,7 @@ venvs/
 .vscode/
 .obsidian/
 .rtk/
+.worktrees/
 
 # Claude Code local state (per-user; never share)
 **/.claude/settings.local.json
