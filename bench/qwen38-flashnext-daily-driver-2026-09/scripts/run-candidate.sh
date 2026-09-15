@@ -5,7 +5,7 @@
 #   c3 = Jundot oQ4e @ oMLX 0.7.0.dev2            c4 = MTPLX Optimized-Speed @ MTPLX 2.11.2
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""
 while [[ $# -gt 0 ]]; do
@@ -29,6 +29,9 @@ MODEL_ROOT="$HOME/.cache/local-llms/qwen3.8-prefix-cache"
 DDALCU="$MODEL_ROOT/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit-ef5b919d31534faa1997666f1a22d362cd6383cd"
 OQ4E="$MODEL_ROOT/Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8"
 MTPLXPACK="$MODEL_ROOT/Youssofal-Qwen3.8-Flash-Next-MTPLX-Optimized-Speed-6bc2f6e8426ccb4af73c81bc56ba7718afc92cc6"
+# Etapa U: variantes uncensored, mesmo runtime/layout dos candidatos de referencia.
+U1DIR="$MODEL_ROOT/ARC4NUM-Qwen3.8-Flash-Next-Uncensored-MLX-Serve-4bit-9ebf9993b1eaec96aec938bf883601b51a90393b"
+U2DIR="$MODEL_ROOT/latent-variable-Qwen3.8-Flash-Next-heretic-2-oQ4e-mtp-65b0cd6"
 
 # Por candidato: launcher, arm, porta, binario, python do probe, tokenizer, metrics.
 case "$CAND" in
@@ -47,6 +50,26 @@ case "$CAND" in
         export QWEN38_MLX_CONFIG_OVERRIDES="{\"text_config\":{\"rope_parameters\":{\"rope_type\":\"yarn\",\"factor\":${YARN},\"original_max_position_embeddings\":262144},\"max_position_embeddings\":${CTX}}}"
         REV="v26.9.2-yarn${YARN}-kv8"
       fi ;;
+  u1) # uncensored (abliterated), mesmo pack mlx-serve mixed-4/8 do c1: so os pesos mudam.
+      LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.9.2
+      MODEL_DIR="$U1DIR"; MODEL_REV=9ebf9993b1eaec96aec938bf883601b51a90393b
+      PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve
+      METRICS=""
+      export QWEN38_MLX_SERVE_BIN="$HOME/.local/opt/qwen38/mlx-serve-v26.9.2/mlx-serve"
+      export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
+      if [[ -n "$YARN" ]]; then
+        export QWEN38_MLX_KV_QUANT=8
+        export QWEN38_MLX_CONFIG_OVERRIDES="{\"text_config\":{\"rope_parameters\":{\"rope_type\":\"yarn\",\"factor\":${YARN},\"original_max_position_embeddings\":262144},\"max_position_embeddings\":${CTX}}}"
+        REV="v26.9.2-yarn${YARN}-kv8"
+      fi ;;
+  u2) # heretic-2 oQ4e, mesmo runtime oMLX dev2 do c3.
+      LAUNCHER="$HARNESS/run-omlx.sh"; ARM=FN; PORT=8000; RUNTIME=omlx; REV=v0.7.0.dev2
+      MODEL_DIR="$U2DIR"; MODEL_REV=65b0cd6
+      TOKENIZER="$MODEL_DIR"; METRICS=""; SERVER_NAME=omlx
+      PROBE_PY="$HOME/.local/opt/qwen38/omlx-v0.7.0.dev2/bin/python"
+      export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_OMLX_BIN="$HOME/.local/opt/qwen38/omlx-v0.7.0.dev2/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.0.dev2 ;;
   c2|c3)
       LAUNCHER="$HARNESS/run-omlx.sh"; ARM=FN; PORT=8000; RUNTIME=omlx
       MODEL_DIR="$OQ4E"; MODEL_REV=2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8
