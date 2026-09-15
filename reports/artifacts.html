@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Comparing tasks between Qwen3.8 Flash Next and frontier models</title>
-<meta name="description" content="Output from three benchmarks, side by side: 84 graded and 120 unscored SVGBench drawings, one 3D game built five times, and twenty landing pages across three design skills and a no-skill baseline.">
+<meta name="description" content="Output from three benchmarks, side by side: one 3D game built five times, 84 graded and 120 unscored SVGBench drawings, and twenty landing pages across three design skills and a no-skill baseline.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -597,8 +597,8 @@
 </defs></svg>
 
 <nav class="island" aria-label="Sections">
-  <a href="#drawings">Drawings</a>
   <a href="#game">Game</a>
+  <a href="#drawings">Drawings</a>
   <a href="#skills">Layout</a>
   <span class="navfilter" id="navFilter" hidden>
     <label class="navlabel" for="navSel" id="navSelLabel">Show</label>
@@ -611,7 +611,7 @@
 
 <header class="mast">
   <div class="read">
-    <span class="eyebrow">SVGBench &middot; Build-off &middot; Design skills</span>
+    <span class="eyebrow">Build-off &middot; SVGBench &middot; Design skills</span>
     <h1>Comparing tasks between Qwen3.8 Flash Next and <em>frontier</em> models</h1>
     <p class="disclaim">This was made for fun, without much scientific rigour &mdash; the artifacts
       will show you that. Do not take it too seriously, but I think it shows a good model running
@@ -621,7 +621,7 @@
   <div class="teaser"><div class="teaser-track" id="teaseTrack"></div></div>
 
   <div class="read">
-    <p class="lede"><span id="claimNums"></span> Its drawings and its game sit next to what
+    <p class="lede"><span id="claimNums"></span> Its game and its drawings sit next to what
       hosted frontier models made from the same prompts, and they hold up. Judge them by eye:
       the scores are in each section,
       and they say less than the artifacts do. Every picture is the model's own work &mdash; the
@@ -634,6 +634,15 @@
 </header>
 
 <main>
+  <section id="game">
+    <div class="read sechead">
+      <h2>Versions of a web runner game</h2>
+      <p class="snote" id="gameBrief"></p>
+    </div>
+    <div class="shell"><div class="session" id="gameSession"></div></div>
+    <div class="shell" id="gameRow"></div>
+  </section>
+
   <section id="drawings">
     <div class="read sechead">
       <h2>Ability to draw SVGs</h2>
@@ -654,15 +663,6 @@
     </div>
     <div class="shell"><div class="session" id="drawSession"></div></div>
     <div class="shell" id="drawRows"></div>
-  </section>
-
-  <section id="game">
-    <div class="read sechead">
-      <h2>Versions of a web runner game</h2>
-      <p class="snote" id="gameBrief"></p>
-    </div>
-    <div class="shell"><div class="session" id="gameSession"></div></div>
-    <div class="shell" id="gameRow"></div>
   </section>
 
   <section id="skills">
@@ -902,9 +902,9 @@ var DATA = {"generated_at": "2026-09-15", "families": [{"key": "qwen", "color": 
     if (!host) return;
     var drawn = DATA.drawings.questions.reduce(function (n, q) { return n + q.takes.length; }, 0);
     var rows = [
+      { id: "game", count: DATA.game.arms.length + " builds of one brief" },
       { id: "drawings", count: drawn + " drawings · " + DATA.drawings.roster.length +
         " stacks · " + DATA.drawings.questions.length + " prompts" },
-      { id: "game", count: DATA.game.arms.length + " builds of one brief" },
       { id: "skills", count: (DATA.skills.arms.length * 5) + " pages · " +
         DATA.skills.arms.length + " skills" }
     ];
@@ -1757,14 +1757,14 @@ var DATA = {"generated_at": "2026-09-15", "families": [{"key": "qwen", "color": 
     var seen = {};
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) { seen[e.target.id] = e.isIntersecting; });
-      var current = ["drawings", "game", "skills"].filter(function (id) { return seen[id]; })[0];
+      var current = ["game", "drawings", "skills"].filter(function (id) { return seen[id]; })[0];
       navLinks.forEach(function (a) {
         a.setAttribute("aria-current", a.getAttribute("href") === "#" + current ? "true" : "false");
       });
       // above the first section nothing is current; the filter keeps the last one
       if (current) navControl(current);
     }, { rootMargin: "-45% 0px -50% 0px" });
-    ["drawings", "game", "skills"].forEach(function (id) { io.observe(document.getElementById(id)); });
+    ["game", "drawings", "skills"].forEach(function (id) { io.observe(document.getElementById(id)); });
   }
 
   /* ---------------- hash state ---------------- */
@@ -1792,7 +1792,7 @@ var DATA = {"generated_at": "2026-09-15", "families": [{"key": "qwen", "color": 
   });
 
   applyHash();
-  navControl("drawings");
+  navControl("game");
   observe(document.body);
   document.getElementById("stamp").textContent =
     "Data block generated " + DATA.generated_at + " by tools/artifacts_data.py. Nothing here was re-run.";
