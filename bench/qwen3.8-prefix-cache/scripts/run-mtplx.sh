@@ -20,7 +20,9 @@ case "$ARM" in
      MODEL_NAME="Youssofal-Qwen3.8-27B-MTPLX-Optimized-Quality" ;;
   Z) MODEL_REVISION="4b3533770e01217f9b523f337b4597fd4ca50eea"
      MODEL_NAME="Youssofal-Qwen3.8-27B-MTPLX-Optimized-Quality-FP16" ;;
-  *) echo "usage: $0 {V|Y|Z} [--print]" >&2; exit 64;;
+  FX) MODEL_REVISION="6bc2f6e8426ccb4af73c81bc56ba7718afc92cc6"
+      MODEL_NAME="Youssofal-Qwen3.8-Flash-Next-MTPLX-Optimized-Speed" ;;
+  *) echo "usage: $0 {V|Y|Z|FX} [--print]" >&2; exit 64;;
 esac
 MODEL_PATH="$MODEL_ROOT/$MODEL_NAME-$MODEL_REVISION"
 case "$OPTION" in ""|--print) ;; *) echo "unknown option: $OPTION" >&2; exit 64;; esac
@@ -33,20 +35,24 @@ fi
 STATE_DIR="$ROOT/bench/qwen3.8-prefix-cache/logs/mtplx/$RUN_ID"
 CONFIG_PATH="$STATE_DIR/config.toml"
 FLIGHT_PATH="$STATE_DIR/flight.jsonl"
+# FX (Flash-Next, pack MTPLX): o vendor roda SSD session cache ON e e o caminho seguro de memoria
+# na linha 2.10+. Os arms da densa (V/Y/Z) mantem OFF para nao mudar a comparacao historica.
+MTPLX_SSD_DEFAULT=off
+[[ "$ARM" == "FX" ]] && MTPLX_SSD_DEFAULT=on
 COMMAND=(
   env
   "MTPLX_CONFIG=$CONFIG_PATH"
   "MTPLX_FLIGHT_RECORDER=$FLIGHT_PATH"
   "$MTPLX_BIN" serve
   --model "$MODEL_PATH"
-  --profile turbo
+  --profile "${QWEN38_MTPLX_PROFILE:-turbo}"
   --host 127.0.0.1
   --port 8000
   --no-auth
-  --depth 3
-  --generation-mode mtp
+  --depth "${QWEN38_MTPLX_DEPTH:-3}"
+  --generation-mode "${QWEN38_MTPLX_GENERATION_MODE:-mtp}"
   --context-window "$CONTEXT_WINDOW"
-  --ssd-session-cache "${QWEN38_MTPLX_SSD_SESSION_CACHE:-off}"
+  --ssd-session-cache "${QWEN38_MTPLX_SSD_SESSION_CACHE:-$MTPLX_SSD_DEFAULT}"
   --ssd-session-cache-dir "$STATE_DIR/ssd-session-cache"
   --reasoning on
   --reasoning-effort xhigh

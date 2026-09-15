@@ -56,9 +56,31 @@ fi
 if [[ -n "${QWEN38_MLX_PREFILL_CHUNK:-}" ]]; then
   COMMAND+=(--prefill-chunk "$QWEN38_MLX_PREFILL_CHUNK")
 fi
+# Contexto estendido via YaRN (sonda 512K): JSON de --config-overrides, igual ao driver
+# run-p1-mlxserve-extended.sh da campanha qwen38-updates-2026-09.
+if [[ -n "${QWEN38_MLX_CONFIG_OVERRIDES:-}" ]]; then
+  COMMAND+=(--config-overrides "$QWEN38_MLX_CONFIG_OVERRIDES")
+fi
+# Checkpoint do estado DeltaNet (a config de 1M da comunidade usa 16) e teto de contexto da MTP.
+if [[ -n "${QWEN38_MLX_SSM_CHECKPOINT_MAX:-}" ]]; then
+  COMMAND+=(--ssm-checkpoint-max "$QWEN38_MLX_SSM_CHECKPOINT_MAX")
+fi
+if [[ -n "${QWEN38_MLX_MAX_MTP_CTX:-}" ]]; then
+  COMMAND+=(--max-mtp-ctx "$QWEN38_MLX_MAX_MTP_CTX")
+fi
 # Prefix cache: defaults do binário são 32 entradas, 2 GB em RAM, sem disco.
 # Um prefixo de 131072 tokens do Flash-Next ocupa ~3.7 GB (~28 KB/token no log de 2026-09-06),
 # então o default de 2 GB corta toda entrada de sessão longa. O disco fica em ~/.mlx-serve/kv-cache.
+# A/B validado (2026-09-07, Flash-Next @128K, mesma v26.9.1, só a config de prefix-cache mudou):
+# 2 GB re-prefila TUDO (~184 s até no identical; static_prefix casa mas não retém) vs 16 GB que
+# retém identical/append/tool_turn (~2 s), decode inalterado (44.6 vs 43.5 tok/s). Por isso o
+# arm FS (driver Flash-Next em uso) recebe os valores validados por default; A/B/C ficam nos
+# defaults do binário (controles diagnósticos) salvo env explícito.
+if [[ "$ARM" == "FS" ]]; then
+  QWEN38_MLX_PREFIX_CACHE_MEM="${QWEN38_MLX_PREFIX_CACHE_MEM:-16GB}"
+  QWEN38_MLX_PREFIX_CACHE_DISK="${QWEN38_MLX_PREFIX_CACHE_DISK:-100GB}"
+  QWEN38_MLX_PREFIX_CACHE_ENTRIES="${QWEN38_MLX_PREFIX_CACHE_ENTRIES:-64}"
+fi
 if [[ -n "${QWEN38_MLX_PREFIX_CACHE_MEM:-}" ]]; then
   COMMAND+=(--prefix-cache-mem "$QWEN38_MLX_PREFIX_CACHE_MEM")
 fi
