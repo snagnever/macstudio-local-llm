@@ -933,9 +933,17 @@ qualidade, decode e memória.
 
 ### Outros follow-ups levantados durante a execução
 
-- Rerun canônico dos braços que só têm greedy (mlx-serve A/B/C, llama.cpp D–H,
-  mlx-dspark P/Q/R/S) se forem relevantes para a decisão final.
-- Completar o Gate 8: o drafter DSpark (braço R) foi baixado mas nunca rodou.
+- Rerun canônico dos braços que só têm greedy (mlx-serve A/B/C, llama.cpp D–H)
+  se forem relevantes para a decisão final. Os braços mlx-dspark P/Q/R/S já têm
+  sampling canônico em `results/cache-probe.jsonl`: 15, 135, 120 e 141 registros
+  a `temperature=1.0`, contra 0, 10, 10 e 10 registros greedy.
+- Completar o Gate 8. O drafter DSpark (braço R) rodou: 130 registros com
+  `drafter_id=RadixArk/Qwen3.8-27B-DSpark`, `speculation_mode=dspark` e runtime
+  mlx-dspark `v0.15.0/69cd5c1`. R entregou decode mediano 2,21x em 8K e 1,90x em
+  32K contra Q, e tempo total quente 2,33x em 32K, mas falhou o Gate 8 no critério
+  `correct` (equivalência greedy). O braço S ficou INCONCLUSIVE por não ter pares
+  de performance. Nenhum braço foi promovido: Q segue como representante do
+  runtime. Pendem a equivalência greedy de R e os pares de performance de S.
 - W/X rodaram `audit_retrieval`, mas o plano pedia `code` em 32K; rerun em
   `code` se a comparação de código importar.
 - SpecPrefill: o TTFT quente do M piora vs L (prompt sparse não reaproveita o
