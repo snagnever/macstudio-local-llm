@@ -5,8 +5,10 @@
 > mlx-serve 26.9.2 e MTPLX 2.11.2 PROMOVIDOS (defaults do rig). mlx-serve 26.9.2 é a melhor stack do
 > Flash-Next no M4 Max em todo o range (decode/prefill/cache); estende via YaRN a 512K (teto prático,
 > decode 51) e 1M (nicho: one-shot ~35 tok/s kv8, ou multi-turno ~5 tok/s turbo4). ds4 (fork) roda mas
-> perde em decode/prefill; footprint menor não compensa. Itens 3/7 pulados; 4 (oMLX 0.7) e 5 (json trio)
-> deferidos. Histórico do andamento abaixo.
+> perde em decode/prefill; footprint menor não compensa. Itens 3/7 pulados; 5 (json trio) deferido.
+> Item 4 (oMLX 0.7.0.dev2) foi **testado em 2026-09-13 na campanha seguinte** (candidato c3, 2º lugar):
+> [../qwen38-flashnext-daily-driver-2026-09/results/summary.md](../qwen38-flashnext-daily-driver-2026-09/results/summary.md).
+> Histórico do andamento abaixo.
 >
 > P1 fechado. **Item 1 mlx-serve 26.9.2 PROMOVIDO** (+7% decode @32K,
 > +20–40% @128K). **Item 2 MTPLX 2.11.2 PROMOVIDO por correção** (a MTP do 2.11.1 é lossy a 32K).
@@ -129,7 +131,13 @@ Sem A/B de versão. Exercitar a feature já na 26.9.1, no build ddalcu, com a co
 Medir: sobe sem estourar 128 GB? TTFT/decode a 262144 e além; needle no `cold`. Coletar RAM/swap.
 Comparar contra a config FS atual (prefix-cache 16GB, entries 64).
 
-### 4 — oMLX 0.7.0.dev2 (P2) — DEFERIDO (2026-09-13)
+### 4 — oMLX 0.7.0.dev2 (P2) — DEFERIDO (2026-09-13) → TESTADO FORA DESTA CAMPANHA
+
+> **Resolvido (2026-09-13).** O bloqueio abaixo não se confirmou: o offload de PLE funciona com
+> `qwen4_ple_ssd_offload: true` no `model_settings.json`, igual à 0.6.4
+> ([../qwen38-flashnext-daily-driver-2026-09/results/c3-dev2-ple-config.md](../qwen38-flashnext-daily-driver-2026-09/results/c3-dev2-ple-config.md)).
+> A dev2 rodou como candidato c3: 2º lugar, `T_turno` 13.48 / 15.03 s a 32K / 128K
+> ([summary](../qwen38-flashnext-daily-driver-2026-09/results/summary.md)). Não testar de novo.
 
 Instalado (`git+…@v0.7.0.dev2`), mas o Flash-Next oQ4e carrega PLE **residente** (~98 GB) e não
 sobra memória em 128 GB; o offload por mmap (que dava folga na 0.6.x via `qwen4_ple_ssd_offload`) é
