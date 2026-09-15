@@ -47,6 +47,17 @@ closest rule below rather than inventing a new top-level directory.
 - **A fix** (patch, chat-template override, install script) → `fixes/mlx-lm/`
   for runtime patches, `fixes/<model>/` for model-specific overrides.
 - **A dashboard** → `reports/` (keep it self-contained; it may be published).
+  **Every new report needs a card in `reports/index.html`** in the same change.
+  `index.html` is the landing page of the published site,
+  `https://snagnever.github.io/macstudio-local-llm/`. The publish workflow
+  copies all of `reports/` to the site, but a report without a card on
+  `index.html` is unreachable for a visitor. Add an `<a class="card">` to the
+  `<section class="block">` that fits the report (`#flashnext`, `#dense`,
+  `#benchmarks`, `#agents`, or `#demos` for a published demo). Copy the shape of
+  the cards beside it: a `c-title`, a one- or two-sentence `c-desc` in English,
+  and a `c-meta` with the date and the file name. If no section fits, add a new
+  section and its link in the `<nav>`. When a report replaces an older one,
+  update the older card instead of adding a second card.
 - **A cross-model analysis note** → `research/`.
 
 **Real-world performance data source.** Beyond the controlled benchmarks, the
