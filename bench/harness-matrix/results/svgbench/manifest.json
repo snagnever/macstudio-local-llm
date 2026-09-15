@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-07T11:46:32",
+  "generated_at": "2026-09-10T23:06:38",
   "artifacts": [
     {
       "harness": "claude",
@@ -234,6 +234,258 @@
       "question_index": 0,
       "animated": false,
       "bytes": 7520
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/cow-plowing-animated.svg",
+      "slug": "cow-plowing-animated",
+      "question_index": 0,
+      "animated": true,
+      "bytes": 13819
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/cow-plowing-v1.svg",
+      "slug": "cow-plowing-v1",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 7925
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/cow-plowing-v2.svg",
+      "slug": "cow-plowing-v2",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 9541
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/cow-plowing-v3.svg",
+      "slug": "cow-plowing-v3",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 11929
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/dolphin-animated.svg",
+      "slug": "dolphin-animated",
+      "question_index": 7,
+      "animated": true,
+      "bytes": 12910
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/dolphin-v1.svg",
+      "slug": "dolphin-v1",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 9253
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/dolphin-v2.svg",
+      "slug": "dolphin-v2",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 9379
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/dolphin-v3.svg",
+      "slug": "dolphin-v3",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 9860
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/fruit-stall-animated.svg",
+      "slug": "fruit-stall-animated",
+      "question_index": 12,
+      "animated": true,
+      "bytes": 18579
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/fruit-stall-v1.svg",
+      "slug": "fruit-stall-v1",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 12212
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/fruit-stall-v2.svg",
+      "slug": "fruit-stall-v2",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 13406
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/fruit-stall-v3.svg",
+      "slug": "fruit-stall-v3",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 17106
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/picnic-on-clouds-animated.svg",
+      "slug": "picnic-on-clouds-animated",
+      "question_index": 5,
+      "animated": true,
+      "bytes": 15344
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/picnic-on-clouds-v1.svg",
+      "slug": "picnic-on-clouds-v1",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 9891
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/picnic-on-clouds-v2.svg",
+      "slug": "picnic-on-clouds-v2",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 11206
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/picnic-on-clouds-v3.svg",
+      "slug": "picnic-on-clouds-v3",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 12710
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/rubber-ducky-animated.svg",
+      "slug": "rubber-ducky-animated",
+      "question_index": 4,
+      "animated": true,
+      "bytes": 13594
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/rubber-ducky-v1.svg",
+      "slug": "rubber-ducky-v1",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 8337
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/rubber-ducky-v2.svg",
+      "slug": "rubber-ducky-v2",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 9349
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/rubber-ducky-v3.svg",
+      "slug": "rubber-ducky-v3",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 10580
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/stunt-car-animated.svg",
+      "slug": "stunt-car-animated",
+      "question_index": 6,
+      "animated": true,
+      "bytes": 12242
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/stunt-car-v1.svg",
+      "slug": "stunt-car-v1",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 9655
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/stunt-car-v2.svg",
+      "slug": "stunt-car-v2",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 9947
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/stunt-car-v3.svg",
+      "slug": "stunt-car-v3",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 12196
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/treasure-barrel-animated.svg",
+      "slug": "treasure-barrel-animated",
+      "question_index": 13,
+      "animated": true,
+      "bytes": 13174
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/treasure-barrel-v1.svg",
+      "slug": "treasure-barrel-v1",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 7628
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/treasure-barrel-v2.svg",
+      "slug": "treasure-barrel-v2",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 9114
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-5.6-sol",
+      "artifact": "logs/codex/gpt-5.6-sol/treasure-barrel-v3.svg",
+      "slug": "treasure-barrel-v3",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 11415
     },
     {
       "harness": "opencode",

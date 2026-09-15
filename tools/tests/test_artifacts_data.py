@@ -51,6 +51,14 @@ SCORES = {
          "artifact": "logs/opencode/gpt-5.6-terra/dawn-beach-animated.svg",
          "question_index": None, "animated": True, "slug": "dawn-beach-animated",
          "reason": "prompt is not an SVGBench question"},
+        {"harness": "codex", "model": "gpt-5.6-sol",
+         "artifact": "logs/codex/gpt-5.6-sol/cow-plowing-v1.svg",
+         "question_index": 0, "animated": False, "slug": "cow-plowing-v1",
+         "reason": "no verdict file"},
+        {"harness": "opencode", "model": "unregistered-model",
+         "artifact": "logs/opencode/unregistered-model/cow-plowing-v1.svg",
+         "question_index": 0, "animated": False, "slug": "cow-plowing-v1",
+         "reason": "no verdict file"},
     ],
 }
 
@@ -126,9 +134,34 @@ class TestDrawings(unittest.TestCase):
         self.assertEqual(self.q0["label"], "Cow plowing")
         self.assertEqual(self.q0["prompt"], "Write `svg` code to draw an image of a cow plowing a field.")
 
-    def test_unscored_artifacts_are_dropped(self):
+    def test_unscored_non_benchmark_artifacts_are_dropped(self):
         slugs = [t["slug"] for q in self.d["questions"] for t in q["takes"]]
         self.assertNotIn("dawn-beach-animated", slugs)
+
+    def test_unscored_unregistered_stacks_are_dropped(self):
+        pairs = {t["pair"] for q in self.d["questions"] for t in q["takes"]}
+        self.assertNotIn("opencode/unregistered-model", pairs)
+
+    def test_unscored_benchmark_artifacts_are_kept_without_a_score(self):
+        takes = [t for q in self.d["questions"] for t in q["takes"]
+                 if t["pair"] == "codex/gpt-5.6-sol"]
+        self.assertEqual([t["slug"] for t in takes], ["cow-plowing-v1"])
+        self.assertEqual((takes[0]["score"], takes[0]["met"], takes[0]["total"]),
+                         (None, None, None))
+        self.assertEqual(takes[0]["reqs"], [])
+
+    def test_unscored_pair_has_counts_but_no_mean(self):
+        row = [r for r in self.d["roster"] if r["key"] == "codex/gpt-5.6-sol"][0]
+        self.assertEqual((row["n"], row["qs"], row["mean"]), (1, [0], None))
+
+    def test_unscored_pair_has_no_best_and_one_last_take(self):
+        takes = [t for t in self.q0["takes"] if t["pair"] == "codex/gpt-5.6-sol"]
+        self.assertEqual([t["slug"] for t in takes if t["best"]], [])
+        self.assertEqual([t["slug"] for t in takes if t["last"]], ["cow-plowing-v1"])
+
+    def test_drawings_report_scored_and_unscored_counts(self):
+        self.assertEqual(self.d["scoredCount"], len(SCORES["artifacts"]))
+        self.assertEqual(self.d["unscoredCount"], 1)
 
     def test_best_take_breaks_a_tie_by_take_rank(self):
         best = [t for t in self.q0["takes"]
@@ -214,6 +247,7 @@ class TestLastTake(unittest.TestCase):
     def _takes(self, arts, q=0):
         scores = json.loads(json.dumps(SCORES))
         scores["artifacts"] = arts
+        scores["unscored"] = []
         d = ad.build_drawings(scores)
         return [t for qq in d["questions"] if qq["q"] == q for t in qq["takes"]]
 
@@ -325,6 +359,12 @@ class TestHosted(unittest.TestCase):
         self.assertTrue(cfgs["opencode/gpt-5.6-terra"]["hosted"])
         self.assertFalse(cfgs["opencode/qwen3.8-flash-next"]["hosted"])
 
+    def test_sol_participant_records_codex_medium_and_hosting(self):
+        cfg = ad._participants()["codex/gpt-5.6-sol"]
+        self.assertEqual(cfg["harness"], "Codex")
+        self.assertEqual(cfg["effort"], "medium")
+        self.assertTrue(cfg["hosted"])
+
 
 class TestFamilyColour(unittest.TestCase):
     """Hue by model family, tone by stack inside it."""
@@ -334,7 +374,11 @@ class TestFamilyColour(unittest.TestCase):
         self.assertEqual(ad.family_of("claude-opus-5"), "claude")
         self.assertEqual(ad.family_of("fable-5-1"), "claude")
         self.assertEqual(ad.family_of("gpt-5.6-terra"), "gpt")
+        self.assertEqual(ad.family_of("gpt-5.6-sol"), "gpt")
         self.assertEqual(ad.family_of("gpt-6-astra"), "gpt")
+
+    def test_sol_and_terra_use_different_tones(self):
+        self.assertNotEqual(ad.color_for("gpt-5.6-sol"), ad.color_for("gpt-5.6-terra"))
 
     def test_an_unknown_model_still_gets_a_colour(self):
         self.assertIn(ad.color_for("something-new"), ad.FAMILY_RAMP["gpt"])

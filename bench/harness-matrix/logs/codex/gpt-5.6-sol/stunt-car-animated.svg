@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Animated stunt car jumping through a circle of fire</title>
+  <desc id="desc">A red stunt car floats through a flaming hoop. Its wheels spin, flames flicker, sparks fly, and motion lines stream behind it.</desc>
+  <style>
+    .car-flight{animation:flight 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+    .wheel{animation:spin .55s linear infinite;transform-box:fill-box;transform-origin:center}
+    .flame-a{animation:flickerA .72s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 90%}
+    .flame-b{animation:flickerB .58s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 90%}
+    .flame-c{animation:flickerC .86s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 90%}
+    .streak{animation:streak 1.15s linear infinite}
+    .streak.delay{animation-delay:-.55s}
+    .spark{animation:spark 1.8s ease-out infinite;transform-box:fill-box;transform-origin:center}
+    .spark.s2{animation-delay:-.45s}.spark.s3{animation-delay:-.9s}.spark.s4{animation-delay:-1.35s}
+    .glow-pulse{animation:pulse 1.1s ease-in-out infinite alternate}
+    .crowd-light{animation:blink 2.4s steps(1,end) infinite}.crowd-light.alt{animation-delay:-1.2s}
+    @keyframes flight{0%,100%{transform:translateY(8px) rotate(-1deg)}50%{transform:translateY(-12px) rotate(1deg)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes flickerA{0%{transform:scale(.92,1.02) skewX(-2deg)}100%{transform:scale(1.08,.89) skewX(3deg)}}
+    @keyframes flickerB{0%{transform:scale(1.05,.9) skewX(3deg)}100%{transform:scale(.9,1.1) skewX(-4deg)}}
+    @keyframes flickerC{0%{transform:scale(.96,1.08)}100%{transform:scale(1.07,.92)}}
+    @keyframes streak{0%{transform:translateX(120px);opacity:0}20%{opacity:.75}100%{transform:translateX(-150px);opacity:0}}
+    @keyframes spark{0%{transform:translate(0,0) scale(.3);opacity:0}18%{opacity:1}100%{transform:translate(55px,-105px) scale(0);opacity:0}}
+    @keyframes pulse{from{opacity:.25}to{opacity:.48}}
+    @keyframes blink{0%,48%{opacity:.25}50%,100%{opacity:1}}
+    @media (prefers-reduced-motion:reduce){*{animation-play-state:paused!important}}
+  </style>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#030611"/><stop offset=".58" stop-color="#15223a"/><stop offset="1" stop-color="#5d2425"/></linearGradient>
+    <radialGradient id="haze"><stop stop-color="#ff652f" stop-opacity=".35"/><stop offset=".55" stop-color="#b02f32" stop-opacity=".1"/><stop offset="1" stop-color="#050914" stop-opacity="0"/></radialGradient>
+    <radialGradient id="flame" cx="50%" cy="80%" r="75%"><stop stop-color="#fffbd5"/><stop offset=".25" stop-color="#fff268"/><stop offset=".55" stop-color="#ffc324"/><stop offset=".8" stop-color="#ff6417"/><stop offset="1" stop-color="#d81b0a"/></radialGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ff786a"/><stop offset=".3" stop-color="#f13a44"/><stop offset=".65" stop-color="#c81729"/><stop offset="1" stop-color="#5e0812"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e9fcff"/><stop offset=".28" stop-color="#7bb6cc"/><stop offset="1" stop-color="#0b182a"/></linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#c5ccd2"/><stop offset=".3" stop-color="#65717c"/><stop offset="1" stop-color="#191f27"/></linearGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2a2e36"/><stop offset="1" stop-color="#080a0e"/></linearGradient>
+    <pattern id="crowd" width="44" height="34" patternUnits="userSpaceOnUse"><circle cx="11" cy="9" r="4" fill="#242b3c"/><path d="M1 34c1-13 19-13 20 0" fill="#1a2030"/><circle cx="33" cy="16" r="4" fill="#151b29"/><path d="M23 34c1-12 19-12 20 0" fill="#121725"/></pattern>
+    <filter id="blurGlow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="28"/></filter>
+    <filter id="fireGlow" x="-55%" y="-55%" width="210%" height="210%"><feGaussianBlur in="SourceGraphic" stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="drop" x="-35%" y="-50%" width="190%" height="220%"><feDropShadow dx="14" dy="20" stdDeviation="16" flood-color="#000" flood-opacity=".8"/></filter>
+    <g id="tongue"><path d="M-29 20C-58-22-22-68 5-96c-9 38 16 48 12 75 17-21 20-46 45-63 1 42 23 69-4 104C37 46-10 48-29 20Z" fill="url(#flame)" stroke="#ff8c13" stroke-width="3"/><path d="M-7 20C-24-8-3-36 12-52c-4 25 14 31 8 50 12-12 15-28 30-37 0 29 4 48-18 60C18 31 2 31-7 20Z" fill="#fff58e"/></g>
+    <g id="wheelShape"><circle r="63" fill="#06080b" stroke="#252c35" stroke-width="10"/><circle r="51" fill="none" stroke="#11151b" stroke-width="5" stroke-dasharray="10 7"/><circle r="35" fill="#b8c1c9" stroke="#59646e" stroke-width="7"/><path d="M0-31V31M-31 0H31M-22-22L22 22M22-22L-22 22" stroke="#77838e" stroke-width="5"/><circle r="11" fill="#202733"/><circle r="5" fill="#e4e9ed"/></g>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <ellipse cx="800" cy="420" rx="730" ry="520" fill="url(#haze)"/>
+  <g fill="#dfeaff" opacity=".7"><circle cx="96" cy="88" r="2"/><circle cx="215" cy="154" r="1.5"/><circle cx="363" cy="72" r="2"/><circle cx="535" cy="136" r="1.5"/><circle cx="1048" cy="75" r="2"/><circle cx="1234" cy="143" r="1.5"/><circle cx="1450" cy="87" r="2"/></g>
+  <path d="M0 648l126-51 120 38 127-71 134 67 125-46 153 58 144-55 137 52 129-81 138 66 167-64v215H0Z" fill="#0e1623"/>
+  <rect y="674" width="1600" height="145" fill="url(#crowd)"/>
+  <g fill="#ffd05b"><circle class="crowd-light" cx="82" cy="710" r="4"/><circle class="crowd-light alt" cx="282" cy="735" r="3"/><circle class="crowd-light" cx="1320" cy="696" r="4"/><circle class="crowd-light alt" cx="1507" cy="733" r="3"/></g>
+
+  <g aria-label="animated circle of fire">
+    <circle class="glow-pulse" cx="800" cy="420" r="337" fill="none" stroke="#ff4b16" stroke-width="108" filter="url(#blurGlow)"/>
+    <circle cx="800" cy="420" r="306" fill="none" stroke="#191f28" stroke-width="30"/>
+    <circle cx="800" cy="420" r="306" fill="none" stroke="#949da6" stroke-width="8" stroke-dasharray="21 13"/>
+    <g filter="url(#fireGlow)">
+      <g class="flame-a"><use href="#tongue" transform="translate(800 107) rotate(0) scale(1.08)"/></g><g class="flame-b"><use href="#tongue" transform="translate(883 118) rotate(15)"/></g>
+      <g class="flame-c"><use href="#tongue" transform="translate(962 151) rotate(30) scale(1.1)"/></g><g class="flame-a"><use href="#tongue" transform="translate(1026 203) rotate(44)"/></g>
+      <g class="flame-b"><use href="#tongue" transform="translate(1074 270) rotate(59) scale(1.1)"/></g><g class="flame-c"><use href="#tongue" transform="translate(1100 349) rotate(74)"/></g>
+      <g class="flame-a"><use href="#tongue" transform="translate(1107 433) rotate(90) scale(1.1)"/></g><g class="flame-b"><use href="#tongue" transform="translate(1090 515) rotate(105)"/></g>
+      <g class="flame-c"><use href="#tongue" transform="translate(1052 590) rotate(120) scale(1.1)"/></g><g class="flame-a"><use href="#tongue" transform="translate(996 652) rotate(135)"/></g>
+      <g class="flame-b"><use href="#tongue" transform="translate(926 697) rotate(150) scale(1.1)"/></g><g class="flame-c"><use href="#tongue" transform="translate(844 721) rotate(165)"/></g>
+      <g class="flame-a"><use href="#tongue" transform="translate(760 722) rotate(180) scale(1.1)"/></g><g class="flame-b"><use href="#tongue" transform="translate(678 699) rotate(195)"/></g>
+      <g class="flame-c"><use href="#tongue" transform="translate(607 655) rotate(210) scale(1.1)"/></g><g class="flame-a"><use href="#tongue" transform="translate(550 594) rotate(225)"/></g>
+      <g class="flame-b"><use href="#tongue" transform="translate(511 520) rotate(240) scale(1.1)"/></g><g class="flame-c"><use href="#tongue" transform="translate(493 439) rotate(255)"/></g>
+      <g class="flame-a"><use href="#tongue" transform="translate(499 354) rotate(270) scale(1.1)"/></g><g class="flame-b"><use href="#tongue" transform="translate(525 276) rotate(285)"/></g>
+      <g class="flame-c"><use href="#tongue" transform="translate(571 208) rotate(300) scale(1.1)"/></g><g class="flame-a"><use href="#tongue" transform="translate(635 155) rotate(315)"/></g>
+      <g class="flame-b"><use href="#tongue" transform="translate(713 121) rotate(330) scale(1.1)"/></g><g class="flame-c"><use href="#tongue" transform="translate(757 109) rotate(345)"/></g>
+    </g>
+    <path d="M489 673v176h34V651M1077 651v198h34V673" fill="none" stroke="#4e5864" stroke-width="19"/><path d="M446 849h121M1033 849h121" stroke="#929ba5" stroke-width="16" stroke-linecap="round"/>
+  </g>
+
+  <g aria-label="animated motion lines" fill="none" stroke-linecap="round">
+    <path class="streak" d="M254 425h180" stroke="#e9f3ff" stroke-width="8"/><path class="streak delay" d="M300 462h125" stroke="#b8cad7" stroke-width="6"/><path class="streak" d="M342 394h95" stroke="#ffbd55" stroke-width="5"/>
+  </g>
+
+  <g class="car-flight">
+    <g aria-label="airborne stunt car inside hoop" transform="translate(402 318) rotate(-7 365 140)" filter="url(#drop)">
+      <path d="M46 174l33-67c10-20 35-34 66-38l118-14 76-51h186c38 1 68 17 91 50l39 56 86 23 28 42-11 43-86 4H58l-39-22 6-19Z" fill="url(#red)" stroke="#470810" stroke-width="8" stroke-linejoin="round"/>
+      <path d="M279 55l73-39h89l11 61zM464 16h53c30 2 52 16 71 42l20 34-135-15z" fill="url(#glass)" stroke="#101c2c" stroke-width="8"/>
+      <path d="M458 13l11 67M347 15l-69 43" stroke="#e8f8fb" stroke-width="7" opacity=".75"/>
+      <path d="M82 116l-38 57 156-12 53-94-108 15c-29 4-50 16-63 34Z" fill="#a41020" opacity=".76"/>
+      <path d="M262 56h348" stroke="#fff" stroke-width="8" opacity=".78"/><path d="M237 57h34v121h-34zM606 92h32v87h-32z" fill="#f6eedc" opacity=".92"/>
+      <path d="M210 154c26-31 91-36 131-1M530 154c26-30 92-31 132-1" fill="none" stroke="#5e0914" stroke-width="17"/>
+      <g class="wheel"><use href="#wheelShape" transform="translate(279 201)"/></g><g class="wheel"><use href="#wheelShape" transform="translate(605 201)"/></g>
+      <path d="M28 178l119-8 22 35-123 5zM674 172l70 4 8 28-93 5z" fill="#131820"/>
+      <path d="M95 123l-29 10-13 33 53-7z" fill="#fff8c5" stroke="#ffca30" stroke-width="6"/><path d="M660 129l53 15 12 21-67-9z" fill="#ff5a32"/>
+      <path d="M378 106h128v50H378z" fill="#fbf2df" stroke="#a20d1d" stroke-width="7"/><text x="442" y="145" text-anchor="middle" font-family="Arial,sans-serif" font-size="39" font-weight="700" fill="#b11625">07</text>
+      <path d="M392 169h100" stroke="#ff9a7d" stroke-width="6"/><path d="M18 218l-82 13M60 236l-103 32" stroke="#c4cdd5" stroke-width="8" stroke-linecap="round" opacity=".44"/>
+    </g>
+  </g>
+
+  <g aria-label="animated sparks" fill="#ffd64c" filter="url(#fireGlow)">
+    <circle class="spark" cx="1100" cy="433" r="6"/><circle class="spark s2" cx="1070" cy="276" r="5"/><circle class="spark s3" cx="510" cy="520" r="6"/><circle class="spark s4" cx="635" cy="155" r="5"/>
+  </g>
+
+  <g aria-label="launch and landing ramps">
+    <path d="M0 866h420L0 674z" fill="url(#steel)" stroke="#9fa9b2" stroke-width="7"/><path d="M0 693l385 173M0 757h239M85 715v151M188 758v108" fill="none" stroke="#46515c" stroke-width="10"/><path d="M0 666l429 197" stroke="#ffe063" stroke-width="15"/><path d="M24 688l59 27M124 734l59 27M224 780l59 27" stroke="#20262e" stroke-width="15"/>
+    <path d="M1180 866h420V674z" fill="url(#steel)" stroke="#9fa9b2" stroke-width="7"/><path d="M1215 866l385-173M1361 757h239M1515 715v151M1412 758v108" fill="none" stroke="#46515c" stroke-width="10"/><path d="M1171 863l429-197" stroke="#ffe063" stroke-width="15"/><path d="M1576 688l-59 27M1476 734l-59 27M1376 780l-59 27" stroke="#20262e" stroke-width="15"/>
+  </g>
+  <path d="M0 867h1600v133H0z" fill="url(#road)"/><path d="M0 871h1600" stroke="#4b5058" stroke-width="10"/><ellipse cx="800" cy="912" rx="370" ry="35" fill="#000" opacity=".38"/>
+</svg>

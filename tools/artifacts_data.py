@@ -101,7 +101,7 @@ TONE = {
     # svgbench pairs
     "qwen3.8-flash-next": 1, "qwen3.8-27b-8bit": 2,
     "claude-opus-5": 1, "claude-opus-4-8": 0, "fable-5-1": 2,
-    "gpt-5.6-terra": 1,
+    "gpt-5.6-terra": 1, "gpt-5.6-sol": 0,
     # agent-build-off arms: one model, one arm adds the superpowers skills
     "opencode-qwen38": 1, "opencode-qwen38-superpowers": 2, "claude-qwen38": 0,
     "claude-opus5": 1, "codex-astra": 1,
@@ -265,7 +265,13 @@ def build_drawings(scores):
     cfgs = _participants()
     pairs = {}
     by_q = {}
-    for a in scores["artifacts"]:
+    scored_artifacts = [(a, True) for a in scores["artifacts"]]
+    unscored_artifacts = [
+        (a, False) for a in scores.get("unscored", [])
+        if a.get("question_index") is not None
+        and "%s/%s" % (a["harness"], a["model"]) in cfgs
+    ]
+    for a, scored in scored_artifacts + unscored_artifacts:
         q = a.get("question_index")
         if q is None:
             continue
@@ -281,7 +287,7 @@ def build_drawings(scores):
         p["n"] += 1
         if q not in p["qs"]:
             p["qs"].append(q)
-        self_judged = judge_of(a) == a["model"]
+        self_judged = scored and judge_of(a) == a["model"]
         p["selfJudged"] = p["selfJudged"] or self_judged
         by_q.setdefault(q, []).append({
             "pair": key, "model": a["model"],
@@ -296,9 +302,10 @@ def build_drawings(scores):
             "aspect": round(aspect_of(os.path.join(HARNESS_ROOT, a["artifact"])), 4),
             "animated": bool(a.get("animated")),
             "selfJudged": self_judged,
-            "score": a["score"], "met": a["met"], "total": a["total"],
+            "score": a.get("score"), "met": a.get("met"), "total": a.get("total"),
             "reqs": [{"t": r["text"], "m": bool(r["met"]), "n": r.get("note", "")}
-                     for r in a["requirements"]],
+                     for r in a.get("requirements", [])],
+            "reason": a.get("reason", ""),
             "best": False, "last": False,
         })
 
@@ -317,8 +324,10 @@ def build_drawings(scores):
         takes.sort(key=lambda t: (t["pair"], TAKE_RANK[t["take"]]))
         for key in {t["pair"] for t in takes}:
             mine = [t for t in takes if t["pair"] == key]
-            best = min(mine, key=lambda t: (-t["score"], TAKE_RANK[t["take"]]))
-            best["best"] = True
+            scored_mine = [t for t in mine if t["score"] is not None]
+            if scored_mine:
+                best = min(scored_mine, key=lambda t: (-t["score"], TAKE_RANK[t["take"]]))
+                best["best"] = True
             # the take the pair ended on, and an animated one wins over a still:
             # TAKE_RANK already ends at "animated", so the highest rank is it
             last = max(mine, key=lambda t: (t["animated"], TAKE_RANK[t["take"]]))
@@ -347,7 +356,8 @@ def build_drawings(scores):
         row = dict(_cfg(cfgs.get(p["key"])))
         row.update({
             "key": p["key"], "label": p["model"], "color": p["color"],
-            "hosted": p["hosted"], "n": m.get("artifacts_scored"), "qs": list(p["qs"]),
+            "hosted": p["hosted"], "n": p["n"],
+            "scoredN": m.get("artifacts_scored", 0), "qs": list(p["qs"]),
             "mean": round(m["mean_score"], 3) if m.get("mean_score") is not None else None,
             "selfJudged": p["selfJudged"],
         })
@@ -384,6 +394,8 @@ def build_drawings(scores):
         "roster": roster,
         "summary": summary,
         "summaryNote": summary_note,
+        "scoredCount": len(scored_artifacts),
+        "unscoredCount": len(unscored_artifacts),
         "judge": {
             "model": sorted(judges)[0] if len(judges) == 1 else "",
             "selfJudged": sum(1 for q in questions for t in q["takes"] if t["selfJudged"]),
