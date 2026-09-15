@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 630" width="900" height="630">
+  <defs>
+    <linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#15050d"/>
+      <stop offset="55%" stop-color="#2a0a12"/>
+      <stop offset="100%" stop-color="#391208"/>
+    </linearGradient>
+    <radialGradient id="halo3" cx="50%" cy="48%" r="52%">
+      <stop offset="0%" stop-color="#ff8a2a" stop-opacity="0.55"/>
+      <stop offset="50%" stop-color="#e23a10" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#d42a08" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="core3" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff6cf"/>
+      <stop offset="35%" stop-color="#ffd27a"/>
+      <stop offset="70%" stop-color="#ff7a1a"/>
+      <stop offset="100%" stop-color="#e23a10" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="torus" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8a1602"/>
+      <stop offset="45%" stop-color="#e23a10"/>
+      <stop offset="100%" stop-color="#ff8a2a"/>
+    </linearGradient>
+    <radialGradient id="f3" cx="42%" cy="38%" r="55%">
+      <stop offset="0%" stop-color="#fff3b0"/>
+      <stop offset="30%" stop-color="#ffb44d"/>
+      <stop offset="60%" stop-color="#ff6a1a"/>
+      <stop offset="85%" stop-color="#d42a08"/>
+      <stop offset="100%" stop-color="#7a0f00"/>
+    </radialGradient>
+    <radialGradient id="coreLit" cx="50%" cy="52%" r="55%">
+      <stop offset="0%" stop-color="#ffd27a" stop-opacity="0.65"/>
+      <stop offset="60%" stop-color="#ff6a1a" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#d42a08" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vig3" cx="50%" cy="46%" r="72%">
+      <stop offset="0%" stop-color="#05010a" stop-opacity="0"/>
+      <stop offset="66%" stop-color="#05010a" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#020004" stop-opacity="0.92"/>
+    </radialGradient>
+    <filter id="blurL3" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+    <filter id="blurM3" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    <filter id="blurS3" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+    <path id="tongue3" d="M 0 -20 C 5 -10 8 -2 7 5 C 6 9 3 13 0 15 C -3 13 -6 9 -7 5 C -8 -2 -5 -10 0 -20 Z"/>
+  </defs>
+
+  <!-- background -->
+  <rect width="900" height="630" fill="url(#sky3)"/>
+  <circle cx="120" cy="52" r="1.6" fill="#ffffff" opacity="0.7"/>
+  <circle cx="320" cy="70" r="1.3" fill="#ffffff" opacity="0.6"/>
+  <circle cx="540" cy="42" r="1.5" fill="#ffffff" opacity="0.7"/>
+  <circle cx="760" cy="88" r="1.4" fill="#ffffff" opacity="0.6"/>
+  <circle cx="860" cy="200" r="1.3" fill="#ffffff" opacity="0.5"/>
+  <circle cx="210" cy="150" r="1.2" fill="#ffffff" opacity="0.6"/>
+  <circle cx="760" cy="150" r="1.1" fill="#ffffff" opacity="0.5"/>
+  <circle cx="60" cy="240" r="1.4" fill="#ffb44d" opacity="0.8"/>
+
+  <!-- huge warm glow -->
+  <circle cx="470" cy="300" r="320" fill="url(#halo3)" filter="url(#blurL3)"/>
+
+  <!-- ground -->
+  <rect x="0" y="560" width="900" height="70" fill="#15080f"/>
+  <path d="M0 560 L900 560 L900 565 L0 565 Z" fill="#2a1007"/>
+
+  <!-- launch ramp silhouettes -->
+  <polygon points="-20,630 150,545 190,545 250,630" fill="#0b0408"/>
+  <polygon points="660,630 720,545 800,545 920,630" fill="#0b0408"/>
+  <g filter="url(#blurS3)" opacity="0.8">
+    <polygon points="185,540 175,505 205,540" fill="#ff6a1a"/>
+    <polygon points="205,538 222,510 232,546" fill="#ffb44d"/>
+    <polygon points="712,540 700,508 728,542" fill="#ff6a1a"/>
+    <polygon points="688,540 676,514 700,540" fill="#e23a10"/>
+  </g>
+
+  <!-- smoke trail along the flight path -->
+  <g filter="url(#blurM3)" opacity="0.5">
+    <ellipse cx="150" cy="540" rx="44" ry="22" fill="#3c201c"/>
+    <ellipse cx="235" cy="492" rx="40" ry="20" fill="#452621"/>
+    <ellipse cx="320" cy="438" rx="38" ry="19" fill="#4a2a22"/>
+    <ellipse cx="410" cy="385" rx="30" ry="17" fill="#513028"/>
+    <ellipse cx="470" cy="342" rx="22" ry="14" fill="#3c201c"/>
+  </g>
+  <g filter="url(#blurM3)" opacity="0.35">
+    <ellipse cx="190" cy="518" rx="26" ry="12" fill="#2c1416"/>
+  </g>
+
+  <!-- ring core (bright opening) -->
+  <circle cx="470" cy="300" r="150" fill="url(#core3)"/>
+  <circle cx="470" cy="300" r="165" fill="url(#coreLit)" filter="url(#blurM3)"/>
+
+  <!-- main fire hoop -->
+  <path fill-rule="evenodd" fill="url(#torus)"
+        d="M 260 300 A 210 210 0 1 0 680 300 A 210 210 0 1 0 260 300 Z
+           M 332 300 A 138 138 0 1 1 608 300 A 138 138 0 1 1 332 300 Z"/>
+  <!-- torus depth shading -->
+  <path d="M 332 300 A 138 138 0 0 1 608 300" fill="none" stroke="#6f0f00" stroke-width="12" opacity="0.8"/>
+  <path d="M 332 300 A 138 138 0 0 0 608 300" fill="none" stroke="#ffdf9e" stroke-width="8" opacity="0.95"/>
+  <path d="M 260 300 A 210 210 0 0 0 680 300" fill="none" stroke="#ff9638" stroke-width="6" opacity="0.8"/>
+
+  <!-- ============ STUNT CAR (backlit silhouette) ============ -->
+  <g transform="translate(470 318) rotate(-10)">
+    <!-- bloom halo behind the silhouette -->
+    <path fill="#ff7a1a" filter="url(#blurM3)" opacity="0.55"
+          d="M -96 -14 L -82 -30 L -50 -40 L -46 -42 L -12 -46 L 18 -44 L 40 -36 L 62 -26 L 90 -10 L 108 2 L 105 16 L 82 26 L 56 26 L 50 16 L -56 14 L -84 24 L -99 6 Z"/>
+    <!-- dark body -->
+    <path fill="#0a0409" stroke="#1f0c10" stroke-width="1"
+          d="M -96 -14 L -82 -30 L -50 -40 L -46 -42 L -12 -46 L 18 -44 L 40 -36 L 62 -26 L 90 -10 L 108 2 L 105 16 L 82 26 L 56 26 L 50 16 L -56 14 L -84 24 L -99 6 Z"/>
+    <!-- rear wing -->
+    <polygon points="-84,-44 -58,-50 -54,-40 -78,-36" fill="#0a0409"/>
+    <rect x="-67" y="-41" width="5" height="12" fill="#06030a"/>
+    <!-- top rim light (lit by the ring) -->
+    <path d="M -84 -44 L -46 -42 L -12 -46 L 18 -44 L 40 -36 L 62 -26 L 90 -10 L 105 6"
+          fill="none" stroke="#ffcf7a" stroke-width="3" opacity="0.85" stroke-linecap="round"/>
+    <!-- nose rim light -->
+    <path d="M 90 -10 L 108 2 L 105 16" fill="none" stroke="#ffdf9e" stroke-width="2.5" opacity="0.7"/>
+    <!-- bottom glow edge -->
+    <path d="M -96 -14 L -99 6" fill="none" stroke="#ff8a2a" stroke-width="2" opacity="0.6"/>
+    <!-- side streak -->
+    <line x1="-40" y1="6" x2="72" y2="6" stroke="#ffd27a" stroke-width="2" opacity="0.3"/>
+    <!-- rear wheel -->
+    <circle cx="-60" cy="18" r="19" fill="#050208"/>
+    <path d="M -72 14 A 15 15 0 0 1 -48 10" fill="none" stroke="#ff9638" stroke-width="2" opacity="0.6"/>
+    <path d="M -74 28 A 16 16 0 0 0 -46 28" fill="none" stroke="#ff9638" stroke-width="2" opacity="0.45"/>
+    <!-- front wheel -->
+    <circle cx="38" cy="18" r="16" fill="#050208"/>
+    <path d="M 29 4 A 13 13 0 0 1 47 6" fill="none" stroke="#ff9638" stroke-width="2" opacity="0.6"/>
+    <path d="M 25 28 A 14 14 0 0 0 51 28" fill="none" stroke="#ff9638" stroke-width="2" opacity="0.45"/>
+    <!-- headlight sliver -->
+    <rect x="101" y="-2" width="6" height="5" rx="1" fill="#fff3b0" opacity="0.9"/>
+    <!-- taillight residue -->
+    <rect x="-99" y="2" width="6" height="5" rx="1" fill="#ff5a1a" opacity="0.8"/>
+  </g>
+
+  <!-- comet streaks behind the car -->
+  <g opacity="0.4">
+    <line x1="150" y1="330" x2="352" y2="318" stroke="#ffb44d" stroke-width="3" stroke-linecap="round"/>
+    <line x1="120" y1="368" x2="330" y2="346" stroke="#ff8a2a" stroke-width="2"/>
+    <line x1="180" y1="300" x2="360" y2="306" stroke="#ffe08a" stroke-width="2"/>
+  </g>
+
+  <!-- outer flame fringe of the hoop -->
+  <g filter="url(#blurS3)" opacity="0.6">
+    <use href="#tongue3" transform="translate(651.9 195) rotate(60) scale(2.8)" fill="#ff6a1a"/>
+    <use href="#tongue3" transform="translate(575 118) rotate(30) scale(2.2)" fill="#ff8a2a"/>
+    <use href="#tongue3" transform="translate(470 90) rotate(0) scale(2.6)" fill="#ffb44d"/>
+    <use href="#tongue3" transform="translate(288.1 195) rotate(-60) scale(2.4)" fill="#ff6a1a"/>
+    <use href="#tongue3" transform="translate(260 300) rotate(-90) scale(2.4)" fill="#ff8a2a"/>
+    <use href="#tongue3" transform="translate(288.1 405) rotate(-120) scale(2.4)" fill="#ff6a1a"/>
+    <use href="#tongue3" transform="translate(365 481.9) rotate(-150) scale(2.2)" fill="#ff8a2a"/>
+    <use href="#tongue3" transform="translate(470 510) rotate(-180) scale(2.8)" fill="#ffb44d"/>
+    <use href="#tongue3" transform="translate(575 481.9) rotate(-210) scale(2.6)" fill="#ff6a1a"/>
+    <use href="#tongue3" transform="translate(618 151.5) rotate(-225) scale(2.0)" fill="#ff8a2a"/>
+    <use href="#tongue3" transform="translate(680 300) rotate(90) scale(2.0)" fill="#ff8a2a"/>
+    <use href="#tongue3" transform="translate(321.5 151.5) rotate(-45) scale(2.0)" fill="#ff8a2a"/>
+  </g>
+  <g>
+    <use href="#tongue3" transform="translate(651.9 195) rotate(60) scale(1.8)" fill="url(#f3)"/>
+    <use href="#tongue3" transform="translate(575 118) rotate(30) scale(1.5)" fill="url(#f3)"/>
+    <use href="#tongue3" transform="translate(470 90) rotate(0) scale(1.9)" fill="url(#f3)"/>
+    <use href="#tongue3" transform="translate(288.1 195) rotate(-60) scale(1.6)" fill="url(#f3)"/>
+    <use href="#tongue3" transform="translate(260 300) rotate(-90) scale(1.7)" fill="url(#f3)"/>
+    <use href="#tongue3" transform="translate(288.1 405) rotate(-120) scale(1.6)" fill="url(#f3)"/>
+    <use href="#tongue3" transform="translate(365 481.9) rotate(-150) scale(1.5)" fill="url(#f3)"/>
+    <use href="#tongue3" transform="translate(470 510) rotate(-180) scale(1.9)" fill="url(#f3)"/>
+    <use href="#tongue3" transform="translate(575 481.9) rotate(-210) scale(1.7)" fill="url(#f3)"/>
+    <use href="#tongue3" transform="translate(618 151.5) rotate(-225) scale(1.4)" fill="url(#f3)"/>
+    <use href="#tongue3" transform="translate(680 300) rotate(90) scale(1.4)" fill="url(#f3)"/>
+    <use href="#tongue3" transform="translate(321.5 151.5) rotate(-45) scale(1.4)" fill="url(#f3)"/>
+  </g>
+  <!-- inner licks licking into the opening -->
+  <g opacity="0.9">
+    <use href="#tongue3" transform="translate(418.7 441) rotate(20) scale(1.1)" fill="url(#f3)"/>
+    <use href="#tongue3" transform="translate(470 450) rotate(0) scale(1.3)" fill="url(#f3)"/>
+    <use href="#tongue3" transform="translate(521.3 441) rotate(-20) scale(1.1)" fill="url(#f3)"/>
+  </g>
+
+  <!-- ring reflection on the ground -->
+  <ellipse cx="470" cy="575" rx="250" ry="26" fill="#ff8a2a" opacity="0.16" filter="url(#blurL3)"/>
+  <ellipse cx="470" cy="575" rx="150" ry="16" fill="#ffd27a" opacity="0.12" filter="url(#blurM3)"/>
+
+  <!-- flying embers -->
+  <g filter="url(#blurS3)" opacity="0.9">
+    <circle cx="470" cy="230" r="3.2" fill="#fff3b0"/>
+    <circle cx="360" cy="250" r="2.8" fill="#ffb44d"/>
+    <circle cx="560" cy="190" r="3" fill="#ff8a2a"/>
+    <circle cx="540" cy="400" r="3.4" fill="#ffb44d"/>
+    <circle cx="390" cy="460" r="3" fill="#fff3b0"/>
+    <circle cx="620" cy="330" r="2.6" fill="#ff8a2a"/>
+    <circle cx="320" cy="360" r="2.4" fill="#ffb44d"/>
+    <circle cx="505" cy="470" r="2.8" fill="#fff3b0"/>
+    <circle cx="640" cy="250" r="2.6" fill="#ffd27a"/>
+    <circle cx="420" cy="120" r="2.2" fill="#ffd27a"/>
+    <circle cx="700" cy="440" r="2.8" fill="#ff8a2a"/>
+    <circle cx="240" cy="170" r="2.2" fill="#ffb44d"/>
+  </g>
+
+  <!-- vignette -->
+  <rect width="900" height="630" fill="url(#vig3)"/>
+</svg>

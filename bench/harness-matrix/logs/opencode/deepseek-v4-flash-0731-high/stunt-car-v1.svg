@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <radialGradient id="sky" cx="50%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#3a1c5e"/>
+      <stop offset="55%" stop-color="#1b1038"/>
+      <stop offset="100%" stop-color="#080514"/>
+    </radialGradient>
+    <radialGradient id="fireFlame" cx="35%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#fff8b0"/>
+      <stop offset="30%" stop-color="#ffd54d"/>
+      <stop offset="60%" stop-color="#ff7a1a"/>
+      <stop offset="85%" stop-color="#e2330b"/>
+      <stop offset="100%" stop-color="#7a1500"/>
+    </radialGradient>
+    <radialGradient id="heatGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff5a2b" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#ff5a2b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="carBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff2d2d"/>
+      <stop offset="100%" stop-color="#b31212"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#bfeaff"/>
+      <stop offset="100%" stop-color="#3a7ea8"/>
+    </linearGradient>
+    <filter id="blurL" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="blurS" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#sky)"/>
+
+  <!-- distant ground -->
+  <rect y="470" width="800" height="130" fill="#10081f"/>
+  <ellipse cx="360" cy="560" rx="460" ry="60" fill="#1d1230"/>
+
+  <!-- heat glow behind the circle -->
+  <circle cx="400" cy="270" r="260" fill="url(#heatGlow)" filter="url(#blurL)"/>
+  <ellipse cx="400" cy="150" rx="60" ry="20" fill="#ffd54d" opacity="0.25" filter="url(#blurL)"/>
+
+  <!-- takeoff ramp on the left -->
+  <circle cx="118" cy="450" r="54" fill="url(#fireFlame)"/>
+  <path d="M 40 470 L 118 398 L 168 470 Z" fill="#22203a"/>
+  <path d="M 118 398 L 168 470 L 118 470 Z" fill="#2e2b52"/>
+
+  <!-- landing horizon on the right -->
+  <circle cx="668" cy="452" r="52" fill="url(#fireFlame)"/>
+  <path d="M 610 470 L 668 400 L 726 470 Z" fill="#22203a"/>
+  <path d="M 668 400 L 726 470 L 668 470 Z" fill="#2e2b52"/>
+
+  <!-- ring assembly (circle of fire) -->
+  <circle cx="420" cy="252" r="130" fill="none" stroke="#ff4020" stroke-width="52" opacity="0.35" filter="url(#blurL)"/>
+  <circle cx="420" cy="252" r="130" fill="none" stroke="#ff5a1a" stroke-width="30" opacity="0.6" filter="url(#blurS)"/>
+  <circle cx="420" cy="252" r="130" fill="none" stroke="url(#fireFlame)" stroke-width="22" stroke-linecap="round" stroke-dasharray="1 13" opacity="0.85"/>
+  <circle cx="420" cy="252" r="130" fill="none" stroke="url(#fireFlame)" stroke-width="12"/>
+  <!-- inner ring wall hint -->
+  <circle cx="420" cy="252" r="104" fill="none" stroke="#7a1500" stroke-width="10" opacity="0.4"/>
+  <circle cx="420" cy="252" r="104" fill="none" stroke="#ff4020" stroke-width="6" opacity="0.55"/>
+
+  <!-- embers / sparks -->
+  <g filter="url(#blurS)" opacity="0.8">
+    <polygon points="298,152 302,138 306,152 300,148" fill="#ffd54d"/>
+    <polygon points="538,120 542,104 546,120 540,116" fill="#fff8b0"/>
+    <polygon points="556,282 561,266 566,282 559,278" fill="#ff7a1a"/>
+    <polygon points="280,262 284,246 288,262 282,258" fill="#ffd54d"/>
+    <polygon points="330,394 335,378 340,394 333,390" fill="#ffd54d"/>
+    <polygon points="512,390 516,374 520,390 514,386" fill="#ff7a1a"/>
+    <circle cx="470" cy="120" r="3" fill="#ffd54d"/>
+    <circle cx="330" cy="120" r="2.5" fill="#fff8b0"/>
+    <circle cx="520" cy="210" r="3" fill="#ff7a1a"/>
+    <circle cx="290" cy="330" r="2.5" fill="#ffd54d"/>
+    <circle cx="560" cy="340" r="2.5" fill="#ffd54d"/>
+  </g>
+
+  <!-- speed streak behind the car -->
+  <polygon points="250,216 300,232 258,236" fill="#ffffff" opacity="0.35" filter="url(#blurS)"/>
+  <polygon points="252,268 304,250 258,246" fill="#ffffff" opacity="0.3" filter="url(#blurS)"/>
+  <polygon points="270,232 298,220 296,250" fill="#ffffff" opacity="0.2" filter="url(#blurS)"/>
+
+  <!-- the stunt car, jumping nose-up through the ring -->
+  <g transform="rotate(-12 400 250) translate(346 216)">
+    <!-- car shadow/lower body -->
+    <rect x="8" y="44" width="118" height="8" rx="4" fill="#5c0a0a"/>
+    <!-- main body -->
+    <path d="M 12 44 L 18 30 Q 34 20 52 20 L 104 20 Q 116 20 122 44 Z" fill="url(#carBody)"/>
+    <!-- hood -->
+    <path d="M 104 20 Q 116 20 122 44 L 108 44 Z" fill="#c2131e"/>
+    <!-- cabin / windshield -->
+    <path d="M 34 20 L 46 2 L 66 2 L 70 20 Z" fill="url(#glass)"/>
+    <path d="M 46 2 L 66 2 L 70 20 L 46 20 Z" fill="#9fd2ec" opacity="0.35"/>
+    <!-- roof stripe -->
+    <rect x="30" y="17" width="40" height="6" rx="3" fill="#ffd54d"/>
+    <!-- rear spoiler -->
+    <rect x="8" y="-4" width="34" height="7" rx="3" fill="#e3e3ec"/>
+    <rect x="8" y="-10" width="26" height="5" rx="2.5" fill="#c9c9d8"/>
+    <!-- exhaust flames -->
+    <g filter="url(#blurS)">
+      <polygon points="121,40 152,26 150,46" fill="#ff8a1a" opacity="0.9"/>
+      <polygon points="121,44 146,38 148,52" fill="#ffd54d" opacity="0.9"/>
+      <polygon points="121,46 140,44 142,56" fill="#fff8b0"/>
+    </g>
+    <!-- front bumper -->
+    <rect x="110" y="40" width="16" height="8" rx="3" fill="#e3e3ec"/>
+    <!-- headlight -->
+    <rect x="116" y="32" width="5" height="7" rx="1.5" fill="#fff3b0"/>
+    <!-- front wheel -->
+    <circle cx="96" cy="48" r="12" fill="#16161e" stroke="#4c4c5e" stroke-width="4"/>
+    <circle cx="96" cy="48" r="3.5" fill="#9aa0b4"/>
+    <!-- rear wheel -->
+    <circle cx="30" cy="48" r="14" fill="#16161e" stroke="#4c4c5e" stroke-width="4"/>
+    <circle cx="30" cy="48" r="4" fill="#9aa0b4"/>
+    <!-- side exhaust pipes -->
+    <rect x="118" y="38" width="14" height="6" rx="3" fill="#2c2c3a"/>
+    <!-- side flame lick -->
+    <polygon points="132,39 150,32 146,46" fill="#ffd54d" opacity="0.8"/>
+  </g>
+
+  <!-- faint reflection of the ring on the ground -->
+  <ellipse cx="420" cy="472" rx="150" ry="18" fill="#ff3a10" opacity="0.14" filter="url(#blurS)"/>
+
+  <!-- stars -->
+  <g fill="#ffffff" opacity="0.8">
+    <circle cx="80" cy="60" r="1.6"/>
+    <circle cx="210" cy="34" r="1.2"/>
+    <circle cx="330" cy="70" r="1.5"/>
+    <circle cx="600" cy="50" r="1.4"/>
+    <circle cx="700" cy="90" r="1.7"/>
+    <circle cx="740" cy="170" r="1.2"/>
+    <circle cx="150" cy="140" r="1.1"/>
+    <circle cx="480" cy="48" r="1.3"/>
+  </g>
+</svg>

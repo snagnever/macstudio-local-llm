@@ -22,8 +22,8 @@ HTML = os.path.abspath(os.path.join(ROOT, "..", "..", "reports", "harness-matrix
 PROMPT_LABEL = {0: "Cow plowing", 4: "Rubber ducky", 5: "Picnic on clouds", 6: "Stunt car",
                 7: "Dolphin", 12: "Fruit stall", 13: "Treasure barrel"}
 UNSCORED_LABEL = {"dawn-beach": "Dawn on the beach"}
-TAKE_RANK = {"v1": 0, "v2": 1, "v3": 2, "animated": 3}
-_SUFFIX = re.compile(r"-(v1|v2|v3|animated)$")
+TAKE_RANK = {"v1": 0, "v2": 1, "v3": 2, "v4": 3, "animated": 4}
+_SUFFIX = re.compile(r"-(v1|v2|v3|v4|animated)$")
 BEGIN, END = "/* GALLERY:begin */", "/* GALLERY:end */"
 
 

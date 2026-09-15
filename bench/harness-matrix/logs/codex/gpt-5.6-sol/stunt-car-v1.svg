@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Stunt car jumping through a circle of fire</title>
+  <desc id="desc">A red rally stunt car flies through the center of a flaming metal hoop above two ramps at night.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#081329"/>
+      <stop offset="0.62" stop-color="#172642"/>
+      <stop offset="1" stop-color="#421e25"/>
+    </linearGradient>
+    <radialGradient id="fireGlow">
+      <stop offset="0" stop-color="#ffdd69" stop-opacity=".4"/>
+      <stop offset=".55" stop-color="#ff7a1a" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#ff3b0a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="carPaint" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff5b4e"/>
+      <stop offset=".48" stop-color="#d71f2e"/>
+      <stop offset="1" stop-color="#75101d"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d7f7ff"/>
+      <stop offset=".35" stop-color="#5b9fbd"/>
+      <stop offset="1" stop-color="#142638"/>
+    </linearGradient>
+    <linearGradient id="ramp" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#82909c"/>
+      <stop offset="1" stop-color="#252d37"/>
+    </linearGradient>
+    <filter id="softGlow" x="-70%" y="-70%" width="240%" height="240%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <filter id="flameGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow" x="-30%" y="-40%" width="170%" height="190%">
+      <feDropShadow dx="8" dy="14" stdDeviation="10" flood-color="#000" flood-opacity=".58"/>
+    </filter>
+    <pattern id="crowd" width="28" height="25" patternUnits="userSpaceOnUse">
+      <circle cx="7" cy="8" r="3" fill="#121725"/>
+      <path d="M2 23c0-8 10-8 10 0" fill="#111522"/>
+      <circle cx="21" cy="12" r="3" fill="#1a2030"/>
+      <path d="M16 25c0-8 10-8 10 0" fill="#181d2b"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <circle cx="600" cy="365" r="315" fill="url(#fireGlow)" filter="url(#softGlow)"/>
+  <g fill="#dbe9ff" opacity=".75">
+    <circle cx="90" cy="82" r="2"/><circle cx="180" cy="150" r="1.5"/><circle cx="290" cy="70" r="2"/>
+    <circle cx="415" cy="128" r="1.5"/><circle cx="728" cy="86" r="2"/><circle cx="850" cy="145" r="1.5"/>
+    <circle cx="1010" cy="74" r="2"/><circle cx="1110" cy="162" r="1.5"/><circle cx="950" cy="240" r="1"/>
+  </g>
+  <path d="M0 545L105 505 190 536 282 481 386 535 480 496 575 543 700 492 820 534 918 486 1032 526 1120 477 1200 510V655H0Z" fill="#101827"/>
+  <rect y="570" width="1200" height="130" fill="url(#crowd)" opacity=".92"/>
+  <g fill="#ffd36c" opacity=".8">
+    <circle cx="74" cy="599" r="3"/><circle cx="197" cy="617" r="2"/><circle cx="1064" cy="602" r="3"/>
+    <circle cx="1141" cy="632" r="2"/><circle cx="342" cy="590" r="2"/><circle cx="907" cy="613" r="2"/>
+  </g>
+
+  <g aria-label="circle of fire">
+    <circle cx="600" cy="340" r="230" fill="none" stroke="#ff4217" stroke-opacity=".34" stroke-width="62" filter="url(#softGlow)"/>
+    <circle cx="600" cy="340" r="213" fill="none" stroke="#232833" stroke-width="20"/>
+    <circle cx="600" cy="340" r="213" fill="none" stroke="#5c626b" stroke-width="5" stroke-dasharray="14 10"/>
+    <g fill="#ff4a12" stroke="#ffb51b" stroke-width="3" stroke-linejoin="round" filter="url(#flameGlow)">
+      <path d="M393 286C357 264 365 225 386 205c-4 29 15 32 22 51 6-22-1-40 18-61 6 32 30 49 17 85z"/>
+      <path d="M436 196c-17-34 5-65 33-78-16 27 6 39 3 62 14-19 17-41 43-52-9 37 7 64-25 87z"/>
+      <path d="M520 139c-2-42 33-59 66-58-27 18-11 39-23 59 21-12 31-32 60-33-24 31-20 65-60 72z"/>
+      <path d="M622 124c11-39 49-45 79-32-31 8-22 34-40 49 24-4 40-20 67-10-34 21-41 53-81 46z"/>
+      <path d="M716 163c24-32 62-24 86-2-32-2-32 25-54 33 24 5 44-5 66 14-40 8-57 36-92 16z"/>
+      <path d="M783 231c34-20 67 0 80 29-29-13-39 11-62 10 20 13 43 11 56 37-39-9-66 11-92-20z"/>
+      <path d="M815 324c40-5 63 26 64 59-23-23-41-3-63-13 14 20 35 27 37 56-33-25-66-16-77-55z"/>
+      <path d="M802 421c39 9 49 47 37 77-8-31-34-21-49-39 4 24 20 40 9 67-20-34-53-42-45-81z"/>
+      <path d="M746 500c31 24 22 62 0 85 3-32-24-32-32-54-5 24 5 44-15 66-7-40-35-58-15-93z"/>
+      <path d="M659 545c17 36-8 66-38 77 19-26-2-41 4-63-16 18-21 40-49 48 13-38-1-66 33-86z"/>
+      <path d="M559 550c3 40-31 61-64 61 26-20 8-40 19-61-21 13-30 34-59 35 23-33 17-65 57-74z"/>
+      <path d="M469 513c-15 37-54 41-82 25 32-5 26-31 46-44-24 1-42 16-68 3 36-18 46-49 85-39z"/>
+      <path d="M404 442c-29 27-66 14-86-12 32 6 36-20 59-25-23-8-44-1-63-23 40-3 61-28 93-4z"/>
+      <path d="M379 352c-39 12-67-15-74-47 27 18 41-5 64 1-17-17-39-21-46-49 38 16 68 2 87 37z"/>
+    </g>
+    <g fill="#ffd83d" opacity=".95">
+      <path d="M399 272c-15-19-3-40 8-50-2 20 15 28 10 47z"/><path d="M468 187c-8-23 10-39 25-45-11 18 1 31-9 46z"/>
+      <path d="M561 145c1-24 24-31 39-28-19 10-10 27-25 37z"/><path d="M673 145c10-21 34-19 48-10-21 3-20 22-38 26z"/>
+      <path d="M759 205c17-16 39-7 49 5-21-5-27 13-45 11z"/><path d="M818 282c22-8 39 8 44 23-17-13-29 1-46-9z"/>
+      <path d="M837 382c23 2 32 24 31 40-11-18-28-8-41-22z"/><path d="M805 477c20 12 18 35 9 49-2-21-21-21-25-39z"/>
+      <path d="M722 551c13 19 1 40-12 50 4-21-14-28-8-46z"/><path d="M620 574c0 23-22 32-38 29 19-11 9-27 24-38z"/>
+      <path d="M506 569c-10 21-34 20-48 11 21-4 20-22 38-27z"/><path d="M414 513c-17 16-39 8-49-4 21 4 26-14 45-12z"/>
+      <path d="M354 424c-22 7-39-9-43-24 16 14 29 0 45 10z"/><path d="M350 323c-23-1-33-23-32-39 12 18 29 7 42 21z"/>
+    </g>
+    <path d="M390 558v115h28V548M782 548v125h28V558" fill="none" stroke="#555e69" stroke-width="14"/>
+    <path d="M362 673h84M754 673h84" stroke="#858e98" stroke-width="12" stroke-linecap="round"/>
+  </g>
+
+  <g aria-label="stunt car" transform="translate(342 288) rotate(-8 270 100)" filter="url(#shadow)">
+    <path d="M48 129L75 80c8-14 28-24 50-26l78-7 61-43h139c26 1 46 10 64 33l34 47 70 17 19 31-9 34H31l-15-20 7-13z" fill="url(#carPaint)" stroke="#49101a" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M219 48l56-34h72l8 49z" fill="url(#glass)" stroke="#172330" stroke-width="6"/>
+    <path d="M365 14h31c19 2 35 10 48 29l16 26-89-6z" fill="url(#glass)" stroke="#172330" stroke-width="6"/>
+    <path d="M359 12l9 54M269 14l-47 36" stroke="#dce5ec" stroke-width="5" opacity=".72"/>
+    <path d="M18 127l69-7M497 86l-48 11 10 22 101 8M112 72l-28 44" fill="none" stroke="#ff8a71" stroke-width="8"/>
+    <path d="M165 60L82 86l-18 30 113-10 31-56z" fill="#a91224" opacity=".7"/>
+    <path d="M204 48h259" stroke="#ffffff" stroke-width="6" opacity=".7"/>
+    <path d="M180 51h26v84h-26zM459 70h24v66h-24z" fill="#f2f2ed" opacity=".9"/>
+    <path d="M174 107c18-20 62-26 91-1M394 107c20-20 63-21 90 1" fill="none" stroke="#62101c" stroke-width="12"/>
+    <g>
+      <circle cx="221" cy="146" r="48" fill="#090b0f" stroke="#2b3038" stroke-width="7"/>
+      <circle cx="221" cy="146" r="26" fill="#aeb6bf" stroke="#565e67" stroke-width="5"/>
+      <circle cx="221" cy="146" r="8" fill="#202630"/>
+      <path d="M221 121v50M196 146h50M204 129l35 35M239 129l-35 35" stroke="#737d88" stroke-width="4"/>
+      <circle cx="441" cy="146" r="48" fill="#090b0f" stroke="#2b3038" stroke-width="7"/>
+      <circle cx="441" cy="146" r="26" fill="#aeb6bf" stroke="#565e67" stroke-width="5"/>
+      <circle cx="441" cy="146" r="8" fill="#202630"/>
+      <path d="M441 121v50M416 146h50M424 129l35 35M459 129l-35 35" stroke="#737d88" stroke-width="4"/>
+    </g>
+    <path d="M33 134h95l13 22H35z" fill="#191e26"/>
+    <path d="M490 127h87l8 18-102 3z" fill="#171c23"/>
+    <path d="M89 89l-21 7-8 21 38-4z" fill="#fff5bd" stroke="#ffc83e" stroke-width="4"/>
+    <path d="M503 102l38 10 9 14-48-5z" fill="#ff4828"/>
+    <path d="M287 83h96v36h-96z" fill="#f5eee0" stroke="#af1725" stroke-width="5"/>
+    <text x="335" y="109" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#b21725">07</text>
+    <path d="M113 136h34M507 140h42" stroke="#dfe7ec" stroke-width="5"/>
+    <path d="M40 170l-55 9M77 181l-70 23" stroke="#b7c1cc" stroke-width="6" stroke-linecap="round" opacity=".46"/>
+  </g>
+
+  <g aria-label="launch and landing ramps">
+    <path d="M0 681H325L0 555z" fill="url(#ramp)" stroke="#89939d" stroke-width="5"/>
+    <path d="M0 569l299 112M0 616h190M61 585v96M132 615v66" fill="none" stroke="#4d5762" stroke-width="7"/>
+    <path d="M875 681h325V555z" fill="url(#ramp)" stroke="#89939d" stroke-width="5"/>
+    <path d="M901 681l299-112M1010 616h190M1139 585v96M1068 615v66" fill="none" stroke="#4d5762" stroke-width="7"/>
+    <path d="M0 551l330 127M870 678l330-127" stroke="#f0d95a" stroke-width="10"/>
+    <path d="M26 577l44 17M102 606l44 17M178 635l44 17M1174 577l-44 17M1098 606l-44 17M1022 635l-44 17" stroke="#272d35" stroke-width="10"/>
+  </g>
+  <path d="M0 682h1200v118H0z" fill="#15181d"/>
+  <path d="M0 690h1200" stroke="#353a42" stroke-width="8"/>
+  <ellipse cx="600" cy="713" rx="265" ry="24" fill="#000" opacity=".28"/>
+  <g fill="#ffad27" opacity=".85">
+    <circle cx="286" cy="448" r="4"/><circle cx="314" cy="422" r="3"/><circle cx="890" cy="390" r="4"/>
+    <circle cx="920" cy="440" r="3"/><circle cx="742" cy="94" r="3"/><circle cx="452" cy="105" r="3"/>
+  </g>
+</svg>

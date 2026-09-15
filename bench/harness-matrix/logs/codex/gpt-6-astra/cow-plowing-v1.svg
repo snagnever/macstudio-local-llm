@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <title>Cow pulling a wooden plow through a grassy field</title>
+  <desc>A black and white cow leans forward against a wooden shoulder yoke. Chains pull a wooden plow with a steel share through turf. Three dark furrows trail behind it.</desc>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#81c8ec"/><stop offset="1" stop-color="#e0f1ed"/></linearGradient>
+    <linearGradient id="grass" x2="0" y2="1"><stop stop-color="#91b25d"/><stop offset="1" stop-color="#628740"/></linearGradient>
+    <linearGradient id="earth" x2="0" y2="1"><stop stop-color="#9b6840"/><stop offset="1" stop-color="#69452e"/></linearGradient>
+    <linearGradient id="white" x2="0.25" y2="1"><stop stop-color="#fffdf1"/><stop offset="1" stop-color="#d8dccb"/></linearGradient>
+    <linearGradient id="steel" x2="1" y2="0.6"><stop stop-color="#d3dbe0"/><stop offset="0.5" stop-color="#899ca0"/><stop offset="1" stop-color="#455d64"/></linearGradient>
+    <pattern id="blades" width="75" height="46" patternUnits="userSpaceOnUse"><path d="M12 36l-5-10m5 10l5-15M49 18l-4-9m4 9l6-13M65 43l4-10" fill="none" stroke="#456d36" stroke-width="2" opacity=".55"/></pattern>
+    <pattern id="links" width="24" height="14" patternUnits="userSpaceOnUse"><ellipse cx="12" cy="7" rx="10" ry="4.4" fill="none" stroke="#343f3d" stroke-width="3"/><path d="M7 4h9" stroke="#a9aca0" stroke-width="1.4"/></pattern>
+    <clipPath id="body"><path d="M304 349C347 312 419 312 484 321C529 325 566 341 582 365C600 395 577 447 550 466C503 485 397 475 352 464L290 412Z"/></clipPath>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <circle cx="1004" cy="115" r="55" fill="#ffe27a"/>
+  <circle cx="1004" cy="115" r="69" fill="none" stroke="#ffeab1" stroke-width="2" opacity=".6"/>
+  <path d="M0 298Q175 243 365 291T725 286T1200 269V360H0Z" fill="#97b58b"/>
+  <path d="M0 327H1200V800H0Z" fill="url(#grass)"/>
+  <path d="M0 327H1200" fill="none" stroke="#56774d" stroke-width="4"/>
+  <path d="M0 352H1200V800H0Z" fill="url(#blades)"/>
+  <path d="M854 499L1200 430V800H637L781 622Z" fill="url(#earth)"/>
+  <path d="M849 510Q1011 505 1209 468L1209 503Q1002 536 832 539Z" fill="#432e24"/>
+  <path d="M824 547Q987 572 1210 546L1210 582Q1002 608 805 579Z" fill="#402b23"/>
+  <path d="M791 593Q986 660 1210 642L1210 684Q971 695 769 627Z" fill="#3a291f"/>
+  <path d="M737 678Q941 773 1210 765" fill="none" stroke="#4d3325" stroke-width="23"/>
+  <g fill="none" stroke="#b48351" stroke-width="9" stroke-linecap="round">
+    <path d="M871 501Q1026 497 1184 470"/><path d="M848 546Q1015 563 1186 548"/><path d="M816 593Q1004 648 1188 638"/><path d="M773 677Q968 750 1186 748"/>
+  </g>
+  <g fill="#bf9564" opacity=".7"><ellipse cx="1054" cy="619" rx="9" ry="4"/><ellipse cx="955" cy="698" rx="13" ry="5"/><ellipse cx="1130" cy="721" rx="7" ry="3"/><ellipse cx="992" cy="543" rx="7" ry="3"/><ellipse cx="899" cy="644" rx="8" ry="4"/></g>
+  <ellipse cx="390" cy="584" rx="250" ry="24" fill="#3e5936" opacity=".23"/>
+  <ellipse cx="780" cy="588" rx="90" ry="19" fill="#463e29" opacity=".24"/>
+  <!-- The far legs remain separate from the near legs. -->
+  <g stroke="#343a32" stroke-width="4" stroke-linejoin="round">
+    <path d="M358 429L370 479L342 514L317 564L288 566L311 500L322 436Z" fill="#d4d8c9"/>
+    <path d="M317 548L317 567L281 573L285 556Z" fill="#795037"/>
+    <path d="M534 431L545 480L576 514L580 560L554 563L548 526L508 483L505 442Z" fill="#d4d8c9"/>
+    <path d="M553 548L580 549L589 569L552 570Z" fill="#795037"/>
+    <path d="M499 455Q505 486 484 495L453 493Q434 482 446 458Z" fill="#dfa1a2"/>
+    <path d="M453 486L453 505Q458 512 464 505L466 490M480 488L480 507Q486 513 490 505L489 485" fill="#dfa1a2"/>
+    <path d="M567 352Q613 371 613 409Q610 443 642 461" fill="none" stroke="#e9e9da" stroke-width="12"/>
+    <path d="M637 449Q664 454 658 487Q638 482 631 463Z" fill="#252c29"/>
+    <path d="M304 349C347 312 419 312 484 321C529 325 566 341 582 365C600 395 577 447 550 466C503 485 397 475 352 464L290 412Z" fill="url(#white)"/>
+  </g>
+  <g clip-path="url(#body)" fill="#252d2c">
+    <path d="M353 310C391 330 359 367 392 387S450 386 457 424S416 478 380 481L328 453L312 378Z"/>
+    <path d="M445 310Q481 338 470 356T496 389Q528 399 539 373L555 331Z"/>
+    <path d="M544 422Q563 398 591 414L586 475L518 488Q520 450 544 422Z"/>
+  </g>
+  <g stroke="#343a32" stroke-width="4" stroke-linejoin="round">
+    <path d="M334 425L330 475L298 515L262 568L237 558L268 499L286 435Z" fill="url(#white)"/>
+    <path d="M327 456L329 476L308 504L281 498L287 464Z" fill="#252d2c"/>
+    <path d="M237 550L267 561L258 582L218 580L220 570Z" fill="#855636"/>
+    <path d="M521 444L514 489L503 530L481 583L455 576L473 524L477 468Z" fill="url(#white)"/>
+    <path d="M480 474L515 467L510 507L477 509Z" fill="#252d2c"/>
+    <path d="M455 566L484 575L480 595L439 593L441 580Z" fill="#855636"/>
+    <path d="M311 345Q289 341 269 361L236 397L231 453Q250 470 282 453L325 409Q341 375 311 345Z" fill="url(#white)"/>
+    <path d="M262 367Q274 351 291 356L292 389L270 414L253 407Z" fill="#252d2c"/>
+    <path d="M245 389Q220 356 195 372Q199 399 237 404Z" fill="#f4f0de"/>
+    <path d="M235 389L210 379Q215 393 235 395" fill="#d6a4a0" stroke="none"/>
+    <path d="M286 366Q314 346 331 365Q319 386 287 384Z" fill="#262d2b"/>
+    <path d="M247 373Q225 352 237 329Q240 353 260 354Z" fill="#e8d8ad"/>
+    <path d="M279 355Q286 328 277 314Q300 331 294 356Z" fill="#e8d8ad"/>
+    <path d="M251 394Q266 412 255 438L235 459L204 455L201 431L224 404Z" fill="url(#white)"/>
+    <path d="M204 432Q184 440 188 457Q194 474 218 474L242 464Q253 455 242 443Z" fill="#dca6a1"/>
+  </g>
+  <ellipse cx="240" cy="410" rx="6" ry="7" fill="#212d2a"/>
+  <circle cx="238" cy="408" r="2" fill="white"/>
+  <ellipse cx="201" cy="451" rx="4" ry="6" transform="rotate(24 201 451)" fill="#754d48"/>
+  <path d="M213 464Q225 465 234 459" fill="none" stroke="#945f59" stroke-width="2.5"/>
+  <!-- The yoke bears against the shoulders. Two chains attach it to the beam. -->
+  <path d="M295 356L318 408Q330 427 346 404L335 362" fill="none" stroke="#5a3d28" stroke-width="12"/>
+  <path d="M295 356L318 408Q330 427 346 404L335 362" fill="none" stroke="#b88b4f" stroke-width="5"/>
+  <path d="M278 349L365 331L382 346L381 365L293 385L278 371Z" fill="#986635" stroke="#563d28" stroke-width="4"/>
+  <path d="M279 350L295 362L382 344M295 362V382" fill="none" stroke="#d0a463" stroke-width="3"/>
+  <path d="M306 369L365 355" stroke="#6e462a" stroke-width="2"/>
+  <circle cx="368" cy="357" r="6" fill="#41463d"/>
+  <path d="M365 359L712 476" fill="none" stroke="#303936" stroke-width="7"/>
+  <path d="M367 357L713 474" fill="none" stroke="#b6b8a6" stroke-width="3" stroke-dasharray="5 7"/>
+  <path d="M308 386L706 488" fill="none" stroke="#303936" stroke-width="7"/>
+  <path d="M309 384L706 486" fill="none" stroke="#b6b8a6" stroke-width="3" stroke-dasharray="5 7"/>
+  <g stroke-linejoin="round">
+    <path d="M686 472L823 506L817 524L683 490Z" fill="#aa7842" stroke="#553b27" stroke-width="4"/>
+    <path d="M699 479L813 509" stroke="#d0a368" stroke-width="3"/>
+    <path d="M805 516L837 397L887 364" fill="none" stroke="#533a27" stroke-width="17" stroke-linecap="round"/>
+    <path d="M805 516L837 397L887 364" fill="none" stroke="#ae7c46" stroke-width="10" stroke-linecap="round"/>
+    <path d="M772 512L788 399L839 364" fill="none" stroke="#533a27" stroke-width="15" stroke-linecap="round"/>
+    <path d="M772 512L788 399L839 364" fill="none" stroke="#bc8a51" stroke-width="8" stroke-linecap="round"/>
+    <path d="M785 438L826 451" stroke="#6d4a2c" stroke-width="9"/>
+    <path d="M803 511L788 558L751 591L830 578Q854 554 836 528Z" fill="url(#steel)" stroke="#374b50" stroke-width="4"/>
+    <path d="M804 526Q825 551 773 581" fill="none" stroke="#e3e7df" stroke-width="4"/>
+    <circle cx="809" cy="519" r="5" fill="#444a42"/>
+    <circle cx="699" cy="484" r="8" fill="none" stroke="#39433e" stroke-width="4"/>
+  </g>
+  <!-- Soil hides the lower share. The turned sod exposes its roots. -->
+  <path d="M750 587L770 566L800 581L823 565L854 584L864 613L801 625L753 610Z" fill="#634129" stroke="#493122" stroke-width="3"/>
+  <path d="M800 572Q827 567 833 542L866 534L891 556L881 589L850 608L822 597Z" fill="#91633b" stroke="#513922" stroke-width="3"/>
+  <path d="M833 542L844 528L867 526L893 551L891 564L866 545Z" fill="#638b3c" stroke="#3f692f" stroke-width="3"/>
+  <path d="M844 535L839 517M851 536L854 519M866 538L872 524M880 548L890 536" fill="none" stroke="#547c34" stroke-width="4"/>
+  <path d="M844 546L847 562L841 570M855 550L858 568L871 576M873 557L874 568" fill="none" stroke="#d0ad71" stroke-width="2"/>
+  <g fill="#68472d"><path d="M737 604l12-9 13 10-8 9Z"/><path d="M886 610l10-13 14 8-3 11Z"/><path d="M809 641l12-9 9 12Z"/><ellipse cx="873" cy="622" rx="6" ry="4"/></g>
+  <g fill="none" stroke="#456c32" stroke-width="3"><path d="M729 601l-6-18m6 18l8-16M704 633l-7-17m7 17l8-21M741 554l-10-13m10 13l3-18"/></g>
+</svg>

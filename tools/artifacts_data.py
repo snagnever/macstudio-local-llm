@@ -54,8 +54,8 @@ BEGIN, END = "/* DATA:begin */", "/* DATA:end */"
 # --- kept byte-identical to bench/harness-matrix/scripts/svgbench/gallery_data.py ---
 PROMPT_LABEL = {0: "Cow plowing", 4: "Rubber ducky", 5: "Picnic on clouds", 6: "Stunt car",
                 7: "Dolphin", 12: "Fruit stall", 13: "Treasure barrel"}
-TAKE_RANK = {"v1": 0, "v2": 1, "v3": 2, "animated": 3}
-_SUFFIX = re.compile(r"-(v1|v2|v3|animated)$")
+TAKE_RANK = {"v1": 0, "v2": 1, "v3": 2, "v4": 3, "animated": 4}
+_SUFFIX = re.compile(r"-(v1|v2|v3|v4|animated)$")
 
 
 def split_slug(slug):
@@ -65,7 +65,8 @@ def split_slug(slug):
     return slug[: m.start()], m.group(1)
 # --- end of the shared helpers ---
 
-TAKE_LABEL = {"v1": "take 1", "v2": "take 2", "v3": "take 3", "animated": "animated take"}
+TAKE_LABEL = {"v1": "take 1", "v2": "take 2", "v3": "take 3", "v4": "take 4",
+              "animated": "animated take"}
 
 # Contestant colours, from the design, and the page's legend reads them as who
 # ran the artifact. Drawings and layout arms colour by model family; the
@@ -80,12 +81,14 @@ FAMILY_RAMP = {
     "qwen": ("#00764f", "#019d7e", "#18c5b4", "#004c1b"),
     "claude": ("#a04034", "#c66846", "#e9925f"),
     "gpt": ("#445dad", "#6e7ed4", "#9ca1f8"),
+    "deepseek": ("#7b3a9b", "#9b3a9b", "#b95cb9"),
 }
 MODEL_FAMILY = (
     ("qwen", "qwen"),
     ("claude", "claude"),
     ("fable", "claude"),
     ("opus", "claude"),
+    ("deepseek", "deepseek"),
     ("gpt", "gpt"),
     ("codex", "gpt"),
     ("astra", "gpt"),
@@ -101,7 +104,8 @@ TONE = {
     # svgbench pairs
     "qwen3.8-flash-next": 1, "qwen3.8-27b-8bit": 2,
     "claude-opus-5": 1, "claude-opus-4-8": 0, "fable-5-1": 2,
-    "gpt-5.6-terra": 1,
+    "gpt-5.6-terra": 1, "gpt-5.6-sol": 0, "gpt-6-astra": 2,
+    "deepseek-v4.1-flash-high": 1, "deepseek-v4-flash-0731-high": 0,
     # agent-build-off arms: one model, one arm adds the superpowers skills
     "opencode-qwen38": 1, "opencode-qwen38-superpowers": 2, "claude-qwen38": 0,
     "claude-opus5": 1, "codex-astra": 1,
@@ -265,7 +269,13 @@ def build_drawings(scores):
     cfgs = _participants()
     pairs = {}
     by_q = {}
-    for a in scores["artifacts"]:
+    scored_artifacts = [(a, True) for a in scores["artifacts"]]
+    unscored_artifacts = [
+        (a, False) for a in scores.get("unscored", [])
+        if a.get("question_index") is not None
+        and "%s/%s" % (a["harness"], a["model"]) in cfgs
+    ]
+    for a, scored in scored_artifacts + unscored_artifacts:
         q = a.get("question_index")
         if q is None:
             continue
@@ -281,7 +291,7 @@ def build_drawings(scores):
         p["n"] += 1
         if q not in p["qs"]:
             p["qs"].append(q)
-        self_judged = judge_of(a) == a["model"]
+        self_judged = scored and judge_of(a) == a["model"]
         p["selfJudged"] = p["selfJudged"] or self_judged
         by_q.setdefault(q, []).append({
             "pair": key, "model": a["model"],
@@ -296,9 +306,10 @@ def build_drawings(scores):
             "aspect": round(aspect_of(os.path.join(HARNESS_ROOT, a["artifact"])), 4),
             "animated": bool(a.get("animated")),
             "selfJudged": self_judged,
-            "score": a["score"], "met": a["met"], "total": a["total"],
+            "score": a.get("score"), "met": a.get("met"), "total": a.get("total"),
             "reqs": [{"t": r["text"], "m": bool(r["met"]), "n": r.get("note", "")}
-                     for r in a["requirements"]],
+                     for r in a.get("requirements", [])],
+            "reason": a.get("reason", ""),
             "best": False, "last": False,
         })
 
@@ -317,8 +328,10 @@ def build_drawings(scores):
         takes.sort(key=lambda t: (t["pair"], TAKE_RANK[t["take"]]))
         for key in {t["pair"] for t in takes}:
             mine = [t for t in takes if t["pair"] == key]
-            best = min(mine, key=lambda t: (-t["score"], TAKE_RANK[t["take"]]))
-            best["best"] = True
+            scored_mine = [t for t in mine if t["score"] is not None]
+            if scored_mine:
+                best = min(scored_mine, key=lambda t: (-t["score"], TAKE_RANK[t["take"]]))
+                best["best"] = True
             # the take the pair ended on, and an animated one wins over a still:
             # TAKE_RANK already ends at "animated", so the highest rank is it
             last = max(mine, key=lambda t: (t["animated"], TAKE_RANK[t["take"]]))
@@ -347,7 +360,8 @@ def build_drawings(scores):
         row = dict(_cfg(cfgs.get(p["key"])))
         row.update({
             "key": p["key"], "label": p["model"], "color": p["color"],
-            "hosted": p["hosted"], "n": m.get("artifacts_scored"), "qs": list(p["qs"]),
+            "hosted": p["hosted"], "n": p["n"],
+            "scoredN": m.get("artifacts_scored", 0), "qs": list(p["qs"]),
             "mean": round(m["mean_score"], 3) if m.get("mean_score") is not None else None,
             "selfJudged": p["selfJudged"],
         })
@@ -384,6 +398,8 @@ def build_drawings(scores):
         "roster": roster,
         "summary": summary,
         "summaryNote": summary_note,
+        "scoredCount": len(scored_artifacts),
+        "unscoredCount": len(unscored_artifacts),
         "judge": {
             "model": sorted(judges)[0] if len(judges) == 1 else "",
             "selfJudged": sum(1 for q in questions for t in q["takes"] if t["selfJudged"]),
@@ -482,13 +498,14 @@ def build_families():
     """The legend: one entry per model family, standing at its middle tone.
 
     The page says in words that the tone tells the stacks of one family apart,
-    so the legend stays three lines instead of one line per contestant.
+    so the legend stays one line per family instead of one line per contestant.
     """
     return [
         {"key": "qwen", "color": FAMILY_RAMP["qwen"][1], "label": "Qwen, on the rig"},
         {"key": "claude", "color": FAMILY_RAMP["claude"][1], "label": "Claude, hosted"},
         {"key": "gpt", "color": FAMILY_RAMP["gpt"][1],
          "label": "OpenAI, hosted"},
+        {"key": "deepseek", "color": FAMILY_RAMP["deepseek"][1], "label": "DeepSeek, hosted"},
     ]
 
 
