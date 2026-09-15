@@ -29,7 +29,7 @@ OUT = RESULTS / "reports.json"
 
 SCENARIOS = ("cold", "identical", "append", "middle_mutation", "tool_turn")
 WARM = sd.WARM
-FILE_RE = re.compile(r"^(c\d)-(\d+)-t([\d.]+)(?:-(.+))?\.jsonl$")
+FILE_RE = re.compile(r"^([cu]\d)-(\d+)-t([\d.]+)(?:-(.+))?\.jsonl$")
 
 # Stage and mode by file suffix. "canonical" = vendor profile (counts toward the
 # verdict); "diag" = control outside the ranking.
@@ -84,6 +84,17 @@ CANDIDATES = [
         "spec": "native MTP · turbo profile depth 3 · acceptance 0.24–0.46",
         "ceiling": "114,688 tokens (memory plan fit)", "state": "fail", "status": "eliminated",
         "note": "Highest decode at 32K (~70 tok/s), but refuses 128K and 256K with HTTP 507: the memory plan fit is 114,688 tokens.",
+    },
+    {
+        "id": "u1", "name": "Uncensored (abliterated) · mlx-serve 26.9.2", "short": "u1 uncensored",
+        "runtime": "mlx-serve", "runtime_version": "26.9.2",
+        "model": "ARC4NUM/Qwen3.8-Flash-Next-Uncensored-MLX-Serve-4bit", "revision": "9ebf999",
+        "quant": "mixed 4/8-bit", "bpw": 4.85, "disk_gb": 107.3, "port": 11234,
+        "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
+        "spec": "native MTP depth 6 + PLD (n-gram) · acceptance 0.58",
+        "ceiling": "same pack as c1 (not re-probed above 128K)", "state": "pass", "status": "alt driver",
+        "note": "Abliterated weights (orcarouter), same config.json as c1. Matches c1's T_turn within 1% at 32K and 128K; MTP acceptance 0.58.",
+        "chart": False,
     },
 ]
 
@@ -170,6 +181,8 @@ QUEUE = [
     {"stage": "c4 at 128K with a 102G budget", "status": "done"},
     {"stage": "Stage B: 3 reps at 32K and 128K (c1, c3)", "status": "done"},
     {"stage": "Capacity probe at 512K", "status": "done"},
+    {"stage": "Stage C: 3 reps at 256K (c1, c3, c2) and 2 reps at 512K (c1) with tool_turn", "status": "done"},
+    {"stage": "Stage U: uncensored u1 at 8K/32K/128K + refusal probe (c1 vs u1)", "status": "done"},
     {"stage": "Daily driver record (c1)", "status": "done"},
 ]
 
@@ -186,14 +199,17 @@ VERDICTS = [
      "note": "Warning, does not eliminate: 104–109 GB, swap 0, minimum free memory 0.01–0.06 GB."},
     {"gate": "MTP lossless", "arm": "c4 · temp 0", "state": "pass",
      "note": "MTP on 5/5 needles and 1.8× decode; MTP off 4/5 (one truncated). No sign of lossy MTP."},
+    {"gate": "Uncensored alt", "arm": "u1 · mlx-serve 26.9.2", "state": "pass",
+     "note": "Abliterated pack, same config.json as c1. T_turn within 1% at 32K/128K, MTP acceptance 0.58, zero stream failures. Refuses 0/50 legitimate prompts, same as c1 — no over-refusal to fix on this set."},
 ]
 
 TAKEAWAYS = [
-    ["T_turn nearly flat", "c1 goes from 11.0 s at 32K to 12.35 s at 128K and 14.2 s at 256K; c3 from 13.5 to 16.7 s; c2 from 17.1 to 28.8 s."],
-    ["TTFT decides, not decode", "at 128K c1 and c3 both decode ~50 tok/s; the warm turn responds in 2.1 s on c1 and 4.8 s on c3."],
+    ["T_turn nearly flat", "c1 goes from 11.0 s at 32K to 12.35 s at 128K, 13.9 s at 256K and 13.6 s at 512K; c3 from 13.5 to 17.7 s; c2 from 17.1 to 27.3 s (3 reps, Stage C at 256K/512K)."],
+    ["TTFT decides, not decode", "at 128K c1 and c3 both decode ~50 tok/s; the warm turn responds in 2.1 s on c1 and 4.8 s on c3. At 256K the tool turn is 2.2 s on c1 vs 5.8 s on c3."],
     ["c4 does not serve 128K", "best decode at 32K (~70 tok/s), but MTPLX 2.11.2 refuses anything above 114,688 tokens with HTTP 507."],
-    ["dev2 vs 0.6.4 on the same weights", "at 256K, cold 578 vs 1187 s and decode 47.5 vs 23.6 tok/s."],
-    ["512K on c1", "cold 844.6 s, follow-up in 0.6 s with hit 1.00, wired 104.3 GB, minimum free memory 0.01 GB, swap 0."],
+    ["dev2 vs 0.6.4 on the same weights", "at 256K, cold 578 vs 1186 s and decode 43.2 vs 24.8 tok/s (3 reps)."],
+    ["512K on c1", "T_turn 13.6 s with a tool turn in 3.1 s and hit 1.00 (2 reps, YaRN 2.0 + KV 8-bit); cold 845 s, decode 48.5 tok/s, wired 104 GB, swap 0."],
+    ["uncensored matches c1", "u1 (abliterated, same runtime and quant) lands T_turn within 1% of c1 at 32K and 128K, MTP acceptance 0.58, zero stream failures. Both c1 and u1 refuse 0/50 legitimate prompts."],
 ]
 
 # Per-group caveats (candidate, context, stage) that the number alone does not show.
@@ -298,9 +314,64 @@ def mark_canonical(groups: list[dict]) -> None:
         g["canonical"] = True
 
 
+REFUSAL_CATEGORIES = ["security", "medical", "harm_reduction", "fiction", "control"]
+STAGE_U_BANDS = [8192, 32768, 131072]
+
+
+def _refusal_summary(path: Path) -> dict | None:
+    """Read a refusal-<arm>.jsonl into per-category counts, or None if absent."""
+    if not path.exists():
+        return None
+    cats = {c: {"n": 0, "refused": 0, "no_answer": 0} for c in REFUSAL_CATEGORIES}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        r = json.loads(line)
+        c = cats.setdefault(r["category"], {"n": 0, "refused": 0, "no_answer": 0})
+        c["n"] += 1
+        c["refused"] += int(bool(r.get("refused")))
+        c["no_answer"] += int(bool(r.get("no_answer")))
+    total = {
+        "n": sum(c["n"] for c in cats.values()),
+        "refused": sum(c["refused"] for c in cats.values()),
+        "no_answer": sum(c["no_answer"] for c in cats.values()),
+    }
+    return {"by_category": cats, "total": total}
+
+
+def build_stage_u(groups: list[dict], results_dir: Path) -> dict:
+    """Head-to-head of the uncensored variant u1 against its reference c1:
+    responsiveness per band and the refusal-probe counts."""
+    canon = {(g["cand"], g["context"]): g for g in groups if g["canonical"]}
+
+    def cell(cand: str, ctx: int) -> dict | None:
+        g = canon.get((cand, ctx))
+        if g is None:
+            return None
+        return {"t_turno": g["t_turno_s"], "ttft_tool": g["ttft_s"]["tool_turn"],
+                "decode": g["decode_tps"], "mtp": g["mtp_acceptance"],
+                "hit_tool": g["hit"]["tool_turn"], "reps": g["reps"]}
+
+    bands = []
+    for ctx in STAGE_U_BANDS:
+        c1, u1 = cell("c1", ctx), cell("u1", ctx)
+        if c1 or u1:
+            bands.append({"context": ctx, "c1": c1, "u1": u1})
+    return {
+        "bands": bands,
+        "refusal": {"c1": _refusal_summary(results_dir / "refusal-c1.jsonl"),
+                    "u1": _refusal_summary(results_dir / "refusal-u1.jsonl"),
+                    "categories": REFUSAL_CATEGORIES},
+        "note": ("u1 is the abliterated pack on the same runtime and quant as c1 "
+                 "(identical config.json). The refusal probe scores 40 legitimate prompts "
+                 "in four categories that aligned models often over-refuse, plus 10 neutral "
+                 "controls; it stores only the verdict and 200 characters per answer."),
+    }
+
+
 def build(results_dir: Path) -> dict:
     groups = []
-    for path in sorted(results_dir.glob("c*-*-t*.jsonl")):
+    for path in sorted(list(results_dir.glob("c*-*-t*.jsonl")) + list(results_dir.glob("u*-*-t*.jsonl"))):
         records = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
         if records:
             groups.append(build_group(path, records))
@@ -315,6 +386,7 @@ def build(results_dir: Path) -> dict:
         "runtime_profiles": RUNTIME_PROFILES, "quant_profiles": QUANT_PROFILES,
         "gates_glossary": GATES_GLOSSARY, "test_catalog": TEST_CATALOG,
         "queue": QUEUE, "verdicts": VERDICTS, "takeaways": TAKEAWAYS, "deltas": DELTAS,
+        "stage_u": build_stage_u(groups, results_dir),
     }
 
 

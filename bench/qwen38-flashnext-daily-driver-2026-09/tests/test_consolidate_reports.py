@@ -51,6 +51,16 @@ def test_build_group_uses_raw_medians_and_counts_truncation(tmp_path):
     assert not g["refused"]
 
 
+def test_build_group_accepts_uncensored_candidate(tmp_path):
+    records = [
+        _record("cold", ttft_s=37.0, hit=0.0),
+        _record("identical", ttft_s=0.1, decode=56.0, hit=1.0),
+        _record("tool_turn", ttft_s=1.9, decode=55.0),
+    ]
+    g = cr.build_group(tmp_path / "u1-32768-t1.0-b.jsonl", records)
+    assert g["cand"] == "u1" and g["stage"] == "B"
+
+
 def test_build_group_marks_http_refusal(tmp_path):
     records = [_record(s, decode=0.0, hit=None, finish=None, error="http_507: Insufficient Storage",
                        correct=False, ctx=262144)
@@ -89,7 +99,7 @@ def test_campaign_data_matches_summary_verdict():
     assert _canon(data, "c3", 131072)["t_turno_s"] == 15.03
     c4 = _canon(data, "c4", 131072)
     assert c4["refused"] and "http_errors" in c4["gates_failed"]
-    assert _canon(data, "c1", 524288)["stage"] == "probe"
+    assert _canon(data, "c1", 524288)["stage"] == "C"
     assert ro.gate_passers(data) == ["c1", "c2", "c3"]
 
 
@@ -105,4 +115,9 @@ def test_renderers_fill_every_placeholder(tmp_path):
     assert payload["points"]["c4"]["524288"]["status"] == rpl.ABSENT[("c4", 524288)]
     assert set(payload["hitmap"]["c4"]["131072"].values()) == {"x"}
     embedded = json.loads(overview.split('type="application/json">', 1)[1].split("</script>", 1)[0])
-    assert len(embedded["groups"]) == len(data["groups"])
+    # the overview embeds only the charted candidates; u1 (chart:False) is rendered
+    # in its own Stage U section instead of the shared charts.
+    chart_ids = {c["id"] for c in data["candidates"] if c.get("chart", True)}
+    assert len(embedded["groups"]) == len([g for g in data["groups"] if g["cand"] in chart_ids])
+    assert "u1" not in {g["cand"] for g in embedded["groups"]}
+    assert "Refusal probe" in overview and "Responsiveness: c1 vs u1" in overview

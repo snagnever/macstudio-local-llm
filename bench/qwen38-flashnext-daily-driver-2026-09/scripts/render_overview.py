@@ -39,6 +39,8 @@ def gate_passers(data: dict) -> list[str]:
     canon = _canonical(data)
     out = []
     for c in data["candidates"]:
+        if not c.get("chart", True):
+            continue
         groups = [canon.get((c["id"], ctx)) for ctx in GATE_CTX]
         if all(g is not None and not g["refused"] and not g["gates_failed"] for g in groups):
             out.append(c["id"])
@@ -111,22 +113,93 @@ def build_queue(queue: list[dict]) -> str:
     )
 
 
+def build_stage_u(data: dict) -> str:
+    su = data.get("stage_u")
+    if not su:
+        return '<section class="panel"><p class="foot">No uncensored data.</p></section>'
+    cands = {c["id"]: c for c in data["candidates"]}
+
+    def fs(v, unit="", dp=2):
+        return "—" if v is None else f'{v:.{dp}f}{unit}'
+
+    rows = ""
+    for b in su["bands"]:
+        ctx = f'{b["context"] // 1024}K'
+        c1, u1 = b.get("c1"), b.get("u1")
+        def pair(key, unit="", dp=2):
+            a = c1.get(key) if c1 else None
+            bb = u1.get(key) if u1 else None
+            return f'<td class="mono">{fs(a, unit, dp)}</td><td class="mono">{fs(bb, unit, dp)}</td>'
+        rows += (f'<tr><td>{ctx}</td>{pair("t_turno", " s")}{pair("ttft_tool", " s")}'
+                 f'{pair("decode", "", 1)}{pair("mtp", "", 2)}</tr>')
+
+    resp = (
+        '<section class="panel"><h2>Responsiveness: c1 vs u1 '
+        '<span class="h2sub">same runtime and quant · only the weights differ</span></h2>'
+        '<div class="scroll"><table><thead>'
+        '<tr><th rowspan="2">Band</th><th colspan="2">T_turn</th><th colspan="2">tool TTFT</th>'
+        '<th colspan="2">warm decode</th><th colspan="2">MTP accept</th></tr>'
+        '<tr><th>c1</th><th>u1</th><th>c1</th><th>u1</th><th>c1</th><th>u1</th><th>c1</th><th>u1</th></tr>'
+        f'</thead><tbody>{rows}</tbody></table></div>'
+        '<p class="foot">c1 = base Flash-Next (ddalcu). u1 = abliterated pack (ARC4NUM), same '
+        'config.json. T_turn in seconds (lower is better), warm decode in tok/s, MTP acceptance 0–1.</p>'
+        '</section>'
+    )
+
+    ref = su["refusal"]
+    if ref.get("c1") or ref.get("u1"):
+        cat_labels = {"security": "Authorized security", "medical": "Medication facts",
+                      "harm_reduction": "Harm reduction", "fiction": "Mature fiction",
+                      "control": "Neutral controls"}
+        def cell(arm, cat):
+            s = ref.get(arm)
+            if not s:
+                return '<td class="mono">—</td>'
+            c = s["by_category"][cat]
+            return f'<td class="mono">{c["refused"]}/{c["n"]}</td>'
+        rrows = ""
+        for cat in ref["categories"]:
+            rrows += (f'<tr><td>{esc(cat_labels.get(cat, cat))}</td>'
+                      f'{cell("c1", cat)}{cell("u1", cat)}</tr>')
+        def total(arm):
+            s = ref.get(arm)
+            return f'{s["total"]["refused"]}/{s["total"]["n"]}' if s else "—"
+        rrows += (f'<tr class="totalrow"><td>Total</td>'
+                  f'<td class="mono">{total("c1")}</td><td class="mono">{total("u1")}</td></tr>')
+        refusal = (
+            '<section class="panel"><h2>Refusal probe '
+            '<span class="h2sub">refused / prompts · lower is more permissive</span></h2>'
+            '<div class="scroll"><table><thead><tr><th>Category</th><th>c1</th><th>u1</th></tr></thead>'
+            f'<tbody>{rrows}</tbody></table></div>'
+            f'<p class="foot">{esc(su["note"])}</p></section>'
+        )
+    else:
+        refusal = '<section class="panel"><p class="foot">Refusal probe not run.</p></section>'
+
+    return resp + refusal
+
+
 def render(data: dict) -> str:
-    passers = gate_passers(data)
+    chart_ids = {c["id"] for c in data["candidates"] if c.get("chart", True)}
+    chart_data = {**data,
+                  "candidates": [c for c in data["candidates"] if c.get("chart", True)],
+                  "groups": [g for g in data["groups"] if g["cand"] in chart_ids]}
+    passers = gate_passers(chart_data)
     winner = next((c for c in data["candidates"] if c["state"] == "pass" and c["status"] == "winner"), None)
     verdict_line = (f'Verdict: {winner["id"]} {winner["runtime"]} {winner["runtime_version"]}'
                     if winner else "Verdict pending")
-    payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
+    payload = json.dumps(chart_data, ensure_ascii=False).replace("</", "<\\/")
     return (
         TEMPLATE
         .replace("/*__CSS__*/", CSS + EXTRA_CSS)
         .replace("__DATA__", payload)
-        .replace("__TILES__", build_tiles(data))
+        .replace("__TILES__", build_tiles(chart_data))
         .replace("__VERDICTS__", build_verdicts(data["verdicts"]))
         .replace("__QUEUE__", build_queue(data["queue"]))
+        .replace("__STAGE_U__", build_stage_u(data))
         .replace("__GENERATED__", esc(data["generated_at"]))
         .replace("__VERDICTLINE__", esc(verdict_line))
-        .replace("__PASSERS__", esc(f"{len(passers)}/{len(data['candidates'])} pass the gates"))
+        .replace("__PASSERS__", esc(f"{len(passers)}/{len(chart_data['candidates'])} pass the gates"))
     )
 
 
@@ -383,6 +456,7 @@ TEMPLATE = r"""<!doctype html>
     <button role="tab" data-tab="compare" aria-selected="false">Runtimes &amp; quants</button>
     <button role="tab" data-tab="tests" aria-selected="false">Tests</button>
     <button role="tab" data-tab="gates" aria-selected="false">Gates &amp; queue</button>
+    <button role="tab" data-tab="uncensored" aria-selected="false">Uncensored</button>
     <button role="tab" data-tab="glossary" aria-selected="false">Glossary</button>
   </nav>
 
@@ -470,6 +544,8 @@ TEMPLATE = r"""<!doctype html>
     </section>
     <section class="panel"><h2>Campaign queue</h2><ol class="queue">__QUEUE__</ol></section>
   </div>
+
+  <div class="tabpanel" data-panel="uncensored" role="tabpanel" hidden>__STAGE_U__</div>
 
   <div class="tabpanel" data-panel="glossary" role="tabpanel" hidden>
     <section class="panel">
