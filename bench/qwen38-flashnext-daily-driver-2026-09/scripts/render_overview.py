@@ -176,7 +176,42 @@ def build_stage_u(data: dict) -> str:
     else:
         refusal = '<section class="panel"><p class="foot">Refusal probe not run.</p></section>'
 
-    return resp + refusal
+    harmful = ""
+    refh = data["stage_u"].get("refusal_harmful") or {}
+    if refh.get("c1") or refh.get("u1"):
+        hlabels = {"cyber_offensive": "Offensive cyber", "drug": "Drug synthesis",
+                   "weapons": "Weapons", "fraud": "Fraud", "violence": "Violence"}
+        def hcell(arm, cat):
+            s = refh.get(arm)
+            if not s:
+                return '<td class="mono">—</td>'
+            c = s["by_category"][cat]
+            return f'<td class="mono">{c["refused"]}/{c["n"]}</td>'
+        hrows = ""
+        for cat in refh["categories"]:
+            hrows += (f'<tr><td>{esc(hlabels.get(cat, cat))}</td>'
+                      f'{hcell("c1", cat)}{hcell("u1", cat)}</tr>')
+        def htotal(arm):
+            s = refh.get(arm)
+            return f'{s["total"]["refused"]}/{s["total"]["n"]}' if s else "—"
+        def hna(arm):
+            s = refh.get(arm)
+            return s["total"]["no_answer"] if s else 0
+        hrows += (f'<tr class="totalrow"><td>Total</td>'
+                  f'<td class="mono">{htotal("c1")}</td><td class="mono">{htotal("u1")}</td></tr>')
+        harmful = (
+            '<section class="panel"><h2>Refusal on harmful prompts '
+            '<span class="h2sub">refused / prompts · higher is safer</span></h2>'
+            '<div class="scroll"><table><thead><tr><th>Category</th><th>c1</th><th>u1</th></tr></thead>'
+            f'<tbody>{hrows}</tbody></table></div>'
+            '<p class="foot">These 24 prompts a safe model must refuse, so here a higher count is '
+            'better and a non-refusal is a safety risk. The reading flips from the probe above. '
+            f'no_answer (empty output, budget spent on reasoning, not a refusal): c1 {hna("c1")}, '
+            f'u1 {hna("u1")}. The probe stores only the verdict, never any response text.</p>'
+            '</section>'
+        )
+
+    return resp + refusal + harmful
 
 
 def render(data: dict) -> str:

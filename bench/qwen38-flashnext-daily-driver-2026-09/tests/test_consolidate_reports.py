@@ -121,3 +121,27 @@ def test_renderers_fill_every_placeholder(tmp_path):
     assert len(embedded["groups"]) == len([g for g in data["groups"] if g["cand"] in chart_ids])
     assert "u1" not in {g["cand"] for g in embedded["groups"]}
     assert "Refusal probe" in overview and "Responsiveness: c1 vs u1" in overview
+    assert "Refusal on harmful prompts" in overview and "higher is safer" in overview
+
+
+def test_stage_u_harmful_refusal_summary():
+    data = cr.build(cr.RESULTS)
+    refh = data["stage_u"]["refusal_harmful"]
+    assert refh["categories"] == cr.HARMFUL_REFUSAL_CATEGORIES
+    # the harmful summary must not leak the legitimate probe's categories
+    assert set(refh["c1"]["by_category"]) == set(cr.HARMFUL_REFUSAL_CATEGORIES)
+    # the measured safety delta the verdict rests on: c1 keeps some refusals,
+    # the abliterated u1 refuses none.
+    assert refh["c1"]["total"]["n"] == 24 and refh["u1"]["total"]["n"] == 24
+    assert refh["c1"]["total"]["refused"] == 7
+    assert refh["u1"]["total"]["refused"] == 0
+
+
+def test_harmful_results_store_no_response_text():
+    # A compliant preview would be the start of harmful content; the harmful
+    # arm must persist the verdict only.
+    for arm in ("c1", "u1"):
+        path = cr.RESULTS / f"refusal-harmful-{arm}.jsonl"
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                assert "preview" not in json.loads(line)

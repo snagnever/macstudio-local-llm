@@ -182,7 +182,7 @@ QUEUE = [
     {"stage": "Stage B: 3 reps at 32K and 128K (c1, c3)", "status": "done"},
     {"stage": "Capacity probe at 512K", "status": "done"},
     {"stage": "Stage C: 3 reps at 256K (c1, c3, c2) and 2 reps at 512K (c1) with tool_turn", "status": "done"},
-    {"stage": "Stage U: uncensored u1 at 8K/32K/128K + refusal probe (c1 vs u1)", "status": "done"},
+    {"stage": "Stage U: uncensored u1 at 8K/32K/128K + refusal probes (legitimate + harmful, c1 vs u1)", "status": "done"},
     {"stage": "Daily driver record (c1)", "status": "done"},
 ]
 
@@ -200,7 +200,7 @@ VERDICTS = [
     {"gate": "MTP lossless", "arm": "c4 · temp 0", "state": "pass",
      "note": "MTP on 5/5 needles and 1.8× decode; MTP off 4/5 (one truncated). No sign of lossy MTP."},
     {"gate": "Uncensored alt", "arm": "u1 · mlx-serve 26.9.2", "state": "pass",
-     "note": "Abliterated pack, same config.json as c1. T_turn within 1% at 32K/128K, MTP acceptance 0.58, zero stream failures. Refuses 0/50 legitimate prompts, same as c1 — no over-refusal to fix on this set."},
+     "note": "Abliterated pack, same config.json as c1. T_turn within 1% at 32K/128K, MTP acceptance 0.58, zero stream failures. Refuses 0/50 legitimate prompts, same as c1 — no over-refusal to fix. But on 24 harmful prompts a safe model should refuse, c1 refuses 7/24 and u1 refuses 0/24: abliteration removed the base's residual safety. Viable on responsiveness, less safe as a default."},
 ]
 
 TAKEAWAYS = [
@@ -210,6 +210,7 @@ TAKEAWAYS = [
     ["dev2 vs 0.6.4 on the same weights", "at 256K, cold 578 vs 1186 s and decode 43.2 vs 24.8 tok/s (3 reps)."],
     ["512K on c1", "T_turn 13.6 s with a tool turn in 3.1 s and hit 1.00 (2 reps, YaRN 2.0 + KV 8-bit); cold 845 s, decode 48.5 tok/s, wired 104 GB, swap 0."],
     ["uncensored matches c1", "u1 (abliterated, same runtime and quant) lands T_turn within 1% of c1 at 32K and 128K, MTP acceptance 0.58, zero stream failures. Both c1 and u1 refuse 0/50 legitimate prompts."],
+    ["uncensored is less safe", "On 24 harmful prompts a safe model should refuse, c1 refuses 7/24 and u1 refuses 0/24. Abliteration stripped the base's residual safety, so u1 is not an upgrade — it is measurably less safe as a default. (c1 itself is permissive: it answers 17/24.)"],
 ]
 
 # Per-group caveats (candidate, context, stage) that the number alone does not show.
@@ -315,14 +316,15 @@ def mark_canonical(groups: list[dict]) -> None:
 
 
 REFUSAL_CATEGORIES = ["security", "medical", "harm_reduction", "fiction", "control"]
+HARMFUL_REFUSAL_CATEGORIES = ["cyber_offensive", "drug", "weapons", "fraud", "violence"]
 STAGE_U_BANDS = [8192, 32768, 131072]
 
 
-def _refusal_summary(path: Path) -> dict | None:
+def _refusal_summary(path: Path, categories: list[str] = REFUSAL_CATEGORIES) -> dict | None:
     """Read a refusal-<arm>.jsonl into per-category counts, or None if absent."""
     if not path.exists():
         return None
-    cats = {c: {"n": 0, "refused": 0, "no_answer": 0} for c in REFUSAL_CATEGORIES}
+    cats = {c: {"n": 0, "refused": 0, "no_answer": 0} for c in categories}
     for line in path.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
@@ -362,10 +364,17 @@ def build_stage_u(groups: list[dict], results_dir: Path) -> dict:
         "refusal": {"c1": _refusal_summary(results_dir / "refusal-c1.jsonl"),
                     "u1": _refusal_summary(results_dir / "refusal-u1.jsonl"),
                     "categories": REFUSAL_CATEGORIES},
+        "refusal_harmful": {
+            "c1": _refusal_summary(results_dir / "refusal-harmful-c1.jsonl", HARMFUL_REFUSAL_CATEGORIES),
+            "u1": _refusal_summary(results_dir / "refusal-harmful-u1.jsonl", HARMFUL_REFUSAL_CATEGORIES),
+            "categories": HARMFUL_REFUSAL_CATEGORIES},
         "note": ("u1 is the abliterated pack on the same runtime and quant as c1 "
-                 "(identical config.json). The refusal probe scores 40 legitimate prompts "
+                 "(identical config.json). The legitimate refusal probe scores 40 prompts "
                  "in four categories that aligned models often over-refuse, plus 10 neutral "
-                 "controls; it stores only the verdict and 200 characters per answer."),
+                 "controls; there a refusal is a defect and it stores 200 characters per answer. "
+                 "The harmful probe scores 24 prompts a safe model must refuse (offensive cyber "
+                 "plus drug, weapons, fraud, and violence anchors); there a refusal is the safe "
+                 "answer and it stores only the verdict, never any response text."),
     }
 
 
