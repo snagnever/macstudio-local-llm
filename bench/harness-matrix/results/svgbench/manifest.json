@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-10T23:06:38",
+  "generated_at": "2026-09-15T18:59:34",
   "artifacts": [
     {
       "harness": "claude",
@@ -488,6 +488,762 @@
       "bytes": 11415
     },
     {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/cow-plowing-animated.svg",
+      "slug": "cow-plowing-animated",
+      "question_index": 0,
+      "animated": true,
+      "bytes": 17678
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/cow-plowing-v1.svg",
+      "slug": "cow-plowing-v1",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 9036
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/cow-plowing-v2.svg",
+      "slug": "cow-plowing-v2",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 15983
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/cow-plowing-v3.svg",
+      "slug": "cow-plowing-v3",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 16088
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/dolphin-animated.svg",
+      "slug": "dolphin-animated",
+      "question_index": 7,
+      "animated": true,
+      "bytes": 9258
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/dolphin-v1.svg",
+      "slug": "dolphin-v1",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 7176
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/dolphin-v2.svg",
+      "slug": "dolphin-v2",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 7621
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/dolphin-v3.svg",
+      "slug": "dolphin-v3",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 8124
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/fruit-stall-animated.svg",
+      "slug": "fruit-stall-animated",
+      "question_index": 12,
+      "animated": true,
+      "bytes": 11976
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/fruit-stall-v1.svg",
+      "slug": "fruit-stall-v1",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 9818
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/fruit-stall-v2.svg",
+      "slug": "fruit-stall-v2",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 10626
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/fruit-stall-v3.svg",
+      "slug": "fruit-stall-v3",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 11282
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/picnic-on-clouds-animated.svg",
+      "slug": "picnic-on-clouds-animated",
+      "question_index": 5,
+      "animated": true,
+      "bytes": 13223
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/picnic-on-clouds-v1.svg",
+      "slug": "picnic-on-clouds-v1",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 10544
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/picnic-on-clouds-v2.svg",
+      "slug": "picnic-on-clouds-v2",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 11054
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/picnic-on-clouds-v3.svg",
+      "slug": "picnic-on-clouds-v3",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 11617
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/rubber-ducky-animated.svg",
+      "slug": "rubber-ducky-animated",
+      "question_index": 4,
+      "animated": true,
+      "bytes": 9383
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/rubber-ducky-v1.svg",
+      "slug": "rubber-ducky-v1",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 6179
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/rubber-ducky-v2.svg",
+      "slug": "rubber-ducky-v2",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 6604
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/rubber-ducky-v3.svg",
+      "slug": "rubber-ducky-v3",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 7538
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/stunt-car-animated.svg",
+      "slug": "stunt-car-animated",
+      "question_index": 6,
+      "animated": true,
+      "bytes": 30053
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/stunt-car-v1.svg",
+      "slug": "stunt-car-v1",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 23348
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/stunt-car-v2.svg",
+      "slug": "stunt-car-v2",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 21134
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/stunt-car-v3.svg",
+      "slug": "stunt-car-v3",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 22502
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/treasure-barrel-animated.svg",
+      "slug": "treasure-barrel-animated",
+      "question_index": 13,
+      "animated": true,
+      "bytes": 28285
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/treasure-barrel-v1.svg",
+      "slug": "treasure-barrel-v1",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 22279
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/treasure-barrel-v2.svg",
+      "slug": "treasure-barrel-v2",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 25248
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/treasure-barrel-v3.svg",
+      "slug": "treasure-barrel-v3",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 26534
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/cow-plowing-animated.svg",
+      "slug": "cow-plowing-animated",
+      "question_index": 0,
+      "animated": true,
+      "bytes": 13753
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/cow-plowing-v1.svg",
+      "slug": "cow-plowing-v1",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 7814
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/cow-plowing-v2.svg",
+      "slug": "cow-plowing-v2",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 10116
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/cow-plowing-v3.svg",
+      "slug": "cow-plowing-v3",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 8301
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/dolphin-animated.svg",
+      "slug": "dolphin-animated",
+      "question_index": 7,
+      "animated": true,
+      "bytes": 10587
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/dolphin-v1.svg",
+      "slug": "dolphin-v1",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 5733
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/dolphin-v2.svg",
+      "slug": "dolphin-v2",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 7120
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/dolphin-v3.svg",
+      "slug": "dolphin-v3",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 6799
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/fruit-stall-animated.svg",
+      "slug": "fruit-stall-animated",
+      "question_index": 12,
+      "animated": true,
+      "bytes": 15656
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/fruit-stall-v1.svg",
+      "slug": "fruit-stall-v1",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 9320
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/fruit-stall-v2.svg",
+      "slug": "fruit-stall-v2",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 12350
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/fruit-stall-v3.svg",
+      "slug": "fruit-stall-v3",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 12963
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/picnic-on-clouds-animated.svg",
+      "slug": "picnic-on-clouds-animated",
+      "question_index": 5,
+      "animated": true,
+      "bytes": 27215
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/picnic-on-clouds-v1.svg",
+      "slug": "picnic-on-clouds-v1",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 19438
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/picnic-on-clouds-v2.svg",
+      "slug": "picnic-on-clouds-v2",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 20293
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/picnic-on-clouds-v3.svg",
+      "slug": "picnic-on-clouds-v3",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 24180
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/rubber-ducky-animated.svg",
+      "slug": "rubber-ducky-animated",
+      "question_index": 4,
+      "animated": true,
+      "bytes": 13528
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/rubber-ducky-v1.svg",
+      "slug": "rubber-ducky-v1",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 6959
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/rubber-ducky-v2.svg",
+      "slug": "rubber-ducky-v2",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 9369
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/rubber-ducky-v3.svg",
+      "slug": "rubber-ducky-v3",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 7364
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/stunt-car-animated.svg",
+      "slug": "stunt-car-animated",
+      "question_index": 6,
+      "animated": true,
+      "bytes": 16340
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/stunt-car-v1.svg",
+      "slug": "stunt-car-v1",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 6646
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/stunt-car-v2.svg",
+      "slug": "stunt-car-v2",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 13844
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/stunt-car-v3.svg",
+      "slug": "stunt-car-v3",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 11575
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/treasure-barrel-animated.svg",
+      "slug": "treasure-barrel-animated",
+      "question_index": 13,
+      "animated": true,
+      "bytes": 20086
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/treasure-barrel-v1.svg",
+      "slug": "treasure-barrel-v1",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 10904
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/treasure-barrel-v2.svg",
+      "slug": "treasure-barrel-v2",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 16303
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/treasure-barrel-v3.svg",
+      "slug": "treasure-barrel-v3",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 13902
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/cow-plowing-animated.svg",
+      "slug": "cow-plowing-animated",
+      "question_index": 0,
+      "animated": true,
+      "bytes": 8871
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/cow-plowing-v1.svg",
+      "slug": "cow-plowing-v1",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 4337
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/cow-plowing-v2.svg",
+      "slug": "cow-plowing-v2",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 4685
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/cow-plowing-v3.svg",
+      "slug": "cow-plowing-v3",
+      "question_index": 0,
+      "animated": false,
+      "bytes": 5020
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/dolphin-animated.svg",
+      "slug": "dolphin-animated",
+      "question_index": 7,
+      "animated": true,
+      "bytes": 9100
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/dolphin-v1.svg",
+      "slug": "dolphin-v1",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 5288
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/dolphin-v2.svg",
+      "slug": "dolphin-v2",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 6199
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/dolphin-v3.svg",
+      "slug": "dolphin-v3",
+      "question_index": 7,
+      "animated": false,
+      "bytes": 6428
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/fruit-stall-animated.svg",
+      "slug": "fruit-stall-animated",
+      "question_index": 12,
+      "animated": true,
+      "bytes": 11009
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/fruit-stall-v1.svg",
+      "slug": "fruit-stall-v1",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 8289
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/fruit-stall-v2.svg",
+      "slug": "fruit-stall-v2",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 8988
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/fruit-stall-v3.svg",
+      "slug": "fruit-stall-v3",
+      "question_index": 12,
+      "animated": false,
+      "bytes": 8855
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/picnic-on-clouds-animated.svg",
+      "slug": "picnic-on-clouds-animated",
+      "question_index": 5,
+      "animated": true,
+      "bytes": 14035
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/picnic-on-clouds-v1.svg",
+      "slug": "picnic-on-clouds-v1",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 9983
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/picnic-on-clouds-v2.svg",
+      "slug": "picnic-on-clouds-v2",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 11103
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/picnic-on-clouds-v3.svg",
+      "slug": "picnic-on-clouds-v3",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 11504
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/rubber-ducky-animated.svg",
+      "slug": "rubber-ducky-animated",
+      "question_index": 4,
+      "animated": true,
+      "bytes": 11017
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/rubber-ducky-v1.svg",
+      "slug": "rubber-ducky-v1",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 4176
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/rubber-ducky-v2.svg",
+      "slug": "rubber-ducky-v2",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 7422
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/rubber-ducky-v3.svg",
+      "slug": "rubber-ducky-v3",
+      "question_index": 4,
+      "animated": false,
+      "bytes": 7817
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/stunt-car-animated.svg",
+      "slug": "stunt-car-animated",
+      "question_index": 6,
+      "animated": true,
+      "bytes": 18160
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/stunt-car-v1.svg",
+      "slug": "stunt-car-v1",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 8958
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/stunt-car-v2.svg",
+      "slug": "stunt-car-v2",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 8641
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/stunt-car-v3.svg",
+      "slug": "stunt-car-v3",
+      "question_index": 6,
+      "animated": false,
+      "bytes": 10096
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/treasure-barrel-animated.svg",
+      "slug": "treasure-barrel-animated",
+      "question_index": 13,
+      "animated": true,
+      "bytes": 15262
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/treasure-barrel-v1.svg",
+      "slug": "treasure-barrel-v1",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 6846
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/treasure-barrel-v2.svg",
+      "slug": "treasure-barrel-v2",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 7733
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/treasure-barrel-v3.svg",
+      "slug": "treasure-barrel-v3",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 9341
+    },
+    {
       "harness": "opencode",
       "model": "gpt-5.6-terra",
       "artifact": "logs/opencode/gpt-5.6-terra/cow-plowing-animated.svg",
@@ -832,6 +1588,83 @@
       "question_index": 13,
       "animated": false,
       "bytes": 8350
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds-animated.svg",
+      "slug": "picnic-above-clouds-animated",
+      "question_index": 5,
+      "animated": true,
+      "bytes": 14703,
+      "question_index_override": 5
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds-v2.svg",
+      "slug": "picnic-above-clouds-v2",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 12196,
+      "question_index_override": 5
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds-v3.svg",
+      "slug": "picnic-above-clouds-v3",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 12785,
+      "question_index_override": 5
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds-v4.svg",
+      "slug": "picnic-above-clouds-v4",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 13636,
+      "question_index_override": 5
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds.svg",
+      "slug": "picnic-above-clouds",
+      "question_index": 5,
+      "animated": false,
+      "bytes": 10775,
+      "question_index_override": 5
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/treasure-barrel-v2.svg",
+      "slug": "treasure-barrel-v2",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 9552
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/treasure-barrel-v3.svg",
+      "slug": "treasure-barrel-v3",
+      "question_index": 13,
+      "animated": true,
+      "bytes": 11833
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/treasure-barrel.svg",
+      "slug": "treasure-barrel",
+      "question_index": 13,
+      "animated": false,
+      "bytes": 4927
     },
     {
       "harness": "opencode",

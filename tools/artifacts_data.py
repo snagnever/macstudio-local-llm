@@ -54,8 +54,8 @@ BEGIN, END = "/* DATA:begin */", "/* DATA:end */"
 # --- kept byte-identical to bench/harness-matrix/scripts/svgbench/gallery_data.py ---
 PROMPT_LABEL = {0: "Cow plowing", 4: "Rubber ducky", 5: "Picnic on clouds", 6: "Stunt car",
                 7: "Dolphin", 12: "Fruit stall", 13: "Treasure barrel"}
-TAKE_RANK = {"v1": 0, "v2": 1, "v3": 2, "animated": 3}
-_SUFFIX = re.compile(r"-(v1|v2|v3|animated)$")
+TAKE_RANK = {"v1": 0, "v2": 1, "v3": 2, "v4": 3, "animated": 4}
+_SUFFIX = re.compile(r"-(v1|v2|v3|v4|animated)$")
 
 
 def split_slug(slug):
@@ -65,7 +65,8 @@ def split_slug(slug):
     return slug[: m.start()], m.group(1)
 # --- end of the shared helpers ---
 
-TAKE_LABEL = {"v1": "take 1", "v2": "take 2", "v3": "take 3", "animated": "animated take"}
+TAKE_LABEL = {"v1": "take 1", "v2": "take 2", "v3": "take 3", "v4": "take 4",
+              "animated": "animated take"}
 
 # Contestant colours, from the design, and the page's legend reads them as who
 # ran the artifact. Drawings and layout arms colour by model family; the
@@ -80,12 +81,14 @@ FAMILY_RAMP = {
     "qwen": ("#00764f", "#019d7e", "#18c5b4", "#004c1b"),
     "claude": ("#a04034", "#c66846", "#e9925f"),
     "gpt": ("#445dad", "#6e7ed4", "#9ca1f8"),
+    "deepseek": ("#7b3a9b", "#9b3a9b", "#b95cb9"),
 }
 MODEL_FAMILY = (
     ("qwen", "qwen"),
     ("claude", "claude"),
     ("fable", "claude"),
     ("opus", "claude"),
+    ("deepseek", "deepseek"),
     ("gpt", "gpt"),
     ("codex", "gpt"),
     ("astra", "gpt"),
@@ -101,7 +104,9 @@ TONE = {
     # svgbench pairs
     "qwen3.8-flash-next": 1, "qwen3.8-27b-8bit": 2,
     "claude-opus-5": 1, "claude-opus-4-8": 0, "fable-5-1": 2,
-    "gpt-5.6-terra": 1, "gpt-5.6-sol": 0,
+    "gpt-5.6-terra": 1, "gpt-5.6-sol": 0, "gpt-6-astra": 2,
+    "qwen3.8-flash": 0,
+    "deepseek-v4.1-flash-high": 1, "deepseek-v4-flash-0731-high": 0,
     # agent-build-off arms: one model, one arm adds the superpowers skills
     "opencode-qwen38": 1, "opencode-qwen38-superpowers": 2, "claude-qwen38": 0,
     "claude-opus5": 1, "codex-astra": 1,
@@ -494,13 +499,14 @@ def build_families():
     """The legend: one entry per model family, standing at its middle tone.
 
     The page says in words that the tone tells the stacks of one family apart,
-    so the legend stays three lines instead of one line per contestant.
+    so the legend stays one line per family instead of one line per contestant.
     """
     return [
-        {"key": "qwen", "color": FAMILY_RAMP["qwen"][1], "label": "Qwen, on the rig"},
+        {"key": "qwen", "color": FAMILY_RAMP["qwen"][1], "label": "Qwen, on the rig or hosted"},
         {"key": "claude", "color": FAMILY_RAMP["claude"][1], "label": "Claude, hosted"},
         {"key": "gpt", "color": FAMILY_RAMP["gpt"][1],
          "label": "OpenAI, hosted"},
+        {"key": "deepseek", "color": FAMILY_RAMP["deepseek"][1], "label": "DeepSeek, hosted"},
     ]
 
 

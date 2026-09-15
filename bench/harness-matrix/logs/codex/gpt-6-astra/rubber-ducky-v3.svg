@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="740" viewBox="40 100 920 680">
+  <defs>
+    <linearGradient id="wall" x2="0%" y2="100%"><stop stop-color="#e9f4f2"/><stop offset="1" stop-color="#d3e8e7"/></linearGradient>
+    <linearGradient id="porcelain" x1="0%" y1="0%" x2="20%" y2="100%"><stop stop-color="#fff"/><stop offset="0.6" stop-color="#f7fafb"/><stop offset="1" stop-color="#cedde1"/></linearGradient>
+    <linearGradient id="water" x2="0%" y2="100%"><stop stop-color="#c1edf5"/><stop offset="1" stop-color="#8ed0e3"/></linearGradient>
+    <radialGradient id="yellow" cx="0.35" cy="0.2" r="0.9"><stop stop-color="#fff568"/><stop offset="0.5" stop-color="#ffdb25"/><stop offset="1" stop-color="#f1af0c"/></radialGradient>
+    <radialGradient id="bubble" cx="0.28" cy="0.25" r="0.85"><stop stop-color="#fff" stop-opacity="0.88"/><stop offset="0.48" stop-color="#fff" stop-opacity="0.22"/><stop offset="0.73" stop-color="#ffddec" stop-opacity="0.58"/><stop offset="0.91" stop-color="#c0e8ff" stop-opacity="0.62"/><stop offset="1" stop-color="#fff" stop-opacity="0.85"/></radialGradient>
+    <path id="duckbody" d="M 401,352 C 408,344 407,343 398,337 C 392,332 389,330 386,321 C 372,280 387,241 421,226 C 457,210 495,229 505,260 C 518,298 496,327 480,340 C 472,347 490,355 508,363 C 557,389 596,365 632,336 C 640,386 622,425 592,449 C 559,477 459,485 412,455 C 373,431 369,388 401,352 Z"/>
+    <clipPath id="submerged"><use href="#duckbody"/></clipPath>
+    <g id="soap"><circle r="24" fill="url(#bubble)" stroke="#fff" stroke-opacity="0.85" stroke-width="1.6"/><path d="M -15,-5 A 16,16 0 0 1 -5,-16" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.9"/></g>
+  </defs>
+  <title>Rubber duck in a soapy claw-foot bathtub</title>
+  <desc>A yellow rubber duck with an orange beak and a black dot eye floats in blue water. The lower third of its body is submerged. Circular ripples surround it. Iridescent soap bubbles rest on its head, beside it, and against the right side of the white bathtub.</desc>
+  <rect width="1000" height="800" fill="url(#wall)"/>
+  <path d="M0 648H1000V800H0Z" fill="#bfd7d4"/>
+  <path d="M0 648H1000" stroke="#a9c8c7" stroke-width="3"/>
+  <ellipse cx="500" cy="696" rx="333" ry="34" fill="#699597" opacity="0.16"/>
+  <g fill="url(#porcelain)" stroke="#a7bdc3" stroke-width="3">
+    <path d="M239 603 Q237 640 218 662 Q205 675 217 689 Q229 698 240 685 L250 675 Q245 696 260 695 Q271 693 271 678 Q278 692 288 683 Q296 676 284 660 L280 614Z"/>
+    <path d="M761 603 Q763 640 782 662 Q795 675 783 689 Q771 698 760 685 L750 675 Q755 696 740 695 Q729 693 729 678 Q722 692 712 683 Q704 676 716 660 L720 614Z"/>
+  </g>
+  <path d="M116 440 C126 550 161 623 260 648 C357 674 651 674 742 648 C839 621 875 549 884 440Z" fill="url(#porcelain)" stroke="#a8bfc7" stroke-width="3"/>
+  <path d="M176 526 C202 597 279 619 366 626" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" opacity="0.85"/>
+  <ellipse cx="500" cy="434" rx="390" ry="132" fill="#fff" stroke="#b0c7ce" stroke-width="3"/>
+  <ellipse cx="500" cy="434" rx="350" ry="99" fill="#a8cbd4"/>
+  <ellipse cx="500" cy="443" rx="347" ry="88" fill="url(#water)"/>
+  <path d="M177 413 C224 365 326 348 374 347 M646 350 C722 356 799 379 826 407" fill="none" stroke="#f0fdff" stroke-width="5" stroke-linecap="round"/>
+  <g fill="none" stroke="#f4fdff" stroke-width="2" opacity="0.6">
+    <ellipse cx="496" cy="450" rx="172" ry="39"/>
+    <ellipse cx="496" cy="450" rx="146" ry="29"/>
+  </g>
+  <use href="#duckbody" fill="url(#yellow)" stroke="#d59e12" stroke-width="2.5"/>
+  <path d="M394 288 C375 281 365 286 351 293 C341 298 325 298 323 306 C324 318 351 325 373 320 L398 308Z" fill="#fa8b23" stroke="#d66a15" stroke-width="2"/>
+  <path d="M327 307 Q359 312 390 302" fill="none" stroke="#d36b13" stroke-width="2"/>
+  <circle cx="418" cy="279" r="7" fill="#171b1b"/>
+  <path d="M414 243 Q436 230 456 239" fill="none" stroke="#fff89c" stroke-width="8" stroke-linecap="round"/>
+  <path d="M456 386 C466 363 500 362 523 374 Q547 385 557 388 C541 420 498 428 470 410 C460 403 455 394 456 386Z" fill="#f5c41c" stroke="#dfae16" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M477 379 Q514 370 539 389" fill="none" stroke="#ffe974" stroke-width="5" stroke-linecap="round"/>
+  <g clip-path="url(#submerged)">
+    <path d="M350 425 Q390 419 430 426 T510 426 T590 426 T670 426 V510H350Z" fill="#91d4e4" opacity="0.77"/>
+    <path d="M350 425 Q390 419 430 426 T510 426 T590 426 T670 426" fill="none" stroke="#edfdff" stroke-width="3"/>
+  </g>
+  <g fill="none" stroke-linecap="round">
+    <path d="M390 436 C360 449 406 470 495 472 C581 474 636 451 611 438" stroke="#64b8d0" stroke-width="2.5"/>
+    <path d="M358 442 C320 461 403 484 500 483 C603 482 667 460 639 444" stroke="#e5fbff" stroke-width="3"/>
+    <path d="M324 450 C299 475 400 495 497 494 C602 494 682 473 674 454" stroke="#7bc3d6" stroke-width="2"/>
+  </g>
+  <g stroke="#fff" stroke-opacity="0.55" stroke-width="1.5">
+    <circle cx="711" cy="406" r="30" fill="#fff" fill-opacity="0.56"/>
+    <circle cx="756" cy="398" r="29" fill="#e8f6ff" fill-opacity="0.62"/>
+    <circle cx="738" cy="369" r="26" fill="#ffe6f0" fill-opacity="0.52"/>
+    <circle cx="689" cy="391" r="19" fill="#fff" fill-opacity="0.58"/>
+    <circle cx="781" cy="422" r="21" fill="#fff" fill-opacity="0.6"/>
+    <circle cx="701" cy="435" r="18" fill="#edf9ff" fill-opacity="0.62"/>
+    <circle cx="743" cy="443" r="17" fill="#fff0f6" fill-opacity="0.54"/>
+  </g>
+  <g>
+    <use href="#soap" transform="translate(684 415) scale(1.4)"/>
+    <use href="#soap" transform="translate(736 412) scale(1.55)"/>
+    <use href="#soap" transform="translate(784 413) scale(1.1)"/>
+    <use href="#soap" transform="translate(714 369) scale(1.25)"/>
+    <use href="#soap" transform="translate(762 368) scale(1.05)"/>
+    <use href="#soap" transform="translate(740 335) scale(0.87)"/>
+    <use href="#soap" transform="translate(680 371) scale(0.72)"/>
+    <use href="#soap" transform="translate(803 387) scale(0.65)"/>
+    <use href="#soap" transform="translate(658 433) scale(0.78)"/>
+    <use href="#soap" transform="translate(719 440) scale(0.88)"/>
+    <use href="#soap" transform="translate(767 442) scale(0.82)"/>
+    <use href="#soap" transform="translate(693 342) scale(0.58)"/>
+    <use href="#soap" transform="translate(778 338) scale(0.55)"/>
+    <use href="#soap" transform="translate(719 315) scale(0.46)"/>
+    <use href="#soap" transform="translate(748 392) scale(0.55)"/>
+    <use href="#soap" transform="translate(694 445) scale(0.52)"/>
+    <use href="#soap" transform="translate(798 436) scale(0.48)"/>
+    <use href="#soap" transform="translate(432 219) scale(0.72)"/>
+    <use href="#soap" transform="translate(460 218) scale(0.66)"/>
+    <use href="#soap" transform="translate(448 200) scale(0.55)"/>
+    <use href="#soap" transform="translate(473 230) scale(0.35)"/>
+    <use href="#soap" transform="translate(282 435) scale(0.68)"/>
+    <use href="#soap" transform="translate(306 444) scale(0.45)"/>
+    <use href="#soap" transform="translate(333 487) scale(0.4)"/>
+    <use href="#soap" transform="translate(587 500) scale(0.5)"/>
+    <use href="#soap" transform="translate(606 496) scale(0.3)"/>
+  </g>
+  <path d="M112 443 C124 510 297 569 500 569 C703 569 876 510 888 443" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round"/>
+  <path d="M143 479 C201 536 356 560 500 560 C644 560 799 536 857 479" fill="none" stroke="#d5e4e9" stroke-width="2"/>
+</svg>

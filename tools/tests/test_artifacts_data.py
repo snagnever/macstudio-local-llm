@@ -112,9 +112,10 @@ class TestSlugHelpers(unittest.TestCase):
         self.assertEqual(ad.split_slug("cow-plowing-v2"), ("cow-plowing", "v2"))
         self.assertEqual(ad.split_slug("dolphin-animated"), ("dolphin", "animated"))
         self.assertEqual(ad.split_slug("dolphin"), ("dolphin", "v1"))
+        self.assertEqual(ad.split_slug("picnic-above-clouds-v4"), ("picnic-above-clouds", "v4"))
 
     def test_take_rank_order(self):
-        self.assertEqual([ad.TAKE_RANK[t] for t in ("v1", "v2", "v3", "animated")], [0, 1, 2, 3])
+        self.assertEqual([ad.TAKE_RANK[t] for t in ("v1", "v2", "v3", "v4", "animated")], [0, 1, 2, 3, 4])
 
     def test_prompt_label(self):
         self.assertEqual(ad.PROMPT_LABEL[0], "Cow plowing")
@@ -376,6 +377,9 @@ class TestFamilyColour(unittest.TestCase):
         self.assertEqual(ad.family_of("gpt-5.6-terra"), "gpt")
         self.assertEqual(ad.family_of("gpt-5.6-sol"), "gpt")
         self.assertEqual(ad.family_of("gpt-6-astra"), "gpt")
+        self.assertEqual(ad.family_of("deepseek-v4.1-flash-high"), "deepseek")
+        self.assertEqual(ad.family_of("deepseek-v4-flash-0731-high"), "deepseek")
+        self.assertEqual(ad.family_of("qwen3.8-flash"), "qwen")
 
     def test_sol_and_terra_use_different_tones(self):
         self.assertNotEqual(ad.color_for("gpt-5.6-sol"), ad.color_for("gpt-5.6-terra"))
@@ -396,7 +400,7 @@ class TestFamilyColour(unittest.TestCase):
 
     def test_families_legend_is_one_row_per_family(self):
         fams = ad.build_families()
-        self.assertEqual([f["key"] for f in fams], ["qwen", "claude", "gpt"])
+        self.assertEqual([f["key"] for f in fams], ["qwen", "claude", "gpt", "deepseek"])
         for f in fams:
             self.assertEqual(f["color"], ad.FAMILY_RAMP[f["key"]][1])
             self.assertTrue(f["label"])

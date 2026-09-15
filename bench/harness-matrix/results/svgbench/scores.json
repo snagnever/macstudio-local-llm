@@ -12,7 +12,7 @@
     "scoring": "score = requirements met / requirements total, judged on the Chrome-rendered PNG; pair mean_score = mean over scored artifacts",
     "comparability": "subset of the 105 questions; artifacts came from coding harnesses, not the SVGBench direct-API run; every artifact was judged by one judge, claude-opus-5, which is itself a contestant here — 21 of the 84 scored artifacts are its own, so the claude/claude-opus-5 row is self-judged. Not comparable to the upstream leaderboard."
   },
-  "generated_at": "2026-09-10T23:06:39",
+  "generated_at": "2026-09-15T19:03:07",
   "pairs": [
     {
       "harness": "claude",
@@ -475,7 +475,7 @@
       "animated": true,
       "slug": "dolphin-animated",
       "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
-      "score": 1,
+      "score": 1.0,
       "met": 7,
       "total": 7,
       "judge": {
@@ -643,7 +643,7 @@
       "animated": false,
       "slug": "dolphin-v3",
       "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
-      "score": 1,
+      "score": 1.0,
       "met": 7,
       "total": 7,
       "judge": {
@@ -4803,7 +4803,7 @@
       "animated": true,
       "slug": "dolphin-hula-hoop-fish-animated",
       "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
-      "score": 1,
+      "score": 1.0,
       "met": 7,
       "total": 7,
       "judge": {
@@ -4915,7 +4915,7 @@
       "animated": false,
       "slug": "dolphin-hula-hoop-fish-v2",
       "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
-      "score": 1,
+      "score": 1.0,
       "met": 7,
       "total": 7,
       "judge": {
@@ -4971,7 +4971,7 @@
       "animated": false,
       "slug": "dolphin-hula-hoop-fish-v3",
       "prompt": "Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.",
-      "score": 1,
+      "score": 1.0,
       "met": 7,
       "total": 7,
       "judge": {
@@ -6292,6 +6292,762 @@
       "reason": "no verdict file"
     },
     {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/cow-plowing-animated.svg",
+      "question_index": 0,
+      "animated": true,
+      "slug": "cow-plowing-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/cow-plowing-v1.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/cow-plowing-v2.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/cow-plowing-v3.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/dolphin-animated.svg",
+      "question_index": 7,
+      "animated": true,
+      "slug": "dolphin-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/dolphin-v1.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/dolphin-v2.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/dolphin-v3.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/fruit-stall-animated.svg",
+      "question_index": 12,
+      "animated": true,
+      "slug": "fruit-stall-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/fruit-stall-v1.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/fruit-stall-v2.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/fruit-stall-v3.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/picnic-on-clouds-animated.svg",
+      "question_index": 5,
+      "animated": true,
+      "slug": "picnic-on-clouds-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/picnic-on-clouds-v1.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-on-clouds-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/picnic-on-clouds-v2.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-on-clouds-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/picnic-on-clouds-v3.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-on-clouds-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/rubber-ducky-animated.svg",
+      "question_index": 4,
+      "animated": true,
+      "slug": "rubber-ducky-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/rubber-ducky-v1.svg",
+      "question_index": 4,
+      "animated": false,
+      "slug": "rubber-ducky-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/rubber-ducky-v2.svg",
+      "question_index": 4,
+      "animated": false,
+      "slug": "rubber-ducky-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/rubber-ducky-v3.svg",
+      "question_index": 4,
+      "animated": false,
+      "slug": "rubber-ducky-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/stunt-car-animated.svg",
+      "question_index": 6,
+      "animated": true,
+      "slug": "stunt-car-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/stunt-car-v1.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/stunt-car-v2.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/stunt-car-v3.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/treasure-barrel-animated.svg",
+      "question_index": 13,
+      "animated": true,
+      "slug": "treasure-barrel-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/treasure-barrel-v1.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/treasure-barrel-v2.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6-astra",
+      "artifact": "logs/codex/gpt-6-astra/treasure-barrel-v3.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/cow-plowing-animated.svg",
+      "question_index": 0,
+      "animated": true,
+      "slug": "cow-plowing-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/cow-plowing-v1.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/cow-plowing-v2.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/cow-plowing-v3.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/dolphin-animated.svg",
+      "question_index": 7,
+      "animated": true,
+      "slug": "dolphin-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/dolphin-v1.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/dolphin-v2.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/dolphin-v3.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/fruit-stall-animated.svg",
+      "question_index": 12,
+      "animated": true,
+      "slug": "fruit-stall-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/fruit-stall-v1.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/fruit-stall-v2.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/fruit-stall-v3.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/picnic-on-clouds-animated.svg",
+      "question_index": 5,
+      "animated": true,
+      "slug": "picnic-on-clouds-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/picnic-on-clouds-v1.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-on-clouds-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/picnic-on-clouds-v2.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-on-clouds-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/picnic-on-clouds-v3.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-on-clouds-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/rubber-ducky-animated.svg",
+      "question_index": 4,
+      "animated": true,
+      "slug": "rubber-ducky-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/rubber-ducky-v1.svg",
+      "question_index": 4,
+      "animated": false,
+      "slug": "rubber-ducky-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/rubber-ducky-v2.svg",
+      "question_index": 4,
+      "animated": false,
+      "slug": "rubber-ducky-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/rubber-ducky-v3.svg",
+      "question_index": 4,
+      "animated": false,
+      "slug": "rubber-ducky-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/stunt-car-animated.svg",
+      "question_index": 6,
+      "animated": true,
+      "slug": "stunt-car-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/stunt-car-v1.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/stunt-car-v2.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/stunt-car-v3.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/treasure-barrel-animated.svg",
+      "question_index": 13,
+      "animated": true,
+      "slug": "treasure-barrel-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/treasure-barrel-v1.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/treasure-barrel-v2.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4-flash-0731-high",
+      "artifact": "logs/opencode/deepseek-v4-flash-0731-high/treasure-barrel-v3.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/cow-plowing-animated.svg",
+      "question_index": 0,
+      "animated": true,
+      "slug": "cow-plowing-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/cow-plowing-v1.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/cow-plowing-v2.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/cow-plowing-v3.svg",
+      "question_index": 0,
+      "animated": false,
+      "slug": "cow-plowing-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/dolphin-animated.svg",
+      "question_index": 7,
+      "animated": true,
+      "slug": "dolphin-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/dolphin-v1.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/dolphin-v2.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/dolphin-v3.svg",
+      "question_index": 7,
+      "animated": false,
+      "slug": "dolphin-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/fruit-stall-animated.svg",
+      "question_index": 12,
+      "animated": true,
+      "slug": "fruit-stall-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/fruit-stall-v1.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/fruit-stall-v2.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/fruit-stall-v3.svg",
+      "question_index": 12,
+      "animated": false,
+      "slug": "fruit-stall-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/picnic-on-clouds-animated.svg",
+      "question_index": 5,
+      "animated": true,
+      "slug": "picnic-on-clouds-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/picnic-on-clouds-v1.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-on-clouds-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/picnic-on-clouds-v2.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-on-clouds-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/picnic-on-clouds-v3.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-on-clouds-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/rubber-ducky-animated.svg",
+      "question_index": 4,
+      "animated": true,
+      "slug": "rubber-ducky-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/rubber-ducky-v1.svg",
+      "question_index": 4,
+      "animated": false,
+      "slug": "rubber-ducky-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/rubber-ducky-v2.svg",
+      "question_index": 4,
+      "animated": false,
+      "slug": "rubber-ducky-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/rubber-ducky-v3.svg",
+      "question_index": 4,
+      "animated": false,
+      "slug": "rubber-ducky-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/stunt-car-animated.svg",
+      "question_index": 6,
+      "animated": true,
+      "slug": "stunt-car-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/stunt-car-v1.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/stunt-car-v2.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/stunt-car-v3.svg",
+      "question_index": 6,
+      "animated": false,
+      "slug": "stunt-car-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/treasure-barrel-animated.svg",
+      "question_index": 13,
+      "animated": true,
+      "slug": "treasure-barrel-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/treasure-barrel-v1.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel-v1",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/treasure-barrel-v2.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "deepseek-v4.1-flash-high",
+      "artifact": "logs/opencode/deepseek-v4.1-flash-high/treasure-barrel-v3.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel-v3",
+      "reason": "no verdict file"
+    },
+    {
       "harness": "opencode",
       "model": "gpt-5.6-terra",
       "artifact": "logs/opencode/gpt-5.6-terra/dawn-beach-animated.svg",
@@ -6335,6 +7091,78 @@
       "animated": true,
       "slug": "dawn-beach",
       "reason": "prompt is not an SVGBench question"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds-animated.svg",
+      "question_index": 5,
+      "animated": true,
+      "slug": "picnic-above-clouds-animated",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds-v2.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-above-clouds-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds-v3.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-above-clouds-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds-v4.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-above-clouds-v4",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/picnic-above-clouds.svg",
+      "question_index": 5,
+      "animated": false,
+      "slug": "picnic-above-clouds",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/treasure-barrel-v2.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel-v2",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/treasure-barrel-v3.svg",
+      "question_index": 13,
+      "animated": true,
+      "slug": "treasure-barrel-v3",
+      "reason": "no verdict file"
+    },
+    {
+      "harness": "opencode",
+      "model": "qwen3.8-flash",
+      "artifact": "logs/opencode/qwen3.8-flash/treasure-barrel.svg",
+      "question_index": 13,
+      "animated": false,
+      "slug": "treasure-barrel",
+      "reason": "no verdict file"
     }
   ],
   "skipped": []
