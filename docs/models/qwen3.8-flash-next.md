@@ -60,6 +60,12 @@ Cap `max_tokens` above 4096 for hard prompts: with `xhigh` the reasoning can pas
 
 - **No `sudo` needed** for the daily profile, 256K multi-turn, or 512K: `iogpu.wired_limit_mb` stayed at the default (0).
 - Wired memory of **97–108 GB is normal** for this stack (KV and the 16 GB prefix cache are pinned). Watch swap, not wired: swap stayed flat in every run.
+- **Memory decomposition (measured 2026-09-16):** weights **75,3 GB**; attention KV (only the 12
+  full-attention layers carry a context-growing cache; the 36 Gated-DeltaNet layers hold a fixed
+  state) is **0,8 / 3,2 / 6,4 / 12,9 GB** at 32K/128K/256K/512K fp16 (halve for KV 8-bit); the
+  remaining **~21–36 GB** of wired is fixed overhead (16 GB prefix cache, DeltaNet state, MLX
+  pools). The context KV is the *smallest* term — a second small model (~2 GB) fits beside the
+  driver at every context up to 512K. Source: [bench/minicpm5-2b-support-2026-09](../../bench/minicpm5-2b-support-2026-09/results/etapa2-maior.md).
 - One model at a time. The MoE does not batch decode: parallel requests queue on one slot.
 - Keep ≥ 100 GB free on the boot volume for the prefix-cache disk tier.
 
