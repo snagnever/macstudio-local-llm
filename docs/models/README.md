@@ -25,6 +25,7 @@ Per-model deep dives for every model with local experience on this rig (Mac Stud
 | [agents-a1-xl](agents-a1-xl.md) | 🟡 GO (marginal) | thinking tax; expensive tail deferred | jdhodges 92.5%, HumanEval 97%, LCB 64%, eff 35.9 t/s | 27.8 GB | MLX |
 | [gemma-4-31b](gemma-4-31b.md) | 🟡 DEMOTED (MLX) / ⚪ QAT GGUF planned | dense tax: 6× slower than 26b-a4b@6bit, no quality return | LCB 76%, 13.7 t/s | 33.80 GB | MLX |
 | [hermes-4-70b](hermes-4-70b/README.md) | 🔴 BLOCKED | minja template render error (fix documented, unbenched) | tool-calling 0% pre-fix (render error, not quality) | 57.3 GB | MLX |
+| [minicpm5-2b](minicpm5-2b.md) | 🔴 NO-GO as support (functional, parked) | driver loses 43–66% of decode under continuous concurrency; fits at every context tested (32K–512K) but still costs +31–50% T_turno — a speed gate, not memory. Viable only ≤32K with turns ≥1 s apart (+12%) | 159.7 tok/s solo @400; PT format/lang 100% | 1.8 GB (OptiQ-4bit) | optiq serve |
 
 ### NO-GO / removed
 | Model | Status | Why | Runtime |
@@ -36,7 +37,6 @@ Per-model deep dives for every model with local experience on this rig (Mac Stud
 ### Planned
 | Model | Status | Next step |
 |---|---|---|
-| [minicpm5-2b](minicpm5-2b.md) | ⚪ PLANNED (2026-09-15) | support-model candidate: runs in parallel with the Flash-Next driver for short non-reasoning turns. Two MLX quants on disk; campaign: [`bench/minicpm5-2b-support-2026-09/plan.md`](../../bench/minicpm5-2b-support-2026-09/plan.md) |
 | [mellum2-12b](mellum2-12b.md) | ⚪ PLANNED (Phase 5 seq 5) | load-probe — `mellum` arch likely needs the maintainer's mlx-lm fork |
 | [gemma-4-31b](gemma-4-31b.md) QAT GGUF | ⚪ PLANNED (Phase 5 seq 2) | engine A/B (llama.cpp Q4_0 QAT vs MLX 8-bit) |
 

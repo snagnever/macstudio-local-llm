@@ -11,7 +11,10 @@
 >
 > Card do modelo: [docs/models/minicpm5-2b.md](../../docs/models/minicpm5-2b.md).
 > Baseline do driver: [../qwen38-flashnext-daily-driver-2026-09/results/summary.md](../qwen38-flashnext-daily-driver-2026-09/results/summary.md).
-> **Status (2026-09-15): PLANEJADA.** Nada medido ainda.
+> **Status (2026-09-16): CONCLUÍDA.** Veredito: **não adotar** como suporte residente do
+> driver diário (perda de `T_turno` +43–66% na carga contínua; a 128K não há margem de
+> memória). Viável só em contexto ≤32K com turnos intermitentes (gap ≥1 s → +12%). A Etapa 3
+> foi reduzida ao s1. Ver [results/summary.md](results/summary.md).
 
 ## Baseline que esta campanha não re-mede
 

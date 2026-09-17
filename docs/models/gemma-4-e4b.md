@@ -94,6 +94,12 @@ Plans: [2026-05-20-gemma-4-phase-2.md](../../bench/gemma-4-phase2/plan.md) · [t
 
 ## Client configuration
 - Model id: `gemma-4-e4b-it-mlx` (LM Studio `/v1` endpoint, port 1234).
+- **Serving it outside LM Studio needs `mlx_vlm ≥ 0.7.1`.** The MLX 8-bit checkpoint is a VLM
+  (`config.json` → `Gemma4ForConditionalGeneration`, weights named `language_model.model...`).
+  `mlx_lm 0.31.3` and `mlx_vlm 0.6.3` both reject it with
+  `Received 126 parameters not in model: language_model.model.layers...`; `mlx_vlm 0.7.1`'s
+  `mlx_vlm.server` loads it and serves `/v1/chat/completions` including OpenAI `tool_calls`.
+  (Used as the `s3` control in [bench/minicpm5-2b-support-2026-09](../../bench/minicpm5-2b-support-2026-09/plan.md).)
 - Sampling: vendor recommends `temperature=1.0, top_p=0.95, top_k=64`; local benches ran temp 0 / seed 42 for reproducibility.
 - Tool calling works through LM Studio's parser (jdhodges 87.5 %) — fine for one-shot calls; expect misses on holdout-style suites (Veerman 66.7 %).
 - Vision + audio advertised on the card and vision flag set in LM Studio; vision quality not yet benchmarked locally.
@@ -107,3 +113,7 @@ Plans: [2026-05-20-gemma-4-phase-2.md](../../bench/gemma-4-phase2/plan.md) · [t
 - **2026-05-20 → 05-22** — Phase 2 full suite as model #7 ([plan](../../bench/gemma-4-phase2/plan.md)); ~2.5 h wall-clock, 0 truncations. Verdict: fills the FIM / quick-call slot, MATH 14 % disqualifies everything else.
 - **2026-05-24** — Step B Gemma truncation reruns: E4B unaffected (0 truncations); scores final.
 - **2026-05-29** — Terminal-Bench 2.0 Phase B leg B1: **4.5 %** — confirmed 4B agentic floor; FIM / quick-call verdict unchanged.
+- **2026-09-16** — As the `s3` control of the MiniCPM5 support campaign: serving it on the rig
+  required `mlx_vlm 0.7.1` (see Client configuration); under continuous concurrency it cost the
+  Flash-Next driver **+65,5 % `T_turno` at 32K** and **+48,7 % at 128K** (wired 117 GB) — the
+  worst of the three support candidates. Details: [campaign results](../../bench/minicpm5-2b-support-2026-09/results/etapa2.md).

@@ -1,0 +1,1 @@
+{"ts": 1789609822.258284, "ok": true, "error": null, "ttft_s": 29.441510708, "total_s": 29.503961875, "decode_tps": 96.07506613927258, "completion_tokens": 7, "prompt_tokens": 33704, "finish_reason": "stop", "turn": 0, "worker": 0, "target_prompt_tokens": 32000}

@@ -1,14 +1,15 @@
 # MiniCPM5-2B
 
-> **Status: ⚪ PLANNED — support-model candidate.** Intended role: a small model that runs
-> **in parallel** with the [qwen3.8-flash-next](qwen3.8-flash-next.md) driver and absorbs short,
-> non-reasoning turns (session titles, commit messages, classification, short summaries, simple
-> tool calls). The driver does not batch decode, so parallel requests queue on one slot; a second
-> resident model is the only way to get real concurrency.
-> Two MLX quants are on the rig. **Nothing is measured locally yet.**
-> Last updated: 2026-09-15
+> **Status: 🔴 NO-GO como modelo de suporte (funcional, parked).** Medido em 2026-09-15/16.
+> O 2B faz bem as tarefas curtas (formato e idioma em português 100%, 159,7 tok/s solo),
+> mas sob carga contínua o driver perde **43–66% do decode** (`T_turno` +43% a +66%) a 32K.
+> O s1 **cabe em toda a faixa testada (32K–512K)** — sem erro de contexto e sem swap — mas
+> paga +31% a +50% de `T_turno` sob carga contínua; o bloqueio é **velocidade, não memória**.
+> Viável só em contexto ≤32K com turnos ≥1 s de intervalo (+12%).
+> Last updated: 2026-09-16
 
-Campaign that will test it: [`bench/minicpm5-2b-support-2026-09/plan.md`](../../bench/minicpm5-2b-support-2026-09/plan.md).
+Campanha: [`bench/minicpm5-2b-support-2026-09/plan.md`](../../bench/minicpm5-2b-support-2026-09/plan.md)
+— veredito em [`results/summary.md`](../../bench/minicpm5-2b-support-2026-09/results/summary.md).
 
 ## At a glance (official)
 
@@ -67,12 +68,37 @@ The OptiQ card compares its quant against another family, never against bf16 or 
 4-bit, so the mixed-precision gain is plausible but undemonstrated. HashHop 24.0% says the model is
 weak at long-context retrieval: keep its prompts short.
 
-## What is not measured here yet
+## Local measurements (2026-09-15/16, M4 Max 128 GB)
 
-- Decode and prefill on the M4 Max, alone and while the driver generates.
-- The driver's `T_turno` penalty under concurrency — the number that decides the whole idea.
-- Whether any MLX server on the rig parses the XML tool-call format. `optiq serve` (the `mlx-optiq`
-  package) does; `mlx_lm.server` has no such parser and `mlx-serve` is unchecked.
-- Portuguese quality. The card lists English and Chinese only, and the support tasks (titles,
-  commit messages, summaries) run in Portuguese here.
-- OptiQ 4-bit against 8-bit on those same tasks.
+Runtime: `optiq serve` 0.5.8 (venv isolado em `~/.local/opt/minicpm5-support/venv`); importar
+`optiq` registra o parser MiniCPM5 (`<function name=...>` → OpenAI `tool_calls`) e expõe
+`<id>:no-think` / `:think`. `mlx_lm.server` 0.31.3 puro **não** tem esse parser. O `s3`
+(gemma-4-e4b) precisa de `mlx_vlm` 0.7.1 — `mlx_lm` não carrega o checkpoint.
+
+| medida | s1 OptiQ-4bit | s2 8-bit |
+|---|---|---|
+| decode solo @~0,4K | **159,7 tok/s** | 130,8 tok/s |
+| decode solo @8K | 117,8 tok/s | 108,1 tok/s |
+| TTFT solo @~0,4K / 8K | 0,240 / 3,866 s | 0,248 / 3,874 s |
+| tool call → `tool_calls` | sim | sim |
+| `:no-think` suprime o reasoning | sim (47 vs 105–112 tokens) | sim |
+
+Concorrência (driver Flash-Next + suporte gerando em laço, `T_turno` do driver):
+
+| arranjo | 32K | 128K | 256K | 512K |
+|---|---:|---:|---:|---:|
+| driver sozinho | 10,82 s | 12,58 s | 11,48 s | 16,24 s |
+| +s1 contínuo | +42,8% | +31,1% | +49,7% | +34,6% |
+| +s1 gap 1 s / 3 s | +12,4% / +0,6% | — | — | — |
+| +s2 | +48,1% | falha (contexto ~87K, swap +1,0) | — | — |
+| +s3 gemma-e4b | +65,5% | +48,7% | — | — |
+
+O s1 **coube em todas as bandas** (256K/512K no perfil 512k, KV 8-bit; `T_turno` +31% a +50%
+sob carga contínua). O `s2` é que falha a 128K. Detalhe: `etapa2-maior.md`.
+
+Qualidade em português (s1, 20 tarefas + 10 tool calls): formato 30/30, idioma 30/30,
+conteúdo ~28/30 (uma classificação trocada; um argumento traduzido; dois inteiros como string).
+
+Config recomendada (`optiq serve`): `--ngram-draft 16` (+28% no uso típico, **+337%** quando a
+saída copia o input; não piora o driver), KV **fp16**, `:no-think` temp 0.7 / top_p 0.95.
+**Não** usar `guided_choice` na classificação (piorou, 4/5→3/5). Detalhe: `etapa-tuning.md`.
