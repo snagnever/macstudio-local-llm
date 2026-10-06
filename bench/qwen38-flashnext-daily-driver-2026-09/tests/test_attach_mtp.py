@@ -29,6 +29,24 @@ def test_parse_takes_last_spec_stats():
     assert stats["mtp_mode"] == "mtp"
 
 
+# mlx-serve 26.10.1 also writes [spec-stats] lines without mode= (lazy decode and the
+# lookup-drafting table), often after the last mode= line.
+LOG_26101 = """
+  [spec-stats] mode=mtp attempts=1137 accepts=2034 avg_per_round=1.79 per_draft_pct=61.3% depth=6 drafted=3320 ext_rounds=0 partial_rounds=613 runtime_disabled=false reason=none adaptive=undecided serial_cell=0.00 sync_ms=0.00 round_ms=32.82
+  [spec-stats] lazy=0/0
+  [spec-stats] lookup_table=4-8k:k6:50.5/1,k7:53.4/36,k8:65.5/1,k9:67.4/1,k14:88.9/4
+"""
+
+
+def test_parse_skips_lines_without_mode():
+    stats = parse_spec_stats(LOG_26101)
+    assert stats is not None
+    assert stats["mtp_acceptance"] == 0.613
+    assert stats["mtp_avg_per_round"] == 1.79
+    assert stats["mtp_depth"] == 6
+    assert stats["mtp_mode"] == "mtp"
+
+
 def test_parse_returns_none_without_stats():
     assert parse_spec_stats(LOG_NO_STATS) is None
 
