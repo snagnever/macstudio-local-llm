@@ -3,9 +3,10 @@
 # perfil do vendor, amostra memoria e derruba o servidor. Um candidato por vez.
 #   c1 = ddalcu mixed-4/8 @ mlx-serve 26.9.2      c2 = Jundot oQ4e @ oMLX 0.6.4
 #   c3 = Jundot oQ4e @ oMLX 0.7.0.dev2            c4 = MTPLX Optimized-Speed @ MTPLX 2.11.2
+#   n1/n2/n2p = campanha flashnext-updates-2026-10 (mlx-serve 26.10.1; n2 = pack iQ-MLX-4.7bpw; n2p = n2 + --ple-gpu)
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""
 while [[ $# -gt 0 ]]; do
@@ -24,7 +25,8 @@ done
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 HARNESS="$REPO/bench/qwen3.8-prefix-cache/scripts"
 HERE="$REPO/bench/qwen38-flashnext-daily-driver-2026-09"
-RESULTS="$HERE/results"; LOGS="$HERE/logs"
+# Outra campanha pode reusar este driver apontando a saída para o próprio diretório.
+RESULTS="${FLASHNEXT_RESULTS_DIR:-$HERE/results}"; LOGS="${FLASHNEXT_LOGS_DIR:-$HERE/logs}"
 MODEL_ROOT="$HOME/.cache/local-llms/qwen3.8-prefix-cache"
 DDALCU="$MODEL_ROOT/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit-ef5b919d31534faa1997666f1a22d362cd6383cd"
 OQ4E="$MODEL_ROOT/Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8"
@@ -32,6 +34,9 @@ MTPLXPACK="$MODEL_ROOT/Youssofal-Qwen3.8-Flash-Next-MTPLX-Optimized-Speed-6bc2f6
 # Etapa U: variantes uncensored, mesmo runtime/layout dos candidatos de referencia.
 U1DIR="$MODEL_ROOT/ARC4NUM-Qwen3.8-Flash-Next-Uncensored-MLX-Serve-4bit-9ebf9993b1eaec96aec938bf883601b51a90393b"
 U2DIR="$MODEL_ROOT/latent-variable-Qwen3.8-Flash-Next-heretic-2-oQ4e-mtp-65b0cd6"
+# Campanha flashnext-updates-2026-10: pack calibrado (mesmo layout do DDALCU) e runtime 26.10.1.
+IQDIR="$MODEL_ROOT/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a"
+MLXSERVE_26101="$HOME/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve"
 
 # Por candidato: launcher, arm, porta, binario, python do probe, tokenizer, metrics.
 case "$CAND" in
@@ -42,7 +47,7 @@ case "$CAND" in
       # server log via attach_mtp), so skip it entirely and avoid the
       # intermittent connection-reset race on that endpoint.
       METRICS=""
-      export QWEN38_MLX_SERVE_BIN="$HOME/.local/opt/qwen38/mlx-serve-v26.9.2/mlx-serve"
+      export QWEN38_MLX_SERVE_BIN="$HOME/.local/opt/qwen38/mlx-serve-v26.9.2/mlx-serve" MLX_SERVE_EXPECTED_VERSION=26.9.2
       export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
       if [[ -n "$YARN" ]]; then
@@ -70,6 +75,21 @@ case "$CAND" in
       PROBE_PY="$HOME/.local/opt/qwen38/omlx-v0.7.0.dev2/bin/python"
       export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_OMLX_BIN="$HOME/.local/opt/qwen38/omlx-v0.7.0.dev2/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.0.dev2 ;;
+  n1|n2|n2p) # flashnext-updates-2026-10: runtime 26.10.1. n1 = pesos do c1; n2/n2p = pack iQ; n2p = + --ple-gpu.
+      LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.1
+      if [[ "$CAND" == n1 ]]; then
+        MODEL_DIR="$DDALCU"; MODEL_REV=ef5b919d31534faa1997666f1a22d362cd6383cd
+      else
+        MODEL_DIR="$IQDIR"; MODEL_REV=dafff5c3d8168c9d13275661153911096499a80a
+      fi
+      PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve
+      METRICS=""
+      export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26101" MLX_SERVE_EXPECTED_VERSION=26.10.1
+      export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
+      if [[ "$CAND" == n2p ]]; then
+        export QWEN38_MLX_PLE_GPU=1; REV=v26.10.1-plegpu
+      fi ;;
   c2|c3)
       LAUNCHER="$HARNESS/run-omlx.sh"; ARM=FN; PORT=8000; RUNTIME=omlx
       MODEL_DIR="$OQ4E"; MODEL_REV=2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8
@@ -168,6 +188,15 @@ if [[ -n "$PRINT" ]]; then
   echo "saida: $OUT"; exit 0
 fi
 
+# O binário errado invalida o A/B inteiro: conferir a versão antes de subir o servidor.
+if [[ -n "${MLX_SERVE_EXPECTED_VERSION:-}" ]]; then
+  GOT_VERSION="$("$QWEN38_MLX_SERVE_BIN" --version 2>&1 | grep '^mlx-serve ' || true)"
+  if [[ "$GOT_VERSION" != "mlx-serve $MLX_SERVE_EXPECTED_VERSION" ]]; then
+    echo "run-candidate: $QWEN38_MLX_SERVE_BIN reporta '$GOT_VERSION', esperado 'mlx-serve $MLX_SERVE_EXPECTED_VERSION'" >&2
+    exit 65
+  fi
+fi
+
 mkdir -p "$RESULTS" "$LOGS"
 
 # cache_probe.py appends to --output, and mem-sampler.sh appends to its own
@@ -242,6 +271,16 @@ else:
 [[ -n "$MODEL_ID" ]] || { echo "run-candidate: could not select model id for $CAND (basename=$MODEL_BASENAME); see /v1/models" >&2; exit 69; }
 echo ">>> $NAME: model_id=$MODEL_ID"
 echo ">>> $NAME: pronto. model_id=$MODEL_ID -> $OUT"
+# /props (mlx-serve >= 26.9.4) mostra MTP, KV quant e PLD em vigor. O 26.9.2 não tem o endpoint.
+if [[ "$RUNTIME" == mlx-serve ]]; then
+  mkdir -p "$RESULTS/props"
+  if curl -fsS --max-time 10 "$BASE/props" >"$RESULTS/props/$NAME.json" 2>/dev/null \
+     || curl -fsS --max-time 10 "$BASE/v1/props" >"$RESULTS/props/$NAME.json" 2>/dev/null; then
+    echo "    /props -> $RESULTS/props/$NAME.json"
+  else
+    rm -f "$RESULTS/props/$NAME.json"; echo "    /props indisponivel neste binario"
+  fi
+fi
 
 # Probe can exit non-zero on purpose (e.g. a memory-guard HTTP refusal was
 # recorded as data) -- capture that instead of letting `set -e` abort before
