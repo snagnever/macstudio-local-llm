@@ -23,3 +23,15 @@ Flags conferidas no `--help`:
 Nota: o `--os-reserve-gib` (desde 26.9.5) reserva 8 GB por default num Mac de 128 GB. O 26.9.2 não
 tem essa reserva. Os braços n1/n2 rodam com o default do binário; se um cenário a 128K for recusado
 por memória, esse é o primeiro suspeito.
+
+## Pesos n2
+
+- Repo `ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw`, revisão `dafff5c3d8168c9d13275661153911096499a80a`.
+- Caminho local: `~/.cache/local-llms/qwen3.8-prefix-cache/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a`.
+- `ngram_table.bin` por hardlink do pack `ef5b919` (mesmo inode). SHA256 conferido:
+  `c8ab74bc343408cf3923d7d64b3698fbeb3e78c07ce7f85a650a8278731251d2`.
+- O resto veio com `hf download --exclude ngram_table.bin`. Verificação contra a API do HF: 113 arquivos,
+  0 divergentes em tamanho.
+- Tamanho: o pack tem 107.3 GB no HF (100 GiB no `du`). Os "75 GB" do card são a memória residente,
+  sem a tabela n-gram. O download real foi ~75 GB, não os ~43 GB estimados no plano. Disco livre:
+  603 → 533 GB.
