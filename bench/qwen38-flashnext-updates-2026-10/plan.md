@@ -1,6 +1,6 @@
 # 2026-10-06 — Qwen3.8-Flash-Next: updates de runtime e de pesos do driver diário
 
-> **Status (2026-10-07): A/B concluídos; Etapa P (`--ple-gpu`) em andamento.** O driver diário passa para mlx-serve 26.10.1 + ddalcu iQ-MLX-4.7bpw (T_turno 8.3 s a 32K e 8.9 s a 128K, contra 11.4 e 12.1 s do par anterior). Veredito em [results/summary.md](results/summary.md).
+> **Status (2026-10-07): concluída.** O driver diário passa para mlx-serve 26.10.1 + ddalcu iQ-MLX-4.7bpw (T_turno 8.3 s a 32K e 8.9 s a 128K, contra 11.4 e 12.1 s do par anterior). Veredito em [results/summary.md](results/summary.md). O `--ple-gpu` não cabe na config diária ([results/etapa-p.md](results/etapa-p.md)).
 >
 > **Objetivo:** decidir se o driver diário troca de runtime (mlx-serve 26.9.2 → 26.10.1) e de pesos
 > (ddalcu `mixed-4-8bit` → `iQ-MLX-4.7bpw`). São duas perguntas, medidas em dois A/B com uma

@@ -58,6 +58,6 @@ nas 6 amostras de `tool_turn` do n2 a 32K e 128K.
 - O efeito do 26.9.6 sobre o thinking de turnos anteriores num agente real (Terminal-Bench, OpenCode).
 - A fidelidade do pack `iQ` contra os pesos de referência (KL, top-1). Só a qualidade barata acima.
 - Contexto acima de 128K. O perfil `512k` do launcher foi medido no 26.9.2 e não foi re-medido.
-- O `--ple-gpu` fica na Etapa P ([etapa-p.md](etapa-p.md)).
+- O `--ple-gpu`: o servidor recusa a flag nesta máquina por falta de memória ([etapa-p.md](etapa-p.md)).
 
 Dados: `{c1,n1,n2}-{32768,131072}-t1.0-ab.jsonl`, `summary-etapa1.json`, `quality-n1-n2.md`.
