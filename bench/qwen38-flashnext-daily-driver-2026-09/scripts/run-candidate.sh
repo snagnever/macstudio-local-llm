@@ -4,9 +4,11 @@
 #   c1 = ddalcu mixed-4/8 @ mlx-serve 26.9.2      c2 = Jundot oQ4e @ oMLX 0.6.4
 #   c3 = Jundot oQ4e @ oMLX 0.7.0.dev2            c4 = MTPLX Optimized-Speed @ MTPLX 2.11.2
 #   n1/n2/n2p = campanha flashnext-updates-2026-10 (mlx-serve 26.10.1; n2 = pack iQ-MLX-4.7bpw; n2p = n2 + --ple-gpu)
+#   engine-updates-2026-10: m1/m1b = MTPLX 2.12.2 (m1b: limite 96G), o1 = oMLX 0.7.0, d1 = ds4 upstream;
+#   r27 = 27B @ mlx-serve 26.10.1 + DFlash2, m27 = MTPLX 2.12.2, o27 = oMLX 0.7.0, s27 = mlx-dspark 0.20.3
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|m1|m1b|o1|d1|r27|m27|o27|s27> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""
 while [[ $# -gt 0 ]]; do
@@ -37,6 +39,14 @@ U2DIR="$MODEL_ROOT/latent-variable-Qwen3.8-Flash-Next-heretic-2-oQ4e-mtp-65b0cd6
 # Campanha flashnext-updates-2026-10: pack calibrado (mesmo layout do DDALCU) e runtime 26.10.1.
 IQDIR="$MODEL_ROOT/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a"
 MLXSERVE_26101="$HOME/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve"
+# Campanha engine-updates-2026-10: runtimes atualizados e pesos do 27B.
+OPT="$HOME/.local/opt/qwen38"
+MC27="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9"
+DFLASH2="$MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4"
+M27PACK="$MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-1d5087d2062c02b279180a53e4016cf9cd7a3d7e"
+OQ8E="$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6"
+# YaRN do 27B (qwen3_5, mrope): o override repete os campos mrope do config original.
+YARN27_JSON() { echo "{\"text_config\":{\"rope_parameters\":{\"mrope_interleaved\":true,\"mrope_section\":[11,11,10],\"partial_rotary_factor\":0.25,\"rope_theta\":10000000,\"rope_type\":\"yarn\",\"factor\":$1,\"original_max_position_embeddings\":262144},\"max_position_embeddings\":$2}}"; }
 
 # Por candidato: launcher, arm, porta, binario, python do probe, tokenizer, metrics.
 case "$CAND" in
@@ -89,7 +99,59 @@ case "$CAND" in
       export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
       if [[ "$CAND" == n2p ]]; then
         export QWEN38_MLX_PLE_GPU=1; REV=v26.10.1-plegpu
+      fi
+      if [[ -n "$YARN" ]]; then
+        export QWEN38_MLX_KV_QUANT=8
+        export QWEN38_MLX_CONFIG_OVERRIDES="{\"text_config\":{\"rope_parameters\":{\"rope_type\":\"yarn\",\"factor\":${YARN},\"original_max_position_embeddings\":262144},\"max_position_embeddings\":${CTX}}}"
+        REV="v26.10.1-yarn${YARN}-kv8"
       fi ;;
+  r27) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=C; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.1
+      MODEL_DIR="$MC27"; MODEL_REV=815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9
+      PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""
+      export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26101" MLX_SERVE_EXPECTED_VERSION=26.10.1
+      export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX" QWEN38_MLX_DRAFTER="$DFLASH2"
+      export QWEN38_MLX_PREFIX_CACHE_MEM=16GB QWEN38_MLX_PREFIX_CACHE_DISK=100GB QWEN38_MLX_PREFIX_CACHE_ENTRIES=64
+      if [[ -n "$YARN" ]]; then
+        export QWEN38_MLX_KV_QUANT=8 QWEN38_MLX_CONFIG_OVERRIDES="$(YARN27_JSON "$YARN" "$CTX")"
+        REV="v26.10.1-yarn${YARN}-kv8"
+      fi ;;
+  m1|m1b|m27)
+      LAUNCHER="$HARNESS/run-mtplx.sh"; PORT=8000; RUNTIME=MTPLX; REV=v2.12.2
+      PROBE_PY="$OPT/mtplx-v2.12.2/bin/python"; METRICS="http://127.0.0.1:$PORT/metrics"; SERVER_NAME=mtplx
+      export QWEN38_MTPLX_BIN="$OPT/mtplx-v2.12.2/bin/mtplx" QWEN38_MTPLX_EXPECTED_VERSION=2.12.2 QWEN38_CTX_SIZE="$CTX"
+      if [[ "$CAND" == m27 ]]; then
+        ARM=V2; MODEL_DIR="$M27PACK"; MODEL_REV=1d5087d2062c02b279180a53e4016cf9cd7a3d7e
+      else
+        ARM=FX; MODEL_DIR="$MTPLXPACK"; MODEL_REV=6bc2f6e8426ccb4af73c81bc56ba7718afc92cc6
+      fi
+      if [[ "$CAND" == m1b ]]; then export MTPLX_MEMORY_LIMIT_BYTES=96G; REV=v2.12.2-mem96g; fi
+      TOKENIZER="$MODEL_DIR"
+      if [[ -n "$YARN" ]]; then
+        YARN_MODEL_ROOT="$HOME/.cache/local-llms/qwen3.8-flashnext-overlays/yarn${YARN%%.*}"
+        YARN_MODEL_DIR="$YARN_MODEL_ROOT/$(basename "$MODEL_DIR")"
+        [[ -d "$YARN_MODEL_DIR" ]] || { echo "run-candidate: rode scripts/make-yarn-overlay.py --src $MODEL_DIR --dst-root $YARN_MODEL_ROOT --factor $YARN --ctx $CTX" >&2; exit 66; }
+        MODEL_DIR="$YARN_MODEL_DIR"; TOKENIZER="$YARN_MODEL_DIR"; REV="${REV}-yarn${YARN}"
+      fi ;;
+  o1|o27)
+      LAUNCHER="$HARNESS/run-omlx.sh"; PORT=8000; RUNTIME=omlx; REV=v0.7.0
+      if [[ "$CAND" == o1 ]]; then ARM=FN; MODEL_DIR="$OQ4E"; MODEL_REV=2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8
+      else ARM=T; MODEL_DIR="$OQ8E"; MODEL_REV=c99e5aad8a478f71c10b9a3dde6709158b690da6; fi
+      TOKENIZER="$MODEL_DIR"; METRICS=""; SERVER_NAME=omlx
+      PROBE_PY="$OPT/omlx-v0.7.0/bin/python"
+      export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_OMLX_BIN="$OPT/omlx-v0.7.0/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.0 ;;
+  s27) LAUNCHER="$HARNESS/run-mlx-dspark.sh"; ARM=S; PORT=8484; RUNTIME=mlx-dspark; REV=v0.20.3
+      MODEL_DIR="$MC27"; MODEL_REV=815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9
+      TOKENIZER="$MODEL_DIR"; METRICS=""; SERVER_NAME=mlx-dspark
+      PROBE_PY="$OPT/mlx-dspark-v0.20.3/bin/python"
+      export MLX_DSPARK_BIN="$OPT/mlx-dspark-v0.20.3/bin/mlx-dspark" QWEN38_MLX_DSPARK_EXPECTED_VERSION=0.20.3
+      export MLX_DSPARK_TARGET_PATH="$MC27" MLX_DSPARK_DFLASH2_PATH="$DFLASH2" QWEN38_CTX_SIZE="$CTX" ;;
+  d1) LAUNCHER="$HARNESS/run-ds4.sh"; ARM=FD; PORT=11234; RUNTIME=ds4
+      MODEL_DIR="$OPT/ds4-upstream"; MODEL_REV=qwen38-q4k
+      REV="upstream-$(git -C "$MODEL_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+      TOKENIZER="$IQDIR"; METRICS=""; SERVER_NAME=ds4-server
+      PROBE_PY="$OPT/mtplx-v2.12.2/bin/python"
+      export QWEN38_CTX_SIZE="$CTX" ;;
   c2|c3)
       LAUNCHER="$HARNESS/run-omlx.sh"; ARM=FN; PORT=8000; RUNTIME=omlx
       MODEL_DIR="$OQ4E"; MODEL_REV=2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8
