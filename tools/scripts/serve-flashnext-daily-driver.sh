@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# Start the Qwen3.8-Flash-Next daily driver: ddalcu mixed-4/8 on mlx-serve 26.9.2.
-# Profiles (the exact configs measured in bench/qwen38-flashnext-daily-driver-2026-09):
+# Start the Qwen3.8-Flash-Next daily driver: ddalcu iQ-MLX-4.7bpw on mlx-serve 26.10.1.
+# Profiles (the configs measured in bench/qwen38-flashnext-daily-driver-2026-09):
 #   daily  (default) 131072 tokens, MTP, prefix cache 16GB RAM / 100GB disk / 64 entries
+#                    re-measured with this pair in bench/qwen38-flashnext-updates-2026-10
 #   512k             524288 tokens via YaRN 2.0 + 8-bit KV; memory at the edge, close heavy apps first
+#                    512k measured on 26.9.2 with the mixed-4-8bit weights; not re-measured
 # Overrides: FLASHNEXT_PORT (default 11234), FLASHNEXT_HOST (default 0.0.0.0),
 #            FLASHNEXT_BIN, FLASHNEXT_MODEL. Add --print to show the command without starting.
 set -euo pipefail
@@ -17,8 +19,8 @@ for arg in "$@"; do
   esac
 done
 
-BIN="${FLASHNEXT_BIN:-$HOME/.local/opt/qwen38/mlx-serve-v26.9.2/mlx-serve}"
-MODEL="${FLASHNEXT_MODEL:-$HOME/.cache/local-llms/qwen3.8-prefix-cache/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit-ef5b919d31534faa1997666f1a22d362cd6383cd}"
+BIN="${FLASHNEXT_BIN:-$HOME/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve}"
+MODEL="${FLASHNEXT_MODEL:-$HOME/.cache/local-llms/qwen3.8-prefix-cache/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a}"
 HOST="${FLASHNEXT_HOST:-0.0.0.0}"
 PORT="${FLASHNEXT_PORT:-11234}"
 
