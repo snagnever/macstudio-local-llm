@@ -106,3 +106,12 @@ def test_old_candidates_unchanged():
     assert "mlx-serve-v26.9.2/mlx-serve" in show("c1")
     assert "mtplx-v2.11.2/bin/mtplx" in show("c4")
     assert "--drafter" not in show("n2")
+
+
+def test_d1_selects_base_model_id():
+    # ds4-server serve qwen3.8-flash-next, -chat e -reasoner; nenhum casa com o diretório.
+    assert "model_select: qwen3.8-flash-next\n" in show("d1")
+
+
+def test_other_arms_select_by_dir_basename():
+    assert f"model_select: {IQ}\n" in show("n2")

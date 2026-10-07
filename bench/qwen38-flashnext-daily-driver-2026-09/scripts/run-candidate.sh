@@ -49,6 +49,7 @@ OQ8E="$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b
 YARN27_JSON() { echo "{\"text_config\":{\"rope_parameters\":{\"mrope_interleaved\":true,\"mrope_section\":[11,11,10],\"partial_rotary_factor\":0.25,\"rope_theta\":10000000,\"rope_type\":\"yarn\",\"factor\":$1,\"original_max_position_embeddings\":262144},\"max_position_embeddings\":$2}}"; }
 
 # Por candidato: launcher, arm, porta, binario, python do probe, tokenizer, metrics.
+MODEL_ID_PREF=""
 case "$CAND" in
   c1) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.9.2
       MODEL_DIR="$DDALCU"; MODEL_REV=ef5b919d31534faa1997666f1a22d362cd6383cd
@@ -150,6 +151,8 @@ case "$CAND" in
       MODEL_DIR="$OPT/ds4-upstream"; MODEL_REV=qwen38-q4k
       REV="upstream-$(git -C "$MODEL_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
       TOKENIZER="$IQDIR"; METRICS=""; SERVER_NAME=ds4-server
+      # ds4-server serve qwen3.8-flash-next, -chat e -reasoner: o probe usa o id base.
+      MODEL_ID_PREF=qwen3.8-flash-next
       PROBE_PY="$OPT/mtplx-v2.12.2/bin/python"
       export QWEN38_CTX_SIZE="$CTX" ;;
   c2|c3)
@@ -244,7 +247,10 @@ OUT="$RESULTS/$NAME.jsonl"; BOOT="$LOGS/$NAME-boot.log"; MEM="$LOGS/$NAME-mem.js
 SCENARIO_REPEATS=""
 [[ "$REPEAT" -gt 1 ]] && SCENARIO_REPEATS="middle_mutation=1"
 
+# Id servido que o probe usa: o nome do diretório do modelo, salvo quando o candidato declara outro.
+MODEL_SELECT="${MODEL_ID_PREF:-$(basename "$MODEL_DIR")}"
 if [[ -n "$PRINT" ]]; then
+  echo "model_select: $MODEL_SELECT"
   echo "launcher: $LAUNCHER $ARM"; bash "$LAUNCHER" "$ARM" --print; echo
   echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS}"
   echo "saida: $OUT"; exit 0
@@ -316,7 +322,7 @@ for _ in $(seq 1 200); do
 done
 [[ -n "$ready" ]] || { echo "servidor nao ficou pronto em 10 min; ver $BOOT" >&2; exit 69; }
 MODELS_JSON="$(curl -fsS "$BASE/v1/models")"
-MODEL_BASENAME="$(basename "$MODEL_DIR")"
+MODEL_BASENAME="$MODEL_SELECT"
 MODEL_ID="$(python3 -c '
 import sys, json
 data = json.load(sys.stdin)["data"]
