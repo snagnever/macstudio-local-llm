@@ -389,6 +389,7 @@ def _prime_payload(
     specprefill_keep_pct: Optional[float] = None,
     specprefill_threshold: Optional[int] = None,
     sampling_controls: Optional[dict[str, Any]] = None,
+    max_tokens: int = 1,
 ) -> dict[str, Any]:
     payload = _payload(
         model,
@@ -398,7 +399,7 @@ def _prime_payload(
         specprefill_threshold=specprefill_threshold,
         sampling_controls=sampling_controls,
     )
-    payload["max_tokens"] = 1
+    payload["max_tokens"] = max_tokens
     return payload
 
 
@@ -788,6 +789,7 @@ def _run_scenario_repeat(
                     specprefill_keep_pct=args.specprefill_keep_pct,
                     specprefill_threshold=args.specprefill_threshold,
                     sampling_controls=sampling_controls,
+                    max_tokens=getattr(args, "prime_max_tokens", 1),
                 ),
                 headers,
             )
@@ -880,6 +882,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--drafter-id")
     parser.add_argument("--drafter-revision")
     parser.add_argument("--tokenizer-path", type=Path)
+    parser.add_argument(
+        "--prime-max-tokens",
+        type=int,
+        default=1,
+        help=(
+            "max_tokens of the priming request. MTPLX treats a request with "
+            "max_tokens <= 48 and no history as a background task."
+        ),
+    )
     parser.add_argument(
         "--session-header",
         help="HTTP header that carries a per-conversation session id (e.g. x-mtplx-session-id).",

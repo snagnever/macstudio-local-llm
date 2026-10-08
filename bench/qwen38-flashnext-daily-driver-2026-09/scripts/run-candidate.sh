@@ -7,10 +7,11 @@
 #   engine-updates-2026-10: m1/m1b = MTPLX 2.12.2 (m1b: limite 96G), o1 = oMLX 0.7.0, d1 = ds4 upstream;
 #   r27 = 27B @ mlx-serve 26.10.1 + DFlash2, m27 = MTPLX 2.12.2, o27 = oMLX 0.7.0, s27 = mlx-dspark 0.20.3
 #   Etapa F (um knob por braço): m1t/m1h/m1th = m1 + pin TTL 0 / header de sessão / os dois;
+#   m1p/m1hp = m1 + prime com 64 tokens / + header de sessão;
 #   m27f = m27 + knob de ENGINE_M27F; r27b = r27 + --draft-block-size 5; s27g = s27 + --no-memory-guard
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|m1|m1b|m1t|m1h|m1th|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|m1|m1b|m1t|m1h|m1th|m1p|m1hp|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""
 while [[ $# -gt 0 ]]; do
@@ -51,7 +52,7 @@ OQ8E="$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b
 YARN27_JSON() { echo "{\"text_config\":{\"rope_parameters\":{\"mrope_interleaved\":true,\"mrope_section\":[11,11,10],\"partial_rotary_factor\":0.25,\"rope_theta\":10000000,\"rope_type\":\"yarn\",\"factor\":$1,\"original_max_position_embeddings\":262144},\"max_position_embeddings\":$2}}"; }
 
 # Por candidato: launcher, arm, porta, binario, python do probe, tokenizer, metrics.
-MODEL_ID_PREF=""; PROBE_SESSION_HEADER=""
+MODEL_ID_PREF=""; PROBE_SESSION_HEADER=""; PROBE_PRIME_MAX_TOKENS=""
 case "$CAND" in
   c1) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.9.2
       MODEL_DIR="$DDALCU"; MODEL_REV=ef5b919d31534faa1997666f1a22d362cd6383cd
@@ -119,7 +120,7 @@ case "$CAND" in
         export QWEN38_MLX_KV_QUANT=8 QWEN38_MLX_CONFIG_OVERRIDES="$(YARN27_JSON "$YARN" "$CTX")"
         REV="v26.10.1-yarn${YARN}-kv8"
       fi ;;
-  m1|m1b|m1t|m1h|m1th|m27|m27f)
+  m1|m1b|m1t|m1h|m1th|m1p|m1hp|m27|m27f)
       LAUNCHER="$HARNESS/run-mtplx.sh"; PORT=8000; RUNTIME=MTPLX; REV=v2.12.2
       PROBE_PY="$OPT/mtplx-v2.12.2/bin/python"; METRICS="http://127.0.0.1:$PORT/metrics"; SERVER_NAME=mtplx
       export QWEN38_MTPLX_BIN="$OPT/mtplx-v2.12.2/bin/mtplx" QWEN38_MTPLX_EXPECTED_VERSION=2.12.2 QWEN38_CTX_SIZE="$CTX"
@@ -133,12 +134,15 @@ case "$CAND" in
       # Etapa F: o knob vem do nome do braço (m27f lê ENGINE_M27F); os outros braços nunca herdam o pin TTL.
       case "$CAND" in
         m1t) FIX=pin0 ;; m1h) FIX=sesshdr ;; m1th) FIX=pin0-sesshdr ;;
-        m27f) FIX="${ENGINE_M27F:?m27f exige ENGINE_M27F=pin0|sesshdr|pin0-sesshdr}" ;;
+        m1p) FIX=prime64 ;; m1hp) FIX=sesshdr-prime64 ;;
+        m27f) FIX="${ENGINE_M27F:?m27f exige ENGINE_M27F=pin0|sesshdr|prime64|sesshdr-prime64|...}" ;;
         *) FIX="" ;;
       esac
       unset MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S
       [[ "$FIX" == *pin0* ]] && export MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S=0
       [[ "$FIX" == *sesshdr* ]] && PROBE_SESSION_HEADER=x-mtplx-session-id
+      # O MTPLX trata um pedido sem histórico e com max_tokens <= 48 como tarefa de background (sem sessão).
+      [[ "$FIX" == *prime64* ]] && PROBE_PRIME_MAX_TOKENS=64
       [[ -n "$FIX" ]] && REV="v2.12.2-$FIX"
       TOKENIZER="$MODEL_DIR"
       if [[ -n "$YARN" ]]; then
@@ -267,7 +271,7 @@ MODEL_SELECT="${MODEL_ID_PREF:-$(basename "$MODEL_DIR")}"
 if [[ -n "$PRINT" ]]; then
   echo "model_select: $MODEL_SELECT"
   echo "launcher: $LAUNCHER $ARM"; bash "$LAUNCHER" "$ARM" --print; echo
-  echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS} ${PROBE_SESSION_HEADER:+--session-header $PROBE_SESSION_HEADER}"
+  echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS} ${PROBE_SESSION_HEADER:+--session-header $PROBE_SESSION_HEADER} ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens $PROBE_PRIME_MAX_TOKENS}"
   echo "saida: $OUT"; exit 0
 fi
 
@@ -382,6 +386,7 @@ PROBE_EXIT=0
   ${METRICS:+--metrics-url "$METRICS"} \
   ${SCENARIO_REPEATS:+--scenario-repeats "$SCENARIO_REPEATS"} \
   ${PROBE_SESSION_HEADER:+--session-header "$PROBE_SESSION_HEADER"} \
+  ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens "$PROBE_PRIME_MAX_TOKENS"} \
   --output "$OUT" --cache-enabled $([[ "$GENMODE" == "" || "$GENMODE" == mtp ]] && echo --mtp-enabled) \
   || PROBE_EXIT=$?
 

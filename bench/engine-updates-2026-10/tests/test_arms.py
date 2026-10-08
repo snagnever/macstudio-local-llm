@@ -186,3 +186,22 @@ def test_inherited_fix_knobs_do_not_leak_into_original_arms():
                              env=_env(leak), check=True).stdout
         for marker in ("PIN_TTL", "--draft-block-size", "--no-memory-guard", "--session-header"):
             assert marker not in out, (cand, marker)
+
+
+def test_m1p_primes_with_64_tokens_only():
+    out = show("m1p")
+    assert "--prime-max-tokens 64" in out
+    assert "--session-header" not in out and "PIN_TTL" not in out
+    assert "--runtime-revision v2.12.2-prime64 " in out
+
+
+def test_m1hp_combines_header_and_prime64():
+    out = show("m1hp")
+    assert "--prime-max-tokens 64" in out
+    assert "--session-header x-mtplx-session-id" in out
+    assert "--runtime-revision v2.12.2-sesshdr-prime64 " in out
+
+
+def test_original_arms_keep_default_prime():
+    for cand in ("m1", "n2", "r27"):
+        assert "--prime-max-tokens" not in show(cand)

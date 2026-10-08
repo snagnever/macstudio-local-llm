@@ -459,5 +459,16 @@ class CacheProbeTests(unittest.TestCase):
         self.assertTrue(all(not call.kwargs.get("headers") for call in calls))
 
 
+    def test_prime_max_tokens_defaults_to_one(self):
+        calls = self._run_main_capturing_chat([])
+        # chamadas: warmup, cold, depois (prime, medido) por cenário.
+        self.assertEqual(calls[2].args[1]["max_tokens"], 1)
+
+    def test_prime_max_tokens_flag_changes_only_the_prime(self):
+        calls = self._run_main_capturing_chat(["--prime-max-tokens", "64"])
+        self.assertEqual(calls[2].args[1]["max_tokens"], 64)
+        self.assertNotEqual(calls[3].args[1]["max_tokens"], 64)
+
+
 if __name__ == "__main__":
     unittest.main()
