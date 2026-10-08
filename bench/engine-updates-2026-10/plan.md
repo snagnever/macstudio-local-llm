@@ -130,6 +130,8 @@ Um knob por braço contra o braço original da campanha ([[isolate-the-variable-
 | m1th | m1 | os dois knobs acima | 32K | soma dos dois |
 | r27b | r27 | `--draft-block-size 5` | 32K e 128K | queda de decode do DFlash2 |
 | s27g | s27 | `--no-memory-guard` | 32K | `append` com hit 0.87 |
+| m1p | m1 | prime do probe com `max_tokens` 64 (default 1) | 32K | prime classificado como tarefa de background |
+| m1hp | m1 | header de sessão + prime com 64 tokens | 32K | cliente com formato de agente |
 | m27f | m27 | o knob MTPLX vencedor | 128K | só se algum m1* passar nos gates a 32K |
 
 O header de sessão do m1h é um id por conversa do probe (`<session-id>-<cenário>-<rep>`), igual para o prime e o
@@ -142,6 +144,13 @@ pedido medido. É o que um cliente de agente manda. O braço muda o cliente, nã
   da Etapa F: a única saída conhecida (KV q8) muda uma segunda variável.
 - r27b: compare decode e `T_turno` com o r27 nas duas bandas.
 - s27g: se passar no gate, o s27 vira o líder do 27B por `T_turno`; o relatório diz isso.
+
+**Ruling (2026-10-08, depois do m1h):** o m1h recebeu HTTP 503 `session_busy` em 4 primes. No código do 2.12.2
+(`engine_session.is_background_request`), um pedido sem histórico, com `max_tokens` ≤ 48 e system prompt diferente do
+da sessão principal é tarefa de background (o formato de um job de título do Open WebUI). O prime do probe tem
+`max_tokens` 1 e o system prompt muda a cada rep, então cai nessa regra: sem header, roda sem sessão; com header, recebe
+503 enquanto o turno anterior grava. Os braços m1p e m1hp isolam esse efeito; o m1th saiu da rodada (teria os mesmos
+503). O probe ganha `--prime-max-tokens`, com default 1 nos outros braços.
 
 Fora da Etapa F: ds4 `--mtp-draft`, n2 512K com prefix cache menor, `max_tokens` do probe, PR #754 (sem release).
 
