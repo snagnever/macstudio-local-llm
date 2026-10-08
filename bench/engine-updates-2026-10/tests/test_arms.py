@@ -115,3 +115,14 @@ def test_d1_selects_base_model_id():
 
 def test_other_arms_select_by_dir_basename():
     assert f"model_select: {IQ}\n" in show("n2")
+
+
+def test_inherited_mtplx_limit_does_not_leak_into_default_arms():
+    # Um MTPLX_MEMORY_LIMIT_BYTES esquecido no shell não pode rodar m1/m27 com outro limite e rótulo v2.12.2.
+    for cand in ("m1", "m27"):
+        out = subprocess.run(["bash", str(DRIVER), cand, "32768", "--print"], capture_output=True, text=True,
+                             env=_env({"MTPLX_MEMORY_LIMIT_BYTES": "80G"}), check=True).stdout
+        assert "MTPLX_MEMORY_LIMIT_BYTES" not in out
+    out = subprocess.run(["bash", str(DRIVER), "m1b", "32768", "--print"], capture_output=True, text=True,
+                         env=_env({"MTPLX_MEMORY_LIMIT_BYTES": "80G"}), check=True).stdout
+    assert "MTPLX_MEMORY_LIMIT_BYTES=96G" in out

@@ -33,8 +33,9 @@ Swap delta 0 em todos os braços.
 
 ## Por braço
 
-- **o27 (oMLX 0.7.0).** Passa em tudo e é o 2º mais rápido nas duas bandas. Usa a MTP nativa do pack oQ8e.
-  Truncou 1 resposta a 32K (4096 tokens de reasoning), sem falha de needle.
+- **o27 (oMLX 0.7.0).** Passa em tudo; é o 3º mais rápido a 32K (atrás do s27 e do m27) e o 2º a 128K. Usa a MTP nativa do pack oQ8e.
+  Truncou 1 resposta a 32K (4096 tokens de reasoning); as 3 needles dela contam como erradas (36 de 39), e o
+  resumo marca `truncado`, que não é falha de gate. O s27 teve o mesmo a 32K.
 - **s27 (mlx-dspark 0.20.3).** O decode mais alto do 27B (43.5 / 32.4 tok/s) e o menor cold. O `append` a 32K
   reusa só 87% do prefixo (TTFT quente de 17 s); a 128K o reuso volta a 0.97. O `doctor` sugere o modo DSpark para
   esta máquina; o braço rodou em DFlash para casar com o r27.

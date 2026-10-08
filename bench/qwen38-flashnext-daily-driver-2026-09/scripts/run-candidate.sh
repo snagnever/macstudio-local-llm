@@ -125,7 +125,8 @@ case "$CAND" in
       else
         ARM=FX; MODEL_DIR="$MTPLXPACK"; MODEL_REV=6bc2f6e8426ccb4af73c81bc56ba7718afc92cc6
       fi
-      if [[ "$CAND" == m1b ]]; then export MTPLX_MEMORY_LIMIT_BYTES=96G; REV=v2.12.2-mem96g; fi
+      # Só o m1b muda o limite; um valor herdado do shell rodaria m1/m27 fora do default com rótulo v2.12.2.
+      if [[ "$CAND" == m1b ]]; then export MTPLX_MEMORY_LIMIT_BYTES=96G; REV=v2.12.2-mem96g; else unset MTPLX_MEMORY_LIMIT_BYTES; fi
       TOKENIZER="$MODEL_DIR"
       if [[ -n "$YARN" ]]; then
         YARN_MODEL_ROOT="$HOME/.cache/local-llms/qwen3.8-flashnext-overlays/yarn${YARN%%.*}"
