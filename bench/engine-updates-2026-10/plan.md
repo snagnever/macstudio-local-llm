@@ -2,6 +2,10 @@
 
 > **Status (2026-10-08): concluída.** Flash-Next: o n2 (mlx-serve 26.10.1 + iQ) continua como driver; nenhum runtime atualizado chega a 0.97 × o `T_turno` dele. 27B (fechado em 128K por decisão do usuário): o oMLX 0.7.0 lidera entre os braços que passam nos gates. Veredito em [results/summary.md](results/summary.md).
 >
+> **Etapa F (2026-10-08): concluída.** A perda de cache do MTPLX vinha do prime do probe; com prime de 64 tokens o
+> MTPLX passa (Flash-Next 8.8 s a 32K, 27B 30.2 s a 128K). O veredito do Flash-Next não muda. Ver
+> [results/etapa-f-fixes.md](results/etapa-f-fixes.md).
+>
 > **Objetivo:** medir se os runtimes atualizados (MTPLX 2.12.2, oMLX 0.7.0, mlx-dspark 0.20.3,
 > ds4 upstream) batem a referência no mlx-serve 26.10.1. São duas perguntas, com um veredito cada:
 > o driver Flash-Next e o Qwen3.8-27B. A campanha mede velocidade, cache e memória.

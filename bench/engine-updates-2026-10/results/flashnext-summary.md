@@ -4,6 +4,10 @@
 `T_turno ≤ 0.97 × n2`. O oMLX 0.7.0 passa nos gates mas fica 23% mais lento a 32K e 38% a 128K. O MTPLX 2.12.2
 perde o cache a 32K e recusa 128K com HTTP 507. O ds4 upstream não passou o gate de decode.
 
+> **Correção (Etapa F):** o MTPLX 2.12.2 com prime de 64 tokens (m1p) reusa o cache e passa nos gates a 32K:
+> `T_turno` 8.8 s, 1.07× o n2, 2º colocado. A perda de cache abaixo vinha do prime de 1 token do probe. O n2 segue
+> driver. Ver [etapa-f-fixes.md](etapa-f-fixes.md).
+
 Rig: M4 Max 128 GB. Probe: `temperature=1.0`, `top_p=0.95`, `top_k=20`, reasoning `xhigh`, limite 4096 tokens,
 3 reps a 32K e 128K.
 

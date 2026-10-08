@@ -5,6 +5,11 @@ r27 (mlx-serve 26.10.1 + DFlash2) em 9% a 32K (18.0 contra 19.7 s) e em 32% a 12
 (mlx-dspark 0.20.3 + DFlash2) tem o menor `T_turno` nas duas bandas (16.9 / 25.0 s), mas falha no gate de hit do
 `append` a 32K (0.87). O MTPLX 2.12.2 perde o cache a 128K.
 
+> **Correção (Etapa F):** com prime de 64 tokens, o MTPLX passa a 128K (m27f: 30.2 s, empate com o o27). O
+> mlx-dspark com `--prefix-cache-rungs 1024` passa a 32K (s27r: 16.7 s, o mais rápido). O r27b (bloco 5) acertou
+> todas as needles a 128K. oMLX e MTPLX empatam nas duas bandas; o mlx-dspark pode liderar se o s27r passar a 128K
+> (não medido). Ver [etapa-f-fixes.md](etapa-f-fixes.md).
+
 Sem leitura de qualidade: o ranking não decide papel de agente.
 
 Rig: M4 Max 128 GB. Probe: `temperature=1.0`, `top_p=0.95`, `top_k=20`, reasoning `xhigh`, limite 4096 tokens,

@@ -1,0 +1,227 @@
+{
+ "m1h@32768": {
+  "cold_ttft_s": 44.2,
+  "warm_ttft_s": {
+   "identical": 0.2,
+   "append": 2.5,
+   "tool_turn": 46.2
+  },
+  "hit": {
+   "identical": 1.0,
+   "append": 0.961,
+   "tool_turn": 0.0
+  },
+  "prefill_tps": 617.7,
+  "decode_tps": 81.3,
+  "t_turno_s": 52.5,
+  "correctness": "falha",
+  "wired_peak_gb": 99.8,
+  "swap_delta_gb": 0,
+  "mtp_acceptance": 0.082,
+  "errors": 4,
+  "n": 13,
+  "gates_failed": [
+   "hit_tool_turn<0.90",
+   "needle",
+   "http_errors"
+  ],
+  "warnings": []
+ },
+ "m1hp@32768": {
+  "cold_ttft_s": 44.2,
+  "warm_ttft_s": {
+   "identical": 0.2,
+   "append": 6.6,
+   "tool_turn": 2.5
+  },
+  "hit": {
+   "identical": 1.0,
+   "append": 0.961,
+   "tool_turn": 0.962
+  },
+  "prefill_tps": 617.9,
+  "decode_tps": 78.9,
+  "t_turno_s": 9.0,
+  "correctness": "truncado",
+  "wired_peak_gb": 98.41,
+  "swap_delta_gb": 0,
+  "mtp_acceptance": 0.08,
+  "errors": 0,
+  "n": 13,
+  "gates_failed": [],
+  "warnings": []
+ },
+ "m1p@32768": {
+  "cold_ttft_s": 44.1,
+  "warm_ttft_s": {
+   "identical": 0.1,
+   "append": 2.5,
+   "tool_turn": 2.4
+  },
+  "hit": {
+   "identical": 1.0,
+   "append": 0.961,
+   "tool_turn": 0.962
+  },
+  "prefill_tps": 618.6,
+  "decode_tps": 79.6,
+  "t_turno_s": 8.8,
+  "correctness": "ok",
+  "wired_peak_gb": 98.43,
+  "swap_delta_gb": 0,
+  "mtp_acceptance": 0.08,
+  "errors": 0,
+  "n": 13,
+  "gates_failed": [],
+  "warnings": []
+ },
+ "m1t@32768": {
+  "cold_ttft_s": 44.2,
+  "warm_ttft_s": {
+   "identical": 44.2,
+   "append": 46.2,
+   "tool_turn": 46.2
+  },
+  "hit": {
+   "identical": 0.0,
+   "append": 0.0,
+   "tool_turn": 0.0
+  },
+  "prefill_tps": 617.3,
+  "decode_tps": 77.7,
+  "t_turno_s": 52.8,
+  "correctness": "ok",
+  "wired_peak_gb": 99.36,
+  "swap_delta_gb": 0,
+  "mtp_acceptance": 0.071,
+  "errors": 0,
+  "n": 13,
+  "gates_failed": [
+   "hit_append<0.90",
+   "hit_tool_turn<0.90"
+  ],
+  "warnings": []
+ },
+ "m27f@131072": {
+  "cold_ttft_s": 804.4,
+  "warm_ttft_s": {
+   "identical": 0.4,
+   "append": 10.3,
+   "tool_turn": 10.1
+  },
+  "hit": {
+   "identical": 1.0,
+   "append": 0.991,
+   "tool_turn": 0.992
+  },
+  "prefill_tps": 156.2,
+  "decode_tps": 25.5,
+  "t_turno_s": 30.2,
+  "correctness": "ok",
+  "wired_peak_gb": 95.62,
+  "swap_delta_gb": 0,
+  "mtp_acceptance": 0.089,
+  "errors": 0,
+  "n": 13,
+  "gates_failed": [],
+  "warnings": []
+ },
+ "r27b@131072": {
+  "cold_ttft_s": 716.4,
+  "warm_ttft_s": {
+   "identical": 1.5,
+   "append": 10.8,
+   "tool_turn": 11.0
+  },
+  "hit": {
+   "identical": 1.0,
+   "append": 0.992,
+   "tool_turn": 0.991
+  },
+  "prefill_tps": 175.4,
+  "decode_tps": 16.5,
+  "t_turno_s": 42.1,
+  "correctness": "truncado",
+  "wired_peak_gb": 69.14,
+  "swap_delta_gb": 0,
+  "mtp_acceptance": 0.685,
+  "errors": 0,
+  "n": 13,
+  "gates_failed": [],
+  "warnings": []
+ },
+ "r27b@32768": {
+  "cold_ttft_s": 108.8,
+  "warm_ttft_s": {
+   "identical": 0.6,
+   "append": 5.8,
+   "tool_turn": 5.9
+  },
+  "hit": {
+   "identical": 0.999,
+   "append": 0.962,
+   "tool_turn": 0.961
+  },
+  "prefill_tps": 251.0,
+  "decode_tps": 35.5,
+  "t_turno_s": 20.3,
+  "correctness": "ok",
+  "wired_peak_gb": 59.74,
+  "swap_delta_gb": 0,
+  "mtp_acceptance": 0.773,
+  "errors": 0,
+  "n": 13,
+  "gates_failed": [],
+  "warnings": []
+ },
+ "s27g@32768": {
+  "cold_ttft_s": 102.1,
+  "warm_ttft_s": {
+   "identical": 0.1,
+   "append": 16.7,
+   "tool_turn": 5.1
+  },
+  "hit": {
+   "identical": 1.0,
+   "append": 0.867,
+   "tool_turn": 0.962
+  },
+  "prefill_tps": 266.6,
+  "decode_tps": 44.8,
+  "t_turno_s": 16.5,
+  "correctness": "ok",
+  "wired_peak_gb": 44.5,
+  "swap_delta_gb": 0,
+  "mtp_acceptance": null,
+  "errors": 0,
+  "n": 13,
+  "gates_failed": [
+   "hit_append<0.90"
+  ],
+  "warnings": []
+ },
+ "s27r@32768": {
+  "cold_ttft_s": 109.7,
+  "warm_ttft_s": {
+   "identical": 0.1,
+   "append": 8.4,
+   "tool_turn": 5.4
+  },
+  "hit": {
+   "identical": 1.0,
+   "append": 0.94,
+   "tool_turn": 0.962
+  },
+  "prefill_tps": 248.4,
+  "decode_tps": 45.4,
+  "t_turno_s": 16.7,
+  "correctness": "truncado",
+  "wired_peak_gb": 41.28,
+  "swap_delta_gb": 0,
+  "mtp_acceptance": null,
+  "errors": 0,
+  "n": 13,
+  "gates_failed": [],
+  "warnings": []
+ }
+}

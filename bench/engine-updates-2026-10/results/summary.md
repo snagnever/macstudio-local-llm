@@ -4,6 +4,12 @@
 chega a 0.97 × o `T_turno` dele. Qwen3.8-27B: o oMLX 0.7.0 (oQ8e-mtp) lidera entre os braços que passam nos
 gates, 9% à frente do mlx-serve 26.10.1 a 32K e 32% a 128K.**
 
+> **Correção (Etapa F, 2026-10-08):** a perda de cache do MTPLX 2.12.x vinha do prime do probe (`max_tokens: 1`), que o
+> MTPLX trata como tarefa de background sem sessão. Com prime de 64 tokens, o MTPLX passa nos gates: Flash-Next 8.8 s
+> a 32K (2º, 1.07× o n2; 128K segue HTTP 507) e 27B 30.2 s a 128K (empate com o oMLX). O mlx-dspark com
+> `--prefix-cache-rungs 1024` passa a 32K (16.7 s). O veredito do Flash-Next não muda; no 27B, oMLX e MTPLX empatam e
+> o mlx-dspark pode liderar (falta o s27r a 128K). Detalhe em [etapa-f-fixes.md](etapa-f-fixes.md).
+
 Rig: M4 Max 128 GB, 2026-10-07 e 2026-10-08. Sem leitura de qualidade.
 
 ## Flash-Next
@@ -32,9 +38,10 @@ A parte 27B fechou em 128K por decisão do usuário. Detalhe em [27b-summary.md]
 
 ## Achados que valem para os dois modelos
 
-- **MTPLX 2.12.x no M4 Max 128 GB:** o memory guard reescrito no 2.12.1 descarta o prefixo reusável
-  (`prefill_admission_shed`) e o turno re-prefila tudo. No Flash-Next isso acontece já a 32K; no 27B, a 128K.
-  O teto de contexto do Flash-Next continua em 114 688 tokens, mesmo com `MTPLX_MEMORY_LIMIT_BYTES=96G`.
+- **MTPLX 2.12.x no M4 Max 128 GB:** na rodada original o turno re-prefilava tudo (`prefill_admission_shed`). A
+  Etapa F achou a causa no probe, não no guard: o prime de 1 token roda sem sessão. Com prime de 64 tokens o reuso
+  volta ([etapa-f-fixes.md](etapa-f-fixes.md)). O teto de contexto do Flash-Next continua em 114 688 tokens, mesmo
+  com `MTPLX_MEMORY_LIMIT_BYTES=96G`.
 - **oMLX 0.7.0** é a maior melhora da rodada: Flash-Next de 13.5 / 15.0 s (0.7.0.dev2) para 10.1 / 12.1 s, e
   lidera o 27B.
 - **mlx-serve com drafter DFlash (27B)** perde decode com contexto longo (37.0 → 15.5 tok/s de 32K a 128K); com a
@@ -54,3 +61,4 @@ A parte 27B fechou em 128K por decisão do usuário. Detalhe em [27b-summary.md]
 - mlx-vlm 0.7.6, LM Studio 0.4.25, llama.cpp b11461 e o fork ivanfioravanti do ds4.
 - O modo DSpark do mlx-dspark no 27B (o braço rodou em DFlash para casar com o r27).
 - A causa do teto de 114 688 tokens do MTPLX não mudar com o limite de 96G (não li o código do MTPLX).
+- O mlx-dspark com `--prefix-cache-rungs 1024` a 128K.

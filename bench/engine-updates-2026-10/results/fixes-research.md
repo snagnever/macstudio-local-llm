@@ -1,7 +1,9 @@
 # Correções candidatas para os problemas da campanha (pesquisa web, 2026-10-08)
 
 Esta nota junta, por problema, as correções, os parâmetros e os workarounds encontrados na web e no código dos
-runtimes instalados. **Nenhum item foi medido no rig quando a nota foi escrita.** A Etapa F
+runtimes instalados. **Nenhum item foi medido no rig quando a nota foi escrita.** Resultado da Etapa F: o pin TTL 0, o header de sessão,
+o `--no-memory-guard` e o `--draft-block-size 5` não corrigem os problemas. A causa do MTPLX era o prime de 1 token do
+probe, e o `--prefix-cache-rungs 1024` corrige o mlx-dspark. A Etapa F
 ([../plan.md](../plan.md#etapa-f--ab-das-correções-2026-10-08)) testa os principais; o resultado fica em
 [etapa-f-fixes.md](etapa-f-fixes.md).
 
