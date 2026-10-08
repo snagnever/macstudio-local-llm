@@ -1,5 +1,7 @@
 # 2026-10-07 — Engines atualizadas: Flash-Next e Qwen3.8-27B contra o mlx-serve 26.10.1
 
+> **Status (2026-10-08): concluída.** Flash-Next: o n2 (mlx-serve 26.10.1 + iQ) continua como driver; nenhum runtime atualizado chega a 0.97 × o `T_turno` dele. 27B (fechado em 128K por decisão do usuário): o oMLX 0.7.0 lidera entre os braços que passam nos gates. Veredito em [results/summary.md](results/summary.md).
+>
 > **Objetivo:** medir se os runtimes atualizados (MTPLX 2.12.2, oMLX 0.7.0, mlx-dspark 0.20.3,
 > ds4 upstream) batem a referência no mlx-serve 26.10.1. São duas perguntas, com um veredito cada:
 > o driver Flash-Next e o Qwen3.8-27B. A campanha mede velocidade, cache e memória.
