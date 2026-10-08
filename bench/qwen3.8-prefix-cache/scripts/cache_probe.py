@@ -770,9 +770,10 @@ def _run_scenario_repeat(
     args.greedy_tokens_hash = None
 
     # Um id por conversa (cenário/rep), igual no prime e no pedido medido, como um cliente de agente manda.
+    session_header = getattr(args, "session_header", None)
     headers = (
-        {args.session_header: f"{args.session_id}-{scenario}-{repeat}"}
-        if args.session_header
+        {session_header: f"{args.session_id}-{scenario}-{repeat}"}
+        if session_header
         else None
     )
     stage = "prime"
