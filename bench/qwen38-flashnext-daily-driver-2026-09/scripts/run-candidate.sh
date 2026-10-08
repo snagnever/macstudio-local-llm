@@ -6,9 +6,11 @@
 #   n1/n2/n2p = campanha flashnext-updates-2026-10 (mlx-serve 26.10.1; n2 = pack iQ-MLX-4.7bpw; n2p = n2 + --ple-gpu)
 #   engine-updates-2026-10: m1/m1b = MTPLX 2.12.2 (m1b: limite 96G), o1 = oMLX 0.7.0, d1 = ds4 upstream;
 #   r27 = 27B @ mlx-serve 26.10.1 + DFlash2, m27 = MTPLX 2.12.2, o27 = oMLX 0.7.0, s27 = mlx-dspark 0.20.3
+#   Etapa F (um knob por braço): m1t/m1h/m1th = m1 + pin TTL 0 / header de sessão / os dois;
+#   m27f = m27 + knob de ENGINE_M27F; r27b = r27 + --draft-block-size 5; s27g = s27 + --no-memory-guard
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|m1|m1b|o1|d1|r27|m27|o27|s27> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|m1|m1b|m1t|m1h|m1th|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""
 while [[ $# -gt 0 ]]; do
@@ -49,7 +51,7 @@ OQ8E="$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b
 YARN27_JSON() { echo "{\"text_config\":{\"rope_parameters\":{\"mrope_interleaved\":true,\"mrope_section\":[11,11,10],\"partial_rotary_factor\":0.25,\"rope_theta\":10000000,\"rope_type\":\"yarn\",\"factor\":$1,\"original_max_position_embeddings\":262144},\"max_position_embeddings\":$2}}"; }
 
 # Por candidato: launcher, arm, porta, binario, python do probe, tokenizer, metrics.
-MODEL_ID_PREF=""
+MODEL_ID_PREF=""; PROBE_SESSION_HEADER=""
 case "$CAND" in
   c1) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.9.2
       MODEL_DIR="$DDALCU"; MODEL_REV=ef5b919d31534faa1997666f1a22d362cd6383cd
@@ -106,27 +108,38 @@ case "$CAND" in
         export QWEN38_MLX_CONFIG_OVERRIDES="{\"text_config\":{\"rope_parameters\":{\"rope_type\":\"yarn\",\"factor\":${YARN},\"original_max_position_embeddings\":262144},\"max_position_embeddings\":${CTX}}}"
         REV="v26.10.1-yarn${YARN}-kv8"
       fi ;;
-  r27) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=C; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.1
+  r27|r27b) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=C; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.1
       MODEL_DIR="$MC27"; MODEL_REV=815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9
       PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""
       export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26101" MLX_SERVE_EXPECTED_VERSION=26.10.1
       export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX" QWEN38_MLX_DRAFTER="$DFLASH2"
       export QWEN38_MLX_PREFIX_CACHE_MEM=16GB QWEN38_MLX_PREFIX_CACHE_DISK=100GB QWEN38_MLX_PREFIX_CACHE_ENTRIES=64
+      if [[ "$CAND" == r27b ]]; then export QWEN38_MLX_DRAFT_BLOCK_SIZE=5; REV=v26.10.1-blk5; else unset QWEN38_MLX_DRAFT_BLOCK_SIZE; fi
       if [[ -n "$YARN" ]]; then
         export QWEN38_MLX_KV_QUANT=8 QWEN38_MLX_CONFIG_OVERRIDES="$(YARN27_JSON "$YARN" "$CTX")"
         REV="v26.10.1-yarn${YARN}-kv8"
       fi ;;
-  m1|m1b|m27)
+  m1|m1b|m1t|m1h|m1th|m27|m27f)
       LAUNCHER="$HARNESS/run-mtplx.sh"; PORT=8000; RUNTIME=MTPLX; REV=v2.12.2
       PROBE_PY="$OPT/mtplx-v2.12.2/bin/python"; METRICS="http://127.0.0.1:$PORT/metrics"; SERVER_NAME=mtplx
       export QWEN38_MTPLX_BIN="$OPT/mtplx-v2.12.2/bin/mtplx" QWEN38_MTPLX_EXPECTED_VERSION=2.12.2 QWEN38_CTX_SIZE="$CTX"
-      if [[ "$CAND" == m27 ]]; then
+      if [[ "$CAND" == m27 || "$CAND" == m27f ]]; then
         ARM=V2; MODEL_DIR="$M27PACK"; MODEL_REV=1d5087d2062c02b279180a53e4016cf9cd7a3d7e
       else
         ARM=FX; MODEL_DIR="$MTPLXPACK"; MODEL_REV=6bc2f6e8426ccb4af73c81bc56ba7718afc92cc6
       fi
       # Só o m1b muda o limite; um valor herdado do shell rodaria m1/m27 fora do default com rótulo v2.12.2.
       if [[ "$CAND" == m1b ]]; then export MTPLX_MEMORY_LIMIT_BYTES=96G; REV=v2.12.2-mem96g; else unset MTPLX_MEMORY_LIMIT_BYTES; fi
+      # Etapa F: o knob vem do nome do braço (m27f lê ENGINE_M27F); os outros braços nunca herdam o pin TTL.
+      case "$CAND" in
+        m1t) FIX=pin0 ;; m1h) FIX=sesshdr ;; m1th) FIX=pin0-sesshdr ;;
+        m27f) FIX="${ENGINE_M27F:?m27f exige ENGINE_M27F=pin0|sesshdr|pin0-sesshdr}" ;;
+        *) FIX="" ;;
+      esac
+      unset MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S
+      [[ "$FIX" == *pin0* ]] && export MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S=0
+      [[ "$FIX" == *sesshdr* ]] && PROBE_SESSION_HEADER=x-mtplx-session-id
+      [[ -n "$FIX" ]] && REV="v2.12.2-$FIX"
       TOKENIZER="$MODEL_DIR"
       if [[ -n "$YARN" ]]; then
         YARN_MODEL_ROOT="$HOME/.cache/local-llms/qwen3.8-flashnext-overlays/yarn${YARN%%.*}"
@@ -142,12 +155,13 @@ case "$CAND" in
       PROBE_PY="$OPT/omlx-v0.7.0/bin/python"
       export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_OMLX_BIN="$OPT/omlx-v0.7.0/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.0 ;;
-  s27) LAUNCHER="$HARNESS/run-mlx-dspark.sh"; ARM=S; PORT=8484; RUNTIME=mlx-dspark; REV=v0.20.3
+  s27|s27g) LAUNCHER="$HARNESS/run-mlx-dspark.sh"; ARM=S; PORT=8484; RUNTIME=mlx-dspark; REV=v0.20.3
       MODEL_DIR="$MC27"; MODEL_REV=815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9
       TOKENIZER="$MODEL_DIR"; METRICS=""; SERVER_NAME=mlx-dspark
       PROBE_PY="$OPT/mlx-dspark-v0.20.3/bin/python"
       export MLX_DSPARK_BIN="$OPT/mlx-dspark-v0.20.3/bin/mlx-dspark" QWEN38_MLX_DSPARK_EXPECTED_VERSION=0.20.3
-      export MLX_DSPARK_TARGET_PATH="$MC27" MLX_DSPARK_DFLASH2_PATH="$DFLASH2" QWEN38_CTX_SIZE="$CTX" ;;
+      export MLX_DSPARK_TARGET_PATH="$MC27" MLX_DSPARK_DFLASH2_PATH="$DFLASH2" QWEN38_CTX_SIZE="$CTX"
+      if [[ "$CAND" == s27g ]]; then export QWEN38_MLX_DSPARK_NO_MEMORY_GUARD=1; REV=v0.20.3-noguard; else unset QWEN38_MLX_DSPARK_NO_MEMORY_GUARD; fi ;;
   d1) LAUNCHER="$HARNESS/run-ds4.sh"; ARM=FD; PORT=11234; RUNTIME=ds4
       MODEL_DIR="$OPT/ds4-upstream"; MODEL_REV=qwen38-q4k
       REV="upstream-$(git -C "$MODEL_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
@@ -253,7 +267,7 @@ MODEL_SELECT="${MODEL_ID_PREF:-$(basename "$MODEL_DIR")}"
 if [[ -n "$PRINT" ]]; then
   echo "model_select: $MODEL_SELECT"
   echo "launcher: $LAUNCHER $ARM"; bash "$LAUNCHER" "$ARM" --print; echo
-  echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS}"
+  echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS} ${PROBE_SESSION_HEADER:+--session-header $PROBE_SESSION_HEADER}"
   echo "saida: $OUT"; exit 0
 fi
 
@@ -367,6 +381,7 @@ PROBE_EXIT=0
   ${TOKENIZER:+--tokenizer-path "$TOKENIZER"} \
   ${METRICS:+--metrics-url "$METRICS"} \
   ${SCENARIO_REPEATS:+--scenario-repeats "$SCENARIO_REPEATS"} \
+  ${PROBE_SESSION_HEADER:+--session-header "$PROBE_SESSION_HEADER"} \
   --output "$OUT" --cache-enabled $([[ "$GENMODE" == "" || "$GENMODE" == mtp ]] && echo --mtp-enabled) \
   || PROBE_EXIT=$?
 

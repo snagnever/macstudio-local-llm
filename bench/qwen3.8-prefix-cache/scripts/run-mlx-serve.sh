@@ -78,6 +78,9 @@ fi
 if [[ -n "${QWEN38_MLX_DRAFTER:-}" ]]; then
   COMMAND+=(--drafter "$QWEN38_MLX_DRAFTER")
 fi
+if [[ -n "${QWEN38_MLX_DRAFT_BLOCK_SIZE:-}" ]]; then
+  COMMAND+=(--draft-block-size "$QWEN38_MLX_DRAFT_BLOCK_SIZE")
+fi
 # Prefix cache: defaults do binário são 32 entradas, 2 GB em RAM, sem disco.
 # Um prefixo de 131072 tokens do Flash-Next ocupa ~3.7 GB (~28 KB/token no log de 2026-09-06),
 # então o default de 2 GB corta toda entrada de sessão longa. O disco fica em ~/.mlx-serve/kv-cache.

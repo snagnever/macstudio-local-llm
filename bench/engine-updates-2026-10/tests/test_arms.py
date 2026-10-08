@@ -126,3 +126,63 @@ def test_inherited_mtplx_limit_does_not_leak_into_default_arms():
     out = subprocess.run(["bash", str(DRIVER), "m1b", "32768", "--print"], capture_output=True, text=True,
                          env=_env({"MTPLX_MEMORY_LIMIT_BYTES": "80G"}), check=True).stdout
     assert "MTPLX_MEMORY_LIMIT_BYTES=96G" in out
+
+
+# Etapa F: um knob por braço.
+def test_m1t_disables_session_pin_ttl():
+    out = show("m1t")
+    assert FXPACK in out
+    assert "MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S=0" in out
+    assert "--runtime-revision v2.12.2-pin0 " in out
+    assert "--session-header" not in out
+
+
+def test_m1h_probe_sends_mtplx_session_header():
+    out = show("m1h")
+    assert "--session-header x-mtplx-session-id" in out
+    assert "--runtime-revision v2.12.2-sesshdr " in out
+    assert "MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S" not in out
+
+
+def test_m1th_combines_both_knobs():
+    out = show("m1th")
+    assert "MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S=0" in out
+    assert "--session-header x-mtplx-session-id" in out
+    assert "--runtime-revision v2.12.2-pin0-sesshdr " in out
+
+
+def test_m27f_takes_knob_from_env():
+    out = subprocess.run(["bash", str(DRIVER), "m27f", "131072", "--print"], capture_output=True, text=True,
+                         env=_env({"ENGINE_M27F": "sesshdr"}), check=True).stdout
+    assert M27NEW in out
+    assert "--session-header x-mtplx-session-id" in out
+    assert "--runtime-revision v2.12.2-sesshdr " in out
+
+
+def test_m27f_requires_knob():
+    res = subprocess.run(["bash", str(DRIVER), "m27f", "131072", "--print"], capture_output=True, text=True, env=_env())
+    assert res.returncode != 0
+
+
+def test_r27b_clamps_draft_block_to_5():
+    out = show("r27b")
+    assert "--drafter" in out and DFLASH2 in out
+    assert "--draft-block-size 5" in out
+    assert "--runtime-revision v26.10.1-blk5 " in out
+
+
+def test_s27g_disables_memory_guard():
+    out = show("s27g")
+    assert MC27 in out and DFLASH2 in out
+    assert "--no-memory-guard" in out
+    assert "--runtime-revision v0.20.3-noguard " in out
+
+
+def test_inherited_fix_knobs_do_not_leak_into_original_arms():
+    leak = {"MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S": "0", "QWEN38_MLX_DRAFT_BLOCK_SIZE": "5",
+            "QWEN38_MLX_DSPARK_NO_MEMORY_GUARD": "1"}
+    for cand in ("m1", "m27", "r27", "s27"):
+        out = subprocess.run(["bash", str(DRIVER), cand, "32768", "--print"], capture_output=True, text=True,
+                             env=_env(leak), check=True).stdout
+        for marker in ("PIN_TTL", "--draft-block-size", "--no-memory-guard", "--session-header"):
+            assert marker not in out, (cand, marker)
