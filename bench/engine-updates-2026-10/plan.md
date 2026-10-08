@@ -114,3 +114,35 @@ não é gate.
 - `results/27b-summary.md` (ranking 27B)
 - `results/summary.md` (as duas respostas na primeira frase)
 - Se houver promoção: launcher, card do modelo e memória atualizados.
+
+## Etapa F — A/B das correções (2026-10-08)
+
+> Pedido do usuário depois do veredito: testar as correções achadas na web
+> ([results/fixes-research.md](results/fixes-research.md)). A Etapa F não muda o veredito acima sem dado novo.
+
+Um knob por braço contra o braço original da campanha ([[isolate-the-variable-when-measuring]]). Mesmo protocolo:
+3 reps, perfil do probe igual, gates iguais, tag `fx`.
+
+| braço | base | knob | banda | problema que testa |
+|---|---|---|---|---|
+| m1t | m1 | `MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S=0` | 32K | MTPLX sem reuso (#567) |
+| m1h | m1 | probe manda `x-mtplx-session-id` por conversa | 32K | MTPLX sem identidade de sessão |
+| m1th | m1 | os dois knobs acima | 32K | soma dos dois |
+| r27b | r27 | `--draft-block-size 5` | 32K e 128K | queda de decode do DFlash2 |
+| s27g | s27 | `--no-memory-guard` | 32K | `append` com hit 0.87 |
+| m27f | m27 | o knob MTPLX vencedor | 128K | só se algum m1* passar nos gates a 32K |
+
+O header de sessão do m1h é um id por conversa do probe (`<session-id>-<cenário>-<rep>`), igual para o prime e o
+pedido medido. É o que um cliente de agente manda. O braço muda o cliente, não o servidor.
+
+**Leitura:**
+
+- Um knob "corrige" o problema quando o braço passa no gate que o original falhou, na mesma banda.
+- MTPLX: se um m1* passar nos gates, compare o `T_turno` com o n2 (8.2 s a 32K). O teto de 128K (HTTP 507) fica fora
+  da Etapa F: a única saída conhecida (KV q8) muda uma segunda variável.
+- r27b: compare decode e `T_turno` com o r27 nas duas bandas.
+- s27g: se passar no gate, o s27 vira o líder do 27B por `T_turno`; o relatório diz isso.
+
+Fora da Etapa F: ds4 `--mtp-draft`, n2 512K com prefix cache menor, `max_tokens` do probe, PR #754 (sem release).
+
+Entregável: `results/etapa-f-fixes.md`, memória e `results/summary.md` atualizados.
