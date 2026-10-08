@@ -8,10 +8,11 @@
 #   r27 = 27B @ mlx-serve 26.10.1 + DFlash2, m27 = MTPLX 2.12.2, o27 = oMLX 0.7.0, s27 = mlx-dspark 0.20.3
 #   Etapa F (um knob por braço): m1t/m1h/m1th = m1 + pin TTL 0 / header de sessão / os dois;
 #   m1p/m1hp = m1 + prime com 64 tokens / + header de sessão;
-#   m27f = m27 + knob de ENGINE_M27F; r27b = r27 + --draft-block-size 5; s27g = s27 + --no-memory-guard
+#   m27f = m27 + knob de ENGINE_M27F; r27b = r27 + --draft-block-size 5; s27g = s27 + --no-memory-guard;
+#   s27r = s27 + --prefix-cache-rungs 1024
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|m1|m1b|m1t|m1h|m1th|m1p|m1hp|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|m1|m1b|m1t|m1h|m1th|m1p|m1hp|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""
 while [[ $# -gt 0 ]]; do
@@ -159,13 +160,16 @@ case "$CAND" in
       PROBE_PY="$OPT/omlx-v0.7.0/bin/python"
       export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_OMLX_BIN="$OPT/omlx-v0.7.0/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.0 ;;
-  s27|s27g) LAUNCHER="$HARNESS/run-mlx-dspark.sh"; ARM=S; PORT=8484; RUNTIME=mlx-dspark; REV=v0.20.3
+  s27|s27g|s27r) LAUNCHER="$HARNESS/run-mlx-dspark.sh"; ARM=S; PORT=8484; RUNTIME=mlx-dspark; REV=v0.20.3
       MODEL_DIR="$MC27"; MODEL_REV=815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9
       TOKENIZER="$MODEL_DIR"; METRICS=""; SERVER_NAME=mlx-dspark
       PROBE_PY="$OPT/mlx-dspark-v0.20.3/bin/python"
       export MLX_DSPARK_BIN="$OPT/mlx-dspark-v0.20.3/bin/mlx-dspark" QWEN38_MLX_DSPARK_EXPECTED_VERSION=0.20.3
       export MLX_DSPARK_TARGET_PATH="$MC27" MLX_DSPARK_DFLASH2_PATH="$DFLASH2" QWEN38_CTX_SIZE="$CTX"
-      if [[ "$CAND" == s27g ]]; then export QWEN38_MLX_DSPARK_NO_MEMORY_GUARD=1; REV=v0.20.3-noguard; else unset QWEN38_MLX_DSPARK_NO_MEMORY_GUARD; fi ;;
+      unset QWEN38_MLX_DSPARK_NO_MEMORY_GUARD QWEN38_MLX_DSPARK_RUNGS
+      [[ "$CAND" == s27g ]] && { export QWEN38_MLX_DSPARK_NO_MEMORY_GUARD=1; REV=v0.20.3-noguard; }
+      [[ "$CAND" == s27r ]] && { export QWEN38_MLX_DSPARK_RUNGS=1024; REV=v0.20.3-rungs1024; }
+      : ;;
   d1) LAUNCHER="$HARNESS/run-ds4.sh"; ARM=FD; PORT=11234; RUNTIME=ds4
       MODEL_DIR="$OPT/ds4-upstream"; MODEL_REV=qwen38-q4k
       REV="upstream-$(git -C "$MODEL_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"

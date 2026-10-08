@@ -205,3 +205,17 @@ def test_m1hp_combines_header_and_prime64():
 def test_original_arms_keep_default_prime():
     for cand in ("m1", "n2", "r27"):
         assert "--prime-max-tokens" not in show(cand)
+
+
+def test_s27r_snapshots_recurrent_state_every_1024_tokens():
+    out = show("s27r")
+    assert MC27 in out and DFLASH2 in out
+    assert "--prefix-cache-rungs 1024" in out
+    assert "--no-memory-guard" not in out
+    assert "--runtime-revision v0.20.3-rungs1024 " in out
+
+
+def test_s27_ignores_inherited_rungs():
+    out = subprocess.run(["bash", str(DRIVER), "s27", "32768", "--print"], capture_output=True, text=True,
+                         env=_env({"QWEN38_MLX_DSPARK_RUNGS": "1024"}), check=True).stdout
+    assert "--prefix-cache-rungs" not in out
