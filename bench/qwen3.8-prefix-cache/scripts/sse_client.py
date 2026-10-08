@@ -105,7 +105,10 @@ def stream_delta_fields(chunks: Iterable[dict[str, Any]]) -> dict[str, Any]:
 
 
 def stream_chat(
-    base_url: str, payload: dict[str, Any], timeout_s: int = 900
+    base_url: str,
+    payload: dict[str, Any],
+    timeout_s: int = 900,
+    headers: Optional[dict[str, str]] = None,
 ) -> StreamResult:
     body = dict(payload)
     body["stream"] = True
@@ -113,7 +116,7 @@ def stream_chat(
     request = Request(
         f"{base_url.rstrip('/')}/chat/completions",
         data=json.dumps(body).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
+        headers={"Content-Type": "application/json", **(headers or {})},
         method="POST",
     )
 

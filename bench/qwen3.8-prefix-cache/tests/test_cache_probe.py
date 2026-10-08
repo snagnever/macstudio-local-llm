@@ -417,5 +417,47 @@ class CacheProbeTests(unittest.TestCase):
         self.assertTrue(all(record["code_result_verdict"] for record in records))
 
 
+    def _run_main_capturing_chat(self, extra_argv):
+        class Tokenizer:
+            def __call__(self, text):
+                return list(range(len(text.split())))
+
+        response = StreamResult(
+            text='{"rolling_checksum": 32896}', reasoning_text="", finish_reason="stop",
+            ttft_ms=1.0, e2e_ms=2.0,
+            usage={"prompt_tokens": 100, "completion_tokens": 1}, raw_chunks=1,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            argv = [
+                "cache_probe.py", "--base-url", "http://example.test/v1",
+                "--model", "m", "--runtime", "MTPLX",
+                "--runtime-revision", "v", "--model-revision", "r",
+                "--arm", "m1h", "--session-id", "run1", "--context", "8192",
+                "--content-class", "code", "--repeat", "1",
+                "--output", str(Path(directory) / "o.jsonl"),
+                "--tokenizer-path", "/models/m", *extra_argv,
+            ]
+            with patch.object(cache_probe, "LocalTokenizer", return_value=Tokenizer()), \
+                patch.object(cache_probe, "stream_chat", return_value=response) as chat, \
+                patch.object(sys, "argv", argv), \
+                contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(cache_probe.main(), 0)
+        return chat.call_args_list
+
+    def test_session_header_is_per_conversation_and_shared_by_prime_and_measured(self):
+        calls = self._run_main_capturing_chat(["--session-header", "x-mtplx-session-id"])
+        sent = [(call.kwargs.get("headers") or {}).get("x-mtplx-session-id") for call in calls]
+        # warmup sem header; cold = 1 pedido; os outros cenários = prime + medido.
+        self.assertIsNone(sent[0])
+        self.assertEqual(sent[1], "run1-cold-1")
+        self.assertEqual(sent[2], sent[3])
+        self.assertTrue(sent[2].startswith("run1-") and sent[2].endswith("-1"))
+        self.assertEqual(len(set(sent[1:])), 5)
+
+    def test_no_session_header_by_default(self):
+        calls = self._run_main_capturing_chat([])
+        self.assertTrue(all(not call.kwargs.get("headers") for call in calls))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -65,7 +65,11 @@ class RequestFailure(Exception):
         self.fatal = fatal
 
 
-def _stream_chat_checked(base_url: str, payload: dict[str, Any]) -> StreamResult:
+def _stream_chat_checked(
+    base_url: str,
+    payload: dict[str, Any],
+    headers: Optional[dict[str, str]] = None,
+) -> StreamResult:
     """Call stream_chat, translating a memory-guard refusal or connection
     failure into a RequestFailure instead of letting it crash the probe.
 
@@ -75,6 +79,8 @@ def _stream_chat_checked(base_url: str, payload: dict[str, Any]) -> StreamResult
     """
     started = time.perf_counter()
     try:
+        if headers:
+            return stream_chat(base_url, payload, headers=headers)
         return stream_chat(base_url, payload)
     except HTTPError as error:
         elapsed_ms = (time.perf_counter() - started) * 1000
@@ -763,6 +769,12 @@ def _run_scenario_repeat(
     # request produced which greedy-decode hash.
     args.greedy_tokens_hash = None
 
+    # Um id por conversa (cenário/rep), igual no prime e no pedido medido, como um cliente de agente manda.
+    headers = (
+        {args.session_header: f"{args.session_id}-{scenario}-{repeat}"}
+        if args.session_header
+        else None
+    )
     stage = "prime"
     try:
         if prime_messages is not None:
@@ -776,6 +788,7 @@ def _run_scenario_repeat(
                     specprefill_threshold=args.specprefill_threshold,
                     sampling_controls=sampling_controls,
                 ),
+                headers,
             )
         stage = "measured"
         metrics_before = _metrics_snapshot(args.metrics_url, args.runtime)
@@ -789,6 +802,7 @@ def _run_scenario_repeat(
                 specprefill_threshold=args.specprefill_threshold,
                 sampling_controls=sampling_controls,
             ),
+            headers,
         )
     except RequestFailure as failure:
         # A refused prime (stage == "prime") must not fall through to the
@@ -865,6 +879,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--drafter-id")
     parser.add_argument("--drafter-revision")
     parser.add_argument("--tokenizer-path", type=Path)
+    parser.add_argument(
+        "--session-header",
+        help="HTTP header that carries a per-conversation session id (e.g. x-mtplx-session-id).",
+    )
     parser.add_argument(
         "--temperature", type=float, default=SAMPLING_CONTROLS["temperature"]
     )
