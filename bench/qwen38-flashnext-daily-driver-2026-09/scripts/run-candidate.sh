@@ -142,8 +142,9 @@ case "$CAND" in
       unset MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S
       [[ "$FIX" == *pin0* ]] && export MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S=0
       [[ "$FIX" == *sesshdr* ]] && PROBE_SESSION_HEADER=x-mtplx-session-id
-      # O MTPLX trata um pedido sem histórico e com max_tokens <= 48 como tarefa de background (sem sessão).
-      [[ "$FIX" == *prime64* ]] && PROBE_PRIME_MAX_TOKENS=64
+      # O MTPLX trata um pedido sem histórico e com max_tokens <= 48 como tarefa de background (sem sessão):
+      # todo braço MTPLX usa prime de 64 tokens, salvo os diagnósticos da Etapa F que medem o prime de 1 token.
+      case "$FIX" in pin0|sesshdr|pin0-sesshdr) ;; *) PROBE_PRIME_MAX_TOKENS=64 ;; esac
       [[ -n "$FIX" ]] && REV="v2.12.2-$FIX"
       TOKENIZER="$MODEL_DIR"
       if [[ -n "$YARN" ]]; then
@@ -196,6 +197,7 @@ case "$CAND" in
       METRICS="http://127.0.0.1:$PORT/metrics"; SERVER_NAME=mtplx
       export QWEN38_MTPLX_BIN="$HOME/.local/opt/qwen38/mtplx-v2.11.2/bin/mtplx" QWEN38_MTPLX_EXPECTED_VERSION=2.11.2
       export QWEN38_CTX_SIZE="$CTX"
+      PROBE_PRIME_MAX_TOKENS=64  # prime de 1 token roda sem sessão no MTPLX (ver m1 acima)
       [[ -n "$GENMODE" ]] && export QWEN38_MTPLX_GENERATION_MODE="$GENMODE"
       [[ -n "$GENMODE" && "$GENMODE" != mtp ]] && REV="v2.11.2-${GENMODE}"
       # --yarn F: MTPLX 2.11.2's qwen4_exp code implements static YaRN correctly

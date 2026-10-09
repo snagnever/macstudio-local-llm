@@ -202,9 +202,20 @@ def test_m1hp_combines_header_and_prime64():
     assert "--runtime-revision v2.12.2-sesshdr-prime64 " in out
 
 
-def test_original_arms_keep_default_prime():
-    for cand in ("m1", "n2", "r27"):
+def test_non_mtplx_arms_keep_default_prime():
+    for cand in ("n2", "r27", "o1", "s27"):
         assert "--prime-max-tokens" not in show(cand)
+
+
+def test_mtplx_runtime_arms_prime_with_64_tokens():
+    # O MTPLX trata um prime de 1 token como tarefa de background (sem sessão): os braços padrão usam 64.
+    for cand in ("m1", "m1b", "m27", "c4"):
+        assert "--prime-max-tokens 64" in show(cand), cand
+
+
+def test_etapa_f_diagnostic_arms_keep_one_token_prime():
+    for cand in ("m1t", "m1h"):
+        assert "--prime-max-tokens" not in show(cand), cand
 
 
 def test_s27r_snapshots_recurrent_state_every_1024_tokens():

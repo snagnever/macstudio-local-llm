@@ -557,6 +557,7 @@ def _record(
             f"{args.context}-{scenario}-r{repeat}"
         ),
         "session_id": args.session_id,
+        "prime_max_tokens": getattr(args, "prime_max_tokens", 1),
         "runtime": args.runtime,
         "runtime_revision": args.runtime_revision,
         "model_id": args.model,

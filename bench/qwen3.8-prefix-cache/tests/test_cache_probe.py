@@ -470,5 +470,38 @@ class CacheProbeTests(unittest.TestCase):
         self.assertNotEqual(calls[3].args[1]["max_tokens"], 64)
 
 
+    def _run_main_records(self, extra_argv):
+        class Tokenizer:
+            def __call__(self, text):
+                return list(range(len(text.split())))
+
+        response = StreamResult(
+            text='{"rolling_checksum": 32896}', reasoning_text="", finish_reason="stop",
+            ttft_ms=1.0, e2e_ms=2.0,
+            usage={"prompt_tokens": 100, "completion_tokens": 1}, raw_chunks=1,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "o.jsonl"
+            argv = [
+                "cache_probe.py", "--base-url", "http://example.test/v1",
+                "--model", "m", "--runtime", "MTPLX",
+                "--runtime-revision", "v", "--model-revision", "r",
+                "--arm", "m1", "--session-id", "run1", "--context", "8192",
+                "--content-class", "code", "--repeat", "1",
+                "--output", str(output), "--tokenizer-path", "/models/m", *extra_argv,
+            ]
+            with patch.object(cache_probe, "LocalTokenizer", return_value=Tokenizer()), \
+                patch.object(cache_probe, "stream_chat", return_value=response), \
+                patch.object(sys, "argv", argv), \
+                contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(cache_probe.main(), 0)
+            return [json.loads(line) for line in output.read_text().splitlines()]
+
+    def test_records_carry_prime_max_tokens(self):
+        self.assertTrue(all(r["prime_max_tokens"] == 1 for r in self._run_main_records([])))
+        records = self._run_main_records(["--prime-max-tokens", "64"])
+        self.assertTrue(all(r["prime_max_tokens"] == 64 for r in records))
+
+
 if __name__ == "__main__":
     unittest.main()
