@@ -88,3 +88,12 @@ def test_etapa_g_first_passing_mtplx_gets_256k():
     lines = dry_g()
     runs = [(l.split()[2], l.split()[3]) for l in lines if l.startswith("bash run-arm.sh")]
     assert ("m1v", "262144") in runs
+
+
+def test_quality_runs_three_batteries_through_exec_hook():
+    out = subprocess.run(["bash", str(HERE / "scripts" / "run-quality.sh"), "o1", "131072"], capture_output=True,
+                         text=True, env=_env({"ENGINE_BAND_DRY": "1"}), check=True).stdout
+    assert "bench2.py humaneval --examples 164" in out
+    assert "--suite jdhodges" in out and "--suite veerman" in out
+    assert "--run-prefix toolcall_pg_o1" in out
+    assert out.rstrip().endswith("bash run-arm.sh o1 131072 --tag qual")

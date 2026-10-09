@@ -286,6 +286,8 @@ MODEL_SELECT="${MODEL_ID_PREF:-$(basename "$MODEL_DIR")}"
 if [[ -n "$PRINT" ]]; then
   echo "model_select: $MODEL_SELECT"
   echo "launcher: $LAUNCHER $ARM"; bash "$LAUNCHER" "$ARM" --print; echo
+  # FLASHNEXT_EXEC troca o probe por outro comando contra o servidor (ex.: bateria de qualidade).
+  [[ -n "${FLASHNEXT_EXEC:-}" ]] && { echo "exec: $FLASHNEXT_EXEC"; echo "saida: $OUT"; exit 0; }
   echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS} ${PROBE_SESSION_HEADER:+--session-header $PROBE_SESSION_HEADER} ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens $PROBE_PRIME_MAX_TOKENS}"
   echo "saida: $OUT"; exit 0
 fi
@@ -390,6 +392,10 @@ fi
 # server). `|| PROBE_EXIT=$?` keeps errexit happy since the assignment itself
 # succeeds.
 PROBE_EXIT=0
+if [[ -n "${FLASHNEXT_EXEC:-}" ]]; then
+  # O comando recebe o servidor pronto em BASE_URL e MODEL_ID; o código de saída dele vira o do braço.
+  BASE_URL="$BASE/v1" MODEL_ID="$MODEL_ID" bash -c "$FLASHNEXT_EXEC" || PROBE_EXIT=$?
+else
 "$PROBE_PY" "$HARNESS/cache_probe.py" \
   --base-url "$BASE/v1" --model "$MODEL_ID" --api-model "$MODEL_ID" \
   --runtime "$RUNTIME" --runtime-revision "$REV" --model-revision "$MODEL_REV" \
@@ -404,6 +410,7 @@ PROBE_EXIT=0
   ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens "$PROBE_PRIME_MAX_TOKENS"} \
   --output "$OUT" --cache-enabled $([[ "$GENMODE" == "" || "$GENMODE" == mtp ]] && echo --mtp-enabled) \
   || PROBE_EXIT=$?
+fi
 
 kill "$SAMPLER_PID" 2>/dev/null || true; SAMPLER_PID=""
 python3 "$HERE/scripts/attach_memory.py" --results "$OUT" --sampler "$MEM" || true

@@ -276,3 +276,14 @@ def test_g_knobs_do_not_leak():
             assert marker not in out, (cand, marker)
         if cand != "d1":
             assert "--profile" in out, cand
+
+
+def test_exec_hook_replaces_probe_in_print():
+    out = subprocess.run(["bash", str(DRIVER), "o1", "131072", "--print"], capture_output=True, text=True,
+                         env=_env({"FLASHNEXT_EXEC": "bash quality.sh"}), check=True).stdout
+    assert "exec: bash quality.sh" in out
+    assert "\nprobe:" not in out
+
+
+def test_no_exec_hook_keeps_probe():
+    assert "\nprobe:" in show("o1") and "exec:" not in show("o1")
