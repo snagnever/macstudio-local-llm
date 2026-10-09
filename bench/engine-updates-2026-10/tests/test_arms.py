@@ -230,3 +230,49 @@ def test_s27_ignores_inherited_rungs():
     out = subprocess.run(["bash", str(DRIVER), "s27", "32768", "--print"], capture_output=True, text=True,
                          env=_env({"QWEN38_MLX_DSPARK_RUNGS": "1024"}), check=True).stdout
     assert "--prefix-cache-rungs" not in out
+
+
+# Etapa G: config padrão do vendor, memory limit max, KV q8 e YaRN do ds4.
+def test_m1v_runs_vendor_default_command():
+    out = show("m1v", "131072")
+    # O diretório do SSD cache fica fixado por run (cold isolado); o modo do SSD cache fica com o default.
+    for flag in ("--profile", "--depth", "--context-window", "--ssd-session-cache ", "--reasoning"):
+        assert flag not in out, flag
+    for flag in ("--model", "--host", "--port 8000", "--no-auth"):
+        assert flag in out, flag
+    assert FXPACK in out
+    assert "--runtime-revision v2.12.2-vendor " in out
+    assert "--prime-max-tokens 64" in out
+
+
+def test_m1x_sets_memory_limit_max():
+    out = show("m1x", "131072")
+    assert "--memory-limit max" in out
+    assert "--paged-kv-quantization" not in out
+    assert "--runtime-revision v2.12.2-memmax " in out
+
+
+def test_m1q_sets_paged_kv_q8():
+    out = show("m1q", "131072")
+    assert "--paged-kv-quantization q8" in out
+    assert "--memory-limit" not in out
+    assert "--runtime-revision v2.12.2-kvq8 " in out
+
+
+def test_d1_yarn_sets_ds4_factor():
+    out = show("d1", "524288", "--yarn", "2.0")
+    assert "DS4_QWEN4_YARN_FACTOR=2.0" in out
+    assert "-c 524288" in out
+    assert "-yarn2.0 " in out
+
+
+def test_g_knobs_do_not_leak():
+    leak = {"QWEN38_MTPLX_VENDOR_DEFAULT": "1", "QWEN38_MTPLX_MEMORY_LIMIT": "max",
+            "QWEN38_MTPLX_KV_QUANT": "q8", "DS4_QWEN4_YARN_FACTOR": "2.0"}
+    for cand in ("m1", "m27", "c4", "d1"):
+        out = subprocess.run(["bash", str(DRIVER), cand, "32768", "--print"], capture_output=True, text=True,
+                             env=_env(leak), check=True).stdout
+        for marker in ("--memory-limit", "--paged-kv-quantization", "DS4_QWEN4_YARN_FACTOR", "-vendor "):
+            assert marker not in out, (cand, marker)
+        if cand != "d1":
+            assert "--profile" in out, cand

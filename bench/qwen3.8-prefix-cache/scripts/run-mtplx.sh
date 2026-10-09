@@ -41,12 +41,21 @@ FLIGHT_PATH="$STATE_DIR/flight.jsonl"
 # na linha 2.10+. Os arms da densa (V/Y/Z) mantem OFF para nao mudar a comparacao historica.
 MTPLX_SSD_DEFAULT=off
 [[ "$ARM" == "FX" ]] && MTPLX_SSD_DEFAULT=on
-COMMAND=(
+ENV_PREFIX=(
   env
   ${MTPLX_MEMORY_LIMIT_BYTES:+"MTPLX_MEMORY_LIMIT_BYTES=$MTPLX_MEMORY_LIMIT_BYTES"}
   ${MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S:+"MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S=$MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S"}
   "MTPLX_CONFIG=$CONFIG_PATH"
   "MTPLX_FLIGHT_RECORDER=$FLIGHT_PATH"
+)
+if [[ "${QWEN38_MTPLX_VENDOR_DEFAULT:-}" == 1 ]]; then
+  # Comando mínimo do README do vendor: o MTPLX escolhe perfil, profundidade, janela e SSD cache.
+  # Só o diretório do SSD cache é fixado, por run, para o cold não herdar sessões de outro run.
+  COMMAND=("${ENV_PREFIX[@]}" "$MTPLX_BIN" serve --model "$MODEL_PATH" --host 127.0.0.1 --port 8000 --no-auth
+    --ssd-session-cache-dir "$STATE_DIR/ssd-session-cache")
+else
+COMMAND=(
+  "${ENV_PREFIX[@]}"
   "$MTPLX_BIN" serve
   --model "$MODEL_PATH"
   --profile "${QWEN38_MTPLX_PROFILE:-turbo}"
@@ -65,6 +74,9 @@ COMMAND=(
   --default-top-p 0.95
   --default-top-k 20
 )
+fi
+[[ -n "${QWEN38_MTPLX_MEMORY_LIMIT:-}" ]] && COMMAND+=(--memory-limit "$QWEN38_MTPLX_MEMORY_LIMIT")
+[[ -n "${QWEN38_MTPLX_KV_QUANT:-}" ]] && COMMAND+=(--paged-kv-quantization "$QWEN38_MTPLX_KV_QUANT")
 
 if [[ "$OPTION" == "--print" ]]; then
   printf '%q ' "${COMMAND[@]}"
