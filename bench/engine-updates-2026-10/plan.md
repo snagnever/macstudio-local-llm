@@ -160,3 +160,47 @@ da sessão principal é tarefa de background (o formato de um job de título do 
 Fora da Etapa F: ds4 `--mtp-draft`, n2 512K com prefix cache menor, `max_tokens` do probe, PR #754 (sem release).
 
 Entregável: `results/etapa-f-fixes.md`, memória e `results/summary.md` atualizados.
+
+## Etapa G — dados para a página perf-lines (2026-10-09)
+
+> Pedido do usuário: atualizar `reports/qwen38-flashnext-perf-lines.html` com a stack de outubro. llama.cpp fica de
+> fora. Plano de execução: `docs/superpowers/plans/2026-10-09-flashnext-page-etapa-g.md`.
+
+**Séries da página:** n2 (mlx-serve 26.10.1 + iQ, driver), o1 (oMLX 0.7.0), MTPLX 2.12.2 (melhor config que
+passar), d1 (ds4 upstream) e c1 (mlx-serve 26.9.2, referência de setembro). c2, c3 e c4 saem do gráfico.
+
+**Medições que faltam** (protocolo da campanha, tag `pg`; métricas: `T_turno`, TTFT cold e quente, decode, prefill,
+hit por cenário, aceitação da MTP, wired de pico, memória livre mínima, swap):
+
+| bloco | braço | bandas | reps |
+|---|---|---|---|
+| G1 · 8K completo | n2, o1, m1, d1 | 8K | 3 |
+| G2 · MTPLX ao máximo | m1v (config padrão do vendor) | 128K | 1, depois 3 se passar |
+| | m1x (`--memory-limit max`) | 128K | só se o m1v recusar |
+| | m1q (`--paged-kv-quantization q8`) | 128K, 256K | só se o m1x recusar; 3 reps a 128K, 1 a 256K |
+| G3 · ds4 até 512K | d1 | 128K (3), 256K (1), 512K com `DS4_QWEN4_YARN_FACTOR=2` (1) | — |
+
+O m1 da G1 já usa o prime de 64 tokens (default dos braços MTPLX desde `0eb4988`). Os m1* da G2 também.
+
+**Regras:**
+
+- Um knob por braço; a página rotula cada ponto MTPLX com a config que o produziu (ex.: "KV q8").
+- O d1 a 512K roda com YaRN 2 (`DS4_QWEN4_YARN_FACTOR=2`); o rótulo diz isso, como o n2 a 512K (YaRN 2 + KV 8-bit).
+- Recusa (HTTP 4xx/5xx, `PrefillDoesNotFit`) é dado: o ponto aparece como "refused" com o motivo.
+- O driver diário fica parado durante as medições e volta no fim.
+
+**Página (G5):** o consolidador lê os diretórios das campanhas de setembro e de outubro. Ele escolhe, por série e
+banda, o grupo canônico de maior rep. A página ganha:
+
+- chip e versões em destaque, com a data;
+- a nota de que números públicos (M5 Max, M3 Ultra) não se comparam com os do M4 Max, e de que o prefill relativo
+  oMLX × mlx-serve muda com o chip (mlx-serve issue #658);
+- a nota do prime de 64 tokens no MTPLX;
+- o aviso "speed, cache and memory only; no agent reliability", com o link do teste do zenn;
+- texto em inglês (regra do site).
+
+**G4 (opcional) · qualidade barata:** HumanEval 164 + tool-calling jdhodges 40 + Veerman 12, temp 0, para o1 e o
+melhor MTPLX, no formato de `quality-n1-n2.md`. Detecta só regressão grande de pesos; não mede a corrupção de KV
+multi-turno que o zenn relatou.
+
+**Entregável:** página regenerada, `results/etapa-g-page.md`, PR separado do #48.
