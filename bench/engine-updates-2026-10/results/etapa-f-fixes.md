@@ -35,7 +35,9 @@ background um pedido com `max_tokens` ≤ 48, sem histórico e com system prompt
 formato de um job de título do Open WebUI). O prime do probe tem `max_tokens` 1 e um system prompt novo a cada rep
 ("Cache probe trial 00N"), então cai nessa regra. Sem header, o prime roda sem sessão e não grava no bank; o pedido
 medido não acha prefixo reusável, e o guard registra `prefill_admission_shed` com `reusable_prefix_tokens: 0`. O shed
-era sintoma, não causa. Com header, o prime recebe HTTP 503 `session_busy` enquanto o turno anterior grava. O pin TTL 0
+era sintoma, não causa. O efeito depende da memória livre: o m27 a 32K (27B, ~62 GB wired) reusou o cache com o
+prime de 1 token; o Flash-Next (77 GB de pesos) e o 27B a 128K não reusaram. Sob pressão, o MTPLX descarta primeiro o
+prefixo de uma sessão `anon`. Com header, o prime recebe HTTP 503 `session_busy` enquanto o turno anterior grava. O pin TTL 0
 (issue #567) não muda nada. Um cliente de agente real manda `max_tokens` grande e histórico, então não cai nessa regra.
 
 **MTPLX a 128K no Flash-Next (HTTP 507).** Fora da Etapa F; o teto de 114 688 tokens continua.
@@ -60,6 +62,21 @@ contexto continua. A correção do PR #754 ainda não tem release.
   20.3 / 42.1 s). oMLX e MTPLX empatam (±3%). O mlx-dspark com `--prefix-cache-rungs 1024` é o mais rápido a 32K
   (16.7 s) e o s27 sem rungs é o mais rápido a 128K (25.0 s); falta medir o s27r a 128K para fechar o mlx-dspark como
   líder.
+
+## Auditoria dos vereditos antigos do MTPLX (2026-10-09)
+
+A regra de background existe em todas as versões instaladas (2.10.0, 2.11.1, 2.11.2, 2.12.2), e o probe sempre usou o
+prime de 1 token. A auditoria leu os registros e os logs de todo run MTPLX com turno quente abaixo de 0.90:
+
+| dados | versão | o que os registros mostram | memória / relatório | veredito |
+| --- | --- | --- | --- | --- |
+| `c4-131072`, `c4-262144` (Flash-Next) | 2.11.2 | HTTP 507 no cold e em todos os primes | `mtplx-flashnext-128k-fit` (teto 114 688) | **vale**: recusa de memória, não reuso |
+| `c4-131072-mem102g` | 2.11.2 | `identical` 1.00, `append` 0.99, `tool_turn` 0.00 com `allocation_failure_shed` | `mtplx-flashnext-128k-fit` ("102G admite mas re-prefill falha") | **vale**: falha de alocação real |
+| `cache-probe.jsonl` (27B V/Y/Z) | 2.9.1 | misses a ~3K (esperados) e `tool_turn` a 126K | `mtplx-session-bank-cap` | **vale**: A/B isolado com o mesmo prime (cap 24G → 48G: hit 0.00 → 0.99) |
+| `runtime-refresh/cache-probe-mtplx2100*` (27B, 128K) | 2.10.0 | `tool_turn` 0.00 depois do `middle_mutation`; `append` 0.00 sem SSD | `mtplx-cache-reuse-issue.md` (rascunho, nunca publicado) | **incerto**: rodou com o cap auto de 24G (causa já confirmada na memória acima), mas o "prime preempted" do rascunho tem a assinatura do prime sem sessão |
+
+As páginas de `reports/` usam os dados do 2.9.x (27B, já com o cap do bank corrigido) e do c4 2.11.2; nenhuma usa
+os runs do 2.10.0. O rascunho de issue do 2.10.0 ganhou uma nota: não publicar sem re-medir com o prime de 64 tokens.
 
 ## Limitações
 

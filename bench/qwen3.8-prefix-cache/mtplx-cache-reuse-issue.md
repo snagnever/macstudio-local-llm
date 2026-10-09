@@ -1,6 +1,11 @@
 # Issue draft — MTPLX 2.10.0: tool turn re-prefills a 99% cached prefix under multi-session churn (128K)
 
 > Draft for youssofal/MTPLX.
+> **Nota (2026-10-09):** o prime de 1 token do `cache_probe.py` é tratado pelo MTPLX como tarefa de background
+> (`is_background_request`: `max_tokens` <= 48, sem histórico, system prompt diferente) e roda sem sessão. O "prime
+> preempted" abaixo pode vir disso. Ver `bench/engine-updates-2026-10/results/etapa-f-fixes.md`. Não publicar sem
+> re-medir com `--prime-max-tokens 64`.
+>
 > Status (2026-08-30): **DO NOT FILE — already mapped upstream.** This behavior is
 > covered by #121 (CLOSED, `tool_call_history_rewrite`: tool turns re-serialize and
 > tokenize differently, so the cache can't extend past them) and #383 (OPEN,
