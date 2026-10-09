@@ -50,3 +50,41 @@ def test_run_arm_names_by_tag():
     out = subprocess.run(["bash", str(RUN_ARM), "m1", "32768", "--tag", "fn", "--print"],
                          capture_output=True, text=True, env=_env(), check=True).stdout
     assert f"saida: {HERE}/results/m1-32768-t1.0-fn.jsonl" in out
+
+
+ETAPA_G = HERE / "scripts" / "run-etapa-g.sh"
+
+
+def dry_g(extra=None):
+    out = subprocess.run(["bash", str(ETAPA_G)], capture_output=True, text=True,
+                         env=_env({"ENGINE_BAND_DRY": "1", **(extra or {})}), check=True)
+    return out.stdout.splitlines()
+
+
+def test_etapa_g_dry_run_lists_queue():
+    lines = dry_g()
+    runs = [l.split() for l in lines if l.startswith("bash run-arm.sh")]
+    assert [(c[2], c[3]) for c in runs] == [
+        ("n2", "8192"), ("o1", "8192"), ("m1", "8192"), ("d1", "8192"),
+        ("m1v", "131072"), ("m1v", "262144"),
+        ("d1", "131072"), ("d1", "262144"), ("d1", "524288"),
+    ]
+    assert all(c[-2:] == ["--tag", "pg"] for c in runs)
+    assert [c[5] for c in runs] == ["3"] * 5 + ["1", "3", "1", "1"]
+    assert runs[-1][6:8] == ["--yarn", "2.0"]
+    assert "--yarn" not in runs[-2]
+    assert lines[-1].startswith("relaunch daily driver")
+
+
+def test_etapa_g_mtplx_branch_walks_on_refusal(tmp_path):
+    # G2: m1v recusa (HTTP 507) → m1x recusa → m1q; o primeiro que passa ganha 256K com 1 rep.
+    lines = dry_g({"ENGINE_G_REFUSED": "m1v,m1x"})
+    runs = [(l.split()[2], l.split()[3], l.split()[5]) for l in lines if l.startswith("bash run-arm.sh")]
+    g2 = [r for r in runs if r[0].startswith("m1") and r[0] != "m1"]
+    assert g2 == [("m1v", "131072", "3"), ("m1x", "131072", "3"), ("m1q", "131072", "3"), ("m1q", "262144", "1")]
+
+
+def test_etapa_g_first_passing_mtplx_gets_256k():
+    lines = dry_g()
+    runs = [(l.split()[2], l.split()[3]) for l in lines if l.startswith("bash run-arm.sh")]
+    assert ("m1v", "262144") in runs
