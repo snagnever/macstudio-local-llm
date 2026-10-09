@@ -6,9 +6,8 @@ r27 (mlx-serve 26.10.1 + DFlash2) em 9% a 32K (18.0 contra 19.7 s) e em 32% a 12
 `append` a 32K (0.87). O MTPLX 2.12.2 perde o cache a 128K.
 
 > **Correção (Etapa F):** com prime de 64 tokens, o MTPLX passa a 128K (m27f: 30.2 s, empate com o o27). O
-> mlx-dspark com `--prefix-cache-rungs 1024` passa a 32K (s27r: 16.7 s, o mais rápido). O r27b (bloco 5) acertou
-> todas as needles a 128K. oMLX e MTPLX empatam nas duas bandas; o mlx-dspark pode liderar se o s27r passar a 128K
-> (não medido). Ver [etapa-f-fixes.md](etapa-f-fixes.md).
+> mlx-dspark com `--prefix-cache-rungs 1024` (s27r) passa nas duas bandas, 16.7 / 25.7 s, e **é o novo líder**.
+> oMLX e MTPLX empatam em 2º. O r27b (bloco 5) acertou todas as needles a 128K. Ver [etapa-f-fixes.md](etapa-f-fixes.md).
 
 Sem leitura de qualidade: o ranking não decide papel de agente.
 

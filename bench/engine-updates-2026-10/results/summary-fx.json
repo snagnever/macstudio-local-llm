@@ -200,6 +200,30 @@
   ],
   "warnings": []
  },
+ "s27r@131072": {
+  "cold_ttft_s": 712.7,
+  "warm_ttft_s": {
+   "identical": 0.1,
+   "append": 30.8,
+   "tool_turn": 9.7
+  },
+  "hit": {
+   "identical": 1.0,
+   "append": 0.97,
+   "tool_turn": 0.992
+  },
+  "prefill_tps": 176.2,
+  "decode_tps": 32.1,
+  "t_turno_s": 25.7,
+  "correctness": "ok",
+  "wired_peak_gb": 60.88,
+  "swap_delta_gb": 0,
+  "mtp_acceptance": null,
+  "errors": 0,
+  "n": 13,
+  "gates_failed": [],
+  "warnings": []
+ },
  "s27r@32768": {
   "cold_ttft_s": 109.7,
   "warm_ttft_s": {

@@ -6,7 +6,8 @@ MTPLX reusa o cache: o Flash-Next passa nos gates a 32K (8.8 s, 1.07× o n2) e o
 oMLX). No mlx-dspark, `--prefix-cache-rungs 1024` corrige o `append` a 32K. O `--draft-block-size 5` do mlx-serve
 quase não muda o decode do 27B a 128K.
 
-O veredito do Flash-Next não muda: o n2 segue driver. O ranking do 27B muda; ver "27B" abaixo.
+O veredito do Flash-Next não muda: o n2 segue driver. O ranking do 27B muda: o mlx-dspark 0.20.3 com
+`--prefix-cache-rungs 1024` passa nas duas bandas (16.7 / 25.7 s) e lidera.
 
 Rig: M4 Max 128 GB. Probe e gates da campanha, 3 reps, tag `fx`. Um knob por braço. Pesquisa de origem:
 [fixes-research.md](fixes-research.md). Dados: `*-t1.0-fx.jsonl`, `summary-fx.json`.
@@ -22,6 +23,7 @@ Rig: M4 Max 128 GB. Probe e gates da campanha, 3 reps, tag `fx`. Um knob por bra
 | 128K | **m27f** | m27 | prime com `max_tokens` 64 | **30.2 s** | 834.2 s | 0.4 / 10 / 10 s | 0.99 / 0.99 | 25.5 | passa |
 | 32K | s27g | s27 | `--no-memory-guard` | 16.5 s | 16.9 s | 0.1 / 17 / 5.1 s | 0.87 / 0.96 | 44.8 | hit_append |
 | 32K | **s27r** | s27 | `--prefix-cache-rungs 1024` | **16.7 s** | 16.9 s | 0.1 / 8.4 / 5.4 s | 0.94 / 0.96 | 45.4 | passa |
+| 128K | **s27r** | s27 | `--prefix-cache-rungs 1024` | **25.7 s** | 25.0 s | 0.1 / 31 / 9.7 s | 0.97 / 0.99 | 32.1 | passa |
 | 32K | r27b | r27 | `--draft-block-size 5` | 20.3 s | 19.7 s | 0.6 / 5.8 / 5.9 s | 0.96 / 0.96 | 35.5 | passa |
 | 128K | r27b | r27 | `--draft-block-size 5` | 42.1 s | 44.0 s | 1.5 / 11 / 11 s | 0.99 / 0.99 | 16.5 | passa |
 
@@ -45,7 +47,7 @@ prefixo de uma sessão `anon`. Com header, o prime recebe HTTP 503 `session_busy
 **mlx-dspark `append` com hit 0.87 (s27).** O Qwen3.8-27B é híbrido (camadas recorrentes). O mlx-dspark só reusa o
 estado recorrente até um snapshot. O memory guard não é a causa (s27g igual ao s27). Com snapshot a cada 1024 tokens
 (`--prefix-cache-rungs 1024`), o `append` reusa 0.94 e o TTFT cai de 17 s para 8.4 s. O cold sobe 7% (102 → 110 s).
-O s27r a 128K não foi medido.
+A 128K (rodado em 2026-10-09) os rungs custam 3% (25.0 → 25.7 s) e o braço passa nos gates.
 
 **mlx-serve + DFlash2 perde decode a 128K (r27).** Com bloco 5, a aceitação por draft sobe (~50% → 65–77%), mas cada
 rodada aceita menos tokens: decode 35.5 tok/s a 32K (contra 37.0) e 16.5 tok/s a 128K (contra 15.5). A queda com o
@@ -57,11 +59,10 @@ contexto continua. A correção do PR #754 ainda não tem release.
 
 - **Flash-Next:** o n2 segue driver. O m1p fica em 2º a 32K (8.8 s contra 10.1 s do o1), mas 1.07× o n2 não passa o
   critério (≤ 0.97×), e o MTPLX ainda recusa 128K.
-- **27B:** três runtimes passam nas duas bandas com a config de servidor da campanha: oMLX 0.7.0 (18.0 / 29.8 s),
-  MTPLX 2.12.2 (17.8 / 30.2 s; 32K do m27, 128K do m27f) e mlx-serve 26.10.1 (19.7 / 44.0 s; r27b nas duas bandas
-  20.3 / 42.1 s). oMLX e MTPLX empatam (±3%). O mlx-dspark com `--prefix-cache-rungs 1024` é o mais rápido a 32K
-  (16.7 s) e o s27 sem rungs é o mais rápido a 128K (25.0 s); falta medir o s27r a 128K para fechar o mlx-dspark como
-  líder.
+- **27B:** o líder passa a ser o mlx-dspark 0.20.3 + DFlash2 com `--prefix-cache-rungs 1024` (s27r):
+  16.7 / 25.7 s, razão 0.85 / 0.58 sobre o r27. Depois vêm o MTPLX 2.12.2 (17.8 / 30.2 s; 32K do m27, 128K do m27f)
+  e o oMLX 0.7.0 (18.0 / 29.8 s), empatados (±3%), e o mlx-serve 26.10.1 (19.7 / 44.0 s). Todos passam nos gates nas
+  duas bandas. Sem leitura de qualidade.
 
 ## Auditoria dos vereditos antigos do MTPLX (2026-10-09)
 

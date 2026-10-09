@@ -7,8 +7,8 @@ gates, 9% à frente do mlx-serve 26.10.1 a 32K e 32% a 128K.**
 > **Correção (Etapa F, 2026-10-08):** a perda de cache do MTPLX 2.12.x vinha do prime do probe (`max_tokens: 1`), que o
 > MTPLX trata como tarefa de background sem sessão. Com prime de 64 tokens, o MTPLX passa nos gates: Flash-Next 8.8 s
 > a 32K (2º, 1.07× o n2; 128K segue HTTP 507) e 27B 30.2 s a 128K (empate com o oMLX). O mlx-dspark com
-> `--prefix-cache-rungs 1024` passa a 32K (16.7 s). O veredito do Flash-Next não muda; no 27B, oMLX e MTPLX empatam e
-> o mlx-dspark pode liderar (falta o s27r a 128K). Detalhe em [etapa-f-fixes.md](etapa-f-fixes.md).
+> `--prefix-cache-rungs 1024` passa a 32K (16.7 s). O veredito do Flash-Next não muda; no 27B, o mlx-dspark com rungs
+> passa nas duas bandas (16.7 / 25.7 s) e lidera, à frente de oMLX e MTPLX, empatados. Detalhe em [etapa-f-fixes.md](etapa-f-fixes.md).
 
 Rig: M4 Max 128 GB, 2026-10-07 e 2026-10-08. Sem leitura de qualidade.
 
@@ -61,4 +61,3 @@ A parte 27B fechou em 128K por decisão do usuário. Detalhe em [27b-summary.md]
 - mlx-vlm 0.7.6, LM Studio 0.4.25, llama.cpp b11461 e o fork ivanfioravanti do ds4.
 - O modo DSpark do mlx-dspark no 27B (o braço rodou em DFlash para casar com o r27).
 - A causa do teto de 114 688 tokens do MTPLX não mudar com o limite de 96G (não li o código do MTPLX).
-- O mlx-dspark com `--prefix-cache-rungs 1024` a 128K.
