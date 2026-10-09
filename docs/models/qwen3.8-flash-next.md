@@ -1,12 +1,13 @@
 # Qwen3.8-Flash-Next (125B-A6B MoE)
 
 > **Status: 🟢 DAILY DRIVER — responsiveness default.** The most responsive daily setup on this rig:
-> `ddalcu/Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit` on **mlx-serve 26.9.2**.
-> T_turno (time for one tool turn with a 512-token reply) **11.03 s at 32K** and **12.35 s at 128K**, 18% ahead of
-> the next stack. Agent quality (Terminal-Bench) is **not measured** for this model yet.
-> Last updated: 2026-09-13
+> `ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw` on **mlx-serve 26.10.1**.
+> T_turno (time for one tool turn with a 512-token reply) **8.3 s at 32K** and **8.9 s at 128K**, 27% ahead of
+> the previous pair (mixed-4/8 on 26.9.2). Agent quality (Terminal-Bench) is **not measured** for this model yet.
+> Last updated: 2026-10-07
 
-Campaign that selected this config: [`bench/qwen38-flashnext-daily-driver-2026-09/results/summary.md`](../../bench/qwen38-flashnext-daily-driver-2026-09/results/summary.md).
+Campaign that selected this config: [`bench/qwen38-flashnext-updates-2026-10/results/summary.md`](../../bench/qwen38-flashnext-updates-2026-10/results/summary.md) (2026-10-07: runtime 26.9.2 → 26.10.1, weights mixed-4-8bit → iQ-MLX-4.7bpw).
+Campaign that selected the stack: [`bench/qwen38-flashnext-daily-driver-2026-09/results/summary.md`](../../bench/qwen38-flashnext-daily-driver-2026-09/results/summary.md).
 Model research, builds and older measurements: [`bench/qwen38-flash-next/references.md`](../../bench/qwen38-flash-next/references.md).
 Dashboard: [`reports/qwen38-flashnext-driver.html`](../../reports/qwen38-flashnext-driver.html).
 
@@ -14,10 +15,10 @@ Dashboard: [`reports/qwen38-flashnext-driver.html`](../../reports/qwen38-flashne
 
 | Item | Value |
 |---|---|
-| Runtime | mlx-serve **26.9.2** (MLX 0.32.2) — `~/.local/opt/qwen38/mlx-serve-v26.9.2/mlx-serve` (also `~/.local/bin/mlx-serve`) |
-| Weights | [`ddalcu/Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit`](https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit) rev [`ef5b919`](https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit/tree/ef5b919d31534faa1997666f1a22d362cd6383cd) |
-| Local path | `~/.cache/local-llms/qwen3.8-prefix-cache/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit-ef5b919d31534faa1997666f1a22d362cd6383cd` |
-| Quant | mixed 4/8-bit: experts 4-bit, non-expert weights 8-bit; n-gram table 4-bit, memory-mapped from SSD |
+| Runtime | mlx-serve **26.10.1** (MLX 0.32.3) — `~/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve` (also `~/.local/bin/mlx-serve`). Rollback: 26.9.2 in `~/.local/opt/qwen38/mlx-serve-v26.9.2/` |
+| Weights | [`ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw`](https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw) rev [`dafff5c`](https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw/tree/dafff5c3d8168c9d13275661153911096499a80a) |
+| Local path | `~/.cache/local-llms/qwen3.8-prefix-cache/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a` |
+| Quant | same layout as mixed-4/8 (experts 4-bit, non-expert weights 8-bit), experts calibrated with an importance matrix (`imatrix-weighted affine`); n-gram table identical to mixed-4/8, memory-mapped from SSD. The mixed-4-8bit pack is deprecated upstream since 2026-10-06 |
 | Endpoint | `http://<rig>:11234/v1` (OpenAI-compatible); `/metrics` (Prometheus) |
 | API model id | the weights directory name above (read it from `/v1/models`) |
 | Launcher | [`tools/scripts/serve-flashnext-daily-driver.sh`](../../tools/scripts/serve-flashnext-daily-driver.sh) |
@@ -25,8 +26,8 @@ Dashboard: [`reports/qwen38-flashnext-driver.html`](../../reports/qwen38-flashne
 ### Launch command (daily profile, 131K context)
 
 ```bash
-~/.local/opt/qwen38/mlx-serve-v26.9.2/mlx-serve \
-  --model ~/.cache/local-llms/qwen3.8-prefix-cache/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit-ef5b919d31534faa1997666f1a22d362cd6383cd \
+~/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve \
+  --model ~/.cache/local-llms/qwen3.8-prefix-cache/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a \
   --serve --host 0.0.0.0 --port 11234 \
   --ctx-size 131072 \
   --mtp \
@@ -35,7 +36,7 @@ Dashboard: [`reports/qwen38-flashnext-driver.html`](../../reports/qwen38-flashne
   --metrics
 ```
 
-This is byte-for-byte the command the campaign measured (candidate c1).
+This is the config the 2026-10 campaign measured (arm n2): same flags as the 2026-09 candidate c1, new binary and weights.
 
 ### Why each parameter
 
@@ -69,7 +70,18 @@ Cap `max_tokens` above 4096 for hard prompts: with `xhigh` the reasoning can pas
 - One model at a time. The MoE does not batch decode: parallel requests queue on one slot.
 - Keep ≥ 100 GB free on the boot volume for the prefix-cache disk tier.
 
-## Measured performance (2026-09-13, M4 Max 128 GB, temp 1.0)
+## Measured performance (2026-10-07, M4 Max 128 GB, temp 1.0)
+
+Current pair (iQ-MLX-4.7bpw @ mlx-serve 26.10.1). Median of 3 repetitions. Source: [`bench/qwen38-flashnext-updates-2026-10/results/summary.md`](../../bench/qwen38-flashnext-updates-2026-10/results/summary.md).
+
+| Context | T_turno | Cold TTFT (first turn) | Warm TTFT identical / append / tool_turn | Cache hit append / tool_turn | Warm decode | MTP acceptance | Wired peak | Swap |
+|---|---:|---:|---|---|---:|---:|---:|---:|
+| 32K | **8.3 s** | 34.8 s | 0.2 / 1.8 / 1.9 s | 0.96 / 0.96 | 79.4 tok/s | 0.81 | 97.7 GB | 0 |
+| 128K | **8.9 s** | 165.1 s | 0.2 / 1.9 / 1.9 s | 0.99 / 0.99 | 73.9 tok/s | 0.70 | 111.6 GB | 0 |
+
+The gain over 26.9.2 comes from decode: MTP acceptance rises from 0.50 to 0.81 at 32K. The same weights on 26.10.1 give the same T_turno as iQ (±1%). HumanEval 154/164 (iQ) against 151/164 (mixed-4/8); tool-calling 47/52 for both. 256K and 512K were not re-measured on 26.10.1.
+
+## Previous pair: mixed-4/8 @ mlx-serve 26.9.2 (2026-09-13)
 
 T_turno = TTFT of the `tool_turn` scenario + 512 / median warm decode (identical, append, tool_turn). Median of 3 repetitions at 32K and 128K; 1 repetition at 256K.
 
@@ -83,6 +95,8 @@ Prefill is ~700–735 tok/s from 32K to 256K. Needles at 10/50/90% were correct 
 
 ### Extended profile: 512K
 
+Measured on mlx-serve 26.9.2 with mixed-4/8. The launcher now starts this profile with the current pair (iQ @ 26.10.1), which was not re-measured at 512K.
+
 Serves 524288 tokens with a follow-up, without `sudo`: cold TTFT 844.6 s, decode 42.6 tok/s, follow-up 0.6 s with full cache hit, wired 104.3 GB. **Memory is at the edge** (minimum free 0.01 GB): close heavy apps first. Capacity, not daily use.
 
 ```bash
@@ -90,13 +104,15 @@ tools/scripts/serve-flashnext-daily-driver.sh 512k
 ```
 
 It adds `--ctx-size 524288 --kv-quant 8 --kv-attn-mode fused` and a YaRN override
-(`rope_type yarn`, `factor 2.0`, `original_max_position_embeddings 262144`). 1M is out of scope: cold-only one-shot with 8-bit KV, or ~5 tok/s multi-turn with `turbo4`.
+(`rope_type yarn`, `factor 2.0`, `original_max_position_embeddings 262144`). 1M is out of scope: cold-only one-shot with 8-bit KV, or ~5 tok/s multi-turn with `turbo4` on 26.9.2 (`turbo2/turbo4` were removed in mlx-serve 26.9.3).
 
 ## Stacks compared (why this one)
 
 | Stack | T_turno 32K / 128K | Verdict |
 |---|---|---|
-| **ddalcu mixed-4/8 @ mlx-serve 26.9.2** | **11.03 / 12.35 s** | Default. Fastest first turn and warm turn at every context. |
+| **ddalcu iQ-MLX-4.7bpw @ mlx-serve 26.10.1** | **8.3 / 8.9 s** | Default since 2026-10-07. Same speed as mixed-4/8 on 26.10.1; HumanEval +3. |
+| ddalcu mixed-4/8 @ mlx-serve 26.10.1 | 8.3 / 8.8 s | Same speed as iQ. The pack is deprecated upstream. |
+| ddalcu mixed-4/8 @ mlx-serve 26.9.2 | 11.03 / 12.35 s | Default until 2026-10-07. Fastest stack of the 2026-09 campaign. |
 | Jundot oQ4e-mtp @ oMLX 0.7.0.dev2 | 13.48 / 15.03 s | 2nd. Same decode (~50 tok/s at 128K), slower TTFT (warm 4.8 s, cold 259 s). No YaRN: ceiling 262K. Needs `qwen4_ple_ssd_offload: true`. |
 | Jundot oQ4e-mtp @ oMLX 0.6.4 | 17.1 / 22.7 s | Dominated by 0.7.0.dev2 on the same weights. |
 | Youssofal MTPLX Optimized-Speed @ MTPLX 2.11.2 | 10.6 s (1 rep) / refused | Highest decode at 32K (~70 tok/s), but refuses 128K and 256K with HTTP 507 (memory-plan fit 114,688 tokens). With `MTPLX_MEMORY_LIMIT_BYTES=102G` it admits 128K but fails 2 of 5 scenarios. |

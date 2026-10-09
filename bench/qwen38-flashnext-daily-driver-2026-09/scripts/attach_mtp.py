@@ -5,7 +5,8 @@ from __future__ import annotations
 import argparse, json, re
 from pathlib import Path
 
-SPEC_STATS_RE = re.compile(r"^.*\[spec-stats\].*$", re.MULTILINE)
+# Só as linhas com mode= trazem aceitação; o 26.10.1 também escreve [spec-stats] lazy=/lookup_table=.
+SPEC_STATS_RE = re.compile(r"^.*\[spec-stats\].*\bmode=.*$", re.MULTILINE)
 MODE_RE = re.compile(r"\bmode=(\S+)")
 PER_DRAFT_PCT_RE = re.compile(r"\bper_draft_pct=([\d.]+)%")
 AVG_PER_ROUND_RE = re.compile(r"\bavg_per_round=([\d.]+)")

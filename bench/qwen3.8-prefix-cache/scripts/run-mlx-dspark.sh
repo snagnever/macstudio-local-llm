@@ -34,6 +34,8 @@ if [[ "$ARM" != "auto-smoke" ]]; then
   # The config tool shell-quotes every argument; this only reconstructs that fixed argv.
   eval "set -- $command_shell"
   COMMAND=("$MLX_DSPARK_BIN" "${@:2}")
+  [[ "${QWEN38_MLX_DSPARK_NO_MEMORY_GUARD:-}" == 1 ]] && COMMAND+=(--no-memory-guard)
+  [[ -n "${QWEN38_MLX_DSPARK_RUNGS:-}" ]] && COMMAND+=(--prefix-cache-rungs "$QWEN38_MLX_DSPARK_RUNGS")
   if [[ "$OPTION" == "--print" ]]; then printf '%q ' "${COMMAND[@]}"; printf '\n'; exit 0; fi
   exec "${COMMAND[@]}"
 fi

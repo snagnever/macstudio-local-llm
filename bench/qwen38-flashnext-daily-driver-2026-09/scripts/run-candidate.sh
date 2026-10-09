@@ -3,9 +3,16 @@
 # perfil do vendor, amostra memoria e derruba o servidor. Um candidato por vez.
 #   c1 = ddalcu mixed-4/8 @ mlx-serve 26.9.2      c2 = Jundot oQ4e @ oMLX 0.6.4
 #   c3 = Jundot oQ4e @ oMLX 0.7.0.dev2            c4 = MTPLX Optimized-Speed @ MTPLX 2.11.2
+#   n1/n2/n2p = campanha flashnext-updates-2026-10 (mlx-serve 26.10.1; n2 = pack iQ-MLX-4.7bpw; n2p = n2 + --ple-gpu)
+#   engine-updates-2026-10: m1/m1b = MTPLX 2.12.2 (m1b: limite 96G), o1 = oMLX 0.7.0, d1 = ds4 upstream;
+#   r27 = 27B @ mlx-serve 26.10.1 + DFlash2, m27 = MTPLX 2.12.2, o27 = oMLX 0.7.0, s27 = mlx-dspark 0.20.3
+#   Etapa F (um knob por braço): m1t/m1h/m1th = m1 + pin TTL 0 / header de sessão / os dois;
+#   m1p/m1hp = m1 + prime com 64 tokens / + header de sessão;
+#   m27f = m27 + knob de ENGINE_M27F; r27b = r27 + --draft-block-size 5; s27g = s27 + --no-memory-guard;
+#   s27r = s27 + --prefix-cache-rungs 1024
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|m1|m1b|m1t|m1h|m1th|m1p|m1hp|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""
 while [[ $# -gt 0 ]]; do
@@ -24,7 +31,8 @@ done
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 HARNESS="$REPO/bench/qwen3.8-prefix-cache/scripts"
 HERE="$REPO/bench/qwen38-flashnext-daily-driver-2026-09"
-RESULTS="$HERE/results"; LOGS="$HERE/logs"
+# Outra campanha pode reusar este driver apontando a saída para o próprio diretório.
+RESULTS="${FLASHNEXT_RESULTS_DIR:-$HERE/results}"; LOGS="${FLASHNEXT_LOGS_DIR:-$HERE/logs}"
 MODEL_ROOT="$HOME/.cache/local-llms/qwen3.8-prefix-cache"
 DDALCU="$MODEL_ROOT/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit-ef5b919d31534faa1997666f1a22d362cd6383cd"
 OQ4E="$MODEL_ROOT/Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8"
@@ -32,8 +40,20 @@ MTPLXPACK="$MODEL_ROOT/Youssofal-Qwen3.8-Flash-Next-MTPLX-Optimized-Speed-6bc2f6
 # Etapa U: variantes uncensored, mesmo runtime/layout dos candidatos de referencia.
 U1DIR="$MODEL_ROOT/ARC4NUM-Qwen3.8-Flash-Next-Uncensored-MLX-Serve-4bit-9ebf9993b1eaec96aec938bf883601b51a90393b"
 U2DIR="$MODEL_ROOT/latent-variable-Qwen3.8-Flash-Next-heretic-2-oQ4e-mtp-65b0cd6"
+# Campanha flashnext-updates-2026-10: pack calibrado (mesmo layout do DDALCU) e runtime 26.10.1.
+IQDIR="$MODEL_ROOT/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a"
+MLXSERVE_26101="$HOME/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve"
+# Campanha engine-updates-2026-10: runtimes atualizados e pesos do 27B.
+OPT="$HOME/.local/opt/qwen38"
+MC27="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9"
+DFLASH2="$MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4"
+M27PACK="$MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-1d5087d2062c02b279180a53e4016cf9cd7a3d7e"
+OQ8E="$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6"
+# YaRN do 27B (qwen3_5, mrope): o override repete os campos mrope do config original.
+YARN27_JSON() { echo "{\"text_config\":{\"rope_parameters\":{\"mrope_interleaved\":true,\"mrope_section\":[11,11,10],\"partial_rotary_factor\":0.25,\"rope_theta\":10000000,\"rope_type\":\"yarn\",\"factor\":$1,\"original_max_position_embeddings\":262144},\"max_position_embeddings\":$2}}"; }
 
 # Por candidato: launcher, arm, porta, binario, python do probe, tokenizer, metrics.
+MODEL_ID_PREF=""; PROBE_SESSION_HEADER=""; PROBE_PRIME_MAX_TOKENS=""
 case "$CAND" in
   c1) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.9.2
       MODEL_DIR="$DDALCU"; MODEL_REV=ef5b919d31534faa1997666f1a22d362cd6383cd
@@ -42,7 +62,7 @@ case "$CAND" in
       # server log via attach_mtp), so skip it entirely and avoid the
       # intermittent connection-reset race on that endpoint.
       METRICS=""
-      export QWEN38_MLX_SERVE_BIN="$HOME/.local/opt/qwen38/mlx-serve-v26.9.2/mlx-serve"
+      export QWEN38_MLX_SERVE_BIN="$HOME/.local/opt/qwen38/mlx-serve-v26.9.2/mlx-serve" MLX_SERVE_EXPECTED_VERSION=26.9.2
       export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
       if [[ -n "$YARN" ]]; then
@@ -70,6 +90,95 @@ case "$CAND" in
       PROBE_PY="$HOME/.local/opt/qwen38/omlx-v0.7.0.dev2/bin/python"
       export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_OMLX_BIN="$HOME/.local/opt/qwen38/omlx-v0.7.0.dev2/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.0.dev2 ;;
+  n1|n2|n2p) # flashnext-updates-2026-10: runtime 26.10.1. n1 = pesos do c1; n2/n2p = pack iQ; n2p = + --ple-gpu.
+      LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.1
+      if [[ "$CAND" == n1 ]]; then
+        MODEL_DIR="$DDALCU"; MODEL_REV=ef5b919d31534faa1997666f1a22d362cd6383cd
+      else
+        MODEL_DIR="$IQDIR"; MODEL_REV=dafff5c3d8168c9d13275661153911096499a80a
+      fi
+      PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve
+      METRICS=""
+      export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26101" MLX_SERVE_EXPECTED_VERSION=26.10.1
+      export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
+      if [[ "$CAND" == n2p ]]; then
+        export QWEN38_MLX_PLE_GPU=1; REV=v26.10.1-plegpu
+      fi
+      if [[ -n "$YARN" ]]; then
+        export QWEN38_MLX_KV_QUANT=8
+        export QWEN38_MLX_CONFIG_OVERRIDES="{\"text_config\":{\"rope_parameters\":{\"rope_type\":\"yarn\",\"factor\":${YARN},\"original_max_position_embeddings\":262144},\"max_position_embeddings\":${CTX}}}"
+        REV="v26.10.1-yarn${YARN}-kv8"
+      fi ;;
+  r27|r27b) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=C; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.1
+      MODEL_DIR="$MC27"; MODEL_REV=815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9
+      PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""
+      export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26101" MLX_SERVE_EXPECTED_VERSION=26.10.1
+      export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX" QWEN38_MLX_DRAFTER="$DFLASH2"
+      export QWEN38_MLX_PREFIX_CACHE_MEM=16GB QWEN38_MLX_PREFIX_CACHE_DISK=100GB QWEN38_MLX_PREFIX_CACHE_ENTRIES=64
+      if [[ "$CAND" == r27b ]]; then export QWEN38_MLX_DRAFT_BLOCK_SIZE=5; REV=v26.10.1-blk5; else unset QWEN38_MLX_DRAFT_BLOCK_SIZE; fi
+      if [[ -n "$YARN" ]]; then
+        export QWEN38_MLX_KV_QUANT=8 QWEN38_MLX_CONFIG_OVERRIDES="$(YARN27_JSON "$YARN" "$CTX")"
+        REV="v26.10.1-yarn${YARN}-kv8"
+      fi ;;
+  m1|m1b|m1t|m1h|m1th|m1p|m1hp|m27|m27f)
+      LAUNCHER="$HARNESS/run-mtplx.sh"; PORT=8000; RUNTIME=MTPLX; REV=v2.12.2
+      PROBE_PY="$OPT/mtplx-v2.12.2/bin/python"; METRICS="http://127.0.0.1:$PORT/metrics"; SERVER_NAME=mtplx
+      export QWEN38_MTPLX_BIN="$OPT/mtplx-v2.12.2/bin/mtplx" QWEN38_MTPLX_EXPECTED_VERSION=2.12.2 QWEN38_CTX_SIZE="$CTX"
+      if [[ "$CAND" == m27 || "$CAND" == m27f ]]; then
+        ARM=V2; MODEL_DIR="$M27PACK"; MODEL_REV=1d5087d2062c02b279180a53e4016cf9cd7a3d7e
+      else
+        ARM=FX; MODEL_DIR="$MTPLXPACK"; MODEL_REV=6bc2f6e8426ccb4af73c81bc56ba7718afc92cc6
+      fi
+      # Só o m1b muda o limite; um valor herdado do shell rodaria m1/m27 fora do default com rótulo v2.12.2.
+      if [[ "$CAND" == m1b ]]; then export MTPLX_MEMORY_LIMIT_BYTES=96G; REV=v2.12.2-mem96g; else unset MTPLX_MEMORY_LIMIT_BYTES; fi
+      # Etapa F: o knob vem do nome do braço (m27f lê ENGINE_M27F); os outros braços nunca herdam o pin TTL.
+      case "$CAND" in
+        m1t) FIX=pin0 ;; m1h) FIX=sesshdr ;; m1th) FIX=pin0-sesshdr ;;
+        m1p) FIX=prime64 ;; m1hp) FIX=sesshdr-prime64 ;;
+        m27f) FIX="${ENGINE_M27F:?m27f exige ENGINE_M27F=pin0|sesshdr|prime64|sesshdr-prime64|...}" ;;
+        *) FIX="" ;;
+      esac
+      unset MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S
+      [[ "$FIX" == *pin0* ]] && export MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S=0
+      [[ "$FIX" == *sesshdr* ]] && PROBE_SESSION_HEADER=x-mtplx-session-id
+      # O MTPLX trata um pedido sem histórico e com max_tokens <= 48 como tarefa de background (sem sessão):
+      # todo braço MTPLX usa prime de 64 tokens, salvo os diagnósticos da Etapa F que medem o prime de 1 token.
+      case "$FIX" in pin0|sesshdr|pin0-sesshdr) ;; *) PROBE_PRIME_MAX_TOKENS=64 ;; esac
+      [[ -n "$FIX" ]] && REV="v2.12.2-$FIX"
+      TOKENIZER="$MODEL_DIR"
+      if [[ -n "$YARN" ]]; then
+        YARN_MODEL_ROOT="$HOME/.cache/local-llms/qwen3.8-flashnext-overlays/yarn${YARN%%.*}"
+        YARN_MODEL_DIR="$YARN_MODEL_ROOT/$(basename "$MODEL_DIR")"
+        [[ -d "$YARN_MODEL_DIR" ]] || { echo "run-candidate: rode scripts/make-yarn-overlay.py --src $MODEL_DIR --dst-root $YARN_MODEL_ROOT --factor $YARN --ctx $CTX" >&2; exit 66; }
+        MODEL_DIR="$YARN_MODEL_DIR"; TOKENIZER="$YARN_MODEL_DIR"; REV="${REV}-yarn${YARN}"
+      fi ;;
+  o1|o27)
+      LAUNCHER="$HARNESS/run-omlx.sh"; PORT=8000; RUNTIME=omlx; REV=v0.7.0
+      if [[ "$CAND" == o1 ]]; then ARM=FN; MODEL_DIR="$OQ4E"; MODEL_REV=2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8
+      else ARM=T; MODEL_DIR="$OQ8E"; MODEL_REV=c99e5aad8a478f71c10b9a3dde6709158b690da6; fi
+      TOKENIZER="$MODEL_DIR"; METRICS=""; SERVER_NAME=omlx
+      PROBE_PY="$OPT/omlx-v0.7.0/bin/python"
+      export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_OMLX_BIN="$OPT/omlx-v0.7.0/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.0 ;;
+  s27|s27g|s27r) LAUNCHER="$HARNESS/run-mlx-dspark.sh"; ARM=S; PORT=8484; RUNTIME=mlx-dspark; REV=v0.20.3
+      MODEL_DIR="$MC27"; MODEL_REV=815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9
+      TOKENIZER="$MODEL_DIR"; METRICS=""; SERVER_NAME=mlx-dspark
+      PROBE_PY="$OPT/mlx-dspark-v0.20.3/bin/python"
+      export MLX_DSPARK_BIN="$OPT/mlx-dspark-v0.20.3/bin/mlx-dspark" QWEN38_MLX_DSPARK_EXPECTED_VERSION=0.20.3
+      export MLX_DSPARK_TARGET_PATH="$MC27" MLX_DSPARK_DFLASH2_PATH="$DFLASH2" QWEN38_CTX_SIZE="$CTX"
+      unset QWEN38_MLX_DSPARK_NO_MEMORY_GUARD QWEN38_MLX_DSPARK_RUNGS
+      [[ "$CAND" == s27g ]] && { export QWEN38_MLX_DSPARK_NO_MEMORY_GUARD=1; REV=v0.20.3-noguard; }
+      [[ "$CAND" == s27r ]] && { export QWEN38_MLX_DSPARK_RUNGS=1024; REV=v0.20.3-rungs1024; }
+      : ;;
+  d1) LAUNCHER="$HARNESS/run-ds4.sh"; ARM=FD; PORT=11234; RUNTIME=ds4
+      MODEL_DIR="$OPT/ds4-upstream"; MODEL_REV=qwen38-q4k
+      REV="upstream-$(git -C "$MODEL_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+      TOKENIZER="$IQDIR"; METRICS=""; SERVER_NAME=ds4-server
+      # ds4-server serve qwen3.8-flash-next, -chat e -reasoner: o probe usa o id base.
+      MODEL_ID_PREF=qwen3.8-flash-next
+      PROBE_PY="$OPT/mtplx-v2.12.2/bin/python"
+      export QWEN38_CTX_SIZE="$CTX" ;;
   c2|c3)
       LAUNCHER="$HARNESS/run-omlx.sh"; ARM=FN; PORT=8000; RUNTIME=omlx
       MODEL_DIR="$OQ4E"; MODEL_REV=2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8
@@ -88,6 +197,7 @@ case "$CAND" in
       METRICS="http://127.0.0.1:$PORT/metrics"; SERVER_NAME=mtplx
       export QWEN38_MTPLX_BIN="$HOME/.local/opt/qwen38/mtplx-v2.11.2/bin/mtplx" QWEN38_MTPLX_EXPECTED_VERSION=2.11.2
       export QWEN38_CTX_SIZE="$CTX"
+      PROBE_PRIME_MAX_TOKENS=64  # prime de 1 token roda sem sessão no MTPLX (ver m1 acima)
       [[ -n "$GENMODE" ]] && export QWEN38_MTPLX_GENERATION_MODE="$GENMODE"
       [[ -n "$GENMODE" && "$GENMODE" != mtp ]] && REV="v2.11.2-${GENMODE}"
       # --yarn F: MTPLX 2.11.2's qwen4_exp code implements static YaRN correctly
@@ -162,10 +272,22 @@ OUT="$RESULTS/$NAME.jsonl"; BOOT="$LOGS/$NAME-boot.log"; MEM="$LOGS/$NAME-mem.js
 SCENARIO_REPEATS=""
 [[ "$REPEAT" -gt 1 ]] && SCENARIO_REPEATS="middle_mutation=1"
 
+# Id servido que o probe usa: o nome do diretório do modelo, salvo quando o candidato declara outro.
+MODEL_SELECT="${MODEL_ID_PREF:-$(basename "$MODEL_DIR")}"
 if [[ -n "$PRINT" ]]; then
+  echo "model_select: $MODEL_SELECT"
   echo "launcher: $LAUNCHER $ARM"; bash "$LAUNCHER" "$ARM" --print; echo
-  echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS}"
+  echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS} ${PROBE_SESSION_HEADER:+--session-header $PROBE_SESSION_HEADER} ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens $PROBE_PRIME_MAX_TOKENS}"
   echo "saida: $OUT"; exit 0
+fi
+
+# O binário errado invalida o A/B inteiro: conferir a versão antes de subir o servidor.
+if [[ -n "${MLX_SERVE_EXPECTED_VERSION:-}" ]]; then
+  GOT_VERSION="$("$QWEN38_MLX_SERVE_BIN" --version 2>&1 | grep '^mlx-serve ' || true)"
+  if [[ "$GOT_VERSION" != "mlx-serve $MLX_SERVE_EXPECTED_VERSION" ]]; then
+    echo "run-candidate: $QWEN38_MLX_SERVE_BIN reporta '$GOT_VERSION', esperado 'mlx-serve $MLX_SERVE_EXPECTED_VERSION'" >&2
+    exit 65
+  fi
 fi
 
 mkdir -p "$RESULTS" "$LOGS"
@@ -225,7 +347,7 @@ for _ in $(seq 1 200); do
 done
 [[ -n "$ready" ]] || { echo "servidor nao ficou pronto em 10 min; ver $BOOT" >&2; exit 69; }
 MODELS_JSON="$(curl -fsS "$BASE/v1/models")"
-MODEL_BASENAME="$(basename "$MODEL_DIR")"
+MODEL_BASENAME="$MODEL_SELECT"
 MODEL_ID="$(python3 -c '
 import sys, json
 data = json.load(sys.stdin)["data"]
@@ -242,6 +364,16 @@ else:
 [[ -n "$MODEL_ID" ]] || { echo "run-candidate: could not select model id for $CAND (basename=$MODEL_BASENAME); see /v1/models" >&2; exit 69; }
 echo ">>> $NAME: model_id=$MODEL_ID"
 echo ">>> $NAME: pronto. model_id=$MODEL_ID -> $OUT"
+# /props (mlx-serve >= 26.9.4) mostra MTP, KV quant e PLD em vigor. O 26.9.2 não tem o endpoint.
+if [[ "$RUNTIME" == mlx-serve ]]; then
+  mkdir -p "$RESULTS/props"
+  if curl -fsS --max-time 10 "$BASE/props" >"$RESULTS/props/$NAME.json" 2>/dev/null \
+     || curl -fsS --max-time 10 "$BASE/v1/props" >"$RESULTS/props/$NAME.json" 2>/dev/null; then
+    echo "    /props -> $RESULTS/props/$NAME.json"
+  else
+    rm -f "$RESULTS/props/$NAME.json"; echo "    /props indisponivel neste binario"
+  fi
+fi
 
 # Probe can exit non-zero on purpose (e.g. a memory-guard HTTP refusal was
 # recorded as data) -- capture that instead of letting `set -e` abort before
@@ -259,6 +391,8 @@ PROBE_EXIT=0
   ${TOKENIZER:+--tokenizer-path "$TOKENIZER"} \
   ${METRICS:+--metrics-url "$METRICS"} \
   ${SCENARIO_REPEATS:+--scenario-repeats "$SCENARIO_REPEATS"} \
+  ${PROBE_SESSION_HEADER:+--session-header "$PROBE_SESSION_HEADER"} \
+  ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens "$PROBE_PRIME_MAX_TOKENS"} \
   --output "$OUT" --cache-enabled $([[ "$GENMODE" == "" || "$GENMODE" == mtp ]] && echo --mtp-enabled) \
   || PROBE_EXIT=$?
 

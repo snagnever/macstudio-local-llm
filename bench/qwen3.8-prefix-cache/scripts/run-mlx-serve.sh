@@ -68,6 +68,19 @@ fi
 if [[ -n "${QWEN38_MLX_MAX_MTP_CTX:-}" ]]; then
   COMMAND+=(--max-mtp-ctx "$QWEN38_MLX_MAX_MTP_CTX")
 fi
+# --ple-gpu (mlx-serve >= 26.10.1): tabela n-gram inteira na memória da GPU (~32 GB a mais).
+# Off por default no binário; só o braço n2p da campanha flashnext-updates-2026-10 liga.
+if [[ -n "${QWEN38_MLX_PLE_GPU:-}" ]]; then
+  COMMAND+=(--ple-gpu)
+fi
+# Drafter de speculative decoding (DFlash/Gemma) para modelos sem cabeça MTP, ex. o 27B 8-bit
+# da campanha engine-updates-2026-10. O mlx-serve detecta o tipo pelo config do drafter.
+if [[ -n "${QWEN38_MLX_DRAFTER:-}" ]]; then
+  COMMAND+=(--drafter "$QWEN38_MLX_DRAFTER")
+fi
+if [[ -n "${QWEN38_MLX_DRAFT_BLOCK_SIZE:-}" ]]; then
+  COMMAND+=(--draft-block-size "$QWEN38_MLX_DRAFT_BLOCK_SIZE")
+fi
 # Prefix cache: defaults do binário são 32 entradas, 2 GB em RAM, sem disco.
 # Um prefixo de 131072 tokens do Flash-Next ocupa ~3.7 GB (~28 KB/token no log de 2026-09-06),
 # então o default de 2 GB corta toda entrada de sessão longa. O disco fica em ~/.mlx-serve/kv-cache.

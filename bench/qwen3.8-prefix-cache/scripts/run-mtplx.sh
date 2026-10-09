@@ -16,13 +16,15 @@ RUN_ID="${QWEN38_MTPLX_RUN_ID:-$(date -u +%Y%m%dT%H%M%SZ)-$ARM-$RANDOM}"
 case "$ARM" in
   V) MODEL_REVISION="123db8bcc7101455b00d9aad36c0e760c6e7de02"
      MODEL_NAME="Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed" ;;
+  V2) MODEL_REVISION="1d5087d2062c02b279180a53e4016cf9cd7a3d7e"
+      MODEL_NAME="Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed" ;;
   Y) MODEL_REVISION="09f71b39a75c416be3c974840b53f9fbe9aa1841"
      MODEL_NAME="Youssofal-Qwen3.8-27B-MTPLX-Optimized-Quality" ;;
   Z) MODEL_REVISION="4b3533770e01217f9b523f337b4597fd4ca50eea"
      MODEL_NAME="Youssofal-Qwen3.8-27B-MTPLX-Optimized-Quality-FP16" ;;
   FX) MODEL_REVISION="6bc2f6e8426ccb4af73c81bc56ba7718afc92cc6"
       MODEL_NAME="Youssofal-Qwen3.8-Flash-Next-MTPLX-Optimized-Speed" ;;
-  *) echo "usage: $0 {V|Y|Z|FX} [--print]" >&2; exit 64;;
+  *) echo "usage: $0 {V|V2|Y|Z|FX} [--print]" >&2; exit 64;;
 esac
 MODEL_PATH="$MODEL_ROOT/$MODEL_NAME-$MODEL_REVISION"
 case "$OPTION" in ""|--print) ;; *) echo "unknown option: $OPTION" >&2; exit 64;; esac
@@ -41,6 +43,8 @@ MTPLX_SSD_DEFAULT=off
 [[ "$ARM" == "FX" ]] && MTPLX_SSD_DEFAULT=on
 COMMAND=(
   env
+  ${MTPLX_MEMORY_LIMIT_BYTES:+"MTPLX_MEMORY_LIMIT_BYTES=$MTPLX_MEMORY_LIMIT_BYTES"}
+  ${MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S:+"MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S=$MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S"}
   "MTPLX_CONFIG=$CONFIG_PATH"
   "MTPLX_FLIGHT_RECORDER=$FLIGHT_PATH"
   "$MTPLX_BIN" serve
