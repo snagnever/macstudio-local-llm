@@ -12,7 +12,7 @@
 #   s27r = s27 + --prefix-cache-rungs 1024
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""
 while [[ $# -gt 0 ]]; do
@@ -121,7 +121,7 @@ case "$CAND" in
         export QWEN38_MLX_KV_QUANT=8 QWEN38_MLX_CONFIG_OVERRIDES="$(YARN27_JSON "$YARN" "$CTX")"
         REV="v26.10.1-yarn${YARN}-kv8"
       fi ;;
-  m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m27|m27f)
+  m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m27|m27f)
       LAUNCHER="$HARNESS/run-mtplx.sh"; PORT=8000; RUNTIME=MTPLX; REV=v2.12.2
       PROBE_PY="$OPT/mtplx-v2.12.2/bin/python"; METRICS="http://127.0.0.1:$PORT/metrics"; SERVER_NAME=mtplx
       export QWEN38_MTPLX_BIN="$OPT/mtplx-v2.12.2/bin/mtplx" QWEN38_MTPLX_EXPECTED_VERSION=2.12.2 QWEN38_CTX_SIZE="$CTX"
@@ -137,14 +137,15 @@ case "$CAND" in
         m1t) FIX=pin0 ;; m1h) FIX=sesshdr ;; m1th) FIX=pin0-sesshdr ;;
         m1p) FIX=prime64 ;; m1hp) FIX=sesshdr-prime64 ;;
         m1v) FIX=vendor ;; m1x) FIX=memmax ;; m1q) FIX=kvq8 ;;
+        m1xq) FIX=memmax-kvq8 ;;  # os dois juntos: a conta do memory plan só chega a 262K assim
         m27f) FIX="${ENGINE_M27F:?m27f exige ENGINE_M27F=pin0|sesshdr|prime64|sesshdr-prime64|...}" ;;
         *) FIX="" ;;
       esac
       unset MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S QWEN38_MTPLX_VENDOR_DEFAULT QWEN38_MTPLX_MEMORY_LIMIT QWEN38_MTPLX_KV_QUANT
       # Etapa G: config padrão do vendor, memory limit max e KV q8, um knob por braço.
       [[ "$FIX" == vendor ]] && export QWEN38_MTPLX_VENDOR_DEFAULT=1
-      [[ "$FIX" == memmax ]] && export QWEN38_MTPLX_MEMORY_LIMIT=max
-      [[ "$FIX" == kvq8 ]] && export QWEN38_MTPLX_KV_QUANT=q8
+      [[ "$FIX" == memmax* ]] && export QWEN38_MTPLX_MEMORY_LIMIT=max
+      [[ "$FIX" == *kvq8 ]] && export QWEN38_MTPLX_KV_QUANT=q8
       [[ "$FIX" == *pin0* ]] && export MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S=0
       [[ "$FIX" == *sesshdr* ]] && PROBE_SESSION_HEADER=x-mtplx-session-id
       # O MTPLX trata um pedido sem histórico e com max_tokens <= 48 como tarefa de background (sem sessão):

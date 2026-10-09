@@ -287,3 +287,12 @@ def test_exec_hook_replaces_probe_in_print():
 
 def test_no_exec_hook_keeps_probe():
     assert "\nprobe:" in show("o1") and "exec:" not in show("o1")
+
+
+def test_m1xq_combines_memory_max_and_kv_q8():
+    # A conta do memory plan só chega aos 262K do vendor com os dois knobs juntos.
+    out = show("m1xq", "262144")
+    assert "--memory-limit max" in out and "--paged-kv-quantization q8" in out
+    assert "--context-window 262144" in out
+    assert "--runtime-revision v2.12.2-memmax-kvq8 " in out
+    assert "--prime-max-tokens 64" in out
