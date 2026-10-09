@@ -54,8 +54,76 @@ TECH_SRC = [
 ]
 
 
+# Page text by profile. The September text is the published 2026-09 page; render() fills the
+# __KEY__ placeholders of TEMPLATE and the JS reads stage, miss, hit_flag, panels and foot from P.page.
+PAGE_2026_09 = {'title': 'Qwen3.8-Flash-Next Responsiveness to 512K',
+ 'eyebrow': 'Responsiveness test by context',
+ 'h1': 'Qwen3.8-Flash-Next: responsiveness from 32K to 512K',
+ 'sub': 'Four quant × runtime candidates with the same model, the same fixture and the vendor\n'
+        '      sampling. Each panel is one metric; each line is one candidate. Hover over a chart to read the\n'
+        '      values by context.',
+ 'setup_note': 'What changes between candidates: runtime, quant, prefix cache mechanism and speculation.\n'
+               '    Sampling is the same for all of them (vendor): <code>temperature 1.0</code>, <code>top_p '
+               '0.95</code>,\n'
+               '    <code>top_k 20</code>, <code>reasoning xhigh</code>, <code>max_tokens 4096</code>. Fixture\n'
+               '    <code>audit_retrieval</code> with needles at 10/50/90%. Native context: 262,144 tokens; 512K '
+               'uses YaRN 2.0.\n'
+               '    c2 and c3 run the same weights, so they isolate the runtime.',
+ 'runtimes_note': 'All three runtimes do speculative decoding with MTP and prefix caching on Apple\n'
+                  '    Silicon. They differ in <b>where the KV cache lives</b> (RAM, disk or paged SSD) and in '
+                  '<b>how they handle\n'
+                  '    the memory limit</b>: mlx-serve pins it as wired memory, oMLX spills over to SSD and MTPLX '
+                  'refuses the prompt.',
+ 'hit_note': "Fraction of the prefix reused in each scenario, for the band's canonical group. <code>cold</code>\n"
+             '    = first pass (≈0 by design). <code>middle_mutation</code> = the prefix diverges in the middle: '
+             'oMLX and\n'
+             '    mlx-serve reuse the intact part (0.30–0.49); MTPLX re-prefills (0.07). <code>append</code> and\n'
+             '    <code>tool_turn</code> are the gate: ≥ 0.90 at 32K and 128K.',
+ 'est_note': '<span class="star">*</span> c4 at 8K: incoherent cache telemetry (hit 1.00 even on\n'
+             '    <code>cold</code>; <code>tool_turn</code> TTFT of 75 s). <b>507</b> = scenario refused with HTTP '
+             '507.\n'
+             "    <b>—</b> = scenario outside the band's protocol: Stage 0 (8K) runs cold, identical and "
+             'tool_turn; 256K skips\n'
+             '    append and middle_mutation; the 512K probe runs cold and identical.',
+ 'table_note': 'Single source: <code>results/reports.json</code>, generated from <code>results/*.jsonl</code>.\n'
+               "    Values from each band's canonical group. <code>T_turn</code> = tool_turn TTFT + 512 / warm "
+               'decode.\n'
+               '    Warm decode = median of served identical, append and tool_turn (range across records).',
+ 'stage': {'0': 'Stage 0 · 1 rep',
+           'A': 'Stage A · 1 rep',
+           'B': 'Stage B · 3 reps',
+           'C': 'Stage C',
+           'probe': '512K probe · 1 rep'},
+ 'miss': {'t_turno': 'probe has no tool_turn', 'ttft_tool': 'probe has no tool_turn'},
+ 'hit_flag': {'c4': {'8192': True}},
+ 'panels': {'t_turno': {'note': 'c1 and c3 at 32K and 128K = median of 3 reps (Stage B). The other points have 1 '
+                                'rep.',
+                        'interp': '<b>c1 stays nearly flat</b> (11.0 → 12.35 → 14.2 s). c2 goes from 17 to 29 s. '
+                                  'c4 has only the 32K point.'},
+            'ttft_tool': {'interp': 'This term separates c1 and c3: <b>2.1 vs 4.8 s at 128K</b>. TTFT was the same '
+                                    'in all 3 reps.'},
+            'cold': {'interp': 'At 256K dev2 takes <b>578 s vs 1187 s</b> for 0.6.4; c1 takes 379 s. At 512K c1 '
+                               'takes 845 s.'},
+            'decode': {'note': '512K: identical decode (the probe runs neither append nor tool_turn).',
+                       'interp': 'c4 leads at 32K (~70 tok/s). At 128K <b>c1 and c3 tie at ~50</b>; at 256K c2 '
+                                 'drops to 24.'},
+            'prefill': {'interp': 'mlx-serve holds <b>~700 tok/s up to 256K</b>. dev2 stays at 440–520; 0.6.4 '
+                                  'drops to 216 at 256K.'},
+            'wired': {'interp': 'c1 goes above the warning line from 128K up (<b>104–109 GB, swap 0</b>). The oMLX '
+                                'candidates stay at or below 101 GB.'}},
+ 'foot': '<b>How to read.</b> x axis = context (32K, 128K, 256K, 512K; categorical axis). One line per candidate. '
+         "Each point is the band's canonical group: <b>Stage B</b> (3 reps) when it exists, otherwise Stage A (1 "
+         "rep) or the probe. A gap in a line is a refusal or a band outside the runtime's reach; the tooltip says "
+         'which. 8K (the Stage 0 smoke test) is left out of the lines: c4 shows a T_turn of 83 s there because of '
+         'incoherent telemetry; the 8K values are in the table. Wired above 102 GB is a warning, not a gate: '
+         'mlx-serve pins KV and hot cache as wired memory and runs without swap. Generated at '
+         '<code>{generated_at}</code> by <code>consolidate_reports.py</code> + <code>render_perf_lines.py</code>.',
+ 'notice': ''}
+
+
 def point(g: dict) -> dict:
-    return {
+    extra = {"config": g["config"]} if g.get("config") else {}
+    return extra | {
         "t_turno": g["t_turno_s"], "ttft_tool": g["ttft_s"]["tool_turn"],
         "ttft_append": g["ttft_s"]["append"], "cold": g["cold_ttft_s"],
         "decode": g["decode_tps"], "decode_range": g["decode_range"],
@@ -69,6 +137,9 @@ def point(g: dict) -> dict:
 
 
 def build_payload(data: dict) -> dict:
+    oct_ = data.get("profile") == "2026-10"
+    absent = ABSENT_2026_10 if oct_ else ABSENT
+    colors = SERIES_COLOR_2026_10 if oct_ else SERIES_COLOR
     chart_cands = [c for c in data["candidates"] if c.get("chart", True)]
     canon = {(g["cand"], g["context"]): g for g in data["groups"] if g["canonical"]}
     points: dict = {}
@@ -79,31 +150,140 @@ def build_payload(data: dict) -> dict:
         for ctx in TABLE_CTX:
             g = canon.get((cid, ctx))
             if g is None:
-                if (cid, ctx) in ABSENT:
-                    points[cid][str(ctx)] = {"status": ABSENT[(cid, ctx)]}
+                if (cid, ctx) in absent:
+                    points[cid][str(ctx)] = {"status": absent[(cid, ctx)]}
                 continue
             points[cid][str(ctx)] = point(g)
             hitmap[cid][str(ctx)] = {
                 s: (g["hit"][s] if s in g["scenarios_served"] else "x")
                 for s in g["scenarios_run"]
             }
-    series = [{"id": c["id"], "name": c["name"], "short": c["short"], "cv": SERIES_COLOR[c["id"]]}
+    series = [{"id": c["id"], "name": c["name"], "short": c["short"], "cv": colors[c["id"]]}
               for c in chart_cands]
     cfg = {c["id"]: {"runtime": f'{c["runtime"]} {c["runtime_version"]}',
                      "model": f'{c["model"]} ({c["revision"]})',
-                     "quant": f'{c["quant"]} · {c["bpw"]} bpw · {c["disk_gb"]:.0f} GB',
+                     "quant": " · ".join([c["quant"]] + ([f'{c["bpw"]} bpw'] if c.get("bpw") else [])
+                                         + [f'{c["disk_gb"]:.0f} GB']),
                      "cache": c["cache"], "spec": c["spec"], "ceiling": c["ceiling"],
                      "status": c["status"], "state": c["state"]}
            for c in chart_cands}
     return {"points": points, "hitmap": hitmap, "series": series, "cfg": cfg,
-            "rig": data["rig"], "takeaways": data["takeaways"], "tech": TECH,
-            "tech_src": TECH_SRC, "line_ctx": LINE_CTX, "table_ctx": TABLE_CTX,
+            "rig": data["rig"], "takeaways": data["takeaways"],
+            "tech": TECH_2026_10 if oct_ else TECH, "tech_src": TECH_SRC_2026_10 if oct_ else TECH_SRC, "line_ctx": LINE_CTX, "table_ctx": TABLE_CTX,
             "generated_at": data["generated_at"]}
 
 
+# --- 2026-10 profile: October stack (engine-updates-2026-10), c1 as the September reference ----------
+SERIES_COLOR_2026_10 = {"n2": "--s1", "o1": "--s3", "m1": "--s5", "d1": "--s4", "c1": "--s2"}
+ABSENT_2026_10 = {
+    ("o1", 524288): "no YaRN: 262K ceiling",
+}
+TECH_2026_10 = [
+    {"name": "mlx-serve 26.10.1", "repo": "ddalcu/mlx-serve",
+     "what": "MLX server with <b>native MTP for Flash-Next</b> and a two-tier prefix cache. Daily driver (n2) with the ddalcu iQ-MLX pack.",
+     "cache": "Hot cache in RAM (<b>16 GB, 64 entries</b>) and a disk cache (100 GB). <code>--ssm-checkpoint-max 16</code> keeps checkpoints of the DeltaNet state.",
+     "spec": "MTP with PLD (prompt lookup through the pack's n-gram table). The acceptance comes from the <code>[spec-stats]</code> log.",
+     "configs": "n2 iQ-MLX-4.7bpw · c1 (Sept reference: 26.9.2, mixed-4/8)"},
+    {"name": "oMLX 0.7.0", "repo": "jundot/omlx",
+     "what": "MLX server for agents: continuous batching and a <b>two-tier paged KV cache</b>.",
+     "cache": "Blocks in RAM that <b>spill over to an SSD tier</b>. The oQ4e PLE stays in mmap (<code>model_settings.json</code>).",
+     "spec": "MTP from the oQ4e-mtp checkpoint. The telemetry does not expose acceptance. oMLX has no YaRN, so the ceiling is 262K.",
+     "configs": "o1 oQ4e-mtp"},
+    {"name": "MTPLX 2.12.2", "repo": "youssofal/MTPLX",
+     "what": "Speculation <b>ships in the quantized checkpoint</b>: the model's own MTP heads draft tokens.",
+     "cache": "Session bank in RAM and an SSD session cache. A memory plan computes the context that fits and refuses a larger prompt with HTTP 507.",
+     "spec": "Native MTP. A request with <code>max_tokens</code> ≤ 48 and no history runs as a background task, without a session: the probe primes MTPLX with 64 tokens.",
+     "configs": "m1: the point label names the config (prime 64, vendor default, memory limit max, KV q8)"},
+    {"name": "ds4 (upstream)", "repo": "antirez/ds4",
+     "what": "C/Metal inference engine. Since 2026-10 it serves Flash-Next from a <b>Q4 GGUF</b> with the MTP head and the n-gram table embedded.",
+     "cache": "KV prefix cache <b>on disk</b> (<code>--kv-disk-dir</code>, 100 GB budget), cleared at each start.",
+     "spec": "Built-in MTP (<code>--mtp-timing</code>, 1 draft). Static YaRN through <code>DS4_QWEN4_YARN_FACTOR</code> for 512K.",
+     "configs": "d1 Q4 GGUF"},
+]
+TECH_SRC_2026_10 = [
+    ["ddalcu/mlx-serve", "https://github.com/ddalcu/mlx-serve"],
+    ["jundot/omlx", "https://github.com/jundot/omlx"],
+    ["youssofal/MTPLX", "https://github.com/youssofal/MTPLX"],
+    ["antirez/ds4", "https://github.com/antirez/ds4"],
+]
+ZENN = "https://zenn.dev/jtechjapan_pub/articles/qwen-flash-next-runtime-comparison"
+ISSUE_658 = "https://github.com/ddalcu/mlx-serve/issues/658"
+PAGE_2026_10 = {
+    "title": "Qwen3.8-Flash-Next Runtimes, October 2026",
+    "eyebrow": "Responsiveness test by context · October 2026 stack",
+    "h1": "Qwen3.8-Flash-Next: four runtimes from 8K to 512K",
+    "sub": "The same model on four runtimes, with the same fixture and the vendor sampling: mlx-serve 26.10.1, "
+           "oMLX 0.7.0, MTPLX 2.12.2 and ds4. The September daily driver (c1) is the reference line. Each panel "
+           "is one metric; each line is one runtime. Hover over a chart to read the values by context.",
+    "notice": (
+        '<section class="block notice">\n'
+        '    <p><b>Apple M4 Max · 128 GB · measured 2026-10-07 to 2026-10-09.</b> mlx-serve 26.10.1 · oMLX 0.7.0 · '
+        'MTPLX 2.12.2 · ds4 upstream <code>0aaea5a</code>. c1 = September reference (mlx-serve 26.9.2).</p>\n'
+        '    <ul>\n'
+        '      <li><b>Speed, cache and memory only.</b> This page does not measure agent reliability. A community '
+        f'test on an M4 Max 128 GB found differences between these runtimes in multi-turn agent tasks '
+        f'(<a href="{ZENN}" target="_blank" rel="noopener">zenn.dev</a>). Test your own agent workload before you choose.</li>\n'
+        '      <li><b>The chip changes the result.</b> Public numbers from an M5 Max or an M3 Ultra do not transfer to '
+        'this M4 Max. The prefill ratio between oMLX and mlx-serve changes with the chip '
+        f'(<a href="{ISSUE_658}" target="_blank" rel="noopener">mlx-serve issue #658</a>).</li>\n'
+        '      <li><b>MTPLX needs a 64-token prime.</b> MTPLX runs a request with <code>max_tokens</code> ≤ 48 and no '
+        'history as a background task, without a session, so it does not keep the prefix. The probe primes MTPLX '
+        'with a 64-token prime. MTPLX runs from the 1-token prime are left out of this page.</li>\n'
+        '    </ul>\n'
+        '  </section>'),
+    "setup_note": "What changes between runtimes: runtime, quant, prefix cache mechanism and speculation. Sampling is the "
+                  "same for all of them (vendor): <code>temperature 1.0</code>, <code>top_p 0.95</code>, <code>top_k 20</code>, "
+                  "<code>reasoning xhigh</code>, <code>max_tokens 4096</code>. Fixture <code>audit_retrieval</code> with needles "
+                  "at 10/50/90%. Native context: 262,144 tokens; 512K uses YaRN 2.0.",
+    "runtimes_note": "All four runtimes do speculative decoding with MTP and prefix caching on Apple Silicon. They differ in "
+                     "<b>where the KV cache lives</b> (RAM, disk or paged SSD) and in <b>how they handle the memory "
+                     "limit</b>: mlx-serve pins it as wired memory, oMLX spills over to SSD, MTPLX refuses the prompt "
+                     "and ds4 keeps the prefix cache on disk.",
+    "hit_note": "Fraction of the prefix reused in each scenario, for the band's selected group. <code>cold</code> = first "
+                "pass (≈0 by design). <code>middle_mutation</code> = the prefix diverges in the middle. <code>append</code> "
+                "and <code>tool_turn</code> are the gate: ≥ 0.90.",
+    "est_note": "<b>507</b> or <b>500</b> = scenario refused with that HTTP status. <b>—</b> = scenario outside the "
+                "band's protocol: the 256K and 512K bands of some runtimes run only cold, identical and tool_turn.",
+    "table_note": "Source: <code>bench/engine-updates-2026-10/results/reports-2026-10.json</code>, generated from the "
+                  "<code>*.jsonl</code> files of the October campaigns and the September c1 groups. Per runtime and band, "
+                  "the page shows the served group with the most reps (tie: the most recent). <code>T_turn</code> = "
+                  "tool_turn TTFT + 512 / warm decode. Warm decode = median of served identical, append and tool_turn.",
+    "stage": {},
+    "miss": {"t_turno": "no tool_turn in this band", "ttft_tool": "no tool_turn in this band"},
+    "hit_flag": {},
+    "panels": {
+        "t_turno": {"note": "Points with 3 reps show the median; the tooltip gives the reps."},
+        "ttft_tool": {},
+        "cold": {},
+        "decode": {},
+        "prefill": {},
+        "wired": {},
+    },
+    "foot": ("<b>How to read.</b> x axis = context (32K, 128K, 256K, 512K; categorical axis). One line per runtime. "
+             "Each point is the band's selected group; the tooltip gives its reps and, for MTPLX, the config. "
+             "A gap in a line is a refusal or a band outside the runtime's reach; the tooltip says which. "
+             "8K is in the table, not in the lines. "
+             "Wired above 102 GB is a warning, not a gate: mlx-serve pins KV and hot cache as wired memory and runs without swap. "
+             "Generated at <code>{generated_at}</code> by <code>consolidate_reports.py --profile 2026-10</code> + "
+             "<code>render_perf_lines.py</code>."),
+}
+
+PAGE_HTML_KEYS = ("title", "eyebrow", "h1", "sub", "notice", "setup_note", "runtimes_note", "hit_note",
+                  "est_note", "table_note")
+
+
+def page_for(data: dict) -> dict:
+    return PAGE_2026_10 if data.get("profile") == "2026-10" else PAGE_2026_09
+
+
 def render(data: dict) -> str:
-    payload = json.dumps(build_payload(data), ensure_ascii=False).replace("</", "<\\/")
-    return TEMPLATE.replace("/*__CSS__*/", CSS).replace("__PAYLOAD__", payload)
+    page = page_for(data)
+    payload = build_payload(data)
+    payload["page"] = {k: page[k] for k in ("stage", "miss", "hit_flag", "panels", "foot")}
+    html = TEMPLATE.replace("/*__CSS__*/", CSS)
+    for key in PAGE_HTML_KEYS:
+        html = html.replace(f"__{key.upper()}__", page[key])
+    return html.replace("__PAYLOAD__", json.dumps(payload, ensure_ascii=False).replace("</", "<\\/"))
 
 
 CSS = r"""
@@ -281,12 +461,16 @@ EXTRA_CSS = r"""
 .hit-legend .bar{width:140px; height:8px; border-radius:4px;
   background:linear-gradient(90deg, rgba(var(--accent-rgb),0.10), rgba(var(--accent-rgb),0.88))}
 td.stat{color:var(--warn); font-family:var(--sans); text-align:left}
+.notice{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 16px; font-size:0.88rem; color:var(--ink-2)}
+.notice p{margin:0 0 6px} .notice ul{margin:0; padding-left:18px} .notice li{margin:4px 0}
+.notice b{color:var(--ink)} .notice a{color:var(--accent)}
+.notice code{font-family:var(--mono); font-size:0.9em}
 """
 
 TEMPLATE = r"""<!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<title>Qwen3.8-Flash-Next Responsiveness to 512K</title>
+<title>__TITLE__</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -299,14 +483,13 @@ TEMPLATE = r"""<!doctype html>
 <div class="wrap">
   <header>
     <div>
-      <p class="eyebrow">Responsiveness test by context</p>
-      <h1>Qwen3.8-Flash-Next: responsiveness from 32K to 512K</h1>
-      <p class="sub">Four quant × runtime candidates with the same model, the same fixture and the vendor
-      sampling. Each panel is one metric; each line is one candidate. Hover over a chart to read the
-      values by context.</p>
+      <p class="eyebrow">__EYEBROW__</p>
+      <h1>__H1__</h1>
+      <p class="sub">__SUB__</p>
     </div>
     <button class="theme" id="themeBtn" type="button">theme: auto</button>
   </header>
+__NOTICE__
 
   <section class="block">
     <h2 class="sec">Rig</h2>
@@ -315,19 +498,13 @@ TEMPLATE = r"""<!doctype html>
 
   <section class="block">
     <h2 class="sec">Setup by candidate</h2>
-    <p class="s-note">What changes between candidates: runtime, quant, prefix cache mechanism and speculation.
-    Sampling is the same for all of them (vendor): <code>temperature 1.0</code>, <code>top_p 0.95</code>,
-    <code>top_k 20</code>, <code>reasoning xhigh</code>, <code>max_tokens 4096</code>. Fixture
-    <code>audit_retrieval</code> with needles at 10/50/90%. Native context: 262,144 tokens; 512K uses YaRN 2.0.
-    c2 and c3 run the same weights, so they isolate the runtime.</p>
+    <p class="s-note">__SETUP_NOTE__</p>
     <div class="tbl-scroll"><table id="cfgTable"></table></div>
   </section>
 
   <section class="block">
     <h2 class="sec">Runtimes compared</h2>
-    <p class="s-note">All three runtimes do speculative decoding with MTP and prefix caching on Apple
-    Silicon. They differ in <b>where the KV cache lives</b> (RAM, disk or paged SSD) and in <b>how they handle
-    the memory limit</b>: mlx-serve pins it as wired memory, oMLX spills over to SSD and MTPLX refuses the prompt.</p>
+    <p class="s-note">__RUNTIMES_NOTE__</p>
     <div class="tech" id="tech"></div>
     <p class="tech-src" id="techSrc"></p>
   </section>
@@ -340,23 +517,15 @@ TEMPLATE = r"""<!doctype html>
 
   <section class="block">
     <h2 class="sec">Cache hit by scenario</h2>
-    <p class="s-note">Fraction of the prefix reused in each scenario, for the band's canonical group. <code>cold</code>
-    = first pass (≈0 by design). <code>middle_mutation</code> = the prefix diverges in the middle: oMLX and
-    mlx-serve reuse the intact part (0.30–0.49); MTPLX re-prefills (0.07). <code>append</code> and
-    <code>tool_turn</code> are the gate: ≥ 0.90 at 32K and 128K.</p>
+    <p class="s-note">__HIT_NOTE__</p>
     <div class="tbl-scroll"><table id="hitTable"></table></div>
     <div class="hit-legend"><span>0</span><span class="bar"></span><span>1 (full reuse)</span></div>
-    <p class="est-note"><span class="star">*</span> c4 at 8K: incoherent cache telemetry (hit 1.00 even on
-    <code>cold</code>; <code>tool_turn</code> TTFT of 75 s). <b>507</b> = scenario refused with HTTP 507.
-    <b>—</b> = scenario outside the band's protocol: Stage 0 (8K) runs cold, identical and tool_turn; 256K skips
-    append and middle_mutation; the 512K probe runs cold and identical.</p>
+    <p class="est-note">__EST_NOTE__</p>
   </section>
 
   <section class="block">
     <h2 class="sec">All values</h2>
-    <p class="tbl-note">Single source: <code>results/reports.json</code>, generated from <code>results/*.jsonl</code>.
-    Values from each band's canonical group. <code>T_turn</code> = tool_turn TTFT + 512 / warm decode.
-    Warm decode = median of served identical, append and tool_turn (range across records).</p>
+    <p class="tbl-note">__TABLE_NOTE__</p>
     <div class="tbl-scroll"><table id="table"></table></div>
   </section>
 
@@ -370,27 +539,20 @@ const P = __PAYLOAD__;
 const DATA = P.points, HITMAP = P.hitmap, SERIES = P.series, CFG = P.cfg;
 const CTX = P.line_ctx, TCTX = P.table_ctx;
 const ctxLab = c => (c/1024)+"K";
-const STAGE = {"0":"Stage 0 · 1 rep","A":"Stage A · 1 rep","B":"Stage B · 3 reps","C":"Stage C","probe":"512K probe · 1 rep"};
-const MISS = {t_turno:"probe has no tool_turn", ttft_tool:"probe has no tool_turn"};
+const STAGE = P.page.stage;
+const MISS = P.page.miss;
 const PANELS = [
   {key:"t_turno", title:"T_turn", unit:"s", dir:"↓ better", fmt:v=>v.toFixed(1),
-   tipFmt:v=>v.toFixed(2),
-   note:"c1 and c3 at 32K and 128K = median of 3 reps (Stage B). The other points have 1 rep.",
-   interp:"<b>c1 stays nearly flat</b> (11.0 → 12.35 → 14.2 s). c2 goes from 17 to 29 s. c4 has only the 32K point."},
+   tipFmt:v=>v.toFixed(2)},
   {key:"ttft_tool", title:"Warm TTFT · tool_turn", unit:"s", dir:"↓ better", fmt:v=>v.toFixed(1),
-   tipFmt:v=>v.toFixed(2),
-   interp:"This term separates c1 and c3: <b>2.1 vs 4.8 s at 128K</b>. TTFT was the same in all 3 reps."},
-  {key:"cold", title:"Cold TTFT · first turn", unit:"s", dir:"↓ better", fmt:v=>v.toFixed(0),
-   interp:"At 256K dev2 takes <b>578 s vs 1187 s</b> for 0.6.4; c1 takes 379 s. At 512K c1 takes 845 s."},
-  {key:"decode", title:"Warm decode", unit:"tok/s", dir:"↑ better", fmt:v=>v.toFixed(1),
-   note:"512K: identical decode (the probe runs neither append nor tool_turn).",
-   interp:"c4 leads at 32K (~70 tok/s). At 128K <b>c1 and c3 tie at ~50</b>; at 256K c2 drops to 24."},
-  {key:"prefill", title:"Prefill · cold", unit:"tok/s", dir:"↑ better", fmt:v=>v.toFixed(0),
-   interp:"mlx-serve holds <b>~700 tok/s up to 256K</b>. dev2 stays at 440–520; 0.6.4 drops to 216 at 256K."},
+   tipFmt:v=>v.toFixed(2)},
+  {key:"cold", title:"Cold TTFT · first turn", unit:"s", dir:"↓ better", fmt:v=>v.toFixed(0)},
+  {key:"decode", title:"Warm decode", unit:"tok/s", dir:"↑ better", fmt:v=>v.toFixed(1)},
+  {key:"prefill", title:"Prefill · cold", unit:"tok/s", dir:"↑ better", fmt:v=>v.toFixed(0)},
   {key:"wired", title:"Wired · peak", unit:"GB", dir:"↓ better", fmt:v=>v.toFixed(0),
-   tipFmt:v=>v.toFixed(1), ref:{v:102, lab:"warning 102"},
-   interp:"c1 goes above the warning line from 128K up (<b>104–109 GB, swap 0</b>). The oMLX candidates stay at or below 101 GB."},
+   tipFmt:v=>v.toFixed(1), ref:{v:102, lab:"warning 102"}},
 ];
+PANELS.forEach(p=>Object.assign(p, P.page.panels[p.key]||{}));
 
 function cssv(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
 
@@ -506,7 +668,7 @@ function buildPanel(p){
   g+=`<rect x="${x0}" y="${y1}" width="${x1-x0}" height="${y0-y1}" fill="transparent" style="cursor:crosshair"/>`;
   svg.innerHTML=g;
   panel.appendChild(svg);
-  const interp=document.createElement("p"); interp.className="p-interp"; interp.innerHTML=p.interp;
+  const interp=document.createElement("p"); interp.className="p-interp"; interp.innerHTML=p.interp||"";
   panel.appendChild(interp);
   attachHover(panel, svg, p);
   return panel;
@@ -534,7 +696,7 @@ function attachHover(panel, svg, p){
     SERIES.forEach(s=>{
       const d=(DATA[s.id]||{})[c]; const v=d?d[p.key]:null;
       const shown = v==null ? `<span class="t-na">${missText(s.id,c,p.key)}</span>`
-        : tf(v)+" "+p.unit+(d.reps>1?" · "+d.reps+" reps":"");
+        : tf(v)+" "+p.unit+(d.reps>1?" · "+d.reps+" reps":"")+(d.config?" · "+d.config:"");
       rows+=`<div class="t-row"><span class="t-left"><span class="sw" style="background:var(${s.cv})"></span><span class="code">${s.short}</span></span><span class="t-val">${shown}</span></div>`;
     });
     tip.innerHTML=rows; tip.style.opacity=1;
@@ -557,7 +719,7 @@ function buildGrid(){
 }
 
 const SCEN=[["cold","cold"],["identical","identical"],["append","append"],["middle_mutation","middle_mut."],["tool_turn","tool_turn"]];
-const HIT_FLAG = {"c4":{"8192":true}};
+const HIT_FLAG = P.page.hit_flag;
 function hitBg(v){ const a=0.10+v*0.78; return `rgba(var(--accent-rgb),${a.toFixed(3)})`; }
 function buildHitTable(){
   const t=document.getElementById("hitTable");
@@ -598,9 +760,9 @@ function buildTable(){
         h+=`<tr><td></td><td>${ctxLab(c)}</td><td class="stat" colspan="${cols.length}">${d.status}</td></tr>`; return;
       }
       if(d.status){
-        h+=`<tr><td></td><td>${ctxLab(c)}</td><td class="stat" colspan="${cols.length-1}">${d.note||d.status}</td><td>${d.reps}</td></tr>`; return;
+        h+=`<tr><td></td><td>${ctxLab(c)}${d.config?' · '+d.config:''}</td><td class="stat" colspan="${cols.length-1}">${d.note||d.status}</td><td>${d.reps}</td></tr>`; return;
       }
-      h+=`<tr title="${d.note||''}"><td></td><td>${ctxLab(c)}${d.note?' ⚑':''}</td>`+cols.map(col=>{
+      h+=`<tr title="${d.note||''}"><td></td><td>${ctxLab(c)}${d.config?' · '+d.config:''}${d.note?' ⚑':''}</td>`+cols.map(col=>{
         const v=d[col[0]];
         if(v==null) return `<td class="na">—</td>`;
         if(col[0]==="decode") return `<td title="range ${d.decode_range?d.decode_range.join('–'):''}">${v.toFixed(1)}</td>`;
@@ -616,12 +778,7 @@ function buildTable(){
 
 function buildFoot(){
   document.getElementById("foot").innerHTML=
-   `<b>How to read.</b> x axis = context (32K, 128K, 256K, 512K; categorical axis). One line per candidate. `+
-   `Each point is the band's canonical group: <b>Stage B</b> (3 reps) when it exists, otherwise Stage A (1 rep) or the probe. `+
-   `A gap in a line is a refusal or a band outside the runtime's reach; the tooltip says which. `+
-   `8K (the Stage 0 smoke test) is left out of the lines: c4 shows a T_turn of 83 s there because of incoherent telemetry; the 8K values are in the table. `+
-   `Wired above 102 GB is a warning, not a gate: mlx-serve pins KV and hot cache as wired memory and runs without swap. `+
-   `Generated at <code>${P.generated_at}</code> by <code>consolidate_reports.py</code> + <code>render_perf_lines.py</code>.`;
+   P.page.foot.replace("{generated_at}", P.generated_at);
 }
 
 buildRig(); buildConfigTable(); buildTech(); buildTakeaways(); buildLegend();

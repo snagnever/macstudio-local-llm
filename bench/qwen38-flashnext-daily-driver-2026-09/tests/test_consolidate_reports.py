@@ -220,3 +220,24 @@ def test_default_profile_unchanged():
     built = cr.build(CAMPAIGN / "results")
     committed.pop("generated_at"); built.pop("generated_at")
     assert built == committed
+
+
+def test_render_2026_10_has_notes(tmp_path):
+    html = rpl.render(cr.build_2026_10(*_dirs(tmp_path)))
+    for text in ("Apple M4 Max", "mlx-serve 26.10.1", "oMLX 0.7.0", "MTPLX 2.12.2", "ds4",
+                 "64-token prime", "speed, cache and memory only", "mlx-serve/issues/658"):
+        assert text.lower() in html.lower(), text
+    payload = json.loads(html.split("const P = ", 1)[1].split(";\n", 1)[0])
+    assert [s["id"] for s in payload["series"]] == ["n2", "o1", "m1", "d1", "c1"]
+    assert payload["points"]["m1"]["131072"]["config"] == "KV q8"
+    assert "__" not in html.split("<script>", 1)[0].replace("__PAYLOAD__", "")
+
+
+def test_render_default_keeps_september_text():
+    data = json.loads((CAMPAIGN / "results" / "reports.json").read_text(encoding="utf-8"))
+    html = rpl.render(data)
+    assert "Four quant × runtime candidates" in html and "64-token prime" not in html
+
+
+def test_render_panel_without_interp_prints_nothing():
+    assert 'interp.innerHTML=p.interp||"";' in rpl.TEMPLATE
