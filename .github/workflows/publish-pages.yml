@@ -72,7 +72,8 @@ jobs:
           rm -rf site/demos/layout/design-skill/.agents
           tools/publish/fix-layout-arms.sh site
           # harness-matrix-svgbench.html references ../bench/harness-matrix/ for its
-          # SVGBench scores, verdicts, run records, and the gallery's SVGs. Two steps
+          # SVGBench scores, verdicts, run records, and the gallery's SVGs.
+          # gpt-5.6-sol-svgbench.html links its 28 SVGs the same way. Two steps
           # make those resolve on the published site:
           #  1. Export the tracked subtree (results, plan.md, the 89 tracked logs SVGs)
           #     into site/bench/. git archive exports only tracked files, so the
@@ -83,8 +84,8 @@ jobs:
           #     the assembled copy's ../bench/harness-matrix/ to bench/harness-matrix/.
           git archive HEAD bench/harness-matrix | tar -x -C site/
           sed -i.bak -E 's#\.\./bench/harness-matrix/#bench/harness-matrix/#g' \
-            site/harness-matrix-svgbench.html
-          rm -f site/harness-matrix-svgbench.html.bak
+            site/harness-matrix-svgbench.html site/gpt-5.6-sol-svgbench.html
+          rm -f site/harness-matrix-svgbench.html.bak site/gpt-5.6-sol-svgbench.html.bak
           # artifacts.html shows drawings and screenshots from all three campaigns and
           # references them as ../bench/<campaign>/... . harness-matrix is already
           # exported above; export the two results subtrees it also needs (arms.json,
@@ -104,6 +105,7 @@ jobs:
           test -f site/agent-build-off.html
           test -f site/layout-skill-bench.html
           test -f site/harness-matrix-svgbench.html
+          test -f site/gpt-5.6-sol-svgbench.html
           test -f site/artifacts.html
           test -f site/charts-common.js
           for arm in opencode-qwen38 opencode-qwen38-superpowers claude-opus5 codex-astra claude-qwen38; do
@@ -116,6 +118,8 @@ jobs:
           test -f site/bench/harness-matrix/results/svgbench/scores.json
           test -f site/bench/harness-matrix/plan.md
           test "$(find site/bench/harness-matrix/logs -name '*.svg' | wc -l)" -ge 80
+          test "$(find site/bench/harness-matrix/logs/codex/gpt-5.6-sol -name '*.svg' | wc -l)" -eq 28
+          if grep -q '\.\./bench/' site/gpt-5.6-sol-svgbench.html; then exit 1; fi
           test -f site/bench/agent-build-off/results/shots/claude-opus5.webp
           test -f site/bench/agent-build-off/results/clips/claude-opus5.mp4
           test -f site/bench/harness-matrix/results/svgbench/participants.json
