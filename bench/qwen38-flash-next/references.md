@@ -321,6 +321,9 @@ não medem qualidade de agente: o MiniMax IQ2_M empatou com o Q3_K_S no Terminal
    [qwen38-flashnext-daily-driver-2026-09](../qwen38-flashnext-daily-driver-2026-09/plan.md): driver
    mais responsivo entre ddalcu/mlx-serve, oQ4e/oMLX 0.6.4, oQ4e/oMLX 0.7.0.dev2 e MTPLX pack.
    GGUF fica fora (sem MTP).
+   **Atualização (2026-10-09):** o llama.cpp upstream tem MTP para `qwen4exp` desde a PR #29761 (01/10), e o
+   mlx-serve 26.10.1 carrega GGUF Flash-Next pelo engine llama.cpp. A premissa "sem MTP" caiu; ainda não medido.
+   Ver [research/qwen38-flashnext-derivatives-20261009.md](../../research/qwen38-flashnext-derivatives-20261009.md).
 
 Empírico desta campanha: `results/refresh-flashnext-*.jsonl` (movidos do smoke R5 do runtime-refresh).
 Runbook: [plan.md](plan.md). O smoke R5 original: `../qwen3.8-prefix-cache/plan-runtime-refresh.md` (seção R5, agora um ponteiro).
