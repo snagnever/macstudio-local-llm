@@ -6,7 +6,7 @@ set -euo pipefail
 ARM="${1:?uso: $0 <braço> <ctx>}"; CTX="${2:?ctx}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BENCH="${ENGINE_QUALITY_BENCH:-$HOME/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb}"
-EXEC="cd '$BENCH' && LMSTUDIO_URL=\"\$BASE_URL\" python3 scripts/bench2.py humaneval --examples 164 --model \"\$MODEL_ID\""
+EXEC="cd '$BENCH' && LMSTUDIO_URL=\"\$BASE_URL\" .venv/bin/python scripts/bench2.py humaneval --examples 164 --model \"\$MODEL_ID\""
 for s in jdhodges veerman; do
   EXEC+=" && uv run --no-project --with openai --with pyyaml python scripts/tool_call_bench.py --model \"\$MODEL_ID\""
   EXEC+=" --suite $s --base-url \"\$BASE_URL\" --run-prefix toolcall_pg_$ARM --no-cooldown --force"

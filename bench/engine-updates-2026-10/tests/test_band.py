@@ -99,6 +99,13 @@ def test_quality_runs_three_batteries_through_exec_hook():
     assert out.rstrip().endswith("bash run-arm.sh o1 131072 --tag qual")
 
 
+def test_quality_humaneval_uses_bench_venv():
+    # O python3 do sistema não tem o pacote datasets; o bench2.py roda com o .venv do submódulo.
+    out = subprocess.run(["bash", str(HERE / "scripts" / "run-quality.sh"), "o1", "131072"], capture_output=True,
+                         text=True, env=_env({"ENGINE_BAND_DRY": "1"}), check=True).stdout
+    assert ".venv/bin/python scripts/bench2.py humaneval" in out
+
+
 def test_etapa_g_refusal_counts_any_http_error_on_cold(tmp_path):
     # O m1v (config do vendor) recusou 128K com HTTP 400 context_length_exceeded, não 507.
     res = tmp_path / "results"; res.mkdir()
