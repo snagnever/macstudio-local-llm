@@ -414,10 +414,10 @@ FILE_RE_2026_10 = re.compile(r"^([a-z]\d+[a-z]*)-(\d+)-t([\d.]+)(?:-(.+))?\.json
 # Braço → série. Os braços MTPLX entram só com o prime de 64 tokens e um knob por braço: o prime de
 # 1 token roda sem sessão no MTPLX (Etapa F), então o m1 dos tags fn/smoke e os diagnósticos ficam fora.
 SERIES_ARMS_2026_10 = {"n2": "n2", "o1": "o1", "d1": "d1",
-                       "m1": "m1", "m1p": "m1", "m1v": "m1", "m1x": "m1", "m1q": "m1", "m1xq": "m1"}
+                       "m1": "m1", "m1p": "m1", "m1v": "m1", "m1x": "m1", "m1q": "m1", "m1xq": "m1", "m1s": "m1"}
 MTPLX_CONFIG = {"m1": "default config", "m1p": "prime 64", "m1v": "vendor default",
                 "m1x": "memory limit max", "m1q": "KV q8",
-                "m1xq": "memory limit max + KV q8"}
+                "m1xq": "memory limit max + KV q8", "m1s": "sparse QSA prefill"}
 MTPLX_PRIME1_TAGS = {"fn", "smoke", "gate"}
 
 CANDIDATES_2026_10 = [

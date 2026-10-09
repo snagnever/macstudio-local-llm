@@ -296,3 +296,19 @@ def test_m1xq_combines_memory_max_and_kv_q8():
     assert "--context-window 262144" in out
     assert "--runtime-revision v2.12.2-memmax-kvq8 " in out
     assert "--prime-max-tokens 64" in out
+
+
+def test_m1s_arms_sparse_qsa_prefill_only():
+    # No M4 (sem NAX) o auto do MTPLX deixa o prefill esparso do indexer QSA desligado; o m1s liga só isso.
+    out = show("m1s", "131072")
+    assert "MTPLX_QSA_PREFILL=1" in out
+    assert "--memory-limit" not in out and "--paged-kv-quantization" not in out
+    assert "--context-window 131072" in out
+    assert "--runtime-revision v2.12.2-qsaprefill " in out
+
+
+def test_inherited_qsa_prefill_does_not_leak():
+    for cand in ("m1", "m1x", "c4"):
+        out = subprocess.run(["bash", str(DRIVER), cand, "131072", "--print"], capture_output=True, text=True,
+                             env=_env({"MTPLX_QSA_PREFILL": "1", "QWEN38_MTPLX_QSA_PREFILL": "1"}), check=True).stdout
+        assert "QSA_PREFILL" not in out, cand
