@@ -116,9 +116,17 @@ empresa antes de usar este modelo em trabalho.**
 | [ukisai/Swift-1.5-…-GSQ-RCO-GGUF](https://huggingface.co/ukisai/Swift-1.5-Qwen3.8-Flash-Next-GSQ-RCO-GGUF) | 24/09 | GGUF GSQ-RCO | ~293K downloads. |
 | [ukisai/Swift-1.5-…-GGUF](https://huggingface.co/ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF) | 24/09 | GGUF | ~142K downloads. |
 
-O pack Dankpaws tem o mesmo layout e o mesmo runtime do driver atual. Não verifiquei se o
-`ngram_table.bin` dele é idêntico byte a byte ao do pack iQ. A tabela n-gram é uma embedding do modelo
-base, e um fine-tune pode alterá-la.
+O pack Dankpaws tem o mesmo layout e o mesmo runtime do driver atual, mas a tabela n-gram **não é
+idêntica** à do pack iQ (API de árvore do HF, 09/10). Os dois arquivos têm o mesmo tamanho e hashes LFS
+diferentes:
+
+| Pack | `ngram_table.bin` (bytes) | LFS SHA256 |
+|---|---:|---|
+| Dankpaws Swift1.5 MLX-4.7bpw | 32 000 153 976 | `20406b4b115fe5a1ceb4847fd40e00fe85ecc33fa55c48328652f93586e669c9` |
+| ddalcu iQ-MLX-4.7bpw | 32 000 153 976 | `c8ab74bc343408cf3923d7d64b3698fbeb3e78c07ce7f85a650a8278731251d2` |
+
+Consequência: a tabela do driver não pode ser reaproveitada nem ligada por hardlink. O teste exige
+o download completo do repositório, 106.8 GB em 115 arquivos.
 
 ## 4. GSQ-RCO (ISTA-DASLab): GGUF não uniforme
 
@@ -225,7 +233,7 @@ Speedups do MLX declarados por terceiros, sem medição no M4 Max:
 1. **Manter o driver** (mlx-serve 26.10.1 + iQ-MLX-4.7bpw). Nenhum peso usado no rig mudou depois das
    campanhas de 07/10 e 08/10.
 2. **Candidato a A/B: Swift 1.5 em mlx-serve (pack Dankpaws 4.7bpw) contra o n2.** Antes de medir,
-   resolver a licença. A métrica `T_turno` (512 tokens fixos) não captura o ganho que o Swift
+   resolver a licença. O download é de 106.8 GB, porque a tabela n-gram difere da do pack iQ. A métrica `T_turno` (512 tokens fixos) não captura o ganho que o Swift
    declara, porque esse ganho está no número de tokens de raciocínio. O A/B precisa de tempo até a
    resposta final com thinking livre, mais HumanEval e tool-calling com reasoning ativo, e de uma
    bateria de instruction-following, porque o card declara −3 no IFBench.
@@ -243,7 +251,6 @@ Speedups do MLX declarados por terceiros, sem medição no M4 Max:
 - Nenhum número deste documento foi medido no rig, salvo os que citam campanhas do repositório.
 - O Reddit não foi lido (bloqueio do Claude in Chrome). Opiniões da comunidade sobre Swift 1.5 e GSQ-RCO
   ficaram de fora.
-- A igualdade da tabela n-gram entre o pack Swift (Dankpaws) e o pack iQ.
 - O primeiro build numerado do llama.cpp que contém a #29761.
 - As avaliações do Swift 1.5, do GSQ-RCO e do REAP320 são dos autores.
 
