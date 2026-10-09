@@ -97,3 +97,21 @@ def test_quality_runs_three_batteries_through_exec_hook():
     assert "--suite jdhodges" in out and "--suite veerman" in out
     assert "--run-prefix toolcall_pg_o1" in out
     assert out.rstrip().endswith("bash run-arm.sh o1 131072 --tag qual")
+
+
+def test_etapa_g_refusal_counts_any_http_error_on_cold(tmp_path):
+    # O m1v (config do vendor) recusou 128K com HTTP 400 context_length_exceeded, não 507.
+    res = tmp_path / "results"; res.mkdir()
+    (res / "m1v-131072-t1.0-pg.jsonl").write_text(
+        '{"scenario": "cold", "error": "http_400: Bad Request: context_length_exceeded"}\n', encoding="utf-8")
+    # --lib só define as funções; RESULTS aponta para o diretório temporário.
+    out = subprocess.run(["bash", "-c", f'source "{ETAPA_G}" --lib && refused m1v 131072 && echo REFUSED'],
+                         capture_output=True, text=True, env=_env({"RESULTS": str(res)}), check=False,
+                         timeout=10).stdout
+    assert "REFUSED" in out
+
+
+def test_etapa_g_parts_and_g2_arms_select_queue():
+    lines = dry_g({"ENGINE_G_PARTS": "g2", "ENGINE_G2_ARMS": "m1x m1q", "ENGINE_G_REFUSED": "m1x"})
+    runs = [(l.split()[2], l.split()[3]) for l in lines if l.startswith("bash run-arm.sh")]
+    assert runs == [("m1x", "131072"), ("m1q", "131072"), ("m1q", "262144")]
