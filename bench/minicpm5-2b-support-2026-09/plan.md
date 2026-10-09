@@ -14,7 +14,8 @@
 > **Status (2026-09-16): CONCLUÍDA.** Veredito: **não adotar** como suporte residente do
 > driver diário (perda de `T_turno` +43–66% na carga contínua; a 128K não há margem de
 > memória). Viável só em contexto ≤32K com turnos intermitentes (gap ≥1 s → +12%). A Etapa 3
-> foi reduzida ao s1. Ver [results/summary.md](results/summary.md).
+> foi reduzida ao s1. Ver [results/summary.md](results/summary.md). Próximos passos
+> (2026-10-09): o oMLX 0.7.0 faz decode concorrente no Flash-Next; ver a seção do resumo.
 
 ## Baseline que esta campanha não re-mede
 
