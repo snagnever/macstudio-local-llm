@@ -145,3 +145,78 @@ def test_harmful_results_store_no_response_text():
         for line in path.read_text(encoding="utf-8").splitlines():
             if line.strip():
                 assert "preview" not in json.loads(line)
+
+
+# Perfil 2026-10: séries n2, o1, MTPLX (m1*), d1 e c1 de referência, lidas de três campanhas.
+def _write(dirpath, name, records):
+    dirpath.mkdir(parents=True, exist_ok=True)
+    (dirpath / name).write_text("".join(json.dumps(r) + "\n" for r in records), encoding="utf-8")
+
+
+def _rep_set(reps, stamp, ctx=32768, rev="v", tool_ttft=1.0, error=None):
+    out = []
+    for rep in range(1, reps + 1):
+        for s in ("cold", "identical", "append", "tool_turn"):
+            r = _record(s, ttft_s=(30.0 if s == "cold" else tool_ttft), hit=(0.0 if s == "cold" else 0.95), ctx=ctx)
+            r.update(run_id=f"{stamp}-x-{ctx}-{s}-r{rep}", runtime_revision=rev)
+            if error:
+                r.update(error=error, decode_tps=0.0, cache_hit_ratio=None, finish_reason=None, correct=False)
+            out.append(r)
+    return out
+
+
+def _dirs(tmp_path):
+    sept, eng, upd = tmp_path / "sept", tmp_path / "eng", tmp_path / "upd"
+    _write(sept, "c1-32768-t1.0-b.jsonl", _rep_set(3, "20260901T000000Z"))
+    _write(eng, "n2-32768-t1.0-fn.jsonl", _rep_set(3, "20261007T000000Z", tool_ttft=2.0))
+    _write(upd, "n2-32768-t1.0-ab.jsonl", _rep_set(3, "20261006T000000Z", tool_ttft=3.0))
+    _write(eng, "n2-8192-t1.0-smoke.jsonl", _rep_set(1, "20261007T000000Z", ctx=8192, tool_ttft=9.0))
+    _write(eng, "n2-8192-t1.0-pg.jsonl", _rep_set(3, "20261009T000000Z", ctx=8192, tool_ttft=0.5))
+    _write(eng, "o1-32768-t1.0-fn.jsonl", _rep_set(3, "20261007T000000Z"))
+    _write(eng, "m1-32768-t1.0-fn.jsonl", _rep_set(3, "20261007T000000Z", rev="v2.12.2", tool_ttft=46.0))
+    _write(eng, "m1p-32768-t1.0-fx.jsonl", _rep_set(3, "20261008T000000Z", rev="v2.12.2-prime64", tool_ttft=2.4))
+    _write(eng, "m1q-131072-t1.0-pg.jsonl", _rep_set(3, "20261009T000000Z", ctx=131072, rev="v2.12.2-kvq8"))
+    _write(eng, "m1v-131072-t1.0-pg.jsonl",
+           _rep_set(3, "20261009T000000Z", ctx=131072, rev="v2.12.2-vendor", error="http_507: Insufficient Storage"))
+    _write(eng, "d1-8192-t1.0-pg.jsonl", _rep_set(3, "20261009T000000Z", ctx=8192))
+    _write(eng, "d1-262144-t1.0-pg.jsonl",
+           _rep_set(1, "20261009T000000Z", ctx=262144, error="http_500: PrefillDoesNotFit"))
+    return sept, eng, upd
+
+
+def test_profile_2026_10_reads_both_campaigns(tmp_path):
+    data = cr.build_2026_10(*_dirs(tmp_path))
+    assert data["profile"] == "2026-10"
+    assert {c["id"] for c in data["candidates"]} == {"n2", "o1", "m1", "d1", "c1"}
+    assert {g["cand"] for g in data["groups"] if g["canonical"]} == {"n2", "o1", "m1", "d1", "c1"}
+
+
+def test_profile_2026_10_picks_most_reps(tmp_path):
+    data = cr.build_2026_10(*_dirs(tmp_path))
+    g32 = _canon(data, "n2", 32768)
+    assert g32["file"] == "n2-32768-t1.0-fn.jsonl"  # empate em 3 reps: vale o mais recente
+    g8 = _canon(data, "n2", 8192)
+    assert g8["file"] == "n2-8192-t1.0-pg.jsonl" and g8["reps"] == 3
+
+
+def test_refused_band_stays_as_refused_point(tmp_path):
+    data = cr.build_2026_10(*_dirs(tmp_path))
+    g = _canon(data, "d1", 262144)
+    assert g["refused"] and g["error_kinds"] == ["http_500"]
+    p = rpl.point(g)
+    assert p["status"].startswith("refused")
+
+
+def test_mtplx_point_carries_config_label(tmp_path):
+    data = cr.build_2026_10(*_dirs(tmp_path))
+    g128 = _canon(data, "m1", 131072)
+    assert g128["arm"] == "m1q" and g128["config"] == "KV q8"  # m1v recusou; o m1q serviu
+    g32 = _canon(data, "m1", 32768)
+    assert g32["arm"] == "m1p" and g32["config"] == "prime 64"  # o m1 do fn usou o prime de 1 token
+
+
+def test_default_profile_unchanged():
+    committed = json.loads((CAMPAIGN / "results" / "reports.json").read_text(encoding="utf-8"))
+    built = cr.build(CAMPAIGN / "results")
+    committed.pop("generated_at"); built.pop("generated_at")
+    assert built == committed

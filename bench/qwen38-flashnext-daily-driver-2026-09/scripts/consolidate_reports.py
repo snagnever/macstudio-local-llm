@@ -248,12 +248,15 @@ def stage_for(ctx: int, temperature: str, suffix: str | None) -> tuple[str, str,
     return stage, mode, tag
 
 
-def build_group(path: Path, records: list[dict]) -> dict:
-    m = FILE_RE.match(path.name)
-    if not m:
-        raise ValueError(f"file name does not match the expected pattern: {path.name}")
-    cand, ctx, temperature, suffix = m.group(1), int(m.group(2)), m.group(3), m.group(4)
-    stage, mode, tag = stage_for(ctx, temperature, suffix)
+def build_group(path: Path, records: list[dict], meta: tuple | None = None) -> dict:
+    if meta is None:
+        m = FILE_RE.match(path.name)
+        if not m:
+            raise ValueError(f"file name does not match the expected pattern: {path.name}")
+        cand, ctx, temperature, suffix = m.group(1), int(m.group(2)), m.group(3), m.group(4)
+        stage, mode, tag = stage_for(ctx, temperature, suffix)
+    else:
+        cand, ctx, stage, mode, tag = meta
 
     served = [r for r in records if sd._is_served(r)]
     by: dict[str, list[dict]] = {}
@@ -399,12 +402,143 @@ def build(results_dir: Path) -> dict:
     }
 
 
+# --- Perfil 2026-10: stack de outubro do Flash-Next para a página perf-lines ---------------------------
+# Lê três campanhas: engine-updates-2026-10 (n2, o1, MTPLX, d1), flashnext-updates-2026-10 (n2 da Etapa 1)
+# e o c1 de setembro como referência. A página de overview de setembro continua no perfil default.
+REPO = CAMPAIGN.parents[1]
+ENGINE_RESULTS = REPO / "bench" / "engine-updates-2026-10" / "results"
+UPDATES_RESULTS = REPO / "bench" / "qwen38-flashnext-updates-2026-10" / "results"
+OUT_2026_10 = ENGINE_RESULTS / "reports-2026-10.json"
+FILE_RE_2026_10 = re.compile(r"^([a-z]\d+[a-z]*)-(\d+)-t([\d.]+)(?:-(.+))?\.jsonl$")
+
+# Braço → série. Os braços MTPLX entram só com o prime de 64 tokens e um knob por braço: o prime de
+# 1 token roda sem sessão no MTPLX (Etapa F), então o m1 dos tags fn/smoke e os diagnósticos ficam fora.
+SERIES_ARMS_2026_10 = {"n2": "n2", "o1": "o1", "d1": "d1",
+                       "m1": "m1", "m1p": "m1", "m1v": "m1", "m1x": "m1", "m1q": "m1"}
+MTPLX_CONFIG = {"m1": "default config", "m1p": "prime 64", "m1v": "vendor default",
+                "m1x": "memory limit max", "m1q": "KV q8"}
+MTPLX_PRIME1_TAGS = {"fn", "smoke", "gate"}
+
+CANDIDATES_2026_10 = [
+    {"id": "n2", "name": "ddalcu iQ-MLX-4.7bpw · mlx-serve 26.10.1", "short": "n2 mlx-serve",
+     "runtime": "mlx-serve", "runtime_version": "26.10.1",
+     "model": "ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw", "revision": "dafff5c",
+     "quant": "iQ-MLX 4.7 bpw", "bpw": 4.7, "disk_gb": 107.4, "port": 11234,
+     "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
+     "spec": "native MTP + PLD (n-gram)",
+     "ceiling": "512K with YaRN 2.0 + KV 8-bit", "state": "pass", "status": "daily driver"},
+    {"id": "o1", "name": "oQ4e · oMLX 0.7.0", "short": "o1 oMLX",
+     "runtime": "oMLX", "runtime_version": "0.7.0",
+     "model": "Jundot/Qwen3.8-Flash-Next-oQ4e-mtp", "revision": "2615fc0",
+     "quant": "oQ4e", "bpw": 5.97, "disk_gb": 132.2, "port": 8000,
+     "cache": "paged SSD cache · PLE in mmap via model_settings.json",
+     "spec": "checkpoint MTP · acceptance not exposed in telemetry",
+     "ceiling": "262K (oMLX has no YaRN)", "state": "pass", "status": "2nd place"},
+    {"id": "m1", "name": "MTPLX Optimized-Speed · MTPLX 2.12.2", "short": "m1 MTPLX",
+     "runtime": "MTPLX", "runtime_version": "2.12.2",
+     "model": "Youssofal/Qwen3.8-Flash-Next-MTPLX-Optimized-Speed", "revision": "6bc2f6e",
+     "quant": "MTPLX Optimized-Speed", "bpw": 5.43, "disk_gb": 120.2, "port": 8000,
+     "cache": "session bank in RAM + SSD session cache",
+     "spec": "native MTP · turbo profile depth 3",
+     "ceiling": "see the 128K and 256K points", "state": "control", "status": "measured"},
+    {"id": "d1", "name": "Q4 GGUF · ds4 upstream", "short": "d1 ds4",
+     "runtime": "ds4", "runtime_version": "upstream 0aaea5a",
+     "model": "antirez/qwen3.8-flash-next-gguf (Q4)", "revision": "qwen38-q4k",
+     "quant": "Q4 GGUF (MTP + n-gram table embedded)", "bpw": None, "disk_gb": 177.3, "port": 11234,
+     "cache": "KV prefix cache on disk (100 GB)",
+     "spec": "built-in MTP (1 draft)",
+     "ceiling": "512K with YaRN 2", "state": "control", "status": "measured"},
+]
+C1_REFERENCE = {"short": "c1 Sept ref", "status": "Sept reference", "state": "control"}
+
+
+def _stamp(records: list[dict]) -> str:
+    return max((str(r.get("run_id") or "")[:16] for r in records), default="")
+
+
+def _meta_2026_10(path: Path) -> tuple | None:
+    m = FILE_RE_2026_10.match(path.name)
+    if not m:
+        return None
+    arm, ctx, temperature, tag = m.group(1), int(m.group(2)), m.group(3), m.group(4) or ""
+    series = SERIES_ARMS_2026_10.get(arm)
+    if series is None or temperature not in ("1.0", "1"):
+        return None
+    if arm == "m1" and tag in MTPLX_PRIME1_TAGS:
+        return None
+    return arm, series, ctx, tag
+
+
+def _config_label(arm: str, records: list[dict]) -> str:
+    if arm in MTPLX_CONFIG:
+        return MTPLX_CONFIG[arm]
+    rev = str(records[0].get("runtime_revision") or "")
+    if "yarn" in rev:
+        factor = rev.split("yarn", 1)[1].split("-", 1)[0]
+        return f"YaRN {factor}" + (" + KV 8-bit" if rev.endswith("-kv8") else "")
+    return ""
+
+
+def mark_canonical_2026_10(groups: list[dict]) -> None:
+    """Per series × band: served beats refused, then most reps, then most recent, then lowest T_turn."""
+    best: dict[tuple, dict] = {}
+
+    def rank(g: dict) -> tuple:
+        return (not g["refused"], g["reps"], g["stamp"], -(g["t_turno_s"] or 1e9))
+
+    for g in groups:
+        key = (g["cand"], g["context"])
+        if key not in best or rank(g) > rank(best[key]):
+            best[key] = g
+    for g in best.values():
+        g["canonical"] = True
+
+
+def build_2026_10(sept_dir: Path = RESULTS, engine_dir: Path = ENGINE_RESULTS,
+                  updates_dir: Path = UPDATES_RESULTS) -> dict:
+    groups = []
+    for d in (engine_dir, updates_dir):
+        for path in sorted(d.glob("*-t*.jsonl")):
+            meta = _meta_2026_10(path)
+            if meta is None:
+                continue
+            arm, series, ctx, tag = meta
+            records = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            if not records:
+                continue
+            g = build_group(path, records, (series, ctx, tag, "canonical", _config_label(arm, records)))
+            g.update(arm=arm, config=g["tag"], campaign=d.parent.name, stamp=_stamp(records))
+            groups.append(g)
+    mark_canonical_2026_10(groups)
+    sept = build(sept_dir)
+    for g in sept["groups"]:
+        if g["cand"] == "c1" and g["canonical"]:
+            g.update(arm="c1", config=g["tag"], campaign=sept_dir.parent.name, stamp="")
+            groups.append(g)
+    c1 = dict(next(c for c in sept["candidates"] if c["id"] == "c1"), **C1_REFERENCE)
+    groups.sort(key=lambda g: (g["cand"], g["context"], not g["canonical"], g["file"]))
+    return {
+        "schema_version": 1, "profile": "2026-10",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "campaign": "bench/engine-updates-2026-10",
+        "rig": RIG, "sampling": SAMPLING,
+        "candidates": CANDIDATES_2026_10 + [c1], "groups": groups,
+        "takeaways": [],
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--profile", choices=("2026-09", "2026-10"), default="2026-09")
     ap.add_argument("--results-dir", default=str(RESULTS))
-    ap.add_argument("--out", default=str(OUT))
+    ap.add_argument("--out", default=None)
     a = ap.parse_args(argv)
-    data = build(Path(a.results_dir))
+    if a.profile == "2026-10":
+        data = build_2026_10(Path(a.results_dir))
+        a.out = a.out or str(OUT_2026_10)
+    else:
+        data = build(Path(a.results_dir))
+        a.out = a.out or str(OUT)
     out = Path(a.out)
     out.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"wrote {out} ({len(data['groups'])} groups)")
