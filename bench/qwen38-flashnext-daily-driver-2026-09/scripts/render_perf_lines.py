@@ -16,7 +16,9 @@ import json
 from pathlib import Path
 
 CAMPAIGN = Path(__file__).resolve().parents[1]
-REPORTS_JSON = CAMPAIGN / "results" / "reports.json"
+# A página publicada é a de outubro (consolidate_reports.py --profile 2026-10). Para o perfil 2026-09,
+# passe --data e --out explícitos.
+REPORTS_JSON = CAMPAIGN.parent / "engine-updates-2026-10" / "results" / "reports-2026-10.json"
 OUT = CAMPAIGN.parents[1] / "reports" / "qwen38-flashnext-perf-lines.html"
 
 LINE_CTX = [32768, 131072, 262144, 524288]

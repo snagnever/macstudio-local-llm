@@ -19,10 +19,11 @@ Marque `[x]` e cite o commit quando fechar um item.
 - [x] **Comentário fora do lugar.** Em `scripts/run-candidate.sh:141`, o comentário "os dois juntos: a conta do memory
   plan só chega a 262K assim" fica na linha do m1s, mas descreve o m1xq. Mover. Fechado no branch
   `bench/swift15-flashnext-2026-10`.
-- [ ] **Default do renderer reescreve a página publicada.** `render_perf_lines.py` sem `--data` usa o `reports.json`
+- [x] **Default do renderer reescreve a página publicada.** `render_perf_lines.py` sem `--data` usa o `reports.json`
   de setembro e grava `reports/qwen38-flashnext-perf-lines.html`, que hoje é a página de outubro. Mudar o default de
   `--data` para `bench/engine-updates-2026-10/results/reports-2026-10.json`, ou recusar gravar o perfil 2026-09 no
-  arquivo publicado.
+  arquivo publicado. Fechado no branch `bench/swift15-flashnext-2026-10`: default de `--data` agora é o
+  `reports-2026-10.json`; a página gerada sai idêntica à publicada.
 - [ ] **Legenda `est_note` incompleta.** Cita só `507` e `500`; os dados de outubro têm HTTP 400 (m1v) e
   `stream_error` (m1s). Para o ponto recusado do MTPLX a 256K, dar o motivo do fit (237 568 tokens) via
   `GROUP_NOTES[("m1", 262144, "pg")]`.
