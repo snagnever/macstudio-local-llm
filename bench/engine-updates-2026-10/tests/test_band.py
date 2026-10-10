@@ -129,3 +129,27 @@ def test_etapa_g_lib_flag_does_not_run_queue_when_executed():
     out = subprocess.run(["bash", str(ETAPA_G), "--lib"], capture_output=True, text=True,
                          env=_env({"ENGINE_BAND_DRY": "1"}), timeout=10)
     assert out.returncode == 0 and out.stdout.strip() == ""
+
+
+N2O = HERE / "scripts" / "run-n2o-512k.sh"
+
+
+def test_n2o_script_dry_run_lists_the_run_and_the_driver():
+    out = subprocess.run(["bash", str(N2O)], capture_output=True, text=True,
+                         env=_env({"ENGINE_BAND_DRY": "1", "ENGINE_GUARD_PATTERN": "no-such-process-xyz"}),
+                         timeout=10)
+    assert out.returncode == 0, out.stderr
+    assert "run-arm.sh n2o 524288 --yarn 2.0 --repeat 1 --tag osr" in out.stdout
+    assert "serve-flashnext-daily-driver.sh daily" in out.stdout
+
+
+def test_n2o_script_refuses_while_another_campaign_runs():
+    # A guarda acha um processo vivo de fora (um sleep; o pgrep do macOS ignora os ancestrais) e sai sem rodar nada.
+    other = subprocess.Popen(["sleep", "41.731"])
+    try:
+        out = subprocess.run(["bash", str(N2O)], capture_output=True, text=True,
+                             env=_env({"ENGINE_BAND_DRY": "1", "ENGINE_GUARD_PATTERN": "sleep 41.731"}), timeout=10)
+    finally:
+        other.kill()
+    assert out.returncode == 75
+    assert "run-arm.sh" not in out.stdout

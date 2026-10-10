@@ -57,3 +57,12 @@ A 512K o `identical` recebeu `PrefillDoesNotFit` (o pedido precisa de ~14.1 GB e
 capacidade, não uso diário. O MTPLX não entra em 256K/512K (recusa 128K); o oMLX não tem YaRN.
 
 Dados: `*-t1.0-fn.jsonl`, `summary-fn.json`, `*-262144-t1.0-fnx256.jsonl`, `n2-524288-t1.0-yarn2.jsonl`.
+
+**Re-run a 512K (2026-10-10, `n2-524288-t1.0-yarn2r.jsonl`, 1 rep).** O `identical` passou (hit 1.00), mas o
+`PrefillDoesNotFit` voltou num prime de 1 token: pediu ~14 083 MB com ~10 886 MB disponíveis. Nos dois runs, o log
+diz que a entrada do hot cache estava "shared with a live request". Em `src/server.zig` (v26.10.1), `WarmPrefix`
+só desconta as linhas restauradas quando a requisição tira a entrada do cache (`will_donate`); uma entrada
+compartilhada é copiada inteira no primeiro append, e a cópia (~9 GB de KV) mais os transientes não cabem. A falha
+cai no turno que pegar a memória mais apertada, por isso mudou de cenário. Próximo teste: braço `n2o`
+(`--os-reserve-gib 4`, default 8 GB), script `scripts/run-n2o-512k.sh`. O `middle_mutation` do re-run truncou em
+4096 tokens de reasoning (limite do probe, não memória).

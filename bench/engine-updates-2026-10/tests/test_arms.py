@@ -312,3 +312,19 @@ def test_inherited_qsa_prefill_does_not_leak():
         out = subprocess.run(["bash", str(DRIVER), cand, "131072", "--print"], capture_output=True, text=True,
                              env=_env({"MTPLX_QSA_PREFILL": "1", "QWEN38_MTPLX_QSA_PREFILL": "1"}), check=True).stdout
         assert "QSA_PREFILL" not in out, cand
+
+
+def test_n2o_adds_os_reserve_to_the_n2_512k_profile():
+    # PrefillDoesNotFit a 512K faltou 0.6–3.2 GB; --os-reserve-gib 4 libera 4 GB do default de 8 (1/8 da RAM).
+    out = show("n2o", "524288", "--yarn", "2.0")
+    assert IQ in out and "--kv-quant 8" in out
+    assert "--os-reserve-gib 4" in out
+    assert "--runtime-revision v26.10.1-yarn2.0-kv8-osr4 " in out
+
+
+def test_os_reserve_knob_does_not_leak_into_other_arms():
+    env = _env({"QWEN38_MLX_OS_RESERVE_GIB": "4"})
+    for cand, args in (("n2", ("524288", "--yarn", "2.0")), ("n1", ("32768",)), ("r27", ("32768",))):
+        out = subprocess.run(["bash", str(DRIVER), cand, *args, "--print"],
+                             capture_output=True, text=True, env=env, check=True).stdout
+        assert "--os-reserve-gib" not in out, cand
