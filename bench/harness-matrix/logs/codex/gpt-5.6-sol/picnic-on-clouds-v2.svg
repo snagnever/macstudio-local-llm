@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title description">
+  <title id="title">Family picnic on top of the clouds</title>
+  <desc id="description">Two parents and two children unload food and spread a picnic tarp beside their landed hot air balloon on a broad cloud.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#64bce9"/>
+      <stop offset="0.62" stop-color="#c8edfb"/>
+      <stop offset="1" stop-color="#eefaff"/>
+    </linearGradient>
+    <radialGradient id="sunGlow">
+      <stop offset="0" stop-color="#fff9c7" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#fff9c7" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cloud" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.72" stop-color="#eef7fb"/>
+      <stop offset="1" stop-color="#c9dfea"/>
+    </linearGradient>
+    <linearGradient id="envelope" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c73d50"/>
+      <stop offset="0.22" stop-color="#ef7651"/>
+      <stop offset="0.5" stop-color="#ffd25f"/>
+      <stop offset="0.78" stop-color="#ef7651"/>
+      <stop offset="1" stop-color="#c73d50"/>
+    </linearGradient>
+    <linearGradient id="tarp" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3aa7cf"/>
+      <stop offset="1" stop-color="#17679c"/>
+    </linearGradient>
+    <pattern id="weave" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M0 6h12M6 0v12" stroke="#6a3e25" stroke-width="1" opacity="0.35"/>
+    </pattern>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="11" stdDeviation="12" flood-color="#396879" flood-opacity="0.25"/>
+    </filter>
+    <filter id="smallShadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#244d62" flood-opacity="0.24"/>
+    </filter>
+    <clipPath id="balloonClip">
+      <path d="M214 78c-92 0-143 75-119 160 15 54 69 93 91 144h56c22-51 76-90 91-144 24-85-27-160-119-160Z"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <circle cx="1017" cy="105" r="126" fill="url(#sunGlow)"/>
+  <circle cx="1017" cy="105" r="48" fill="#fff3a4" opacity="0.88"/>
+  <g fill="#fff" opacity="0.7">
+    <path d="M458 145c5-29 31-48 60-43 13-35 68-40 88-7 37-10 74 10 78 43 26 0 47 14 51 35H432c2-14 11-24 26-28Z"/>
+    <path d="M867 238c4-21 24-36 46-32 12-27 53-28 66-1 29-8 58 9 60 34h-191c3-1 10-1 19-1Z" opacity="0.66"/>
+  </g>
+
+  <!-- A single cloud island clearly supports the full scene. -->
+  <g filter="url(#softShadow)">
+    <path d="M82 551c-58 4-88 39-77 77 9 32 47 48 89 42 6 48 58 76 111 58 32 60 124 75 181 32 53 56 155 59 216 5 61 47 167 39 209-20 58 37 151 13 159-50 56 10 112-25 107-70-3-34-33-60-76-67-6-39-44-66-91-66-24-53-96-73-152-47-34-57-121-64-171-14-32-35-85-46-129-31-28-33-77-38-117-12-31-29-73-33-111-15-19-31-47-47-78-49-27-57-83-68-119-33Z" fill="url(#cloud)" stroke="#c8e0ec" stroke-width="5"/>
+    <ellipse cx="590" cy="617" rx="471" ry="112" fill="#fff" opacity="0.42"/>
+  </g>
+
+  <!-- Landed hot air balloon: basket and mooring ropes touch the cloud. -->
+  <g filter="url(#smallShadow)">
+    <path d="M214 78c-92 0-143 75-119 160 15 54 69 93 91 144h56c22-51 76-90 91-144 24-85-27-160-119-160Z" fill="url(#envelope)" stroke="#873343" stroke-width="5"/>
+    <g clip-path="url(#balloonClip)" fill="none" stroke="#fff4c7" stroke-width="18" opacity="0.86">
+      <path d="M155 65c-37 122-24 226 58 326"/>
+      <path d="M273 65c37 122 24 226-58 326"/>
+    </g>
+    <path d="M214 79c-25 99-24 202 0 302" fill="none" stroke="#b33b48" stroke-width="5" opacity="0.85"/>
+    <path d="M186 382h56l-8 27h-40Z" fill="#69503a" stroke="#4a3529" stroke-width="4"/>
+    <path d="M193 405 175 486M235 405l19 81" stroke="#634a38" stroke-width="4"/>
+    <path d="M164 475h101l-8 77h-84Z" fill="#b97538" stroke="#694027" stroke-width="5"/>
+    <path d="M171 493h87M169 516h91M190 479v69M216 479v69M242 479v69" stroke="#724429" stroke-width="3"/>
+    <path d="M176 552q38 18 78 0" fill="none" stroke="#d8e8ef" stroke-width="8" stroke-linecap="round"/>
+    <path d="M174 545 135 584M256 545l39 38" stroke="#806044" stroke-width="5"/>
+    <path d="m130 586-10 3m180-3 10 3" stroke="#60422f" stroke-width="8" stroke-linecap="round"/>
+  </g>
+
+  <!-- Open luggage and picnic basket show the family has just landed. -->
+  <g transform="translate(285 521)" filter="url(#smallShadow)">
+    <path d="M10 37h94l-8 72H18Z" fill="#c98541" stroke="#724528" stroke-width="4"/>
+    <path d="M26 39Q57-13 89 39" fill="none" stroke="#724528" stroke-width="9"/>
+    <path d="M17 54h82M16 76h85M40 40v65M71 40v65" stroke="#81502f" stroke-width="3"/>
+    <path d="M20 35q40-29 82 0" fill="#f0d6a7" stroke="#724528" stroke-width="4"/>
+    <path d="M35 22 39-9h15l5 30M70 24 77-17h15l5 43" fill="#74a64d" stroke="#4e7136" stroke-width="3"/>
+    <path d="M122 49h66q17 0 20 18l7 48h-103l5-48q2-18 5-18Z" fill="#76538b" stroke="#50365f" stroke-width="4"/>
+    <path d="M140 50q1-24 22-24t23 24M119 75h91" fill="none" stroke="#50365f" stroke-width="6"/>
+  </g>
+
+  <!-- Large blue tarp, partly unfurled, connects the actions of all four people. -->
+  <path d="M467 529 844 500 1005 681 524 731Z" fill="url(#tarp)" stroke="#124f7a" stroke-width="6" filter="url(#smallShadow)"/>
+  <path d="M480 540 835 513M539 716l449-46" stroke="#79c9e6" stroke-width="4" opacity="0.82"/>
+  <path d="M467 529l19 35 22-32M844 500l-14 35 38-8M1005 681l-38-17 8 39M524 731l17-38-44 9" fill="#2180b2" stroke="#124f7a" stroke-width="3"/>
+
+  <!-- Parent 1 kneels at the tarp and pulls its left corner flat. -->
+  <g stroke="#3f302b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="443" cy="396" r="31" fill="#8c573f"/>
+    <path d="M414 395q4-43 32-42 33 1 31 46-14-19-31-12-18 8-32 8Z" fill="#2e2523" stroke="none"/>
+    <path d="M421 442q27-25 54 2l18 91-88 3Z" fill="#de684f"/>
+    <path d="m425 458-45 65 85 17m5-78 48 55-49 22" fill="none" stroke="#8c573f" stroke-width="15"/>
+    <circle cx="380" cy="523" r="9" fill="#8c573f" stroke="none"/>
+    <circle cx="469" cy="539" r="9" fill="#8c573f" stroke="none"/>
+    <path d="m421 537-34 60 62 5m27-66 34 52 55 4" fill="none" stroke="#405a78" stroke-width="19"/>
+    <path d="M378 601h77M558 593h30" stroke="#594034" stroke-width="12"/>
+  </g>
+
+  <!-- Parent 2 kneels at the tarp and unpacks food from a container. -->
+  <g stroke="#403029" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="914" cy="389" r="31" fill="#b97755"/>
+    <path d="M885 387q4-42 33-41 34 2 30 46-17-18-31-9-16 9-32 4Z" fill="#493027" stroke="none"/>
+    <path d="M889 436q27-24 54 3l15 95-87 1Z" fill="#6d935d"/>
+    <path d="m895 452-56 68m99-64 38 57" fill="none" stroke="#b97755" stroke-width="15"/>
+    <circle cx="839" cy="520" r="9" fill="#b97755" stroke="none"/>
+    <circle cx="976" cy="513" r="9" fill="#b97755" stroke="none"/>
+    <path d="m890 534-38 56 65 6m25-62 36 53 55 2" fill="none" stroke="#c39c68" stroke-width="19"/>
+    <path d="M843 596h79M1027 590h29" stroke="#5b4032" stroke-width="12"/>
+    <path d="M793 519h91l-6 50h-79Z" fill="#efcf78"/>
+    <path d="M794 519q44-30 89 0" fill="#fff7de"/>
+    <path d="M811 525h53" stroke="#eaa54d" stroke-width="7"/>
+  </g>
+
+  <!-- Child 1 carries two plates from the picnic basket to the tarp. -->
+  <g stroke="#40312b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="628" cy="407" r="25" fill="#9f6449"/>
+    <path d="M605 403q6-34 28-32 25 3 22 37-22-17-50-5Z" fill="#56362c" stroke="none"/>
+    <path d="M607 443q22-18 44 2l10 81h-65Z" fill="#f0b743"/>
+    <path d="m608 456-43 38m82-35 43 32" fill="none" stroke="#9f6449" stroke-width="12"/>
+    <circle cx="565" cy="494" r="7" fill="#9f6449" stroke="none"/>
+    <circle cx="690" cy="491" r="7" fill="#9f6449" stroke="none"/>
+    <ellipse cx="697" cy="489" rx="33" ry="9" fill="#fff"/>
+    <ellipse cx="697" cy="483" rx="29" ry="8" fill="#fff"/>
+    <path d="m609 526-18 77m53-77 22 75" fill="none" stroke="#4d718f" stroke-width="14"/>
+    <path d="M578 605h29M658 603h29" stroke="#584033" stroke-width="10"/>
+  </g>
+
+  <!-- Child 2 crouches and presses a peg into the far tarp corner. -->
+  <g stroke="#40312b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="769" cy="421" r="24" fill="#c8845c"/>
+    <path d="M746 417q5-35 28-33 26 3 22 38-21-16-50-5Z" fill="#794826" stroke="none"/>
+    <path d="M748 457q22-18 43 2l12 70-66 3Z" fill="#cd6089"/>
+    <path d="m751 470-31 46m67-43 44 29" fill="none" stroke="#c8845c" stroke-width="11"/>
+    <circle cx="720" cy="516" r="7" fill="#c8845c" stroke="none"/>
+    <circle cx="831" cy="502" r="7" fill="#c8845c" stroke="none"/>
+    <path d="m750 531-33 49 52 4m22-54 33 43 42-6" fill="none" stroke="#775091" stroke-width="14"/>
+    <path d="M709 584h66M860 568h25" stroke="#553c30" stroke-width="10"/>
+    <path d="m828 501 7 17" stroke="#76523b" stroke-width="5"/>
+    <circle cx="837" cy="520" r="9" fill="#d7b789"/>
+  </g>
+
+  <!-- Readable food spread: platter, bread, sandwiches, cheese, fruit, and juice. -->
+  <g filter="url(#smallShadow)">
+    <ellipse cx="723" cy="621" rx="105" ry="44" fill="#fff4da" stroke="#cdb991" stroke-width="4"/>
+    <path d="M651 622q20-56 50-2Z" fill="#efc552" stroke="#b88b28" stroke-width="3"/>
+    <circle cx="726" cy="600" r="17" fill="#d84e40"/>
+    <path d="m725 582 4-8" stroke="#528447" stroke-width="4"/>
+    <circle cx="756" cy="608" r="16" fill="#78aa4b"/>
+    <circle cx="744" cy="631" r="15" fill="#ee963d"/>
+    <path d="M787 590q43 7 51 40l-69 1Z" fill="#f4d66c" stroke="#b79132" stroke-width="3"/>
+    <circle cx="793" cy="611" r="4" fill="#aa862c"/>
+    <circle cx="814" cy="619" r="4" fill="#aa862c"/>
+    <path d="M594 639h82l-10 35h-60Z" fill="#efe8d0" stroke="#a89574" stroke-width="3"/>
+    <path d="m601 639 33-29 34 29" fill="#dca257" stroke="#91602c" stroke-width="3"/>
+    <path d="M606 630h58" stroke="#6d9f53" stroke-width="5"/>
+    <path d="M877 575h45l-4 86h-37Z" fill="#eea340" stroke="#fff" stroke-width="5"/>
+    <path d="M886 573v-27h26v27" fill="none" stroke="#fff" stroke-width="6"/>
+    <path d="m894 548 15-16" stroke="#e56a48" stroke-width="5"/>
+    <ellipse cx="556" cy="647" rx="39" ry="14" fill="#fff" stroke="#bbced9" stroke-width="3"/>
+    <path d="M531 643h52l-9-23h-34Z" fill="#d79b58" stroke="#81562e" stroke-width="3"/>
+    <path d="M539 631h37" stroke="#6e9f55" stroke-width="5"/>
+    <g transform="translate(925 626)">
+      <path d="M0 22h66l-7 32H7Z" fill="#bd7740" stroke="#754528" stroke-width="3"/>
+      <path d="M7 22Q33-8 59 22" fill="#e4b06b" stroke="#9a6532" stroke-width="3"/>
+      <path d="M15 31h42" stroke="#7d4d2a" stroke-width="3"/>
+    </g>
+  </g>
+
+  <!-- Subtle lower clouds add altitude without competing with the family. -->
+  <g fill="#e7f5fb" opacity="0.82">
+    <ellipse cx="80" cy="752" rx="92" ry="22"/>
+    <ellipse cx="1094" cy="728" rx="112" ry="27"/>
+    <ellipse cx="1014" cy="777" rx="63" ry="15"/>
+  </g>
+</svg>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brainy — your second brain, but friendly</title>
+<meta name="description" content="Brainy turns your notes into a second brain that actually remembers. Capture anything, connect it all.">
+<style>
+  :root{
+    --bg:#fff8ef;
+    --ink:#33305a;
+    --soft:#7a76a0;
+    --coral:#ff6b6b;
+    --sun:#ffd93d;
+    --mint:#6bd6a4;
+    --sky:#5eb8ff;
+    --grape:#a78bfa;
+    --r:22px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:ui-rounded,"Hiragino Maru Gothic ProN",Quicksand,"Comfortaa",Verdana,system-ui,sans-serif;line-height:1.65}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  .blob{position:fixed;border-radius:50%;filter:blur(60px);opacity:.35;z-index:-1}
+  .blob.a{width:420px;height:420px;background:var(--sun);top:-120px;left:-120px}
+  .blob.b{width:380px;height:380px;background:var(--sky);bottom:-100px;right:-100px}
+
+  header{padding:20px 0}
+  .bar{display:flex;justify-content:space-between;align-items:center}
+  .logo{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800}
+  .logo .face{width:38px;height:38px;background:var(--grape);border-radius:14px;display:grid;place-items:center;font-size:20px;transform:rotate(-6deg);box-shadow:0 4px 0 rgba(51,48,90,.15)}
+  nav a{color:var(--soft);text-decoration:none;font-weight:700;margin-left:8px;padding:10px 16px;border-radius:999px;display:inline-block}
+  nav a:hover{background:#fff;color:var(--ink)}
+  nav a.pill{background:var(--ink);color:#fff}
+  nav a.pill:hover{background:var(--grape);color:#fff}
+
+  .hero{padding:64px 0 40px;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+  h1{font-size:clamp(38px,6vw,58px);line-height:1.12;font-weight:800;letter-spacing:-.02em}
+  h1 mark{background:linear-gradient(transparent 55%,var(--sun) 55% 92%,transparent 92%);padding:0 4px;border-radius:4px}
+  .lede{font-size:19px;color:var(--soft);margin-top:20px;max-width:44ch}
+  .cta-row{margin-top:32px;display:flex;gap:14px;flex-wrap:wrap}
+  .btn{font-family:inherit;font-size:16px;font-weight:800;padding:16px 30px;border-radius:999px;text-decoration:none;border:none;cursor:pointer}
+  .btn-go{background:var(--coral);color:#fff;box-shadow:0 6px 0 #d94f4f;transition:transform .1s,box-shadow .1s}
+  .btn-go:hover{transform:translateY(2px);box-shadow:0 4px 0 #d94f4f}
+  .btn-soft{background:#fff;color:var(--ink);box-shadow:0 6px 0 #e8e0d2}
+  .btn-soft:hover{transform:translateY(2px);box-shadow:0 4px 0 #e8e0d2}
+  .fine{margin-top:18px;font-size:14px;color:var(--soft)}
+  .fine b{color:var(--mint)}
+
+  .board{position:relative;height:460px}
+  .note{position:absolute;width:190px;background:#fff;border-radius:18px;padding:16px;box-shadow:0 12px 28px rgba(51,48,90,.14);font-size:13.5px;font-weight:600}
+  .note .ttl{font-size:15px;font-weight:800;margin-bottom:6px;display:flex;gap:8px;align-items:center}
+  .note .tag{font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;display:inline-block;margin-top:10px}
+  .n1{background:var(--sun);top:0;left:20px;transform:rotate(-5deg)}
+  .n2{top:60px;right:0;transform:rotate(4deg)}
+  .n3{background:var(--mint);bottom:40px;left:0;transform:rotate(3deg)}
+  .n4{bottom:0;right:40px;transform:rotate(-4deg)}
+  .note.t1{border-bottom:6px solid var(--coral)}
+  .note.t2{border-bottom:6px solid var(--sky)}
+  .pin{position:absolute;top:-9px;left:50%;width:16px;height:16px;background:var(--coral);border-radius:50%;box-shadow:inset -2px -2px 0 rgba(0,0,0,.15),0 3px 5px rgba(0,0,0,.25)}
+  .link-line{position:absolute;font-size:22px;color:var(--grape);font-weight:800}
+
+  .strip{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;padding:26px 0 8px;font-size:14px;font-weight:800;color:var(--soft)}
+  .strip span{background:#fff;border-radius:999px;padding:10px 18px;box-shadow:0 4px 0 rgba(51,48,90,.07)}
+
+  section{padding:72px 0}
+  h2{font-size:clamp(28px,4.4vw,40px);font-weight:800;text-align:center;letter-spacing:-.01em}
+  .sub{text-align:center;color:var(--soft);font-size:17px;max-width:50ch;margin:14px auto 52px}
+
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .card{background:#fff;border-radius:var(--r);padding:30px 26px;box-shadow:0 10px 24px rgba(51,48,90,.1);transition:transform .15s}
+  .card:hover{transform:translateY(-6px) rotate(-1deg)}
+  .card .ico{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;font-size:26px;margin-bottom:18px}
+  .c-coral .ico{background:#ffe3e3}.c-sun .ico{background:#fff3c4}.c-sky .ico{background:#dcecff}
+  .c-mint .ico{background:#dcf6e8}.c-grape .ico{background:#ece4ff}.c-pink .ico{background:#ffe0f0}
+  .card h3{font-size:19px;font-weight:800;margin-bottom:8px}
+  .card p{font-size:14.5px;color:var(--soft)}
+
+  .how{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .step{border-radius:var(--r);padding:28px;color:var(--ink);font-weight:700}
+  .step b{display:grid;place-items:center;width:40px;height:40px;border-radius:999px;background:rgba(255,255,255,.7);font-size:17px;margin-bottom:14px}
+  .step h3{font-size:19px;margin-bottom:6px}
+  .step p{font-size:14px;opacity:.8}
+  .s1{background:var(--sun);transform:rotate(-1.5deg)}
+  .s2{background:var(--mint);transform:rotate(1deg)}
+  .s3{background:var(--sky);transform:rotate(-1deg)}
+
+  .love{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .bubble{background:#fff;border-radius:var(--r);padding:26px;box-shadow:0 10px 24px rgba(51,48,90,.1);font-size:15px;font-weight:600;position:relative}
+  .bubble::after{content:"";position:absolute;bottom:-12px;left:34px;border:12px solid transparent;border-top-color:#fff;border-bottom:0}
+  .bubble .who{margin-top:20px;font-size:13px;color:var(--soft);font-weight:800}
+  .stars{color:var(--sun);filter:brightness(.85);letter-spacing:2px;margin-bottom:10px}
+
+  .end{background:var(--grape);border-radius:34px;color:#fff;text-align:center;padding:72px 24px}
+  .end h2{color:#fff}
+  .end .sub{color:#e9e2ff;margin-bottom:34px}
+  .end .btn-go{box-shadow:0 6px 0 #d94f4f}
+  .end .fine{color:#e9e2ff;margin-top:20px}
+
+  footer{padding:36px 0;text-align:center;color:var(--soft);font-size:14px;font-weight:700}
+
+  /* iteration switcher */
+  .iter-switcher{position:fixed;right:20px;bottom:20px;z-index:99;display:flex;align-items:center;gap:4px;
+    background:var(--ink);padding:8px 10px;border-radius:999px;box-shadow:0 10px 26px rgba(51,48,90,.35)}
+  .iter-switcher .lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#a5a1c7;padding:0 8px 0 4px;font-weight:800}
+  .iter-switcher a{font-size:13px;font-weight:800;width:30px;height:30px;display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;border-radius:999px}
+  .iter-switcher a:hover{background:rgba(255,255,255,.15)}
+  .iter-switcher a[aria-current="page"]{background:var(--sun);color:var(--ink)}
+
+  @media(max-width:900px){
+    .hero{grid-template-columns:1fr}
+    .board{height:420px;max-width:460px}
+    .cards,.how,.love{grid-template-columns:1fr}
+    .note{width:170px}
+  }
+</style>
+</head>
+<body>
+
+<i class="blob a"></i><i class="blob b"></i>
+
+<header class="wrap">
+  <div class="bar">
+    <div class="logo"><span class="face">🧠</span>Brainy</div>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#download" class="pill">Get it free</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <div>
+      <h1>Your brain is for <mark>having</mark> ideas. Brainy is for keeping them.</h1>
+      <p class="lede">The friendly second brain that catches every thought, ties it to the ones you had before, and hands it back the moment you need it. No filing. No folders. No guilt.</p>
+      <div class="cta-row">
+        <a class="btn btn-go" href="#download">Get Brainy — it's free</a>
+        <a class="btn btn-soft" href="#how">▶ 60-second tour</a>
+      </div>
+      <p class="fine"><b>★★★★★</b> loved by 120,000 forgetful geniuses</p>
+    </div>
+    <div class="board" aria-hidden="true">
+      <div class="note n1"><span class="pin"></span><span class="ttl">💡 Idea</span>Podcast about how memory works…
+        <span class="tag" style="background:rgba(255,255,255,.55)">inspiration</span></div>
+      <div class="note n2 t1"><span class="ttl">🛒 List</span>olive oil, film camera, birthday gift for Mo</div>
+      <div class="note n3"><span class="ttl">📚 From a book</span>"Notes are conversations with your future self"
+        <span class="tag" style="background:rgba(255,255,255,.6)">reading</span></div>
+      <div class="note n4 t2"><span class="ttl">🎙️ Meeting</span>Acme wants the team plan — follow up Friday!</div>
+      <span class="link-line" style="top:150px;left:210px">↔</span>
+      <span class="link-line" style="top:300px;left:250px">✳️</span>
+    </div>
+  </section>
+
+  <div class="wrap strip">
+    <span>⌘K quick capture</span><span>🔗 auto-links</span><span>🔍 asks in plain English</span><span>🔒 private by default</span><span>📱 everything syncs</span>
+  </div>
+
+  <section id="features" class="wrap">
+    <h2>Six things Brainy does so you don't have to</h2>
+    <p class="sub">It's like hiring a very organized best friend who lives in your phone.</p>
+    <div class="cards">
+      <div class="card c-coral"><div class="ico">🗒️</div><h3>Catch anything</h3><p>Voice note while walking, screenshot in a chat, thought mid-shower — Brainy grabs it all into one inbox.</p></div>
+      <div class="card c-sun"><div class="ico">🧲</div><h3>Notes find each other</h3><p>New notes automatically high-five related old ones. Your ideas start a party without you planning it.</p></div>
+      <div class="card c-sky"><div class="ico">🙋</div><h3>Just ask</h3><p>"Where did I put that dentist recommendation?" Brainy answers with the exact note. Every time. Yes, every time.</p></div>
+      <div class="card c-mint"><div class="ico">⏰</div><h3>Gentle nudges</h3><p>Brainy resurfaces the right note at the right moment — before meetings, on birthdays, when you say "I had an idea…"</p></div>
+      <div class="card c-grape"><div class="ico">🎨</div><h3>Make it yours</h3><p>Colors, emoji, themes, custom fonts. A second brain should look like you. Ours looks fabulous.</p></div>
+      <div class="card c-pink"><div class="ico">🚪</div><h3>No lock-in</h3><p>One-tap export to text, PDF, or Markdown. You're dating Brainy, not marrying a database.</p></div>
+    </div>
+  </section>
+
+  <section id="how" class="wrap">
+    <h2>Three steps. That's literally it.</h2>
+    <p class="sub">If you can doodle, you can Brainy.</p>
+    <div class="how">
+      <div class="step s1"><b>1</b><h3>Spill it</h3><p>Dump every thought, link, and to-do into the capture bar. No organization required — promise.</p></div>
+      <div class="step s2"><b>2</b><h3>Brainy sorts</h3><p>Tags, links, and summaries happen by themselves while you do more interesting things.</p></div>
+      <div class="step s3"><b>3</b><h3>Ask &amp; receive</h3><p>Search like you're texting a friend. Your whole memory, back on tap.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>People are being very nice about it</h2>
+    <p class="sub">Real quotes. Slight exaggeration levels: zero.</p>
+    <div class="love">
+      <div class="bubble"><div class="stars">★★★★★</div>I stopped losing ideas mid-walk. My notes now connect like little neurons and honestly it's magic.<div class="who">Priya · PhD student</div></div>
+      <div class="bubble"><div class="stars">★★★★★</div>I asked it "what was the gift my sister mentioned?" and it knew. It knows me better than my partner.<div class="who">Dan · dad of three</div></div>
+      <div class="bubble"><div class="stars">★★★★★</div>Finally a note app that feels like a toy and works like a tool. The nudges are scarily good.<div class="who">Noor · founder</div></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="download">
+    <div class="end">
+      <h2>Give your brain a day off 🎈</h2>
+      <p class="sub">Free forever for personal use. Your future self is already grateful.</p>
+      <a class="btn btn-go" href="#">Download Brainy</a>
+      <p class="fine">iPhone · Android · Mac · Windows · Web</p>
+    </div>
+  </section>
+</main>
+
+<footer>Made with 💜 and far too many sticky notes — Brainy 2026</footer>
+
+<nav class="iter-switcher" aria-label="Design iterations">
+  <span class="lbl">style</span>
+  <a href="../1/" title="1 · Editorial">1</a>
+  <a href="../2/" title="2 · Terminal">2</a>
+  <a href="../3/" aria-current="page" title="3 · Playground">3</a>
+  <a href="../4/" title="4 · Bento">4</a>
+  <a href="../5/" title="5 · Atelier">5</a>
+</nav>
+
+</body>
+</html>

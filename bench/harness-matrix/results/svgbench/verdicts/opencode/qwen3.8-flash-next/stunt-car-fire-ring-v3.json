@@ -1,0 +1,53 @@
+{
+  "artifact": "logs/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v3.svg",
+  "question_index": 6,
+  "render": "logs/renders/opencode/qwen3.8-flash-next/stunt-car-fire-ring-v3.png",
+  "judge": {
+    "kind": "claude-vision",
+    "model": "claude-opus-5",
+    "date": "2026-09-07",
+    "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {
+      "text": "Create a red, sporty car with a body, wheels, and windows.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Draw a distinct circular hoop that is completely surrounded by jagged, irregular flames colored with reds, oranges, and yellows.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Include a take-off ramp on the left side of the fiery ring and a landing ramp on the right side.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Position the car in mid-air, with its front half having passed through the ring and its back half still inside the ring.",
+      "met": false,
+      "note": "The whole car is inside the ring; nothing has passed through it. Against the hoop's fitted mid-band (centre 399,234, r=150), 100.0% of the car's red body lies inside the opening and 0.0% beyond it, so the front half has not passed through."
+    },
+    {
+      "text": "The car's rear wheels must be depicted as just having left the edge of the take-off ramp.",
+      "met": false,
+      "note": "The rear wheel is nowhere near the take-off ramp's edge. The ramp's lip is at about (263,372) while the rear wheel sits at about (355,288) in the middle of the hoop - roughly 125 px away, about 2.8 wheel diameters, and well above the ramp."
+    },
+    {
+      "text": "Add a ground surface below the entire jump setup.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Incorporate gray speed lines trailing behind the car to convey high speed.",
+      "met": false,
+      "note": "There are no speed lines at all in this variant. The tan streaks of the base and v2 have been replaced by a pink rear spoiler and a gold exhaust wisp; nothing gray trails the car."
+    },
+    {
+      "text": "Add orange sparks where the car's tires last touched the take-off ramp.",
+      "met": false,
+      "note": "No sparks at the take-off ramp's edge. A 4x crop of the striped ramp lip shows bare ramp and ground; the gold wisp is at the car's tail in the middle of the hoop, not at the ramp."
+    }
+  ]
+}

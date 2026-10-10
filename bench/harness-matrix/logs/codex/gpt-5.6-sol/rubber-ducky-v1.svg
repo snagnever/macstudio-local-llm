@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Rubber ducky floating in a soapy bathtub</title>
+  <desc id="desc">A yellow rubber duck floats on blue bathwater inside a white claw-foot bathtub, surrounded by soap bubbles.</desc>
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dff7f4"/>
+      <stop offset="1" stop-color="#bfe3df"/>
+    </linearGradient>
+    <linearGradient id="tub" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.58" stop-color="#eef4f6"/>
+      <stop offset="1" stop-color="#b9cad1"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#79d8ef"/>
+      <stop offset="1" stop-color="#229fc9"/>
+    </linearGradient>
+    <radialGradient id="duckBody" cx="36%" cy="24%" r="82%">
+      <stop offset="0" stop-color="#fff36a"/>
+      <stop offset="0.58" stop-color="#ffd72e"/>
+      <stop offset="1" stop-color="#e6a900"/>
+    </radialGradient>
+    <linearGradient id="beak" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff9e36"/>
+      <stop offset="1" stop-color="#e75e17"/>
+    </linearGradient>
+    <radialGradient id="bubble" cx="32%" cy="25%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="0.45" stop-color="#eafdff" stop-opacity="0.54"/>
+      <stop offset="1" stop-color="#8ccfe0" stop-opacity="0.22"/>
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#184b5a" flood-opacity="0.28"/>
+    </filter>
+    <clipPath id="waterClip">
+      <path d="M184 405 Q600 360 1016 405 L978 570 Q600 625 222 570 Z"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#wall)"/>
+  <path d="M0 176 H1200 M0 344 H1200" fill="none" stroke="#a9d2cf" stroke-width="5"/>
+  <path d="M198 0 V344 M402 0 V344 M606 0 V344 M810 0 V344 M1014 0 V344" fill="none" stroke="#c9e9e5" stroke-width="4"/>
+  <rect y="650" width="1200" height="150" fill="#d4c2ae"/>
+  <path d="M0 676 H1200 M0 738 H1200 M146 650 V800 M432 650 V800 M728 650 V800 M1012 650 V800" fill="none" stroke="#b9a58f" stroke-width="4" opacity="0.7"/>
+
+  <ellipse cx="600" cy="699" rx="465" ry="48" fill="#47636a" opacity="0.23" filter="url(#shadow)"/>
+
+  <!-- Faucet and fixtures behind the tub -->
+  <path d="M929 365 V275 Q929 223 877 223 H825" fill="none" stroke="#708993" stroke-width="31" stroke-linecap="round"/>
+  <path d="M929 365 V275 Q929 223 877 223 H825" fill="none" stroke="#cbd8dc" stroke-width="19" stroke-linecap="round"/>
+  <path d="M798 206 h58 q16 0 16 16 v17 q0 16-16 16 h-58 z" fill="#b7c8cd" stroke="#617b85" stroke-width="6"/>
+  <path d="M776 323 v-48 M749 275 h54" fill="none" stroke="#718b94" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="776" cy="323" r="24" fill="#d5e0e3" stroke="#617b85" stroke-width="6"/>
+  <path d="M1035 323 v-48 M1008 275 h54" fill="none" stroke="#718b94" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="1035" cy="323" r="24" fill="#d5e0e3" stroke="#617b85" stroke-width="6"/>
+
+  <!-- Bathtub shell -->
+  <path d="M151 391 Q158 357 197 357 H1003 Q1042 357 1049 391 L1000 598 Q989 646 929 659 H271 Q211 646 200 598 Z" fill="url(#tub)" stroke="#7c99a3" stroke-width="10" filter="url(#softShadow)"/>
+  <path d="M197 395 Q600 351 1003 395 L975 558 Q970 589 929 596 H271 Q230 589 225 558 Z" fill="url(#water)"/>
+  <path d="M197 395 Q600 351 1003 395" fill="none" stroke="#eefeff" stroke-width="18" stroke-linecap="round"/>
+  <path d="M174 374 Q600 321 1026 374 Q1060 379 1053 410 Q1047 435 1013 430 Q600 385 187 430 Q153 435 147 410 Q140 379 174 374 Z" fill="#fbfeff" stroke="#809ca6" stroke-width="9"/>
+  <path d="M191 391 Q600 346 1009 391" fill="none" stroke="#a9bbc1" stroke-width="4" opacity="0.85"/>
+
+  <!-- Water ripples -->
+  <g clip-path="url(#waterClip)" fill="none" stroke-linecap="round">
+    <path d="M266 482 Q346 457 428 482 T590 482" stroke="#b9f2ff" stroke-width="10" opacity="0.7"/>
+    <path d="M692 507 Q778 480 870 506 T1006 500" stroke="#b9f2ff" stroke-width="9" opacity="0.62"/>
+    <path d="M302 548 Q390 524 482 547" stroke="#147fa8" stroke-width="7" opacity="0.45"/>
+    <path d="M707 560 Q794 532 900 555" stroke="#147fa8" stroke-width="7" opacity="0.42"/>
+  </g>
+
+  <!-- Foam bank -->
+  <g fill="url(#bubble)" stroke="#a7deea" stroke-width="5">
+    <circle cx="222" cy="407" r="37"/><circle cx="263" cy="393" r="48"/><circle cx="316" cy="412" r="39"/>
+    <circle cx="351" cy="393" r="31"/><circle cx="389" cy="415" r="42"/><circle cx="431" cy="397" r="28"/>
+    <circle cx="751" cy="402" r="34"/><circle cx="791" cy="383" r="43"/><circle cx="837" cy="407" r="37"/>
+    <circle cx="879" cy="389" r="47"/><circle cx="929" cy="410" r="38"/><circle cx="972" cy="391" r="32"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.85">
+    <path d="M246 374 q13-14 29-9"/><path d="M781 368 q15-16 31-9"/><path d="M863 374 q15-15 31-8"/>
+  </g>
+
+  <!-- Rubber duck floating above the water -->
+  <ellipse cx="583" cy="542" rx="184" ry="39" fill="#096e94" opacity="0.34"/>
+  <path d="M442 480 Q422 447 454 421 Q479 400 512 420 Q534 374 581 365 Q640 353 679 388 Q703 409 706 444 Q764 454 782 494 Q800 534 767 555 Q727 581 632 574 H510 Q436 569 414 533 Q398 505 442 480 Z" fill="url(#duckBody)" stroke="#ce9000" stroke-width="9" filter="url(#softShadow)"/>
+  <path d="M682 459 Q718 431 748 443 Q729 466 704 476" fill="#ffd92e" stroke="#ce9000" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- Duck neck and head -->
+  <path d="M500 447 Q483 405 493 349 Q502 296 550 268 Q603 237 655 261 Q707 284 717 337 Q727 390 692 424 Q659 456 616 453 Z" fill="url(#duckBody)" stroke="#ce9000" stroke-width="9"/>
+  <ellipse cx="605" cy="307" rx="15" ry="19" fill="#202724"/>
+  <circle cx="600" cy="301" r="5" fill="#ffffff"/>
+  <path d="M682 329 Q736 316 774 345 Q741 381 677 373 Q655 369 651 353 Q653 337 682 329 Z" fill="url(#beak)" stroke="#c74b12" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M660 354 Q716 354 758 349" fill="none" stroke="#c74b12" stroke-width="5" stroke-linecap="round"/>
+  <path d="M521 304 Q544 275 579 268" fill="none" stroke="#fff799" stroke-width="12" stroke-linecap="round" opacity="0.72"/>
+  <path d="M471 482 Q520 444 581 469 Q544 516 476 527 Q449 520 471 482 Z" fill="#f5bd12" stroke="#ce9000" stroke-width="8"/>
+  <path d="M485 490 Q523 473 554 480" fill="none" stroke="#ffe868" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Foreground foam makes flotation clear -->
+  <g fill="url(#bubble)" stroke="#a7deea" stroke-width="5">
+    <circle cx="411" cy="534" r="36"/><circle cx="446" cy="555" r="44"/><circle cx="493" cy="548" r="31"/>
+    <circle cx="729" cy="548" r="35"/><circle cx="769" cy="535" r="27"/><circle cx="803" cy="553" r="43"/>
+  </g>
+  <path d="M377 581 Q478 559 565 579 M656 582 Q749 557 839 579" fill="none" stroke="#d6f8ff" stroke-width="12" stroke-linecap="round" opacity="0.9"/>
+
+  <!-- Airborne soap bubbles -->
+  <g fill="url(#bubble)" stroke="#8dcbd9" stroke-width="5">
+    <circle cx="298" cy="278" r="45"/><circle cx="385" cy="220" r="27"/><circle cx="751" cy="211" r="35"/>
+    <circle cx="850" cy="155" r="22"/><circle cx="921" cy="202" r="48"/><circle cx="1037" cy="139" r="30"/>
+    <circle cx="199" cy="182" r="25"/><circle cx="110" cy="300" r="34"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.9">
+    <path d="M276 260 q13-18 31-15"/><path d="M903 179 q15-17 32-11"/><path d="M1025 125 q9-10 19-7"/>
+  </g>
+
+  <!-- Tub feet and drain -->
+  <path d="M255 642 q-7 51-50 64 q-28 8-35-13 q-7-19 24-35 l29-26" fill="#a8bbc1" stroke="#6f8993" stroke-width="8"/>
+  <path d="M945 642 q7 51 50 64 q28 8 35-13 q7-19-24-35 l-29-26" fill="#a8bbc1" stroke="#6f8993" stroke-width="8"/>
+  <ellipse cx="600" cy="616" rx="39" ry="15" fill="#8ca2aa" stroke="#607b85" stroke-width="6"/>
+  <path d="M574 616 H626 M585 607 L615 625 M615 607 L585 625" stroke="#dbe6e9" stroke-width="4"/>
+</svg>

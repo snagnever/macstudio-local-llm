@@ -1,0 +1,275 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#243a52"/>
+      <stop offset="0.55" stop-color="#4a5f78"/>
+      <stop offset="1" stop-color="#d97953"/>
+    </linearGradient>
+    <linearGradient id="sunset" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f0a44a"/>
+      <stop offset="1" stop-color="#f7d779"/>
+    </linearGradient>
+    <linearGradient id="canopy" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2c4a8f"/>
+      <stop offset="1" stop-color="#1b3060"/>
+    </linearGradient>
+    <pattern id="canopyStripe" width="56" height="12" patternUnits="userSpaceOnUse">
+      <rect width="56" height="12" fill="#f7d779"/>
+      <rect x="28" width="28" height="12" fill="#2c4a8f"/>
+    </pattern>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b08550"/>
+      <stop offset="1" stop-color="#7d5a30"/>
+    </linearGradient>
+    <radialGradient id="bulb" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff7cc" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#fff7cc" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="600" fill="url(#sky)"/>
+
+  <!-- Sun low on horizon -->
+  <circle cx="520" cy="448" r="60" fill="url(#sunset)"/>
+  <circle cx="520" cy="448" r="80" fill="#f7d779" opacity="0.25"/>
+
+  <!-- Distant market tents silhouettes -->
+  <g fill="#38506b" opacity="0.7">
+    <path d="M 40 430 L 90 368 L 140 430 Z"/>
+    <path d="M 120 430 L 170 372 L 220 430 Z"/>
+    <path d="M 580 430 L 630 374 L 680 430 Z"/>
+    <path d="M 660 430 L 700 382 L 740 430 Z"/>
+    <path d="M 40 430 L 140 430 L 140 446 L 40 446 Z"/>
+    <path d="M 120 430 L 220 430 L 220 448 L 120 448 Z"/>
+    <path d="M 580 430 L 680 430 L 680 444 L 580 444 Z"/>
+    <path d="M 660 430 L 740 430 L 740 446 L 660 446 Z"/>
+  </g>
+
+  <!-- Ground -->
+  <rect x="0" y="430" width="800" height="170" fill="#8a7454"/>
+  <line x1="0" y1="430" x2="800" y2="430" stroke="#6f5c40" stroke-width="3"/>
+
+  <!-- Ground plank lines -->
+  <g stroke="#6f5c40" stroke-width="1.5" opacity="0.5">
+    <line x1="0" y1="470" x2="800" y2="470"/>
+    <line x1="0" y1="515" x2="800" y2="515"/>
+    <line x1="0" y1="560" x2="800" y2="560"/>
+    <line x1="250" y1="430" x2="180" y2="600"/>
+    <line x1="500" y1="430" x2="520" y2="600"/>
+  </g>
+
+  <!-- Stall counter with slight perspective -->
+  <path d="M 140 430 L 660 430 L 700 300 L 100 300 Z" fill="url(#wood)"/>
+  <rect x="112" y="300" width="576" height="12" rx="3" fill="#96683a"/>
+  <!-- counter planks -->
+  <g stroke="#6a4a28" stroke-width="2" opacity="0.6">
+    <line x1="180" y1="430" x2="152" y2="300"/>
+    <line x1="260" y1="430" x2="240" y2="300"/>
+    <line x1="340" y1="430" x2="328" y2="300"/>
+    <line x1="420" y1="430" x2="416" y2="300"/>
+    <line x1="500" y1="430" x2="504" y2="300"/>
+    <line x1="580" y1="430" x2="592" y2="300"/>
+  </g>
+
+  <!-- Posts -->
+  <rect x="100" y="120" width="14" height="320" fill="#5a4328"/>
+  <rect x="686" y="120" width="14" height="320" fill="#5a4328"/>
+  <rect x="108" y="110" width="4" height="330" fill="#6a5328"/>
+  <rect x="694" y="110" width="4" height="330" fill="#6a5328"/>
+
+  <!-- Canopy -->
+  <g>
+    <path d="M 80 120 L 720 120 L 750 96 L 50 96 Z" fill="#223a68"/>
+    <path d="M 80 120 L 720 120 L 700 180 L 100 180 Z" fill="#1b3060"/>
+    <path d="M 100 180 L 700 180 L 700 178 L 100 178 Z" fill="#152b4d"/>
+    <path d="M 80 120 L 720 120 L 700 180 L 100 180 Z" fill="url(#canopyStripe)"/>
+    <g fill="#2c4a8f">
+      <ellipse cx="170" cy="180" rx="34" ry="14"/>
+      <ellipse cx="250" cy="180" rx="34" ry="14"/>
+      <ellipse cx="330" cy="180" rx="34" ry="14"/>
+      <ellipse cx="410" cy="180" rx="34" ry="14"/>
+      <ellipse cx="490" cy="180" rx="34" ry="14"/>
+      <ellipse cx="570" cy="180" rx="34" ry="14"/>
+      <ellipse cx="648" cy="180" rx="26" ry="14"/>
+    </g>
+  </g>
+
+  <!-- String lights -->
+  <path d="M 104 130 Q 400 200 696 130" fill="none" stroke="#3a2c1c" stroke-width="1.5"/>
+  <g>
+    <circle cx="180" cy="152" r="8" fill="#fff7cc" opacity="0.9"/>
+    <circle cx="180" cy="152" r="18" fill="url(#bulb)"/>
+    <circle cx="270" cy="167" r="8" fill="#ffe9a0" opacity="0.9"/>
+    <circle cx="270" cy="167" r="18" fill="url(#bulb)"/>
+    <circle cx="360" cy="177" r="8" fill="#fff7cc" opacity="0.9"/>
+    <circle cx="360" cy="177" r="18" fill="url(#bulb)"/>
+    <circle cx="450" cy="177" r="8" fill="#ffe9a0" opacity="0.9"/>
+    <circle cx="450" cy="177" r="18" fill="url(#bulb)"/>
+    <circle cx="540" cy="167" r="8" fill="#fff7cc" opacity="0.9"/>
+    <circle cx="540" cy="167" r="18" fill="url(#bulb)"/>
+    <circle cx="625" cy="152" r="8" fill="#ffe9a0" opacity="0.9"/>
+    <circle cx="625" cy="152" r="18" fill="url(#bulb)"/>
+  </g>
+
+  <!-- Wooden sign -->
+  <line x1="400" y1="188" x2="400" y2="212" stroke="#3a2c1c" stroke-width="4"/>
+  <rect x="300" y="212" width="200" height="40" rx="6" fill="#7d5a30" stroke="#4a3418" stroke-width="3"/>
+  <rect x="306" y="218" width="188" height="28" rx="4" fill="#b08550"/>
+  <text x="400" y="238" font-family="Georgia, serif" font-size="20" font-weight="bold" fill="#fff4d6" text-anchor="middle">FRUIT · HALA</text>
+
+  <!-- A-frame board leaning on the counter -->
+  <g stroke="#4a3418" stroke-width="2">
+    <line x1="656" y1="290" x2="640" y2="408"/>
+    <line x1="704" y1="290" x2="712" y2="408"/>
+  </g>
+  <rect x="622" y="288" width="104" height="96" rx="4" fill="#e8d9b5" stroke="#4a3418" stroke-width="3"/>
+  <text x="674" y="316" font-family="Georgia, serif" font-size="13" fill="#5a3e22" text-anchor="middle" font-weight="bold">TODAY'S</text>
+  <text x="674" y="334" font-family="Georgia, serif" font-size="13" fill="#c43a2e" text-anchor="middle" font-weight="bold">STONE</text>
+  <text x="674" y="352" font-family="Georgia, serif" font-size="13" fill="#c43a2e" text-anchor="middle" font-weight="bold">FRUIT</text>
+  <line x1="634" y1="366" x2="714" y2="366" stroke="url(#wood)" stroke-width="2"/>
+
+  <!-- Barrel of apples (left) -->
+  <g>
+    <ellipse cx="190" cy="396" rx="52" ry="12" fill="#6a5020"/>
+    <path d="M 138 396 L 152 478 A 48 10 0 0 0 228 478 L 242 396 Z" fill="#8a6430"/>
+    <path d="M 150 414 L 230 414 M 146 434 L 234 434 M 144 454 L 236 454" stroke="#6a5020" stroke-width="3"/>
+    <g stroke="#6a5020" stroke-width="2">
+      <line x1="152" y1="390" x2="150" y2="398"/>
+      <line x1="228" y1="390" x2="230" y2="398"/>
+    </g>
+    <ellipse cx="190" cy="390" rx="52" ry="12" fill="#9c6f3a"/>
+    <!-- apples -->
+    <circle cx="170" cy="386" r="12" fill="#c43a2e"/>
+    <circle cx="196" cy="383" r="12" fill="#e0553a"/>
+    <circle cx="220" cy="387" r="12" fill="#b8332a"/>
+    <circle cx="185" cy="372" r="12" fill="#d9483c"/>
+    <circle cx="212" cy="372" r="11" fill="#c43a2e"/>
+    <circle cx="198" cy="360" r="11" fill="#e0553a"/>
+  </g>
+
+  <!-- Barrel of pears (right) -->
+  <g>
+    <ellipse cx="596" cy="392" rx="44" ry="11" fill="#6a5020"/>
+    <path d="M 552 392 L 564 474 A 44 9 0 0 0 628 474 L 640 392 Z" fill="#8a6430"/>
+    <path d="M 558 410 L 634 410 M 555 430 L 637 430 M 554 450 L 638 450" stroke="#6a5020" stroke-width="3"/>
+    <ellipse cx="596" cy="388" rx="44" ry="11" fill="#9c6f3a"/>
+    <path d="M 580 384 Q 580 350 600 340 Q 608 338 606 348 Q 606 372 600 382 Z" fill="#c9d452"/>
+    <path d="M 602 350 Q 608 346 606 354 Q 596 352 602 350 Z" fill="#5a4320"/>
+    <path d="M 620 384 Q 620 356 634 348 Q 640 346 639 354 Q 638 374 632 382 Z" fill="#d8e060"/>
+    <path d="M 635 356 Q 640 353 639 359 Q 630 358 635 356 Z" fill="#5a4320"/>
+  </g>
+
+  <!-- Crate of oranges center-left -->
+  <g>
+    <rect x="250" y="360" width="110" height="42" rx="3" fill="#b08550" stroke="#7d5a30" stroke-width="2"/>
+    <line x1="250" y1="381" x2="360" y2="381" stroke="#7d5a30" stroke-width="2"/>
+    <circle cx="276" cy="356" r="12" fill="#f78e22"/>
+    <circle cx="304" cy="352" r="12" fill="#ffa83d"/>
+    <circle cx="332" cy="356" r="12" fill="#f78e22"/>
+    <circle cx="290" cy="338" r="12" fill="#f79026"/>
+    <circle cx="318" cy="338" r="12" fill="#e88924"/>
+    <circle cx="304" cy="322" r="11" fill="#ffa83d"/>
+  </g>
+
+  <!-- Crate of grapes center-right -->
+  <g>
+    <rect x="390" y="362" width="120" height="40" rx="3" fill="#b08550" stroke="#7d5a30" stroke-width="2"/>
+    <line x1="390" y1="382" x2="510" y2="382" stroke="#7d5a30" stroke-width="2"/>
+    <line x1="450" y1="362" x2="450" y2="402" stroke="#7d5a30" stroke-width="2"/>
+    <path d="M 445 352 L 455 352 L 450 358 Z" fill="#7d5a30"/>
+    <g fill="#8a4bae">
+      <circle cx="436" cy="346" r="6"/>
+      <circle cx="446" cy="348" r="6"/>
+      <circle cx="456" cy="346" r="6"/>
+      <circle cx="431" cy="356" r="6"/>
+      <circle cx="443" cy="358" r="6"/>
+      <circle cx="453" cy="358" r="6"/>
+      <circle cx="466" cy="348" r="6"/>
+      <circle cx="438" cy="366" r="6"/>
+      <circle cx="450" cy="368" r="6"/>
+      <circle cx="462" cy="366" r="6"/>
+    </g>
+  </g>
+
+  <!-- Hanging bananas on left post -->
+  <g stroke="#c99a20" stroke-width="1.5" fill="none" stroke-linecap="round">
+    <path d="M 120 250 Q 132 286 110 302"/>
+    <path d="M 128 250 Q 142 290 122 306"/>
+    <path d="M 111 302 Q 122 312 122 322"/>
+    <path d="M 122 306 Q 132 316 130 326"/>
+  </g>
+  <path d="M 109 302 Q 118 312 122 322" fill="#f2d73d"/>
+  <path d="M 122 306 Q 132 316 130 326" fill="#e8c830"/>
+
+  <!-- Balance scale hanging from right post -->
+  <g stroke="#3a2c1c" stroke-width="3" stroke-linecap="round">
+    <line x1="700" y1="208" x2="700" y2="232"/>
+    <line x1="700" y1="232" x2="660" y2="236"/>
+    <line x1="700" y1="232" x2="740" y2="236"/>
+    <line x1="660" y1="236" x2="660" y2="252"/>
+    <line x1="740" y1="236" x2="740" y2="252"/>
+  </g>
+  <g fill="#c9b97a" stroke="#8a7a44" stroke-width="2">
+    <path d="M 646 252 Q 660 258 674 252 Q 674 264 660 268 Q 646 264 646 252 Z"/>
+    <path d="M 726 252 Q 740 258 754 252 Q 754 264 740 268 Q 726 264 726 252 Z"/>
+  </g>
+  <g fill="#e87a3a">
+    <circle cx="660" cy="266" r="7"/>
+    <circle cx="660" cy="240" r="7"/>
+
+    <circle cx="660" cy="278" r="6"/>
+    <circle cx="670" cy="278" r="6"/>
+  </g>
+  <g fill="#f7c04a">
+    <circle cx="740" cy="264" r="7"/>
+    <circle cx="740" cy="238" r="7"/>
+    <circle cx="750" cy="276" r="6"/>
+    <circle cx="730" cy="276" r="6"/>
+  </g>
+
+  <!-- Stacked crates near the left -->
+  <g>
+    <rect x="150" y="318" width="70" height="34" rx="3" fill="#a87c4e" stroke="#7d5a30" stroke-width="2"/>
+    <line x1="150" y1="335" x2="220" y2="335" stroke="#7d5a30" stroke-width="2"/>
+  </g>
+
+  <!-- Cat sitting on a crate -->
+  <g>
+    <ellipse cx="465" cy="424" rx="18" ry="12" fill="#2e2a26"/>
+    <path d="M 450 424 Q 448 398 456 392 Q 462 396 462 418 Z" fill="#2e2a26"/>
+    <path d="M 480 424 Q 482 398 474 392 Q 474 396 474 418 Z" fill="#2e2a26"/>
+    <circle cx="449" cy="424" r="10" fill="#2e2a26"/>
+    <circle cx="481" cy="424" r="10" fill="#2e2a26"/>
+    <polygon points="446,420 449,414 453,420" fill="#2e2a26"/>
+    <polygon points="478,420 481,414 484,420" fill="#2e2a26"/>
+    <circle cx="460" cy="420" r="1.8" fill="#f7d779"/>
+    <circle cx="472" cy="420" r="1.8" fill="#f7d779"/>
+    <path d="M 463 426 Q 466 428 469 426" fill="none" stroke="#f7d779" stroke-width="1.2"/>
+    <path d="M 462 422 Q 464 419 466 422" fill="none" stroke="#f7d779" stroke-width="1"/>
+    <path d="M 466 390 Q 458 388 452 392 Q 454 406 466 412 Z" fill="#2e2a26"/>
+  </g>
+
+  <!-- Vendor (behind counter, warm light) -->
+  <g>
+    <ellipse cx="336" cy="500" rx="20" ry="44" fill="#7dbda0"/>
+    <ellipse cx="336" cy="460" rx="22" ry="10" fill="#6aa88c"/>
+    <circle cx="336" cy="400" r="18" fill="#d99a6a"/>
+    <path d="M 322 396 Q 326 384 336 380 Q 348 384 350 396 Q 346 402 336 398 Q 326 402 322 396 Z" fill="#3a2c1c"/>
+    <circle cx="329" cy="402" r="2" fill="#2e2a26"/>
+    <circle cx="343" cy="402" r="2" fill="#2e2a26"/>
+    <path d="M 333 409 Q 336 412 339 409" fill="none" stroke="#a0563c" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="330" y="412" width="3" height="4" rx="1.5" fill="#a0563c"/>
+    <path d="M 354 404 Q 366 408 368 420 L 356 424" fill="none" stroke="#7dbda0" stroke-width="9" stroke-linecap="round"/>
+    <circle cx="368" cy="426" r="6" fill="#d99a6a"/>
+    <path d="M 318 406 Q 306 412 304 424 L 316 428" fill="none" stroke="#7dbda0" stroke-width="9" stroke-linecap="round"/>
+    <circle cx="304" cy="430" r="6" fill="#d99a6a"/>
+    <path d="M 348 468 L 348 500 M 326 468 L 326 500" stroke="#4a3a28" stroke-width="2"/>
+    <ellipse cx="336" cy="356" rx="10" ry="6" fill="#e8d9b5"/>
+  </g>
+
+  <!-- Ground shadow -->
+  <ellipse cx="400" cy="588" rx="340" ry="14" fill="#000000" opacity="0.18"/>
+
+  <!-- Lantern glow top-left corner -->
+  <circle cx="120" cy="120" r="24" fill="url(#bulb)"/>
+</svg>

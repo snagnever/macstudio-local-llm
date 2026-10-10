@@ -1,0 +1,209 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Animated cow plowing a field</title>
+  <desc id="desc">A harnessed cow walks continuously while pulling a wooden plow. Its legs step, its body bobs, the traces flex, the plow vibrates, and fresh soil rises from the furrow.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5db7e4"/>
+      <stop offset=".62" stop-color="#c5e2db"/>
+      <stop offset="1" stop-color="#f0ca8e"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a6713f"/>
+      <stop offset="1" stop-color="#42271a"/>
+    </linearGradient>
+    <linearGradient id="hide" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ac6633"/>
+      <stop offset="1" stop-color="#5e3017"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b57b3b"/>
+      <stop offset="1" stop-color="#543019"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c8d3d5"/>
+      <stop offset=".45" stop-color="#708085"/>
+      <stop offset="1" stop-color="#334146"/>
+    </linearGradient>
+    <pattern id="soilPattern" width="70" height="48" patternUnits="userSpaceOnUse">
+      <path d="M5 34q15-11 31 0M42 15q10-8 22 1" fill="none" stroke="#3b2519" stroke-width="3" opacity=".25"/>
+      <circle cx="20" cy="10" r="3" fill="#d3a061" opacity=".3"/>
+    </pattern>
+    <filter id="blur" x="-20%" y="-100%" width="140%" height="300%">
+      <feGaussianBlur stdDeviation="13"/>
+    </filter>
+    <clipPath id="fieldClip"><path d="M0 515Q320 462 600 494Q995 533 1600 452V1000H0Z"/></clipPath>
+    <style>
+      .cow-motion{animation:cowBob 1s ease-in-out infinite}
+      .head-motion{transform-box:fill-box;transform-origin:85% 40%;animation:headNod 1s ease-in-out infinite}
+      .leg-a{transform-box:fill-box;transform-origin:50% 8%;animation:stepA 1s ease-in-out infinite}
+      .leg-b{transform-box:fill-box;transform-origin:50% 8%;animation:stepB 1s ease-in-out infinite}
+      .tail-motion{transform-box:fill-box;transform-origin:8% 12%;animation:tailSwish 1.4s ease-in-out infinite}
+      .trace-top{animation:traceFlex 1s ease-in-out infinite}
+      .trace-bottom{animation:traceFlex2 1s ease-in-out infinite}
+      .plow-motion{transform-box:fill-box;transform-origin:35% 75%;animation:plowJolt .5s ease-in-out infinite}
+      .furrow-slide{animation:furrowPulse 1.5s linear infinite}
+      .dust1{animation:dustRise 1.3s ease-out infinite}
+      .dust2{animation:dustRise 1.3s .45s ease-out infinite;opacity:0}
+      .dust3{animation:dustRise 1.3s .85s ease-out infinite;opacity:0}
+      .clod1{animation:clodFly 1.2s ease-out infinite}
+      .clod2{animation:clodFly2 1.2s .35s ease-out infinite;opacity:0}
+      .clod3{animation:clodFly3 1.2s .7s ease-out infinite;opacity:0}
+      .clouds{animation:cloudDrift 28s linear infinite}
+      .grass{transform-box:fill-box;transform-origin:50% 100%;animation:grassSway 2.2s ease-in-out infinite}
+      @keyframes cowBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+      @keyframes headNod{0%,100%{transform:rotate(2deg)}50%{transform:rotate(-5deg)}}
+      @keyframes stepA{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(9deg)}}
+      @keyframes stepB{0%,100%{transform:rotate(9deg)}50%{transform:rotate(-7deg)}}
+      @keyframes tailSwish{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(17deg)}}
+      @keyframes traceFlex{0%,100%{d:path('M600 476 Q910 533 1210 724')}50%{d:path('M600 468 Q916 551 1210 724')}}
+      @keyframes traceFlex2{0%,100%{d:path('M597 518 Q900 590 1170 760')}50%{d:path('M597 510 Q905 602 1170 760')}}
+      @keyframes plowJolt{0%,100%{transform:rotate(0deg) translateY(0)}50%{transform:rotate(-1deg) translateY(-4px)}}
+      @keyframes furrowPulse{0%{stroke-dashoffset:0}100%{stroke-dashoffset:-90}}
+      @keyframes dustRise{0%{transform:translate(0,0) scale(.3);opacity:0}25%{opacity:.55}100%{transform:translate(48px,-58px) scale(1.5);opacity:0}}
+      @keyframes clodFly{0%{transform:translate(0,0) rotate(0);opacity:0}15%{opacity:1}100%{transform:translate(-74px,-68px) rotate(140deg);opacity:0}}
+      @keyframes clodFly2{0%{transform:translate(0,0) rotate(0);opacity:0}15%{opacity:1}100%{transform:translate(-48px,-92px) rotate(-160deg);opacity:0}}
+      @keyframes clodFly3{0%{transform:translate(0,0) scale(.5);opacity:0}15%{opacity:1}100%{transform:translate(-100px,-48px) scale(1.2);opacity:0}}
+      @keyframes cloudDrift{0%{transform:translateX(-90px)}100%{transform:translateX(170px)}}
+      @keyframes grassSway{0%,100%{transform:skewX(-3deg)}50%{transform:skewX(5deg)}}
+      @media (prefers-reduced-motion:reduce){*{animation-duration:0.001ms!important;animation-iteration-count:1!important}}
+    </style>
+  </defs>
+
+  <!-- Rural landscape -->
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <circle cx="1325" cy="150" r="112" fill="#ffe69a" opacity=".22"/>
+  <circle cx="1325" cy="150" r="65" fill="#ffd166"/>
+  <g class="clouds" fill="#fff" opacity=".78">
+    <path d="M105 167c24-44 84-47 113-10 36-28 94-7 96 38H60c3-20 18-31 45-28Z"/>
+    <path d="M653 110c19-35 69-38 92-8 29-22 76-5 78 34H617c2-15 14-25 36-26Z"/>
+  </g>
+  <path d="M0 425Q150 290 320 416Q480 265 665 422Q840 280 1020 417Q1210 260 1600 393V550H0Z" fill="#426f4b"/>
+  <path d="M0 468Q190 351 390 459Q590 355 782 465Q990 342 1190 452Q1370 351 1600 438V552H0Z" fill="#719b52"/>
+  <path d="M0 498Q290 428 552 488Q850 434 1130 481Q1355 419 1600 452V554H0Z" fill="#9db75d"/>
+  <g fill="#315b38">
+    <path d="M76 481v-104l-34 57 29-82 5-49 8 49 34 81-32-56v104Z"/>
+    <path d="M1481 466v-111l-36 61 31-89 5-54 9 54 37 87-35-59v111Z"/>
+  </g>
+
+  <!-- Field and long perspective rows -->
+  <path d="M0 515Q320 462 600 494Q995 533 1600 452V1000H0Z" fill="url(#ground)"/>
+  <rect y="450" width="1600" height="550" fill="url(#soilPattern)" clip-path="url(#fieldClip)"/>
+  <g fill="none" stroke-linecap="round">
+    <path d="M24 1000Q310 710 582 494" stroke="#d2a164" stroke-width="49" opacity=".45"/>
+    <path d="M330 1000Q489 716 670 502" stroke="#352116" stroke-width="56" opacity=".52"/>
+    <path d="M686 1000Q747 720 777 508" stroke="#d2a164" stroke-width="42" opacity=".43"/>
+    <path d="M1054 1000Q961 718 897 507" stroke="#352116" stroke-width="56" opacity=".52"/>
+    <path d="M1381 1000Q1160 692 1013 497" stroke="#d2a164" stroke-width="45" opacity=".42"/>
+  </g>
+  <ellipse cx="760" cy="797" rx="390" ry="52" fill="#1d130d" opacity=".3" filter="url(#blur)"/>
+  <ellipse cx="1310" cy="831" rx="205" ry="36" fill="#1d130d" opacity=".28" filter="url(#blur)"/>
+
+  <!-- Cow assembly bobs during each step -->
+  <g class="cow-motion">
+    <!-- body -->
+    <g stroke="#322016" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M520 529Q540 432 651 410Q802 379 930 430Q1007 462 1006 551Q1002 634 913 670Q764 708 608 660Q506 627 520 529Z" fill="url(#hide)"/>
+      <path d="M581 459Q646 407 722 412Q758 452 716 504Q663 538 594 508Q565 489 581 459Z" fill="#f3e9d3" stroke="none"/>
+      <path d="M804 403Q892 409 953 454Q954 513 898 529Q832 521 786 474Q779 435 804 403Z" fill="#f3e9d3" stroke="none"/>
+      <path d="M679 646Q752 678 829 651Q810 696 739 693Q691 683 679 646Z" fill="#f3e9d3" stroke="none"/>
+      <path d="M931 579Q981 554 1003 520Q1010 596 958 638Q918 643 931 579Z" fill="#f3e9d3" stroke="none"/>
+      <path d="M612 453Q573 508 600 577M904 455Q954 513 919 605" fill="none" stroke="#5a3019" stroke-width="6" opacity=".5"/>
+    </g>
+
+    <!-- four alternating legs -->
+    <g class="leg-a" stroke="#322016" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M598 626L570 775Q553 795 579 807L616 808Q630 793 608 781L655 638Z" fill="#74401f"/>
+      <path d="M568 796h49" fill="none" stroke="#1c1511" stroke-width="14"/>
+    </g>
+    <g class="leg-b" stroke="#322016" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M705 661L680 811Q663 834 695 839H732Q747 822 723 811L760 660Z" fill="#f2e6cf"/>
+      <path d="M675 827h57" fill="none" stroke="#1c1511" stroke-width="14"/>
+    </g>
+    <g class="leg-b" stroke="#322016" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M878 643L913 793Q902 816 929 823H965Q979 806 957 798L941 620Z" fill="#75401f"/>
+      <path d="M912 811h51" fill="none" stroke="#1c1511" stroke-width="14"/>
+    </g>
+    <g class="leg-a" stroke="#322016" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M961 625L1022 751Q1019 776 1048 775L1081 760Q1089 742 1064 740L1013 594Z" fill="#f2e6cf"/>
+      <path d="M1032 765l47-17" fill="none" stroke="#1c1511" stroke-width="14"/>
+    </g>
+
+    <!-- neck and animated head -->
+    <path d="M567 478Q508 437 450 479L397 564L490 636Q554 610 589 549Z" fill="#7a421f" stroke="#322016" stroke-width="8" stroke-linejoin="round"/>
+    <g class="head-motion" stroke="#322016" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M452 471Q391 434 332 481Q293 523 318 600Q350 676 443 636Q506 609 496 542Q489 497 452 471Z" fill="#f3e8d1"/>
+      <path d="M468 509Q434 473 400 466Q389 522 431 554Z" fill="#80451f" stroke="none"/>
+      <path d="M388 466Q346 469 321 512Q357 534 391 501Z" fill="#80451f" stroke="none"/>
+      <path d="M328 588Q384 567 442 588Q440 647 385 659Q334 650 328 588Z" fill="#cc917a"/>
+      <ellipse cx="355" cy="615" rx="8" ry="6" fill="#4b2c27" stroke="none"/>
+      <ellipse cx="415" cy="614" rx="8" ry="6" fill="#4b2c27" stroke="none"/>
+      <path d="M363 637Q386 648 409 634" fill="none" stroke="#74463d" stroke-width="5"/>
+      <ellipse cx="360" cy="536" rx="11" ry="13" fill="#15120f" stroke="none"/>
+      <ellipse cx="431" cy="533" rx="11" ry="13" fill="#15120f" stroke="none"/>
+      <circle cx="356" cy="531" r="3.5" fill="#fff" stroke="none"/>
+      <circle cx="427" cy="528" r="3.5" fill="#fff" stroke="none"/>
+      <path d="M341 497Q287 458 265 491Q286 534 338 525Z" fill="#9d5b2d"/>
+      <path d="M449 494Q500 453 521 487Q498 530 455 524Z" fill="#9d5b2d"/>
+      <path d="M348 472Q308 414 338 394Q366 436 371 467Z" fill="#ead8a9"/>
+      <path d="M432 467Q442 409 477 402Q483 446 459 482Z" fill="#ead8a9"/>
+    </g>
+
+    <!-- animated tail -->
+    <g class="tail-motion" fill="none" stroke="#58301a" stroke-width="12" stroke-linecap="round">
+      <path d="M994 468Q1069 488 1075 567Q1077 605 1112 630"/>
+      <path d="M1107 620q38 10 30 45q-43 14-50-26Z" fill="#342119" stroke="#322016" stroke-width="8"/>
+    </g>
+
+    <!-- visible yoke -->
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M482 468Q545 430 610 457" stroke="#432718" stroke-width="22"/>
+      <path d="M500 440L510 538M587 435L600 525" stroke="url(#wood)" stroke-width="12"/>
+      <path d="M504 518Q553 549 599 510" stroke="#b27d3d" stroke-width="10"/>
+    </g>
+  </g>
+
+  <!-- Animated taut traces connect cow and plow -->
+  <path class="trace-top" d="M600 476Q910 533 1210 724" fill="none" stroke="#3f281b" stroke-width="11" stroke-linecap="round"/>
+  <path class="trace-bottom" d="M597 518Q900 590 1170 760" fill="none" stroke="#3f281b" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- Plow jitters as its blade meets the earth -->
+  <g class="plow-motion" stroke="#322017" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M1189 741L1393 557" fill="none" stroke="url(#wood)" stroke-width="26"/>
+    <path d="M1274 665L1436 700" fill="none" stroke="url(#wood)" stroke-width="21"/>
+    <path d="M1387 560L1465 500M1389 561L1478 564" fill="none" stroke="#764721" stroke-width="18"/>
+    <path d="M1274 665L1234 772" fill="none" stroke="#6e431f" stroke-width="19"/>
+    <circle cx="1274" cy="665" r="14" fill="#c08842" stroke-width="6"/>
+    <path d="M1163 758Q1240 755 1309 817L1251 858Q1177 835 1130 796Z" fill="url(#steel)" stroke-width="9"/>
+    <path d="M1251 858Q1156 899 1047 845Q1135 842 1194 794Z" fill="#435157" stroke-width="8"/>
+    <path d="M1134 798Q1040 784 960 830" fill="none" stroke="#291a13" stroke-width="17"/>
+  </g>
+
+  <!-- Fresh furrow originates at the steel share -->
+  <path d="M1062 827Q963 789 852 831Q748 872 618 891Q441 917 286 1000H1297Q1238 915 1140 861Z" fill="#2d1d16"/>
+  <path class="furrow-slide" d="M1080 839Q981 817 887 852Q779 893 656 915Q520 939 421 1000" fill="none" stroke="#6a4026" stroke-width="34" stroke-dasharray="48 42" opacity=".76"/>
+  <g fill="#573521" stroke="#291a13" stroke-width="3">
+    <path d="M985 830q45-47 94 4q-45 29-94-4Z"/>
+    <path d="M895 860q56-52 110 5q-53 31-110-5Z"/>
+    <path d="M783 900q66-57 132 8q-68 34-132-8Z"/>
+    <path d="M639 934q78-61 154 11q-80 35-154-11Z"/>
+  </g>
+
+  <!-- Repeating soil clods thrown by the plow blade -->
+  <g fill="#87542f">
+    <path class="clod1" d="M1070 815q14-11 27 2q-12 15-27-2Z"/>
+    <path class="clod2" d="M1084 821q11-9 22 2q-10 12-22-2Z"/>
+    <circle class="clod3" cx="1062" cy="824" r="11"/>
+  </g>
+
+  <!-- Repeating dust at stepping hooves -->
+  <g fill="#d8ad72">
+    <g class="dust1"><circle cx="587" cy="805" r="13"/><circle cx="607" cy="801" r="8"/></g>
+    <g class="dust2"><circle cx="704" cy="833" r="14"/><circle cx="725" cy="825" r="7"/></g>
+    <g class="dust3"><circle cx="944" cy="817" r="12"/><circle cx="963" cy="812" r="6"/></g>
+  </g>
+
+  <!-- Swaying foreground grasses -->
+  <g class="grass" fill="none" stroke="#64782e" stroke-width="8" stroke-linecap="round">
+    <path d="M43 996q6-57 5-108m0 56-32-35m33 14 37-53M137 1000q-3-45 15-89m-9 52-28-32M1508 1000q-3-63 11-117m-6 60-36-39m40 17 39-57M1572 1000q1-44 15-81"/>
+  </g>
+</svg>

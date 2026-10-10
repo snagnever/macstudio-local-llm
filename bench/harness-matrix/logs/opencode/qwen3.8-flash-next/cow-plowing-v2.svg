@@ -1,0 +1,223 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <title>A draft cow pulling a walking plow, with farmer</title>
+  <desc>A muscular draft cow in a harnessed collar pulls a walking plow across a field of perspective furrows converging to the horizon; a farmer walks behind with hands on the plow handles, fresh tilth trailing from the moldboard.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7ec8ea"/>
+      <stop offset="1" stop-color="#eaf5fb"/>
+    </linearGradient>
+    <linearGradient id="field" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b98d5e"/>
+      <stop offset="0.45" stop-color="#8a5a33"/>
+      <stop offset="1" stop-color="#63401f"/>
+    </linearGradient>
+    <linearGradient id="tilth" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bd8950"/>
+      <stop offset="1" stop-color="#936136"/>
+    </linearGradient>
+    <clipPath id="stripClip">
+      <path d="M498,467 L750,600 L665,600 L498,497 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- sky -->
+  <rect x="0" y="0" width="800" height="600" fill="#eaf5fb"/>
+  <rect x="0" y="0" width="800" height="272" fill="url(#sky)"/>
+  <circle cx="98" cy="86" r="54" fill="#ffdf6b" opacity="0.3"/>
+  <circle cx="98" cy="86" r="34" fill="#ffdf6b" stroke="#f4c542" stroke-width="2"/>
+  <g fill="#ffffff" opacity="0.92">
+    <ellipse cx="554" cy="76" rx="28" ry="13"/>
+    <ellipse cx="580" cy="64" rx="42" ry="16"/>
+    <ellipse cx="608" cy="76" rx="30" ry="13"/>
+    <ellipse cx="312" cy="102" rx="20" ry="9"/>
+    <ellipse cx="334" cy="94" rx="29" ry="11"/>
+    <ellipse cx="356" cy="102" rx="20" ry="9"/>
+  </g>
+  <path d="M430,96 q8,-8 16,0 q8,-8 16,0 M492,124 q6,-6 12,0 q6,-6 12,0" fill="none" stroke="#4a4a4a" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- distant hills, barn, trees -->
+  <path d="M0,248 Q140,200 300,244 Q450,272 620,240 Q720,224 800,246 L800,276 L0,276 Z" fill="#9dbb85"/>
+  <path d="M0,262 Q200,238 420,260 Q620,278 800,254 L800,278 L0,278 Z" fill="#6f9463"/>
+  <g>
+    <rect x="672" y="228" width="52" height="32" fill="#a5432e"/>
+    <path d="M664,230 L698,206 L732,230 Z" fill="#5a3a2e"/>
+    <rect x="690" y="242" width="14" height="18" fill="#3d2b22"/>
+    <rect x="66" y="232" width="6" height="28" fill="#5f4630"/>
+    <circle cx="69" cy="226" r="16" fill="#4f7a44"/>
+    <rect x="104" y="242" width="5" height="20" fill="#5f4630"/>
+    <circle cx="106" cy="236" r="12" fill="#59844d"/>
+    <rect x="762" y="238" width="5" height="24" fill="#5f4630"/>
+    <circle cx="764" cy="232" r="14" fill="#4f7a44"/>
+  </g>
+
+  <!-- field base -->
+  <rect x="0" y="270" width="800" height="330" fill="url(#field)"/>
+
+  <!-- unplowed furrows converging to vanishing point (140,276) -->
+  <g fill="none" stroke="#6d4526" stroke-linecap="round">
+    <path d="M140,276 L800,300" stroke-width="1.5"/>
+    <path d="M140,276 L800,312" stroke-width="2"/>
+    <path d="M140,276 L800,328" stroke-width="2"/>
+    <path d="M140,276 L800,348" stroke-width="2.5"/>
+    <path d="M140,276 L800,374" stroke-width="3"/>
+    <path d="M140,276 L800,404" stroke-width="3.5"/>
+    <path d="M140,276 L800,436" stroke-width="4"/>
+    <path d="M140,276 L800,470" stroke-width="4.5"/>
+    <path d="M140,276 L800,504" stroke-width="5"/>
+    <path d="M140,276 L800,540" stroke-width="5.5"/>
+    <path d="M140,276 L60,600" stroke-width="6"/>
+    <path d="M140,276 L340,600" stroke-width="6.5"/>
+    <path d="M140,276 L440,600" stroke-width="7"/>
+    <path d="M140,276 L540,600" stroke-width="7.5"/>
+  </g>
+  <g fill="none" stroke="#c39a67" stroke-width="1.5" opacity="0.4">
+    <path d="M143,281 L800,317"/>
+    <path d="M143,281 L800,353"/>
+    <path d="M143,281 L800,409"/>
+    <path d="M143,281 L800,475"/>
+    <path d="M143,281 L800,545"/>
+    <path d="M143,281 L344,600"/>
+    <path d="M143,281 L542,600"/>
+  </g>
+  <!-- stubble ticks on unplowed ground -->
+  <g stroke="#8a6136" stroke-width="2.5" opacity="0.7" stroke-linecap="round">
+    <path d="M500,346 v-6"/>
+    <path d="M650,375 v-6"/>
+    <path d="M560,421 v-7"/>
+    <path d="M660,455 v-7"/>
+    <path d="M700,440 v-7"/>
+    <path d="M760,458 v-8"/>
+    <path d="M520,428 v-6"/>
+    <path d="M300,434 v-8"/>
+  </g>
+
+  <!-- fresh plowed strip: upper edge passes exactly through the blade share point (498,467) -->
+  <path d="M498,467 L750,600 L665,600 L498,497 Z" fill="url(#tilth)"/>
+  <g clip-path="url(#stripClip)" fill="none">
+    <path d="M140,276 L800,520" stroke="#754a24" stroke-width="2" opacity="0.8"/>
+    <path d="M144,281 L800,514" stroke="#c89258" stroke-width="1.5" opacity="0.55"/>
+    <path d="M140,276 L800,552" stroke="#754a24" stroke-width="2.5" opacity="0.8"/>
+    <path d="M144,281 L800,545" stroke="#c89258" stroke-width="1.5" opacity="0.55"/>
+    <path d="M140,276 L780,600" stroke="#754a24" stroke-width="3" opacity="0.8"/>
+    <path d="M144,281 L774,600" stroke="#c89258" stroke-width="1.5" opacity="0.55"/>
+    <path d="M140,276 L700,600" stroke="#754a24" stroke-width="2.5" opacity="0.7"/>
+    <path d="M140,276 L640,600" stroke="#754a24" stroke-width="2" opacity="0.7"/>
+    <path d="M140,276 L590,600" stroke="#754a24" stroke-width="1.5" opacity="0.6"/>
+  </g>
+  <path d="M498,467 L750,600" fill="none" stroke="#4a2d12" stroke-width="3.5" stroke-linecap="round"/>
+  <g fill="#7d4f28" stroke="#573619" stroke-width="1.5">
+    <ellipse cx="528" cy="497" rx="6" ry="3.5"/>
+    <ellipse cx="556" cy="518" rx="7" ry="4" fill="#a56f3a"/>
+    <ellipse cx="600" cy="542" rx="8" ry="4.5"/>
+    <ellipse cx="652" cy="568" rx="9" ry="5" fill="#a56f3a"/>
+    <ellipse cx="712" cy="588" rx="10" ry="5"/>
+  </g>
+
+  <!-- shadows: sun at upper-left, everything cast to the lower-right -->
+  <g fill="#000000">
+    <ellipse cx="376" cy="467" rx="106" ry="11" opacity="0.17"/>
+    <ellipse cx="524" cy="476" rx="26" ry="6" opacity="0.16"/>
+    <ellipse cx="612" cy="537" rx="30" ry="7" opacity="0.16"/>
+    <ellipse cx="294" cy="466" rx="11" ry="4" opacity="0.18"/>
+    <ellipse cx="350" cy="463" rx="11" ry="4" opacity="0.18"/>
+    <ellipse cx="394" cy="463" rx="11" ry="4" opacity="0.18"/>
+    <ellipse cx="450" cy="467" rx="11" ry="4" opacity="0.18"/>
+    <ellipse cx="590" cy="529" rx="13" ry="4" opacity="0.16"/>
+    <ellipse cx="626" cy="541" rx="13" ry="4" opacity="0.16"/>
+  </g>
+
+  <!-- far harness trace (off side, ends on beam) -->
+  <path d="M297,377 Q360,438 438,446" fill="none" stroke="#38230f" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- far legs (shaded) -->
+  <g stroke-linecap="round" fill="none">
+    <path d="M334,390 L342,428 L344,452" stroke="#2b2b2b" stroke-width="17"/>
+    <path d="M334,390 L342,428 L344,452" stroke="#cfc9bd" stroke-width="10"/>
+    <path d="M400,388 L394,426 L388,452" stroke="#2b2b2b" stroke-width="17"/>
+    <path d="M400,388 L394,426 L388,452" stroke="#cfc9bd" stroke-width="10"/>
+  </g>
+  <rect x="336" y="450" width="17" height="11" rx="3" fill="#2b2b2b"/>
+  <rect x="379" y="450" width="17" height="11" rx="3" fill="#2b2b2b"/>
+
+  <!-- tail and udder behind body -->
+  <path d="M438,344 C452,362 456,382 454,400" fill="none" stroke="#2b2b2b" stroke-width="5" stroke-linecap="round"/>
+  <path d="M454,398 c-6,9 -4,17 2,22 c7,-6 8,-15 3,-23 Z" fill="#2b2b2b"/>
+  <ellipse cx="404" cy="413" rx="9" ry="7" fill="#d9a0a8" stroke="#a5757c" stroke-width="1.5"/>
+
+  <!-- head far horn (behind head) -->
+  <path d="M276,314 C272,301 267,294 260,292 C266,299 269,305 270,314 Z" fill="#d6c8a8" stroke="#2b2b2b" stroke-width="2"/>
+
+  <!-- cow body: deep chest, withers, muscular shoulders and haunch, lowered working neck -->
+  <path d="M300,332 C330,316 376,316 416,332 C432,340 442,352 442,368 C442,390 432,406 420,412 L408,412 C388,424 352,426 330,416 C312,408 300,396 294,380 C284,362 276,346 278,330 L292,326 Z" fill="#f6f1e6" stroke="#2b2b2b" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M302,336 Q290,362 300,390" fill="none" stroke="#d8d2c6" stroke-width="5" stroke-linecap="round"/>
+  <path d="M428,344 Q436,372 424,404" fill="none" stroke="#d8d2c6" stroke-width="5" stroke-linecap="round"/>
+  <path d="M318,328 Q340,324 350,338 Q354,356 338,364 Q320,362 316,346 Z" fill="#33302e"/>
+  <path d="M382,328 Q406,324 414,340 Q416,356 400,358 Q382,354 378,340 Z" fill="#33302e"/>
+  <circle cx="356" cy="404" r="8" fill="#33302e"/>
+
+  <!-- head: side profile with muzzle, eye, ear, small horns -->
+  <path d="M276,320 L300,310 Q309,312 304,321 L282,329 Z" fill="#f6f1e6" stroke="#2b2b2b" stroke-width="2.5"/>
+  <path d="M284,317 L298,314" fill="none" stroke="#b98d84" stroke-width="3" stroke-linecap="round"/>
+  <path d="M276,316 C258,306 240,318 228,334 C222,342 221,352 230,356 C240,362 252,362 262,356 C274,350 282,340 284,328 C284,320 282,316 276,316 Z" fill="#f6f1e6" stroke="#2b2b2b" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M266,314 C260,298 252,292 244,292 C252,300 256,306 258,314 Z" fill="#e8dcc0" stroke="#2b2b2b" stroke-width="2"/>
+  <ellipse cx="231" cy="347" rx="12" ry="10" fill="#e6cbc4" stroke="#2b2b2b" stroke-width="2"/>
+  <ellipse cx="226" cy="344" rx="3" ry="2.6" fill="#2b2b2b"/>
+  <path d="M224,353 Q230,356 236,354" fill="none" stroke="#8a6156" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="252" cy="330" r="3.6" fill="#2b2b2b"/>
+  <circle cx="253.2" cy="328.8" r="1.1" fill="#ffffff"/>
+
+  <!-- headstall and bit -->
+  <path d="M262,312 L270,322" fill="none" stroke="#4a3018" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M270,322 L240,348" fill="none" stroke="#4a3018" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="236" cy="347" r="4" fill="none" stroke="#4a3018" stroke-width="2.5"/>
+
+  <!-- near legs: foreleg striding forward, hind leg pushing off -->
+  <g stroke-linecap="round" fill="none">
+    <path d="M318,388 L296,428 L290,454" stroke="#2b2b2b" stroke-width="18"/>
+    <path d="M318,388 L296,428 L290,454" stroke="#f6f1e6" stroke-width="11"/>
+    <path d="M420,392 L436,432 L446,456" stroke="#2b2b2b" stroke-width="18"/>
+    <path d="M420,392 L436,432 L446,456" stroke="#f6f1e6" stroke-width="11"/>
+  </g>
+  <rect x="281" y="454" width="18" height="11" rx="3" fill="#2b2b2b"/>
+  <rect x="438" y="455" width="18" height="11" rx="3" fill="#2b2b2b"/>
+
+  <!-- collar and hames on the neck, hook at the chest -->
+  <path d="M300,332 C284,350 285,370 298,383" fill="none" stroke="#6b4423" stroke-width="8" stroke-linecap="round"/>
+  <path d="M300,334 C287,351 288,368 298,381" fill="none" stroke="#9a6a3a" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="300" cy="384" r="4" fill="#38230f"/>
+
+  <!-- near trace: from collar hook, sagging under the belly, ending on the plow beam -->
+  <path d="M302,386 Q362,446 438,452" fill="none" stroke="#4a3018" stroke-width="5" stroke-linecap="round"/>
+  <path d="M356,418 L357,431" stroke="#4a3018" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- rein: bit ring to farmer's hand -->
+  <path d="M240,344 Q400,312 584,376" fill="none" stroke="#4a3018" stroke-width="2.5"/>
+
+  <!-- walking plow: beam along the ground line, moldboard cutting soil -->
+  <circle cx="438" cy="451" r="5" fill="none" stroke="#38230f" stroke-width="3"/>
+  <path d="M438,451 L502,461" stroke="#5a3a1e" stroke-width="9" stroke-linecap="round"/>
+  <path d="M440,450 L500,459" stroke="#9a6a3a" stroke-width="3" stroke-linecap="round"/>
+  <path d="M500,459 L505,471" stroke="#3c4048" stroke-width="7" stroke-linecap="round"/>
+  <path d="M498,468 C502,452 512,442 526,440 C536,442 539,452 534,462 C528,471 512,472 498,468 Z" fill="#9aa0a8" stroke="#3c4048" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M503,458 C509,449 517,445 525,445" fill="none" stroke="#cfd4da" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- handles rising up-and-back to the farmer's hands -->
+  <path d="M506,452 L584,376" stroke="#5a3a1e" stroke-width="7" stroke-linecap="round"/>
+  <path d="M512,456 L598,384" stroke="#7a5230" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- farmer walking behind the plow -->
+  <path d="M614,450 L624,488 L620,536" fill="none" stroke="#2b3850" stroke-width="12" stroke-linecap="round"/>
+  <rect x="612" y="534" width="20" height="9" rx="4" fill="#2b2b2b"/>
+  <path d="M606,450 L592,488 L584,524" fill="none" stroke="#33415c" stroke-width="12" stroke-linecap="round"/>
+  <rect x="572" y="522" width="20" height="9" rx="4" fill="#2b2b2b"/>
+  <path d="M601,378 L590,388" stroke="#3f5c8a" stroke-width="8" stroke-linecap="round"/>
+  <path d="M586,366 L606,366 L621,452 L598,452 Z" fill="#46648f" stroke="#2b3850" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M600,376 L587,380" stroke="#4a6ea3" stroke-width="8" stroke-linecap="round"/>
+  <path d="M604,378 L599,386" stroke="#4a6ea3" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="598" cy="350" r="13" fill="#cf9a6b" stroke="#8a6136" stroke-width="2"/>
+  <path d="M586,351 l-4,3 5,2 Z" fill="#cf9a6b" stroke="#8a6136" stroke-width="1.5"/>
+  <circle cx="590" cy="349" r="1.8" fill="#2b2b2b"/>
+  <ellipse cx="598" cy="341" rx="21" ry="6" fill="#d9b64e" stroke="#a2812f" stroke-width="2"/>
+  <path d="M587,341 Q587,322 598,322 Q609,322 609,341 Z" fill="#e7c766" stroke="#a2812f" stroke-width="2"/>
+  <circle cx="586" cy="379" r="5" fill="#cf9a6b" stroke="#8a6136" stroke-width="1.5"/>
+  <circle cx="598" cy="386" r="5" fill="#cf9a6b" stroke="#8a6136" stroke-width="1.5"/>
+</svg>

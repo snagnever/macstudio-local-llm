@@ -1,0 +1,523 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <title>Picnic on the Clouds — Animated</title>
+  <defs>
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5aa9e6"/>
+      <stop offset="50%" stop-color="#a6d4f7"/>
+      <stop offset="100%" stop-color="#e8f7ff"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#fff9c4"/>
+      <stop offset="60%" stop-color="#ffe27a"/>
+      <stop offset="100%" stop-color="#ffc24b"/>
+    </radialGradient>
+    <radialGradient id="puffTop" cx="0.5" cy="0.35" r="0.6">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="70%" stop-color="#eaf5ff"/>
+      <stop offset="100%" stop-color="#d6ecfc"/>
+    </radialGradient>
+    <linearGradient id="envGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff6b6b"/>
+      <stop offset="55%" stop-color="#f2573f"/>
+      <stop offset="100%" stop-color="#c93a2b"/>
+    </linearGradient>
+    <linearGradient id="envGrad2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffe08a"/>
+      <stop offset="100%" stop-color="#f5a623"/>
+    </linearGradient>
+  </defs>
+
+  <!-- sky -->
+  <rect width="800" height="600" fill="url(#skyGrad)"/>
+
+  <!-- sun + rotating rays -->
+  <g transform="translate(80,110)">
+    <g>
+      <circle cx="0" cy="0" r="62" fill="#fff3b0" opacity="0.3"/>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="0 0 0;360 0 0" dur="60s" repeatCount="indefinite"/>
+        <g fill="#ffe27a">
+          <rect x="-4" y="-78" width="8" height="22" rx="4"/>
+          <rect x="-4" y="56" width="8" height="22" rx="4"/>
+          <rect x="-78" y="-4" width="22" height="8" rx="4"/>
+          <rect x="56" y="-4" width="22" height="8" rx="4"/>
+          <rect x="-58" y="-58" width="8" height="15" rx="4" transform="rotate(45 -54 -54)"/>
+          <rect x="50" y="-58" width="8" height="15" rx="4" transform="rotate(-45 54 -54)"/>
+          <rect x="-58" y="43" width="8" height="15" rx="4" transform="rotate(-45 -54 49)"/>
+          <rect x="50" y="43" width="8" height="15" rx="4" transform="rotate(45 54 49)"/>
+        </g>
+      </g>
+    </g>
+    <g>
+      <circle cx="0" cy="0" r="44" fill="#ffd54f" opacity="0.55"/>
+      <circle cx="0" cy="0" r="26" fill="url(#sunGlow)"/>
+    </g>
+  </g>
+
+  <!-- drifting small clouds -->
+  <g>
+    <g fill="#ffffff" opacity="0.85">
+      <animateTransform attributeName="transform" type="translate" values="0 0;60 0;0 0" dur="34s" repeatCount="indefinite"/>
+      <ellipse cx="150" cy="150" rx="46" ry="16"/>
+      <ellipse cx="185" cy="144" rx="30" ry="13"/>
+      <ellipse cx="120" cy="156" rx="26" ry="10"/>
+    </g>
+    <g fill="#ffffff" opacity="0.8">
+      <animateTransform attributeName="transform" type="translate" values="0 0;-45 0;0 0" dur="40s" repeatCount="indefinite"/>
+      <ellipse cx="620" cy="120" rx="50" ry="15"/>
+      <ellipse cx="660" cy="114" rx="30" ry="12"/>
+      <ellipse cx="580" cy="126" rx="24" ry="9"/>
+      <ellipse cx="585" cy="110" rx="20" ry="8"/>
+    </g>
+    <g fill="#ffffff" opacity="0.7">
+      <animateTransform attributeName="transform" type="translate" values="0 0;35 0;0 0" dur="26s" repeatCount="indefinite"/>
+      <ellipse cx="330" cy="200" rx="34" ry="11"/>
+      <ellipse cx="360" cy="196" rx="20" ry="9"/>
+    </g>
+  </g>
+
+  <!-- birds flying across -->
+  <g stroke="#5b87ad" stroke-width="2.2" fill="none" stroke-linecap="round">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="-40 0;880 0" dur="14s" repeatCount="indefinite"/>
+      <g>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" values="20 -4 0;-20 -4 0;20 -4 0" dur="0.7s" repeatCount="indefinite"/>
+          <path d="M-4 0 q5 -8 10 -2"/>
+        </g>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" values="20 4 0;-20 4 0;20 4 0" dur="0.7s" repeatCount="indefinite"/>
+          <path d="M4 0 q-5 -8 -10 -2"/>
+        </g>
+        <circle cx="0" cy="2" r="1.3" fill="#5b87ad"/>
+      </g>
+    </g>
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="-60 -20;860 -40" dur="19s" repeatCount="indefinite"/>
+      <g>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" values="18 -3 0;-18 -3 0;18 -3 0" dur="0.6s" repeatCount="indefinite"/>
+          <path d="M-3 0 q4 -6 8 -2" transform="scale(0.8)"/>
+        </g>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" values="18 3 0;-18 3 0;18 3 0" dur="0.6s" repeatCount="indefinite"/>
+          <path d="M3 0 q-4 -6 -8 -2" transform="scale(0.8)"/>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- === cloud meadow === -->
+  <ellipse cx="400" cy="420" rx="380" ry="52" fill="url(#puffTop)" opacity="0.9"/>
+  <g>
+    <ellipse cx="400" cy="440" rx="360" ry="105" fill="#ffffff"/>
+    <g fill="url(#puffTop)">
+      <ellipse cx="160" cy="500" rx="130" ry="85"/>
+      <ellipse cx="370" cy="525" rx="150" ry="95"/>
+      <ellipse cx="580" cy="505" rx="132" ry="85"/>
+      <ellipse cx="790" cy="530" rx="90" ry="60"/>
+      <ellipse cx="15" cy="525" rx="80" ry="55"/>
+    </g>
+    <ellipse cx="400" cy="470" rx="330" ry="38" fill="url(#puffTop)"/>
+  </g>
+
+  <!-- twinkling sparkles on the cloud -->
+  <g>
+    <circle cx="120" cy="430" r="2.4" fill="#ffe27a">
+      <animate attributeName="opacity" values="1;0.1;1" dur="2.2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="700" cy="440" r="2.4" fill="#ffe27a">
+      <animate attributeName="opacity" values="0.1;1;0.1" dur="1.8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="300" cy="452" r="2" fill="#ffb3c1">
+      <animate attributeName="opacity" values="1;0.2;1" dur="2.8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="540" cy="446" r="2" fill="#b7b3f0">
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="2.4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="430" cy="436" r="2.2" fill="#ffe27a">
+      <animate attributeName="opacity" values="1;0.15;1" dur="3.1s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- === hot air balloon, moored, gently swaying === -->
+  <g transform="translate(620,240)">
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="2 0 0;-2.5 0 0;2 0 0" dur="5.5s" repeatCount="indefinite" additive="sum"/>
+      <g transform="translate(0,-6)">
+        <animateTransform attributeName="transform" type="translate" values="0 0;0 7;0 0" dur="5.5s" repeatCount="indefinite"/>
+        <!-- mooring ropes -->
+        <path d="M-30 260 C-24 300 -18 312 0 322" fill="none" stroke="#9c6b3f" stroke-width="2.5"/>
+        <path d="M30 260 C24 300 18 312 0 322" fill="none" stroke="#9c6b3f" stroke-width="2.5"/>
+        <path d="M0 268 C0 300 0 312 0 322" fill="none" stroke="#9c6b3f" stroke-width="2.5"/>
+
+        <!-- envelope -->
+        <path d="M0 -170 C-96 20 -84 140 0 180 C84 140 96 20 0 -170 Z" fill="url(#envGrad)"/>
+        <path d="M0 -170 C-96 20 -84 140 0 180" fill="none" stroke="url(#envGrad2)" stroke-width="16" opacity="0.9"/>
+        <path d="M0 -170 C-42 -50 -50 60 0 180" fill="none" stroke="#f7c948" stroke-width="12" opacity="0.9"/>
+        <path d="M0 -170 C44 -56 50 60 0 180" fill="none" stroke="#ffe08a" stroke-width="13" opacity="0.85"/>
+        <path d="M0 -170 C-70 60 -64 120 -12 178 C-2 70 -6 -20 0 -170 Z" fill="#c93a2b" opacity="0.16"/>
+        <path d="M-50 -80 C-46 60 -30 140 -10 177" fill="none" stroke="#ffffff" stroke-width="5" opacity="0.35"/>
+        <path d="M50 -80 C46 60 30 140 10 177" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.3"/>
+
+        <circle cx="0" cy="-172" r="8" fill="#b83527"/>
+
+        <!-- mouth + skirt -->
+        <ellipse cx="0" cy="180" rx="42" ry="12" fill="#c93a2b"/>
+        <path d="M-46 187 Q0 206 46 187 Z" fill="#ffe27a"/>
+
+        <!-- burner with flickering flame -->
+        <g>
+          <rect x="-30" y="200" width="60" height="15" rx="7" fill="#8a97a5"/>
+          <path d="M0 218 l-11 -13 a13 13 0 0 1 22 0 Z" fill="#ffb54d">
+            <animate attributeName="d" values="M0 218 l-11 -13 a13 13 0 0 1 22 0 Z;M0 216 l-9 -10 a11 11 0 0 1 18 0 Z;M0 218 l-11 -13 a13 13 0 0 1 22 0 Z" dur="0.35s" repeatCount="indefinite"/>
+          </path>
+          <path d="M0 212 l-6 -8 a8 8 0 0 1 12 0 Z" fill="#ffd976">
+            <animate attributeName="d" values="M0 212 l-6 -8 a8 8 0 0 1 12 0 Z;M0 210 l-5 -6 a6 6 0 0 1 10 0 Z;M0 212 l-6 -8 a8 8 0 0 1 12 0 Z" dur="0.4s" repeatCount="indefinite"/>
+          </path>
+          <ellipse cx="0" cy="220" rx="20" ry="5" fill="#ffe27a" opacity="0.5">
+            <animate attributeName="opacity" values="0.5;0.2;0.5" dur="0.5s" repeatCount="indefinite"/>
+          </ellipse>
+        </g>
+
+        <!-- skirt ropes to basket -->
+        <path d="M-40 214 L-52 260" stroke="#8a5a2b" stroke-width="2"/>
+        <path d="M40 214 L52 260" stroke="#8a5a2b" stroke-width="2"/>
+        <path d="M-14 216 L-16 260" stroke="#8a5a2b" stroke-width="2"/>
+        <path d="M14 216 L16 260" stroke="#8a5a2b" stroke-width="2"/>
+
+        <!-- basket -->
+        <path d="M-60 260 L60 260 L54 310 L-54 310 Z" fill="#b07f47"/>
+        <path d="M-60 260 L60 260 L58 278 L-58 278 Z" fill="#e0b078"/>
+        <line x1="-58" y1="286" x2="58" y2="286" stroke="#8a5a2b" stroke-width="2.6"/>
+        <line x1="-56" y1="300" x2="56" y2="300" stroke="#8a5a2b" stroke-width="2.6"/>
+        <line x1="-30" y1="260" x2="-28" y2="310" stroke="#8a5a2b" stroke-width="2"/>
+        <line x1="0" y1="260" x2="0" y2="310" stroke="#8a5a2b" stroke-width="1.4" opacity="0.5"/>
+        <line x1="30" y1="260" x2="28" y2="310" stroke="#8a5a2b" stroke-width="2"/>
+        <rect x="-56" y="306" width="112" height="9" rx="3" fill="#7d5026"/>
+        <ellipse cx="-40" cy="320" rx="11" ry="8" fill="#a46f38"/>
+        <ellipse cx="40" cy="320" rx="11" ry="8" fill="#c8904f"/>
+        <line x1="-36" y1="260" x2="-38" y2="316" stroke="#7a4f24" stroke-width="1.4"/>
+        <line x1="36" y1="260" x2="38" y2="316" stroke="#7a4f24" stroke-width="1.4"/>
+        <path d="M-42 258 Q-32 250 -20 262 L-34 272 Z" fill="#8fd16a"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- === fluttery banner flags on two poles === -->
+  <g>
+    <line x1="150" y1="452" x2="147" y2="392" stroke="#8a6a3f" stroke-width="3" stroke-linecap="round"/>
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="0 147 392;8 147 392;0 147 392;-7 147 392;0 147 392" dur="3s" repeatCount="indefinite"/>
+      <path d="M147 394 l40 4 l-40 8 z" fill="#ff5180"/>
+      <path d="M147 404 l36 2 l-36 7 z" fill="#ffd54f"/>
+    </g>
+    <line x1="640" y1="450" x2="643" y2="392" stroke="#8a6a3f" stroke-width="3" stroke-linecap="round"/>
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="0 643 392;-8 643 392;0 643 392;7 643 392;0 643 392" dur="3.4s" repeatCount="indefinite"/>
+      <path d="M643 394 l-40 4 l40 8 z" fill="#5bb8d4"/>
+      <path d="M643 404 l-36 2 l36 7 z" fill="#8fd16a"/>
+    </g>
+  </g>
+
+  <!-- === tarp: big red-and-white picnic blanket === -->
+  <g transform="translate(310,470) skewX(-8)">
+    <rect x="0" y="0" width="300" height="180" rx="8" fill="#e84c3c"/>
+    <g fill="#fdf7dd">
+      <rect x="10" y="10" width="55" height="40" rx="3"/>
+      <rect x="80" y="10" width="55" height="40" rx="3"/>
+      <rect x="150" y="10" width="55" height="40" rx="3"/>
+      <rect x="220" y="10" width="55" height="40" rx="3"/>
+      <rect x="10" y="95" width="55" height="40" rx="3"/>
+      <rect x="80" y="95" width="55" height="40" rx="3"/>
+      <rect x="150" y="95" width="55" height="40" rx="3"/>
+      <rect x="220" y="95" width="55" height="40" rx="3"/>
+    </g>
+    <g fill="#d33a2a" opacity="0.85">
+      <rect x="65" y="10" width="15" height="40" rx="3"/>
+      <rect x="135" y="10" width="15" height="40" rx="3"/>
+      <rect x="205" y="10" width="15" height="40" rx="3"/>
+      <rect x="275" y="10" width="15" height="40" rx="3"/>
+      <rect x="65" y="95" width="15" height="40" rx="3"/>
+      <rect x="135" y="95" width="15" height="40" rx="3"/>
+      <rect x="205" y="95" width="15" height="40" rx="3"/>
+      <rect x="275" y="95" width="15" height="40" rx="3"/>
+    </g>
+    <g fill="#fdf7dd">
+      <rect x="10" y="50" width="55" height="45" rx="3"/>
+      <rect x="80" y="50" width="55" height="45" rx="3"/>
+      <rect x="150" y="50" width="55" height="45" rx="3"/>
+      <rect x="220" y="50" width="55" height="45" rx="3"/>
+    </g>
+    <g fill="#d33a2a" opacity="0.85">
+      <rect x="65" y="50" width="15" height="45" rx="3"/>
+      <rect x="135" y="50" width="15" height="45" rx="3"/>
+      <rect x="205" y="50" width="15" height="45" rx="3"/>
+      <rect x="275" y="50" width="15" height="45" rx="3"/>
+    </g>
+    <path d="M0 0 L10 8 M300 0 L290 8 M0 180 L10 188 M300 180 L290 188" stroke="#b03328" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- === food === -->
+
+  <!-- wicker basket -->
+  <g transform="translate(530,500)">
+    <path d="M-36 -42 Q0 -70 36 -42" fill="none" stroke="#8a5a2b" stroke-width="6" stroke-linecap="round"/>
+    <rect x="-40" y="-34" width="80" height="42" rx="6" fill="#c8904f"/>
+    <line x1="-40" y1="-22" x2="40" y2="-22" stroke="#a8723f" stroke-width="2.5"/>
+    <line x1="-40" y1="-6" x2="40" y2="-6" stroke="#a8723f" stroke-width="2.5"/>
+    <line x1="-20" y1="-34" x2="-20" y2="8" stroke="#a8723f" stroke-width="2"/>
+    <line x1="20" y1="-34" x2="20" y2="8" stroke="#a8723f" stroke-width="2"/>
+    <ellipse cx="0" cy="8" rx="36" ry="5" fill="#8a5a2b"/>
+    <path d="M-28 -38 q14 -12 28 -4 q-6 -14 -22 -14 q-10 0 -16 6" fill="#fbe9c9" opacity="0.9"/>
+  </g>
+
+  <!-- plate of fruit -->
+  <g transform="translate(400,525)">
+    <ellipse cx="0" cy="10" rx="40" ry="9" fill="#d8d2c8"/>
+    <ellipse cx="0" cy="0" rx="40" ry="11" fill="#f7f4ee"/>
+    <ellipse cx="0" cy="-2" rx="30" ry="7" fill="#e8f1fa"/>
+    <circle cx="-12" cy="-12" r="15" fill="#2e7d32"/>
+    <path d="M-12 -27 A15 15 0 0 1 3 -12 A15 15 0 0 0 1 -27 Z" fill="#66bb6a"/>
+    <path d="M-12 -27 q-3 -6 2 -7 M-12 -27 q4 -5 9 1" stroke="#2e7d32" stroke-width="1"/>
+    <circle cx="9" cy="-13" r="12" fill="#ff8a65"/>
+    <path d="M9 -25 A12 12 0 0 1 21 -13 A12 12 0 0 0 19 -25 Z" fill="#ffab91"/>
+    <path d="M-6 2 q12 -10 24 0 q-12 10 -24 0" fill="#ffe27a"/>
+    <g fill="#9b7bc9">
+      <circle cx="-30" cy="-6" r="4"/>
+      <circle cx="-24" cy="-12" r="4"/>
+      <circle cx="-34" cy="-14" r="4"/>
+      <circle cx="-28" cy="-20" r="4">
+        <animate attributeName="cy" values="-20;-21;-20" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="-22" cy="-4" r="4"/>
+      <circle cx="-26" cy="-10" r="4.5"/>
+    </g>
+    <path d="M-28 -24 q-8 -10 -14 -14" fill="none" stroke="#7a9c4a" stroke-width="1.6" stroke-linecap="round"/>
+  </g>
+
+  <!-- lemonade pitcher with pouring stream -->
+  <g transform="translate(350,560)">
+    <path d="M-12 0 L-8 -26 L8 -26 L12 0 Q0 8 -12 0" fill="#ffd54f"/>
+    <path d="M-8 -26 L8 -26 L12 0 L-12 0 Z" fill="#ffe27a" opacity="0.5"/>
+    <ellipse cx="0" cy="-26" rx="8" ry="3" fill="#f0b429"/>
+    <rect x="8" y="-21" width="3.4" height="16" rx="1.7" fill="#e8a63a"/>
+    <path d="M-12 -2 Q-19 4 -12 10" fill="none" stroke="#fff2c4" stroke-width="3.4"/>
+    <!-- bubbles that rise -->
+    <g fill="#fffbe0">
+      <circle cx="4" cy="-10" r="1.8">
+        <animate attributeName="cy" values="6;-18" dur="1.6s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;0" dur="1.6s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="-2" cy="-6" r="1.3">
+        <animate attributeName="cy" values="6;-16" dur="2s" repeatCount="indefinite" begin="0.4s"/>
+        <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" begin="0.4s"/>
+      </circle>
+    </g>
+    <!-- pouring stream to the cup -->
+    <g opacity="0.9">
+      <animateTransform attributeName="transform" type="rotate" values="-6 36 -6;4 36 -6;-6 36 -6" dur="2.6s" repeatCount="indefinite"/>
+      <path d="M30 8 Q40 26 34 42" fill="none" stroke="#ffe27a" stroke-width="5" stroke-linecap="round"/>
+      <path d="M30 8 Q38 20 34 40" fill="none" stroke="#fffbe0" stroke-width="2" opacity="0.6" stroke-linecap="round"/>
+    </g>
+  </g>
+  <!-- glass being filled -->
+  <g transform="translate(388,594)">
+    <path d="M-10 0 L-7 -16 L7 -16 L10 0 Z" fill="#ffffff" opacity="0.85"/>
+    <path d="M-7 -2 L7 -2 L8 0 L-8 0 Z" fill="#ffe27a">
+      <animate attributeName="y" values="2;2;2" dur="2.6s" repeatCount="indefinite"/>
+    </path>
+    <ellipse cx="0" cy="-16" rx="7" ry="2.4" fill="#fffbe0"/>
+  </g>
+  <g transform="translate(412,596)">
+    <path d="M-8 0 L-6 -13 L6 -13 L8 0 Z" fill="#cfe3b0"/>
+    <ellipse cx="0" cy="-13" rx="6" ry="2" fill="#e8f7d0"/>
+  </g>
+
+  <!-- plate + sandwich being handed -->
+  <g transform="translate(300,570)">
+    <ellipse cx="0" cy="6" rx="26" ry="6" fill="#c9c3b6"/>
+    <ellipse cx="0" cy="0" rx="26" ry="7" fill="#ffffff"/>
+    <rect x="-12" y="-12" width="24" height="10" rx="4" fill="#c8934f"/>
+    <rect x="-12" y="-12" width="24" height="4.5" rx="2" fill="#f0e3b0"/>
+    <path d="M-12 -8 l4 4 l3 -1" stroke="#6b8e23" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- strawberries scattered -->
+  <g>
+    <g transform="translate(560,560)">
+      <path d="M-4 -1 q-7 -6 1 -9 q10 0 8 6 q0 4 -3 5 q-6 2 -6 -2" fill="#e53935"/>
+      <path d="M-2 -9 q-2 -4 0 -5 q2 1 1 5" fill="#7a9c4a"/>
+      <circle cx="-3" cy="-5" r="0.8" fill="#ffe082"/>
+      <circle cx="1" cy="-3" r="0.8" fill="#ffe082"/>
+    </g>
+    <g transform="translate(585,568)">
+      <path d="M-4 -1 q-7 -6 1 -9 q10 0 8 6 q0 4 -3 5 q-6 2 -6 -2" fill="#e53935"/>
+      <path d="M-2 -9 q-2 -4 0 -5 q2 1 1 5" fill="#7a9c4a"/>
+    </g>
+    <g transform="translate(470,585)">
+      <path d="M-3.5 -1 q-6 -5 1 -8 q8 0 7 5 q0 3 -3 4 q-5 2 -5 -1" fill="#e53935"/>
+    </g>
+  </g>
+
+  <!-- watermelon slice -->
+  <g transform="translate(330,488)">
+    <path d="M-26 0 A26 26 0 0 1 26 0 Z" fill="#ff8a65"/>
+    <path d="M-26 0 A26 26 0 0 1 26 0 L18 0 A18 18 0 0 0 -18 0 Z" fill="#ffffff" opacity="0.25"/>
+    <path d="M0 -26 L0 2 M-18 -9 L-14 -2 M18 -9 L14 -2 M-11 -22 L-8 -14 M11 -22 L8 -14" stroke="#2e7d32" stroke-width="2"/>
+    <path d="M-26 0 A26 26 0 0 1 26 0 Z" fill="none" stroke="#e0714f" stroke-width="1.5"/>
+  </g>
+
+  <!-- === people === -->
+
+  <!-- DAD: kneeling, pouring the lemonade -->
+  <g transform="translate(395,520)">
+    <g transform="rotate(-3)">
+      <!-- legs -->
+      <path d="M-12 34 l-13 11" stroke="#334a73" stroke-width="9" stroke-linecap="round"/>
+      <path d="M13 34 l14 11" stroke="#334a73" stroke-width="9" stroke-linecap="round"/>
+      <!-- torso -->
+      <rect x="-17" y="-7" width="34" height="40" rx="7" fill="#d9552e"/>
+      <rect x="-17" y="-7" width="34" height="12" rx="6" fill="#e8754f"/>
+      <!-- left arm -->
+      <path d="M-13 2 l-14 12" stroke="#d9552e" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="-27" cy="14" r="5" fill="#e8b890"/>
+      <!-- right arm holds the pitcher, swings -->
+      <g>
+        <path d="M13 2 l14 14" stroke="#d9552e" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="27" cy="16" r="5" fill="#e8b890"/>
+      </g>
+      <!-- head -->
+      <circle cx="0" cy="-19" r="15" fill="#e8b890"/>
+      <path d="M-13 -25 q0 -14 12 -14 q12 0 14 11 q-4 2 -15 3" fill="#3f4a38"/>
+      <path d="M12 -42 q6 0 8 4 q-8 2 -11 -1" fill="#3f4a38"/>
+      <ellipse cx="-5" cy="-19" rx="2.6" ry="1.6" fill="#4b3621"/>
+      <ellipse cx="5" cy="-19" rx="2.6" ry="1.6" fill="#4b3621"/>
+      <path d="M-2 -14 q3 3 6 0" stroke="#8a5a34" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M-6 -9 q-1 4 5 3" stroke="#8a5a34" stroke-width="2" fill="none"/>
+    </g>
+  </g>
+
+  <!-- MOM: sitting, waving hello -->
+  <g transform="translate(470,500)">
+    <g transform="rotate(2)">
+      <!-- legs -->
+      <path d="M-10 40 l-6 9" stroke="#e8b890" stroke-width="6" stroke-linecap="round"/>
+      <path d="M10 40 l7 9" stroke="#e8b890" stroke-width="6" stroke-linecap="round"/>
+      <!-- skirt -->
+      <path d="M-22 14 Q0 46 22 14 L12 14 L-12 14 Z" fill="#2f7f8c"/>
+      <path d="M-12 14 L12 14 L20 34 L-20 34 Z" fill="#2f7f8c"/>
+      <path d="M-14 22 Q0 40 14 22" stroke="#4fa3b5" stroke-width="3" fill="none"/>
+      <!-- torso -->
+      <path d="M0 -24 Q-20 -16 -18 8 L18 8 Q20 -16 0 -24 Z" fill="#2f7f8c"/>
+      <path d="M0 -24 Q-20 -16 -18 8 L18 8 Q20 -16 0 -24 Z" fill="#63b6c4" opacity="0.3"/>
+      <!-- left arm -->
+      <path d="M-15 -2 l-12 14" stroke="#2f7f8c" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="-27" cy="12" r="5" fill="#e8b890"/>
+      <!-- right arm waving -->
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="0 15 -2;-24 15 -2;0 15 -2" dur="1.4s" repeatCount="indefinite"/>
+        <path d="M15 -2 l12 -14" stroke="#2f7f8c" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="27" cy="-16" r="5" fill="#e8b890"/>
+      </g>
+      <!-- hair -->
+      <path d="M0 -34 q-18 -6 -23 8 q14 -8 46 -8 q22 2 24 14" fill="#5b2d1a"/>
+      <path d="M0 -38 q-14 -4 -18 6 q-2 -14 18 -8" fill="#5b2d1a"/>
+      <circle cx="2" cy="-40" r="8" fill="#5b2d1a"/>
+      <circle cx="3" cy="-40" r="4" fill="#c9885a"/>
+      <path d="M22 -28 q5 -8 1 -14 q8 -2 8 6 q0 8 -9 8" fill="#5b2d1a"/>
+      <!-- face -->
+      <circle cx="2" cy="-24" r="14" fill="#e8b890"/>
+      <ellipse cx="-3" cy="-24" rx="2.4" ry="1.6" fill="#4b3621"/>
+      <ellipse cx="8" cy="-24" rx="2.4" ry="1.6" fill="#4b3621"/>
+      <path d="M0 -18 q3 3 6 0" stroke="#8a5a34" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M-2 -14 q0 3 5 3 q4 0 5 -3" stroke="#a84b61" stroke-width="2" fill="none"/>
+      <circle cx="4" cy="-12" r="2" fill="#ffd166"/>
+      <circle cx="8" cy="-12" r="2" fill="#ffd166"/>
+    </g>
+  </g>
+
+  <!-- CHILD girl: sitting, rolling a ball -->
+  <g transform="translate(340,540)">
+    <g transform="rotate(-2)">
+      <!-- legs -->
+      <path d="M-8 26 q7 9 16 5 M8 26 q-7 9 -16 5" stroke="#8d6bc4" stroke-width="6" stroke-linecap="round"/>
+      <!-- dress -->
+      <path d="M0 -15 Q-13 -7 -11 12 L11 12 Q13 -7 0 -15 Z" fill="#8d6bc4"/>
+      <path d="M-11 12 Q0 26 11 12 L6 12 L-6 12 Z" fill="#8d6bc4"/>
+      <path d="M0 -15 L-11 12 Q0 8 11 12 Z" fill="#a98add" opacity="0.5"/>
+      <!-- arms -->
+      <path d="M-8 -8 l-9 8" stroke="#e8b890" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="-17" cy="0" r="3.8" fill="#e8b890"/>
+      <path d="M8 -8 l10 6" stroke="#e8b890" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="18" cy="-2" r="3.8" fill="#e8b890"/>
+      <!-- ball rolling on cloud -->
+      <circle cx="26" cy="24" r="7" fill="#ff5180">
+        <animateTransform attributeName="transform" type="translate" values="0 0;18 3;0 6;-18 3;0 0" dur="5s" repeatCount="indefinite"/>
+      </circle>
+      <path d="M20 24 l12 0 M26 18 l0 12 M23 20 l6 8 M29 20 l-6 8" stroke="#d9406f" stroke-width="1.3"/>
+      <!-- head -->
+      <circle cx="2" cy="-22" r="11.5" fill="#e8b890"/>
+      <path d="M-6 -26 q0 -11 9 -11 q9 0 11 9 q-3 2 -11 2" fill="#3d2b1f"/>
+      <path d="M-4 -31 q5 -8 11 -6 q3 0 5 3 q-3 5 -8 5" fill="#3d2b1f"/>
+      <path d="M-2 -20 q1 3 4 3 q2 -2 0 -3" fill="none" stroke="#8a5a34" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="-1" cy="-21" r="1.8" fill="#4b3621"/>
+      <circle cx="4" cy="-21" r="1.8" fill="#4b3621"/>
+      <circle cx="17" cy="-30" r="3.4" fill="#ffd166" stroke="#c9842e" stroke-width="0.8"/>
+    </g>
+  </g>
+
+  <!-- CHILD boy: running in from the right, chasing a butterfly -->
+  <g transform="translate(600,520)">
+    <g transform="rotate(4)">
+      <g>
+        <animateTransform attributeName="transform" type="translate" values="-70 0;120 -16;-70 0" dur="11s" repeatCount="indefinite"/>
+        <g>
+          <!-- legs -->
+          <path d="M-6 26 l-10 10"><animate attributeName="d" values="M-6 26 l-10 10;M-6 26 l2 14;M-6 26 l-10 10" dur="0.5s" repeatCount="indefinite"/></path>
+          <path d="M6 26 l10 10"><animate attributeName="d" values="M6 26 l10 10;M6 26 l-2 14;M6 26 l10 10" dur="0.5s" repeatCount="indefinite"/></path>
+          <path d="M-2 26 l-12 14" stroke="#3a5f8a" stroke-width="6" stroke-linecap="round" fill="none"/>
+          <path d="M2 26 l12 14" stroke="#3a5f8a" stroke-width="6" stroke-linecap="round" fill="none"/>
+          <!-- body -->
+          <path d="M-13 0 L13 0 L11 24 L-11 24 Z" fill="#ffb74d"/>
+          <path d="M0 4 l4 4 l-4 4 l-4 -4 Z" fill="#ffffff" opacity="0.85"/>
+          <circle cx="0" cy="6" r="2.2" fill="#3a5f8a"/>
+          <!-- arms -->
+          <path d="M-10 2 l-12 -10" stroke="#ffb74d" stroke-width="6" stroke-linecap="round"><animate attributeName="d" values="M-10 2 l-12 -10;M-10 2 l-14 -4;M-10 2 l-12 -10" dur="0.5s" repeatCount="indefinite"/></path>
+          <path d="M10 2 l12 -8" stroke="#ffb74d" stroke-width="6" stroke-linecap="round"><animate attributeName="d" values="M10 2 l12 -8;M10 2 l12 -12;M10 2 l12 -8" dur="0.5s" repeatCount="indefinite"/></path>
+          <circle cx="-22" cy="-7" r="4.2" fill="#e8b890"/>
+          <circle cx="22" cy="-6" r="4.2" fill="#e8b890"/>
+          <!-- head -->
+          <circle cx="0" cy="-14" r="13" fill="#e8b890"/>
+          <path d="M-11 -19 q0 -13 11 -13 q11 0 13 10 q-3 2 -14 2" fill="#6b3f1f"/>
+          <ellipse cx="-4" cy="-14" rx="2.4" ry="1.5" fill="#4b3621"/>
+          <ellipse cx="5" cy="-14" rx="2.4" ry="1.5" fill="#4b3621"/>
+          <path d="M-1 -9 q3 3 6 0" stroke="#8a5a34" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+          <circle cx="11" cy="-22" r="3" fill="#5bb8d4" stroke="#3a8fb0" stroke-width="0.8"/>
+        </g>
+        <!-- butterfly -->
+        <g>
+          <animateTransform attributeName="transform" type="translate" values="0 -8;18 -28;0 -8" dur="2.2s" repeatCount="indefinite"/>
+          <animateTransform attributeName="transform" type="rotate" values="0 255 0;-8 255 0;0 255 0" dur="2.2s" repeatCount="indefinite" additive="sum"/>
+          <g transform="translate(-8,20)">
+            <g>
+              <animateTransform attributeName="transform" type="scale" values="1 1;-1 1;1 1" dur="0.4s" repeatCount="indefinite"/>
+              <ellipse cx="-4" cy="0" rx="6" ry="4" fill="#ff9ece"/>
+              <ellipse cx="4" cy="0" rx="6" ry="4" fill="#ff9ece"/>
+            </g>
+            <ellipse cx="0" cy="0" rx="1.6" ry="3" fill="#7a4a21"/>
+            <path d="M0 3 q-2 4 0 6 M0 3 q2 4 0 6" fill="none" stroke="#7a4a21" stroke-width="1"/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- napkins + tiny bread roll near basket -->
+  <g transform="translate(560,545)">
+    <rect x="-8" y="-5" width="16" height="10" rx="5" fill="#f7f1e0"/>
+    <line x1="-4" y1="-5" x2="-4" y2="5" stroke="#e0d4be" stroke-width="1"/>
+    <circle cx="16" cy="-4" r="6" fill="#c8934f"/>
+    <path d="M13 -7 q3 -2 6 0" stroke="#a8723f" stroke-width="1.2" fill="none"/>
+  </g>
+</svg>

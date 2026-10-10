@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <title>A family picnic above the clouds</title>
+  <desc>A red and white striped hot air balloon rests on a flat cloud. A parent points at the balloon beside a child. Another parent and child spread opposite corners of a checkered picnic blanket. An open basket contains a thermos, grapes, and a sandwich.</desc>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#47aee0"/><stop offset="1" stop-color="#b5e7f3"/></linearGradient>
+    <linearGradient id="cloud" x2="0" y2="1"><stop stop-color="#fffefa"/><stop offset=".53" stop-color="#f3fafc"/><stop offset="1" stop-color="#bbdceb"/></linearGradient>
+    <linearGradient id="red" x2="1" y2=".3"><stop stop-color="#b4313b"/><stop offset=".48" stop-color="#ec5350"/><stop offset="1" stop-color="#ce3941"/></linearGradient>
+    <linearGradient id="ivory" x2="1" y2=".2"><stop stop-color="#e3d6bf"/><stop offset=".5" stop-color="#fff8e7"/><stop offset="1" stop-color="#eee4d0"/></linearGradient>
+    <pattern id="checks" width="44" height="44" patternUnits="userSpaceOnUse"><rect width="44" height="44" fill="#fff5df"/><path d="M0 0h22v22H0zM22 22h22v22H22z" fill="#de4b51"/><path d="M0 22h22v22H0zM22 0h22v22H22z" fill="#f0b0a7"/></pattern>
+    <pattern id="wicker" width="18" height="12" patternUnits="userSpaceOnUse"><rect width="18" height="12" fill="#bb7943"/><path d="M0 3h18M0 9h18" stroke="#e0a669" stroke-width="3"/><path d="M5 0v6m9 0v6" stroke="#89502e" stroke-width="2"/></pattern>
+    <clipPath id="envelope"><path d="M302 73C176 69 128 149 153 254C170 326 227 384 257 431Q303 448 347 431C378 384 436 326 452 254C478 149 429 69 302 73Z"/></clipPath>
+  </defs>
+  <rect width="1200" height="900" fill="url(#sky)"/>
+  <circle cx="1018" cy="129" r="69" fill="#ffec85" opacity=".25"/>
+  <circle cx="1018" cy="129" r="49" fill="#ffdb4f"/>
+  <g fill="#fffdf6" opacity=".92">
+    <path d="M548 171c-8-19 8-34 25-29 4-29 49-32 59-4 22-11 45 6 39 25 18-2 25 13 13 19H552q-18-1-4-11Z"/>
+    <path d="M866 339c-8-14 5-27 19-24 3-22 35-25 46-6 20-8 35 5 32 18 18-2 24 12 10 18h-99q-17 0-8-6Z"/>
+  </g>
+  <!-- The cloud has a continuous, level surface under the balloon and family. -->
+  <path d="M-45 662Q-40 596 42 595Q39 557 89 550Q130 544 154 580Q178 543 219 561Q236 535 272 547Q300 513 343 545Q381 514 417 548Q454 520 483 552Q524 520 562 552Q610 523 646 560Q692 529 731 564Q772 542 801 571Q858 532 901 571Q930 551 955 577Q1012 542 1051 589Q1110 550 1137 604Q1211 584 1240 652V916H-45Z" fill="#dfedf3"/>
+  <path d="M-35 668Q-16 626 41 634Q35 588 89 581Q128 577 151 611Q173 580 208 581H963Q1025 575 1045 611Q1094 584 1120 627Q1189 601 1232 655V850Q1184 906 1128 876Q1080 935 1024 886Q953 930 913 888Q846 938 793 897Q738 936 679 895Q624 935 569 895Q493 944 437 891Q365 938 310 886Q244 922 194 882Q129 918 91 871Q23 895-35 847Z" fill="url(#cloud)"/>
+  <g fill="none" stroke="#d5e8ef" stroke-width="5" stroke-linecap="round"><path d="M10 765q25-35 70-15M153 850q39-37 82-7M370 841q42-37 85-10M841 836q45-38 91-8M1064 785q33-30 71-4"/></g>
+  <ellipse cx="303" cy="643" rx="85" ry="14" fill="#86adc1" opacity=".25"/>
+  <!-- Balloon envelope and the suspension ropes. -->
+  <g stroke="#6c4738" stroke-width="4" fill="none"><path d="M257 424L256 569M348 424L347 569M270 437L280 571M335 437L325 571"/></g>
+  <g clip-path="url(#envelope)">
+    <rect x="120" y="65" width="360" height="385" fill="url(#ivory)"/>
+    <path d="M186 90C120 211 184 348 260 437L280 443C221 298 200 177 250 77Z" fill="url(#red)"/>
+    <path d="M287 69C272 206 280 361 289 444H314C325 326 332 183 317 69Z" fill="url(#red)"/>
+    <path d="M354 77C402 182 383 309 325 444L347 437C425 345 485 211 422 89Z" fill="url(#red)"/>
+    <path d="M133 228q164 75 333 0M168 303q137 68 267 0" fill="none" stroke="#694647" opacity=".1" stroke-width="2"/>
+    <ellipse cx="237" cy="158" rx="53" ry="65" fill="#fff" opacity=".08"/>
+  </g>
+  <path d="M302 73C176 69 128 149 153 254C170 326 227 384 257 431Q303 448 347 431C378 384 436 326 452 254C478 149 429 69 302 73Z" fill="none" stroke="#974b46" stroke-width="2"/>
+  <path d="M258 429q45 14 89 0l-7 18q-39 12-75 0Z" fill="#984a3d"/>
+  <path d="M277 554v-27h49v27" fill="none" stroke="#5c5046" stroke-width="6"/>
+  <rect x="295" y="526" width="15" height="28" rx="4" fill="#81745e"/>
+  <path d="M244 569H359L350 637Q301 649 254 637Z" fill="url(#wicker)" stroke="#815333" stroke-width="4"/>
+  <path d="M245 570h114" stroke="#e1af76" stroke-width="12" stroke-linecap="round"/>
+  <path d="M264 579l5 56m67-56-5 57" stroke="#895331" stroke-width="5"/>
+  <!-- Adult and child beside the landed balloon. -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="445" cy="690" rx="44" ry="9" fill="#b5d2df" opacity=".55"/>
+    <path d="M431 608l-8 68m32-68 12 68" stroke="#354c65" stroke-width="21"/>
+    <path d="M422 678h-15m59 0h14" stroke="#433b39" stroke-width="12"/>
+    <path d="M417 529q24-15 46 0l8 83q-30 14-61-1Z" fill="#dfaa43"/>
+    <path d="M419 539l-28-39-15-43" fill="none" stroke="#b96e4f" stroke-width="15"/>
+    <path d="M378 463l-9-30m10 29 5-17" fill="none" stroke="#b96e4f" stroke-width="7"/>
+    <path d="M460 542l24 46 14 9" fill="none" stroke="#b96e4f" stroke-width="14"/>
+    <path d="M433 509v20" stroke="#b96e4f" stroke-width="16"/>
+    <ellipse cx="437" cy="488" rx="23" ry="29" fill="#cc8660"/>
+    <path d="M416 492q-14-28 10-37 28-11 37 20l-15-3-10-8q-1 19-22 17Z" fill="#453534"/>
+    <circle cx="428" cy="487" r="2.5" fill="#37373b"/>
+    <path d="M426 501q6 5 11 0" stroke="#7e483c" stroke-width="2" fill="none"/>
+    <ellipse cx="525" cy="694" rx="28" ry="7" fill="#b5d2df" opacity=".6"/>
+    <path d="M515 644l-3 40m20-40 5 40" stroke="#527485" stroke-width="13"/>
+    <path d="M511 686h-10m36 0h9" stroke="#fff9ec" stroke-width="9"/>
+    <path d="M506 585q18-9 34 2l6 59h-45Z" fill="#da6852"/>
+    <path d="M509 598l-13 1m42 0 12 26" stroke="#d79a70" stroke-width="11" fill="none"/>
+    <path d="M522 572v14" stroke="#d79a70" stroke-width="12"/>
+    <ellipse cx="522" cy="555" rx="19" ry="23" fill="#e3ac80"/>
+    <path d="M503 557q-8-31 18-31 25 0 22 27l-13-13q-9 11-27 8Z" fill="#684631"/>
+    <circle cx="515" cy="555" r="2.3" fill="#35363a"/>
+    <path d="M511 566q6 5 12 0" stroke="#97604b" stroke-width="2" fill="none"/>
+  </g>
+  <!-- The lifted blanket spans the opposite hands of the adult and child. -->
+  <ellipse cx="852" cy="750" rx="202" ry="26" fill="#a5c4d2" opacity=".28"/>
+  <path d="M640 630L970 650L1050 750L720 730Z" fill="#b54548" stroke="#b54548" stroke-width="5"/>
+  <g transform="matrix(1 .0606 .8 1 640 630)"><rect width="330" height="100" fill="url(#checks)"/><path d="M4 4H326V96H4Z" fill="none" stroke="#fff8e8" stroke-width="2" stroke-dasharray="5 5"/></g>
+  <path d="M640 630q24 60 80 100M970 650q48 39 80 100" stroke="#bd454b" stroke-width="3" fill="none"/>
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="625" cy="742" rx="43" ry="8" fill="#b3d1dd" opacity=".5"/>
+    <path d="M612 663l-3 66m27-66 8 65" stroke="#bb7455" stroke-width="15"/>
+    <path d="M609 730l-17 3m52-3 13 3" stroke="#e9c176" stroke-width="11"/>
+    <path d="M608 557q19-12 38 3l-2 47 24 72q-40 12-80-2l20-74Z" fill="#287e85"/>
+    <path d="M638 568l28 35-26 27" fill="none" stroke="#d19772" stroke-width="14"/>
+    <path d="M610 570l-20 34 30 14" fill="none" stroke="#d19772" stroke-width="13"/>
+    <path d="M624 543v17" stroke="#d19772" stroke-width="15"/>
+    <path d="M603 545q-19-34 2-53 29-22 47 6 12 20-1 51Z" fill="#513d36"/>
+    <ellipse cx="628" cy="526" rx="22" ry="28" fill="#dda580"/>
+    <path d="M605 521q-4-28 20-30 27-1 28 27-17-3-27-19-4 17-21 22Z" fill="#513d36"/>
+    <circle cx="638" cy="527" r="2.4" fill="#343b3c"/>
+    <path d="M632 541q7 4 12-2" stroke="#965c4e" stroke-width="2" fill="none"/>
+    <circle cx="604" cy="494" r="16" fill="#513d36"/>
+    <path d="M599 507l14 0" stroke="#e8bb59" stroke-width="4"/>
+    <ellipse cx="1091" cy="817" rx="32" ry="7" fill="#b3d1dd" opacity=".5"/>
+    <path d="M1080 774l-5 33m24-33 7 34" stroke="#be7a55" stroke-width="12"/>
+    <path d="M1074 809h-10m43 0h10" stroke="#4a6266" stroke-width="9"/>
+    <path d="M1074 709q17-10 32 0l7 70h-48Z" fill="#edbb50"/>
+    <path d="M1077 719l-10 26-17 5m55-29 13 26" stroke="#d79a70" stroke-width="11" fill="none"/>
+    <path d="M1089 698v11" stroke="#d79a70" stroke-width="11"/>
+    <ellipse cx="1087" cy="679" rx="20" ry="25" fill="#e3ad82"/>
+    <path d="M1067 681q-10-32 18-34 28-1 24 32l-14-17q-7 12-28 11Z" fill="#6c4534"/>
+    <path d="M1105 665q23-12 21 9-7 4-20 1" fill="#6c4534"/>
+    <circle cx="1078" cy="681" r="2.3" fill="#34393b"/>
+    <path d="M1076 691q6 5 12 0" stroke="#97604b" stroke-width="2" fill="none"/>
+  </g>
+  <!-- Open picnic basket, with visible food and thermos. -->
+  <ellipse cx="762" cy="723" rx="60" ry="12" fill="#804a3b" opacity=".18"/>
+  <path d="M713 676l-14-53q49-30 104-2l-3 55Z" fill="url(#wicker)" stroke="#8c5633" stroke-width="4"/>
+  <path d="M713 665l-9-36q43-21 90-2l-2 36Z" fill="#efcc90" stroke="#b47d47" stroke-width="3"/>
+  <ellipse cx="761" cy="674" rx="52" ry="15" fill="#694b35"/>
+  <g transform="rotate(-9 733 657)"><rect x="721" y="627" width="25" height="55" rx="6" fill="#5c99a1" stroke="#366b74" stroke-width="2"/><rect x="722" y="619" width="23" height="12" rx="3" fill="#dee9e8"/><rect x="724" y="638" width="5" height="31" rx="2" fill="#bededc"/></g>
+  <path d="M759 660l23-30 24 33Z" fill="#d5974c" stroke="#b8793b" stroke-width="3"/>
+  <path d="M759 665l23-28 24 29Z" fill="#fff0c8" stroke="#d99b53" stroke-width="2"/>
+  <path d="M760 666l45 0" stroke="#629254" stroke-width="5"/>
+  <path d="M762 670l42-1" stroke="#d95f51" stroke-width="4"/>
+  <path d="M759 673l23-26 24 28Z" fill="#ffe5a7" stroke="#c99650" stroke-width="2"/>
+  <g fill="#765187" stroke="#604577" stroke-width="1.5"><circle cx="749" cy="667" r="7"/><circle cx="762" cy="668" r="7"/><circle cx="743" cy="677" r="7"/><circle cx="756" cy="678" r="7"/><circle cx="769" cy="677" r="7"/><circle cx="750" cy="687" r="7"/><circle cx="763" cy="687" r="7"/><circle cx="757" cy="696" r="7"/></g>
+  <path d="M755 665q-2-11 7-15" fill="none" stroke="#64814b" stroke-width="3"/>
+  <path d="M757 660q-19-17-23-2 11 11 23 2" fill="#789653"/>
+  <path d="M711 680l9 39q41 16 80-1l10-38q-16 6-35 6l-3 12-17 9-15-13-4-10Z" fill="url(#wicker)" stroke="#8c5633" stroke-width="3"/>
+  <path d="M711 680l24 4m43 2 32-6" fill="none" stroke="#e0ac6d" stroke-width="6" stroke-linecap="round"/>
+</svg>

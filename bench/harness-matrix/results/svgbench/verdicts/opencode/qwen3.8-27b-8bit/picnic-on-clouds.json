@@ -1,0 +1,63 @@
+{
+  "artifact": "logs/opencode/qwen3.8-27b-8bit/picnic-on-clouds.svg",
+  "question_index": 5,
+  "render": "logs/renders/opencode/qwen3.8-27b-8bit/picnic-on-clouds.png",
+  "judge": {
+    "kind": "claude-vision",
+    "model": "claude-opus-5",
+    "date": "2026-09-07",
+    "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {
+      "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
+      "met": false,
+      "note": "The envelope's vertical stripes are blue, yellow and red - sampled at (870,320) RGB 52,152,219 and (935,320) RGB 249,202,36. No white stripe is present."
+    },
+    {
+      "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Show ropes connecting the balloon's envelope to the basket.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Include four human figures styled as a family: two adults and two children.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
+      "met": false,
+      "note": "The red and white checkered blanket is already spread flat on the cloud; the man stands on it with one arm raised in the air and no figure holds any corner of it."
+    },
+    {
+      "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
+      "met": false,
+      "note": "The only thing in the basket is a rounded cream loaf. The blue jug, the watermelon slice, the cheese wedge, the bread and the apple all lie loose on the blanket, and no bunch of grapes and no sandwich appears anywhere in the render."
+    },
+    {
+      "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
+      "met": false,
+      "note": "The second adult crouches at the blanket about 400 px from the balloon; the child with both arms raised stands between them but no adult is beside the balloon and none points up at the envelope."
+    },
+    {
+      "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
+      "met": false,
+      "note": "Three distant clouds are drawn in the sky - beneath the sun at about (150,180), at (625,110) and at (1090,195) - not two."
+    }
+  ]
+}

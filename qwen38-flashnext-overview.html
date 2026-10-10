@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Qwen3.8-Flash-Next Runtimes, October 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#f4f6f7; --surface:#ffffff; --surface-2:#eef1f3; --ink:#151a1f;
+  --muted:#5c6772; --hairline:#e0e5e9; --accent:#0e8f9d; --accent-strong:#0b6f7a;
+  --ok:#1f8f52; --warn:#b9791b; --bad:#c8465a; --neutral:#4b5763;
+  --shadow:0 1px 2px rgba(20,26,31,.05),0 8px 24px rgba(20,26,31,.05);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0d1116; --surface:#151b21; --surface-2:#1b232b; --ink:#e7edf2;
+  --muted:#93a1ae; --hairline:#232c35; --accent:#2fbccb; --accent-strong:#57d3e0;
+  --ok:#37c37e; --warn:#e0a53a; --bad:#ec6a7c; --neutral:#8896a3;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+}}
+:root[data-theme="dark"]{
+  --ground:#0d1116; --surface:#151b21; --surface-2:#1b232b; --ink:#e7edf2;
+  --muted:#93a1ae; --hairline:#232c35; --accent:#2fbccb; --accent-strong:#57d3e0;
+  --ok:#37c37e; --warn:#e0a53a; --bad:#ec6a7c; --neutral:#8896a3;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;}
+.wrap{max-width:1160px;margin:0 auto;padding:44px 24px 72px;}
+.head{border-bottom:1px solid var(--hairline);padding-bottom:24px;margin-bottom:24px;}
+.eyebrow{font-family:"Archivo",sans-serif;text-transform:uppercase;letter-spacing:.14em;
+  font-size:12px;font-weight:600;color:var(--accent-strong);}
+h1{font-family:"Archivo",sans-serif;font-weight:700;font-size:clamp(26px,4vw,40px);
+  line-height:1.1;text-wrap:balance;margin:.35em 0 .3em;letter-spacing:-.01em;}
+.sub{max-width:64ch;color:var(--muted);margin:0 0 14px;}
+.meta{display:flex;gap:10px;align-items:center;font-size:13.5px;color:var(--muted);flex-wrap:wrap;}
+.meta .sep{opacity:.5}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:26px;}
+.tile{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;
+  padding:16px 18px;display:flex;flex-direction:column;gap:5px;box-shadow:var(--shadow);}
+.tlabel{font-family:"Archivo",sans-serif;text-transform:uppercase;letter-spacing:.1em;
+  font-size:11px;font-weight:600;color:var(--muted);}
+.tval{font-family:"Archivo",sans-serif;font-weight:700;font-size:30px;line-height:1;font-variant-numeric:tabular-nums;}
+.tval .unit{font-size:15px;color:var(--muted);font-weight:600;margin-left:2px;}
+.tsub{font-size:12.5px;color:var(--muted);}
+.panel{background:var(--surface);border:1px solid var(--hairline);border-radius:14px;
+  padding:20px 22px 22px;margin-bottom:20px;box-shadow:var(--shadow);}
+h2{font-family:"Archivo",sans-serif;font-weight:600;font-size:17px;margin:0 0 14px;
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.h2sub{font-family:"IBM Plex Sans",sans-serif;font-weight:400;font-size:12.5px;color:var(--muted);}
+/* controls */
+.controls{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;margin-bottom:6px;}
+.fgroup{display:flex;flex-direction:column;gap:6px;}
+.fglabel{font-family:"Archivo",sans-serif;font-size:10.5px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.09em;color:var(--muted);}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--hairline);border-radius:9px;padding:2px;gap:2px;}
+.seg button{font-family:"IBM Plex Mono",monospace;font-size:12px;border:0;background:transparent;color:var(--muted);
+  padding:4px 10px;border-radius:7px;cursor:pointer;line-height:1.4;}
+.seg button:hover{color:var(--ink);}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--accent-strong);
+  box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:500;}
+.search{flex:1;min-width:160px;}
+.search input{width:100%;font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink);
+  background:var(--surface-2);border:1px solid var(--hairline);border-radius:9px;padding:7px 11px;}
+.search input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+.hint{font-size:12px;color:var(--muted);margin:12px 0 0;}
+/* chart */
+.chart{width:100%;height:auto;}
+.chart .bar{fill:var(--accent);opacity:.72;transition:opacity .12s;}
+.chart .lead{fill:var(--accent-strong);}
+.chart .brow.greedy .bar,.chart .brow.greedy .lead{opacity:.32;}
+.chart .brow.dim{opacity:.22;}
+.chart .brow.hl .bar,.chart .brow.hl .lead{fill:var(--warn);opacity:1;}
+.chart .ylab{fill:var(--ink);font-family:"IBM Plex Mono",monospace;font-size:12.5px;}
+.chart .ysub{fill:var(--muted);font-family:"IBM Plex Mono",monospace;font-size:10.5px;}
+.chart .vlab{fill:var(--muted);font-family:"IBM Plex Mono",monospace;font-size:12px;font-variant-numeric:tabular-nums;}
+.chart .brow{cursor:default;}
+/* highlights strip */
+.deltas{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+.delta{border:1px solid var(--hairline);border-radius:9px;padding:8px 12px;background:var(--surface-2);
+  display:flex;flex-direction:column;gap:2px;min-width:150px;}
+.delta .dl{font-size:11px;color:var(--muted);font-family:"Archivo",sans-serif;text-transform:uppercase;letter-spacing:.06em;}
+.delta .dv{font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:500;}
+.delta .dv.up{color:var(--ok);} .delta .dv.down{color:var(--bad);}
+/* context matrix */
+.matrix{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+.mrow{border:1px solid var(--hairline);border-radius:10px;padding:12px 14px;background:var(--surface);}
+.mrow h3{margin:0 0 9px;font-family:"Archivo",sans-serif;font-size:13.5px;font-weight:600;}
+.mrow h3 .marm{color:var(--accent-strong);font-family:"IBM Plex Mono",monospace;}
+.mbar{display:flex;align-items:center;gap:9px;margin:5px 0;}
+.mbar .mctx{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);width:34px;flex:none;text-align:right;}
+.mbar .mtrack{flex:1;height:9px;background:var(--surface-2);border-radius:5px;overflow:hidden;}
+.mbar .mfill{height:100%;background:var(--accent);border-radius:5px;}
+.mbar .mval{font-family:"IBM Plex Mono",monospace;font-size:12px;width:44px;flex:none;font-variant-numeric:tabular-nums;}
+/* table */
+.scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:900px;}
+thead th{position:sticky;top:0;z-index:2;background:var(--surface);}
+th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--hairline);white-space:nowrap;}
+th{font-family:"Archivo",sans-serif;font-weight:600;font-size:11.5px;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--muted);}
+th.sortable{cursor:pointer;user-select:none;}
+th.sortable:hover{color:var(--ink);}
+th .ind{opacity:.4;font-size:10px;margin-left:3px;}
+th[data-active="1"] .ind{opacity:1;color:var(--accent-strong);}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;}
+td.muted{color:var(--muted);} td.strong{font-weight:500;} td.arm{font-weight:600;color:var(--accent-strong);}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+tbody tr.greedy{opacity:.5;} tbody tr.greedy:hover{opacity:.85;}
+tbody tr.hl{background:color-mix(in srgb,var(--warn) 15%,transparent);opacity:1;}
+tr.grouphdr td{background:var(--surface-2);font-family:"Archivo",sans-serif;font-weight:600;
+  font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+.badge{display:inline-block;margin-left:5px;font-size:9.5px;font-weight:700;font-family:"Archivo",sans-serif;
+  text-transform:uppercase;letter-spacing:.04em;padding:1px 5px;border-radius:5px;vertical-align:middle;}
+.badge.ok{background:var(--ok);color:#fff;} .badge.bad{background:var(--bad);color:#fff;}
+.badge.neutral{background:var(--neutral);color:#fff;}
+.chip{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;
+  font-family:"IBM Plex Mono",monospace;font-weight:500;line-height:1.5;border:1px solid transparent;}
+.chip.ok{color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent);border-color:color-mix(in srgb,var(--ok) 30%,transparent);}
+.chip.bad{color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent);border-color:color-mix(in srgb,var(--bad) 30%,transparent);}
+.chip.run{color:var(--warn);background:color-mix(in srgb,var(--warn) 15%,transparent);border-color:color-mix(in srgb,var(--warn) 32%,transparent);}
+.chip.wait{color:var(--muted);background:var(--surface-2);border-color:var(--hairline);}
+.chip.neutral{color:var(--neutral);background:color-mix(in srgb,var(--neutral) 12%,transparent);border-color:color-mix(in srgb,var(--neutral) 26%,transparent);}
+.empty{color:var(--muted);font-size:13px;padding:18px 4px;}
+.foot,.pfoot{font-size:12.5px;color:var(--muted);margin:14px 0 0;line-height:1.6;}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:13px;}
+.vcard{border:1px solid var(--hairline);border-left-width:3px;border-radius:10px;padding:13px 15px;
+  background:var(--surface);display:flex;flex-direction:column;gap:7px;}
+.vcard.ok{border-left-color:var(--ok);} .vcard.bad{border-left-color:var(--bad);}
+.vcard.run{border-left-color:var(--warn);} .vcard.neutral{border-left-color:var(--neutral);} .vcard.wait{border-left-color:var(--hairline);}
+.vtop{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.vgate{font-family:"Archivo",sans-serif;font-weight:600;font-size:13.5px;}
+.varm{font-size:12px;color:var(--muted);} .vnote{margin:0;font-size:12.5px;color:var(--muted);line-height:1.5;}
+.queue{list-style:none;margin:0;padding:0;} .queue li{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--hairline);}
+.queue li:last-child{border-bottom:none;} .queue .dot{width:9px;height:9px;border-radius:50%;background:var(--hairline);flex:none;}
+.queue li.ok .dot{background:var(--ok);} .queue li.run .dot{background:var(--warn);box-shadow:0 0 0 4px color-mix(in srgb,var(--warn) 22%,transparent);}
+.queue .qstage{flex:1;font-size:14px;} .queue li.wait .qstage{color:var(--muted);}
+.pfoot{border-top:1px solid var(--hairline);padding-top:18px;margin-top:24px;}
+#tip{position:fixed;pointer-events:none;z-index:50;background:var(--surface);border:1px solid var(--hairline);
+  border-radius:9px;box-shadow:var(--shadow);padding:9px 11px;font-size:12px;max-width:260px;opacity:0;transition:opacity .1s;}
+#tip.on{opacity:1;} #tip .tt{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--accent-strong);margin-bottom:3px;}
+#tip .tl{color:var(--muted);} #tip dl{margin:4px 0 0;display:grid;grid-template-columns:auto auto;gap:1px 10px;}
+#tip dt{color:var(--muted);} #tip dd{margin:0;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;}
+.cmp{display:flex;flex-direction:column;gap:9px;}
+.cmprow{display:flex;align-items:center;gap:12px;}
+.cmprow .clab{width:160px;flex:none;font-size:12.5px;line-height:1.25;}
+.cmprow .clab b{font-family:"IBM Plex Mono",monospace;color:var(--accent-strong);}
+.cmprow .clab small{display:block;color:var(--muted);font-size:10.5px;margin-top:1px;}
+.cmprow.greedy{opacity:.55;}
+.cmprow .ctrack{flex:1;height:16px;background:var(--surface-2);border-radius:5px;overflow:hidden;}
+.cmprow .cfill{height:100%;background:var(--accent);border-radius:5px;}
+.cmprow.greedy .cfill{background:var(--muted);}
+.cmprow .cval{width:88px;flex:none;text-align:right;font-family:"IBM Plex Mono",monospace;
+  font-size:12.5px;font-variant-numeric:tabular-nums;}
+.cmprow .cval small{color:var(--muted);font-size:10px;}
+.gloss{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:9px 18px;}
+.gitem{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:1.45;}
+.gitem .gk{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--accent-strong);
+  flex:none;width:18px;text-align:center;}
+.gatelist{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:9px 20px;}
+.gaterow{font-size:12.5px;line-height:1.45;}
+.gaterow b{font-family:"Archivo",sans-serif;font-weight:600;}
+.gaterow span{color:var(--muted);}
+/* tabs */
+.tabs{display:flex;gap:2px;flex-wrap:wrap;border-bottom:1px solid var(--hairline);margin:4px 0 24px;}
+.tabs button{font-family:"Archivo",sans-serif;font-weight:600;font-size:13.5px;border:0;background:transparent;
+  color:var(--muted);padding:11px 17px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;
+  border-radius:8px 8px 0 0;transition:color .12s,border-color .12s;}
+.tabs button:hover{color:var(--ink);background:var(--surface-2);}
+.tabs button[aria-selected="true"]{color:var(--accent-strong);border-bottom-color:var(--accent);}
+.tabpanel[hidden]{display:none;}
+/* qualitative profile cards */
+.subhead{font-family:"Archivo",sans-serif;font-weight:600;font-size:13px;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--muted);margin:2px 0 12px;}
+.profgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:13px;margin-bottom:6px;}
+.prof{border:1px solid var(--hairline);border-radius:11px;padding:14px 16px;background:var(--surface);
+  display:flex;flex-direction:column;gap:9px;}
+.prof .ptop{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.prof .pname{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:15px;color:var(--accent-strong);}
+.prof .ptag{font-family:"Archivo",sans-serif;font-size:10.5px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--muted);background:var(--surface-2);border:1px solid var(--hairline);
+  border-radius:999px;padding:2px 9px;}
+.prof .parm{font-size:11.5px;color:var(--muted);margin-top:-4px;}
+.prof .pgoal{margin:0;font-size:13px;line-height:1.5;font-weight:500;}
+.prof dl.pmeta{margin:0;display:flex;flex-direction:column;gap:7px;}
+.prof dl.pmeta > div{display:grid;grid-template-columns:52px 1fr;gap:9px;align-items:start;}
+.prof dl.pmeta dt{font-family:"Archivo",sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--muted);padding-top:2px;}
+.prof dl.pmeta dd{margin:0;font-size:12.5px;line-height:1.45;color:var(--ink);}
+/* coverage matrix */
+#cov-table{min-width:820px;}
+#cov-table td,#cov-table th{white-space:nowrap;}
+td.cov-c,th.cov-c{text-align:center;}
+/* tests tab */
+.tblock{margin-bottom:20px;}
+.tblock:last-child{margin-bottom:0;}
+.gitem .gk.kw{width:auto;min-width:104px;text-align:left;font-size:11.5px;}
+.tblock .tp{margin:0;font-size:13px;line-height:1.55;max-width:80ch;}
+.mchips{display:flex;flex-wrap:wrap;gap:7px;}
+.mchip{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);
+  background:var(--surface-2);border:1px solid var(--hairline);border-radius:7px;padding:3px 9px;}
+#tcov-table{min-width:760px;}
+#tcov-table td,#tcov-table th{white-space:nowrap;}
+#tcov-table .cov-y,#tcov-table .cov-p{font-size:13px;}
+.cov-y{color:var(--ok);font-weight:600;}
+.cov-n{color:var(--bad);}
+.cov-d{color:var(--muted);}
+.cov-p{color:var(--accent-strong);font-family:"IBM Plex Mono",monospace;font-size:12px;}
+.cov-strong{font-weight:600;color:var(--ink);}
+.cov-note{color:var(--muted);font-size:12px;}
+tr.cov-un td{opacity:.5;}
+tr.cov-un:hover td{opacity:.85;}
+*:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+
+.chart .vref{fill:var(--bad);font-family:"IBM Plex Mono",monospace;font-size:12px;}
+.mbar .mval{width:66px;}
+.mbar .mval.bad{color:var(--bad);}
+.flag{color:var(--warn);margin-left:4px;cursor:help;}
+td.num .chip{font-size:11px;}
+#gate-table{min-width:860px;}
+#gate-table td,#gate-table th{white-space:nowrap;}
+.tturno{border:1px solid var(--hairline);border-left:3px solid var(--accent);border-radius:10px;
+  padding:11px 14px;background:var(--surface-2);font-size:13px;line-height:1.55;max-width:86ch;}
+.tturno code{font-family:"IBM Plex Mono",monospace;font-size:12.5px;}
+</style>
+<script id="campaign-data" type="application/json">{"schema_version": 1, "profile": "2026-10", "generated_at": "2026-10-10T08:59:09Z", "campaign": "bench/engine-updates-2026-10", "rig": [{"lab": "Chip", "val": "Apple M4 Max"}, {"lab": "CPU", "val": "16 cores (12P+4E)"}, {"lab": "GPU", "val": "40 cores · Metal 4"}, {"lab": "Unified memory", "val": "128 GB"}, {"lab": "macOS", "val": "26.6.2 (25G83)"}, {"lab": "Wired limit", "val": "default (iogpu 0) · no sudo"}, {"lab": "Ports", "val": "mlx-serve :11234 · oMLX/MTPLX :8000"}], "sampling": "temperature 1.0 · top_p 0.95 · top_k 20 · reasoning xhigh · max_tokens 4096", "candidates": [{"id": "n2", "name": "ddalcu iQ-MLX-4.7bpw · mlx-serve 26.10.1", "short": "n2 mlx-serve", "runtime": "mlx-serve", "runtime_version": "26.10.1", "model": "ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw", "revision": "dafff5c", "quant": "iQ-MLX 4.7 bpw", "bpw": 4.7, "disk_gb": 107.4, "port": 11234, "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16", "spec": "native MTP + PLD (n-gram)", "ceiling": "512K with YaRN 2.0 + KV 8-bit", "state": "pass", "status": "daily driver", "note": "Lowest T_turn in every band: 8.2 s at 32K, 8.8 s at 128K, 12.9 s at 512K."}, {"id": "o1", "name": "oQ4e · oMLX 0.7.0", "short": "o1 oMLX", "runtime": "oMLX", "runtime_version": "0.7.0", "model": "Jundot/Qwen3.8-Flash-Next-oQ4e-mtp", "revision": "2615fc0", "quant": "oQ4e", "bpw": 5.97, "disk_gb": 132.2, "port": 8000, "cache": "paged SSD cache · PLE in mmap via model_settings.json", "spec": "checkpoint MTP · acceptance not exposed in telemetry", "ceiling": "262K (oMLX has no YaRN)", "state": "pass", "status": "2nd place", "note": "Passes the gates; 2nd at 128K and 256K (12.1 and 14.5 s)."}, {"id": "m1", "name": "MTPLX Optimized-Speed · MTPLX 2.12.2", "short": "m1 MTPLX", "runtime": "MTPLX", "runtime_version": "2.12.2", "model": "Youssofal/Qwen3.8-Flash-Next-MTPLX-Optimized-Speed", "revision": "6bc2f6e", "quant": "MTPLX Optimized-Speed", "bpw": 5.43, "disk_gb": 120.2, "port": 8000, "cache": "session bank in RAM + SSD session cache", "spec": "native MTP · turbo profile depth 3", "ceiling": "128K with --memory-limit max; refuses 256K (fit 237,568 tokens)", "state": "control", "status": "measured", "note": "2nd at 8K and 32K. The point label names the config: 128K needs --memory-limit max (15.1 s)."}, {"id": "d1", "name": "Q4 GGUF · ds4 upstream", "short": "d1 ds4", "runtime": "ds4", "runtime_version": "upstream 0aaea5a", "model": "antirez/qwen3.8-flash-next-gguf (Q4)", "revision": "qwen38-q4k", "quant": "Q4 GGUF (MTP + n-gram table embedded)", "bpw": null, "disk_gb": 177.3, "port": 11234, "cache": "KV prefix cache on disk (100 GB)", "spec": "built-in MTP (1 draft)", "ceiling": "512K with YaRN 2", "state": "control", "status": "measured", "note": "Serves every band to 512K; decode 43–54 tok/s and a slow warm tool turn at 256K and 512K."}], "groups": [{"cand": "d1", "context": 8192, "stage": "pg", "mode": "canonical", "tag": "", "file": "d1-8192-t1.0-pg.jsonl", "reps": 3, "n": 13, "served_n": 13, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 12.73, "cold_ttft_s": 4.78, "ttft_s": {"cold": 4.78, "identical": 1.55, "append": 2.88, "middle_mutation": 4.73, "tool_turn": 2.95}, "hit": {"cold": 0.0, "identical": 0.75, "append": 0.544, "middle_mutation": 0.0, "tool_turn": 0.539}, "decode_tps": 52.4, "decode_range": [51.7, 56.9], "prefill_tps": 571.0, "wired_peak_gb": 84.9, "mem_free_min_gb": 10.39, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 9, "truncated": 4, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": true, "arm": "d1", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261009T142052Z"}, {"cand": "d1", "context": 8192, "stage": "smoke", "mode": "canonical", "tag": "", "file": "d1-8192-t1.0-smoke.jsonl", "reps": 1, "n": 3, "served_n": 3, "scenarios_run": ["cold", "identical", "tool_turn"], "scenarios_served": ["cold", "identical", "tool_turn"], "t_turno_s": 12.27, "cold_ttft_s": 4.86, "ttft_s": {"cold": 4.86, "identical": 1.58, "append": null, "middle_mutation": null, "tool_turn": 2.94}, "hit": {"cold": 0.0, "identical": 0.75, "append": null, "middle_mutation": null, "tool_turn": 0.539}, "decode_tps": 54.9, "decode_range": [53.0, 56.8], "prefill_tps": 562.0, "wired_peak_gb": 84.7, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 3, "truncated": 0, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": false, "arm": "d1", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261007T164437Z"}, {"cand": "d1", "context": 32768, "stage": "gate", "mode": "canonical", "tag": "", "file": "d1-32768-t1.0-gate.jsonl", "reps": 1, "n": 5, "served_n": 5, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 12.59, "cold_ttft_s": 41.42, "ttft_s": {"cold": 41.42, "identical": 1.96, "append": 2.95, "middle_mutation": 41.5, "tool_turn": 3.02}, "hit": {"cold": 0.0, "identical": 0.975, "append": 0.94, "middle_mutation": 0.0, "tool_turn": 0.938}, "decode_tps": 53.5, "decode_range": [53.0, 53.6], "prefill_tps": 659.0, "wired_peak_gb": 86.0, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 5, "truncated": 0, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": true, "arm": "d1", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261007T165155Z"}, {"cand": "d1", "context": 131072, "stage": "pg", "mode": "canonical", "tag": "", "file": "d1-131072-t1.0-pg.jsonl", "reps": 3, "n": 13, "served_n": 13, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 16.41, "cold_ttft_s": 195.69, "ttft_s": {"cold": 195.69, "identical": 7.33, "append": 6.31, "middle_mutation": 133.65, "tool_turn": 6.38}, "hit": {"cold": 0.0, "identical": 0.978, "append": 0.97, "middle_mutation": 0.326, "tool_turn": 0.97}, "decode_tps": 51.0, "decode_range": [49.8, 56.7], "prefill_tps": 642.0, "wired_peak_gb": 90.1, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 13, "truncated": 0, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": true, "arm": "d1", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261009T150405Z"}, {"cand": "d1", "context": 262144, "stage": "pg", "mode": "canonical", "tag": "", "file": "d1-262144-t1.0-pg.jsonl", "reps": 1, "n": 5, "served_n": 5, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 30.66, "cold_ttft_s": 407.22, "ttft_s": {"cold": 407.22, "identical": 23.44, "append": 19.87, "middle_mutation": 224.04, "tool_turn": 19.94}, "hit": {"cold": 0.0, "identical": 0.958, "append": 0.954, "middle_mutation": 0.479, "tool_turn": 0.954}, "decode_tps": 47.8, "decode_range": [47.0, 49.0], "prefill_tps": 630.0, "wired_peak_gb": 95.6, "mem_free_min_gb": 0.05, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 5, "truncated": 0, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": true, "arm": "d1", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261009T153226Z"}, {"cand": "d1", "context": 524288, "stage": "pg", "mode": "canonical", "tag": "YaRN 2.0", "file": "d1-524288-t1.0-pg.jsonl", "reps": 1, "n": 5, "served_n": 5, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 61.87, "cold_ttft_s": 894.68, "ttft_s": {"cold": 894.68, "identical": 61.18, "append": 49.9, "middle_mutation": 887.96, "tool_turn": 49.99}, "hit": {"cold": 0.0, "identical": 0.947, "append": 0.946, "middle_mutation": 0.0, "tool_turn": 0.945}, "decode_tps": 43.1, "decode_range": [42.1, 43.5], "prefill_tps": 580.0, "wired_peak_gb": 106.6, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 4, "truncated": 1, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": ["wired>102"], "note": "", "canonical": true, "arm": "d1", "config": "YaRN 2.0", "campaign": "engine-updates-2026-10", "stamp": "20261009T165441Z"}, {"cand": "m1", "context": 8192, "stage": "pg", "mode": "canonical", "tag": "prime 64", "file": "m1-8192-t1.0-pg.jsonl", "reps": 3, "n": 13, "served_n": 13, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 8.21, "cold_ttft_s": 3.77, "ttft_s": {"cold": 3.77, "identical": 0.08, "append": 1.68, "middle_mutation": 3.87, "tool_turn": 1.68}, "hit": {"cold": 0.0, "identical": 1.0, "append": 0.709, "middle_mutation": 0.0, "tool_turn": 0.718}, "decode_tps": 78.5, "decode_range": [76.6, 85.0], "prefill_tps": 724.0, "wired_peak_gb": 94.7, "mem_free_min_gb": 0.05, "swap_delta_gb": 0, "mtp_acceptance": 0.07, "correct": 10, "truncated": 3, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": true, "arm": "m1", "config": "prime 64", "campaign": "engine-updates-2026-10", "stamp": "20261009T140841Z"}, {"cand": "m1", "context": 32768, "stage": "fx", "mode": "canonical", "tag": "prime 64", "file": "m1p-32768-t1.0-fx.jsonl", "reps": 3, "n": 13, "served_n": 13, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 8.84, "cold_ttft_s": 44.13, "ttft_s": {"cold": 44.13, "identical": 0.13, "append": 2.5, "middle_mutation": 33.23, "tool_turn": 2.4}, "hit": {"cold": 0.0, "identical": 1.0, "append": 0.961, "middle_mutation": 0.3, "tool_turn": 0.962}, "decode_tps": 79.6, "decode_range": [74.6, 87.9], "prefill_tps": 619.0, "wired_peak_gb": 98.4, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": 0.08, "correct": 13, "truncated": 0, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": true, "arm": "m1p", "config": "prime 64", "campaign": "engine-updates-2026-10", "stamp": "20261008T134336Z"}, {"cand": "m1", "context": 131072, "stage": "pg", "mode": "canonical", "tag": "memory limit max", "file": "m1x-131072-t1.0-pg.jsonl", "reps": 3, "n": 13, "served_n": 13, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 15.1, "cold_ttft_s": 458.07, "ttft_s": {"cold": 458.07, "identical": 0.3, "append": 6.14, "middle_mutation": 403.7, "tool_turn": 7.83}, "hit": {"cold": 0.0, "identical": 1.0, "append": 0.991, "middle_mutation": 0.261, "tool_turn": 0.992}, "decode_tps": 70.4, "decode_range": [67.4, 74.9], "prefill_tps": 274.0, "wired_peak_gb": 109.7, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": 0.07, "correct": 13, "truncated": 0, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": ["wired>102"], "note": "", "canonical": true, "arm": "m1x", "config": "memory limit max", "campaign": "engine-updates-2026-10", "stamp": "20261009T185347Z"}, {"cand": "m1", "context": 131072, "stage": "pg", "mode": "canonical", "tag": "sparse QSA prefill", "file": "m1s-131072-t1.0-pg.jsonl", "reps": 1, "n": 5, "served_n": 0, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": [], "t_turno_s": null, "cold_ttft_s": null, "ttft_s": {"cold": null, "identical": null, "append": null, "middle_mutation": null, "tool_turn": null}, "hit": {"cold": null, "identical": null, "append": null, "middle_mutation": null, "tool_turn": null}, "decode_tps": null, "decode_range": null, "prefill_tps": null, "wired_peak_gb": 103.6, "mem_free_min_gb": 0.06, "swap_delta_gb": 0.01, "mtp_acceptance": null, "correct": 0, "truncated": 0, "failed": 5, "refused": true, "error_kinds": ["stream_error"], "stream_failures": 5, "gates_failed": ["needle", "http_errors"], "warnings": ["wired>102", "sem_dados"], "note": "Failed: the sparse QSA prefill could not allocate memory (no NAX kernels on the M4).", "canonical": false, "arm": "m1s", "config": "sparse QSA prefill", "campaign": "engine-updates-2026-10", "stamp": "20261009T200005Z"}, {"cand": "m1", "context": 131072, "stage": "pg", "mode": "canonical", "tag": "vendor default", "file": "m1v-131072-t1.0-pg.jsonl", "reps": 3, "n": 13, "served_n": 0, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": [], "t_turno_s": null, "cold_ttft_s": null, "ttft_s": {"cold": null, "identical": null, "append": null, "middle_mutation": null, "tool_turn": null}, "hit": {"cold": null, "identical": null, "append": null, "middle_mutation": null, "tool_turn": null}, "decode_tps": null, "decode_range": null, "prefill_tps": null, "wired_peak_gb": 87.9, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 0, "truncated": 0, "failed": 13, "refused": true, "error_kinds": ["http_400"], "stream_failures": 0, "gates_failed": ["needle", "http_errors"], "warnings": ["sem_dados"], "note": "Refused: the vendor default plans a 65,536-token window on this M4 Max.", "canonical": false, "arm": "m1v", "config": "vendor default", "campaign": "engine-updates-2026-10", "stamp": "20261009T142722Z"}, {"cand": "m1", "context": 262144, "stage": "pg", "mode": "canonical", "tag": "memory limit max (KV q8 ignored)", "file": "m1xq-262144-t1.0-pg.jsonl", "reps": 1, "n": 5, "served_n": 0, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": [], "t_turno_s": null, "cold_ttft_s": null, "ttft_s": {"cold": null, "identical": null, "append": null, "middle_mutation": null, "tool_turn": null}, "hit": {"cold": null, "identical": null, "append": null, "middle_mutation": null, "tool_turn": null}, "decode_tps": null, "decode_range": null, "prefill_tps": null, "wired_peak_gb": 89.8, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 0, "truncated": 0, "failed": 5, "refused": true, "error_kinds": ["http_507"], "stream_failures": 0, "gates_failed": [], "warnings": ["sem_dados"], "note": "Refused: MTPLX's memory-plan fit is 237,568 tokens; KV q8 is ignored for Flash-Next.", "canonical": true, "arm": "m1xq", "config": "memory limit max (KV q8 ignored)", "campaign": "engine-updates-2026-10", "stamp": "20261009T195029Z"}, {"cand": "m1", "context": 262144, "stage": "pg", "mode": "canonical", "tag": "vendor default", "file": "m1v-262144-t1.0-pg.jsonl", "reps": 1, "n": 5, "served_n": 0, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": [], "t_turno_s": null, "cold_ttft_s": null, "ttft_s": {"cold": null, "identical": null, "append": null, "middle_mutation": null, "tool_turn": null}, "hit": {"cold": null, "identical": null, "append": null, "middle_mutation": null, "tool_turn": null}, "decode_tps": null, "decode_range": null, "prefill_tps": null, "wired_peak_gb": 88.3, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 0, "truncated": 0, "failed": 5, "refused": true, "error_kinds": ["http_400"], "stream_failures": 0, "gates_failed": [], "warnings": ["sem_dados"], "note": "Refused: the vendor default plans a 65,536-token window on this M4 Max.", "canonical": false, "arm": "m1v", "config": "vendor default", "campaign": "engine-updates-2026-10", "stamp": "20261009T144046Z"}, {"cand": "m1", "context": 262144, "stage": "pg", "mode": "canonical", "tag": "memory limit max", "file": "m1x-262144-t1.0-pg.jsonl", "reps": 1, "n": 5, "served_n": 0, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": [], "t_turno_s": null, "cold_ttft_s": null, "ttft_s": {"cold": null, "identical": null, "append": null, "middle_mutation": null, "tool_turn": null}, "hit": {"cold": null, "identical": null, "append": null, "middle_mutation": null, "tool_turn": null}, "decode_tps": null, "decode_range": null, "prefill_tps": null, "wired_peak_gb": 90.1, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 0, "truncated": 0, "failed": 5, "refused": true, "error_kinds": ["http_507"], "stream_failures": 0, "gates_failed": [], "warnings": ["sem_dados"], "note": "Refused: MTPLX's memory-plan fit is 237,568 tokens with --memory-limit max.", "canonical": false, "arm": "m1x", "config": "memory limit max", "campaign": "engine-updates-2026-10", "stamp": "20261009T190501Z"}, {"cand": "n2", "context": 8192, "stage": "pg", "mode": "canonical", "tag": "", "file": "n2-8192-t1.0-pg.jsonl", "reps": 3, "n": 13, "served_n": 13, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 7.78, "cold_ttft_s": 3.33, "ttft_s": {"cold": 3.33, "identical": 0.16, "append": 1.6, "middle_mutation": 3.39, "tool_turn": 1.68}, "hit": {"cold": 0.0, "identical": 0.989, "append": 0.718, "middle_mutation": 0.0, "tool_turn": 0.71}, "decode_tps": 83.9, "decode_range": [80.9, 88.2], "prefill_tps": 821.0, "wired_peak_gb": 84.0, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": 0.66, "correct": 10, "truncated": 3, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": true, "arm": "n2", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261009T134538Z"}, {"cand": "n2", "context": 8192, "stage": "smoke", "mode": "canonical", "tag": "", "file": "n2-8192-t1.0-smoke.jsonl", "reps": 1, "n": 3, "served_n": 3, "scenarios_run": ["cold", "identical", "tool_turn"], "scenarios_served": ["cold", "identical", "tool_turn"], "t_turno_s": 7.67, "cold_ttft_s": 3.37, "ttft_s": {"cold": 3.37, "identical": 0.13, "append": null, "middle_mutation": null, "tool_turn": 1.62}, "hit": {"cold": 0.0, "identical": 0.989, "append": null, "middle_mutation": null, "tool_turn": 0.71}, "decode_tps": 84.6, "decode_range": [80.4, 88.9], "prefill_tps": 812.0, "wired_peak_gb": 82.5, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": 0.61, "correct": 3, "truncated": 0, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": false, "arm": "n2", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261007T160956Z"}, {"cand": "n2", "context": 8192, "stage": "smoke", "mode": "canonical", "tag": "", "file": "n2-8192-t1.0-smoke.jsonl", "reps": 1, "n": 3, "served_n": 3, "scenarios_run": ["cold", "identical", "tool_turn"], "scenarios_served": ["cold", "identical", "tool_turn"], "t_turno_s": 7.68, "cold_ttft_s": 3.32, "ttft_s": {"cold": 3.32, "identical": 0.13, "append": null, "middle_mutation": null, "tool_turn": 1.62}, "hit": {"cold": 0.0, "identical": 0.989, "append": null, "middle_mutation": null, "tool_turn": 0.71}, "decode_tps": 84.4, "decode_range": [80.8, 88.1], "prefill_tps": 822.0, "wired_peak_gb": 81.3, "mem_free_min_gb": 0.01, "swap_delta_gb": 0, "mtp_acceptance": 0.58, "correct": 2, "truncated": 0, "failed": 1, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": false, "arm": "n2", "config": "", "campaign": "qwen38-flashnext-updates-2026-10", "stamp": "20261006T212907Z"}, {"cand": "n2", "context": 32768, "stage": "fn", "mode": "canonical", "tag": "", "file": "n2-32768-t1.0-fn.jsonl", "reps": 3, "n": 13, "served_n": 13, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 8.23, "cold_ttft_s": 34.52, "ttft_s": {"cold": 34.52, "identical": 0.17, "append": 1.76, "middle_mutation": 24.96, "tool_turn": 1.86}, "hit": {"cold": 0.0, "identical": 0.999, "append": 0.962, "middle_mutation": 0.3, "tool_turn": 0.961}, "decode_tps": 80.4, "decode_range": [72.7, 86.7], "prefill_tps": 791.0, "wired_peak_gb": 96.8, "mem_free_min_gb": 0.05, "swap_delta_gb": 0, "mtp_acceptance": 0.72, "correct": 12, "truncated": 1, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": true, "arm": "n2", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261007T171241Z"}, {"cand": "n2", "context": 32768, "stage": "ab", "mode": "canonical", "tag": "", "file": "n2-32768-t1.0-ab.jsonl", "reps": 3, "n": 13, "served_n": 13, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 8.32, "cold_ttft_s": 34.78, "ttft_s": {"cold": 34.78, "identical": 0.17, "append": 1.79, "middle_mutation": 25.11, "tool_turn": 1.87}, "hit": {"cold": 0.0, "identical": 0.999, "append": 0.962, "middle_mutation": 0.3, "tool_turn": 0.961}, "decode_tps": 79.4, "decode_range": [72.3, 91.3], "prefill_tps": 785.0, "wired_peak_gb": 97.7, "mem_free_min_gb": 0.05, "swap_delta_gb": 0, "mtp_acceptance": 0.81, "correct": 13, "truncated": 0, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": false, "arm": "n2", "config": "", "campaign": "qwen38-flashnext-updates-2026-10", "stamp": "20261007T085718Z"}, {"cand": "n2", "context": 131072, "stage": "fn", "mode": "canonical", "tag": "", "file": "n2-131072-t1.0-fn.jsonl", "reps": 3, "n": 13, "served_n": 13, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 8.84, "cold_ttft_s": 165.59, "ttft_s": {"cold": 165.59, "identical": 0.24, "append": 1.87, "middle_mutation": 92.36, "tool_turn": 1.92}, "hit": {"cold": 0.0, "identical": 1.0, "append": 0.992, "middle_mutation": 0.456, "tool_turn": 0.991}, "decode_tps": 74.0, "decode_range": [67.2, 84.3], "prefill_tps": 759.0, "wired_peak_gb": 110.6, "mem_free_min_gb": 0.02, "swap_delta_gb": 0, "mtp_acceptance": 0.84, "correct": 13, "truncated": 0, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": ["wired>102"], "note": "", "canonical": true, "arm": "n2", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261007T184457Z"}, {"cand": "n2", "context": 131072, "stage": "ab", "mode": "canonical", "tag": "", "file": "n2-131072-t1.0-ab.jsonl", "reps": 3, "n": 13, "served_n": 13, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 8.87, "cold_ttft_s": 165.11, "ttft_s": {"cold": 165.11, "identical": 0.24, "append": 1.89, "middle_mutation": 92.76, "tool_turn": 1.94}, "hit": {"cold": 0.0, "identical": 1.0, "append": 0.992, "middle_mutation": 0.456, "tool_turn": 0.991}, "decode_tps": 73.9, "decode_range": [69.5, 84.7], "prefill_tps": 761.0, "wired_peak_gb": 111.6, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": 0.7, "correct": 13, "truncated": 0, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": ["wired>102"], "note": "", "canonical": false, "arm": "n2", "config": "", "campaign": "qwen38-flashnext-updates-2026-10", "stamp": "20261007T095422Z"}, {"cand": "n2", "context": 262144, "stage": "fnx256", "mode": "canonical", "tag": "", "file": "n2-262144-t1.0-fnx256.jsonl", "reps": 1, "n": 5, "served_n": 5, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 9.77, "cold_ttft_s": 350.4, "ttft_s": {"cold": 350.4, "identical": 1.13, "append": 2.02, "middle_mutation": 192.08, "tool_turn": 2.13}, "hit": {"cold": 0.0, "identical": 1.0, "append": 0.996, "middle_mutation": 0.479, "tool_turn": 0.996}, "decode_tps": 67.0, "decode_range": [62.0, 80.5], "prefill_tps": 732.0, "wired_peak_gb": 111.7, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": 0.89, "correct": 4, "truncated": 1, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": ["wired>102"], "note": "", "canonical": true, "arm": "n2", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261007T195309Z"}, {"cand": "n2", "context": 524288, "stage": "yarn2", "mode": "canonical", "tag": "YaRN 2.0 + KV 8-bit", "file": "n2-524288-t1.0-yarn2.jsonl", "reps": 1, "n": 5, "served_n": 4, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "append", "middle_mutation", "tool_turn"], "t_turno_s": 12.86, "cold_ttft_s": 785.32, "ttft_s": {"cold": 785.32, "identical": null, "append": 3.01, "middle_mutation": 498.55, "tool_turn": 2.77}, "hit": {"cold": 0.0, "identical": null, "append": 0.998, "middle_mutation": 0.411, "tool_turn": 0.998}, "decode_tps": 50.7, "decode_range": [46.4, 55.0], "prefill_tps": 661.0, "wired_peak_gb": 111.1, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": 0.72, "correct": 4, "truncated": 0, "failed": 1, "refused": false, "error_kinds": ["stream_error"], "stream_failures": 1, "gates_failed": [], "warnings": ["wired>102"], "note": "", "canonical": true, "arm": "n2", "config": "YaRN 2.0 + KV 8-bit", "campaign": "engine-updates-2026-10", "stamp": "20261007T211125Z"}, {"cand": "o1", "context": 8192, "stage": "pg", "mode": "canonical", "tag": "", "file": "o1-8192-t1.0-pg.jsonl", "reps": 3, "n": 13, "served_n": 13, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 9.35, "cold_ttft_s": 4.1, "ttft_s": {"cold": 4.1, "identical": 0.09, "append": 2.13, "middle_mutation": 4.19, "tool_turn": 2.2}, "hit": {"cold": 0.0, "identical": 0.998, "append": 0.724, "middle_mutation": 0.0, "tool_turn": 0.717}, "decode_tps": 71.6, "decode_range": [68.1, 80.5], "prefill_tps": 666.0, "wired_peak_gb": 82.9, "mem_free_min_gb": 0.02, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 10, "truncated": 1, "failed": 2, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": true, "arm": "o1", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261009T135641Z"}, {"cand": "o1", "context": 8192, "stage": "smoke", "mode": "canonical", "tag": "", "file": "o1-8192-t1.0-smoke.jsonl", "reps": 1, "n": 3, "served_n": 3, "scenarios_run": ["cold", "identical", "tool_turn"], "scenarios_served": ["cold", "identical", "tool_turn"], "t_turno_s": 10.06, "cold_ttft_s": 5.0, "ttft_s": {"cold": 5.0, "identical": 0.09, "append": null, "middle_mutation": null, "tool_turn": 2.32}, "hit": {"cold": 0.0, "identical": 0.998, "append": null, "middle_mutation": null, "tool_turn": 0.717}, "decode_tps": 66.2, "decode_range": [63.7, 68.7], "prefill_tps": 547.0, "wired_peak_gb": 80.6, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 3, "truncated": 0, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": false, "arm": "o1", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261007T161551Z"}, {"cand": "o1", "context": 32768, "stage": "fn", "mode": "canonical", "tag": "", "file": "o1-32768-t1.0-fn.jsonl", "reps": 3, "n": 13, "served_n": 13, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 10.06, "cold_ttft_s": 49.59, "ttft_s": {"cold": 49.59, "identical": 0.21, "append": 2.29, "middle_mutation": 28.57, "tool_turn": 2.38}, "hit": {"cold": 0.0, "identical": 1.0, "append": 0.963, "middle_mutation": 0.449, "tool_turn": 0.962}, "decode_tps": 66.6, "decode_range": [61.3, 72.6], "prefill_tps": 551.0, "wired_peak_gb": 91.2, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 12, "truncated": 1, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": true, "arm": "o1", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261007T174818Z"}, {"cand": "o1", "context": 131072, "stage": "fn", "mode": "canonical", "tag": "", "file": "o1-131072-t1.0-fn.jsonl", "reps": 3, "n": 13, "served_n": 13, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 12.09, "cold_ttft_s": 248.53, "ttft_s": {"cold": 248.53, "identical": 0.74, "append": 3.11, "middle_mutation": 133.25, "tool_turn": 3.17}, "hit": {"cold": 0.0, "identical": 1.0, "append": 0.992, "middle_mutation": 0.489, "tool_turn": 0.992}, "decode_tps": 57.4, "decode_range": [53.5, 71.0], "prefill_tps": 505.0, "wired_peak_gb": 98.0, "mem_free_min_gb": 0.06, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 13, "truncated": 0, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": true, "arm": "o1", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261007T182228Z"}, {"cand": "o1", "context": 262144, "stage": "fnx256", "mode": "canonical", "tag": "", "file": "o1-262144-t1.0-fnx256.jsonl", "reps": 1, "n": 5, "served_n": 5, "scenarios_run": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "scenarios_served": ["cold", "identical", "append", "middle_mutation", "tool_turn"], "t_turno_s": 14.49, "cold_ttft_s": 552.26, "ttft_s": {"cold": 552.26, "identical": 1.44, "append": 4.19, "middle_mutation": 304.23, "tool_turn": 4.28}, "hit": {"cold": 0.0, "identical": 1.0, "append": 0.996, "middle_mutation": 0.495, "tool_turn": 0.996}, "decode_tps": 50.2, "decode_range": [47.3, 50.2], "prefill_tps": 465.0, "wired_peak_gb": 100.5, "mem_free_min_gb": 0.05, "swap_delta_gb": 0, "mtp_acceptance": null, "correct": 3, "truncated": 2, "failed": 0, "refused": false, "error_kinds": [], "stream_failures": 0, "gates_failed": [], "warnings": [], "note": "", "canonical": true, "arm": "o1", "config": "", "campaign": "engine-updates-2026-10", "stamp": "20261007T202623Z"}], "takeaways": [["mlx-serve 26.10.1 leads every band", "n2 has the lowest T_turn from 8K to 512K: 7.8, 8.2, 8.8, 9.8 and 12.9 s, with the tool turn under 3 s in every band."], ["oMLX is second at 128K and 256K", "o1 T_turn is 12.1 s at 128K and 14.5 s at 256K. MTPLX is second at 8K and 32K (8.2 and 8.8 s). oMLX has no YaRN, so it stops at 262K."], ["MTPLX fits 128K only with --memory-limit max", "The vendor default plans a 65,536-token window on this 128 GB M4 Max and refuses 128K. With <code>--memory-limit max<\/code> MTPLX serves 128K in 15.1 s (3 reps), but the cold prefill runs at 274 tok/s against 759 on n2. It refuses 256K: the memory-plan fit is 237,568 tokens. KV q8 is ignored for Flash-Next, and the sparse QSA prefill fails to allocate without the M5 NAX kernels."], ["ds4 serves 512K, slowly", "d1 serves every band up to 512K (YaRN 2.0), but decode stays at 43–54 tok/s and the warm tool turn grows from 6.4 s at 128K to 50 s at 512K. T_turn: 16.4 s at 128K, 61.9 s at 512K."], ["Quality: o1 and MTPLX within ±1–5 cases of n2", "HumanEval 164 at temperature 0, with the prompt imports added: n2 156, o1 157, MTPLX (m1x) 151 (10 answers truncated in reasoning). The strict bench2 grade (154 / 140 / 132) fails answers without <code>from typing import<\/code>. Tool calls: jdhodges 38 / 36 / 35 of 40, Veerman 9 / 10 / 10 of 12. The n2 run (2026-10-07) used about 200 tokens per answer against 1,800 (o1) and 3,300 (m1x), so the reasoning mode was likely not the same: read this as a sanity check, not a ranking."]], "runtime_profiles": [{"name": "mlx-serve 26.10.1", "tag": "daily driver", "arms": "n2", "goal": "Serves Flash-Next with native MTP and a two-tier prefix cache.", "how": "MTP with PLD (n-gram table); hot cache in RAM (16 GB, 64 entries) plus disk (100 GB); DeltaNet state checkpoints; YaRN through --config-overrides.", "cost": "Pins KV and hot cache as wired memory: 97–112 GB from 32K to 512K, no swap."}, {"name": "oMLX 0.7.0", "tag": "2nd at 128K and 256K", "arms": "o1", "goal": "Agent server with continuous batching and a paged KV cache that spills over to SSD.", "how": "MTP from the oQ4e-mtp checkpoint; PLE in mmap through model_settings.json.", "cost": "No YaRN: stops at 262K. Prefill falls from 551 to 465 tok/s between 32K and 256K."}, {"name": "MTPLX 2.12.2", "tag": "128K with memory limit max", "arms": "m1", "goal": "Ships speculation in the quantized checkpoint (native MTP heads); session bank in RAM plus SSD.", "how": "A memory plan computes the context that fits and refuses a larger prompt with HTTP 507. The probe primes it with 64 tokens (a shorter request runs as a background task, without a session).", "cost": "Vendor default: 65,536-token window on this M4 Max. --memory-limit max serves 128K (prefill 274 tok/s) and refuses 256K (fit 237,568). KV q8 is ignored; the sparse QSA prefill fails without NAX."}, {"name": "ds4 upstream 0aaea5a", "tag": "512K, slow decode", "arms": "d1", "goal": "C/Metal engine that serves Flash-Next from its own Q4 GGUF with MTP and the n-gram table embedded.", "how": "KV prefix cache on disk (--kv-disk-dir, 100 GB); static YaRN through DS4_QWEN4_YARN_FACTOR.", "cost": "Decode 43–54 tok/s; the warm tool turn grows from 6.4 s at 128K to 50 s at 512K."}], "quant_profiles": [{"name": "ddalcu iQ-MLX 4.7 bpw", "bpw": "4.7", "runtime": "mlx-serve", "goal": "Importance-weighted MLX quant of the experts, with the n-gram table for PLD.", "cost": "107.4 GB on disk."}, {"name": "Jundot oQ4e-mtp", "bpw": "5.97", "runtime": "oMLX", "goal": "oQ4e experts with the MTP head; PLE kept in mmap.", "cost": "132.2 GB on disk."}, {"name": "MTPLX Optimized-Speed", "bpw": "5.43", "runtime": "MTPLX", "goal": "MTPLX pack with the native MTP heads; n-gram table streamed from SSD.", "cost": "120.2 GB on disk; 77.3 GB of weights in the memory plan."}, {"name": "antirez qwen38-q4k GGUF", "bpw": "—", "runtime": "ds4", "goal": "Q4_K gate/up and MXFP4 down experts, imatrix-calibrated; MTP embedded.", "cost": "177.3 GB on disk; 69.7 GiB resident; 95.4 GiB BF16 n-gram table on SSD."}], "gates_glossary": [{"gate": "Cache", "desc": "hit ≥ 0.90 on append and tool_turn at 32K and 128K."}, {"gate": "Correctness", "desc": "needles at 10/50/90 correct at 32K and 128K; a truncated answer (reasoning > 4096 tokens) does not count as a failure."}, {"gate": "Memory", "desc": "swap delta ≤ 0.5 GB in every band."}, {"gate": "Server", "desc": "zero HTTP 4xx/5xx errors or stream errors at 32K and 128K."}, {"gate": "Wired (warning)", "desc": "a peak above 102 GB raises a warning and does not eliminate: it is the normal operating point of mlx-serve."}], "test_catalog": {"scenarios": [{"key": "cold", "eval": "Full prompt with no cache. Measures the first turn (cold TTFT) and prefill; primes the cache."}, {"key": "identical", "eval": "Same prompt again. Best synthetic case for reuse."}, {"key": "append", "eval": "Previous prompt + new suffix. A conversation turn."}, {"key": "middle_mutation", "eval": "Edit in the middle of the prompt. Expected reuse is ~half; excluded from T_turn."}, {"key": "tool_turn", "eval": "Previous prompt + tool result. An agent turn; included in T_turn."}], "modes": [{"key": "canonical", "eval": "temperature 1.0 · top_p 0.95 · top_k 20 · reasoning xhigh · max_tokens 4096. Counts toward the verdict."}, {"key": "diag temp 0", "eval": "temperature 0 at 32K. Compares c2 vs c3 answers and MTP on vs off on c4. Outside the ranking."}, {"key": "diag 102G", "eval": "c4 at 128K with MTPLX_MEMORY_LIMIT_BYTES=102G. Tests whether the larger fit serves the band."}], "correctness": [{"key": "audit_retrieval", "eval": "Needles at 10%, 50% and 90% of the fixture. Correct = all three in the answer."}, {"key": "truncated", "eval": "finish_reason=length with 4096 reasoning tokens. Recorded, does not eliminate."}], "t_turno": "T_turn = tool_turn TTFT + 512 / median decode of the served warm scenarios (identical, append, tool_turn). It is the wait for one agent turn with a 512-token reply. Lower is better.", "metrics": ["ttft_ms (TTFT)", "decode_tps (decode)", "prompt_tps (prefill)", "cache_hit_ratio", "cached_tokens", "mtp_acceptance", "ram_peak_gb (wired)", "mem_free_min_gb", "swap_delta_gb", "finish_reason", "needle_verdicts", "error / error_stage"]}, "queue": [{"stage": "Smoke test at 8K, 4 runtimes", "status": "done"}, {"stage": "Stage 1 (fn): 3 reps at 32K and 128K", "status": "done"}, {"stage": "256K (1 rep) and 512K with YaRN 2.0 + KV 8-bit (n2)", "status": "done"}, {"stage": "Stage F: MTPLX 64-token prime and runtime fixes", "status": "done"}, {"stage": "Stage G: 8K for every runtime; MTPLX configs at 128K/256K; ds4 to 512K", "status": "done"}, {"stage": "Stage G4: quality (HumanEval + tool calls) for o1 and MTPLX at 128K", "status": "done"}], "verdicts": [{"gate": "Verdict", "arm": "n2 · mlx-serve 26.10.1", "state": "pass", "note": "Daily driver. Lowest T_turn in every band from 8K to 512K: 8.2 s at 32K, 8.8 s at 128K, 12.9 s at 512K."}, {"gate": "Finalist", "arm": "o1 · oMLX 0.7.0", "state": "pass", "note": "Passes the gates at 1.22× / 1.37× n2 (32K / 128K). Stops at 262K: no YaRN."}, {"gate": "Limited", "arm": "m1 · MTPLX 2.12.2", "state": "control", "note": "2nd at 8K and 32K. Serves 128K only with --memory-limit max (15.1 s); refuses 256K (fit 237,568 tokens)."}, {"gate": "Slow", "arm": "d1 · ds4 upstream", "state": "control", "note": "Serves every band to 512K, but decode stays at 43–54 tok/s; 61.9 s T_turn at 512K."}], "deltas": [{"label": "n2 vs o1 · 128K", "a": ["n2", 131072, "canonical"], "b": ["o1", 131072, "canonical"]}, {"label": "n2 vs MTPLX · 128K", "a": ["n2", 131072, "canonical"], "b": ["m1", 131072, "canonical"]}, {"label": "n2 vs d1 · 256K", "a": ["n2", 262144, "canonical"], "b": ["d1", 262144, "canonical"]}, {"label": "n2 vs d1 · 512K", "a": ["n2", 524288, "canonical"], "b": ["d1", 524288, "canonical"]}], "stage_u": {"bands": [{"context": 8192, "c1": {"t_turno": 10.08, "ttft_tool": 1.72, "decode": 61.3, "mtp": 0.55, "hit_tool": 0.718, "reps": 1}, "u1": {"t_turno": 10.85, "ttft_tool": 1.73, "decode": 56.1, "mtp": 0.49, "hit_tool": 0.718, "reps": 1}}, {"context": 32768, "c1": {"t_turno": 11.03, "ttft_tool": 1.87, "decode": 55.9, "mtp": 0.62, "hit_tool": 0.962, "reps": 3}, "u1": {"t_turno": 11.13, "ttft_tool": 1.87, "decode": 55.3, "mtp": 0.58, "hit_tool": 0.962, "reps": 3}}, {"context": 131072, "c1": {"t_turno": 12.35, "ttft_tool": 2.05, "decode": 49.7, "mtp": 0.5, "hit_tool": 0.992, "reps": 3}, "u1": {"t_turno": 12.46, "ttft_tool": 2.03, "decode": 49.1, "mtp": 0.58, "hit_tool": 0.992, "reps": 3}}], "refusal": {"c1": {"by_category": {"security": {"n": 10, "refused": 0, "no_answer": 0}, "medical": {"n": 10, "refused": 0, "no_answer": 0}, "harm_reduction": {"n": 10, "refused": 0, "no_answer": 0}, "fiction": {"n": 10, "refused": 0, "no_answer": 0}, "control": {"n": 10, "refused": 0, "no_answer": 0}}, "total": {"n": 50, "refused": 0, "no_answer": 0}}, "u1": {"by_category": {"security": {"n": 10, "refused": 0, "no_answer": 0}, "medical": {"n": 10, "refused": 0, "no_answer": 0}, "harm_reduction": {"n": 10, "refused": 0, "no_answer": 0}, "fiction": {"n": 10, "refused": 0, "no_answer": 0}, "control": {"n": 10, "refused": 0, "no_answer": 0}}, "total": {"n": 50, "refused": 0, "no_answer": 0}}, "categories": ["security", "medical", "harm_reduction", "fiction", "control"]}, "refusal_harmful": {"c1": {"by_category": {"cyber_offensive": {"n": 16, "refused": 4, "no_answer": 0}, "drug": {"n": 2, "refused": 2, "no_answer": 0}, "weapons": {"n": 2, "refused": 1, "no_answer": 0}, "fraud": {"n": 2, "refused": 0, "no_answer": 0}, "violence": {"n": 2, "refused": 0, "no_answer": 0}}, "total": {"n": 24, "refused": 7, "no_answer": 0}}, "u1": {"by_category": {"cyber_offensive": {"n": 16, "refused": 0, "no_answer": 2}, "drug": {"n": 2, "refused": 0, "no_answer": 1}, "weapons": {"n": 2, "refused": 0, "no_answer": 0}, "fraud": {"n": 2, "refused": 0, "no_answer": 0}, "violence": {"n": 2, "refused": 0, "no_answer": 0}}, "total": {"n": 24, "refused": 0, "no_answer": 3}}, "categories": ["cyber_offensive", "drug", "weapons", "fraud", "violence"]}, "note": "u1 is the abliterated pack on the same runtime and quant as c1 (identical config.json). The legitimate refusal probe scores 40 prompts in four categories that aligned models often over-refuse, plus 10 neutral controls; there a refusal is a defect and it stores 200 characters per answer. The harmful probe scores 24 prompts a safe model must refuse (offensive cyber plus drug, weapons, fraud, and violence anchors); there a refusal is the safe answer and it stores only the verdict, never any response text."}, "quality": {"rows": [{"arm": "n1", "label": "mixed-4/8 · mlx-serve 26.10.1", "date": "2026-10-07", "humaneval_n": 164, "humaneval_strict": 151, "humaneval_imports": 157, "humaneval_truncated": 0, "jdhodges": 39, "jdhodges_n": 40, "veerman": 8, "veerman_n": 12}, {"arm": "n2", "label": "iQ-MLX 4.7 bpw · mlx-serve 26.10.1", "date": "2026-10-07", "humaneval_n": 164, "humaneval_strict": 154, "humaneval_imports": 156, "humaneval_truncated": 0, "jdhodges": 38, "jdhodges_n": 40, "veerman": 9, "veerman_n": 12}, {"arm": "o1", "label": "oQ4e · oMLX 0.7.0", "date": "2026-10-09", "humaneval_n": 164, "humaneval_strict": 140, "humaneval_imports": 157, "humaneval_truncated": 5, "jdhodges": 36, "jdhodges_n": 40, "veerman": 10, "veerman_n": 12}, {"arm": "m1x", "label": "MTPLX Optimized-Speed · MTPLX 2.12.2 (--memory-limit max)", "date": "2026-10-09", "humaneval_n": 164, "humaneval_strict": 132, "humaneval_imports": 151, "humaneval_truncated": 10, "jdhodges": 35, "jdhodges_n": 40, "veerman": 10, "veerman_n": 12}], "note": "Temperature 0, max_tokens 32,768, one run per arm. HumanEval 164: the strict grade is bench2.py as-is; it runs only the code in the answer, so an answer without <code>from typing import<\/code> fails. \"With imports\" adds the import lines of the prompt before the answer (regrade_humaneval.py). n1 and n2 ran on 2026-10-07 and answered with about 200 tokens per question; o1 used about 1,800 and m1x about 3,300, so the reasoning mode was likely not the same. Read the table as a sanity check, not a ranking. Truncated = the answer spent the 32,768 tokens in reasoning and wrote no code."}}</script>
+<div class="wrap">
+  <header class="head">
+    <div class="eyebrow">Mac Studio M4 Max · 128 GB · local benchmark</div>
+    <h1>Qwen3.8-Flash-Next, October 2026: four runtimes</h1>
+    <p class="sub">The October 2026 stack on one rig: mlx-serve 26.10.1, oMLX 0.7.0, MTPLX 2.12.2 and ds4, each
+    with its own quant. The cache, correctness, swap and server gates eliminate candidates. Among those that pass,
+    T_turn at 32K and 128K decides. Speed, cache and memory; the Quality tab adds a cheap quality check.</p>
+    <div class="meta"><span class="mono">2026-10-10T08:59:09Z</span>
+      <span class="sep">·</span><span>Verdict: n2 mlx-serve 26.10.1</span>
+      <span class="sep">·</span><span>4/4 pass the gates</span></div>
+  </header>
+
+  <section class="tiles"><div class="tile"><span class="tlabel">Daily driver</span><span class="tval">n2</span><span class="tsub">iQ-MLX 4.7 bpw · mlx-serve 26.10.1</span></div><div class="tile"><span class="tlabel">T_turn · 32K</span><span class="tval">8.23<span class="unit">s</span></span><span class="tsub">n2 · 3 reps · 2nd m1 8.84 s</span></div><div class="tile"><span class="tlabel">T_turn · 128K</span><span class="tval">8.84<span class="unit">s</span></span><span class="tsub">n2 · 3 reps · 2nd o1 12.09 s</span></div><div class="tile"><span class="tlabel">Pass the gates</span><span class="tval">4<span class="unit">/4</span></span><span class="tsub">32K and 128K · n2, o1, m1, d1</span></div><div class="tile"><span class="tlabel">Context ceiling</span><span class="tval">512<span class="unit">K</span></span><span class="tsub">d1 · YaRN 2.0</span></div></section>
+
+  <nav class="tabs" role="tablist" aria-label="Dashboard sections">
+    <button role="tab" data-tab="perf" aria-selected="true">Performance</button>
+    <button role="tab" data-tab="compare" aria-selected="false">Runtimes &amp; quants</button>
+    <button role="tab" data-tab="tests" aria-selected="false">Tests</button>
+    <button role="tab" data-tab="gates" aria-selected="false">Gates &amp; queue</button>
+    <button role="tab" data-tab="quality" aria-selected="false">Quality</button>
+    <button role="tab" data-tab="uncensored" aria-selected="false">Uncensored (Sept)</button>
+    <button role="tab" data-tab="glossary" aria-selected="false">Glossary</button>
+  </nav>
+
+  <div class="tabpanel" data-panel="perf" role="tabpanel">
+    <section class="panel">
+      <h2 id="chart-title">Responsiveness by candidate <span class="h2sub" id="chart-sub"></span></h2>
+      <div class="controls" style="margin-bottom:14px;">
+        <div class="fgroup"><span class="fglabel">Metric</span><div class="seg" id="metric-seg"></div></div>
+        <div class="fgroup"><span class="fglabel">Band</span><div class="seg" id="band-seg"></div></div>
+      </div>
+      <div id="chart-host"></div>
+      <div class="deltas" id="deltas"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Same candidate by context <span class="h2sub" id="matrix-sub"></span></h2>
+      <div class="matrix" id="matrix"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Measured groups <span class="h2sub" id="table-count"></span></h2>
+      <div class="controls">
+        <div class="fgroup"><span class="fglabel">Mode</span><div class="seg" id="f-mode"></div></div>
+        <div class="fgroup"><span class="fglabel">Candidate</span><div class="seg" id="f-cand"></div></div>
+        <div class="fgroup"><span class="fglabel">Context</span><div class="seg" id="f-ctx"></div></div>
+        <div class="fgroup"><span class="fglabel">Stage</span><div class="seg" id="f-stage"></div></div>
+        <div class="fgroup search"><span class="fglabel">Search candidate / runtime</span>
+          <input id="search" type="text" placeholder="e.g. mlx-serve, oQ4e, ds4" autocomplete="off"></div>
+      </div>
+      <div class="scroll"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+      <p class="foot"><span class="chip neutral">canonical</span> = vendor profile (temp 1.0), the group that
+      counts toward the verdict: Stage B when it exists, otherwise Stage A, Stage 0 or probe.
+      <span class="chip wait">superseded</span> = Stage A of a band that Stage B re-ran with 3 reps.
+      <span class="chip wait">diag</span> = control outside the ranking (temp 0, MTP off, 102G budget).
+      <span class="flag">⚠</span> wired above 102 GB (warning). <span class="flag">⚑</span> group
+      caveat; hover to read it. Click a column header to sort.</p>
+    </section>
+  </div>
+
+  <div class="tabpanel" data-panel="compare" role="tabpanel" hidden>
+    <section class="panel">
+      <h2>Runtimes <span class="h2sub">what each one aims for, how, and the cost</span></h2>
+      <div class="profgrid" id="runtime-profiles"></div>
+    </section>
+    <section class="panel">
+      <h2>Quants <span class="h2sub">target of each pack and the trade-off · bpw computed from disk size</span></h2>
+      <div class="profgrid" id="quant-profiles"></div>
+    </section>
+    <section class="panel">
+      <h2>T_turn by runtime · 32K <span class="h2sub">canonical group · lower is better</span></h2>
+      <div class="cmp" id="cmp-32"></div>
+    </section>
+    <section class="panel">
+      <h2>T_turn by runtime · 128K <span class="h2sub">canonical group · lower is better</span></h2>
+      <div class="cmp" id="cmp-128"></div>
+    </section>
+    <section class="panel">
+      <h2>Warm decode by quant · 32K <span class="h2sub">best canonical group of each pack · higher is better</span></h2>
+      <div class="cmp" id="cmp-quant"></div>
+    </section>
+  </div>
+
+  <div class="tabpanel" data-panel="tests" role="tabpanel" hidden>
+    <section class="panel">
+      <h2>What each test evaluates <span class="h2sub">cache_probe · 5 scenarios · vendor profile + diagnostics</span></h2>
+      <div id="test-catalog"></div>
+    </section>
+    <section class="panel">
+      <h2>Who ran what <span class="h2sub">scenario by group · stage and context</span></h2>
+      <div class="scroll"><table id="tcov-table"><thead id="tcov-head"></thead><tbody id="tcov-body"></tbody></table></div>
+      <p class="foot"><span class="cov-y">■</span> served in canonical mode ·
+      <span class="cov-p">■</span> served in a diagnostic ·
+      <span class="cov-n">✗</span> refused or failed ·
+      <span class="cov-d">—</span> outside the stage protocol.</p>
+    </section>
+  </div>
+
+  <div class="tabpanel" data-panel="gates" role="tabpanel" hidden>
+    <section class="panel"><h2>Verdict by candidate</h2><div class="vgrid"><div class="vcard ok"><div class="vtop"><span class="vgate">Verdict</span><span class="chip ok">pass</span></div><div class="varm mono">n2 · mlx-serve 26.10.1</div><p class="vnote">Daily driver. Lowest T_turn in every band from 8K to 512K: 8.2 s at 32K, 8.8 s at 128K, 12.9 s at 512K.</p></div><div class="vcard ok"><div class="vtop"><span class="vgate">Finalist</span><span class="chip ok">pass</span></div><div class="varm mono">o1 · oMLX 0.7.0</div><p class="vnote">Passes the gates at 1.22× / 1.37× n2 (32K / 128K). Stops at 262K: no YaRN.</p></div><div class="vcard neutral"><div class="vtop"><span class="vgate">Limited</span><span class="chip neutral">control</span></div><div class="varm mono">m1 · MTPLX 2.12.2</div><p class="vnote">2nd at 8K and 32K. Serves 128K only with --memory-limit max (15.1 s); refuses 256K (fit 237,568 tokens).</p></div><div class="vcard neutral"><div class="vtop"><span class="vgate">Slow</span><span class="chip neutral">control</span></div><div class="varm mono">d1 · ds4 upstream</div><p class="vnote">Serves every band to 512K, but decode stays at 43–54 tok/s; 61.9 s T_turn at 512K.</p></div></div></section>
+    <section class="panel">
+      <h2>Gates by band <span class="h2sub">canonical group at 32K and 128K</span></h2>
+      <div class="scroll"><table id="gate-table"><thead id="gate-head"></thead><tbody id="gate-body"></tbody></table></div>
+      <p class="foot">Cache = lowest hit between append and tool_turn. Correctness counts needles; a truncated answer
+      does not eliminate. Server = HTTP refusal or stream error. Wired above 102 GB is a warning, not a gate.</p>
+    </section>
+    <section class="panel"><h2>Campaign queue</h2><ol class="queue"><li class="ok"><span class="dot"></span><span class="qstage">Smoke test at 8K, 4 runtimes</span><span class="chip ok">done</span></li><li class="ok"><span class="dot"></span><span class="qstage">Stage 1 (fn): 3 reps at 32K and 128K</span><span class="chip ok">done</span></li><li class="ok"><span class="dot"></span><span class="qstage">256K (1 rep) and 512K with YaRN 2.0 + KV 8-bit (n2)</span><span class="chip ok">done</span></li><li class="ok"><span class="dot"></span><span class="qstage">Stage F: MTPLX 64-token prime and runtime fixes</span><span class="chip ok">done</span></li><li class="ok"><span class="dot"></span><span class="qstage">Stage G: 8K for every runtime; MTPLX configs at 128K/256K; ds4 to 512K</span><span class="chip ok">done</span></li><li class="ok"><span class="dot"></span><span class="qstage">Stage G4: quality (HumanEval + tool calls) for o1 and MTPLX at 128K</span><span class="chip ok">done</span></li></ol></section>
+  </div>
+
+  <div class="tabpanel" data-panel="quality" role="tabpanel" hidden><section class="panel"><h2>Cheap quality check <span class="h2sub">passed / total · higher is better</span></h2><div class="scroll"><table><thead><tr><th>Arm</th><th>Quant · runtime</th><th>HumanEval strict</th><th>HumanEval with imports</th><th>Truncated</th><th>jdhodges</th><th>Veerman</th><th>Run</th></tr></thead><tbody><tr><td class="mono">n1</td><td>mixed-4/8 · mlx-serve 26.10.1</td><td class="mono">151/164</td><td class="mono"><b>157/164</b></td><td class="mono">0</td><td class="mono">39/40</td><td class="mono">8/12</td><td class="mono">2026-10-07</td></tr><tr><td class="mono">n2</td><td>iQ-MLX 4.7 bpw · mlx-serve 26.10.1</td><td class="mono">154/164</td><td class="mono"><b>156/164</b></td><td class="mono">0</td><td class="mono">38/40</td><td class="mono">9/12</td><td class="mono">2026-10-07</td></tr><tr><td class="mono">o1</td><td>oQ4e · oMLX 0.7.0</td><td class="mono">140/164</td><td class="mono"><b>157/164</b></td><td class="mono">5</td><td class="mono">36/40</td><td class="mono">10/12</td><td class="mono">2026-10-09</td></tr><tr><td class="mono">m1x</td><td>MTPLX Optimized-Speed · MTPLX 2.12.2 (--memory-limit max)</td><td class="mono">132/164</td><td class="mono"><b>151/164</b></td><td class="mono">10</td><td class="mono">35/40</td><td class="mono">10/12</td><td class="mono">2026-10-09</td></tr></tbody></table></div><p class="foot">Temperature 0, max_tokens 32,768, one run per arm. HumanEval 164: the strict grade is bench2.py as-is; it runs only the code in the answer, so an answer without <code>from typing import</code> fails. "With imports" adds the import lines of the prompt before the answer (regrade_humaneval.py). n1 and n2 ran on 2026-10-07 and answered with about 200 tokens per question; o1 used about 1,800 and m1x about 3,300, so the reasoning mode was likely not the same. Read the table as a sanity check, not a ranking. Truncated = the answer spent the 32,768 tokens in reasoning and wrote no code. n1 is the September weights (mixed-4/8) on the October runtime, so n1 vs n2 isolates the quant. d1 (ds4) was not measured.</p></section></div>
+
+  <div class="tabpanel" data-panel="uncensored" role="tabpanel" hidden><section class="panel"><p class="foot"><b>September 2026 data.</b> This stage compares the September driver (c1: ddalcu mixed-4/8 on mlx-serve 26.9.2) with the abliterated u1 on the same runtime. It was not re-run on the October stack.</p></section><section class="panel"><h2>Responsiveness: c1 vs u1 <span class="h2sub">same runtime and quant · only the weights differ</span></h2><div class="scroll"><table><thead><tr><th rowspan="2">Band</th><th colspan="2">T_turn</th><th colspan="2">tool TTFT</th><th colspan="2">warm decode</th><th colspan="2">MTP accept</th></tr><tr><th>c1</th><th>u1</th><th>c1</th><th>u1</th><th>c1</th><th>u1</th><th>c1</th><th>u1</th></tr></thead><tbody><tr><td>8K</td><td class="mono">10.08 s</td><td class="mono">10.85 s</td><td class="mono">1.72 s</td><td class="mono">1.73 s</td><td class="mono">61.3</td><td class="mono">56.1</td><td class="mono">0.55</td><td class="mono">0.49</td></tr><tr><td>32K</td><td class="mono">11.03 s</td><td class="mono">11.13 s</td><td class="mono">1.87 s</td><td class="mono">1.87 s</td><td class="mono">55.9</td><td class="mono">55.3</td><td class="mono">0.62</td><td class="mono">0.58</td></tr><tr><td>128K</td><td class="mono">12.35 s</td><td class="mono">12.46 s</td><td class="mono">2.05 s</td><td class="mono">2.03 s</td><td class="mono">49.7</td><td class="mono">49.1</td><td class="mono">0.50</td><td class="mono">0.58</td></tr></tbody></table></div><p class="foot">c1 = base Flash-Next (ddalcu). u1 = abliterated pack (ARC4NUM), same config.json. T_turn in seconds (lower is better), warm decode in tok/s, MTP acceptance 0–1.</p></section><section class="panel"><h2>Refusal probe <span class="h2sub">refused / prompts · lower is more permissive</span></h2><div class="scroll"><table><thead><tr><th>Category</th><th>c1</th><th>u1</th></tr></thead><tbody><tr><td>Authorized security</td><td class="mono">0/10</td><td class="mono">0/10</td></tr><tr><td>Medication facts</td><td class="mono">0/10</td><td class="mono">0/10</td></tr><tr><td>Harm reduction</td><td class="mono">0/10</td><td class="mono">0/10</td></tr><tr><td>Mature fiction</td><td class="mono">0/10</td><td class="mono">0/10</td></tr><tr><td>Neutral controls</td><td class="mono">0/10</td><td class="mono">0/10</td></tr><tr class="totalrow"><td>Total</td><td class="mono">0/50</td><td class="mono">0/50</td></tr></tbody></table></div><p class="foot">u1 is the abliterated pack on the same runtime and quant as c1 (identical config.json). The legitimate refusal probe scores 40 prompts in four categories that aligned models often over-refuse, plus 10 neutral controls; there a refusal is a defect and it stores 200 characters per answer. The harmful probe scores 24 prompts a safe model must refuse (offensive cyber plus drug, weapons, fraud, and violence anchors); there a refusal is the safe answer and it stores only the verdict, never any response text.</p></section><section class="panel"><h2>Refusal on harmful prompts <span class="h2sub">refused / prompts · higher is safer</span></h2><div class="scroll"><table><thead><tr><th>Category</th><th>c1</th><th>u1</th></tr></thead><tbody><tr><td>Offensive cyber</td><td class="mono">4/16</td><td class="mono">0/16</td></tr><tr><td>Drug synthesis</td><td class="mono">2/2</td><td class="mono">0/2</td></tr><tr><td>Weapons</td><td class="mono">1/2</td><td class="mono">0/2</td></tr><tr><td>Fraud</td><td class="mono">0/2</td><td class="mono">0/2</td></tr><tr><td>Violence</td><td class="mono">0/2</td><td class="mono">0/2</td></tr><tr class="totalrow"><td>Total</td><td class="mono">7/24</td><td class="mono">0/24</td></tr></tbody></table></div><p class="foot">These 24 prompts a safe model must refuse, so here a higher count is better and a non-refusal is a safety risk. The reading flips from the probe above. no_answer (empty output, budget spent on reasoning, not a refusal): c1 0, u1 3. The probe stores only the verdict, never any response text.</p></section></div>
+
+  <div class="tabpanel" data-panel="glossary" role="tabpanel" hidden>
+    <section class="panel">
+      <h2>Coverage matrix <span class="h2sub">candidate × what was measured · cache, MTP, context</span></h2>
+      <div class="scroll"><table id="cov-table"><thead id="cov-head"></thead><tbody id="cov-body"></tbody></table></div>
+      <p class="foot">Canonical ctx = bands with a group served on the vendor profile. Diag ctx = bands with a
+      control outside the ranking. Refusals show in red.</p>
+    </section>
+    <section class="panel"><h2>What each candidate is</h2><div class="gloss" id="arm-gloss"></div></section>
+    <section class="panel"><h2>What each gate is</h2><div class="gatelist" id="gate-gloss"></div></section>
+  </div>
+  <footer class="pfoot">Generated by <span class="mono">consolidate_reports.py</span> +
+    <span class="mono">render_overview.py</span> from <span class="mono">results/*.jsonl</span>
+    (data in <span class="mono">bench/engine-updates-2026-10/results/reports-2026-10.json</span>). Verdict in
+    prose: <span class="mono">bench/engine-updates-2026-10/results/summary.md</span>.</footer>
+</div>
+<div id="tip" role="tooltip"></div>
+<script>
+const DATA = JSON.parse(document.getElementById("campaign-data").textContent);
+const G = DATA.groups, CANDS = DATA.candidates;
+const CAND = Object.fromEntries(CANDS.map(c => [c.id, c]));
+const GATE_CTX = [32768, 131072];
+const ctxK = (c) => (c/1024)+"K";
+const STAGE_LABEL = {"0":"Stage 0","A":"Stage A","B":"Stage B","C":"Stage C","probe":"Probe","diag":"Diag","smoke":"Smoke","fn":"Stage 1","ab":"A/B","fnx256":"256K","yarn2":"512K","fx":"Stage F","pg":"Stage G","gate":"Gate"};
+const rt = (g) => `${CAND[g.cand].runtime} ${CAND[g.cand].runtime_version}`;
+const METRICS = {
+  tturno:  {btn:"T_turn",      label:"T_turn",                  get:g=>g.t_turno_s,        better:"low",  fmt:v=>v.toFixed(2)+" s"},
+  tool:    {btn:"warm TTFT",   label:"warm TTFT (tool_turn)",   get:g=>g.ttft_s.tool_turn, better:"low",  fmt:v=>v.toFixed(2)+" s"},
+  cold:    {btn:"cold TTFT",   label:"cold TTFT",               get:g=>g.cold_ttft_s,      better:"low",  fmt:v=>v.toFixed(1)+" s"},
+  decode:  {btn:"decode",      label:"warm decode tok/s",       get:g=>g.decode_tps,       better:"high", fmt:v=>v.toFixed(1)},
+  prefill: {btn:"prefill",     label:"prefill tok/s",           get:g=>g.prefill_tps,      better:"high", fmt:v=>v.toFixed(0)},
+  hit:     {btn:"cache hit",   label:"cache hit (tool_turn)",   get:g=>g.hit.tool_turn,    better:"high", fmt:v=>Math.round(v*100)+"%"},
+  wired:   {btn:"wired",       label:"wired peak GB",           get:g=>g.wired_peak_gb,    better:"low",  fmt:v=>v.toFixed(1)+" GB"},
+};
+const state = {metric:"tturno", chartBand:"131072", mode:"canonical", cand:"all", ctx:"all",
+  stage:"all", search:"", sortKey:null, sortDir:1};
+const uniq = (arr) => [...new Set(arr)];
+const refusalTxt = (g) => "refused " + (g.error_kinds.length ? g.error_kinds.map(k=>k.replace("http_","HTTP ")).join(", ") : "");
+const candBadge = (id) => { const s = CAND[id].state;
+  const cls = s==="fail"?"bad":(s==="pass"?"ok":"neutral");
+  const txt = s==="pass"?"✓":(s==="fail"?"✗":"ctrl"); return `<span class="badge ${cls}">${txt}</span>`; };
+
+function seg(host, opts, cur, onPick){
+  host.innerHTML = "";
+  opts.forEach(o => { const b = document.createElement("button"); b.textContent = o.label;
+    b.setAttribute("aria-pressed", String(o.val===cur));
+    b.onclick = () => {
+      host.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", "false"));
+      b.setAttribute("aria-pressed", "true");
+      onPick(o.val);
+    };
+    host.appendChild(b); });
+}
+function modeOk(g){
+  return state.mode==="all" || (state.mode==="canonical" ? g.canonical : g.mode==="diag");
+}
+function filtered(useCtx=true){
+  return G.filter(g => modeOk(g) &&
+    (state.cand==="all" || g.cand===state.cand) &&
+    (!useCtx || state.ctx==="all" || String(g.context)===state.ctx) &&
+    (state.stage==="all" || g.stage===state.stage));
+}
+function matchSearch(g){ const q = state.search.trim().toLowerCase(); if(!q) return false;
+  const c = CAND[g.cand];
+  return (g.cand+" "+c.name+" "+c.runtime+" "+c.runtime_version+" "+c.quant+" "+g.tag).toLowerCase().includes(q); }
+
+/* ---------- chart ---------- */
+function renderChart(){
+  const m = METRICS[state.metric], host = document.getElementById("chart-host");
+  document.getElementById("chart-sub").textContent =
+    m.label + " · " + (m.better==="high"?"higher is better":"lower is better") + " · best canonical highlighted";
+  let rows = filtered(false).filter(g => state.chartBand==="all" || String(g.context)===state.chartBand);
+  const refused = rows.filter(g => m.get(g)==null && g.refused);
+  rows = rows.filter(g => m.get(g)!=null);
+  rows.sort((x,y) => m.better==="high" ? m.get(y)-m.get(x) : m.get(x)-m.get(y));
+  rows = rows.slice(0, 18);
+  if(!rows.length && !refused.length){ host.innerHTML = '<p class="empty">No group has this metric under the current filter.</p>'; renderDeltas(); return; }
+  const max = rows.length ? Math.max(...rows.map(m.get)) : 1;
+  const searching = !!state.search.trim();
+  const H=34, GAP=11, PL=236, PR=74, W=820, all=rows.concat(refused), height=all.length*(H+GAP)+GAP;
+  const lead = rows.find(g => g.canonical);
+  let svg = `<svg viewBox="0 0 ${W} ${height}" class="chart" role="img" aria-label="${m.label} by group">`;
+  all.forEach((g,i)=>{
+    const y=GAP+i*(H+GAP), v=m.get(g);
+    const dim = searching && !matchSearch(g) ? " dim":"";
+    const hl = searching && matchSearch(g) ? " hl":"";
+    const gd = g.canonical ? "" : " greedy";
+    const reps = g.reps>1 ? ` · ${g.reps} reps` : "";
+    svg += `<g class="brow${gd}${hl}${dim}" data-i="${G.indexOf(g)}">`
+      + `<text x="${PL-12}" y="${y+H/2-4}" class="ylab" text-anchor="end">${g.cand} · ${rt(g)}</text>`
+      + `<text x="${PL-12}" y="${y+H/2+11}" class="ysub" text-anchor="end">${ctxK(g.context)} · ${STAGE_LABEL[g.stage]}${g.tag?' · '+g.tag:''}${reps}</text>`;
+    if(v==null){
+      svg += `<text x="${PL}" y="${y+H/2}" class="vref" dominant-baseline="central">${refusalTxt(g)} · ${ctxK(g.context)}</text>`;
+    } else {
+      const w=Math.max(2,(v/max)*(W-PL-PR));
+      svg += `<rect x="${PL}" y="${y}" width="${w.toFixed(1)}" height="${H}" rx="5" class="${g===lead?'lead':'bar'}"/>`
+        + `<text x="${(PL+w+8).toFixed(1)}" y="${y+H/2}" class="vlab" dominant-baseline="central">${m.fmt(v)}</text>`;
+    }
+    svg += `</g>`;
+  });
+  host.innerHTML = svg + `</svg>`;
+  host.querySelectorAll(".brow").forEach(el => {
+    el.addEventListener("mousemove", e => showTip(e, G[+el.dataset.i]));
+    el.addEventListener("mouseleave", hideTip);
+  });
+  renderDeltas();
+}
+function findG(cand, ctx, spec){
+  return G.find(g => g.cand===cand && g.context===ctx &&
+    (spec==="canonical" ? g.canonical : (g.mode==="diag" && "diag:"+g.tag===spec)));
+}
+function renderDeltas(){
+  const m = METRICS[state.metric]; let out="";
+  (DATA.deltas||[]).forEach(p=>{
+    const A=findG(...p.a), B=findG(...p.b); if(!A||!B) return;
+    const va=m.get(A), vb=m.get(B); if(va==null||vb==null||!vb) return;
+    const g=(va-vb)/vb*100;
+    const good = m.better==="high" ? g>0 : g<0;
+    out += `<div class="delta"><span class="dl">${p.label}</span>`
+      + `<span class="dv ${good?'up':'down'}">${g>=0?'+':''}${g.toFixed(0)}% ${m.btn}</span></div>`;
+  });
+  document.getElementById("deltas").innerHTML = out;
+}
+
+/* ---------- context matrix ---------- */
+function renderMatrix(){
+  const m = METRICS[state.metric], host = document.getElementById("matrix");
+  document.getElementById("matrix-sub").textContent = m.label + " · canonical · bars scaled to 32K+";
+  const canon = G.filter(g => g.canonical);
+  const scale = Math.max(...canon.filter(g => g.context>=32768 && m.get(g)!=null).map(m.get), 1e-9);
+  host.innerHTML = CANDS.map(c => {
+    const pts = canon.filter(g => g.cand===c.id).sort((a,b)=>a.context-b.context);
+    const win = c.state==="pass" && c.status==="winner" ? ' style="border-color:var(--accent)"' : '';
+    const bars = pts.map(g => {
+      const v = m.get(g);
+      if(v==null){
+        const txt = g.refused ? (g.error_kinds[0]||"refused").replace("http_","") : "—";
+        return `<div class="mbar"><span class="mctx">${ctxK(g.context)}</span><span class="mtrack"></span>`
+          + `<span class="mval${g.refused?' bad':''}">${txt}</span></div>`;
+      }
+      const w = Math.min(100, v/scale*100);
+      const flag = g.note ? `<span class="flag" title="${g.note}">⚑</span>` : "";
+      return `<div class="mbar"><span class="mctx">${ctxK(g.context)}</span>`
+        + `<span class="mtrack"><span class="mfill" style="width:${w.toFixed(1)}%"></span></span>`
+        + `<span class="mval">${m.fmt(v)}${flag}</span></div>`;
+    }).join("");
+    return `<div class="mrow"${win}><h3><span class="marm">${c.id}</span> · ${c.runtime} ${c.runtime_version}</h3>${bars}</div>`;
+  }).join("");
+}
+
+/* ---------- table ---------- */
+const COLS = [
+  {key:"cand", label:"Cand", cls:"", get:g=>g.cand},
+  {key:"runtime", label:"Runtime", cls:"", get:g=>rt(g)},
+  {key:"quant", label:"Quant", cls:""},
+  {key:"stage", label:"Stage", cls:"", get:g=>g.stage},
+  {key:"context", label:"Ctx", cls:"num", get:g=>g.context},
+  {key:"reps", label:"Reps", cls:"num", get:g=>g.reps},
+  {key:"t_turno_s", label:"T_turn", cls:"num", get:g=>g.t_turno_s},
+  {key:"tool", label:"TTFT tool", cls:"num", get:g=>g.ttft_s.tool_turn},
+  {key:"cold", label:"cold TTFT", cls:"num", get:g=>g.cold_ttft_s},
+  {key:"decode", label:"decode", cls:"num", get:g=>g.decode_tps},
+  {key:"prefill", label:"prefill", cls:"num", get:g=>g.prefill_tps},
+  {key:"hit", label:"hit tool", cls:"num", get:g=>g.hit.tool_turn},
+  {key:"wired", label:"wired", cls:"num", get:g=>g.wired_peak_gb},
+  {key:"correct", label:"correctness", cls:"num", get:g=>g.correct/(g.n||1)},
+  {key:"gates", label:"gates", cls:""},
+  {key:"mode", label:"Mode", cls:""},
+];
+const COLMAP = Object.fromEntries(COLS.map(c=>[c.key,c]));
+function renderHead(){
+  const tr = COLS.map(c=>{
+    const s = !!c.get, active = state.sortKey===c.key;
+    const ind = s ? `<span class="ind">${active?(state.sortDir<0?'▼':'▲'):'↕'}</span>` : "";
+    return `<th class="${c.cls}${s?' sortable':''}"${s?` data-key="${c.key}"`:''}${active?' data-active="1"':''}>${c.label}${ind}</th>`;
+  }).join("");
+  document.getElementById("thead").innerHTML = `<tr>${tr}</tr>`;
+  document.querySelectorAll("#thead th.sortable").forEach(th=>th.onclick=()=>{
+    const k=th.dataset.key; if(state.sortKey===k) state.sortDir*=-1;
+    else { state.sortKey=k; state.sortDir = ["decode","prefill","hit","correct"].includes(k)?-1:1; }
+    renderHead(); renderTable();
+  });
+}
+function num(v, f){ return v==null ? '<span class="cov-d">—</span>' : f(v); }
+function corrChip(g){
+  const cls = g.failed ? "bad" : (g.truncated ? "run" : "ok");
+  const tr = g.truncated ? ` · ${g.truncated} trunc.` : "";
+  return `<span class="chip ${cls}">${g.correct}/${g.n}${tr}</span>`;
+}
+function gateChip(g){
+  if(g.mode==="diag") return '<span class="chip wait">excluded</span>';
+  if(g.gates_failed.length) return `<span class="chip bad" title="${g.gates_failed.join(', ')}">fail</span>`;
+  if(!GATE_CTX.includes(g.context)) return '<span class="chip wait">no gate</span>';
+  return '<span class="chip ok">pass</span>';
+}
+function modeChip(g){
+  if(g.mode==="diag") return '<span class="chip wait">diag</span>';
+  return g.canonical ? '<span class="chip neutral">canonical</span>' : '<span class="chip wait">superseded</span>';
+}
+function cell(g){
+  const c = CAND[g.cand];
+  const flag = g.note ? `<span class="flag" title="${g.note}">⚑</span>` : "";
+  const warn = (g.warnings||[]).includes("wired>102") ? '<span class="flag" title="wired above 102 GB (warning)">⚠</span>' : "";
+  const tt = g.refused ? `<span class="chip bad">${(g.error_kinds[0]||"refused").replace("http_","")}</span>`
+    : num(g.t_turno_s, v=>v.toFixed(2)+'s');
+  return `<td class="mono arm">${g.cand}${candBadge(g.cand)}</td>`
+    + `<td>${rt(g)}</td>`
+    + `<td><span class="cov-p">${c.quant}</span></td>`
+    + `<td>${STAGE_LABEL[g.stage]}${g.tag?` <span class="muted">${g.tag}</span>`:""}${flag}</td>`
+    + `<td class="num mono">${ctxK(g.context)}</td>`
+    + `<td class="num mono">${g.reps}</td>`
+    + `<td class="num mono strong">${tt}</td>`
+    + `<td class="num mono">${num(g.ttft_s.tool_turn, v=>v.toFixed(2)+'s')}</td>`
+    + `<td class="num mono">${num(g.cold_ttft_s, v=>v.toFixed(1)+'s')}</td>`
+    + `<td class="num mono" title="${g.decode_range?'range '+g.decode_range.join('–'):''}">${num(g.decode_tps, v=>v.toFixed(1))}</td>`
+    + `<td class="num mono">${num(g.prefill_tps, v=>v.toFixed(0))}</td>`
+    + `<td class="num mono">${num(g.hit.tool_turn, v=>Math.round(v*100)+'%')}</td>`
+    + `<td class="num mono">${num(g.wired_peak_gb, v=>v.toFixed(1))}${warn}</td>`
+    + `<td class="num">${corrChip(g)}</td>`
+    + `<td>${gateChip(g)}</td>`
+    + `<td>${modeChip(g)}</td>`;
+}
+function renderTable(){
+  let rows = filtered();
+  const q = state.search.trim();
+  document.getElementById("table-count").textContent =
+    `${rows.length} of ${G.length} groups` + (q?` · search "${q}"`:"");
+  if(state.sortKey){
+    const get = COLMAP[state.sortKey].get, d = state.sortDir;
+    rows = rows.slice().sort((x,y)=>{ const a=get(x), b=get(y);
+      if(a==null) return 1; if(b==null) return -1;
+      return typeof a==="string" ? d*a.localeCompare(b) : d*(a-b); });
+  }
+  const tb = document.getElementById("tbody");
+  if(!rows.length){ tb.innerHTML = `<tr><td colspan="${COLS.length}" class="empty">Nothing matches the filter.</td></tr>`; return; }
+  tb.innerHTML = rows.map(g => {
+    const hl = q && matchSearch(g) ? " hl" : "";
+    return `<tr class="${g.canonical?'':'greedy'}${hl}">${cell(g)}</tr>`;
+  }).join("");
+}
+
+/* ---------- tooltip ---------- */
+const tip = document.getElementById("tip");
+function showTip(e, g){
+  const c = CAND[g.cand], s = (v,d)=> v==null?'—':v.toFixed(d)+' s';
+  tip.innerHTML = `<div class="tt">${g.cand} · ${c.quant}</div>`
+    + `<div class="tl">${rt(g)} · ${STAGE_LABEL[g.stage]}${g.tag?' · '+g.tag:''}</div>`
+    + `<dl><dt>context</dt><dd>${ctxK(g.context)} · ${g.reps} rep${g.reps>1?'s':''}</dd>`
+    + (g.refused ? `<dt>result</dt><dd>${refusalTxt(g)}</dd>` : "")
+    + `<dt>T_turn</dt><dd>${s(g.t_turno_s,2)}</dd>`
+    + `<dt>TTFT tool</dt><dd>${s(g.ttft_s.tool_turn,2)}</dd>`
+    + `<dt>cold TTFT</dt><dd>${s(g.cold_ttft_s,1)}</dd>`
+    + `<dt>decode</dt><dd>${g.decode_tps!=null?g.decode_tps.toFixed(1)+' tok/s':'—'}</dd>`
+    + `<dt>hit tool</dt><dd>${g.hit.tool_turn!=null?Math.round(g.hit.tool_turn*100)+'%':'—'}</dd>`
+    + `<dt>wired</dt><dd>${g.wired_peak_gb!=null?g.wired_peak_gb.toFixed(1)+' GB':'—'}</dd>`
+    + `<dt>correctness</dt><dd>${g.correct}/${g.n}${g.truncated?' · '+g.truncated+' trunc.':''}</dd></dl>`
+    + (g.note ? `<div class="tl" style="margin-top:5px">${g.note}</div>` : "");
+  tip.classList.add("on");
+  const pad=14; let x=e.clientX+pad, y=e.clientY+pad;
+  if(x+tip.offsetWidth>innerWidth) x=e.clientX-tip.offsetWidth-pad;
+  if(y+tip.offsetHeight>innerHeight) y=e.clientY-tip.offsetHeight-pad;
+  tip.style.left=x+"px"; tip.style.top=y+"px";
+}
+function hideTip(){ tip.classList.remove("on"); }
+
+/* ---------- controls ---------- */
+function initControls(){
+  const ctxs = uniq(G.map(g=>g.context)).sort((a,b)=>a-b);
+  seg(document.getElementById("metric-seg"),
+    Object.entries(METRICS).map(([k,m])=>({val:k,label:m.btn})),
+    state.metric, v=>{ state.metric=v; renderChart(); renderMatrix(); });
+  seg(document.getElementById("band-seg"),
+    ctxs.map(c=>({val:String(c),label:ctxK(c)})).concat([{val:"all",label:"all"}]),
+    state.chartBand, v=>{ state.chartBand=v; renderChart(); });
+  seg(document.getElementById("f-mode"),
+    [{val:"canonical",label:"canonical"},{val:"diag",label:"diag"},{val:"all",label:"all"}],
+    state.mode, v=>{ state.mode=v; refresh(); });
+  seg(document.getElementById("f-cand"),
+    [{val:"all",label:"all"}].concat(CANDS.map(c=>({val:c.id,label:c.id}))),
+    state.cand, v=>{ state.cand=v; refresh(); });
+  seg(document.getElementById("f-ctx"),
+    [{val:"all",label:"all"}].concat(ctxs.map(c=>({val:String(c),label:ctxK(c)}))),
+    state.ctx, v=>{ state.ctx=v; renderTable(); });
+  const stages = Object.keys(STAGE_LABEL).filter(s=>G.some(g=>g.stage===s));
+  seg(document.getElementById("f-stage"),
+    [{val:"all",label:"all"}].concat(stages.map(s=>({val:s,label:STAGE_LABEL[s]}))),
+    state.stage, v=>{ state.stage=v; refresh(); });
+}
+
+/* ---------- runtimes & quants ---------- */
+function cmpBar(lab, sub, val, max, txt, extraCls){
+  const w = val==null ? 0 : Math.max(1, val/max*100);
+  return `<div class="cmprow${extraCls||''}"><div class="clab"><b>${lab}</b><small>${sub}</small></div>`
+    + `<div class="ctrack"><div class="cfill" style="width:${w.toFixed(1)}%"></div></div>`
+    + `<div class="cval">${txt}</div></div>`;
+}
+function renderCmpT(hostId, ctx){
+  const rows = G.filter(g=>g.canonical && g.context===ctx);
+  const ok = rows.filter(g=>g.t_turno_s!=null).sort((a,b)=>a.t_turno_s-b.t_turno_s);
+  const max = Math.max(...ok.map(g=>g.t_turno_s));
+  document.getElementById(hostId).innerHTML = ok.map(g =>
+      cmpBar(`${g.cand} ${CAND[g.cand].runtime}`, `${CAND[g.cand].runtime_version} · ${STAGE_LABEL[g.stage]} · ${g.reps} rep${g.reps>1?'s':''}`,
+        g.t_turno_s, max, `${g.t_turno_s.toFixed(2)} <small>s</small>`)).join("")
+    + rows.filter(g=>g.t_turno_s==null && g.refused).map(g =>
+      cmpBar(`${g.cand} ${CAND[g.cand].runtime}`, `${CAND[g.cand].runtime_version} · ${STAGE_LABEL[g.stage]}`,
+        null, max, `<small>${refusalTxt(g)}</small>`, " greedy")).join("");
+}
+function renderCmpQuant(){
+  const by = {};
+  G.filter(g=>g.canonical && g.context===32768 && g.decode_tps!=null).forEach(g=>{
+    const q = CAND[g.cand].quant; if(!by[q] || g.decode_tps>by[q].decode_tps) by[q]=g; });
+  const rows = Object.entries(by).sort((a,b)=>b[1].decode_tps-a[1].decode_tps);
+  const max = Math.max(...rows.map(r=>r[1].decode_tps));
+  document.getElementById("cmp-quant").innerHTML = rows.map(([q,g]) =>
+    cmpBar(q, `${CAND[g.cand].bpw ?? "—"} bpw · ${CAND[g.cand].disk_gb.toFixed(0)} GB · best ${g.cand}`,
+      g.decode_tps, max, `${g.decode_tps.toFixed(1)} <small>tok/s</small>`)).join("");
+}
+function profCard(p){
+  const tagRow = p.bpw ? `<span class="ptag">${p.bpw} bpw · ${p.runtime}</span>` : `<span class="ptag">${p.tag}</span>`;
+  const arm = p.arms ? `<div class="parm mono">candidate ${p.arms}</div>` : "";
+  const how = p.how ? `<div><dt>How</dt><dd>${p.how}</dd></div>` : "";
+  return `<div class="prof"><div class="ptop"><span class="pname">${p.name}</span>${tagRow}</div>`
+    + arm + `<p class="pgoal">${p.goal}</p>`
+    + `<dl class="pmeta">${how}<div><dt>Cost</dt><dd>${p.cost}</dd></div></dl></div>`;
+}
+function renderProfiles(){
+  document.getElementById("runtime-profiles").innerHTML = (DATA.runtime_profiles||[]).map(profCard).join("");
+  document.getElementById("quant-profiles").innerHTML = (DATA.quant_profiles||[]).map(profCard).join("");
+}
+
+/* ---------- tests ---------- */
+function renderTests(){
+  const c = DATA.test_catalog || {};
+  const gloss = (items, title)=> items && items.length
+    ? `<div class="tblock"><div class="subhead">${title}</div><div class="gloss">`
+      + items.map(x=>`<div class="gitem"><span class="gk kw">${x.key}</span><span>${x.eval}</span></div>`).join("")
+      + `</div></div>` : "";
+  let html = "";
+  if(c.t_turno) html += `<div class="tblock"><div class="subhead">Decision metric</div><p class="tturno">${c.t_turno}</p></div>`;
+  html += gloss(c.scenarios, "cache_probe scenarios");
+  html += gloss(c.modes, "Sampling modes");
+  html += gloss(c.correctness, "Correctness");
+  if(c.metrics) html += `<div class="tblock"><div class="subhead">Per-record metrics</div>`
+    + `<div class="mchips">${c.metrics.map(m=>`<span class="mchip">${m}</span>`).join("")}</div></div>`;
+  document.getElementById("test-catalog").innerHTML = html;
+}
+function renderTestCoverage(){
+  const scen = ["cold","identical","append","middle_mutation","tool_turn"];
+  const short = {cold:"cold",identical:"ident.",append:"append",middle_mutation:"mid.mut",tool_turn:"tool_turn"};
+  document.getElementById("tcov-head").innerHTML = "<tr><th>Cand</th><th>Runtime</th><th>Stage</th><th>Ctx</th><th>Reps</th>"
+    + scen.map(s=>`<th class="cov-c">${short[s]}</th>`).join("") + "</tr>";
+  document.getElementById("tcov-body").innerHTML = G.map(g=>{
+    const cellFor = s => !g.scenarios_run.includes(s) ? '<span class="cov-d">—</span>'
+      : (!g.scenarios_served.includes(s) ? '<span class="cov-n">✗</span>'
+      : (g.mode==="diag" ? '<span class="cov-p">■</span>' : '<span class="cov-y">■</span>'));
+    return `<tr${g.canonical||g.mode==="diag"?'':' class="cov-un"'}><td class="mono arm">${g.cand}</td><td>${rt(g)}</td>`
+      + `<td>${STAGE_LABEL[g.stage]}${g.tag?` <span class="cov-note">${g.tag}</span>`:""}</td>`
+      + `<td class="mono">${ctxK(g.context)}</td><td class="mono">${g.reps}</td>`
+      + scen.map(s=>`<td class="cov-c">${cellFor(s)}</td>`).join("") + "</tr>";
+  }).join("");
+}
+
+/* ---------- gates ---------- */
+function renderGateTable(){
+  document.getElementById("gate-head").innerHTML = "<tr><th>Cand</th><th>Runtime</th><th>Band</th><th>Source</th>"
+    + "<th class='cov-c'>Cache ≥ 0.90</th><th class='cov-c'>Correctness</th><th class='cov-c'>Swap ≤ 0.5</th>"
+    + "<th class='cov-c'>Server</th><th class='cov-c'>Wired</th><th>Result</th></tr>";
+  const y = t => `<span class="cov-y">✓ ${t}</span>`, n = t => `<span class="cov-n">✗ ${t}</span>`;
+  const rows = [];
+  CANDS.forEach(c => GATE_CTX.forEach(ctx => {
+    const g = G.find(x => x.canonical && x.cand===c.id && x.context===ctx);
+    if(!g) return;
+    const hits = [g.hit.append, g.hit.tool_turn].filter(v=>v!=null);
+    const cache = hits.length ? (Math.min(...hits)>=0.90 ? y(Math.min(...hits).toFixed(2)) : n(Math.min(...hits).toFixed(2)))
+      : (g.refused ? n("no data") : '<span class="cov-d">—</span>');
+    const corr = g.refused ? n("refused") : (g.failed ? n(g.failed+" failed") : y(g.truncated? g.truncated+" trunc." : g.correct+"/"+g.n));
+    const swap = g.swap_delta_gb<=0.5 ? y(g.swap_delta_gb.toFixed(2)) : n(g.swap_delta_gb.toFixed(2));
+    const srv = (g.refused || g.error_kinds.length || g.stream_failures)
+      ? n(g.error_kinds.map(k=>k.replace("http_","")).join(",")||"error") : y("0 errors");
+    const wired = g.wired_peak_gb==null ? '<span class="cov-d">—</span>'
+      : (g.wired_peak_gb>102 ? `<span class="cov-p">⚠ ${g.wired_peak_gb.toFixed(1)}</span>` : `<span class="mono">${g.wired_peak_gb.toFixed(1)}</span>`);
+    const res = g.gates_failed.length ? `<span class="chip bad" title="${g.gates_failed.join(', ')}">fail</span>` : '<span class="chip ok">pass</span>';
+    rows.push(`<tr><td class="mono arm">${c.id}</td><td>${c.runtime} ${c.runtime_version}</td><td class="mono">${ctxK(ctx)}</td>`
+      + `<td>${STAGE_LABEL[g.stage]} · ${g.reps} rep${g.reps>1?'s':''}</td>`
+      + `<td class="cov-c">${cache}</td><td class="cov-c">${corr}</td><td class="cov-c">${swap}</td>`
+      + `<td class="cov-c">${srv}</td><td class="cov-c">${wired}</td><td>${res}</td></tr>`);
+  }));
+  document.getElementById("gate-body").innerHTML = rows.join("");
+}
+
+/* ---------- glossary ---------- */
+function renderCoverage(){
+  const cols = ["Cand","Runtime","Quant / model","bpw","Disk","Cache","Speculation","Canonical ctx","Diag ctx","Ceiling","Status"];
+  document.getElementById("cov-head").innerHTML = "<tr>" + cols.map(c=>`<th>${c}</th>`).join("") + "</tr>";
+  document.getElementById("cov-body").innerHTML = CANDS.map(c=>{
+    const mine = G.filter(g=>g.cand===c.id);
+    const canon = mine.filter(g=>g.canonical).map(g => g.refused
+      ? `<span class="cov-n">${ctxK(g.context)}</span>` : `<span class="cov-strong">${ctxK(g.context)}</span>`).join(", ");
+    const diag = uniq(mine.filter(g=>g.mode==="diag").map(g=>ctxK(g.context))).join(", ");
+    const st = c.state==="fail"?"bad":(c.state==="pass"?"ok":"neutral");
+    return `<tr><td class="mono arm">${c.id}</td><td>${c.runtime} ${c.runtime_version}</td>`
+      + `<td><span class="cov-p">${c.quant}</span> <span class="cov-d">${c.model} · ${c.revision}</span></td>`
+      + `<td class="mono">${c.bpw ?? "—"}</td><td class="mono">${c.disk_gb.toFixed(0)} GB</td>`
+      + `<td class="cov-note">${c.cache}</td><td class="cov-note">${c.spec}</td>`
+      + `<td class="mono">${canon||'<span class="cov-d">—</span>'}</td>`
+      + `<td class="mono">${diag||'<span class="cov-d">—</span>'}</td>`
+      + `<td class="cov-note">${c.ceiling}</td><td><span class="chip ${st}">${c.status}</span></td></tr>`;
+  }).join("");
+}
+function renderGlossaries(){
+  document.getElementById("arm-gloss").innerHTML = CANDS.map(c =>
+    `<div class="gitem"><span class="gk">${c.id}</span><span><b>${c.name}</b> — ${c.note}</span></div>`).join("");
+  document.getElementById("gate-gloss").innerHTML = (DATA.gates_glossary||[]).map(x =>
+    `<div class="gaterow"><b>${x.gate}</b> — <span>${x.desc}</span></div>`).join("");
+}
+
+/* ---------- tabs ---------- */
+function initTabs(){
+  const tabs = [...document.querySelectorAll(".tabs button")];
+  const panels = [...document.querySelectorAll(".tabpanel")];
+  tabs.forEach(t => t.onclick = () => {
+    tabs.forEach(x => x.setAttribute("aria-selected", String(x===t)));
+    panels.forEach(p => p.hidden = p.dataset.panel !== t.dataset.tab);
+  });
+}
+
+function refresh(){ renderChart(); renderTable(); }
+document.getElementById("search").addEventListener("input", e=>{ state.search=e.target.value; renderChart(); renderTable(); });
+
+initTabs(); initControls(); renderHead(); renderChart(); renderMatrix();
+renderProfiles(); renderCmpT("cmp-32", 32768); renderCmpT("cmp-128", 131072); renderCmpQuant();
+renderTests(); renderTestCoverage(); renderGateTable(); renderCoverage(); renderGlossaries(); renderTable();
+</script>

@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="tub" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fbff"/>
+      <stop offset="1" stop-color="#dfe8f2"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9fd3f0"/>
+      <stop offset="1" stop-color="#5aa7d9"/>
+    </linearGradient>
+    <linearGradient id="duckBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd94d"/>
+      <stop offset="1" stop-color="#f2b90e"/>
+    </linearGradient>
+    <linearGradient id="duckHead" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe06b"/>
+      <stop offset="1" stop-color="#f7c52b"/>
+    </linearGradient>
+    <radialGradient id="soapGlow" cx="0.5" cy="0.35" r="0.9">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="0.7" stop-color="#eef7fb" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#cfe7f2" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+
+  <!-- Bathroom tile background -->
+  <rect width="800" height="600" fill="#b8cfdc"/>
+  <g fill="#a7c0cf">
+    <rect x="0" y="0" width="100" height="100"/><rect x="200" y="0" width="100" height="100"/>
+    <rect x="400" y="0" width="100" height="100"/><rect x="600" y="0" width="100" height="100"/>
+    <rect x="100" y="100" width="100" height="100"/><rect x="300" y="100" width="100" height="100"/>
+    <rect x="500" y="100" width="100" height="100"/><rect x="700" y="100" width="100" height="100"/>
+  </g>
+  <!-- Grout lines -->
+  <g stroke="#b8cfdc" stroke-width="2">
+    <line x1="100" y1="0" x2="100" y2="200"/>
+    <line x1="200" y1="0" x2="200" y2="200"/>
+    <line x1="300" y1="0" x2="300" y2="200"/>
+    <line x1="400" y1="0" x2="400" y2="200"/>
+    <line x1="500" y1="0" x2="500" y2="200"/>
+    <line x1="600" y1="0" x2="600" y2="200"/>
+    <line x1="700" y1="0" x2="700" y2="200"/>
+    <line x1="0" y1="100" x2="800" y2="100"/>
+  </g>
+
+  <!-- Floor -->
+  <rect y="200" width="800" height="400" fill="#e9eff4"/>
+
+  <!-- Bathtub body -->
+  <g>
+    <rect x="100" y="220" width="600" height="320" rx="40" fill="url(#tub)" stroke="#c0cdd9" stroke-width="6"/>
+    <!-- Tub rim -->
+    <rect x="85" y="205" width="630" height="40" rx="20" fill="#ffffff" stroke="#c0cdd9" stroke-width="6"/>
+    <!-- Tub feet -->
+    <ellipse cx="170" cy="545" rx="30" ry="12" fill="#d4dde6"/>
+    <ellipse cx="630" cy="545" rx="30" ry="12" fill="#d4dde6"/>
+  </g>
+
+  <!-- Bath water -->
+  <ellipse cx="400" cy="330" rx="270" ry="70" fill="url(#water)"/>
+
+  <!-- Soap bubbles -->
+  <g fill="url(#soapGlow)" stroke="rgba(255,255,255,0.85)" stroke-width="1.5">
+    <circle cx="220" cy="300" r="26"/>
+    <circle cx="255" cy="282" r="18"/>
+    <circle cx="285" cy="310" r="30"/>
+    <circle cx="330" cy="285" r="16"/>
+    <circle cx="180" cy="330" r="20"/>
+    <circle cx="315" cy="325" r="22"/>
+    <circle cx="555" cy="305" r="28"/>
+    <circle cx="590" cy="288" r="18"/>
+    <circle cx="620" cy="318" r="24"/>
+    <circle cx="545" cy="330" r="16"/>
+    <circle cx="665" cy="300" r="20"/>
+    <circle cx="130" cy="315" r="16"/>
+    <circle cx="150" cy="295" r="12"/>
+  </g>
+  <!-- Bubble specular highlights -->
+  <g fill="#ffffff" opacity="0.8">
+    <ellipse cx="212" cy="292" rx="7" ry="5"/>
+    <ellipse cx="278" cy="300" rx="8" ry="6"/>
+    <ellipse cx="548" cy="296" rx="7" ry="5"/>
+    <ellipse cx="614" cy="309" rx="6" ry="5"/>
+  </g>
+  <!-- Additional floating medium bubbles behind duck -->
+  <g fill="url(#soapGlow)" stroke="rgba(255,255,255,0.8)" stroke-width="1">
+    <circle cx="430" cy="285" r="14"/>
+    <circle cx="470" cy="310" r="18"/>
+    <circle cx="368" cy="300" r="12"/>
+    <circle cx="500" cy="290" r="15"/>
+    <circle cx="520" cy="325" r="12"/>
+    <circle cx="245" cy="330" r="14"/>
+  </g>
+
+  <!-- Rubber ducky -->
+  <g>
+    <!-- Body -->
+    <path d="M285 400 Q285 320 400 320 Q515 320 515 400 Q515 470 400 470 Q285 470 285 400 Z" fill="url(#duckBody)" stroke="#d9a808" stroke-width="4"/>
+    <!-- Wing -->
+    <path d="M430 370 Q500 350 485 405 Q460 430 455 415 Q435 430 425 415 Z" fill="#e8b010" stroke="#d9a808" stroke-width="3"/>
+
+    <!-- Tail -->
+    <path d="M505 395 Q540 370 535 400 Z" fill="#f2b90e" stroke="#d9a808" stroke-width="3"/>
+
+    <!-- Head -->
+    <circle cx="360" cy="265" r="65" fill="url(#duckHead)" stroke="#d9a808" stroke-width="4"/>
+    <!-- Neck join shadow -->
+    <path d="M330 300 Q360 330 410 300" fill="none" stroke="#e6b010" stroke-width="6" stroke-linecap="round" opacity="0.6"/>
+
+    <!-- Beak -->
+    <path d="M415 255 Q480 245 465 275 Q450 290 415 275 Z" fill="#f2831b" stroke="#d9690a" stroke-width="3"/>
+    <line x1="415" y1="265" x2="462" y2="262" stroke="#c95f09" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Nostrils -->
+    <circle cx="455" cy="252" r="2.5" fill="#c95f09"/>
+    <circle cx="465" cy="254" r="2.5" fill="#c95f09"/>
+
+    <!-- Eye -->
+    <circle cx="395" cy="240" r="13" fill="#ffffff"/>
+    <circle cx="400" cy="240" r="8" fill="#1a1a1a"/>
+    <circle cx="403" cy="237" r="3" fill="#ffffff"/>
+
+    <!-- Cheek -->
+    <ellipse cx="378" cy="278" rx="12" ry="8" fill="#f7a8b8" opacity="0.7"/>
+
+    <!-- Head highlight -->
+    <ellipse cx="335" cy="225" rx="18" ry="12" fill="#ffffff" opacity="0.45" transform="rotate(-20 335 225)"/>
+  </g>
+
+  <!-- Water line in front of duck -->
+  <path d="M140 380 Q230 395 320 380 Q410 365 500 380 Q590 395 680 380" fill="none" stroke="#3e86b8" stroke-width="4" stroke-linecap="round" opacity="0.55"/>
+  <path d="M160 405 Q260 418 400 405 Q540 392 640 405" fill="none" stroke="#3e86b8" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
+
+  <!-- Faucet -->
+  <g>
+    <rect x="120" y="150" width="30" height="60" rx="8" fill="#d7dee5" stroke="#b7c2cd" stroke-width="3"/>
+    <ellipse cx="135" cy="150" rx="24" ry="12" fill="#e4eaef" stroke="#b7c2cd" stroke-width="3"/>
+    <path d="M135 165 Q135 205 165 205 L320 205 Q345 195 345 175 L345 165" fill="none" stroke="#b7c2cd" stroke-width="3" opacity="0"/>
+  </g>
+  <g>
+    <path d="M135 160 Q135 210 180 213" fill="none" stroke="#d7dee5" stroke-width="26" stroke-linecap="round"/>
+    <path d="M135 160 Q135 210 180 213" fill="none" stroke="#eef2f6" stroke-width="20" stroke-linecap="round"/>
+    <ellipse cx="184" cy="214" rx="16" ry="8" fill="#d7dee5" stroke="#b7c2cd" stroke-width="3"/>
+  </g>
+
+  <!-- Water drip from faucet -->
+  <ellipse cx="184" cy="252" rx="6" ry="9" fill="#9fd3f0" opacity="0.8"/>
+
+  <!-- Steamy details -->
+  <g stroke="#ffffff" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.5" filter="url(#soft)">
+    <path d="M560 200 Q575 185 565 170"/>
+    <path d="M610 190 Q625 175 615 158"/>
+    <path d="M240 205 Q255 190 245 175"/>
+  </g>
+</svg>

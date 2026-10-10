@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="Cow plowing a field, flat illustration">
+  <title>Cow plowing a field</title>
+
+  <defs>
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffb347"/>
+      <stop offset="38%" stop-color="#ff8c42"/>
+      <stop offset="75%" stop-color="#b56576"/>
+      <stop offset="100%" stop-color="#4a4e69"/>
+    </linearGradient>
+    <linearGradient id="earthGrad" x1="-1" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#5c3317"/>
+      <stop offset="100%" stop-color="#7a4520"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="800" height="500" fill="url(#skyGrad)"/>
+
+  <!-- Radiant sun: concentric arcs -->
+  <g stroke="#ffd166" stroke-width="4" fill="none" opacity="0.7">
+    <circle cx="400" cy="150" r="150"/>
+    <circle cx="400" cy="150" r="118" stroke-width="3" opacity="0.8"/>
+    <circle cx="400" cy="150" r="88" stroke-width="2"/>
+  </g>
+  <circle cx="400" cy="150" r="62" fill="#ffd166"/>
+  <circle cx="400" cy="150" r="50" fill="#ffe29a"/>
+
+  <!-- Flat clouds -->
+  <g fill="#fdf3e7" opacity="0.9">
+    <!-- horizontal cloud slabs -->
+    <path d="M60 96 h120 a18 18 0 0 0 -36 0 h-10 a16 16 0 0 0 -32 0 h-42 z"/>
+    <path d="M560 70 h150 a20 20 0 0 0 -40 0 h-14 a18 18 0 0 0 -36 0 h-60 z"/>
+    <path d="M180 130 h100 a14 14 0 0 0 -28 0 h-8 a12 12 0 0 0 -24 0 h-40 z" opacity="0.7"/>
+  </g>
+
+  <!-- Layered hills -->
+  <path d="M0 340 L150 260 L300 330 L480 250 L650 335 L800 275 L800 340 Z" fill="#6a994e"/>
+  <path d="M0 375 L120 305 L260 355 L430 290 L610 360 L800 310 L800 375 Z" fill="#557c41"/>
+
+  <!-- Furrowed field band -->
+  <rect y="376" width="800" height="124" fill="url(#earthGrad)"/>
+
+  <!-- Rhythmic furrow strokes -->
+  <g stroke="#3c2010" stroke-width="5" stroke-linecap="round">
+    <path d="M0 396 h90 M120 396 h140 M290 396 h90 M410 396 h150"/>
+    <path d="M0 420 h180 M210 420 h200 M440 420 h120 M590 420 h210"/>
+    <path d="M0 444 h120 M150 444 h190 M370 444 h130 M530 444 h270"/>
+    <path d="M0 468 h90 M120 468 h230 M380 468 h170 M580 468 h220"/>
+  </g>
+  <g stroke="#a06a35" stroke-width="2" opacity="0.8">
+    <path d="M0 408 h110 M140 408 h250 M420 408 h90 M540 408 h260"/>
+    <path d="M0 432 h150 M180 432 h200 M410 432 h160 M600 432 h200"/>
+    <path d="M0 456 h100 M130 456 h210 M370 456 h160 M560 456 h240"/>
+  </g>
+
+  <!-- Fresh turned slivers behind the plow -->
+  <g stroke="#2a1608" stroke-width="6" stroke-linecap="round" fill="none">
+    <path d="M120 412 Q200 408 260 414"/>
+    <path d="M120 436 Q200 432 260 438"/>
+  </g>
+
+  <!-- === PLOW (right side) === -->
+  <g>
+    <!-- Beam -->
+    <line x1="330" y1="430" x2="470" y2="452" stroke="#8a5422" stroke-width="12" stroke-linecap="round"/>
+    <!-- Moldboard -->
+    <path d="M462 452 L540 444 Q560 452 548 462 L464 468 Z" fill="#aab2bd" stroke="#707a87" stroke-width="3"/>
+    <!-- Share -->
+    <polygon points="536,444 582,438 566,454 550,462" fill="#87909c" stroke="#565e6a" stroke-width="3"/>
+    <!-- Tip -->
+    <polygon points="580,438 612,440 592,450" fill="#4f5660"/>
+    <!-- Handles -->
+    <line x1="452" y1="420" x2="468" y2="452" stroke="#8a5422" stroke-width="9" stroke-linecap="round"/>
+    <g stroke="#3a2e20" stroke-width="3">
+      <line x1="452" y1="420" x2="440" y2="398"/>
+    </g>
+    <!-- Wheel -->
+    <circle cx="500" cy="478" r="14" fill="none" stroke="#4a3417" stroke-width="5"/>
+    <line x1="500" y1="464" x2="500" y2="492" stroke="#4a3417" stroke-width="5"/>
+    <!-- Coupler -->
+    <rect x="322" y="424" width="18" height="16" rx="3" fill="#43474d"/>
+  </g>
+
+  <!-- === YOKE === -->
+  <g>
+    <rect x="240" y="252" width="104" height="12" rx="6" fill="#b07b3c" stroke="#6d4a1e" stroke-width="2.5"/>
+    <!-- straps -->
+    <rect x="256" y="248" width="7" height="72" rx="3" fill="#6d4a1e"/>
+    <rect x="322" y="248" width="7" height="72" rx="3" fill="#6d4a1e"/>
+    <!-- chains to plow -->
+    <line x1="260" y1="318" x2="332" y2="426" stroke="#5c5c5c" stroke-width="3" stroke-dasharray="7 4"/>
+    <line x1="326" y1="320" x2="350" y2="428" stroke="#5c5c5c" stroke-width="3" stroke-dasharray="7 4"/>
+  </g>
+
+  <!-- === COW (stylized side profile, walking right, bold flat shapes) === -->
+  <g>
+    <!-- shadow -->
+    <ellipse cx="300" cy="496" rx="150" ry="12" fill="#2a1608" opacity="0.55"/>
+
+    <!-- Dust -->
+    <g fill="#d8a05a" opacity="0.55">
+      <circle cx="292" cy="436" r="5"/>
+      <circle cx="268" cy="430" r="7"/>
+      <circle cx="312" cy="424" r="4"/>
+      <circle cx="248" cy="420" r="5"/>
+    </g>
+
+    <!-- Tail -->
+    <path d="M140 330 Q110 348 108 382" fill="none" stroke="#fdf3e7" stroke-width="10" stroke-linecap="round"/>
+    <ellipse cx="107" cy="396" rx="9" ry="18" fill="#fdf3e7" transform="rotate(20 107 396)"/>
+
+    <!-- Recessed hind leg (far side) -->
+    <path d="M185 452 L183 488" stroke="#d8a05a" stroke-width="26" stroke-linecap="round"/>
+    <rect x="171" y="484" width="26" height="14" rx="6" fill="#3a2e20"/>
+    <!-- hind leg (near) -->
+    <path d="M228 450 L225 488" stroke="#fdf3e7" stroke-width="30" stroke-linecap="round"/>
+    <rect x="213" y="484" width="28" height="14" rx="6" fill="#3a2e20"/>
+
+    <!-- Recessed front leg (far side) -->
+    <path d="M405 448 L403 490" stroke="#d8a05a" stroke-width="26" stroke-linecap="round"/>
+    <rect x="391" y="486" width="26" height="14" rx="6" fill="#3a2e20"/>
+    <!-- front leg (near) -->
+    <path d="M448 446 L446 490" stroke="#fdf3e7" stroke-width="30" stroke-linecap="round"/>
+    <rect x="433" y="486" width="28" height="14" rx="6" fill="#3a2e20"/>
+
+    <!-- Body -->
+    <path d="M150 300
+             Q140 420 180 452
+             Q360 466 452 448
+             Q470 330 420 290
+             Q330 230 150 300 Z"
+          fill="#a63a3a" stroke="#7c2323" stroke-width="3"/>
+
+    <!-- White hip patch -->
+    <path d="M150 312 Q128 384 168 448 L196 452 Q190 370 196 316 Z" fill="#fdf3e7" stroke="none"/>
+    <!-- Belly white -->
+    <path d="M208 456 Q360 466 446 448 Q372 442 200 448 Z" fill="#fdf3e7"/>
+    <!-- Back patch -->
+    <circle cx="300" cy="238" r="58" fill="#fdf3e7"/>
+    <path d="M240 250 Q300 190 366 250 Q356 316 300 330 Q244 316 240 250 Z" fill="#fdf3e7"/>
+
+    <!-- Folk pattern band -->
+    <g stroke="#fdf3e7" stroke-width="5" stroke-linecap="round" opacity="0.95">
+      <path d="M270 268 l12 10 12 -10 12 10 12 -10 12 10 12 -10"/>
+      <path d="M300 352 l0 -22"/>
+    </g>
+
+    <!-- Head -->
+    <ellipse cx="492" cy="278" rx="46" ry="40" fill="#a63a3a" stroke="#7c2323" stroke-width="3"/>
+    <!-- Blaze -->
+    <path d="M492 240 Q510 248 508 272 Q505 296 492 302 Q480 296 478 270 Q476 248 492 240 Z" fill="#fdf3e7"/>
+    <!-- Muzzle -->
+    <ellipse cx="532" cy="300" rx="22" ry="20" fill="#fdf3e7" stroke="#7c2323" stroke-width="2.5"/>
+    <!-- Nostrils -->
+    <ellipse cx="528" cy="306" rx="4" ry="5" fill="#3a2e20"/>
+    <ellipse cx="542" cy="306" rx="4" ry="5" fill="#3a2e20"/>
+    <!-- Mouth line -->
+    <path d="M524 314 Q534 318 544 314" fill="none" stroke="#3a2e20" stroke-width="2.5"/>
+    <!-- Eye -->
+    <circle cx="496" cy="266" r="6" fill="#1d1a16"/>
+    <circle cx="498" cy="264" r="2" fill="#fff"/>
+    <!-- Ear -->
+    <ellipse cx="468" cy="252" rx="12" ry="20" fill="#a63a3a" stroke="#7c2323" stroke-width="2.5" transform="rotate(-26 468 252)"/>
+    <!-- Horns -->
+    <path d="M480 246 Q492 224 510 222" fill="none" stroke="#f3e2bd" stroke-width="8" stroke-linecap="round"/>
+    <path d="M505 248 Q520 228 536 232" fill="none" stroke="#f3e2bd" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- Neck connects head to chest -->
+    <path d="M452 280 Q470 320 440 344 Q420 322 430 290 Z" fill="#a63a3a" stroke="#7c2323" stroke-width="2.5"/>
+  </g>
+
+  <!-- Grass tufts -->
+  <g stroke="#2f4f2f" stroke-width="3" stroke-linecap="round" fill="none">
+    <path d="M70 390 q4 -10 8 0"/>
+    <path d="M700 392 q4 -9 7 0 M712 392 q4 -9 7 0"/>
+    <path d="M630 382 q3 -8 6 0"/>
+  </g>
+
+  <!-- Birds -->
+  <g stroke="#22223b" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.8">
+    <path d="M120 60 q7 -9 14 0 q7 -9 14 0"/>
+    <path d="M660 50 q6 -8 12 0 q6 -8 12 0"/>
+    <path d="M690 96 q5 -7 10 0 q5 -7 10 0"/>
+  </g>
+</svg>

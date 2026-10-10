@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steno — five landing-page directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#F4F3EE;--ink:#17181A;--mid:#6E7068;--line:#DEDDD4}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font:400 17px/1.6 "Archivo",system-ui,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:72px 28px}
+  h1{font-weight:800;font-size:clamp(32px,4.6vw,52px);letter-spacing:-.025em;line-height:1.04}
+  .sub{color:var(--mid);margin:16px 0 52px;max-width:52ch}
+  ol{list-style:none}
+  li{border-top:1px solid var(--line)}
+  li:last-child{border-bottom:1px solid var(--line)}
+  a{display:flex;gap:24px;align-items:baseline;padding:24px 4px;text-decoration:none;color:var(--ink)}
+  a:hover{background:#fff}
+  a .num{font:14px "IBM Plex Mono",monospace;color:var(--mid);width:2ch}
+  a .name{font-weight:700;font-size:20px;letter-spacing:-.01em}
+  a .desc{color:var(--mid);font-size:15.5px}
+  a .go{margin-left:auto;color:var(--mid)}
+  :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  footer{margin-top:48px;color:var(--mid);font-size:14px}
+  code{font-family:"IBM Plex Mono",monospace;background:#fff;border:1px solid var(--line);padding:2px 7px;border-radius:5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Steno, five ways.</h1>
+  <p class="sub">A landing page for a second‑brain notes app, pitched five directions. Each has a small switcher in the corner.</p>
+  <ol>
+    <li><a href="1/"><span class="num">1</span><span class="name">Highlight</span><span class="desc">bone paper, highlighter yellow, animated swipes</span><span class="go">view</span></a></li>
+    <li><a href="2/"><span class="num">2</span><span class="name">Graph</span><span class="desc">violet dark, five‑hue tag system, living note graph</span><span class="go">view</span></a></li>
+    <li><a href="3/"><span class="num">3</span><span class="name">Margin</span><span class="desc">critical edition, blue‑pencil annotations, footnotes</span><span class="go">view</span></a></li>
+    <li><a href="4/"><span class="num">4</span><span class="name">Desk</span><span class="desc">library green, taped index cards, ruled paper</span><span class="go">view</span></a></li>
+    <li><a href="5/"><span class="num">5</span><span class="name">Capture</span><span class="desc">monochrome utility, a working capture bar</span><span class="go">view</span></a></li>
+  </ol>
+  <footer>Serving from <code>python3 -m http.server</code> or any static host.</footer>
+</div>
+</body>
+</html>

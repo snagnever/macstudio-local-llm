@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e6f4f8"/>
+      <stop offset="1" stop-color="#cfe8f0"/>
+    </linearGradient>
+    <linearGradient id="tub" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d8e6ec"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#aee0f5"/>
+      <stop offset="1" stop-color="#6db9e3"/>
+    </linearGradient>
+    <radialGradient id="duck" cx="0.4" cy="0.35" r="0.9">
+      <stop offset="0" stop-color="#ffef8e"/>
+      <stop offset="1" stop-color="#f5c33b"/>
+    </radialGradient>
+  </defs>
+
+  <!-- bathroom wall + tiles -->
+  <rect width="800" height="600" fill="url(#wall)"/>
+  <g stroke="#c2dfec" stroke-width="2">
+    <line x1="0" y1="100" x2="800" y2="100"/>
+    <line x1="0" y1="200" x2="800" y2="200"/>
+    <line x1="100" y1="0" x2="100" y2="200"/>
+    <line x1="300" y1="0" x2="300" y2="200"/>
+    <line x1="500" y1="0" x2="500" y2="200"/>
+    <line x1="700" y1="0" x2="700" y2="200"/>
+  </g>
+
+  <!-- tub shadow, feet -->
+  <ellipse cx="400" cy="545" rx="330" ry="18" fill="#000000" opacity="0.08"/>
+  <rect x="175" y="480" width="30" height="55" rx="12" fill="#c3d2da"/>
+  <rect x="595" y="480" width="30" height="55" rx="12" fill="#c3d2da"/>
+
+  <!-- tub body -->
+  <rect x="110" y="288" width="580" height="215" rx="70" fill="url(#tub)" stroke="#b9d6e0" stroke-width="3"/>
+  <ellipse cx="400" cy="295" rx="290" ry="48" fill="#eaf7fc" stroke="#b9d6e0" stroke-width="3"/>
+
+  <!-- water surface -->
+  <ellipse cx="400" cy="300" rx="272" ry="38" fill="url(#water)"/>
+
+  <!-- ripples around the duck -->
+  <ellipse cx="466" cy="312" rx="60" ry="8" fill="none" stroke="#ffffff" stroke-width="2" opacity="0">
+    <animate attributeName="rx" values="60;110" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;0" dur="3s" repeatCount="indefinite"/>
+  </ellipse>
+  <ellipse cx="466" cy="312" rx="60" ry="8" fill="none" stroke="#ffffff" stroke-width="2" opacity="0">
+    <animate attributeName="rx" values="60;110" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.4;0" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+  </ellipse>
+
+  <!-- rubber duck (bobs and rocks) -->
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 5; 0 0; 0 -3; 0 0"
+                      dur="3.5s" repeatCount="indefinite" additive="sum"/>
+    <animateTransform attributeName="transform" type="rotate" values="-2 470 285; 2 470 285; -2 470 285"
+                      dur="3.5s" repeatCount="indefinite" additive="sum"/>
+    <path d="M 414 300 Q 376 296 360 270 Q 352 256 356 244 Q 376 256 390 274 Q 402 290 414 296 Z" fill="#f0b93a"/>
+    <ellipse cx="470" cy="285" rx="75" ry="48" fill="url(#duck)"/>
+    <circle cx="505" cy="238" r="40" fill="url(#duck)"/>
+    <path d="M 540 234 Q 578 230 580 244 Q 578 256 540 252 Z" fill="#f28c28"/>
+    <circle cx="516" cy="226" r="6" fill="#3a3a3a"/>
+    <circle cx="518" cy="224" r="2" fill="#ffffff"/>
+    <path d="M 446 278 Q 472 260 506 278 Q 512 284 506 290 Q 498 300 488 294 Q 482 304 470 297 Q 458 304 452 294 Q 442 290 446 278 Z"
+          fill="#f2c14e"/>
+    <!-- suds on the duck's head -->
+    <g fill="#ffffff" opacity="0.9">
+      <circle cx="486" cy="204" r="10"/>
+      <circle cx="500" cy="195" r="8"/>
+      <circle cx="514" cy="201" r="7"/>
+    </g>
+  </g>
+
+  <!-- front water lapping over the duck (submerged look) -->
+  <path d="M 128 300 A 272 38 0 0 0 672 300 Z" fill="#6db9e3" opacity="0.55"/>
+  <ellipse cx="466" cy="313" rx="70" ry="8" fill="#2a7aa8" opacity="0.18"/>
+  <path d="M 386 328 Q 470 337 556 326" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.6">
+    <animateTransform attributeName="transform" type="translate" values="-4 0; 4 0; -4 0"
+                      dur="4s" repeatCount="indefinite"/>
+  </path>
+  <path d="M 200 312 Q 280 322 350 314" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.5">
+    <animateTransform attributeName="transform" type="translate" values="3 0; -3 0; 3 0"
+                      dur="5s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- foam on the water -->
+  <g fill="#ffffff" opacity="0.85">
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 2.5; 0 0"
+                      dur="3.5s" repeatCount="indefinite"/>
+    <circle cx="195" cy="288" r="26"/>
+    <circle cx="165" cy="276" r="15"/>
+    <circle cx="232" cy="274" r="12"/>
+    <circle cx="298" cy="292" r="20"/>
+    <circle cx="330" cy="282" r="11"/>
+    <circle cx="600" cy="290" r="24"/>
+    <circle cx="632" cy="278" r="14"/>
+    <circle cx="572" cy="276" r="12"/>
+    <circle cx="420" cy="322" r="10"/>
+  </g>
+
+  <!-- floating soap bubbles -->
+  <g>
+    <g id="b">
+      <circle r="16" fill="#ffffff" opacity="0.55" stroke="#bfe3f2" stroke-width="2"/>
+      <circle cx="-5" cy="-6" r="4" fill="#ffffff" opacity="0.9"/>
+    </g>
+    <use href="#b" transform="translate(150 120) scale(1.15)">
+      <animateTransform attributeName="transform" type="translate" values="0 20; 0 -30" dur="6s" begin="0s" repeatCount="indefinite" additive="sum"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.7;1" dur="6s" begin="0s" repeatCount="indefinite"/>
+    </use>
+    <use href="#b" transform="translate(235 88) scale(0.6)">
+      <animateTransform attributeName="transform" type="translate" values="0 20; 0 -30" dur="5s" begin="-1.5s" repeatCount="indefinite" additive="sum"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.7;1" dur="5s" begin="-1.5s" repeatCount="indefinite"/>
+    </use>
+    <use href="#b" transform="translate(352 105) scale(0.8)">
+      <animateTransform attributeName="transform" type="translate" values="0 20; 0 -30" dur="7s" begin="-3s" repeatCount="indefinite" additive="sum"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.7;1" dur="7s" begin="-3s" repeatCount="indefinite"/>
+    </use>
+    <use href="#b" transform="translate(612 140) scale(1.35)">
+      <animateTransform attributeName="transform" type="translate" values="0 20; 0 -30" dur="6.5s" begin="-2s" repeatCount="indefinite" additive="sum"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.7;1" dur="6.5s" begin="-2s" repeatCount="indefinite"/>
+    </use>
+    <use href="#b" transform="translate(668 92) scale(0.45)">
+      <animateTransform attributeName="transform" type="translate" values="0 20; 0 -30" dur="4.5s" begin="-0.8s" repeatCount="indefinite" additive="sum"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.7;1" dur="4.5s" begin="-0.8s" repeatCount="indefinite"/>
+    </use>
+    <use href="#b" transform="translate(520 130) scale(0.7)">
+      <animateTransform attributeName="transform" type="translate" values="0 20; 0 -30" dur="5.5s" begin="-4s" repeatCount="indefinite" additive="sum"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.7;1" dur="5.5s" begin="-4s" repeatCount="indefinite"/>
+    </use>
+    <use href="#b" transform="translate(706 190) scale(0.55)">
+      <animateTransform attributeName="transform" type="translate" values="0 20; 0 -30" dur="6s" begin="-5s" repeatCount="indefinite" additive="sum"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.7;1" dur="6s" begin="-5s" repeatCount="indefinite"/>
+    </use>
+  </g>
+</svg>

@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title description">
+  <title id="title">A half-buried barrel of treasure at sunset</title>
+  <desc id="description">An old open oak barrel, half swallowed by a dune, spills gold coins, pearls, and bright gems into the warm desert light.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#23476b"/>
+      <stop offset=".52" stop-color="#e47c5b"/>
+      <stop offset="1" stop-color="#ffd484"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#fff6b6" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#ffd082" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="farDune" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e5a353"/>
+      <stop offset="1" stop-color="#bc6534"/>
+    </linearGradient>
+    <radialGradient id="sand" cx="46%" cy="8%" r="95%">
+      <stop offset="0" stop-color="#ffe4a0"/>
+      <stop offset=".52" stop-color="#e7ad59"/>
+      <stop offset="1" stop-color="#ad562d"/>
+    </radialGradient>
+    <linearGradient id="oak" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d58a3d"/>
+      <stop offset=".18" stop-color="#8b421f"/>
+      <stop offset=".56" stop-color="#522114"/>
+      <stop offset=".82" stop-color="#8c4020"/>
+      <stop offset="1" stop-color="#35130e"/>
+    </linearGradient>
+    <linearGradient id="staveLight" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5b2514"/>
+      <stop offset=".34" stop-color="#bd692d"/>
+      <stop offset=".58" stop-color="#e0a04b"/>
+      <stop offset="1" stop-color="#572015"/>
+    </linearGradient>
+    <linearGradient id="iron" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d7a85a"/>
+      <stop offset=".2" stop-color="#765339"/>
+      <stop offset=".52" stop-color="#302622"/>
+      <stop offset=".82" stop-color="#90704a"/>
+      <stop offset="1" stop-color="#2a211e"/>
+    </linearGradient>
+    <radialGradient id="gold" cx="30%" cy="23%" r="75%">
+      <stop offset="0" stop-color="#fff6a7"/>
+      <stop offset=".27" stop-color="#ffd95a"/>
+      <stop offset=".63" stop-color="#e29a1d"/>
+      <stop offset="1" stop-color="#8a4109"/>
+    </radialGradient>
+    <linearGradient id="ruby" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffaaa1"/>
+      <stop offset=".35" stop-color="#db3650"/>
+      <stop offset="1" stop-color="#630f2e"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b9fff1"/>
+      <stop offset=".35" stop-color="#33cdbd"/>
+      <stop offset="1" stop-color="#087070"/>
+    </linearGradient>
+    <filter id="barrelShadow" x="-25%" y="-30%" width="160%" height="180%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="14" result="blur"/>
+      <feOffset in="blur" dx="11" dy="20" result="offset"/>
+      <feComponentTransfer in="offset"><feFuncA type="linear" slope=".38"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="8"/></filter>
+    <filter id="glint" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation=".35"/></filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <circle cx="847" cy="182" r="214" fill="url(#sunGlow)"/>
+  <circle cx="847" cy="207" r="55" fill="#fff0a7" opacity=".9"/>
+  <path d="M0 370 C145 314 274 346 411 380 C576 421 716 392 850 342 C985 291 1100 299 1200 340 V526 H0Z" fill="url(#farDune)"/>
+  <path d="M0 413 C178 368 300 415 423 448 C553 483 712 456 856 412 C1003 367 1107 383 1200 419 V800 H0Z" fill="url(#sand)"/>
+  <path d="M0 565 C134 517 269 528 402 571 C535 615 685 610 806 560 C954 499 1082 519 1200 566 V800 H0Z" fill="#c8783b" opacity=".38"/>
+  <g fill="none" stroke="#9e572d" stroke-linecap="round" opacity=".34">
+    <path d="M52 537c96-31 185-28 274 8" stroke-width="7"/>
+    <path d="M886 499c107-36 202-28 278 4" stroke-width="6"/>
+    <path d="M77 700c140-40 274-24 384 14" stroke-width="8"/>
+    <path d="M831 695c123-33 234-28 314 3" stroke-width="7"/>
+  </g>
+  <g fill="#9a5029" opacity=".55">
+    <circle cx="92" cy="586" r="4"/><circle cx="174" cy="632" r="3"/><circle cx="275" cy="548" r="5"/><circle cx="343" cy="724" r="4"/>
+    <circle cx="927" cy="585" r="4"/><circle cx="1046" cy="637" r="5"/><circle cx="1130" cy="561" r="3"/><circle cx="798" cy="736" r="4"/>
+  </g>
+
+  <ellipse cx="606" cy="657" rx="287" ry="75" fill="#66341f" opacity=".46" filter="url(#soft)"/>
+  <!-- The tilted cask is drawn before the foreground dune so its lower half is physically buried. -->
+  <g transform="rotate(-8 603 467)" filter="url(#barrelShadow)">
+    <path d="M402 332 C421 272 504 243 607 244 C711 245 791 278 806 338 L786 619 C778 695 702 731 600 730 C499 729 421 692 416 617Z" fill="url(#oak)" stroke="#35150f" stroke-width="12"/>
+    <path d="M427 349 C448 303 513 281 606 281 C699 282 763 306 783 351 L767 615 C761 666 698 694 601 694 C507 693 444 666 436 614Z" fill="none" stroke="#d48b3d" stroke-width="5" opacity=".46"/>
+
+    <g fill="url(#staveLight)" stroke="#4a1c12" stroke-width="5">
+      <path d="M437 352 C455 317 479 302 504 295 C484 411 486 557 505 683 C477 674 455 658 442 634Z"/>
+      <path d="M505 295 C533 283 554 279 576 278 C560 402 561 564 576 704 C554 702 531 697 504 686 C486 554 484 415 505 295Z"/>
+      <path d="M576 278 C599 276 622 276 645 278 C657 414 657 568 644 707 C622 710 599 710 576 707 C562 563 561 401 576 278Z"/>
+      <path d="M645 278 C669 279 691 283 714 291 C733 417 732 553 714 701 C693 706 669 709 644 708 C657 568 657 414 645 278Z"/>
+      <path d="M714 291 C746 301 767 319 783 351 L768 631 C756 659 738 679 714 691 C732 548 733 411 714 291Z"/>
+    </g>
+    <g fill="none" stroke="#f0ad58" stroke-linecap="round" opacity=".25">
+      <path d="M468 370c-8 104-4 186 11 255" stroke-width="4"/>
+      <path d="M537 319c-10 129-7 245 3 345" stroke-width="5"/>
+      <path d="M614 305c7 105 8 224-1 365" stroke-width="4"/>
+      <path d="M688 318c11 110 8 221-4 337" stroke-width="5"/>
+      <path d="M743 357c12 94 10 178-3 250" stroke-width="4"/>
+    </g>
+    <g fill="none" stroke="url(#iron)" stroke-width="23">
+      <path d="M413 398 C508 438 704 438 797 398"/>
+      <path d="M417 531 C512 567 700 567 791 531"/>
+      <path d="M420 634 C511 669 696 669 787 634"/>
+    </g>
+    <g fill="none" stroke="#e7bd72" stroke-width="2" opacity=".5">
+      <path d="M414 392 C510 432 705 432 797 392"/>
+      <path d="M418 525 C512 561 700 561 791 525"/>
+      <path d="M421 628 C511 663 696 663 786 628"/>
+    </g>
+    <g fill="#2d211d" stroke="#c18e4f" stroke-width="2">
+      <circle cx="450" cy="403" r="6"/><circle cx="762" cy="403" r="6"/>
+      <circle cx="445" cy="536" r="6"/><circle cx="766" cy="536" r="6"/>
+      <circle cx="442" cy="639" r="6"/><circle cx="770" cy="639" r="6"/>
+    </g>
+
+    <!-- The open lip and dark interior create depth behind the piled coins. -->
+    <ellipse cx="605" cy="315" rx="190" ry="73" fill="#26110c" stroke="#3b180f" stroke-width="14"/>
+    <ellipse cx="605" cy="311" rx="163" ry="52" fill="#120b09"/>
+    <path d="M434 320 C460 278 523 257 606 258 C688 258 752 280 776 320 C748 353 686 371 605 370 C524 369 463 352 434 320Z" fill="none" stroke="#d18a3d" stroke-width="15"/>
+    <path d="M446 319 C472 286 530 270 606 270 C683 270 740 287 766 320" fill="none" stroke="#f0ac59" stroke-width="3" opacity=".6"/>
+
+    <g fill="url(#gold)" stroke="#79400b" stroke-width="3">
+      <ellipse cx="483" cy="315" rx="37" ry="15" transform="rotate(-16 483 315)"/>
+      <ellipse cx="523" cy="295" rx="38" ry="15" transform="rotate(17 523 295)"/>
+      <ellipse cx="568" cy="321" rx="40" ry="16" transform="rotate(-11 568 321)"/>
+      <ellipse cx="612" cy="294" rx="38" ry="15" transform="rotate(12 612 294)"/>
+      <ellipse cx="657" cy="319" rx="41" ry="16" transform="rotate(-18 657 319)"/>
+      <ellipse cx="706" cy="298" rx="37" ry="14" transform="rotate(18 706 298)"/>
+      <ellipse cx="733" cy="329" rx="35" ry="14" transform="rotate(-8 733 329)"/>
+      <ellipse cx="507" cy="341" rx="38" ry="15" transform="rotate(15 507 341)"/>
+      <ellipse cx="554" cy="344" rx="38" ry="15" transform="rotate(-16 554 344)"/>
+      <ellipse cx="606" cy="332" rx="42" ry="16" transform="rotate(8 606 332)"/>
+      <ellipse cx="660" cy="346" rx="39" ry="15" transform="rotate(-12 660 346)"/>
+      <ellipse cx="705" cy="340" rx="35" ry="14" transform="rotate(16 705 340)"/>
+    </g>
+    <g fill="none" stroke="#8c4b0c" stroke-width="3" opacity=".8">
+      <path d="M463 312l28 7M503 292l30 7M548 318l32 7M593 291l30 7M635 316l32 7M690 295l29 7M718 326l28 5M490 338l31 7M537 341l31 6M587 329l34 7M643 343l31 7M690 337l28 6"/>
+    </g>
+    <g stroke-width="4">
+      <path d="M539 297l14-19 14 19-14 19Z" fill="url(#teal)" stroke="#0b6c6d"/>
+      <path d="M673 305l14-19 14 19-14 19Z" fill="url(#ruby)" stroke="#79152e"/>
+      <circle cx="625" cy="320" r="12" fill="url(#teal)" stroke="#0b6c6d"/>
+      <circle cx="532" cy="326" r="10" fill="url(#ruby)" stroke="#79152e"/>
+    </g>
+  </g>
+
+  <!-- High foreground sand banks cover the cask base and hold a few escaped coins. -->
+  <path d="M0 635 C128 596 249 610 354 659 C425 692 459 737 476 800 H0Z" fill="#e7a957"/>
+  <path d="M1200 592 C1084 566 971 594 867 655 C808 690 777 744 755 800 H1200Z" fill="#e7a957"/>
+  <path d="M285 800 C326 700 420 656 518 647 C616 638 731 657 826 726 C855 747 875 773 888 800Z" fill="#d18442"/>
+  <path d="M342 800 C373 727 447 687 529 680 C626 671 718 690 789 740 C815 758 833 779 841 800Z" fill="#efb95f"/>
+  <path d="M370 730 C466 695 659 691 792 749" fill="none" stroke="#fff0ad" stroke-width="9" stroke-linecap="round" opacity=".52"/>
+  <g fill="url(#gold)" stroke="#7a410a" stroke-width="3">
+    <ellipse cx="460" cy="678" rx="24" ry="10" transform="rotate(-18 460 678)"/>
+    <ellipse cx="501" cy="704" rx="25" ry="10" transform="rotate(12 501 704)"/>
+    <ellipse cx="733" cy="721" rx="24" ry="10" transform="rotate(-14 733 721)"/>
+  </g>
+  <g fill="#9b562b" opacity=".48">
+    <circle cx="116" cy="689" r="4"/><circle cx="202" cy="739" r="3"/><circle cx="315" cy="670" r="4"/><circle cx="903" cy="717" r="4"/><circle cx="1054" cy="654" r="3"/><circle cx="1117" cy="746" r="5"/>
+  </g>
+  <g fill="#fff4ba" filter="url(#glint)">
+    <path d="M456 254l5 15 15 5-15 5-5 15-5-15-15-5 15-5Z"/>
+    <path d="M747 235l5 15 15 5-15 5-5 15-5-15-15-5 15-5Z"/>
+    <path d="M696 196l4 12 12 4-12 4-4 12-4-12-12-4 12-4Z" opacity=".8"/>
+  </g>
+</svg>

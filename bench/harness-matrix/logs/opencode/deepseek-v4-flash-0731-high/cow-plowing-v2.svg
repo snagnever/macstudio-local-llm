@@ -1,0 +1,222 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="A cow plowing a field at golden hour">
+  <title>Cow plowing a field</title>
+
+  <defs>
+    <linearGradient id="skyGold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a7bd5"/>
+      <stop offset="55%" stop-color="#7fb2e5"/>
+      <stop offset="82%" stop-color="#ffd98a"/>
+      <stop offset="100%" stop-color="#ffb347"/>
+    </linearGradient>
+    <linearGradient id="fieldEarth" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6b4423"/>
+      <stop offset="100%" stop-color="#4a2e15"/>
+    </linearGradient>
+    <linearGradient id="cowHide" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#d7d0c6"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#fff3c4" stop-opacity="1"/>
+      <stop offset="60%" stop-color="#ffd24d" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#ffd24d" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="800" height="500" fill="url(#skyGold)"/>
+
+  <!-- Sun on horizon -->
+  <circle cx="620" cy="300" r="130" fill="url(#sunGlow)"/>
+  <circle cx="620" cy="300" r="42" fill="#fff7d6"/>
+  <circle cx="620" cy="300" r="34" fill="#fffbe8"/>
+
+  <!-- Distant warm clouds -->
+  <g fill="#f4a75e" opacity="0.5">
+    <ellipse cx="180" cy="120" rx="70" ry="18"/>
+    <ellipse cx="250" cy="112" rx="45" ry="14"/>
+    <ellipse cx="500" cy="150" rx="60" ry="15"/>
+    <ellipse cx="740" cy="130" rx="50" ry="13"/>
+  </g>
+
+  <!-- Treeline on the horizon -->
+  <g fill="#2f6b3f">
+    <path d="M0 300 L0 260 L30 240 L60 260 L90 235 L120 258 L150 238 L180 262 L210 242 L240 260 L270 240 L300 262 L330 244 L360 262 L390 245 L420 262 L450 244 L480 262 L510 246 L540 262 L570 244 L600 262 L630 246 L660 262 L690 244 L720 262 L750 246 L780 262 L800 250 L800 300 Z"/>
+  </g>
+
+  <!-- Rolling fields -->
+  <rect y="300" width="800" height="110" fill="#4c8c3f"/>
+  <ellipse cx="160" cy="300" rx="240" ry="34" fill="#5aa048"/>
+  <ellipse cx="680" cy="302" rx="220" ry="36" fill="#46823a"/>
+
+  <!-- Furrowed earth -->
+  <rect y="400" width="800" height="100" fill="url(#fieldEarth)"/>
+  <g stroke="#33200c" stroke-width="4">
+    <line x1="0" y1="416" x2="800" y2="416"/>
+    <line x1="0" y1="438" x2="800" y2="438"/>
+    <line x1="0" y1="460" x2="800" y2="460"/>
+    <line x1="0" y1="482" x2="800" y2="482"/>
+  </g>
+  <g stroke="#7a4f26" stroke-width="2" opacity="0.7">
+    <line x1="0" y1="427" x2="800" y2="427"/>
+    <line x1="0" y1="449" x2="800" y2="449"/>
+    <line x1="0" y1="471" x2="800" y2="471"/>
+  </g>
+
+  <!-- Freshly turned furrow behind the plow -->
+  <g stroke="#251705" stroke-width="5" stroke-linecap="round" opacity="0.95">
+    <path d="M30 410 L190 418"/>
+    <path d="M30 431 L190 439"/>
+  </g>
+  <g stroke="#c98d4e" stroke-width="2.5" stroke-linecap="round">
+    <path d="M20 408 Q95 416 180 416" fill="none"/>
+    <path d="M20 429 Q95 437 180 437" fill="none"/>
+  </g>
+
+  <!-- Dust kicked up behind the plow -->
+  <g fill="#c9a06a" opacity="0.4">
+    <circle cx="180" cy="408" r="6"/>
+    <circle cx="158" cy="402" r="8"/>
+    <circle cx="205" cy="398" r="5"/>
+    <circle cx="138" cy="396" r="6"/>
+    <circle cx="188" cy="418" r="5"/>
+  </g>
+  <g fill="#e0c99a" opacity="0.2">
+    <circle cx="120" cy="400" r="10"/>
+    <circle cx="170" cy="394" r="11"/>
+  </g>
+
+  <!-- === COW (three-quarter rear view walking left) === -->
+  <g>
+    <!-- Tail -->
+    <path d="M545 296 Q575 308 580 330" fill="none" stroke="#38302a" stroke-width="9" stroke-linecap="round"/>
+    <ellipse cx="582" cy="342" rx="8" ry="16" fill="#38302a" transform="rotate(28 582 342)"/>
+
+    <!-- Rump -->
+    <ellipse cx="512" cy="286" rx="10" ry="10" fill="#2e2a26" opacity="0.5"/>
+
+    <!-- Hind legs (far side) -->
+    <path d="M495 352 L492 400" stroke="#c2bab0" stroke-width="24" stroke-linecap="round"/>
+    <path d="M540 354 L538 400" stroke="#d9d2c8" stroke-width="24" stroke-linecap="round"/>
+    <rect x="482" y="396" width="26" height="14" rx="6" fill="#3a2e20"/>
+    <rect x="528" y="396" width="26" height="14" rx="6" fill="#3a2e20"/>
+
+    <!-- Body -->
+    <ellipse cx="440" cy="300" rx="120" ry="76" fill="url(#cowHide)" stroke="#b9b2a6" stroke-width="2"/>
+
+    <!-- Black patches -->
+    <g fill="#2e2a26">
+      <path d="M512 256 Q545 250 552 286 Q548 330 500 340 Q470 340 466 308 Q468 268 512 256 Z"/>
+      <ellipse cx="400" cy="356" rx="22" ry="14"/>
+      <path d="M380 300 Q396 284 416 296 Q418 318 400 328 Q380 322 380 300 Z"/>
+      <ellipse cx="452" cy="262" rx="14" ry="10"/>
+    </g>
+
+    <!-- Belly underline -->
+    <path d="M330 356 Q440 388 552 352" fill="none" stroke="#b9b2a6" stroke-width="2.5"/>
+
+    <!-- Front legs -->
+    <path d="M368 344 L362 400" stroke="#eae4da" stroke-width="26" stroke-linecap="round"/>
+    <path d="M316 342 L310 400" stroke="#d3ccc2" stroke-width="26" stroke-linecap="round"/>
+    <rect x="354" y="396" width="26" height="14" rx="6" fill="#3a2e20"/>
+    <rect x="302" y="396" width="26" height="14" rx="6" fill="#3a2e20"/>
+
+    <!-- Neck -->
+    <path d="M330 288 Q298 272 292 246 Q326 226 348 258 L348 320 Z" fill="#f0eae0" stroke="#c4bcb0" stroke-width="2"/>
+
+    <!-- Head (lowered, pulling) -->
+    <ellipse cx="266" cy="252" rx="58" ry="44" fill="#f5f0e6" stroke="#ccc4b8" stroke-width="2" transform="rotate(10 266 252)"/>
+    <!-- Muzzle -->
+    <ellipse cx="222" cy="268" rx="24" ry="20" fill="#e8e0d2" stroke="#c2b9a8" stroke-width="1.5"/>
+    <!-- Nostrils -->
+    <ellipse cx="210" cy="272" rx="4" ry="5" fill="#4a3a2a"/>
+    <ellipse cx="232" cy="272" rx="4" ry="5" fill="#4a3a2a"/>
+
+    <!-- Facial mask -->
+    <path d="M258 224 Q280 212 292 226 Q300 252 286 268 Q262 266 254 244 Q252 232 258 224 Z" fill="#2e2a26" opacity="0.9"/>
+    <!-- Blaze -->
+    <path d="M292 214 Q308 222 310 246 Q308 268 290 270 L284 246 Z" fill="#ffffff"/>
+
+    <!-- Eyes -->
+    <circle cx="262" cy="240" r="5" fill="#191612"/>
+    <circle cx="290" cy="244" r="5" fill="#191612"/>
+    <circle cx="264" cy="238.5" r="1.6" fill="#ffffff"/>
+    <circle cx="292" cy="242.5" r="1.6" fill="#ffffff"/>
+
+    <!-- Ears -->
+    <ellipse cx="302" cy="222" rx="10" ry="19" fill="#f5f0e6" stroke="#c2b9a8" stroke-width="1.5" transform="rotate(-32 302 222)"/>
+    <ellipse cx="322" cy="228" rx="9" ry="17" fill="#e0d4be" stroke="#c2b9a8" stroke-width="1.5" transform="rotate(-14 322 228)"/>
+
+    <!-- Horns -->
+    <path d="M300 216 Q314 200 332 198" fill="none" stroke="#e7cd96" stroke-width="6" stroke-linecap="round"/>
+    <path d="M322 220 Q340 204 356 210" fill="none" stroke="#e7cd96" stroke-width="6" stroke-linecap="round"/>
+  </g>
+
+  <!-- === YOKE & HARNESS === -->
+  <g>
+    <rect x="212" y="238" width="120" height="11" rx="5.5" fill="#9a6a33" stroke="#5d3b18" stroke-width="2"/>
+    <rect x="212" y="238" width="60" height="11" rx="5.5" fill="#b17a3c" stroke="#5d3b18" stroke-width="1.5"/>
+    <!-- Leather traces -->
+    <path d="M242 246 Q240 300 230 370" fill="none" stroke="#5c4632" stroke-width="4" stroke-linecap="round"/>
+    <path d="M306 246 Q312 310 322 380" fill="none" stroke="#5c4632" stroke-width="4" stroke-linecap="round"/>
+    <!-- Trace chains to beam -->
+    <line x1="230" y1="370" x2="270" y2="412" stroke="#6e6e6e" stroke-width="2.5" stroke-dasharray="5 3"/>
+    <line x1="322" y1="380" x2="352" y2="430" stroke="#6e6e6e" stroke-width="2.5" stroke-dasharray="5 3"/>
+  </g>
+
+  <!-- === PLOW === -->
+  <g>
+    <!-- Beam -->
+    <line x1="268" y1="414" x2="395" y2="446" stroke="#a4633a" stroke-width="10" stroke-linecap="round"/>
+    <line x1="395" y1="446" x2="360" y2="452" stroke="#8a5027" stroke-width="8" stroke-linecap="round"/>
+    <!-- Handles -->
+    <line x1="360" y1="420" x2="382" y2="452" stroke="#8a5027" stroke-width="8" stroke-linecap="round"/>
+    <!-- Coupler at beam head -->
+    <rect x="258" y="406" width="20" height="18" rx="4" fill="#3f3f3f"/>
+    <!-- Share / moldboard -->
+    <path d="M400 452 L470 445 Q492 455 470 465 L402 466 Z" fill="#b9bec6" stroke="#6d717a" stroke-width="2"/>
+    <polygon points="468,444 502,442 490,452 476,458" fill="#8e949c" stroke="#595d64" stroke-width="2"/>
+    <!-- Share tip -->
+    <polygon points="498,441 532,447 508,453" fill="#6e6e6e"/>
+    <!-- Depth wheel -->
+    <g transform="translate(150 0)">
+      <circle cx="392" cy="462" r="17" fill="none" stroke="#6b4f2f" stroke-width="6"/>
+      <line x1="392" y1="445" x2="392" y2="479" stroke="#6b4f2f" stroke-width="6"/>
+    </g>
+    <!-- Farmer figure guiding -->
+    <g transform="translate(430 350)">
+      <ellipse cx="30" cy="78" rx="15" ry="8" fill="#4a2e15" opacity="0.5"/>
+      <!-- body -->
+      <rect x="9" y="18" width="42" height="60" rx="8" fill="#c94f2e"/>
+      <circle cx="30" cy="10" r="12" fill="#f0b28c"/>
+      <path d="M22 4 A8 8 0 0 1 38 4" fill="none" stroke="#3a2e20" stroke-width="3"/>
+      <!-- arms -->
+      <line x1="9" y1="28" x2="-8" y2="60" stroke="#f0b28c" stroke-width="8" stroke-linecap="round"/>
+      <line x1="51" y1="28" x2="66" y2="40" stroke="#f0b28c" stroke-width="8" stroke-linecap="round"/>
+    </g>
+    <!-- Plow handles held -->
+    <g stroke="#3a2e20" stroke-width="2.5">
+      <line x1="422" y1="410" x2="390" y2="452"/>
+    </g>
+  </g>
+
+  <!-- Ground shadow -->
+  <ellipse cx="420" cy="412" rx="190" ry="14" fill="#2c1a0a" opacity="0.4"/>
+
+  <!-- Grass tufts -->
+  <g stroke="#2f6b3f" stroke-width="3" stroke-linecap="round" fill="none">
+    <path d="M80 398 q4 -10 8 0"/>
+    <path d="M640 402 q4 -9 7 0 M652 402 q4 -9 7 0"/>
+    <path d="M720 394 q3 -8 6 0"/>
+  </g>
+
+  <!-- Birds -->
+  <g stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.85">
+    <path d="M180 170 q7 -9 14 0 q7 -9 14 0"/>
+    <path d="M240 150 q6 -8 12 0 q6 -8 12 0"/>
+    <path d="M520 190 q6 -8 12 0 q6 -8 12 0"/>
+  </g>
+
+  <!-- Soft vignette -->
+  <rect width="800" height="500" fill="none" stroke="#241505" stroke-opacity="0.25" stroke-width="60"/>
+</svg>
