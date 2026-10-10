@@ -1,4 +1,19 @@
 {
+ "n1": {
+  "run": "humaneval_ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit-ef5b919d31534faa1997666f1a22d362cd6383cd_20261007_073152.jsonl",
+  "n": 164,
+  "strict": 151,
+  "with_imports": 157,
+  "fixed_by_imports": [
+   2,
+   3,
+   38,
+   82,
+   84,
+   131
+  ],
+  "truncated": []
+ },
  "n2": {
   "run": "humaneval_ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a_20261007_081345.jsonl",
   "n": 164,

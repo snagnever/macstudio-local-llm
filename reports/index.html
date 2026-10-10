@@ -101,21 +101,22 @@ footer a{color:var(--accent)}
 
   <section class="block" id="flashnext">
     <h2 class="sec"><span class="sw" style="background:var(--s1)"></span>Qwen3.8-Flash-Next — daily driver</h2>
-    <p class="s-note">Campaign <code>bench/qwen38-flashnext-daily-driver-2026-09</code>: 4 quant × runtime combinations of
-    Flash-Next (MoE), to pick the most responsive setup. Verdict: ddalcu mixed-4/8 on mlx-serve 26.9.2.</p>
+    <p class="s-note">Campaigns <code>bench/qwen38-flashnext-daily-driver-2026-09</code> and
+    <code>bench/engine-updates-2026-10</code>: quant × runtime combinations of Flash-Next (MoE), to pick the most
+    responsive setup. Verdict since October 2026: ddalcu iQ-MLX 4.7 bpw on mlx-serve 26.10.1.</p>
     <div class="cards">
       <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-overview.html">
-        <span class="c-title">Campaign dashboard</span>
-        <p class="c-desc">Headline numbers, bars per metric (T_turn, TTFT, decode, cache hit, wired), gates per band,
-        test coverage and glossary. c1 wins with <b>T_turn 11.03 s at 32K and 12.35 s at 128K</b>.</p>
-        <span class="c-meta"><span>2026-09-14</span><span class="path">qwen38-flashnext-overview.html</span></span>
+        <span class="c-title">Campaign dashboard, October 2026</span>
+        <p class="c-desc">Four runtimes: headline numbers, bars per metric, gates per band, test coverage, a cheap
+        quality check (HumanEval, tool calls) and the September uncensored stage. n2 wins with
+        <b>T_turn 8.23 s at 32K and 8.84 s at 128K</b>.</p>
+        <span class="c-meta"><span>2026-10-10</span><span class="path">qwen38-flashnext-overview.html</span></span>
       </a>
       <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-perf-lines.html">
         <span class="c-title">Four runtimes from 8K to 512K</span>
-        <p class="c-desc">October 2026 stack: mlx-serve 26.10.1, oMLX 0.7.0, MTPLX 2.12.2 and ds4, with the September
-        driver as reference. Lines per context for T_turn, warm TTFT, cold TTFT, decode, prefill and wired memory.
+        <p class="c-desc">October 2026 stack: mlx-serve 26.10.1, oMLX 0.7.0, MTPLX 2.12.2 and ds4. Lines per context for T_turn, warm TTFT, cold TTFT, decode, prefill and wired memory.
         <b>mlx-serve leads every band; MTPLX refuses 256K (planned fit 237,568 tokens).</b></p>
-        <span class="c-meta"><span>2026-10-09</span><span class="path">qwen38-flashnext-perf-lines.html</span></span>
+        <span class="c-meta"><span>2026-10-10</span><span class="path">qwen38-flashnext-perf-lines.html</span></span>
       </a>
       <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-driver.html">
         <span class="c-title">Responsive driver — scoreboard</span>

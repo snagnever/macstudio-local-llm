@@ -187,8 +187,8 @@ def _dirs(tmp_path):
 def test_profile_2026_10_reads_both_campaigns(tmp_path):
     data = cr.build_2026_10(*_dirs(tmp_path))
     assert data["profile"] == "2026-10"
-    assert {c["id"] for c in data["candidates"]} == {"n2", "o1", "m1", "d1", "c1"}
-    assert {g["cand"] for g in data["groups"] if g["canonical"]} == {"n2", "o1", "m1", "d1", "c1"}
+    assert {c["id"] for c in data["candidates"]} == {"n2", "o1", "m1", "d1"}
+    assert {g["cand"] for g in data["groups"]} == {"n2", "o1", "m1", "d1"}  # sem o c1 de setembro
 
 
 def test_profile_2026_10_picks_most_reps(tmp_path):
@@ -228,7 +228,7 @@ def test_render_2026_10_has_notes(tmp_path):
                  "64-token prime", "speed, cache and memory only", "mlx-serve/issues/658"):
         assert text.lower() in html.lower(), text
     payload = json.loads(html.split("const P = ", 1)[1].split(";\n", 1)[0])
-    assert [s["id"] for s in payload["series"]] == ["n2", "o1", "m1", "d1", "c1"]
+    assert [s["id"] for s in payload["series"]] == ["n2", "o1", "m1", "d1"]
     assert payload["points"]["m1"]["131072"]["config"] == "KV q8"
     assert "__" not in html.split("<script>", 1)[0].replace("__PAYLOAD__", "")
 
@@ -296,3 +296,82 @@ def test_review_prefill_interp_marks_hypothesis():
 def test_review_index_card_does_not_claim_measured_237k():
     html = (Path(__file__).resolve().parents[3] / "reports" / "index.html").read_text(encoding="utf-8")
     assert "stops at 237K" not in html and "refuses 256K" in html
+
+
+ENGINE = Path(__file__).resolve().parents[2] / "engine-updates-2026-10" / "results"
+
+
+def test_2026_10_page_text_drops_c1(tmp_path):
+    html = rpl.render(cr.build_2026_10(*_dirs(tmp_path)))
+    head = html.split("<script>", 1)[0]
+    for text in ("Sept ref", "September driver", "September reference", "c1 ="):
+        assert text not in head and text not in html.split("const P = ", 1)[1], text
+
+
+def test_2026_10_quality_matches_regrade(tmp_path):
+    q = cr.build_2026_10(*_dirs(tmp_path))["quality"]
+    regrade = json.loads((ENGINE / "quality-humaneval-regrade.json").read_text(encoding="utf-8"))
+    rows = {r["arm"]: r for r in q["rows"]}
+    assert set(rows) == {"n1", "n2", "o1", "m1x"}
+    for arm, r in rows.items():
+        assert r["humaneval_strict"] == regrade[arm]["strict"]
+        assert r["humaneval_imports"] == regrade[arm]["with_imports"]
+        assert r["humaneval_truncated"] == len(regrade[arm]["truncated"])
+
+
+def test_2026_10_has_overview_blocks(tmp_path):
+    data = cr.build_2026_10(*_dirs(tmp_path))
+    for key in ("runtime_profiles", "quant_profiles", "gates_glossary", "test_catalog", "queue", "verdicts",
+                "deltas", "stage_u"):
+        assert data[key], key
+    assert data["stage_u"]["bands"] == (cr.build(cr.RESULTS)["stage_u"]["bands"])
+    assert data["verdicts"][0]["arm"].startswith("n2")
+
+
+def test_overview_2026_10_renders_october_with_quality_tab(tmp_path):
+    data = cr.build_2026_10(*_dirs(tmp_path))
+    html = ro.render(data)
+    assert "October 2026" in html and 'data-tab="quality"' in html
+    assert "Verdict: n2 mlx-serve 26.10.1" in html
+    js_labels = html.split("const STAGE_LABEL = ", 1)[1].split(";", 1)[0]
+    for stage in {g["stage"] for g in data["groups"]}:
+        assert f'"{stage}"' in js_labels, stage
+    assert "September" in html.split('data-panel="uncensored"', 1)[1][:600]
+
+
+def test_overview_default_unchanged_text():
+    data = json.loads((CAMPAIGN / "results" / "reports.json").read_text(encoding="utf-8"))
+    html = ro.render(data)
+    assert "Qwen3.8-Flash-Next Daily Driver Campaign" in html and 'data-tab="quality"' not in html
+
+
+def test_2026_10_candidates_have_glossary_note(tmp_path):
+    assert all(c.get("note") for c in cr.build_2026_10(*_dirs(tmp_path))["candidates"])
+
+
+def test_overview_2026_10_prints_dash_for_missing_bpw(tmp_path):
+    html = ro.render(cr.build_2026_10(*_dirs(tmp_path)))
+    assert '${c.bpw ?? "—"}' in html
+    assert '${CAND[g.cand].bpw ?? "—"} bpw' in html
+
+
+def test_renderers_default_to_the_october_json():
+    # Sem --data, os renderers não podem gravar a versão de setembro por cima das páginas publicadas.
+    assert rpl.REPORTS_JSON == cr.OUT_2026_10
+    assert ro.REPORTS_JSON == cr.OUT_2026_10
+
+
+def test_2026_10_est_note_names_every_refusal_kind():
+    note = rpl.PAGE_2026_10["est_note"]
+    assert "400" in note and "507" in note and "stream" in note
+
+
+def test_2026_10_mtplx_256k_refusal_carries_fit_reason():
+    data = json.loads((ENGINE / "reports-2026-10.json").read_text(encoding="utf-8"))
+    g = _canon(data, "m1", 262144)
+    assert g["refused"] and "237,568" in g["note"]
+
+
+def test_m1_and_m1p_share_the_prime_64_label():
+    assert cr.MTPLX_CONFIG["m1"] == cr.MTPLX_CONFIG["m1p"] == "prime 64"
+    assert "default config" not in rpl.TECH_2026_10[2]["configs"]
