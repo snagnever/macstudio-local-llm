@@ -65,3 +65,35 @@ recomenda mantê-lo residente junto do driver.
 - Scripts: `scripts/` (`serve-support.sh`, `support-load.py`, `run-arrangement.sh`,
   `run-etapa2.sh`, `run-control-32k.sh`, `run-s1-followup.sh`, `verdict_etapa2.py`,
   `quality-run.py`, `report_quality.py`)
+
+## Próximos passos (revisão de 2026-10-09)
+
+A premissa da campanha era que o driver não faz batched decode no MoE, então turnos curtos
+entram na fila dele. Dois fatos novos mudam essa premissa e o baseline:
+
+- **O oMLX 0.7.0 (2026-09-30) faz decode concorrente no Flash-Next.** O 0.7.0.dev4 trouxe o
+  Lightning MTP multi-request: com 2 requests, o Flash-Next-oQ4e-mtp passa de 71,7 para
+  96,3 tok/s agregados (+34%, M3 Ultra 512 GB). O 0.7.0 adicionou kernels fundidos de MoE,
+  DeltaNet e atenção para decode e verify do MTP. Fontes:
+  [release 0.7.0](https://github.com/jundot/omlx/releases/tag/v0.7.0),
+  [notas do 0.7.0.dev4](https://newreleases.io/project/github/jundot/omlx/release/v0.7.0.dev4).
+- **O driver mudou.** O n2 (mlx-serve 26.10.1 + iQ-MLX-4.7bpw) faz 8,2 s a 32K e 8,8 s a
+  128K, contra 10,8 s e 12,6 s do driver medido aqui. As perdas de `T_turno` desta campanha
+  são relativas ao driver antigo. Ver
+  [engine-updates-2026-10](../../engine-updates-2026-10/results/summary.md).
+
+Em batched decode, as linhas do mesmo step leem os pesos uma vez. Um turno curto no próprio
+driver não paga a contenda de banda que o s1 causa como processo separado. O ganho por linha
+é menor no MoE que no denso (o mlxcel mediu 1,55× a B=4 no qwen3-30b-a3b, contra ~3,2× no
+denso: [mlxcel#1616](https://github.com/lablup/mlxcel/issues/1616)).
+
+| # | passo | métrica e gate | custo |
+|---|---|---|---|
+| 1 | **Turnos curtos no próprio driver, oMLX 0.7.0 (braço o1).** `support-load.py` aponta para o driver, com `max_concurrent_requests` ≥2, a 32K e 128K. Mesma fixture e cenários do `cache_probe.py`. | `T_turno` do driver sob carga, contra o o1 solo (10,1 / 12,1 s) e contra o n2 solo (8,2 / 8,8 s). Latência do turno curto contra os ~0,46 s do s1. Adotar se o `T_turno` sob carga ficar ≤ n2 solo × 1,15. | ~1 h |
+| 2 | **Refazer o arranjo B a 32K com o n2 + s1.** `run-arrangement.sh` com o launcher atual do driver. | Perda de `T_turno` do n2 com o s1 em carga contínua e com gap 1 s. Confirma ou revisa o NO-GO contra o driver atual. | ~30 min |
+| 3 | **Ler o changelog do mlx-serve 26.10.x** para batched decode no MoE do Flash-Next. | Se existir, repetir o passo 1 no n2. Se não existir, o card do driver continua com "parallel requests queue on one slot". | ~10 min |
+| 4 | **Checar se o vllm-metal 0.30.0 carrega o Flash-Next** (`qwen4_exp`). O blog cita a família Qwen3.8 com paged KV e batching packed, sem nomear o Flash-Next. MTP batched no Metal só existe para Gemma 4. | Smoke 8K. Se carregar, vira braço do passo 1. Fontes: [blog do vllm-metal](https://vllm.ai/blog/2026-09-22-vllm-metal-v0-28-0). | ~30 min |
+
+Sem novidade no MiniCPM5-2B depois do lançamento (2026-09-07). Os passos 1 e 3 decidem se o
+slot de suporte ainda faz sentido. Se o driver absorver os turnos curtos com perda ≤15%, o
+slot sai do plano.

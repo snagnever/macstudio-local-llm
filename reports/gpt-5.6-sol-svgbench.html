@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SVGBench — gpt-5.6-sol</title>
+  <meta name="description" content="As 28 imagens SVG criadas por gpt-5.6-sol para sete prompts do SVGBench.">
+  <style>
+    :root {
+      --canvas: #e9edf1;
+      --paper: #f8fafb;
+      --white: #ffffff;
+      --ink: #12161c;
+      --muted: #64707d;
+      --line: #cbd2d9;
+      --blue: #2856d8;
+      --amber: #f2a900;
+      --shadow: 0 16px 42px rgba(17, 26, 38, 0.12);
+      --sans: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      --serif: "Iowan Old Style", "Baskerville", Georgia, serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--canvas);
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(18, 22, 28, 0.035) 1px, transparent 1px),
+        var(--canvas);
+      background-size: 100% 48px;
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    button,
+    a { font: inherit; }
+
+    button { color: inherit; }
+
+    a {
+      color: inherit;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.22em;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--amber);
+      outline-offset: 3px;
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 32px;
+      align-items: end;
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 56px 40px 34px;
+      border-bottom: 1px solid var(--ink);
+    }
+
+    .identity {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .mark {
+      display: grid;
+      width: 58px;
+      height: 58px;
+      flex: 0 0 auto;
+      place-items: center;
+      color: var(--white);
+      background: var(--blue);
+      font-weight: 700;
+      letter-spacing: -0.06em;
+    }
+
+    h1 {
+      max-width: 820px;
+      margin: -7px 0 9px;
+      font-family: var(--serif);
+      font-size: clamp(42px, 6vw, 82px);
+      font-weight: 400;
+      line-height: 0.98;
+      letter-spacing: -0.045em;
+    }
+
+    .subtitle {
+      max-width: 64ch;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .totals {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(74px, auto));
+      margin: 0;
+      border: 1px solid var(--ink);
+      background: var(--paper);
+    }
+
+    .totals div {
+      padding: 13px 16px 11px;
+    }
+
+    .totals div + div { border-left: 1px solid var(--ink); }
+
+    .totals dt {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .totals dd {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 31px;
+      line-height: 1;
+    }
+
+    .toolbar-wrap {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      border-bottom: 1px solid var(--line);
+      background: rgba(233, 237, 241, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .toolbar {
+      display: flex;
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 12px 40px;
+      gap: 18px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .toolbar p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      background: var(--white);
+      border: 1px solid var(--line);
+    }
+
+    .filter {
+      min-width: 68px;
+      padding: 8px 13px;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .filter:hover { background: #edf1f5; }
+
+    .filter[aria-pressed="true"] {
+      color: var(--white);
+      background: var(--ink);
+    }
+
+    main {
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 0 40px 100px;
+    }
+
+    .prompt {
+      display: grid;
+      grid-template-columns: minmax(210px, 0.7fr) minmax(0, 3fr);
+      gap: 28px;
+      padding: 44px 0 50px;
+      border-bottom: 1px solid var(--ink);
+      scroll-margin-top: 82px;
+    }
+
+    .prompt-head {
+      position: sticky;
+      top: 84px;
+      align-self: start;
+    }
+
+    .question-number {
+      display: inline-block;
+      margin-bottom: 17px;
+      padding: 4px 8px;
+      color: var(--white);
+      background: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-family: var(--serif);
+      font-size: clamp(29px, 3vw, 43px);
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .prompt-text {
+      max-width: 31ch;
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .takes {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+
+    .take {
+      min-width: 0;
+      background: var(--paper);
+      border: 1px solid var(--line);
+    }
+
+    .take[hidden] { display: none; }
+
+    .take-head {
+      display: flex;
+      min-height: 45px;
+      padding: 10px 11px;
+      gap: 8px;
+      align-items: baseline;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .take-order {
+      color: var(--muted);
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .motion-label {
+      margin-left: auto;
+      color: #704d00;
+      background: #ffeab5;
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .artwork {
+      position: relative;
+      display: grid;
+      width: 100%;
+      min-height: 220px;
+      padding: 0;
+      place-items: center;
+      overflow: hidden;
+      border: 0;
+      background-color: var(--white);
+      background-image:
+        linear-gradient(45deg, #f3f5f7 25%, transparent 25%),
+        linear-gradient(-45deg, #f3f5f7 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #f3f5f7 75%),
+        linear-gradient(-45deg, transparent 75%, #f3f5f7 75%);
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+      background-size: 16px 16px;
+      cursor: zoom-in;
+    }
+
+    .artwork::after {
+      position: absolute;
+      right: 9px;
+      bottom: 9px;
+      content: "ampliar";
+      padding: 4px 7px;
+      color: var(--white);
+      background: rgba(18, 22, 28, 0.82);
+      font-size: 10px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 140ms ease, transform 140ms ease;
+    }
+
+    .artwork:hover::after,
+    .artwork:focus-visible::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .artwork img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 3 / 2;
+      object-fit: contain;
+    }
+
+    .file-row {
+      display: flex;
+      min-width: 0;
+      padding: 9px 11px 10px;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .file-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-row a { flex: 0 0 auto; }
+
+    dialog {
+      width: min(94vw, 1440px);
+      max-width: none;
+      max-height: 94vh;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid var(--ink);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    dialog::backdrop {
+      background: rgba(10, 15, 22, 0.82);
+      backdrop-filter: blur(5px);
+    }
+
+    .viewer-head {
+      display: flex;
+      min-height: 54px;
+      padding: 10px 12px 10px 18px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .viewer-head p {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .close-viewer {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border: 1px solid var(--ink);
+      background: var(--white);
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .viewer-canvas {
+      display: grid;
+      height: calc(94vh - 55px);
+      padding: 20px;
+      place-items: center;
+      overflow: auto;
+      background-color: var(--white);
+      background-image:
+        linear-gradient(45deg, #f0f2f4 25%, transparent 25%),
+        linear-gradient(-45deg, #f0f2f4 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #f0f2f4 75%),
+        linear-gradient(-45deg, transparent 75%, #f0f2f4 75%);
+      background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+      background-size: 24px 24px;
+    }
+
+    .viewer-canvas img {
+      display: block;
+      width: auto;
+      max-width: 100%;
+      height: auto;
+      max-height: calc(94vh - 95px);
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    body[data-view]:not([data-view="all"]) .takes {
+      grid-template-columns: minmax(0, 760px);
+    }
+
+    body[data-view]:not([data-view="all"]) .artwork {
+      min-height: 360px;
+    }
+
+    @media (max-width: 1180px) {
+      .takes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 800px) {
+      .masthead {
+        grid-template-columns: 1fr;
+        padding: 36px 20px 24px;
+      }
+
+      .identity { gap: 14px; }
+      .mark { width: 44px; height: 44px; }
+      .totals { width: 100%; }
+      .totals div { width: 33.333%; }
+
+      .toolbar {
+        align-items: flex-start;
+        padding: 10px 20px;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .filters {
+        width: 100%;
+        overflow-x: auto;
+      }
+
+      .filter { flex: 1 0 auto; }
+      main { padding: 0 20px 72px; }
+
+      .prompt {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 34px 0 38px;
+      }
+
+      .prompt-head { position: static; }
+      .prompt-text { max-width: 60ch; }
+    }
+
+    @media (max-width: 560px) {
+      .identity { display: block; }
+      .mark { margin-bottom: 20px; }
+      .takes { grid-template-columns: 1fr; }
+      .artwork { min-height: 260px; }
+      body[data-view]:not([data-view="all"]) .artwork { min-height: 260px; }
+      .toolbar p { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .artwork::after { transition: none; }
+    }
+  </style>
+</head>
+<body data-view="all">
+  <header class="masthead">
+    <div class="identity">
+      <div class="mark" aria-hidden="true">S56</div>
+      <div>
+        <h1>SVGBench contact sheet</h1>
+        <p class="subtitle">Sete prompts. Quatro tomadas por prompt. Imagens criadas por gpt-5.6-sol com esforço medium.</p>
+      </div>
+    </div>
+    <dl class="totals" aria-label="Resumo">
+      <div><dt>SVGs</dt><dd>28</dd></div>
+      <div><dt>Prompts</dt><dd>7</dd></div>
+      <div><dt>Tomadas</dt><dd>4</dd></div>
+    </dl>
+  </header>
+
+  <div class="toolbar-wrap">
+    <nav class="toolbar" aria-label="Filtrar tomadas">
+      <p>Compare a progressão ou isole uma tomada.</p>
+      <div class="filters">
+        <button class="filter" type="button" data-filter="all" aria-pressed="true">Todas</button>
+        <button class="filter" type="button" data-filter="v1" aria-pressed="false">v1</button>
+        <button class="filter" type="button" data-filter="v2" aria-pressed="false">v2</button>
+        <button class="filter" type="button" data-filter="v3" aria-pressed="false">v3</button>
+        <button class="filter" type="button" data-filter="animated" aria-pressed="false">animated</button>
+      </div>
+    </nav>
+  </div>
+
+  <main>
+    <section class="prompt" data-prompt="dolphin">
+      <header class="prompt-head">
+        <span class="question-number">Q07</span>
+        <h2>Dolphin</h2>
+        <p class="prompt-text">Write `svg` code for an image of a dolphin jumping out of the water and through a hula hoop to bite a fish out of its trainers hand.</p>
+      </header>
+      <div class="takes">
+        <article class="take" data-take="v1"><div class="take-head"><span class="take-order">1/4</span><h3>v1</h3></div><button class="artwork" type="button" data-title="Dolphin — v1"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/dolphin-v1.svg" alt="Dolphin, versão v1"></button><div class="file-row"><span class="file-name">dolphin-v1.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/dolphin-v1.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="v2"><div class="take-head"><span class="take-order">2/4</span><h3>v2</h3></div><button class="artwork" type="button" data-title="Dolphin — v2"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/dolphin-v2.svg" alt="Dolphin, versão v2" loading="lazy"></button><div class="file-row"><span class="file-name">dolphin-v2.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/dolphin-v2.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="v3"><div class="take-head"><span class="take-order">3/4</span><h3>v3</h3></div><button class="artwork" type="button" data-title="Dolphin — v3"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/dolphin-v3.svg" alt="Dolphin, versão v3" loading="lazy"></button><div class="file-row"><span class="file-name">dolphin-v3.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/dolphin-v3.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="animated"><div class="take-head"><span class="take-order">4/4</span><h3>animated</h3><span class="motion-label">motion</span></div><button class="artwork" type="button" data-title="Dolphin — animated"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/dolphin-animated.svg" alt="Dolphin, versão animada" loading="lazy"></button><div class="file-row"><span class="file-name">dolphin-animated.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/dolphin-animated.svg">Abrir SVG</a></div></article>
+      </div>
+    </section>
+
+    <section class="prompt" data-prompt="cow-plowing">
+      <header class="prompt-head">
+        <span class="question-number">Q00</span>
+        <h2>Cow plowing</h2>
+        <p class="prompt-text">Write `svg` code to draw an image of a cow plowing a field.</p>
+      </header>
+      <div class="takes">
+        <article class="take" data-take="v1"><div class="take-head"><span class="take-order">1/4</span><h3>v1</h3></div><button class="artwork" type="button" data-title="Cow plowing — v1"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/cow-plowing-v1.svg" alt="Cow plowing, versão v1" loading="lazy"></button><div class="file-row"><span class="file-name">cow-plowing-v1.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/cow-plowing-v1.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="v2"><div class="take-head"><span class="take-order">2/4</span><h3>v2</h3></div><button class="artwork" type="button" data-title="Cow plowing — v2"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/cow-plowing-v2.svg" alt="Cow plowing, versão v2" loading="lazy"></button><div class="file-row"><span class="file-name">cow-plowing-v2.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/cow-plowing-v2.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="v3"><div class="take-head"><span class="take-order">3/4</span><h3>v3</h3></div><button class="artwork" type="button" data-title="Cow plowing — v3"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/cow-plowing-v3.svg" alt="Cow plowing, versão v3" loading="lazy"></button><div class="file-row"><span class="file-name">cow-plowing-v3.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/cow-plowing-v3.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="animated"><div class="take-head"><span class="take-order">4/4</span><h3>animated</h3><span class="motion-label">motion</span></div><button class="artwork" type="button" data-title="Cow plowing — animated"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/cow-plowing-animated.svg" alt="Cow plowing, versão animada" loading="lazy"></button><div class="file-row"><span class="file-name">cow-plowing-animated.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/cow-plowing-animated.svg">Abrir SVG</a></div></article>
+      </div>
+    </section>
+
+    <section class="prompt" data-prompt="rubber-ducky">
+      <header class="prompt-head">
+        <span class="question-number">Q04</span>
+        <h2>Rubber ducky</h2>
+        <p class="prompt-text">Write `svg` code for an image of a rubber ducky floating on top of a soapy bathtub.</p>
+      </header>
+      <div class="takes">
+        <article class="take" data-take="v1"><div class="take-head"><span class="take-order">1/4</span><h3>v1</h3></div><button class="artwork" type="button" data-title="Rubber ducky — v1"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/rubber-ducky-v1.svg" alt="Rubber ducky, versão v1" loading="lazy"></button><div class="file-row"><span class="file-name">rubber-ducky-v1.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/rubber-ducky-v1.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="v2"><div class="take-head"><span class="take-order">2/4</span><h3>v2</h3></div><button class="artwork" type="button" data-title="Rubber ducky — v2"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/rubber-ducky-v2.svg" alt="Rubber ducky, versão v2" loading="lazy"></button><div class="file-row"><span class="file-name">rubber-ducky-v2.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/rubber-ducky-v2.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="v3"><div class="take-head"><span class="take-order">3/4</span><h3>v3</h3></div><button class="artwork" type="button" data-title="Rubber ducky — v3"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/rubber-ducky-v3.svg" alt="Rubber ducky, versão v3" loading="lazy"></button><div class="file-row"><span class="file-name">rubber-ducky-v3.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/rubber-ducky-v3.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="animated"><div class="take-head"><span class="take-order">4/4</span><h3>animated</h3><span class="motion-label">motion</span></div><button class="artwork" type="button" data-title="Rubber ducky — animated"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/rubber-ducky-animated.svg" alt="Rubber ducky, versão animada" loading="lazy"></button><div class="file-row"><span class="file-name">rubber-ducky-animated.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/rubber-ducky-animated.svg">Abrir SVG</a></div></article>
+      </div>
+    </section>
+
+    <section class="prompt" data-prompt="picnic-on-clouds">
+      <header class="prompt-head">
+        <span class="question-number">Q05</span>
+        <h2>Picnic on clouds</h2>
+        <p class="prompt-text">Write `svg` code for an image of a picnic on top of the clouds, where 2 parents and 2 children have landed with a hot air ballon, and are setting up a picnic with a tarp and food items.</p>
+      </header>
+      <div class="takes">
+        <article class="take" data-take="v1"><div class="take-head"><span class="take-order">1/4</span><h3>v1</h3></div><button class="artwork" type="button" data-title="Picnic on clouds — v1"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/picnic-on-clouds-v1.svg" alt="Picnic on clouds, versão v1" loading="lazy"></button><div class="file-row"><span class="file-name">picnic-on-clouds-v1.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/picnic-on-clouds-v1.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="v2"><div class="take-head"><span class="take-order">2/4</span><h3>v2</h3></div><button class="artwork" type="button" data-title="Picnic on clouds — v2"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/picnic-on-clouds-v2.svg" alt="Picnic on clouds, versão v2" loading="lazy"></button><div class="file-row"><span class="file-name">picnic-on-clouds-v2.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/picnic-on-clouds-v2.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="v3"><div class="take-head"><span class="take-order">3/4</span><h3>v3</h3></div><button class="artwork" type="button" data-title="Picnic on clouds — v3"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/picnic-on-clouds-v3.svg" alt="Picnic on clouds, versão v3" loading="lazy"></button><div class="file-row"><span class="file-name">picnic-on-clouds-v3.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/picnic-on-clouds-v3.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="animated"><div class="take-head"><span class="take-order">4/4</span><h3>animated</h3><span class="motion-label">motion</span></div><button class="artwork" type="button" data-title="Picnic on clouds — animated"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/picnic-on-clouds-animated.svg" alt="Picnic on clouds, versão animada" loading="lazy"></button><div class="file-row"><span class="file-name">picnic-on-clouds-animated.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/picnic-on-clouds-animated.svg">Abrir SVG</a></div></article>
+      </div>
+    </section>
+
+    <section class="prompt" data-prompt="treasure-barrel">
+      <header class="prompt-head">
+        <span class="question-number">Q13</span>
+        <h2>Treasure barrel</h2>
+        <p class="prompt-text">Write `svg` code for an image of half buried barrel of treasure.</p>
+      </header>
+      <div class="takes">
+        <article class="take" data-take="v1"><div class="take-head"><span class="take-order">1/4</span><h3>v1</h3></div><button class="artwork" type="button" data-title="Treasure barrel — v1"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/treasure-barrel-v1.svg" alt="Treasure barrel, versão v1" loading="lazy"></button><div class="file-row"><span class="file-name">treasure-barrel-v1.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/treasure-barrel-v1.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="v2"><div class="take-head"><span class="take-order">2/4</span><h3>v2</h3></div><button class="artwork" type="button" data-title="Treasure barrel — v2"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/treasure-barrel-v2.svg" alt="Treasure barrel, versão v2" loading="lazy"></button><div class="file-row"><span class="file-name">treasure-barrel-v2.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/treasure-barrel-v2.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="v3"><div class="take-head"><span class="take-order">3/4</span><h3>v3</h3></div><button class="artwork" type="button" data-title="Treasure barrel — v3"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/treasure-barrel-v3.svg" alt="Treasure barrel, versão v3" loading="lazy"></button><div class="file-row"><span class="file-name">treasure-barrel-v3.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/treasure-barrel-v3.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="animated"><div class="take-head"><span class="take-order">4/4</span><h3>animated</h3><span class="motion-label">motion</span></div><button class="artwork" type="button" data-title="Treasure barrel — animated"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/treasure-barrel-animated.svg" alt="Treasure barrel, versão animada" loading="lazy"></button><div class="file-row"><span class="file-name">treasure-barrel-animated.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/treasure-barrel-animated.svg">Abrir SVG</a></div></article>
+      </div>
+    </section>
+
+    <section class="prompt" data-prompt="stunt-car">
+      <header class="prompt-head">
+        <span class="question-number">Q06</span>
+        <h2>Stunt car</h2>
+        <p class="prompt-text">Write `svg` code for an image of a stunt car jumping through a circle of fire.</p>
+      </header>
+      <div class="takes">
+        <article class="take" data-take="v1"><div class="take-head"><span class="take-order">1/4</span><h3>v1</h3></div><button class="artwork" type="button" data-title="Stunt car — v1"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/stunt-car-v1.svg" alt="Stunt car, versão v1" loading="lazy"></button><div class="file-row"><span class="file-name">stunt-car-v1.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/stunt-car-v1.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="v2"><div class="take-head"><span class="take-order">2/4</span><h3>v2</h3></div><button class="artwork" type="button" data-title="Stunt car — v2"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/stunt-car-v2.svg" alt="Stunt car, versão v2" loading="lazy"></button><div class="file-row"><span class="file-name">stunt-car-v2.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/stunt-car-v2.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="v3"><div class="take-head"><span class="take-order">3/4</span><h3>v3</h3></div><button class="artwork" type="button" data-title="Stunt car — v3"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/stunt-car-v3.svg" alt="Stunt car, versão v3" loading="lazy"></button><div class="file-row"><span class="file-name">stunt-car-v3.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/stunt-car-v3.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="animated"><div class="take-head"><span class="take-order">4/4</span><h3>animated</h3><span class="motion-label">motion</span></div><button class="artwork" type="button" data-title="Stunt car — animated"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/stunt-car-animated.svg" alt="Stunt car, versão animada" loading="lazy"></button><div class="file-row"><span class="file-name">stunt-car-animated.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/stunt-car-animated.svg">Abrir SVG</a></div></article>
+      </div>
+    </section>
+
+    <section class="prompt" data-prompt="fruit-stall">
+      <header class="prompt-head">
+        <span class="question-number">Q12</span>
+        <h2>Fruit stall</h2>
+        <p class="prompt-text">Write `svg` code for an image of a fruit stall in the market.</p>
+      </header>
+      <div class="takes">
+        <article class="take" data-take="v1"><div class="take-head"><span class="take-order">1/4</span><h3>v1</h3></div><button class="artwork" type="button" data-title="Fruit stall — v1"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/fruit-stall-v1.svg" alt="Fruit stall, versão v1" loading="lazy"></button><div class="file-row"><span class="file-name">fruit-stall-v1.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/fruit-stall-v1.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="v2"><div class="take-head"><span class="take-order">2/4</span><h3>v2</h3></div><button class="artwork" type="button" data-title="Fruit stall — v2"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/fruit-stall-v2.svg" alt="Fruit stall, versão v2" loading="lazy"></button><div class="file-row"><span class="file-name">fruit-stall-v2.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/fruit-stall-v2.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="v3"><div class="take-head"><span class="take-order">3/4</span><h3>v3</h3></div><button class="artwork" type="button" data-title="Fruit stall — v3"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/fruit-stall-v3.svg" alt="Fruit stall, versão v3" loading="lazy"></button><div class="file-row"><span class="file-name">fruit-stall-v3.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/fruit-stall-v3.svg">Abrir SVG</a></div></article>
+        <article class="take" data-take="animated"><div class="take-head"><span class="take-order">4/4</span><h3>animated</h3><span class="motion-label">motion</span></div><button class="artwork" type="button" data-title="Fruit stall — animated"><img src="../bench/harness-matrix/logs/codex/gpt-5.6-sol/fruit-stall-animated.svg" alt="Fruit stall, versão animada" loading="lazy"></button><div class="file-row"><span class="file-name">fruit-stall-animated.svg</span><a href="../bench/harness-matrix/logs/codex/gpt-5.6-sol/fruit-stall-animated.svg">Abrir SVG</a></div></article>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="viewer" aria-labelledby="viewer-title">
+    <div class="viewer-head">
+      <p id="viewer-title">Preview</p>
+      <button class="close-viewer" type="button" aria-label="Fechar preview">×</button>
+    </div>
+    <div class="viewer-canvas">
+      <img src="" alt="">
+    </div>
+  </dialog>
+
+  <script>
+    const filters = [...document.querySelectorAll("[data-filter]")];
+    const takes = [...document.querySelectorAll("[data-take]")];
+    const viewer = document.querySelector("#viewer");
+    const viewerImage = viewer.querySelector("img");
+    const viewerTitle = viewer.querySelector("#viewer-title");
+
+    filters.forEach((button) => {
+      button.addEventListener("click", () => {
+        const selected = button.dataset.filter;
+        document.body.dataset.view = selected;
+
+        filters.forEach((item) => {
+          item.setAttribute("aria-pressed", String(item === button));
+        });
+
+        takes.forEach((take) => {
+          take.hidden = selected !== "all" && take.dataset.take !== selected;
+        });
+      });
+    });
+
+    document.querySelectorAll(".artwork").forEach((button) => {
+      button.addEventListener("click", () => {
+        const sourceImage = button.querySelector("img");
+        viewerImage.src = sourceImage.src;
+        viewerImage.alt = sourceImage.alt;
+        viewerTitle.textContent = button.dataset.title;
+        viewer.showModal();
+      });
+    });
+
+    function closeViewer() {
+      viewer.close();
+      viewerImage.removeAttribute("src");
+    }
+
+    viewer.querySelector(".close-viewer").addEventListener("click", closeViewer);
+    viewer.addEventListener("click", (event) => {
+      if (event.target === viewer) closeViewer();
+    });
+  </script>
+</body>
+</html>
