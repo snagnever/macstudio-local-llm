@@ -153,3 +153,12 @@ def test_n2o_script_refuses_while_another_campaign_runs():
         other.kill()
     assert out.returncode == 75
     assert "run-arm.sh" not in out.stdout
+
+
+def test_n2o_script_takes_arm_and_can_skip_the_driver():
+    out = subprocess.run(["bash", str(N2O), "n2o2"], capture_output=True, text=True,
+                         env=_env({"ENGINE_BAND_DRY": "1", "ENGINE_GUARD_PATTERN": "no-such-process-xyz",
+                                   "ENGINE_NO_DRIVER": "1"}), timeout=10)
+    assert out.returncode == 0, out.stderr
+    assert "run-arm.sh n2o2 524288 --yarn 2.0 --repeat 1 --tag osr2" in out.stdout
+    assert "serve-flashnext-daily-driver.sh" not in out.stdout

@@ -328,3 +328,11 @@ def test_os_reserve_knob_does_not_leak_into_other_arms():
         out = subprocess.run(["bash", str(DRIVER), cand, *args, "--print"],
                              capture_output=True, text=True, env=env, check=True).stdout
         assert "--os-reserve-gib" not in out, cand
+
+
+def test_n2o2_uses_os_reserve_2():
+    # n2o (reserva 4) ainda recusou um prime por ~0.3 GB; n2o2 libera mais 2 GB.
+    out = show("n2o2", "524288", "--yarn", "2.0")
+    assert IQ in out and "--kv-quant 8" in out
+    assert "--os-reserve-gib 2" in out and "--os-reserve-gib 4" not in out
+    assert "--runtime-revision v26.10.1-yarn2.0-kv8-osr2 " in out
