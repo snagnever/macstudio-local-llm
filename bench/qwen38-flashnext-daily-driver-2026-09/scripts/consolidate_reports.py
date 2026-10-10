@@ -427,30 +427,34 @@ CANDIDATES_2026_10 = [
      "quant": "iQ-MLX 4.7 bpw", "bpw": 4.7, "disk_gb": 107.4, "port": 11234,
      "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
      "spec": "native MTP + PLD (n-gram)",
-     "ceiling": "512K with YaRN 2.0 + KV 8-bit", "state": "pass", "status": "daily driver"},
+     "ceiling": "512K with YaRN 2.0 + KV 8-bit", "state": "pass", "status": "daily driver",
+     "note": "Lowest T_turn in every band: 8.2 s at 32K, 8.8 s at 128K, 12.9 s at 512K."},
     {"id": "o1", "name": "oQ4e · oMLX 0.7.0", "short": "o1 oMLX",
      "runtime": "oMLX", "runtime_version": "0.7.0",
      "model": "Jundot/Qwen3.8-Flash-Next-oQ4e-mtp", "revision": "2615fc0",
      "quant": "oQ4e", "bpw": 5.97, "disk_gb": 132.2, "port": 8000,
      "cache": "paged SSD cache · PLE in mmap via model_settings.json",
      "spec": "checkpoint MTP · acceptance not exposed in telemetry",
-     "ceiling": "262K (oMLX has no YaRN)", "state": "pass", "status": "2nd place"},
+     "ceiling": "262K (oMLX has no YaRN)", "state": "pass", "status": "2nd place",
+     "note": "Passes the gates; 2nd at 128K and 256K (12.1 and 14.5 s)."},
     {"id": "m1", "name": "MTPLX Optimized-Speed · MTPLX 2.12.2", "short": "m1 MTPLX",
      "runtime": "MTPLX", "runtime_version": "2.12.2",
      "model": "Youssofal/Qwen3.8-Flash-Next-MTPLX-Optimized-Speed", "revision": "6bc2f6e",
      "quant": "MTPLX Optimized-Speed", "bpw": 5.43, "disk_gb": 120.2, "port": 8000,
      "cache": "session bank in RAM + SSD session cache",
      "spec": "native MTP · turbo profile depth 3",
-     "ceiling": "see the 128K and 256K points", "state": "control", "status": "measured"},
+     "ceiling": "128K with --memory-limit max; refuses 256K (fit 237,568 tokens)", "state": "control",
+     "status": "measured",
+     "note": "2nd at 8K and 32K. The point label names the config: 128K needs --memory-limit max (15.1 s)."},
     {"id": "d1", "name": "Q4 GGUF · ds4 upstream", "short": "d1 ds4",
      "runtime": "ds4", "runtime_version": "upstream 0aaea5a",
      "model": "antirez/qwen3.8-flash-next-gguf (Q4)", "revision": "qwen38-q4k",
      "quant": "Q4 GGUF (MTP + n-gram table embedded)", "bpw": None, "disk_gb": 177.3, "port": 11234,
      "cache": "KV prefix cache on disk (100 GB)",
      "spec": "built-in MTP (1 draft)",
-     "ceiling": "512K with YaRN 2", "state": "control", "status": "measured"},
+     "ceiling": "512K with YaRN 2", "state": "control", "status": "measured",
+     "note": "Serves every band to 512K; decode 43–54 tok/s and a slow warm tool turn at 256K and 512K."},
 ]
-C1_REFERENCE = {"short": "c1 Sept ref", "status": "Sept reference", "state": "control"}
 
 
 def _stamp(records: list[dict]) -> str:
@@ -496,8 +500,8 @@ def mark_canonical_2026_10(groups: list[dict]) -> None:
 
 
 TAKEAWAYS_2026_10 = [
-    ["mlx-serve 26.10.1 leads every band", "n2 has the lowest T_turn from 8K to 512K: 7.8, 8.2, 8.8, 9.8 and 12.9 s. "
-     "Against the September driver (c1) it is 25% faster at 32K, 28% at 128K and 30% at 256K."],
+    ["mlx-serve 26.10.1 leads every band", "n2 has the lowest T_turn from 8K to 512K: 7.8, 8.2, 8.8, 9.8 and 12.9 s, "
+     "with the tool turn under 3 s in every band."],
     ["oMLX is second at 128K and 256K", "o1 T_turn is 12.1 s at 128K and 14.5 s at 256K. MTPLX is second at 8K and "
      "32K (8.2 and 8.8 s). oMLX has no YaRN, so it stops at 262K."],
     ["MTPLX fits 128K only with --memory-limit max", "The vendor default plans a 65,536-token window on this 128 GB "
@@ -511,6 +515,96 @@ TAKEAWAYS_2026_10 = [
      "fails answers without <code>from typing import</code>. Tool calls: jdhodges 38 / 36 / 35 of 40, Veerman "
      "9 / 10 / 10 of 12. The n2 run (2026-10-07) used about 200 tokens per answer against 1,800 (o1) and 3,300 (m1x), "
      "so the reasoning mode was likely not the same: read this as a sanity check, not a ranking."],
+]
+
+
+QUALITY_REGRADE = ENGINE_RESULTS / "quality-humaneval-regrade.json"
+# Tool-calling (passa / total) dos relatórios quality-n1-n2.md e quality-o1-mtplx.md.
+TOOLCALL_2026_10 = {"n1": (39, 8), "n2": (38, 9), "o1": (36, 10), "m1x": (35, 10)}
+QUALITY_ARMS_2026_10 = [
+    ("n1", "mixed-4/8 · mlx-serve 26.10.1", "2026-10-07"),
+    ("n2", "iQ-MLX 4.7 bpw · mlx-serve 26.10.1", "2026-10-07"),
+    ("o1", "oQ4e · oMLX 0.7.0", "2026-10-09"),
+    ("m1x", "MTPLX Optimized-Speed · MTPLX 2.12.2 (--memory-limit max)", "2026-10-09"),
+]
+
+
+def quality_2026_10() -> dict:
+    regrade = json.loads(QUALITY_REGRADE.read_text(encoding="utf-8"))
+    rows = []
+    for arm, label, date in QUALITY_ARMS_2026_10:
+        h = regrade[arm]
+        jd, ve = TOOLCALL_2026_10[arm]
+        rows.append({"arm": arm, "label": label, "date": date, "humaneval_n": h["n"],
+                     "humaneval_strict": h["strict"], "humaneval_imports": h["with_imports"],
+                     "humaneval_truncated": len(h["truncated"]),
+                     "jdhodges": jd, "jdhodges_n": 40, "veerman": ve, "veerman_n": 12})
+    return {"rows": rows, "note": (
+        "Temperature 0, max_tokens 32,768, one run per arm. HumanEval 164: the strict grade is bench2.py as-is; it runs "
+        "only the code in the answer, so an answer without <code>from typing import</code> fails. \"With imports\" adds "
+        "the import lines of the prompt before the answer (regrade_humaneval.py). n1 and n2 ran on 2026-10-07 and answered "
+        "with about 200 tokens per question; o1 used about 1,800 and m1x about 3,300, so the reasoning mode was likely "
+        "not the same. Read the table as a sanity check, not a ranking. Truncated = the answer spent the 32,768 tokens in "
+        "reasoning and wrote no code.")}
+
+
+RUNTIME_PROFILES_2026_10 = [
+    {"name": "mlx-serve 26.10.1", "tag": "daily driver", "arms": "n2",
+     "goal": "Serves Flash-Next with native MTP and a two-tier prefix cache.",
+     "how": "MTP with PLD (n-gram table); hot cache in RAM (16 GB, 64 entries) plus disk (100 GB); DeltaNet state "
+            "checkpoints; YaRN through --config-overrides.",
+     "cost": "Pins KV and hot cache as wired memory: 97–112 GB from 32K to 512K, no swap."},
+    {"name": "oMLX 0.7.0", "tag": "2nd at 128K and 256K", "arms": "o1",
+     "goal": "Agent server with continuous batching and a paged KV cache that spills over to SSD.",
+     "how": "MTP from the oQ4e-mtp checkpoint; PLE in mmap through model_settings.json.",
+     "cost": "No YaRN: stops at 262K. Prefill falls from 551 to 465 tok/s between 32K and 256K."},
+    {"name": "MTPLX 2.12.2", "tag": "128K with memory limit max", "arms": "m1",
+     "goal": "Ships speculation in the quantized checkpoint (native MTP heads); session bank in RAM plus SSD.",
+     "how": "A memory plan computes the context that fits and refuses a larger prompt with HTTP 507. The probe primes "
+            "it with 64 tokens (a shorter request runs as a background task, without a session).",
+     "cost": "Vendor default: 65,536-token window on this M4 Max. --memory-limit max serves 128K (prefill 274 tok/s) "
+             "and refuses 256K (fit 237,568). KV q8 is ignored; the sparse QSA prefill fails without NAX."},
+    {"name": "ds4 upstream 0aaea5a", "tag": "512K, slow decode", "arms": "d1",
+     "goal": "C/Metal engine that serves Flash-Next from its own Q4 GGUF with MTP and the n-gram table embedded.",
+     "how": "KV prefix cache on disk (--kv-disk-dir, 100 GB); static YaRN through DS4_QWEN4_YARN_FACTOR.",
+     "cost": "Decode 43–54 tok/s; the warm tool turn grows from 6.4 s at 128K to 50 s at 512K."},
+]
+QUANT_PROFILES_2026_10 = [
+    {"name": "ddalcu iQ-MLX 4.7 bpw", "bpw": "4.7", "runtime": "mlx-serve",
+     "goal": "Importance-weighted MLX quant of the experts, with the n-gram table for PLD.",
+     "cost": "107.4 GB on disk."},
+    {"name": "Jundot oQ4e-mtp", "bpw": "5.97", "runtime": "oMLX",
+     "goal": "oQ4e experts with the MTP head; PLE kept in mmap.", "cost": "132.2 GB on disk."},
+    {"name": "MTPLX Optimized-Speed", "bpw": "5.43", "runtime": "MTPLX",
+     "goal": "MTPLX pack with the native MTP heads; n-gram table streamed from SSD.", "cost": "120.2 GB on disk; "
+     "77.3 GB of weights in the memory plan."},
+    {"name": "antirez qwen38-q4k GGUF", "bpw": "—", "runtime": "ds4",
+     "goal": "Q4_K gate/up and MXFP4 down experts, imatrix-calibrated; MTP embedded.",
+     "cost": "177.3 GB on disk; 69.7 GiB resident; 95.4 GiB BF16 n-gram table on SSD."},
+]
+QUEUE_2026_10 = [
+    {"stage": "Smoke test at 8K, 4 runtimes", "status": "done"},
+    {"stage": "Stage 1 (fn): 3 reps at 32K and 128K", "status": "done"},
+    {"stage": "256K (1 rep) and 512K with YaRN 2.0 + KV 8-bit (n2)", "status": "done"},
+    {"stage": "Stage F: MTPLX 64-token prime and runtime fixes", "status": "done"},
+    {"stage": "Stage G: 8K for every runtime; MTPLX configs at 128K/256K; ds4 to 512K", "status": "done"},
+    {"stage": "Stage G4: quality (HumanEval + tool calls) for o1 and MTPLX at 128K", "status": "done"},
+]
+VERDICTS_2026_10 = [
+    {"gate": "Verdict", "arm": "n2 · mlx-serve 26.10.1", "state": "pass",
+     "note": "Daily driver. Lowest T_turn in every band from 8K to 512K: 8.2 s at 32K, 8.8 s at 128K, 12.9 s at 512K."},
+    {"gate": "Finalist", "arm": "o1 · oMLX 0.7.0", "state": "pass",
+     "note": "Passes the gates at 1.22× / 1.37× n2 (32K / 128K). Stops at 262K: no YaRN."},
+    {"gate": "Limited", "arm": "m1 · MTPLX 2.12.2", "state": "control",
+     "note": "2nd at 8K and 32K. Serves 128K only with --memory-limit max (15.1 s); refuses 256K (fit 237,568 tokens)."},
+    {"gate": "Slow", "arm": "d1 · ds4 upstream", "state": "control",
+     "note": "Serves every band to 512K, but decode stays at 43–54 tok/s; 61.9 s T_turn at 512K."},
+]
+DELTAS_2026_10 = [
+    {"label": "n2 vs o1 · 128K", "a": ["n2", 131072, "canonical"], "b": ["o1", 131072, "canonical"]},
+    {"label": "n2 vs MTPLX · 128K", "a": ["n2", 131072, "canonical"], "b": ["m1", 131072, "canonical"]},
+    {"label": "n2 vs d1 · 256K", "a": ["n2", 262144, "canonical"], "b": ["d1", 262144, "canonical"]},
+    {"label": "n2 vs d1 · 512K", "a": ["n2", 524288, "canonical"], "b": ["d1", 524288, "canonical"]},
 ]
 
 
@@ -530,20 +624,20 @@ def build_2026_10(sept_dir: Path = RESULTS, engine_dir: Path = ENGINE_RESULTS,
             g.update(arm=arm, config=g["tag"], campaign=d.parent.name, stamp=_stamp(records))
             groups.append(g)
     mark_canonical_2026_10(groups)
-    sept = build(sept_dir)
-    for g in sept["groups"]:
-        if g["cand"] == "c1" and g["canonical"]:
-            g.update(arm="c1", config=g["tag"], campaign=sept_dir.parent.name, stamp="")
-            groups.append(g)
-    c1 = dict(next(c for c in sept["candidates"] if c["id"] == "c1"), **C1_REFERENCE)
+    # Blocos que o overview reaproveita de setembro: glossário, catálogo de testes e a Etapa U (c1 × u1).
+    sept = build(RESULTS)
     groups.sort(key=lambda g: (g["cand"], g["context"], not g["canonical"], g["file"]))
     return {
         "schema_version": 1, "profile": "2026-10",
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "campaign": "bench/engine-updates-2026-10",
         "rig": RIG, "sampling": SAMPLING,
-        "candidates": CANDIDATES_2026_10 + [c1], "groups": groups,
+        "candidates": CANDIDATES_2026_10, "groups": groups,
         "takeaways": TAKEAWAYS_2026_10,
+        "runtime_profiles": RUNTIME_PROFILES_2026_10, "quant_profiles": QUANT_PROFILES_2026_10,
+        "gates_glossary": sept["gates_glossary"], "test_catalog": sept["test_catalog"],
+        "queue": QUEUE_2026_10, "verdicts": VERDICTS_2026_10, "deltas": DELTAS_2026_10,
+        "stage_u": sept["stage_u"], "quality": quality_2026_10(),
     }
 
 

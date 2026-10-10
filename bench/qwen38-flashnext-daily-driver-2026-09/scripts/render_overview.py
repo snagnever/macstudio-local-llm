@@ -214,18 +214,86 @@ def build_stage_u(data: dict) -> str:
     return resp + refusal + harmful
 
 
+STAGE_LABEL_2026_10 = {"0": "Stage 0", "A": "Stage A", "B": "Stage B", "C": "Stage C", "probe": "Probe",
+                       "diag": "Diag", "smoke": "Smoke", "fn": "Stage 1", "ab": "A/B", "fnx256": "256K",
+                       "yarn2": "512K", "fx": "Stage F", "pg": "Stage G", "gate": "Gate"}
+# Trechos do template de setembro trocados no perfil 2026-10 (o perfil default não muda).
+OCT_TEXT = [
+    ("<title>Qwen3.8-Flash-Next Daily Driver Campaign</title>",
+     "<title>Qwen3.8-Flash-Next Runtimes, October 2026</title>"),
+    ("<h1>Qwen3.8-Flash-Next daily driver: quant × runtime</h1>",
+     "<h1>Qwen3.8-Flash-Next, October 2026: four runtimes</h1>"),
+    ("""<p class="sub">Picks the most responsive setup for daily use. The cache, correctness, swap and server
+    gates eliminate candidates. Among those that pass, T_turn at 32K and 128K decides. Decode only breaks ties.</p>""",
+     """<p class="sub">The October 2026 stack on one rig: mlx-serve 26.10.1, oMLX 0.7.0, MTPLX 2.12.2 and ds4, each
+    with its own quant. The cache, correctness, swap and server gates eliminate candidates. Among those that pass,
+    T_turn at 32K and 128K decides. Speed, cache and memory; the Quality tab adds a cheap quality check.</p>"""),
+    ('placeholder="e.g. mlx-serve, oQ4e, c3"', 'placeholder="e.g. mlx-serve, oQ4e, ds4"'),
+    ('<button role="tab" data-tab="uncensored" aria-selected="false">Uncensored</button>',
+     '<button role="tab" data-tab="quality" aria-selected="false">Quality</button>\n'
+     '    <button role="tab" data-tab="uncensored" aria-selected="false">Uncensored (Sept)</button>'),
+    ('<div class="tabpanel" data-panel="uncensored" role="tabpanel" hidden>__STAGE_U__</div>',
+     '<div class="tabpanel" data-panel="quality" role="tabpanel" hidden>__QUALITY__</div>\n\n'
+     '  <div class="tabpanel" data-panel="uncensored" role="tabpanel" hidden>'
+     '<section class="panel"><p class="foot"><b>September 2026 data.</b> This stage compares the September driver '
+     '(c1: ddalcu mixed-4/8 on mlx-serve 26.9.2) with the abliterated u1 on the same runtime. It was not re-run '
+     'on the October stack.</p></section>__STAGE_U__</div>'),
+    ("""(data in <span class="mono">results/reports.json</span>). Verdict in prose:
+    <span class="mono">results/summary.md</span>.""",
+     """(data in <span class="mono">bench/engine-updates-2026-10/results/reports-2026-10.json</span>). Verdict in
+    prose: <span class="mono">bench/engine-updates-2026-10/results/summary.md</span>."""),
+    ('const STAGE_LABEL = {"0":"Stage 0","A":"Stage A","B":"Stage B","C":"Stage C","probe":"Probe","diag":"Diag"};',
+     "const STAGE_LABEL = " + json.dumps(STAGE_LABEL_2026_10, ensure_ascii=False, separators=(",", ":")) + ";"),
+    ('const stages = ["0","A","B","C","probe","diag"].filter(s=>G.some(g=>g.stage===s));',
+     'const stages = Object.keys(STAGE_LABEL).filter(s=>G.some(g=>g.stage===s));'),
+    ('<td class="mono">${c.bpw}</td>', '<td class="mono">${c.bpw ?? "—"}</td>'),
+    ('`${CAND[g.cand].bpw} bpw', '`${CAND[g.cand].bpw ?? "—"} bpw'),
+]
+
+
+def build_quality(data: dict) -> str:
+    q = data.get("quality")
+    if not q:
+        return '<section class="panel"><p class="foot">No quality data.</p></section>'
+    rows = ""
+    for r in q["rows"]:
+        rows += (f'<tr><td class="mono">{esc(r["arm"])}</td><td>{esc(r["label"])}</td>'
+                 f'<td class="mono">{r["humaneval_strict"]}/{r["humaneval_n"]}</td>'
+                 f'<td class="mono"><b>{r["humaneval_imports"]}/{r["humaneval_n"]}</b></td>'
+                 f'<td class="mono">{r["humaneval_truncated"]}</td>'
+                 f'<td class="mono">{r["jdhodges"]}/{r["jdhodges_n"]}</td>'
+                 f'<td class="mono">{r["veerman"]}/{r["veerman_n"]}</td>'
+                 f'<td class="mono">{esc(r["date"])}</td></tr>')
+    return (
+        '<section class="panel"><h2>Cheap quality check '
+        '<span class="h2sub">passed / total · higher is better</span></h2>'
+        '<div class="scroll"><table><thead><tr><th>Arm</th><th>Quant · runtime</th><th>HumanEval strict</th>'
+        '<th>HumanEval with imports</th><th>Truncated</th><th>jdhodges</th><th>Veerman</th><th>Run</th></tr>'
+        f'</thead><tbody>{rows}</tbody></table></div>'
+        f'<p class="foot">{q["note"]} n1 is the September weights (mixed-4/8) on the October runtime, so n1 vs n2 '
+        'isolates the quant. d1 (ds4) was not measured.</p></section>'
+    )
+
+
 def render(data: dict) -> str:
     chart_ids = {c["id"] for c in data["candidates"] if c.get("chart", True)}
     chart_data = {**data,
                   "candidates": [c for c in data["candidates"] if c.get("chart", True)],
                   "groups": [g for g in data["groups"] if g["cand"] in chart_ids]}
     passers = gate_passers(chart_data)
-    winner = next((c for c in data["candidates"] if c["state"] == "pass" and c["status"] == "winner"), None)
+    winner = next((c for c in data["candidates"]
+                   if c["state"] == "pass" and c["status"] in ("winner", "daily driver")), None)
     verdict_line = (f'Verdict: {winner["id"]} {winner["runtime"]} {winner["runtime_version"]}'
                     if winner else "Verdict pending")
     payload = json.dumps(chart_data, ensure_ascii=False).replace("</", "<\\/")
+    template = TEMPLATE
+    if data.get("profile") == "2026-10":
+        for old, new in OCT_TEXT:
+            assert template.count(old) == 1, old[:60]
+            template = template.replace(old, new)
+        template = template.replace("__QUALITY__", build_quality(data))
     return (
-        TEMPLATE
+        template
         .replace("/*__CSS__*/", CSS + EXTRA_CSS)
         .replace("__DATA__", payload)
         .replace("__TILES__", build_tiles(chart_data))

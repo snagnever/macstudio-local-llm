@@ -175,7 +175,7 @@ def build_payload(data: dict) -> dict:
 
 
 # --- 2026-10 profile: October stack (engine-updates-2026-10), c1 as the September reference ----------
-SERIES_COLOR_2026_10 = {"n2": "--s1", "o1": "--s3", "m1": "--s5", "d1": "--s4", "c1": "--s2"}
+SERIES_COLOR_2026_10 = {"n2": "--s1", "o1": "--s3", "m1": "--s5", "d1": "--s4"}
 ABSENT_2026_10 = {
     ("o1", 524288): "no YaRN: 262K ceiling",
     ("m1", 524288): "not run: MTPLX refuses 256K (memory-plan fit 237,568 tokens)",
@@ -185,7 +185,7 @@ TECH_2026_10 = [
      "what": "MLX server with <b>native MTP for Flash-Next</b> and a two-tier prefix cache. Daily driver (n2) with the ddalcu iQ-MLX pack.",
      "cache": "Hot cache in RAM (<b>16 GB, 64 entries</b>) and a disk cache (100 GB). <code>--ssm-checkpoint-max 16</code> keeps checkpoints of the DeltaNet state.",
      "spec": "MTP with PLD (prompt lookup through the pack's n-gram table). The acceptance comes from the <code>[spec-stats]</code> log.",
-     "configs": "n2 iQ-MLX-4.7bpw · c1 (Sept reference: 26.9.2, mixed-4/8)"},
+     "configs": "n2 iQ-MLX-4.7bpw"},
     {"name": "oMLX 0.7.0", "repo": "jundot/omlx",
      "what": "MLX server for agents: continuous batching and a <b>two-tier paged KV cache</b>.",
      "cache": "Blocks in RAM that <b>spill over to an SSD tier</b>. The oQ4e PLE stays in mmap (<code>model_settings.json</code>).",
@@ -217,12 +217,12 @@ PAGE_2026_10 = {
     "eyebrow": "Responsiveness test by context · October 2026 stack",
     "h1": "Qwen3.8-Flash-Next: four runtimes from 8K to 512K",
     "sub": "The same model on four runtimes, with the same fixture and the vendor sampling: mlx-serve 26.10.1, "
-           "oMLX 0.7.0, MTPLX 2.12.2 and ds4. The September daily driver (c1) is the reference line. Each panel "
+           "oMLX 0.7.0, MTPLX 2.12.2 and ds4. Each panel "
            "is one metric; each line is one runtime. Hover over a chart to read the values by context.",
     "notice": (
         '<section class="block notice">\n'
         '    <p><b>Apple M4 Max · 128 GB · measured 2026-10-07 to 2026-10-09.</b> mlx-serve 26.10.1 · oMLX 0.7.0 · '
-        'MTPLX 2.12.2 · ds4 upstream <code>0aaea5a</code>. c1 = September reference (mlx-serve 26.9.2).</p>\n'
+        'MTPLX 2.12.2 · ds4 upstream <code>0aaea5a</code>.</p>\n'
         '    <ul>\n'
         '      <li><b>Speed, cache and memory only.</b> This page does not measure agent reliability. A community '
         f'test on an M4 Max 128 GB found differences between these runtimes in multi-turn agent tasks '
@@ -249,7 +249,7 @@ PAGE_2026_10 = {
     "est_note": "<b>507</b> or <b>500</b> = scenario refused with that HTTP status. <b>—</b> = scenario outside the "
                 "band's protocol: the 256K and 512K bands of some runtimes run only cold, identical and tool_turn.",
     "table_note": "Source: <code>bench/engine-updates-2026-10/results/reports-2026-10.json</code>, generated from the "
-                  "<code>*.jsonl</code> files of the October campaigns and the September c1 groups. Per runtime and band, "
+                  "<code>*.jsonl</code> files of the October campaigns. Per runtime and band, "
                   "the page shows the served group with the most reps (tie: the most recent). <code>T_turn</code> = "
                   "tool_turn TTFT + 512 / warm decode. Warm decode = median of served identical, append and tool_turn.",
     "stage": {},
@@ -267,7 +267,7 @@ PAGE_2026_10 = {
                            "MTPLX needs 458 s at 128K, 2.8× n2."},
         "decode": {"interp": "n2 decodes 80 tok/s at 32K and 51 tok/s at 512K. MTPLX is close to n2 at 32K (80 tok/s) "
                              "and 70 tok/s at 128K. d1 stays at 43–54 tok/s in every band."},
-        "prefill": {"interp": "n2, d1 and c1 keep the prefill almost flat up to 512K (n2: 791 to 661 tok/s). "
+        "prefill": {"interp": "n2 and d1 keep the prefill almost flat up to 512K (n2: 791 to 661 tok/s). "
                               "<b>MTPLX drops from 619 tok/s at 32K to 274 tok/s at 128K</b>. The likely cause is the dense lane "
                               "of the QSA indexer on the M4 Max (no NAX kernels; not profiled); the sparse lane failed to "
                               "allocate. The 128K point also runs with <code>--memory-limit max</code>."},

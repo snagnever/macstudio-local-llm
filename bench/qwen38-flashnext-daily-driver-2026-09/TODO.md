@@ -20,7 +20,8 @@ Marque `[x]` e cite o commit quando fechar um item.
 - [ ] **Default do renderer reescreve a página publicada.** `render_perf_lines.py` sem `--data` usa o `reports.json`
   de setembro e grava `reports/qwen38-flashnext-perf-lines.html`, que hoje é a página de outubro. Mudar o default de
   `--data` para `bench/engine-updates-2026-10/results/reports-2026-10.json`, ou recusar gravar o perfil 2026-09 no
-  arquivo publicado.
+  arquivo publicado. O `render_overview.py` tem o mesmo problema desde 2026-10-10: sem `--data`, ele grava o
+  overview de setembro por cima do de outubro.
 - [ ] **Legenda `est_note` incompleta.** Cita só `507` e `500`; os dados de outubro têm HTTP 400 (m1v) e
   `stream_error` (m1s). Para o ponto recusado do MTPLX a 256K, dar o motivo do fit (237 568 tokens) via
   `GROUP_NOTES[("m1", 262144, "pg")]`.
