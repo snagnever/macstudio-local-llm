@@ -10,7 +10,14 @@ gates, 9% à frente do mlx-serve 26.10.1 a 32K e 32% a 128K.**
 > `--prefix-cache-rungs 1024` passa a 32K (16.7 s). O veredito do Flash-Next não muda; no 27B, o mlx-dspark com rungs
 > passa nas duas bandas (16.7 / 25.7 s) e lidera, à frente de oMLX e MTPLX, empatados. Detalhe em [etapa-f-fixes.md](etapa-f-fixes.md).
 
-Rig: M4 Max 128 GB, 2026-10-07 e 2026-10-08. Sem leitura de qualidade.
+> **Etapa G (2026-10-09):** o MTPLX 2.12.2 serve o Flash-Next a 128K só com `--memory-limit max` (m1x: 15.1 s,
+> 1.71× o n2, prefill 274 tok/s) e recusa 256K (fit de 237 568 tokens). O default do vendor planeja 65 536 tokens
+> neste M4 Max; o KV q8 é ignorado no Flash-Next; o prefill esparso do QSA falha na alocação sem NAX. O ds4 serve
+> até 512K com YaRN 2.0 (61.9 s). Qualidade barata a 128K: HumanEval com os imports do prompt n2 156, o1 157,
+> m1x 151 de 164; tool-calling a 1–3 casos do n2. O n2 segue driver. Detalhe em [etapa-g-page.md](etapa-g-page.md)
+> e [quality-o1-mtplx.md](quality-o1-mtplx.md).
+
+Rig: M4 Max 128 GB, 2026-10-07 a 2026-10-09.
 
 ## Flash-Next
 
@@ -56,7 +63,8 @@ A parte 27B fechou em 128K por decisão do usuário. Detalhe em [27b-summary.md]
 
 ## O que não foi medido
 
-- Qualidade (HumanEval, tool-calling, Terminal-Bench) em qualquer braço.
+- Qualidade do Flash-Next além de HumanEval e tool-calling (o1 e m1x, Etapa G4); Terminal-Bench em qualquer braço.
+- Qualidade do 27B e do d1.
 - 27B acima de 128K.
 - mlx-vlm 0.7.6, LM Studio 0.4.25, llama.cpp b11461 e o fork ivanfioravanti do ds4.
 - O modo DSpark do mlx-dspark no 27B (o braço rodou em DFlash para casar com o r27).
