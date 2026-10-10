@@ -417,7 +417,7 @@ SERIES_ARMS_2026_10 = {"n2": "n2", "o1": "o1", "d1": "d1",
                        "m1": "m1", "m1p": "m1", "m1v": "m1", "m1x": "m1", "m1q": "m1", "m1xq": "m1", "m1s": "m1"}
 MTPLX_CONFIG = {"m1": "default config", "m1p": "prime 64", "m1v": "vendor default",
                 "m1x": "memory limit max", "m1q": "KV q8",
-                "m1xq": "memory limit max + KV q8", "m1s": "sparse QSA prefill"}
+                "m1xq": "memory limit max (KV q8 ignored)", "m1s": "sparse QSA prefill"}
 MTPLX_PRIME1_TAGS = {"fn", "smoke", "gate"}
 
 CANDIDATES_2026_10 = [

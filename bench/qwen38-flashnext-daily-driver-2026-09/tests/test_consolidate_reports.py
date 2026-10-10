@@ -243,8 +243,13 @@ def test_render_panel_without_interp_prints_nothing():
     assert 'interp.innerHTML=p.interp||"";' in rpl.TEMPLATE
 
 
-def test_m1xq_joins_mtplx_series_with_both_knobs_in_label(tmp_path):
+def test_m1xq_label_says_kv_q8_was_ignored(tmp_path):
+    # O MTPLX 2.12.2 rebaixa --paged-kv-quantization q8 para off no Flash-Next (boot log do m1xq).
     sept, eng, upd = _dirs(tmp_path)
     _write(eng, "m1xq-262144-t1.0-pg.jsonl", _rep_set(1, "20261009T200000Z", ctx=262144, rev="v2.12.2-memmax-kvq8"))
     g = _canon(cr.build_2026_10(sept, eng, upd), "m1", 262144)
-    assert g["arm"] == "m1xq" and g["config"] == "memory limit max + KV q8"
+    assert g["arm"] == "m1xq" and g["config"] == "memory limit max (KV q8 ignored)"
+
+
+def test_render_2026_10_marks_mtplx_512k_absent():
+    assert rpl.ABSENT_2026_10[("m1", 524288)].startswith("not run")

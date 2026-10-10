@@ -177,6 +177,7 @@ def build_payload(data: dict) -> dict:
 SERIES_COLOR_2026_10 = {"n2": "--s1", "o1": "--s3", "m1": "--s5", "d1": "--s4", "c1": "--s2"}
 ABSENT_2026_10 = {
     ("o1", 524288): "no YaRN: 262K ceiling",
+    ("m1", 524288): "not run: MTPLX refuses 256K (memory-plan fit 237,568 tokens)",
 }
 TECH_2026_10 = [
     {"name": "mlx-serve 26.10.1", "repo": "ddalcu/mlx-serve",
