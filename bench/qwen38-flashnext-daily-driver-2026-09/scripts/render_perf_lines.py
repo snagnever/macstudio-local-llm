@@ -129,7 +129,8 @@ def point(g: dict) -> dict:
         "decode": g["decode_tps"], "decode_range": g["decode_range"],
         "prefill": g["prefill_tps"], "wired": g["wired_peak_gb"],
         "free": g["mem_free_min_gb"], "hit_tool": g["hit"]["tool_turn"],
-        "mtp": g["mtp_acceptance"], "reps": g["reps"], "stage": g["stage"],
+        # O contador de "MTP acc" do MTPLX não é a taxa de aceitação (etapa-g-page.md).
+        "mtp": None if g["cand"] == "m1" else g["mtp_acceptance"], "reps": g["reps"], "stage": g["stage"],
         "note": g["note"],
         "status": ("refused " + ", ".join(k.replace("http_", "HTTP ") for k in g["error_kinds"])
                    if g["refused"] else ""),
@@ -267,8 +268,9 @@ PAGE_2026_10 = {
         "decode": {"interp": "n2 decodes 80 tok/s at 32K and 51 tok/s at 512K. MTPLX is close to n2 at 32K (80 tok/s) "
                              "and 70 tok/s at 128K. d1 stays at 43–54 tok/s in every band."},
         "prefill": {"interp": "n2, d1 and c1 keep the prefill almost flat up to 512K (n2: 791 to 661 tok/s). "
-                              "<b>MTPLX drops from 619 tok/s at 32K to 274 tok/s at 128K</b>: on the M4 Max (no NAX kernels) "
-                              "it runs the dense lane of the QSA indexer, and the sparse lane failed to allocate."},
+                              "<b>MTPLX drops from 619 tok/s at 32K to 274 tok/s at 128K</b>. The likely cause is the dense lane "
+                              "of the QSA indexer on the M4 Max (no NAX kernels; not profiled); the sparse lane failed to "
+                              "allocate. The 128K point also runs with <code>--memory-limit max</code>."},
         "wired": {"interp": "Every runtime ran without swap. n2 pins 97–112 GB as wired memory by design. "
                             "MTPLX with <code>--memory-limit max</code> reaches 110 GB at 128K; d1 reaches 107 GB at 512K."},
     },

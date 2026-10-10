@@ -2,7 +2,7 @@
 
 **O n2 (mlx-serve 26.10.1) segue o mais rápido em todas as bandas, de 8K a 512K. O MTPLX 2.12.2 serve 128K só com
 `--memory-limit max` (15.1 s, 1.71× o n2) e recusa 256K. O ds4 serve até 512K com YaRN, mas o turno quente cresce
-com o contexto (61.9 s a 512K).** Na qualidade barata, nenhum runtime supera o n2
+com o contexto (61.9 s a 512K).** Na qualidade barata, nenhum runtime fica claramente acima do n2 (1–5 casos; o run do n2 usou outro modo de reasoning provável)
 ([quality-o1-mtplx.md](quality-o1-mtplx.md)).
 
 Rig: M4 Max 128 GB. Probe e gates da campanha (`temperature 1.0`, `top_p 0.95`, `top_k 20`, reasoning `xhigh`,
@@ -55,7 +55,8 @@ Swap delta 0 em todos os grupos servidos.
   (`pressure_trim` nível 4, `allocator_fraction` 1.02–1.03) e o guard registrou `allocation_failure_shed` 9 vezes.
   Wired de pico 103.6 GB, swap 0.01 GB; o watchdog de 115 GB não disparou. O modo auto liga o caminho esparso só com
   NAX (M5); o vendor mediu 262K num M5 Max.
-- **Prefill do m1x.** 274 tok/s a 128K contra 619 a 32K (m1p) e 759 do n2. Hipótese: sem NAX, o MTPLX roda a lane
+- **Prefill do m1x.** 274 tok/s a 128K contra 619 a 32K (m1p) e 759 do n2. A 128K a config também muda (memory max,
+  wired 109.7 GB). Hipótese: sem NAX, o MTPLX roda a lane
   densa do indexer QSA, cujo trabalho por chunk de 2048 tokens cresce com o contexto. O guard mostra `scratch_bytes`
   15.76 GB por chunk (`scratch_source` `qsa_itemized`). Não perfilei os kernels.
 

@@ -270,3 +270,29 @@ def test_2026_10_tech_cards_name_measured_configs():
     cards = {c["name"]: c for c in rpl.TECH_2026_10}
     assert "69.7 GiB" in cards["ds4 (upstream)"]["configs"]
     assert "65,536" in cards["MTPLX 2.12.2"]["configs"]
+
+
+def test_review_takeaways_rank_and_quality_wording(tmp_path):
+    sept, eng, upd = _dirs(tmp_path)
+    tk = dict(cr.build_2026_10(sept, eng, upd)["takeaways"])
+    body = " ".join(tk.values())
+    text = " ".join(tk) + " " + body
+    assert "second at 128K and 256K" in text and "second up to 256K" not in text
+    assert "no runtime beats n2" not in " ".join(tk).lower()
+    assert "reasoning" in body and "±" in text
+
+
+def test_review_mtplx_points_hide_mtp_counter():
+    data = json.loads((Path(__file__).resolve().parents[2] / "engine-updates-2026-10" / "results"
+                       / "reports-2026-10.json").read_text(encoding="utf-8"))
+    pts = rpl.build_payload(data)["points"]["m1"]
+    assert all(p.get("mtp") is None for p in pts.values())
+
+
+def test_review_prefill_interp_marks_hypothesis():
+    assert "not profiled" in rpl.PAGE_2026_10["panels"]["prefill"]["interp"]
+
+
+def test_review_index_card_does_not_claim_measured_237k():
+    html = (Path(__file__).resolve().parents[3] / "reports" / "index.html").read_text(encoding="utf-8")
+    assert "stops at 237K" not in html and "refuses 256K" in html

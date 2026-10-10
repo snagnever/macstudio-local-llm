@@ -28,7 +28,7 @@ refused() {  # refused <arm> <ctx>: o cold tem erro HTTP (507 do memory plan, 40
   grep '"scenario": "cold"' "$RESULTS/$1-$2-t1.0-pg.jsonl" 2>/dev/null | grep -q '"error": "http_'
 }
 
-[[ "${1:-}" == --lib ]] && return 0 2>/dev/null
+if [[ "${1:-}" == --lib ]]; then return 0 2>/dev/null || exit 0; fi
 
 PARTS=" ${ENGINE_G_PARTS:-g1 g2 g3} "
 if [[ "$PARTS" == *" g1 "* ]]; then

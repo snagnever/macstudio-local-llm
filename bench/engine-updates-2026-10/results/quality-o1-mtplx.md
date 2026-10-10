@@ -5,7 +5,9 @@
 mas a diferença vem do formato da resposta: o o1 e o m1x escrevem a função sem `from typing import List`, e o
 grader executa só o código da resposta. No tool-calling, os três ficam a 1–3 casos um do outro.
 
-O veredito não muda: o n2 segue driver. Ele é o mais rápido em todas as bandas, e nenhum braço é melhor em qualidade.
+O veredito não muda: o n2 segue driver. Ele é o mais rápido em todas as bandas, e nenhum braço fica claramente acima
+dele em qualidade (diferenças de 1–5 casos). O run do n2 provavelmente usou outro modo de reasoning (ver Leitura),
+então esta bateria é uma checagem de sanidade, não um ranking.
 
 Rig: M4 Max 128 GB. Temperatura 0, `max_tokens` 32 768. o1 e m1x serviram com janela de 128K (tag `qual`); o n2
 vem do run de 2026-10-07 da campanha flashnext-updates (`humaneval_*iQ-MLX-4.7bpw*_20261007_081345`,
@@ -35,7 +37,8 @@ Veerman), no submódulo `tools/local-llm-bench-m4-32gb`.
   código. O o1 truncou 5. Fora das truncadas, o m1x acerta 151 de 154 com imports.
 - **Tamanho das respostas.** O n2 responde com ~200 tokens por questão; o o1 com ~1 800 e o m1x com ~3 300 (o
   MTPLX reporta ~3 260 deles como reasoning). Não verifiquei se o n2 pensou e o mlx-serve não contou o reasoning,
-  ou se o run de 2026-10-07 rodou com reasoning menor. Esta diferença afeta o tempo, não a conclusão.
+  ou se o run de 2026-10-07 rodou com reasoning menor. Se o modo de reasoning foi outro, a comparação mistura modos; para um ranking, o n2 precisa rodar de novo a 128K
+  com a tag `qual`.
 - **Tool-calling.** jdhodges: o o1 perde `arg_reminder_iso_time`, `edge_vague_reminder` e
   `multi_email_after_calendar_read` e ganha `multi_weather_two_cities_holdout`; o m1x perde os mesmos três e
   `multi_usd_eur_sequential`. Veerman: o1 e m1x passam `veerman_p9_code_trick`, que o n2 erra. Com 12 casos, 1 caso

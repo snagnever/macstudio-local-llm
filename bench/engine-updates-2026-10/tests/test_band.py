@@ -122,3 +122,10 @@ def test_etapa_g_parts_and_g2_arms_select_queue():
     lines = dry_g({"ENGINE_G_PARTS": "g2", "ENGINE_G2_ARMS": "m1x m1q", "ENGINE_G_REFUSED": "m1x"})
     runs = [(l.split()[2], l.split()[3]) for l in lines if l.startswith("bash run-arm.sh")]
     assert runs == [("m1x", "131072"), ("m1q", "131072"), ("m1q", "262144")]
+
+
+def test_etapa_g_lib_flag_does_not_run_queue_when_executed():
+    # `bash run-etapa-g.sh --lib` (executado, não sourced) não pode cair na fila.
+    out = subprocess.run(["bash", str(ETAPA_G), "--lib"], capture_output=True, text=True,
+                         env=_env({"ENGINE_BAND_DRY": "1"}), timeout=10)
+    assert out.returncode == 0 and out.stdout.strip() == ""
