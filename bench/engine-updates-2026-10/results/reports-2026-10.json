@@ -1,0 +1,2274 @@
+{
+ "schema_version": 1,
+ "profile": "2026-10",
+ "generated_at": "2026-10-10T00:12:31Z",
+ "campaign": "bench/engine-updates-2026-10",
+ "rig": [
+  {
+   "lab": "Chip",
+   "val": "Apple M4 Max"
+  },
+  {
+   "lab": "CPU",
+   "val": "16 cores (12P+4E)"
+  },
+  {
+   "lab": "GPU",
+   "val": "40 cores · Metal 4"
+  },
+  {
+   "lab": "Unified memory",
+   "val": "128 GB"
+  },
+  {
+   "lab": "macOS",
+   "val": "26.6.2 (25G83)"
+  },
+  {
+   "lab": "Wired limit",
+   "val": "default (iogpu 0) · no sudo"
+  },
+  {
+   "lab": "Ports",
+   "val": "mlx-serve :11234 · oMLX/MTPLX :8000"
+  }
+ ],
+ "sampling": "temperature 1.0 · top_p 0.95 · top_k 20 · reasoning xhigh · max_tokens 4096",
+ "candidates": [
+  {
+   "id": "n2",
+   "name": "ddalcu iQ-MLX-4.7bpw · mlx-serve 26.10.1",
+   "short": "n2 mlx-serve",
+   "runtime": "mlx-serve",
+   "runtime_version": "26.10.1",
+   "model": "ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw",
+   "revision": "dafff5c",
+   "quant": "iQ-MLX 4.7 bpw",
+   "bpw": 4.7,
+   "disk_gb": 107.4,
+   "port": 11234,
+   "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
+   "spec": "native MTP + PLD (n-gram)",
+   "ceiling": "512K with YaRN 2.0 + KV 8-bit",
+   "state": "pass",
+   "status": "daily driver"
+  },
+  {
+   "id": "o1",
+   "name": "oQ4e · oMLX 0.7.0",
+   "short": "o1 oMLX",
+   "runtime": "oMLX",
+   "runtime_version": "0.7.0",
+   "model": "Jundot/Qwen3.8-Flash-Next-oQ4e-mtp",
+   "revision": "2615fc0",
+   "quant": "oQ4e",
+   "bpw": 5.97,
+   "disk_gb": 132.2,
+   "port": 8000,
+   "cache": "paged SSD cache · PLE in mmap via model_settings.json",
+   "spec": "checkpoint MTP · acceptance not exposed in telemetry",
+   "ceiling": "262K (oMLX has no YaRN)",
+   "state": "pass",
+   "status": "2nd place"
+  },
+  {
+   "id": "m1",
+   "name": "MTPLX Optimized-Speed · MTPLX 2.12.2",
+   "short": "m1 MTPLX",
+   "runtime": "MTPLX",
+   "runtime_version": "2.12.2",
+   "model": "Youssofal/Qwen3.8-Flash-Next-MTPLX-Optimized-Speed",
+   "revision": "6bc2f6e",
+   "quant": "MTPLX Optimized-Speed",
+   "bpw": 5.43,
+   "disk_gb": 120.2,
+   "port": 8000,
+   "cache": "session bank in RAM + SSD session cache",
+   "spec": "native MTP · turbo profile depth 3",
+   "ceiling": "see the 128K and 256K points",
+   "state": "control",
+   "status": "measured"
+  },
+  {
+   "id": "d1",
+   "name": "Q4 GGUF · ds4 upstream",
+   "short": "d1 ds4",
+   "runtime": "ds4",
+   "runtime_version": "upstream 0aaea5a",
+   "model": "antirez/qwen3.8-flash-next-gguf (Q4)",
+   "revision": "qwen38-q4k",
+   "quant": "Q4 GGUF (MTP + n-gram table embedded)",
+   "bpw": null,
+   "disk_gb": 177.3,
+   "port": 11234,
+   "cache": "KV prefix cache on disk (100 GB)",
+   "spec": "built-in MTP (1 draft)",
+   "ceiling": "512K with YaRN 2",
+   "state": "control",
+   "status": "measured"
+  },
+  {
+   "id": "c1",
+   "name": "ddalcu mixed-4/8 · mlx-serve 26.9.2",
+   "short": "c1 Sept ref",
+   "runtime": "mlx-serve",
+   "runtime_version": "26.9.2",
+   "model": "ddalcu/Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit",
+   "revision": "ef5b919",
+   "quant": "mixed 4/8-bit",
+   "bpw": 4.85,
+   "disk_gb": 107.3,
+   "port": 11234,
+   "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
+   "spec": "native MTP depth 6 + PLD (n-gram) · acceptance 0.50–0.67",
+   "ceiling": "512K with follow-up",
+   "state": "control",
+   "status": "Sept reference",
+   "note": "Lowest T_turn in both bands: 11.03 s at 32K and 12.35 s at 128K (3 reps)."
+  }
+ ],
+ "groups": [
+  {
+   "cand": "c1",
+   "context": 8192,
+   "stage": "0",
+   "mode": "canonical",
+   "tag": "",
+   "file": "c1-8192-t1.0.jsonl",
+   "reps": 1,
+   "n": 3,
+   "served_n": 3,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "t_turno_s": 10.08,
+   "cold_ttft_s": 3.56,
+   "ttft_s": {
+    "cold": 3.56,
+    "identical": 0.08,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 1.72
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 0.718
+   },
+   "decode_tps": 61.3,
+   "decode_range": [
+    51.3,
+    71.2
+   ],
+   "prefill_tps": 767.0,
+   "wired_peak_gb": 80.8,
+   "mem_free_min_gb": 0.01,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.55,
+   "correct": 2,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "c1",
+   "config": "",
+   "campaign": "qwen38-flashnext-daily-driver-2026-09",
+   "stamp": ""
+  },
+  {
+   "cand": "c1",
+   "context": 32768,
+   "stage": "B",
+   "mode": "canonical",
+   "tag": "",
+   "file": "c1-32768-t1.0-b.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 11.03,
+   "cold_ttft_s": 37.0,
+   "ttft_s": {
+    "cold": 37.0,
+    "identical": 0.11,
+    "append": 1.86,
+    "middle_mutation": 26.64,
+    "tool_turn": 1.87
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.962,
+    "middle_mutation": 0.3,
+    "tool_turn": 0.962
+   },
+   "decode_tps": 55.9,
+   "decode_range": [
+    52.1,
+    63.1
+   ],
+   "prefill_tps": 738.0,
+   "wired_peak_gb": 97.3,
+   "mem_free_min_gb": 0.01,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.62,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "c1",
+   "config": "",
+   "campaign": "qwen38-flashnext-daily-driver-2026-09",
+   "stamp": ""
+  },
+  {
+   "cand": "c1",
+   "context": 131072,
+   "stage": "B",
+   "mode": "canonical",
+   "tag": "",
+   "file": "c1-131072-t1.0-b.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 12.35,
+   "cold_ttft_s": 178.08,
+   "ttft_s": {
+    "cold": 178.08,
+    "identical": 0.22,
+    "append": 2.01,
+    "middle_mutation": 99.18,
+    "tool_turn": 2.05
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.992,
+    "middle_mutation": 0.456,
+    "tool_turn": 0.992
+   },
+   "decode_tps": 49.7,
+   "decode_range": [
+    45.7,
+    54.6
+   ],
+   "prefill_tps": 705.0,
+   "wired_peak_gb": 108.1,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": -0.01,
+   "mtp_acceptance": 0.5,
+   "correct": 12,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "c1",
+   "config": "",
+   "campaign": "qwen38-flashnext-daily-driver-2026-09",
+   "stamp": ""
+  },
+  {
+   "cand": "c1",
+   "context": 262144,
+   "stage": "C",
+   "mode": "canonical",
+   "tag": "",
+   "file": "c1-262144-t1.0-c.jsonl",
+   "reps": 3,
+   "n": 12,
+   "served_n": 12,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "tool_turn"
+   ],
+   "t_turno_s": 13.9,
+   "cold_ttft_s": 378.75,
+   "ttft_s": {
+    "cold": 378.75,
+    "identical": 0.36,
+    "append": 2.2,
+    "middle_mutation": null,
+    "tool_turn": 2.22
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.996,
+    "middle_mutation": null,
+    "tool_turn": 0.996
+   },
+   "decode_tps": 43.8,
+   "decode_range": [
+    42.7,
+    67.7
+   ],
+   "prefill_tps": 678.0,
+   "wired_peak_gb": 113.2,
+   "mem_free_min_gb": 0.01,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.39,
+   "correct": 11,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "c1",
+   "config": "",
+   "campaign": "qwen38-flashnext-daily-driver-2026-09",
+   "stamp": ""
+  },
+  {
+   "cand": "c1",
+   "context": 524288,
+   "stage": "C",
+   "mode": "canonical",
+   "tag": "YaRN 2.0 + KV 8-bit",
+   "file": "c1-524288-t1.0-yarn2-c.jsonl",
+   "reps": 2,
+   "n": 6,
+   "served_n": 6,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "t_turno_s": 13.64,
+   "cold_ttft_s": 844.87,
+   "ttft_s": {
+    "cold": 844.87,
+    "identical": 0.63,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 3.08
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 0.998
+   },
+   "decode_tps": 48.5,
+   "decode_range": [
+    39.7,
+    49.5
+   ],
+   "prefill_tps": 614.0,
+   "wired_peak_gb": 113.4,
+   "mem_free_min_gb": 0.02,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.56,
+   "correct": 6,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "c1",
+   "config": "YaRN 2.0 + KV 8-bit",
+   "campaign": "qwen38-flashnext-daily-driver-2026-09",
+   "stamp": ""
+  },
+  {
+   "cand": "d1",
+   "context": 8192,
+   "stage": "pg",
+   "mode": "canonical",
+   "tag": "",
+   "file": "d1-8192-t1.0-pg.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 12.73,
+   "cold_ttft_s": 4.78,
+   "ttft_s": {
+    "cold": 4.78,
+    "identical": 1.55,
+    "append": 2.88,
+    "middle_mutation": 4.73,
+    "tool_turn": 2.95
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.75,
+    "append": 0.544,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.539
+   },
+   "decode_tps": 52.4,
+   "decode_range": [
+    51.7,
+    56.9
+   ],
+   "prefill_tps": 571.0,
+   "wired_peak_gb": 84.9,
+   "mem_free_min_gb": 10.39,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 9,
+   "truncated": 4,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "d1",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261009T142052Z"
+  },
+  {
+   "cand": "d1",
+   "context": 8192,
+   "stage": "smoke",
+   "mode": "canonical",
+   "tag": "",
+   "file": "d1-8192-t1.0-smoke.jsonl",
+   "reps": 1,
+   "n": 3,
+   "served_n": 3,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "t_turno_s": 12.27,
+   "cold_ttft_s": 4.86,
+   "ttft_s": {
+    "cold": 4.86,
+    "identical": 1.58,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 2.94
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.75,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 0.539
+   },
+   "decode_tps": 54.9,
+   "decode_range": [
+    53.0,
+    56.8
+   ],
+   "prefill_tps": 562.0,
+   "wired_peak_gb": 84.7,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 3,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": false,
+   "arm": "d1",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261007T164437Z"
+  },
+  {
+   "cand": "d1",
+   "context": 32768,
+   "stage": "gate",
+   "mode": "canonical",
+   "tag": "",
+   "file": "d1-32768-t1.0-gate.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 5,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 12.59,
+   "cold_ttft_s": 41.42,
+   "ttft_s": {
+    "cold": 41.42,
+    "identical": 1.96,
+    "append": 2.95,
+    "middle_mutation": 41.5,
+    "tool_turn": 3.02
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.975,
+    "append": 0.94,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.938
+   },
+   "decode_tps": 53.5,
+   "decode_range": [
+    53.0,
+    53.6
+   ],
+   "prefill_tps": 659.0,
+   "wired_peak_gb": 86.0,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 5,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "d1",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261007T165155Z"
+  },
+  {
+   "cand": "d1",
+   "context": 131072,
+   "stage": "pg",
+   "mode": "canonical",
+   "tag": "",
+   "file": "d1-131072-t1.0-pg.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 16.41,
+   "cold_ttft_s": 195.69,
+   "ttft_s": {
+    "cold": 195.69,
+    "identical": 7.33,
+    "append": 6.31,
+    "middle_mutation": 133.65,
+    "tool_turn": 6.38
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.978,
+    "append": 0.97,
+    "middle_mutation": 0.326,
+    "tool_turn": 0.97
+   },
+   "decode_tps": 51.0,
+   "decode_range": [
+    49.8,
+    56.7
+   ],
+   "prefill_tps": 642.0,
+   "wired_peak_gb": 90.1,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "d1",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261009T150405Z"
+  },
+  {
+   "cand": "d1",
+   "context": 262144,
+   "stage": "pg",
+   "mode": "canonical",
+   "tag": "",
+   "file": "d1-262144-t1.0-pg.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 5,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 30.66,
+   "cold_ttft_s": 407.22,
+   "ttft_s": {
+    "cold": 407.22,
+    "identical": 23.44,
+    "append": 19.87,
+    "middle_mutation": 224.04,
+    "tool_turn": 19.94
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.958,
+    "append": 0.954,
+    "middle_mutation": 0.479,
+    "tool_turn": 0.954
+   },
+   "decode_tps": 47.8,
+   "decode_range": [
+    47.0,
+    49.0
+   ],
+   "prefill_tps": 630.0,
+   "wired_peak_gb": 95.6,
+   "mem_free_min_gb": 0.05,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 5,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "d1",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261009T153226Z"
+  },
+  {
+   "cand": "d1",
+   "context": 524288,
+   "stage": "pg",
+   "mode": "canonical",
+   "tag": "YaRN 2.0",
+   "file": "d1-524288-t1.0-pg.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 5,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 61.87,
+   "cold_ttft_s": 894.68,
+   "ttft_s": {
+    "cold": 894.68,
+    "identical": 61.18,
+    "append": 49.9,
+    "middle_mutation": 887.96,
+    "tool_turn": 49.99
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.947,
+    "append": 0.946,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.945
+   },
+   "decode_tps": 43.1,
+   "decode_range": [
+    42.1,
+    43.5
+   ],
+   "prefill_tps": 580.0,
+   "wired_peak_gb": 106.6,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 4,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "d1",
+   "config": "YaRN 2.0",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261009T165441Z"
+  },
+  {
+   "cand": "m1",
+   "context": 8192,
+   "stage": "pg",
+   "mode": "canonical",
+   "tag": "default config",
+   "file": "m1-8192-t1.0-pg.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 8.21,
+   "cold_ttft_s": 3.77,
+   "ttft_s": {
+    "cold": 3.77,
+    "identical": 0.08,
+    "append": 1.68,
+    "middle_mutation": 3.87,
+    "tool_turn": 1.68
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.709,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.718
+   },
+   "decode_tps": 78.5,
+   "decode_range": [
+    76.6,
+    85.0
+   ],
+   "prefill_tps": 724.0,
+   "wired_peak_gb": 94.7,
+   "mem_free_min_gb": 0.05,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.07,
+   "correct": 10,
+   "truncated": 3,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "m1",
+   "config": "default config",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261009T140841Z"
+  },
+  {
+   "cand": "m1",
+   "context": 32768,
+   "stage": "fx",
+   "mode": "canonical",
+   "tag": "prime 64",
+   "file": "m1p-32768-t1.0-fx.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 8.84,
+   "cold_ttft_s": 44.13,
+   "ttft_s": {
+    "cold": 44.13,
+    "identical": 0.13,
+    "append": 2.5,
+    "middle_mutation": 33.23,
+    "tool_turn": 2.4
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.961,
+    "middle_mutation": 0.3,
+    "tool_turn": 0.962
+   },
+   "decode_tps": 79.6,
+   "decode_range": [
+    74.6,
+    87.9
+   ],
+   "prefill_tps": 619.0,
+   "wired_peak_gb": 98.4,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.08,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "m1p",
+   "config": "prime 64",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261008T134336Z"
+  },
+  {
+   "cand": "m1",
+   "context": 131072,
+   "stage": "pg",
+   "mode": "canonical",
+   "tag": "memory limit max",
+   "file": "m1x-131072-t1.0-pg.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 15.1,
+   "cold_ttft_s": 458.07,
+   "ttft_s": {
+    "cold": 458.07,
+    "identical": 0.3,
+    "append": 6.14,
+    "middle_mutation": 403.7,
+    "tool_turn": 7.83
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.991,
+    "middle_mutation": 0.261,
+    "tool_turn": 0.992
+   },
+   "decode_tps": 70.4,
+   "decode_range": [
+    67.4,
+    74.9
+   ],
+   "prefill_tps": 274.0,
+   "wired_peak_gb": 109.7,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.07,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "m1x",
+   "config": "memory limit max",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261009T185347Z"
+  },
+  {
+   "cand": "m1",
+   "context": 131072,
+   "stage": "pg",
+   "mode": "canonical",
+   "tag": "sparse QSA prefill",
+   "file": "m1s-131072-t1.0-pg.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 0,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [],
+   "t_turno_s": null,
+   "cold_ttft_s": null,
+   "ttft_s": {
+    "cold": null,
+    "identical": null,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": null
+   },
+   "hit": {
+    "cold": null,
+    "identical": null,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": null
+   },
+   "decode_tps": null,
+   "decode_range": null,
+   "prefill_tps": null,
+   "wired_peak_gb": 103.6,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0.01,
+   "mtp_acceptance": null,
+   "correct": 0,
+   "truncated": 0,
+   "failed": 5,
+   "refused": true,
+   "error_kinds": [
+    "stream_error"
+   ],
+   "stream_failures": 5,
+   "gates_failed": [
+    "needle",
+    "http_errors"
+   ],
+   "warnings": [
+    "wired>102",
+    "sem_dados"
+   ],
+   "note": "",
+   "canonical": false,
+   "arm": "m1s",
+   "config": "sparse QSA prefill",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261009T200005Z"
+  },
+  {
+   "cand": "m1",
+   "context": 131072,
+   "stage": "pg",
+   "mode": "canonical",
+   "tag": "vendor default",
+   "file": "m1v-131072-t1.0-pg.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 0,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [],
+   "t_turno_s": null,
+   "cold_ttft_s": null,
+   "ttft_s": {
+    "cold": null,
+    "identical": null,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": null
+   },
+   "hit": {
+    "cold": null,
+    "identical": null,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": null
+   },
+   "decode_tps": null,
+   "decode_range": null,
+   "prefill_tps": null,
+   "wired_peak_gb": 87.9,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 0,
+   "truncated": 0,
+   "failed": 13,
+   "refused": true,
+   "error_kinds": [
+    "http_400"
+   ],
+   "stream_failures": 0,
+   "gates_failed": [
+    "needle",
+    "http_errors"
+   ],
+   "warnings": [
+    "sem_dados"
+   ],
+   "note": "",
+   "canonical": false,
+   "arm": "m1v",
+   "config": "vendor default",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261009T142722Z"
+  },
+  {
+   "cand": "m1",
+   "context": 262144,
+   "stage": "pg",
+   "mode": "canonical",
+   "tag": "memory limit max (KV q8 ignored)",
+   "file": "m1xq-262144-t1.0-pg.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 0,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [],
+   "t_turno_s": null,
+   "cold_ttft_s": null,
+   "ttft_s": {
+    "cold": null,
+    "identical": null,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": null
+   },
+   "hit": {
+    "cold": null,
+    "identical": null,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": null
+   },
+   "decode_tps": null,
+   "decode_range": null,
+   "prefill_tps": null,
+   "wired_peak_gb": 89.8,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 0,
+   "truncated": 0,
+   "failed": 5,
+   "refused": true,
+   "error_kinds": [
+    "http_507"
+   ],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "sem_dados"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "m1xq",
+   "config": "memory limit max (KV q8 ignored)",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261009T195029Z"
+  },
+  {
+   "cand": "m1",
+   "context": 262144,
+   "stage": "pg",
+   "mode": "canonical",
+   "tag": "vendor default",
+   "file": "m1v-262144-t1.0-pg.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 0,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [],
+   "t_turno_s": null,
+   "cold_ttft_s": null,
+   "ttft_s": {
+    "cold": null,
+    "identical": null,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": null
+   },
+   "hit": {
+    "cold": null,
+    "identical": null,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": null
+   },
+   "decode_tps": null,
+   "decode_range": null,
+   "prefill_tps": null,
+   "wired_peak_gb": 88.3,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 0,
+   "truncated": 0,
+   "failed": 5,
+   "refused": true,
+   "error_kinds": [
+    "http_400"
+   ],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "sem_dados"
+   ],
+   "note": "",
+   "canonical": false,
+   "arm": "m1v",
+   "config": "vendor default",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261009T144046Z"
+  },
+  {
+   "cand": "m1",
+   "context": 262144,
+   "stage": "pg",
+   "mode": "canonical",
+   "tag": "memory limit max",
+   "file": "m1x-262144-t1.0-pg.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 0,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [],
+   "t_turno_s": null,
+   "cold_ttft_s": null,
+   "ttft_s": {
+    "cold": null,
+    "identical": null,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": null
+   },
+   "hit": {
+    "cold": null,
+    "identical": null,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": null
+   },
+   "decode_tps": null,
+   "decode_range": null,
+   "prefill_tps": null,
+   "wired_peak_gb": 90.1,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 0,
+   "truncated": 0,
+   "failed": 5,
+   "refused": true,
+   "error_kinds": [
+    "http_507"
+   ],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "sem_dados"
+   ],
+   "note": "",
+   "canonical": false,
+   "arm": "m1x",
+   "config": "memory limit max",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261009T190501Z"
+  },
+  {
+   "cand": "n2",
+   "context": 8192,
+   "stage": "pg",
+   "mode": "canonical",
+   "tag": "",
+   "file": "n2-8192-t1.0-pg.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 7.78,
+   "cold_ttft_s": 3.33,
+   "ttft_s": {
+    "cold": 3.33,
+    "identical": 0.16,
+    "append": 1.6,
+    "middle_mutation": 3.39,
+    "tool_turn": 1.68
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.989,
+    "append": 0.718,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.71
+   },
+   "decode_tps": 83.9,
+   "decode_range": [
+    80.9,
+    88.2
+   ],
+   "prefill_tps": 821.0,
+   "wired_peak_gb": 84.0,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.66,
+   "correct": 10,
+   "truncated": 3,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "n2",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261009T134538Z"
+  },
+  {
+   "cand": "n2",
+   "context": 8192,
+   "stage": "smoke",
+   "mode": "canonical",
+   "tag": "",
+   "file": "n2-8192-t1.0-smoke.jsonl",
+   "reps": 1,
+   "n": 3,
+   "served_n": 3,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "t_turno_s": 7.67,
+   "cold_ttft_s": 3.37,
+   "ttft_s": {
+    "cold": 3.37,
+    "identical": 0.13,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 1.62
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.989,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 0.71
+   },
+   "decode_tps": 84.6,
+   "decode_range": [
+    80.4,
+    88.9
+   ],
+   "prefill_tps": 812.0,
+   "wired_peak_gb": 82.5,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.61,
+   "correct": 3,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": false,
+   "arm": "n2",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261007T160956Z"
+  },
+  {
+   "cand": "n2",
+   "context": 8192,
+   "stage": "smoke",
+   "mode": "canonical",
+   "tag": "",
+   "file": "n2-8192-t1.0-smoke.jsonl",
+   "reps": 1,
+   "n": 3,
+   "served_n": 3,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "t_turno_s": 7.68,
+   "cold_ttft_s": 3.32,
+   "ttft_s": {
+    "cold": 3.32,
+    "identical": 0.13,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 1.62
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.989,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 0.71
+   },
+   "decode_tps": 84.4,
+   "decode_range": [
+    80.8,
+    88.1
+   ],
+   "prefill_tps": 822.0,
+   "wired_peak_gb": 81.3,
+   "mem_free_min_gb": 0.01,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.58,
+   "correct": 2,
+   "truncated": 0,
+   "failed": 1,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": false,
+   "arm": "n2",
+   "config": "",
+   "campaign": "qwen38-flashnext-updates-2026-10",
+   "stamp": "20261006T212907Z"
+  },
+  {
+   "cand": "n2",
+   "context": 32768,
+   "stage": "fn",
+   "mode": "canonical",
+   "tag": "",
+   "file": "n2-32768-t1.0-fn.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 8.23,
+   "cold_ttft_s": 34.52,
+   "ttft_s": {
+    "cold": 34.52,
+    "identical": 0.17,
+    "append": 1.76,
+    "middle_mutation": 24.96,
+    "tool_turn": 1.86
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.999,
+    "append": 0.962,
+    "middle_mutation": 0.3,
+    "tool_turn": 0.961
+   },
+   "decode_tps": 80.4,
+   "decode_range": [
+    72.7,
+    86.7
+   ],
+   "prefill_tps": 791.0,
+   "wired_peak_gb": 96.8,
+   "mem_free_min_gb": 0.05,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.72,
+   "correct": 12,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "n2",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261007T171241Z"
+  },
+  {
+   "cand": "n2",
+   "context": 32768,
+   "stage": "ab",
+   "mode": "canonical",
+   "tag": "",
+   "file": "n2-32768-t1.0-ab.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 8.32,
+   "cold_ttft_s": 34.78,
+   "ttft_s": {
+    "cold": 34.78,
+    "identical": 0.17,
+    "append": 1.79,
+    "middle_mutation": 25.11,
+    "tool_turn": 1.87
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.999,
+    "append": 0.962,
+    "middle_mutation": 0.3,
+    "tool_turn": 0.961
+   },
+   "decode_tps": 79.4,
+   "decode_range": [
+    72.3,
+    91.3
+   ],
+   "prefill_tps": 785.0,
+   "wired_peak_gb": 97.7,
+   "mem_free_min_gb": 0.05,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.81,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": false,
+   "arm": "n2",
+   "config": "",
+   "campaign": "qwen38-flashnext-updates-2026-10",
+   "stamp": "20261007T085718Z"
+  },
+  {
+   "cand": "n2",
+   "context": 131072,
+   "stage": "fn",
+   "mode": "canonical",
+   "tag": "",
+   "file": "n2-131072-t1.0-fn.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 8.84,
+   "cold_ttft_s": 165.59,
+   "ttft_s": {
+    "cold": 165.59,
+    "identical": 0.24,
+    "append": 1.87,
+    "middle_mutation": 92.36,
+    "tool_turn": 1.92
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.992,
+    "middle_mutation": 0.456,
+    "tool_turn": 0.991
+   },
+   "decode_tps": 74.0,
+   "decode_range": [
+    67.2,
+    84.3
+   ],
+   "prefill_tps": 759.0,
+   "wired_peak_gb": 110.6,
+   "mem_free_min_gb": 0.02,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.84,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "n2",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261007T184457Z"
+  },
+  {
+   "cand": "n2",
+   "context": 131072,
+   "stage": "ab",
+   "mode": "canonical",
+   "tag": "",
+   "file": "n2-131072-t1.0-ab.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 8.87,
+   "cold_ttft_s": 165.11,
+   "ttft_s": {
+    "cold": 165.11,
+    "identical": 0.24,
+    "append": 1.89,
+    "middle_mutation": 92.76,
+    "tool_turn": 1.94
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.992,
+    "middle_mutation": 0.456,
+    "tool_turn": 0.991
+   },
+   "decode_tps": 73.9,
+   "decode_range": [
+    69.5,
+    84.7
+   ],
+   "prefill_tps": 761.0,
+   "wired_peak_gb": 111.6,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.7,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": false,
+   "arm": "n2",
+   "config": "",
+   "campaign": "qwen38-flashnext-updates-2026-10",
+   "stamp": "20261007T095422Z"
+  },
+  {
+   "cand": "n2",
+   "context": 262144,
+   "stage": "fnx256",
+   "mode": "canonical",
+   "tag": "",
+   "file": "n2-262144-t1.0-fnx256.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 5,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 9.77,
+   "cold_ttft_s": 350.4,
+   "ttft_s": {
+    "cold": 350.4,
+    "identical": 1.13,
+    "append": 2.02,
+    "middle_mutation": 192.08,
+    "tool_turn": 2.13
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.996,
+    "middle_mutation": 0.479,
+    "tool_turn": 0.996
+   },
+   "decode_tps": 67.0,
+   "decode_range": [
+    62.0,
+    80.5
+   ],
+   "prefill_tps": 732.0,
+   "wired_peak_gb": 111.7,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.89,
+   "correct": 4,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "n2",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261007T195309Z"
+  },
+  {
+   "cand": "n2",
+   "context": 524288,
+   "stage": "yarn2",
+   "mode": "canonical",
+   "tag": "YaRN 2.0 + KV 8-bit",
+   "file": "n2-524288-t1.0-yarn2.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 4,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 12.86,
+   "cold_ttft_s": 785.32,
+   "ttft_s": {
+    "cold": 785.32,
+    "identical": null,
+    "append": 3.01,
+    "middle_mutation": 498.55,
+    "tool_turn": 2.77
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": null,
+    "append": 0.998,
+    "middle_mutation": 0.411,
+    "tool_turn": 0.998
+   },
+   "decode_tps": 50.7,
+   "decode_range": [
+    46.4,
+    55.0
+   ],
+   "prefill_tps": 661.0,
+   "wired_peak_gb": 111.1,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.72,
+   "correct": 4,
+   "truncated": 0,
+   "failed": 1,
+   "refused": false,
+   "error_kinds": [
+    "stream_error"
+   ],
+   "stream_failures": 1,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "n2",
+   "config": "YaRN 2.0 + KV 8-bit",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261007T211125Z"
+  },
+  {
+   "cand": "o1",
+   "context": 8192,
+   "stage": "pg",
+   "mode": "canonical",
+   "tag": "",
+   "file": "o1-8192-t1.0-pg.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 9.35,
+   "cold_ttft_s": 4.1,
+   "ttft_s": {
+    "cold": 4.1,
+    "identical": 0.09,
+    "append": 2.13,
+    "middle_mutation": 4.19,
+    "tool_turn": 2.2
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.998,
+    "append": 0.724,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.717
+   },
+   "decode_tps": 71.6,
+   "decode_range": [
+    68.1,
+    80.5
+   ],
+   "prefill_tps": 666.0,
+   "wired_peak_gb": 82.9,
+   "mem_free_min_gb": 0.02,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 10,
+   "truncated": 1,
+   "failed": 2,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "o1",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261009T135641Z"
+  },
+  {
+   "cand": "o1",
+   "context": 8192,
+   "stage": "smoke",
+   "mode": "canonical",
+   "tag": "",
+   "file": "o1-8192-t1.0-smoke.jsonl",
+   "reps": 1,
+   "n": 3,
+   "served_n": 3,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "tool_turn"
+   ],
+   "t_turno_s": 10.06,
+   "cold_ttft_s": 5.0,
+   "ttft_s": {
+    "cold": 5.0,
+    "identical": 0.09,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 2.32
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.998,
+    "append": null,
+    "middle_mutation": null,
+    "tool_turn": 0.717
+   },
+   "decode_tps": 66.2,
+   "decode_range": [
+    63.7,
+    68.7
+   ],
+   "prefill_tps": 547.0,
+   "wired_peak_gb": 80.6,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 3,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": false,
+   "arm": "o1",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261007T161551Z"
+  },
+  {
+   "cand": "o1",
+   "context": 32768,
+   "stage": "fn",
+   "mode": "canonical",
+   "tag": "",
+   "file": "o1-32768-t1.0-fn.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 10.06,
+   "cold_ttft_s": 49.59,
+   "ttft_s": {
+    "cold": 49.59,
+    "identical": 0.21,
+    "append": 2.29,
+    "middle_mutation": 28.57,
+    "tool_turn": 2.38
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.963,
+    "middle_mutation": 0.449,
+    "tool_turn": 0.962
+   },
+   "decode_tps": 66.6,
+   "decode_range": [
+    61.3,
+    72.6
+   ],
+   "prefill_tps": 551.0,
+   "wired_peak_gb": 91.2,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 12,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "o1",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261007T174818Z"
+  },
+  {
+   "cand": "o1",
+   "context": 131072,
+   "stage": "fn",
+   "mode": "canonical",
+   "tag": "",
+   "file": "o1-131072-t1.0-fn.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 12.09,
+   "cold_ttft_s": 248.53,
+   "ttft_s": {
+    "cold": 248.53,
+    "identical": 0.74,
+    "append": 3.11,
+    "middle_mutation": 133.25,
+    "tool_turn": 3.17
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.992,
+    "middle_mutation": 0.489,
+    "tool_turn": 0.992
+   },
+   "decode_tps": 57.4,
+   "decode_range": [
+    53.5,
+    71.0
+   ],
+   "prefill_tps": 505.0,
+   "wired_peak_gb": 98.0,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "o1",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261007T182228Z"
+  },
+  {
+   "cand": "o1",
+   "context": 262144,
+   "stage": "fnx256",
+   "mode": "canonical",
+   "tag": "",
+   "file": "o1-262144-t1.0-fnx256.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 5,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 14.49,
+   "cold_ttft_s": 552.26,
+   "ttft_s": {
+    "cold": 552.26,
+    "identical": 1.44,
+    "append": 4.19,
+    "middle_mutation": 304.23,
+    "tool_turn": 4.28
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.996,
+    "middle_mutation": 0.495,
+    "tool_turn": 0.996
+   },
+   "decode_tps": 50.2,
+   "decode_range": [
+    47.3,
+    50.2
+   ],
+   "prefill_tps": 465.0,
+   "wired_peak_gb": 100.5,
+   "mem_free_min_gb": 0.05,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 3,
+   "truncated": 2,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "o1",
+   "config": "",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261007T202623Z"
+  }
+ ],
+ "takeaways": [
+  [
+   "mlx-serve 26.10.1 leads every band",
+   "n2 has the lowest T_turn from 8K to 512K: 7.8, 8.2, 8.8, 9.8 and 12.9 s. Against the September driver (c1) it is 25% faster at 32K, 28% at 128K and 30% at 256K."
+  ],
+  [
+   "oMLX is second up to 256K",
+   "o1 T_turn is 10.1 s at 32K, 12.1 s at 128K and 14.5 s at 256K. oMLX has no YaRN, so it stops at 262K."
+  ],
+  [
+   "MTPLX fits 128K only with --memory-limit max",
+   "The vendor default plans a 65,536-token window on this 128 GB M4 Max and refuses 128K. With <code>--memory-limit max</code> MTPLX serves 128K in 15.1 s (3 reps), but the cold prefill runs at 274 tok/s against 759 on n2. It refuses 256K: the memory-plan fit is 237,568 tokens. KV q8 is ignored for Flash-Next, and the sparse QSA prefill fails to allocate without the M5 NAX kernels."
+  ],
+  [
+   "ds4 serves 512K, slowly",
+   "d1 serves every band up to 512K (YaRN 2.0), but decode stays at 43–54 tok/s and the warm tool turn grows from 6.4 s at 128K to 50 s at 512K. T_turn: 16.4 s at 128K, 61.9 s at 512K."
+  ],
+  [
+   "Quality: no runtime beats n2",
+   "HumanEval 164 at temperature 0, with the prompt imports added: n2 156, o1 157, MTPLX (m1x) 151 (10 answers truncated in reasoning). The strict bench2 grade (154 / 140 / 132) fails answers without <code>from typing import</code>. Tool calls: jdhodges 38 / 36 / 35 of 40, Veerman 9 / 10 / 10 of 12."
+  ]
+ ]
+}

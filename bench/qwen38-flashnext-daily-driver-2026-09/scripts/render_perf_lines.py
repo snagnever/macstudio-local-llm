@@ -194,12 +194,14 @@ TECH_2026_10 = [
      "what": "Speculation <b>ships in the quantized checkpoint</b>: the model's own MTP heads draft tokens.",
      "cache": "Session bank in RAM and an SSD session cache. A memory plan computes the context that fits and refuses a larger prompt with HTTP 507.",
      "spec": "Native MTP. A request with <code>max_tokens</code> ≤ 48 and no history runs as a background task, without a session: the probe primes MTPLX with 64 tokens.",
-     "configs": "m1: the point label names the config (prime 64, vendor default, memory limit max, KV q8)"},
+     "configs": "m1: 8K default config, 32K prime 64, 128K <code>--memory-limit max</code> (the point label names it). "
+                "The vendor default plans 65,536 tokens on this M4 Max. KV q8 is ignored for Flash-Next. "
+                "The sparse QSA prefill (<code>MTPLX_QSA_PREFILL=1</code>) fails to allocate at 128K."},
     {"name": "ds4 (upstream)", "repo": "antirez/ds4",
      "what": "C/Metal inference engine. Since 2026-10 it serves Flash-Next from a <b>Q4 GGUF</b> with the MTP head and the n-gram table embedded.",
      "cache": "KV prefix cache <b>on disk</b> (<code>--kv-disk-dir</code>, 100 GB budget), cleared at each start.",
      "spec": "Built-in MTP (<code>--mtp-timing</code>, 1 draft). Static YaRN through <code>DS4_QWEN4_YARN_FACTOR</code> for 512K.",
-     "configs": "d1 Q4 GGUF"},
+     "configs": "d1 <code>qwen38-q4k</code>: Q4_K gate/up + MXFP4 down experts · 69.7 GiB resident · BF16 n-gram table on SSD"},
 ]
 TECH_SRC_2026_10 = [
     ["ddalcu/mlx-serve", "https://github.com/ddalcu/mlx-serve"],
@@ -253,12 +255,22 @@ PAGE_2026_10 = {
     "miss": {"t_turno": "no tool_turn in this band", "ttft_tool": "no tool_turn in this band"},
     "hit_flag": {},
     "panels": {
-        "t_turno": {"note": "Points with 3 reps show the median; the tooltip gives the reps."},
-        "ttft_tool": {},
-        "cold": {},
-        "decode": {},
-        "prefill": {},
-        "wired": {},
+        "t_turno": {"note": "Points with 3 reps show the median; the tooltip gives the reps.",
+                    "interp": "<b>n2 is the lowest line at every band</b>: 8.2 s at 32K, 8.8 s at 128K, 12.9 s at 512K. "
+                              "o1 stays 1.8–4.7 s above n2. MTPLX jumps to 15.1 s at 128K and stops at 256K. "
+                              "d1 grows from 12.6 s at 32K to 61.9 s at 512K."},
+        "ttft_tool": {"interp": "The warm tool turn stays under 3 s on n2 up to 512K and under 4.3 s on o1 up to 256K. "
+                                "On d1 it grows with the context: 6.4 s at 128K, 20 s at 256K, 50 s at 512K. "
+                                "This term drives most of the T_turn gap."},
+        "cold": {"interp": "Cold TTFT is a one-time cost per conversation. n2 is the lowest: 166 s at 128K and 785 s at 512K. "
+                           "MTPLX needs 458 s at 128K, 2.8× n2."},
+        "decode": {"interp": "n2 decodes 80 tok/s at 32K and 51 tok/s at 512K. MTPLX is close to n2 at 32K (80 tok/s) "
+                             "and 70 tok/s at 128K. d1 stays at 43–54 tok/s in every band."},
+        "prefill": {"interp": "n2, d1 and c1 keep the prefill almost flat up to 512K (n2: 791 to 661 tok/s). "
+                              "<b>MTPLX drops from 619 tok/s at 32K to 274 tok/s at 128K</b>: on the M4 Max (no NAX kernels) "
+                              "it runs the dense lane of the QSA indexer, and the sparse lane failed to allocate."},
+        "wired": {"interp": "Every runtime ran without swap. n2 pins 97–112 GB as wired memory by design. "
+                            "MTPLX with <code>--memory-limit max</code> reaches 110 GB at 128K; d1 reaches 107 GB at 512K."},
     },
     "foot": ("<b>How to read.</b> x axis = context (32K, 128K, 256K, 512K; categorical axis). One line per runtime. "
              "Each point is the band's selected group; the tooltip gives its reps and, for MTPLX, the config. "

@@ -253,3 +253,20 @@ def test_m1xq_label_says_kv_q8_was_ignored(tmp_path):
 
 def test_render_2026_10_marks_mtplx_512k_absent():
     assert rpl.ABSENT_2026_10[("m1", 524288)].startswith("not run")
+
+
+def test_2026_10_has_takeaways_with_quality_line(tmp_path):
+    sept, eng, upd = _dirs(tmp_path)
+    tk = cr.build_2026_10(sept, eng, upd)["takeaways"]
+    assert len(tk) >= 4 and all(len(t) == 2 for t in tk)
+    assert any("HumanEval" in body for _, body in tk)
+
+
+def test_2026_10_every_panel_has_interp():
+    assert all(p.get("interp") for p in rpl.PAGE_2026_10["panels"].values())
+
+
+def test_2026_10_tech_cards_name_measured_configs():
+    cards = {c["name"]: c for c in rpl.TECH_2026_10}
+    assert "69.7 GiB" in cards["ds4 (upstream)"]["configs"]
+    assert "65,536" in cards["MTPLX 2.12.2"]["configs"]

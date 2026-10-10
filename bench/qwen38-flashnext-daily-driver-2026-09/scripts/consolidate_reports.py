@@ -495,6 +495,23 @@ def mark_canonical_2026_10(groups: list[dict]) -> None:
         g["canonical"] = True
 
 
+TAKEAWAYS_2026_10 = [
+    ["mlx-serve 26.10.1 leads every band", "n2 has the lowest T_turn from 8K to 512K: 7.8, 8.2, 8.8, 9.8 and 12.9 s. "
+     "Against the September driver (c1) it is 25% faster at 32K, 28% at 128K and 30% at 256K."],
+    ["oMLX is second up to 256K", "o1 T_turn is 10.1 s at 32K, 12.1 s at 128K and 14.5 s at 256K. oMLX has no YaRN, "
+     "so it stops at 262K."],
+    ["MTPLX fits 128K only with --memory-limit max", "The vendor default plans a 65,536-token window on this 128 GB "
+     "M4 Max and refuses 128K. With <code>--memory-limit max</code> MTPLX serves 128K in 15.1 s (3 reps), but the cold "
+     "prefill runs at 274 tok/s against 759 on n2. It refuses 256K: the memory-plan fit is 237,568 tokens. KV q8 is "
+     "ignored for Flash-Next, and the sparse QSA prefill fails to allocate without the M5 NAX kernels."],
+    ["ds4 serves 512K, slowly", "d1 serves every band up to 512K (YaRN 2.0), but decode stays at 43–54 tok/s and the "
+     "warm tool turn grows from 6.4 s at 128K to 50 s at 512K. T_turn: 16.4 s at 128K, 61.9 s at 512K."],
+    ["Quality: no runtime beats n2", "HumanEval 164 at temperature 0, with the prompt imports added: n2 156, o1 157, "
+     "MTPLX (m1x) 151 (10 answers truncated in reasoning). The strict bench2 grade (154 / 140 / 132) fails answers "
+     "without <code>from typing import</code>. Tool calls: jdhodges 38 / 36 / 35 of 40, Veerman 9 / 10 / 10 of 12."],
+]
+
+
 def build_2026_10(sept_dir: Path = RESULTS, engine_dir: Path = ENGINE_RESULTS,
                   updates_dir: Path = UPDATES_RESULTS) -> dict:
     groups = []
@@ -524,7 +541,7 @@ def build_2026_10(sept_dir: Path = RESULTS, engine_dir: Path = ENGINE_RESULTS,
         "campaign": "bench/engine-updates-2026-10",
         "rig": RIG, "sampling": SAMPLING,
         "candidates": CANDIDATES_2026_10 + [c1], "groups": groups,
-        "takeaways": [],
+        "takeaways": TAKEAWAYS_2026_10,
     }
 
 
