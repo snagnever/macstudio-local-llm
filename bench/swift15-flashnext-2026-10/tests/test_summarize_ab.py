@@ -1,0 +1,72 @@
+import json
+import sys
+from pathlib import Path
+
+import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+import summarize_ab as S  # noqa: E402
+
+
+def b2(idx, ok, s, fin="stop", comp=100, rc=0):
+    return {"dataset_idx": idx, "lcb_question_id": None, "correct": ok, "elapsed_s": s,
+            "finish_reason": fin, "completion_tokens": comp, "reasoning_chars": rc}
+
+
+def test_view_bench2_truncation_is_failure_and_flagged():
+    v = S.view("gpqa", b2(7, False, 12.5, fin="length"))
+    assert v == {"id": "7", "passed": False, "elapsed_s": 12.5, "completion_tokens": 100,
+                 "reasoning_chars": 0, "truncated": True}
+
+
+def test_view_accepts_string_booleans_and_numbers():
+    v = S.view("humaneval", {"dataset_idx": "3", "correct": "True", "elapsed_s": "2.5",
+                             "finish_reason": "stop", "completion_tokens": "163"})
+    assert v["passed"] is True and v["elapsed_s"] == 2.5 and v["completion_tokens"] == 163
+
+
+def test_view_tool_suite_sums_both_turns():
+    v = S.view("jdhodges", {"case_id": "c1", "score_pass": True, "turn_1_elapsed_s": 1.0,
+                            "turn_2_elapsed_s": 2.0, "turn_1_finish_reason": "tool_calls", "completion_tokens": 50})
+    assert v["elapsed_s"] == 3.0 and v["passed"] is True and v["truncated"] is False
+
+
+def test_view_lcb_uses_question_id():
+    v = S.view("livecodebench", {"dataset_idx": 1, "lcb_question_id": "abc123", "correct": True,
+                                 "elapsed_s": 1, "finish_reason": "stop"})
+    assert v["id"] == "abc123"
+
+
+def test_suite_stats():
+    st = S.suite_stats([S.view("gpqa", b2(1, True, 10)), S.view("gpqa", b2(2, False, 30, fin="length")),
+                        S.view("gpqa", b2(3, True, 20))])
+    assert st["n"] == 3 and st["passed"] == 2 and st["truncated"] == 1
+    assert st["total_s"] == 60.0 and st["median_s"] == 20.0
+
+
+def _arm(tmp_path, arm, suites):
+    d = tmp_path / arm
+    d.mkdir()
+    for suite, recs in suites.items():
+        (d / f"{suite}.jsonl").write_text("".join(json.dumps(r) + "\n" for r in recs))
+    return S.load_arm(d)
+
+
+def test_mismatched_question_sets_are_refused(tmp_path):
+    base = _arm(tmp_path, "n2", {"gpqa": [b2(1, True, 10)]})
+    cand = _arm(tmp_path, "w1", {"gpqa": [b2(2, True, 10)]})
+    with pytest.raises(ValueError, match="gpqa"):
+        S.compare(base, cand)
+
+
+def test_gates(tmp_path):
+    base = _arm(tmp_path, "n2", {"gpqa": [b2(i, True, 100) for i in range(10)],
+                                 "livecodebench": [b2(i, True, 100) for i in range(10)]})
+    cand = _arm(tmp_path, "w1", {"gpqa": [b2(i, i > 2, 70) for i in range(10)],
+                                 "livecodebench": [b2(i, True, 90) for i in range(10)]})
+    stats = S.compare(base, cand)
+    g = S.gates(stats["base"], stats["cand"])
+    assert g["G1:gpqa"] is True            # 7 >= 10 - 3
+    assert g["G1:livecodebench"] is True
+    assert g["G2:gpqa"] is True            # 70 <= 0.8 * 100
+    assert g["G2:livecodebench"] is False  # 90 > 80
