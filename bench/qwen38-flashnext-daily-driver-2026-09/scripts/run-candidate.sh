@@ -13,9 +13,14 @@
 #   s27r = s27 + --prefix-cache-rungs 1024
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
-SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""
+SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
+# A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
+if [[ -n "${FLASHNEXT_EXEC:-}" ]]; then
+  echo "run-candidate: FLASHNEXT_EXEC no ambiente é ignorado; use --exec" >&2
+  unset FLASHNEXT_EXEC
+fi
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --scenarios) SCENARIOS="$2"; shift 2 ;;
@@ -24,6 +29,7 @@ while [[ $# -gt 0 ]]; do
     --tag) TAG="$2"; shift 2 ;;
     --yarn) YARN="$2"; shift 2 ;;
     --generation-mode) GENMODE="$2"; shift 2 ;;
+    --exec) EXEC_CMD="$2"; shift 2 ;;
     --print) PRINT=1; shift ;;
     *) echo "opcao desconhecida: $1" >&2; exit 64 ;;
   esac
@@ -142,8 +148,8 @@ case "$CAND" in
         m1t) FIX=pin0 ;; m1h) FIX=sesshdr ;; m1th) FIX=pin0-sesshdr ;;
         m1p) FIX=prime64 ;; m1hp) FIX=sesshdr-prime64 ;;
         m1v) FIX=vendor ;; m1x) FIX=memmax ;; m1q) FIX=kvq8 ;;
-        m1xq) FIX=memmax-kvq8 ;;
-        m1s) FIX=qsaprefill ;;  # prefill esparso do indexer QSA, que o auto só liga com NAX (M5)  # os dois juntos: a conta do memory plan só chega a 262K assim
+        m1xq) FIX=memmax-kvq8 ;;  # os dois juntos: a conta do memory plan só chega a 262K assim
+        m1s) FIX=qsaprefill ;;  # prefill esparso do indexer QSA, que o auto só liga com NAX (M5)
         m27f) FIX="${ENGINE_M27F:?m27f exige ENGINE_M27F=pin0|sesshdr|prime64|sesshdr-prime64|...}" ;;
         *) FIX="" ;;
       esac
@@ -294,8 +300,8 @@ MODEL_SELECT="${MODEL_ID_PREF:-$(basename "$MODEL_DIR")}"
 if [[ -n "$PRINT" ]]; then
   echo "model_select: $MODEL_SELECT"
   echo "launcher: $LAUNCHER $ARM"; bash "$LAUNCHER" "$ARM" --print; echo
-  # FLASHNEXT_EXEC troca o probe por outro comando contra o servidor (ex.: bateria de qualidade).
-  [[ -n "${FLASHNEXT_EXEC:-}" ]] && { echo "exec: $FLASHNEXT_EXEC"; echo "saida: $OUT"; exit 0; }
+  # --exec troca o probe por outro comando contra o servidor (ex.: bateria de qualidade).
+  [[ -n "$EXEC_CMD" ]] && { echo "exec: $EXEC_CMD"; echo "saida: $OUT"; exit 0; }
   echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS} ${PROBE_SESSION_HEADER:+--session-header $PROBE_SESSION_HEADER} ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens $PROBE_PRIME_MAX_TOKENS}"
   echo "saida: $OUT"; exit 0
 fi
@@ -402,9 +408,9 @@ fi
 # server). `|| PROBE_EXIT=$?` keeps errexit happy since the assignment itself
 # succeeds.
 PROBE_EXIT=0
-if [[ -n "${FLASHNEXT_EXEC:-}" ]]; then
+if [[ -n "$EXEC_CMD" ]]; then
   # O comando recebe o servidor pronto em BASE_URL e MODEL_ID; o código de saída dele vira o do braço.
-  BASE_URL="$BASE/v1" MODEL_ID="$MODEL_ID" bash -c "$FLASHNEXT_EXEC" || PROBE_EXIT=$?
+  BASE_URL="$BASE/v1" MODEL_ID="$MODEL_ID" bash -c "$EXEC_CMD" || PROBE_EXIT=$?
 else
 "$PROBE_PY" "$HARNESS/cache_probe.py" \
   --base-url "$BASE/v1" --model "$MODEL_ID" --api-model "$MODEL_ID" \

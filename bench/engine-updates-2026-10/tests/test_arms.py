@@ -278,11 +278,18 @@ def test_g_knobs_do_not_leak():
             assert "--profile" in out, cand
 
 
-def test_exec_hook_replaces_probe_in_print():
-    out = subprocess.run(["bash", str(DRIVER), "o1", "131072", "--print"], capture_output=True, text=True,
-                         env=_env({"FLASHNEXT_EXEC": "bash quality.sh"}), check=True).stdout
+def test_exec_option_replaces_probe_in_print():
+    out = show("o1", "131072", "--exec", "bash quality.sh")
     assert "exec: bash quality.sh" in out
     assert "\nprobe:" not in out
+
+
+def test_exported_flashnext_exec_is_ignored():
+    # Um FLASHNEXT_EXEC esquecido no shell fazia todo braço pular o probe sem gravar jsonl.
+    res = subprocess.run(["bash", str(DRIVER), "o1", "131072", "--print"], capture_output=True, text=True,
+                         env=_env({"FLASHNEXT_EXEC": "bash quality.sh"}), check=True)
+    assert "\nprobe:" in res.stdout and "exec:" not in res.stdout
+    assert "FLASHNEXT_EXEC" in res.stderr
 
 
 def test_no_exec_hook_keeps_probe():

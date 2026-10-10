@@ -12,11 +12,13 @@ Marque `[x]` e cite o commit quando fechar um item.
   `DS4_QWEN4_YARN_FACTOR` direto do env. Um chamador direto (`bench/qwen3.8-prefix-cache/scripts/run-campaign.sh`,
   `bench/qwen38-updates-2026-09/scripts/run-p2-mtplx-ab.sh`) herda o valor do shell. Fazer `unset` no topo desses
   chamadores ou documentar os knobs nos launchers.
-- [ ] **`FLASHNEXT_EXEC` sem `unset`.** Se ficar exportado no shell, todo braço do `run-candidate.sh` pula o probe e
+- [x] **`FLASHNEXT_EXEC` sem `unset`.** Se ficar exportado no shell, todo braço do `run-candidate.sh` pula o probe e
   não grava jsonl. Fazer `unset` no início do script, exceto quando o chamador (ex.: `run-quality.sh`) passa o valor
-  de propósito para aquele run.
-- [ ] **Comentário fora do lugar.** Em `scripts/run-candidate.sh:141`, o comentário "os dois juntos: a conta do memory
-  plan só chega a 262K assim" fica na linha do m1s, mas descreve o m1xq. Mover.
+  de propósito para aquele run. Fechado no branch `bench/swift15-flashnext-2026-10`: `--exec CMD` substitui a
+  variável, e um `FLASHNEXT_EXEC` herdado é ignorado com aviso.
+- [x] **Comentário fora do lugar.** Em `scripts/run-candidate.sh:141`, o comentário "os dois juntos: a conta do memory
+  plan só chega a 262K assim" fica na linha do m1s, mas descreve o m1xq. Mover. Fechado no branch
+  `bench/swift15-flashnext-2026-10`.
 - [ ] **Default do renderer reescreve a página publicada.** `render_perf_lines.py` sem `--data` usa o `reports.json`
   de setembro e grava `reports/qwen38-flashnext-perf-lines.html`, que hoje é a página de outubro. Mudar o default de
   `--data` para `bench/engine-updates-2026-10/results/reports-2026-10.json`, ou recusar gravar o perfil 2026-09 no

@@ -96,7 +96,7 @@ def test_quality_runs_three_batteries_through_exec_hook():
     assert "bench2.py humaneval --examples 164" in out
     assert "--suite jdhodges" in out and "--suite veerman" in out
     assert "--run-prefix toolcall_pg_o1" in out
-    assert out.rstrip().endswith("bash run-arm.sh o1 131072 --tag qual")
+    assert out.rstrip().endswith('bash run-arm.sh o1 131072 --tag qual --exec "$EXEC"')
 
 
 def test_quality_humaneval_uses_bench_venv():
