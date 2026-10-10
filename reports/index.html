@@ -111,10 +111,11 @@ footer a{color:var(--accent)}
         <span class="c-meta"><span>2026-09-14</span><span class="path">qwen38-flashnext-overview.html</span></span>
       </a>
       <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-perf-lines.html">
-        <span class="c-title">Responsiveness from 32K to 512K</span>
-        <p class="c-desc">Lines per context for the 4 candidates: T_turn, warm TTFT, cold TTFT, decode, prefill and wired
-        memory; cache-hit heatmap; setup and runtimes compared. <b>Only c1 reaches 512K.</b></p>
-        <span class="c-meta"><span>2026-09-14</span><span class="path">qwen38-flashnext-perf-lines.html</span></span>
+        <span class="c-title">Four runtimes from 8K to 512K</span>
+        <p class="c-desc">October 2026 stack: mlx-serve 26.10.1, oMLX 0.7.0, MTPLX 2.12.2 and ds4, with the September
+        driver as reference. Lines per context for T_turn, warm TTFT, cold TTFT, decode, prefill and wired memory.
+        <b>mlx-serve leads every band; MTPLX refuses 256K (planned fit 237,568 tokens).</b></p>
+        <span class="c-meta"><span>2026-10-09</span><span class="path">qwen38-flashnext-perf-lines.html</span></span>
       </a>
       <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-driver.html">
         <span class="c-title">Responsive driver — scoreboard</span>

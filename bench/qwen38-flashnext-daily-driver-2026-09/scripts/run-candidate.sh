@@ -12,7 +12,7 @@
 #   s27r = s27 + --prefix-cache-rungs 1024
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|m1|m1b|m1t|m1h|m1th|m1p|m1hp|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""
 while [[ $# -gt 0 ]]; do
@@ -121,7 +121,7 @@ case "$CAND" in
         export QWEN38_MLX_KV_QUANT=8 QWEN38_MLX_CONFIG_OVERRIDES="$(YARN27_JSON "$YARN" "$CTX")"
         REV="v26.10.1-yarn${YARN}-kv8"
       fi ;;
-  m1|m1b|m1t|m1h|m1th|m1p|m1hp|m27|m27f)
+  m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|m27|m27f)
       LAUNCHER="$HARNESS/run-mtplx.sh"; PORT=8000; RUNTIME=MTPLX; REV=v2.12.2
       PROBE_PY="$OPT/mtplx-v2.12.2/bin/python"; METRICS="http://127.0.0.1:$PORT/metrics"; SERVER_NAME=mtplx
       export QWEN38_MTPLX_BIN="$OPT/mtplx-v2.12.2/bin/mtplx" QWEN38_MTPLX_EXPECTED_VERSION=2.12.2 QWEN38_CTX_SIZE="$CTX"
@@ -136,10 +136,18 @@ case "$CAND" in
       case "$CAND" in
         m1t) FIX=pin0 ;; m1h) FIX=sesshdr ;; m1th) FIX=pin0-sesshdr ;;
         m1p) FIX=prime64 ;; m1hp) FIX=sesshdr-prime64 ;;
+        m1v) FIX=vendor ;; m1x) FIX=memmax ;; m1q) FIX=kvq8 ;;
+        m1xq) FIX=memmax-kvq8 ;;
+        m1s) FIX=qsaprefill ;;  # prefill esparso do indexer QSA, que o auto só liga com NAX (M5)  # os dois juntos: a conta do memory plan só chega a 262K assim
         m27f) FIX="${ENGINE_M27F:?m27f exige ENGINE_M27F=pin0|sesshdr|prime64|sesshdr-prime64|...}" ;;
         *) FIX="" ;;
       esac
-      unset MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S
+      unset MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S QWEN38_MTPLX_VENDOR_DEFAULT QWEN38_MTPLX_MEMORY_LIMIT QWEN38_MTPLX_KV_QUANT MTPLX_QSA_PREFILL
+      [[ "$FIX" == qsaprefill ]] && export MTPLX_QSA_PREFILL=1
+      # Etapa G: config padrão do vendor, memory limit max e KV q8, um knob por braço.
+      [[ "$FIX" == vendor ]] && export QWEN38_MTPLX_VENDOR_DEFAULT=1
+      [[ "$FIX" == memmax* ]] && export QWEN38_MTPLX_MEMORY_LIMIT=max
+      [[ "$FIX" == *kvq8 ]] && export QWEN38_MTPLX_KV_QUANT=q8
       [[ "$FIX" == *pin0* ]] && export MTPLX_SESSION_BANK_ACTIVE_PIN_TTL_S=0
       [[ "$FIX" == *sesshdr* ]] && PROBE_SESSION_HEADER=x-mtplx-session-id
       # O MTPLX trata um pedido sem histórico e com max_tokens <= 48 como tarefa de background (sem sessão):
@@ -178,7 +186,10 @@ case "$CAND" in
       # ds4-server serve qwen3.8-flash-next, -chat e -reasoner: o probe usa o id base.
       MODEL_ID_PREF=qwen3.8-flash-next
       PROBE_PY="$OPT/mtplx-v2.12.2/bin/python"
-      export QWEN38_CTX_SIZE="$CTX" ;;
+      export QWEN38_CTX_SIZE="$CTX"
+      # YaRN estático do ds4 (docs/QWEN38_FLASH_NEXT.md): só com --yarn; um valor herdado do shell não vale.
+      unset DS4_QWEN4_YARN_FACTOR
+      if [[ -n "$YARN" ]]; then export DS4_QWEN4_YARN_FACTOR="$YARN"; REV="${REV}-yarn${YARN}"; fi ;;
   c2|c3)
       LAUNCHER="$HARNESS/run-omlx.sh"; ARM=FN; PORT=8000; RUNTIME=omlx
       MODEL_DIR="$OQ4E"; MODEL_REV=2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8
@@ -196,6 +207,7 @@ case "$CAND" in
       PROBE_PY="$HOME/.local/opt/qwen38/mtplx-v2.11.2/bin/python"; TOKENIZER="$MODEL_DIR"
       METRICS="http://127.0.0.1:$PORT/metrics"; SERVER_NAME=mtplx
       export QWEN38_MTPLX_BIN="$HOME/.local/opt/qwen38/mtplx-v2.11.2/bin/mtplx" QWEN38_MTPLX_EXPECTED_VERSION=2.11.2
+      unset QWEN38_MTPLX_VENDOR_DEFAULT QWEN38_MTPLX_MEMORY_LIMIT QWEN38_MTPLX_KV_QUANT MTPLX_QSA_PREFILL  # knobs da Etapa G são só do 2.12.2
       export QWEN38_CTX_SIZE="$CTX"
       PROBE_PRIME_MAX_TOKENS=64  # prime de 1 token roda sem sessão no MTPLX (ver m1 acima)
       [[ -n "$GENMODE" ]] && export QWEN38_MTPLX_GENERATION_MODE="$GENMODE"
@@ -277,6 +289,8 @@ MODEL_SELECT="${MODEL_ID_PREF:-$(basename "$MODEL_DIR")}"
 if [[ -n "$PRINT" ]]; then
   echo "model_select: $MODEL_SELECT"
   echo "launcher: $LAUNCHER $ARM"; bash "$LAUNCHER" "$ARM" --print; echo
+  # FLASHNEXT_EXEC troca o probe por outro comando contra o servidor (ex.: bateria de qualidade).
+  [[ -n "${FLASHNEXT_EXEC:-}" ]] && { echo "exec: $FLASHNEXT_EXEC"; echo "saida: $OUT"; exit 0; }
   echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS} ${PROBE_SESSION_HEADER:+--session-header $PROBE_SESSION_HEADER} ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens $PROBE_PRIME_MAX_TOKENS}"
   echo "saida: $OUT"; exit 0
 fi
@@ -381,6 +395,10 @@ fi
 # server). `|| PROBE_EXIT=$?` keeps errexit happy since the assignment itself
 # succeeds.
 PROBE_EXIT=0
+if [[ -n "${FLASHNEXT_EXEC:-}" ]]; then
+  # O comando recebe o servidor pronto em BASE_URL e MODEL_ID; o código de saída dele vira o do braço.
+  BASE_URL="$BASE/v1" MODEL_ID="$MODEL_ID" bash -c "$FLASHNEXT_EXEC" || PROBE_EXIT=$?
+else
 "$PROBE_PY" "$HARNESS/cache_probe.py" \
   --base-url "$BASE/v1" --model "$MODEL_ID" --api-model "$MODEL_ID" \
   --runtime "$RUNTIME" --runtime-revision "$REV" --model-revision "$MODEL_REV" \
@@ -395,6 +413,7 @@ PROBE_EXIT=0
   ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens "$PROBE_PRIME_MAX_TOKENS"} \
   --output "$OUT" --cache-enabled $([[ "$GENMODE" == "" || "$GENMODE" == mtp ]] && echo --mtp-enabled) \
   || PROBE_EXIT=$?
+fi
 
 kill "$SAMPLER_PID" 2>/dev/null || true; SAMPLER_PID=""
 python3 "$HERE/scripts/attach_memory.py" --results "$OUT" --sampler "$MEM" || true

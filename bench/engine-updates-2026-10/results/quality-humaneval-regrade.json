@@ -1,0 +1,84 @@
+{
+ "n2": {
+  "run": "humaneval_ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a_20261007_081345.jsonl",
+  "n": 164,
+  "strict": 154,
+  "with_imports": 156,
+  "fixed_by_imports": [
+   2,
+   38
+  ],
+  "truncated": []
+ },
+ "o1": {
+  "run": "humaneval_Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8_20261009_170430.jsonl",
+  "n": 164,
+  "strict": 140,
+  "with_imports": 157,
+  "fixed_by_imports": [
+   2,
+   3,
+   8,
+   10,
+   13,
+   14,
+   27,
+   38,
+   45,
+   64,
+   75,
+   82,
+   84,
+   96,
+   111,
+   147,
+   148
+  ],
+  "truncated": [
+   121,
+   128,
+   138,
+   142,
+   160
+  ]
+ },
+ "m1x": {
+  "run": "humaneval_mtplx-flash-next-optimized-speed_20261009_184911.jsonl",
+  "n": 164,
+  "strict": 132,
+  "with_imports": 151,
+  "fixed_by_imports": [
+   2,
+   3,
+   8,
+   10,
+   13,
+   14,
+   27,
+   38,
+   45,
+   64,
+   75,
+   82,
+   84,
+   96,
+   111,
+   126,
+   131,
+   147,
+   148
+  ],
+  "truncated": [
+   71,
+   78,
+   90,
+   107,
+   121,
+   127,
+   138,
+   145,
+   156,
+   160
+  ]
+ }
+}
