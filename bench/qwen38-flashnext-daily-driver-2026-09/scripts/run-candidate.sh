@@ -333,13 +333,16 @@ if [[ -s "$OUT" ]]; then
 fi
 : > "$MEM"
 
-SERVER_PID=""; SAMPLER_PID=""
+SERVER_PID=""; SAMPLER_PID=""; SERVER_STARTED=""
 cleanup() {
   [[ -n "$SAMPLER_PID" ]] && kill "$SAMPLER_PID" 2>/dev/null || true
   [[ -n "$SERVER_PID" ]] && kill "$SERVER_PID" 2>/dev/null || true
   # SERVER_PID is the `nohup bash "$LAUNCHER" ...` wrapper, not necessarily the
   # runtime process itself -- kill whatever is actually listening on $PORT too,
   # or a dead probe leaves the server (and the port) held by an orphan.
+  # Only when this run started a server: an exit before the boot (port busy) must not
+  # kill another session's server (on 2026-10-10 it killed the daily driver's mlx-serve).
+  [[ -n "$SERVER_STARTED" ]] || return 0
   local listeners
   listeners="$(lsof -nP -tiTCP:${PORT} -sTCP:LISTEN 2>/dev/null || true)"
   [[ -n "$listeners" ]] && kill $listeners 2>/dev/null || true
@@ -365,7 +368,7 @@ if [[ -d "$HOME/.mlx-serve/kv-cache" ]]; then echo "    limpando ~/.mlx-serve/kv
 
 echo ">>> $NAME: sampler + servidor ($LAUNCHER $ARM)"
 bash "$HERE/scripts/mem-sampler.sh" "$MEM" "$SERVER_NAME" 5 & SAMPLER_PID=$!
-nohup bash "$LAUNCHER" "$ARM" >"$BOOT" 2>&1 & SERVER_PID=$!
+SERVER_STARTED=1; nohup bash "$LAUNCHER" "$ARM" >"$BOOT" 2>&1 & SERVER_PID=$!
 ready=""
 for _ in $(seq 1 200); do
   server_ready && { ready=1; break; }

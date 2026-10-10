@@ -1,5 +1,7 @@
 import os
 import subprocess
+import sys
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parents[1]
@@ -69,3 +71,38 @@ def test_run_ab_without_print_flag_survives_bash32_nounset():
     res = subprocess.run(["bash", "-n", str(RUN_AB)], capture_output=True, text=True)
     assert res.returncode == 0
     assert '${PRINT[@]+"${PRINT[@]}"}' in RUN_AB.read_text()
+
+
+def _port_busy(port):
+    import socket
+    with socket.socket() as s:
+        return s.connect_ex(("127.0.0.1", port)) == 0
+
+
+def test_early_exit_on_busy_port_spares_foreign_server(tmp_path):
+    # Porta ocupada por outro servidor: o run-candidate sai sem subir o próprio, e o trap de saída
+    # não pode derrubar o servidor alheio (em 2026-10-10 ele matou o mlx-serve do driver diário).
+    import pytest
+    if _port_busy(11234):
+        pytest.skip("porta 11234 em uso por um servidor real")
+    foreign = subprocess.Popen([sys.executable, "-m", "http.server", "11234", "--bind", "127.0.0.1"],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        for _ in range(50):
+            if _port_busy(11234):
+                break
+            time.sleep(0.1)
+        res = subprocess.run(["bash", str(DRIVER), "n2", "32768"], capture_output=True, text=True, timeout=90,
+                             env=_env({"FLASHNEXT_RESULTS_DIR": str(tmp_path / "r"),
+                                       "FLASHNEXT_LOGS_DIR": str(tmp_path / "l")}))
+        assert res.returncode != 0 and "nao liberou" in res.stderr
+        # O SIGTERM do trap leva alguns ms para terminar o processo: esperar antes de concluir.
+        try:
+            foreign.wait(timeout=3)
+            killed = True
+        except subprocess.TimeoutExpired:
+            killed = False
+        assert not killed, "o trap de saída matou o servidor alheio"
+    finally:
+        foreign.kill()
+        foreign.wait()
