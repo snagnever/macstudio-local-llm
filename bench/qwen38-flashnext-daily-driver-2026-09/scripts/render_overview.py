@@ -17,7 +17,8 @@ import json
 from pathlib import Path
 
 CAMPAIGN = Path(__file__).resolve().parents[1]
-REPORTS_JSON = CAMPAIGN / "results" / "reports.json"
+# Default = perfil de outubro, o que as páginas publicadas mostram. Setembro: --data results/reports.json.
+REPORTS_JSON = CAMPAIGN.parents[1] / "bench" / "engine-updates-2026-10" / "results" / "reports-2026-10.json"
 OUT = CAMPAIGN.parents[1] / "reports" / "qwen38-flashnext-overview.html"
 
 GATE_CTX = (32768, 131072)

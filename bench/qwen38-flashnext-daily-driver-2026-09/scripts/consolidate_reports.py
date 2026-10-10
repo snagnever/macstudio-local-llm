@@ -415,7 +415,7 @@ FILE_RE_2026_10 = re.compile(r"^([a-z]\d+[a-z]*)-(\d+)-t([\d.]+)(?:-(.+))?\.json
 # 1 token roda sem sessão no MTPLX (Etapa F), então o m1 dos tags fn/smoke e os diagnósticos ficam fora.
 SERIES_ARMS_2026_10 = {"n2": "n2", "o1": "o1", "d1": "d1",
                        "m1": "m1", "m1p": "m1", "m1v": "m1", "m1x": "m1", "m1q": "m1", "m1xq": "m1", "m1s": "m1"}
-MTPLX_CONFIG = {"m1": "default config", "m1p": "prime 64", "m1v": "vendor default",
+MTPLX_CONFIG = {"m1": "prime 64", "m1p": "prime 64", "m1v": "vendor default",
                 "m1x": "memory limit max", "m1q": "KV q8",
                 "m1xq": "memory limit max (KV q8 ignored)", "m1s": "sparse QSA prefill"}
 MTPLX_PRIME1_TAGS = {"fn", "smoke", "gate"}
@@ -518,6 +518,13 @@ TAKEAWAYS_2026_10 = [
 ]
 
 
+GROUP_NOTES_2026_10 = {
+    ("m1x", 262144): "Refused: MTPLX's memory-plan fit is 237,568 tokens with --memory-limit max.",
+    ("m1xq", 262144): "Refused: MTPLX's memory-plan fit is 237,568 tokens; KV q8 is ignored for Flash-Next.",
+    ("m1v", 131072): "Refused: the vendor default plans a 65,536-token window on this M4 Max.",
+    ("m1v", 262144): "Refused: the vendor default plans a 65,536-token window on this M4 Max.",
+    ("m1s", 131072): "Failed: the sparse QSA prefill could not allocate memory (no NAX kernels on the M4).",
+}
 QUALITY_REGRADE = ENGINE_RESULTS / "quality-humaneval-regrade.json"
 # Tool-calling (passa / total) dos relatórios quality-n1-n2.md e quality-o1-mtplx.md.
 TOOLCALL_2026_10 = {"n1": (39, 8), "n2": (38, 9), "o1": (36, 10), "m1x": (35, 10)}
@@ -622,6 +629,7 @@ def build_2026_10(sept_dir: Path = RESULTS, engine_dir: Path = ENGINE_RESULTS,
                 continue
             g = build_group(path, records, (series, ctx, tag, "canonical", _config_label(arm, records)))
             g.update(arm=arm, config=g["tag"], campaign=d.parent.name, stamp=_stamp(records))
+            g["note"] = g["note"] or GROUP_NOTES_2026_10.get((arm, ctx), "")
             groups.append(g)
     mark_canonical_2026_10(groups)
     # Blocos que o overview reaproveita de setembro: glossário, catálogo de testes e a Etapa U (c1 × u1).

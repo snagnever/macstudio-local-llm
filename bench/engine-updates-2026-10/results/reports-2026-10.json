@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
  "profile": "2026-10",
- "generated_at": "2026-10-10T08:54:05Z",
+ "generated_at": "2026-10-10T08:59:09Z",
  "campaign": "bench/engine-updates-2026-10",
  "rig": [
   {
@@ -506,7 +506,7 @@
    "context": 8192,
    "stage": "pg",
    "mode": "canonical",
-   "tag": "default config",
+   "tag": "prime 64",
    "file": "m1-8192-t1.0-pg.jsonl",
    "reps": 3,
    "n": 13,
@@ -562,7 +562,7 @@
    "note": "",
    "canonical": true,
    "arm": "m1",
-   "config": "default config",
+   "config": "prime 64",
    "campaign": "engine-updates-2026-10",
    "stamp": "20261009T140841Z"
   },
@@ -755,7 +755,7 @@
     "wired>102",
     "sem_dados"
    ],
-   "note": "",
+   "note": "Failed: the sparse QSA prefill could not allocate memory (no NAX kernels on the M4).",
    "canonical": false,
    "arm": "m1s",
    "config": "sparse QSA prefill",
@@ -818,7 +818,7 @@
    "warnings": [
     "sem_dados"
    ],
-   "note": "",
+   "note": "Refused: the vendor default plans a 65,536-token window on this M4 Max.",
    "canonical": false,
    "arm": "m1v",
    "config": "vendor default",
@@ -878,7 +878,7 @@
    "warnings": [
     "sem_dados"
    ],
-   "note": "",
+   "note": "Refused: MTPLX's memory-plan fit is 237,568 tokens; KV q8 is ignored for Flash-Next.",
    "canonical": true,
    "arm": "m1xq",
    "config": "memory limit max (KV q8 ignored)",
@@ -938,7 +938,7 @@
    "warnings": [
     "sem_dados"
    ],
-   "note": "",
+   "note": "Refused: the vendor default plans a 65,536-token window on this M4 Max.",
    "canonical": false,
    "arm": "m1v",
    "config": "vendor default",
@@ -998,7 +998,7 @@
    "warnings": [
     "sem_dados"
    ],
-   "note": "",
+   "note": "Refused: MTPLX's memory-plan fit is 237,568 tokens with --memory-limit max.",
    "canonical": false,
    "arm": "m1x",
    "config": "memory limit max",

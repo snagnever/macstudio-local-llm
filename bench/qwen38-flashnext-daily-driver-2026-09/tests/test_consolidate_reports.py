@@ -353,3 +353,25 @@ def test_overview_2026_10_prints_dash_for_missing_bpw(tmp_path):
     html = ro.render(cr.build_2026_10(*_dirs(tmp_path)))
     assert '${c.bpw ?? "—"}' in html
     assert '${CAND[g.cand].bpw ?? "—"} bpw' in html
+
+
+def test_renderers_default_to_the_october_json():
+    # Sem --data, os renderers não podem gravar a versão de setembro por cima das páginas publicadas.
+    assert rpl.REPORTS_JSON == cr.OUT_2026_10
+    assert ro.REPORTS_JSON == cr.OUT_2026_10
+
+
+def test_2026_10_est_note_names_every_refusal_kind():
+    note = rpl.PAGE_2026_10["est_note"]
+    assert "400" in note and "507" in note and "stream" in note
+
+
+def test_2026_10_mtplx_256k_refusal_carries_fit_reason():
+    data = json.loads((ENGINE / "reports-2026-10.json").read_text(encoding="utf-8"))
+    g = _canon(data, "m1", 262144)
+    assert g["refused"] and "237,568" in g["note"]
+
+
+def test_m1_and_m1p_share_the_prime_64_label():
+    assert cr.MTPLX_CONFIG["m1"] == cr.MTPLX_CONFIG["m1p"] == "prime 64"
+    assert "default config" not in rpl.TECH_2026_10[2]["configs"]

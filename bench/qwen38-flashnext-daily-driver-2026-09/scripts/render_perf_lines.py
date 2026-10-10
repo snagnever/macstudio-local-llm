@@ -16,7 +16,8 @@ import json
 from pathlib import Path
 
 CAMPAIGN = Path(__file__).resolve().parents[1]
-REPORTS_JSON = CAMPAIGN / "results" / "reports.json"
+# Default = perfil de outubro, o que as páginas publicadas mostram. Setembro: --data results/reports.json.
+REPORTS_JSON = CAMPAIGN.parents[1] / "bench" / "engine-updates-2026-10" / "results" / "reports-2026-10.json"
 OUT = CAMPAIGN.parents[1] / "reports" / "qwen38-flashnext-perf-lines.html"
 
 LINE_CTX = [32768, 131072, 262144, 524288]
@@ -195,7 +196,7 @@ TECH_2026_10 = [
      "what": "Speculation <b>ships in the quantized checkpoint</b>: the model's own MTP heads draft tokens.",
      "cache": "Session bank in RAM and an SSD session cache. A memory plan computes the context that fits and refuses a larger prompt with HTTP 507.",
      "spec": "Native MTP. A request with <code>max_tokens</code> ≤ 48 and no history runs as a background task, without a session: the probe primes MTPLX with 64 tokens.",
-     "configs": "m1: 8K default config, 32K prime 64, 128K <code>--memory-limit max</code> (the point label names it). "
+     "configs": "m1: 8K and 32K prime 64, 128K <code>--memory-limit max</code> (the point label names it). "
                 "The vendor default plans 65,536 tokens on this M4 Max. KV q8 is ignored for Flash-Next. "
                 "The sparse QSA prefill (<code>MTPLX_QSA_PREFILL=1</code>) fails to allocate at 128K."},
     {"name": "ds4 (upstream)", "repo": "antirez/ds4",
@@ -246,7 +247,9 @@ PAGE_2026_10 = {
     "hit_note": "Fraction of the prefix reused in each scenario, for the band's selected group. <code>cold</code> = first "
                 "pass (≈0 by design). <code>middle_mutation</code> = the prefix diverges in the middle. <code>append</code> "
                 "and <code>tool_turn</code> are the gate: ≥ 0.90.",
-    "est_note": "<b>507</b> or <b>500</b> = scenario refused with that HTTP status. <b>—</b> = scenario outside the "
+    "est_note": "<b>400</b>, <b>500</b> or <b>507</b> = scenario refused with that HTTP status (400 = context window "
+                "exceeded, 507 = MTPLX memory plan). A stream error (the server cut the response) also counts as "
+                "refused. <b>—</b> = scenario outside the "
                 "band's protocol: the 256K and 512K bands of some runtimes run only cold, identical and tool_turn.",
     "table_note": "Source: <code>bench/engine-updates-2026-10/results/reports-2026-10.json</code>, generated from the "
                   "<code>*.jsonl</code> files of the October campaigns. Per runtime and band, "
