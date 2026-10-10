@@ -66,3 +66,9 @@ compartilhada é copiada inteira no primeiro append, e a cópia (~9 GB de KV) ma
 cai no turno que pegar a memória mais apertada, por isso mudou de cenário. Próximo teste: braço `n2o`
 (`--os-reserve-gib 4`, default 8 GB), script `scripts/run-n2o-512k.sh`. O `middle_mutation` do re-run truncou em
 4096 tokens de reasoning (limite do probe, não memória).
+
+**Braço n2o (`--os-reserve-gib 4`, 2026-10-10, `n2o-524288-t1.0-osr.jsonl`, 1 rep).** Os 5 cenários medidos foram
+servidos (`identical` 1.00, `append` 1.00, `tool_turn` 1.00; `middle_mutation` truncou em 4096 tokens, como no
+yarn2r). Wired pico 111.0 GB, livre mínimo 0.02 GB, swap 0. Mas o log ainda tem um `PrefillDoesNotFit` num prime:
+~14 083 MB pedidos contra ~13 793 MB disponíveis. A folga subiu ~2.9 GB (de 10 886 MB no yarn2r) e faltaram ~0.3 GB.
+O knob reduz a falta, mas não a elimina.
