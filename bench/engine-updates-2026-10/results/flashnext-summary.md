@@ -72,3 +72,10 @@ servidos (`identical` 1.00, `append` 1.00, `tool_turn` 1.00; `middle_mutation` t
 yarn2r). Wired pico 111.0 GB, livre mínimo 0.02 GB, swap 0. Mas o log ainda tem um `PrefillDoesNotFit` num prime:
 ~14 083 MB pedidos contra ~13 793 MB disponíveis. A folga subiu ~2.9 GB (de 10 886 MB no yarn2r) e faltaram ~0.3 GB.
 O knob reduz a falta, mas não a elimina.
+
+**Braço n2o2 (`--os-reserve-gib 2`, 2026-10-10, `n2o2-524288-t1.0-osr2.jsonl`, 1 rep).** Nenhum `prefill refused` no
+log, nem em turno medido nem em prime. Os 5 cenários foram servidos com as needles certas (`identical` 1.00,
+`append` 1.00, `tool_turn` 1.00; o `middle_mutation` não truncou desta vez). Wired pico 114.0 GB, livre mínimo
+0.01 GB, compressor até 10.8 GB, swap 0. Com 1 rep, isto mostra que a reserva de 2 GB cabe neste run, não que a
+recusa sumiu: a folga do macOS fica pequena e o compressor subiu. Para o perfil de 512K, `--os-reserve-gib 2` é o
+knob recomendado; confirmar com mais reps antes de chamar de estável.

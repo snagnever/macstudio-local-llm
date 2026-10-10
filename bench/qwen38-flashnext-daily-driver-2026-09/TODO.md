@@ -50,7 +50,8 @@ Marque `[x]` e cite o commit quando fechar um item.
   compartilhada é copiada inteira. Rodar `bench/engine-updates-2026-10/scripts/run-n2o-512k.sh` (braço n2o,
   `--os-reserve-gib 4`) quando a porta 11234 estiver livre; o script recusa (exit 75) enquanto houver processo
   `swift15`. Rodado em 2026-10-10: serviu os 5 cenários sem swap, mas um prime ainda recusou (faltaram ~0.3 GB).
-  Próximo: braço `n2o2` (`--os-reserve-gib 2`): `ENGINE_NO_DRIVER=1 run-n2o-512k.sh n2o2` numa pausa da swift15. Se falhar ou der swap: build do `main` do mlx-serve (PR #776, conta de memória disponível), depois
+  n2o2 (`--os-reserve-gib 2`, 2026-10-10): 5/5 cenários, nenhuma recusa, swap 0, compressor até 10.8 GB.
+  Falta: 2 reps a mais do n2o2 para chamar de estável, e decidir se o launcher do perfil 512k passa a usar o knob. Se falhar ou der swap: build do `main` do mlx-serve (PR #776, conta de memória disponível), depois
   `--kv-quant 4`.
 - [ ] **Qualidade do d1 (ds4).** Ficou fora da Etapa G4.
 - [ ] **TTFT do `tool_turn` do d1 cresce com o contexto** (6.4 s a 128K, 20 s a 256K, 50 s a 512K) apesar do hit
