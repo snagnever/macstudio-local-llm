@@ -87,3 +87,11 @@ mas um `tool_turn` falhou no meio do prefill com OOM de Metal
 admissão protegia a memória real: baixar a reserva troca uma recusa limpa, antes do prefill, por uma falha no meio
 dele. O resultado de 1 rep foi sorte. **Veredito: o perfil 512k fica com o default de `--os-reserve-gib`; 512K
 segue capacidade, com recusa intermitente.** Próximo teste para reduzir a memória de verdade: `--kv-quant 4`.
+
+**Braço n2q4 (`--kv-quant 4`, reserva padrão, 2026-10-11, `n2q4-524288-t1.0-kv4x3.jsonl`, 3 reps): passa na memória.**
+Nenhum `prefill refused` e nenhum OOM de Metal no log. Wired pico 113.9 GB, compressor até 8.6 GB, livre mínimo
+0.05 GB, swap 0. Hit 0.998 em todos os `append` e `tool_turn`, 1.00 no `identical`. `tool_turn`: TTFT 3.9 s, decode
+56.6 tok/s, T_turno 13.0 s (mediana de 3), contra 12.1–12.7 s dos runs KV8 de 1 rep. Cold: TTFT ~784 s, prefill
+~662 tok/s. Needles certas em 12 dos 13 turnos medidos; o `append` da rep 3 gastou os 4096 tokens em reasoning
+(`finish_reason: length`) e não respondeu, o mesmo limite do probe visto no yarn2r e no n2o, não memória.
+**Veredito: KV 4-bit é a config candidata do perfil 512k.** Não medi qualidade do KV4 fora das needles.
