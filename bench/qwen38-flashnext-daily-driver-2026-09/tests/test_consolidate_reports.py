@@ -386,3 +386,11 @@ def test_n2o2_joins_n2_series_with_os_reserve_label(tmp_path):
     g = _canon(cr.build_2026_10(sept, eng, upd), "n2", 524288)
     assert g["arm"] == "n2o2" and g["reps"] == 3
     assert g["config"] == "YaRN 2.0 + KV 8-bit + OS reserve 2 GiB"
+
+
+def test_n2q4_joins_n2_series_with_kv4_label(tmp_path):
+    sept, eng, upd = _dirs(tmp_path)
+    _write(eng, "n2q4-524288-t1.0-kv4x3.jsonl",
+           _rep_set(3, "20261011T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv4"))
+    g = _canon(cr.build_2026_10(sept, eng, upd), "n2", 524288)
+    assert g["arm"] == "n2q4" and g["config"] == "YaRN 2.0 + KV 4-bit"

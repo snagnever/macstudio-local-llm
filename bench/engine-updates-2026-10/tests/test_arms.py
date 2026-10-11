@@ -336,3 +336,11 @@ def test_n2o2_uses_os_reserve_2():
     assert IQ in out and "--kv-quant 8" in out
     assert "--os-reserve-gib 2" in out and "--os-reserve-gib 4" not in out
     assert "--runtime-revision v26.10.1-yarn2.0-kv8-osr2 " in out
+
+
+def test_n2q4_uses_kv4_at_512k_with_default_reserve():
+    # --os-reserve-gib 2 virou OOM de Metal; n2q4 reduz a cópia de KV (KV 4-bit) e mantém a reserva padrão.
+    out = show("n2q4", "524288", "--yarn", "2.0")
+    assert IQ in out and "--kv-quant 4" in out and "--kv-quant 8" not in out
+    assert "--os-reserve-gib" not in out
+    assert "--runtime-revision v26.10.1-yarn2.0-kv4 " in out

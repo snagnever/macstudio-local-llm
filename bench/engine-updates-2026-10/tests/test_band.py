@@ -171,3 +171,11 @@ def test_n2o_script_three_reps_use_their_own_tag():
                                    "ENGINE_NO_DRIVER": "1", "ENGINE_REPEAT": "3"}), timeout=10)
     assert out.returncode == 0, out.stderr
     assert "run-arm.sh n2o2 524288 --yarn 2.0 --repeat 3 --tag osr2x3" in out.stdout
+
+
+def test_n2o_script_runs_the_kv4_arm():
+    out = subprocess.run(["bash", str(N2O), "n2q4"], capture_output=True, text=True,
+                         env=_env({"ENGINE_BAND_DRY": "1", "ENGINE_GUARD_PATTERN": "no-such-process-xyz",
+                                   "ENGINE_NO_DRIVER": "1", "ENGINE_REPEAT": "3"}), timeout=10)
+    assert out.returncode == 0, out.stderr
+    assert "run-arm.sh n2q4 524288 --yarn 2.0 --repeat 3 --tag kv4x3" in out.stdout

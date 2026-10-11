@@ -52,7 +52,8 @@ Marque `[x]` e cite o commit quando fechar um item.
   `swift15`. Rodado em 2026-10-10: serviu os 5 cenários sem swap, mas um prime ainda recusou (faltaram ~0.3 GB).
   n2o2 (`--os-reserve-gib 2`, 2026-10-10): 5/5 cenários, nenhuma recusa, swap 0, compressor até 10.8 GB.
   3 reps (2026-10-11): OOM de Metal num `tool_turn`, compressor 59 GB. Knob descartado; o launcher fica no default.
-  Próximo: `--kv-quant 4` a 512K (reduz a cópia de KV de verdade), com checagem de needles. Se falhar ou der swap: build do `main` do mlx-serve (PR #776, conta de memória disponível), depois
+  Próximo: braço `n2q4` (`--kv-quant 4`, reserva padrão), 3 reps:
+  `ENGINE_NO_DRIVER=1 ENGINE_REPEAT=3 run-n2o-512k.sh n2q4` numa pausa da swift15. Checar needles e hit. Se falhar ou der swap: build do `main` do mlx-serve (PR #776, conta de memória disponível), depois
   `--kv-quant 4`.
 - [ ] **Qualidade do d1 (ds4).** Ficou fora da Etapa G4.
 - [ ] **TTFT do `tool_turn` do d1 cresce com o contexto** (6.4 s a 128K, 20 s a 256K, 50 s a 512K) apesar do hit

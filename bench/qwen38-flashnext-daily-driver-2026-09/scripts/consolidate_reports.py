@@ -414,7 +414,7 @@ FILE_RE_2026_10 = re.compile(r"^([a-z]\d+[a-z0-9]*)-(\d+)-t([\d.]+)(?:-(.+))?\.j
 # Braço → série. Os braços MTPLX entram só com o prime de 64 tokens e um knob por braço: o prime de
 # 1 token roda sem sessão no MTPLX (Etapa F), então o m1 dos tags fn/smoke e os diagnósticos ficam fora.
 # n2o/n2o2 = n2 com --os-reserve-gib 4/2 (fix do PrefillDoesNotFit a 512K).
-SERIES_ARMS_2026_10 = {"n2": "n2", "n2o": "n2", "n2o2": "n2", "o1": "o1", "d1": "d1",
+SERIES_ARMS_2026_10 = {"n2": "n2", "n2o": "n2", "n2o2": "n2", "n2q4": "n2", "o1": "o1", "d1": "d1",
                        "m1": "m1", "m1p": "m1", "m1v": "m1", "m1x": "m1", "m1q": "m1", "m1xq": "m1", "m1s": "m1"}
 MTPLX_CONFIG = {"m1": "prime 64", "m1p": "prime 64", "m1v": "vendor default",
                 "m1x": "memory limit max", "m1q": "KV q8",
@@ -481,7 +481,7 @@ def _config_label(arm: str, records: list[dict]) -> str:
     rev = str(records[0].get("runtime_revision") or "")
     if "yarn" in rev:
         factor = rev.split("yarn", 1)[1].split("-", 1)[0]
-        label = f"YaRN {factor}" + (" + KV 8-bit" if "-kv8" in rev else "")
+        label = f"YaRN {factor}" + (" + KV 8-bit" if "-kv8" in rev else " + KV 4-bit" if "-kv4" in rev else "")
         if "-osr" in rev:
             label += f" + OS reserve {rev.rsplit('-osr', 1)[1]} GiB"
         return label
