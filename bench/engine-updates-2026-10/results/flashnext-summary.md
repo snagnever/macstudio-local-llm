@@ -79,3 +79,11 @@ log, nem em turno medido nem em prime. Os 5 cenários foram servidos com as need
 0.01 GB, compressor até 10.8 GB, swap 0. Com 1 rep, isto mostra que a reserva de 2 GB cabe neste run, não que a
 recusa sumiu: a folga do macOS fica pequena e o compressor subiu. Para o perfil de 512K, `--os-reserve-gib 2` é o
 knob recomendado; confirmar com mais reps antes de chamar de estável.
+
+**n2o2 com 3 reps (2026-10-11, `n2o2-524288-t1.0-osr2x3.jsonl`): o knob não é seguro.** Nenhum `prefill refused`,
+mas um `tool_turn` falhou no meio do prefill com OOM de Metal
+(`kIOGPUCommandBufferCallbackErrorOutOfMemory` → `GenerationOutOfMemory`). Wired pico 120.4 GB, livre mínimo
+0.01 GB, compressor até 59 GB, swap 0. Um `append` truncou em 4096 tokens e um `identical` errou needle. A recusa da
+admissão protegia a memória real: baixar a reserva troca uma recusa limpa, antes do prefill, por uma falha no meio
+dele. O resultado de 1 rep foi sorte. **Veredito: o perfil 512k fica com o default de `--os-reserve-gib`; 512K
+segue capacidade, com recusa intermitente.** Próximo teste para reduzir a memória de verdade: `--kv-quant 4`.

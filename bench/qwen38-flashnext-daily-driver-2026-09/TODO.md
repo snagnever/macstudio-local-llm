@@ -51,7 +51,8 @@ Marque `[x]` e cite o commit quando fechar um item.
   `--os-reserve-gib 4`) quando a porta 11234 estiver livre; o script recusa (exit 75) enquanto houver processo
   `swift15`. Rodado em 2026-10-10: serviu os 5 cenários sem swap, mas um prime ainda recusou (faltaram ~0.3 GB).
   n2o2 (`--os-reserve-gib 2`, 2026-10-10): 5/5 cenários, nenhuma recusa, swap 0, compressor até 10.8 GB.
-  Falta: 2 reps a mais do n2o2 para chamar de estável, e decidir se o launcher do perfil 512k passa a usar o knob. Se falhar ou der swap: build do `main` do mlx-serve (PR #776, conta de memória disponível), depois
+  3 reps (2026-10-11): OOM de Metal num `tool_turn`, compressor 59 GB. Knob descartado; o launcher fica no default.
+  Próximo: `--kv-quant 4` a 512K (reduz a cópia de KV de verdade), com checagem de needles. Se falhar ou der swap: build do `main` do mlx-serve (PR #776, conta de memória disponível), depois
   `--kv-quant 4`.
 - [ ] **Qualidade do d1 (ds4).** Ficou fora da Etapa G4.
 - [ ] **TTFT do `tool_turn` do d1 cresce com o contexto** (6.4 s a 128K, 20 s a 256K, 50 s a 512K) apesar do hit
