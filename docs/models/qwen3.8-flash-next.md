@@ -53,7 +53,7 @@ This is the config the 2026-10-11 campaign measured (arm w1): the flags of arm n
 | `--prefix-cache-disk` | 100GB | Spill tier in `~/.mlx-serve/kv-cache`. Long KV goes to SSD by design, so RAM stays bounded and 256K/512K fit without swap. |
 | `--prefix-cache-entries` | 64 | ~4 hot 128K sessions in RAM; dozens at typical 20–40K agent contexts. |
 | `--ssm-checkpoint-max` | 16 | Gated DeltaNet state checkpoints for prefix reuse; the value the campaign measured. |
-| KV quantization | off | `--kv-quant 8` costs ~38% decode at 256K and `turbo4` ~66%. Use 8-bit only for the 512K profile. |
+| KV quantization | off | `--kv-quant 8` costs ~38% decode at 256K and `turbo4` ~66%. The 512K profile uses 4-bit KV. |
 | `--metrics` | on | Prometheus counters (prefill, cache, TTFT). MTP acceptance is **not** in `/metrics`; it is in the server log line `[spec-stats]`. |
 
 ### Client sampling (vendor thinking profile — what the campaign measured)
@@ -100,15 +100,17 @@ Prefill is ~700–735 tok/s from 32K to 256K. Needles at 10/50/90% were correct 
 
 ### Extended profile: 512K
 
-Measured on mlx-serve 26.9.2 with mixed-4/8. The launcher now starts this profile with the current pair (iQ @ 26.10.1), which was not re-measured at 512K.
+Measured with the launcher pair (iQ-MLX-4.7bpw @ mlx-serve 26.10.1) on 2026-10-11, 3 reps (`bench/engine-updates-2026-10`, arm n2q4).
 
-Serves 524288 tokens with a follow-up, without `sudo`: cold TTFT 844.6 s, decode 42.6 tok/s, follow-up 0.6 s with full cache hit, wired 104.3 GB. **Memory is at the edge** (minimum free 0.01 GB): close heavy apps first. Capacity, not daily use.
+Serves 524288 tokens with follow-ups, without `sudo`: cold TTFT 784 s, prefill 662 tok/s, tool turn 3.9 s with 0.998 cache hit, decode 56 tok/s, T_turno 13.0 s, wired 113.9 GB, swap 0. **Memory is at the edge** (minimum free 0.05 GB): close heavy apps first. Capacity, not daily use.
+
+The profile uses 4-bit KV. With 8-bit KV, 512K sometimes refused a prefill (`PrefillDoesNotFit`, short by 0.6–3.2 GB): mlx-serve 26.10.1 bills a hot-cache entry shared with a live request in full. A lower `--os-reserve-gib` does not fix it: with 2 GB, a turn failed with a Metal out-of-memory error. Needles were the only quality check of 4-bit KV.
 
 ```bash
 tools/scripts/serve-flashnext-daily-driver.sh 512k
 ```
 
-It adds `--ctx-size 524288 --kv-quant 8 --kv-attn-mode fused` and a YaRN override
+It adds `--ctx-size 524288 --kv-quant 4` and a YaRN override
 (`rope_type yarn`, `factor 2.0`, `original_max_position_embeddings 262144`). 1M is out of scope: cold-only one-shot with 8-bit KV, or ~5 tok/s multi-turn with `turbo4` on 26.9.2 (`turbo2/turbo4` were removed in mlx-serve 26.9.3).
 
 ## Stacks compared (why this one)

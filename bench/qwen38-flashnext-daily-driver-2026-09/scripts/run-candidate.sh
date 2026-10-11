@@ -13,7 +13,7 @@
 #   s27r = s27 + --prefix-cache-rungs 1024
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
 # A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
@@ -63,6 +63,8 @@ YARN27_JSON() { echo "{\"text_config\":{\"rope_parameters\":{\"mrope_interleaved
 
 # Por candidato: launcher, arm, porta, binario, python do probe, tokenizer, metrics.
 MODEL_ID_PREF=""; PROBE_SESSION_HEADER=""; PROBE_PRIME_MAX_TOKENS=""
+# --os-reserve-gib só no braço n2o: um valor herdado do shell não vale para os outros braços.
+unset QWEN38_MLX_OS_RESERVE_GIB
 case "$CAND" in
   c1) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.9.2
       MODEL_DIR="$DDALCU"; MODEL_REV=ef5b919d31534faa1997666f1a22d362cd6383cd
@@ -99,7 +101,10 @@ case "$CAND" in
       PROBE_PY="$HOME/.local/opt/qwen38/omlx-v0.7.0.dev2/bin/python"
       export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_OMLX_BIN="$HOME/.local/opt/qwen38/omlx-v0.7.0.dev2/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.0.dev2 ;;
-  n1|n2|n2p|w1) # flashnext-updates-2026-10: runtime 26.10.1. n1 = pesos do c1; n2/n2p = pack iQ; n2p = + --ple-gpu; w1 = Swift 1.5.
+  n1|n2|n2p|n2o|n2o2|n2q4|w1) # flashnext-updates-2026-10: runtime 26.10.1. n1 = pesos do c1; n2/n2p/n2o = pack iQ; n2p = + --ple-gpu; w1 = Swift 1.5.
+      # n2o = n2 + --os-reserve-gib 4 (default 8 GB no Mac de 128 GB): o PrefillDoesNotFit a 512K faltou 0.6–3.2 GB.
+      # n2o2 = reserva 2 GB: com 4 GB um prime ainda recusou por ~0.3 GB; com 3 reps virou OOM de Metal.
+      # n2q4 = KV 4-bit a 512K com a reserva padrão: reduz a cópia de KV (~9 GB com KV 8-bit).
       LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.1
       if [[ "$CAND" == n1 ]]; then
         MODEL_DIR="$DDALCU"; MODEL_REV=ef5b919d31534faa1997666f1a22d362cd6383cd
@@ -120,7 +125,10 @@ case "$CAND" in
         export QWEN38_MLX_KV_QUANT=8
         export QWEN38_MLX_CONFIG_OVERRIDES="{\"text_config\":{\"rope_parameters\":{\"rope_type\":\"yarn\",\"factor\":${YARN},\"original_max_position_embeddings\":262144},\"max_position_embeddings\":${CTX}}}"
         REV="v26.10.1-yarn${YARN}-kv8"
-      fi ;;
+      fi
+      if [[ "$CAND" == n2o ]]; then export QWEN38_MLX_OS_RESERVE_GIB=4; REV="${REV}-osr4"; fi
+      if [[ "$CAND" == n2o2 ]]; then export QWEN38_MLX_OS_RESERVE_GIB=2; REV="${REV}-osr2"; fi
+      if [[ "$CAND" == n2q4 && -n "$YARN" ]]; then export QWEN38_MLX_KV_QUANT=4; REV="v26.10.1-yarn${YARN}-kv4"; fi ;;
   r27|r27b) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=C; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.1
       MODEL_DIR="$MC27"; MODEL_REV=815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9
       PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""

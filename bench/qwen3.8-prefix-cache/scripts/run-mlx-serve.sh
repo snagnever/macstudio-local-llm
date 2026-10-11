@@ -68,6 +68,10 @@ fi
 if [[ -n "${QWEN38_MLX_MAX_MTP_CTX:-}" ]]; then
   COMMAND+=(--max-mtp-ctx "$QWEN38_MLX_MAX_MTP_CTX")
 fi
+# --os-reserve-gib: RAM fora de todo plano de memória (default do binário: 1/8 da RAM, 2–8 GB).
+if [[ -n "${QWEN38_MLX_OS_RESERVE_GIB:-}" ]]; then
+  COMMAND+=(--os-reserve-gib "$QWEN38_MLX_OS_RESERVE_GIB")
+fi
 # --ple-gpu (mlx-serve >= 26.10.1): tabela n-gram inteira na memória da GPU (~32 GB a mais).
 # Off por default no binário; só o braço n2p da campanha flashnext-updates-2026-10 liga.
 if [[ -n "${QWEN38_MLX_PLE_GPU:-}" ]]; then

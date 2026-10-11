@@ -409,11 +409,13 @@ REPO = CAMPAIGN.parents[1]
 ENGINE_RESULTS = REPO / "bench" / "engine-updates-2026-10" / "results"
 UPDATES_RESULTS = REPO / "bench" / "qwen38-flashnext-updates-2026-10" / "results"
 OUT_2026_10 = ENGINE_RESULTS / "reports-2026-10.json"
-FILE_RE_2026_10 = re.compile(r"^([a-z]\d+[a-z]*)-(\d+)-t([\d.]+)(?:-(.+))?\.jsonl$")
+FILE_RE_2026_10 = re.compile(r"^([a-z]\d+[a-z0-9]*)-(\d+)-t([\d.]+)(?:-(.+))?\.jsonl$")
 
 # Braço → série. Os braços MTPLX entram só com o prime de 64 tokens e um knob por braço: o prime de
 # 1 token roda sem sessão no MTPLX (Etapa F), então o m1 dos tags fn/smoke e os diagnósticos ficam fora.
-SERIES_ARMS_2026_10 = {"n2": "n2", "o1": "o1", "d1": "d1",
+# n2q4 = n2 a 512K com KV 4-bit (config do perfil 512k). n2o/n2o2 (--os-reserve-gib 4/2) foram diagnóstico do
+# PrefillDoesNotFit e ficam fora: a reserva 2 virou OOM de Metal (flashnext-summary.md).
+SERIES_ARMS_2026_10 = {"n2": "n2", "n2q4": "n2", "o1": "o1", "d1": "d1",
                        "m1": "m1", "m1p": "m1", "m1v": "m1", "m1x": "m1", "m1q": "m1", "m1xq": "m1", "m1s": "m1"}
 MTPLX_CONFIG = {"m1": "prime 64", "m1p": "prime 64", "m1v": "vendor default",
                 "m1x": "memory limit max", "m1q": "KV q8",
@@ -427,8 +429,8 @@ CANDIDATES_2026_10 = [
      "quant": "iQ-MLX 4.7 bpw", "bpw": 4.7, "disk_gb": 107.4, "port": 11234,
      "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
      "spec": "native MTP + PLD (n-gram)",
-     "ceiling": "512K with YaRN 2.0 + KV 8-bit", "state": "pass", "status": "daily driver",
-     "note": "Lowest T_turn in every band: 8.2 s at 32K, 8.8 s at 128K, 12.9 s at 512K."},
+     "ceiling": "512K with YaRN 2.0 + KV 4-bit", "state": "pass", "status": "daily driver",
+     "note": "Lowest T_turn in every band: 8.2 s at 32K, 8.8 s at 128K, 13.0 s at 512K."},
     {"id": "o1", "name": "oQ4e · oMLX 0.7.0", "short": "o1 oMLX",
      "runtime": "oMLX", "runtime_version": "0.7.0",
      "model": "Jundot/Qwen3.8-Flash-Next-oQ4e-mtp", "revision": "2615fc0",
@@ -480,7 +482,10 @@ def _config_label(arm: str, records: list[dict]) -> str:
     rev = str(records[0].get("runtime_revision") or "")
     if "yarn" in rev:
         factor = rev.split("yarn", 1)[1].split("-", 1)[0]
-        return f"YaRN {factor}" + (" + KV 8-bit" if rev.endswith("-kv8") else "")
+        label = f"YaRN {factor}" + (" + KV 8-bit" if "-kv8" in rev else " + KV 4-bit" if "-kv4" in rev else "")
+        if "-osr" in rev:
+            label += f" + OS reserve {rev.rsplit('-osr', 1)[1]} GiB"
+        return label
     return ""
 
 
@@ -500,8 +505,8 @@ def mark_canonical_2026_10(groups: list[dict]) -> None:
 
 
 TAKEAWAYS_2026_10 = [
-    ["mlx-serve 26.10.1 leads every band", "n2 has the lowest T_turn from 8K to 512K: 7.8, 8.2, 8.8, 9.8 and 12.9 s, "
-     "with the tool turn under 3 s in every band."],
+    ["mlx-serve 26.10.1 leads every band", "n2 has the lowest T_turn from 8K to 512K: 7.8, 8.2, 8.8, 9.8 and 13.0 s, "
+     "with the tool turn under 3 s up to 256K and 3.9 s at 512K (KV 4-bit)."],
     ["oMLX is second at 128K and 256K", "o1 T_turn is 12.1 s at 128K and 14.5 s at 256K. MTPLX is second at 8K and "
      "32K (8.2 and 8.8 s). oMLX has no YaRN, so it stops at 262K."],
     ["MTPLX fits 128K only with --memory-limit max", "The vendor default plans a 65,536-token window on this 128 GB "
@@ -524,6 +529,8 @@ GROUP_NOTES_2026_10 = {
     ("m1v", 131072): "Refused: the vendor default plans a 65,536-token window on this M4 Max.",
     ("m1v", 262144): "Refused: the vendor default plans a 65,536-token window on this M4 Max.",
     ("m1s", 131072): "Failed: the sparse QSA prefill could not allocate memory (no NAX kernels on the M4).",
+    ("n2q4", 524288): "KV 4-bit: with KV 8-bit, 512K refused some prefills (PrefillDoesNotFit). "
+                      "One append spent the 4,096-token budget in reasoning and wrote no answer.",
 }
 QUALITY_REGRADE = ENGINE_RESULTS / "quality-humaneval-regrade.json"
 # Tool-calling (passa / total) dos relatórios quality-n1-n2.md e quality-o1-mtplx.md.
@@ -560,7 +567,7 @@ RUNTIME_PROFILES_2026_10 = [
      "goal": "Serves Flash-Next with native MTP and a two-tier prefix cache.",
      "how": "MTP with PLD (n-gram table); hot cache in RAM (16 GB, 64 entries) plus disk (100 GB); DeltaNet state "
             "checkpoints; YaRN through --config-overrides.",
-     "cost": "Pins KV and hot cache as wired memory: 97–112 GB from 32K to 512K, no swap."},
+     "cost": "Pins KV and hot cache as wired memory: 97–114 GB from 32K to 512K, no swap."},
     {"name": "oMLX 0.7.0", "tag": "2nd at 128K and 256K", "arms": "o1",
      "goal": "Agent server with continuous batching and a paged KV cache that spills over to SSD.",
      "how": "MTP from the oQ4e-mtp checkpoint; PLE in mmap through model_settings.json.",
@@ -593,13 +600,14 @@ QUEUE_2026_10 = [
     {"stage": "Smoke test at 8K, 4 runtimes", "status": "done"},
     {"stage": "Stage 1 (fn): 3 reps at 32K and 128K", "status": "done"},
     {"stage": "256K (1 rep) and 512K with YaRN 2.0 + KV 8-bit (n2)", "status": "done"},
+    {"stage": "512K with KV 4-bit, 3 reps (n2q4): no PrefillDoesNotFit refusal", "status": "done"},
     {"stage": "Stage F: MTPLX 64-token prime and runtime fixes", "status": "done"},
     {"stage": "Stage G: 8K for every runtime; MTPLX configs at 128K/256K; ds4 to 512K", "status": "done"},
     {"stage": "Stage G4: quality (HumanEval + tool calls) for o1 and MTPLX at 128K", "status": "done"},
 ]
 VERDICTS_2026_10 = [
     {"gate": "Verdict", "arm": "n2 · mlx-serve 26.10.1", "state": "pass",
-     "note": "Daily driver. Lowest T_turn in every band from 8K to 512K: 8.2 s at 32K, 8.8 s at 128K, 12.9 s at 512K."},
+     "note": "Daily driver. Lowest T_turn in every band from 8K to 512K: 8.2 s at 32K, 8.8 s at 128K, 13.0 s at 512K."},
     {"gate": "Finalist", "arm": "o1 · oMLX 0.7.0", "state": "pass",
      "note": "Passes the gates at 1.22× / 1.37× n2 (32K / 128K). Stops at 262K: no YaRN."},
     {"gate": "Limited", "arm": "m1 · MTPLX 2.12.2", "state": "control",

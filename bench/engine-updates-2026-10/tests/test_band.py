@@ -129,3 +129,53 @@ def test_etapa_g_lib_flag_does_not_run_queue_when_executed():
     out = subprocess.run(["bash", str(ETAPA_G), "--lib"], capture_output=True, text=True,
                          env=_env({"ENGINE_BAND_DRY": "1"}), timeout=10)
     assert out.returncode == 0 and out.stdout.strip() == ""
+
+
+N2O = HERE / "scripts" / "run-n2o-512k.sh"
+
+
+def test_n2o_script_dry_run_lists_the_run_and_the_driver():
+    out = subprocess.run(["bash", str(N2O)], capture_output=True, text=True,
+                         env=_env({"ENGINE_BAND_DRY": "1", "ENGINE_GUARD_PATTERN": "no-such-process-xyz"}),
+                         timeout=10)
+    assert out.returncode == 0, out.stderr
+    assert "run-arm.sh n2o 524288 --yarn 2.0 --repeat 1 --tag osr" in out.stdout
+    assert "serve-flashnext-daily-driver.sh daily" in out.stdout
+
+
+def test_n2o_script_refuses_while_another_campaign_runs():
+    # A guarda acha um processo vivo de fora (um sleep; o pgrep do macOS ignora os ancestrais) e sai sem rodar nada.
+    other = subprocess.Popen(["sleep", "41.731"])
+    try:
+        out = subprocess.run(["bash", str(N2O)], capture_output=True, text=True,
+                             env=_env({"ENGINE_BAND_DRY": "1", "ENGINE_GUARD_PATTERN": "sleep 41.731"}), timeout=10)
+    finally:
+        other.kill()
+    assert out.returncode == 75
+    assert "run-arm.sh" not in out.stdout
+
+
+def test_n2o_script_takes_arm_and_can_skip_the_driver():
+    out = subprocess.run(["bash", str(N2O), "n2o2"], capture_output=True, text=True,
+                         env=_env({"ENGINE_BAND_DRY": "1", "ENGINE_GUARD_PATTERN": "no-such-process-xyz",
+                                   "ENGINE_NO_DRIVER": "1"}), timeout=10)
+    assert out.returncode == 0, out.stderr
+    assert "run-arm.sh n2o2 524288 --yarn 2.0 --repeat 1 --tag osr2" in out.stdout
+    assert "serve-flashnext-daily-driver.sh" not in out.stdout
+
+
+def test_n2o_script_three_reps_use_their_own_tag():
+    # 3 reps não podem sobrescrever o jsonl de 1 rep (tag osr2).
+    out = subprocess.run(["bash", str(N2O), "n2o2"], capture_output=True, text=True,
+                         env=_env({"ENGINE_BAND_DRY": "1", "ENGINE_GUARD_PATTERN": "no-such-process-xyz",
+                                   "ENGINE_NO_DRIVER": "1", "ENGINE_REPEAT": "3"}), timeout=10)
+    assert out.returncode == 0, out.stderr
+    assert "run-arm.sh n2o2 524288 --yarn 2.0 --repeat 3 --tag osr2x3" in out.stdout
+
+
+def test_n2o_script_runs_the_kv4_arm():
+    out = subprocess.run(["bash", str(N2O), "n2q4"], capture_output=True, text=True,
+                         env=_env({"ENGINE_BAND_DRY": "1", "ENGINE_GUARD_PATTERN": "no-such-process-xyz",
+                                   "ENGINE_NO_DRIVER": "1", "ENGINE_REPEAT": "3"}), timeout=10)
+    assert out.returncode == 0, out.stderr
+    assert "run-arm.sh n2q4 524288 --yarn 2.0 --repeat 3 --tag kv4x3" in out.stdout
