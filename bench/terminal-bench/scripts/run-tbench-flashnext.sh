@@ -16,14 +16,33 @@ case "$ARM" in
 esac
 AK=(); for kv in "$@"; do AK+=(--ak "$kv"); done
 LOGDIR="$REPO/bench/terminal-bench/logs"; mkdir -p "$LOGDIR/tbench-runs"
-export OPENAI_API_BASE="http://127.0.0.1:11234/v1" OPENAI_API_KEY="local" DOCKER_DEFAULT_PLATFORM=linux/amd64
+PORT="${FLASHNEXT_PORT:-11234}"
+export OPENAI_API_BASE="http://127.0.0.1:$PORT/v1" OPENAI_API_KEY="local" DOCKER_DEFAULT_PLATFORM=linux/amd64
 export PATH="$HOME/.local/bin:/Applications/Docker.app/Contents/Resources/bin:/usr/local/bin:$PATH"
 
-FLASHNEXT_MODEL="$MODEL" nohup bash tools/scripts/serve-flashnext-daily-driver.sh >"$LOGDIR/tbench-flashnext-$ARM-server.log" 2>&1 &
+# Checagens antes de subir qualquer coisa. Com a porta ocupada, o launcher sairia com 69, o curl acharia o
+# servidor alheio, o harbor rodaria contra o modelo errado e o trap derrubaria esse servidor no fim.
+[[ -f "$MODEL/config.json" ]] || { echo "run-tbench-flashnext: pesos ausentes em $MODEL" >&2; exit 66; }
+if lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
+  echo "run-tbench-flashnext: porta $PORT ocupada; pare o servidor atual antes" >&2; exit 75
+fi
+# TBENCH_DRY=1: só as checagens acima (para os testes).
+[[ -n "${TBENCH_DRY:-}" ]] && { echo "dry: arm=$ARM port=$PORT model=$MODEL"; exit 0; }
+
+FLASHNEXT_MODEL="$MODEL" FLASHNEXT_PORT="$PORT" nohup bash tools/scripts/serve-flashnext-daily-driver.sh >"$LOGDIR/tbench-flashnext-$ARM-server.log" 2>&1 &
 SERVER=$!
-trap 'kill $SERVER 2>/dev/null; kill $(lsof -nP -tiTCP:11234 -sTCP:LISTEN) 2>/dev/null' EXIT
-for _ in $(seq 1 200); do curl -fsS --max-time 3 "$OPENAI_API_BASE/models" >/dev/null 2>&1 && break; sleep 3; done
+trap 'kill $SERVER 2>/dev/null; kill $(lsof -nP -tiTCP:$PORT -sTCP:LISTEN) 2>/dev/null' EXIT
+ready=""
+for _ in $(seq 1 200); do
+  kill -0 "$SERVER" 2>/dev/null || { echo "run-tbench-flashnext: o servidor morreu no boot; ver o log" >&2; exit 69; }
+  curl -fsS --max-time 3 "$OPENAI_API_BASE/models" >/dev/null 2>&1 && { ready=1; break; }
+  sleep 3
+done
+[[ -n "$ready" ]] || { echo "run-tbench-flashnext: servidor não ficou pronto em 10 min" >&2; exit 69; }
 MODEL_ID="$(curl -fsS "$OPENAI_API_BASE/models" | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"][0]["id"])')"
+# O id servido é o nome do diretório dos pesos: outro id significa outro servidor ou outro pack.
+[[ "$MODEL_ID" == "$(basename "$MODEL")" ]] \
+  || { echo "run-tbench-flashnext: modelo servido '$MODEL_ID' não é $(basename "$MODEL")" >&2; exit 70; }
 echo "=== start $(date -Iseconds) arm=$ARM model=$MODEL_ID kwargs=$* ===" >> "$LOGDIR/tbench-flashnext-$ARM-driver.log"
 
 harbor run \
