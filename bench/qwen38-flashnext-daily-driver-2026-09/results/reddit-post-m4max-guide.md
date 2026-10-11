@@ -2,7 +2,9 @@
 
 Page: https://snagnever.github.io/macstudio-local-llm/qwen38-flashnext-m4max-guide.html
 Image for the post: `reports/assets/qwen38-flashnext-m4max-guide-post.png` (1400×1400 at 2×, four charts). Link-preview card: `reports/assets/qwen38-flashnext-m4max-guide-card.png`.
-Subreddits: r/LocalLLaMA first; r/LocalLLM one day later.
+Carousel (gallery post, 9 square slides at 2400×2400): `reports/assets/slides/01-cover.png` … `09-conclusion.png`.
+Subreddits, in order: r/LocalLLaMA (847k) first; r/LocalLLM (242k) one day later with a different opening line;
+r/MacStudio (46k) with the hardware angle; r/oMLX (6k) is optional, oMLX is the runner-up there.
 
 ## Title
 

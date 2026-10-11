@@ -5,7 +5,7 @@ One page for readers outside this repo (Reddit): the best way to run Qwen3.8-Fla
 M4 Max 128 GB, from 8K to 512K. It joins the October runtime data (overview + perf-lines) and the
 Swift 1.5 A/B, and it uses plain names instead of the campaign codes (arms, T_turn, gates, bands).
 
-    python3 bench/qwen38-flashnext-daily-driver-2026-09/scripts/render_m4max_guide.py          # the page, card and post HTML
+    python3 bench/qwen38-flashnext-daily-driver-2026-09/scripts/render_m4max_guide.py          # the page, card, post and slides HTML
     python3 bench/qwen38-flashnext-daily-driver-2026-09/scripts/render_m4max_guide.py --png    # also the PNGs (Chrome)
 """
 from __future__ import annotations
@@ -25,7 +25,10 @@ CARD_PNG = CARD_HTML.with_suffix(".png")
 # The post image: a taller static poster with the main charts, for the Reddit image post.
 POST_HTML = REPO / "reports" / "assets" / "qwen38-flashnext-m4max-guide-post.html"
 POST_PNG = POST_HTML.with_suffix(".png")
-POST_W, POST_H = 1400, 1400
+POST_W, POST_H = 1400, 1560
+# The carousel: one square slide per chart, for a Reddit gallery post.
+SLIDES_DIR = REPO / "reports" / "assets" / "slides"
+SLIDE_W = 1200
 CHROME = Path("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
 
 CTX = [8192, 32768, 131072, 262144, 524288]
@@ -169,6 +172,17 @@ def facts(data: dict, swift: dict) -> dict:
     f["mlx_cold_128_min"] = f'{n128["cold"] / 60:.0f}'
     f["mlx_cold_512_min"] = f'{n512["cold"] / 60:.0f}'
     f["mlx_edit_512_min"] = f'{n512["edit"] / 60:.0f}'
+    # Tokens that miss the cache per case at 512K, and the wait they cost at the measured cold prefill rate.
+    f["edit_tokens_512"] = _k(round((1 - n512["reuse_edit"]) * 524288))
+    f["edit_pct_512"] = f'{(1 - n512["reuse_edit"]) * 100:.0f}'
+    f["resume_tokens_512"] = _k(n512["reread"])
+    spt = n512["cold"] / 524288  # seconds per token, cold prefill at 512K
+    def wait(tokens: int) -> str:
+        s = tokens * spt
+        return f"{s:.1f} s" if s < 10 else f"{s:.0f} s" if s < 60 else f"{s / 60:.1f} min" if s < 600 else f"{s / 60:.0f} min"
+    f["scale"] = " · ".join(f"{lab} ≈ {wait(t)}" for lab, t in (("1K", 1_000), ("10K", 10_000), ("100K", 100_000),
+                                                                  ("300K", 300_000), ("512K", 524_288)))
+    f["prefill_eff_512"] = f'{1 / spt:.0f}'
     f["cold_ratio_512"] = f'{round(n512["cold"] / n512["resume"], -1):.0f}'
     f["mlx_reuse_512"] = f'{n512["reuse"] * 100:.1f}'
     f["mlx_reread_512"] = _k(n512["reread"])
@@ -319,11 +333,11 @@ BODY = r"""
   replies and tool results, plus a small new part at the end. A server with a <b>prefix cache</b> keeps the already
   processed part and prefills only the new tokens. Without a cache hit, the step prefills the whole prompt again.</p>
   <div class="explain">
-    <svg viewBox="0 0 720 196" role="img" aria-label="How the prefix cache works: first message, next turn, edit in the middle">
+    <svg viewBox="0 0 720 196" role="img" aria-label="How the prefix cache works: first message, next turn, history changes halfway">
       <g class="ex-row">
         <text x="0" y="30" class="ex-lab">First message</text>
         <rect x="150" y="14" width="440" height="26" rx="4" class="ex-read"/>
-        <text x="370" y="32" class="ex-in">whole prompt prefilled from scratch</text>
+        <text x="370" y="32" class="ex-in">whole prompt prefilled from scratch · 512K tokens</text>
         <text x="600" y="32" class="ex-val">{mlx_cold_512_min} min</text>
       </g>
       <g class="ex-row">
@@ -332,15 +346,15 @@ BODY = r"""
         <rect x="578" y="78" width="12" height="26" rx="3" class="ex-read"/>
         <text x="363" y="96" class="ex-in hit">cache hit</text>
         <text x="600" y="96" class="ex-val">{mlx_resume_512} s</text>
-        <text x="584" y="124" class="ex-note">new tokens</text>
+        <text x="584" y="124" class="ex-note">~{resume_tokens_512} new tokens</text>
       </g>
       <g class="ex-row">
-        <text x="0" y="166" class="ex-lab">Edit in the middle</text>
+        <text x="0" y="166" class="ex-lab">History changes halfway</text>
         <rect x="150" y="150" width="218" height="26" rx="4" class="ex-hit"/>
         <rect x="370" y="150" width="220" height="26" rx="4" class="ex-read"/>
         <line x1="369" y1="142" x2="369" y2="184" class="ex-cut"/>
         <text x="259" y="168" class="ex-in hit">cache hit</text>
-        <text x="480" y="168" class="ex-in">prefilled again after the edit</text>
+        <text x="480" y="168" class="ex-in">prefilled again · ~{edit_tokens_512} tokens</text>
         <text x="600" y="168" class="ex-val">{mlx_edit_512_min} min</text>
       </g>
     </svg>
@@ -351,9 +365,21 @@ BODY = r"""
   cache hit, the next reply starts after {mlx_resume_512} s, about {cold_ratio_512}× faster. No server prefilled
   faster than {prefill_hi} tokens/s on this machine, so the first message is slow everywhere. The cache makes the
   difference.</span></div>
+  <p class="s-note"><b>The wait is the tokens that miss the cache, divided by the prefill speed.</b> The scenario only
+  decides how many tokens miss. On this machine at 512K: {scale}.</p>
+  <div class="tbl-scroll"><table class="txt cases"><thead><tr><th>Case</th><th>Tokens prefilled again</th><th>Wait at 512K</th><th>When it happens</th></tr></thead><tbody>
+    <tr><td><b>First message</b></td><td>512K (100%)</td><td>{mlx_cold_512_min} min</td><td>A new session that already starts with 512K, or a server whose
+    cache is empty. In daily use the context grows step by step and each step prefills only the new part, so this cost is paid
+    in small parts over the session, never at once.</td></tr>
+    <tr><td><b>History changes halfway</b></td><td>~{edit_tokens_512} ({edit_pct_512}%)</td><td>{mlx_edit_512_min} min</td><td>Something before the end
+    changes: an edit of an earlier message, a compaction or summary of the history, a new system prompt or tool list, or a
+    fork of the session. The cost is the tokens after the point that changed.</td></tr>
+    <tr><td><b>Next turn</b></td><td>~{resume_tokens_512}</td><td>{mlx_resume_512} s</td><td>Every normal step: the tool result or the new message
+    at the end.</td></tr>
+  </tbody></table></div>
   <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="wait"></div></div>
   <div class="panel big"><div id="chWait"></div>
-    <div class="shape-key"><span><i class="k-cold"></i>first message (cold prefill)</span><span><i class="k-edit"></i>edit in the middle of the history</span><span><i class="k-next"></i>next turn (cache hit)</span></div>
+    <div class="shape-key"><span><i class="k-cold"></i>first message (cold prefill)</span><span><i class="k-edit"></i>history changes halfway</span><span><i class="k-next"></i>next turn (cache hit)</span></div>
   </div>
   <div class="tbl-scroll"><table id="tblWait"></table></div>
 </section>
@@ -368,7 +394,7 @@ BODY = r"""
   <div class="panel big"><div id="chReread"></div></div>
   <div class="callout small"><span class="c-big">1% ≈ {sec_per_pct_512} s</span><span class="c-txt">Rule of thumb at 512K:
   each 1% of cache miss is about {pct_tokens_512} tokens, or about {sec_per_pct_512} s of extra wait
-  on this machine.</span></div>
+  on this machine. It is the same scale as in <a href="#cache">section 4</a>: tokens that miss the cache ÷ prefill speed.</span></div>
   <div class="grid2">
     <div class="panel"><div class="p-head"><span class="p-title">TTFT on the next turn (cache hit)</span><span class="p-unit">s · lower is better</span></div><div id="chResume"></div>
     <p class="p-interp">mlx-serve stays under 4 s up to 512K. ds4 grows from {ds4_resume_128} s at 128K to {ds4_resume_512} s at 512K.</p></div>
@@ -380,7 +406,8 @@ BODY = r"""
 <section class="block" id="scenarios">
   <h2 class="sec">6 · Cache hit by scenario</h2>
   <p class="s-note">Share of the prompt the server took from the cache, per scenario. <b>First message</b> is 0% by
-  design. <b>Edit in the middle</b> can reuse at most the part before the edit, about half. The two scenarios an agent
+  design. <b>History changes halfway</b> (a fork, a compaction, an edit of an earlier message) can reuse at most the part
+  before the change, about half. The two scenarios an agent
   repeats all day are <b>user adds a message</b> and <b>next turn</b>: above 90% is good.</p>
   <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="hits"></div></div>
   <div class="tbl-scroll"><table id="tblHits" class="heat"></table></div>
@@ -448,10 +475,12 @@ BODY = r"""
   <ul class="tips">
     <li><b>Keep the start of the prompt stable.</b> System prompt, tool list and project rules come first. A change
     there invalidates the cache for everything after it.</li>
-    <li><b>Add, do not edit.</b> At 512K, an edit in the middle of the history costs {mlx_edit_512_min} min on mlx-serve. A new
+    <li><b>Add to the end; avoid changes earlier in the history.</b> At 512K, a change halfway (a fork, a compaction, an edit of
+    an earlier message) costs {mlx_edit_512_min} min on mlx-serve, because ~{edit_tokens_512} tokens are prefilled again. A new
     message at the end costs seconds.</li>
-    <li><b>Plan for the first load.</b> Prefilling a cold 128K prompt takes about {mlx_cold_128_min} min, 512K about
-    {mlx_cold_512_min} min. Load once, then keep working in the same session.</li>
+    <li><b>The first load is paid in parts.</b> Prefilling a cold 128K prompt takes about {mlx_cold_128_min} min, 512K about
+    {mlx_cold_512_min} min, but only a session that starts that large pays it at once. In daily use the context grows step by
+    step and each step prefills only the new part. Keep working in the same session.</li>
     <li><b>Leave memory headroom.</b> mlx-serve locks {mlx_wired_min}–{mlx_wired_max} GB from 32K to 512K.</li>
     <li><b>Use the context you need.</b> The turn grows from {mlx_turn_128} s at 128K to {mlx_turn_512} s at 512K, and 512K
     needs the 4-bit KV cache.</li>
@@ -487,8 +516,9 @@ BODY = r"""
     <dt>Test prompt</dt><dd>A long audit document filled to the target size, with three facts hidden at 10%, 50% and
     90% of the text. A reply is correct when it finds all three.</dd>
     <dt>Scenarios</dt><dd><b>First message</b>: the full prompt, no cache (cold prefill). <b>Next turn</b>: the same prompt plus a tool
-    result at the end. <b>User adds a message</b>: the same prompt plus a new user message. <b>Edit in the middle</b>:
-    the prompt changes halfway, so only the first half can be a cache hit.</dd>
+    result at the end. <b>User adds a message</b>: the same prompt plus a new user message. <b>History changes halfway</b>:
+    the prompt changes at its midpoint, so only the first half can be a cache hit. This is what a fork, a compaction or an
+    edit of an earlier message does to the cache.</dd>
     <dt>Agent turn time</dt><dd>TTFT on the next turn + 512 ÷ median decode speed. It is the wait
     for one agent step with a 512-token reply.</dd>
     <dt>Runs</dt><dd>One to three runs per point; the "Runs" column of the last table gives the number. A point with
@@ -603,6 +633,9 @@ h1{font-size:2rem; line-height:1.15; letter-spacing:-0.025em; margin:0; text-wra
 .tldr a{color:var(--accent)}
 .about{display:block; color:var(--muted); font-weight:400; font-size:0.78rem; margin-top:2px; padding-left:18px}
 .block h3{font-size:1rem; margin:20px 0 6px; letter-spacing:-0.01em}
+table.cases td{white-space:normal; font-family:var(--sans); text-align:left; vertical-align:top; line-height:1.4}
+table.cases td:nth-child(2),table.cases td:nth-child(3){font-family:var(--mono); white-space:nowrap}
+table.cases td:last-child{min-width:280px; color:var(--ink-2); font-size:0.84rem}
 .chip{font-family:var(--mono); font-size:0.74rem; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:3px 10px; color:var(--ink)}
 .chip .lab{color:var(--muted)}
 button.theme{flex:none; font-family:var(--mono); font-size:0.74rem; color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:7px 12px; cursor:pointer}
@@ -918,7 +951,7 @@ function segControl(name, options, initial, onChange){
   onChange(initial);
 }
 
-// Log-scale dot plot: per server, first message vs edit in the middle vs next turn, for one context size.
+// Log-scale dot plot: per server, first message vs history changes halfway vs next turn, for one context size.
 function waitChart(c){
   const host = document.getElementById("chWait");
   const W = 760, rowH = 54, MT = 14, MB = 34, ML = 112, MR = 30;
@@ -953,7 +986,7 @@ function waitChart(c){
     const s = STACKS.find(x => x.id === t), d = pt(t, c);
     showTip(ev, `<div class="t-h">${esc(s.name)} · ${ctxLab(c)}</div>` +
       `<div class="t-r"><span>TTFT · first message (cold)</span><span>${fmtS(d.cold)}</span></div>` +
-      `<div class="t-r"><span>TTFT · edit in the middle</span><span>${fmtS(d.edit)}</span></div>` +
+      `<div class="t-r"><span>TTFT · history changes halfway</span><span>${fmtS(d.edit)}</span></div>` +
       `<div class="t-r"><span>TTFT · next turn (cache hit)</span><span>${fmtS(d.resume)}</span></div>` +
       `<div class="t-r"><span>Cache hit rate</span><span>${(d.reuse*100).toFixed(1)}%</span></div>`);
   });
@@ -961,7 +994,7 @@ function waitChart(c){
 }
 function waitTable(c){
   const t = document.getElementById("tblWait");
-  let h = `<thead><tr><th>Server · ${ctxLab(c)}</th><th>Cold TTFT</th><th>TTFT · next turn</th><th>TTFT · added message</th><th>TTFT · edit in middle</th><th>Cache hit</th><th>Cold ÷ next turn</th></tr></thead><tbody>`;
+  let h = `<thead><tr><th>Server · ${ctxLab(c)}</th><th>Cold TTFT</th><th>TTFT · next turn</th><th>TTFT · added message</th><th>TTFT · halfway change</th><th>Cache hit</th><th>Cold ÷ next turn</th></tr></thead><tbody>`;
   STACKS.forEach(s => {
     const d = pt(s.id, c);
     h += `<tr><td class="stk"><span class="sw" style="background:${col(s)}"></span>${esc(s.name)}</td>`;
@@ -1070,7 +1103,7 @@ function supportTable(){
 
 // Cache hit heatmap: one row per server, one column per scenario, cell shade = share served from cache.
 const HIT_SCEN = [["cold", "First message"], ["identical", "Same prompt again"], ["append", "User adds a message"],
-                  ["middle_mutation", "Edit in the middle"], ["tool_turn", "Next turn (tool result)"]];
+                  ["middle_mutation", "History changes halfway"], ["tool_turn", "Next turn (tool result)"]];
 function hitTable(c){
   const t = document.getElementById("tblHits");
   let h = `<thead><tr><th>Server · ${ctxLab(c)}</th>` + HIT_SCEN.map(x => `<th>${x[1]}</th>`).join("") + "</tr></thead><tbody>";
@@ -1199,7 +1232,7 @@ function allTable(){
   const t = document.getElementById("tblAll");
   const cols = [["turn", "Agent turn", v => v.toFixed(1)], ["resume", "TTFT next turn", v => v.toFixed(2)],
     ["append", "TTFT added msg", v => v.toFixed(2)], ["cold", "Cold TTFT", v => v.toFixed(1)],
-    ["edit", "TTFT edit", v => v.toFixed(1)], ["reuse", "Cache hit", v => (v*100).toFixed(1) + "%"],
+    ["edit", "TTFT halfway change", v => v.toFixed(1)], ["reuse", "Cache hit", v => (v*100).toFixed(1) + "%"],
     ["decode", "Decode", v => v.toFixed(1)], ["prefill", "Prefill", v => v.toFixed(0)],
     ["wired", "Peak memory", v => v.toFixed(1)], ["swap", "Swap", v => v.toFixed(1)], ["reps", "Runs", v => String(v)]];
   let h = "<thead><tr><th>Server</th><th>Context</th>" + cols.map(c => `<th>${c[1]}</th>`).join("") + "</tr></thead><tbody>";
@@ -1358,9 +1391,11 @@ def _nice_ticks(top: float, n: int = 4) -> list[float]:
 
 
 def _line_panel(points: dict, key: str, title: str, unit: str, fmt, w: int = 620, h: int = 340,
-                clip: float | None = None, ticks: list[float] | None = None) -> str:
-    """One static line chart: a series per stack over the context sizes, with end labels."""
-    left, right, top, bottom = 58, 165, 54, 40
+                clip: float | None = None, ticks: list[float] | None = None, fs: float = 1.0) -> str:
+    """One static line chart: a series per stack over the context sizes, with end labels.
+
+    fs scales the fonts, markers and margins (1.0 for the post image, ~1.6 for a slide)."""
+    left, right, top, bottom = int(58 * fs), int(165 * fs), int(54 * fs), int(40 * fs)
     x0, x1, y0, y1 = left, w - right, top, h - bottom
     vals = [points[(s["id"], c)][key] for s in STACKS for c in CTX if (s["id"], c) in points]
     vmax = max(vals)
@@ -1369,15 +1404,18 @@ def _line_panel(points: dict, key: str, title: str, unit: str, fmt, w: int = 620
     ymax = ticks[-1]
     xs = {c: x0 + i * (x1 - x0) / (len(CTX) - 1) for i, c in enumerate(CTX)}
     ys = lambda v: y1 - (min(v, ymax) / ymax) * (y1 - y0)
-    out = [f'<text x="0" y="22" font-size="19" font-weight="700" fill="{INK}">{title}</text>',
-           f'<text x="0" y="42" font-size="14" fill="{MUTED}" font-family="Menlo,monospace">{unit}</text>']
+    f_title, f_unit, f_tick, f_lab = 19 * fs, 14 * fs, 13 * fs, 14 * fs
+    out = []
+    if title:
+        out += [f'<text x="0" y="{22 * fs:.0f}" font-size="{f_title:.0f}" font-weight="700" fill="{INK}">{title}</text>',
+                f'<text x="0" y="{42 * fs:.0f}" font-size="{f_unit:.0f}" fill="{MUTED}" font-family="Menlo,monospace">{unit}</text>']
     for t in ticks:
         y = ys(t)
         out.append(f'<line x1="{x0}" y1="{y:.1f}" x2="{x1}" y2="{y:.1f}" stroke="{GRID if t else BASE}"/>')
-        out.append(f'<text x="{x0 - 8}" y="{y + 4:.1f}" font-size="13" text-anchor="end" fill="{MUTED}" '
+        out.append(f'<text x="{x0 - 8 * fs:.0f}" y="{y + 4 * fs:.1f}" font-size="{f_tick:.0f}" text-anchor="end" fill="{MUTED}" '
                    f'font-family="Menlo,monospace">{t:g}</text>')
     for c in CTX:
-        out.append(f'<text x="{xs[c]:.1f}" y="{y1 + 22}" font-size="13" text-anchor="middle" fill="{MUTED}" '
+        out.append(f'<text x="{xs[c]:.1f}" y="{y1 + 22 * fs:.0f}" font-size="{f_tick:.0f}" text-anchor="middle" fill="{MUTED}" '
                    f'font-family="Menlo,monospace">{c // 1024}K</text>')
     labels = []
     for s in STACKS:
@@ -1387,19 +1425,20 @@ def _line_panel(points: dict, key: str, title: str, unit: str, fmt, w: int = 620
         for (xa, ya), (xb, yb), (_, vb) in zip(coords, coords[1:], pts[1:]):
             dash = ' stroke-dasharray="5 4"' if clip and vb > clip else ""
             out.append(f'<line x1="{xa:.1f}" y1="{ya:.1f}" x2="{xb:.1f}" y2="{yb:.1f}" stroke="{color}" '
-                       f'stroke-width="2.5"{dash}/>')
+                       f'stroke-width="{2.5 * fs:.1f}"{dash}/>')
         for (x, y) in coords:
-            out.append(_marker(s["marker"], x, y, color))
+            out.append(_marker(s["marker"], x, y, color, 5 * fs))
         cl, vl = pts[-1]
         txt = f"{s['short']} {('↑ ' if clip and vl > clip else '')}{fmt(vl)}"
-        labels.append([ys(vl), xs[cl] + 12, txt, color])
+        labels.append([ys(vl), xs[cl] + 12 * fs, txt, color])
     # Push end labels apart so they stay readable.
+    gap = 18 * fs
     labels.sort(key=lambda l: l[0])
     for i in range(1, len(labels)):
-        if labels[i][0] - labels[i - 1][0] < 18:
-            labels[i][0] = labels[i - 1][0] + 18
+        if labels[i][0] - labels[i - 1][0] < gap:
+            labels[i][0] = labels[i - 1][0] + gap
     for y, x, txt, color in labels:
-        out.append(f'<text x="{x:.1f}" y="{y + 4:.1f}" font-size="14" font-weight="600" fill="{INK}">{txt}</text>')
+        out.append(f'<text x="{x:.1f}" y="{y + 4 * fs:.1f}" font-size="{f_lab:.0f}" font-weight="600" fill="{INK}">{txt}</text>')
     return f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" font-family="-apple-system,Helvetica,Arial,sans-serif">{"".join(out)}</svg>'
 
 
@@ -1411,6 +1450,9 @@ def render_post(data: dict, swift: dict) -> str:
         f'<span class="lg"><svg width="26" height="14">{_marker(s["marker"], 13, 7, CARD_COLORS[s["id"]], 5)}'
         f'<line x1="0" y1="7" x2="26" y2="7" stroke="{CARD_COLORS[s["id"]]}" stroke-width="2.5"/>'
         f'{_marker(s["marker"], 13, 7, CARD_COLORS[s["id"]], 5)}</svg>{s["name"]}</span>' for s in STACKS)
+    stacks = "".join(
+        f'<div class="stk" style="border-left-color:{CARD_COLORS[s["id"]]}"><b>{s["name"]}</b>'
+        f'<span class="q">{s["quant"]} · {s["disk"]}</span><code>{s["model"]}</code></div>' for s in STACKS)
     panels = "".join(f'<div class="panel">{svg}</div>' for svg in (
         _line_panel(p, "turn", "Agent turn time", "seconds · TTFT on the next turn + a 512-token reply · shorter is better",
                     lambda v: f"{v:.1f} s", clip=32),
@@ -1446,6 +1488,11 @@ h1{{font-size:44px; line-height:1.1; letter-spacing:-0.025em; margin:0}}
 .t-lab{{font-size:15px; color:{INK2}; line-height:1.3}}
 .legend{{display:flex; gap:28px; font-size:16px; color:{INK2}}}
 .lg{{display:inline-flex; align-items:center; gap:8px}}
+.stacks{{display:grid; grid-template-columns:repeat(4,1fr); gap:14px}}
+.stk{{border:1px solid rgba(11,11,11,0.10); border-radius:12px; padding:12px 16px; border-left-width:5px; font-size:15px; line-height:1.35}}
+.stk b{{display:block; font-size:17px}}
+.stk .q{{color:{INK}}}
+.stk code{{display:block; font-family:"SF Mono",Menlo,monospace; font-size:12.5px; color:{MUTED}; margin-top:4px; word-break:break-all}}
 .grid{{display:grid; grid-template-columns:1fr 1fr; gap:18px}}
 .panel{{background:#fcfcfb; border:1px solid rgba(11,11,11,0.10); border-radius:12px; padding:14px 16px 8px}}
 .panel svg{{display:block}}
@@ -1466,17 +1513,226 @@ h1{{font-size:44px; line-height:1.1; letter-spacing:-0.025em; margin:0}}
   <div class="tile"><span class="t-val">{f["mlx_cold_512_min"]}<small> min</small> → {f["mlx_resume_512"]}<small> s</small></span><span class="t-lab">first message vs next reply at 512K, from the cache</span></div>
   <div class="tile"><span class="t-val">{f["mlx_wired_max"]}<small> GB</small></span><span class="t-lab">peak memory at 512K, no swap</span></div>
 </div>
+<div class="stacks">{stacks}</div>
 <div class="legend">{legend}</div>
 <div class="grid">{panels}</div>
 <div class="panel wide">
-  <div class="callout"><span class="c-big">1% ≈ {f["sec_per_pct_512"]} s</span><span class="c-txt">At 512K, each 1% of cache miss is about
-  {f["pct_tokens_512"]} tokens prefilled again, or about {f["sec_per_pct_512"]} s of extra wait. oMLX stops at 256K and MTPLX at 128K.</span></div>
+  <div class="callout"><span class="c-big">1% ≈ {f["sec_per_pct_512"]} s</span><span class="c-txt">The wait is the tokens that miss the cache ÷
+  prefill speed. At 512K: {f["scale"]}. A fork, a compaction or an edit halfway costs ~{f["edit_tokens_512"]} tokens ({f["mlx_edit_512_min"]} min).
+  oMLX stops at 256K and MTPLX at 128K.</span></div>
   <svg width="940" height="{14 + len(rows) * 50}" font-family="-apple-system,Helvetica,Arial,sans-serif">{bars}</svg>
 </div>
 <p class="foot"><span>mlx-serve 26.10.1 · oMLX 0.7.0 · MTPLX 2.12.2 · ds4 (antirez) · each on its author's pack, 4.7 to 5.97 bpw</span>
 <span>snagnever.github.io/macstudio-local-llm/qwen38-flashnext-m4max-guide.html</span></p>
 </div></body></html>
 """
+
+
+SLIDE_CSS = f"""
+html,body{{margin:0; width:{SLIDE_W}px; height:{SLIDE_W}px; background:#fbfaf7; color:{INK};
+  font-family:-apple-system,"SF Pro Text","Inter",Helvetica,Arial,sans-serif}}
+.s{{width:{SLIDE_W}px; height:{SLIDE_W}px; padding:64px 68px; box-sizing:border-box; display:flex; flex-direction:column; position:relative}}
+.main{{flex:1; display:flex; flex-direction:column; justify-content:center; gap:24px}}
+.eyebrow{{font-family:"SF Mono",Menlo,monospace; font-size:17px; letter-spacing:0.14em; text-transform:uppercase; color:{MUTED}; margin:0}}
+h1{{font-size:54px; line-height:1.08; letter-spacing:-0.025em; margin:0}}
+h2{{font-size:42px; line-height:1.12; letter-spacing:-0.02em; margin:0; max-width:1000px}}
+.lead{{font-size:25px; color:{INK2}; line-height:1.4; margin:0; max-width:1020px}}
+.lead b{{color:{INK}}}
+.tiles{{display:grid; grid-template-columns:1fr 1fr; gap:18px}}
+.tile{{background:#f0eee8; border-radius:16px; padding:22px 26px}}
+.t-val{{font-size:64px; font-weight:700; letter-spacing:-0.025em; display:block; line-height:1.05}}
+.t-val small{{font-size:28px; font-weight:600; color:{INK2}}}
+.t-lab{{font-size:21px; color:{INK2}; line-height:1.3; margin-top:6px; display:block}}
+.panel{{background:#fcfcfb; border:1px solid rgba(11,11,11,0.10); border-radius:16px; padding:22px 24px 14px}}
+.panel svg{{display:block}}
+.legend{{display:flex; flex-wrap:wrap; gap:14px 30px; font-size:22px; color:{INK2}}}
+.lg{{display:inline-flex; align-items:center; gap:10px}}
+.read{{font-size:24px; line-height:1.4; color:{INK2}; margin:0}}
+.read b{{color:{INK}}}
+.foot{{margin-top:auto; display:flex; justify-content:space-between; font-size:18px; color:{MUTED}}}
+table{{border-collapse:collapse; width:100%; font-size:22px}}
+th{{text-align:left; font-weight:500; color:{MUTED}; font-size:18px; padding:0 12px 12px 0; border-bottom:1px solid {BASE}}}
+td{{padding:16px 12px 16px 0; border-bottom:1px solid {GRID}; vertical-align:top; line-height:1.3}}
+td.n{{font-weight:700; white-space:nowrap}}
+td small{{display:block; color:{MUTED}; font-size:17px; font-weight:400}}
+.sw{{display:inline-block; width:16px; height:16px; border-radius:4px; margin-right:12px; vertical-align:-1px}}
+.callout{{display:flex; gap:28px; align-items:center; background:#f0eee8; border-radius:16px; padding:22px 26px}}
+.c-big{{font-size:56px; font-weight:700; letter-spacing:-0.025em; white-space:nowrap}}
+.c-txt{{font-size:22px; color:{INK2}; line-height:1.4}}
+pre{{margin:0; font-family:"SF Mono",Menlo,monospace; font-size:19px; line-height:1.5; white-space:pre-wrap; word-break:break-all; background:#f0eee8; border-radius:14px; padding:20px 24px}}
+ul.tips{{margin:0; padding-left:28px; font-size:23px; line-height:1.45; color:{INK2}}}
+ul.tips b{{color:{INK}}}
+.grid2{{display:grid; grid-template-columns:1fr 1fr; gap:18px}}
+.hbars text{{font-family:-apple-system,Helvetica,Arial,sans-serif}}
+"""
+
+
+def _slide(n: int, total: int, body: str, title: str) -> str:
+    foot = (f'<p class="foot"><span>Qwen3.8-Flash-Next · Apple M4 Max 128 GB · October 2026</span>'
+            f'<span>{n} / {total}</span></p>')
+    return (f'<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><title>{title}</title>'
+            f'<style>{SLIDE_CSS}</style></head><body><div class="s"><div class="main">{body}</div>{foot}</div></body></html>\n')
+
+
+def _legend_html(size: int = 30) -> str:
+    return '<div class="legend">' + "".join(
+        f'<span class="lg"><svg width="{size}" height="16">'
+        f'<line x1="0" y1="8" x2="{size}" y2="8" stroke="{CARD_COLORS[s["id"]]}" stroke-width="3"/>'
+        f'{_marker(s["marker"], size / 2, 8, CARD_COLORS[s["id"]], 6)}</svg>{s["name"]}</span>' for s in STACKS) + "</div>"
+
+
+def _hbars(rows: list[tuple[str, float, str, str]], width: int = 1040, bar_max: int = 560, label_w: int = 150,
+           h: int = 58, font: int = 22) -> str:
+    """Horizontal bars: (label, value, text, color). The longest bar is bar_max wide."""
+    top = max(v for _, v, _, _ in rows) or 1
+    out = []
+    for i, (lab, v, txt, color) in enumerate(rows):
+        y = i * h
+        w = max(bar_max * v / top, 4)
+        out.append(f'<text x="0" y="{y + 30}" font-size="{font}" font-weight="600" fill="{INK}">{lab}</text>'
+                   f'<rect x="{label_w}" y="{y + 8}" width="{w:.0f}" height="{h - 22}" rx="6" fill="{color}"/>'
+                   f'<text x="{label_w + w + 14:.0f}" y="{y + 31}" font-size="{font - 2}" fill="{INK}" '
+                   f'font-family="Menlo,monospace">{txt}</text>')
+    return f'<svg class="hbars" width="{width}" height="{len(rows) * h}">{"".join(out)}</svg>'
+
+
+def render_slides(data: dict, swift: dict) -> list[tuple[str, str]]:
+    """The carousel: (file stem, html) per slide, in order."""
+    f = facts(data, swift)
+    p = {k: point(g) for k, g in canonical(data).items() if not g["refused"]}
+    n2 = {c: p[("n2", c)] for c in CTX}
+    col = lambda sid: CARD_COLORS[sid]
+    fs = 1.6
+    cw, ch = SLIDE_W - 2 * 68 - 2 * 24, 640
+    slides: list[tuple[str, str]] = []
+
+    # 1 · cover
+    slides.append(("01-cover", f"""
+<p class="eyebrow">Benchmark · Apple M4 Max 128 GB · October 2026</p>
+<h1>Qwen3.8-Flash-Next on an M4 Max 128 GB: four local servers, 8K to 512K context</h1>
+<p class="lead">mlx-serve, oMLX, MTPLX and ds4, the same model. I measured what you wait for in an agent session,
+not only tokens per second: <b>the next turn and the cache hit matter more than decode speed.</b></p>
+<div class="tiles">
+  <div class="tile"><span class="t-val">{f["mlx_turn_128"]}<small> s</small></span><span class="t-lab">per agent turn at 128K on the best stack</span></div>
+  <div class="tile"><span class="t-val">{f["mlx_turn_512"]}<small> s</small></span><span class="t-lab">per agent turn at 512K</span></div>
+  <div class="tile"><span class="t-val">{f["mlx_cold_512_min"]}<small> min</small> → {f["mlx_resume_512"]}<small> s</small></span><span class="t-lab">first message vs next reply at 512K, from the cache</span></div>
+  <div class="tile"><span class="t-val">{f["mlx_wired_max"]}<small> GB</small></span><span class="t-lab">peak memory at 512K, no swap</span></div>
+</div>"""))
+
+    # 2 · the four stacks
+    rows = "".join(
+        f'<tr><td class="n"><span class="sw" style="background:{col(s["id"])}"></span>{s["name"]}<small>{s["about"]}</small></td>'
+        f'<td>{s["quant"]}<small>{s["disk"]} on disk</small></td><td>{s["cache"]}</td><td>{s["max"]}</td></tr>' for s in STACKS)
+    slides.append(("02-stacks", f"""
+<h2>Four stacks: each server runs its own weight file</h2>
+<p class="lead">Each stack is a server + the pack its author publishes for it, 4.7 to 5.97 bits per weight. Same prompt,
+same sampling, speculative decoding (MTP) and a prefix cache on all four.</p>
+<table><thead><tr><th>Server</th><th>Weights</th><th>Prefix cache lives in</th><th>Largest context on 128 GB</th></tr></thead>
+<tbody>{rows}</tbody></table>"""))
+
+    # 3 · agent turn time
+    slides.append(("03-turn", f"""
+<h2>Agent turn time: mlx-serve is the fastest at every context size</h2>
+<p class="lead"><b>Agent turn</b> = TTFT on the next turn + a 512-token reply. A coding agent pays it at every step.</p>
+{_legend_html()}
+<div class="panel">{_line_panel(p, "turn", "", "", lambda v: f"{v:.1f} s", w=cw, h=ch, clip=32, fs=fs)}</div>
+<p class="read"><b>mlx-serve stays almost flat:</b> {f["mlx_turn_8"]} s at 8K, {f["mlx_turn_128"]} s at 128K, {f["mlx_turn_512"]} s at 512K.
+ds4 grows to {f["ds4_turn_512"]} s at 512K. MTPLX refuses 256K; oMLX stops at 256K.</p>"""))
+
+    # 4 · first message vs next turn
+    n512 = n2[524288]
+    bars = _hbars([("First message", n512["cold"], f'512K tokens · {f["mlx_cold_512_min"]} min', col("n2")),
+                   ("History changes halfway", n512["edit"], f'~{f["edit_tokens_512"]} tokens · {f["mlx_edit_512_min"]} min', col("n2")),
+                   ("Next turn", n512["resume"], f'~{f["resume_tokens_512"]} tokens · {f["mlx_resume_512"]} s', col("n2"))],
+                  label_w=300, bar_max=440, h=64, font=23)
+    slides.append(("04-first-message", f"""
+<h2>The wait is the tokens that miss the cache. The scenario only decides how many.</h2>
+<p class="lead">Every agent step sends the whole conversation again. A <b>prefix cache</b> keeps the part the server has
+already processed and prefills only the tokens that changed. mlx-serve at 512K:</p>
+<div class="panel"><p class="eyebrow" style="margin-bottom:12px">tokens prefilled again · wait before the reply starts</p>{bars}</div>
+<table><thead><tr><th>Case</th><th>When it happens</th></tr></thead><tbody>
+<tr><td class="n">First message</td><td>A session that already starts with 512K, or an empty cache. In daily use the context grows step
+by step, so this cost is paid in small parts, never at once.</td></tr>
+<tr><td class="n">History changes halfway</td><td>A fork of the session, a compaction or summary of the history, a new system prompt
+or tool list, an edit of an earlier message. The cost is the tokens after the point that changed.</td></tr>
+<tr><td class="n">Next turn</td><td>Every normal step: the tool result or the new message at the end.</td></tr>
+</tbody></table>
+<div class="callout"><span class="c-big">{f["mlx_cold_512_min"]} min → {f["mlx_resume_512"]} s</span><span class="c-txt">Scale on this machine:
+{f["scale"]}.</span></div>"""))
+
+    # 5 · TTFT next turn
+    slides.append(("05-ttft-next-turn", f"""
+<h2>Time to first token on the next turn, with a cache hit</h2>
+<p class="lead">How long the reply takes to start when the conversation continues. The server reuses the cached prompt
+and prefills only the new part.</p>
+{_legend_html()}
+<div class="panel">{_line_panel(p, "resume", "", "", lambda v: f"{v:.1f} s", w=cw, h=ch, clip=10, fs=fs)}</div>
+<p class="read"><b>mlx-serve stays under 4 s up to 512K.</b> ds4 grows from {f["ds4_resume_128"]} s at 128K to {f["ds4_resume_512"]} s at 512K.
+MTPLX takes {f["mtplx_resume_128"]} s at 128K.</p>"""))
+
+    # 6 · 95% is not enough
+    r512 = [(s, p[(s["id"], 524288)]) for s in STACKS if (s["id"], 524288) in p]
+    bars = _hbars([(s["short"], d["reread"], f'{_k(d["reread"])} tokens · {d["reuse"] * 100:.1f}% hit · reply in {d["resume"]:.1f} s', col(s["id"]))
+                   for s, d in r512], label_w=150, bar_max=420, h=70, font=24)
+    hits = "".join(
+        f'<tr><td class="n"><span class="sw" style="background:{col(s["id"])}"></span>{s["short"]}</td>'
+        + "".join(f'<td>{p[(s["id"], 131072)]["hits"][k] * 100:.0f}%</td>' for k in ("identical", "append", "middle_mutation", "tool_turn"))
+        + "</tr>" for s in STACKS)
+    slides.append(("06-cache-hit", f"""
+<h2>At long context, a 95% cache hit is not enough</h2>
+<div class="panel"><p class="eyebrow" style="margin-bottom:14px">512K · tokens prefilled again on the next turn · shorter is better</p>{bars}</div>
+<div class="callout"><span class="c-big">1% ≈ {f["sec_per_pct_512"]} s</span><span class="c-txt">At 512K, each 1% of cache miss is about
+{f["pct_tokens_512"]} tokens prefilled again, or about {f["sec_per_pct_512"]} s of extra wait. oMLX stops at 256K and MTPLX at 128K.</span></div>
+<p class="eyebrow">Cache hit by scenario at 128K</p>
+<table><thead><tr><th>Server</th><th>Same prompt again</th><th>User adds a message</th><th>History changes halfway</th><th>Next turn (tool result)</th></tr></thead>
+<tbody>{hits}</tbody></table>"""))
+
+    # 7 · tokens per second is not the whole story
+    slides.append(("07-decode", f"""
+<h2>Tokens per second is not the whole story</h2>
+<p class="lead">At 128K, MTPLX decodes almost as fast as mlx-serve ({f["mtplx_decode_128"]} vs {f["mlx_decode_128"]} tokens/s). Its agent turn
+still takes <b>{f["mtplx_turn_128"]} s against {f["mlx_turn_128"]} s</b>: TTFT on the next turn {f["mtplx_resume_128"]} s, prefill {f["mtplx_prefill_128"]} tokens/s
+against {f["mlx_prefill_128"]}.</p>
+{_legend_html()}
+<div class="panel"><p class="eyebrow" style="margin-bottom:6px">Decode speed · tokens/s · higher is better</p>
+{_line_panel(p, "decode", "", "", lambda v: f"{v:.0f} tok/s", w=cw, h=ch - 40, fs=fs)}</div>
+<p class="read">Compare servers on <b>turn time and cache behavior</b>, not on decode speed alone.</p>"""))
+
+    # 8 · memory and what each server serves
+    def cell(sid, c):
+        d = p.get((sid, c))
+        if d:
+            return f'<td>✓ {d["turn"]:.1f} s</td>'
+        return f'<td style="color:{MUTED}">✕</td>'
+    support = "".join(
+        f'<tr><td class="n"><span class="sw" style="background:{col(s["id"])}"></span>{s["short"]}</td>'
+        + "".join(cell(s["id"], c) for c in CTX) + "</tr>" for s in STACKS)
+    slides.append(("08-memory", f"""
+<h2>What each server can serve on 128 GB, and what it locks in memory</h2>
+<table><thead><tr><th>Agent turn</th>{"".join(f"<th>{c // 1024}K</th>" for c in CTX)}</tr></thead><tbody>{support}</tbody></table>
+<p class="read">512K needs YaRN 2.0, which oMLX does not support. MTPLX reaches 128K only with <code>--memory-limit max</code> and refuses 256K.</p>
+<div class="panel"><p class="eyebrow" style="margin-bottom:6px">Peak memory locked by the server · GB of 128 GB · no server used swap</p>
+{_line_panel(p, "wired", "", "", lambda v: f"{v:.0f} GB", w=cw, h=400, ticks=[0, 32, 64, 96, 128], fs=fs)}</div>"""))
+
+    # 9 · conclusion
+    slides.append(("09-conclusion", f"""
+<p class="eyebrow">Conclusion</p>
+<h2>Use mlx-serve 26.10.1 with the ddalcu iQ-MLX 4.7 bpw quant</h2>
+<p class="lead">Shortest agent turn at every size from 8K to 512K, and the only server under 15 s at 512K. Runner-up:
+oMLX 0.7.0 ({f["omlx_turn_128"]} s at 128K), but it stops at 256K.</p>
+<pre>mlx-serve --model ~/models/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw \\
+  --serve --port 11234 --ctx-size 262144 --mtp --ssm-checkpoint-max 16 \\
+  --prefix-cache-mem 16GB --prefix-cache-disk 100GB --prefix-cache-entries 64</pre>
+<ul class="tips">
+  <li><b>Keep the start of the prompt stable.</b> A change there invalidates the cache for everything after it.</li>
+  <li><b>Add to the end.</b> A fork, a compaction or an edit halfway costs {f["mlx_edit_512_min"]} min at 512K; a new message at the end costs seconds.</li>
+  <li><b>Plan for the first load:</b> about {f["mlx_cold_128_min"]} min at 128K, {f["mlx_cold_512_min"]} min at 512K. Then stay in the session.</li>
+  <li><b>512K</b> needs YaRN 2.0 and the 4-bit KV cache; flags and all values on the page.</li>
+</ul>
+<p class="read"><b>snagnever.github.io/macstudio-local-llm/qwen38-flashnext-m4max-guide.html</b></p>"""))
+
+    total = len(slides)
+    return [(stem, _slide(i + 1, total, body, stem)) for i, (stem, body) in enumerate(slides)]
 
 
 def write_png(page: Path, png: Path, size: tuple[int, int] = (1200, 630), scale: int = 1) -> bool:
@@ -1511,8 +1767,15 @@ def main(argv: list[str] | None = None) -> int:
     post = Path(a.post)
     post.write_text(render_post(data, swift), encoding="utf-8")
     print(f"wrote {post}")
+    SLIDES_DIR.mkdir(parents=True, exist_ok=True)
+    jobs = [(card, (1200, 630), 1), (post, (POST_W, POST_H), 2)]
+    for stem, html in render_slides(data, swift):
+        page = SLIDES_DIR / f"{stem}.html"
+        page.write_text(html, encoding="utf-8")
+        jobs.append((page, (SLIDE_W, SLIDE_W), 2))
+    print(f"wrote {len(jobs) - 2} slides in {SLIDES_DIR}")
     if a.png:
-        for page, size, scale in ((card, (1200, 630), 1), (post, (POST_W, POST_H), 2)):
+        for page, size, scale in jobs:
             png = page.with_suffix(".png")
             if write_png(page, png, size, scale):
                 print(f"wrote {png} ({png.stat().st_size} bytes)")

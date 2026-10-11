@@ -92,3 +92,13 @@ def test_post_image_has_the_four_charts_and_the_512k_bars():
     # Only mlx-serve and ds4 serve 512K, so the cache-miss bars name those two.
     assert post.count("tokens prefilled again ·") == 2
     assert guide.POST_PNG == REPO / "reports" / "assets" / "qwen38-flashnext-m4max-guide-post.png"
+
+
+def test_slides_are_numbered_and_filled():
+    data, swift = load()
+    slides = guide.render_slides(data, swift)
+    assert [s[0][:2] for s in slides] == [f"{i:02d}" for i in range(1, len(slides) + 1)]
+    for i, (stem, html) in enumerate(slides, 1):
+        assert f"{i} / {len(slides)}" in html
+        assert not re.search(r"\{[a-z_0-9]+\}", visible_text(html)), stem
+    assert "Use mlx-serve 26.10.1" in slides[-1][1]
