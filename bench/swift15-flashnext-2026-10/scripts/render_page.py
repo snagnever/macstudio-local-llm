@@ -29,6 +29,10 @@ THIS_CAMPAIGN = "swift15-flashnext-2026-10"
 # Stacks from the October perf-lines data, in table order. m1 is the MTPLX series: m1p at 32K, m1x at 128K.
 OTHER_SERIES = ("o1", "m1", "d1", "c1")
 G3_RATIO = 1.03
+FN_REPS = 3  # run-all.sh runs the T_turno probe of this campaign with --repeat 3
+SOURCE_LABEL = {THIS_CAMPAIGN: "this campaign",
+                "engine-updates-2026-10": "October campaign · engine-updates-2026-10",
+                "qwen38-flashnext-daily-driver-2026-09": "September campaign · qwen38-flashnext-daily-driver-2026-09"}
 
 STACKS = {
     "n2": {"label": "n2", "name": "iQ-MLX 4.7 bpw · mlx-serve 26.10.1",
@@ -79,12 +83,17 @@ def _read_jsonl(path: Path) -> list[dict]:
 
 def _missing_stats() -> dict:
     return {"missing": True, "n": 0, "passed": None, "truncated": None, "total_s": None, "median_s": None,
-            "median_completion": None, "median_reasoning_chars": None, "points": []}
+            "raw_median_s": None, "median_completion": None, "mean_completion": None,
+            "median_reasoning_chars": None, "points": []}
 
 
 def _arm_time(views: list[dict]) -> dict:
     st = S.suite_stats(views)
     st["missing"] = False
+    # suite_stats rounds the median to 0.1 s; the G2 gate compares the unrounded medians, as summarize_ab does.
+    st["raw_median_s"] = statistics.median(v["elapsed_s"] for v in views) if views else None
+    toks = [v["completion_tokens"] for v in views if v["completion_tokens"] is not None]
+    st["mean_completion"] = round(statistics.mean(toks)) if toks else None
     st["points"] = [{"id": v["id"], "s": v["elapsed_s"], "ok": v["passed"], "trunc": v["truncated"]} for v in views]
     return st
 
@@ -102,7 +111,7 @@ def _tool_latency(path: Path) -> dict:
 def _speed_row(arm: str, series: str, src: dict | None, source: str, absent: str | None = None) -> dict:
     row = {"arm": arm, "series": series, "name": STACKS[series]["name"], "source": source, "absent": absent,
            "t_turno_s": None, "ttft_tool_turn_s": None, "hit_tool_turn": None, "cold_ttft_s": None,
-           "decode_tps": None, "prefill_tps": None, "mtp_acceptance": None, "wired_peak_gb": None, "gates_failed": [], "config": ""}
+           "decode_tps": None, "prefill_tps": None, "mtp_acceptance": None, "wired_peak_gb": None, "gates_failed": [], "config": "", "reps": None}
     if src is None:
         return row
     ttft = src.get("warm_ttft_s") or src.get("ttft_s") or {}
@@ -110,7 +119,8 @@ def _speed_row(arm: str, series: str, src: dict | None, source: str, absent: str
                 "hit_tool_turn": (src.get("hit") or {}).get("tool_turn"), "cold_ttft_s": src.get("cold_ttft_s"),
                 "decode_tps": src.get("decode_tps"), "prefill_tps": src.get("prefill_tps"),
                 "mtp_acceptance": src.get("mtp_acceptance"), "wired_peak_gb": src.get("wired_peak_gb"),
-                "gates_failed": list(src.get("gates_failed") or []), "config": src.get("config") or ""})
+                "gates_failed": list(src.get("gates_failed") or []), "config": src.get("config") or "",
+                "reps": src.get("reps", FN_REPS if source == THIS_CAMPAIGN else None)})
     return row
 
 
@@ -144,9 +154,11 @@ def _gates(quality: dict, regrade: dict, time: dict, speed: dict) -> dict:
             margin = S.QUALITY_MARGIN[suite]
             ok = None if base is None or cand is None else cand >= base - margin
             g1.setdefault(suite, {})[p] = {"n2": base, "w1": cand, "margin": margin, "pass": ok}
-    g2 = {s: {p: {"ratio": time[p][s]["ratio"],
-                  "pass": None if time[p][s]["ratio"] is None else time[p][s]["ratio"] <= S.TIME_RATIO}
-              for p in PROFILES} for s in S.TIME_SUITES}
+    def g2_cell(cell):
+        b, c = cell["arms"]["n2"]["raw_median_s"], cell["arms"]["w1"]["raw_median_s"]
+        return {"ratio": cell["ratio"], "pass": None if not b or c is None else c <= S.TIME_RATIO * b}
+
+    g2 = {s: {p: g2_cell(time[p][s]) for p in PROFILES} for s in S.TIME_SUITES}
     g3 = {}
     for ctx in CONTEXTS:
         rows = {r["arm"]: r for r in speed[ctx]}
@@ -185,7 +197,7 @@ def collect(results_dir: Path = RESULTS, reports_json: Path = REPORTS_JSON) -> d
                     quality[p][a][suite] = {"n": len(views), "passed": sum(v["passed"] for v in views),
                                             "missing": False}
                     arms[a] = _arm_time(views)
-            b, c = arms["n2"]["median_s"], arms["w1"]["median_s"]
+            b, c = arms["n2"]["raw_median_s"], arms["w1"]["raw_median_s"]
             time[p][suite] = {"arms": arms, "ratio": round(c / b, 2) if b and c else None}
         tool_latency[p] = {s: {a: _tool_latency(results_dir / "ab" / p / a / f"{s}.jsonl") for a in ARMS}
                            for s in S.SUITES if s in S.TOOL_SUITES}
@@ -232,14 +244,15 @@ LIMITS = [
     "One run per arm and profile. GPQA and LiveCodeBench use 50-question samples (seed 42), not the full sets.",
     "The IF probe is an IFEval-style check with 20 cases. It does not reproduce the IFBench score of the Swift 1.5 card.",
     "Tool calls (jdhodges, Veerman): the runner sent <code>reasoning_effort</code> and the sampling, but did not "
-    "record the reasoning text in this campaign (n/d in the tables). About 110 tokens per answer suggests little or "
-    "no thinking in these two suites.",
+    "record the reasoning text in this campaign (n/d in the tables). A median of __TOOLTOKENS__ tokens per answer "
+    "(by arm, suite and profile) suggests little or no thinking in these two suites.",
     "The two packs have the same layout, but their n-gram tables differ (different LFS hashes): the A/B compares "
     "the packs, not only the fine-tune.",
     "t1 and t0 of each arm ran in different server starts; the battery paused twice for 512K runs of another "
     "campaign (at profile boundaries, no data lost).",
-    "Speed rows other than n2 and w1 come from earlier sessions of the October campaign. On the same rig, n2 measured "
-    "within about 2% of its value here, which bounds the session-to-session drift.",
+    "Speed rows other than n2 and w1 come from earlier sessions: o1, m1 and d1 from the October campaign, c1 from the "
+    "September campaign (mlx-serve 26.9.2). In the October campaign n2 measured within about 2% of its value here, "
+    "which bounds the drift between those sessions; it says nothing about the September session.",
     "Agent quality (Terminal-Bench 2.0) is not measured for either arm.",
 ]
 
@@ -264,7 +277,7 @@ def _arm_cell(arm: str) -> str:
 
 
 def _html_verdict(d: dict) -> str:
-    g, t1 = d["gates"], d["time"]["t1"]
+    g, t1, t0 = d["gates"], d["time"]["t1"], d["time"]["t0"]
     dec = g["decision"]
     head = {True: "Swift 1.5 (w1) passes the three gates and is promoted to Flash-Next daily driver.",
             False: "Swift 1.5 (w1) fails at least one gate and is not promoted.",
@@ -274,26 +287,35 @@ def _html_verdict(d: dict) -> str:
     def med(s, a):
         return t1[s]["arms"][a]["median_s"]
 
-    items = [
-        ("Same quality", "Every suite stays inside its G1 margin in both sampling profiles. Per-suite differences "
-                         "are 0–3 questions, within one-run noise."),
-        ("Less thinking", f"With the vendor sampling, the median time to the final answer drops from "
-                          f"{ND(med('gpqa', 'n2'), '{:.1f}')} s to {ND(med('gpqa', 'w1'), '{:.1f}')} s on GPQA "
-                          f"({ND(t1['gpqa']['ratio'], '{:.2f}')}×) and from {ND(med('livecodebench', 'n2'), '{:.1f}')} s "
-                          f"to {ND(med('livecodebench', 'w1'), '{:.1f}')} s on LiveCodeBench "
-                          f"({ND(t1['livecodebench']['ratio'], '{:.2f}')}×). Greedy (t0) gains less: "
-                          f"{ND(d['time']['t0']['gpqa']['ratio'], '{:.2f}')}× and "
-                          f"{ND(d['time']['t0']['livecodebench']['ratio'], '{:.2f}')}×."),
-        ("Same agent-turn speed", f"T_turn {ND(sp['32768']['w1']['t_turno_s'], '{:.1f}')} s vs "
-                                  f"{ND(sp['32768']['n2']['t_turno_s'], '{:.1f}')} s at 32K and "
-                                  f"{ND(sp['131072']['w1']['t_turno_s'], '{:.1f}')} s vs "
-                                  f"{ND(sp['131072']['n2']['t_turno_s'], '{:.1f}')} s at 128K: same runtime, same "
-                                  f"prefix cache, slightly higher decode on w1."),
-        ("Still open", "Agent quality on Terminal-Bench is not measured. Rollback is one variable: "
-                       "<code>FLASHNEXT_MODEL=&lt;iQ pack&gt;</code>."),
-    ]
+    def status(ok):
+        return {True: "passes", False: "fails", None: "has no data"}[ok]
+
+    items = []
+    if dec["g1_t1"] and dec["g1_t0"]:
+        spread = max(abs(c[p]["w1"] - c[p]["n2"]) for c in g["g1"].values() for p in PROFILES)
+        items.append(("Same quality", "Every suite stays inside its G1 margin in both sampling profiles. Per-suite "
+                                      f"differences are 0–{spread} questions on the gated grades, within one-run noise."))
+    else:
+        items.append(("Quality", f"G1 {status(dec['g1_t1'])} in t1 and {status(dec['g1_t0'])} in t0; see Gates."))
+    items.append(("Time to the final answer",
+                  f"With the vendor sampling (t1), the median per question goes from {ND(med('gpqa', 'n2'), '{:.1f}')} s "
+                  f"to {ND(med('gpqa', 'w1'), '{:.1f}')} s on GPQA ({ND(t1['gpqa']['ratio'], '{:.2f}')}×) and from "
+                  f"{ND(med('livecodebench', 'n2'), '{:.1f}')} s to {ND(med('livecodebench', 'w1'), '{:.1f}')} s on "
+                  f"LiveCodeBench ({ND(t1['livecodebench']['ratio'], '{:.2f}')}×). Greedy (t0): "
+                  f"{ND(t0['gpqa']['ratio'], '{:.2f}')}× and {ND(t0['livecodebench']['ratio'], '{:.2f}')}×."))
+    if dec["g3"]:
+        w, n = sp["131072"]["w1"], sp["131072"]["n2"]
+        items.append(("Same agent-turn speed",
+                      f"T_turn {ND(sp['32768']['w1']['t_turno_s'], '{:.1f}')} s vs "
+                      f"{ND(sp['32768']['n2']['t_turno_s'], '{:.1f}')} s at 32K and {ND(w['t_turno_s'], '{:.1f}')} s vs "
+                      f"{ND(n['t_turno_s'], '{:.1f}')} s at 128K, on the same runtime and prefix cache; "
+                      f"decode {ND(w['decode_tps'], '{:.1f}')} vs {ND(n['decode_tps'], '{:.1f}')} tok/s at 128K."))
+    else:
+        items.append(("Agent-turn speed", f"G3 {status(dec['g3'])}; see Gates."))
+    items.append(("Still open", "Agent quality on Terminal-Bench is not measured. Rollback is one variable: "
+                                "<code>FLASHNEXT_MODEL=&lt;iQ pack&gt;</code>."))
     lis = "".join(f"<li><b>{h}.</b> {t}</li>" for h, t in items)
-    return (f'<section class="takeaways" id="verdict"><h2>{E(head)}</h2><ul>{lis}</ul></section>')
+    return f'<section class="takeaways" id="verdict"><h2>{E(head)}</h2><ul>{lis}</ul></section>'
 
 
 def _html_rig(d: dict) -> str:
@@ -357,7 +379,7 @@ def _html_switch() -> str:
     btns = "".join(f'<button type="button" data-set-profile="{p}" aria-pressed="{"true" if p == "t1" else "false"}" '
                    f'title="{E(PROFILE_LABEL[p])}">{E(SWITCH_LABEL[p])}</button>' for p in PROFILES)
     return (f'<div class="switch" id="profile-switch" role="group" aria-label="Sampling profile">'
-            f'<span class="sw-lab">Profile for the sections below</span>{btns}</div>')
+            f'<span class="sw-lab">Profile for Quality, Time per task and Tool-call latency</span>{btns}</div>')
 
 
 def _html_quality(d: dict) -> str:
@@ -527,8 +549,11 @@ def _html_agent_turn(d: dict) -> str:
             flag = ""
             if r["gates_failed"]:
                 flag = f' <span class="stchip fail" title="gates failed">{E(", ".join(r["gates_failed"]))}</span>'
-            src = "this campaign" if r["source"] == THIS_CAMPAIGN else r["source"]
-            name = E(r["name"]) + (f' <span class="u">· {E(r["config"])}</span>' if r["config"] else "")
+            src = SOURCE_LABEL.get(r["source"], r["source"])
+            extra = [r["config"]] if r["config"] else []
+            if r["reps"] == 1:
+                extra.append("1 rep")
+            name = E(r["name"]) + "".join(f' <span class="u">· {E(x)}</span>' for x in extra)
             if r["absent"]:
                 rows += (f'<tr><td>{_arm_cell(r["arm"])}</td><td class="nm">{name}</td>'
                          f'<td colspan="8"><span class="na">{E(r["absent"])}</span></td></tr>')
@@ -540,9 +565,10 @@ def _html_agent_turn(d: dict) -> str:
                      f'<td>{ND(r["mtp_acceptance"], "{:.2f}")}</td><td>{ND(r["wired_peak_gb"], "{:.1f}")}</td></tr>')
     drift = d["speed"]["drift"]
     note = ("T_turn = warm TTFT of the <code>tool_turn</code> scenario + 512 tokens at the warm decode rate, median "
-            "of 3 reps, vendor sampling (t1). n2 and w1 ran in this campaign, one after the other. The other rows come "
-            "from the October perf-lines campaign; n2 measured there "
-            f"{ND(drift.get('32768'), '{:.2f}')} s at 32K and {ND(drift.get('131072'), '{:.2f}')} s at 128K. "
+            "of 3 reps unless the row says 1 rep, vendor sampling (t1). n2 and w1 ran in this campaign, one after the "
+            "other. o1, m1 and d1 come from the October perf-lines campaign, where n2 measured "
+            f"{ND(drift.get('32768'), '{:.2f}')} s at 32K and {ND(drift.get('131072'), '{:.2f}')} s at 128K; c1 is the "
+            "September reference (mlx-serve 26.9.2). "
             f'256K and 512K are on the <a href="{PERF_LINES}">perf-lines page</a> (w1 was not run there). The '
             "<code>needle</code> flag on n2 at 32K is one tool_turn request of 13 that missed the three needles; the "
             "other requests of both arms passed.")
@@ -560,21 +586,25 @@ def _html_legacy(d: dict) -> str:
         f'<td>{ND(r["he_strict"])}</td><td>{ND(r["he_imports"])}</td><td>{ND(r["he_truncated"])}</td>'
         f'<td>{ND(r["jdhodges"])}</td><td>{ND(r["veerman"])}</td><td>{ND(r["he_tokens"])}</td>'
         f'<td>{ND(r["he_minutes"])}</td><td class="nm">{E(r["thinking"])}</td></tr>' for r in L["rows"])
-    n2t0 = d["time"]["t0"]["humaneval"]["arms"]["n2"]["median_completion"]
+    n2t0 = d["time"]["t0"]["humaneval"]["arms"]["n2"]
     src = " · ".join(f"<code>{E(s)}</code>" for s in L["sources"])
     return ('<section class="block" id="legacy"><h2 class="sec">Earlier quality batteries · not comparable</h2>'
             '<p class="s-note"><b>Do not rank these rows against the tables above.</b> These runs used temperature 0 '
-            'and sent no <code>reasoning_effort</code>. Without it, mlx-serve answers with almost no thinking (n2 and '
-            'n1), while oMLX and MTPLX thought. With <code>reasoning_effort xhigh</code> in this campaign, the same n2 '
-            f'uses a median of {ND(n2t0, "{:.0f}")} tokens per HumanEval answer at t0. Sources: {src}.</p>'
+            'and sent no <code>reasoning_effort</code>. Without it, mlx-serve answered with almost no thinking (n2; '
+            'n1 not recorded), while oMLX and MTPLX thought. With <code>reasoning_effort xhigh</code> in this campaign, '
+            f'the same n2 uses a mean of {ND(n2t0["mean_completion"], "{:.0f}")} tokens per HumanEval answer at t0 '
+            f'(median {ND(n2t0["median_completion"], "{:.0f}")}). Sources: {src}.</p>'
             '<div class="tbl-scroll"><table class="legt"><thead><tr><th>Arm</th><th class="nm">Stack</th><th class="nm">Date</th>'
             '<th>HumanEval strict</th><th>HumanEval with imports</th><th>HumanEval truncated</th><th>jdhodges /40</th>'
             '<th>Veerman /12</th><th>tokens per HumanEval answer (mean)</th><th>HumanEval wall time min</th>'
             f'<th class="nm">Thinking</th></tr></thead><tbody>{rows}</tbody></table></div></section>')
 
 
-def _html_limits() -> str:
-    lis = "".join(f"<li>{t}</li>" for t in LIMITS)
+def _html_limits(d: dict) -> str:
+    toks = [d["time"][p][s]["arms"][a]["median_completion"] for p in PROFILES for s in S.TOOL_SUITES
+            for a in ARMS if d["time"][p][s]["arms"][a]["median_completion"] is not None]
+    rng = "n/d" if not toks else f"{min(toks):.0f}" if min(toks) == max(toks) else f"{min(toks):.0f}–{max(toks):.0f}"
+    lis = "".join(f"<li>{t.replace('__TOOLTOKENS__', rng)}</li>" for t in LIMITS)
     return f'<section class="block notice" id="limits"><p><b>Limits</b></p><ul>{lis}</ul></section>'
 
 
@@ -587,8 +617,8 @@ html[data-profile="t1"] .prof-t0, html[data-profile="t0"] .prof-t1{display:none}
 .u{color:var(--muted); font-size:0.9em; margin-left:2px}
 .switch{position:sticky; top:0; z-index:4; display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:30px;
   padding:10px 12px; background:var(--plane); border:1px solid var(--border); border-radius:10px}
-.switch .sw-lab{font-family:var(--mono); font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-right:4px}
-.switch button{font-family:var(--mono); font-size:0.74rem; color:var(--ink-2); background:var(--surface);
+.switch .sw-lab{flex-basis:100%; font-family:var(--mono); font-size:0.66rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-right:4px}
+.switch button{white-space:nowrap; font-family:var(--mono); font-size:0.74rem; color:var(--ink-2); background:var(--surface);
   border:1px solid var(--border); border-radius:7px; padding:7px 11px; cursor:pointer; text-align:left}
 .switch button[aria-pressed="true"]{border-color:var(--accent); color:var(--ink); box-shadow:inset 0 0 0 1px var(--accent)}
 .switch button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
@@ -620,7 +650,7 @@ figure.strip .empty{color:var(--muted); font-size:0.84rem}
 .dotkey.trunc{background:transparent; border:2px solid var(--warn)}
 .medkey{display:inline-block; width:3px; height:12px; background:var(--ink-2)}
 #time-per-task .legend{margin-top:14px}
-@media (max-width:520px){.qline{grid-template-columns:40px 1fr 80px} .switch button{width:100%}}
+@media (max-width:520px){.qline{grid-template-columns:40px 1fr 80px}}
 """
 
 TEMPLATE = r"""<!doctype html>
@@ -688,7 +718,7 @@ def render(data: dict) -> str:
         "__VERDICT__": _html_verdict(data), "__RIG__": _html_rig(data), "__SETUP__": _html_setup(data), "__GATES__": _html_gates(data),
         "__SWITCH__": _html_switch(), "__QUALITY__": _html_quality(data), "__TIME__": _html_time(data),
         "__TOOL__": _html_tool_latency(data), "__AGENT__": _html_agent_turn(data), "__LEGACY__": _html_legacy(data),
-        "__LIMITS__": _html_limits(), "__PERF__": PERF_LINES, "__GENERATED__": E(data.get("generated_at", "")),
+        "__LIMITS__": _html_limits(data), "__PERF__": PERF_LINES, "__GENERATED__": E(data.get("generated_at", "")),
     }
     html = TEMPLATE
     for k, v in parts.items():

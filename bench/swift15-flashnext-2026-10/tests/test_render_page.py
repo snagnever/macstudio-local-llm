@@ -203,3 +203,66 @@ def test_real_page_states_verdict_and_numbers():
     assert "promoted" in html
     row = re.search(r'<tr data-suite="humaneval">.*?</tr>', html, re.S).group(0)
     assert [int(x) for x in re.findall(r">(\d+)<", row)][:4] == [158, 158, 155, 157]
+
+
+# ---- correções da revisão final ----
+
+def _section(html, sid):
+    return re.search(rf'id="{sid}".*?</section>', html, re.S).group(0)
+
+
+def test_verdict_does_not_claim_same_quality_when_a_gate_has_no_data(fake):
+    # A fixture não tem o IF do w1 em t0: o G1 de t0 fica sem dado e a decisão fica aberta.
+    v = _section(R.render(R.collect(*fake)), "verdict")
+    assert "decision is open" in v
+    assert "Every suite stays inside" not in v and "has no data in t0; see Gates" in v
+
+
+@pytest.mark.skipif(not REAL_REPORTS.is_file(), reason="sem o reports-2026-10.json")
+def test_verdict_on_real_data_states_gated_spread_and_decode():
+    v = _section(R.render(R.collect(REAL_RESULTS, REAL_REPORTS)), "verdict")
+    assert "Every suite stays inside its G1 margin" in v and "0–3 questions on the gated grades" in v
+    assert "decode 76.7 vs 73.2 tok/s at 128K" in v
+
+
+def test_g2_uses_unrounded_medians(fake):
+    res, rep = fake
+    # medianas 10.04 e 8.04: arredondadas dão 0.80 (passa); sem arredondar, 8.04 > 0.8 × 10.04 (falha).
+    write_jsonl(res / "ab" / "t1" / "n2" / "gpqa.jsonl", [b2(1, True, 10.04)])
+    write_jsonl(res / "ab" / "t1" / "w1" / "gpqa.jsonl", [b2(1, True, 8.04)])
+    assert R.collect(res, rep)["gates"]["g2"]["gpqa"]["t1"]["pass"] is False
+
+
+def test_speed_rows_show_single_rep_and_september_source(fake):
+    res, rep = fake
+    d = json.loads(rep.read_text())
+    g = group("c1", "c1", 32768, True, 11.03)
+    g.update(campaign="qwen38-flashnext-daily-driver-2026-09", reps=1)
+    d["groups"].append(g)
+    rep.write_text(json.dumps(d))
+    html = _section(R.render(R.collect(res, rep)), "agent-turn")
+    assert "1 rep" in html and "September" in html
+
+
+def test_legacy_note_compares_mean_with_mean(fake):
+    res, rep = fake
+    write_jsonl(res / "ab" / "t0" / "n2" / "humaneval.jsonl",
+                [b2(1, True, 5.0, comp=100), b2(2, True, 5.0, comp=200), b2(3, True, 5.0, comp=600)])
+    leg = _section(R.render(R.collect(res, rep)), "legacy")
+    assert "a mean of 300 tokens" in leg and "n1 not recorded" in leg
+
+
+def test_limits_tool_token_range_comes_from_data(fake):
+    # As respostas de tool-calling da fixture têm 40 tokens.
+    assert "40 tokens per answer" in _section(R.render(R.collect(*fake)), "limits")
+
+
+def test_switch_label_names_the_sections_it_controls(fake):
+    sw = re.search(r'id="profile-switch".*?</div>', R.render(R.collect(*fake)), re.S).group(0)
+    assert "Quality, Time per task and Tool-call latency" in sw
+
+
+def test_index_card_qualifies_speedup_with_vendor_sampling():
+    idx = (CAMPAIGN.parents[1] / "reports" / "index.html").read_text(encoding="utf-8")
+    card = re.search(r'href="qwen38-flashnext-swift15.html">.*?</a>', idx, re.S).group(0)
+    assert "with vendor sampling" in card

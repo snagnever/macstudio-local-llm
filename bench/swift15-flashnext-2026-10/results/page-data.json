@@ -264,6 +264,8 @@
       "median_completion": 468.5,
       "median_reasoning_chars": 1338.5,
       "missing": false,
+      "raw_median_s": 6.795,
+      "mean_completion": 1488,
       "points": [
        {
         "id": "163",
@@ -1260,6 +1262,8 @@
       "median_completion": 403.0,
       "median_reasoning_chars": 1041.5,
       "missing": false,
+      "raw_median_s": 5.715,
+      "mean_completion": 1056,
       "points": [
        {
         "id": "163",
@@ -2261,6 +2265,8 @@
       "median_completion": 5124.0,
       "median_reasoning_chars": 19040.5,
       "missing": false,
+      "raw_median_s": 63.915000000000006,
+      "mean_completion": 13498,
       "points": [
        {
         "id": "163",
@@ -2573,6 +2579,8 @@
       "median_completion": 1689.0,
       "median_reasoning_chars": 4237.5,
       "missing": false,
+      "raw_median_s": 22.305,
+      "mean_completion": 8680,
       "points": [
        {
         "id": "163",
@@ -2890,6 +2898,8 @@
       "median_completion": 2984.5,
       "median_reasoning_chars": 9172.5,
       "missing": false,
+      "raw_median_s": 39.065,
+      "mean_completion": 11724,
       "points": [
        {
         "id": "abc308_b",
@@ -3202,6 +3212,8 @@
       "median_completion": 1448.5,
       "median_reasoning_chars": 3940.0,
       "missing": false,
+      "raw_median_s": 19.11,
+      "mean_completion": 7042,
       "points": [
        {
         "id": "abc308_b",
@@ -3519,6 +3531,8 @@
       "median_completion": 113.5,
       "median_reasoning_chars": null,
       "missing": false,
+      "raw_median_s": 2.4225,
+      "mean_completion": 219,
       "points": [
        {
         "id": "sel_weather_portland",
@@ -3771,6 +3785,8 @@
       "median_completion": 109.0,
       "median_reasoning_chars": null,
       "missing": false,
+      "raw_median_s": 2.5475000000000003,
+      "mean_completion": 158,
       "points": [
        {
         "id": "sel_weather_portland",
@@ -4015,7 +4031,7 @@
       ]
      }
     },
-    "ratio": 1.04
+    "ratio": 1.05
    },
    "veerman": {
     "arms": {
@@ -4028,6 +4044,8 @@
       "median_completion": 141.5,
       "median_reasoning_chars": null,
       "missing": false,
+      "raw_median_s": 3.0815,
+      "mean_completion": 384,
       "points": [
        {
         "id": "veerman_p1_weather_obvious",
@@ -4112,6 +4130,8 @@
       "median_completion": 164.0,
       "median_reasoning_chars": null,
       "missing": false,
+      "raw_median_s": 3.0495,
+      "mean_completion": 446,
       "points": [
        {
         "id": "veerman_p1_weather_obvious",
@@ -4188,7 +4208,7 @@
       ]
      }
     },
-    "ratio": 0.97
+    "ratio": 0.99
    },
    "if": {
     "arms": {
@@ -4201,6 +4221,8 @@
       "median_completion": 128.0,
       "median_reasoning_chars": 361.0,
       "missing": false,
+      "raw_median_s": 1.93,
+      "mean_completion": 205,
       "points": [
        {
         "id": "if01",
@@ -4333,6 +4355,8 @@
       "median_completion": 150.5,
       "median_reasoning_chars": 370.0,
       "missing": false,
+      "raw_median_s": 2.19,
+      "mean_completion": 180,
       "points": [
        {
         "id": "if01",
@@ -4457,7 +4481,7 @@
       ]
      }
     },
-    "ratio": 1.16
+    "ratio": 1.13
    }
   },
   "t0": {
@@ -4472,6 +4496,8 @@
       "median_completion": 477.0,
       "median_reasoning_chars": 1397.5,
       "missing": false,
+      "raw_median_s": 6.58,
+      "mean_completion": 1760,
       "points": [
        {
         "id": "163",
@@ -5468,6 +5494,8 @@
       "median_completion": 367.5,
       "median_reasoning_chars": 1015.0,
       "missing": false,
+      "raw_median_s": 5.485,
+      "mean_completion": 806,
       "points": [
        {
         "id": "163",
@@ -6469,6 +6497,8 @@
       "median_completion": 1530.5,
       "median_reasoning_chars": 4212.0,
       "missing": false,
+      "raw_median_s": 18.305,
+      "mean_completion": 14097,
       "points": [
        {
         "id": "163",
@@ -6781,6 +6811,8 @@
       "median_completion": 1147.5,
       "median_reasoning_chars": 3003.5,
       "missing": false,
+      "raw_median_s": 14.865,
+      "mean_completion": 5621,
       "points": [
        {
         "id": "163",
@@ -7098,6 +7130,8 @@
       "median_completion": 1859.5,
       "median_reasoning_chars": 5926.0,
       "missing": false,
+      "raw_median_s": 23.85,
+      "mean_completion": 8660,
       "points": [
        {
         "id": "abc308_b",
@@ -7410,6 +7444,8 @@
       "median_completion": 1285.0,
       "median_reasoning_chars": 3455.5,
       "missing": false,
+      "raw_median_s": 15.955,
+      "mean_completion": 5989,
       "points": [
        {
         "id": "abc308_b",
@@ -7727,6 +7763,8 @@
       "median_completion": 107.5,
       "median_reasoning_chars": null,
       "missing": false,
+      "raw_median_s": 2.577,
+      "mean_completion": 146,
       "points": [
        {
         "id": "sel_weather_portland",
@@ -7979,6 +8017,8 @@
       "median_completion": 104.0,
       "median_reasoning_chars": null,
       "missing": false,
+      "raw_median_s": 2.379,
+      "mean_completion": 140,
       "points": [
        {
         "id": "sel_weather_portland",
@@ -8236,6 +8276,8 @@
       "median_completion": 169.5,
       "median_reasoning_chars": null,
       "missing": false,
+      "raw_median_s": 3.153,
+      "mean_completion": 427,
       "points": [
        {
         "id": "veerman_p1_weather_obvious",
@@ -8320,6 +8362,8 @@
       "median_completion": 194.0,
       "median_reasoning_chars": null,
       "missing": false,
+      "raw_median_s": 3.1935000000000002,
+      "mean_completion": 321,
       "points": [
        {
         "id": "veerman_p1_weather_obvious",
@@ -8396,7 +8440,7 @@
       ]
      }
     },
-    "ratio": 1.0
+    "ratio": 1.01
    },
    "if": {
     "arms": {
@@ -8409,6 +8453,8 @@
       "median_completion": 188.5,
       "median_reasoning_chars": 492.5,
       "missing": false,
+      "raw_median_s": 2.455,
+      "mean_completion": 208,
       "points": [
        {
         "id": "if01",
@@ -8541,6 +8587,8 @@
       "median_completion": 129.0,
       "median_reasoning_chars": 311.0,
       "missing": false,
+      "raw_median_s": 1.78,
+      "mean_completion": 179,
       "points": [
        {
         "id": "if01",
@@ -8665,7 +8713,7 @@
       ]
      }
     },
-    "ratio": 0.72
+    "ratio": 0.73
    }
   }
  },
@@ -8770,7 +8818,8 @@
     "gates_failed": [
      "needle"
     ],
-    "config": ""
+    "config": "",
+    "reps": 3
    },
    {
     "arm": "w1",
@@ -8787,7 +8836,8 @@
     "mtp_acceptance": 0.774,
     "wired_peak_gb": 96.12,
     "gates_failed": [],
-    "config": ""
+    "config": "",
+    "reps": 3
    },
    {
     "arm": "o1",
@@ -8804,7 +8854,8 @@
     "mtp_acceptance": null,
     "wired_peak_gb": 91.2,
     "gates_failed": [],
-    "config": ""
+    "config": "",
+    "reps": 3
    },
    {
     "arm": "m1p",
@@ -8821,7 +8872,8 @@
     "mtp_acceptance": 0.08,
     "wired_peak_gb": 98.4,
     "gates_failed": [],
-    "config": "prime 64"
+    "config": "prime 64",
+    "reps": 3
    },
    {
     "arm": "d1",
@@ -8838,7 +8890,8 @@
     "mtp_acceptance": null,
     "wired_peak_gb": 86.0,
     "gates_failed": [],
-    "config": ""
+    "config": "",
+    "reps": 1
    },
    {
     "arm": "c1",
@@ -8855,7 +8908,8 @@
     "mtp_acceptance": 0.62,
     "wired_peak_gb": 97.3,
     "gates_failed": [],
-    "config": ""
+    "config": "",
+    "reps": 3
    }
   ],
   "131072": [
@@ -8874,7 +8928,8 @@
     "mtp_acceptance": 0.786,
     "wired_peak_gb": 110.64,
     "gates_failed": [],
-    "config": ""
+    "config": "",
+    "reps": 3
    },
    {
     "arm": "w1",
@@ -8891,7 +8946,8 @@
     "mtp_acceptance": 0.668,
     "wired_peak_gb": 111.17,
     "gates_failed": [],
-    "config": ""
+    "config": "",
+    "reps": 3
    },
    {
     "arm": "o1",
@@ -8908,7 +8964,8 @@
     "mtp_acceptance": null,
     "wired_peak_gb": 98.0,
     "gates_failed": [],
-    "config": ""
+    "config": "",
+    "reps": 3
    },
    {
     "arm": "m1x",
@@ -8925,7 +8982,8 @@
     "mtp_acceptance": 0.07,
     "wired_peak_gb": 109.7,
     "gates_failed": [],
-    "config": "memory limit max"
+    "config": "memory limit max",
+    "reps": 3
    },
    {
     "arm": "d1",
@@ -8942,7 +9000,8 @@
     "mtp_acceptance": null,
     "wired_peak_gb": 90.1,
     "gates_failed": [],
-    "config": ""
+    "config": "",
+    "reps": 3
    },
    {
     "arm": "c1",
@@ -8959,7 +9018,8 @@
     "mtp_acceptance": 0.5,
     "wired_peak_gb": 108.1,
     "gates_failed": [],
-    "config": ""
+    "config": "",
+    "reps": 3
    }
   ]
  },
@@ -9156,5 +9216,5 @@
    "promote": true
   }
  },
- "generated_at": "2026-10-11T11:25:16Z"
+ "generated_at": "2026-10-11T11:33:12Z"
 }
