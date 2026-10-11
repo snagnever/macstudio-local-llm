@@ -375,3 +375,14 @@ def test_2026_10_mtplx_256k_refusal_carries_fit_reason():
 def test_m1_and_m1p_share_the_prime_64_label():
     assert cr.MTPLX_CONFIG["m1"] == cr.MTPLX_CONFIG["m1p"] == "prime 64"
     assert "default config" not in rpl.TECH_2026_10[2]["configs"]
+
+
+def test_n2o2_joins_n2_series_with_os_reserve_label(tmp_path):
+    sept, eng, upd = _dirs(tmp_path)
+    _write(eng, "n2-524288-t1.0-yarn2.jsonl",
+           _rep_set(1, "20261007T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv8"))
+    _write(eng, "n2o2-524288-t1.0-osr2x3.jsonl",
+           _rep_set(3, "20261011T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv8-osr2"))
+    g = _canon(cr.build_2026_10(sept, eng, upd), "n2", 524288)
+    assert g["arm"] == "n2o2" and g["reps"] == 3
+    assert g["config"] == "YaRN 2.0 + KV 8-bit + OS reserve 2 GiB"
