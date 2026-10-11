@@ -113,6 +113,12 @@ def grade(case: dict, content: str) -> dict[str, bool]:
     return {name: bool(CHECKERS[name](content, *args)) for name, *args in case["checks"]}
 
 
+def case_passed(checks: dict[str, bool], finish_reason: str | None, content: str) -> bool:
+    """Todas as instruções certas numa resposta completa. Vazia, truncada ou com erro não conta: uma resposta
+    vazia passaria em word_count_max, no_commas e excludes."""
+    return all(checks.values()) and finish_reason not in ("length", "error") and bool(content.strip())
+
+
 def build_body(model: str, prompt: str, effort: str | None, max_tokens: int, temperature: float,
                sampling: dict) -> dict:
     body = {"model": model, "messages": [{"role": "user", "content": prompt}],
@@ -183,7 +189,7 @@ def main(argv: list[str] | None = None) -> int:
                          "elapsed_s": None}
                     checks = {name: False for name, *_ in case["checks"]}
                     err = str(e)
-                ok = all(checks.values())
+                ok = case_passed(checks, r["finish_reason"], r["content"])
                 passed += ok
                 total += 1
                 rec = {"arm": a.arm, "id": case["id"], "rep": rep, "passed": ok, "checks": checks, "error": err,

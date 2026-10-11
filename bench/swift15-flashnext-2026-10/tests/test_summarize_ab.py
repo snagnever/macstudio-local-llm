@@ -70,3 +70,18 @@ def test_gates(tmp_path):
     assert g["G1:livecodebench"] is True
     assert g["G2:gpqa"] is True            # 70 <= 0.8 * 100
     assert g["G2:livecodebench"] is False  # 90 > 80
+
+
+def test_view_truncated_if_record_is_failure():
+    v = S.view("if", {"id": "if02", "passed": True, "elapsed_s": 1, "finish_reason": "length"})
+    assert v["passed"] is False and v["truncated"] is True
+
+
+def test_reasoning_not_recorded_renders_nd():
+    # Os registros de tool-calling não gravam reasoning_chars: a tabela não pode mostrar 0 como medido.
+    views = [S.view("jdhodges", {"case_id": f"c{i}", "score_pass": True, "turn_1_elapsed_s": 1.0,
+                                 "turn_1_finish_reason": "tool_calls", "completion_tokens": 50}) for i in range(3)]
+    st = S.suite_stats(views)
+    assert st["median_reasoning_chars"] is None
+    md = S.render({"base": {"jdhodges": st}, "cand": {"jdhodges": st}}, {}, "n2", "w1")
+    assert "| jdhodges | reasoning mediano (chars) | n/d | n/d |" in md

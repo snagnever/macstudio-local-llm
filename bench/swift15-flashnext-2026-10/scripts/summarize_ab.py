@@ -34,13 +34,17 @@ def view(suite: str, r: dict) -> dict:
     else:
         rid = r.get("lcb_question_id") if suite == "livecodebench" else r.get("dataset_idx")
         ok, elapsed, fin = _true(r.get("correct")), _num(r.get("elapsed_s")), r.get("finish_reason")
-    return {"id": str(rid), "passed": ok, "elapsed_s": elapsed,
+    # Uma resposta truncada nunca conta como acerto; o registro de tool-calling não grava reasoning_chars (None).
+    rc = r.get("reasoning_chars")
+    return {"id": str(rid), "passed": ok and fin != "length", "elapsed_s": elapsed,
             "completion_tokens": _num(r.get("completion_tokens"), int),
-            "reasoning_chars": _num(r.get("reasoning_chars"), int), "truncated": fin == "length"}
+            "reasoning_chars": None if rc in (None, "None", "") else _num(rc, int), "truncated": fin == "length"}
 
 
 def suite_stats(views: list[dict]) -> dict:
-    med = lambda k: round(statistics.median(v[k] for v in views), 1) if views else None  # noqa: E731
+    def med(k):
+        xs = [v[k] for v in views if v[k] is not None]
+        return round(statistics.median(xs), 1) if xs else None
     return {"n": len(views), "passed": sum(v["passed"] for v in views),
             "truncated": sum(v["truncated"] for v in views),
             "total_s": round(sum(v["elapsed_s"] for v in views), 1), "median_s": med("elapsed_s"),
@@ -87,8 +91,8 @@ def render(stats: dict, gate_result: dict, base: str, cand: str) -> str:
         for key, label in (("passed", "acertos"), ("truncated", "truncadas"), ("median_s", "tempo mediano (s)"),
                            ("total_s", "tempo total (s)"), ("median_completion", "tokens medianos"),
                            ("median_reasoning_chars", "reasoning mediano (chars)")):
-            val_b = f"{b[key]}/{b['n']}" if key == "passed" else b[key]
-            val_c = f"{c[key]}/{c['n']}" if key == "passed" else c[key]
+            val_b = f"{b[key]}/{b['n']}" if key == "passed" else ("n/d" if b[key] is None else b[key])
+            val_c = f"{c[key]}/{c['n']}" if key == "passed" else ("n/d" if c[key] is None else c[key])
             lines.append(f"| {suite} | {label} | {val_b} | {val_c} |")
     lines += ["", "| gate | resultado |", "| --- | --- |"]
     lines += [f"| {k} | {'passa' if v else 'falha'} |" for k, v in gate_result.items()]

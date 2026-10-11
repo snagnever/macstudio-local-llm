@@ -68,3 +68,13 @@ def test_select_cases():
     assert len(if_probe.select_cases(None)) == 20
     with pytest.raises(SystemExit):
         if_probe.select_cases("if99")
+
+
+def test_case_passed_rejects_truncated_empty_and_error():
+    # Resposta vazia passa em word_count_max, no_commas e excludes: não pode contar como acerto.
+    ok = {"no_commas": True}
+    assert if_probe.case_passed(ok, "stop", "a b") is True
+    assert if_probe.case_passed(ok, "length", "a b") is False
+    assert if_probe.case_passed(ok, "error", "") is False
+    assert if_probe.case_passed(ok, "stop", "   ") is False
+    assert if_probe.case_passed({"no_commas": False}, "stop", "a, b") is False
