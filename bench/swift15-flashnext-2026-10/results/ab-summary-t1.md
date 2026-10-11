@@ -23,13 +23,13 @@
 | jdhodges | tempo mediano (s) | 2.4 | 2.5 |
 | jdhodges | tempo total (s) | 162.5 | 129.8 |
 | jdhodges | tokens medianos | 113.5 | 109.0 |
-| jdhodges | reasoning mediano (chars) | 0.0 | 0.0 |
+| jdhodges | reasoning mediano (chars) | n/d | n/d |
 | veerman | acertos | 10/12 | 10/12 |
 | veerman | truncadas | 0 | 0 |
 | veerman | tempo mediano (s) | 3.1 | 3.0 |
 | veerman | tempo total (s) | 68.4 | 74.1 |
 | veerman | tokens medianos | 141.5 | 164.0 |
-| veerman | reasoning mediano (chars) | 0.0 | 0.0 |
+| veerman | reasoning mediano (chars) | n/d | n/d |
 | if | acertos | 20/20 | 19/20 |
 | if | truncadas | 0 | 0 |
 | if | tempo mediano (s) | 1.9 | 2.2 |

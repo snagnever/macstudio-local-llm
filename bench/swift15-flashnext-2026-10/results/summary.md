@@ -87,6 +87,10 @@ valem. O G2 do GPQA em t0 fica em 0,81, logo acima do limite; a regra usa o t1 p
 
 - Uma rodada por braço e perfil. GPQA e LCB usam amostras de 50 questões, não os conjuntos completos.
 - A sonda IF é uma checagem no estilo IFEval; ela não reproduz o IFBench do card do Swift.
+- Tool-calling (jdhodges, Veerman): o `tool_call_bench.py` mandou `reasoning_effort` e o sampling por
+  `extra_body`, mas não gravava o texto de reasoning nesta campanha (`n/d` nas tabelas). Não há evidência de que
+  esses dois braços pensaram nessas suítes; a mediana de ~110 tokens por resposta sugere pouco ou nenhum
+  thinking. O runner grava `reasoning_chars` a partir do submódulo `a4a95bb`.
 - Os dois packs têm o mesmo layout, mas a tabela n-gram difere (hashes LFS diferentes): o A/B compara os packs,
   não só o fine-tune.
 - O A/B pausou duas vezes para runs de 512K de outra sessão (fronteiras de perfil; nenhum dado perdido). O t1 e o
