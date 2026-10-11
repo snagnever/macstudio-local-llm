@@ -22,15 +22,16 @@ Marque `[x]` e cite o commit quando fechar um item.
 - [x] **Default do renderer reescreve a página publicada.** `render_perf_lines.py` sem `--data` usa o `reports.json`
   de setembro e grava `reports/qwen38-flashnext-perf-lines.html`, que hoje é a página de outubro. Mudar o default de
   `--data` para `bench/engine-updates-2026-10/results/reports-2026-10.json`, ou recusar gravar o perfil 2026-09 no
-  arquivo publicado. Fechado no branch `bench/swift15-flashnext-2026-10`: default de `--data` agora é o
-  `reports-2026-10.json`; a página gerada sai idêntica à publicada.
-- [ ] **Legenda `est_note` incompleta.** Cita só `507` e `500`; os dados de outubro têm HTTP 400 (m1v) e
+  arquivo publicado. O `render_overview.py` tem o mesmo problema desde 2026-10-10: sem `--data`, ele grava o
+  overview de setembro por cima do de outubro. Feito em 2026-10-10: o default de `--data` dos dois é o JSON de
+  outubro; setembro roda com `--data bench/qwen38-flashnext-daily-driver-2026-09/results/reports.json`.
+- [x] **Legenda `est_note` incompleta.** Cita só `507` e `500`; os dados de outubro têm HTTP 400 (m1v) e
   `stream_error` (m1s). Para o ponto recusado do MTPLX a 256K, dar o motivo do fit (237 568 tokens) via
   `GROUP_NOTES[("m1", 262144, "pg")]`.
 
 ## Rótulos e dados da página
 
-- [ ] **Mesmo comando, dois rótulos.** m1 (8K) e m1p (32K) rodam o mesmo comando (prime 64), mas o
+- [x] **Mesmo comando, dois rótulos.** m1 (8K) e m1p (32K) rodam o mesmo comando (prime 64), mas o
   `MTPLX_CONFIG` do `consolidate_reports.py` rotula "default config" e "prime 64". O card do MTPLX repete a
   diferença. Rotular os dois como "prime 64".
 

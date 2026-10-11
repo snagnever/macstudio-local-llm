@@ -27,7 +27,8 @@ PROFILES = ("t1", "t0")
 CONTEXTS = ("32768", "131072")
 THIS_CAMPAIGN = "swift15-flashnext-2026-10"
 # Stacks from the October perf-lines data, in table order. m1 is the MTPLX series: m1p at 32K, m1x at 128K.
-OTHER_SERIES = ("o1", "m1", "d1", "c1")
+# The perf-lines page dropped the September reference (c1), and so does this table.
+OTHER_SERIES = ("o1", "m1", "d1")
 G3_RATIO = 1.03
 FN_REPS = 3  # run-all.sh runs the T_turno probe of this campaign with --repeat 3
 SOURCE_LABEL = {THIS_CAMPAIGN: "this campaign",
@@ -250,9 +251,8 @@ LIMITS = [
     "the packs, not only the fine-tune.",
     "t1 and t0 of each arm ran in different server starts; the battery paused twice for 512K runs of another "
     "campaign (at profile boundaries, no data lost).",
-    "Speed rows other than n2 and w1 come from earlier sessions: o1, m1 and d1 from the October campaign, c1 from the "
-    "September campaign (mlx-serve 26.9.2). In the October campaign n2 measured within about 2% of its value here, "
-    "which bounds the drift between those sessions; it says nothing about the September session.",
+    "Speed rows other than n2 and w1 (o1, m1 and d1) come from earlier sessions of the October campaign. There n2 "
+    "measured within about 2% of its value here, which bounds the drift between sessions.",
     "Agent quality (Terminal-Bench 2.0) is not measured for either arm.",
 ]
 
@@ -567,8 +567,7 @@ def _html_agent_turn(d: dict) -> str:
     note = ("T_turn = warm TTFT of the <code>tool_turn</code> scenario + 512 tokens at the warm decode rate, median "
             "of 3 reps unless the row says 1 rep, vendor sampling (t1). n2 and w1 ran in this campaign, one after the "
             "other. o1, m1 and d1 come from the October perf-lines campaign, where n2 measured "
-            f"{ND(drift.get('32768'), '{:.2f}')} s at 32K and {ND(drift.get('131072'), '{:.2f}')} s at 128K; c1 is the "
-            "September reference (mlx-serve 26.9.2). "
+            f"{ND(drift.get('32768'), '{:.2f}')} s at 32K and {ND(drift.get('131072'), '{:.2f}')} s at 128K. "
             f'256K and 512K are on the <a href="{PERF_LINES}">perf-lines page</a> (w1 was not run there). The '
             "<code>needle</code> flag on n2 at 32K is one tool_turn request of 13 that missed the three needles; the "
             "other requests of both arms passed.")

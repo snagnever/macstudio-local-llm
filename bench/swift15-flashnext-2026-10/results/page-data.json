@@ -8892,24 +8892,6 @@
     "gates_failed": [],
     "config": "",
     "reps": 1
-   },
-   {
-    "arm": "c1",
-    "series": "c1",
-    "name": "mixed-4/8 · mlx-serve 26.9.2 (Sept)",
-    "source": "qwen38-flashnext-daily-driver-2026-09",
-    "absent": null,
-    "t_turno_s": 11.03,
-    "ttft_tool_turn_s": 1.87,
-    "hit_tool_turn": 0.962,
-    "cold_ttft_s": 37.0,
-    "decode_tps": 55.9,
-    "prefill_tps": 738.0,
-    "mtp_acceptance": 0.62,
-    "wired_peak_gb": 97.3,
-    "gates_failed": [],
-    "config": "",
-    "reps": 3
    }
   ],
   "131072": [
@@ -8999,24 +8981,6 @@
     "prefill_tps": 642.0,
     "mtp_acceptance": null,
     "wired_peak_gb": 90.1,
-    "gates_failed": [],
-    "config": "",
-    "reps": 3
-   },
-   {
-    "arm": "c1",
-    "series": "c1",
-    "name": "mixed-4/8 · mlx-serve 26.9.2 (Sept)",
-    "source": "qwen38-flashnext-daily-driver-2026-09",
-    "absent": null,
-    "t_turno_s": 12.35,
-    "ttft_tool_turn_s": 2.05,
-    "hit_tool_turn": 0.992,
-    "cold_ttft_s": 178.08,
-    "decode_tps": 49.7,
-    "prefill_tps": 705.0,
-    "mtp_acceptance": 0.5,
-    "wired_peak_gb": 108.1,
     "gates_failed": [],
     "config": "",
     "reps": 3
@@ -9216,5 +9180,5 @@
    "promote": true
   }
  },
- "generated_at": "2026-10-11T11:33:12Z"
+ "generated_at": "2026-10-11T19:04:57Z"
 }

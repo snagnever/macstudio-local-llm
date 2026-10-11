@@ -233,15 +233,20 @@ def test_g2_uses_unrounded_medians(fake):
     assert R.collect(res, rep)["gates"]["g2"]["gpqa"]["t1"]["pass"] is False
 
 
-def test_speed_rows_show_single_rep_and_september_source(fake):
+def test_speed_rows_mark_single_rep(fake):
     res, rep = fake
     d = json.loads(rep.read_text())
-    g = group("c1", "c1", 32768, True, 11.03)
-    g.update(campaign="qwen38-flashnext-daily-driver-2026-09", reps=1)
+    g = group("d1", "d1", 32768, True, 12.59)
+    g["reps"] = 1
     d["groups"].append(g)
     rep.write_text(json.dumps(d))
-    html = _section(R.render(R.collect(res, rep)), "agent-turn")
-    assert "1 rep" in html and "September" in html
+    assert "1 rep" in _section(R.render(R.collect(res, rep)), "agent-turn")
+
+
+def test_speed_table_follows_perf_lines_without_c1(fake):
+    # O perf-lines de outubro tirou a referência de setembro (c1); a página segue o mesmo recorte.
+    sp = R.collect(*fake)["speed"]
+    assert all(r["series"] != "c1" for c in R.CONTEXTS for r in sp[c])
 
 
 def test_legacy_note_compares_mean_with_mean(fake):

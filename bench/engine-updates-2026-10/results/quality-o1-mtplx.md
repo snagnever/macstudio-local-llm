@@ -44,6 +44,12 @@ Veerman), no submódulo `tools/local-llm-bench-m4-32gb`.
   `multi_usd_eur_sequential`. Veerman: o1 e m1x passam `veerman_p9_code_trick`, que o n2 erra. Com 12 casos, 1 caso
   vale 8 pontos: fica dentro do ruído.
 
+## n1 (pesos de setembro no runtime de outubro)
+
+O n1 (mixed-4/8 @ mlx-serve 26.10.1, run de 2026-10-07, [quality-n1-n2.md](../../qwen38-flashnext-updates-2026-10/results/quality-n1-n2.md))
+faz 151 estrito e **157 com imports** no HumanEval (n2: 154 / 156). Com os imports, a diferença de quant entre n1
+e n2 some. Tool-calling: jdhodges 39/40, Veerman 8/12.
+
 ## Limites
 
 - Uma rodada por braço, temperatura 0. Os pesos são diferentes (iQ-MLX 4.7 bpw, oQ4e, pack do MTPLX), então o teste
