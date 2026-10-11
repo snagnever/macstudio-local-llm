@@ -186,7 +186,7 @@ TECH_2026_10 = [
      "what": "MLX server with <b>native MTP for Flash-Next</b> and a two-tier prefix cache. Daily driver (n2) with the ddalcu iQ-MLX pack.",
      "cache": "Hot cache in RAM (<b>16 GB, 64 entries</b>) and a disk cache (100 GB). <code>--ssm-checkpoint-max 16</code> keeps checkpoints of the DeltaNet state.",
      "spec": "MTP with PLD (prompt lookup through the pack's n-gram table). The acceptance comes from the <code>[spec-stats]</code> log.",
-     "configs": "n2 iQ-MLX-4.7bpw"},
+     "configs": "n2 iQ-MLX-4.7bpw; 512K with YaRN 2.0 + KV 4-bit (n2q4)"},
     {"name": "oMLX 0.7.0", "repo": "jundot/omlx",
      "what": "MLX server for agents: continuous batching and a <b>two-tier paged KV cache</b>.",
      "cache": "Blocks in RAM that <b>spill over to an SSD tier</b>. The oQ4e PLE stays in mmap (<code>model_settings.json</code>).",
@@ -260,21 +260,21 @@ PAGE_2026_10 = {
     "hit_flag": {},
     "panels": {
         "t_turno": {"note": "Points with 3 reps show the median; the tooltip gives the reps.",
-                    "interp": "<b>n2 is the lowest line at every band</b>: 8.2 s at 32K, 8.8 s at 128K, 12.9 s at 512K. "
+                    "interp": "<b>n2 is the lowest line at every band</b>: 8.2 s at 32K, 8.8 s at 128K, 13.0 s at 512K. "
                               "o1 stays 1.8–4.7 s above n2. MTPLX jumps to 15.1 s at 128K and stops at 256K. "
                               "d1 grows from 12.6 s at 32K to 61.9 s at 512K."},
-        "ttft_tool": {"interp": "The warm tool turn stays under 3 s on n2 up to 512K and under 4.3 s on o1 up to 256K. "
+        "ttft_tool": {"interp": "The warm tool turn stays under 3 s on n2 up to 256K (3.9 s at 512K) and under 4.3 s on o1 up to 256K. "
                                 "On d1 it grows with the context: 6.4 s at 128K, 20 s at 256K, 50 s at 512K. "
                                 "This term drives most of the T_turn gap."},
-        "cold": {"interp": "Cold TTFT is a one-time cost per conversation. n2 is the lowest: 166 s at 128K and 785 s at 512K. "
+        "cold": {"interp": "Cold TTFT is a one-time cost per conversation. n2 is the lowest: 166 s at 128K and 784 s at 512K. "
                            "MTPLX needs 458 s at 128K, 2.8× n2."},
-        "decode": {"interp": "n2 decodes 80 tok/s at 32K and 51 tok/s at 512K. MTPLX is close to n2 at 32K (80 tok/s) "
+        "decode": {"interp": "n2 decodes 80 tok/s at 32K and 56 tok/s at 512K. MTPLX is close to n2 at 32K (80 tok/s) "
                              "and 70 tok/s at 128K. d1 stays at 43–54 tok/s in every band."},
-        "prefill": {"interp": "n2 and d1 keep the prefill almost flat up to 512K (n2: 791 to 661 tok/s). "
+        "prefill": {"interp": "n2 and d1 keep the prefill almost flat up to 512K (n2: 791 to 662 tok/s). "
                               "<b>MTPLX drops from 619 tok/s at 32K to 274 tok/s at 128K</b>. The likely cause is the dense lane "
                               "of the QSA indexer on the M4 Max (no NAX kernels; not profiled); the sparse lane failed to "
                               "allocate. The 128K point also runs with <code>--memory-limit max</code>."},
-        "wired": {"interp": "Every runtime ran without swap. n2 pins 97–112 GB as wired memory by design. "
+        "wired": {"interp": "Every runtime ran without swap. n2 pins 97–114 GB as wired memory by design. "
                             "MTPLX with <code>--memory-limit max</code> reaches 110 GB at 128K; d1 reaches 107 GB at 512K."},
     },
     "foot": ("<b>How to read.</b> x axis = context (32K, 128K, 256K, 512K; categorical axis). One line per runtime. "

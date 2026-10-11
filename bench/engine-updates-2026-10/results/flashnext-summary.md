@@ -57,3 +57,41 @@ A 512K o `identical` recebeu `PrefillDoesNotFit` (o pedido precisa de ~14.1 GB e
 capacidade, não uso diário. O MTPLX não entra em 256K/512K (recusa 128K); o oMLX não tem YaRN.
 
 Dados: `*-t1.0-fn.jsonl`, `summary-fn.json`, `*-262144-t1.0-fnx256.jsonl`, `n2-524288-t1.0-yarn2.jsonl`.
+
+**Re-run a 512K (2026-10-10, `n2-524288-t1.0-yarn2r.jsonl`, 1 rep).** O `identical` passou (hit 1.00), mas o
+`PrefillDoesNotFit` voltou num prime de 1 token: pediu ~14 083 MB com ~10 886 MB disponíveis. Nos dois runs, o log
+diz que a entrada do hot cache estava "shared with a live request". Em `src/server.zig` (v26.10.1), `WarmPrefix`
+só desconta as linhas restauradas quando a requisição tira a entrada do cache (`will_donate`); uma entrada
+compartilhada é copiada inteira no primeiro append, e a cópia (~9 GB de KV) mais os transientes não cabem. A falha
+cai no turno que pegar a memória mais apertada, por isso mudou de cenário. Próximo teste: braço `n2o`
+(`--os-reserve-gib 4`, default 8 GB), script `scripts/run-n2o-512k.sh`. O `middle_mutation` do re-run truncou em
+4096 tokens de reasoning (limite do probe, não memória).
+
+**Braço n2o (`--os-reserve-gib 4`, 2026-10-10, `n2o-524288-t1.0-osr.jsonl`, 1 rep).** Os 5 cenários medidos foram
+servidos (`identical` 1.00, `append` 1.00, `tool_turn` 1.00; `middle_mutation` truncou em 4096 tokens, como no
+yarn2r). Wired pico 111.0 GB, livre mínimo 0.02 GB, swap 0. Mas o log ainda tem um `PrefillDoesNotFit` num prime:
+~14 083 MB pedidos contra ~13 793 MB disponíveis. A folga subiu ~2.9 GB (de 10 886 MB no yarn2r) e faltaram ~0.3 GB.
+O knob reduz a falta, mas não a elimina.
+
+**Braço n2o2 (`--os-reserve-gib 2`, 2026-10-10, `n2o2-524288-t1.0-osr2.jsonl`, 1 rep).** Nenhum `prefill refused` no
+log, nem em turno medido nem em prime. Os 5 cenários foram servidos com as needles certas (`identical` 1.00,
+`append` 1.00, `tool_turn` 1.00; o `middle_mutation` não truncou desta vez). Wired pico 114.0 GB, livre mínimo
+0.01 GB, compressor até 10.8 GB, swap 0. Com 1 rep, isto mostra que a reserva de 2 GB cabe neste run, não que a
+recusa sumiu: a folga do macOS fica pequena e o compressor subiu. Para o perfil de 512K, `--os-reserve-gib 2` é o
+knob recomendado; confirmar com mais reps antes de chamar de estável.
+
+**n2o2 com 3 reps (2026-10-11, `n2o2-524288-t1.0-osr2x3.jsonl`): o knob não é seguro.** Nenhum `prefill refused`,
+mas um `tool_turn` falhou no meio do prefill com OOM de Metal
+(`kIOGPUCommandBufferCallbackErrorOutOfMemory` → `GenerationOutOfMemory`). Wired pico 120.4 GB, livre mínimo
+0.01 GB, compressor até 59 GB, swap 0. Um `append` truncou em 4096 tokens e um `identical` errou needle. A recusa da
+admissão protegia a memória real: baixar a reserva troca uma recusa limpa, antes do prefill, por uma falha no meio
+dele. O resultado de 1 rep foi sorte. **Veredito: o perfil 512k fica com o default de `--os-reserve-gib`; 512K
+segue capacidade, com recusa intermitente.** Próximo teste para reduzir a memória de verdade: `--kv-quant 4`.
+
+**Braço n2q4 (`--kv-quant 4`, reserva padrão, 2026-10-11, `n2q4-524288-t1.0-kv4x3.jsonl`, 3 reps): passa na memória.**
+Nenhum `prefill refused` e nenhum OOM de Metal no log. Wired pico 113.9 GB, compressor até 8.6 GB, livre mínimo
+0.05 GB, swap 0. Hit 0.998 em todos os `append` e `tool_turn`, 1.00 no `identical`. `tool_turn`: TTFT 3.9 s, decode
+56.6 tok/s, T_turno 13.0 s (mediana de 3), contra 12.1–12.7 s dos runs KV8 de 1 rep. Cold: TTFT ~784 s, prefill
+~662 tok/s. Needles certas em 12 dos 13 turnos medidos; o `append` da rep 3 gastou os 4096 tokens em reasoning
+(`finish_reason: length`) e não respondeu, o mesmo limite do probe visto no yarn2r e no n2o, não memória.
+**Veredito: KV 4-bit é a config candidata do perfil 512k.** Não medi qualidade do KV4 fora das needles.

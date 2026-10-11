@@ -342,7 +342,7 @@ curl -s http://<lm-studio-host>:1234/v1/chat/completions \
 
 # Flash-Next responsive daily driver (mlx-serve 26.9.2, port 11234)
 tools/scripts/serve-flashnext-daily-driver.sh            # daily profile, 131K context
-tools/scripts/serve-flashnext-daily-driver.sh 512k       # 512K via YaRN + 8-bit KV (memory at the edge)
+tools/scripts/serve-flashnext-daily-driver.sh 512k       # 512K via YaRN + 4-bit KV (memory at the edge)
 tools/scripts/serve-flashnext-daily-driver.sh --print    # show the exact command
 curl -s http://<rig>:11234/v1/models | jq '.data[].id'
 
