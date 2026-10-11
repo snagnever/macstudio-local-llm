@@ -6,6 +6,10 @@ the canonical speed groups of the October perf-lines data; render() turns that p
 page in the layout of reports/qwen38-flashnext-perf-lines.html.
 
     python3 bench/swift15-flashnext-2026-10/scripts/render_page.py
+
+The link preview image (reports/qwen38-flashnext-swift15-og.png, 1200×630) is a screenshot of the top of the
+page. It does not regenerate with the page: retake it when the headline numbers change, for example with
+Chrome --headless=new --window-size=1200,630 --screenshot over a local http.server.
 """
 from __future__ import annotations
 
@@ -85,18 +89,48 @@ def _read_jsonl(path: Path) -> list[dict]:
 def _missing_stats() -> dict:
     return {"missing": True, "n": 0, "passed": None, "truncated": None, "total_s": None, "median_s": None,
             "raw_median_s": None, "median_completion": None, "mean_completion": None,
-            "median_reasoning_chars": None, "points": []}
+            "median_reasoning_chars": None, "median_tok_s": None, "median_reasoning_tokens": None,
+            "median_visible_tokens": None, "total_completion": None, "sec_per_correct": None, "points": []}
 
 
-def _arm_time(views: list[dict]) -> dict:
+def _arm_time(views: list[dict], rows: list[dict] | None = None) -> dict:
     st = S.suite_stats(views)
     st["missing"] = False
     # suite_stats rounds the median to 0.1 s; the G2 gate compares the unrounded medians, as summarize_ab does.
     st["raw_median_s"] = statistics.median(v["elapsed_s"] for v in views) if views else None
     toks = [v["completion_tokens"] for v in views if v["completion_tokens"] is not None]
     st["mean_completion"] = round(statistics.mean(toks)) if toks else None
-    st["points"] = [{"id": v["id"], "s": v["elapsed_s"], "ok": v["passed"], "trunc": v["truncated"]} for v in views]
+    st["total_completion"] = sum(toks) if toks else None
+    # The raw bench2 records carry tok_s (completion tokens / wall time) and the thinking/answer split; the
+    # tool-calling and IF records do not, so these stay None there.
+    rows = rows or []
+    st["median_tok_s"] = _median([r.get("tok_s") for r in rows])
+    st["median_reasoning_tokens"] = _median([r.get("reasoning_tokens") for r in rows])
+    st["median_visible_tokens"] = _median([r.get("visible_tokens") for r in rows])
+    passed = st["passed"]
+    st["sec_per_correct"] = round(st["total_s"] / passed, 1) if passed else None
+    st["points"] = [{"id": v["id"], "s": v["elapsed_s"], "ok": v["passed"], "trunc": v["truncated"],
+                     "tok": v["completion_tokens"]} for v in views]
     return st
+
+
+def _paired(base: list[dict] | None, cand: list[dict] | None) -> dict | None:
+    """How many questions the candidate (w1) answered in less wall time than the base (n2)."""
+    if not base or not cand:
+        return None
+    by_id = {v["id"]: v for v in cand}
+    pairs = [(v, by_id[v["id"]]) for v in base if v["id"] in by_id]
+    return {"n": len(pairs), "faster": sum(c["elapsed_s"] < b["elapsed_s"] for b, c in pairs)}
+
+
+def _difficulty(rows: list[dict]) -> dict:
+    out = {}
+    for level in ("easy", "medium", "hard"):
+        xs = [r for r in rows if r.get("lcb_difficulty") == level]
+        if xs:
+            out[level] = {"n": len(xs), "median_s": _median([r.get("elapsed_s") for r in xs]),
+                          "passed": sum(S._true(r.get("correct")) and r.get("finish_reason") != "length" for r in xs)}
+    return out
 
 
 def _tool_latency(path: Path) -> dict:
@@ -182,9 +216,11 @@ def _gates(quality: dict, regrade: dict, time: dict, speed: dict) -> dict:
 def collect(results_dir: Path = RESULTS, reports_json: Path = REPORTS_JSON) -> dict:
     results_dir, reports_json = Path(results_dir), Path(reports_json)
     reports = json.loads(reports_json.read_text(encoding="utf-8"))
-    quality, time, tool_latency = {}, {}, {}
+    quality, time, tool_latency, difficulty = {}, {}, {}, {}
     for p in PROFILES:
         loaded = {a: S.load_arm(results_dir / "ab" / p / a) for a in ARMS}
+        raw = {a: {s: _read_jsonl(f) if (f := results_dir / "ab" / p / a / f"{s}.jsonl").is_file() else []
+                   for s in S.SUITES if s not in S.TOOL_SUITES} for a in ARMS}
         quality[p] = {a: {} for a in ARMS}
         time[p] = {}
         for suite in S.SUITES:
@@ -197,9 +233,11 @@ def collect(results_dir: Path = RESULTS, reports_json: Path = REPORTS_JSON) -> d
                 else:
                     quality[p][a][suite] = {"n": len(views), "passed": sum(v["passed"] for v in views),
                                             "missing": False}
-                    arms[a] = _arm_time(views)
+                    arms[a] = _arm_time(views, raw[a].get(suite))
             b, c = arms["n2"]["raw_median_s"], arms["w1"]["raw_median_s"]
-            time[p][suite] = {"arms": arms, "ratio": round(c / b, 2) if b and c else None}
+            time[p][suite] = {"arms": arms, "ratio": round(c / b, 2) if b and c else None,
+                              "paired": _paired(loaded["n2"].get(suite), loaded["w1"].get(suite))}
+        difficulty[p] = {a: _difficulty(raw[a].get("livecodebench", [])) for a in ARMS}
         tool_latency[p] = {s: {a: _tool_latency(results_dir / "ab" / p / a / f"{s}.jsonl") for a in ARMS}
                            for s in S.SUITES if s in S.TOOL_SUITES}
     regrade_path = results_dir / "humaneval-regrade.json"
@@ -209,51 +247,71 @@ def collect(results_dir: Path = RESULTS, reports_json: Path = REPORTS_JSON) -> d
     speed = _speed(results_dir, reports)
     return {"arms": list(ARMS), "profiles": list(PROFILES), "suites": list(S.SUITES), "stacks": STACKS,
             "rig": reports.get("rig", []), "quality": quality, "humaneval_regrade": regrade, "time": time,
-            "tool_latency": tool_latency, "speed": speed, "legacy": LEGACY,
+            "tool_latency": tool_latency, "lcb_difficulty": difficulty, "speed": speed, "legacy": LEGACY,
             "gates": _gates(quality, regrade, time, speed)}
 
 
 # ---------------------------------------------------------------- render
+#
+# The page is written for readers outside this repo (it is shared on Reddit): model names instead of arm codes,
+# no gates or runbook vocabulary, the time-per-task comparison first and the detail below it.
 
 import datetime as _dt  # noqa: E402
 import html as _html  # noqa: E402
 import math  # noqa: E402
 import sys  # noqa: E402
 
-# The page shares the perf-lines stylesheet, so the two Flash-Next pages keep one look.
+# The page shares the perf-lines stylesheet, so the Flash-Next pages keep one look.
 sys.path.insert(0, str(CAMPAIGN.parent / "qwen38-flashnext-daily-driver-2026-09" / "scripts"))
 from render_perf_lines import CSS as PERF_CSS, EXTRA_CSS as PERF_EXTRA_CSS  # noqa: E402
 
-PERF_LINES = "qwen38-flashnext-perf-lines.html"
-ARM_COLOR = {"n2": "--s1", "w1": "--s6", "o1": "--s3", "m1": "--s5", "d1": "--s4", "c1": "--s2"}
+# Blue/orange passes the colorblind check in both themes; the earlier blue/purple pair did not (deutan ΔE 0.8).
+ARM_COLOR = {"n2": "--s1", "w1": "--s2"}
+ARM_NAME = {"n2": "iQ-MLX", "w1": "Swift 1.5"}
+REASONING_SUITES = ("gpqa", "livecodebench", "humaneval")
+SHORT_SUITES = ("jdhodges", "veerman", "if")
 SUITE_LABEL = {
-    "humaneval": "HumanEval · 164",
-    "gpqa": "GPQA-Diamond · 50 (seed 42)",
-    "livecodebench": "LiveCodeBench v6 · 50 (seed 42)",
-    "jdhodges": "Tool calls · jdhodges 40",
-    "veerman": "Tool calls · Veerman 12",
-    "if": "Instruction following · 20 (IFEval-style)",
+    "humaneval": "HumanEval",
+    "gpqa": "GPQA-Diamond",
+    "livecodebench": "LiveCodeBench v6",
+    "jdhodges": "Tool calling · jdhodges",
+    "veerman": "Tool calling · Veerman",
+    "if": "Instruction following",
 }
-PROFILE_LABEL = {
-    "t1": "t1 · vendor sampling (temperature 1.0, top_p 0.95, top_k 20, min_p 0, presence 0, repetition 1.0)",
-    "t0": "t0 · greedy (temperature 0)",
+SUITE_SIZE = {
+    "humaneval": "164 problems",
+    "gpqa": "50 questions, seed 42",
+    "livecodebench": "50 problems, seed 42",
+    "jdhodges": "40 cases",
+    "veerman": "12 cases",
+    "if": "20 IFEval-style cases",
 }
-SWITCH_LABEL = {"t1": "t1 · vendor sampling", "t0": "t0 · greedy"}
+SWITCH_LABEL = {"t1": "Recommended · temp 1.0", "t0": "Greedy · temp 0"}
+PROFILE_LONG = {
+    "t1": "recommended sampling: temperature 1.0, top_p 0.95, top_k 20, min_p 0, presence 0, repetition 1.0",
+    "t0": "greedy decoding: temperature 0",
+}
 SERVER_FLAGS = ("--ctx-size 131072 --mtp --ssm-checkpoint-max 16 --prefix-cache-mem 16GB "
-                "--prefix-cache-disk 100GB --prefix-cache-entries 64 --metrics")
+                "--prefix-cache-disk 100GB --prefix-cache-entries 64")
+MAX_TOKENS = "HumanEval 32,768 · GPQA and LiveCodeBench 65,536 · tool calling 32,768 · instruction following 16,384"
+REPO = "https://github.com/snagnever/macstudio-local-llm"
+CAMPAIGN_URL = REPO + "/tree/main/bench/swift15-flashnext-2026-10"
+SITE = "https://snagnever.github.io/macstudio-local-llm/"
+PAGE_FILE = "qwen38-flashnext-swift15.html"
+OG_IMAGE = "qwen38-flashnext-swift15-og.png"
+RIG_DROP = {"Wired limit", "Ports"}
 LIMITS = [
-    "One run per arm and profile. GPQA and LiveCodeBench use 50-question samples (seed 42), not the full sets.",
-    "The IF probe is an IFEval-style check with 20 cases. It does not reproduce the IFBench score of the Swift 1.5 card.",
-    "Tool calls (jdhodges, Veerman): the runner sent <code>reasoning_effort</code> and the sampling, but did not "
-    "record the reasoning text in this campaign (n/d in the tables). A median of __TOOLTOKENS__ tokens per answer "
-    "(by arm, suite and profile) suggests little or no thinking in these two suites.",
-    "The two packs have the same layout, but their n-gram tables differ (different LFS hashes): the A/B compares "
-    "the packs, not only the fine-tune.",
-    "t1 and t0 of each arm ran in different server starts; the battery paused twice for 512K runs of another "
-    "campaign (at profile boundaries, no data lost).",
-    "Speed rows other than n2 and w1 (o1, m1 and d1) come from earlier sessions of the October campaign. There n2 "
-    "measured within about 2% of its value here, which bounds the drift between sessions.",
-    "Agent quality (Terminal-Bench 2.0) is not measured for either arm.",
+    "One run per model and sampling setting. GPQA-Diamond and LiveCodeBench are 50-question samples (seed 42), "
+    "not the full sets, so a difference of 2–3 questions is within run-to-run noise.",
+    "Times are medians per question. A few answers on both sides run to the <code>max_tokens</code> limit and "
+    "dominate the totals, so the totals improve less than the medians. The page shows both.",
+    "The two packs share the same quantization layout but ship different n-gram tables, so this compares the two "
+    "packs as published, not only the fine-tuned weights.",
+    "Tool calling: the runner did not record the thinking text. A median of __TOOLTOKENS__ tokens per answer "
+    "suggests little or no thinking in these suites.",
+    "Instruction following is a 20-case IFEval-style probe. It does not reproduce the IFBench score of the "
+    "Swift 1.5 model card.",
+    "Agent quality (for example Terminal-Bench) is not measured.",
 ]
 
 
@@ -268,164 +326,78 @@ def ND(v, fmt="{}", unit="") -> str:
 
 
 def _sw(arm: str) -> str:
-    series = "m1" if arm.startswith("m1") else arm
-    return f'<span class="sw" style="background:var({ARM_COLOR.get(series, "--muted")})"></span>'
+    return f'<span class="sw" style="background:var({ARM_COLOR[arm]})"></span>'
 
 
-def _arm_cell(arm: str) -> str:
-    return f'<span class="arm-cell">{_sw(arm)}<span class="code">{E(arm)}</span></span>'
+def _arm_lab(arm: str) -> str:
+    return f'<span class="arm-lab">{_sw(arm)}{E(ARM_NAME[arm])}</span>'
 
 
-def _html_verdict(d: dict) -> str:
-    g, t1, t0 = d["gates"], d["time"]["t1"], d["time"]["t0"]
-    dec = g["decision"]
-    head = {True: "Swift 1.5 (w1) passes the three gates and is promoted to Flash-Next daily driver.",
-            False: "Swift 1.5 (w1) fails at least one gate and is not promoted.",
-            None: "The decision is open: at least one gate has no data."}[dec["promote"]]
-    sp = {c: {r["arm"]: r for r in d["speed"][c]} for c in CONTEXTS}
-
-    def med(s, a):
-        return t1[s]["arms"][a]["median_s"]
-
-    def status(ok):
-        return {True: "passes", False: "fails", None: "has no data"}[ok]
-
-    items = []
-    if dec["g1_t1"] and dec["g1_t0"]:
-        spread = max(abs(c[p]["w1"] - c[p]["n2"]) for c in g["g1"].values() for p in PROFILES)
-        items.append(("Same quality", "Every suite stays inside its G1 margin in both sampling profiles. Per-suite "
-                                      f"differences are 0–{spread} questions on the gated grades, within one-run noise."))
-    else:
-        items.append(("Quality", f"G1 {status(dec['g1_t1'])} in t1 and {status(dec['g1_t0'])} in t0; see Gates."))
-    items.append(("Time to the final answer",
-                  f"With the vendor sampling (t1), the median per question goes from {ND(med('gpqa', 'n2'), '{:.1f}')} s "
-                  f"to {ND(med('gpqa', 'w1'), '{:.1f}')} s on GPQA ({ND(t1['gpqa']['ratio'], '{:.2f}')}×) and from "
-                  f"{ND(med('livecodebench', 'n2'), '{:.1f}')} s to {ND(med('livecodebench', 'w1'), '{:.1f}')} s on "
-                  f"LiveCodeBench ({ND(t1['livecodebench']['ratio'], '{:.2f}')}×). Greedy (t0): "
-                  f"{ND(t0['gpqa']['ratio'], '{:.2f}')}× and {ND(t0['livecodebench']['ratio'], '{:.2f}')}×."))
-    if dec["g3"]:
-        w, n = sp["131072"]["w1"], sp["131072"]["n2"]
-        items.append(("Same agent-turn speed",
-                      f"T_turn {ND(sp['32768']['w1']['t_turno_s'], '{:.1f}')} s vs "
-                      f"{ND(sp['32768']['n2']['t_turno_s'], '{:.1f}')} s at 32K and {ND(w['t_turno_s'], '{:.1f}')} s vs "
-                      f"{ND(n['t_turno_s'], '{:.1f}')} s at 128K, on the same runtime and prefix cache; "
-                      f"decode {ND(w['decode_tps'], '{:.1f}')} vs {ND(n['decode_tps'], '{:.1f}')} tok/s at 128K."))
-    else:
-        items.append(("Agent-turn speed", f"G3 {status(dec['g3'])}; see Gates."))
-    items.append(("Still open", "Agent quality on Terminal-Bench is not measured. Rollback is one variable: "
-                                "<code>FLASHNEXT_MODEL=&lt;iQ pack&gt;</code>."))
-    lis = "".join(f"<li><b>{h}.</b> {t}</li>" for h, t in items)
-    return f'<section class="takeaways" id="verdict"><h2>{E(head)}</h2><ul>{lis}</ul></section>'
+def _legend(extra: str = "") -> str:
+    return f'<div class="legend">{"".join(f"<span class=chip>{_arm_lab(a)}</span>" for a in ARMS)}{extra}</div>'
 
 
-def _html_rig(d: dict) -> str:
-    items = "".join(f'<div class="r-item"><p class="r-lab">{E(r["lab"])}</p><p class="r-val">{E(r["val"])}</p></div>'
-                    for r in d["rig"])
-    return f'<section class="block"><h2 class="sec">Rig</h2><div class="rig" id="rig">{items}</div></section>'
+def _speedup(cell: dict):
+    """n2 median / w1 median, from the unrounded medians: > 1 means Swift 1.5 is faster."""
+    b, c = cell["arms"]["n2"]["raw_median_s"], cell["arms"]["w1"]["raw_median_s"]
+    return b / c if b and c else None
 
 
-def _html_setup(d: dict) -> str:
-    rows = ""
-    for a in d["arms"]:
-        s = d["stacks"][a]
-        rows += (f"<tr><td>{_arm_cell(a)}</td><td><span class=\"mono\">{E(s['weights'])}</span><br>"
-                 f"rev <span class=\"mono\">{E(s['rev'])}</span></td><td class=\"mono\">{E(s['runtime'])}</td>"
-                 f"<td>{E(s.get('role', ''))}</td></tr>")
-    return (
-        '<section class="block" id="setup"><h2 class="sec">Setup by arm</h2>'
-        '<p class="s-note">Both arms run on the same binary with the same flags. Only the weights change.</p>'
-        '<div class="tbl-scroll"><table class="cfg"><thead><tr><th>Arm</th><th>Weights</th><th>Runtime</th>'
-        f'<th>Role</th></tr></thead><tbody>{rows}</tbody></table></div>'
-        f'<p class="s-note mt">Server: <code>{E(SERVER_FLAGS)}</code>. Client: <code>reasoning_effort xhigh</code> in every '
-        'request. Without it, mlx-serve answers with no thinking. Profiles: '
-        f'<b>{E(PROFILE_LABEL["t1"])}</b>; <b>{E(PROFILE_LABEL["t0"])}</b>. <code>max_tokens</code>: HumanEval '
-        '32,768; GPQA and LiveCodeBench 65,536; tool calls 32,768; IF 16,384.</p></section>')
+def _speed_words(x, suffix: str = "") -> str:
+    if x is None:
+        return "n/d"
+    if round(x, 1) == 1.0 or round(1 / x, 1) == 1.0:
+        return "about the same" + suffix
+    return f"{x:.1f}× faster{suffix}" if x > 1 else f"{1 / x:.1f}× slower{suffix}"
 
 
-def _pass_chip(ok) -> str:
-    if ok is None:
-        return '<span class="stchip">n/d</span>'
-    return '<span class="stchip pass">pass</span>' if ok else '<span class="stchip fail">fail</span>'
+def _accuracy_spread(d: dict):
+    cells = [c[p] for c in d["gates"]["g1"].values() for p in PROFILES]
+    diffs = [abs(c["w1"] - c["n2"]) for c in cells if c["w1"] is not None and c["n2"] is not None]
+    return max(diffs) if diffs else None
 
 
-def _html_gates(d: dict) -> str:
-    g = d["gates"]
-    rows = ""
-    for s, cell in g["g1"].items():
-        thr = f"w1 ≥ n2 − {cell['t1']['margin']}"
-        vals = [f"{ND(cell[p]['w1'])} vs {ND(cell[p]['n2'])} {_pass_chip(cell[p]['pass'])}" for p in PROFILES]
-        name = "HumanEval (with prompt imports)" if s == "humaneval" else SUITE_LABEL[s]
-        rows += f"<tr><td>G1 quality · {E(name)}</td><td>{E(thr)}</td><td>{vals[0]}</td><td>{vals[1]}</td></tr>"
-    for s, cell in g["g2"].items():
-        vals = [f"{ND(cell[p]['ratio'], '{:.2f}')}× {_pass_chip(cell[p]['pass'])}" for p in PROFILES]
-        rows += (f"<tr><td>G2 thinking · {E(SUITE_LABEL[s])}</td><td>median time w1/n2 ≤ {g['time_ratio']}</td>"
-                 f"<td>{vals[0]}</td><td>{vals[1]}</td></tr>")
-    for c, cell in g["g3"].items():
-        rows += (f"<tr><td>G3 speed · T_turn at {int(c) // 1024}K</td><td>w1 ≤ {g['g3_ratio']} × n2</td>"
-                 f"<td>{ND(cell['w1'], '{:.1f}')} vs {ND(cell['n2'], '{:.1f}')} s ({ND(cell['ratio'], '{:.2f}')}×) "
-                 f"{_pass_chip(cell['pass'])}</td><td><span class=\"na\">—</span></td></tr>")
-    dec = g["decision"]
-    rule = (f"Promote when G1 and G2 pass in t1, G1 passes in t0 and G3 passes. "
-            f"G1 t1 {_pass_chip(dec['g1_t1'])} · G2 t1 {_pass_chip(dec['g2_t1'])} · G1 t0 {_pass_chip(dec['g1_t0'])} "
-            f"· G3 {_pass_chip(dec['g3'])} → <b>{'promote' if dec['promote'] else 'keep n2' if dec['promote'] is False else 'open'}</b>.")
-    return ('<section class="block" id="gates"><h2 class="sec">Gates</h2>'
-            '<p class="s-note">The gates were fixed in the runbook before the runs. G2 in t0 is informative: the '
-            'rule reads G2 in t1, the vendor sampling.</p>'
-            '<div class="tbl-scroll"><table class="gates"><thead><tr><th>Gate</th><th>Threshold</th><th>t1</th>'
-            f'<th>t0</th></tr></thead><tbody>{rows}</tbody></table></div><p class="s-note mt">{rule}</p></section>')
+def _html_hero(d: dict) -> str:
+    t1, t0 = d["time"]["t1"], d["time"]["t0"]
+    xg, xl = _speedup(t1["gpqa"]), _speedup(t1["livecodebench"])
+    g = t1["gpqa"]["arms"]
+    tok_n, tok_w = g["n2"]["median_completion"], g["w1"]["median_completion"]
+    rate_n, rate_w = g["n2"]["median_tok_s"], g["w1"]["median_tok_s"]
+    spread = _accuracy_spread(d)
+    rate = (f" Both generate at the same speed ({rate_n:.0f} vs {rate_w:.0f} tokens/s on GPQA)."
+            if rate_n and rate_w else "")
+    lead = (f"On an Apple M4 Max, Swift 1.5 gets to the final answer <b>{_speed_words(xg)}</b> on GPQA-Diamond and "
+            f"<b>{_speed_words(xl)}</b> on LiveCodeBench (median per question), with the same accuracy.{rate} "
+            "The gain comes from shorter thinking, not from faster generation.")
+    cut = None if not tok_n or tok_w is None else round(100 * (1 - tok_w / tok_n))
+
+    def tile(lab, big, sub):
+        return f'<div class="tile"><p class="t-lab">{lab}</p><p class="t-big">{big}</p><p class="t-sub">{sub}</p></div>'
+
+    def time_tile(s, x):
+        a = t1[s]["arms"]
+        big = "n/d" if x is None else f"{x:.1f}×" if x >= 1 else f"{1 / x:.1f}× slower"
+        return tile(E(SUITE_LABEL[s]), big,
+                    f'faster to the final answer · median {ND(a["n2"]["median_s"], "{:.1f}")} s → '
+                    f'{ND(a["w1"]["median_s"], "{:.1f}")} s')
+
+    tiles = (time_tile("gpqa", xg) + time_tile("livecodebench", xl)
+             + tile("Thinking per answer", "n/d" if cut is None else f"−{cut}%",
+                    f"GPQA median {ND(tok_n, '{:,.0f}')} → {ND(tok_w, '{:,.0f}')} tokens")
+             + tile("Accuracy", "n/d" if spread is None else f"≤ {spread}",
+                    "questions apart on every suite, in both directions"))
+    greedy = (f"Tiles use the recommended sampling (temperature 1.0). With greedy decoding the gain is smaller: "
+              f"{_speed_words(_speedup(t0['gpqa']))} on GPQA-Diamond and "
+              f"{_speed_words(_speedup(t0['livecodebench']))} on LiveCodeBench.")
+    return (f'<section class="hero" id="tldr"><p class="hero-lead">{lead}</p>'
+            f'<div class="tiles">{tiles}</div><p class="s-note mt">{E(greedy)}</p></section>')
 
 
 def _html_switch() -> str:
     btns = "".join(f'<button type="button" data-set-profile="{p}" aria-pressed="{"true" if p == "t1" else "false"}" '
-                   f'title="{E(PROFILE_LABEL[p])}">{E(SWITCH_LABEL[p])}</button>' for p in PROFILES)
-    return (f'<div class="switch" id="profile-switch" role="group" aria-label="Sampling profile">'
-            f'<span class="sw-lab">Profile for Quality, Time per task and Tool-call latency</span>{btns}</div>')
-
-
-def _html_quality(d: dict) -> str:
-    q, rg = d["quality"], d["humaneval_regrade"]
-    head = "".join(f"<th>{a} {p}</th>" for p in PROFILES for a in d["arms"])
-
-    def row(key, label, cells, margin):
-        tds = "".join(f"<td>{ND(v)}</td>" for v in cells)
-        return f'<tr data-suite="{key}"><td>{E(label)}</td>{tds}<td>{E(margin)}</td></tr>'
-
-    rows = ""
-    for s in d["suites"]:
-        cells = [q[p][a][s]["passed"] for p in PROFILES for a in d["arms"]]
-        label = SUITE_LABEL[s]
-        if s == "humaneval":
-            cells = [(rg.get(f"{a}-{p}") or {}).get("with_imports", q[p][a][s]["passed"])
-                     for p in PROFILES for a in d["arms"]]
-            label += ", with prompt imports"
-        rows += row(s, label, cells, S.QUALITY_MARGIN[s])
-        if s == "humaneval":
-            strict = [(rg.get(f"{a}-{p}") or {}).get("strict") for p in PROFILES for a in d["arms"]]
-            rows += row("humaneval-strict", "HumanEval · 164, strict bench2 grade", strict, "—")
-    bars = ""
-    for p in PROFILES:
-        blocks = ""
-        for s in d["suites"]:
-            lines = ""
-            for a in d["arms"]:
-                c = q[p][a][s]
-                passed = c["passed"]
-                if s == "humaneval":
-                    passed = (rg.get(f"{a}-{p}") or {}).get("with_imports", passed)
-                pct = None if passed is None or not c["n"] else 100.0 * passed / c["n"]
-                bar = (f'<span class="fill" style="width:{pct:.1f}%;background:var({ARM_COLOR[a]})"></span>'
-                       if pct is not None else "")
-                val = ND(pct, "{:.0f}", "%") + (f' <span class="u">{passed}/{c["n"]}</span>' if pct is not None else "")
-                lines += f'<div class="qline">{_arm_cell(a)}<span class="qbar">{bar}</span><span class="qv">{val}</span></div>'
-            blocks += f'<div class="qblock"><p class="q-title">{E(SUITE_LABEL[s])}</p>{lines}</div>'
-        bars += f'<div class="prof prof-{p}"><div class="qgrid">{blocks}</div></div>'
-    return ('<section class="block" id="quality"><h2 class="sec">Quality</h2>'
-            '<p class="s-note">Correct answers per suite. The table always shows both profiles; the bars follow the '
-            'profile switch. HumanEval uses the grade with the prompt imports for G1: the strict bench2 grader runs '
-            'only the answer code, so a correct answer without <code>from typing import List</code> fails. That '
-            'defect hits both arms.</p>'
-            f'<div class="tbl-scroll"><table class="qual"><thead><tr><th>Suite</th>{head}<th>G1 margin</th></tr></thead>'
-            f'<tbody>{rows}</tbody></table></div>{bars}</section>')
+                   f'title="{E(PROFILE_LONG[p])}">{E(SWITCH_LABEL[p])}</button>' for p in PROFILES)
+    return (f'<div class="switch" id="profile-switch" role="group" aria-label="Sampling setting">'
+            f'<span class="sw-lab">Sampling for the charts below</span>{btns}</div>')
 
 
 def _log_ticks(lo: float, hi: float) -> list[float]:
@@ -438,15 +410,26 @@ def _log_ticks(lo: float, hi: float) -> list[float]:
     return out
 
 
-def _strip(p: str, s: str, cell: dict) -> str:
+def _faster_bar(cell: dict) -> str:
+    pr = cell.get("paired")
+    if not pr or not pr["n"]:
+        return ""
+    k, n = pr["faster"], pr["n"]
+    seg = lambda a, m, what: (f'<span class="fseg" style="flex:{m};background:var({ARM_COLOR[a]})" '  # noqa: E731
+                              f'title="{E(ARM_NAME[a])} {what} on {m} of {n}"></span>' if m else "")
+    return (f'<div class="faster"><div class="ftrack">{seg("w1", k, "faster")}{seg("n2", n - k, "faster or tied")}'
+            f'</div><p class="flab"><b>Swift 1.5 faster on {k} of {n}</b> · iQ-MLX faster or tied on {n - k}</p></div>')
+
+
+def _strip(p: str, s: str, cell: dict, paired: bool = True) -> str:
     arms = cell["arms"]
     pts = [x["s"] for a in ARMS for x in arms[a]["points"] if x["s"] and x["s"] > 0]
-    title = f'<p class="p-title">{E(SUITE_LABEL[s])}</p>'
+    title = f'<p class="p-title">{E(SUITE_LABEL[s])} <span class="p-size">{E(SUITE_SIZE[s])}</span></p>'
     if not pts:
         return (f'<figure class="strip" data-profile="{p}" data-suite="{s}">{title}'
                 '<p class="empty">n/d: no records for this suite.</p></figure>')
     lo, hi = min(pts) / 1.25, max(pts) * 1.25
-    W, H, x0, x1, lane = 560, 132, 30, 548, 46
+    W, H, x0, x1, lane = 440, 132, 70, 430, 46
     lx = lambda v: x0 + (math.log10(v) - math.log10(lo)) / (math.log10(hi) - math.log10(lo)) * (x1 - x0)  # noqa: E731
     g = ""
     for v in _log_ticks(lo, hi):
@@ -455,7 +438,7 @@ def _strip(p: str, s: str, cell: dict) -> str:
               f'<text class="tick" x="{x:.1f}" y="{H - 6}" text-anchor="middle">{v:g}s</text>')
     for i, a in enumerate(ARMS):
         yc = 14 + lane * i + lane / 2
-        g += f'<text class="axis-t" x="2" y="{yc + 3:.1f}">{a}</text>'
+        g += f'<text class="axis-t" x="2" y="{yc + 4:.1f}">{E(ARM_NAME[a])}</text>'
         st = arms[a]
         if st["missing"]:
             g += f'<text class="tick" x="{x0}" y="{yc + 3:.1f}">n/d</text>'
@@ -463,140 +446,264 @@ def _strip(p: str, s: str, cell: dict) -> str:
         for j, x in enumerate(st["points"]):
             if not x["s"] or x["s"] <= 0:
                 continue
-            jit = ((j * 37) % 17 - 8) * 1.6
-            cls = f"dot {a} {'ok' if x['ok'] else 'bad'}" + (" trunc" if x["trunc"] else "")
-            tip = f"{a} · question {x['id']} · {x['s']:.1f} s · {'pass' if x['ok'] else 'fail'}" + \
-                  (" · truncated" if x["trunc"] else "")
-            g += (f'<circle class="{cls}" cx="{lx(x["s"]):.1f}" cy="{yc + jit:.1f}" r="3.6" '
+            cx, cy = lx(x["s"]), yc + ((j * 37) % 17 - 8) * 1.6
+            tok = f" · {x['tok']:,} tokens" if x.get("tok") else ""
+            tip = (f"{ARM_NAME[a]} · question {x['id']} · {x['s']:.1f} s{tok} · "
+                   f"{'correct' if x['ok'] else 'wrong'}" + (" · hit the max_tokens limit" if x["trunc"] else ""))
+            if x["trunc"]:
+                # A truncated answer is a cross, so the reader sees it without relying on a ring color.
+                g += (f'<g class="dot {a} trunc" style="--c:var({ARM_COLOR[a]})"><title>{E(tip)}</title>'
+                      f'<path d="M{cx - 4:.1f} {cy - 4:.1f}L{cx + 4:.1f} {cy + 4:.1f}M{cx - 4:.1f} {cy + 4:.1f}'
+                      f'L{cx + 4:.1f} {cy - 4:.1f}"/></g>')
+                continue
+            cls = f"dot {a} {'ok' if x['ok'] else 'bad'}"
+            g += (f'<circle class="{cls}" cx="{cx:.1f}" cy="{cy:.1f}" r="3.6" '
                   f'style="--c:var({ARM_COLOR[a]})"><title>{E(tip)}</title></circle>')
         if st["median_s"]:
             mx = lx(st["median_s"])
-            g += (f'<line class="med" x1="{mx:.1f}" y1="{yc - 17:.1f}" x2="{mx:.1f}" y2="{yc + 17:.1f}" '
-                  f'style="--c:var({ARM_COLOR[a]})"/>'
-                  f'<text class="medlab" x="{mx + 4:.1f}" y="{yc - 10:.1f}">{st["median_s"]:.1f}s</text>')
-    ratio = f'<span class="p-unit">median w1/n2 {ND(cell["ratio"], "{:.2f}")}×</span>'
-    return (f'<figure class="strip" data-profile="{p}" data-suite="{s}"><div class="p-head">{title}{ratio}</div>'
+            g += (f'<line class="med" x1="{mx:.1f}" y1="{yc - 17:.1f}" x2="{mx:.1f}" y2="{yc + 17:.1f}"/>'
+                  f'<text class="medlab" x="{mx + 4:.1f}" y="{yc - 11:.1f}">{st["median_s"]:.1f}s</text>')
+    words = _speed_words(_speedup(cell))
+    head = f'<span class="p-unit"><b>{E(words)}</b> (median)</span>' if words != "n/d" else ""
+    return (f'<figure class="strip" data-profile="{p}" data-suite="{s}"><div class="p-head">{title}{head}</div>'
             f'<svg class="chart" viewBox="0 0 {W} {H}" role="img" aria-label="{E(SUITE_LABEL[s])}, time per question">'
-            f'{g}</svg></figure>')
+            f'{g}</svg>{_faster_bar(cell) if paired else ""}</figure>')
+
+
+DOT_LEGEND = ('<span class="chip"><span class="dotkey"></span> correct</span>'
+              '<span class="chip"><span class="dotkey hollow"></span> wrong</span>'
+              '<span class="chip"><span class="crosskey">×</span> hit the max_tokens limit</span>'
+              '<span class="chip"><span class="medkey"></span> median</span>')
+
+
+def _bars(groups: list, fmt: str, unit: str = "", notes: dict | None = None) -> str:
+    """Paired horizontal bars on one zero-based scale. groups: [(key, label, {arm: value})]."""
+    vals = [v for _, _, vs in groups for v in vs.values() if v is not None]
+    mx = max(vals) if vals else 1
+    out = ""
+    for key, label, vs in groups:
+        lines = ""
+        for a in ARMS:
+            v = vs.get(a)
+            note = (notes or {}).get((key, a))
+            if v is None:
+                lines += f'<div class="bline">{_arm_lab(a)}<span class="btrack"></span><span class="bv">{ND(None)}</span></div>'
+                continue
+            txt = fmt.format(v) + unit
+            tip = f"{ARM_NAME[a]} · {label} · {txt}" + (f" · {note}" if note else "")
+            lines += (f'<div class="bline">{_arm_lab(a)}<span class="btrack"><span class="bfill" '
+                      f'style="width:{100.0 * v / mx:.1f}%;background:var({ARM_COLOR[a]})" title="{E(tip)}"></span>'
+                      f'</span><span class="bv">{E(txt)}{f" <span class=u>{E(note)}</span>" if note else ""}</span></div>')
+        out += f'<div class="bgroup" data-key="{E(key)}"><p class="b-lab">{E(label)}</p>{lines}</div>'
+    return f'<div class="bars">{out}</div>'
+
+
+def _chart(cid: str, title: str, note: str, body: str) -> str:
+    return (f'<figure class="card-chart" id="{cid}"><p class="c-head">{E(title)}</p>'
+            f'{f"<p class=c-note>{note}</p>" if note else ""}{body}</figure>')
+
+
+def _per_profile(build) -> str:
+    return "".join(f'<div class="prof prof-{p}">{build(p)}</div>' for p in PROFILES)
 
 
 def _html_time(d: dict) -> str:
-    out = ""
-    for p in PROFILES:
-        figs = "".join(_strip(p, s, d["time"][p][s]) for s in d["suites"])
+    def build(p):
+        T = d["time"][p]
+        figs = "".join(_strip(p, s, T[s]) for s in REASONING_SUITES)
+        total = _bars([(s, SUITE_LABEL[s], {a: None if T[s]["arms"][a]["total_s"] is None
+                                            else T[s]["arms"][a]["total_s"] / 60 for a in ARMS})
+                       for s in REASONING_SUITES], "{:.0f}", " min")
+        return (_legend(DOT_LEGEND) + f'<div class="sgrid">{figs}</div>'
+                + _chart(f"total-time-{p}", "Total time to run the suite",
+                         "Sum of the wall time of every question, one question at a time.", total))
+    return ('<section class="block" id="time-per-task"><h2 class="sec">Time per task</h2>'
+            '<p class="s-note">One dot per question: wall time from the request to the final answer, log scale. '
+            'Hover a dot for the question, the time and the token count. The bar under each chart counts the '
+            'questions each model finished first.</p>' + _per_profile(build) + '</section>')
+
+
+def _html_why(d: dict) -> str:
+    def build(p):
+        T = d["time"][p]
+        toks = _bars([(s, SUITE_LABEL[s], {a: T[s]["arms"][a]["median_completion"] for a in ARMS})
+                      for s in REASONING_SUITES], "{:,.0f}", " tokens")
+        rate = _bars([(s, SUITE_LABEL[s], {a: T[s]["arms"][a]["median_tok_s"] for a in ARMS})
+                      for s in REASONING_SUITES], "{:.1f}", " tok/s")
+        g = T["gpqa"]["arms"]
+        tot = ""
+        if g["n2"]["total_completion"] and g["w1"]["total_completion"]:
+            tot = (f"Medians. The total token count on GPQA-Diamond drops less, from "
+                   f"{g['n2']['total_completion'] / 1000:,.0f}k to {g['w1']['total_completion'] / 1000:,.0f}k tokens, "
+                   f"because a few answers on both sides run to the max_tokens limit "
+                   f"({g['n2']['truncated']} for iQ-MLX, {g['w1']['truncated']} for Swift 1.5).")
+        return (_legend() + '<div class="cgrid">'
+                + _chart(f"tokens-{p}", "Tokens per answer (median)", "Thinking plus the visible answer.", toks)
+                + _chart(f"rate-{p}", "Generation speed (median)",
+                         "Output tokens divided by the wall time of each answer.", rate)
+                + f'</div><p class="s-note mt">{E(tot)}</p>')
+    return ('<section class="block" id="why"><h2 class="sec">Why it is faster</h2>'
+            '<p class="s-note">Same runtime, same flags, same generation speed. Swift 1.5 writes fewer thinking '
+            'tokens before it answers.</p>' + _per_profile(build) + '</section>')
+
+
+def _html_accuracy(d: dict) -> str:
+    q, rg = d["quality"], d["humaneval_regrade"]
+
+    def cell_val(p, a, s):
+        c = q[p][a][s]
+        passed = (rg.get(f"{a}-{p}") or {}).get("with_imports", c["passed"]) if s == "humaneval" else c["passed"]
+        return passed, c["n"]
+
+    def build(p):
         rows = ""
         for s in d["suites"]:
-            c = d["time"][p][s]
-            A = c["arms"]
-
-            def two(k, fmt="{}"):
-                return "".join(f"<td>{ND(A[a][k], fmt)}</td>" for a in ARMS)
-
-            total = "".join(f"<td>{ND(None if A[a]['total_s'] is None else A[a]['total_s'] / 60, '{:.0f}')}</td>"
-                            for a in ARMS)
-            rows += (f'<tr data-suite="{s}"><td>{E(SUITE_LABEL[s])}</td>{two("median_s", "{:.1f}")}'
-                     f'<td><b>{ND(c["ratio"], "{:.2f}")}</b></td>{total}{two("median_completion", "{:.0f}")}'
-                     f'{two("median_reasoning_chars", "{:.0f}")}{two("truncated")}</tr>')
-        head = ("<th>Suite</th><th>n2 median s</th><th>w1 median s</th><th>ratio</th><th>n2 total min</th>"
-                "<th>w1 total min</th><th>n2 tokens</th><th>w1 tokens</th><th>n2 reasoning chars</th>"
-                "<th>w1 reasoning chars</th><th>n2 trunc</th><th>w1 trunc</th>")
-        out += (f'<div class="prof prof-{p}"><div class="legend">'
-                f'<span class="chip">{_sw("n2")}<span class="code">n2</span> iQ-MLX</span>'
-                f'<span class="chip">{_sw("w1")}<span class="code">w1</span> Swift 1.5</span>'
-                '<span class="chip"><span class="dotkey"></span> pass</span>'
-                '<span class="chip"><span class="dotkey hollow"></span> fail</span>'
-                '<span class="chip"><span class="dotkey trunc"></span> truncated at max_tokens</span>'
-                '<span class="chip"><span class="medkey"></span> median</span></div>'
-                f'<div class="sgrid">{figs}</div>'
-                f'<div class="tbl-scroll mt"><table class="timet"><thead><tr>{head}</tr></thead>'
-                f'<tbody>{rows}</tbody></table></div></div>')
-    return ('<section class="block" id="time-per-task"><h2 class="sec">Time per task</h2>'
-            '<p class="s-note">One dot per question: wall time from request to final answer, log scale. Tool-call '
-            'suites add turn 1 and turn 2. Tokens and reasoning characters are medians per question; '
-            '<code>n/d</code> = not recorded. A truncated answer hit <code>max_tokens</code> and counts as a '
-            'failure.</p>' + out + '</section>')
-
-
-def _html_tool_latency(d: dict) -> str:
-    out = ""
-    for p in PROFILES:
-        rows = ""
-        for s, arms in d["tool_latency"][p].items():
+            vals = {a: cell_val(p, a, s) for a in ARMS}
+            tds = ""
             for a in ARMS:
-                c = arms[a]
-                if c.get("missing"):
-                    rows += (f'<tr data-suite="{s}"><td>{E(SUITE_LABEL[s])}</td><td>{_arm_cell(a)}</td>'
-                             '<td colspan="3"><span class="na">n/d</span></td></tr>')
+                v, n = vals[a]
+                tds += f"<td>{ND(v)}<span class=\"u\">/{n}</span></td>" if v is not None else f"<td>{ND(None)}</td>"
+            dv = None if vals["w1"][0] is None or vals["n2"][0] is None else vals["w1"][0] - vals["n2"][0]
+            diff = ND(None) if dv is None else ("0" if dv == 0 else f"{dv:+d}".replace("-", "−"))
+            rows += (f'<tr data-suite="{s}"><td class="nm">{E(SUITE_LABEL[s])} <span class="u">{E(SUITE_SIZE[s])}</span>'
+                     f'</td>{tds}<td>{diff}</td></tr>')
+        strict = [(rg.get(f"{a}-{p}") or {}).get("strict") for a in ARMS]
+        foot = ""
+        if None not in strict:
+            foot = (f'<p class="s-note mt">HumanEval is graded with the imports of the prompt added, because a correct '
+                    f'answer that omits <code>from typing import List</code> fails the strict grader. Strict grade: '
+                    f'{strict[0]} (iQ-MLX) vs {strict[1]} (Swift 1.5).</p>')
+        return ('<div class="tbl-scroll"><table class="qual"><thead><tr><th class="nm">Suite</th>'
+                f'<th>{_arm_lab("n2")}</th><th>{_arm_lab("w1")}</th><th>Swift − iQ</th></tr></thead>'
+                f'<tbody>{rows}</tbody></table></div>{foot}')
+    return ('<section class="block" id="accuracy"><h2 class="sec">Accuracy</h2>'
+            '<p class="s-note">Correct answers per suite. A truncated answer counts as wrong.</p>'
+            + _per_profile(build) + '</section>')
+
+
+def _html_detail(d: dict) -> str:
+    def build(p):
+        T = d["time"][p]
+        spc = _bars([(s, SUITE_LABEL[s], {a: T[s]["arms"][a]["sec_per_correct"] for a in ARMS})
+                     for s in REASONING_SUITES], "{:.0f}", " s")
+        diff = d["lcb_difficulty"][p]
+        levels = [lv for lv in ("easy", "medium", "hard") if any(lv in diff[a] for a in ARMS)]
+        notes = {(lv, a): f"{diff[a][lv]['passed']}/{diff[a][lv]['n']} solved" for lv in levels for a in ARMS
+                 if lv in diff[a]}
+        n_of = {lv: next(diff[a][lv]["n"] for a in ARMS if lv in diff[a]) for lv in levels}
+        lcb = _bars([(lv, f"{lv} · {n_of[lv]} problems", {a: (diff[a].get(lv) or {}).get("median_s") for a in ARMS})
+                     for lv in levels], "{:.1f}", " s", notes)
+        split = ""
+        for s in ("livecodebench", "humaneval"):
+            lines = ""
+            parts = {a: (T[s]["arms"][a]["median_reasoning_tokens"], T[s]["arms"][a]["median_visible_tokens"])
+                     for a in ARMS}
+            mx = max((r or 0) + (v or 0) for r, v in parts.values()) or 1
+            for a in ARMS:
+                r, v = parts[a]
+                if r is None or v is None:
+                    lines += f'<div class="bline">{_arm_lab(a)}<span class="btrack"></span><span class="bv">{ND(None)}</span></div>'
                     continue
-                t2 = (f"{ND(c['turn2_median_s'], '{:.2f}')} <span class=\"u\">({c['turn2_n']} cases)</span>"
-                      if c["turn2_n"] else '<span class="na">no multi-turn case</span>')
-                rows += (f'<tr data-suite="{s}"><td>{E(SUITE_LABEL[s])}</td><td>{_arm_cell(a)}</td>'
-                         f'<td>{c["passed"]}/{c["n"]}</td><td>{ND(c["turn1_median_s"], "{:.2f}")}</td><td>{t2}</td></tr>')
-        out += (f'<div class="prof prof-{p}"><div class="tbl-scroll"><table class="toolt"><thead><tr><th>Suite</th>'
-                '<th>Arm</th><th>pass</th><th>turn 1 median s</th><th>turn 2 median s</th></tr></thead>'
-                f'<tbody>{rows}</tbody></table></div></div>')
-    return ('<section class="block" id="tool-latency"><h2 class="sec">Tool-call latency per turn</h2>'
-            '<p class="s-note">Short-context tool calling. Turn 1 = the model picks the tool and writes the call. '
-            'Turn 2 = the model reads the tool result and answers; only the multi-turn cases have it. The two arms '
-            'stay within a few tenths of a second.</p>' + out + '</section>')
+                lines += (f'<div class="bline">{_arm_lab(a)}<span class="btrack stack" style="width:{100.0 * (r + v) / mx:.1f}%">'
+                          f'<span class="bfill" style="flex:{r};background:var({ARM_COLOR[a]})" '
+                          f'title="{E(ARM_NAME[a])} · thinking {r:,.0f} tokens"></span>'
+                          f'<span class="bfill answer" style="flex:{v};background:var({ARM_COLOR[a]})" '
+                          f'title="{E(ARM_NAME[a])} · answer {v:,.0f} tokens"></span></span>'
+                          f'<span class="bv">{r:,.0f} + {v:,.0f}</span></div>')
+            split += f'<div class="bgroup"><p class="b-lab">{E(SUITE_LABEL[s])}</p>{lines}</div>'
+        split = f'<div class="bars">{split}</div>'
+        return (_legend() + '<div class="cgrid">'
+                + _chart(f"per-correct-{p}", "Seconds per correct answer",
+                         "Total suite time divided by the number of correct answers.", spc)
+                + _chart(f"lcb-difficulty-{p}", "LiveCodeBench by difficulty (median time)",
+                         "The gain grows with the difficulty of the problem.", lcb)
+                + _chart(f"split-{p}", "Thinking + answer tokens (median of each part)",
+                         "Solid: thinking. Light: the visible answer. Only the thinking shrinks.", split)
+                + '</div>')
+    return ('<section class="block" id="detail"><h2 class="sec">More detail</h2>'
+            + _per_profile(build) + '</section>')
+
+
+def _html_short(d: dict) -> str:
+    def build(p):
+        figs = "".join(_strip(p, s, d["time"][p][s], paired=False) for s in SHORT_SUITES)
+        return _legend(DOT_LEGEND) + f'<div class="sgrid">{figs}</div>'
+    return ('<section class="block" id="short-tasks"><h2 class="sec">Short tasks: about the same</h2>'
+            '<p class="s-note">Tool calling and instruction following need little thinking, and both models answer '
+            'in 2–3 seconds. For tool calling, the time adds the turn that writes the call and, for the multi-turn '
+            'cases, the turn that reads the tool result.</p>' + _per_profile(build) + '</section>')
 
 
 def _html_agent_turn(d: dict) -> str:
     rows = ""
     for c in CONTEXTS:
-        rows += f'<tr class="grp-row"><td colspan="10">context {int(c) // 1024}K</td></tr>'
-        for r in d["speed"][c]:
-            flag = ""
-            if r["gates_failed"]:
-                flag = f' <span class="stchip fail" title="gates failed">{E(", ".join(r["gates_failed"]))}</span>'
-            src = SOURCE_LABEL.get(r["source"], r["source"])
-            extra = [r["config"]] if r["config"] else []
-            if r["reps"] == 1:
-                extra.append("1 rep")
-            name = E(r["name"]) + "".join(f' <span class="u">· {E(x)}</span>' for x in extra)
-            if r["absent"]:
-                rows += (f'<tr><td>{_arm_cell(r["arm"])}</td><td class="nm">{name}</td>'
-                         f'<td colspan="8"><span class="na">{E(r["absent"])}</span></td></tr>')
-                continue
-            rows += (f'<tr><td>{_arm_cell(r["arm"])}{flag}</td><td class="nm">{name}<br><span class="u">{E(src)}</span></td>'
-                     f'<td><b>{ND(r["t_turno_s"], "{:.1f}")}</b></td><td>{ND(r["ttft_tool_turn_s"], "{:.1f}")}</td>'
-                     f'<td>{ND(r["hit_tool_turn"], "{:.3f}")}</td><td>{ND(r["cold_ttft_s"], "{:.0f}")}</td>'
-                     f'<td>{ND(r["decode_tps"], "{:.1f}")}</td><td>{ND(r["prefill_tps"], "{:.0f}")}</td>'
-                     f'<td>{ND(r["mtp_acceptance"], "{:.2f}")}</td><td>{ND(r["wired_peak_gb"], "{:.1f}")}</td></tr>')
-    drift = d["speed"]["drift"]
-    note = ("T_turn = warm TTFT of the <code>tool_turn</code> scenario + 512 tokens at the warm decode rate, median "
-            "of 3 reps unless the row says 1 rep, vendor sampling (t1). n2 and w1 ran in this campaign, one after the "
-            "other. o1, m1 and d1 come from the October perf-lines campaign, where n2 measured "
-            f"{ND(drift.get('32768'), '{:.2f}')} s at 32K and {ND(drift.get('131072'), '{:.2f}')} s at 128K. "
-            f'256K and 512K are on the <a href="{PERF_LINES}">perf-lines page</a> (w1 was not run there). The '
-            "<code>needle</code> flag on n2 at 32K is one tool_turn request of 13 that missed the three needles; the "
-            "other requests of both arms passed.")
-    return ('<section class="block" id="agent-turn"><h2 class="sec">Agent turn speed · tool_turn</h2>'
-            f'<p class="s-note">{note}</p><div class="tbl-scroll"><table class="speedt"><thead><tr><th>Arm</th>'
-            '<th class="nm">Stack</th><th>T_turn s</th><th>warm TTFT tool_turn s</th><th>hit tool_turn</th><th>cold TTFT s</th>'
-            '<th>decode tok/s</th><th>prefill tok/s</th><th>MTP accept</th><th>wired peak GB</th></tr></thead>'
-            f'<tbody>{rows}</tbody></table></div></section>')
+        r = {x["arm"]: x for x in d["speed"][c]}
+        n, w = r.get("n2") or {}, r.get("w1") or {}
+        rows += (f'<tr><td class="nm">{int(c) // 1024}K tokens</td>'
+                 f'<td>{ND(n.get("t_turno_s"), "{:.1f}")}</td><td>{ND(w.get("t_turno_s"), "{:.1f}")}</td>'
+                 f'<td>{ND(n.get("decode_tps"), "{:.1f}")}</td><td>{ND(w.get("decode_tps"), "{:.1f}")}</td>'
+                 f'<td>{ND(n.get("prefill_tps"), "{:.0f}")}</td><td>{ND(w.get("prefill_tps"), "{:.0f}")}</td></tr>')
+    two = f'<th>{_arm_lab("n2")}</th><th>{_arm_lab("w1")}</th>'
+    devs = []
+    for c in CONTEXTS:
+        r = {x["arm"]: x for x in d["speed"][c]}
+        n, w = (r.get("n2") or {}).get("t_turno_s"), (r.get("w1") or {}).get("t_turno_s")
+        if n and w:
+            devs.append(abs(w / n - 1))
+    within = f" The two packs are within {math.ceil(100 * max(devs))}% of each other." if devs else ""
+    return ('<section class="block" id="agent-turn"><h2 class="sec">Agent turn at long context</h2>'
+            '<p class="s-note">One coding-agent turn on a long conversation: the time to the first token of a turn '
+            'that carries a tool result, plus 512 generated tokens. Prefix cache on, median of 3 repetitions, '
+            f'recommended sampling.{within}</p>'
+            '<div class="tbl-scroll"><table class="speedt"><thead>'
+            '<tr><th class="nm" rowspan="2">Context</th><th colspan="2">Turn time, s</th>'
+            '<th colspan="2">Decode, tok/s</th><th colspan="2">Prefill, tok/s</th></tr>'
+            f'<tr>{two}{two}{two}</tr></thead><tbody>{rows}</tbody></table></div></section>')
 
 
-def _html_legacy(d: dict) -> str:
-    L = d["legacy"]
-    rows = "".join(
-        f'<tr><td>{_arm_cell(r["arm"])}</td><td class="nm">{E(r["stack"])}</td><td class="nm nw">{E(r["date"])}</td>'
-        f'<td>{ND(r["he_strict"])}</td><td>{ND(r["he_imports"])}</td><td>{ND(r["he_truncated"])}</td>'
-        f'<td>{ND(r["jdhodges"])}</td><td>{ND(r["veerman"])}</td><td>{ND(r["he_tokens"])}</td>'
-        f'<td>{ND(r["he_minutes"])}</td><td class="nm">{E(r["thinking"])}</td></tr>' for r in L["rows"])
-    n2t0 = d["time"]["t0"]["humaneval"]["arms"]["n2"]
-    src = " · ".join(f"<code>{E(s)}</code>" for s in L["sources"])
-    return ('<section class="block" id="legacy"><h2 class="sec">Earlier quality batteries · not comparable</h2>'
-            '<p class="s-note"><b>Do not rank these rows against the tables above.</b> These runs used temperature 0 '
-            'and sent no <code>reasoning_effort</code>. Without it, mlx-serve answered with almost no thinking (n2; '
-            'n1 not recorded), while oMLX and MTPLX thought. With <code>reasoning_effort xhigh</code> in this campaign, '
-            f'the same n2 uses a mean of {ND(n2t0["mean_completion"], "{:.0f}")} tokens per HumanEval answer at t0 '
-            f'(median {ND(n2t0["median_completion"], "{:.0f}")}). Sources: {src}.</p>'
-            '<div class="tbl-scroll"><table class="legt"><thead><tr><th>Arm</th><th class="nm">Stack</th><th class="nm">Date</th>'
-            '<th>HumanEval strict</th><th>HumanEval with imports</th><th>HumanEval truncated</th><th>jdhodges /40</th>'
-            '<th>Veerman /12</th><th>tokens per HumanEval answer (mean)</th><th>HumanEval wall time min</th>'
-            f'<th class="nm">Thinking</th></tr></thead><tbody>{rows}</tbody></table></div></section>')
+def _html_numbers(d: dict) -> str:
+    def build(p):
+        rows = ""
+        for s in d["suites"]:
+            A = d["time"][p][s]["arms"]
+
+            def two(f):
+                return "".join(f"<td>{f(A[a])}</td>" for a in ARMS)
+            rows += (f'<tr data-suite="{s}"><td class="nm">{E(SUITE_LABEL[s])}</td>'
+                     + two(lambda x: ND(x["median_s"], "{:.1f}"))
+                     + two(lambda x: ND(None if x["total_s"] is None else x["total_s"] / 60, "{:.0f}"))
+                     + two(lambda x: ND(x["median_completion"], "{:,.0f}"))
+                     + two(lambda x: ND(x["truncated"])) + "</tr>")
+        two = f'<th>{_arm_lab("n2")}</th><th>{_arm_lab("w1")}</th>'
+        return ('<div class="tbl-scroll"><table class="timet"><thead><tr><th class="nm" rowspan="2">Suite</th>'
+                '<th colspan="2">Median time, s</th><th colspan="2">Total time, min</th>'
+                '<th colspan="2">Median tokens</th><th colspan="2">Hit max_tokens</th></tr>'
+                f'<tr>{two * 4}</tr></thead><tbody>{rows}</tbody></table></div>')
+    return ('<section class="block" id="numbers"><h2 class="sec">All numbers</h2>'
+            + _per_profile(build) + '</section>')
+
+
+def _html_setup(d: dict) -> str:
+    rig = "".join(f'<div class="r-item"><p class="r-lab">{E(r["lab"])}</p><p class="r-val">{E(r["val"])}</p></div>'
+                  for r in d["rig"] if r["lab"] not in RIG_DROP)
+    models = ""
+    for a in ARMS:
+        s = d["stacks"][a]
+        models += (f'<tr><td>{_arm_lab(a)}</td><td class="nm"><a href="https://huggingface.co/{E(s["weights"])}">'
+                   f'{E(s["weights"])}</a> <span class="u">rev {E(s["rev"])}</span></td></tr>')
+    return ('<section class="block" id="setup"><details><summary><h2 class="sec">Setup and how to reproduce</h2>'
+            '</summary>'
+            f'<div class="rig" id="rig">{rig}</div>'
+            '<p class="s-note mt">Two 4.7-bit MLX packs of Qwen3.8-Flash-Next on the same mlx-serve 26.10.1 binary '
+            'with the same flags. Only the weights change.</p>'
+            '<div class="tbl-scroll"><table class="cfg"><thead><tr><th>Model</th><th class="nm">Weights '
+            f'(Hugging Face)</th></tr></thead><tbody>{models}</tbody></table></div>'
+            f'<p class="s-note mt">Server flags: <code>{E(SERVER_FLAGS)}</code>. Every request sends '
+            '<code>reasoning_effort: xhigh</code>; without it, mlx-serve answers with no thinking. '
+            f'{E(PROFILE_LONG["t1"]).capitalize()}; {E(PROFILE_LONG["t0"])}. <code>max_tokens</code>: {E(MAX_TOKENS)}. '
+            'Questions run one at a time.</p>'
+            f'<p class="s-note">Scripts, per-question results and the test plan: <a href="{CAMPAIGN_URL}">'
+            'github.com/snagnever/macstudio-local-llm</a>.</p></details></section>')
 
 
 def _html_limits(d: dict) -> str:
@@ -608,56 +715,85 @@ def _html_limits(d: dict) -> str:
 
 
 PAGE_CSS = r"""
-:root{--s6:#7a5cd6}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--s6:#9a80ee}}
-:root[data-theme="dark"]{--s6:#9a80ee}
 html[data-profile="t1"] .prof-t0, html[data-profile="t0"] .prof-t1{display:none}
 .mt{margin-top:12px}
 .u{color:var(--muted); font-size:0.9em; margin-left:2px}
+a{color:var(--accent)}
+.hero-lead{font-size:1.08rem; line-height:1.55; max-width:72ch; margin:18px 0 0; color:var(--ink)}
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr)); gap:12px; margin-top:20px}
+.tile{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px}
+.tile .t-lab{font-family:var(--mono); font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin:0}
+.tile .t-big{font-size:2.2rem; line-height:1.1; font-weight:700; margin:6px 0 4px; color:var(--ink); font-variant-numeric:tabular-nums}
+.tile .t-sub{font-size:0.84rem; color:var(--ink-2); margin:0; line-height:1.4}
 .switch{position:sticky; top:0; z-index:4; display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:30px;
   padding:10px 12px; background:var(--plane); border:1px solid var(--border); border-radius:10px}
-.switch .sw-lab{flex-basis:100%; font-family:var(--mono); font-size:0.66rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-right:4px}
+.switch .sw-lab{font-family:var(--mono); font-size:0.66rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-right:4px}
 .switch button{white-space:nowrap; font-family:var(--mono); font-size:0.74rem; color:var(--ink-2); background:var(--surface);
-  border:1px solid var(--border); border-radius:7px; padding:7px 11px; cursor:pointer; text-align:left}
+  border:1px solid var(--border); border-radius:7px; padding:7px 11px; cursor:pointer}
 .switch button[aria-pressed="true"]{border-color:var(--accent); color:var(--ink); box-shadow:inset 0 0 0 1px var(--accent)}
 .switch button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
-table.cfg td, table.cfg th, table.gates td, table.gates th{text-align:left; font-family:var(--sans); font-size:0.83rem}
-table.cfg .mono, table.cfg td.mono{font-family:var(--mono); font-size:0.8rem; color:var(--ink-2)}
-table.gates td:nth-child(2){font-family:var(--mono); font-size:0.78rem; color:var(--ink-2)}
-td.nm{font-family:var(--sans); text-align:left; color:var(--ink-2); font-size:0.8rem}
-th.nm{text-align:left} .nw{white-space:nowrap}
-.sgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,470px),1fr)); gap:14px; margin-top:14px}
-.strip .tick{font-size:11px} .strip .axis-t{font-size:12px; font-weight:700} .strip .medlab{font-size:11px}
-.qgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin-top:14px}
-.qblock{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 12px}
-.q-title{margin:0 0 8px; font-size:0.86rem; font-weight:700}
-.qline{display:grid; grid-template-columns:44px 1fr 92px; gap:8px; align-items:center; margin:5px 0}
-.qbar{height:10px; background:var(--surface-2); border-radius:3px; overflow:hidden; display:block}
-.qbar .fill{display:block; height:100%; border-radius:3px}
-.qv{font-family:var(--mono); font-size:0.78rem; text-align:right}
-figure.strip{margin:0; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 12px 6px}
-figure.strip .p-title{margin:0}
+.arm-lab{display:inline-flex; align-items:center; gap:6px; white-space:nowrap; font-weight:600; color:var(--ink)}
+td.nm, th.nm{font-family:var(--sans); text-align:left; color:var(--ink-2); font-size:0.84rem}
+table.cfg td, table.cfg th{text-align:left; font-family:var(--sans); font-size:0.84rem}
+table.qual td, table.timet td, table.speedt td{font-variant-numeric:tabular-nums}
+.sgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr)); gap:14px; margin-top:14px}
+figure.strip{margin:0; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 12px 10px}
+figure.strip .p-title{margin:0} .p-size{color:var(--muted); font-weight:400; font-size:0.84em}
 figure.strip .empty{color:var(--muted); font-size:0.84rem}
+.strip .tick{font-size:12px} .strip .axis-t{font-size:13px; font-weight:700; fill:var(--ink)}
 .gl{stroke:var(--grid); stroke-width:1}
 .dot{fill:var(--c); stroke:var(--c); stroke-width:1.2; fill-opacity:0.72}
 .dot.bad{fill:var(--surface); fill-opacity:1; stroke-width:1.6}
-.dot.trunc{stroke:var(--warn); stroke-width:2.4}
-.med{stroke:var(--c); stroke-width:2.5}
-.medlab{font-family:var(--mono); font-size:9.5px; fill:var(--ink-2)}
+g.dot.trunc path{stroke:var(--c); stroke-width:2.4; fill:none; stroke-linecap:round}
+.med{stroke:var(--ink); stroke-width:2.5}
+.medlab{font-family:var(--mono); font-size:12px; font-weight:700; fill:var(--ink); paint-order:stroke; stroke:var(--surface); stroke-width:3.5px; stroke-linejoin:round}
 .dotkey{display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--ink-2)}
 .dotkey.hollow{background:transparent; border:1.5px solid var(--ink-2)}
-.dotkey.trunc{background:transparent; border:2px solid var(--warn)}
-.medkey{display:inline-block; width:3px; height:12px; background:var(--ink-2)}
-#time-per-task .legend{margin-top:14px}
-@media (max-width:520px){.qline{grid-template-columns:40px 1fr 80px}}
+.crosskey{font-weight:700; color:var(--ink-2); line-height:1}
+.medkey{display:inline-block; width:3px; height:12px; background:var(--ink)}
+.legend{margin-top:14px}
+.faster{margin-top:8px}
+.ftrack{display:flex; gap:2px; height:10px}
+.fseg{display:block; height:100%}
+.fseg:first-child{border-radius:4px 0 0 4px} .fseg:last-child{border-radius:0 4px 4px 0} .fseg:only-child{border-radius:4px}
+.flab{margin:5px 0 0; font-size:0.82rem; color:var(--ink-2)}
+.cgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr)); gap:14px; margin-top:14px}
+figure.card-chart{margin:14px 0 0; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 14px}
+.cgrid figure.card-chart{margin:0}
+.c-head{margin:0; font-weight:700; font-size:0.92rem}
+.c-note{margin:3px 0 0; font-size:0.8rem; color:var(--muted)}
+.bars{margin-top:8px}
+.bgroup{margin-top:10px}
+.b-lab{margin:0 0 4px; font-size:0.82rem; color:var(--ink-2)}
+.bline{display:grid; grid-template-columns:86px 1fr minmax(84px,auto); gap:8px; align-items:center; margin:2px 0}
+.bline .arm-lab{font-size:0.8rem; font-weight:500}
+.btrack{display:flex; gap:2px; height:12px}
+.bfill{display:block; height:100%; border-radius:0 4px 4px 0; min-width:2px}
+.btrack.stack .bfill{border-radius:0}
+.btrack.stack .bfill:last-child{border-radius:0 4px 4px 0}
+.bfill.answer{opacity:0.45}
+.bv{font-family:var(--mono); font-size:0.78rem; text-align:right; color:var(--ink); white-space:nowrap}
+details > summary{cursor:pointer; list-style:none}
+details > summary::-webkit-details-marker{display:none}
+details > summary h2.sec{display:inline}
+details > summary h2.sec::after{content:" ▸"; color:var(--muted)}
+details[open] > summary h2.sec::after{content:" ▾"}
+@media (max-width:520px){.bline{grid-template-columns:72px 1fr minmax(70px,auto)} .tile .t-big{font-size:1.8rem}
+  .switch{padding:8px; gap:6px} .switch .sw-lab{display:none} .switch button{padding:6px 8px; font-size:0.7rem}}
 """
 
 TEMPLATE = r"""<!doctype html>
 <html lang="en" data-profile="t1">
 <meta charset="utf-8">
-<title>Flash-Next Swift 1.5 A/B</title>
+<title>Swift 1.5 vs iQ-MLX</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Swift 1.5 vs the iQ-MLX pack of Qwen3.8-Flash-Next on mlx-serve 26.10.1: quality, time per task, tool-call latency and agent-turn speed.">
+<meta name="description" content="__DESC__">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Qwen3.8-Flash-Next: Swift 1.5 vs iQ-MLX on an M4 Max">
+<meta property="og:description" content="__DESC__">
+<meta property="og:url" content="__URL__">
+<meta property="og:image" content="__OGIMG__">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
@@ -667,25 +803,24 @@ TEMPLATE = r"""<!doctype html>
 <div class="wrap">
   <header>
     <div>
-      <p class="eyebrow">Fine-tune A/B · mlx-serve 26.10.1 · October 2026</p>
-      <h1>Qwen3.8-Flash-Next: Swift 1.5 vs iQ-MLX</h1>
-      <p class="sub">Two 4.7-bpw packs of the same model on the same runtime and flags: the ddalcu iQ-MLX pack (n2, the previous daily driver) and the Dankpaws Swift 1.5 fine-tune (w1). Six quality suites in two sampling profiles, time per question, tool-call latency and agent-turn speed, with the other October stacks as speed reference.</p>
+      <p class="eyebrow">Qwen3.8-Flash-Next · Apple M4 Max 128 GB · mlx-serve 26.10.1 · October 2026</p>
+      <h1>Swift 1.5 vs iQ-MLX: same accuracy, less waiting</h1>
+      <p class="sub">Two 4.7-bit MLX packs of the same model on the same runtime: the iQ-MLX pack by ddalcu and the Swift 1.5 fine-tune by Dankpaws. Six suites, two sampling settings, one dot per question.</p>
     </div>
     <button class="theme" id="themeBtn" type="button">theme: auto</button>
   </header>
-__VERDICT__
-<section class="block notice" id="notice"><p><b>Not measured: agent quality.</b> Terminal-Bench 2.0 needs a second machine for the Docker containers, so this campaign suspended it. The driver script is ready (<code>bench/terminal-bench/scripts/run-tbench-flashnext.sh</code>). Speed by context up to 512K for the other runtimes is on the <a href="__PERF__">perf-lines page</a>.</p></section>
-__RIG__
-__SETUP__
-__GATES__
+__HERO__
 __SWITCH__
-__QUALITY__
 __TIME__
-__TOOL__
+__WHY__
+__ACCURACY__
+__DETAIL__
+__SHORT__
 __AGENT__
-__LEGACY__
+__NUMBERS__
+__SETUP__
 __LIMITS__
-  <footer id="foot"><b>Sources.</b> <code>bench/swift15-flashnext-2026-10/results/</code> (A/B battery, <code>humaneval-regrade.json</code>, <code>tturno-summary.json</code>, <code>summary.md</code>) and <code>bench/engine-updates-2026-10/results/reports-2026-10.json</code>. Generated at <code>__GENERATED__</code> by <code>bench/swift15-flashnext-2026-10/scripts/render_page.py</code>.</footer>
+  <footer id="foot">Data, scripts and per-question results: <a href="__CAMPAIGN__">github.com/snagnever/macstudio-local-llm</a>. Generated <code>__GENERATED__</code>.</footer>
 </div>
 <script>
 const root=document.documentElement;
@@ -711,13 +846,23 @@ applyLabel();
 """
 
 
+def _description(d: dict) -> str:
+    t1 = d["time"]["t1"]
+    return (f"Same accuracy; with the recommended sampling, Swift 1.5 reaches the final answer "
+            f"{_speed_words(_speedup(t1['gpqa']))} on GPQA-Diamond and {_speed_words(_speedup(t1['livecodebench']))} "
+            "on LiveCodeBench than the iQ-MLX pack of Qwen3.8-Flash-Next, at the same generation speed, on an "
+            "Apple M4 Max.")
+
+
 def render(data: dict) -> str:
     parts = {
         "/*__CSS__*/": PERF_CSS + PERF_EXTRA_CSS + PAGE_CSS,
-        "__VERDICT__": _html_verdict(data), "__RIG__": _html_rig(data), "__SETUP__": _html_setup(data), "__GATES__": _html_gates(data),
-        "__SWITCH__": _html_switch(), "__QUALITY__": _html_quality(data), "__TIME__": _html_time(data),
-        "__TOOL__": _html_tool_latency(data), "__AGENT__": _html_agent_turn(data), "__LEGACY__": _html_legacy(data),
-        "__LIMITS__": _html_limits(data), "__PERF__": PERF_LINES, "__GENERATED__": E(data.get("generated_at", "")),
+        "__DESC__": E(_description(data)), "__URL__": SITE + PAGE_FILE, "__OGIMG__": SITE + OG_IMAGE,
+        "__HERO__": _html_hero(data), "__SWITCH__": _html_switch(), "__TIME__": _html_time(data),
+        "__WHY__": _html_why(data), "__ACCURACY__": _html_accuracy(data), "__DETAIL__": _html_detail(data),
+        "__SHORT__": _html_short(data), "__AGENT__": _html_agent_turn(data), "__NUMBERS__": _html_numbers(data),
+        "__SETUP__": _html_setup(data), "__LIMITS__": _html_limits(data), "__CAMPAIGN__": CAMPAIGN_URL,
+        "__GENERATED__": E(data.get("generated_at", "")),
     }
     html = TEMPLATE
     for k, v in parts.items():
