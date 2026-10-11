@@ -3,8 +3,9 @@
 # Profiles (the configs measured in bench/qwen38-flashnext-daily-driver-2026-09):
 #   daily  (default) 131072 tokens, MTP, prefix cache 16GB RAM / 100GB disk / 64 entries
 #                    re-measured with this pair in bench/qwen38-flashnext-updates-2026-10
-#   512k             524288 tokens via YaRN 2.0 + 8-bit KV; memory at the edge, close heavy apps first
-#                    512k measured on 26.9.2 with the mixed-4-8bit weights; not re-measured
+#   512k             524288 tokens via YaRN 2.0 + 4-bit KV; memory at the edge, close heavy apps first
+#                    measured with this pair in bench/engine-updates-2026-10 (n2q4, 3 reps); 8-bit KV
+#                    refused some prefills at 512K (PrefillDoesNotFit)
 # Overrides: FLASHNEXT_PORT (default 11234), FLASHNEXT_HOST (default 0.0.0.0),
 #            FLASHNEXT_BIN, FLASHNEXT_MODEL. Add --print to show the command without starting.
 set -euo pipefail
@@ -41,7 +42,7 @@ case "$PROFILE" in
   512k)
     COMMAND+=(
       --ctx-size 524288
-      --kv-quant 8 --kv-attn-mode fused
+      --kv-quant 4
       --config-overrides '{"text_config":{"rope_parameters":{"rope_type":"yarn","factor":2.0,"original_max_position_embeddings":262144},"max_position_embeddings":524288}}'
     )
     ;;
@@ -59,7 +60,7 @@ if lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
   exit 69
 fi
 if [[ "$PROFILE" == "512k" ]]; then
-  echo "512k profile: memory runs at the edge (min free ~0.01 GB measured). Close heavy apps." >&2
+  echo "512k profile: memory runs at the edge (min free ~0.05 GB measured). Close heavy apps." >&2
 fi
 echo "Flash-Next daily driver ($PROFILE) on http://$HOST:$PORT/v1" >&2
 exec "${COMMAND[@]}"

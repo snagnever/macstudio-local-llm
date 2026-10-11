@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
  "profile": "2026-10",
- "generated_at": "2026-10-10T08:59:09Z",
+ "generated_at": "2026-10-11T13:03:59Z",
  "campaign": "bench/engine-updates-2026-10",
  "rig": [
   {
@@ -49,10 +49,10 @@
    "port": 11234,
    "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
    "spec": "native MTP + PLD (n-gram)",
-   "ceiling": "512K with YaRN 2.0 + KV 8-bit",
+   "ceiling": "512K with YaRN 2.0 + KV 4-bit",
    "state": "pass",
    "status": "daily driver",
-   "note": "Lowest T_turn in every band: 8.2 s at 32K, 8.8 s at 128K, 12.9 s at 512K."
+   "note": "Lowest T_turn in every band: 8.2 s at 32K, 8.8 s at 128K, 13.0 s at 512K."
   },
   {
    "id": "o1",
@@ -1526,6 +1526,73 @@
   {
    "cand": "n2",
    "context": 524288,
+   "stage": "kv4x3",
+   "mode": "canonical",
+   "tag": "YaRN 2.0 + KV 4-bit",
+   "file": "n2q4-524288-t1.0-kv4x3.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 13.0,
+   "cold_ttft_s": 784.0,
+   "ttft_s": {
+    "cold": 784.0,
+    "identical": 0.36,
+    "append": 2.68,
+    "middle_mutation": 537.8,
+    "tool_turn": 3.88
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.998,
+    "middle_mutation": 0.411,
+    "tool_turn": 0.998
+   },
+   "decode_tps": 56.2,
+   "decode_range": [
+    50.1,
+    61.0
+   ],
+   "prefill_tps": 662.0,
+   "wired_peak_gb": 113.9,
+   "mem_free_min_gb": 0.05,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.77,
+   "correct": 12,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "KV 4-bit: with KV 8-bit, 512K refused some prefills (PrefillDoesNotFit). One append spent the 4,096-token budget in reasoning and wrote no answer.",
+   "canonical": true,
+   "arm": "n2q4",
+   "config": "YaRN 2.0 + KV 4-bit",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261011T114950Z"
+  },
+  {
+   "cand": "n2",
+   "context": 524288,
    "stage": "yarn2",
    "mode": "canonical",
    "tag": "YaRN 2.0 + KV 8-bit",
@@ -1585,11 +1652,78 @@
     "wired>102"
    ],
    "note": "",
-   "canonical": true,
+   "canonical": false,
    "arm": "n2",
    "config": "YaRN 2.0 + KV 8-bit",
    "campaign": "engine-updates-2026-10",
    "stamp": "20261007T211125Z"
+  },
+  {
+   "cand": "n2",
+   "context": 524288,
+   "stage": "yarn2r",
+   "mode": "canonical",
+   "tag": "YaRN 2.0 + KV 8-bit",
+   "file": "n2-524288-t1.0-yarn2r.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 5,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 13.8,
+   "cold_ttft_s": 785.9,
+   "ttft_s": {
+    "cold": 785.9,
+    "identical": 1.59,
+    "append": 2.68,
+    "middle_mutation": 544.21,
+    "tool_turn": 2.75
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.998,
+    "middle_mutation": 0.411,
+    "tool_turn": 0.998
+   },
+   "decode_tps": 46.3,
+   "decode_range": [
+    46.3,
+    54.5
+   ],
+   "prefill_tps": 660.0,
+   "wired_peak_gb": 113.9,
+   "mem_free_min_gb": 0.02,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.56,
+   "correct": 3,
+   "truncated": 2,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": false,
+   "arm": "n2",
+   "config": "YaRN 2.0 + KV 8-bit",
+   "campaign": "engine-updates-2026-10",
+   "stamp": "20261010T100726Z"
   },
   {
    "cand": "o1",
@@ -1916,7 +2050,7 @@
  "takeaways": [
   [
    "mlx-serve 26.10.1 leads every band",
-   "n2 has the lowest T_turn from 8K to 512K: 7.8, 8.2, 8.8, 9.8 and 12.9 s, with the tool turn under 3 s in every band."
+   "n2 has the lowest T_turn from 8K to 512K: 7.8, 8.2, 8.8, 9.8 and 13.0 s, with the tool turn under 3 s up to 256K and 3.9 s at 512K (KV 4-bit)."
   ],
   [
    "oMLX is second at 128K and 256K",
@@ -1942,7 +2076,7 @@
    "arms": "n2",
    "goal": "Serves Flash-Next with native MTP and a two-tier prefix cache.",
    "how": "MTP with PLD (n-gram table); hot cache in RAM (16 GB, 64 entries) plus disk (100 GB); DeltaNet state checkpoints; YaRN through --config-overrides.",
-   "cost": "Pins KV and hot cache as wired memory: 97–112 GB from 32K to 512K, no swap."
+   "cost": "Pins KV and hot cache as wired memory: 97–114 GB from 32K to 512K, no swap."
   },
   {
    "name": "oMLX 0.7.0",
@@ -2098,6 +2232,10 @@
    "status": "done"
   },
   {
+   "stage": "512K with KV 4-bit, 3 reps (n2q4): no PrefillDoesNotFit refusal",
+   "status": "done"
+  },
+  {
    "stage": "Stage F: MTPLX 64-token prime and runtime fixes",
    "status": "done"
   },
@@ -2115,7 +2253,7 @@
    "gate": "Verdict",
    "arm": "n2 · mlx-serve 26.10.1",
    "state": "pass",
-   "note": "Daily driver. Lowest T_turn in every band from 8K to 512K: 8.2 s at 32K, 8.8 s at 128K, 12.9 s at 512K."
+   "note": "Daily driver. Lowest T_turn in every band from 8K to 512K: 8.2 s at 32K, 8.8 s at 128K, 13.0 s at 512K."
   },
   {
    "gate": "Finalist",

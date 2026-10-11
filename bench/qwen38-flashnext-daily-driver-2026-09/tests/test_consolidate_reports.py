@@ -377,15 +377,18 @@ def test_m1_and_m1p_share_the_prime_64_label():
     assert "default config" not in rpl.TECH_2026_10[2]["configs"]
 
 
-def test_n2o2_joins_n2_series_with_os_reserve_label(tmp_path):
+def test_os_reserve_diagnostics_stay_out_of_the_n2_ranking(tmp_path):
+    # n2o/n2o2 (--os-reserve-gib 4/2) foram diagnóstico: reserva 2 virou OOM de Metal. Não entram na série n2.
     sept, eng, upd = _dirs(tmp_path)
     _write(eng, "n2-524288-t1.0-yarn2.jsonl",
            _rep_set(1, "20261007T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv8"))
     _write(eng, "n2o2-524288-t1.0-osr2x3.jsonl",
            _rep_set(3, "20261011T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv8-osr2"))
-    g = _canon(cr.build_2026_10(sept, eng, upd), "n2", 524288)
-    assert g["arm"] == "n2o2" and g["reps"] == 3
-    assert g["config"] == "YaRN 2.0 + KV 8-bit + OS reserve 2 GiB"
+    _write(eng, "n2o-524288-t1.0-osr.jsonl",
+           _rep_set(1, "20261010T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv8-osr4"))
+    data = cr.build_2026_10(sept, eng, upd)
+    assert _canon(data, "n2", 524288)["arm"] == "n2"
+    assert not any(g["arm"] in ("n2o", "n2o2") for g in data["groups"])
 
 
 def test_n2q4_joins_n2_series_with_kv4_label(tmp_path):
@@ -394,3 +397,12 @@ def test_n2q4_joins_n2_series_with_kv4_label(tmp_path):
            _rep_set(3, "20261011T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv4"))
     g = _canon(cr.build_2026_10(sept, eng, upd), "n2", 524288)
     assert g["arm"] == "n2q4" and g["config"] == "YaRN 2.0 + KV 4-bit"
+
+
+def test_n2_ceiling_names_kv4():
+    n2 = next(c for c in cr.CANDIDATES_2026_10 if c["id"] == "n2")
+    assert n2["ceiling"] == "512K with YaRN 2.0 + KV 4-bit"
+
+
+def test_n2q4_512k_note_explains_kv4():
+    assert "PrefillDoesNotFit" in cr.GROUP_NOTES_2026_10[("n2q4", 524288)]
