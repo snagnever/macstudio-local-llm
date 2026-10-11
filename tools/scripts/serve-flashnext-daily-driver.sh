@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Start the Qwen3.8-Flash-Next daily driver: ddalcu iQ-MLX-4.7bpw on mlx-serve 26.10.1.
+# Start the Qwen3.8-Flash-Next daily driver: Swift 1.5 (Dankpaws MLX-4.7bpw) on mlx-serve 26.10.1.
+# Promoted by bench/swift15-flashnext-2026-10 (2026-10-11): same quality as the iQ-MLX-4.7bpw pack, 2-3x less
+# thinking time. Rollback: FLASHNEXT_MODEL=<cache>/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c...
 # Profiles (the configs measured in bench/qwen38-flashnext-daily-driver-2026-09):
 #   daily  (default) 131072 tokens, MTP, prefix cache 16GB RAM / 100GB disk / 64 entries
-#                    re-measured with this pair in bench/qwen38-flashnext-updates-2026-10
+#                    measured with this pack in bench/swift15-flashnext-2026-10 (T_turno 7.9 s at 32K, 8.6 s at 128K)
 #   512k             524288 tokens via YaRN 2.0 + 8-bit KV; memory at the edge, close heavy apps first
-#                    512k measured on 26.9.2 with the mixed-4-8bit weights; not re-measured
+#                    512k measured on 26.9.2 with the mixed-4-8bit weights; not measured with Swift 1.5
 # Overrides: FLASHNEXT_PORT (default 11234), FLASHNEXT_HOST (default 0.0.0.0),
 #            FLASHNEXT_BIN, FLASHNEXT_MODEL. Add --print to show the command without starting.
 set -euo pipefail
@@ -20,7 +22,7 @@ for arg in "$@"; do
 done
 
 BIN="${FLASHNEXT_BIN:-$HOME/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve}"
-MODEL="${FLASHNEXT_MODEL:-$HOME/.cache/local-llms/qwen3.8-prefix-cache/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a}"
+MODEL="${FLASHNEXT_MODEL:-$HOME/.cache/local-llms/qwen3.8-prefix-cache/Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0}"
 HOST="${FLASHNEXT_HOST:-0.0.0.0}"
 PORT="${FLASHNEXT_PORT:-11234}"
 

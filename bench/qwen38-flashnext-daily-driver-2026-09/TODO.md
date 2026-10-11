@@ -44,9 +44,11 @@ Marque `[x]` e cite o commit quando fechar um item.
 
 ## Medições abertas
 
-- [ ] **Qualidade do n2 com a mesma config.** O run do n2 (2026-10-07) usou ~200 tokens por resposta; o o1 ~1 800
+- [x] **Qualidade do n2 com a mesma config.** O run do n2 (2026-10-07) usou ~200 tokens por resposta; o o1 ~1 800
   e o m1x ~3 300. Rodar `bench/engine-updates-2026-10/scripts/run-quality.sh n2 131072` (tag `qual`) para uma
   comparação com o mesmo modo de reasoning. Checar antes se o mlx-serve reporta `reasoning_tokens`.
+  Fechado em `bench/swift15-flashnext-2026-10/results/ab-summary-t1.md` e `ab-summary-t0.md`: com
+  `reasoning_effort` explícito, o mlx-serve pensa e reporta `reasoning_tokens`.
 - [ ] **Qualidade do d1 (ds4).** Ficou fora da Etapa G4.
 - [ ] **TTFT do `tool_turn` do d1 cresce com o contexto** (6.4 s a 128K, 20 s a 256K, 50 s a 512K) apesar do hit
   ≥ 0.94. Causa não investigada.
