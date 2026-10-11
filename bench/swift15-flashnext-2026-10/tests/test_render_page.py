@@ -54,7 +54,7 @@ def fake(tmp_path):
                     [tool("a", True, 2.0), tool("b", True, 3.0, 5.0, True), tool("c", False, 4.0)])
         write_jsonl(res / "ab" / prof / "w1" / "jdhodges.jsonl",
                     [tool("a", True, 1.0), tool("b", True, 2.0, 7.0, True), tool("c", True, 3.0)])
-    # w1 não tem o IF em t0: a suíte tem de aparecer como ausente, não sumir.
+    # w1 has no IF run in t0: the suite must show as missing, not disappear.
     write_jsonl(res / "ab" / "t1" / "n2" / "if.jsonl", [{"id": "if01", "passed": True, "elapsed_s": 2.0,
                                                          "finish_reason": "stop", "completion_tokens": 30}])
     write_jsonl(res / "ab" / "t1" / "w1" / "if.jsonl", [{"id": "if01", "passed": False, "elapsed_s": 1.0,
@@ -113,7 +113,7 @@ def test_speed_uses_same_session_arms_then_canonical_groups(fake):
     rows32 = {r["arm"]: r for r in sp["32768"]}
     assert rows32["w1"]["t_turno_s"] == 7.9 and rows32["w1"]["source"] == "swift15-flashnext-2026-10"
     assert rows32["m1p"]["series"] == "m1" and rows32["m1p"]["ttft_tool_turn_s"] == 2.4
-    # o n2 da Etapa G não vira uma segunda linha: ele entra como referência de deriva.
+    # The n2 group from Etapa G does not become a second row: it is the drift reference.
     assert [r["arm"] for r in sp["32768"]].count("n2") == 1
     assert sp["drift"]["32768"] == 8.23
     arms128 = [r["arm"] for r in sp["131072"]]
@@ -125,7 +125,7 @@ def test_series_without_group_in_band_is_listed_as_absent(fake):
     assert rows128["o1"]["t_turno_s"] is None and rows128["o1"]["absent"]
 
 
-@pytest.mark.skipif(not REAL_REPORTS.is_file(), reason="sem o reports-2026-10.json")
+@pytest.mark.skipif(not REAL_REPORTS.is_file(), reason="reports-2026-10.json not found")
 def test_real_data_matches_summary_md():
     d = R.collect(REAL_RESULTS, REAL_REPORTS)
     hi = d["humaneval_regrade"]
@@ -168,7 +168,7 @@ def test_collect_splits_livecodebench_by_difficulty(fake):
     assert diff["hard"] == {"n": 2, "median_s": 200.0, "passed": 1}  # the truncated answer does not count
 
 
-# ---- render() e main() ----
+# ---- render() and main() ----
 
 SECTIONS = ("tldr", "profile-switch", "time-per-task", "why", "accuracy", "detail", "short-tasks", "agent-turn",
             "numbers", "setup", "limits")
@@ -265,7 +265,7 @@ def test_main_data_reuses_json(fake, tmp_path):
     assert 'id="accuracy"' in out.read_text(encoding="utf-8")
 
 
-@pytest.mark.skipif(not REAL_REPORTS.is_file(), reason="sem o reports-2026-10.json")
+@pytest.mark.skipif(not REAL_REPORTS.is_file(), reason="reports-2026-10.json not found")
 def test_real_page_hero_states_the_headline_numbers():
     hero = _section(R.render(R.collect(REAL_RESULTS, REAL_REPORTS)), "tldr")
     assert "2.9× faster" in hero and "2.0× faster" in hero
@@ -273,7 +273,7 @@ def test_real_page_hero_states_the_headline_numbers():
     assert "1.2× faster on GPQA-Diamond and 1.5× faster on LiveCodeBench" in hero  # greedy
 
 
-@pytest.mark.skipif(not REAL_REPORTS.is_file(), reason="sem o reports-2026-10.json")
+@pytest.mark.skipif(not REAL_REPORTS.is_file(), reason="reports-2026-10.json not found")
 def test_real_page_accuracy_uses_the_humaneval_grade_with_imports():
     sec = _section(R.render(R.collect(REAL_RESULTS, REAL_REPORTS)), "accuracy")
     row = re.search(r'<tr data-suite="humaneval">.*?</tr>', sec, re.S).group(0)
@@ -282,20 +282,20 @@ def test_real_page_accuracy_uses_the_humaneval_grade_with_imports():
 
 def test_g2_uses_unrounded_medians(fake):
     res, rep = fake
-    # medianas 10.04 e 8.04: arredondadas dão 0.80 (passa); sem arredondar, 8.04 > 0.8 × 10.04 (falha).
+    # Medians 10.04 and 8.04: rounded they give 0.80 (pass); unrounded, 8.04 > 0.8 × 10.04 (fail).
     write_jsonl(res / "ab" / "t1" / "n2" / "gpqa.jsonl", [b2(1, True, 10.04)])
     write_jsonl(res / "ab" / "t1" / "w1" / "gpqa.jsonl", [b2(1, True, 8.04)])
     assert R.collect(res, rep)["gates"]["g2"]["gpqa"]["t1"]["pass"] is False
 
 
 def test_speed_table_follows_perf_lines_without_c1(fake):
-    # O perf-lines de outubro tirou a referência de setembro (c1); a página segue o mesmo recorte.
+    # The October perf-lines page dropped the September reference (c1); this page does the same.
     sp = R.collect(*fake)["speed"]
     assert all(r["series"] != "c1" for c in R.CONTEXTS for r in sp[c])
 
 
 def test_limits_tool_token_range_comes_from_data(fake):
-    # As respostas de tool-calling da fixture têm 40 tokens.
+    # The tool-calling answers in the fixture have 40 tokens.
     assert "40 tokens per answer" in _section(R.render(R.collect(*fake)), "limits")
 
 
