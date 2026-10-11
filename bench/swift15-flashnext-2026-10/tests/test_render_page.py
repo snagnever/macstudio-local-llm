@@ -13,9 +13,9 @@ REAL_RESULTS = CAMPAIGN / "results"
 REAL_REPORTS = CAMPAIGN.parent / "engine-updates-2026-10" / "results" / "reports-2026-10.json"
 
 
-def b2(idx, ok, s, fin="stop", comp=100, rc=10):
+def b2(idx, ok, s, fin="stop", comp=100, rc=10, **extra):
     return {"dataset_idx": idx, "lcb_question_id": None, "correct": ok, "elapsed_s": s,
-            "finish_reason": fin, "completion_tokens": comp, "reasoning_chars": rc}
+            "finish_reason": fin, "completion_tokens": comp, "reasoning_chars": rc, **extra}
 
 
 def tool(cid, ok, t1, t2=None, multi=False):
@@ -93,7 +93,7 @@ def test_time_stats_points_and_ratio(fake):
     t = R.collect(*fake)["time"]["t1"]["gpqa"]
     n2 = t["arms"]["n2"]
     assert n2["median_s"] == 60.0 and n2["total_s"] == 180.0 and n2["truncated"] == 1
-    assert {"id": "2", "s": 100.0, "ok": False, "trunc": True} in n2["points"]
+    assert {"id": "2", "s": 100.0, "ok": False, "trunc": True, "tok": 100} in n2["points"]
     assert t["ratio"] == round(20.0 / 60.0, 2)
 
 
@@ -138,10 +138,50 @@ def test_real_data_matches_summary_md():
     assert rows["w1"]["t_turno_s"] == 8.6 and rows["m1x"]["t_turno_s"] == 15.1
 
 
+def test_collect_adds_rate_split_and_time_per_correct(fake):
+    res, rep = fake
+    write_jsonl(res / "ab" / "t1" / "n2" / "gpqa.jsonl",
+                [b2(1, True, 60.0, tok_s=70.0, reasoning_tokens=900, visible_tokens=4),
+                 b2(2, False, 100.0, fin="length", tok_s=74.0, reasoning_tokens=5000, visible_tokens=4),
+                 b2(3, True, 20.0, tok_s=72.0, reasoning_tokens=300, visible_tokens=6)])
+    a = R.collect(res, rep)["time"]["t1"]["gpqa"]["arms"]["n2"]
+    assert a["median_tok_s"] == 72.0
+    assert (a["median_reasoning_tokens"], a["median_visible_tokens"]) == (900, 4)
+    assert a["sec_per_correct"] == 90.0 and a["total_completion"] == 300
+    assert a["points"][0]["tok"] == 100
+
+
+def test_collect_counts_questions_the_candidate_finished_first(fake):
+    t = R.collect(*fake)["time"]
+    assert t["t1"]["gpqa"]["paired"] == {"n": 3, "faster": 3}
+    assert t["t0"]["if"]["paired"] is None  # w1 has no IF in t0
+
+
+def test_collect_splits_livecodebench_by_difficulty(fake):
+    res, rep = fake
+    rows = [dict(b2(1, True, 5.0), lcb_question_id="a", lcb_difficulty="easy"),
+            dict(b2(2, False, 300.0, fin="length"), lcb_question_id="b", lcb_difficulty="hard"),
+            dict(b2(3, True, 100.0), lcb_question_id="c", lcb_difficulty="hard")]
+    write_jsonl(res / "ab" / "t1" / "n2" / "livecodebench.jsonl", rows)
+    diff = R.collect(res, rep)["lcb_difficulty"]["t1"]["n2"]
+    assert diff["easy"] == {"n": 1, "median_s": 5.0, "passed": 1}
+    assert diff["hard"] == {"n": 2, "median_s": 200.0, "passed": 1}  # the truncated answer does not count
+
+
 # ---- render() e main() ----
 
-SECTIONS = ("verdict", "notice", "rig", "setup", "gates", "profile-switch", "quality", "time-per-task",
-            "tool-latency", "agent-turn", "legacy", "limits")
+SECTIONS = ("tldr", "profile-switch", "time-per-task", "why", "accuracy", "detail", "short-tasks", "agent-turn",
+            "numbers", "setup", "limits")
+
+
+def _section(html, sid):
+    return re.search(rf'id="{sid}".*?</section>', html, re.S).group(0)
+
+
+def _visible_text(html):
+    html = re.sub(r"<(script|style)\b.*?</\1>", " ", html, flags=re.S)
+    html = re.sub(r"<title>.*?</title>", " ", html, flags=re.S)
+    return re.sub(r"<[^>]+>", " ", html)
 
 
 def test_render_has_every_section(fake):
@@ -163,22 +203,50 @@ def test_render_leaves_no_placeholder(fake):
 
 def test_render_marks_missing_suite_nd(fake):
     html = R.render(R.collect(*fake))
-    row = re.search(r'<tr data-suite="if">.*?</tr>', html, re.S).group(0)
-    assert "n/d" in row
+    rows = re.findall(r'<tr data-suite="if">.*?</tr>', html, re.S)
+    assert any("n/d" in r for r in rows)
 
 
 def test_render_escapes_text(fake):
     d = R.collect(*fake)
-    d["legacy"]["rows"][0]["stack"] = "<b>x</b>"
+    d["stacks"]["n2"]["weights"] = "<b>x</b>"
     html = R.render(d)
     assert "&lt;b&gt;x&lt;/b&gt;" in html and "<b>x</b>" not in html
 
 
-def test_render_strip_plot_has_one_dot_per_question(fake):
+def test_render_strip_plot_has_one_mark_per_question(fake):
     html = R.render(R.collect(*fake))
     panel = re.search(r'<figure class="strip" data-profile="t1" data-suite="gpqa">.*?</figure>', html, re.S).group(0)
     assert panel.count('class="dot n2') == 3 and panel.count('class="dot w1') == 3
-    assert len(re.findall(r'class="dot [^"]*\btrunc\b', panel)) == 1  # a questão 2 do n2 truncou
+    assert len(re.findall(r'class="dot [^"]*\btrunc\b', panel)) == 1  # question 2 of n2 hit max_tokens
+    assert "Swift 1.5 faster on 3 of 3" in panel
+
+
+def test_render_uses_model_names_not_internal_vocabulary(fake):
+    text = _visible_text(R.render(R.collect(*fake)))
+    for word in ("n2", "w1", "G1", "G2", "G3", "gate", "promot", "daily driver", "rollback", "campaign", "T_turn",
+                 "bench2", "runbook"):
+        assert not re.search(rf"\b{re.escape(word)}", text, re.I), word
+    assert "iQ-MLX" in text and "Swift 1.5" in text
+
+
+def test_render_agent_turn_lists_only_the_two_packs(fake):
+    sec = _section(R.render(R.collect(*fake)), "agent-turn")
+    assert "oMLX" not in sec and "MTPLX" not in sec
+    assert "within 4% of each other" in sec  # 8.6 / 8.9 = 0.966
+
+
+def test_render_has_share_metadata(fake):
+    html = R.render(R.collect(*fake))
+    assert '<meta property="og:image" content="https://snagnever.github.io/macstudio-local-llm/' in html
+    assert 'name="twitter:card" content="summary_large_image"' in html
+
+
+def test_speed_words():
+    assert R._speed_words(63.9 / 22.3) == "2.9× faster"
+    assert R._speed_words(1 / 1.13) == "1.1× slower"
+    assert R._speed_words(1.04) == "about the same"
+    assert R._speed_words(None) == "n/d"
 
 
 def test_main_writes_json_and_html(fake, tmp_path):
@@ -194,35 +262,22 @@ def test_main_data_reuses_json(fake, tmp_path):
     js, out = tmp_path / "page.json", tmp_path / "page.html"
     js.write_text(json.dumps(R.collect(res, rep)), encoding="utf-8")
     assert R.main(["--data", str(js), "--out", str(out), "--json-out", ""]) == 0
-    assert 'id="quality"' in out.read_text(encoding="utf-8")
+    assert 'id="accuracy"' in out.read_text(encoding="utf-8")
 
 
 @pytest.mark.skipif(not REAL_REPORTS.is_file(), reason="sem o reports-2026-10.json")
-def test_real_page_states_verdict_and_numbers():
-    html = R.render(R.collect(REAL_RESULTS, REAL_REPORTS))
-    assert "promoted" in html
-    row = re.search(r'<tr data-suite="humaneval">.*?</tr>', html, re.S).group(0)
-    assert [int(x) for x in re.findall(r">(\d+)<", row)][:4] == [158, 158, 155, 157]
-
-
-# ---- correções da revisão final ----
-
-def _section(html, sid):
-    return re.search(rf'id="{sid}".*?</section>', html, re.S).group(0)
-
-
-def test_verdict_does_not_claim_same_quality_when_a_gate_has_no_data(fake):
-    # A fixture não tem o IF do w1 em t0: o G1 de t0 fica sem dado e a decisão fica aberta.
-    v = _section(R.render(R.collect(*fake)), "verdict")
-    assert "decision is open" in v
-    assert "Every suite stays inside" not in v and "has no data in t0; see Gates" in v
+def test_real_page_hero_states_the_headline_numbers():
+    hero = _section(R.render(R.collect(REAL_RESULTS, REAL_REPORTS)), "tldr")
+    assert "2.9× faster" in hero and "2.0× faster" in hero
+    assert "−67%" in hero and "≤ 3" in hero
+    assert "1.2× faster on GPQA-Diamond and 1.5× faster on LiveCodeBench" in hero  # greedy
 
 
 @pytest.mark.skipif(not REAL_REPORTS.is_file(), reason="sem o reports-2026-10.json")
-def test_verdict_on_real_data_states_gated_spread_and_decode():
-    v = _section(R.render(R.collect(REAL_RESULTS, REAL_REPORTS)), "verdict")
-    assert "Every suite stays inside its G1 margin" in v and "0–3 questions on the gated grades" in v
-    assert "decode 76.7 vs 73.2 tok/s at 128K" in v
+def test_real_page_accuracy_uses_the_humaneval_grade_with_imports():
+    sec = _section(R.render(R.collect(REAL_RESULTS, REAL_REPORTS)), "accuracy")
+    row = re.search(r'<tr data-suite="humaneval">.*?</tr>', sec, re.S).group(0)
+    assert [int(x) for x in re.findall(r">(\d+)<", row)][:2] == [158, 158]
 
 
 def test_g2_uses_unrounded_medians(fake):
@@ -233,28 +288,10 @@ def test_g2_uses_unrounded_medians(fake):
     assert R.collect(res, rep)["gates"]["g2"]["gpqa"]["t1"]["pass"] is False
 
 
-def test_speed_rows_mark_single_rep(fake):
-    res, rep = fake
-    d = json.loads(rep.read_text())
-    g = group("d1", "d1", 32768, True, 12.59)
-    g["reps"] = 1
-    d["groups"].append(g)
-    rep.write_text(json.dumps(d))
-    assert "1 rep" in _section(R.render(R.collect(res, rep)), "agent-turn")
-
-
 def test_speed_table_follows_perf_lines_without_c1(fake):
     # O perf-lines de outubro tirou a referência de setembro (c1); a página segue o mesmo recorte.
     sp = R.collect(*fake)["speed"]
     assert all(r["series"] != "c1" for c in R.CONTEXTS for r in sp[c])
-
-
-def test_legacy_note_compares_mean_with_mean(fake):
-    res, rep = fake
-    write_jsonl(res / "ab" / "t0" / "n2" / "humaneval.jsonl",
-                [b2(1, True, 5.0, comp=100), b2(2, True, 5.0, comp=200), b2(3, True, 5.0, comp=600)])
-    leg = _section(R.render(R.collect(res, rep)), "legacy")
-    assert "a mean of 300 tokens" in leg and "n1 not recorded" in leg
 
 
 def test_limits_tool_token_range_comes_from_data(fake):
@@ -262,12 +299,7 @@ def test_limits_tool_token_range_comes_from_data(fake):
     assert "40 tokens per answer" in _section(R.render(R.collect(*fake)), "limits")
 
 
-def test_switch_label_names_the_sections_it_controls(fake):
-    sw = re.search(r'id="profile-switch".*?</div>', R.render(R.collect(*fake)), re.S).group(0)
-    assert "Quality, Time per task and Tool-call latency" in sw
-
-
-def test_index_card_qualifies_speedup_with_vendor_sampling():
+def test_index_card_qualifies_speedup_with_the_sampling():
     idx = (CAMPAIGN.parents[1] / "reports" / "index.html").read_text(encoding="utf-8")
     card = re.search(r'href="qwen38-flashnext-swift15.html">.*?</a>', idx, re.S).group(0)
-    assert "with vendor sampling" in card
+    assert "recommended sampling" in card
