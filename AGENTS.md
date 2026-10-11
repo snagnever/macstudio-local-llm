@@ -4,6 +4,12 @@ This is the contract for where things live. Follow it so the layout stays
 coherent as work accrues. When a new file doesn't obviously fit, match the
 closest rule below rather than inventing a new top-level directory.
 
+## Language of the conversation
+
+Reply in the language the user writes in. When the user writes in Portuguese, answer in Portuguese, including
+summaries, questions and proposals. This rule is about the chat only: a file keeps the language its
+destination asks for (for example, the published reports and the `reports/index.html` cards stay in English).
+
 ## Top-level map
 
 | Directory | Holds | Not |
