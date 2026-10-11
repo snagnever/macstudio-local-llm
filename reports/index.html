@@ -102,7 +102,7 @@ footer a{color:var(--accent)}
   <section class="block" id="flashnext">
     <h2 class="sec"><span class="sw" style="background:var(--s1)"></span>Qwen3.8-Flash-Next — daily driver</h2>
     <p class="s-note">Campaign <code>bench/qwen38-flashnext-daily-driver-2026-09</code>: 4 quant × runtime combinations of
-    Flash-Next (MoE), to pick the most responsive setup. Verdict: ddalcu mixed-4/8 on mlx-serve 26.9.2.</p>
+    Flash-Next (MoE), to pick the most responsive setup. Verdict: ddalcu mixed-4/8 on mlx-serve 26.9.2. Daily driver since 2026-10-11: Swift 1.5 on mlx-serve 26.10.1.</p>
     <div class="cards">
       <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-overview.html">
         <span class="c-title">Campaign dashboard</span>
@@ -116,6 +116,13 @@ footer a{color:var(--accent)}
         driver as reference. Lines per context for T_turn, warm TTFT, cold TTFT, decode, prefill and wired memory.
         <b>mlx-serve leads every band; MTPLX refuses 256K (planned fit 237,568 tokens).</b></p>
         <span class="c-meta"><span>2026-10-09</span><span class="path">qwen38-flashnext-perf-lines.html</span></span>
+      </a>
+      <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-swift15.html">
+        <span class="c-title">Swift 1.5 vs iQ-MLX</span>
+        <p class="c-desc">Fine-tune A/B on mlx-serve 26.10.1: six quality suites in vendor and greedy sampling, time per
+        question, tool-call latency and agent-turn speed against the October stacks. <b>Same quality, 2–3× less time
+        to the final answer on GPQA and LiveCodeBench; Swift 1.5 is the new daily driver.</b></p>
+        <span class="c-meta"><span>2026-10-11</span><span class="path">qwen38-flashnext-swift15.html</span></span>
       </a>
       <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-driver.html">
         <span class="c-title">Responsive driver — scoreboard</span>

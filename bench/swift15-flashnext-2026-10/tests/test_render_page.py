@@ -136,3 +136,70 @@ def test_real_data_matches_summary_md():
     assert d["time"]["t1"]["gpqa"]["ratio"] == 0.35
     rows = {r["arm"]: r for r in d["speed"]["131072"]}
     assert rows["w1"]["t_turno_s"] == 8.6 and rows["m1x"]["t_turno_s"] == 15.1
+
+
+# ---- render() e main() ----
+
+SECTIONS = ("verdict", "notice", "rig", "setup", "gates", "profile-switch", "quality", "time-per-task",
+            "tool-latency", "agent-turn", "legacy", "limits")
+
+
+def test_render_has_every_section(fake):
+    html = R.render(R.collect(*fake))
+    for sid in SECTIONS:
+        assert f'id="{sid}"' in html, sid
+
+
+def test_render_profile_switch_shows_t1_hides_t0(fake):
+    html = R.render(R.collect(*fake))
+    assert 'data-set-profile="t1"' in html and 'data-set-profile="t0"' in html
+    assert '<html lang="en" data-profile="t1">' in html
+    assert 'class="prof prof-t0"' in html and 'class="prof prof-t1"' in html
+
+
+def test_render_leaves_no_placeholder(fake):
+    assert not re.search(r"__[A-Z_]+__", R.render(R.collect(*fake)))
+
+
+def test_render_marks_missing_suite_nd(fake):
+    html = R.render(R.collect(*fake))
+    row = re.search(r'<tr data-suite="if">.*?</tr>', html, re.S).group(0)
+    assert "n/d" in row
+
+
+def test_render_escapes_text(fake):
+    d = R.collect(*fake)
+    d["legacy"]["rows"][0]["stack"] = "<b>x</b>"
+    html = R.render(d)
+    assert "&lt;b&gt;x&lt;/b&gt;" in html and "<b>x</b>" not in html
+
+
+def test_render_strip_plot_has_one_dot_per_question(fake):
+    html = R.render(R.collect(*fake))
+    panel = re.search(r'<figure class="strip" data-profile="t1" data-suite="gpqa">.*?</figure>', html, re.S).group(0)
+    assert panel.count('class="dot n2') == 3 and panel.count('class="dot w1') == 3
+    assert len(re.findall(r'class="dot [^"]*\btrunc\b', panel)) == 1  # a questão 2 do n2 truncou
+
+
+def test_main_writes_json_and_html(fake, tmp_path):
+    res, rep = fake
+    out, js = tmp_path / "page.html", tmp_path / "page.json"
+    assert R.main(["--results", str(res), "--reports", str(rep), "--out", str(out), "--json-out", str(js)]) == 0
+    assert out.read_text(encoding="utf-8").startswith("<!doctype html>")
+    assert json.loads(js.read_text(encoding="utf-8"))["quality"]["t1"]["n2"]["gpqa"]["passed"] == 2
+
+
+def test_main_data_reuses_json(fake, tmp_path):
+    res, rep = fake
+    js, out = tmp_path / "page.json", tmp_path / "page.html"
+    js.write_text(json.dumps(R.collect(res, rep)), encoding="utf-8")
+    assert R.main(["--data", str(js), "--out", str(out), "--json-out", ""]) == 0
+    assert 'id="quality"' in out.read_text(encoding="utf-8")
+
+
+@pytest.mark.skipif(not REAL_REPORTS.is_file(), reason="sem o reports-2026-10.json")
+def test_real_page_states_verdict_and_numbers():
+    html = R.render(R.collect(REAL_RESULTS, REAL_REPORTS))
+    assert "promoted" in html
+    row = re.search(r'<tr data-suite="humaneval">.*?</tr>', html, re.S).group(0)
+    assert [int(x) for x in re.findall(r">(\d+)<", row)][:4] == [158, 158, 155, 157]
