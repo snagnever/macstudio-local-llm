@@ -39,6 +39,9 @@ a taxa de recusa.
 
 ## Status
 
-- [ ] Testar ARC4NUM Flash-Next MLX-Serve 4-bit no rig M4 Max 128 GB.
+- [x] Testar ARC4NUM Flash-Next MLX-Serve 4-bit no rig M4 Max 128 GB — Etapa U, braço u1
+  (`bench/qwen38-flashnext-daily-driver-2026-09/results/etapa-u.md`): responsividade igual ao c1;
+  0/50 over-refusal; 0/24 recusas em prompts nocivos (c1: 7/24). Alternativo, não upgrade.
 - [ ] Testar orcarouter 27B (qualidade + vision).
-- [ ] Confirmar se os repos carregam sem erro no `mlx-serve` 26.9.1.
+- [ ] Confirmar se os repos carregam sem erro no `mlx-serve` 26.9.1. ARC4NUM: carrega no 26.9.2 (Etapa U).
+  orcarouter 27B: não testado.

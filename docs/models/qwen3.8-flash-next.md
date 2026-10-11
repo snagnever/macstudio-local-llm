@@ -1,12 +1,15 @@
 # Qwen3.8-Flash-Next (125B-A6B MoE)
 
 > **Status: 🟢 DAILY DRIVER — responsiveness default.** The most responsive daily setup on this rig:
-> `ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw` on **mlx-serve 26.10.1**.
-> T_turno (time for one tool turn with a 512-token reply) **8.3 s at 32K** and **8.9 s at 128K**, 27% ahead of
-> the previous pair (mixed-4/8 on 26.9.2). Agent quality (Terminal-Bench) is **not measured** for this model yet.
-> Last updated: 2026-10-07
+> **Swift 1.5** (`Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw`, a reasoning-efficiency fine-tune of
+> Flash-Next) on **mlx-serve 26.10.1**. Same quality as the previous iQ-MLX-4.7bpw pack and 2–3× less time to
+> the final answer on reasoning tasks (GPQA median 22 s vs 64 s). T_turno (time for one tool turn with a
+> 512-token reply) **7.9 s at 32K** and **8.6 s at 128K**. Agent quality (Terminal-Bench) is **not measured**
+> for this model yet. License: Swift Open License v1.0 on top of the Qwen Community License.
+> Last updated: 2026-10-11
 
-Campaign that selected this config: [`bench/qwen38-flashnext-updates-2026-10/results/summary.md`](../../bench/qwen38-flashnext-updates-2026-10/results/summary.md) (2026-10-07: runtime 26.9.2 → 26.10.1, weights mixed-4-8bit → iQ-MLX-4.7bpw).
+Campaign that selected these weights: [`bench/swift15-flashnext-2026-10/results/summary.md`](../../bench/swift15-flashnext-2026-10/results/summary.md) (2026-10-11: iQ-MLX-4.7bpw → Swift 1.5 MLX-4.7bpw, same runtime and flags).
+Campaign that selected the runtime: [`bench/qwen38-flashnext-updates-2026-10/results/summary.md`](../../bench/qwen38-flashnext-updates-2026-10/results/summary.md) (2026-10-07: runtime 26.9.2 → 26.10.1).
 Campaign that selected the stack: [`bench/qwen38-flashnext-daily-driver-2026-09/results/summary.md`](../../bench/qwen38-flashnext-daily-driver-2026-09/results/summary.md).
 Model research, builds and older measurements: [`bench/qwen38-flash-next/references.md`](../../bench/qwen38-flash-next/references.md).
 Dashboard: [`reports/qwen38-flashnext-driver.html`](../../reports/qwen38-flashnext-driver.html).
@@ -16,9 +19,11 @@ Dashboard: [`reports/qwen38-flashnext-driver.html`](../../reports/qwen38-flashne
 | Item | Value |
 |---|---|
 | Runtime | mlx-serve **26.10.1** (MLX 0.32.3) — `~/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve` (also `~/.local/bin/mlx-serve`). Rollback: 26.9.2 in `~/.local/opt/qwen38/mlx-serve-v26.9.2/` |
-| Weights | [`ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw`](https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw) rev [`dafff5c`](https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw/tree/dafff5c3d8168c9d13275661153911096499a80a) |
-| Local path | `~/.cache/local-llms/qwen3.8-prefix-cache/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a` |
-| Quant | same layout as mixed-4/8 (experts 4-bit, non-expert weights 8-bit), experts calibrated with an importance matrix (`imatrix-weighted affine`); n-gram table identical to mixed-4/8, memory-mapped from SSD. The mixed-4-8bit pack is deprecated upstream since 2026-10-06 |
+| Weights | [`Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw`](https://huggingface.co/Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw) rev `13839b7` — port of [ukisai/Swift1.5-Qwen3.8-Flash-Next](https://huggingface.co/ukisai/Swift1.5-Qwen3.8-Flash-Next) |
+| Local path | `~/.cache/local-llms/qwen3.8-prefix-cache/Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0` |
+| Rollback weights | `ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw` rev `dafff5c`, in the same cache directory; start the launcher with `FLASHNEXT_MODEL=<that path>` |
+| License | Swift Open License v1.0 (free up to US$ 1M annual revenue; above that, a Swift Enterprise License) on top of the Qwen Community License 1.0 |
+| Quant | Swift 1.5: calibrated 4-bit experts + 8-bit spine, same layout as the iQ pack; its n-gram table differs from the iQ pack (different LFS hash), so it is a separate 107 GB download. iQ pack (rollback): same layout as mixed-4/8 (experts 4-bit, non-expert weights 8-bit), experts calibrated with an importance matrix (`imatrix-weighted affine`); n-gram table identical to mixed-4/8, memory-mapped from SSD. The mixed-4-8bit pack is deprecated upstream since 2026-10-06 |
 | Endpoint | `http://<rig>:11234/v1` (OpenAI-compatible); `/metrics` (Prometheus) |
 | API model id | the weights directory name above (read it from `/v1/models`) |
 | Launcher | [`tools/scripts/serve-flashnext-daily-driver.sh`](../../tools/scripts/serve-flashnext-daily-driver.sh) |
@@ -27,7 +32,7 @@ Dashboard: [`reports/qwen38-flashnext-driver.html`](../../reports/qwen38-flashne
 
 ```bash
 ~/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve \
-  --model ~/.cache/local-llms/qwen3.8-prefix-cache/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a \
+  --model ~/.cache/local-llms/qwen3.8-prefix-cache/Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0 \
   --serve --host 0.0.0.0 --port 11234 \
   --ctx-size 131072 \
   --mtp \
@@ -36,7 +41,7 @@ Dashboard: [`reports/qwen38-flashnext-driver.html`](../../reports/qwen38-flashne
   --metrics
 ```
 
-This is the config the 2026-10 campaign measured (arm n2): same flags as the 2026-09 candidate c1, new binary and weights.
+This is the config the 2026-10-11 campaign measured (arm w1): the flags of arm n2 (2026-10-07) and of the 2026-09 candidate c1, with the Swift 1.5 weights.
 
 ### Why each parameter
 
@@ -72,7 +77,7 @@ Cap `max_tokens` above 4096 for hard prompts: with `xhigh` the reasoning can pas
 
 ## Measured performance (2026-10-07, M4 Max 128 GB, temp 1.0)
 
-Current pair (iQ-MLX-4.7bpw @ mlx-serve 26.10.1). Median of 3 repetitions. Source: [`bench/qwen38-flashnext-updates-2026-10/results/summary.md`](../../bench/qwen38-flashnext-updates-2026-10/results/summary.md).
+iQ-MLX-4.7bpw @ mlx-serve 26.10.1 (the daily pair until 2026-10-11, now the rollback). Swift 1.5 matches or beats these numbers (T_turno 7.9 / 8.6 s at 32K / 128K, same prefill and TTFT); see [`bench/swift15-flashnext-2026-10/results/summary.md`](../../bench/swift15-flashnext-2026-10/results/summary.md). Median of 3 repetitions. Source: [`bench/qwen38-flashnext-updates-2026-10/results/summary.md`](../../bench/qwen38-flashnext-updates-2026-10/results/summary.md).
 
 | Context | T_turno | Cold TTFT (first turn) | Warm TTFT identical / append / tool_turn | Cache hit append / tool_turn | Warm decode | MTP acceptance | Wired peak | Swap |
 |---|---:|---:|---|---|---:|---:|---:|---:|
@@ -112,7 +117,8 @@ It adds `--ctx-size 524288 --kv-quant 4` and a YaRN override
 
 | Stack | T_turno 32K / 128K | Verdict |
 |---|---|---|
-| **ddalcu iQ-MLX-4.7bpw @ mlx-serve 26.10.1** | **8.3 / 8.9 s** | Default since 2026-10-07. Same speed as mixed-4/8 on 26.10.1; HumanEval +3. |
+| **Swift 1.5 MLX-4.7bpw @ mlx-serve 26.10.1** | **7.9 / 8.6 s** | Default since 2026-10-11. Same quality as iQ in an A/B with `reasoning_effort xhigh` (HumanEval 158 vs 158, GPQA 43 vs 45, LCB 42 vs 41 of 50, vendor sampling); median time per GPQA question 0.35× and per LCB question 0.49×. |
+| ddalcu iQ-MLX-4.7bpw @ mlx-serve 26.10.1 | 8.1 / 8.9 s (re-measured 2026-10-11) | Default 2026-10-07 → 2026-10-11; now the rollback. Same speed as mixed-4/8 on 26.10.1. |
 | ddalcu mixed-4/8 @ mlx-serve 26.10.1 | 8.3 / 8.8 s | Same speed as iQ. The pack is deprecated upstream. |
 | ddalcu mixed-4/8 @ mlx-serve 26.9.2 | 11.03 / 12.35 s | Default until 2026-10-07. Fastest stack of the 2026-09 campaign. |
 | Jundot oQ4e-mtp @ oMLX 0.7.0.dev2 | 13.48 / 15.03 s | 2nd. Same decode (~50 tok/s at 128K), slower TTFT (warm 4.8 s, cold 259 s). No YaRN: ceiling 262K. Needs `qwen4_ple_ssd_offload: true`. |
@@ -121,7 +127,9 @@ It adds `--ctx-size 524288 --kv-quant 4` and a YaRN override
 
 ## Known issues and cautions
 
-- **Agent quality is unmeasured.** The older conditional promotion stands on quality: run Terminal-Bench before replacing `qwen3-coder-next` in the agent role.
+- **Agent quality is unmeasured.** The older conditional promotion stands on quality: run Terminal-Bench before replacing `qwen3-coder-next` in the agent role. The driver for it is ready (`bench/terminal-bench/scripts/run-tbench-flashnext.sh`); the run is on hold because it needs a second machine for the Docker containers.
+- **Instruction following (Swift 1.5).** Its card declares −3 on IFBench. The A/B's 20-case IFEval-style probe found one consistent miss (two paragraphs separated by `***`) in both sampling profiles.
+- **512K with Swift 1.5 is not measured.** The `512k` launcher profile was measured on 26.9.2 with the mixed-4-8bit weights.
 - The campaign harness (`bench/qwen38-flashnext-daily-driver-2026-09/scripts/run-candidate.sh`) **wipes `~/.mlx-serve/kv-cache` and kills whatever listens on port 11234**. Stop the daily driver on purpose before running it.
 - Reasoning at `xhigh` can exceed 4096 tokens on long mutated prompts; raise `max_tokens` in clients.
 - Older numbers in `bench/qwen38-flash-next/references.md` and `bench/qwen38-updates-2026-09/` were measured at `temperature=0`; they read faster than daily use.

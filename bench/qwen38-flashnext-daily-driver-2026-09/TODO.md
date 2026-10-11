@@ -12,11 +12,13 @@ Marque `[x]` e cite o commit quando fechar um item.
   `DS4_QWEN4_YARN_FACTOR` direto do env. Um chamador direto (`bench/qwen3.8-prefix-cache/scripts/run-campaign.sh`,
   `bench/qwen38-updates-2026-09/scripts/run-p2-mtplx-ab.sh`) herda o valor do shell. Fazer `unset` no topo desses
   chamadores ou documentar os knobs nos launchers.
-- [ ] **`FLASHNEXT_EXEC` sem `unset`.** Se ficar exportado no shell, todo braço do `run-candidate.sh` pula o probe e
+- [x] **`FLASHNEXT_EXEC` sem `unset`.** Se ficar exportado no shell, todo braço do `run-candidate.sh` pula o probe e
   não grava jsonl. Fazer `unset` no início do script, exceto quando o chamador (ex.: `run-quality.sh`) passa o valor
-  de propósito para aquele run.
-- [ ] **Comentário fora do lugar.** Em `scripts/run-candidate.sh:141`, o comentário "os dois juntos: a conta do memory
-  plan só chega a 262K assim" fica na linha do m1s, mas descreve o m1xq. Mover.
+  de propósito para aquele run. Fechado no branch `bench/swift15-flashnext-2026-10`: `--exec CMD` substitui a
+  variável, e um `FLASHNEXT_EXEC` herdado é ignorado com aviso.
+- [x] **Comentário fora do lugar.** Em `scripts/run-candidate.sh:141`, o comentário "os dois juntos: a conta do memory
+  plan só chega a 262K assim" fica na linha do m1s, mas descreve o m1xq. Mover. Fechado no branch
+  `bench/swift15-flashnext-2026-10`.
 - [x] **Default do renderer reescreve a página publicada.** `render_perf_lines.py` sem `--data` usa o `reports.json`
   de setembro e grava `reports/qwen38-flashnext-perf-lines.html`, que hoje é a página de outubro. Mudar o default de
   `--data` para `bench/engine-updates-2026-10/results/reports-2026-10.json`, ou recusar gravar o perfil 2026-09 no
@@ -43,9 +45,11 @@ Marque `[x]` e cite o commit quando fechar um item.
 
 ## Medições abertas
 
-- [ ] **Qualidade do n2 com a mesma config.** O run do n2 (2026-10-07) usou ~200 tokens por resposta; o o1 ~1 800
+- [x] **Qualidade do n2 com a mesma config.** O run do n2 (2026-10-07) usou ~200 tokens por resposta; o o1 ~1 800
   e o m1x ~3 300. Rodar `bench/engine-updates-2026-10/scripts/run-quality.sh n2 131072` (tag `qual`) para uma
   comparação com o mesmo modo de reasoning. Checar antes se o mlx-serve reporta `reasoning_tokens`.
+  Fechado em `bench/swift15-flashnext-2026-10/results/ab-summary-t1.md` e `ab-summary-t0.md`: com
+  `reasoning_effort` explícito, o mlx-serve pensa e reporta `reasoning_tokens`.
 - [x] **n2 a 512K: `PrefillDoesNotFit` intermitente.** Faltaram 0.6 GB (yarn2) e 3.2 GB (yarn2r); entrada do hot cache
   compartilhada é copiada inteira. Rodar `bench/engine-updates-2026-10/scripts/run-n2o-512k.sh` (braço n2o,
   `--os-reserve-gib 4`) quando a porta 11234 estiver livre; o script recusa (exit 75) enquanto houver processo

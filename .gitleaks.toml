@@ -1,6 +1,6 @@
 # gitleaks configuration for macstudio-local-llm
 #
-# Keep the full default ruleset; add a narrow allowlist for three benchmark
+# Keep the full default ruleset; add a narrow allowlist for four benchmark
 # false positives that the generic-api-key heuristic flags:
 #
 #   1. SHA-256 content fingerprints in telemetry (fixture_token_hash,
@@ -10,6 +10,8 @@
 #      (`qwen3x_ane_prefill_sequence_length`) misread as a secret.
 #   3. The model id `qwen3.6-35b-a3b-mtp`, passed as `KEY=` / `MODEL_KEY=` in
 #      the bench/qwen3.6-mtp scripts and flagged by entropy.
+#   4. The OpenAI response field `finish_reason=<value>` (stop, length,
+#      tool_calls, content_filter) quoted in benchmark notes.
 #
 # The allowlist is pattern-scoped, not path-scoped, so a real secret dropped
 # into any file is still caught. The pre-commit hook (.pre-commit-config.yaml)
@@ -19,9 +21,10 @@
 useDefault = true
 
 [allowlist]
-description = "Benchmark telemetry hashes, a config field-name literal and a model id, not secrets"
+description = "Benchmark telemetry hashes, a config field-name literal, a model id and finish_reason values, not secrets"
 regexes = [
   '''^[0-9a-f]{64}$''',
   '''ane_prefill_sequence_length''',
   '''^qwen3\.6-35b-a3b-mtp$''',
+  '''^finish_reason=(stop|length|tool_calls|content_filter)$''',
 ]

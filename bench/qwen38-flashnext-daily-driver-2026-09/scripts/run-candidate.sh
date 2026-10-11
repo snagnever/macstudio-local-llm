@@ -4,6 +4,7 @@
 #   c1 = ddalcu mixed-4/8 @ mlx-serve 26.9.2      c2 = Jundot oQ4e @ oMLX 0.6.4
 #   c3 = Jundot oQ4e @ oMLX 0.7.0.dev2            c4 = MTPLX Optimized-Speed @ MTPLX 2.11.2
 #   n1/n2/n2p = campanha flashnext-updates-2026-10 (mlx-serve 26.10.1; n2 = pack iQ-MLX-4.7bpw; n2p = n2 + --ple-gpu)
+#   w1 = campanha swift15-flashnext-2026-10: Swift 1.5 (Dankpaws MLX-4.7bpw) @ mlx-serve 26.10.1, flags do n2
 #   engine-updates-2026-10: m1/m1b = MTPLX 2.12.2 (m1b: limite 96G), o1 = oMLX 0.7.0, d1 = ds4 upstream;
 #   r27 = 27B @ mlx-serve 26.10.1 + DFlash2, m27 = MTPLX 2.12.2, o27 = oMLX 0.7.0, s27 = mlx-dspark 0.20.3
 #   Etapa F (um knob por braço): m1t/m1h/m1th = m1 + pin TTL 0 / header de sessão / os dois;
@@ -12,9 +13,14 @@
 #   s27r = s27 + --prefix-cache-rungs 1024
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
-SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""
+SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
+# A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
+if [[ -n "${FLASHNEXT_EXEC:-}" ]]; then
+  echo "run-candidate: FLASHNEXT_EXEC no ambiente é ignorado; use --exec" >&2
+  unset FLASHNEXT_EXEC
+fi
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --scenarios) SCENARIOS="$2"; shift 2 ;;
@@ -23,6 +29,7 @@ while [[ $# -gt 0 ]]; do
     --tag) TAG="$2"; shift 2 ;;
     --yarn) YARN="$2"; shift 2 ;;
     --generation-mode) GENMODE="$2"; shift 2 ;;
+    --exec) EXEC_CMD="$2"; shift 2 ;;
     --print) PRINT=1; shift ;;
     *) echo "opcao desconhecida: $1" >&2; exit 64 ;;
   esac
@@ -42,6 +49,8 @@ U1DIR="$MODEL_ROOT/ARC4NUM-Qwen3.8-Flash-Next-Uncensored-MLX-Serve-4bit-9ebf9993
 U2DIR="$MODEL_ROOT/latent-variable-Qwen3.8-Flash-Next-heretic-2-oQ4e-mtp-65b0cd6"
 # Campanha flashnext-updates-2026-10: pack calibrado (mesmo layout do DDALCU) e runtime 26.10.1.
 IQDIR="$MODEL_ROOT/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a"
+# Campanha swift15-flashnext-2026-10: fine-tune Swift 1.5, mesmo layout e runtime do IQDIR.
+SWIFTDIR="$MODEL_ROOT/Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0"
 MLXSERVE_26101="$HOME/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve"
 # Campanha engine-updates-2026-10: runtimes atualizados e pesos do 27B.
 OPT="$HOME/.local/opt/qwen38"
@@ -92,13 +101,15 @@ case "$CAND" in
       PROBE_PY="$HOME/.local/opt/qwen38/omlx-v0.7.0.dev2/bin/python"
       export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_OMLX_BIN="$HOME/.local/opt/qwen38/omlx-v0.7.0.dev2/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.0.dev2 ;;
-  n1|n2|n2p|n2o|n2o2|n2q4) # flashnext-updates-2026-10: runtime 26.10.1. n1 = pesos do c1; n2/n2p/n2o = pack iQ; n2p = + --ple-gpu.
+  n1|n2|n2p|n2o|n2o2|n2q4|w1) # flashnext-updates-2026-10: runtime 26.10.1. n1 = pesos do c1; n2/n2p/n2o = pack iQ; n2p = + --ple-gpu; w1 = Swift 1.5.
       # n2o = n2 + --os-reserve-gib 4 (default 8 GB no Mac de 128 GB): o PrefillDoesNotFit a 512K faltou 0.6–3.2 GB.
       # n2o2 = reserva 2 GB: com 4 GB um prime ainda recusou por ~0.3 GB; com 3 reps virou OOM de Metal.
       # n2q4 = KV 4-bit a 512K com a reserva padrão: reduz a cópia de KV (~9 GB com KV 8-bit).
       LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.1
       if [[ "$CAND" == n1 ]]; then
         MODEL_DIR="$DDALCU"; MODEL_REV=ef5b919d31534faa1997666f1a22d362cd6383cd
+      elif [[ "$CAND" == w1 ]]; then
+        MODEL_DIR="$SWIFTDIR"; MODEL_REV=13839b7191e0973ff9fea58232267c395b76c6c0
       else
         MODEL_DIR="$IQDIR"; MODEL_REV=dafff5c3d8168c9d13275661153911096499a80a
       fi
@@ -145,8 +156,8 @@ case "$CAND" in
         m1t) FIX=pin0 ;; m1h) FIX=sesshdr ;; m1th) FIX=pin0-sesshdr ;;
         m1p) FIX=prime64 ;; m1hp) FIX=sesshdr-prime64 ;;
         m1v) FIX=vendor ;; m1x) FIX=memmax ;; m1q) FIX=kvq8 ;;
-        m1xq) FIX=memmax-kvq8 ;;
-        m1s) FIX=qsaprefill ;;  # prefill esparso do indexer QSA, que o auto só liga com NAX (M5)  # os dois juntos: a conta do memory plan só chega a 262K assim
+        m1xq) FIX=memmax-kvq8 ;;  # os dois juntos: a conta do memory plan só chega a 262K assim
+        m1s) FIX=qsaprefill ;;  # prefill esparso do indexer QSA, que o auto só liga com NAX (M5)
         m27f) FIX="${ENGINE_M27F:?m27f exige ENGINE_M27F=pin0|sesshdr|prime64|sesshdr-prime64|...}" ;;
         *) FIX="" ;;
       esac
@@ -297,11 +308,13 @@ MODEL_SELECT="${MODEL_ID_PREF:-$(basename "$MODEL_DIR")}"
 if [[ -n "$PRINT" ]]; then
   echo "model_select: $MODEL_SELECT"
   echo "launcher: $LAUNCHER $ARM"; bash "$LAUNCHER" "$ARM" --print; echo
-  # FLASHNEXT_EXEC troca o probe por outro comando contra o servidor (ex.: bateria de qualidade).
-  [[ -n "${FLASHNEXT_EXEC:-}" ]] && { echo "exec: $FLASHNEXT_EXEC"; echo "saida: $OUT"; exit 0; }
+  # --exec troca o probe por outro comando contra o servidor (ex.: bateria de qualidade).
+  [[ -n "$EXEC_CMD" ]] && { echo "exec: $EXEC_CMD"; echo "saida: $OUT"; exit 0; }
   echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS} ${PROBE_SESSION_HEADER:+--session-header $PROBE_SESSION_HEADER} ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens $PROBE_PRIME_MAX_TOKENS}"
   echo "saida: $OUT"; exit 0
 fi
+# Um pack ausente ou incompleto faz o servidor morrer no boot com erro pouco claro: recusar antes.
+[[ -e "$MODEL_DIR" ]] || { echo "run-candidate: pesos ausentes em $MODEL_DIR" >&2; exit 66; }
 
 # O binário errado invalida o A/B inteiro: conferir a versão antes de subir o servidor.
 if [[ -n "${MLX_SERVE_EXPECTED_VERSION:-}" ]]; then
@@ -328,13 +341,16 @@ if [[ -s "$OUT" ]]; then
 fi
 : > "$MEM"
 
-SERVER_PID=""; SAMPLER_PID=""
+SERVER_PID=""; SAMPLER_PID=""; SERVER_STARTED=""
 cleanup() {
   [[ -n "$SAMPLER_PID" ]] && kill "$SAMPLER_PID" 2>/dev/null || true
   [[ -n "$SERVER_PID" ]] && kill "$SERVER_PID" 2>/dev/null || true
   # SERVER_PID is the `nohup bash "$LAUNCHER" ...` wrapper, not necessarily the
   # runtime process itself -- kill whatever is actually listening on $PORT too,
   # or a dead probe leaves the server (and the port) held by an orphan.
+  # Only when this run started a server: an exit before the boot (port busy) must not
+  # kill another session's server (on 2026-10-10 it killed the daily driver's mlx-serve).
+  [[ -n "$SERVER_STARTED" ]] || return 0
   local listeners
   listeners="$(lsof -nP -tiTCP:${PORT} -sTCP:LISTEN 2>/dev/null || true)"
   [[ -n "$listeners" ]] && kill $listeners 2>/dev/null || true
@@ -360,7 +376,7 @@ if [[ -d "$HOME/.mlx-serve/kv-cache" ]]; then echo "    limpando ~/.mlx-serve/kv
 
 echo ">>> $NAME: sampler + servidor ($LAUNCHER $ARM)"
 bash "$HERE/scripts/mem-sampler.sh" "$MEM" "$SERVER_NAME" 5 & SAMPLER_PID=$!
-nohup bash "$LAUNCHER" "$ARM" >"$BOOT" 2>&1 & SERVER_PID=$!
+SERVER_STARTED=1; nohup bash "$LAUNCHER" "$ARM" >"$BOOT" 2>&1 & SERVER_PID=$!
 ready=""
 for _ in $(seq 1 200); do
   server_ready && { ready=1; break; }
@@ -403,9 +419,9 @@ fi
 # server). `|| PROBE_EXIT=$?` keeps errexit happy since the assignment itself
 # succeeds.
 PROBE_EXIT=0
-if [[ -n "${FLASHNEXT_EXEC:-}" ]]; then
+if [[ -n "$EXEC_CMD" ]]; then
   # O comando recebe o servidor pronto em BASE_URL e MODEL_ID; o código de saída dele vira o do braço.
-  BASE_URL="$BASE/v1" MODEL_ID="$MODEL_ID" bash -c "$FLASHNEXT_EXEC" || PROBE_EXIT=$?
+  BASE_URL="$BASE/v1" MODEL_ID="$MODEL_ID" bash -c "$EXEC_CMD" || PROBE_EXIT=$?
 else
 "$PROBE_PY" "$HARNESS/cache_probe.py" \
   --base-url "$BASE/v1" --model "$MODEL_ID" --api-model "$MODEL_ID" \
