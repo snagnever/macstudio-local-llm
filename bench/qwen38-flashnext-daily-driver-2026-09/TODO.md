@@ -46,7 +46,7 @@ Marque `[x]` e cite o commit quando fechar um item.
 - [ ] **Qualidade do n2 com a mesma config.** O run do n2 (2026-10-07) usou ~200 tokens por resposta; o o1 ~1 800
   e o m1x ~3 300. Rodar `bench/engine-updates-2026-10/scripts/run-quality.sh n2 131072` (tag `qual`) para uma
   comparação com o mesmo modo de reasoning. Checar antes se o mlx-serve reporta `reasoning_tokens`.
-- [ ] **n2 a 512K: `PrefillDoesNotFit` intermitente.** Faltaram 0.6 GB (yarn2) e 3.2 GB (yarn2r); entrada do hot cache
+- [x] **n2 a 512K: `PrefillDoesNotFit` intermitente.** Faltaram 0.6 GB (yarn2) e 3.2 GB (yarn2r); entrada do hot cache
   compartilhada é copiada inteira. Rodar `bench/engine-updates-2026-10/scripts/run-n2o-512k.sh` (braço n2o,
   `--os-reserve-gib 4`) quando a porta 11234 estiver livre; o script recusa (exit 75) enquanto houver processo
   `swift15`. Rodado em 2026-10-10: serviu os 5 cenários sem swap, mas um prime ainda recusou (faltaram ~0.3 GB).
@@ -54,8 +54,8 @@ Marque `[x]` e cite o commit quando fechar um item.
   3 reps (2026-10-11): OOM de Metal num `tool_turn`, compressor 59 GB. Knob descartado; o launcher fica no default.
   Próximo: braço `n2q4` (`--kv-quant 4`, reserva padrão), 3 reps:
   `ENGINE_REPEAT=3 run-n2o-512k.sh n2q4`. Rodado em 2026-10-11: 3 reps, nenhuma recusa nem OOM, swap 0, wired 113.9
-  GB, hit 0.998, T_turno 13.0 s; 1 `append` truncou em 4096 tokens de reasoning. Falta: levar `--kv-quant 4` ao perfil
-  512k do launcher e à página.
+  GB, hit 0.998, T_turno 13.0 s; 1 `append` truncou em 4096 tokens de reasoning. Fechado em `8bfaab4`: perfil 512k
+  do launcher com `--kv-quant 4`; n2q4 é o ponto de 512K do n2 na página.
 - [ ] **Qualidade do d1 (ds4).** Ficou fora da Etapa G4.
 - [ ] **TTFT do `tool_turn` do d1 cresce com o contexto** (6.4 s a 128K, 20 s a 256K, 50 s a 512K) apesar do hit
   ≥ 0.94. Causa não investigada.
