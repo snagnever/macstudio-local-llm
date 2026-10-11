@@ -161,3 +161,7 @@ before pointing a harness at it; the port and quant change as arms come and go.
   `bench/*/results/` and `docs/models/` for that version string.
 - Don't add a new top-level directory without a reason that none of the above
   cover.
+- Write every git message in English: commit subjects and bodies, branch names,
+  pull request titles and descriptions, and merge commit messages. This holds
+  even when the conversation or the document being changed is in another
+  language. Keep the existing subject form, `<type>(<scope>): <summary>`.
