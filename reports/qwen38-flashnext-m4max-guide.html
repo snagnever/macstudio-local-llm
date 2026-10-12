@@ -57,6 +57,9 @@ h1{font-size:2rem; line-height:1.15; letter-spacing:-0.025em; margin:0; text-wra
 .tldr a{color:var(--accent)}
 .about{display:block; color:var(--muted); font-weight:400; font-size:0.78rem; margin-top:2px; padding-left:18px}
 .block h3{font-size:1rem; margin:20px 0 6px; letter-spacing:-0.01em}
+table.cases td{white-space:normal; font-family:var(--sans); text-align:left; vertical-align:top; line-height:1.4}
+table.cases td:nth-child(2),table.cases td:nth-child(3){font-family:var(--mono); white-space:nowrap}
+table.cases td:last-child{min-width:280px; color:var(--ink-2); font-size:0.84rem}
 .chip{font-family:var(--mono); font-size:0.74rem; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:3px 10px; color:var(--ink)}
 .chip .lab{color:var(--muted)}
 button.theme{flex:none; font-family:var(--mono); font-size:0.74rem; color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:7px 12px; cursor:pointer}
@@ -288,11 +291,11 @@ dl.method dd{margin:0; color:var(--ink-2)}
   replies and tool results, plus a small new part at the end. A server with a <b>prefix cache</b> keeps the already
   processed part and prefills only the new tokens. Without a cache hit, the step prefills the whole prompt again.</p>
   <div class="explain">
-    <svg viewBox="0 0 720 196" role="img" aria-label="How the prefix cache works: first message, next turn, edit in the middle">
+    <svg viewBox="0 0 720 196" role="img" aria-label="How the prefix cache works: first message, next turn, history changes halfway">
       <g class="ex-row">
         <text x="0" y="30" class="ex-lab">First message</text>
         <rect x="150" y="14" width="440" height="26" rx="4" class="ex-read"/>
-        <text x="370" y="32" class="ex-in">whole prompt prefilled from scratch</text>
+        <text x="370" y="32" class="ex-in">whole prompt prefilled from scratch · 512K tokens</text>
         <text x="600" y="32" class="ex-val">13 min</text>
       </g>
       <g class="ex-row">
@@ -301,15 +304,15 @@ dl.method dd{margin:0; color:var(--ink-2)}
         <rect x="578" y="78" width="12" height="26" rx="3" class="ex-read"/>
         <text x="363" y="96" class="ex-in hit">cache hit</text>
         <text x="600" y="96" class="ex-val">3.9 s</text>
-        <text x="584" y="124" class="ex-note">new tokens</text>
+        <text x="584" y="124" class="ex-note">~1K new tokens</text>
       </g>
       <g class="ex-row">
-        <text x="0" y="166" class="ex-lab">Edit in the middle</text>
+        <text x="0" y="166" class="ex-lab">History changes halfway</text>
         <rect x="150" y="150" width="218" height="26" rx="4" class="ex-hit"/>
         <rect x="370" y="150" width="220" height="26" rx="4" class="ex-read"/>
         <line x1="369" y1="142" x2="369" y2="184" class="ex-cut"/>
         <text x="259" y="168" class="ex-in hit">cache hit</text>
-        <text x="480" y="168" class="ex-in">prefilled again after the edit</text>
+        <text x="480" y="168" class="ex-in">prefilled again · ~309K tokens</text>
         <text x="600" y="168" class="ex-val">9 min</text>
       </g>
     </svg>
@@ -320,9 +323,21 @@ dl.method dd{margin:0; color:var(--ink-2)}
   cache hit, the next reply starts after 3.9 s, about 200× faster. No server prefilled
   faster than 821 tokens/s on this machine, so the first message is slow everywhere. The cache makes the
   difference.</span></div>
+  <p class="s-note"><b>The wait is the tokens that miss the cache, divided by the prefill speed.</b> The scenario only
+  decides how many tokens miss. On this machine at 512K: 1K ≈ 1.5 s · 10K ≈ 15 s · 100K ≈ 2.5 min · 300K ≈ 7.5 min · 512K ≈ 13 min.</p>
+  <div class="tbl-scroll"><table class="txt cases"><thead><tr><th>Case</th><th>Tokens prefilled again</th><th>Wait at 512K</th><th>When it happens</th></tr></thead><tbody>
+    <tr><td><b>First message</b></td><td>512K (100%)</td><td>13 min</td><td>A new session that already starts with 512K, or a server whose
+    cache is empty. In daily use the context grows step by step and each step prefills only the new part, so this cost is paid
+    in small parts over the session, never at once.</td></tr>
+    <tr><td><b>History changes halfway</b></td><td>~309K (59%)</td><td>9 min</td><td>Something before the end
+    changes: an edit of an earlier message, a compaction or summary of the history, a new system prompt or tool list, or a
+    fork of the session. The cost is the tokens after the point that changed.</td></tr>
+    <tr><td><b>Next turn</b></td><td>~1K</td><td>3.9 s</td><td>Every normal step: the tool result or the new message
+    at the end.</td></tr>
+  </tbody></table></div>
   <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="wait"></div></div>
   <div class="panel big"><div id="chWait"></div>
-    <div class="shape-key"><span><i class="k-cold"></i>first message (cold prefill)</span><span><i class="k-edit"></i>edit in the middle of the history</span><span><i class="k-next"></i>next turn (cache hit)</span></div>
+    <div class="shape-key"><span><i class="k-cold"></i>first message (cold prefill)</span><span><i class="k-edit"></i>history changes halfway</span><span><i class="k-next"></i>next turn (cache hit)</span></div>
   </div>
   <div class="tbl-scroll"><table id="tblWait"></table></div>
 </section>
@@ -337,7 +352,7 @@ dl.method dd{margin:0; color:var(--ink-2)}
   <div class="panel big"><div id="chReread"></div></div>
   <div class="callout small"><span class="c-big">1% ≈ 8 s</span><span class="c-txt">Rule of thumb at 512K:
   each 1% of cache miss is about 5,243 tokens, or about 8 s of extra wait
-  on this machine.</span></div>
+  on this machine. It is the same scale as in <a href="#cache">section 4</a>: tokens that miss the cache ÷ prefill speed.</span></div>
   <div class="grid2">
     <div class="panel"><div class="p-head"><span class="p-title">TTFT on the next turn (cache hit)</span><span class="p-unit">s · lower is better</span></div><div id="chResume"></div>
     <p class="p-interp">mlx-serve stays under 4 s up to 512K. ds4 grows from 6.4 s at 128K to 50 s at 512K.</p></div>
@@ -349,7 +364,8 @@ dl.method dd{margin:0; color:var(--ink-2)}
 <section class="block" id="scenarios">
   <h2 class="sec">6 · Cache hit by scenario</h2>
   <p class="s-note">Share of the prompt the server took from the cache, per scenario. <b>First message</b> is 0% by
-  design. <b>Edit in the middle</b> can reuse at most the part before the edit, about half. The two scenarios an agent
+  design. <b>History changes halfway</b> (a fork, a compaction, an edit of an earlier message) can reuse at most the part
+  before the change, about half. The two scenarios an agent
   repeats all day are <b>user adds a message</b> and <b>next turn</b>: above 90% is good.</p>
   <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="hits"></div></div>
   <div class="tbl-scroll"><table id="tblHits" class="heat"></table></div>
@@ -432,10 +448,12 @@ dl.method dd{margin:0; color:var(--ink-2)}
   <ul class="tips">
     <li><b>Keep the start of the prompt stable.</b> System prompt, tool list and project rules come first. A change
     there invalidates the cache for everything after it.</li>
-    <li><b>Add, do not edit.</b> At 512K, an edit in the middle of the history costs 9 min on mlx-serve. A new
+    <li><b>Add to the end; avoid changes earlier in the history.</b> At 512K, a change halfway (a fork, a compaction, an edit of
+    an earlier message) costs 9 min on mlx-serve, because ~309K tokens are prefilled again. A new
     message at the end costs seconds.</li>
-    <li><b>Plan for the first load.</b> Prefilling a cold 128K prompt takes about 3 min, 512K about
-    13 min. Load once, then keep working in the same session.</li>
+    <li><b>The first load is paid in parts.</b> Prefilling a cold 128K prompt takes about 3 min, 512K about
+    13 min, but only a session that starts that large pays it at once. In daily use the context grows step by
+    step and each step prefills only the new part. Keep working in the same session.</li>
     <li><b>Leave memory headroom.</b> mlx-serve locks 97–114 GB from 32K to 512K.</li>
     <li><b>Use the context you need.</b> The turn grows from 8.8 s at 128K to 13.0 s at 512K, and 512K
     needs the 4-bit KV cache.</li>
@@ -471,8 +489,9 @@ dl.method dd{margin:0; color:var(--ink-2)}
     <dt>Test prompt</dt><dd>A long audit document filled to the target size, with three facts hidden at 10%, 50% and
     90% of the text. A reply is correct when it finds all three.</dd>
     <dt>Scenarios</dt><dd><b>First message</b>: the full prompt, no cache (cold prefill). <b>Next turn</b>: the same prompt plus a tool
-    result at the end. <b>User adds a message</b>: the same prompt plus a new user message. <b>Edit in the middle</b>:
-    the prompt changes halfway, so only the first half can be a cache hit.</dd>
+    result at the end. <b>User adds a message</b>: the same prompt plus a new user message. <b>History changes halfway</b>:
+    the prompt changes at its midpoint, so only the first half can be a cache hit. This is what a fork, a compaction or an
+    edit of an earlier message does to the cache.</dd>
     <dt>Agent turn time</dt><dd>TTFT on the next turn + 512 ÷ median decode speed. It is the wait
     for one agent step with a 512-token reply.</dd>
     <dt>Runs</dt><dd>One to three runs per point; the "Runs" column of the last table gives the number. A point with
@@ -681,7 +700,7 @@ function segControl(name, options, initial, onChange){
   onChange(initial);
 }
 
-// Log-scale dot plot: per server, first message vs edit in the middle vs next turn, for one context size.
+// Log-scale dot plot: per server, first message vs history changes halfway vs next turn, for one context size.
 function waitChart(c){
   const host = document.getElementById("chWait");
   const W = 760, rowH = 54, MT = 14, MB = 34, ML = 112, MR = 30;
@@ -716,7 +735,7 @@ function waitChart(c){
     const s = STACKS.find(x => x.id === t), d = pt(t, c);
     showTip(ev, `<div class="t-h">${esc(s.name)} · ${ctxLab(c)}</div>` +
       `<div class="t-r"><span>TTFT · first message (cold)</span><span>${fmtS(d.cold)}</span></div>` +
-      `<div class="t-r"><span>TTFT · edit in the middle</span><span>${fmtS(d.edit)}</span></div>` +
+      `<div class="t-r"><span>TTFT · history changes halfway</span><span>${fmtS(d.edit)}</span></div>` +
       `<div class="t-r"><span>TTFT · next turn (cache hit)</span><span>${fmtS(d.resume)}</span></div>` +
       `<div class="t-r"><span>Cache hit rate</span><span>${(d.reuse*100).toFixed(1)}%</span></div>`);
   });
@@ -724,7 +743,7 @@ function waitChart(c){
 }
 function waitTable(c){
   const t = document.getElementById("tblWait");
-  let h = `<thead><tr><th>Server · ${ctxLab(c)}</th><th>Cold TTFT</th><th>TTFT · next turn</th><th>TTFT · added message</th><th>TTFT · edit in middle</th><th>Cache hit</th><th>Cold ÷ next turn</th></tr></thead><tbody>`;
+  let h = `<thead><tr><th>Server · ${ctxLab(c)}</th><th>Cold TTFT</th><th>TTFT · next turn</th><th>TTFT · added message</th><th>TTFT · halfway change</th><th>Cache hit</th><th>Cold ÷ next turn</th></tr></thead><tbody>`;
   STACKS.forEach(s => {
     const d = pt(s.id, c);
     h += `<tr><td class="stk"><span class="sw" style="background:${col(s)}"></span>${esc(s.name)}</td>`;
@@ -833,7 +852,7 @@ function supportTable(){
 
 // Cache hit heatmap: one row per server, one column per scenario, cell shade = share served from cache.
 const HIT_SCEN = [["cold", "First message"], ["identical", "Same prompt again"], ["append", "User adds a message"],
-                  ["middle_mutation", "Edit in the middle"], ["tool_turn", "Next turn (tool result)"]];
+                  ["middle_mutation", "History changes halfway"], ["tool_turn", "Next turn (tool result)"]];
 function hitTable(c){
   const t = document.getElementById("tblHits");
   let h = `<thead><tr><th>Server · ${ctxLab(c)}</th>` + HIT_SCEN.map(x => `<th>${x[1]}</th>`).join("") + "</tr></thead><tbody>";
@@ -962,7 +981,7 @@ function allTable(){
   const t = document.getElementById("tblAll");
   const cols = [["turn", "Agent turn", v => v.toFixed(1)], ["resume", "TTFT next turn", v => v.toFixed(2)],
     ["append", "TTFT added msg", v => v.toFixed(2)], ["cold", "Cold TTFT", v => v.toFixed(1)],
-    ["edit", "TTFT edit", v => v.toFixed(1)], ["reuse", "Cache hit", v => (v*100).toFixed(1) + "%"],
+    ["edit", "TTFT halfway change", v => v.toFixed(1)], ["reuse", "Cache hit", v => (v*100).toFixed(1) + "%"],
     ["decode", "Decode", v => v.toFixed(1)], ["prefill", "Prefill", v => v.toFixed(0)],
     ["wired", "Peak memory", v => v.toFixed(1)], ["swap", "Swap", v => v.toFixed(1)], ["reps", "Runs", v => String(v)]];
   let h = "<thead><tr><th>Server</th><th>Context</th>" + cols.map(c => `<th>${c[1]}</th>`).join("") + "</tr></thead><tbody>";
