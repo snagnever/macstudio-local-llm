@@ -12,7 +12,8 @@
 #   m27f = m27 + knob de ENGINE_M27F; r27b = r27 + --draft-block-size 5; s27g = s27 + --no-memory-guard;
 #   s27r = s27 + --prefix-cache-rungs 1024
 #   qwen38-27b-next-steps-2026-10: o27q8/o27q4/o27sw = oMLX 0.7.1.dev1 + Jundot oQ8e/oQ4e refit and Swift 1.5 oQ4e;
-#   r27d = ddalcu 27B 8bit @ mlx-serve 26.10.2 (bundled drafter), r27m = same without the drafter (MTP only);
+#   r27d = ddalcu 27B 8bit @ mlx-serve 26.10.2 (bundled DFlash2 drafter only, --no-mtp), r27m = same pack with
+#   --no-drafter (MTP only); mlx-serve speculation priority is MTP > drafter > PLD, so each arm switches the other off;
 #   k27 = Splash 1.3.1 + mlx-community 8bit; l27/l27n = llama.cpp b11569 Q8_0 with/without MTP draft
 set -euo pipefail
 
@@ -76,14 +77,11 @@ OQ8E="$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b
 # Campaign qwen38-27b-next-steps-2026-10: final mlx-serve 26.10.2, Splash 1.3.1 and the dense 27B packs
 # (pack_dir returns a -MISSING path when a pack is not on disk: --print still works, a real run exits 66).
 MLXSERVE_26102F="$OPT/mlx-serve-v26.10.2/mlx-serve"
-SPLASH_131="$OPT/splash-v1.3.1"
 DD27="$(pack_dir ddalcu-Qwen3.8-27B-MLX-Serve-8bit-7775059e955f)"
-DD27_NODRAFTER="${DD27}-nodrafter"
 OQ8E_R="$(pack_dir Jundot-Qwen3.8-27B-oQ8e-mtp-6c76ddfb82af)"
 OQ4E_R="$(pack_dir Jundot-Qwen3.8-27B-oQ4e-mtp-49c1d60367d9)"
 SW27="$(pack_dir scottlowry-Swift-1.5-Qwen3.8-27b-oQ4e-mtp-881dc1914f65)"
 GGUF27="$(pack_dir ggml-org-Qwen3.8-27B-GGUF-71bc7b627595)"
-NO_DRAFTER_FLAG_FILE="$REPO/bench/qwen38-27b-next-steps-2026-10/results/mlx-serve-26102-no-drafter-flag.txt"
 # YaRN do 27B (qwen3_5, mrope): o override repete os campos mrope do config original.
 YARN27_JSON() { echo "{\"text_config\":{\"rope_parameters\":{\"mrope_interleaved\":true,\"mrope_section\":[11,11,10],\"partial_rotary_factor\":0.25,\"rope_theta\":10000000,\"rope_type\":\"yarn\",\"factor\":$1,\"original_max_position_embeddings\":262144},\"max_position_embeddings\":$2}}"; }
 
@@ -241,17 +239,19 @@ case "$CAND" in
       export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26102F" MLX_SERVE_EXPECTED_VERSION=26.10.2 QWEN38_CTX_SIZE="$CTX"
       export QWEN38_MLX_PREFIX_CACHE_MEM=16GB QWEN38_MLX_PREFIX_CACHE_DISK=100GB QWEN38_MLX_PREFIX_CACHE_ENTRIES=64
       unset QWEN38_MLX_DRAFTER QWEN38_MLX_KV_QUANT QWEN38_MLX_PLE_GPU QWEN38_MLX_DRAFT_BLOCK_SIZE QWEN38_MLX_CONFIG_OVERRIDES
-      export QWEN38_MLX_EXTRA_ARGS="--mtp-max-depth 3"
+      # Priority is MTP > drafter > PLD: r27m forces MTP alone (--no-drafter), r27d forces the drafter alone (--no-mtp).
       if [[ "$CAND" == r27m ]]; then
-        REV=v26.10.2-mtp-only
-        NDF="$( [[ -f "$NO_DRAFTER_FLAG_FILE" ]] && cat "$NO_DRAFTER_FLAG_FILE" || echo NONE )"
-        if [[ "$NDF" == NONE ]]; then MODEL_DIR="$DD27_NODRAFTER"; else export QWEN38_MLX_EXTRA_ARGS="$QWEN38_MLX_EXTRA_ARGS $NDF"; fi
+        REV=v26.10.2-mtp; export QWEN38_MLX_EXTRA_ARGS="--no-drafter --mtp-max-depth 3"
+      else
+        REV=v26.10.2-drafter; export QWEN38_MLX_EXTRA_ARGS="--no-mtp"
       fi
       export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" ;;
   k27) LAUNCHER="$HARNESS/run-splash.sh"; ARM=K; PORT=8585; RUNTIME=splash; REV=v1.3.1
       MODEL_DIR="$MC27"; MODEL_REV=815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9
       PROBE_PY="$OPT/mlx-dspark-v0.20.3/bin/python"; TOKENIZER="$MC27"; SERVER_NAME=splash; METRICS=""
-      export SPLASH_MODEL="$MC27" SPLASH_DRAFTER="$DFLASH2" QWEN38_CTX_SIZE="$CTX" QWEN38_SPLASH_EXPECTED_VERSION=1.3.1 QWEN38_SPLASH_PORT=8585 ;;
+      # Splash serves the Hub ID as its single model id; MODEL_DIR stays the local pack (probe tokenizer, weights check).
+      MODEL_ID_PREF=mlx-community/Qwen3.8-27B-8bit
+      export SPLASH_MODEL=mlx-community/Qwen3.8-27B-8bit SPLASH_REVISION=815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9 SPLASH_DRAFTER="$DFLASH2" QWEN38_CTX_SIZE="$CTX" QWEN38_SPLASH_EXPECTED_VERSION=1.3.1 QWEN38_SPLASH_PORT=8585 ;;
   l27|l27n) LAUNCHER="$REPO/bench/qwen38-27b-next-steps-2026-10/scripts/run-llama-27b.sh"; PORT=8080; RUNTIME=llama.cpp; REV=b11569
       MODEL_DIR="$GGUF27"; MODEL_REV=71bc7b627595; PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=llama-server; METRICS=""
       MODEL_ID_PREF=qwen38-27b-gguf

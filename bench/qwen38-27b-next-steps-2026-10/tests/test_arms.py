@@ -5,7 +5,6 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[3]
 C = ROOT / "bench/qwen38-27b-next-steps-2026-10"
-NO_DRAFTER = (C / "results/mlx-serve-26102-no-drafter-flag.txt")
 
 
 def _env():
@@ -48,27 +47,33 @@ def test_mlx_serve_27b_arms_use_26102_and_ddalcu_pack():
     d = _print("r27d")
     assert "mlx-serve-v26.10.2/mlx-serve" in _server_line(d)
     assert "ddalcu-Qwen3.8-27B-MLX-Serve-8bit-7775059e955f" in _server_line(d)
-    for flag in ("--prefix-cache-mem 16GB", "--prefix-cache-disk 100GB", "--prefix-cache-entries 64", "--mtp-max-depth 3"):
+    for flag in ("--prefix-cache-mem 16GB", "--prefix-cache-disk 100GB", "--prefix-cache-entries 64"):
         assert flag in _server_line(d)
     assert "--ple-gpu" not in _server_line(d)
     assert "--kv-quant" not in _server_line(d)
 
 
-def test_r27m_disables_the_bundled_drafter():
-    flag = NO_DRAFTER.read_text().strip() if NO_DRAFTER.exists() else "NONE"
+def test_r27m_is_mtp_only_and_r27d_is_drafter_only():
     m, d = _server_line(_print("r27m")), _server_line(_print("r27d"))
-    if flag == "NONE":
-        assert "-nodrafter" in m and "-nodrafter" not in d
-    else:
-        assert flag in m and flag not in d
+    assert "--no-drafter" in m and "--mtp-max-depth 3" in m and "--no-mtp" not in m
+    assert "--no-mtp" in d and "--no-drafter" not in d
+    assert "-nodrafter" not in m
+    for line in (m, d):
+        for flag in ("--prefix-cache-mem 16GB", "--prefix-cache-disk 100GB", "--prefix-cache-entries 64"):
+            assert flag in line
 
 
-def test_splash_arm_uses_tokenizer_path_and_port_8585():
+def test_splash_arm_uses_hub_target_draft_dir_and_port_8585():
     out = _print("k27")
     assert "run-splash.sh K" in out
     s = _server_line(out)
-    assert "8585" in s and "mlx-community--Qwen3.8-27B-8bit-815b83c0" in s and "--idle-release off" in s
-    assert "--tokenizer-path" in out
+    assert "--model mlx-community/Qwen3.8-27B-8bit" in s
+    assert "--revision 815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9" in s
+    assert "--draft-model " in s and "DFlash2" in s.split("--draft-model ", 1)[1].split()[0]
+    assert "--port 8585" in s and "--offline" in s and "--idle-release off" in s
+    probe = next(l for l in out.splitlines() if l.startswith("probe:"))
+    assert "--tokenizer-path" in probe
+    assert out.splitlines()[0] == "model_select: mlx-community/Qwen3.8-27B-8bit"
 
 
 def test_llama_arms_flags():

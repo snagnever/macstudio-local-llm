@@ -5,7 +5,7 @@
 #              --strip-components=1 (same layout as v26.10.1) into mlx-serve-<tag>/
 #   omlx       jundot/omlx tag v0.7.1.dev1 in a uv venv (python 3.13) at omlx-v0.7.1.dev1/ (pattern of 0.7.0)
 #   splash     incoai/splash release $SPLASH_TAG (default 1.3.1, no "v" prefix), asset
-#              splash-<tag>-arm64-macos26.tar.gz, extracted into splash-v<tag>/
+#              splash-<tag>-arm64-macos26.tar.gz, extracted with --strip-components=1 into splash-v<tag>/ plus a bin/splash wrapper
 #   llama      ggml-org/llama.cpp release $LLAMA_TAG (default b11569), macOS arm64 asset, into llama-<tag>/
 # Binary assets are checked against the SHA256 digest GitHub publishes for the asset. When GitHub has no
 # digest, the script stops (exit 65); compare the hash it prints with the release page and rerun with
@@ -69,14 +69,19 @@ case "$WHAT" in
   splash)
     fetch_asset incoai/splash "$SPLASH_TAG" "$SPLASH_ASSET" "$TMP"
     mkdir -p "$DEST"
-    tar -xzf "$TMP/$SPLASH_ASSET" -C "$DEST"
-    # Capture first: `find | head` can exit 141 (SIGPIPE) under pipefail.
-    found="$(find "$DEST" -maxdepth 3 -type f -name splash)" || true
-    if [[ -n "$found" ]]; then
-      printf '%s\n' "$found" | sed -n '1,3p'
-    else
-      echo "install-runtime: warning: no 'splash' binary found under $DEST (set SPLASH_BIN in splash-flags.env from the real layout)" >&2
-    fi ;;
+    tar -xzf "$TMP/$SPLASH_ASSET" -C "$DEST" --strip-components=1
+    # The release has no bin/: the CLI is install/launcher.py run by the bundled Python.
+    mkdir -p "$DEST/bin"
+    cat > "$DEST/bin/splash" <<'WRAP'
+#!/bin/sh
+# Launcher wrapper: the release ships install/launcher.py with its own Python (brew installs the same wrapper).
+D=$(cd "$(dirname "$0")/.." && pwd)
+exec "$D/python/bin/python3" "$D/install/launcher.py" "$@"
+WRAP
+    chmod +x "$DEST/bin/splash"
+    # Capture first: `| head -1` can exit 141 (SIGPIPE) under pipefail.
+    help="$("$DEST/bin/splash" serve --help 2>&1)" || true
+    printf '%s\n' "$help" | head -1 ;;
   omlx)
     uv venv --python 3.13 "$DEST"
     uv pip install --python "$DEST/bin/python" "omlx @ git+https://github.com/jundot/omlx.git@$OMLX_TAG"
