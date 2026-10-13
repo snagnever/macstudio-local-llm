@@ -36,6 +36,10 @@
     "draft-dflash2": {
       "repository": "incoai/Qwen3.8-27B-DFlash2",
       "revision": "dedf8df68adfb1afeaf7b7480c0a0243108177b4"
+    },
+    "flashnext-oq4e-refit": {
+      "repository": "Jundot/Qwen3.8-Flash-Next-oQ4e-mtp",
+      "revision": "c4ddfb54a967a9bc74d7da16425f55f0872f8aac"
     }
   },
   "arms": {
@@ -158,6 +162,16 @@
     },
     "FN": {
       "model_key": "flashnext-oq4e",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": true,
+        "specprefill_enabled": false,
+        "qwen4_ple_ssd_offload": true,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "FR": {
+      "model_key": "flashnext-oq4e-refit",
       "cache_enabled": true,
       "model_settings": {
         "mtp_enabled": true,
