@@ -20,7 +20,7 @@ while [[ $# -gt 0 ]]; do case "$1" in
   --skip-battery) BATTERY=""; shift ;; *) echo "$USAGE" >&2; exit 64 ;;
 esac; done
 for v in "$FROM" "$ONLY"; do
-  [[ -z "$v" || " ${PHASES[*]} PQ " == *" $v "* ]] || { echo "unknown phase: $v" >&2; echo "$USAGE" >&2; exit 64; }
+  [[ -z "$v" || " ${PHASES[*]} ${PHASES_LATER[*]} PQ " == *" $v "* ]] || { echo "unknown phase: $v" >&2; echo "$USAGE" >&2; exit 64; }
 done
 [[ -n "$DRY" ]] || mkdir -p "$R" "$L"
 say() { echo "$(date '+%F %T') $*"; }
@@ -85,7 +85,7 @@ run_phase() {  # P<N>
   # (P4 o27sw vs o27q4 in P2, P7 w27d vs r27d in P3): both bands must be complete.
   local bn="" q
   if [[ -n "$base" && "$base" != "$REF_ARM" ]]; then
-    for q in "${PHASES[@]}"; do [[ " $(eval echo "\$PHASE_${q}_ARMS") " == *" $base "* ]] && { bn="${q#P}"; break; }; done
+    for q in "${PHASES[@]}" "${PHASES_LATER[@]}"; do [[ " $(eval echo "\$PHASE_${q}_ARMS") " == *" $base "* ]] && { bn="${q#P}"; break; }; done
     if [[ -z "$DRY" ]]; then
       for ctx in $ctxs; do have_result "$base" "$ctx" "p${bn}x" || {
         say "$p skipped: $base p${bn}x results incomplete"; gate_set "${p}_PASS" skipped; return; }; done
@@ -98,7 +98,7 @@ run_phase() {  # P<N>
     # alternate order: first band reference -> candidate, later bands candidate -> reference
     if [[ $first == 1 ]]; then ordered="$arms"; else ordered="$(echo $arms | tr ' ' '\n' | tail -r | tr '\n' ' ')"; fi; first=0
     idle_gate || { say "band $ctx of $p skipped (idle-gate)"; continue; }
-    for eff in xhigh medium; do
+    for eff in $(eval echo "\${PHASE_${p}_EFFORTS:-xhigh medium}"); do
       [[ $eff == xhigh ]] && tag="p${n}x" || tag="p${n}m"
       for arm in $ordered; do run_arm "$arm" "$ctx" "$tag" "$eff"; done
     done

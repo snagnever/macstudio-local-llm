@@ -74,6 +74,8 @@ Sondas de raciocínio: ~4.9 h no total (11 braços). Total das fases de velocida
 - **Bateria (Task 7):** entra o w27d se a P7 passar, em `medium` (~11 h). O o27q8 continua fora.
 - **Se o w27d passar a P7:** o próximo teste é o `scottlowry/…-oQ8e-mtp` @ `c7dfaa06` (30 GB, download), equivalente direto ao pack 8-bit do r27d. Fica fora desta campanha.
 
+**Corte de 13/10, 15:00 (pedido do usuário: só os stacks com potencial de serem os mais rápidos e com melhor cache).** O P0 do s27r a 128K levou ~2 h 45 min por esforço, contra ~45 min supostos; a campanha completa passaria de 60 h. Ficam por padrão: P0 (s27r, sem o `medium` a 128K, que nenhuma decisão lê), P1 (k27), P3 (r27d), P7 (w27d) e P2 só com o o27q4. Saem para `PHASES_LATER` (rodam só com `--only`): P4 (o27sw), P8 (r27m, w27m) e P6 (l27n, l27). O o27q8 sai: 8-bit no oMLX decodifica abaixo do o27q4 e o r27d já cobre o 8-bit. A bateria (Task 7) é revista antes de rodar, porque ainda cita o o27sw.
+
 **Como a campanha muda de ordem:** o `run-campaign.sh` lê a ordem do `phases.sh` só no início. O Task 5b implementa P7, P8 e a nova ordem; depois, a campanha para numa fronteira entre braços e reinicia. A retomada pula os braços com resultado completo (≥ 13 linhas), então nada medido se perde.
 
 ---

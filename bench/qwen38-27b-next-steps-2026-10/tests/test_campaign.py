@@ -17,7 +17,7 @@ def _dry(*args, **env):
 def test_dry_run_lists_phases_in_order_and_restarts_driver():
     out = _dry()
     order = [m.group(1) for m in re.finditer(r"^=== phase (P\w)", out, re.M)]
-    assert order == ["P0", "P1", "P3", "P7", "P2", "P4", "P8", "P6", "PQ"]
+    assert order == ["P0", "P1", "P3", "P7", "P2", "PQ"]
     assert out.rstrip().splitlines()[-1].startswith("restart daily driver")
     assert "stop daily driver" in "\n".join(out.splitlines()[:3])
 
@@ -30,11 +30,11 @@ def test_every_arm_runs_both_efforts_and_both_bands():
 
 
 def test_band_order_alternates():
-    out = _dry("--only", "P2")
-    lines = [l for l in out.splitlines() if "run-arm.sh" in l and "p2x" in l]
+    out = _dry("--only", "P8")
+    lines = [l for l in out.splitlines() if "run-arm.sh" in l and "p8x" in l]
     arms_32 = [l.split("run-arm.sh ")[1].split()[0] for l in lines if " 32768 " in l]
     arms_128 = [l.split("run-arm.sh ")[1].split()[0] for l in lines if " 131072 " in l]
-    assert arms_32 == ["o27q8", "o27q4"] and arms_128 == ["o27q4", "o27q8"]
+    assert arms_32 == ["r27m", "w27m"] and arms_128 == ["w27m", "r27m"]
 
 
 def test_idle_gate_precedes_each_band_and_decide_follows_phase():
@@ -253,3 +253,15 @@ def test_smoke_not_rerun_when_result_exists(tmp_path):
     _jsonl(tmp_path / "w27d-8192-t1.0-p7s.jsonl", 3)
     out = _smoke_phase(tmp_path, "P7", 0)
     assert "run-arm.sh w27d 8192" not in out and "smoke w27d 8192 p7s (exists)" in out
+
+
+# --- 2026-10-13 cut: fastest stacks only ---
+
+def test_cut_keeps_later_phases_runnable_and_drops_o27q8_and_p0_medium():
+    out = _dry("--skip-battery")  # the battery (PQ) is revised in Task 7
+    arms = {l.split("run-arm.sh ")[1].split()[0] for l in out.splitlines() if "run-arm.sh " in l}
+    assert arms == {"s27r", "k27", "r27d", "w27d", "o27q4"}
+    assert "s27r 131072 --repeat 3 --tag p0m" not in out and "s27r 32768 --repeat 3 --tag p0x" in out
+    assert "k27 131072 --repeat 3 --tag p1m" in out
+    assert "run-arm.sh o27sw 32768" in _dry("--only", "P4")
+    assert "o27q4-*-p2x.jsonl" in _dry("--only", "P4")
