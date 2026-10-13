@@ -65,11 +65,20 @@ def test_real_data_renders_and_matches_decision_tables():
 
 def test_arms_table_ids_and_updated_meanings():
     ids = [a[0] for a in rp.ARMS]
-    assert ids == ["s27r", "k27", "o27q8", "o27q4", "r27d", "r27m", "o27sw", "l27", "l27n"]
+    assert ids == ["s27r", "k27", "o27q8", "o27q4", "r27d", "r27m", "w27d", "w27m", "o27sw", "l27", "l27n"]
     arms = {a[0]: a for a in rp.ARMS}
     assert arms["r27d"][1] == "mlx-serve 26.10.2 DFlash2 drafter only (--no-mtp)"
     assert arms["r27m"][1] == "mlx-serve 26.10.2 MTP head only (--no-drafter)"
     assert arms["k27"][2] == "Splash 1.3.1"
+    assert arms["r27d"][6] == "P3" and arms["r27m"][6] == "P8"
+    assert (arms["w27d"][6], arms["w27m"][6]) == ("P7", "P8")
+    for a in ("w27d", "w27m"):
+        assert arms[a][3] == "scottlowry Swift-1.5 oQ4e-mtp" and arms[a][4] == "881dc191" and arms[a][5] == 11234
+
+
+def test_gate_doc_covers_p7_p8():
+    for k in ("P7_PASS", "P8_PASS", "P7_SMOKE", "P8_SMOKE_w27m"):
+        assert rp.GATE_DOC[k]
 
 
 def test_html_lists_every_arm_id_and_section(results, tmp_path):

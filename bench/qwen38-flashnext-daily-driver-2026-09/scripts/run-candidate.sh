@@ -14,10 +14,11 @@
 #   qwen38-27b-next-steps-2026-10: o27q8/o27q4/o27sw = oMLX 0.7.1.dev1 + Jundot oQ8e/oQ4e refit and Swift 1.5 oQ4e;
 #   r27d = ddalcu 27B 8bit @ mlx-serve 26.10.2 (bundled DFlash2 drafter only, --no-mtp), r27m = same pack with
 #   --no-drafter (MTP only); mlx-serve speculation priority is MTP > drafter > PLD, so each arm switches the other off;
+#   w27d/w27m = the same two modes on the Swift 1.5 oQ4e pack (w27d borrows the ddalcu drafter);
 #   k27 = Splash 1.3.1 + mlx-community 8bit; l27/l27n = llama.cpp b11569 Q8_0 with/without MTP draft
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|k27|l27|l27n> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
 # A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
@@ -244,6 +245,18 @@ case "$CAND" in
         REV=v26.10.2-mtp; export QWEN38_MLX_EXTRA_ARGS="--no-drafter --mtp-max-depth 3"
       else
         REV=v26.10.2-drafter; export QWEN38_MLX_EXTRA_ARGS="--no-mtp"
+      fi
+      export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" ;;
+  w27d|w27m) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=C; PORT=11234; RUNTIME=mlx-serve
+      MODEL_DIR="$SW27"; MODEL_REV=881dc1914f65; PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""
+      export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26102F" MLX_SERVE_EXPECTED_VERSION=26.10.2 QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_MLX_PREFIX_CACHE_MEM=16GB QWEN38_MLX_PREFIX_CACHE_DISK=100GB QWEN38_MLX_PREFIX_CACHE_ENTRIES=64
+      unset QWEN38_MLX_DRAFTER QWEN38_MLX_KV_QUANT QWEN38_MLX_PLE_GPU QWEN38_MLX_DRAFT_BLOCK_SIZE QWEN38_MLX_CONFIG_OVERRIDES
+      # Swift 1.5 27B (oQ4e, MTP head inherited from the base). w27m: MTP alone; w27d: the ddalcu DFlash2 drafter alone.
+      if [[ "$CAND" == w27m ]]; then
+        REV=v26.10.2-swift-mtp; export QWEN38_MLX_EXTRA_ARGS="--no-drafter --mtp-max-depth 3"
+      else
+        REV=v26.10.2-swift-drafter; export QWEN38_MLX_EXTRA_ARGS="--no-mtp" QWEN38_MLX_DRAFTER="$DD27/drafter"
       fi
       export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" ;;
   k27) LAUNCHER="$HARNESS/run-splash.sh"; ARM=K; PORT=8585; RUNTIME=splash; REV=v1.3.1

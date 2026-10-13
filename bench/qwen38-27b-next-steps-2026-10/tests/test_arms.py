@@ -63,6 +63,19 @@ def test_r27m_is_mtp_only_and_r27d_is_drafter_only():
             assert flag in line
 
 
+def test_swift15_mlx_serve_arms():
+    d, m = _print("w27d"), _print("w27m")
+    for out in (d, m):
+        assert "Swift-1.5-Qwen3.8-27b-oQ4e-mtp-881dc191" in _server_line(out)
+        assert "--port 11234" in _server_line(out)
+    ds, ms = _server_line(d), _server_line(m)
+    assert "--no-mtp" in ds and "--no-drafter" not in ds
+    assert "--drafter" in ds and "ddalcu-Qwen3.8-27B-MLX-Serve-8bit-7775059e955f" in ds
+    assert ds.split("--drafter ", 1)[1].split()[0].endswith("/drafter")
+    assert "--no-drafter" in ms and "--mtp-max-depth 3" in ms and "--drafter " not in ms.replace("--no-drafter", "")
+    assert "v26.10.2-swift-drafter" in d and "v26.10.2-swift-mtp" in m
+
+
 def test_splash_arm_uses_hub_target_draft_dir_and_port_8585():
     out = _print("k27")
     assert "run-splash.sh K" in out

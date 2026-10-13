@@ -17,10 +17,10 @@ USAGE="usage: $0 [--dry-run] [--from P<N>|PQ] [--only P<N>|PQ] [--skip-battery]"
 DRY=""; FROM=""; ONLY=""; BATTERY=1
 while [[ $# -gt 0 ]]; do case "$1" in
   --dry-run) DRY=1; shift ;; --from) FROM="${2:?--from needs a phase}"; shift 2 ;; --only) ONLY="${2:?--only needs a phase}"; shift 2 ;;
-  --skip-battery) BATTERY=""; shift ;; *) echo "$USAGE" >&2; exit 64 ;;
+  --skip-battery) BATTERY=""; shift ;; *) echo "$USAGE"; exit 64 ;;
 esac; done
 for v in "$FROM" "$ONLY"; do
-  [[ -z "$v" || " ${PHASES[*]} PQ " == *" $v "* ]] || { echo "unknown phase: $v" >&2; echo "$USAGE" >&2; exit 64; }
+  [[ -z "$v" || " ${PHASES[*]} PQ " == *" $v "* ]] || { echo "unknown phase: $v"; echo "$USAGE"; exit 64; }
 done
 [[ -n "$DRY" ]] || mkdir -p "$R" "$L"
 say() { echo "$(date '+%F %T') $*"; }
@@ -54,15 +54,43 @@ run_think() {  # think_turn_probe on every arm of a phase at one ctx, both effor
   done; done
 }
 
+smoke_gate() {  # phase arms -> sets SMOKE_ARMS to the arms that may run; each PHASE_<P>_SMOKE arm:mode runs an 8K smoke first
+  local p="$1" arms="$2" n="${1#P}" spec arm mode f rc ok key
+  for spec in $(eval echo "\${PHASE_${p}_SMOKE:-}"); do
+    arm="${spec%%:*}"; mode="${spec##*:}"; f="$R/$arm-8192-t1.0-p${n}s.jsonl"; ok=1
+    if [[ -z "$DRY" && -s "$f" ]]; then say "smoke $arm 8192 p${n}s (exists)"; else
+      say "smoke $arm 8192 p${n}s"
+      run "FLASHNEXT_EFFORT=medium bash $S/run-arm.sh $arm 8192 --repeat 1 --tag p${n}s"; rc=$?
+      [[ -n "$DRY" ]] || echo "| $(date -u +%FT%TZ) | $arm | 8192 | p${n}s | medium | $rc |" >> "$R/campaign-log.md"
+      pause; [[ $rc == 0 ]] || ok=0
+    fi
+    if [[ $ok == 1 ]]; then
+      run "python3 $S/smoke_check.py --jsonl $f --boot-log $L/$arm-8192-t1.0-p${n}s-boot.log --mode $mode --min-decode $SMOKE_MIN_DECODE" || ok=0
+    fi
+    [[ " $arms " == " $arm " ]] && key="${p}_SMOKE" || key="${p}_SMOKE_${arm}"
+    gate_set "$key" "$ok"
+    [[ $ok == 1 ]] || arms="$(echo " $arms " | sed "s/ $arm / /")"
+  done
+  SMOKE_ARMS="$(echo $arms)"
+}
+
 run_phase() {  # P<N>
   local p="$1" n="${1#P}" arms ctxs base rule skip ordered ctx arm eff tag
   arms="$(eval echo "\$PHASE_${p}_ARMS")"; ctxs="$(eval echo "\$PHASE_${p}_CTXS")"; base="$(eval echo "\$PHASE_${p}_BASE")"
   rule="$(eval echo "\$PHASE_${p}_RULE")"; skip="$(eval echo "\$PHASE_${p}_SKIP")"
   echo "=== phase $p: arms [$arms] ctx [$ctxs]"
-  # P4 compares o27sw against o27q4: it needs complete o27q4 xhigh results on both bands of P2
-  if [[ "$p" == P4 && -z "$DRY" ]] && ! { have_result o27q4 32768 p2x && have_result o27q4 131072 p2x; }; then
-    say "P4 skipped: o27q4 p2x results incomplete"; gate_set P4_PASS skipped; return
+  # A phase whose base is not the reference arm compares against that arm's xhigh results in the phase that ran it
+  # (P4 o27sw vs o27q4 in P2, P7 w27d vs r27d in P3): both bands must be complete.
+  local bn="" q
+  if [[ -n "$base" && "$base" != "$REF_ARM" ]]; then
+    for q in "${PHASES[@]}"; do [[ " $(eval echo "\$PHASE_${q}_ARMS") " == *" $base "* ]] && { bn="${q#P}"; break; }; done
+    if [[ -z "$DRY" ]]; then
+      for ctx in $ctxs; do have_result "$base" "$ctx" "p${bn}x" || {
+        say "$p skipped: $base p${bn}x results incomplete"; gate_set "${p}_PASS" skipped; return; }; done
+    fi
   fi
+  smoke_gate "$p" "$arms"; arms="$SMOKE_ARMS"
+  [[ -n "$arms" ]] || { say "phase $p skipped (smoke)"; gate_set "${p}_PASS" skipped; return; }
   local first=1
   for ctx in $ctxs; do
     # alternate order: first band reference -> candidate, later bands candidate -> reference
@@ -78,7 +106,7 @@ run_phase() {  # P<N>
   # because of llama.cpp #27756, every other phase at 128K.
   run_think "$arms" "$( [[ "$p" == P6 ]] && echo 65536 || echo 131072 )"
   local bglob skipflag="" ctxlist; ctxlist="$(echo $ctxs | tr ' ' ',')"
-  if [[ "$base" == "$REF_ARM" ]]; then bglob="${base}-*-${REF_TAG}.jsonl"; else bglob="${base}-*-p?x.jsonl"; fi
+  if [[ "$base" == "$REF_ARM" ]]; then bglob="${base}-*-${REF_TAG}.jsonl"; else bglob="${base}-*-p${bn}x.jsonl"; fi
   [[ -n "$skip" ]] && skipflag="--skip-gates $skip"
   local md="$R/etapa${n}-$(echo $arms | cut -d' ' -f1).md"; local pass=1 best=""
   for arm in $arms; do

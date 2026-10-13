@@ -17,7 +17,7 @@ def _dry(*args, **env):
 def test_dry_run_lists_phases_in_order_and_restarts_driver():
     out = _dry()
     order = [m.group(1) for m in re.finditer(r"^=== phase (P\w)", out, re.M)]
-    assert order == ["P0", "P1", "P2", "P3", "P4", "P6", "PQ"]
+    assert order == ["P0", "P1", "P3", "P7", "P2", "P4", "P8", "P6", "PQ"]
     assert out.rstrip().splitlines()[-1].startswith("restart daily driver")
     assert "stop daily driver" in "\n".join(out.splitlines()[:3])
 
@@ -198,3 +198,58 @@ def test_driver_gate_excludes_arm_with_non_hit_failed_gate(tmp_path):
 def test_driver_gate_excludes_arm_without_128k(tmp_path):
     arms = [("k27", 8.0, None, {})]
     assert "P5_GO=0" in _driver_gate(tmp_path, arms)
+
+
+# --- task 5b: P7/P8 (Swift 1.5 on mlx-serve), 8K smoke, new order ---
+
+def test_p3_has_only_r27d_and_p8_pairs_r27m_with_w27m():
+    p3, p8 = _dry("--only", "P3"), _dry("--only", "P8")
+    assert "run-arm.sh r27d 32768" in p3 and "r27m" not in p3
+    assert "r27m" in p8 and "w27m" in p8
+
+
+def test_smoke_runs_before_first_band_of_p7_and_p8():
+    p7, p8 = _dry("--only", "P7"), _dry("--only", "P8")
+    assert "smoke w27d 8192 p7s" in p7 and "smoke w27m 8192 p8s" in p8
+    assert re.search(r"FLASHNEXT_EFFORT=medium bash \S*run-arm\.sh w27d 8192 --repeat 1 --tag p7s", p7)
+    assert "smoke_check.py" in p7 and "--mode dflash" in p7 and "--min-decode 60" in p7
+    assert "--mode mtp" in p8
+    assert p7.index("smoke w27d 8192 p7s") < p7.index("idle-gate.sh") < p7.index("--tag p7x")
+    assert p8.index("smoke w27m 8192 p8s") < p8.index("--tag p8x")
+
+
+def test_p7_decision_uses_r27d_base_glob_p3x():
+    d = [l for l in _dry("--only", "P7").splitlines() if "decide.py" in l and "--base" in l]
+    assert d and "--base r27d" in d[0] and "--threshold 1.03" in d[0]
+    assert "--glob r27d-*-p3x.jsonl" in d[0] and "--glob w27d-*-p7x.jsonl" in d[0]
+
+
+def _smoke_phase(tmp_path, phase, check_rc):
+    for ctx in (32768, 131072):
+        _jsonl(tmp_path / f"r27d-{ctx}-t1.0-p3x.jsonl", 13)  # P7 base
+    stubs = ('run() { echo "run: $*"; case "$*" in *smoke_check*) return %d;; esac; }; '
+             'run_arm() { echo "arm $1 $2 $3"; }; run_think() { :; }; idle_gate() { return 0; }; '
+             'gate_set() { echo "gate $1=$2"; }; say() { echo "$*"; }; pause() { :; }; ' % check_rc)
+    return _lib(stubs + f"run_phase {phase}", tmp_path)
+
+
+def test_p7_smoke_fail_skips_whole_phase(tmp_path):
+    out = _smoke_phase(tmp_path, "P7", 1)
+    assert "phase P7 skipped (smoke)" in out and "gate P7_SMOKE=0" in out and "gate P7_PASS=skipped" in out
+    assert "arm w27d" not in out
+
+
+def test_p7_smoke_pass_runs_bands(tmp_path):
+    out = _smoke_phase(tmp_path, "P7", 0)
+    assert "gate P7_SMOKE=1" in out and "arm w27d 32768 p7x" in out
+
+
+def test_p8_smoke_fail_drops_only_w27m(tmp_path):
+    out = _smoke_phase(tmp_path, "P8", 1)
+    assert "gate P8_SMOKE_w27m=0" in out and "arm r27m 32768 p8x" in out and "arm w27m" not in out
+
+
+def test_smoke_not_rerun_when_result_exists(tmp_path):
+    _jsonl(tmp_path / "w27d-8192-t1.0-p7s.jsonl", 3)
+    out = _smoke_phase(tmp_path, "P7", 0)
+    assert "run-arm.sh w27d 8192" not in out and "smoke w27d 8192 p7s (exists)" in out
