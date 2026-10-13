@@ -17,3 +17,5 @@ PHASE_P6_ARMS="l27n l27";          PHASE_P6_CTXS="32768 65536";  PHASE_P6_BASE="
 REF_ARM=s27r; REF_TAG=p0x
 # Driver ratio that reopens the driver verdict (spec): T_turno <= 1.25 x w1 (7.9 / 8.6 s).
 W1_T32=7.9; W1_T128=8.6; DRIVER_RATIO=1.25
+# Arms whose runtime may not report cached_tokens (Splash, llama.cpp): driver_gate ignores their hit gates.
+DRIVER_SKIP_HIT_ARMS=k27,l27,l27n

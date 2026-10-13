@@ -27,15 +27,16 @@ say() { echo "$(date '+%F %T') $*"; }
 run() { if [[ -n "$DRY" ]]; then echo "$*"; else say "run: $*"; eval "$@"; fi; }
 gate_set() { [[ -n "$DRY" ]] && { echo "gates.env: $1=$2"; return; }; grep -v "^$1=" "$R/gates.env" 2>/dev/null > "$R/gates.env.tmp" || true; echo "$1=$2" >> "$R/gates.env.tmp"; mv "$R/gates.env.tmp" "$R/gates.env"; }
 gate_get() { grep "^$1=" "$R/gates.env" 2>/dev/null | tail -1 | cut -d= -f2; }
-have_result() { [[ -z "$DRY" && -s "$R/$1-$2-t1.0-$3.jsonl" ]]; }
+# an arm/band/tag is done only when its JSONL is complete: 3 reps x 4 scenarios + 1 middle_mutation
+MIN_LINES=13
+have_result() { local f="$R/$1-$2-t1.0-$3.jsonl"; [[ -z "$DRY" && -s "$f" ]] && (( $(grep -c . "$f") >= MIN_LINES )); }
 pause() { run "sleep 120"; }  # cool-down between arms; printed, not slept, in dry-run
 
 idle_gate() {  # retry the thermal/memory gate three times; return 75 if the band must be skipped
-  local i; for i in 1 2 3; do run "bash $FN/idle-gate.sh --minutes 10" && return 0; say "idle-gate failed ($i/3)"; sleep 300; done; return 75
+  local i; for i in 1 2 3; do run "bash $FN/idle-gate.sh --minutes 10" && return 0; say "idle-gate failed ($i/3)"; [[ $i == 3 ]] || sleep 300; done; return 75
 }
 stop_driver() { [[ -n "$DRY" ]] && echo "stop daily driver"; run "P=\$(lsof -nP -tiTCP:11234 -sTCP:LISTEN || true); [ -n \"\$P\" ] && kill \$P; sleep 5; true"; }
 restart_driver() { [[ -n "$DRY" ]] && printf 'restart daily driver: '; run "nohup bash $REPO/tools/scripts/serve-flashnext-daily-driver.sh daily > /tmp/flashnext-daily-driver.log 2>&1 &"; }
-trap '[[ -n "$DRY" ]] || say "exit: restarting driver"; restart_driver' EXIT
 
 run_arm() {  # arm ctx tag effort
   if have_result "$1" "$2" "$3"; then say "skip $1@$2 $3 (exists)"; return 0; fi
@@ -58,7 +59,10 @@ run_phase() {  # P<N>
   arms="$(eval echo "\$PHASE_${p}_ARMS")"; ctxs="$(eval echo "\$PHASE_${p}_CTXS")"; base="$(eval echo "\$PHASE_${p}_BASE")"
   rule="$(eval echo "\$PHASE_${p}_RULE")"; skip="$(eval echo "\$PHASE_${p}_SKIP")"
   echo "=== phase $p: arms [$arms] ctx [$ctxs]"
-  if [[ "$p" == P4 && -z "$DRY" && "$(gate_get P2_PASS)" != 1 ]]; then say "P4 skipped: P2 did not pass"; gate_set P4_PASS skipped; return; fi
+  # P4 compares o27sw against o27q4: it needs complete o27q4 xhigh results on both bands of P2
+  if [[ "$p" == P4 && -z "$DRY" ]] && ! { have_result o27q4 32768 p2x && have_result o27q4 131072 p2x; }; then
+    say "P4 skipped: o27q4 p2x results incomplete"; gate_set P4_PASS skipped; return
+  fi
   local first=1
   for ctx in $ctxs; do
     # alternate order: first band reference -> candidate, later bands candidate -> reference
@@ -80,7 +84,9 @@ run_phase() {  # P<N>
   for arm in $arms; do
     local ok=1
     run "python3 $FN/decide.py --results-dir $R --logs-dir $L --glob $bglob --glob ${arm}-*-p${n}x.jsonl --base $base --cand $arm $rule $skipflag --title 'Etapa $n: $arm vs $base (xhigh)' --out-md $md" || { ok=0; pass=0; }
-    run "python3 $FN/decide.py --results-dir $R --logs-dir $L --glob ${arm}-*-p${n}m.jsonl --glob ${arm}-*-p${n}x.jsonl --ctx $ctxlist --title 'Etapa $n: $arm medium vs xhigh' --out-md $md || true"
+    # one effort per call: decide.py groups records by (arm, ctx), so mixing the globs would blend efforts
+    run "python3 $FN/decide.py --results-dir $R --logs-dir $L --glob ${arm}-*-p${n}x.jsonl --ctx $ctxlist --title 'Etapa $n: $arm (xhigh)' --out-md $md || true"
+    run "python3 $FN/decide.py --results-dir $R --logs-dir $L --glob ${arm}-*-p${n}m.jsonl --ctx $ctxlist --title 'Etapa $n: $arm (medium)' --out-md $md || true"
     [[ $ok == 1 && -z "$best" ]] && best="$arm"
   done
   [[ -n "$DRY" ]] || { echo; echo "## Respostas vazias (think_turn_probe)"; } >> "$md"
@@ -94,17 +100,29 @@ run_battery() {  # PQ: Swift-style quality and time/tokens per task on the final
   if [[ -n "$DRY" ]]; then best=k27; else best="$(gate_get P1_BEST)"; [[ -n "$best" ]] || best="$(gate_get P3_BEST)"; fi
   [[ -n "$best" && " $arms " != *" $best "* ]] && arms="$arms $best"
   for arm in $arms; do
+    # resume: a label is done when its first suite's file exists (humaneval for medium, gpqa for xhigh)
+    local med_done="" hi_done=""
+    [[ -z "$DRY" && -s "$R/q/t1/$arm-medium/humaneval.jsonl" ]] && med_done=1
+    [[ -z "$DRY" && -s "$R/q/t1/$arm-xhigh/gpqa.jsonl" ]] && hi_done=1
+    if [[ -n "$med_done" && -n "$hi_done" ]]; then say "skip battery $arm (exists)"; continue; fi
     idle_gate || { say "battery $arm skipped (idle-gate)"; continue; }
-    run "FLASHNEXT_EFFORT=medium BATTERY_CAMPAIGN_DIR=$HERE bash $FN/run-battery.sh $arm q --effort medium --ctx 131072 --label $arm-medium --loops"
-    pause
-    run "FLASHNEXT_EFFORT=xhigh BATTERY_CAMPAIGN_DIR=$HERE bash $FN/run-battery.sh $arm q --suites 'gpqa livecodebench' --effort xhigh --ctx 131072 --label $arm-xhigh"
-    pause
+    if [[ -n "$med_done" ]]; then say "skip battery $arm-medium (exists)"; else
+      run "FLASHNEXT_EFFORT=medium BATTERY_CAMPAIGN_DIR=$HERE bash $FN/run-battery.sh $arm q --effort medium --ctx 131072 --label $arm-medium --loops"
+      pause
+    fi
+    if [[ -n "$hi_done" ]]; then say "skip battery $arm-xhigh (exists)"; else
+      run "FLASHNEXT_EFFORT=xhigh BATTERY_CAMPAIGN_DIR=$HERE bash $FN/run-battery.sh $arm q --suites 'gpqa livecodebench' --effort xhigh --ctx 131072 --label $arm-xhigh"
+      pause
+    fi
   done
   run "python3 $REPO/bench/swift15-flashnext-2026-10/scripts/summarize_ab.py --ab-dir $R/q/t1 --base o27q4-medium --cand o27sw-medium --out $R/etapaq-swift-vs-base.md"
   run "python3 $REPO/bench/swift15-flashnext-2026-10/scripts/summarize_ab.py --ab-dir $R/q/t1 --base o27q4-xhigh --cand o27q4-medium --out $R/etapaq-effort-o27q4.md"
   run "python3 $S/empty_answers.py $R/q/t1/*/*.jsonl --json > $R/etapaq-empty.json"
 }
 
+# QWEN38_CAMPAIGN_LIB=1 + source: define the functions only (tests); no trap, no driver stop, no phases.
+[[ -n "${QWEN38_CAMPAIGN_LIB:-}" ]] && return 0
+trap '[[ -n "$DRY" ]] || say "exit: restarting driver"; restart_driver' EXIT
 echo "=== campaign start $(date -u +%FT%TZ) dry=${DRY:-0} from=${FROM:-} only=${ONLY:-}"
 stop_driver
 # speed phases to run (plain string: an empty array trips set -u on bash 3.2)
@@ -116,5 +134,5 @@ for p in $sel; do
 done
 if [[ "$ONLY" == PQ || ( -z "$ONLY" && -n "$BATTERY" ) ]]; then run_battery; fi
 # Driver gate for P5 (manual, needs the MacBook + Docker): any arm with T_turno <= 1.25 x w1 on both bands.
-run "python3 $S/driver_gate.py --results-dir $R --w1 $W1_T32 $W1_T128 --ratio $DRIVER_RATIO --out $R/gates.env"
+run "python3 $S/driver_gate.py --results-dir $R --w1 $W1_T32 $W1_T128 --ratio $DRIVER_RATIO --skip-gates-arms $DRIVER_SKIP_HIT_ARMS --out $R/gates.env"
 [[ -n "$ONLY" ]] || gate_set CAMPAIGN_DONE "$(date -u +%FT%TZ)"
