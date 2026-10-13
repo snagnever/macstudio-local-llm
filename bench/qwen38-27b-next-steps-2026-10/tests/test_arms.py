@@ -40,6 +40,8 @@ def test_omlx_refit_arms_use_0711_and_new_packs():
         assert f"run-omlx.sh {letter}" in out
         assert "omlx-v0.7.1.dev1/bin/omlx" in out
         assert pack in out
+        probe = next(l for l in out.splitlines() if l.startswith("probe:"))
+        assert "--tokenizer-path" in probe and pack in probe
 
 
 def test_mlx_serve_27b_arms_use_26102_and_ddalcu_pack():
