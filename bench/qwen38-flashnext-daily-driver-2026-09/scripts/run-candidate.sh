@@ -40,6 +40,8 @@ HARNESS="$REPO/bench/qwen3.8-prefix-cache/scripts"
 HERE="$REPO/bench/qwen38-flashnext-daily-driver-2026-09"
 # Outra campanha pode reusar este driver apontando a saída para o próprio diretório.
 RESULTS="${FLASHNEXT_RESULTS_DIR:-$HERE/results}"; LOGS="${FLASHNEXT_LOGS_DIR:-$HERE/logs}"
+EFFORT="${FLASHNEXT_EFFORT:-xhigh}"
+case "$EFFORT" in xhigh|medium|low) ;; *) echo "run-candidate: FLASHNEXT_EFFORT must be xhigh, medium or low: $EFFORT" >&2; exit 64 ;; esac
 MODEL_ROOT="$HOME/.cache/local-llms/qwen3.8-prefix-cache"
 DDALCU="$MODEL_ROOT/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit-ef5b919d31534faa1997666f1a22d362cd6383cd"
 OQ4E="$MODEL_ROOT/Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8"
@@ -386,8 +388,9 @@ if [[ -n "$PRINT" ]]; then
   echo "model_select: $MODEL_SELECT"
   echo "launcher: $LAUNCHER $ARM"; bash "$LAUNCHER" "$ARM" --print; echo
   # --exec troca o probe por outro comando contra o servidor (ex.: bateria de qualidade).
-  [[ -n "$EXEC_CMD" ]] && { echo "exec: $EXEC_CMD"; echo "saida: $OUT"; exit 0; }
+  [[ -n "$EXEC_CMD" ]] && { echo "exec: $EXEC_CMD"; echo "effort: $EFFORT"; echo "saida: $OUT"; exit 0; }
   echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS} ${PROBE_SESSION_HEADER:+--session-header $PROBE_SESSION_HEADER} ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens $PROBE_PRIME_MAX_TOKENS}"
+  echo "effort: $EFFORT"
   echo "saida: $OUT"; exit 0
 fi
 # Um pack ausente ou incompleto faz o servidor morrer no boot com erro pouco claro: recusar antes.
@@ -505,7 +508,7 @@ else
   --runtime "$RUNTIME" --runtime-revision "$REV" --model-revision "$MODEL_REV" \
   --arm "$CAND" --session-id "${TS}-${NAME}" \
   --context "$CTX" --content-class audit_retrieval --repeat "$REPEAT" \
-  --temperature "$TEMP" --top-p 0.95 --top-k 20 --reasoning-effort xhigh \
+  --temperature "$TEMP" --top-p 0.95 --top-k 20 --reasoning-effort "$EFFORT" \
   ${SCENARIOS:+--scenarios "$SCENARIOS"} \
   ${TOKENIZER:+--tokenizer-path "$TOKENIZER"} \
   ${METRICS:+--metrics-url "$METRICS"} \

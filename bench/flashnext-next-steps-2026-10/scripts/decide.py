@@ -85,7 +85,8 @@ def table(records: list[dict], runs: dict) -> tuple[str, dict]:
 
 
 def decide(summary: dict, runtime: dict, runs: dict, logs_dir: Path, base: str, cand: str,
-           ctxs: list[int], mode: str, threshold: float) -> tuple[str, bool]:
+           ctxs: list[int], mode: str, threshold: float,
+           skip: frozenset | set = frozenset()) -> tuple[str, bool]:
     lines = ["", f"| razão `T_turno({cand}) / T_turno({base})` | " + " | ".join(f"{c // 1024}K" for c in ctxs) + " |",
              "|---|" + "---:|" * len(ctxs)]
     reasons, ratios = [], []
@@ -97,16 +98,19 @@ def decide(summary: dict, runtime: dict, runs: dict, logs_dir: Path, base: str, 
         ratios.append(r)
         if (mode == "le" and r > threshold) or (mode == "parity" and abs(r - 1) > threshold):
             reasons.append(f"razão {r:.3f} @{c // 1024}K")
-        if k["gates_failed"]:
-            reasons.append(f"gates {cand}@{c // 1024}K: {','.join(k['gates_failed'])}")
-        if b["gates_failed"]:
-            reasons.append(f"gates {base}@{c // 1024}K: {','.join(b['gates_failed'])}")
+        kf = [g for g in k["gates_failed"] if g.split("<")[0] not in skip]
+        bf = [g for g in b["gates_failed"] if g.split("<")[0] not in skip]
+        if kf:
+            reasons.append(f"gates {cand}@{c // 1024}K: {','.join(kf)}")
+        if bf:
+            reasons.append(f"gates {base}@{c // 1024}K: {','.join(bf)}")
         if runtime.get((cand, c)) == "mlx-serve" and not spec_stats_ok(logs_dir, runs.get((cand, c), set())):
             reasons.append(f"sem [spec-stats] {cand}@{c // 1024}K")
     lines.append(f"| {cand} | " + " | ".join("—" if r is None else f"{r:.3f}" for r in ratios) + " |")
     rule = f"≤ {threshold}" if mode == "le" else f"|r−1| ≤ {threshold}"
     lines.append("")
-    lines.append(f"Regra: {rule} em {', '.join(f'{c // 1024}K' for c in ctxs)}, gates do candidato e da base, `[spec-stats]`.")
+    lines.append(f"Regra: {rule} em {', '.join(f'{c // 1024}K' for c in ctxs)}, gates do candidato e da base, `[spec-stats]`"
+                 + (f", ignorando {', '.join(sorted(skip))}." if skip else "."))
     ok = not reasons
     lines.append("VERDICT: pass" if ok else f"VERDICT: fail ({'; '.join(reasons)})")
     return "\n".join(lines), ok
@@ -123,6 +127,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--ctx", default="32768,131072")
     ap.add_argument("--mode", choices=("le", "parity"), default="le")
     ap.add_argument("--threshold", type=float, default=0.97)
+    ap.add_argument("--skip-gates", default="", help="comma list of gate names to ignore, e.g. hit_append,hit_tool_turn")
     ap.add_argument("--title", default="")
     ap.add_argument("--out-md", type=Path, help="also write the output to this markdown file")
     a = ap.parse_args(argv)
@@ -135,7 +140,8 @@ def main(argv: list[str] | None = None) -> int:
     ok = True
     if a.base and a.cand:
         verdict, ok = decide(data["summary"], data["runtime"], runs, a.logs_dir, a.base, a.cand,
-                             [int(c) for c in a.ctx.split(",")], a.mode, a.threshold)
+                             [int(c) for c in a.ctx.split(",")], a.mode, a.threshold,
+                             set(filter(None, a.skip_gates.split(","))))
         out.append(verdict)
     doc = "\n".join(out) + "\n"
     print(doc, end="")

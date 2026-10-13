@@ -23,7 +23,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 [[ "$SUBDIR" =~ ^[a-z0-9-]+$ ]] || { echo "run-battery: subdir must be [a-z0-9-]: $SUBDIR" >&2; exit 64; }
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+HERE="${BATTERY_CAMPAIGN_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 REPO="$(cd "$HERE/../.." && pwd)"
 BATTERY="$REPO/bench/swift15-flashnext-2026-10/scripts/ab-battery.sh"
 SWEEP="$REPO/bench/degeneration/scripts/degeneration_sweep.py"

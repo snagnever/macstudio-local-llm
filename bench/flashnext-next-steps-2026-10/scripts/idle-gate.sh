@@ -1,24 +1,27 @@
 #!/usr/bin/env bash
 # Gate between bands: idle N minutes (default 10), then wait until the GPU is below 50 C (macmon) and free
-# memory is at least 82 GB. Refuses to start while a runtime listens on 11234, 8000 or 8080 (stop it first).
+# memory is at least 82 GB. Refuses to start while a runtime listens on 11234 (mlx-serve), 8000 (oMLX/MTPLX), 8080 (llama.cpp),
+# 8484 (mlx-dspark) or 8585 (Splash); stop it first.
 # Exit 75 when the GPU or the memory does not settle within 30 minutes.
-# usage: idle-gate.sh [--minutes N] [--dry-run]
+# usage: idle-gate.sh [--minutes N] [--dry-run] [--print-ports]
 set -euo pipefail
 MIN=10; DRY=""
+PORTS=(11234 8000 8080 8484 8585)   # mlx-serve, oMLX/MTPLX, llama.cpp, mlx-dspark, Splash
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --minutes) MIN="$2"; shift 2 ;;
     --dry-run) DRY=1; shift ;;
-    *) echo "usage: $0 [--minutes N] [--dry-run]" >&2; exit 64 ;;
+    --print-ports) echo "${PORTS[*]}"; exit 0 ;;
+    *) echo "usage: $0 [--minutes N] [--dry-run] [--print-ports]" >&2; exit 64 ;;
   esac
 done
 MACMON="${MACMON_BIN:-/opt/homebrew/bin/macmon}"
 GPU_MAX="${IDLE_GPU_MAX_C:-50}"; FREE_MIN="${IDLE_FREE_MIN_GB:-82}"
 if [[ -n "$DRY" ]]; then
-  echo "idle ${MIN} min; then wait gpu < ${GPU_MAX} C and free >= ${FREE_MIN} GB (macmon: $MACMON); ports 11234/8000/8080 must be free"
+  echo "idle ${MIN} min; then wait gpu < ${GPU_MAX} C and free >= ${FREE_MIN} GB (macmon: $MACMON); ports ${PORTS[*]} must be free"
   exit 0
 fi
-for p in 11234 8000 8080; do
+for p in "${PORTS[@]}"; do
   if lsof -nP -iTCP:"$p" -sTCP:LISTEN >/dev/null 2>&1; then
     echo "idle-gate: port $p is in use; stop that server first" >&2; exit 75
   fi
