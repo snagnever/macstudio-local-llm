@@ -1,0 +1,19 @@
+omlx tag v0.7.1.dev1 = c0b1056b41ebde9422af316cf5038a423eb8f24c
+OMLX_BASE_PATH files_in_package=6
+OMLX_MODEL_DIR files_in_package=1
+OMLX_PORT files_in_package=1
+OMLX_CACHE_ENABLED files_in_package=1
+OMLX_MOE_EXPERT_OFFLOAD files_in_package=0
+repo_scripts_using_OMLX_MOE_EXPERT_OFFLOAD=2
+SETTINGS_VERSION 1
+qwen4_ple_ssd_offload_known True mtp_enabled_known True
+usage: omlx serve [-h] [--model-dir MODEL_DIR] [--host HOST] [--port PORT]
+                  [--memory-guard {off,safe,balanced,aggressive}]
+                  [--memory-guard-gb MEMORY_GUARD_GB]
+                  [--base-path BASE_PATH] [--api-key API_KEY] [--headless]
+Models are discovered from subdirectories of --model-dir. Each subdirectory
+  --model-dir MODEL_DIR
+  --port PORT           Port to bind (default: 8000)
+  --memory-guard {off,safe,balanced,aggressive}
+  --memory-guard-gb MEMORY_GUARD_GB
+  --base-path BASE_PATH
