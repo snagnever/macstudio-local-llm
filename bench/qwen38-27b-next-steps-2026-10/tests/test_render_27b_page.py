@@ -134,7 +134,7 @@ def test_w1_quality_marked_xhigh(results, tmp_path):
     assert p["w1_quality"]["gpqa"]["median_s"] == 10.0
     html = rp.render_html(p)
     i = html.index("Time per task")
-    assert "Flash-Next (w1, xhigh)" in html[i:]
+    assert rp.W1_NAME in html[i:]
 
 
 def test_loops_and_empty_answers(results):
@@ -159,3 +159,72 @@ def test_payload_json_written(results, tmp_path):
     assert set(d) >= {"generated_at", "arms", "speed", "w1", "quality", "empty", "loops", "gates"}
     assert d["arms"][0] == {"id": "s27r", "name": d["arms"][0]["name"], "runtime": "mlx-dspark 0.20.3",
                             "pack": "mlx-community 8bit", "rev": "815b83c0", "port": 8484, "phase": "P0"}
+
+
+# --- driver B (n2) beside driver A (w1) ---
+
+DRIVERS = {"w1@32768": {"t_turno_s": 7.9, "decode_tps": 84.6}, "w1@131072": {"t_turno_s": 8.6},
+           "n2@32768": {"t_turno_s": 8.1, "decode_tps": 82.3, "warm_ttft_s": {"tool_turn": 1.8}},
+           "n2@131072": {"t_turno_s": 8.9}}
+
+
+def _ab_dir(tmp_path, name, secs):
+    d = tmp_path / name; d.mkdir()
+    (d / "gpqa.jsonl").write_text("\n".join(json.dumps({"dataset_idx": i, "correct": True, "finish_reason": "stop",
+                                                        "elapsed_s": secs, "completion_tokens": 800,
+                                                        "reasoning_chars": 2000}) for i in range(3)) + "\n")
+    import summarize_ab
+    return summarize_ab.load_arm(d)
+
+
+def test_payload_has_n2_at_both_bands(results):
+    p = rp.build_payload(results, w1_summary=DRIVERS, w1_ab=None)
+    assert p["n2"]["32768"]["t_turno_s"] == 8.1
+    assert p["n2"]["131072"]["t_turno_s"] == 8.9
+    assert p["n2"]["32768"]["warm_ttft_tool_s"] == 1.8
+    assert p["n2_quality"] == {}
+    assert p["w1"]["32768"]["t_turno_s"] == 7.9
+
+
+def test_payload_n2_quality_from_n2_ab(results, tmp_path):
+    p = rp.build_payload(results, w1_summary={}, w1_ab=_ab_dir(tmp_path, "w1", 10.0), n2_ab=_ab_dir(tmp_path, "n2", 12.0))
+    assert p["w1_quality"]["gpqa"]["median_s"] == 10.0
+    assert p["n2_quality"]["gpqa"]["median_s"] == 12.0
+
+
+def test_driver_b_line_and_rows_in_html(results, tmp_path):
+    p = rp.build_payload(results, w1_summary=DRIVERS, w1_ab=_ab_dir(tmp_path, "w1", 10.0), n2_ab=_ab_dir(tmp_path, "n2", 12.0))
+    html = rp.render_html(p)
+    assert 'class="refline n2"' in html and 'class="refkey n2"' in html
+    assert "8.1 s" in html and "8.9 s" in html
+    assert rp.W1_NAME == "Driver A: Flash-Next Swift 1.5 (w1, xhigh)"
+    assert rp.N2_NAME == "Driver B: Flash-Next ddalcu iQ (n2, xhigh)"
+    for name in (rp.W1_NAME, rp.N2_NAME):
+        assert html.count(name) >= 4  # speed tables (2+), accuracy, time, tokens
+    t = html[html.index('id="ttft"'):html.index('id="time"')]
+    assert t.index(rp.W1_NAME) < t.index(rp.N2_NAME)
+    q = html[html.index('id="accuracy"'):]
+    assert q.index(rp.W1_NAME) < q.index(rp.N2_NAME)
+    assert "--ref-b" in html
+
+
+def test_verdict_and_limit_stay_on_w1(results):
+    p = rp.build_payload(results, w1_summary=DRIVERS, w1_ab=None)
+    html = rp.render_html(p)
+    assert "9.9" in html and "10.8" in html  # 1.25 x w1
+    assert "10.1 s" not in html and "11.1 s" not in html  # 1.25 x n2 is not drawn
+    assert "1.25 × n2" not in html
+    assert 'title="1.25 × w1: 9.9 s"' in html and 'title="1.25 × w1: 10.8 s"' in html
+    assert "1.25 × w1" in html
+
+
+def test_no_w1_drops_both_drivers(results, tmp_path):
+    out, pj = tmp_path / "p.html", tmp_path / "p.json"
+    rp.main(["--results", str(results), "--out", str(out), "--json-out", str(pj), "--no-w1"])
+    d = json.loads(pj.read_text())
+    assert d["w1"]["32768"]["t_turno_s"] is None and d["n2"]["32768"]["t_turno_s"] is None
+    assert d["w1_quality"] == {} and d["n2_quality"] == {}
+    html = out.read_text()
+    assert 'class="refline n2"' not in html and 'class="refline w1"' not in html
+    body = html[html.index("</style>"):]
+    assert rp.N2_NAME not in body and rp.W1_NAME not in body

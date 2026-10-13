@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Render reports/qwen38-27b-stacks.html: the dense Qwen3.8-27B stacks measured in
-bench/qwen38-27b-next-steps-2026-10 against the Flash-Next driver (w1).
+bench/qwen38-27b-next-steps-2026-10 against the two Flash-Next daily drivers (A: w1, B: n2).
 usage: render_27b_page.py [--results DIR] [--out HTML] [--json-out JSON] [--no-w1]
 """
 from __future__ import annotations
@@ -48,7 +48,10 @@ DRIVER_RATIO = 1.25
 SKIP_HIT_ARMS = {"k27", "l27", "l27n"}  # runtimes that may not report cached_tokens (phases.sh)
 W1_SUMMARY = ROOT / "bench/swift15-flashnext-2026-10/results/tturno-summary.json"
 W1_AB = ROOT / "bench/swift15-flashnext-2026-10/results/ab/t1/w1"
-W1_NAME = "Flash-Next (w1, xhigh)"
+N2_AB = ROOT / "bench/swift15-flashnext-2026-10/results/ab/t1/n2"
+# Both drivers ran the Swift 1.5 battery at xhigh (ab-battery.sh, AB_EFFORT default).
+W1_NAME = "Driver A: Flash-Next Swift 1.5 (w1, xhigh)"
+N2_NAME = "Driver B: Flash-Next ddalcu iQ (n2, xhigh)"
 SPEED_KEYS = ("t_turno_s", "warm_ttft_tool_s", "cold_ttft_s", "decode_tps", "hit_tool", "mtp_acceptance",
               "wired_peak_gb", "gates_failed")
 CAMPAIGN_URL = "https://github.com/snagnever/macstudio-local-llm/tree/main/bench/qwen38-27b-next-steps-2026-10"
@@ -62,6 +65,10 @@ def load_w1_summary() -> dict:
 
 def load_w1_ab() -> dict | None:
     return summarize_ab.load_arm(W1_AB) if W1_AB.exists() else None
+
+
+def load_n2_ab() -> dict | None:
+    return summarize_ab.load_arm(N2_AB) if N2_AB.exists() else None
 
 
 def _jsonl(f: Path) -> list[dict]:
@@ -137,18 +144,24 @@ def _gates(results: Path) -> dict:
     return dict(l.split("=", 1) for l in g.read_text(encoding="utf-8").splitlines() if "=" in l)
 
 
-def _w1(w1_summary: dict) -> dict:
-    return {str(c): _speed_row(w1_summary.get(f"w1@{c}", {})) for c in BANDS}
+def _driver(summary: dict, arm: str) -> dict:
+    return {str(c): _speed_row(summary.get(f"{arm}@{c}", {})) for c in BANDS}
 
 
-def build_payload(results: Path, w1_summary: dict, w1_ab) -> dict:
+def _driver_quality(ab) -> dict:
+    return {s: summarize_ab.suite_stats(ab[s]) for s in SUITES if s in ab} if ab else {}
+
+
+def build_payload(results: Path, w1_summary: dict, w1_ab, n2_ab=None) -> dict:
     results = Path(results)
     return {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "arms": [dict(zip(("id", "name", "runtime", "pack", "rev", "port", "phase"), a)) for a in ARMS],
             "speed": _speed(results),
-            "w1": _w1(w1_summary),
+            "w1": _driver(w1_summary, "w1"),
+            "n2": _driver(w1_summary, "n2"),
             "quality": _quality(results),
-            "w1_quality": {s: summarize_ab.suite_stats(w1_ab[s]) for s in SUITES if s in w1_ab} if w1_ab else {},
+            "w1_quality": _driver_quality(w1_ab),
+            "n2_quality": _driver_quality(n2_ab),
             "empty": _empty(results),
             "loops": _loops(results),
             "gates": _gates(results)}
@@ -186,6 +199,8 @@ def _order(labels) -> list[str]:
 
 
 def _color(label: str) -> str:
+    if label == N2_NAME:
+        return "--ref-b"
     if label == W1_NAME or label.startswith("w1"):
         return "--s2"
     return "--s4" if label.endswith("-medium") else "--s1"
@@ -249,14 +264,20 @@ def _html_tturno(p: dict) -> str:
     for ctx in _ctxs(p):
         rows = p["speed"].get(ctx, {})
         w1v = (p["w1"].get(ctx) or {}).get("t_turno_s")
-        refs = []
-        if w1v is not None:
+        n2v = (p["n2"].get(ctx) or {}).get("t_turno_s")
+        refs, keys = [], []
+        if w1v is not None:  # the 1.25 x limit and the verdict use driver A only
             lim = round(DRIVER_RATIO * w1v, 1)
-            refs = [(w1v, "w1", f"Flash-Next w1: {w1v:.1f} s"), (lim, "lim", f"1.25 × w1: {lim:.1f} s")]
-            note = (f'<span class="refkey w1"></span>Flash-Next Swift 1.5 driver (w1) {w1v:.1f} s · '
-                    f'<span class="refkey lim"></span>1.25 × w1 = {lim:.1f} s')
+            refs += [(w1v, "w1", f"Driver A (w1): {w1v:.1f} s"), (lim, "lim", f"1.25 × w1: {lim:.1f} s")]
+            keys += [f'<span class="refkey w1"></span>Driver A (Swift 1.5, w1) {w1v:.1f} s',
+                     f'<span class="refkey lim"></span>1.25 × w1 = {lim:.1f} s']
+        if n2v is not None:
+            refs.append((n2v, "n2", f"Driver B (n2): {n2v:.1f} s"))
+            keys.append(f'<span class="refkey n2"></span>Driver B (ddalcu iQ, n2) {n2v:.1f} s')
+        if keys:
+            note = " · ".join(keys)
         elif int(ctx) in BANDS:
-            note = "Flash-Next w1 reference: not measured"
+            note = "Flash-Next driver references (w1, n2): not measured"
         else:
             note = "No Flash-Next reference at this band."
         if rows:
@@ -268,7 +289,7 @@ def _html_tturno(p: dict) -> str:
     return ('<section class="block" id="tturno"><h2 class="sec">Agent turn (T_turno) · 32K / 128K</h2>'
             '<p class="s-note">T_turno = time to first token of a warm turn that carries a tool result, plus 512 '
             'generated tokens at the warm decode rate. Median of 3 repetitions per arm and effort; shorter is better. '
-            'The driver verdict reopens only for an arm at or under 1.25 × w1 on both bands with every gate passing. '
+            'The driver verdict reopens only for an arm at or under 1.25 × w1 (driver A) on both bands with every gate passing. '
             f'Bar notes list failed gates; hit gates are left out for runtimes that do not report cached tokens '
             f'(Splash, llama.cpp).</p>'
             f'<div class="cgrid">{cards}</div></section>')
@@ -278,11 +299,12 @@ def _html_ttft(p: dict) -> str:
     out = ""
     for ctx in _ctxs(p):
         rows = p["speed"].get(ctx, {})
-        w1 = p["w1"].get(ctx)
         body = ""
         items = [(lab, rows[lab]) for lab in _order(rows)]
-        if w1 and any(w1.get(k) is not None for k in SPEED_KEYS):
-            items.append((W1_NAME, w1))
+        for name, key in ((W1_NAME, "w1"), (N2_NAME, "n2")):
+            d = p[key].get(ctx)
+            if d and any(d.get(k) is not None for k in SPEED_KEYS):
+                items.append((name, d))
         for lab, r in items:
             body += (f'<tr><td>{_lab(lab)}</td><td>{ND(r.get("t_turno_s"), "{:.1f}")}</td>'
                      f'<td>{ND(r.get("warm_ttft_tool_s"), "{:.2f}")}</td><td>{ND(r.get("cold_ttft_s"), "{:.1f}")}</td>'
@@ -304,8 +326,9 @@ def _html_ttft(p: dict) -> str:
 
 def _quality_rows(p: dict) -> list[tuple[str, dict]]:
     rows = [(lab, p["quality"][lab]) for lab in _order(p["quality"])]
-    if p.get("w1_quality"):
-        rows.append((W1_NAME, p["w1_quality"]))
+    for name, key in ((W1_NAME, "w1_quality"), (N2_NAME, "n2_quality")):
+        if p.get(key):
+            rows.append((name, p[key]))
     return rows
 
 
@@ -332,8 +355,8 @@ def _per_suite_cards(rows, suites, key, fmt, unit) -> str:
 def _html_time(p: dict) -> str:
     return ('<section class="block" id="time"><h2 class="sec">Time per task</h2>'
             '<p class="s-note">Median seconds to the final answer per suite, one question at a time, vendor sampling '
-            '(profile t1) at 131072 context. Labels are arm-effort; the Flash-Next driver row comes from the Swift 1.5 '
-            'campaign and ran at xhigh effort. Shorter is better.</p>'
+            '(profile t1) at 131072 context. Labels are arm-effort; the Flash-Next driver rows (A and B) come from the '
+            'Swift 1.5 campaign and ran at xhigh effort. Shorter is better.</p>'
             f'{_per_suite(p, "median_s", "{:.1f}", " s")}</section>')
 
 
@@ -411,6 +434,19 @@ def _html_gates(p: dict) -> str:
             'and the driver gate.</p>' + body + '</section>')
 
 
+def _ref_times(p: dict, key: str) -> str:
+    """A driver's T_turno at 32K / 128K, read from the payload."""
+    v = [(p[key].get(str(c)) or {}).get("t_turno_s") for c in BANDS]
+    return " / ".join(f"{x:.1f}" for x in v) + " s" if all(x is not None for x in v) else "not measured"
+
+
+def _html_sub(p: dict) -> str:
+    return ('Nine ways to serve the dense 27B (mlx-dspark, Splash, oMLX refit packs, mlx-serve 26.10.2, the Swift 1.5 '
+            '27B and llama.cpp) measured with the same agent-turn probe and battery as the two Qwen3.8-Flash-Next '
+            f'daily drivers: A, Swift 1.5 (w1, T_turno {_ref_times(p, "w1")}) and B, ddalcu iQ (n2, T_turno '
+            f'{_ref_times(p, "n2")}), both on mlx-serve 26.10.1 at 32K / 128K context.')
+
+
 def _html_setup(p: dict) -> str:
     rows = "".join(f'<tr><td class="code">{E(a["id"])}</td><td>{E(a["name"])}</td><td>{E(a["runtime"])}</td>'
                    f'<td>{E(a["pack"])}</td><td><code>{E(a["rev"])}</code></td><td>{E(a["port"])}</td>'
@@ -418,8 +454,11 @@ def _html_setup(p: dict) -> str:
     return ('<section class="block" id="setup"><h2 class="sec">Setup and how to reproduce</h2>'
             '<p class="s-note">Apple M4 Max, 128 GB. Every arm serves the dense Qwen3.8-27B; speed phases run each '
             'arm at xhigh and medium effort (file tags <code>p&lt;N&gt;x</code> / <code>p&lt;N&gt;m</code>), '
-            '3 repetitions, bands 32K then 128K (llama.cpp: 32K and 64K). The Flash-Next reference (w1) is the '
-            'Swift 1.5 driver measured in <code>bench/swift15-flashnext-2026-10</code>.</p>'
+            '3 repetitions, bands 32K then 128K (llama.cpp: 32K and 64K). The two Flash-Next references come '
+            'from <code>bench/swift15-flashnext-2026-10</code>, both on mlx-serve 26.10.1 at xhigh effort: driver A '
+            f'(w1, Swift 1.5 MLX-4.7bpw) with T_turno {_ref_times(p, "w1")} and driver B (n2, ddalcu iQ-MLX-4.7bpw) '
+            f'with T_turno {_ref_times(p, "n2")} at 32K / 128K. The 1.25 × limit and the driver verdict use driver A '
+            'only.</p>'
             '<div class="tbl-scroll"><table class="cfg arms"><thead><tr><th>Arm</th><th>Stack</th><th>Runtime</th>'
             f'<th>Pack</th><th>Revision</th><th>Port</th><th>Phase</th></tr></thead><tbody>{rows}</tbody></table></div>'
             '<p class="s-note mt">Run the campaign on the rig with '
@@ -457,6 +496,11 @@ figure.card-chart{margin:0; background:var(--surface); border:1px solid var(--bo
 .refline.lim{border-left:2px dashed var(--warn)}
 .refkey{display:inline-block; width:12px; height:0; vertical-align:middle; margin-right:4px; border-top:2px solid var(--s2)}
 .refkey.lim{border-top:2px dashed var(--warn)}
+:root{--ref-b:#7a4fd1}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ref-b:#a78bf0}}
+:root[data-theme="dark"]{--ref-b:#a78bf0}
+.refline.n2{border-left:2px dotted var(--ref-b)}
+.refkey.n2{border-top:2px dotted var(--ref-b)}
 .stchip:empty::before{content:"—"}
 ul.s-note{padding-left:18px}
 @media (max-width:520px){.wrap{padding:24px 16px 48px} .bline{grid-template-columns:104px minmax(0,1fr) minmax(56px,auto)}
@@ -480,7 +524,7 @@ TEMPLATE = r"""<!doctype html>
     <div>
       <p class="eyebrow">Qwen3.8-27B dense · Apple M4 Max 128 GB · October 2026</p>
       <h1>Qwen3.8-27B stacks vs the Flash-Next driver</h1>
-      <p class="sub">Nine ways to serve the dense 27B (mlx-dspark, Splash, oMLX refit packs, mlx-serve 26.10.2, the Swift 1.5 27B and llama.cpp) measured with the same agent-turn probe and battery as the Qwen3.8-Flash-Next driver (w1).</p>
+      <p class="sub">__SUB__</p>
     </div>
     <button class="theme" id="themeBtn" type="button">theme: auto</button>
   </header>
@@ -514,7 +558,7 @@ def render_html(p: dict) -> str:
         "/*__CSS__*/": PERF_CSS + PERF_EXTRA_CSS + PAGE_CSS,
         "__TTURNO__": _html_tturno(p), "__TTFT__": _html_ttft(p), "__TIME__": _html_time(p),
         "__TOKENS__": _html_tokens(p), "__ACCURACY__": _html_accuracy(p), "__GATES__": _html_gates(p),
-        "__SETUP__": _html_setup(p), "__GENERATED__": E(p.get("generated_at", "")),
+        "__SUB__": _html_sub(p), "__SETUP__": _html_setup(p), "__GENERATED__": E(p.get("generated_at", "")),
     }
     html = TEMPLATE
     for k, v in parts.items():
@@ -527,9 +571,10 @@ def main(argv=None) -> int:
     ap.add_argument("--results", type=Path, default=C / "results")
     ap.add_argument("--out", type=Path, default=ROOT / "reports/qwen38-27b-stacks.html")
     ap.add_argument("--json-out", type=Path, default=C / "results/page-data.json")
-    ap.add_argument("--no-w1", action="store_true", help="leave out the Flash-Next w1 reference")
+    ap.add_argument("--no-w1", action="store_true", help="leave out both Flash-Next drivers (A: w1, B: n2)")
     a = ap.parse_args(argv)
-    p = build_payload(a.results, {} if a.no_w1 else load_w1_summary(), None if a.no_w1 else load_w1_ab())
+    p = build_payload(a.results, {} if a.no_w1 else load_w1_summary(), None if a.no_w1 else load_w1_ab(),
+                      None if a.no_w1 else load_n2_ab())
     a.json_out.write_text(json.dumps(p, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     a.out.write_text(render_html(p), encoding="utf-8")
     print(f"wrote {a.out}")
