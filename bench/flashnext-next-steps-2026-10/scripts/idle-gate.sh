@@ -34,7 +34,10 @@ import json, re, subprocess, sys
 gpu = json.loads(subprocess.check_output([sys.argv[1], "pipe", "--samples", "1"]).decode())["temp"]["gpu_temp_avg"]
 vm = subprocess.check_output(["vm_stat"]).decode()
 page = int(re.search(r"page size of (\d+)", vm).group(1))
-free = int(re.search(r"Pages free:\s+(\d+)\.", vm).group(1)) * page / 1e9
+# Speculative and purgeable pages are file cache that macOS reclaims at once; after large downloads
+# "Pages free" alone stays near zero and the gate never passes.
+pages = sum(int(re.search(rf"Pages {k}:\s+(\d+)\.", vm).group(1)) for k in ("free", "speculative", "purgeable"))
+free = pages * page / 1e9
 print(f"{gpu:.1f} {free:.1f}")
 PY
 }

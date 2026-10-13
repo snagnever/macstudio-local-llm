@@ -50,3 +50,9 @@ def test_run_battery_honours_campaign_dir():
                          env=_env(BATTERY_CAMPAIGN_DIR=str(C)))
     assert out.returncode == 0, out.stderr
     assert str(C / "results") in out.stdout
+
+
+def test_idle_gate_counts_reclaimable_file_cache():
+    # After ~130 GB of downloads "Pages free" stays near 2 GB; the gate must also count speculative and purgeable pages.
+    gate = (FN / "idle-gate.sh").read_text()
+    assert '("free", "speculative", "purgeable")' in gate
