@@ -505,3 +505,9 @@ class CacheProbeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ParserHelpTest(unittest.TestCase):
+    def test_help_strings_format(self):
+        # Python 3.14 argparse rejects a bare "%" in a help string at add_argument time.
+        self.assertIn("--scenario-repeats", cache_probe.build_parser().format_help())

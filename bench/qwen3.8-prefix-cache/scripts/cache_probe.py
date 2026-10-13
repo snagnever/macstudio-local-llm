@@ -919,7 +919,7 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Per-scenario repeat overrides as 'name=N,...'. Scenarios not listed "
             "use --repeat. Prefill-bound scenarios (cold, middle_mutation) are "
-            "deterministic (timing spread <=0.5%), so 1 rep suffices; keep the "
+            "deterministic (timing spread <=0.5%%), so 1 rep suffices; keep the "
             "warm scenarios at more reps to confirm reuse stability."
         ),
     )
