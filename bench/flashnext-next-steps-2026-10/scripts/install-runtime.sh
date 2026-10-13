@@ -70,7 +70,13 @@ case "$WHAT" in
     fetch_asset incoai/splash "$SPLASH_TAG" "$SPLASH_ASSET" "$TMP"
     mkdir -p "$DEST"
     tar -xzf "$TMP/$SPLASH_ASSET" -C "$DEST"
-    find "$DEST" -maxdepth 3 -type f -name splash | head -3 ;;
+    # Capture first: `find | head` can exit 141 (SIGPIPE) under pipefail.
+    found="$(find "$DEST" -maxdepth 3 -type f -name splash)" || true
+    if [[ -n "$found" ]]; then
+      printf '%s\n' "$found" | sed -n '1,3p'
+    else
+      echo "install-runtime: warning: no 'splash' binary found under $DEST (set SPLASH_BIN in splash-flags.env from the real layout)" >&2
+    fi ;;
   omlx)
     uv venv --python 3.13 "$DEST"
     uv pip install --python "$DEST/bin/python" "omlx @ git+https://github.com/jundot/omlx.git@$OMLX_TAG"

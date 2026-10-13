@@ -10,9 +10,9 @@ OMLX_BIN="${QWEN38_OMLX_BIN:-omlx}"
 EXPECTED_OMLX_VERSION="${QWEN38_OMLX_EXPECTED_VERSION:-$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["omlx_version"])' "$CONFIG")}"
 
 case "$ARM" in
-  I|J|K|L|M|N|O|T|U|W|X|FN|FR|FM) ;;
+  I|J|K|L|M|N|O|T|T8R|T4R|TSW|U|W|X|FN|FR|FM) ;;
   *)
-    echo "usage: $0 {I|J|K|L|M|N|O|T|U|W|X|FN|FR|FM} [--print]" >&2
+    echo "usage: $0 {I|J|K|L|M|N|O|T|T8R|T4R|TSW|U|W|X|FN|FR|FM} [--print]" >&2
     exit 64
     ;;
 esac
@@ -73,7 +73,15 @@ case "$ARM" in
   X) CONFIG_COMMAND+=(--dflash2-path "$DFLASH2_PATH") ;;
 esac
 
-PROFILE="$("${CONFIG_COMMAND[@]}" --print-profile)"
+if [[ "$MODE" == "--print" ]]; then
+  # --print on a host without the packs (the MacBook): fall back to an unvalidated profile instead of failing.
+  if ! PROFILE="$("${CONFIG_COMMAND[@]}" --print-profile 2>/dev/null)"; then
+    echo "run-omlx: local model paths missing; printing an unvalidated profile" >&2
+    PROFILE="$("${CONFIG_COMMAND[@]}" --dry-run)"
+  fi
+else
+  PROFILE="$("${CONFIG_COMMAND[@]}" --print-profile)"
+fi
 OMLX_CACHE_ENABLED="$(python3 -c 'import json, sys; print(str(json.loads(sys.stdin.read())["cache_enabled"]).lower())' <<<"$PROFILE")"
 export OMLX_BASE_PATH OMLX_MODEL_DIR OMLX_PORT OMLX_CACHE_ENABLED
 

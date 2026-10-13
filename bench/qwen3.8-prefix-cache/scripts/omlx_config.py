@@ -149,7 +149,13 @@ def _read_ane_profile(path: Path) -> dict[str, Any]:
 def _target_model_dir(profile: dict, model_root: Path) -> Path:
     model = profile["model"]
     directory_name = f"{model['repository'].replace('/', '-')}-{model['revision']}"
-    return model_root / directory_name
+    exact = model_root / directory_name
+    if exact.is_dir():
+        return exact
+    # Packs fetched by fetch_pack.py end in the full 40-character revision while the
+    # arms config may pin a short one: accept exactly one directory extending it.
+    matches = sorted(p for p in model_root.glob(directory_name + "*") if p.is_dir()) if model_root.is_dir() else []
+    return matches[0] if len(matches) == 1 else exact
 
 
 def validate_arm(profile: dict, model_paths: dict[str, Path]) -> None:
@@ -256,6 +262,14 @@ def main() -> None:
     parser.add_argument("--skip-auth", action="store_true")
     parser.add_argument("--print-profile", action="store_true")
     parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help=(
+            "resolve and print the profile only: no local path checks and no state "
+            "written (used by run-omlx.sh --print on hosts without the packs)"
+        ),
+    )
+    parser.add_argument(
         "--omlx-version",
         help=(
             "oMLX release actually being driven (e.g. 0.7.0.dev2); defaults to "
@@ -280,6 +294,14 @@ def main() -> None:
         "ane_profile": args.ane_profile,
     }
     model_paths = {key: value for key, value in model_paths.items() if value is not None}
+    if args.dry_run:
+        resolved = copy.deepcopy(profile)
+        resolved["model_settings"] = copy.deepcopy(profile["model_settings"])
+        resolved["model_dir"] = str(_target_model_dir(profile, args.model_root))
+        resolved["omlx_version"] = omlx_version
+        resolved["dry_run"] = True
+        print(json.dumps(resolved, sort_keys=True))
+        return
     validate_arm(profile, model_paths)
     write_omlx_state(
         args.base_path,
