@@ -15,7 +15,7 @@
 - Rig: Mac Studio M4 Max 128 GB (`ssh vitor@mac-studio`); checkout do repo no rig: `~/LocalProjects/local-llms`; um modelo servido por vez.
 - Runtimes isolados em `~/.local/opt/qwen38/`: `mlx-serve-v26.10.2/mlx-serve` (tag `v26.10.2`, novo), `omlx-v0.7.1.dev1/` (já instalado pela campanha flashnext-next-steps), `mlx-dspark-v0.20.3/` (referência s27r), `splash-v1.3.1/` (novo), `llama-b11569/` (instalado pela campanha flashnext-next-steps; se faltar, o Task 2 instala). `~/.local/bin` não muda.
 - Pesos (raiz `~/.cache/local-llms/qwen3.8-prefix-cache`): já no disco `mlx-community--Qwen3.8-27B-8bit-815b83c0…` e `incoai--Qwen3.8-27B-DFlash2-dedf8df6…`; novos (Task 1): `Jundot/Qwen3.8-27B-oQ8e-mtp` @ `6c76ddfb82af`, `Jundot/Qwen3.8-27B-oQ4e-mtp` @ `49c1d60367d9`, `ddalcu/Qwen3.8-27B-MLX-Serve-8bit` @ `7775059e955f`, `scottlowry/Swift-1.5-Qwen3.8-27b-oQ4e-mtp` @ `881dc1914f65`, `ggml-org/Qwen3.8-27B-GGUF` @ `71bc7b627595` (só `*Q8_0*` e `mtp-*Q8_0*`).
-- Referências fixas: **s27r** (mlx-dspark 0.20.3 + DFlash2 + mlx-community 8bit, `--prefix-cache-rungs 1024`): `T_turno` 16.7 / 25.7 s a 32K / 128K (`bench/engine-updates-2026-10/results/etapa-f-fixes.md`). **Driver Flash-Next w1** (Swift 1.5 em mlx-serve 26.10.1): 7.9 / 8.6 s (`bench/swift15-flashnext-2026-10/results/tturno-summary.json`). O s27r é re-medido nesta campanha (braço `s27r`, tag `p0x`) como controle da sessão.
+- Referências fixas: **s27r** (mlx-dspark 0.20.3 + DFlash2 + mlx-community 8bit, `--prefix-cache-rungs 1024`): `T_turno` 16.7 / 25.7 s a 32K / 128K (`bench/engine-updates-2026-10/results/etapa-f-fixes.md`). **Driver Flash-Next w1** (Swift 1.5 em mlx-serve 26.10.1): 7.9 / 8.6 s (`bench/swift15-flashnext-2026-10/results/tturno-summary.json`). **Driver Flash-Next n2** (secundário: ddalcu iQ-MLX-4.7bpw em mlx-serve 26.10.1): 8.1 / 8.9 s, mesmo arquivo. A página mostra w1 (driver A) e n2 (driver B); a regra de 1.25× usa só o w1. O s27r é re-medido nesta campanha (braço `s27r`, tag `p0x`) como controle da sessão.
 - Métrica: `T_turno = TTFT(tool_turn) + 512 / mediana(decode quente de identical, append, tool_turn)`, 3 reps a 32K e 128K (`middle_mutation` 1 rep), calculada por `summarize_driver.py`.
 - Gates de todo braço de velocidade: zero HTTP 4xx/5xx; needles corretas (truncado não é falha); hit ≥ 0.90 em `append` e `tool_turn`; swap Δ ≤ 0.5 GB; `[spec-stats]` no boot log (braços mlx-serve). Wired > 102 GB é alerta, não gate. Braço cujo runtime não devolve `usage.prompt_tokens_details.cached_tokens` roda o `decide.py` com `--skip-gates hit_append,hit_tool_turn` e é julgado pelo warm TTFT do `tool_turn`.
 - Esforço: todo braço de velocidade roda duas vezes, `xhigh` (tag `…x`, comparável à série s27r/o27) e `medium` (tag `…m`, uso recomendado). A bateria de qualidade roda em `medium`; GPQA e LiveCodeBench rodam também em `xhigh`. `high` nunca é enviado (HTTP 500, QwenLM #217).
@@ -25,7 +25,7 @@
 - Probe: `cache_probe.py`, fixture `audit_retrieval`, needles 10/50/90, `max_tokens` 4096, cenários `cold → identical → append → middle_mutation → tool_turn`.
 - Protocolo térmico: parar o driver diário; ≥ 82 GB livres antes de subir um braço; 10 min ociosos e GPU < 50 °C entre bandas (`idle-gate.sh`, agora com as portas 8484 e 8585); 120 s entre braços; ordem alterna (32K: ref → cand; 128K: cand → ref). O orquestrador tenta o gate 3 vezes (exit 75) e, se falhar, pula a banda e registra.
 - Disco: `df -g /` antes de cada download; os packs novos somam ~131 GB; `fetch_pack.py --reserve-gb 150`.
-- Orçamento de tempo: ~60 h de rig sem supervisão (fases de velocidade ~19 h; bateria ~40 h). O orquestrador é retomável: pula o que já tem resultado.
+- Orçamento de tempo: ~70 h de rig sem supervisão (fases de velocidade ~32 h com P7/P8, ver "Revisão de 13/10"; bateria ~40 h). O orquestrador é retomável: pula o que já tem resultado.
 - Fora do escopo autônomo: P5 (qualidade agêntica com OpenCode) precisa do MacBook e de Docker; esta campanha só escreve o gate `P5_GO` em `results/gates.env`.
 - Idioma: prosa em pt-BR; comandos, flags, código, comentários e mensagens de git em inglês.
 - Commits: mensagem `bench(qwen38-27b): ...` terminando com a linha `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
@@ -38,6 +38,43 @@
 3. **Respostas vazias em `xhigh` contaminando medianas.** O `summarize_driver.py` conta um `stop` vazio como servido. Esperado: a contagem aparece na decisão e reprova quando > 0 no `think_turn_probe`. Checado no Task 0 (teste do `empty_answers.py`) e em cada fase (Step "respostas vazias").
 4. **Mistura de esforço ou de sessão no mesmo grupo.** Dois esforços do mesmo braço no mesmo glob dão o aviso `mistura session_id` e uma mediana sem sentido. Esperado: tags distintas (`p2x`, `p2m`) e globs por tag. Checado no Task 4 (teste do `--dry-run` do orquestrador: um glob por tag) e no stderr do `decide.py`.
 5. **Driver diário não volta ou segundo servidor na porta.** Uma campanha que termina sem religar o Flash-Next deixa o rig inútil; um servidor esquecido em 8484 ou 8585 faz o braço seguinte abortar. Esperado: `idle-gate.sh` recusa com qualquer uma das cinco portas ocupada; `run-campaign.sh` religa o driver no `trap EXIT`. Checado no Task 0 (teste `--print-ports`) e no Task 4 (teste do dry-run mostra a linha `restart daily driver`).
+
+## Revisão de 13/10: aprendizados e nova ordem
+
+Esta seção substitui a ordem P0 → P6 do Task 6. O resto do plano continua valendo.
+
+**O que aprendemos até agora:**
+
+1. **Smokes de 8K (`results/etapa1-smokes.md`, effort `medium`).** Decode mediano: k27 86.5, r27d 83.6, o27q4 81.4, r27m 51.5 e l27 35.3 tok/s. Todos com `reasoning_chars > 0` e `cached_tokens` presente. O `[spec-stats]` confirma `mode=dflash` no r27d e `mode=mtp` no r27m.
+2. **A cabeça MTP sozinha é lenta no mlx-serve.** O r27m decodifica 38% abaixo do r27d com o mesmo pack. Um braço só-MTP dificilmente bate o s27r.
+3. **O llama.cpp não compete.** O l27 faz 35 tok/s a 8K; a 64K fica abaixo disso. O s27r faz 32 tok/s a 128K com prefix cache melhor. A P6 só confirma o NO-GO do Metal draft-mtp.
+4. **Existe um Swift 1.5 27B que o mlx-serve deve carregar** ([research/swift15-27b-mlx-serve-20261013.md](../../research/swift15-27b-mlx-serve-20261013.md)): `scottlowry/Swift-1.5-Qwen3.8-27b-oQ4e-mtp` @ `881dc1914f65`, já no disco. A cabeça MTP é a do base, sem retreino (hash idêntico, verificado no rig). O DFlash2 tem a mesma arquitetura de alvo. Ninguém publicou velocidade dele no mlx-serve.
+5. **O `idle-gate.sh` media memória livre errado.** Contava só `Pages free`; depois dos downloads e dos smokes, o cache de arquivos ficou em páginas speculative e depois inactive, e o gate travou (exit 75). Agora a medida é total − wired − anônima − compressor (commits 9293a42 e 5c60abb).
+6. **O gargalo do veredito continua o TTFT quente do `tool_turn`.** Para ficar a ≤ 1.25 × w1 a 128K, o 27B precisa de TTFT ≤ ~3 s e decode ≥ ~65 tok/s ao mesmo tempo. Os candidatos com chance são o Splash (prefill com ANE e cache persistente) e o mlx-serve com drafter. O decode do drafter já está perto de 84 tok/s a 8K.
+
+**Nova ordem (prioridade por chance de mudar o veredito e por custo):**
+
+| Ordem | Fase | Braços | Base e regra | Duração | Por quê |
+|---|---|---|---|---|---|
+| 1 | P0 | s27r | controle | ~3 h | Em curso desde 10:21; não muda |
+| 2 | P1 | k27 | s27r, ≤ 0.75× | ~3 h | Maior decode no smoke; ataca o TTFT quente |
+| 3 | P3 | r27d | s27r, ≤ 1.00× | ~2.75 h | Segundo maior decode; runtime do driver Flash-Next |
+| 4 | P7 (nova) | w27d | r27d, ≤ 1.03× | ~3 h | Swift 1.5 no mlx-serve com DFlash2; smoke de 8K antes |
+| 5 | P2 | o27q4, o27q8 | s27r, ≤ 1.00× | ~5.5 h | Repin do oMLX; o27q4 é a base da P4 |
+| 6 | P4 | o27sw | o27q4, ≤ 1.03× | ~3 h | Swift no oMLX; depende do o27q4 |
+| 7 | P8 (nova) | r27m, w27m | s27r, ≤ 1.00× | ~5.5 h | Só MTP: baixa chance, mas mede a cabeça herdada no Swift |
+| 8 | P6 | l27n, l27 | s27r a 32K | ~2 h | Confirmação do NO-GO do llama.cpp; a primeira a cortar se faltar tempo |
+
+Sondas de raciocínio: ~4.9 h no total (11 braços). Total das fases de velocidade: ~32 h a partir de 10:21 de 13/10, fim previsto em 14/10 por volta de 18:30.
+
+**Regras novas:**
+
+- **P7 (w27d):** mesma regra de velocidade da P4 contra a base do mesmo runtime: `T_turno ≤ 1.03 × r27d` nas duas bandas e todos os gates. Antes das bandas, o orquestrador roda um smoke de 8K (`--repeat 1`, tag `p7s`) e pula a fase se o smoke falhar: rc ≠ 0, algum `reasoning_chars == 0`, `[spec-stats]` ausente, `mode` diferente de `dflash` ou decode mediano < 60 tok/s.
+- **P8 (r27m, w27m):** regra da P3 (`≤ 1.00 × s27r`). O w27m também passa pelo smoke de 8K (tag `p8s`, mesmos critérios com `mode=mtp`). Se a aceitação MTP do w27m ficar < 0.8× a do r27m, a leitura registra "cabeça herdada degrada".
+- **Bateria (Task 7):** entra o w27d se a P7 passar, em `medium` (~11 h). O o27q8 continua fora.
+- **Se o w27d passar a P7:** o próximo teste é o `scottlowry/…-oQ8e-mtp` @ `c7dfaa06` (30 GB, download), equivalente direto ao pack 8-bit do r27d. Fica fora desta campanha.
+
+**Como a campanha muda de ordem:** o `run-campaign.sh` lê a ordem do `phases.sh` só no início. O Task 5b implementa P7, P8 e a nova ordem; depois, a campanha para numa fronteira entre braços e reinicia. A retomada pula os braços com resultado completo (≥ 13 linhas), então nada medido se perde.
 
 ---
 
@@ -73,8 +110,10 @@
 | `k27` | Splash 1.3.1 | mlx-community 8bit `815b83c0` + DFlash2 `dedf8df6` | 8585 | `run-splash.sh K` | P1 |
 | `o27q8` | oMLX 0.7.1.dev1 | Jundot oQ8e-mtp `6c76ddfb82af` | 8000 | `run-omlx.sh T8R` | P2 |
 | `o27q4` | oMLX 0.7.1.dev1 | Jundot oQ4e-mtp `49c1d60367d9` | 8000 | `run-omlx.sh T4R` | P2 |
-| `r27d` | mlx-serve 26.10.2, MTP nativa + drafter embutido | ddalcu 8bit `7775059e955f` | 11234 | `run-mlx-serve.sh C` | P3 |
-| `r27m` | mlx-serve 26.10.2, só MTP nativa | ddalcu 8bit `7775059e955f` | 11234 | `run-mlx-serve.sh C` + flag sem drafter | P3 |
+| `r27d` | mlx-serve 26.10.2, só drafter DFlash2 embutido (`--no-mtp`) | ddalcu 8bit `7775059e955f` | 11234 | `run-mlx-serve.sh C` | P3 |
+| `r27m` | mlx-serve 26.10.2, só MTP nativa (`--no-drafter --mtp-max-depth 3`) | ddalcu 8bit `7775059e955f` | 11234 | `run-mlx-serve.sh C` | P8 |
+| `w27d` | mlx-serve 26.10.2, só DFlash2 (`--no-mtp --drafter <ddalcu>/drafter`) | scottlowry Swift-1.5 oQ4e-mtp `881dc1914f65` | 11234 | `run-mlx-serve.sh C` | P7 |
+| `w27m` | mlx-serve 26.10.2, só MTP herdada (`--no-drafter --mtp-max-depth 3`) | scottlowry Swift-1.5 oQ4e-mtp `881dc1914f65` | 11234 | `run-mlx-serve.sh C` | P8 |
 | `o27sw` | oMLX 0.7.1.dev1 | scottlowry Swift-1.5 oQ4e-mtp `881dc1914f65` | 8000 | `run-omlx.sh TSW` | P4 |
 | `l27` | llama.cpp b11569, `--spec-type draft-mtp` | ggml-org Q8_0 + mtp Q8_0 `71bc7b627595` | 8080 | `run-llama-27b.sh L27M` | P6 |
 | `l27n` | llama.cpp b11569, sem spec | ggml-org Q8_0 `71bc7b627595` | 8080 | `run-llama-27b.sh L27N` | P6 |
@@ -1220,7 +1259,91 @@ No MacBook: `git pull --ff-only` e rodar a suíte completa desta campanha: `uv r
 
 ---
 
-### Task 6: Soltar a campanha (P0 → P6) e acompanhar
+### Task 5b: Braços w27d e w27m, fases P7 e P8 e nova ordem
+
+Origem: "Revisão de 13/10". A campanha já está rodando; este task muda só código e testes no MacBook. O reinício no rig é o Step 7.
+
+**Files:**
+- Modify: `bench/qwen38-flashnext-daily-driver-2026-09/scripts/run-candidate.sh` (blocos `w27d`, `w27m`; lista de braços na linha de uso)
+- Modify: `bench/qwen38-27b-next-steps-2026-10/scripts/phases.sh` (ordem, P3 só r27d, P7, P8)
+- Modify: `bench/qwen38-27b-next-steps-2026-10/scripts/run-campaign.sh` (smoke de 8K antes de P7 e P8)
+- Modify: `bench/qwen38-27b-next-steps-2026-10/scripts/render_27b_page.py` (tabela de braços, `GATE_DOC` de P7 e P8)
+- Test: `bench/qwen38-27b-next-steps-2026-10/tests/test_arms.py`, `test_campaign.py`, `test_render_27b_page.py`
+
+**Interfaces:**
+- Consumes: `run-mlx-serve.sh C` com `QWEN38_MLX_MODEL_DIR`, `QWEN38_MLX_DRAFTER` (vira `--drafter`) e `QWEN38_MLX_EXTRA_ARGS`; variáveis `SW27` (pack Swift) e `DD27` (pack ddalcu) do `run-candidate.sh`; `run_arm`, `idle_gate`, `say` e `run` do `run-campaign.sh`.
+- Produces: braços `w27d`, `w27m`; `PHASES=(P0 P1 P3 P7 P2 P4 P8 P6)`; arquivos `w27d-<ctx>-t1.0-p7{x,m}.jsonl`, `r27m|w27m-<ctx>-t1.0-p8{x,m}.jsonl`; smoke `w27d-8192-t1.0-p7s.jsonl`, `w27m-8192-t1.0-p8s.jsonl`; `P7_PASS`, `P8_PASS`, `P7_SMOKE=0|1`, `P8_SMOKE_w27m=0|1` em `gates.env`.
+
+- [ ] **Step 1: Testes que falham**
+
+Em `test_arms.py`: `run-candidate.sh w27d 32768 --print` mostra `QWEN38_MLX_MODEL_DIR` com `Swift-1.5-Qwen3.8-27b-oQ4e-mtp-881dc191`, `--no-mtp`, um `QWEN38_MLX_DRAFTER` que termina em `/drafter` dentro do pack ddalcu `7775059e955f`, porta 11234, `MODEL_REV=881dc1914f65` e `REV=v26.10.2-swift-drafter`. O `w27m` mostra o mesmo pack, `--no-drafter --mtp-max-depth 3`, nenhum `QWEN38_MLX_DRAFTER` e `REV=v26.10.2-swift-mtp`.
+Em `test_campaign.py` (dry-run): a ordem das fases é `P0 P1 P3 P7 P2 P4 P8 P6`; P3 tem só `r27d`; P8 tem `r27m w27m`; o dry-run mostra a linha `smoke w27d 8192 p7s` antes da primeira banda de P7 e `smoke w27m 8192 p8s` antes de P8; a decisão de P7 usa `--base r27d --threshold 1.03` com o glob base `r27d-*-p3x.jsonl`.
+Em `test_render_27b_page.py`: `w27d` e `w27m` aparecem na tabela de braços com fase P7 e P8; `r27m` aparece com P8.
+
+Run: `uv run --no-project --with pytest python -m pytest bench/qwen38-27b-next-steps-2026-10/tests -q`
+Expected: os testes novos falham; os outros 56 passam.
+
+- [ ] **Step 2: Braços no `run-candidate.sh`**
+
+Junto do bloco `r27d|r27m`, mesmo estilo:
+
+```bash
+  w27d|w27m) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=C; PORT=11234; RUNTIME=mlx-serve
+      MODEL_DIR="$SW27"; MODEL_REV=881dc1914f65; PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""
+      export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26102F" MLX_SERVE_EXPECTED_VERSION=26.10.2 QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_MLX_PREFIX_CACHE_MEM=16GB QWEN38_MLX_PREFIX_CACHE_DISK=100GB QWEN38_MLX_PREFIX_CACHE_ENTRIES=64
+      unset QWEN38_MLX_DRAFTER QWEN38_MLX_KV_QUANT QWEN38_MLX_PLE_GPU QWEN38_MLX_DRAFT_BLOCK_SIZE QWEN38_MLX_CONFIG_OVERRIDES
+      # Swift 1.5 27B (oQ4e, MTP head inherited from the base). w27m: MTP alone; w27d: the ddalcu DFlash2 drafter alone.
+      if [[ "$CAND" == w27m ]]; then
+        REV=v26.10.2-swift-mtp; export QWEN38_MLX_EXTRA_ARGS="--no-drafter --mtp-max-depth 3"
+      else
+        REV=v26.10.2-swift-drafter; export QWEN38_MLX_EXTRA_ARGS="--no-mtp" QWEN38_MLX_DRAFTER="$DD27/drafter"
+      fi
+      export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" ;;
+```
+
+Conferir com `ls` no rig (só leitura) que `$DD27/drafter/config.json` existe. Se não existir, usar o diretório `incoai--Qwen3.8-27B-DFlash2-dedf8df6…` e registrar a troca no relatório.
+
+- [ ] **Step 3: `phases.sh`**
+
+```bash
+PHASES=(P0 P1 P3 P7 P2 P4 P8 P6)
+PHASE_P3_ARMS="r27d";              PHASE_P3_CTXS="32768 131072"; PHASE_P3_BASE="s27r"; PHASE_P3_RULE="--mode le --threshold 1.00";    PHASE_P3_SKIP=""
+PHASE_P7_ARMS="w27d";              PHASE_P7_CTXS="32768 131072"; PHASE_P7_BASE="r27d"; PHASE_P7_RULE="--mode le --threshold 1.03";   PHASE_P7_SKIP=""
+PHASE_P8_ARMS="r27m w27m";         PHASE_P8_CTXS="32768 131072"; PHASE_P8_BASE="s27r"; PHASE_P8_RULE="--mode le --threshold 1.00";    PHASE_P8_SKIP=""
+# 8K smoke before the bands; the phase (or the arm, for P8) is skipped when it fails.
+PHASE_P7_SMOKE="w27d:dflash"; PHASE_P8_SMOKE="w27m:mtp"; SMOKE_MIN_DECODE=60
+```
+
+As outras fases não mudam. A base de uma fase cuja base não é o `REF_ARM` usa o glob `<base>-*-p<N da fase da base>x.jsonl` (P4 já faz isso com o27q4 → `p2x`; P7 usa r27d → `p3x`).
+
+- [ ] **Step 4: Smoke no `run-campaign.sh`**
+
+Antes do `idle_gate` da primeira banda de uma fase com `PHASE_<P>_SMOKE`, para cada `arm:mode`: `FLASHNEXT_EFFORT=medium run-arm.sh <arm> 8192 --repeat 1 --tag p<n>s`, e então um checador Python (função nova em `driver_gate.py` ou script `smoke_check.py`) que lê o JSONL e o boot log e falha se: rc ≠ 0, algum `reasoning_chars == 0`, `[spec-stats]` ausente, `mode=` diferente do esperado, ou decode mediano < `SMOKE_MIN_DECODE`. Gravar `P7_SMOKE=0|1` / `P8_SMOKE_w27m=0|1`. Na P7, smoke reprovado pula a fase inteira (`say "phase P7 skipped (smoke)"`). Na P8, smoke reprovado tira só o `w27m` da fase; o `r27m` roda. Retomada: smoke com arquivo de resultado presente não roda de novo.
+
+- [ ] **Step 5: Página**
+
+Tabela `ARMS` do `render_27b_page.py`: adicionar `w27d` (P7) e `w27m` (P8) com pack `scottlowry Swift-1.5 oQ4e-mtp`, rev `881dc191`, porta 11234; mudar `r27m` para P8. `GATE_DOC`: `P7_PASS` = "w27d at or under 1.03 × r27d on both bands", `P8_PASS` = "r27m or w27m at or under s27r on both bands", `P7_SMOKE` e `P8_SMOKE_w27m` = "8K smoke passed (reasoning, spec-stats mode, decode ≥ 60 tok/s)".
+
+- [ ] **Step 6: Testes e commit**
+
+Run: `uv run --no-project --with pytest python -m pytest bench/qwen38-27b-next-steps-2026-10/tests -q`
+Expected: tudo passa (56 + os novos). Rodar também `bash run-campaign.sh --dry-run` e conferir a ordem.
+
+```bash
+git add bench/qwen38-flashnext-daily-driver-2026-09/scripts/run-candidate.sh bench/qwen38-27b-next-steps-2026-10/scripts bench/qwen38-27b-next-steps-2026-10/tests
+git commit -m "bench(qwen38-27b): w27d/w27m Swift 1.5 arms on mlx-serve, phases P7/P8, new phase order
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+```
+
+- [ ] **Step 7: Reiniciar a campanha no rig (precisa de aprovação do usuário para parar o processo)**
+
+Numa fronteira entre braços (linha nova em `results/campaign-log.md`): parar `run-campaign.sh` e `idle-gate.sh`; atualizar o checkout do rig com `git push vitor@mac-studio:LocalProjects/local-llms-27b HEAD:refs/heads/macbook-sync` e `git merge --ff-only macbook-sync`; reiniciar com `nohup caffeinate -i bash $C/scripts/run-campaign.sh --skip-battery`, sem `--from`. A retomada pula os braços completos. Um braço interrompido no meio roda de novo do zero.
+
+---
+
+### Task 6: Soltar a campanha (P0 → P1 → P3 → P7 → P2 → P4 → P8 → P6) e acompanhar
 
 **Files:**
 - Create: `bench/qwen38-27b-next-steps-2026-10/results/campaign-log.md`, `results/gates.env`, `results/etapa{1,2,3,4,6}-*.md`, `results/think/*.jsonl`, JSONL de todos os braços
@@ -1237,14 +1360,14 @@ Expected: `=== campaign start`, `stop daily driver`, `=== phase P0`, `idle-gate:
 ```bash
 ssh vitor@mac-studio 'cd ~/LocalProjects/local-llms/bench/qwen38-27b-next-steps-2026-10 && tail -3 logs/campaign.log; echo; tail -6 results/campaign-log.md; echo; cat results/gates.env 2>/dev/null; echo; ls results/*.jsonl | wc -l'
 ```
-Expected: o número de JSONL cresce (4 por braço por fase: 2 bandas × 2 esforços); exits 0. Um exit 69 repetido no mesmo braço (servidor não sobe) é motivo para matar a campanha (`pkill -f run-campaign.sh`), corrigir e retomar com `--from P<N>` (os braços já medidos são pulados). Duração prevista: P0 ~3 h, P1 ~3 h, P2 ~5.5 h, P3 ~5.5 h, P4 ~3 h, P6 ~2 h, think probes ~4 h: ~26 h.
+Expected: o número de JSONL cresce (4 por braço por fase: 2 bandas × 2 esforços); exits 0. Um exit 69 repetido no mesmo braço (servidor não sobe) é motivo para matar a campanha (`pkill -f run-campaign.sh`), corrigir e retomar com `--from P<N>` (os braços já medidos são pulados). Duração prevista (ordem da Revisão de 13/10): P0 ~3 h, P1 ~3 h, P3 ~2.75 h, P7 ~3 h, P2 ~5.5 h, P4 ~3 h, P8 ~5.5 h, P6 ~2 h, think probes ~4.9 h: ~32 h.
 
 - [ ] **Step 3: Verificar o fim das fases de velocidade**
 
 ```bash
 ssh vitor@mac-studio 'cd ~/LocalProjects/local-llms/bench/qwen38-27b-next-steps-2026-10 && grep -c "" results/campaign-log.md; cat results/gates.env; for f in results/etapa*-*.md; do echo "== $f"; grep -E "^\| (s27r|k27|o27|r27|l27)|VERDICT|empty=" $f; done; lsof -nP -tiTCP:11234 -sTCP:LISTEN && echo "driver back"'
 ```
-Expected: `CAMPAIGN_DONE=<ts>`, `P1_PASS`, `P2_PASS`, `P3_PASS`, `P4_PASS`, `P6_PASS` definidos, `P5_GO=<arm|0>`, tabelas com `T_turno` para cada braço a 32K e 128K (64K para `l27`), e `driver back`. Se alguma banda foi pulada por `idle-gate` (linha `band … skipped`), rodar só ela: `--only P<N>` (braços com resultado são pulados).
+Expected: `CAMPAIGN_DONE=<ts>`, `P1_PASS`, `P2_PASS`, `P3_PASS`, `P4_PASS`, `P6_PASS`, `P7_PASS`, `P8_PASS`, `P7_SMOKE` e `P8_SMOKE_w27m` definidos, `P5_GO=<arm|0>`, tabelas com `T_turno` para cada braço a 32K e 128K (64K para `l27`), e `driver back`. Se alguma banda foi pulada por `idle-gate` (linha `band … skipped`), rodar só ela: `--only P<N>` (braços com resultado são pulados).
 
 - [ ] **Step 4: Commitar os resultados brutos de velocidade (feito no rig)**
 
