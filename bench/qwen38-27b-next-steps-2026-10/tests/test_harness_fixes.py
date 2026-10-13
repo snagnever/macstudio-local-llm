@@ -53,6 +53,6 @@ def test_run_battery_honours_campaign_dir():
 
 
 def test_idle_gate_counts_reclaimable_file_cache():
-    # After ~130 GB of downloads "Pages free" stays near 2 GB; the gate must also count speculative and purgeable pages.
+    # File cache moves between speculative and inactive pages; the gate counts total minus wired, anonymous and compressor.
     gate = (FN / "idle-gate.sh").read_text()
-    assert '("free", "speculative", "purgeable")' in gate
+    assert "hw.memsize" in gate and "Anonymous pages" in gate and "Pages wired down" in gate

@@ -34,10 +34,14 @@ import json, re, subprocess, sys
 gpu = json.loads(subprocess.check_output([sys.argv[1], "pipe", "--samples", "1"]).decode())["temp"]["gpu_temp_avg"]
 vm = subprocess.check_output(["vm_stat"]).decode()
 page = int(re.search(r"page size of (\d+)", vm).group(1))
-# Speculative and purgeable pages are file cache that macOS reclaims at once; after large downloads
-# "Pages free" alone stays near zero and the gate never passes.
-pages = sum(int(re.search(rf"Pages {k}:\s+(\d+)\.", vm).group(1)) for k in ("free", "speculative", "purgeable"))
-free = pages * page / 1e9
+# Free = memory not held by the kernel or by processes: total - wired - anonymous - compressor.
+# File-backed pages (model weights read by earlier runs) are reclaimable; after large downloads and
+# runs they sit in speculative or inactive pages and "Pages free" alone stays far below the threshold.
+def pg(k):
+    return int(re.search(rf"{k}:\s+(\d+)\.", vm).group(1))
+total = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"]).decode())
+held = pg("Pages wired down") + pg("Anonymous pages") + pg("Pages occupied by compressor")
+free = (total - held * page) / 1e9
 print(f"{gpu:.1f} {free:.1f}")
 PY
 }
