@@ -213,7 +213,7 @@ def test_smoke_runs_before_first_band_of_p7_and_p8():
     assert "smoke w27d 8192 p7s" in p7 and "smoke w27m 8192 p8s" in p8
     assert re.search(r"FLASHNEXT_EFFORT=medium bash \S*run-arm\.sh w27d 8192 --repeat 1 --tag p7s", p7)
     assert "smoke_check.py" in p7 and "--mode dflash" in p7 and "--min-decode 60" in p7
-    assert "--mode mtp" in p8
+    assert "--mode mtp" in p8 and "--min-decode 40" in p8
     assert p7.index("smoke w27d 8192 p7s") < p7.index("idle-gate.sh") < p7.index("--tag p7x")
     assert p8.index("smoke w27m 8192 p8s") < p8.index("--tag p8x")
 

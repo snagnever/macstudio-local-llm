@@ -16,7 +16,8 @@ PHASE_P8_ARMS="r27m w27m";         PHASE_P8_CTXS="32768 131072"; PHASE_P8_BASE="
 PHASE_P6_ARMS="l27n l27";          PHASE_P6_CTXS="32768 65536";  PHASE_P6_BASE="s27r"; PHASE_P6_RULE="--mode le --threshold 1.00 --ctx 32768"; PHASE_P6_SKIP="hit_append,hit_tool_turn"
 
 # 8K smoke before the bands (arm:expected [spec-stats] mode); the phase (or the arm, for P8) is skipped when it fails.
-PHASE_P7_SMOKE="w27d:dflash"; PHASE_P8_SMOKE="w27m:mtp"; SMOKE_MIN_DECODE=60
+# MTP alone runs slower (r27m: 51.5 tok/s at 8K), so w27m gets a 40 tok/s floor; a broken head falls below that.
+PHASE_P7_SMOKE="w27d:dflash"; PHASE_P8_SMOKE="w27m:mtp:40"; SMOKE_MIN_DECODE=60
 
 # Reference arm whose p0x files feed every decision against it; the base glob is derived from it.
 REF_ARM=s27r; REF_TAG=p0x
