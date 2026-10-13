@@ -13,7 +13,7 @@
 #   s27r = s27 + --prefix-cache-rungs 1024
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|o1x|o1r|x1|g0|g1|g1m> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
 # A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
@@ -54,6 +54,16 @@ SWIFTDIR="$MODEL_ROOT/Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191
 MLXSERVE_26101="$HOME/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve"
 # Campanha engine-updates-2026-10: runtimes atualizados e pesos do 27B.
 OPT="$HOME/.local/opt/qwen38"
+# Campaign flashnext-next-steps-2026-10: runtimes installed by its scripts/install-runtime.sh and packs downloaded
+# by its scripts/fetch_pack.py (directory names end in the full revision; pack_dir resolves the prefix).
+MLXSERVE_26102="$OPT/mlx-serve-v26.10.2-pre-release.1/mlx-serve"
+MLXSERVE_26102_VERSION=26.10.2-pre-release.1
+OMLX_0711="$OPT/omlx-v0.7.1.dev1"
+LLAMA_B11569="$OPT/llama-b11569/llama-server"
+pack_dir() {
+  local m=("$MODEL_ROOT/$1"*)
+  if [[ -e "${m[0]}" ]]; then echo "${m[0]}"; else echo "$MODEL_ROOT/$1-MISSING"; fi
+}
 MC27="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9"
 DFLASH2="$MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4"
 M27PACK="$MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-1d5087d2062c02b279180a53e4016cf9cd7a3d7e"
@@ -65,6 +75,8 @@ YARN27_JSON() { echo "{\"text_config\":{\"rope_parameters\":{\"mrope_interleaved
 MODEL_ID_PREF=""; PROBE_SESSION_HEADER=""; PROBE_PRIME_MAX_TOKENS=""
 # --os-reserve-gib só no braço n2o: um valor herdado do shell não vale para os outros braços.
 unset QWEN38_MLX_OS_RESERVE_GIB
+# Extra mlx-serve flags only for the n2xd arm (flashnext-next-steps-2026-10); a shell value never leaks.
+unset QWEN38_MLX_EXTRA_ARGS
 case "$CAND" in
   c1) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.9.2
       MODEL_DIR="$DDALCU"; MODEL_REV=ef5b919d31534faa1997666f1a22d362cd6383cd
@@ -273,6 +285,71 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         }
         MODEL_DIR="$YARN_MODEL_DIR"; TOKENIZER="$YARN_MODEL_DIR"
         REV="v2.11.2-yarn${YARN}"
+      fi ;;
+  n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m)
+      # flashnext-next-steps-2026-10 on mlx-serve. An "x" in the arm = 26.10.2-pre-release.1, no "x" = 26.10.1.
+      # n2x/w1x = n2/w1 flags on 26.10.2; n2xd = n2x + MTP depth (FLASHNEXT_MTP_DEPTH_FLAG, FLASHNEXT_MTP_DEPTH);
+      # w1q4/w1xq4 = w1 + 4-bit KV with --yarn (the 512k launcher profile); w1c8/w1xc8 = prefix cache 8GB
+      # (control of test #9); w1p8/w1xp8 = w1c8 + --ple-gpu; o1rm = Jundot oQ4e refit c4ddfb5 and
+      # s1m = scottlowry Swift 1.5 oQ4e e8ed008, oMLX packs that 26.10.2 loads natively.
+      LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve
+      PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""
+      if [[ "$CAND" == *x* || "$CAND" == o1rm || "$CAND" == s1m ]]; then
+        export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26102" MLX_SERVE_EXPECTED_VERSION="$MLXSERVE_26102_VERSION"
+        REV="v$MLXSERVE_26102_VERSION"
+      else
+        export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26101" MLX_SERVE_EXPECTED_VERSION=26.10.1; REV=v26.10.1
+      fi
+      case "$CAND" in
+        n2x|n2xd) MODEL_DIR="$IQDIR"; MODEL_REV=dafff5c3d8168c9d13275661153911096499a80a ;;
+        w1*) MODEL_DIR="$SWIFTDIR"; MODEL_REV=13839b7191e0973ff9fea58232267c395b76c6c0 ;;
+        o1rm) MODEL_DIR="$(pack_dir Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-c4ddfb5)"; MODEL_REV="${MODEL_DIR##*-}" ;;
+        s1m) MODEL_DIR="$(pack_dir scottlowry-Swift1.5-Qwen3.8-Flash-Next-oQ4e-mtp-e8ed008)"; MODEL_REV="${MODEL_DIR##*-}" ;;
+      esac
+      export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
+      unset QWEN38_MLX_PLE_GPU QWEN38_MLX_PREFIX_CACHE_MEM QWEN38_MLX_KV_QUANT QWEN38_MLX_CONFIG_OVERRIDES
+      case "$CAND" in
+        w1c8|w1xc8) export QWEN38_MLX_PREFIX_CACHE_MEM=8GB; REV="${REV}-pc8" ;;
+        w1p8|w1xp8) export QWEN38_MLX_PREFIX_CACHE_MEM=8GB QWEN38_MLX_PLE_GPU=1; REV="${REV}-pc8-plegpu" ;;
+        n2xd) export QWEN38_MLX_EXTRA_ARGS="${FLASHNEXT_MTP_DEPTH_FLAG:?n2xd needs FLASHNEXT_MTP_DEPTH_FLAG} ${FLASHNEXT_MTP_DEPTH:?n2xd needs FLASHNEXT_MTP_DEPTH}"
+              REV="${REV}-mtpd${FLASHNEXT_MTP_DEPTH}" ;;
+      esac
+      if [[ -n "$YARN" ]]; then
+        export QWEN38_MLX_KV_QUANT=8
+        export QWEN38_MLX_CONFIG_OVERRIDES="{\"text_config\":{\"rope_parameters\":{\"rope_type\":\"yarn\",\"factor\":${YARN},\"original_max_position_embeddings\":262144},\"max_position_embeddings\":${CTX}}}"
+        REV="${REV}-yarn${YARN}-kv8"
+        if [[ "$CAND" == w1q4 || "$CAND" == w1xq4 ]]; then export QWEN38_MLX_KV_QUANT=4; REV="${REV%-kv8}-kv4"; fi
+      fi ;;
+  o1x|o1r|x1)
+      # flashnext-next-steps-2026-10 on oMLX 0.7.1.dev1 (isolated venv): o1x = Jundot oQ4e 2615fc0 (launcher arm FN),
+      # o1r = Jundot oQ4e refit c4ddfb5 (FR), x1 = umixer oQ4e-mix6-mtp-v2 (FM). FR and FM enter
+      # config/omlx-arms.json after each download (Tasks 5 and 7 of the campaign plan).
+      LAUNCHER="$HARNESS/run-omlx.sh"; PORT=8000; RUNTIME=omlx; REV=v0.7.1.dev1
+      case "$CAND" in
+        o1x) ARM=FN; MODEL_DIR="$OQ4E" ;;
+        o1r) ARM=FR; MODEL_DIR="$(pack_dir Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-c4ddfb5)" ;;
+        x1) ARM=FM; MODEL_DIR="$(pack_dir umixer-Qwen3.8-Flash-Next-oQ4e-mix6-mtp-v2-)" ;;
+      esac
+      MODEL_REV="${MODEL_DIR##*-}"
+      TOKENIZER="$MODEL_DIR"; METRICS=""; SERVER_NAME=omlx
+      PROBE_PY="$OMLX_0711/bin/python"
+      export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_OMLX_BIN="$OMLX_0711/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.1.dev1 ;;
+  g0|g1|g1m)
+      # flashnext-next-steps-2026-10, test #8: ggml-org GGUF IQ4_NL + MTP head Q8_0. g0 = llama.cpp b11569 without
+      # speculative decoding; g1 = --spec-type draft-mtp; g1m = mlx-serve 26.10.2 (embedded llama.cpp), same files.
+      LAUNCHER="$REPO/bench/flashnext-next-steps-2026-10/scripts/run-llama-flashnext.sh"
+      MODEL_DIR="$(pack_dir ggml-org-Qwen3.8-Flash-Next-GGUF-)"; MODEL_REV="${MODEL_DIR##*-}"
+      TOKENIZER=""; METRICS=""; PROBE_PY=python3
+      export QWEN38_GGUF_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"
+      if [[ "$CAND" == g1m ]]; then
+        ARM=GX; PORT=11234; RUNTIME=mlx-serve; SERVER_NAME=mlx-serve; REV="v$MLXSERVE_26102_VERSION-gguf"
+        export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26102" MLX_SERVE_EXPECTED_VERSION="$MLXSERVE_26102_VERSION"
+      else
+        PORT=8080; RUNTIME=llama.cpp; SERVER_NAME=llama-server; MODEL_ID_PREF=flashnext-gguf
+        export QWEN38_LLAMA_SERVER_BIN="$LLAMA_B11569"
+        if [[ "$CAND" == g0 ]]; then ARM=GN; REV=b11569; else ARM=GM; REV=b11569-mtp; fi
       fi ;;
   *) echo "candidato desconhecido: $CAND" >&2; exit 64 ;;
 esac

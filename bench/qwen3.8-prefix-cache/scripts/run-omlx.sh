@@ -10,9 +10,9 @@ OMLX_BIN="${QWEN38_OMLX_BIN:-omlx}"
 EXPECTED_OMLX_VERSION="${QWEN38_OMLX_EXPECTED_VERSION:-$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["omlx_version"])' "$CONFIG")}"
 
 case "$ARM" in
-  I|J|K|L|M|N|O|T|U|W|X|FN) ;;
+  I|J|K|L|M|N|O|T|U|W|X|FN|FR|FM) ;;
   *)
-    echo "usage: $0 {I|J|K|L|M|N|O|T|U|W|X} [--print]" >&2
+    echo "usage: $0 {I|J|K|L|M|N|O|T|U|W|X|FN|FR|FM} [--print]" >&2
     exit 64
     ;;
 esac
