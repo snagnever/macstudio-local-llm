@@ -86,6 +86,7 @@ run_phase() {  # P<N>
   local bn="" q
   if [[ -n "$base" && "$base" != "$REF_ARM" ]]; then
     for q in "${PHASES[@]}" "${PHASES_LATER[@]}"; do [[ " $(eval echo "\$PHASE_${q}_ARMS") " == *" $base "* ]] && { bn="${q#P}"; break; }; done
+    [[ -n "$bn" ]] || { say "$p skipped: base $base is in no phase"; gate_set "${p}_PASS" skipped; return; }
     if [[ -z "$DRY" ]]; then
       for ctx in $ctxs; do have_result "$base" "$ctx" "p${bn}x" || {
         say "$p skipped: $base p${bn}x results incomplete"; gate_set "${p}_PASS" skipped; return; }; done
@@ -161,6 +162,9 @@ started=""; [[ -z "$FROM" ]] && started=1
 for p in $sel; do
   [[ "$p" == "$FROM" ]] && started=1; [[ -n "$started" ]] || continue
   run_phase "$p"
+  if [[ -z "$DRY" && " ${STOP_UNLESS_PASS:-} " == *" $p "* && "$(gate_get "${p}_PASS")" != 1 ]]; then
+    say "$p did not pass (${p}_PASS=$(gate_get "${p}_PASS")): campaign ends here"; break
+  fi
 done
 if [[ "$ONLY" == PQ || ( -z "$ONLY" && -n "$BATTERY" ) ]]; then run_battery; fi
 # Driver gate for P5 (manual, needs the MacBook + Docker): any arm with T_turno <= 1.25 x w1 on both bands.

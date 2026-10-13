@@ -7,14 +7,17 @@
 # bash 3.2 (the rig's /bin/bash): plain strings and indexed arrays only, no associative arrays.
 # 2026-10-13 cut: only the stacks that can be the fastest with the best cache run by default (8K smokes: k27 86.5,
 # r27d 83.6, o27q4 81.4 tok/s; MTP alone 51.5; llama.cpp 35.3). PHASES_LATER run only with --only.
-PHASES=(P0 P1 P3 P7 P2)
-PHASES_LATER=(P4 P8 P6)
+# Scope B (user, 2026-10-13 15:00): P1 (Splash) is the only test that attacks the warm tool_turn TTFT. P3 and P7
+# run only when P1 passes (STOP_UNLESS_PASS); P2 (o27q8 repin, fixes 27b-summary) runs only with --only P2.
+PHASES=(P0 P1 P3 P7)
+PHASES_LATER=(P2 P4 P8 P6)
+STOP_UNLESS_PASS="P1"
 # Efforts per phase (default "xhigh medium"). P0 decisions read s27r xhigh (p0x) only; its 128K medium run is cut.
 PHASE_P0_EFFORTS="xhigh"
 
 PHASE_P0_ARMS="s27r";              PHASE_P0_CTXS="32768 131072"; PHASE_P0_BASE="";     PHASE_P0_RULE="";                              PHASE_P0_SKIP=""
-PHASE_P1_ARMS="k27";               PHASE_P1_CTXS="32768 131072"; PHASE_P1_BASE="s27r"; PHASE_P1_RULE="--mode le --threshold 0.75";    PHASE_P1_SKIP="hit_append,hit_tool_turn"
-PHASE_P2_ARMS="o27q4";             PHASE_P2_CTXS="32768 131072"; PHASE_P2_BASE="s27r"; PHASE_P2_RULE="--mode le --threshold 1.00";    PHASE_P2_SKIP=""
+PHASE_P1_ARMS="k27";               PHASE_P1_CTXS="32768 131072"; PHASE_P1_BASE="s27r"; PHASE_P1_RULE="--mode le --threshold 0.75 --ctx 131072"; PHASE_P1_SKIP="hit_append,hit_tool_turn"
+PHASE_P2_ARMS="o27q8";             PHASE_P2_CTXS="32768 131072"; PHASE_P2_BASE="s27r"; PHASE_P2_RULE="--mode le --threshold 1.00";    PHASE_P2_SKIP=""
 PHASE_P3_ARMS="r27d";              PHASE_P3_CTXS="32768 131072"; PHASE_P3_BASE="s27r"; PHASE_P3_RULE="--mode le --threshold 1.00";    PHASE_P3_SKIP=""
 PHASE_P4_ARMS="o27sw";             PHASE_P4_CTXS="32768 131072"; PHASE_P4_BASE="o27q4"; PHASE_P4_RULE="--mode le --threshold 1.03";   PHASE_P4_SKIP=""
 PHASE_P7_ARMS="w27d";              PHASE_P7_CTXS="32768 131072"; PHASE_P7_BASE="r27d"; PHASE_P7_RULE="--mode le --threshold 1.03";   PHASE_P7_SKIP=""

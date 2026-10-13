@@ -17,7 +17,7 @@ def _dry(*args, **env):
 def test_dry_run_lists_phases_in_order_and_restarts_driver():
     out = _dry()
     order = [m.group(1) for m in re.finditer(r"^=== phase (P\w)", out, re.M)]
-    assert order == ["P0", "P1", "P3", "P7", "P2", "PQ"]
+    assert order == ["P0", "P1", "P3", "P7", "PQ"]
     assert out.rstrip().splitlines()[-1].startswith("restart daily driver")
     assert "stop daily driver" in "\n".join(out.splitlines()[:3])
 
@@ -134,9 +134,10 @@ def _p4(tmp_path, bands):
     return _lib(stubs + "run_phase P4", tmp_path)
 
 
-def test_p4_runs_when_o27q4_p2x_complete_on_both_bands(tmp_path):
+def test_p4_skipped_when_its_base_is_in_no_phase(tmp_path):
+    # scope B: P2 holds only o27q8, so P4's base o27q4 belongs to no phase
     out = _p4(tmp_path, (32768, 131072))
-    assert "arm o27sw 131072 p4x" in out and "P4 skipped" not in out
+    assert "P4 skipped: base o27q4 is in no phase" in out and "arm o27sw" not in out
 
 
 def test_p4_skipped_when_o27q4_p2x_incomplete(tmp_path):
@@ -260,8 +261,14 @@ def test_smoke_not_rerun_when_result_exists(tmp_path):
 def test_cut_keeps_later_phases_runnable_and_drops_o27q8_and_p0_medium():
     out = _dry("--skip-battery")  # the battery (PQ) is revised in Task 7
     arms = {l.split("run-arm.sh ")[1].split()[0] for l in out.splitlines() if "run-arm.sh " in l}
-    assert arms == {"s27r", "k27", "r27d", "w27d", "o27q4"}
+    assert arms == {"s27r", "k27", "r27d", "w27d"}
     assert "s27r 131072 --repeat 3 --tag p0m" not in out and "s27r 32768 --repeat 3 --tag p0x" in out
     assert "k27 131072 --repeat 3 --tag p1m" in out
-    assert "run-arm.sh o27sw 32768" in _dry("--only", "P4")
-    assert "o27q4-*-p2x.jsonl" in _dry("--only", "P4")
+    assert "run-arm.sh o27q8 32768" in _dry("--only", "P2")
+    assert "--ctx 131072" in [l for l in _dry("--only", "P1").splitlines() if "decide.py" in l and "--base s27r" in l][0]
+
+
+def test_campaign_stops_after_p1_unless_it_passes():
+    src = (C / "scripts/run-campaign.sh").read_text()
+    assert 'STOP_UNLESS_PASS' in src and "campaign ends here" in src
+    assert 'STOP_UNLESS_PASS="P1"' in (C / "scripts/phases.sh").read_text()
