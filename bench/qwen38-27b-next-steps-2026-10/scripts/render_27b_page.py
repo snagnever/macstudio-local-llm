@@ -25,6 +25,7 @@ from empty_answers import is_empty  # noqa: E402
 
 ARMS = [  # id, name, runtime, pack, rev, port, phase
     ("s27r", "mlx-dspark 0.20.3 + DFlash2", "mlx-dspark 0.20.3", "mlx-community 8bit", "815b83c0", 8484, "P0"),
+    # KV int8: Splash 1.3.1 `serve --help` states "--kv-format {int8,bf16} ... (default: int8)"; the launcher passes no flag.
     ("k27", "Splash 1.3.1 + DFlash2, KV int8", "Splash 1.3.1",
      "mlx-community 8bit (Hub cache) + local DFlash2 draft", "815b83c0", 8585, "P1"),
     ("o27q8", "oMLX oQ8e refit", "oMLX 0.7.1.dev1", "Jundot oQ8e-mtp", "6c76ddfb", 8000, "P2"),
