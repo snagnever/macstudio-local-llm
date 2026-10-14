@@ -80,6 +80,8 @@ Sondas de raciocínio: ~4.9 h no total (11 braços). Total das fases de velocida
 
 **Como a campanha muda de ordem:** o `run-campaign.sh` lê a ordem do `phases.sh` só no início. O Task 5b implementa P7, P8 e a nova ordem; depois, a campanha para numa fronteira entre braços e reinicia. A retomada pula os braços com resultado completo (≥ 13 linhas), então nada medido se perde.
 
+**Encerramento 14/10.** O usuário encerrou a campanha às 06:35 UTC, depois da P3; a P7 e o resto não rodaram. P0: o s27r reproduziu a referência de 08/10 (17.0 / 25.7 s em `xhigh`). P1 passou: o k27 (Splash 1.3.1 + DFlash2) fez 13.3 / 17.7 s em `xhigh` e 10.4 / 15.9 s em `medium`, razão 0.689 a 128K, e é o stack mais rápido medido para o 27B denso. P3 falhou: o r27d (mlx-serve 26.10.2 + drafter) fez 19.9 / 44.7 s, razões 1.171 / 1.739, com decode de 15.1 tok/s a 128K. `P5_GO=0`: o melhor 27B fica em 1.85× o driver Flash-Next a 128K, e o NO-GO como driver continua. A bateria de qualidade não rodou. Dados, aprendizados e próximos passos: [results/summary.md](results/summary.md).
+
 ---
 
 ## Mapa de arquivos
