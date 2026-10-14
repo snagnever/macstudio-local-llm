@@ -175,6 +175,19 @@ def build_payload(results: Path, w1_summary: dict, w1_ab, n2_ab=None) -> dict:
 
 NA = '<span class="na">—</span>'
 NOT_MEASURED = '<p class="empty">not measured</p>'
+NO_BATTERY = '<p class="empty">not measured in this campaign (battery not run)</p>'
+
+# Arms cut from the campaign (user scope, 2026-10-13/14). The setup section lists them with the reason.
+NOT_RUN = {
+    "o27q8": "oMLX with the oQ8e refit pack. Cut by scope B (stop after P1 unless Splash passes at 128K).",
+    "o27q4": "oMLX with the oQ4e refit pack. Only the 8K smoke ran (81.4 tok/s). Cut by scope B.",
+    "o27sw": "Swift 1.5 on oMLX. Cut with the rest of P4.",
+    "w27d": "Swift 1.5 on mlx-serve with the drafter: cancelled after r27d failed on the same runtime and drafter.",
+    "r27m": "MTP head only on mlx-serve. The 8K smoke ran at 51.5 tok/s. Cut.",
+    "w27m": "Swift 1.5 MTP only on mlx-serve. Cut with r27m (MTP-only smoke: 51.5 tok/s).",
+    "l27": "llama.cpp draft-mtp. The 8K smoke ran at 35.3 tok/s. Cut.",
+    "l27n": "llama.cpp without speculation. Cut with l27 (8K smoke: 35.3 tok/s).",
+}
 
 
 def E(v) -> str:
@@ -344,7 +357,7 @@ def _suites(p: dict) -> list[str]:
 def _per_suite(p: dict, key: str, fmt: str, unit: str) -> str:
     rows = _quality_rows(p)
     if not p["quality"]:
-        return NOT_MEASURED + (_per_suite_cards(rows, _suites(p), key, fmt, unit) if rows else "")
+        return NO_BATTERY + (_per_suite_cards(rows, _suites(p), key, fmt, unit) if rows else "")
     return _per_suite_cards(rows, _suites(p), key, fmt, unit)
 
 
@@ -378,7 +391,7 @@ def _html_accuracy(p: dict) -> str:
     rows = _quality_rows(p)
     suites = _suites(p)
     if not rows:
-        table = NOT_MEASURED
+        table = NO_BATTERY
     else:
         head = "".join(f"<th>{E(SUITE_LABEL.get(s, s))}</th>" for s in suites)
         body = ""
@@ -395,7 +408,7 @@ def _html_accuracy(p: dict) -> str:
             loops = p["loops"].get(lab)
             cells += f"<td>{_frac(emp, 'empty', 'stop_records')}</td><td>{_frac(loops, 'degenerate', 'total')}</td>"
             body += f"<tr><td>{_lab(lab)}</td>{cells}</tr>"
-        table = (f'<div class="tbl-scroll"><table class="qual"><thead><tr><th>Arm · effort</th>{head}'
+        table = (NO_BATTERY if not p["quality"] else "") + (f'<div class="tbl-scroll"><table class="qual"><thead><tr><th>Arm · effort</th>{head}'
                  f'<th>Empty answers</th><th>Loops</th></tr></thead><tbody>{body}</tbody></table></div>')
     think = [(k.split(":", 1)[1], v) for k, v in p["empty"].items() if k.startswith("think:")]
     think_html = ""
@@ -448,27 +461,48 @@ def _ref_times(p: dict, key: str) -> str:
     return " / ".join(f"{x:.1f}" for x in v) + " s" if all(x is not None for x in v) else "not measured"
 
 
+def _html_headline(p: dict) -> str:
+    """The one-paragraph finding, built from measured numbers; empty when the numbers are missing."""
+    r = p["speed"].get("131072", {})
+    k = {e: (r.get(f"k27-{e}") or {}).get("t_turno_s") for e in EFFORTS}
+    base = (r.get("s27r-xhigh") or {}).get("t_turno_s")
+    w1 = (p["w1"].get("131072") or {}).get("t_turno_s")
+    if None in (k["xhigh"], k["medium"], base, w1) or p["gates"].get("P1_PASS") != "1":
+        return ""
+    verdict = (" so the 27B stays a NO-GO as the agentic driver." if p["gates"].get("P5_GO") == "0"
+               else " so the driver gate needs a look.")
+    return ('<section class="block" id="finding"><h2 class="sec">Finding</h2>'
+            '<p class="s-note"><strong>Splash 1.3.1 is the fastest way to run the dense 27B on this rig:</strong> '
+            f'T_turno {k["xhigh"]:.1f} s (xhigh) / {k["medium"]:.1f} s (medium) at 128K, '
+            f'{k["xhigh"] / base:.2f}× the mlx-dspark control; still about {round(k["xhigh"] / w1)}× the '
+            f'Flash-Next driver ({w1:.1f} s),{verdict}</p></section>')
+
+
 def _html_sub(p: dict) -> str:
-    return ('Nine ways to serve the dense 27B (mlx-dspark, Splash, oMLX refit packs, mlx-serve 26.10.2, the Swift 1.5 '
-            '27B and llama.cpp) measured with the same agent-turn probe and battery as the two Qwen3.8-Flash-Next '
+    return ('Three stacks for the dense 27B (mlx-dspark control, Splash 1.3.1, mlx-serve 26.10.2) measured with the '
+            'same agent-turn probe as the two Qwen3.8-Flash-Next '
             f'daily drivers: A, Swift 1.5 (w1, T_turno {_ref_times(p, "w1")}) and B, ddalcu iQ (n2, T_turno '
             f'{_ref_times(p, "n2")}), both on mlx-serve 26.10.1 at 32K / 128K context.')
 
 
 def _html_setup(p: dict) -> str:
+    ran = [a for a in p["arms"] if a["id"] not in NOT_RUN]
+    cut = "".join(f'<li><code>{E(i)}</code>: {E(why)}</li>' for i, why in NOT_RUN.items())
     rows = "".join(f'<tr><td class="code">{E(a["id"])}</td><td>{E(a["name"])}</td><td>{E(a["runtime"])}</td>'
                    f'<td>{E(a["pack"])}</td><td><code>{E(a["rev"])}</code></td><td>{E(a["port"])}</td>'
-                   f'<td>{E(a["phase"])}</td></tr>' for a in p["arms"])
+                   f'<td>{E(a["phase"])}</td></tr>' for a in ran)
     return ('<section class="block" id="setup"><h2 class="sec">Setup and how to reproduce</h2>'
             '<p class="s-note">Apple M4 Max, 128 GB. Every arm serves the dense Qwen3.8-27B; speed phases run each '
             'arm at xhigh and medium effort (file tags <code>p&lt;N&gt;x</code> / <code>p&lt;N&gt;m</code>), '
-            '3 repetitions, bands 32K then 128K (llama.cpp: 32K and 64K). The two Flash-Next references come '
+            '3 repetitions, bands 32K then 128K. The control s27r ran medium at 32K only. The two Flash-Next references come '
             'from <code>bench/swift15-flashnext-2026-10</code>, both on mlx-serve 26.10.1 at xhigh effort: driver A '
             f'(w1, Swift 1.5 MLX-4.7bpw) with T_turno {_ref_times(p, "w1")} and driver B (n2, ddalcu iQ-MLX-4.7bpw) '
             f'with T_turno {_ref_times(p, "n2")} at 32K / 128K. The 1.25 × limit and the driver verdict use driver A '
             'only.</p>'
             '<div class="tbl-scroll"><table class="cfg arms"><thead><tr><th>Arm</th><th>Stack</th><th>Runtime</th>'
             f'<th>Pack</th><th>Revision</th><th>Port</th><th>Phase</th></tr></thead><tbody>{rows}</tbody></table></div>'
+            '<p class="s-note mt">Arms not run (cut on 2026-10-13/14), by user scope: only the stacks that can be fastest '
+            f'ran, and the campaign closed after P3 on 2026-10-14. No quality battery ran.</p><ul class="s-note">{cut}</ul>'
             '<p class="s-note mt">Run the campaign on the rig with '
             '<code>bash bench/qwen38-27b-next-steps-2026-10/scripts/run-campaign.sh</code>, then render this page with '
             '<code>python3 bench/qwen38-27b-next-steps-2026-10/scripts/render_27b_page.py</code>. '
@@ -536,6 +570,7 @@ TEMPLATE = r"""<!doctype html>
     </div>
     <button class="theme" id="themeBtn" type="button">theme: auto</button>
   </header>
+__HEADLINE__
 __TTURNO__
 __TTFT__
 __TIME__
@@ -566,7 +601,7 @@ def render_html(p: dict) -> str:
         "/*__CSS__*/": PERF_CSS + PERF_EXTRA_CSS + PAGE_CSS,
         "__TTURNO__": _html_tturno(p), "__TTFT__": _html_ttft(p), "__TIME__": _html_time(p),
         "__TOKENS__": _html_tokens(p), "__ACCURACY__": _html_accuracy(p), "__GATES__": _html_gates(p),
-        "__SUB__": _html_sub(p), "__SETUP__": _html_setup(p), "__GENERATED__": E(p.get("generated_at", "")),
+        "__SUB__": _html_sub(p), "__HEADLINE__": _html_headline(p), "__SETUP__": _html_setup(p), "__GENERATED__": E(p.get("generated_at", "")),
     }
     html = TEMPLATE
     for k, v in parts.items():

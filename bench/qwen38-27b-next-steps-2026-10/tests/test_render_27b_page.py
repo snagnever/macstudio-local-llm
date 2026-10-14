@@ -237,3 +237,64 @@ def test_no_w1_drops_both_drivers(results, tmp_path):
     assert 'class="refline n2"' not in html and 'class="refline w1"' not in html
     body = html[html.index("</style>"):]
     assert rp.N2_NAME not in body and rp.W1_NAME not in body
+
+
+# --- cut campaign: only arms with results, headline, battery-not-run notice ---
+
+CUT_IDS = ["o27q8", "o27q4", "o27sw", "w27d", "r27m", "w27m", "l27", "l27n"]
+
+
+def _cut_results(tmp_path):
+    for arm, tag, ttft, dec in (("s27r", "p0x", 9700, 32.3), ("k27", "p1x", 7400, 49.8), ("k27", "p1m", 7400, 60.5)):
+        _write_speed(tmp_path, arm, tag, ttft, dec, ctxs=(131072,))
+    (tmp_path / "gates.env").write_text("P1_PASS=1\nP1_BEST=k27\nP5_GO=0\n")
+    return tmp_path
+
+
+def test_setup_table_lists_only_arms_that_ran_and_not_run_reasons(tmp_path):
+    html = rp.render_html(rp.build_payload(_cut_results(tmp_path), w1_summary={}, w1_ab=None))
+    setup = html[html.index('id="setup"'):]
+    table = setup[:setup.index("</table>")]
+    for a in ("s27r", "k27", "r27d"):
+        assert f'<td class="code">{a}</td>' in table
+    for a in CUT_IDS:
+        assert f'<td class="code">{a}</td>' not in table
+    assert "not run (cut on 2026-10-13/14)" in setup
+    for a in CUT_IDS:
+        assert f"<code>{a}</code>" in setup
+    for needle in ("81.4 tok/s", "51.5 tok/s", "35.3 tok/s", "scope B", "cancelled after r27d failed"):
+        assert needle in setup
+
+
+def test_headline_uses_measured_numbers(tmp_path):
+    w1 = {"w1@32768": {"t_turno_s": 7.9}, "w1@131072": {"t_turno_s": 8.6}}
+    p = rp.build_payload(_cut_results(tmp_path), w1_summary=w1, w1_ab=None)
+    html = rp.render_html(p)
+    head = html[:html.index('id="tturno"')]
+    assert "Splash 1.3.1 is the fastest way to run the dense 27B on this rig" in head
+    assert "17.7 s (xhigh) / 15.9 s (medium) at 128K" in head
+    assert "0.69× the mlx-dspark control" in head
+    assert "about 2× the Flash-Next driver (8.6 s)" in head
+    assert "NO-GO as the agentic driver" in head
+
+
+def test_headline_absent_without_data(tmp_path):
+    html = rp.render_html(rp.build_payload(tmp_path, w1_summary={}, w1_ab=None))
+    assert "fastest way to run" not in html
+
+
+def test_battery_not_run_notice_and_driver_rows_kept(tmp_path, results):
+    msg = "not measured in this campaign (battery not run)"
+    empty = tmp_path / "empty"; empty.mkdir()
+    html = rp.render_html(rp.build_payload(empty, w1_summary={}, w1_ab=None))
+    for sec in ("Time per task", "Tokens per answer (median)", "Accuracy"):
+        i = html.index(sec)
+        assert msg in html[i:i + 2500]
+    # driver rows stay as references when the campaign has no battery
+    import shutil
+    shutil.rmtree(results / "q")
+    d = tmp_path / "w1"; d.mkdir()
+    ab = _ab_dir(tmp_path, "w1x", 10.0)
+    html = rp.render_html(rp.build_payload(results, w1_summary={}, w1_ab=ab))
+    i = html.index('id="accuracy"')
+    assert msg in html[i:] and rp.W1_NAME in html[i:]

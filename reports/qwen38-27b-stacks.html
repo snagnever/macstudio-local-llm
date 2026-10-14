@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Qwen3.8-27B stacks</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Dense Qwen3.8-27B stacks on an Apple M4 Max 128 GB against the Qwen3.8-Flash-Next driver: agent-turn time (T_turno) at 32K and 128K, time and tokens per task, accuracy, gates.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+
+:root{
+  color-scheme: light;
+  --plane:#f9f9f7; --surface:#fcfcfb; --surface-2:#f3f2ee;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
+  --accent:#2a78d6; --accent-rgb:42,120,214; --warn:#b06a00; --warn-bg:#fbf1dd;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232321;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+    --accent:#3987e5; --accent-rgb:57,135,229; --warn:#e0a63a; --warn-bg:#2a2312;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232321;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+  --accent:#3987e5; --accent-rgb:57,135,229; --warn:#e0a63a; --warn-bg:#2a2312;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--plane); color:var(--ink); font-family:var(--sans);
+  line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px; margin:0 auto; padding:32px 20px 64px}
+header{display:flex; flex-wrap:wrap; gap:20px 32px; align-items:flex-end; justify-content:space-between}
+h1{font-size:1.7rem; font-weight:700; letter-spacing:-0.02em; margin:0; text-wrap:balance}
+.sub{color:var(--ink-2); max-width:66ch; margin:8px 0 0; font-size:0.98rem}
+.eyebrow{font-family:var(--mono); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin:0 0 6px}
+button.theme{
+  font-family:var(--mono); font-size:0.74rem; color:var(--ink-2); background:var(--surface);
+  border:1px solid var(--border); border-radius:7px; padding:7px 12px; cursor:pointer;
+}
+button.theme:hover{border-color:var(--baseline)}
+button.theme:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+h2.sec{font-size:1.05rem; margin:0 0 4px; letter-spacing:-0.01em}
+.s-note{color:var(--ink-2); font-size:0.88rem; margin:0 0 14px; max-width:82ch}
+.s-note code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+section.block{margin-top:30px}
+
+/* rig strip */
+.rig{display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:10px; margin-top:18px}
+.rig .r-item{background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:10px 13px}
+.rig .r-lab{font-size:0.72rem; color:var(--muted); margin:0 0 3px}
+.rig .r-val{font-family:var(--mono); font-size:0.88rem; color:var(--ink); font-weight:500}
+
+/* tables shared */
+.tbl-scroll{overflow-x:auto; border:1px solid var(--border); border-radius:10px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:0.84rem}
+th,td{padding:8px 11px; text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono)}
+th{font-size:0.72rem; letter-spacing:0.04em; color:var(--muted); font-weight:500; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface)}
+td:first-child,th:first-child{text-align:left}
+tbody tr:hover{background:var(--surface-2)}
+.arm-cell{display:inline-flex; align-items:center; gap:8px}
+.arm-cell .sw{width:10px; height:10px; border-radius:2px; flex:none}
+.arm-cell .code{font-weight:700; color:var(--ink)}
+.na{color:var(--muted)}
+
+#cfgTable{min-width:780px}
+#cfgTable th,#cfgTable td{text-align:left; vertical-align:top; white-space:normal; font-family:var(--sans); font-size:0.83rem; line-height:1.42}
+#cfgTable th{font-family:var(--mono); font-size:0.72rem; letter-spacing:0.04em}
+#cfgTable td:first-child{font-weight:700; color:var(--ink); white-space:nowrap}
+#cfgTable .mono{font-family:var(--mono); font-size:0.9em; color:var(--ink-2)}
+
+/* tech cards */
+.tech{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; margin-top:16px}
+.tcard{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 16px 14px}
+.tcard .t-name{font-size:1.02rem; font-weight:700; letter-spacing:-0.01em; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
+.tcard .t-repo{font-family:var(--mono); font-size:0.72rem; color:var(--muted)}
+.tcard .t-what{font-size:0.86rem; color:var(--ink-2); margin:7px 0 13px; line-height:1.45}
+.tcard dl{margin:0; display:grid; gap:11px}
+.tcard dt{font-family:var(--mono); font-size:0.66rem; letter-spacing:0.09em; text-transform:uppercase; color:var(--accent); margin-bottom:3px}
+.tcard dd{margin:0; font-size:0.83rem; color:var(--ink-2); line-height:1.45}
+.tcard dd b{color:var(--ink); font-weight:600}
+.tcard .t-configs{margin:13px 0 0; padding-top:11px; border-top:1px solid var(--border); font-size:0.8rem; color:var(--ink-2)}
+.tcard .t-configs b{color:var(--ink); font-family:var(--mono); font-weight:600; font-size:0.9em}
+.tech-src{margin-top:12px; font-size:0.78rem; color:var(--muted)}
+.tech-src a{color:var(--accent); text-decoration:none}
+.tech-src a:hover{text-decoration:underline}
+
+/* legend */
+.legend{display:flex; flex-wrap:wrap; gap:8px 18px; margin:22px 0 4px; padding:12px 16px;
+  background:var(--surface); border:1px solid var(--border); border-radius:10px}
+.chip{display:inline-flex; align-items:center; gap:7px; font-size:0.84rem; color:var(--ink-2)}
+.chip .sw{width:22px; height:3px; border-radius:2px; flex:none}
+.chip .code{font-family:var(--mono); font-weight:700; color:var(--ink)}
+
+/* takeaways compact */
+.takeaways{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-top:22px}
+.takeaways h2{font-size:0.95rem; margin:0 0 9px; letter-spacing:-0.01em}
+.takeaways ul{margin:0; padding:0; list-style:none; display:grid; gap:7px}
+.takeaways li{font-size:0.85rem; color:var(--ink-2); padding-left:15px; position:relative; line-height:1.4}
+.takeaways li::before{content:"›"; position:absolute; left:0; color:var(--accent); font-family:var(--mono); font-weight:700}
+.takeaways li b{color:var(--ink)}
+
+/* chart grid */
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:14px; margin-top:14px}
+.panel{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 14px 10px; position:relative}
+.p-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin:0 2px 2px}
+.p-title{font-size:0.98rem; font-weight:700; letter-spacing:-0.01em}
+.p-unit{font-family:var(--mono); font-size:0.72rem; color:var(--muted)}
+.p-dir{font-family:var(--mono); font-size:0.68rem; letter-spacing:0.06em; color:var(--muted)}
+.p-note{font-size:0.76rem; color:var(--warn); background:var(--warn-bg); border-radius:6px;
+  padding:3px 8px; margin:2px 2px 0; display:inline-block}
+.p-interp{font-size:0.8rem; color:var(--ink-2); margin:8px 2px 0; line-height:1.4; border-top:1px solid var(--border); padding-top:8px}
+.p-interp b{color:var(--ink); font-weight:600}
+svg.chart{width:100%; height:auto; display:block; touch-action:none}
+.tick{font-family:var(--mono); font-size:10px; fill:var(--muted)}
+.axis-t{font-family:var(--mono); font-size:10.5px; fill:var(--ink-2)}
+.endlab{font-family:var(--mono); font-size:9.5px; font-weight:700}
+.crosshair{stroke:var(--baseline); stroke-width:1; stroke-dasharray:3 3; opacity:0}
+
+.tip{position:absolute; pointer-events:none; z-index:5; background:var(--surface);
+  border:1px solid var(--baseline); border-radius:8px; padding:8px 10px; font-size:0.78rem;
+  box-shadow:0 6px 20px rgba(0,0,0,0.13); opacity:0; transition:opacity .08s; min-width:158px}
+.tip .t-ctx{font-family:var(--mono); font-weight:700; color:var(--ink); margin-bottom:5px; font-size:0.76rem}
+.tip .t-row{display:flex; align-items:center; gap:7px; justify-content:space-between; margin:2px 0}
+.tip .t-left{display:flex; align-items:center; gap:6px; color:var(--ink-2)}
+.tip .t-left .sw{width:9px; height:9px; border-radius:2px; flex:none}
+.tip .t-left .code{font-family:var(--mono); font-weight:700; color:var(--ink); font-size:0.74rem}
+.tip .t-val{font-family:var(--mono); color:var(--ink); font-variant-numeric:tabular-nums}
+.tip .t-na{color:var(--muted)}
+
+/* hit heatmap */
+#hitTable{min-width:640px}
+#hitTable th{text-align:center}
+#hitTable th:first-child,#hitTable td:first-child{text-align:left}
+#hitTable td.grp{background:var(--surface-2); font-family:var(--sans); font-weight:700; color:var(--ink); font-size:0.8rem}
+.hcell{text-align:center; font-variant-numeric:tabular-nums; border-radius:4px}
+.hcell.na{color:var(--muted); background:transparent!important}
+.hcell.est{box-shadow:inset 0 0 0 1.6px var(--muted); font-style:italic}
+.hcell .star{font-style:normal; font-weight:700; margin-left:1px}
+.est-note{margin:10px 0 0; font-size:0.78rem; color:var(--ink-2)}
+.est-note .star{font-weight:700; font-style:normal}
+.hit-legend{display:flex; align-items:center; gap:10px; margin-top:12px; font-size:0.8rem; color:var(--ink-2); flex-wrap:wrap}
+.hit-legend .bar{height:12px; width:150px; border-radius:3px; border:1px solid var(--border);
+  background:linear-gradient(90deg, var(--surface-2), rgba(var(--accent-rgb),0.88))}
+
+/* values table */
+#table{min-width:720px}
+#table td,#table th{font-family:var(--mono)}
+.grp-row td{background:var(--surface-2); color:var(--ink); font-family:var(--sans); font-weight:700; font-size:0.8rem; letter-spacing:0.02em; text-align:left; padding:6px 11px}
+.tbl-note{color:var(--ink-2); font-size:0.88rem; margin:0 0 14px; max-width:80ch}
+.tbl-note code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+
+footer{margin-top:34px; color:var(--ink-2); font-size:0.82rem; max-width:82ch}
+footer b{color:var(--ink)}
+footer code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+#cfgTable td.st{white-space:nowrap}
+.stchip{display:inline-block; font-family:var(--mono); font-size:0.7rem; padding:1px 7px; border-radius:999px;
+  border:1px solid var(--border); color:var(--ink-2); background:var(--surface-2)}
+.stchip.pass{color:var(--s3); border-color:var(--s3)}
+.stchip.fail{color:var(--s2); border-color:var(--s2)}
+.hcell.ref{background:var(--warn-bg)!important; color:var(--warn); font-weight:700}
+.reflab{font-family:var(--mono); font-size:9px; fill:var(--warn)}
+.hit-legend{display:flex; align-items:center; gap:8px; margin:10px 0 0; font-family:var(--mono); font-size:0.72rem; color:var(--muted)}
+.hit-legend .bar{width:140px; height:8px; border-radius:4px;
+  background:linear-gradient(90deg, rgba(var(--accent-rgb),0.10), rgba(var(--accent-rgb),0.88))}
+td.stat{color:var(--warn); font-family:var(--sans); text-align:left}
+.notice{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 16px; font-size:0.88rem; color:var(--ink-2)}
+.notice p{margin:0 0 6px} .notice ul{margin:0; padding-left:18px} .notice li{margin:4px 0}
+.notice b{color:var(--ink)} .notice a{color:var(--accent)}
+.notice code{font-family:var(--mono); font-size:0.9em}
+
+.mt{margin-top:14px}
+.u{color:var(--muted); font-size:0.9em; margin-left:2px}
+a{color:var(--accent)}
+.arm-lab{display:inline-flex; align-items:center; gap:6px; white-space:nowrap; font-weight:600; color:var(--ink); min-width:0}
+.arm-lab .sw{width:10px; height:10px; border-radius:2px; flex:none}
+td.nm, th.nm{font-family:var(--sans); text-align:left; color:var(--ink-2); font-size:0.84rem}
+td.code{font-family:var(--mono); font-weight:700; color:var(--ink)}
+table.cfg td, table.cfg th{text-align:left; font-family:var(--sans); font-size:0.84rem}
+table.cfg td:first-child, table.cfg td:nth-child(2){white-space:nowrap}
+table.cfg code, .s-note code, .c-note code{font-family:var(--mono); font-size:0.9em}
+table.speedt{min-width:860px} table.speedt td.nm{min-width:200px; white-space:normal} table.qual{min-width:760px} table.arms{min-width:760px}
+.cgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr)); gap:14px; margin-top:14px}
+figure.card-chart{margin:0; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 14px; min-width:0}
+.c-head{margin:0; font-weight:700; font-size:0.92rem}
+.c-note{margin:3px 0 0; font-size:0.8rem; color:var(--muted)}
+.empty{color:var(--muted); font-size:0.88rem; margin:8px 0 0}
+.bars{margin-top:8px}
+.bline{display:grid; grid-template-columns:150px minmax(0,1fr) minmax(64px,auto); gap:8px; align-items:center; margin:4px 0}
+.bline .arm-lab{font-size:0.78rem; font-weight:500; white-space:normal; line-height:1.2; overflow-wrap:anywhere}
+.btrack{position:relative; display:block; height:14px; background:var(--surface-2); border-radius:0 4px 4px 0}
+.bfill{display:block; height:100%; border-radius:0 4px 4px 0; min-width:2px}
+.bv{font-family:var(--mono); font-size:0.76rem; text-align:right; color:var(--ink); white-space:nowrap}
+.bv .u{display:block; font-size:0.66rem; white-space:normal; max-width:150px; margin-left:auto}
+.refline{position:absolute; top:-3px; bottom:-3px; width:0; border-left:2px solid var(--s2)}
+.refline.lim{border-left:2px dashed var(--warn)}
+.refkey{display:inline-block; width:12px; height:0; vertical-align:middle; margin-right:4px; border-top:2px solid var(--s2)}
+.refkey.lim{border-top:2px dashed var(--warn)}
+:root{--ref-b:#7a4fd1}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ref-b:#a78bf0}}
+:root[data-theme="dark"]{--ref-b:#a78bf0}
+.refline.n2{border-left:2px dotted var(--ref-b)}
+.refkey.n2{border-top:2px dotted var(--ref-b)}
+.stchip:empty::before{content:"—"}
+ul.s-note{padding-left:18px}
+@media (max-width:520px){.wrap{padding:24px 16px 48px} .bline{grid-template-columns:104px minmax(0,1fr) minmax(56px,auto)}
+  .bv .u{max-width:96px}}
+
+</style>
+<div class="wrap">
+  <header>
+    <div>
+      <p class="eyebrow">Qwen3.8-27B dense · Apple M4 Max 128 GB · October 2026</p>
+      <h1>Qwen3.8-27B stacks vs the Flash-Next driver</h1>
+      <p class="sub">Three stacks for the dense 27B (mlx-dspark control, Splash 1.3.1, mlx-serve 26.10.2) measured with the same agent-turn probe as the two Qwen3.8-Flash-Next daily drivers: A, Swift 1.5 (w1, T_turno 7.9 / 8.6 s) and B, ddalcu iQ (n2, T_turno 8.1 / 8.9 s), both on mlx-serve 26.10.1 at 32K / 128K context.</p>
+    </div>
+    <button class="theme" id="themeBtn" type="button">theme: auto</button>
+  </header>
+<section class="block" id="finding"><h2 class="sec">Finding</h2><p class="s-note"><strong>Splash 1.3.1 is the fastest way to run the dense 27B on this rig:</strong> T_turno 17.7 s (xhigh) / 15.9 s (medium) at 128K, 0.69× the mlx-dspark control; still about 2× the Flash-Next driver (8.6 s), so the 27B stays a NO-GO as the agentic driver.</p></section>
+<section class="block" id="tturno"><h2 class="sec">Agent turn (T_turno) · 32K / 128K</h2><p class="s-note">T_turno = time to first token of a warm turn that carries a tool result, plus 512 generated tokens at the warm decode rate. Median of 3 repetitions per arm and effort; shorter is better. The driver verdict reopens only for an arm at or under 1.25 × w1 (driver A) on both bands with every gate passing. Bar notes list failed gates; hit gates are left out for runtimes that do not report cached tokens (Splash, llama.cpp).</p><div class="cgrid"><figure class="card-chart"><p class="c-head">32K context</p><p class=c-note><span class="refkey w1"></span>Driver A (Swift 1.5, w1) 7.9 s · <span class="refkey lim"></span>1.25 × w1 = 9.9 s · <span class="refkey n2"></span>Driver B (ddalcu iQ, n2) 8.1 s</p><div class="bars"><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s1)"></span>s27r-xhigh</span><span class="btrack"><span class="bfill" style="width:82.1%;background:var(--s1)" title="s27r-xhigh · 17.0 s"></span><span class="refline w1" style="left:38.2%" title="Driver A (w1): 7.9 s"></span><span class="refline lim" style="left:47.8%" title="1.25 × w1: 9.9 s"></span><span class="refline n2" style="left:39.1%" title="Driver B (n2): 8.1 s"></span></span><span class="bv">17.0 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s4)"></span>s27r-medium</span><span class="btrack"><span class="bfill" style="width:65.2%;background:var(--s4)" title="s27r-medium · 13.5 s"></span><span class="refline w1" style="left:38.2%" title="Driver A (w1): 7.9 s"></span><span class="refline lim" style="left:47.8%" title="1.25 × w1: 9.9 s"></span><span class="refline n2" style="left:39.1%" title="Driver B (n2): 8.1 s"></span></span><span class="bv">13.5 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s1)"></span>k27-xhigh</span><span class="btrack"><span class="bfill" style="width:64.3%;background:var(--s1)" title="k27-xhigh · 13.3 s"></span><span class="refline w1" style="left:38.2%" title="Driver A (w1): 7.9 s"></span><span class="refline lim" style="left:47.8%" title="1.25 × w1: 9.9 s"></span><span class="refline n2" style="left:39.1%" title="Driver B (n2): 8.1 s"></span></span><span class="bv">13.3 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s4)"></span>k27-medium</span><span class="btrack"><span class="bfill" style="width:50.3%;background:var(--s4)" title="k27-medium · 10.4 s"></span><span class="refline w1" style="left:38.2%" title="Driver A (w1): 7.9 s"></span><span class="refline lim" style="left:47.8%" title="1.25 × w1: 9.9 s"></span><span class="refline n2" style="left:39.1%" title="Driver B (n2): 8.1 s"></span></span><span class="bv">10.4 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s1)"></span>r27d-xhigh</span><span class="btrack"><span class="bfill" style="width:96.2%;background:var(--s1)" title="r27d-xhigh · 19.9 s"></span><span class="refline w1" style="left:38.2%" title="Driver A (w1): 7.9 s"></span><span class="refline lim" style="left:47.8%" title="1.25 × w1: 9.9 s"></span><span class="refline n2" style="left:39.1%" title="Driver B (n2): 8.1 s"></span></span><span class="bv">19.9 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s4)"></span>r27d-medium</span><span class="btrack"><span class="bfill" style="width:75.9%;background:var(--s4)" title="r27d-medium · 15.7 s"></span><span class="refline w1" style="left:38.2%" title="Driver A (w1): 7.9 s"></span><span class="refline lim" style="left:47.8%" title="1.25 × w1: 9.9 s"></span><span class="refline n2" style="left:39.1%" title="Driver B (n2): 8.1 s"></span></span><span class="bv">15.7 s</span></div></div></figure><figure class="card-chart"><p class="c-head">128K context</p><p class=c-note><span class="refkey w1"></span>Driver A (Swift 1.5, w1) 8.6 s · <span class="refkey lim"></span>1.25 × w1 = 10.8 s · <span class="refkey n2"></span>Driver B (ddalcu iQ, n2) 8.9 s</p><div class="bars"><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s1)"></span>s27r-xhigh</span><span class="btrack"><span class="bfill" style="width:55.3%;background:var(--s1)" title="s27r-xhigh · 25.7 s"></span><span class="refline w1" style="left:18.5%" title="Driver A (w1): 8.6 s"></span><span class="refline lim" style="left:23.2%" title="1.25 × w1: 10.8 s"></span><span class="refline n2" style="left:19.1%" title="Driver B (n2): 8.9 s"></span></span><span class="bv">25.7 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s1)"></span>k27-xhigh</span><span class="btrack"><span class="bfill" style="width:38.1%;background:var(--s1)" title="k27-xhigh · 17.7 s"></span><span class="refline w1" style="left:18.5%" title="Driver A (w1): 8.6 s"></span><span class="refline lim" style="left:23.2%" title="1.25 × w1: 10.8 s"></span><span class="refline n2" style="left:19.1%" title="Driver B (n2): 8.9 s"></span></span><span class="bv">17.7 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s4)"></span>k27-medium</span><span class="btrack"><span class="bfill" style="width:34.2%;background:var(--s4)" title="k27-medium · 15.9 s"></span><span class="refline w1" style="left:18.5%" title="Driver A (w1): 8.6 s"></span><span class="refline lim" style="left:23.2%" title="1.25 × w1: 10.8 s"></span><span class="refline n2" style="left:19.1%" title="Driver B (n2): 8.9 s"></span></span><span class="bv">15.9 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s1)"></span>r27d-xhigh</span><span class="btrack"><span class="bfill" style="width:96.2%;background:var(--s1)" title="r27d-xhigh · 44.7 s"></span><span class="refline w1" style="left:18.5%" title="Driver A (w1): 8.6 s"></span><span class="refline lim" style="left:23.2%" title="1.25 × w1: 10.8 s"></span><span class="refline n2" style="left:19.1%" title="Driver B (n2): 8.9 s"></span></span><span class="bv">44.7 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s4)"></span>r27d-medium</span><span class="btrack"><span class="bfill" style="width:74.9%;background:var(--s4)" title="r27d-medium · 34.8 s"></span><span class="refline w1" style="left:18.5%" title="Driver A (w1): 8.6 s"></span><span class="refline lim" style="left:23.2%" title="1.25 × w1: 10.8 s"></span><span class="refline n2" style="left:19.1%" title="Driver B (n2): 8.9 s"></span></span><span class="bv">34.8 s</span></div></div></figure></div></section>
+<section class="block" id="ttft"><h2 class="sec">Warm TTFT and decode</h2><p class="s-note">Medians per arm and effort. Warm TTFT is the tool-result turn with the prefix cache warm; cold TTFT is the first request on an empty cache; hit is the cached share of the prompt on the tool turn. Tables scroll sideways on narrow screens.</p><p class="c-head mt">32K context</p><div class="tbl-scroll"><table class="speedt"><thead><tr><th>Arm · effort</th><th>T_turno s</th><th>Warm TTFT (tool) s</th><th>Cold TTFT s</th><th>Decode tok/s</th><th>Hit (tool)</th><th>MTP acc.</th><th>Wired peak GB</th><th class="nm">Gates</th></tr></thead><tbody><tr><td><span class="arm-lab"><span class="sw" style="background:var(--s1)"></span>s27r-xhigh</span></td><td>17.0</td><td>5.40</td><td>109.9</td><td>44.0</td><td>0.962</td><td><span class="na">—</span></td><td>43.3</td><td class="nm">pass</td></tr><tr><td><span class="arm-lab"><span class="sw" style="background:var(--s4)"></span>s27r-medium</span></td><td>13.5</td><td>5.50</td><td>109.5</td><td>63.8</td><td>0.962</td><td><span class="na">—</span></td><td>41.5</td><td class="nm">pass</td></tr><tr><td><span class="arm-lab"><span class="sw" style="background:var(--s1)"></span>k27-xhigh</span></td><td>13.3</td><td>3.90</td><td>76.3</td><td>54.7</td><td>0.962</td><td><span class="na">—</span></td><td>42.2</td><td class="nm">pass</td></tr><tr><td><span class="arm-lab"><span class="sw" style="background:var(--s4)"></span>k27-medium</span></td><td>10.4</td><td>3.90</td><td>76.1</td><td>79.3</td><td>0.961</td><td><span class="na">—</span></td><td>42.0</td><td class="nm">pass</td></tr><tr><td><span class="arm-lab"><span class="sw" style="background:var(--s1)"></span>r27d-xhigh</span></td><td>19.9</td><td>5.80</td><td>109.0</td><td>36.3</td><td>0.961</td><td>0.461</td><td>59.3</td><td class="nm">pass</td></tr><tr><td><span class="arm-lab"><span class="sw" style="background:var(--s4)"></span>r27d-medium</span></td><td>15.7</td><td>5.80</td><td>108.4</td><td>51.9</td><td>0.961</td><td>0.792</td><td>63.0</td><td class="nm">pass</td></tr><tr><td><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span></td><td>7.9</td><td>1.80</td><td>34.5</td><td>84.6</td><td>0.961</td><td>0.774</td><td>96.1</td><td class="nm">pass</td></tr><tr><td><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span></td><td>8.1</td><td>1.80</td><td>34.5</td><td>82.3</td><td>0.961</td><td>0.839</td><td>96.0</td><td class="nm">needle</td></tr></tbody></table></div><p class="c-head mt">128K context</p><div class="tbl-scroll"><table class="speedt"><thead><tr><th>Arm · effort</th><th>T_turno s</th><th>Warm TTFT (tool) s</th><th>Cold TTFT s</th><th>Decode tok/s</th><th>Hit (tool)</th><th>MTP acc.</th><th>Wired peak GB</th><th class="nm">Gates</th></tr></thead><tbody><tr><td><span class="arm-lab"><span class="sw" style="background:var(--s1)"></span>s27r-xhigh</span></td><td>25.7</td><td>9.80</td><td>712.6</td><td>32.3</td><td>0.992</td><td><span class="na">—</span></td><td>55.4</td><td class="nm">pass</td></tr><tr><td><span class="arm-lab"><span class="sw" style="background:var(--s1)"></span>k27-xhigh</span></td><td>17.7</td><td>7.40</td><td>535.1</td><td>49.8</td><td>0.991</td><td><span class="na">—</span></td><td>53.8</td><td class="nm">pass</td></tr><tr><td><span class="arm-lab"><span class="sw" style="background:var(--s4)"></span>k27-medium</span></td><td>15.9</td><td>7.40</td><td>534.4</td><td>60.5</td><td>0.991</td><td><span class="na">—</span></td><td>53.5</td><td class="nm">pass</td></tr><tr><td><span class="arm-lab"><span class="sw" style="background:var(--s1)"></span>r27d-xhigh</span></td><td>44.7</td><td>10.80</td><td>717.8</td><td>15.1</td><td>0.991</td><td>0.538</td><td>70.4</td><td class="nm">pass</td></tr><tr><td><span class="arm-lab"><span class="sw" style="background:var(--s4)"></span>r27d-medium</span></td><td>34.8</td><td>10.80</td><td>716.8</td><td>21.3</td><td>0.991</td><td>0.767</td><td>69.5</td><td class="nm">pass</td></tr><tr><td><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span></td><td>8.6</td><td>1.90</td><td>165.5</td><td>76.7</td><td>0.991</td><td>0.668</td><td>111.2</td><td class="nm">pass</td></tr><tr><td><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span></td><td>8.9</td><td>1.90</td><td>165.4</td><td>73.2</td><td>0.991</td><td>0.786</td><td>110.6</td><td class="nm">pass</td></tr></tbody></table></div></section>
+<section class="block" id="time"><h2 class="sec">Time per task</h2><p class="s-note">Median seconds to the final answer per suite, one question at a time, vendor sampling (profile t1) at 131072 context. Labels are arm-effort; the Flash-Next driver rows (A and B) come from the Swift 1.5 campaign and ran at xhigh effort. Shorter is better.</p><p class="empty">not measured in this campaign (battery not run)</p><div class="cgrid"><figure class="card-chart"><p class="c-head">HumanEval</p><div class="bars"><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span><span class="btrack"><span class="bfill" style="width:80.6%;background:var(--s2)" title="Driver A: Flash-Next Swift 1.5 (w1, xhigh) · 5.7 s"></span></span><span class="bv">5.7 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span><span class="btrack"><span class="bfill" style="width:96.2%;background:var(--ref-b)" title="Driver B: Flash-Next ddalcu iQ (n2, xhigh) · 6.8 s"></span></span><span class="bv">6.8 s</span></div></div></figure><figure class="card-chart"><p class="c-head">GPQA-Diamond</p><div class="bars"><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span><span class="btrack"><span class="bfill" style="width:33.6%;background:var(--s2)" title="Driver A: Flash-Next Swift 1.5 (w1, xhigh) · 22.3 s"></span></span><span class="bv">22.3 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span><span class="btrack"><span class="bfill" style="width:96.2%;background:var(--ref-b)" title="Driver B: Flash-Next ddalcu iQ (n2, xhigh) · 63.9 s"></span></span><span class="bv">63.9 s</span></div></div></figure><figure class="card-chart"><p class="c-head">LiveCodeBench</p><div class="bars"><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span><span class="btrack"><span class="bfill" style="width:47.0%;background:var(--s2)" title="Driver A: Flash-Next Swift 1.5 (w1, xhigh) · 19.1 s"></span></span><span class="bv">19.1 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span><span class="btrack"><span class="bfill" style="width:96.2%;background:var(--ref-b)" title="Driver B: Flash-Next ddalcu iQ (n2, xhigh) · 39.1 s"></span></span><span class="bv">39.1 s</span></div></div></figure><figure class="card-chart"><p class="c-head">Tool calling (jdhodges)</p><div class="bars"><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span><span class="btrack"><span class="bfill" style="width:96.2%;background:var(--s2)" title="Driver A: Flash-Next Swift 1.5 (w1, xhigh) · 2.5 s"></span></span><span class="bv">2.5 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span><span class="btrack"><span class="bfill" style="width:92.3%;background:var(--ref-b)" title="Driver B: Flash-Next ddalcu iQ (n2, xhigh) · 2.4 s"></span></span><span class="bv">2.4 s</span></div></div></figure><figure class="card-chart"><p class="c-head">Tool calling (Veerman)</p><div class="bars"><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span><span class="btrack"><span class="bfill" style="width:93.1%;background:var(--s2)" title="Driver A: Flash-Next Swift 1.5 (w1, xhigh) · 3.0 s"></span></span><span class="bv">3.0 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span><span class="btrack"><span class="bfill" style="width:96.2%;background:var(--ref-b)" title="Driver B: Flash-Next ddalcu iQ (n2, xhigh) · 3.1 s"></span></span><span class="bv">3.1 s</span></div></div></figure><figure class="card-chart"><p class="c-head">Instruction following</p><div class="bars"><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span><span class="btrack"><span class="bfill" style="width:96.2%;background:var(--s2)" title="Driver A: Flash-Next Swift 1.5 (w1, xhigh) · 2.2 s"></span></span><span class="bv">2.2 s</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span><span class="btrack"><span class="bfill" style="width:83.0%;background:var(--ref-b)" title="Driver B: Flash-Next ddalcu iQ (n2, xhigh) · 1.9 s"></span></span><span class="bv">1.9 s</span></div></div></figure></div></section>
+<section class="block" id="tokens"><h2 class="sec">Tokens per answer (median)</h2><p class="s-note">Median completion tokens per answer: thinking plus the visible answer.</p><p class="empty">not measured in this campaign (battery not run)</p><div class="cgrid"><figure class="card-chart"><p class="c-head">HumanEval</p><div class="bars"><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span><span class="btrack"><span class="bfill" style="width:82.7%;background:var(--s2)" title="Driver A: Flash-Next Swift 1.5 (w1, xhigh) · 403"></span></span><span class="bv">403</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span><span class="btrack"><span class="bfill" style="width:96.2%;background:var(--ref-b)" title="Driver B: Flash-Next ddalcu iQ (n2, xhigh) · 468"></span></span><span class="bv">468</span></div></div></figure><figure class="card-chart"><p class="c-head">GPQA-Diamond</p><div class="bars"><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span><span class="btrack"><span class="bfill" style="width:31.7%;background:var(--s2)" title="Driver A: Flash-Next Swift 1.5 (w1, xhigh) · 1,689"></span></span><span class="bv">1,689</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span><span class="btrack"><span class="bfill" style="width:96.2%;background:var(--ref-b)" title="Driver B: Flash-Next ddalcu iQ (n2, xhigh) · 5,124"></span></span><span class="bv">5,124</span></div></div></figure><figure class="card-chart"><p class="c-head">LiveCodeBench</p><div class="bars"><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span><span class="btrack"><span class="bfill" style="width:46.7%;background:var(--s2)" title="Driver A: Flash-Next Swift 1.5 (w1, xhigh) · 1,448"></span></span><span class="bv">1,448</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span><span class="btrack"><span class="bfill" style="width:96.2%;background:var(--ref-b)" title="Driver B: Flash-Next ddalcu iQ (n2, xhigh) · 2,984"></span></span><span class="bv">2,984</span></div></div></figure><figure class="card-chart"><p class="c-head">Tool calling (jdhodges)</p><div class="bars"><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span><span class="btrack"><span class="bfill" style="width:92.3%;background:var(--s2)" title="Driver A: Flash-Next Swift 1.5 (w1, xhigh) · 109"></span></span><span class="bv">109</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span><span class="btrack"><span class="bfill" style="width:96.2%;background:var(--ref-b)" title="Driver B: Flash-Next ddalcu iQ (n2, xhigh) · 114"></span></span><span class="bv">114</span></div></div></figure><figure class="card-chart"><p class="c-head">Tool calling (Veerman)</p><div class="bars"><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span><span class="btrack"><span class="bfill" style="width:96.2%;background:var(--s2)" title="Driver A: Flash-Next Swift 1.5 (w1, xhigh) · 164"></span></span><span class="bv">164</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span><span class="btrack"><span class="bfill" style="width:83.0%;background:var(--ref-b)" title="Driver B: Flash-Next ddalcu iQ (n2, xhigh) · 142"></span></span><span class="bv">142</span></div></div></figure><figure class="card-chart"><p class="c-head">Instruction following</p><div class="bars"><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span><span class="btrack"><span class="bfill" style="width:96.2%;background:var(--s2)" title="Driver A: Flash-Next Swift 1.5 (w1, xhigh) · 150"></span></span><span class="bv">150</span></div><div class="bline"><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span><span class="btrack"><span class="bfill" style="width:81.8%;background:var(--ref-b)" title="Driver B: Flash-Next ddalcu iQ (n2, xhigh) · 128"></span></span><span class="bv">128</span></div></div></figure></div></section>
+<section class="block" id="accuracy"><h2 class="sec">Accuracy</h2><p class="s-note">Passed / questions per suite; a truncated answer never counts as passed. Empty answers are stop-finished records with no visible content; loops are degenerate outputs in the loop sweep.</p><p class="empty">not measured in this campaign (battery not run)</p><div class="tbl-scroll"><table class="qual"><thead><tr><th>Arm · effort</th><th>HumanEval</th><th>GPQA-Diamond</th><th>LiveCodeBench</th><th>Tool calling (jdhodges)</th><th>Tool calling (Veerman)</th><th>Instruction following</th><th>Empty answers</th><th>Loops</th></tr></thead><tbody><tr><td><span class="arm-lab"><span class="sw" style="background:var(--s2)"></span>Driver A: Flash-Next Swift 1.5 (w1, xhigh)</span></td><td>147/164 <span class="u">1 trunc.</span></td><td>43/50 <span class="u">2 trunc.</span></td><td>42/50 <span class="u">1 trunc.</span></td><td>36/40</td><td>10/12</td><td>19/20</td><td><span class="na">—</span></td><td><span class="na">—</span></td></tr><tr><td><span class="arm-lab"><span class="sw" style="background:var(--ref-b)"></span>Driver B: Flash-Next ddalcu iQ (n2, xhigh)</span></td><td>144/164</td><td>45/50 <span class="u">4 trunc.</span></td><td>41/50 <span class="u">3 trunc.</span></td><td>35/40</td><td>10/12</td><td>20/20</td><td><span class="na">—</span></td><td><span class="na">—</span></td></tr></tbody></table></div><p class="s-note mt">Thinking-turn probe, empty final answers:</p><ul class="s-note"><li><code>k27-medium</code>: 0 empty of 10 finished turns</li><li><code>k27-xhigh</code>: 0 empty of 10 finished turns</li><li><code>r27d-xhigh</code>: 0 empty of 5 finished turns</li></ul></section>
+<section class="block" id="gates"><h2 class="sec">Gates and verdicts</h2><p class="s-note">Raw rows of <code>results/gates.env</code>, written by the unattended campaign runner and the driver gate.</p><div class="tbl-scroll"><table class="cfg"><thead><tr><th>Gate</th><th>Value</th><th>Meaning</th></tr></thead><tbody><tr><td><code>P1_PASS</code></td><td><span class="stchip pass">1</span></td><td class="nm">Splash (k27): T_turno ≤ 0.75 × s27r at 128K and gates</td></tr><tr><td><code>P1_BEST</code></td><td><span class="stchip ">k27</span></td><td class="nm">Best arm of P1</td></tr><tr><td><code>P3_PASS</code></td><td><span class="stchip fail">0</span></td><td class="nm">mlx-serve 26.10.2: T_turno ≤ s27r</td></tr><tr><td><code>P7_PASS</code></td><td><span class="stchip ">not_run</span></td><td class="nm">w27d at or under 1.03 × r27d on both bands</td></tr><tr><td><code>CAMPAIGN_DONE</code></td><td><span class="stchip ">2026-10-14T06:35Z (stopped by user after P3; P7 cancelled)</span></td><td class="nm">Campaign finished (UTC)</td></tr><tr><td><code>P5_GO</code></td><td><span class="stchip fail">0</span></td><td class="nm">Driver gate: fastest arm within 1.25 × w1 on both bands (0 = none)</td></tr></tbody></table></div></section>
+<section class="block" id="setup"><h2 class="sec">Setup and how to reproduce</h2><p class="s-note">Apple M4 Max, 128 GB. Every arm serves the dense Qwen3.8-27B; speed phases run each arm at xhigh and medium effort (file tags <code>p&lt;N&gt;x</code> / <code>p&lt;N&gt;m</code>), 3 repetitions, bands 32K then 128K. The control s27r ran medium at 32K only. The two Flash-Next references come from <code>bench/swift15-flashnext-2026-10</code>, both on mlx-serve 26.10.1 at xhigh effort: driver A (w1, Swift 1.5 MLX-4.7bpw) with T_turno 7.9 / 8.6 s and driver B (n2, ddalcu iQ-MLX-4.7bpw) with T_turno 8.1 / 8.9 s at 32K / 128K. The 1.25 × limit and the driver verdict use driver A only.</p><div class="tbl-scroll"><table class="cfg arms"><thead><tr><th>Arm</th><th>Stack</th><th>Runtime</th><th>Pack</th><th>Revision</th><th>Port</th><th>Phase</th></tr></thead><tbody><tr><td class="code">s27r</td><td>mlx-dspark 0.20.3 + DFlash2</td><td>mlx-dspark 0.20.3</td><td>mlx-community 8bit</td><td><code>815b83c0</code></td><td>8484</td><td>P0</td></tr><tr><td class="code">k27</td><td>Splash 1.3.1 + DFlash2, KV int8</td><td>Splash 1.3.1</td><td>mlx-community 8bit (Hub cache) + local DFlash2 draft</td><td><code>815b83c0</code></td><td>8585</td><td>P1</td></tr><tr><td class="code">r27d</td><td>mlx-serve 26.10.2 DFlash2 drafter only (--no-mtp)</td><td>mlx-serve 26.10.2</td><td>ddalcu 8bit</td><td><code>7775059e</code></td><td>11234</td><td>P3</td></tr></tbody></table></div><p class="s-note mt">Arms not run (cut on 2026-10-13/14), by user scope: only the stacks that can be fastest ran, and the campaign closed after P3 on 2026-10-14. No quality battery ran.</p><ul class="s-note"><li><code>o27q8</code>: oMLX with the oQ8e refit pack. Cut by scope B (stop after P1 unless Splash passes at 128K).</li><li><code>o27q4</code>: oMLX with the oQ4e refit pack. Only the 8K smoke ran (81.4 tok/s). Cut by scope B.</li><li><code>o27sw</code>: Swift 1.5 on oMLX. Cut with the rest of P4.</li><li><code>w27d</code>: Swift 1.5 on mlx-serve with the drafter: cancelled after r27d failed on the same runtime and drafter.</li><li><code>r27m</code>: MTP head only on mlx-serve. The 8K smoke ran at 51.5 tok/s. Cut.</li><li><code>w27m</code>: Swift 1.5 MTP only on mlx-serve. Cut with r27m (MTP-only smoke: 51.5 tok/s).</li><li><code>l27</code>: llama.cpp draft-mtp. The 8K smoke ran at 35.3 tok/s. Cut.</li><li><code>l27n</code>: llama.cpp without speculation. Cut with l27 (8K smoke: 35.3 tok/s).</li></ul><p class="s-note mt">Run the campaign on the rig with <code>bash bench/qwen38-27b-next-steps-2026-10/scripts/run-campaign.sh</code>, then render this page with <code>python3 bench/qwen38-27b-next-steps-2026-10/scripts/render_27b_page.py</code>. Scripts and per-request results: <a href="https://github.com/snagnever/macstudio-local-llm/tree/main/bench/qwen38-27b-next-steps-2026-10">github.com/snagnever/macstudio-local-llm</a>.</p></section>
+  <footer id="foot">Generated <code>2026-10-14T06:34:58+00:00</code> by <code>render_27b_page.py</code>.</footer>
+</div>
+<script>
+const root=document.documentElement, btn=document.getElementById("themeBtn");
+function applyLabel(){ btn.textContent="theme: "+(root.getAttribute("data-theme")||"auto"); }
+btn.addEventListener("click",()=>{
+  const cur=root.getAttribute("data-theme");
+  const next=cur==null?"light":cur==="light"?"dark":null;
+  if(next) root.setAttribute("data-theme",next); else root.removeAttribute("data-theme");
+  try{ next?localStorage.setItem("theme",next):localStorage.removeItem("theme"); }catch(e){}
+  applyLabel();
+});
+try{ const saved=localStorage.getItem("theme"); if(saved) root.setAttribute("data-theme",saved); }catch(e){}
+applyLabel();
+</script>
