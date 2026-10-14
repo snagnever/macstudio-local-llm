@@ -10,7 +10,7 @@ ROOT = Path.home() / ".cache/local-llms/qwen3.8-prefix-cache"
 IQ = "ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a"
 SWIFT = "Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0"
 OQ4E = "Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8"
-NEW = "mlx-serve-v26.10.2-pre-release.1/mlx-serve"
+NEW = "mlx-serve-v26.10.2/mlx-serve"
 OLD = "mlx-serve-v26.10.1/mlx-serve"
 
 def _env(extra=None):
@@ -29,7 +29,7 @@ def server(out):
 
 def test_n2x_is_n2_on_the_prerelease():
     x, ref = show("n2x"), show("n2")
-    assert NEW in x and IQ in x and "--runtime-revision v26.10.2-pre-release.1 " in x
+    assert NEW in x and IQ in x and "--runtime-revision v26.10.2 " in x
     assert server(x).replace(NEW, "BIN") == server(ref).replace(OLD, "BIN")
 
 def test_w1x_and_w1_differ_only_in_binary():
@@ -63,7 +63,7 @@ def test_oq4e_refit_on_mlx_serve():
 
 def test_gguf_arms():
     g1 = show("g1")
-    assert "llama-b11569/llama-server" in g1 and "--spec-type draft-mtp" in g1 and "--port 8080" in g1
+    assert "llama-b11609/llama-server" in g1 and "--spec-type draft-mtp" in g1 and "--port 8080" in g1
     assert "--parallel 1" in g1 and "--kv-unified" not in g1
     assert "--spec-type" not in show("g0")
     assert NEW in show("g1m") and "--port 11234" in show("g1m")

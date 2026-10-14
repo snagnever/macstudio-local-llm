@@ -63,10 +63,14 @@ MLXSERVE_26101="$HOME/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve"
 OPT="$HOME/.local/opt/qwen38"
 # Campaign flashnext-next-steps-2026-10: runtimes installed by its scripts/install-runtime.sh and packs downloaded
 # by its scripts/fetch_pack.py (directory names end in the full revision; pack_dir resolves the prefix).
-MLXSERVE_26102="$OPT/mlx-serve-v26.10.2-pre-release.1/mlx-serve"
-MLXSERVE_26102_VERSION=26.10.2-pre-release.1
+# Stable 26.10.2 (2026-10-12) replaced pre-release.1: it adds the f32 GDN state (#815) and the n-gram
+# prefill calibration fix (#821).
+MLXSERVE_26102="$OPT/mlx-serve-v26.10.2/mlx-serve"
+MLXSERVE_26102_VERSION=26.10.2
 OMLX_0711="$OPT/omlx-v0.7.1.dev1"
 LLAMA_B11569="$OPT/llama-b11569/llama-server"
+# Flash-Next GGUF arms: b11600+ stops pinning the lazy per-layer-embedding tensor in the GPU buffer (#30405).
+LLAMA_B11609="$OPT/llama-b11609/llama-server"
 pack_dir() {
   local m=("$MODEL_ROOT/$1"*)
   if [[ -e "${m[0]}" ]]; then echo "${m[0]}"; else echo "$MODEL_ROOT/$1-MISSING"; fi
@@ -408,8 +412,8 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26102" MLX_SERVE_EXPECTED_VERSION="$MLXSERVE_26102_VERSION"
       else
         PORT=8080; RUNTIME=llama.cpp; SERVER_NAME=llama-server; MODEL_ID_PREF=flashnext-gguf
-        export QWEN38_LLAMA_SERVER_BIN="$LLAMA_B11569"
-        if [[ "$CAND" == g0 ]]; then ARM=GN; REV=b11569; else ARM=GM; REV=b11569-mtp; fi
+        export QWEN38_LLAMA_SERVER_BIN="$LLAMA_B11609"
+        if [[ "$CAND" == g0 ]]; then ARM=GN; REV=b11609; else ARM=GM; REV=b11609-mtp; fi
       fi ;;
   *) echo "candidato desconhecido: $CAND" >&2; exit 64 ;;
 esac

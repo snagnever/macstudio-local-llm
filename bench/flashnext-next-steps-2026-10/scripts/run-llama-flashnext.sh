@@ -3,7 +3,7 @@
 #   GN  llama-server >= b11569, no speculative decoding (decode reference)
 #   GM  llama-server >= b11569, --spec-type draft-mtp with the MTP head; --parallel 1 and no --kv-unified
 #       (llama.cpp issue #30368: draft-mtp + --kv-unified + --parallel > 1 breaks every request)
-#   GX  mlx-serve 26.10.2-pre-release.1 with the same GGUF (embedded llama.cpp). The MTP head is passed with
+#   GX  mlx-serve 26.10.2 with the same GGUF (embedded llama.cpp). The MTP head is passed with
 #       the first flag the binary's --help lists among --mtp-model, --mtp-draft, --drafter; with none, the
 #       arm runs with --mtp only and the boot log says so.
 # Env: QWEN38_GGUF_DIR (pack dir), QWEN38_CTX_SIZE, QWEN38_LLAMA_SERVER_BIN, QWEN38_MLX_SERVE_BIN.
