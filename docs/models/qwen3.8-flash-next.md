@@ -10,6 +10,7 @@
 > rollback and the reference arm for runtime tests, because it has the longest measurement series on this rig
 > (26.9.2, 26.10.1, 256K, 512K, HumanEval, tool-calling). Start it with `FLASHNEXT_MODEL=<its cache path>`.
 > Next tests: [`research/qwen38-flashnext-next-steps-20261012.md`](../../research/qwen38-flashnext-next-steps-20261012.md).
+> Dense 27B next steps: [`bench/qwen38-27b-next-steps-2026-10/results/summary.md`](../../bench/qwen38-27b-next-steps-2026-10/results/summary.md) (Splash 1.3.1 is the fastest 27B stack, still about 2x this driver).
 > Last updated: 2026-10-12
 
 Campaign that selected these weights: [`bench/swift15-flashnext-2026-10/results/summary.md`](../../bench/swift15-flashnext-2026-10/results/summary.md) (2026-10-11: iQ-MLX-4.7bpw → Swift 1.5 MLX-4.7bpw, same runtime and flags).

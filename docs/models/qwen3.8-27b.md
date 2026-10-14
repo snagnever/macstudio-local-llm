@@ -11,7 +11,7 @@
 Campaign that selected this stack: [`bench/qwen38-27b-next-steps-2026-10/results/summary.md`](../../bench/qwen38-27b-next-steps-2026-10/results/summary.md) (2026-10-13/14, pt-BR).
 Earlier 27B campaign (2026-10-08, oMLX / MTPLX / mlx-dspark / mlx-serve 26.10.1): [`bench/engine-updates-2026-10/results/27b-summary.md`](../../bench/engine-updates-2026-10/results/27b-summary.md), fixes in [`etapa-f-fixes.md`](../../bench/engine-updates-2026-10/results/etapa-f-fixes.md).
 Research behind the campaign: [`research/qwen38-27b-next-steps-20261013.md`](../../research/qwen38-27b-next-steps-20261013.md), [`research/swift15-27b-mlx-serve-20261013.md`](../../research/swift15-27b-mlx-serve-20261013.md).
-Dashboard: [`reports/qwen38-27b-stacks.html`](../../reports/qwen38-27b-stacks.html).
+Dashboard: [`reports/qwen38-27b-stacks.html`](../../reports/qwen38-27b-stacks.html) (public: <https://snagnever.github.io/macstudio-local-llm/qwen38-27b-stacks.html>).
 Agentic driver this model is compared against: [`qwen3.8-flash-next.md`](qwen3.8-flash-next.md).
 
 ## At a glance
