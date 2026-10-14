@@ -73,7 +73,7 @@ Limite para reabrir o veredito de driver: ≤ 9.9 s a 32K e ≤ 10.8 s a 128K. N
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|
 | k27 | Splash 1.3.1, mlx-community 8bit + DFlash2 | 86.5 | 92.3 | 8.6 s | 3.1 s | 398 tok/s | n/d | 847 | 37.0 GB |
 | r27d | mlx-serve 26.10.2, ddalcu 8bit, drafter | 83.6 | 80.6 | 10.8 s | 4.5 s | 273 tok/s | 0.788 (dflash) | 1724 | 40.2 GB |
-| o27q4 | oMLX 0.7.1.dev1, Jundot oQ4e-mtp `49c1d603` | 81.4 | 84.8 | 10.7 s | 4.4 s | 256 tok/s | — | 825 | 26.1 GB |
+| o27q4 | oMLX 0.7.1.dev1, Jundot oQ4e-mtp `49c1d603` | 81.4 | 81.4 | 10.7 s | 4.4 s | 256 tok/s | — | 825 | 26.1 GB |
 | r27m | mlx-serve 26.10.2, ddalcu 8bit, só MTP prof. 3 | 51.5 | 51.5 | 14.5 s | 4.5 s | 277 tok/s | 0.888 (mtp) | 1543 | 39.3 GB |
 | l27 | llama.cpp b11569, ggml-org Q8_0 + draft-mtp | 35.3 | 35.3 | 19.0 s | 4.5 s | 242 tok/s | — | 983 | 37.2 GB |
 
