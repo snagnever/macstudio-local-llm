@@ -144,8 +144,8 @@ footer a{color:var(--accent)}
 
   <section class="block" id="dense">
     <h2 class="sec"><span class="sw" style="background:var(--s2)"></span>Qwen3.8-27B — prefix cache, MTP and runtime</h2>
-    <p class="s-note">The dense 27B campaign: selection of runtime, quant, prefix cache and speculation. These pages are
-    kept as they were and are not maintained.</p>
+    <p class="s-note">The dense 27B campaign: selection of runtime, quant, prefix cache and speculation. The September pages
+    are kept as they were and are not maintained.</p>
     <div class="cards">
       <a class="card" style="--c:var(--s2)" href="overview.html">
         <span class="c-title">Prefix cache, MTP and runtime</span>
@@ -158,6 +158,13 @@ footer a{color:var(--accent)}
         <p class="c-desc">Five configurations that reached the native context: decode, prefill, warm and cold effective
         throughput, total wait, peak RAM and cache hit per scenario.</p>
         <span class="c-meta"><span class="tag hist">historical</span><span>2026-09-07</span><span class="path">perf-lines.html</span></span>
+      </a>
+      <a class="card" style="--c:var(--s2)" href="qwen38-27b-stacks.html">
+        <span class="c-title">Dense Qwen3.8-27B on an M4 Max: which server runs it fastest? (Oct 2026)</span>
+        <p class="c-desc">Splash 1.3.1 + DFlash2 is the fastest of three servers: 17.7 s (thinking effort xhigh) / 15.9 s
+        (medium) per agent turn at 128K, 0.69× the mlx-dspark baseline, still about 2× Qwen3.8-Flash-Next (8.6 s).
+        mlx-serve 26.10.2 was slower than the baseline. Funnel, run command, limitations.</p>
+        <span class="c-meta"><span>2026-10-14</span><span class="path">qwen38-27b-stacks.html</span></span>
       </a>
     </div>
   </section>

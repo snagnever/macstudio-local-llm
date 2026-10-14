@@ -1,0 +1,457 @@
+[
+ {
+  "repo": "Jundot/Qwen3.8-27B-oQ4e-mtp",
+  "requested_revision": "49c1d60367d9",
+  "revision": "49c1d60367d976a730a725ea3bbed32a8e94b878",
+  "local_dir": "/Users/vitor/.cache/local-llms/qwen3.8-prefix-cache/Jundot-Qwen3.8-27B-oQ4e-mtp-49c1d60367d976a730a725ea3bbed32a8e94b878",
+  "bytes": 16994900596,
+  "files": [
+   {
+    "path": ".gitattributes",
+    "size": 1570,
+    "lfs_sha256": null
+   },
+   {
+    "path": "LICENSE",
+    "size": 11544,
+    "lfs_sha256": null
+   },
+   {
+    "path": "README.md",
+    "size": 2376,
+    "lfs_sha256": null
+   },
+   {
+    "path": "chat_template.jinja",
+    "size": 8952,
+    "lfs_sha256": null
+   },
+   {
+    "path": "config.json",
+    "size": 47302,
+    "lfs_sha256": null
+   },
+   {
+    "path": "generation_config.json",
+    "size": 202,
+    "lfs_sha256": null
+   },
+   {
+    "path": "merges.txt",
+    "size": 3353259,
+    "lfs_sha256": null
+   },
+   {
+    "path": "model-00001-of-00004.safetensors",
+    "size": 5016415582,
+    "lfs_sha256": "a52b4d90bdd3ac6faaa1b5e2dbd392476ff4a89f612d58f2cdf5da3e600505b6"
+   },
+   {
+    "path": "model-00002-of-00004.safetensors",
+    "size": 5017583687,
+    "lfs_sha256": "da76b97546d3d6115539f7c3f56cb69a3eebd6b29d45f3f3e31223f993e5643a"
+   },
+   {
+    "path": "model-00003-of-00004.safetensors",
+    "size": 5001653251,
+    "lfs_sha256": "22b410fbeb6bd93cd226fbf3d035744d70adf137ad4be9ba7ff4560fc38b3616"
+   },
+   {
+    "path": "model-00004-of-00004.safetensors",
+    "size": 1936029038,
+    "lfs_sha256": "0e513a47300167766fe294ad9c9b8583853debc18dfb05ebadb018bffc97fa7a"
+   },
+   {
+    "path": "model.safetensors.index.json",
+    "size": 212223,
+    "lfs_sha256": null
+   },
+   {
+    "path": "oq_imatrix_report.json",
+    "size": 31213,
+    "lfs_sha256": null
+   },
+   {
+    "path": "preprocessor_config.json",
+    "size": 390,
+    "lfs_sha256": null
+   },
+   {
+    "path": "tokenizer.json",
+    "size": 12809320,
+    "lfs_sha256": "0997f410c57a1f4e53b09e4be8f4a172d90edd9564368fb0847030937229b9f3"
+   },
+   {
+    "path": "tokenizer_config.json",
+    "size": 17928,
+    "lfs_sha256": null
+   },
+   {
+    "path": "vocab.json",
+    "size": 6722759,
+    "lfs_sha256": null
+   }
+  ],
+  "hardlinked": [],
+  "validation": "all selected files present; sizes match pinned Hub metadata",
+  "completed_at": "2026-10-13T11:14:32Z"
+ },
+ {
+  "repo": "Jundot/Qwen3.8-27B-oQ8e-mtp",
+  "requested_revision": "6c76ddfb82af",
+  "revision": "6c76ddfb82afb30413685cee1774de947a3da486",
+  "local_dir": "/Users/vitor/.cache/local-llms/qwen3.8-prefix-cache/Jundot-Qwen3.8-27B-oQ8e-mtp-6c76ddfb82afb30413685cee1774de947a3da486",
+  "bytes": 30024817039,
+  "files": [
+   {
+    "path": ".gitattributes",
+    "size": 1570,
+    "lfs_sha256": null
+   },
+   {
+    "path": "LICENSE",
+    "size": 11544,
+    "lfs_sha256": null
+   },
+   {
+    "path": "README.md",
+    "size": 1893,
+    "lfs_sha256": null
+   },
+   {
+    "path": "chat_template.jinja",
+    "size": 8952,
+    "lfs_sha256": null
+   },
+   {
+    "path": "config.json",
+    "size": 3852,
+    "lfs_sha256": null
+   },
+   {
+    "path": "generation_config.json",
+    "size": 202,
+    "lfs_sha256": null
+   },
+   {
+    "path": "merges.txt",
+    "size": 3353259,
+    "lfs_sha256": null
+   },
+   {
+    "path": "model-00001-of-00006.safetensors",
+    "size": 5507107524,
+    "lfs_sha256": "2fc115f8b2823a1bfff967e5f178d1a8518484431755805264e8e2561929d620"
+   },
+   {
+    "path": "model-00002-of-00006.safetensors",
+    "size": 5069992519,
+    "lfs_sha256": "761d3e9c93d1484731049501b0658db847712278c706d050508f80b36141d1f5"
+   },
+   {
+    "path": "model-00003-of-00006.safetensors",
+    "size": 5041522626,
+    "lfs_sha256": "c930827ea2fe54352974ad835f61f70c89a92a0be9fffaec5074281d4ad6e425"
+   },
+   {
+    "path": "model-00004-of-00006.safetensors",
+    "size": 5070002879,
+    "lfs_sha256": "0f6b15d561b115301c9471b79a6754d4d5d33a75e54ea0cf37f372ad4feab399"
+   },
+   {
+    "path": "model-00005-of-00006.safetensors",
+    "size": 5041522614,
+    "lfs_sha256": "c20498ad85d65dde190a7ec7392071d57962fdb61023f29eb4632bf0a795637e"
+   },
+   {
+    "path": "model-00006-of-00006.safetensors",
+    "size": 4271493772,
+    "lfs_sha256": "a26f85081ca1de70e5486719656c4075eecbd30d0e9df7fb9383f0855768220f"
+   },
+   {
+    "path": "model.safetensors.index.json",
+    "size": 212223,
+    "lfs_sha256": null
+   },
+   {
+    "path": "oq_imatrix_report.json",
+    "size": 31213,
+    "lfs_sha256": null
+   },
+   {
+    "path": "preprocessor_config.json",
+    "size": 390,
+    "lfs_sha256": null
+   },
+   {
+    "path": "tokenizer.json",
+    "size": 12809320,
+    "lfs_sha256": "0997f410c57a1f4e53b09e4be8f4a172d90edd9564368fb0847030937229b9f3"
+   },
+   {
+    "path": "tokenizer_config.json",
+    "size": 17928,
+    "lfs_sha256": null
+   },
+   {
+    "path": "vocab.json",
+    "size": 6722759,
+    "lfs_sha256": null
+   }
+  ],
+  "hardlinked": [],
+  "validation": "all selected files present; sizes match pinned Hub metadata",
+  "completed_at": "2026-10-13T11:19:21Z"
+ },
+ {
+  "repo": "ddalcu/Qwen3.8-27B-MLX-Serve-8bit",
+  "requested_revision": "7775059e955f",
+  "revision": "7775059e955f60b5a8f5da1b859466390bcad351",
+  "local_dir": "/Users/vitor/.cache/local-llms/qwen3.8-prefix-cache/ddalcu-Qwen3.8-27B-MLX-Serve-8bit-7775059e955f60b5a8f5da1b859466390bcad351",
+  "bytes": 35065816601,
+  "files": [
+   {
+    "path": ".gitattributes",
+    "size": 1640,
+    "lfs_sha256": null
+   },
+   {
+    "path": "LICENSE",
+    "size": 11544,
+    "lfs_sha256": null
+   },
+   {
+    "path": "README.md",
+    "size": 5225,
+    "lfs_sha256": null
+   },
+   {
+    "path": "chat_template.jinja",
+    "size": 8952,
+    "lfs_sha256": null
+   },
+   {
+    "path": "config.json",
+    "size": 3809,
+    "lfs_sha256": null
+   },
+   {
+    "path": "drafter/README.md",
+    "size": 5397,
+    "lfs_sha256": null
+   },
+   {
+    "path": "drafter/assets/dflash2-figure.png",
+    "size": 286889,
+    "lfs_sha256": "6d8dcc9a9472bddb644c881fe83050b5343d09bf5ffb0912e5598e55fe671e99"
+   },
+   {
+    "path": "drafter/config.json",
+    "size": 1239,
+    "lfs_sha256": null
+   },
+   {
+    "path": "drafter/model.safetensors",
+    "size": 3848817896,
+    "lfs_sha256": "67fc76d68dc5a9415511a4f394ef744d67510cd20e93b37cc2cc7d28e4bab65c"
+   },
+   {
+    "path": "generation_config.json",
+    "size": 202,
+    "lfs_sha256": null
+   },
+   {
+    "path": "merges.txt",
+    "size": 3353259,
+    "lfs_sha256": null
+   },
+   {
+    "path": "model-00001.safetensors",
+    "size": 6699043279,
+    "lfs_sha256": "0db4119aaf3269f01e629fe67738632f0a44dc5433f84d5677ca2745e6afd65d"
+   },
+   {
+    "path": "model-00002.safetensors",
+    "size": 5382572517,
+    "lfs_sha256": "f8a67e1febc7e793e55ac28825fbe34aa671a53211212eb53e59fa57add55f10"
+   },
+   {
+    "path": "model-00003.safetensors",
+    "size": 5448802532,
+    "lfs_sha256": "98e5719bc628c9dd5311987120a92d3e9f2cda5604ed071d3a61a5ccb970a6d2"
+   },
+   {
+    "path": "model-00004.safetensors",
+    "size": 5398689427,
+    "lfs_sha256": "364692d97424074dd7c9679fe2a78fab1a2ac3cab4fd1d84c2e26a4e93fe7b38"
+   },
+   {
+    "path": "model-00005.safetensors",
+    "size": 5420960896,
+    "lfs_sha256": "cd1e82cf3a9137e97ba12b3148c6f95dfca6cc194e81d4a981bee1fe2910c24c"
+   },
+   {
+    "path": "model-00006.safetensors",
+    "size": 2843508924,
+    "lfs_sha256": "620dc8ebf9b5e2033abfbad38e65d11b22181e1e870404407be659aef6fd0435"
+   },
+   {
+    "path": "model.safetensors.index.json",
+    "size": 192192,
+    "lfs_sha256": null
+   },
+   {
+    "path": "preprocessor_config.json",
+    "size": 390,
+    "lfs_sha256": null
+   },
+   {
+    "path": "tokenizer.json",
+    "size": 12809320,
+    "lfs_sha256": "0997f410c57a1f4e53b09e4be8f4a172d90edd9564368fb0847030937229b9f3"
+   },
+   {
+    "path": "tokenizer_config.json",
+    "size": 17928,
+    "lfs_sha256": null
+   },
+   {
+    "path": "video_preprocessor_config.json",
+    "size": 385,
+    "lfs_sha256": null
+   },
+   {
+    "path": "vocab.json",
+    "size": 6722759,
+    "lfs_sha256": null
+   }
+  ],
+  "hardlinked": [],
+  "validation": "all selected files present; sizes match pinned Hub metadata",
+  "completed_at": "2026-10-13T11:24:50Z"
+ },
+ {
+  "repo": "scottlowry/Swift-1.5-Qwen3.8-27b-oQ4e-mtp",
+  "requested_revision": "881dc1914f65",
+  "revision": "881dc1914f65e37a51f1e26dc0b6a49995e6cf37",
+  "local_dir": "/Users/vitor/.cache/local-llms/qwen3.8-prefix-cache/scottlowry-Swift-1.5-Qwen3.8-27b-oQ4e-mtp-881dc1914f65e37a51f1e26dc0b6a49995e6cf37",
+  "bytes": 16994887236,
+  "files": [
+   {
+    "path": ".gitattributes",
+    "size": 1570,
+    "lfs_sha256": null
+   },
+   {
+    "path": "README.md",
+    "size": 559,
+    "lfs_sha256": null
+   },
+   {
+    "path": "chat_template.jinja",
+    "size": 8952,
+    "lfs_sha256": null
+   },
+   {
+    "path": "config.json",
+    "size": 47302,
+    "lfs_sha256": null
+   },
+   {
+    "path": "generation_config.json",
+    "size": 202,
+    "lfs_sha256": null
+   },
+   {
+    "path": "merges.txt",
+    "size": 3353259,
+    "lfs_sha256": null
+   },
+   {
+    "path": "model-00001-of-00004.safetensors",
+    "size": 5016415582,
+    "lfs_sha256": "1933486367e3e3d331d9526bb1f79db0c7e31114fc608e9496b01b1a10577b7f"
+   },
+   {
+    "path": "model-00002-of-00004.safetensors",
+    "size": 5017583687,
+    "lfs_sha256": "f0827ed914d2fa492222568bb27ce535951293ed1112996c7692da9fd96fc22a"
+   },
+   {
+    "path": "model-00003-of-00004.safetensors",
+    "size": 5001653251,
+    "lfs_sha256": "eeaedb36549f6c33cdd32b0bfb1e65fd69b535854bfd7fccab9051fc9bfec731"
+   },
+   {
+    "path": "model-00004-of-00004.safetensors",
+    "size": 1936029038,
+    "lfs_sha256": "349160a4183280e3a142007200d6fa84fe4d4ef5ec64c20d0f69a6d3c3d9df94"
+   },
+   {
+    "path": "model.safetensors.index.json",
+    "size": 212223,
+    "lfs_sha256": null
+   },
+   {
+    "path": "oq_imatrix_report.json",
+    "size": 31214,
+    "lfs_sha256": null
+   },
+   {
+    "path": "preprocessor_config.json",
+    "size": 390,
+    "lfs_sha256": null
+   },
+   {
+    "path": "tokenizer.json",
+    "size": 12809320,
+    "lfs_sha256": "0997f410c57a1f4e53b09e4be8f4a172d90edd9564368fb0847030937229b9f3"
+   },
+   {
+    "path": "tokenizer_config.json",
+    "size": 17928,
+    "lfs_sha256": null
+   },
+   {
+    "path": "vocab.json",
+    "size": 6722759,
+    "lfs_sha256": null
+   }
+  ],
+  "hardlinked": [],
+  "validation": "all selected files present; sizes match pinned Hub metadata",
+  "completed_at": "2026-10-13T11:27:34Z"
+ },
+ {
+  "repo": "ggml-org/Qwen3.8-27B-GGUF",
+  "requested_revision": "71bc7b627595",
+  "revision": "71bc7b627595dc8a91039addd9c791ae548d6747",
+  "local_dir": "/Users/vitor/.cache/local-llms/qwen3.8-prefix-cache/ggml-org-Qwen3.8-27B-GGUF-71bc7b627595dc8a91039addd9c791ae548d6747",
+  "bytes": 34445432032,
+  "files": [
+   {
+    "path": "Qwen3.8-27B-Q8_0.gguf",
+    "size": 28595763648,
+    "lfs_sha256": "aab65c67ef0dad127960efef9247f1832bca105faa1c7a052cc039b223cf86a1"
+   },
+   {
+    "path": "dflash-Qwen3.8-27B-Q8_0.gguf",
+    "size": 2056414560,
+    "lfs_sha256": "ef6a1340ed018cc58f53efd3613312c719b9ebf72b5586a046214c7ba366b297"
+   },
+   {
+    "path": "mmproj-Qwen3.8-27B-Q8_0.gguf",
+    "size": 629247008,
+    "lfs_sha256": "2e968a6af97ce35d8971890b257b9b7edabf20ad91450501fa53162a19ee33eb"
+   },
+   {
+    "path": "mtp-Qwen3.8-27B-Q8_0.gguf",
+    "size": 3164006816,
+    "lfs_sha256": "6447a4e9d29fa6eba89ed508b2127b0803f91bac3ec6cec725fa209f2c3d309d"
+   }
+  ],
+  "hardlinked": [],
+  "validation": "all selected files present; sizes match pinned Hub metadata",
+  "completed_at": "2026-10-13T11:33:33Z"
+ }
+]

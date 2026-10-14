@@ -246,7 +246,7 @@ mesmo layout de quant e mesmos flags do candidato de referência.
 - u2 roda só se u1 perder no gate de responsividade ou de correção. O MTPLX (`grant-ai/...-Abliterated-MTPLX-4bit`)
   fica fora: o runtime recusa 128K ([[mtplx-flashnext-128k-fit]]). GGUF fica fora: não roda nos stacks da campanha.
 - O 27B denso (`OBLITERATUS/Qwen3.8-27B-OBLITERATED`) fica fora desta campanha: a densa 3.8-27B já é NO-GO
-  ([[qwen38-27b-nogo-verdict]]).
+  (veredito: docs/models/qwen3.8-27b.md).
 
 ### Hipóteses a medir
 
