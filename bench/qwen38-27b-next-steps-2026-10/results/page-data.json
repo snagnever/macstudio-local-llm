@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-14T06:34:58+00:00",
+ "generated_at": "2026-10-14T06:57:57+00:00",
  "arms": [
   {
    "id": "s27r",
@@ -8,7 +8,8 @@
    "pack": "mlx-community 8bit",
    "rev": "815b83c0",
    "port": 8484,
-   "phase": "P0"
+   "phase": "P0",
+   "public": "mlx-dspark 0.20.3 + DFlash2 (baseline)"
   },
   {
    "id": "k27",
@@ -17,7 +18,8 @@
    "pack": "mlx-community 8bit (Hub cache) + local DFlash2 draft",
    "rev": "815b83c0",
    "port": 8585,
-   "phase": "P1"
+   "phase": "P1",
+   "public": "Splash 1.3.1 + DFlash2"
   },
   {
    "id": "o27q8",
@@ -26,7 +28,8 @@
    "pack": "Jundot oQ8e-mtp",
    "rev": "6c76ddfb",
    "port": 8000,
-   "phase": "P2"
+   "phase": "P2",
+   "public": "oMLX 0.7.1 · oQ8e refit, 8-bit"
   },
   {
    "id": "o27q4",
@@ -35,7 +38,8 @@
    "pack": "Jundot oQ4e-mtp",
    "rev": "49c1d603",
    "port": 8000,
-   "phase": "P2"
+   "phase": "P2",
+   "public": "oMLX 0.7.1 · oQ4e refit, 4-bit"
   },
   {
    "id": "r27d",
@@ -44,7 +48,8 @@
    "pack": "ddalcu 8bit",
    "rev": "7775059e",
    "port": 11234,
-   "phase": "P3"
+   "phase": "P3",
+   "public": "mlx-serve 26.10.2 + DFlash2"
   },
   {
    "id": "r27m",
@@ -53,7 +58,8 @@
    "pack": "ddalcu 8bit",
    "rev": "7775059e",
    "port": 11234,
-   "phase": "P8"
+   "phase": "P8",
+   "public": "mlx-serve 26.10.2 · MTP head only"
   },
   {
    "id": "w27d",
@@ -62,7 +68,8 @@
    "pack": "scottlowry Swift-1.5 oQ4e-mtp",
    "rev": "881dc191",
    "port": 11234,
-   "phase": "P7"
+   "phase": "P7",
+   "public": "mlx-serve 26.10.2 · Swift 1.5 + DFlash2"
   },
   {
    "id": "w27m",
@@ -71,7 +78,8 @@
    "pack": "scottlowry Swift-1.5 oQ4e-mtp",
    "rev": "881dc191",
    "port": 11234,
-   "phase": "P8"
+   "phase": "P8",
+   "public": "mlx-serve 26.10.2 · Swift 1.5, MTP only"
   },
   {
    "id": "o27sw",
@@ -80,7 +88,8 @@
    "pack": "scottlowry Swift-1.5 oQ4e-mtp",
    "rev": "881dc191",
    "port": 8000,
-   "phase": "P4"
+   "phase": "P4",
+   "public": "oMLX 0.7.1 · Swift 1.5, 4-bit"
   },
   {
    "id": "l27",
@@ -89,7 +98,8 @@
    "pack": "ggml-org Q8_0 + mtp",
    "rev": "71bc7b62",
    "port": 8080,
-   "phase": "P6"
+   "phase": "P6",
+   "public": "llama.cpp b11569 · Q8_0 + MTP draft"
   },
   {
    "id": "l27n",
@@ -98,7 +108,8 @@
    "pack": "ggml-org Q8_0",
    "rev": "71bc7b62",
    "port": 8080,
-   "phase": "P6"
+   "phase": "P6",
+   "public": "llama.cpp b11569 · Q8_0, no speculation"
   }
  ],
  "speed": {
@@ -111,7 +122,10 @@
     "hit_tool": 0.991,
     "mtp_acceptance": null,
     "wired_peak_gb": 53.53,
-    "gates_failed": []
+    "gates_failed": [],
+    "prefill_tps": 235.0,
+    "cold_prompt_tokens": 125579,
+    "reps": 3
    },
    "k27-xhigh": {
     "t_turno_s": 17.7,
@@ -121,7 +135,10 @@
     "hit_tool": 0.991,
     "mtp_acceptance": null,
     "wired_peak_gb": 53.81,
-    "gates_failed": []
+    "gates_failed": [],
+    "prefill_tps": 234.8,
+    "cold_prompt_tokens": 125617,
+    "reps": 3
    },
    "r27d-medium": {
     "t_turno_s": 34.8,
@@ -131,7 +148,10 @@
     "hit_tool": 0.991,
     "mtp_acceptance": 0.767,
     "wired_peak_gb": 69.45,
-    "gates_failed": []
+    "gates_failed": [],
+    "prefill_tps": 175.2,
+    "cold_prompt_tokens": 125579,
+    "reps": 3
    },
    "r27d-xhigh": {
     "t_turno_s": 44.7,
@@ -141,7 +161,10 @@
     "hit_tool": 0.991,
     "mtp_acceptance": 0.538,
     "wired_peak_gb": 70.39,
-    "gates_failed": []
+    "gates_failed": [],
+    "prefill_tps": 175.0,
+    "cold_prompt_tokens": 125617,
+    "reps": 3
    },
    "s27r-xhigh": {
     "t_turno_s": 25.7,
@@ -151,7 +174,10 @@
     "hit_tool": 0.992,
     "mtp_acceptance": null,
     "wired_peak_gb": 55.39,
-    "gates_failed": []
+    "gates_failed": [],
+    "prefill_tps": 176.3,
+    "cold_prompt_tokens": 125617,
+    "reps": 3
    }
   },
   "32768": {
@@ -163,7 +189,10 @@
     "hit_tool": 0.961,
     "mtp_acceptance": null,
     "wired_peak_gb": 42.05,
-    "gates_failed": []
+    "gates_failed": [],
+    "prefill_tps": 358.3,
+    "cold_prompt_tokens": 27264,
+    "reps": 3
    },
    "k27-xhigh": {
     "t_turno_s": 13.3,
@@ -173,7 +202,10 @@
     "hit_tool": 0.962,
     "mtp_acceptance": null,
     "wired_peak_gb": 42.18,
-    "gates_failed": []
+    "gates_failed": [],
+    "prefill_tps": 357.7,
+    "cold_prompt_tokens": 27302,
+    "reps": 3
    },
    "r27d-medium": {
     "t_turno_s": 15.7,
@@ -183,7 +215,10 @@
     "hit_tool": 0.961,
     "mtp_acceptance": 0.792,
     "wired_peak_gb": 63.03,
-    "gates_failed": []
+    "gates_failed": [],
+    "prefill_tps": 251.5,
+    "cold_prompt_tokens": 27264,
+    "reps": 3
    },
    "r27d-xhigh": {
     "t_turno_s": 19.9,
@@ -193,7 +228,10 @@
     "hit_tool": 0.961,
     "mtp_acceptance": 0.461,
     "wired_peak_gb": 59.31,
-    "gates_failed": []
+    "gates_failed": [],
+    "prefill_tps": 250.4,
+    "cold_prompt_tokens": 27302,
+    "reps": 3
    },
    "s27r-medium": {
     "t_turno_s": 13.5,
@@ -203,7 +241,10 @@
     "hit_tool": 0.962,
     "mtp_acceptance": null,
     "wired_peak_gb": 41.48,
-    "gates_failed": []
+    "gates_failed": [],
+    "prefill_tps": 248.9,
+    "cold_prompt_tokens": 27264,
+    "reps": 3
    },
    "s27r-xhigh": {
     "t_turno_s": 17.0,
@@ -213,7 +254,10 @@
     "hit_tool": 0.962,
     "mtp_acceptance": null,
     "wired_peak_gb": 43.33,
-    "gates_failed": []
+    "gates_failed": [],
+    "prefill_tps": 248.5,
+    "cold_prompt_tokens": 27302,
+    "reps": 3
    }
   }
  },
@@ -226,7 +270,10 @@
    "hit_tool": 0.961,
    "mtp_acceptance": 0.774,
    "wired_peak_gb": 96.12,
-   "gates_failed": []
+   "gates_failed": [],
+   "prefill_tps": 791.4,
+   "cold_prompt_tokens": 27302,
+   "reps": 3
   },
   "131072": {
    "t_turno_s": 8.6,
@@ -236,7 +283,10 @@
    "hit_tool": 0.991,
    "mtp_acceptance": 0.668,
    "wired_peak_gb": 111.17,
-   "gates_failed": []
+   "gates_failed": [],
+   "prefill_tps": 758.9,
+   "cold_prompt_tokens": 125617,
+   "reps": 3
   }
  },
  "n2": {
@@ -250,7 +300,10 @@
    "wired_peak_gb": 96.05,
    "gates_failed": [
     "needle"
-   ]
+   ],
+   "prefill_tps": 791.2,
+   "cold_prompt_tokens": 27302,
+   "reps": 3
   },
   "131072": {
    "t_turno_s": 8.9,
@@ -260,9 +313,112 @@
    "hit_tool": 0.991,
    "mtp_acceptance": 0.786,
    "wired_peak_gb": 110.64,
-   "gates_failed": []
+   "gates_failed": [],
+   "prefill_tps": 759.6,
+   "cold_prompt_tokens": 125617,
+   "reps": 3
   }
  },
+ "smoke": {
+  "k27": {
+   "decode_tps": 92.3,
+   "t_turno_s": 8.6,
+   "effort": "medium",
+   "reps": 1
+  },
+  "l27": {
+   "decode_tps": 35.3,
+   "t_turno_s": 19.0,
+   "effort": "medium",
+   "reps": 1
+  },
+  "o27q4": {
+   "decode_tps": 81.4,
+   "t_turno_s": 10.7,
+   "effort": "medium",
+   "reps": 1
+  },
+  "r27d": {
+   "decode_tps": 80.6,
+   "t_turno_s": 10.8,
+   "effort": "medium",
+   "reps": 1
+  },
+  "r27m": {
+   "decode_tps": 51.5,
+   "t_turno_s": 14.5,
+   "effort": "medium",
+   "reps": 1
+  }
+ },
+ "think": {
+  "k27-medium": {
+   "arm": "k27",
+   "effort": "medium",
+   "resend": {
+    "n": 3,
+    "errors": 3,
+    "http400": 3,
+    "ttft_s_median": null,
+    "ttft_s_min": null,
+    "ttft_s_max": null
+   },
+   "drop": {
+    "n": 3,
+    "errors": 0,
+    "http400": 0,
+    "ttft_s_median": 7.4,
+    "ttft_s_min": 7.4,
+    "ttft_s_max": 7.4
+   }
+  },
+  "k27-xhigh": {
+   "arm": "k27",
+   "effort": "xhigh",
+   "resend": {
+    "n": 3,
+    "errors": 3,
+    "http400": 3,
+    "ttft_s_median": null,
+    "ttft_s_min": null,
+    "ttft_s_max": null
+   },
+   "drop": {
+    "n": 3,
+    "errors": 0,
+    "http400": 0,
+    "ttft_s_median": 7.4,
+    "ttft_s_min": 7.4,
+    "ttft_s_max": 7.4
+   }
+  },
+  "r27d-xhigh": {
+   "arm": "r27d",
+   "effort": "xhigh",
+   "resend": {
+    "n": 1,
+    "errors": 0,
+    "http400": 0,
+    "ttft_s_median": 104.0,
+    "ttft_s_min": 104.0,
+    "ttft_s_max": 104.0
+   },
+   "drop": {
+    "n": 1,
+    "errors": 0,
+    "http400": 0,
+    "ttft_s_median": 94.5,
+    "ttft_s_min": 94.5,
+    "ttft_s_max": 94.5
+   }
+  }
+ },
+ "sampling": {
+  "temperature": 1.0,
+  "top_p": 0.95,
+  "top_k": 20
+ },
+ "macos": "26.6.2",
  "quality": {},
  "w1_quality": {
   "humaneval": {
@@ -398,5 +554,134 @@
   "P7_PASS": "not_run",
   "CAMPAIGN_DONE": "2026-10-14T06:35Z (stopped by user after P3; P7 cancelled)",
   "P5_GO": "0"
- }
+ },
+ "funnel": [
+  {
+   "stage": "candidates",
+   "count": 11,
+   "ids": [
+    "s27r",
+    "k27",
+    "o27q8",
+    "o27q4",
+    "r27d",
+    "r27m",
+    "w27d",
+    "w27m",
+    "o27sw",
+    "l27",
+    "l27n"
+   ],
+   "runtimes": [
+    "mlx-dspark",
+    "Splash",
+    "oMLX",
+    "mlx-serve",
+    "llama.cpp"
+   ],
+   "dropped": [
+    {
+     "id": "o27q8",
+     "cls": "cut"
+    },
+    {
+     "id": "w27d",
+     "cls": "cut"
+    },
+    {
+     "id": "w27m",
+     "cls": "cut"
+    },
+    {
+     "id": "o27sw",
+     "cls": "cut"
+    },
+    {
+     "id": "l27n",
+     "cls": "cut"
+    }
+   ]
+  },
+  {
+   "stage": "smoke",
+   "count": 5,
+   "ids": [
+    "k27",
+    "o27q4",
+    "r27d",
+    "r27m",
+    "l27"
+   ],
+   "skipped": [
+    "s27r"
+   ],
+   "dropped": [
+    {
+     "id": "o27q4",
+     "cls": "cut",
+     "decode_tps": 81.4
+    },
+    {
+     "id": "r27m",
+     "cls": "cut",
+     "decode_tps": 51.5
+    },
+    {
+     "id": "l27",
+     "cls": "cut",
+     "decode_tps": 35.3
+    }
+   ]
+  },
+  {
+   "stage": "full",
+   "count": 3,
+   "ids": [
+    "s27r",
+    "k27",
+    "r27d"
+   ],
+   "dropped": [
+    {
+     "id": "r27d",
+     "cls": "fail",
+     "ratios": [
+      1.1705882352941175,
+      1.739299610894942
+     ],
+     "effort": "xhigh",
+     "vs": "baseline"
+    }
+   ]
+  },
+  {
+   "stage": "faster",
+   "count": 1,
+   "ids": [
+    "k27"
+   ],
+   "dropped": [
+    {
+     "id": "k27",
+     "cls": "fail",
+     "ratios": [
+      1.3164556962025316,
+      1.8488372093023258
+     ],
+     "effort": "medium",
+     "vs": "flashnext"
+    }
+   ]
+  },
+  {
+   "stage": "within",
+   "count": 0,
+   "ids": [],
+   "limit_s": [
+    9.9,
+    10.8
+   ],
+   "dropped": []
+  }
+ ]
 }

@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""Render reports/qwen38-27b-stacks.html: the dense Qwen3.8-27B stacks measured in
-bench/qwen38-27b-next-steps-2026-10 against the two Flash-Next daily drivers (A: w1, B: n2).
-usage: render_27b_page.py [--results DIR] [--out HTML] [--json-out JSON] [--no-w1]
+"""Render reports/qwen38-27b-stacks.html, the public page for the dense Qwen3.8-27B servers measured in
+bench/qwen38-27b-next-steps-2026-10, against the two Qwen3.8-Flash-Next references (w1, n2).
+Also writes the link-preview card, the Reddit post image (HTML; PNG with --png) and results/reddit-post.md.
+usage: render_27b_page.py [--results DIR] [--out HTML] [--json-out JSON] [--card HTML] [--post HTML]
+                          [--reddit-out MD] [--png] [--no-w1]
+Every number on the page comes from the results; internal codes (arm ids, gates) only appear in the closed
+"Raw data and reproduction" appendix.
 """
 from __future__ import annotations
 
@@ -9,7 +13,9 @@ import argparse
 import html as _html
 import json
 import re
+import statistics
 import sys
+import textwrap
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -18,7 +24,7 @@ C = ROOT / "bench/qwen38-27b-next-steps-2026-10"
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(ROOT / "bench/qwen38-flashnext-daily-driver-2026-09/scripts"))
 sys.path.insert(0, str(ROOT / "bench/swift15-flashnext-2026-10/scripts"))
-from summarize_driver import summarize  # noqa: E402
+from summarize_driver import summarize, _is_served  # noqa: E402
 from render_perf_lines import CSS as PERF_CSS, EXTRA_CSS as PERF_EXTRA_CSS  # noqa: E402
 import summarize_ab  # noqa: E402
 from empty_answers import is_empty  # noqa: E402
@@ -41,24 +47,57 @@ ARMS = [  # id, name, runtime, pack, rev, port, phase
     ("l27n", "llama.cpp b11569 no spec", "llama.cpp b11569", "ggml-org Q8_0", "71bc7b62", 8080, "P6"),
 ]
 ARM_IDS = [a[0] for a in ARMS]
+# Public names: the page body never shows the internal codes.
+PUBLIC = {
+    "s27r": "mlx-dspark 0.20.3 + DFlash2 (baseline)",
+    "k27": "Splash 1.3.1 + DFlash2",
+    "r27d": "mlx-serve 26.10.2 + DFlash2",
+    "o27q8": "oMLX 0.7.1 · oQ8e refit, 8-bit",
+    "o27q4": "oMLX 0.7.1 · oQ4e refit, 4-bit",
+    "o27sw": "oMLX 0.7.1 · Swift 1.5, 4-bit",
+    "w27d": "mlx-serve 26.10.2 · Swift 1.5 + DFlash2",
+    "r27m": "mlx-serve 26.10.2 · MTP head only",
+    "w27m": "mlx-serve 26.10.2 · Swift 1.5, MTP only",
+    "l27": "llama.cpp b11569 · Q8_0 + MTP draft",
+    "l27n": "llama.cpp b11569 · Q8_0, no speculation",
+}
+SHORT = {"s27r": "mlx-dspark (baseline)", "k27": "Splash", "r27d": "mlx-serve"}
+WEIGHTS = {  # Hugging Face ID of the target weights per measured setup (revisions come from ARMS)
+    "s27r": "mlx-community/Qwen3.8-27B-8bit", "k27": "mlx-community/Qwen3.8-27B-8bit",
+    "r27d": "ddalcu/Qwen3.8-27B-MLX-Serve-8bit",
+}
+COLOR = {"s27r": "--s1", "k27": "--s2", "r27d": "--s5", "w1": "--s3", "n2": "--ref-b"}
+BASELINE = "s27r"
 FILE_RE = re.compile(r"^(?P<arm>[a-z0-9]+)-(?P<ctx>\d+)-t1\.0-p(?P<phase>\d)(?P<eff>[xm])\.jsonl$")
 EFFORT = {"x": "xhigh", "m": "medium"}
 EFFORTS = ("xhigh", "medium")
 SUITES = summarize_ab.SUITES
-SUITE_LABEL = {"humaneval": "HumanEval", "gpqa": "GPQA-Diamond", "livecodebench": "LiveCodeBench",
-               "jdhodges": "Tool calling (jdhodges)", "veerman": "Tool calling (Veerman)", "if": "Instruction following"}
 BANDS = (32768, 131072)
 DRIVER_RATIO = 1.25
-SKIP_HIT_ARMS = {"k27", "l27", "l27n"}  # runtimes that may not report cached_tokens (phases.sh)
+REPLY_TOKENS = 512
 W1_SUMMARY = ROOT / "bench/swift15-flashnext-2026-10/results/tturno-summary.json"
+W1_JSONL = ROOT / "bench/swift15-flashnext-2026-10/results"  # <ref>-<ctx>-t1.0-fn.jsonl, for the prefill column
 W1_AB = ROOT / "bench/swift15-flashnext-2026-10/results/ab/t1/w1"
 N2_AB = ROOT / "bench/swift15-flashnext-2026-10/results/ab/t1/n2"
-# Both drivers ran the Swift 1.5 battery at xhigh (ab-battery.sh, AB_EFFORT default).
-W1_NAME = "Driver A: Flash-Next Swift 1.5 (w1, xhigh)"
-N2_NAME = "Driver B: Flash-Next ddalcu iQ (n2, xhigh)"
-SPEED_KEYS = ("t_turno_s", "warm_ttft_tool_s", "cold_ttft_s", "decode_tps", "hit_tool", "mtp_acceptance",
-              "wired_peak_gb", "gates_failed")
-CAMPAIGN_URL = "https://github.com/snagnever/macstudio-local-llm/tree/main/bench/qwen38-27b-next-steps-2026-10"
+# Both Flash-Next references ran at xhigh on mlx-serve 26.10.1 (swift15-flashnext-2026-10).
+W1_NAME = "Qwen3.8-Flash-Next · Swift 1.5 quant (our daily model)"
+N2_NAME = "Qwen3.8-Flash-Next · ddalcu iQ quant"
+REF_NAMES = {"w1": W1_NAME, "n2": N2_NAME}
+REF_RUNTIME = "mlx-serve 26.10.1"
+SPEED_KEYS = ("t_turno_s", "warm_ttft_tool_s", "cold_ttft_s", "prefill_tps", "decode_tps", "hit_tool",
+              "mtp_acceptance", "wired_peak_gb", "gates_failed")
+REPO_URL = "https://github.com/snagnever/macstudio-local-llm"
+CAMPAIGN_URL = f"{REPO_URL}/tree/main/bench/qwen38-27b-next-steps-2026-10"
+SITE = "https://snagnever.github.io/macstudio-local-llm"
+PAGE_URL = f"{SITE}/qwen38-27b-stacks.html"
+CARD_URL = f"{SITE}/assets/qwen38-27b-stacks-card.png"
+CARD_HTML = ROOT / "reports/assets/qwen38-27b-stacks-card.html"
+POST_HTML = ROOT / "reports/assets/qwen38-27b-stacks-post.html"
+POST_W, POST_H = 1400, 1600
+CHROME = Path("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+RUN_CANDIDATE = ROOT / "bench/qwen38-flashnext-daily-driver-2026-09/scripts/run-candidate.sh"
+SPLASH_FLAGS = ROOT / "bench/qwen3.8-prefix-cache/config/splash-flags.env"
+STATE_KEY = "qwen38-27b-stacks:v1"
 
 
 # ---------------------------------------------------------------- data
@@ -79,12 +118,30 @@ def _jsonl(f: Path) -> list[dict]:
     return [json.loads(l) for l in f.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 
-def _speed_row(row: dict) -> dict:
+def _prefill(records: list[dict]) -> dict:
+    """Prefill = prompt tokens of the cold request ÷ cold TTFT, median over the served cold records."""
+    cold = [r for r in records if r.get("scenario") == "cold" and _is_served(r)
+            and r.get("prompt_tokens") and r.get("ttft_ms")]
+    if not cold:
+        return {"prefill_tps": None, "cold_prompt_tokens": None}
+    return {"prefill_tps": round(statistics.median(r["prompt_tokens"] / (r["ttft_ms"] / 1000) for r in cold), 1),
+            "cold_prompt_tokens": round(statistics.median(r["prompt_tokens"] for r in cold))}
+
+
+def _speed_row(row: dict, extra: dict | None = None) -> dict:
     warm, hit = row.get("warm_ttft_s") or {}, row.get("hit") or {}
-    return {"t_turno_s": row.get("t_turno_s"), "warm_ttft_tool_s": warm.get("tool_turn"),
-            "cold_ttft_s": row.get("cold_ttft_s"), "decode_tps": row.get("decode_tps"),
-            "hit_tool": hit.get("tool_turn"), "mtp_acceptance": row.get("mtp_acceptance"),
-            "wired_peak_gb": row.get("wired_peak_gb"), "gates_failed": row.get("gates_failed")}
+    out = {"t_turno_s": row.get("t_turno_s"), "warm_ttft_tool_s": warm.get("tool_turn"),
+           "cold_ttft_s": row.get("cold_ttft_s"), "decode_tps": row.get("decode_tps"),
+           "hit_tool": hit.get("tool_turn"), "mtp_acceptance": row.get("mtp_acceptance"),
+           "wired_peak_gb": row.get("wired_peak_gb"), "gates_failed": row.get("gates_failed"),
+           "prefill_tps": None, "cold_prompt_tokens": None, "reps": None}
+    out.update(extra or {})
+    return out
+
+
+def _reps(records: list[dict]) -> int | None:
+    n = sum(1 for r in records if r.get("scenario") == "tool_turn")
+    return n or None
 
 
 def _speed(results: Path) -> dict:
@@ -94,9 +151,52 @@ def _speed(results: Path) -> dict:
         m = FILE_RE.match(f.name)
         if not m:
             continue
-        for (arm, ctx), row in summarize(_jsonl(f)).items():
-            out.setdefault(str(ctx), {})[f"{arm}-{EFFORT[m['eff']]}"] = _speed_row(row)
+        recs = _jsonl(f)
+        for (arm, ctx), row in summarize(recs).items():
+            mine = [r for r in recs if r.get("arm") == arm and int(r["context_target"]) == ctx]
+            extra = dict(_prefill(mine), reps=_reps(mine))
+            out.setdefault(str(ctx), {})[f"{arm}-{EFFORT[m['eff']]}"] = _speed_row(row, extra)
     return out
+
+
+def _smoke(results: Path) -> dict:
+    """8K smokes: warm decode as summarize_driver defines it (median of identical, append, tool_turn)."""
+    out = {}
+    for f in sorted(results.glob("*-8192-t1.0-smoke.jsonl")):
+        recs = _jsonl(f)
+        for (arm, _ctx), row in summarize(recs).items():
+            effs = sorted({r.get("reasoning_effort") for r in recs if r.get("reasoning_effort")})
+            out[arm] = {"decode_tps": row.get("decode_tps"), "t_turno_s": row.get("t_turno_s"),
+                        "effort": effs[0] if len(effs) == 1 else None, "reps": _reps(recs)}
+    return out
+
+
+def _think(results: Path) -> dict:
+    """Thinking-turn probe at 128K: tool turns that resend the previous reasoning vs drop it."""
+    out = {}
+    d = results / "think"
+    for f in sorted(d.glob("*.jsonl")) if d.exists() else []:
+        recs = _jsonl(f)
+        arm, _, eff = f.stem.rpartition("-")
+        row = {"arm": arm, "effort": eff}
+        for mode in ("resend", "drop"):
+            tool = [r for r in recs if r.get("mode") == mode and r.get("scenario") == "tool_turn"]
+            ok = [r["ttft_ms"] / 1000 for r in tool if not r.get("error") and r.get("ttft_ms") is not None]
+            row[mode] = {"n": len(tool), "errors": sum(1 for r in tool if r.get("error")),
+                         "http400": sum(1 for r in tool if "400" in str(r.get("error") or "")),
+                         "ttft_s_median": round(statistics.median(ok), 1) if ok else None,
+                         "ttft_s_min": round(min(ok), 1) if ok else None,
+                         "ttft_s_max": round(max(ok), 1) if ok else None}
+        out[f.stem] = row
+    return out
+
+
+def _sampling(results: Path) -> dict:
+    for f in sorted(results.glob("*-t1.0-p?[xm].jsonl")):
+        for r in _jsonl(f):
+            if r.get("temperature") is not None:
+                return {k: r.get(k) for k in ("temperature", "top_p", "top_k")}
+    return {}
 
 
 def _quality(results: Path) -> dict:
@@ -148,46 +248,142 @@ def _gates(results: Path) -> dict:
     return dict(l.split("=", 1) for l in g.read_text(encoding="utf-8").splitlines() if "=" in l)
 
 
-def _driver(summary: dict, arm: str) -> dict:
-    return {str(c): _speed_row(summary.get(f"{arm}@{c}", {})) for c in BANDS}
+def _macos(results: Path) -> str | None:
+    f = results / "etapa0-preflight.md"
+    m = re.search(r"^macOS (\S+)", f.read_text(encoding="utf-8"), re.M) if f.exists() else None
+    return m.group(1) if m else None
+
+
+def _driver(summary: dict, arm: str, jsonl_dir: Path | None = None) -> dict:
+    out = {}
+    for c in BANDS:
+        extra = {}
+        f = jsonl_dir / f"{arm}-{c}-t1.0-fn.jsonl" if jsonl_dir else None
+        if f is not None and f.exists() and summary.get(f"{arm}@{c}"):
+            recs = _jsonl(f)
+            extra = dict(_prefill(recs), reps=_reps(recs))
+        out[str(c)] = _speed_row(summary.get(f"{arm}@{c}", {}), extra)
+    return out
 
 
 def _driver_quality(ab) -> dict:
     return {s: summarize_ab.suite_stats(ab[s]) for s in SUITES if s in ab} if ab else {}
 
 
-def build_payload(results: Path, w1_summary: dict, w1_ab, n2_ab=None) -> dict:
+def _t(p: dict, label: str, ctx) -> float | None:
+    return ((p["speed"].get(str(ctx)) or {}).get(label) or {}).get("t_turno_s")
+
+
+def _ref_t(p: dict, ref: str, ctx) -> float | None:
+    return ((p.get(ref) or {}).get(str(ctx)) or {}).get("t_turno_s")
+
+
+def _setups(p: dict) -> list[str]:
+    """Setups with speed results, in ARMS order (unknown ids last)."""
+    ids = {lab.rpartition("-")[0] for rows in p["speed"].values() for lab in rows}
+    return sorted(ids, key=lambda i: (ARM_IDS.index(i) if i in ARM_IDS else len(ARM_IDS), i))
+
+
+def funnel(p: dict) -> list[dict]:
+    """The selection funnel, from the payload: candidates → 8K smoke → full test → beats baseline → near Flash-Next.
+    Each stage: count, the ids that reach it, and the ids dropped right after it with a class (cut / fail)."""
+    ids = [a["id"] for a in p["arms"]]
+    smoke = [i for i in ids if i in p.get("smoke", {})]
+    full = [i for i in _setups(p) if all(any(lab.rpartition("-")[0] == i for lab in p["speed"].get(str(c), {}))
+                                         for c in BANDS)]
+    faster, dropped3 = [], []
+    for i in full:
+        if i == BASELINE:
+            continue
+        rs = [(_t(p, f"{i}-xhigh", c) / _t(p, f"{BASELINE}-xhigh", c))
+              if _t(p, f"{i}-xhigh", c) and _t(p, f"{BASELINE}-xhigh", c) else None for c in BANDS]
+        if None not in rs and all(r < 1 for r in rs):
+            faster.append(i)
+        else:
+            dropped3.append({"id": i, "cls": "fail", "ratios": rs, "effort": "xhigh", "vs": "baseline"})
+    within, dropped4 = [], []
+    for i in faster:
+        best = None
+        for eff in EFFORTS:
+            rs = [(_t(p, f"{i}-{eff}", c) / _ref_t(p, "w1", c)) if _t(p, f"{i}-{eff}", c) and _ref_t(p, "w1", c)
+                  else None for c in BANDS]
+            if None not in rs and (best is None or max(rs) < max(best[1])):
+                best = (eff, rs)
+        if best and all(r <= DRIVER_RATIO for r in best[1]):
+            within.append(i)
+        else:
+            dropped4.append({"id": i, "cls": "fail" if best else "cut", "ratios": best[1] if best else None,
+                             "effort": best[0] if best else None, "vs": "flashnext"})
+    fams = []
+    for a in p["arms"]:
+        fam = a["runtime"].split()[0]
+        if fam not in fams:
+            fams.append(fam)
+    lim = [round(DRIVER_RATIO * v, 1) if v else None for v in (_ref_t(p, "w1", c) for c in BANDS)]
+    return [
+        {"stage": "candidates", "count": len(ids), "ids": ids, "runtimes": fams,
+         "dropped": [{"id": i, "cls": "cut"} for i in ids if i not in smoke and i not in full]},
+        {"stage": "smoke", "count": len(smoke), "ids": smoke, "skipped": [i for i in full if i not in smoke],
+         "dropped": [{"id": i, "cls": "cut", "decode_tps": p["smoke"][i]["decode_tps"]}
+                     for i in smoke if i not in full]},
+        {"stage": "full", "count": len(full), "ids": full, "dropped": dropped3},
+        {"stage": "faster", "count": len(faster), "ids": faster, "dropped": dropped4},
+        {"stage": "within", "count": len(within), "ids": within, "limit_s": lim, "dropped": []},
+    ]
+
+
+def build_payload(results: Path, w1_summary: dict, w1_ab, n2_ab=None, ref_jsonl: Path | None = None) -> dict:
     results = Path(results)
-    return {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "arms": [dict(zip(("id", "name", "runtime", "pack", "rev", "port", "phase"), a)) for a in ARMS],
-            "speed": _speed(results),
-            "w1": _driver(w1_summary, "w1"),
-            "n2": _driver(w1_summary, "n2"),
-            "quality": _quality(results),
-            "w1_quality": _driver_quality(w1_ab),
-            "n2_quality": _driver_quality(n2_ab),
-            "empty": _empty(results),
-            "loops": _loops(results),
-            "gates": _gates(results)}
+    p = {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+         "arms": [dict(zip(("id", "name", "runtime", "pack", "rev", "port", "phase"), a), public=PUBLIC[a[0]])
+                  for a in ARMS],
+         "speed": _speed(results),
+         "w1": _driver(w1_summary, "w1", ref_jsonl),
+         "n2": _driver(w1_summary, "n2", ref_jsonl),
+         "smoke": _smoke(results),
+         "think": _think(results),
+         "sampling": _sampling(results),
+         "macos": _macos(results),
+         "quality": _quality(results),
+         "w1_quality": _driver_quality(w1_ab),
+         "n2_quality": _driver_quality(n2_ab),
+         "empty": _empty(results),
+         "loops": _loops(results),
+         "gates": _gates(results)}
+    p["funnel"] = funnel(p)
+    return p
+
+
+def splash_command() -> dict | None:
+    """The Splash 1.3.1 launch of the k27 setup, read from run-candidate.sh (k27 block) and splash-flags.env."""
+    if not (RUN_CANDIDATE.exists() and SPLASH_FLAGS.exists()):
+        return None
+    rc = RUN_CANDIDATE.read_text(encoding="utf-8")
+    block = re.search(r"^\s*k27\)(.*?);;", rc, re.S | re.M)
+    if not block:
+        return None
+    b = block.group(1)
+    env = dict(re.findall(r'(SPLASH_MODEL|SPLASH_REVISION|SPLASH_DRAFTER|QWEN38_SPLASH_PORT)="?([^"\s]+)"?', b))
+    var = env.get("SPLASH_DRAFTER", "").lstrip("$")
+    dm = re.search(rf'^{var}="([^"]+)"', rc, re.M) if var else None
+    root = re.search(r'^MODEL_ROOT="([^"]+)"', rc, re.M)
+    draft = dm.group(1) if dm else ""
+    if root:
+        draft = draft.replace("$MODEL_ROOT", root.group(1))
+    draft = draft.replace("$HOME", "~")
+    fl = dict(re.findall(r'^(\w+)="([^"]*)"', SPLASH_FLAGS.read_text(encoding="utf-8"), re.M))
+    dname = draft.rstrip("/").rsplit("/", 1)[-1]
+    drepo = re.match(r"^(?P<owner>[^-]+)--(?P<repo>.+)-(?P<rev>[0-9a-f]{40})$", dname)
+    return {"bin": fl.get("SPLASH_BIN", "").replace("$HOME", "~"), "model": env.get("SPLASH_MODEL"),
+            "revision": env.get("SPLASH_REVISION"), "port": env.get("QWEN38_SPLASH_PORT"),
+            "draft_dir": draft, "draft_repo": f"{drepo['owner']}/{drepo['repo']}" if drepo else None,
+            "draft_rev": drepo["rev"] if drepo else None, "extra": fl.get("SPLASH_EXTRA_ARGS", ""),
+            "flags": fl}
 
 
 # ---------------------------------------------------------------- html helpers
 
 NA = '<span class="na">—</span>'
-NOT_MEASURED = '<p class="empty">not measured</p>'
-NO_BATTERY = '<p class="empty">not measured in this campaign (battery not run)</p>'
-
-# Arms cut from the campaign (user scope, 2026-10-13/14). The setup section lists them with the reason.
-NOT_RUN = {
-    "o27q8": "oMLX with the oQ8e refit pack. Cut by scope B (stop after P1 unless Splash passes at 128K).",
-    "o27q4": "oMLX with the oQ4e refit pack. Only the 8K smoke ran (81.4 tok/s). Cut by scope B.",
-    "o27sw": "Swift 1.5 on oMLX. Cut with the rest of P4.",
-    "w27d": "Swift 1.5 on mlx-serve with the drafter: cancelled after r27d failed on the same runtime and drafter.",
-    "r27m": "MTP head only on mlx-serve. The 8K smoke ran at 51.5 tok/s. Cut.",
-    "w27m": "Swift 1.5 MTP only on mlx-serve. Cut with r27m (MTP-only smoke: 51.5 tok/s).",
-    "l27": "llama.cpp draft-mtp. The 8K smoke ran at 35.3 tok/s. Cut.",
-    "l27n": "llama.cpp without speculation. Cut with l27 (8K smoke: 35.3 tok/s).",
-}
 
 
 def E(v) -> str:
@@ -204,223 +400,429 @@ def _ctx_lab(ctx) -> str:
     return f"{int(ctx) // 1024}K"
 
 
-def _order(labels) -> list[str]:
-    """Arm-table order, xhigh before medium; unknown labels last, alphabetically."""
-    def key(lab):
-        arm, _, eff = lab.rpartition("-")
-        if eff not in EFFORTS:
-            arm, eff = lab, ""
-        return (ARM_IDS.index(arm) if arm in ARM_IDS else len(ARM_IDS), arm,
-                EFFORTS.index(eff) if eff in EFFORTS else 2, lab)
-    return sorted(labels, key=key)
+def _fmt_s(v) -> str:
+    return "not measured" if v is None else f"{v:.1f} s"
 
 
-def _color(label: str) -> str:
-    if label == N2_NAME:
-        return "--ref-b"
-    if label == W1_NAME or label.startswith("w1"):
-        return "--s2"
-    return "--s4" if label.endswith("-medium") else "--s1"
+def _name(i: str) -> str:
+    return PUBLIC.get(i) or REF_NAMES.get(i) or i
 
 
-def _lab(label: str) -> str:
-    return f'<span class="arm-lab"><span class="sw" style="background:var({_color(label)})"></span>{E(label)}</span>'
+def _ratio(a, b):
+    return a / b if a is not None and b else None
 
 
-def _gates_text(label: str, failed) -> str:
-    if failed is None:
-        return ""
-    arm = label.rpartition("-")[0]
-    if arm in SKIP_HIT_ARMS:
-        failed = [f"{g} (n/a)" if g.startswith("hit_") else g for g in failed]
-    return ", ".join(failed) if failed else "pass"
-
-
-def _hbars(rows: list, fmt: str, unit: str, refs: list | None = None) -> str:
-    """Horizontal bars on one zero-based scale. rows: [(label, value, note)]; refs: [(value, cls, text)]."""
-    refs = [r for r in (refs or []) if r[0] is not None]
-    vals = [v for _, v, _ in rows if v is not None] + [r[0] for r in refs]
-    mx = (max(vals) if vals else 1) * 1.04 or 1
-    marks = "".join(f'<span class="refline {cls}" style="left:{100.0 * v / mx:.1f}%" title="{E(t)}"></span>'
-                    for v, cls, t in refs)
-    out = ""
-    for label, v, note in rows:
-        if v is None:
-            out += (f'<div class="bline">{_lab(label)}<span class="btrack">{marks}</span>'
-                    f'<span class="bv">{NA}</span></div>')
-            continue
-        txt = fmt.format(v) + unit
-        tip = f"{label} · {txt}" + (f" · {note}" if note else "")
-        out += (f'<div class="bline">{_lab(label)}<span class="btrack"><span class="bfill" '
-                f'style="width:{100.0 * v / mx:.1f}%;background:var({_color(label)})" title="{E(tip)}"></span>{marks}'
-                f'</span><span class="bv">{E(txt)}{f" <span class=u>{E(note)}</span>" if note else ""}</span></div>')
-    return f'<div class="bars">{out}</div>'
-
-
-def _chart(title: str, note: str, body: str) -> str:
-    return (f'<figure class="card-chart"><p class="c-head">{E(title)}</p>'
-            f'{f"<p class=c-note>{note}</p>" if note else ""}{body}</figure>')
-
-
-def _ctxs(p: dict) -> list[str]:
-    """The two driver bands first, then any other band measured (llama.cpp runs 64K)."""
-    return [str(c) for c in BANDS] + sorted(set(p["speed"]) - {str(c) for c in BANDS}, key=int)
-
-
-def _bar_note(label: str, failed) -> str:
-    """Failed gates only, without the hit gates that do not apply to runtimes lacking cached-token counts."""
-    arm = label.rpartition("-")[0]
-    shown = [g for g in failed or [] if not (arm in SKIP_HIT_ARMS and g.startswith("hit_"))]
-    return "fails " + ", ".join(shown) if shown else ""
+def facts(p: dict) -> dict | None:
+    """Headline numbers for the TL;DR, the card and the post; None when the needed results are missing."""
+    big = "131072"
+    k = {e: _t(p, f"k27-{e}", big) for e in EFFORTS}
+    base = _t(p, f"{BASELINE}-xhigh", big)
+    w1 = _ref_t(p, "w1", big)
+    if None in (k["xhigh"], k["medium"], base, w1):
+        return None
+    return {"k_x": k["xhigh"], "k_m": k["medium"], "base": base, "w1": w1,
+            "vs_base": k["xhigh"] / base, "vs_w1_x": k["xhigh"] / w1, "vs_w1_m": k["medium"] / w1,
+            "vs_w1_round": round(k["xhigh"] / w1)}
 
 
 # ---------------------------------------------------------------- sections
 
-def _html_tturno(p: dict) -> str:
-    cards = ""
-    for ctx in _ctxs(p):
-        rows = p["speed"].get(ctx, {})
-        w1v = (p["w1"].get(ctx) or {}).get("t_turno_s")
-        n2v = (p["n2"].get(ctx) or {}).get("t_turno_s")
-        refs, keys = [], []
-        if w1v is not None:  # the 1.25 x limit and the verdict use driver A only
-            lim = round(DRIVER_RATIO * w1v, 1)
-            refs += [(w1v, "w1", f"Driver A (w1): {w1v:.1f} s"), (lim, "lim", f"1.25 × w1: {lim:.1f} s")]
-            keys += [f'<span class="refkey w1"></span>Driver A (Swift 1.5, w1) {w1v:.1f} s',
-                     f'<span class="refkey lim"></span>1.25 × w1 = {lim:.1f} s']
-        if n2v is not None:
-            refs.append((n2v, "n2", f"Driver B (n2): {n2v:.1f} s"))
-            keys.append(f'<span class="refkey n2"></span>Driver B (ddalcu iQ, n2) {n2v:.1f} s')
-        if keys:
-            note = " · ".join(keys)
-        elif int(ctx) in BANDS:
-            note = "Flash-Next driver references (w1, n2): not measured"
+AGENT_TURN_DEF = ("time to the first token of a turn that carries a tool result, plus "
+                  f"{REPLY_TOKENS} generated tokens")
+EFFORT_SENTENCE = ("Thinking effort is the <code>reasoning_effort</code> value sent with each request. More effort means "
+                   "more reasoning tokens and lower draft acceptance, so a lower decode speed.")
+QUALITY_LINE = "Quality and per-task time were not measured for the 27B."
+
+
+def _html_tldr(p: dict) -> str:
+    f = facts(p)
+    cut = [i for i in ARM_IDS if i in NOT_RUN]
+    not_measured = ('<aside class="nm-box"><p class="nm-h">What we did not measure</p><ul>'
+                    '<li><b>Quality of the 27B.</b> No coding, reasoning or tool-calling accuracy run on any setup.</li>'
+                    '<li><b>Time per real task.</b> Only a synthetic agent turn, not an end-to-end job.</li>'
+                    f'<li><b>{len(cut)} of the {len(ARMS)} candidate setups</b>, cut by choice before the full test: '
+                    f'{E(", ".join(PUBLIC[i] for i in cut))}.</li></ul></aside>')
+    if f is None:
+        body = ('<p class="tl-line">The headline numbers (the fastest setup at 128K, the baseline and the Flash-Next '
+                'reference) were not measured.</p>')
+    else:
+        body = (
+            f'<p class="tl-line"><b>Fastest setup: Splash 1.3.1 + DFlash2</b> (8-bit weights). Its <dfn>agent turn time</dfn> '
+            f'({AGENT_TURN_DEF}) at 128K context is <b>{f["k_x"]:.1f} s</b> at thinking effort xhigh and '
+            f'<b>{f["k_m"]:.1f} s</b> at thinking effort medium.</p>'
+            f'<p class="tl-line">That is <b>{f["vs_base"]:.2f}×</b> the baseline, {E(PUBLIC[BASELINE].replace(" (baseline)", ""))} '
+            f'with the same weights and draft ({f["base"]:.1f} s at xhigh; same effort on both sides).</p>'
+            f'<p class="tl-line">It is still <b>~{f["vs_w1_round"]}×</b> Qwen3.8-Flash-Next, the model we use daily '
+            f'({f["w1"]:.1f} s at 128K; {f["vs_w1_x"]:.2f}× at xhigh, {f["vs_w1_m"]:.2f}× at medium): '
+            '<b>for agent loops, Flash-Next is still faster.</b></p>')
+    return (f'<section class="block tldr-wrap" id="tldr"><div class="tldr"><p class="tl-h">TL;DR</p>{body}</div>'
+            f'{not_measured}</section>')
+
+
+GLOSSARY = [
+    ("TTFT", "time to first token: seconds from sending a request until the first token comes back."),
+    ("Cold vs warm", "cold is the first request on an empty cache, so the server reads the whole prompt; warm is a "
+                     "later request that reuses the cached start of the conversation."),
+    ("Prefill (prompt processing)", "reading the prompt before the first token; here prompt tokens ÷ cold TTFT."),
+    ("Decode (token generation)", "how fast the reply comes out, in tokens per second; the median over the warm requests."),
+    ("Prefix cache and hit rate", "the server keeps the work done on the previous prompt; the hit rate is the share of "
+                                  "the new prompt served from that cache."),
+    ("Context 32K / 128K", "the test conversation fills a 32K (32,768-token) or 128K (131,072-token) context window."),
+    ("Draft model (DFlash2) and speculative decoding", "a small draft model proposes several tokens and the 27B checks "
+                                                       "them in one pass; accepted tokens come almost free."),
+    ("MTP", "multi-token prediction: extra heads inside the model propose the next tokens, with no separate draft."),
+    ("Thinking effort", "the reasoning_effort value of the request (xhigh or medium); more effort means more reasoning "
+                        "tokens and lower draft acceptance, so lower decode."),
+]
+
+
+def _html_glossary() -> str:
+    items = "".join(f"<div><dt>{E(k)}</dt><dd>{E(v)}</dd></div>" for k, v in GLOSSARY)
+    return ('<section class="block" id="glossary"><h2 class="sec">Glossary</h2>'
+            f'<dl class="gloss">{items}</dl></section>')
+
+
+def _wrap(text: str, width: int) -> list[str]:
+    return textwrap.wrap(text, width) or [""]
+
+
+def funnel_svg(p: dict) -> str:
+    """The funnel as inline SVG (no library). Bars scale with the count; dropped setups carry class cut or fail."""
+    st = p["funnel"]
+    W = 480
+    n0 = max(st[0]["count"], 1)
+    out, y = [], 4
+    smoke = p.get("smoke", {})
+    labels = {
+        "candidates": "candidate setups",
+        "smoke": "8K smoke test (decode)",
+        "full": "full speed test at 32K and 128K",
+        "faster": "faster than the baseline",
+        "within": "within 1.25× of Flash-Next",
+    }
+    for k, s in enumerate(st):
+        cnt = s["count"]
+        w = max(56.0, (W - 40) * cnt / n0)
+        x = (W - w) / 2
+        if cnt:
+            out.append(f'<rect class="fn-bar" x="{x:.1f}" y="{y}" width="{w:.1f}" height="34" rx="6"/>'
+                       f'<text class="fn-n" x="{W / 2}" y="{y + 23}" text-anchor="middle">{cnt}</text>')
         else:
-            note = "No Flash-Next reference at this band."
-        if rows:
-            body = _hbars([(lab, rows[lab]["t_turno_s"], _bar_note(lab, rows[lab]["gates_failed"]))
-                           for lab in _order(rows)], "{:.1f}", " s", refs)
-        else:
-            body = NOT_MEASURED
-        cards += _chart(f"{_ctx_lab(ctx)} context", note, body)
-    return ('<section class="block" id="tturno"><h2 class="sec">Agent turn (T_turno) · 32K / 128K</h2>'
-            '<p class="s-note">T_turno = time to first token of a warm turn that carries a tool result, plus 512 '
-            'generated tokens at the warm decode rate. Median of 3 repetitions per arm and effort; shorter is better. '
-            'The driver verdict reopens only for an arm at or under 1.25 × w1 (driver A) on both bands with every gate passing. '
-            f'Bar notes list failed gates; hit gates are left out for runtimes that do not report cached tokens '
-            f'(Splash, llama.cpp).</p>'
-            f'<div class="cgrid">{cards}</div></section>')
+            out.append(f'<rect class="fn-zero" x="{x:.1f}" y="{y}" width="{w:.1f}" height="34" rx="6"/>'
+                       f'<text class="fn-n0" x="{W / 2}" y="{y + 23}" text-anchor="middle">0</text>')
+        y += 34 + 22
+        lab = labels[s["stage"]]
+        if s["stage"] == "faster" and s["ids"]:
+            lab += ": " + ", ".join(SHORT.get(i, _name(i)) for i in s["ids"])
+        for line in _wrap(lab, 44):
+            out.append(f'<text class="fn-lab" x="{W / 2}" y="{y}" text-anchor="middle">{E(line)}</text>')
+            y += 21
+        det = []
+        if s["stage"] == "candidates":
+            det = [f'{len(s["runtimes"])} runtimes: {", ".join(s["runtimes"])}']
+        elif s["stage"] == "smoke":
+            adv = [i for i in s["ids"] if i not in {d["id"] for d in s["dropped"]}]
+            if adv:
+                det.append("passed: " + ", ".join(f'{SHORT.get(i, _name(i))} {smoke[i]["decode_tps"]:.1f} tok/s'
+                                                   for i in adv if smoke[i].get("decode_tps") is not None))
+            if s.get("skipped") == [BASELINE]:
+                det.append("the baseline skips it: it is the reference")
+            elif s.get("skipped"):
+                det.append("skipped: " + ", ".join(_name(i) for i in s["skipped"]))
+        elif s["stage"] == "within" and None not in s["limit_s"]:
+            det = [f'needs ≤ {s["limit_s"][0]:.1f} s at 32K and ≤ {s["limit_s"][1]:.1f} s at 128K']
+        for d in det:
+            for line in _wrap(d, 60):
+                out.append(f'<text class="fn-det" x="{W / 2}" y="{y}" text-anchor="middle">{E(line)}</text>')
+                y += 18
+        if s["dropped"]:
+            y += 6
+        for d in s["dropped"]:
+            note = ""
+            if d.get("decode_tps") is not None:
+                note = f'smoke decode {d["decode_tps"]:.1f} tok/s'
+            elif d.get("ratios") and None not in d["ratios"]:
+                vs = "the baseline" if d["vs"] == "baseline" else "Flash-Next"
+                note = (f'{"best: " if d["vs"] == "flashnext" else ""}{d["ratios"][0]:.2f}× / {d["ratios"][1]:.2f}× '
+                        f'{vs} at 32K / 128K ({d["effort"]})')
+            out.append(f'<rect class="fn-sw {d["cls"]}" x="22" y="{y - 11}" width="12" height="12" rx="2"/>'
+                       f'<text class="fn-name {d["cls"]}" x="42" y="{y}">{E(_name(d["id"]))}</text>')
+            y += 18
+            if note:
+                out.append(f'<text class="fn-note" x="42" y="{y}">{E(note)}</text>')
+                y += 18
+            y += 2
+        if k < len(st) - 1:
+            y += 6
+            out.append(f'<path class="fn-arrow" d="M{W / 2 - 8} {y} L{W / 2} {y + 9} L{W / 2 + 8} {y}"/>')
+            y += 18
+    h = y + 4
+    return (f'<svg class="funnel" viewBox="0 0 {W} {h}" width="{W}" height="{h}" role="img" '
+            f'aria-labelledby="fn-title"><title id="fn-title">Selection funnel: '
+            f'{" → ".join(str(s["count"]) for s in st)} setups</title>{"".join(out)}</svg>')
 
 
-def _html_ttft(p: dict) -> str:
-    out = ""
-    for ctx in _ctxs(p):
-        rows = p["speed"].get(ctx, {})
-        body = ""
-        items = [(lab, rows[lab]) for lab in _order(rows)]
-        for name, key in ((W1_NAME, "w1"), (N2_NAME, "n2")):
-            d = p[key].get(ctx)
-            if d and any(d.get(k) is not None for k in SPEED_KEYS):
-                items.append((name, d))
-        for lab, r in items:
-            body += (f'<tr><td>{_lab(lab)}</td><td>{ND(r.get("t_turno_s"), "{:.1f}")}</td>'
-                     f'<td>{ND(r.get("warm_ttft_tool_s"), "{:.2f}")}</td><td>{ND(r.get("cold_ttft_s"), "{:.1f}")}</td>'
-                     f'<td>{ND(r.get("decode_tps"), "{:.1f}")}</td><td>{ND(r.get("hit_tool"), "{:.3f}")}</td>'
-                     f'<td>{ND(r.get("mtp_acceptance"), "{:.3f}")}</td><td>{ND(r.get("wired_peak_gb"), "{:.1f}")}</td>'
-                     f'<td class="nm">{E(_gates_text(lab, r.get("gates_failed"))) or NA}</td></tr>')
-        if not body:
-            body = '<tr><td colspan="9" class="nm"><span class="na">not measured</span></td></tr>'
-        out += (f'<p class="c-head mt">{_ctx_lab(ctx)} context</p><div class="tbl-scroll"><table class="speedt">'
-                '<thead><tr><th>Arm · effort</th><th>T_turno s</th><th>Warm TTFT (tool) s</th><th>Cold TTFT s</th>'
-                '<th>Decode tok/s</th><th>Hit (tool)</th><th>MTP acc.</th><th>Wired peak GB</th>'
-                f'<th class="nm">Gates</th></tr></thead><tbody>{body}</tbody></table></div>')
-    return ('<section class="block" id="ttft"><h2 class="sec">Warm TTFT and decode</h2>'
-            '<p class="s-note">Medians per arm and effort. Warm TTFT is the tool-result turn with the prefix cache '
-            'warm; cold TTFT is the first request on an empty cache; hit is the cached share of the prompt on the '
-            'tool turn. Tables scroll sideways on narrow screens.</p>'
-            f'{out}</section>')
+def _funnel_legend(p: dict) -> str:
+    effs = {v.get("effort") for v in p.get("smoke", {}).values()}
+    eff = next(iter(effs)) if len(effs) == 1 and None not in effs else None
+    reps = {v.get("reps") for v in p.get("smoke", {}).values()}
+    run = "one run" if reps == {1} else "median of the runs"
+    return ('<p class="fn-legend"><span><span class="fn-key cut"></span>cut by scope (not measured)</span>'
+            '<span><span class="fn-key fail"></span>failed a measurement</span></p>'
+            '<p class="c-note">Smoke decode = the median of the identical, append and tool-turn requests at 8K '
+            f'(the same warm-decode definition as every decode number on this page){f", thinking effort {eff}" if eff else ""}, '
+            f'{run}. Ratios compare agent turn times at the same thinking effort.</p>')
 
 
-def _quality_rows(p: dict) -> list[tuple[str, dict]]:
-    rows = [(lab, p["quality"][lab]) for lab in _order(p["quality"])]
-    for name, key in ((W1_NAME, "w1_quality"), (N2_NAME, "n2_quality")):
-        if p.get(key):
-            rows.append((name, p[key]))
+def _html_funnel(p: dict) -> str:
+    st = p["funnel"]
+    return ('<section class="block" id="funnel"><h2 class="sec">'
+            f'How {st[0]["count"]} candidate setups came down to {st[-1]["count"]}</h2>'
+            '<p class="s-note">Each step keeps the setups that can still be the fastest way to run the dense 27B. '
+            'Setups left out before the full test were cut by choice to save rig time, not because they failed.</p>'
+            f'<div class="fn-wrap"><figure class="fn-fig">{funnel_svg(p)}</figure>'
+            f'<div class="fn-side">{_funnel_legend(p)}</div></div></section>')
+
+
+def _rows_for(p: dict, ctx: str) -> list[dict]:
+    """Chart and table rows for one context: every measured setup × effort (missing ones kept as not measured),
+    then the Flash-Next references."""
+    rows = []
+    for i in _setups(p):
+        for eff in EFFORTS:
+            d = (p["speed"].get(ctx) or {}).get(f"{i}-{eff}")
+            if d is None and not any(f"{i}-{eff}" in (p["speed"].get(str(c)) or {}) for c in BANDS) \
+                    and i != BASELINE:
+                continue  # a setup that never ran this effort at any context
+            rows.append({"id": i, "name": _name(i), "effort": eff, "data": d, "ref": False, "color": COLOR.get(i, "--s4")})
+    for ref in ("w1", "n2"):
+        d = (p.get(ref) or {}).get(ctx)
+        if d and d.get("t_turno_s") is not None:
+            rows.append({"id": ref, "name": REF_NAMES[ref], "effort": "xhigh", "data": d, "ref": True,
+                         "color": COLOR[ref]})
     return rows
 
 
-def _suites(p: dict) -> list[str]:
-    present = {s for _, st in _quality_rows(p) for s in st}
-    return [s for s in SUITES if s in present]
+def _attrs(r: dict) -> str:
+    return ' data-ref="flashnext"' if r["ref"] else f' data-effort="{r["effort"]}"'
 
 
-def _per_suite(p: dict, key: str, fmt: str, unit: str) -> str:
-    rows = _quality_rows(p)
-    if not p["quality"]:
-        return NO_BATTERY + (_per_suite_cards(rows, _suites(p), key, fmt, unit) if rows else "")
-    return _per_suite_cards(rows, _suites(p), key, fmt, unit)
+def _tip(r: dict, ctx: str) -> str:
+    d = r["data"]
+    gen = REPLY_TOKENS / d["decode_tps"] if d.get("decode_tps") else None
+    parts = [f'{r["name"]} · thinking effort: {r["effort"]} · {_ctx_lab(ctx)}',
+             f'agent turn time {_fmt_s(d.get("t_turno_s"))}',
+             f'warm TTFT (tool turn) {_fmt_s(d.get("warm_ttft_tool_s"))}',
+             f'{REPLY_TOKENS} tokens {_fmt_s(gen)}' if gen is not None else f"{REPLY_TOKENS} tokens: not measured",
+             f'decode {d["decode_tps"]:.1f} tok/s' if d.get("decode_tps") is not None else "decode: not measured",
+             f'cold TTFT {_fmt_s(d.get("cold_ttft_s"))}',
+             f'peak memory {d["wired_peak_gb"]:.1f} GB' if d.get("wired_peak_gb") is not None else "peak memory: not measured"]
+    return " · ".join(parts)
 
 
-def _per_suite_cards(rows, suites, key, fmt, unit) -> str:
-    cards = ""
-    for s in suites:
-        bars = [(lab, (st.get(s) or {}).get(key), None) for lab, st in rows]
-        cards += _chart(SUITE_LABEL.get(s, s), "", _hbars(bars, fmt, unit))
-    return f'<div class="cgrid">{cards}</div>' if cards else ""
-
-
-def _html_time(p: dict) -> str:
-    return ('<section class="block" id="time"><h2 class="sec">Time per task</h2>'
-            '<p class="s-note">Median seconds to the final answer per suite, one question at a time, vendor sampling '
-            '(profile t1) at 131072 context. Labels are arm-effort; the Flash-Next driver rows (A and B) come from the '
-            'Swift 1.5 campaign and ran at xhigh effort. Shorter is better.</p>'
-            f'{_per_suite(p, "median_s", "{:.1f}", " s")}</section>')
-
-
-def _html_tokens(p: dict) -> str:
-    return ('<section class="block" id="tokens"><h2 class="sec">Tokens per answer (median)</h2>'
-            '<p class="s-note">Median completion tokens per answer: thinking plus the visible answer.</p>'
-            f'{_per_suite(p, "median_completion", "{:,.0f}", "")}</section>')
-
-
-def _frac(d: dict | None, num: str, den: str) -> str:
-    return NA if not d else f'{E(d[num])}<span class="u">/{E(d[den])}</span>'
-
-
-def _html_accuracy(p: dict) -> str:
-    rows = _quality_rows(p)
-    suites = _suites(p)
+def _bars(p: dict, ctx: str) -> str:
+    rows = _rows_for(p, ctx)
+    tot = [r["data"]["t_turno_s"] for r in rows if r["data"] and r["data"].get("t_turno_s") is not None]
+    mx = (max(tot) if tot else 1) * 1.02
+    out = ""
+    for r in rows:
+        d = r["data"]
+        eff = f'<span class="eff">{"reference · " if r["ref"] else ""}effort: {r["effort"]}</span>'
+        lab = (f'<span class="sb-lab"><span class="sw" style="background:var({r["color"]})"></span>'
+               f'<span class="sb-txt"><span class="sb-name">{E(r["name"])}</span> {eff}</span></span>')
+        if not d or d.get("t_turno_s") is None or not d.get("decode_tps") or d.get("warm_ttft_tool_s") is None:
+            out += (f'<div class="sbar nm"{_attrs(r)} title="{E(r["name"])} · thinking effort: {r["effort"]} · '
+                    f'{_ctx_lab(ctx)}: not measured">{lab}<span class="sb-track"><span class="sb-nm">not measured'
+                    f'</span></span><span class="sb-val na">—</span></div>')
+            continue
+        ttft, gen = d["warm_ttft_tool_s"], REPLY_TOKENS / d["decode_tps"]
+        tip = _tip(r, ctx)
+        out += (f'<div class="sbar"{_attrs(r)} title="{E(tip)}" role="img" aria-label="{E(tip)}">{lab}'
+                f'<span class="sb-track"><span class="seg ttft" style="width:{100 * ttft / mx:.2f}%;'
+                f'background:var({r["color"]})"></span><span class="seg gen" style="width:{100 * gen / mx:.2f}%;'
+                f'background:var({r["color"]})"></span></span>'
+                f'<span class="sb-val">{d["t_turno_s"]:.1f} s</span></div>')
     if not rows:
-        table = NO_BATTERY
-    else:
-        head = "".join(f"<th>{E(SUITE_LABEL.get(s, s))}</th>" for s in suites)
-        body = ""
-        for lab, st in rows:
-            cells = ""
-            for s in suites:
-                x = st.get(s)
-                if not x:
-                    cells += f"<td>{NA}</td>"
-                    continue
-                tr = f' <span class="u">{x["truncated"]} trunc.</span>' if x.get("truncated") else ""
-                cells += f'<td>{E(x["passed"])}/{E(x["n"])}{tr}</td>'
-            emp = p["empty"].get(lab)
-            loops = p["loops"].get(lab)
-            cells += f"<td>{_frac(emp, 'empty', 'stop_records')}</td><td>{_frac(loops, 'degenerate', 'total')}</td>"
-            body += f"<tr><td>{_lab(lab)}</td>{cells}</tr>"
-        table = (NO_BATTERY if not p["quality"] else "") + (f'<div class="tbl-scroll"><table class="qual"><thead><tr><th>Arm · effort</th>{head}'
-                 f'<th>Empty answers</th><th>Loops</th></tr></thead><tbody>{body}</tbody></table></div>')
-    think = [(k.split(":", 1)[1], v) for k, v in p["empty"].items() if k.startswith("think:")]
-    think_html = ""
-    if think:
-        lis = "".join(f'<li><code>{E(k)}</code>: {v["empty"]} empty of {v["stop_records"]} finished turns</li>'
-                      for k, v in think)
-        think_html = f'<p class="s-note mt">Thinking-turn probe, empty final answers:</p><ul class="s-note">{lis}</ul>'
-    return ('<section class="block" id="accuracy"><h2 class="sec">Accuracy</h2>'
-            '<p class="s-note">Passed / questions per suite; a truncated answer never counts as passed. Empty answers '
-            'are stop-finished records with no visible content; loops are degenerate outputs in the loop sweep.</p>'
-            f'{table}{think_html}</section>')
+        out = '<p class="empty">not measured</p>'
+    return (f'<div class="sbars">{out}</div>'
+            '<p class="sb-key"><span><span class="k ttft"></span>warm TTFT of the tool-result turn</span>'
+            f'<span><span class="k gen"></span>{REPLY_TOKENS} tokens at the median decode speed</span>'
+            '<span>hover or tap a bar for decode, TTFT and memory</span></p>')
 
+
+def _table(p: dict, ctx: str) -> str:
+    body = ""
+    for r in _rows_for(p, ctx):
+        d = r["data"]
+        lab = (f'<span class="sb-lab"><span class="sw" style="background:var({r["color"]})"></span>'
+               f'<span class="sb-name">{E(r["name"])}</span></span>')
+        effcell = f'{E(r["effort"])}{" (reference)" if r["ref"] else ""}'
+        if not d or all(d.get(k) is None for k in SPEED_KEYS):
+            body += (f'<tr{_attrs(r)}><td>{lab}</td><td class="tx">{effcell}</td>'
+                     f'<td colspan="8" class="tx"><span class="na">not measured</span></td></tr>')
+            continue
+        acc = ND(d.get("mtp_acceptance"), "{:.2f}")
+        body += (f'<tr{_attrs(r)}><td>{lab}</td><td class="tx">{effcell}</td>'
+                 f'<td><b>{ND(d.get("t_turno_s"), "{:.1f}")}</b></td><td>{ND(d.get("warm_ttft_tool_s"), "{:.1f}")}</td>'
+                 f'<td>{ND(d.get("cold_ttft_s"), "{:.1f}")}</td><td>{ND(d.get("prefill_tps"), "{:,.0f}")}</td>'
+                 f'<td>{ND(d.get("decode_tps"), "{:.1f}")}</td><td>{ND(d.get("hit_tool"), "{:.2f}")}</td>'
+                 f'<td>{acc}</td><td>{ND(d.get("wired_peak_gb"), "{:.1f}")}</td></tr>')
+    if not body:
+        body = '<tr><td colspan="10" class="tx"><span class="na">not measured</span></td></tr>'
+    return ('<div class="tbl-scroll"><table class="speedt"><thead><tr><th>Setup</th><th class="tx">Thinking effort</th>'
+            '<th>Agent turn time (s)</th><th>Warm TTFT, tool turn (s)</th><th>Cold TTFT (s)</th><th>Prefill (tok/s)</th>'
+            '<th>Decode (tok/s)</th><th>Cache hit, tool turn</th><th>Draft / MTP acceptance</th><th>Peak memory (GB)</th>'
+            f'</tr></thead><tbody>{body}</tbody></table></div>')
+
+
+def _ctxs(p: dict) -> list[str]:
+    return [str(c) for c in BANDS] + sorted(set(p["speed"]) - {str(c) for c in BANDS}, key=int)
+
+
+def _html_results(p: dict) -> str:
+    ctxs = _ctxs(p)
+    default = "131072" if "131072" in ctxs else ctxs[0]
+    tabs = "".join(f'<button type="button" role="tab" class="tab" data-ctx="{c}" '
+                   f'aria-selected="{"true" if c == default else "false"}">{_ctx_lab(c)} context</button>' for c in ctxs)
+    effs = "".join(f'<label class="chk"><input type="checkbox" data-effort-toggle="{e}" checked> {e}</label>'
+                   for e in EFFORTS)
+    controls = (f'<div class="controls" role="group" aria-label="Chart controls">'
+                f'<div class="ctl"><span class="ctl-h">Context</span><div class="tabs" role="tablist">{tabs}</div></div>'
+                f'<div class="ctl"><span class="ctl-h">Thinking effort</span>{effs}</div>'
+                '<div class="ctl"><label class="chk"><input type="checkbox" data-ref-toggle checked> '
+                'show Flash-Next reference</label></div></div>')
+    panels = ""
+    for c in ctxs:
+        cls = "" if c == default else " tab-off"
+        panels += (f'<div class="ctx-panel{cls}" data-ctx-panel="{c}"><h3 class="c-head">{_ctx_lab(c)} context · '
+                   'agent turn time, shorter is better</h3>'
+                   f'{_bars(p, c)}{_table(p, c)}</div>')
+    reps = sorted({d.get("reps") for rows in p["speed"].values() for d in rows.values() if d.get("reps")})
+    rep_txt = f"median of {reps[0]} repetitions" if len(reps) == 1 else "median of the repetitions"
+    return ('<section class="block" id="results"><h2 class="sec">Agent turn time at 32K and 128K</h2>'
+            f'<p class="s-note">Each bar is one agent turn: {AGENT_TURN_DEF}, {rep_txt}. {EFFORT_SENTENCE} '
+            'The Flash-Next rows are the reference we compare against (thinking effort xhigh, on '
+            f'{REF_RUNTIME}).</p>{controls}{panels}'
+            '<p class="s-note mt"><b>Peak memory (GB)</b> is the highest wired memory of the whole machine sampled '
+            'during the run (model weights, KV cache and anything else the system pinned), not the server process '
+            'alone. <b>Prefill</b> is prompt tokens of the cold request ÷ cold TTFT, read from the per-request results. '
+            'The harness reads an acceptance rate only from mlx-serve (draft) and the Flash-Next references (MTP); '
+            'the other cells are empty.</p>'
+            f'<p class="quality-line">{QUALITY_LINE}</p></section>')
+
+
+def _think_facts(p: dict) -> dict:
+    k = [v for v in p.get("think", {}).values() if v["arm"] == "k27"]
+    r = [v for v in p.get("think", {}).values() if v["arm"] == "r27d"]
+    drop = [v["drop"]["ttft_s_median"] for v in k if v["drop"]["ttft_s_median"] is not None]
+    rr = [x for v in r for m in ("resend", "drop") for x in (v[m]["ttft_s_min"], v[m]["ttft_s_max"]) if x is not None]
+    return {"resend_400": sum(v["resend"]["http400"] for v in k), "resend_n": sum(v["resend"]["n"] for v in k),
+            "efforts": sorted({v["effort"] for v in k}),
+            "drop_err": sum(v["drop"]["errors"] for v in k), "drop_n": sum(v["drop"]["n"] for v in k),
+            "drop_ttft": round(statistics.median(drop), 1) if drop else None,
+            "r_min": min(rr) if rr else None, "r_max": max(rr) if rr else None}
+
+
+def _html_run(p: dict) -> str:
+    cmd = splash_command()
+    t = _think_facts(p)
+    s = p.get("sampling") or {}
+    if cmd:
+        rev, drev = cmd["revision"] or "", cmd["draft_rev"] or ""
+        fl = cmd["flags"]
+        shell = (
+            f'# once: fill the Hugging Face cache (Splash wants a Hub ID for the target and --offline reads the cache)\n'
+            f'hf download {cmd["model"]} --revision {rev}\n'
+            f'hf download {cmd["draft_repo"]} --revision {drev} \\\n  --local-dir {cmd["draft_dir"]}\n\n'
+            f'# serve (Splash 1.3.1; our binary: {cmd["bin"]})\n'
+            f'splash {fl.get("SPLASH_SERVE_SUBCMD", "serve")} {fl.get("SPLASH_FLAG_MODEL", "--model")} {cmd["model"]} '
+            f'{fl.get("SPLASH_FLAG_HOST", "--host")} 0.0.0.0 {fl.get("SPLASH_FLAG_PORT", "--port")} {cmd["port"]} \\\n'
+            f'  {fl.get("SPLASH_FLAG_CTX", "--max-context")} 131072 \\\n'
+            f'  {fl.get("SPLASH_FLAG_REVISION", "--revision")} {rev} \\\n'
+            f'  {fl.get("SPLASH_FLAG_DRAFTER", "--draft-model")} {cmd["draft_dir"]} \\\n'
+            f'  {cmd["extra"]}')
+        ids = (f'<li>Target: <code>{E(cmd["model"])}</code> @ <code>{E(rev[:8])}</code> '
+               f'(full revision <code>{E(rev)}</code>).</li>'
+               f'<li>Draft: <code>{E(cmd["draft_repo"])}</code> @ <code>{E(drev[:8])}</code> '
+               f'(full revision <code>{E(drev)}</code>), passed as a local directory.</li>')
+    else:
+        shell, ids = "# launcher files not found", ""
+    samp = (f'temperature {s["temperature"]}, top_p {s["top_p"]}, top_k {s["top_k"]}' if s else "not recorded")
+    body = {"model": cmd["model"] if cmd else "", "messages": [{"role": "user", "content": "..."}],
+            "reasoning_effort": "medium", **({k: s[k] for k in ("temperature", "top_p", "top_k")} if s else {})}
+    req = ("curl -s http://localhost:" + (cmd["port"] if cmd else "8585") + "/v1/chat/completions \\\n"
+           "  -H 'Content-Type: application/json' \\\n  -d '" + json.dumps(body) + "'")
+    if t["resend_n"]:
+        warn = (f'<div class="warnbox"><p><b>Do not resend the reasoning.</b> At 128K, Splash 1.3.1 returned '
+                f'<b>HTTP 400</b> on every tool turn that sent the previous <code>reasoning_content</code> back '
+                f'({t["resend_400"]} of {t["resend_n"]}, thinking effort {" and ".join(t["efforts"])}). Without it, '
+                f'{t["drop_n"] - t["drop_err"]} of {t["drop_n"]} worked, with a TTFT of {t["drop_ttft"]:.1f} s. '
+                'Configure your client to drop <code>reasoning_content</code> from earlier assistant messages.</p></div>')
+    else:
+        warn = '<p class="s-note">The thinking-turn probe was not run.</p>'
+    return ('<section class="block" id="run"><h2 class="sec">Run it yourself</h2>'
+            '<p class="s-note">The exact Splash 1.3.1 launch of the fastest setup, rebuilt from the campaign launcher. '
+            'KV cache: int8, the Splash 1.3.1 default (<code>--kv-format</code>, not passed). '
+            '<code>--idle-release off</code> keeps the model loaded; <code>--language-only</code> skips the vision '
+            'tower.</p>'
+            f'<ul class="s-note">{ids}<li>Sampling (the vendor settings, sent with every request): {E(samp)}.</li>'
+            '<li>Thinking effort: send <code>reasoning_effort</code> at the top level of the request body; '
+            'medium gave the shorter turns here.</li></ul>'
+            f'<pre class="cmd"><code>{E(shell)}</code></pre>'
+            f'<pre class="cmd"><code>{E(req)}</code></pre>{warn}</section>')
+
+
+def _html_hw(p: dict) -> str:
+    measured = [a for a in p["arms"] if a["id"] in _setups(p)]
+    runtimes = ", ".join(dict.fromkeys(a["runtime"] for a in measured))
+    weights = "".join(f'<li>{E(a["public"])}: <code>{E(WEIGHTS.get(a["id"], a["pack"]))}</code> @ '
+                      f'<code>{E(a["rev"])}</code></li>' for a in measured)
+    reps = sorted({d.get("reps") for rows in p["speed"].values() for d in rows.values() if d.get("reps")})
+    macos = p.get("macos")
+    return ('<section class="block" id="hw"><h2 class="sec">Hardware and software</h2><ul class="s-note">'
+            '<li>Apple M4 Max, 128 GB unified memory, one machine.</li>'
+            f'<li>macOS {E(macos) if macos else "version not recorded"}.</li>'
+            f'<li>27B servers: {E(runtimes or "none measured")}. Flash-Next references: {E(REF_RUNTIME)}.</li>'
+            f'{weights}'
+            f'<li>{reps[0] if len(reps) == 1 else "Several"} repetitions per setup, thinking effort and context; '
+            'every number is the median.</li></ul></section>')
+
+
+def _html_limits(p: dict) -> str:
+    sp = p["speed"]
+    gain = []
+    for c in BANDS:
+        k = ((sp.get(str(c)) or {}).get("k27-xhigh") or {}).get("prefill_tps")
+        b = ((sp.get(str(c)) or {}).get(f"{BASELINE}-xhigh") or {}).get("prefill_tps")
+        gain.append(f"+{100 * (k / b - 1):.0f}% at {_ctx_lab(c)}" if k and b else None)
+    gain_li = (f'<li>Splash prefills faster than the baseline ({", ".join(gain)}, same weights). The vendor '
+               'credits a GPU + Neural Engine (ANE) prefill split; our harness does not record whether the ANE ran, '
+               'so that cause is the vendor\'s claim only.</li>') if None not in gain else ""
+    t = _think_facts(p)
+    r128 = ((sp.get("131072") or {}).get("r27d-xhigh") or {}).get("warm_ttft_tool_s")
+    mlx_li = (f'<li>mlx-serve 26.10.2: the tool-turn TTFT in the thinking-turn probe was {t["r_min"]:.0f}–'
+              f'{t["r_max"]:.0f} s, against {r128:.1f} s in the cache probe at the same 128K. We have no explanation.'
+              '</li>') if t["r_min"] is not None and r128 is not None else ""
+    reps = sorted({d.get("reps") for rows in sp.values() for d in rows.values() if d.get("reps")})
+    return ('<section class="block" id="limits"><h2 class="sec">Limitations</h2><ul class="s-note">'
+            '<li>One machine (M4 Max, 128 GB). Other Macs will differ.</li>'
+            f'<li>{reps[0] if len(reps) == 1 else "A few"} repetitions per point; medians, no confidence intervals.</li>'
+            '<li>The agent turn is a synthetic probe (a long document, a tool result, a reply), not a real task.</li>'
+            '<li>Quality was not measured: a fast setup is not known to answer as well as the others.</li>'
+            f'{gain_li}{mlx_li}</ul></section>')
+
+
+# Setups cut from the campaign (user scope, 2026-10-13/14). Shown only in the appendix, with the codes.
+NOT_RUN = {
+    "o27q8": "oMLX with the oQ8e refit pack. Cut by scope B (stop after P1 unless Splash passes at 128K).",
+    "o27q4": "oMLX with the oQ4e refit pack. Only the 8K smoke ran. Cut by scope B.",
+    "o27sw": "Swift 1.5 on oMLX. Cut with the rest of P4.",
+    "w27d": "Swift 1.5 on mlx-serve with the drafter: cancelled after r27d failed on the same runtime and drafter.",
+    "r27m": "MTP head only on mlx-serve. Only the 8K smoke ran (slow decode). Cut.",
+    "w27m": "Swift 1.5 MTP only on mlx-serve. Cut with r27m.",
+    "l27": "llama.cpp draft-mtp. Only the 8K smoke ran (slow decode). Cut.",
+    "l27n": "llama.cpp without speculation. Cut with l27.",
+}
 
 GATE_DOC = {
     "P1_PASS": "Splash (k27): T_turno ≤ 0.75 × s27r at 128K and gates",
@@ -437,171 +839,247 @@ GATE_DOC = {
 }
 
 
-def _html_gates(p: dict) -> str:
+def _html_appendix(p: dict) -> str:
+    rows = "".join(f'<tr><td class="code">{E(a["id"])}</td><td>{E(a["public"])}</td><td>{E(a["name"])}</td>'
+                   f'<td>{E(a["runtime"])}</td><td>{E(a["pack"])}</td><td><code>{E(a["rev"])}</code></td>'
+                   f'<td>{E(a["port"])}</td><td>{E(a["phase"])}</td></tr>' for a in p["arms"])
+    rows += "".join(f'<tr><td class="code">{k}</td><td>{E(v)}</td><td>Flash-Next reference (xhigh)</td>'
+                    f'<td>{E(REF_RUNTIME)}</td><td></td><td></td><td></td><td></td></tr>' for k, v in REF_NAMES.items())
     g = p["gates"]
-    if not g:
-        body = NOT_MEASURED
-    else:
-        rows = ""
-        for k, v in g.items():
-            cls = "pass" if v in ("1", "pass") else "fail" if v in ("0", "fail") else ""
-            doc = GATE_DOC.get(k) or (f"Best arm of {k.split('_')[0]}" if k.endswith("_BEST") else "")
-            rows += (f'<tr><td><code>{E(k)}</code></td><td><span class="stchip {cls}">{E(v)}</span></td>'
-                     f'<td class="nm">{E(doc)}</td></tr>')
-        body = (f'<div class="tbl-scroll"><table class="cfg"><thead><tr><th>Gate</th><th>Value</th>'
-                f'<th>Meaning</th></tr></thead><tbody>{rows}</tbody></table></div>')
-    return ('<section class="block" id="gates"><h2 class="sec">Gates and verdicts</h2>'
-            '<p class="s-note">Raw rows of <code>results/gates.env</code>, written by the unattended campaign runner '
-            'and the driver gate.</p>' + body + '</section>')
-
-
-def _ref_times(p: dict, key: str) -> str:
-    """A driver's T_turno at 32K / 128K, read from the payload."""
-    v = [(p[key].get(str(c)) or {}).get("t_turno_s") for c in BANDS]
-    return " / ".join(f"{x:.1f}" for x in v) + " s" if all(x is not None for x in v) else "not measured"
-
-
-def _html_headline(p: dict) -> str:
-    """The one-paragraph finding, built from measured numbers; empty when the numbers are missing."""
-    r = p["speed"].get("131072", {})
-    k = {e: (r.get(f"k27-{e}") or {}).get("t_turno_s") for e in EFFORTS}
-    base = (r.get("s27r-xhigh") or {}).get("t_turno_s")
-    w1 = (p["w1"].get("131072") or {}).get("t_turno_s")
-    if None in (k["xhigh"], k["medium"], base, w1) or p["gates"].get("P1_PASS") != "1":
-        return ""
-    verdict = (" so the 27B stays a NO-GO as the agentic driver." if p["gates"].get("P5_GO") == "0"
-               else " so the driver gate needs a look.")
-    return ('<section class="block" id="finding"><h2 class="sec">Finding</h2>'
-            '<p class="s-note"><strong>Splash 1.3.1 is the fastest way to run the dense 27B on this rig:</strong> '
-            f'T_turno {k["xhigh"]:.1f} s (xhigh) / {k["medium"]:.1f} s (medium) at 128K, '
-            f'{k["xhigh"] / base:.2f}× the mlx-dspark control; still about {round(k["xhigh"] / w1)}× the '
-            f'Flash-Next driver ({w1:.1f} s),{verdict}</p></section>')
-
-
-def _html_sub(p: dict) -> str:
-    return ('Three stacks for the dense 27B (mlx-dspark control, Splash 1.3.1, mlx-serve 26.10.2) measured with the '
-            'same agent-turn probe as the two Qwen3.8-Flash-Next '
-            f'daily drivers: A, Swift 1.5 (w1, T_turno {_ref_times(p, "w1")}) and B, ddalcu iQ (n2, T_turno '
-            f'{_ref_times(p, "n2")}), both on mlx-serve 26.10.1 at 32K / 128K context.')
-
-
-def _html_setup(p: dict) -> str:
-    ran = [a for a in p["arms"] if a["id"] not in NOT_RUN]
+    grows = "".join(
+        f'<tr><td><code>{E(k)}</code></td><td>{E(v)}</td>'
+        f'<td>{E(GATE_DOC.get(k) or (f"Best arm of {k.split(chr(95))[0]}" if k.endswith("_BEST") else ""))}</td></tr>'
+        for k, v in g.items()) or '<tr><td colspan="3">not measured</td></tr>'
+    smoke = "".join(f'<li><code>{E(i)}</code>: warm decode {v["decode_tps"]:.1f} tok/s, T_turno 8K '
+                    f'{_fmt_s(v["t_turno_s"])}</li>' for i, v in p.get("smoke", {}).items()
+                    if v.get("decode_tps") is not None)
     cut = "".join(f'<li><code>{E(i)}</code>: {E(why)}</li>' for i, why in NOT_RUN.items())
-    rows = "".join(f'<tr><td class="code">{E(a["id"])}</td><td>{E(a["name"])}</td><td>{E(a["runtime"])}</td>'
-                   f'<td>{E(a["pack"])}</td><td><code>{E(a["rev"])}</code></td><td>{E(a["port"])}</td>'
-                   f'<td>{E(a["phase"])}</td></tr>' for a in ran)
-    return ('<section class="block" id="setup"><h2 class="sec">Setup and how to reproduce</h2>'
-            '<p class="s-note">Apple M4 Max, 128 GB. Every arm serves the dense Qwen3.8-27B; speed phases run each '
-            'arm at xhigh and medium effort (file tags <code>p&lt;N&gt;x</code> / <code>p&lt;N&gt;m</code>), '
-            '3 repetitions, bands 32K then 128K. The control s27r ran medium at 32K only. The two Flash-Next references come '
-            'from <code>bench/swift15-flashnext-2026-10</code>, both on mlx-serve 26.10.1 at xhigh effort: driver A '
-            f'(w1, Swift 1.5 MLX-4.7bpw) with T_turno {_ref_times(p, "w1")} and driver B (n2, ddalcu iQ-MLX-4.7bpw) '
-            f'with T_turno {_ref_times(p, "n2")} at 32K / 128K. The 1.25 × limit and the driver verdict use driver A '
-            'only.</p>'
-            '<div class="tbl-scroll"><table class="cfg arms"><thead><tr><th>Arm</th><th>Stack</th><th>Runtime</th>'
-            f'<th>Pack</th><th>Revision</th><th>Port</th><th>Phase</th></tr></thead><tbody>{rows}</tbody></table></div>'
-            '<p class="s-note mt">Arms not run (cut on 2026-10-13/14), by user scope: only the stacks that can be fastest '
-            f'ran, and the campaign closed after P3 on 2026-10-14. No quality battery ran.</p><ul class="s-note">{cut}</ul>'
+    think = "".join(f'<li><code>{E(k)}</code>: resend {v["resend"]["errors"]}/{v["resend"]["n"]} errors, '
+                    f'drop {v["drop"]["errors"]}/{v["drop"]["n"]} errors, drop TTFT {_fmt_s(v["drop"]["ttft_s_median"])}'
+                    '</li>' for k, v in p.get("think", {}).items())
+    return ('<details class="block raw" id="raw"><summary>Raw data and reproduction</summary>'
+            '<p class="s-note">Internal codes used in the campaign files. "T_turno" is the agent turn time; '
+            '<code>p&lt;N&gt;x</code> / <code>p&lt;N&gt;m</code> file tags mark the phase and the effort (xhigh / medium).</p>'
+            '<div class="tbl-scroll"><table class="cfg arms"><thead><tr><th>Code</th><th>Public name</th><th>Campaign name</th>'
+            '<th>Runtime</th><th>Pack</th><th>Revision</th><th>Port</th><th>Phase</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table></div>'
+            '<p class="s-note mt">Raw gates from <code>results/gates.env</code>:</p>'
+            '<div class="tbl-scroll"><table class="cfg"><thead><tr><th>Gate</th><th>Value</th><th>Meaning</th></tr>'
+            f'</thead><tbody>{grows}</tbody></table></div>'
+            f'<p class="s-note mt">8K smokes (warm decode as in <code>summarize_driver.py</code>):</p><ul class="s-note">{smoke or "<li>none</li>"}</ul>'
+            f'<p class="s-note mt">Setups not run (cut on 2026-10-13/14), by user scope:</p><ul class="s-note">{cut}</ul>'
+            f'<p class="s-note mt">Thinking-turn probe at 128K:</p><ul class="s-note">{think or "<li>not run</li>"}</ul>'
             '<p class="s-note mt">Run the campaign on the rig with '
             '<code>bash bench/qwen38-27b-next-steps-2026-10/scripts/run-campaign.sh</code>, then render this page with '
-            '<code>python3 bench/qwen38-27b-next-steps-2026-10/scripts/render_27b_page.py</code>. '
-            f'Scripts and per-request results: <a href="{CAMPAIGN_URL}">github.com/snagnever/macstudio-local-llm</a>.</p>'
-            '</section>')
+            '<code>python3 bench/qwen38-27b-next-steps-2026-10/scripts/render_27b_page.py --png</code>. '
+            f'Scripts and per-request results: <a href="{CAMPAIGN_URL}">{E(CAMPAIGN_URL.split("//")[1])}</a>.</p>'
+            '</details>')
 
 
 PAGE_CSS = r"""
+:root{--ref-b:#7a4fd1; --cut:#a8a69d; --fail:#d0453b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ref-b:#a78bf0; --cut:#6f6e68; --fail:#ef6b5f}}
+:root[data-theme="dark"]{--ref-b:#a78bf0; --cut:#6f6e68; --fail:#ef6b5f}
 .mt{margin-top:14px}
 .u{color:var(--muted); font-size:0.9em; margin-left:2px}
 a{color:var(--accent)}
-.arm-lab{display:inline-flex; align-items:center; gap:6px; white-space:nowrap; font-weight:600; color:var(--ink); min-width:0}
-.arm-lab .sw{width:10px; height:10px; border-radius:2px; flex:none}
-td.nm, th.nm{font-family:var(--sans); text-align:left; color:var(--ink-2); font-size:0.84rem}
-td.code{font-family:var(--mono); font-weight:700; color:var(--ink)}
-table.cfg td, table.cfg th{text-align:left; font-family:var(--sans); font-size:0.84rem}
-table.cfg td:first-child, table.cfg td:nth-child(2){white-space:nowrap}
-table.cfg code, .s-note code, .c-note code{font-family:var(--mono); font-size:0.9em}
-table.speedt{min-width:860px} table.speedt td.nm{min-width:200px; white-space:normal} table.qual{min-width:760px} table.arms{min-width:760px}
-.cgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr)); gap:14px; margin-top:14px}
-figure.card-chart{margin:0; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 14px; min-width:0}
-.c-head{margin:0; font-weight:700; font-size:0.92rem}
-.c-note{margin:3px 0 0; font-size:0.8rem; color:var(--muted)}
+.wrap{max-width:1100px}
+h3.c-head{margin:16px 0 4px; font-size:0.95rem}
+.c-note{margin:6px 0 0; font-size:0.8rem; color:var(--ink-2)}
 .empty{color:var(--muted); font-size:0.88rem; margin:8px 0 0}
-.bars{margin-top:8px}
-.bline{display:grid; grid-template-columns:150px minmax(0,1fr) minmax(64px,auto); gap:8px; align-items:center; margin:4px 0}
-.bline .arm-lab{font-size:0.78rem; font-weight:500; white-space:normal; line-height:1.2; overflow-wrap:anywhere}
-.btrack{position:relative; display:block; height:14px; background:var(--surface-2); border-radius:0 4px 4px 0}
-.bfill{display:block; height:100%; border-radius:0 4px 4px 0; min-width:2px}
-.bv{font-family:var(--mono); font-size:0.76rem; text-align:right; color:var(--ink); white-space:nowrap}
-.bv .u{display:block; font-size:0.66rem; white-space:normal; max-width:150px; margin-left:auto}
-.refline{position:absolute; top:-3px; bottom:-3px; width:0; border-left:2px solid var(--s2)}
-.refline.lim{border-left:2px dashed var(--warn)}
-.refkey{display:inline-block; width:12px; height:0; vertical-align:middle; margin-right:4px; border-top:2px solid var(--s2)}
-.refkey.lim{border-top:2px dashed var(--warn)}
-:root{--ref-b:#7a4fd1}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ref-b:#a78bf0}}
-:root[data-theme="dark"]{--ref-b:#a78bf0}
-.refline.n2{border-left:2px dotted var(--ref-b)}
-.refkey.n2{border-top:2px dotted var(--ref-b)}
-.stchip:empty::before{content:"—"}
-ul.s-note{padding-left:18px}
-@media (max-width:520px){.wrap{padding:24px 16px 48px} .bline{grid-template-columns:104px minmax(0,1fr) minmax(56px,auto)}
-  .bv .u{max-width:96px}}
+.s-note code, .c-note code, .warnbox code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+ul.s-note{padding-left:18px} ul.s-note li{margin:4px 0}
+/* TL;DR */
+.tldr-wrap{display:grid; grid-template-columns:minmax(0,1.7fr) minmax(0,1fr); gap:14px; align-items:start}
+.tldr{background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--s2); border-radius:12px; padding:14px 18px}
+.tl-h, .nm-h{font-family:var(--mono); font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin:0 0 6px}
+.tl-line{margin:6px 0; font-size:0.98rem; line-height:1.5}
+.tl-line dfn{font-style:normal; font-weight:600}
+.nm-box{background:var(--warn-bg); border:1px solid var(--border); border-radius:12px; padding:14px 18px; font-size:0.86rem; color:var(--ink-2)}
+.nm-box ul{margin:0; padding-left:18px} .nm-box li{margin:5px 0} .nm-box b{color:var(--ink)}
+/* glossary */
+dl.gloss{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr)); gap:6px 22px; margin:8px 0 0}
+dl.gloss div{font-size:0.86rem; color:var(--ink-2); line-height:1.4}
+dl.gloss dt{display:inline; font-weight:700; color:var(--ink)} dl.gloss dt::after{content:": "}
+dl.gloss dd{display:inline; margin:0}
+/* funnel */
+.fn-wrap{display:grid; grid-template-columns:minmax(0,560px) minmax(0,1fr); gap:20px; align-items:start}
+figure.fn-fig{margin:0; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px}
+svg.funnel{width:100%; height:auto; display:block; font-family:var(--sans)}
+.fn-bar{fill:var(--accent)} .fn-zero{fill:none; stroke:var(--muted); stroke-dasharray:5 4; stroke-width:1.5}
+.fn-n{fill:#fff; font-size:19px; font-weight:700} .fn-n0{fill:var(--ink-2); font-size:19px; font-weight:700}
+.fn-lab{fill:var(--ink); font-size:17px; font-weight:700} .fn-det{fill:var(--ink-2); font-size:14px}
+.fn-name{fill:var(--ink); font-size:15px} .fn-name.cut{fill:var(--ink-2)} .fn-note{fill:var(--ink-2); font-size:13.5px}
+.fn-sw.cut, .fn-key.cut{fill:var(--cut); background:var(--cut)} .fn-sw.fail, .fn-key.fail{fill:var(--fail); background:var(--fail)}
+.fn-arrow{fill:none; stroke:var(--muted); stroke-width:2}
+.fn-legend{display:flex; flex-wrap:wrap; gap:8px 18px; margin:0; font-size:0.88rem; color:var(--ink)}
+.fn-legend > span{display:inline-flex; align-items:center; gap:7px}
+.fn-key{display:inline-block; width:13px; height:13px; border-radius:3px}
+/* controls */
+.controls{display:none; flex-wrap:wrap; gap:10px 22px; align-items:center; margin:6px 0 4px; padding:10px 14px;
+  background:var(--surface); border:1px solid var(--border); border-radius:10px}
+html.js .controls{display:flex}
+.ctl{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.ctl-h{font-family:var(--mono); font-size:0.7rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted)}
+.tabs{display:inline-flex; border:1px solid var(--border); border-radius:8px; overflow:hidden}
+.tab{font:inherit; font-size:0.84rem; padding:5px 12px; border:0; background:var(--surface); color:var(--ink-2); cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent); color:#fff}
+.tab:focus-visible, .chk input:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.chk{display:inline-flex; align-items:center; gap:5px; font-size:0.86rem; color:var(--ink); cursor:pointer}
+html.js .tab-off{display:none}
+.off{display:none!important}
+/* stacked bars */
+.ctx-panel{margin-top:6px}
+.sbars{margin-top:8px; display:grid; gap:7px}
+.sbar{display:grid; grid-template-columns:minmax(0,300px) minmax(0,1fr) 64px; gap:10px; align-items:center}
+.sb-lab{display:flex; align-items:center; gap:7px; min-width:0; font-size:0.84rem; line-height:1.3}
+.sb-lab .sw{width:10px; height:10px; border-radius:2px; flex:none}
+.sb-txt{min-width:0}
+.sb-txt .eff{white-space:nowrap}
+.sb-name{font-weight:600; color:var(--ink)}
+.eff{font-family:var(--mono); font-size:0.7rem; color:var(--muted)}
+.sb-track{position:relative; display:flex; height:20px; background:var(--surface-2); border-radius:0 5px 5px 0; overflow:hidden}
+.seg{display:block; height:100%} .seg.gen{opacity:0.45}
+.sb-nm{font-size:0.78rem; color:var(--muted); align-self:center; padding-left:8px; font-style:italic}
+.sb-val{font-family:var(--mono); font-size:0.84rem; text-align:right; color:var(--ink); font-weight:600}
+.sb-key{display:flex; flex-wrap:wrap; gap:6px 18px; margin:10px 0 12px; font-size:0.78rem; color:var(--ink-2)}
+.sb-key > span{display:inline-flex; align-items:center; gap:6px}
+.sb-key .k{display:inline-block; width:18px; height:10px; border-radius:2px; background:var(--ink-2)}
+.sb-key .k.gen{opacity:0.45}
+table.speedt{min-width:980px}
+table.speedt td:first-child{min-width:230px} table.speedt th{min-width:84px; vertical-align:bottom}
+td.tx, th.tx{font-family:var(--sans); text-align:left; color:var(--ink-2)}
+.quality-line{margin:14px 0 0; padding:10px 14px; border:1px dashed var(--baseline); border-radius:10px; font-size:0.9rem; color:var(--ink)}
+/* run it */
+pre.cmd{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; overflow-x:auto;
+  font-family:var(--mono); font-size:0.8rem; line-height:1.5; margin:10px 0}
+.warnbox{background:var(--warn-bg); border:1px solid var(--warn); border-radius:10px; padding:10px 14px; font-size:0.9rem; color:var(--ink)}
+.warnbox p{margin:0}
+/* appendix */
+details.raw{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 16px}
+details.raw summary{cursor:pointer; font-weight:700}
+details.raw[open] summary{margin-bottom:10px}
+table.cfg td, table.cfg th{text-align:left; font-family:var(--sans); font-size:0.82rem}
+table.cfg code{font-family:var(--mono); font-size:0.9em}
+td.code{font-family:var(--mono)!important; font-weight:700; color:var(--ink)}
+table.arms{min-width:900px}
+@media (max-width:860px){.tldr-wrap, .fn-wrap{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:620px){
+  .wrap{padding:24px 16px 48px}
+  .sbar{grid-template-columns:minmax(0,1fr) 56px; grid-template-areas:"lab lab" "track val"; gap:3px 8px}
+  .sbar .sb-lab{grid-area:lab} .sbar .sb-track{grid-area:track} .sbar .sb-val{grid-area:val}
+  h1{font-size:1.4rem}
+  figure.fn-fig{padding:6px}
+}
+"""
+
+JS = r"""
+(function(){
+  const root=document.documentElement; root.classList.add("js");
+  const KEY="__KEY__";
+  let st={effort:{xhigh:true, medium:true}, ctx:"__DEFAULT__", ref:true};
+  try{ const s=JSON.parse(localStorage.getItem(KEY)||"null");
+       if(s && typeof s==="object"){ st=Object.assign(st, s); st.effort=Object.assign({xhigh:true, medium:true}, s.effort||{}); } }catch(e){}
+  if(!document.querySelector('[data-ctx-panel="'+st.ctx+'"]')) st.ctx="__DEFAULT__";
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(st)); }catch(e){} }
+  function apply(){
+    document.querySelectorAll("[data-effort]").forEach(el=>el.classList.toggle("off", !st.effort[el.dataset.effort]));
+    document.querySelectorAll("[data-ref]").forEach(el=>el.classList.toggle("off", !st.ref));
+    document.querySelectorAll("[data-ctx-panel]").forEach(el=>el.classList.toggle("tab-off", el.dataset.ctxPanel!==st.ctx));
+    document.querySelectorAll(".tab[data-ctx]").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.ctx===st.ctx)));
+    document.querySelectorAll("[data-effort-toggle]").forEach(c=>{ c.checked=!!st.effort[c.dataset.effortToggle]; });
+    document.querySelectorAll("[data-ref-toggle]").forEach(c=>{ c.checked=st.ref; });
+  }
+  document.querySelectorAll(".tab[data-ctx]").forEach(b=>b.addEventListener("click", ()=>{ st.ctx=b.dataset.ctx; apply(); save(); }));
+  document.querySelectorAll("[data-effort-toggle]").forEach(c=>c.addEventListener("change", ()=>{ st.effort[c.dataset.effortToggle]=c.checked; apply(); save(); }));
+  document.querySelectorAll("[data-ref-toggle]").forEach(c=>c.addEventListener("change", ()=>{ st.ref=c.checked; apply(); save(); }));
+  apply();
+  const btn=document.getElementById("themeBtn");
+  function applyLabel(){ btn.textContent="theme: "+(root.getAttribute("data-theme")||"auto"); }
+  btn.addEventListener("click",()=>{
+    const cur=root.getAttribute("data-theme");
+    const next=cur==null?"light":cur==="light"?"dark":null;
+    if(next) root.setAttribute("data-theme",next); else root.removeAttribute("data-theme");
+    try{ next?localStorage.setItem("theme",next):localStorage.removeItem("theme"); }catch(e){}
+    applyLabel();
+  });
+  try{ const saved=localStorage.getItem("theme"); if(saved) root.setAttribute("data-theme",saved); }catch(e){}
+  applyLabel();
+})();
 """
 
 TEMPLATE = r"""<!doctype html>
 <html lang="en">
+<head>
 <meta charset="utf-8">
-<title>Qwen3.8-27B stacks</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Dense Qwen3.8-27B stacks on an Apple M4 Max 128 GB against the Qwen3.8-Flash-Next driver: agent-turn time (T_turno) at 32K and 128K, time and tokens per task, accuracy, gates.">
+<title>Qwen3.8-27B servers on an M4 Max</title>
+<meta name="description" content="__DESC__">
+<meta property="og:type" content="article">
+<meta property="og:title" content="__OGTITLE__">
+<meta property="og:description" content="__DESC__">
+<meta property="og:url" content="__PAGEURL__">
+<meta property="og:image" content="__CARDURL__">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
 <style>
 /*__CSS__*/
 </style>
+</head>
+<body>
 <div class="wrap">
   <header>
     <div>
       <p class="eyebrow">Qwen3.8-27B dense · Apple M4 Max 128 GB · October 2026</p>
-      <h1>Qwen3.8-27B stacks vs the Flash-Next driver</h1>
-      <p class="sub">__SUB__</p>
+      <h1>Dense Qwen3.8-27B on an M4 Max: which server runs it fastest?</h1>
+      <p class="sub">Three local servers measured with the same agent-turn test at 32K and 128K context, against
+      Qwen3.8-Flash-Next, the model we use every day.</p>
     </div>
     <button class="theme" id="themeBtn" type="button">theme: auto</button>
   </header>
-__HEADLINE__
-__TTURNO__
-__TTFT__
-__TIME__
-__TOKENS__
-__ACCURACY__
-__GATES__
-__SETUP__
-  <footer id="foot">Generated <code>__GENERATED__</code> by <code>render_27b_page.py</code>.</footer>
+__BODY__
+  <footer id="foot">Generated <code>__GENERATED__</code> from the per-request results by
+  <code>render_27b_page.py</code>. Source: <a href="__REPO__">__REPOTXT__</a>.</footer>
 </div>
 <script>
-const root=document.documentElement, btn=document.getElementById("themeBtn");
-function applyLabel(){ btn.textContent="theme: "+(root.getAttribute("data-theme")||"auto"); }
-btn.addEventListener("click",()=>{
-  const cur=root.getAttribute("data-theme");
-  const next=cur==null?"light":cur==="light"?"dark":null;
-  if(next) root.setAttribute("data-theme",next); else root.removeAttribute("data-theme");
-  try{ next?localStorage.setItem("theme",next):localStorage.removeItem("theme"); }catch(e){}
-  applyLabel();
-});
-try{ const saved=localStorage.getItem("theme"); if(saved) root.setAttribute("data-theme",saved); }catch(e){}
-applyLabel();
+__JS__
 </script>
+</body>
+</html>
 """
 
 
+def _desc(p: dict) -> str:
+    f = facts(p)
+    if not f:
+        return ("Agent turn time of the dense Qwen3.8-27B on three local servers on an Apple M4 Max 128 GB, "
+                "against Qwen3.8-Flash-Next.")
+    return (f"Splash 1.3.1 + DFlash2 runs the dense Qwen3.8-27B fastest on an M4 Max 128 GB: {f['k_x']:.1f} s per agent "
+            f"turn at 128K (xhigh), {f['vs_base']:.2f}× the mlx-dspark baseline, still ~{f['vs_w1_round']}× "
+            "Qwen3.8-Flash-Next.")
+
+
+def _og_title(p: dict) -> str:
+    f = facts(p)
+    tail = f": Splash 1.3.1 is the fastest server, Flash-Next still ~{f['vs_w1_round']}× faster for agent loops" if f else ""
+    return "Dense Qwen3.8-27B on an M4 Max 128 GB" + tail
+
+
 def render_html(p: dict) -> str:
+    body = (_html_tldr(p) + _html_glossary() + _html_funnel(p) + _html_results(p) + _html_run(p) + _html_hw(p)
+            + _html_limits(p) + _html_appendix(p))
+    ctxs = _ctxs(p)
+    default = "131072" if "131072" in ctxs else ctxs[0]
     parts = {
         "/*__CSS__*/": PERF_CSS + PERF_EXTRA_CSS + PAGE_CSS,
-        "__TTURNO__": _html_tturno(p), "__TTFT__": _html_ttft(p), "__TIME__": _html_time(p),
-        "__TOKENS__": _html_tokens(p), "__ACCURACY__": _html_accuracy(p), "__GATES__": _html_gates(p),
-        "__SUB__": _html_sub(p), "__HEADLINE__": _html_headline(p), "__SETUP__": _html_setup(p), "__GENERATED__": E(p.get("generated_at", "")),
+        "__JS__": JS.replace("__KEY__", STATE_KEY).replace("__DEFAULT__", default),
+        "__BODY__": body, "__DESC__": E(_desc(p)), "__OGTITLE__": E(_og_title(p)),
+        "__PAGEURL__": PAGE_URL, "__CARDURL__": CARD_URL, "__REPO__": REPO_URL,
+        "__REPOTXT__": E(REPO_URL.split("//")[1]), "__GENERATED__": E(p.get("generated_at", "")),
     }
     html = TEMPLATE
     for k, v in parts.items():
@@ -609,18 +1087,181 @@ def render_html(p: dict) -> str:
     return html
 
 
+# ---------------------------------------------------------------- card, post image, Reddit post
+
+CARD_FIXED = {"--s1": "#2a78d6", "--s2": "#eb6834", "--s5": "#e87ba4", "--s3": "#1baf7a", "--ref-b": "#7a4fd1"}
+
+
+def render_card(p: dict) -> str:
+    """1200×630 link-preview card: agent turn time at 128K per setup and effort, plus the three headline numbers."""
+    f = facts(p)
+    rows = [r for r in _rows_for(p, "131072") if r["data"] and r["data"].get("t_turno_s") is not None
+            and r["id"] != "n2"]
+    rows.sort(key=lambda r: r["data"]["t_turno_s"])
+    top = max((r["data"]["t_turno_s"] for r in rows), default=1)
+    bars = ""
+    for i, r in enumerate(rows):
+        y = 34 + i * 44
+        w = 290 * r["data"]["t_turno_s"] / top
+        name = "Flash-Next (daily model)" if r["ref"] else SHORT.get(r["id"], r["name"])
+        bars += (f'<text x="0" y="{y + 19}" class="lab">{E(name)}<tspan class="eff"> {E(r["effort"])}</tspan></text>'
+                 f'<rect x="300" y="{y}" width="{w:.0f}" height="26" rx="4" fill="{CARD_FIXED[r["color"]]}"/>'
+                 f'<text x="{300 + w + 10:.0f}" y="{y + 19}" class="val">{r["data"]["t_turno_s"]:.1f} s</text>')
+    h = 34 + len(rows) * 44
+    tiles = ""
+    if f:
+        tiles = (f'<div class="tile"><span class="t-val">{f["k_x"]:.1f}<small> s</small> / {f["k_m"]:.1f}<small> s</small></span>'
+                 '<span class="t-lab">Splash 1.3.1 agent turn at 128K, thinking effort xhigh / medium</span></div>'
+                 f'<div class="tile"><span class="t-val">{f["vs_base"]:.2f}×</span><span class="t-lab">the mlx-dspark baseline '
+                 '(same weights, same draft)</span></div>'
+                 f'<div class="tile"><span class="t-val">~{f["vs_w1_round"]}×</span><span class="t-lab">Qwen3.8-Flash-Next: '
+                 'still faster for agent loops</span></div>')
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Card</title>
+<style>
+html,body{{margin:0; width:1200px; height:630px; background:#fbfaf7; color:#15171b;
+  font-family:-apple-system,"SF Pro Text","Inter",Helvetica,Arial,sans-serif}}
+.card{{width:1200px; height:630px; padding:50px 60px; box-sizing:border-box}}
+.eyebrow{{font-family:"SF Mono",Menlo,monospace; font-size:17px; letter-spacing:0.14em; text-transform:uppercase; color:#6b7280; margin:0 0 12px}}
+h1{{font-size:46px; line-height:1.1; letter-spacing:-0.025em; margin:0}}
+.row{{display:flex; gap:40px; margin-top:34px; align-items:flex-start}}
+svg{{flex:none}}
+.lab{{font-size:19px; font-weight:600; fill:#15171b}} .eff{{font-weight:400; fill:#6b7280; font-size:16px}}
+.val{{font-family:"SF Mono",Menlo,monospace; font-size:18px; fill:#15171b}}
+.axis{{font-size:16px; fill:#6b7280}}
+.tiles{{display:grid; gap:12px; flex:1}}
+.tile{{background:#f0eee8; border-radius:12px; padding:12px 18px}}
+.t-val{{font-size:36px; font-weight:700; letter-spacing:-0.02em; display:block}}
+.t-val small{{font-size:18px; font-weight:600; color:#444a55}}
+.t-lab{{font-size:16px; color:#444a55; line-height:1.3}}
+</style></head><body><div class="card">
+<p class="eyebrow">Benchmark · Apple M4 Max 128 GB · October 2026</p>
+<h1>Dense Qwen3.8-27B on an M4 Max: which local server runs it fastest?</h1>
+<div class="row">
+  <svg width="680" height="{h}" viewBox="0 0 680 {h}"><text x="0" y="18" class="axis">Agent turn time at 128K · seconds · shorter is better</text>{bars}</svg>
+  <div class="tiles">{tiles}</div>
+</div>
+</div></body></html>
+"""
+
+
+POST_CSS = r"""
+html,body{margin:0; width:__W__px; min-height:__H__px; background:var(--plane)}
+.wrap{max-width:none; width:__W__px; padding:44px 52px; box-sizing:border-box}
+.post-grid{display:grid; grid-template-columns:520px minmax(0,1fr); gap:28px; margin-top:22px; align-items:start}
+.post-grid figure.fn-fig{padding:12px}
+.post-foot{margin-top:18px; font-size:15px; color:var(--muted); display:flex; justify-content:space-between}
+.tldr .tl-line{font-size:1.05rem}
+h1{font-size:2.1rem}
+.sbar{grid-template-columns:330px minmax(0,1fr) 64px}
+"""
+
+
+def render_post(p: dict) -> str:
+    """The Reddit post image: TL;DR, the funnel and the main chart at 128K and 32K (static, light theme)."""
+    charts = "".join(f'<h3 class="c-head">{_ctx_lab(c)} context · agent turn time, shorter is better</h3>{_bars(p, c)}'
+                     for c in ("131072", "32768") if c in p["speed"])
+    css = (PERF_CSS + PERF_EXTRA_CSS + PAGE_CSS + POST_CSS).replace("__W__", str(POST_W)).replace("__H__", str(POST_H))
+    return f"""<!doctype html>
+<html lang="en" data-theme="light"><head><meta charset="utf-8"><title>Post image</title>
+<style>{css}</style></head><body><div class="wrap">
+<header><div><p class="eyebrow">Benchmark · Apple M4 Max 128 GB · October 2026</p>
+<h1>Dense Qwen3.8-27B on an M4 Max: which local server runs it fastest?</h1></div></header>
+{_html_tldr(p)}
+<div class="post-grid">
+  <div><h2 class="sec">How {p["funnel"][0]["count"]} setups came down to {p["funnel"][-1]["count"]}</h2>
+  <figure class="fn-fig">{funnel_svg(p)}</figure>{_funnel_legend(p)}</div>
+  <div><h2 class="sec">Agent turn time</h2><p class="s-note">{AGENT_TURN_DEF}. {EFFORT_SENTENCE}</p>{charts}
+  <p class="quality-line">{QUALITY_LINE}</p></div>
+</div>
+<p class="post-foot"><span>Median of the repetitions · per-request results in the repo</span>
+<span>{E(PAGE_URL.split("//")[1])}</span></p>
+</div></body></html>
+"""
+
+
+def render_reddit(p: dict) -> str:
+    f = facts(p)
+    title = ("Dense Qwen3.8-27B on an M4 Max 128 GB: Splash 1.3.1 is the fastest of 3 servers, but Qwen3.8-Flash-Next "
+             f"is still ~{f['vs_w1_round']}× faster for agent loops" if f else "Dense Qwen3.8-27B on an M4 Max 128 GB")
+    lines = [f"# {title}", ""]
+    if f:
+        lines += ["**TL;DR**", "",
+                  f"- Fastest setup: **Splash 1.3.1 + DFlash2** (8-bit weights). Agent turn time at 128K: "
+                  f"**{f['k_x']:.1f} s** at thinking effort xhigh, **{f['k_m']:.1f} s** at medium.",
+                  f"- **{f['vs_base']:.2f}×** the baseline (mlx-dspark 0.20.3 + DFlash2, same weights and draft, "
+                  f"{f['base']:.1f} s at xhigh).",
+                  f"- Still **~{f['vs_w1_round']}×** Qwen3.8-Flash-Next, our daily model ({f['w1']:.1f} s; "
+                  f"{f['vs_w1_x']:.2f}× at xhigh, {f['vs_w1_m']:.2f}× at medium): for agent loops, Flash-Next is still faster.",
+                  ""]
+    lines += [f"Agent turn time = {AGENT_TURN_DEF}. Median of the repetitions on one machine; shorter is better.", "",
+              "| Setup | Thinking effort | 32K | 128K |", "|---|---|---:|---:|"]
+    for i in _setups(p):
+        for eff in EFFORTS:
+            v = [_t(p, f"{i}-{eff}", c) for c in BANDS]
+            if all(x is None for x in v) and i != BASELINE:
+                continue
+            lines.append(f"| {_name(i)} | {eff} | {_fmt_s(v[0])} | {_fmt_s(v[1])} |")
+    for ref in ("w1", "n2"):
+        v = [_ref_t(p, ref, c) for c in BANDS]
+        if any(x is not None for x in v):
+            lines.append(f"| {REF_NAMES[ref]}, reference on {REF_RUNTIME} | xhigh | {_fmt_s(v[0])} | {_fmt_s(v[1])} |")
+    t = _think_facts(p)
+    lines += ["", f"Full page (selection funnel, every number, how to run it): {PAGE_URL}", ""]
+    if t["resend_n"]:
+        lines += [f"**If you run it on Splash 1.3.1:** do not resend `reasoning_content` in earlier assistant messages. "
+                  f"At 128K every tool turn that did got HTTP 400 ({t['resend_400']}/{t['resend_n']}); without it all "
+                  f"worked (TTFT {t['drop_ttft']:.1f} s).", ""]
+    st = p["funnel"]
+    reps = sorted({d.get("reps") for rows in p["speed"].values() for d in rows.values() if d.get("reps")})
+    rep = f"{reps[0]} repetitions per point (median)" if len(reps) == 1 else "few repetitions per point"
+    lines += [f"**Limitations.** One M4 Max 128 GB; {rep}; a synthetic agent-turn probe, not a real "
+              "task. Quality and per-task time were not measured for the 27B. "
+              f"{len(NOT_RUN)} of the {st[0]['count']} candidate setups were cut by choice before the full test. "
+              "The Splash prefill gain over the baseline is attributed to the Neural Engine by the vendor only.", ""]
+    return "\n".join(lines)
+
+
+def write_png(page: Path, png: Path, size: tuple[int, int] = (1200, 630), scale: int = 1) -> bool:
+    """Render a static page with headless Chrome. Returns False when Chrome is not installed."""
+    import subprocess
+    if not CHROME.is_file():
+        return False
+    subprocess.run([str(CHROME), "--headless=new", "--hide-scrollbars", f"--window-size={size[0]},{size[1]}",
+                    f"--force-device-scale-factor={scale}", f"--screenshot={png}", page.resolve().as_uri()],
+                   check=True, capture_output=True, timeout=120)
+    return True
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--results", type=Path, default=C / "results")
     ap.add_argument("--out", type=Path, default=ROOT / "reports/qwen38-27b-stacks.html")
     ap.add_argument("--json-out", type=Path, default=C / "results/page-data.json")
-    ap.add_argument("--no-w1", action="store_true", help="leave out both Flash-Next drivers (A: w1, B: n2)")
+    ap.add_argument("--card", type=Path, default=CARD_HTML, help="the link-preview card HTML (og:image source)")
+    ap.add_argument("--post", type=Path, default=POST_HTML, help="the Reddit post image HTML")
+    ap.add_argument("--reddit-out", type=Path, default=C / "results/reddit-post.md")
+    ap.add_argument("--png", action="store_true", help="also render the card and post PNGs with headless Chrome")
+    ap.add_argument("--no-w1", action="store_true", help="leave out both Flash-Next references (w1, n2)")
     a = ap.parse_args(argv)
     p = build_payload(a.results, {} if a.no_w1 else load_w1_summary(), None if a.no_w1 else load_w1_ab(),
-                      None if a.no_w1 else load_n2_ab())
+                      None if a.no_w1 else load_n2_ab(), None if a.no_w1 else W1_JSONL)
     a.json_out.write_text(json.dumps(p, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     a.out.write_text(render_html(p), encoding="utf-8")
     print(f"wrote {a.out}")
+    a.card.parent.mkdir(parents=True, exist_ok=True)
+    a.card.write_text(render_card(p), encoding="utf-8")
+    a.post.parent.mkdir(parents=True, exist_ok=True)
+    a.post.write_text(render_post(p), encoding="utf-8")
+    a.reddit_out.write_text(render_reddit(p), encoding="utf-8")
+    print(f"wrote {a.card}, {a.post}, {a.reddit_out}")
+    if a.png:
+        for page, size, scale in ((a.card, (1200, 630), 1), (a.post, (POST_W, POST_H), 2)):
+            png = page.with_suffix(".png")
+            if write_png(page, png, size, scale):
+                print(f"wrote {png}")
+            else:
+                print(f"Chrome not found at {CHROME}; {png} was not rendered")
     return 0
 
 

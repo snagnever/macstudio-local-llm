@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en" data-theme="light"><head><meta charset="utf-8"><title>Post image</title>
+<style>
+:root{
+  color-scheme: light;
+  --plane:#f9f9f7; --surface:#fcfcfb; --surface-2:#f3f2ee;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
+  --accent:#2a78d6; --accent-rgb:42,120,214; --warn:#b06a00; --warn-bg:#fbf1dd;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232321;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+    --accent:#3987e5; --accent-rgb:57,135,229; --warn:#e0a63a; --warn-bg:#2a2312;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232321;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+  --accent:#3987e5; --accent-rgb:57,135,229; --warn:#e0a63a; --warn-bg:#2a2312;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--plane); color:var(--ink); font-family:var(--sans);
+  line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px; margin:0 auto; padding:32px 20px 64px}
+header{display:flex; flex-wrap:wrap; gap:20px 32px; align-items:flex-end; justify-content:space-between}
+h1{font-size:1.7rem; font-weight:700; letter-spacing:-0.02em; margin:0; text-wrap:balance}
+.sub{color:var(--ink-2); max-width:66ch; margin:8px 0 0; font-size:0.98rem}
+.eyebrow{font-family:var(--mono); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin:0 0 6px}
+button.theme{
+  font-family:var(--mono); font-size:0.74rem; color:var(--ink-2); background:var(--surface);
+  border:1px solid var(--border); border-radius:7px; padding:7px 12px; cursor:pointer;
+}
+button.theme:hover{border-color:var(--baseline)}
+button.theme:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+h2.sec{font-size:1.05rem; margin:0 0 4px; letter-spacing:-0.01em}
+.s-note{color:var(--ink-2); font-size:0.88rem; margin:0 0 14px; max-width:82ch}
+.s-note code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+section.block{margin-top:30px}
+
+/* rig strip */
+.rig{display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:10px; margin-top:18px}
+.rig .r-item{background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:10px 13px}
+.rig .r-lab{font-size:0.72rem; color:var(--muted); margin:0 0 3px}
+.rig .r-val{font-family:var(--mono); font-size:0.88rem; color:var(--ink); font-weight:500}
+
+/* tables shared */
+.tbl-scroll{overflow-x:auto; border:1px solid var(--border); border-radius:10px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:0.84rem}
+th,td{padding:8px 11px; text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono)}
+th{font-size:0.72rem; letter-spacing:0.04em; color:var(--muted); font-weight:500; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface)}
+td:first-child,th:first-child{text-align:left}
+tbody tr:hover{background:var(--surface-2)}
+.arm-cell{display:inline-flex; align-items:center; gap:8px}
+.arm-cell .sw{width:10px; height:10px; border-radius:2px; flex:none}
+.arm-cell .code{font-weight:700; color:var(--ink)}
+.na{color:var(--muted)}
+
+#cfgTable{min-width:780px}
+#cfgTable th,#cfgTable td{text-align:left; vertical-align:top; white-space:normal; font-family:var(--sans); font-size:0.83rem; line-height:1.42}
+#cfgTable th{font-family:var(--mono); font-size:0.72rem; letter-spacing:0.04em}
+#cfgTable td:first-child{font-weight:700; color:var(--ink); white-space:nowrap}
+#cfgTable .mono{font-family:var(--mono); font-size:0.9em; color:var(--ink-2)}
+
+/* tech cards */
+.tech{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; margin-top:16px}
+.tcard{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 16px 14px}
+.tcard .t-name{font-size:1.02rem; font-weight:700; letter-spacing:-0.01em; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
+.tcard .t-repo{font-family:var(--mono); font-size:0.72rem; color:var(--muted)}
+.tcard .t-what{font-size:0.86rem; color:var(--ink-2); margin:7px 0 13px; line-height:1.45}
+.tcard dl{margin:0; display:grid; gap:11px}
+.tcard dt{font-family:var(--mono); font-size:0.66rem; letter-spacing:0.09em; text-transform:uppercase; color:var(--accent); margin-bottom:3px}
+.tcard dd{margin:0; font-size:0.83rem; color:var(--ink-2); line-height:1.45}
+.tcard dd b{color:var(--ink); font-weight:600}
+.tcard .t-configs{margin:13px 0 0; padding-top:11px; border-top:1px solid var(--border); font-size:0.8rem; color:var(--ink-2)}
+.tcard .t-configs b{color:var(--ink); font-family:var(--mono); font-weight:600; font-size:0.9em}
+.tech-src{margin-top:12px; font-size:0.78rem; color:var(--muted)}
+.tech-src a{color:var(--accent); text-decoration:none}
+.tech-src a:hover{text-decoration:underline}
+
+/* legend */
+.legend{display:flex; flex-wrap:wrap; gap:8px 18px; margin:22px 0 4px; padding:12px 16px;
+  background:var(--surface); border:1px solid var(--border); border-radius:10px}
+.chip{display:inline-flex; align-items:center; gap:7px; font-size:0.84rem; color:var(--ink-2)}
+.chip .sw{width:22px; height:3px; border-radius:2px; flex:none}
+.chip .code{font-family:var(--mono); font-weight:700; color:var(--ink)}
+
+/* takeaways compact */
+.takeaways{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-top:22px}
+.takeaways h2{font-size:0.95rem; margin:0 0 9px; letter-spacing:-0.01em}
+.takeaways ul{margin:0; padding:0; list-style:none; display:grid; gap:7px}
+.takeaways li{font-size:0.85rem; color:var(--ink-2); padding-left:15px; position:relative; line-height:1.4}
+.takeaways li::before{content:"›"; position:absolute; left:0; color:var(--accent); font-family:var(--mono); font-weight:700}
+.takeaways li b{color:var(--ink)}
+
+/* chart grid */
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:14px; margin-top:14px}
+.panel{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 14px 10px; position:relative}
+.p-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin:0 2px 2px}
+.p-title{font-size:0.98rem; font-weight:700; letter-spacing:-0.01em}
+.p-unit{font-family:var(--mono); font-size:0.72rem; color:var(--muted)}
+.p-dir{font-family:var(--mono); font-size:0.68rem; letter-spacing:0.06em; color:var(--muted)}
+.p-note{font-size:0.76rem; color:var(--warn); background:var(--warn-bg); border-radius:6px;
+  padding:3px 8px; margin:2px 2px 0; display:inline-block}
+.p-interp{font-size:0.8rem; color:var(--ink-2); margin:8px 2px 0; line-height:1.4; border-top:1px solid var(--border); padding-top:8px}
+.p-interp b{color:var(--ink); font-weight:600}
+svg.chart{width:100%; height:auto; display:block; touch-action:none}
+.tick{font-family:var(--mono); font-size:10px; fill:var(--muted)}
+.axis-t{font-family:var(--mono); font-size:10.5px; fill:var(--ink-2)}
+.endlab{font-family:var(--mono); font-size:9.5px; font-weight:700}
+.crosshair{stroke:var(--baseline); stroke-width:1; stroke-dasharray:3 3; opacity:0}
+
+.tip{position:absolute; pointer-events:none; z-index:5; background:var(--surface);
+  border:1px solid var(--baseline); border-radius:8px; padding:8px 10px; font-size:0.78rem;
+  box-shadow:0 6px 20px rgba(0,0,0,0.13); opacity:0; transition:opacity .08s; min-width:158px}
+.tip .t-ctx{font-family:var(--mono); font-weight:700; color:var(--ink); margin-bottom:5px; font-size:0.76rem}
+.tip .t-row{display:flex; align-items:center; gap:7px; justify-content:space-between; margin:2px 0}
+.tip .t-left{display:flex; align-items:center; gap:6px; color:var(--ink-2)}
+.tip .t-left .sw{width:9px; height:9px; border-radius:2px; flex:none}
+.tip .t-left .code{font-family:var(--mono); font-weight:700; color:var(--ink); font-size:0.74rem}
+.tip .t-val{font-family:var(--mono); color:var(--ink); font-variant-numeric:tabular-nums}
+.tip .t-na{color:var(--muted)}
+
+/* hit heatmap */
+#hitTable{min-width:640px}
+#hitTable th{text-align:center}
+#hitTable th:first-child,#hitTable td:first-child{text-align:left}
+#hitTable td.grp{background:var(--surface-2); font-family:var(--sans); font-weight:700; color:var(--ink); font-size:0.8rem}
+.hcell{text-align:center; font-variant-numeric:tabular-nums; border-radius:4px}
+.hcell.na{color:var(--muted); background:transparent!important}
+.hcell.est{box-shadow:inset 0 0 0 1.6px var(--muted); font-style:italic}
+.hcell .star{font-style:normal; font-weight:700; margin-left:1px}
+.est-note{margin:10px 0 0; font-size:0.78rem; color:var(--ink-2)}
+.est-note .star{font-weight:700; font-style:normal}
+.hit-legend{display:flex; align-items:center; gap:10px; margin-top:12px; font-size:0.8rem; color:var(--ink-2); flex-wrap:wrap}
+.hit-legend .bar{height:12px; width:150px; border-radius:3px; border:1px solid var(--border);
+  background:linear-gradient(90deg, var(--surface-2), rgba(var(--accent-rgb),0.88))}
+
+/* values table */
+#table{min-width:720px}
+#table td,#table th{font-family:var(--mono)}
+.grp-row td{background:var(--surface-2); color:var(--ink); font-family:var(--sans); font-weight:700; font-size:0.8rem; letter-spacing:0.02em; text-align:left; padding:6px 11px}
+.tbl-note{color:var(--ink-2); font-size:0.88rem; margin:0 0 14px; max-width:80ch}
+.tbl-note code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+
+footer{margin-top:34px; color:var(--ink-2); font-size:0.82rem; max-width:82ch}
+footer b{color:var(--ink)}
+footer code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+#cfgTable td.st{white-space:nowrap}
+.stchip{display:inline-block; font-family:var(--mono); font-size:0.7rem; padding:1px 7px; border-radius:999px;
+  border:1px solid var(--border); color:var(--ink-2); background:var(--surface-2)}
+.stchip.pass{color:var(--s3); border-color:var(--s3)}
+.stchip.fail{color:var(--s2); border-color:var(--s2)}
+.hcell.ref{background:var(--warn-bg)!important; color:var(--warn); font-weight:700}
+.reflab{font-family:var(--mono); font-size:9px; fill:var(--warn)}
+.hit-legend{display:flex; align-items:center; gap:8px; margin:10px 0 0; font-family:var(--mono); font-size:0.72rem; color:var(--muted)}
+.hit-legend .bar{width:140px; height:8px; border-radius:4px;
+  background:linear-gradient(90deg, rgba(var(--accent-rgb),0.10), rgba(var(--accent-rgb),0.88))}
+td.stat{color:var(--warn); font-family:var(--sans); text-align:left}
+.notice{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 16px; font-size:0.88rem; color:var(--ink-2)}
+.notice p{margin:0 0 6px} .notice ul{margin:0; padding-left:18px} .notice li{margin:4px 0}
+.notice b{color:var(--ink)} .notice a{color:var(--accent)}
+.notice code{font-family:var(--mono); font-size:0.9em}
+
+:root{--ref-b:#7a4fd1; --cut:#a8a69d; --fail:#d0453b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ref-b:#a78bf0; --cut:#6f6e68; --fail:#ef6b5f}}
+:root[data-theme="dark"]{--ref-b:#a78bf0; --cut:#6f6e68; --fail:#ef6b5f}
+.mt{margin-top:14px}
+.u{color:var(--muted); font-size:0.9em; margin-left:2px}
+a{color:var(--accent)}
+.wrap{max-width:1100px}
+h3.c-head{margin:16px 0 4px; font-size:0.95rem}
+.c-note{margin:6px 0 0; font-size:0.8rem; color:var(--ink-2)}
+.empty{color:var(--muted); font-size:0.88rem; margin:8px 0 0}
+.s-note code, .c-note code, .warnbox code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+ul.s-note{padding-left:18px} ul.s-note li{margin:4px 0}
+/* TL;DR */
+.tldr-wrap{display:grid; grid-template-columns:minmax(0,1.7fr) minmax(0,1fr); gap:14px; align-items:start}
+.tldr{background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--s2); border-radius:12px; padding:14px 18px}
+.tl-h, .nm-h{font-family:var(--mono); font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin:0 0 6px}
+.tl-line{margin:6px 0; font-size:0.98rem; line-height:1.5}
+.tl-line dfn{font-style:normal; font-weight:600}
+.nm-box{background:var(--warn-bg); border:1px solid var(--border); border-radius:12px; padding:14px 18px; font-size:0.86rem; color:var(--ink-2)}
+.nm-box ul{margin:0; padding-left:18px} .nm-box li{margin:5px 0} .nm-box b{color:var(--ink)}
+/* glossary */
+dl.gloss{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr)); gap:6px 22px; margin:8px 0 0}
+dl.gloss div{font-size:0.86rem; color:var(--ink-2); line-height:1.4}
+dl.gloss dt{display:inline; font-weight:700; color:var(--ink)} dl.gloss dt::after{content:": "}
+dl.gloss dd{display:inline; margin:0}
+/* funnel */
+.fn-wrap{display:grid; grid-template-columns:minmax(0,560px) minmax(0,1fr); gap:20px; align-items:start}
+figure.fn-fig{margin:0; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px}
+svg.funnel{width:100%; height:auto; display:block; font-family:var(--sans)}
+.fn-bar{fill:var(--accent)} .fn-zero{fill:none; stroke:var(--muted); stroke-dasharray:5 4; stroke-width:1.5}
+.fn-n{fill:#fff; font-size:19px; font-weight:700} .fn-n0{fill:var(--ink-2); font-size:19px; font-weight:700}
+.fn-lab{fill:var(--ink); font-size:17px; font-weight:700} .fn-det{fill:var(--ink-2); font-size:14px}
+.fn-name{fill:var(--ink); font-size:15px} .fn-name.cut{fill:var(--ink-2)} .fn-note{fill:var(--ink-2); font-size:13.5px}
+.fn-sw.cut, .fn-key.cut{fill:var(--cut); background:var(--cut)} .fn-sw.fail, .fn-key.fail{fill:var(--fail); background:var(--fail)}
+.fn-arrow{fill:none; stroke:var(--muted); stroke-width:2}
+.fn-legend{display:flex; flex-wrap:wrap; gap:8px 18px; margin:0; font-size:0.88rem; color:var(--ink)}
+.fn-legend > span{display:inline-flex; align-items:center; gap:7px}
+.fn-key{display:inline-block; width:13px; height:13px; border-radius:3px}
+/* controls */
+.controls{display:none; flex-wrap:wrap; gap:10px 22px; align-items:center; margin:6px 0 4px; padding:10px 14px;
+  background:var(--surface); border:1px solid var(--border); border-radius:10px}
+html.js .controls{display:flex}
+.ctl{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.ctl-h{font-family:var(--mono); font-size:0.7rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted)}
+.tabs{display:inline-flex; border:1px solid var(--border); border-radius:8px; overflow:hidden}
+.tab{font:inherit; font-size:0.84rem; padding:5px 12px; border:0; background:var(--surface); color:var(--ink-2); cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent); color:#fff}
+.tab:focus-visible, .chk input:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.chk{display:inline-flex; align-items:center; gap:5px; font-size:0.86rem; color:var(--ink); cursor:pointer}
+html.js .tab-off{display:none}
+.off{display:none!important}
+/* stacked bars */
+.ctx-panel{margin-top:6px}
+.sbars{margin-top:8px; display:grid; gap:7px}
+.sbar{display:grid; grid-template-columns:minmax(0,300px) minmax(0,1fr) 64px; gap:10px; align-items:center}
+.sb-lab{display:flex; align-items:center; gap:7px; min-width:0; font-size:0.84rem; line-height:1.3}
+.sb-lab .sw{width:10px; height:10px; border-radius:2px; flex:none}
+.sb-txt{min-width:0}
+.sb-txt .eff{white-space:nowrap}
+.sb-name{font-weight:600; color:var(--ink)}
+.eff{font-family:var(--mono); font-size:0.7rem; color:var(--muted)}
+.sb-track{position:relative; display:flex; height:20px; background:var(--surface-2); border-radius:0 5px 5px 0; overflow:hidden}
+.seg{display:block; height:100%} .seg.gen{opacity:0.45}
+.sb-nm{font-size:0.78rem; color:var(--muted); align-self:center; padding-left:8px; font-style:italic}
+.sb-val{font-family:var(--mono); font-size:0.84rem; text-align:right; color:var(--ink); font-weight:600}
+.sb-key{display:flex; flex-wrap:wrap; gap:6px 18px; margin:10px 0 12px; font-size:0.78rem; color:var(--ink-2)}
+.sb-key > span{display:inline-flex; align-items:center; gap:6px}
+.sb-key .k{display:inline-block; width:18px; height:10px; border-radius:2px; background:var(--ink-2)}
+.sb-key .k.gen{opacity:0.45}
+table.speedt{min-width:980px}
+table.speedt td:first-child{min-width:230px} table.speedt th{min-width:84px; vertical-align:bottom}
+td.tx, th.tx{font-family:var(--sans); text-align:left; color:var(--ink-2)}
+.quality-line{margin:14px 0 0; padding:10px 14px; border:1px dashed var(--baseline); border-radius:10px; font-size:0.9rem; color:var(--ink)}
+/* run it */
+pre.cmd{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; overflow-x:auto;
+  font-family:var(--mono); font-size:0.8rem; line-height:1.5; margin:10px 0}
+.warnbox{background:var(--warn-bg); border:1px solid var(--warn); border-radius:10px; padding:10px 14px; font-size:0.9rem; color:var(--ink)}
+.warnbox p{margin:0}
+/* appendix */
+details.raw{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 16px}
+details.raw summary{cursor:pointer; font-weight:700}
+details.raw[open] summary{margin-bottom:10px}
+table.cfg td, table.cfg th{text-align:left; font-family:var(--sans); font-size:0.82rem}
+table.cfg code{font-family:var(--mono); font-size:0.9em}
+td.code{font-family:var(--mono)!important; font-weight:700; color:var(--ink)}
+table.arms{min-width:900px}
+@media (max-width:860px){.tldr-wrap, .fn-wrap{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:620px){
+  .wrap{padding:24px 16px 48px}
+  .sbar{grid-template-columns:minmax(0,1fr) 56px; grid-template-areas:"lab lab" "track val"; gap:3px 8px}
+  .sbar .sb-lab{grid-area:lab} .sbar .sb-track{grid-area:track} .sbar .sb-val{grid-area:val}
+  h1{font-size:1.4rem}
+  figure.fn-fig{padding:6px}
+}
+
+html,body{margin:0; width:1400px; min-height:1600px; background:var(--plane)}
+.wrap{max-width:none; width:1400px; padding:44px 52px; box-sizing:border-box}
+.post-grid{display:grid; grid-template-columns:520px minmax(0,1fr); gap:28px; margin-top:22px; align-items:start}
+.post-grid figure.fn-fig{padding:12px}
+.post-foot{margin-top:18px; font-size:15px; color:var(--muted); display:flex; justify-content:space-between}
+.tldr .tl-line{font-size:1.05rem}
+h1{font-size:2.1rem}
+.sbar{grid-template-columns:330px minmax(0,1fr) 64px}
+</style></head><body><div class="wrap">
+<header><div><p class="eyebrow">Benchmark · Apple M4 Max 128 GB · October 2026</p>
+<h1>Dense Qwen3.8-27B on an M4 Max: which local server runs it fastest?</h1></div></header>
+<section class="block tldr-wrap" id="tldr"><div class="tldr"><p class="tl-h">TL;DR</p><p class="tl-line"><b>Fastest setup: Splash 1.3.1 + DFlash2</b> (8-bit weights). Its <dfn>agent turn time</dfn> (time to the first token of a turn that carries a tool result, plus 512 generated tokens) at 128K context is <b>17.7 s</b> at thinking effort xhigh and <b>15.9 s</b> at thinking effort medium.</p><p class="tl-line">That is <b>0.69×</b> the baseline, mlx-dspark 0.20.3 + DFlash2 with the same weights and draft (25.7 s at xhigh; same effort on both sides).</p><p class="tl-line">It is still <b>~2×</b> Qwen3.8-Flash-Next, the model we use daily (8.6 s at 128K; 2.06× at xhigh, 1.85× at medium): <b>for agent loops, Flash-Next is still faster.</b></p></div><aside class="nm-box"><p class="nm-h">What we did not measure</p><ul><li><b>Quality of the 27B.</b> No coding, reasoning or tool-calling accuracy run on any setup.</li><li><b>Time per real task.</b> Only a synthetic agent turn, not an end-to-end job.</li><li><b>8 of the 11 candidate setups</b>, cut by choice before the full test: oMLX 0.7.1 · oQ8e refit, 8-bit, oMLX 0.7.1 · oQ4e refit, 4-bit, mlx-serve 26.10.2 · MTP head only, mlx-serve 26.10.2 · Swift 1.5 + DFlash2, mlx-serve 26.10.2 · Swift 1.5, MTP only, oMLX 0.7.1 · Swift 1.5, 4-bit, llama.cpp b11569 · Q8_0 + MTP draft, llama.cpp b11569 · Q8_0, no speculation.</li></ul></aside></section>
+<div class="post-grid">
+  <div><h2 class="sec">How 11 setups came down to 0</h2>
+  <figure class="fn-fig"><svg class="funnel" viewBox="0 0 480 875" width="480" height="875" role="img" aria-labelledby="fn-title"><title id="fn-title">Selection funnel: 11 → 5 → 3 → 1 → 0 setups</title><rect class="fn-bar" x="20.0" y="4" width="440.0" height="34" rx="6"/><text class="fn-n" x="240.0" y="27" text-anchor="middle">11</text><text class="fn-lab" x="240.0" y="60" text-anchor="middle">candidate setups</text><text class="fn-det" x="240.0" y="81" text-anchor="middle">5 runtimes: mlx-dspark, Splash, oMLX, mlx-serve, llama.cpp</text><rect class="fn-sw cut" x="22" y="94" width="12" height="12" rx="2"/><text class="fn-name cut" x="42" y="105">oMLX 0.7.1 · oQ8e refit, 8-bit</text><rect class="fn-sw cut" x="22" y="114" width="12" height="12" rx="2"/><text class="fn-name cut" x="42" y="125">mlx-serve 26.10.2 · Swift 1.5 + DFlash2</text><rect class="fn-sw cut" x="22" y="134" width="12" height="12" rx="2"/><text class="fn-name cut" x="42" y="145">mlx-serve 26.10.2 · Swift 1.5, MTP only</text><rect class="fn-sw cut" x="22" y="154" width="12" height="12" rx="2"/><text class="fn-name cut" x="42" y="165">oMLX 0.7.1 · Swift 1.5, 4-bit</text><rect class="fn-sw cut" x="22" y="174" width="12" height="12" rx="2"/><text class="fn-name cut" x="42" y="185">llama.cpp b11569 · Q8_0, no speculation</text><path class="fn-arrow" d="M232.0 211 L240.0 220 L248.0 211"/><rect class="fn-bar" x="140.0" y="229" width="200.0" height="34" rx="6"/><text class="fn-n" x="240.0" y="252" text-anchor="middle">5</text><text class="fn-lab" x="240.0" y="285" text-anchor="middle">8K smoke test (decode)</text><text class="fn-det" x="240.0" y="306" text-anchor="middle">passed: Splash 92.3 tok/s, mlx-serve 80.6 tok/s</text><text class="fn-det" x="240.0" y="324" text-anchor="middle">the baseline skips it: it is the reference</text><rect class="fn-sw cut" x="22" y="337" width="12" height="12" rx="2"/><text class="fn-name cut" x="42" y="348">oMLX 0.7.1 · oQ4e refit, 4-bit</text><text class="fn-note" x="42" y="366">smoke decode 81.4 tok/s</text><rect class="fn-sw cut" x="22" y="375" width="12" height="12" rx="2"/><text class="fn-name cut" x="42" y="386">mlx-serve 26.10.2 · MTP head only</text><text class="fn-note" x="42" y="404">smoke decode 51.5 tok/s</text><rect class="fn-sw cut" x="22" y="413" width="12" height="12" rx="2"/><text class="fn-name cut" x="42" y="424">llama.cpp b11569 · Q8_0 + MTP draft</text><text class="fn-note" x="42" y="442">smoke decode 35.3 tok/s</text><path class="fn-arrow" d="M232.0 468 L240.0 477 L248.0 468"/><rect class="fn-bar" x="180.0" y="486" width="120.0" height="34" rx="6"/><text class="fn-n" x="240.0" y="509" text-anchor="middle">3</text><text class="fn-lab" x="240.0" y="542" text-anchor="middle">full speed test at 32K and 128K</text><rect class="fn-sw fail" x="22" y="558" width="12" height="12" rx="2"/><text class="fn-name fail" x="42" y="569">mlx-serve 26.10.2 + DFlash2</text><text class="fn-note" x="42" y="587">1.17× / 1.74× the baseline at 32K / 128K (xhigh)</text><path class="fn-arrow" d="M232.0 613 L240.0 622 L248.0 613"/><rect class="fn-bar" x="212.0" y="631" width="56.0" height="34" rx="6"/><text class="fn-n" x="240.0" y="654" text-anchor="middle">1</text><text class="fn-lab" x="240.0" y="687" text-anchor="middle">faster than the baseline: Splash</text><rect class="fn-sw fail" x="22" y="703" width="12" height="12" rx="2"/><text class="fn-name fail" x="42" y="714">Splash 1.3.1 + DFlash2</text><text class="fn-note" x="42" y="732">best: 1.32× / 1.85× Flash-Next at 32K / 128K (medium)</text><path class="fn-arrow" d="M232.0 758 L240.0 767 L248.0 758"/><rect class="fn-zero" x="212.0" y="776" width="56.0" height="34" rx="6"/><text class="fn-n0" x="240.0" y="799" text-anchor="middle">0</text><text class="fn-lab" x="240.0" y="832" text-anchor="middle">within 1.25× of Flash-Next</text><text class="fn-det" x="240.0" y="853" text-anchor="middle">needs ≤ 9.9 s at 32K and ≤ 10.8 s at 128K</text></svg></figure><p class="fn-legend"><span><span class="fn-key cut"></span>cut by scope (not measured)</span><span><span class="fn-key fail"></span>failed a measurement</span></p><p class="c-note">Smoke decode = the median of the identical, append and tool-turn requests at 8K (the same warm-decode definition as every decode number on this page), thinking effort medium, one run. Ratios compare agent turn times at the same thinking effort.</p></div>
+  <div><h2 class="sec">Agent turn time</h2><p class="s-note">time to the first token of a turn that carries a tool result, plus 512 generated tokens. Thinking effort is the <code>reasoning_effort</code> value sent with each request. More effort means more reasoning tokens and lower draft acceptance, so a lower decode speed.</p><h3 class="c-head">128K context · agent turn time, shorter is better</h3><div class="sbars"><div class="sbar" data-effort="xhigh" title="mlx-dspark 0.20.3 + DFlash2 (baseline) · thinking effort: xhigh · 128K · agent turn time 25.7 s · warm TTFT (tool turn) 9.8 s · 512 tokens 15.9 s · decode 32.3 tok/s · cold TTFT 712.6 s · peak memory 55.4 GB" role="img" aria-label="mlx-dspark 0.20.3 + DFlash2 (baseline) · thinking effort: xhigh · 128K · agent turn time 25.7 s · warm TTFT (tool turn) 9.8 s · 512 tokens 15.9 s · decode 32.3 tok/s · cold TTFT 712.6 s · peak memory 55.4 GB"><span class="sb-lab"><span class="sw" style="background:var(--s1)"></span><span class="sb-txt"><span class="sb-name">mlx-dspark 0.20.3 + DFlash2 (baseline)</span> <span class="eff">effort: xhigh</span></span></span><span class="sb-track"><span class="seg ttft" style="width:21.49%;background:var(--s1)"></span><span class="seg gen" style="width:34.77%;background:var(--s1)"></span></span><span class="sb-val">25.7 s</span></div><div class="sbar nm" data-effort="medium" title="mlx-dspark 0.20.3 + DFlash2 (baseline) · thinking effort: medium · 128K: not measured"><span class="sb-lab"><span class="sw" style="background:var(--s1)"></span><span class="sb-txt"><span class="sb-name">mlx-dspark 0.20.3 + DFlash2 (baseline)</span> <span class="eff">effort: medium</span></span></span><span class="sb-track"><span class="sb-nm">not measured</span></span><span class="sb-val na">—</span></div><div class="sbar" data-effort="xhigh" title="Splash 1.3.1 + DFlash2 · thinking effort: xhigh · 128K · agent turn time 17.7 s · warm TTFT (tool turn) 7.4 s · 512 tokens 10.3 s · decode 49.8 tok/s · cold TTFT 535.1 s · peak memory 53.8 GB" role="img" aria-label="Splash 1.3.1 + DFlash2 · thinking effort: xhigh · 128K · agent turn time 17.7 s · warm TTFT (tool turn) 7.4 s · 512 tokens 10.3 s · decode 49.8 tok/s · cold TTFT 535.1 s · peak memory 53.8 GB"><span class="sb-lab"><span class="sw" style="background:var(--s2)"></span><span class="sb-txt"><span class="sb-name">Splash 1.3.1 + DFlash2</span> <span class="eff">effort: xhigh</span></span></span><span class="sb-track"><span class="seg ttft" style="width:16.23%;background:var(--s2)"></span><span class="seg gen" style="width:22.55%;background:var(--s2)"></span></span><span class="sb-val">17.7 s</span></div><div class="sbar" data-effort="medium" title="Splash 1.3.1 + DFlash2 · thinking effort: medium · 128K · agent turn time 15.9 s · warm TTFT (tool turn) 7.4 s · 512 tokens 8.5 s · decode 60.5 tok/s · cold TTFT 534.4 s · peak memory 53.5 GB" role="img" aria-label="Splash 1.3.1 + DFlash2 · thinking effort: medium · 128K · agent turn time 15.9 s · warm TTFT (tool turn) 7.4 s · 512 tokens 8.5 s · decode 60.5 tok/s · cold TTFT 534.4 s · peak memory 53.5 GB"><span class="sb-lab"><span class="sw" style="background:var(--s2)"></span><span class="sb-txt"><span class="sb-name">Splash 1.3.1 + DFlash2</span> <span class="eff">effort: medium</span></span></span><span class="sb-track"><span class="seg ttft" style="width:16.23%;background:var(--s2)"></span><span class="seg gen" style="width:18.56%;background:var(--s2)"></span></span><span class="sb-val">15.9 s</span></div><div class="sbar" data-effort="xhigh" title="mlx-serve 26.10.2 + DFlash2 · thinking effort: xhigh · 128K · agent turn time 44.7 s · warm TTFT (tool turn) 10.8 s · 512 tokens 33.9 s · decode 15.1 tok/s · cold TTFT 717.8 s · peak memory 70.4 GB" role="img" aria-label="mlx-serve 26.10.2 + DFlash2 · thinking effort: xhigh · 128K · agent turn time 44.7 s · warm TTFT (tool turn) 10.8 s · 512 tokens 33.9 s · decode 15.1 tok/s · cold TTFT 717.8 s · peak memory 70.4 GB"><span class="sb-lab"><span class="sw" style="background:var(--s5)"></span><span class="sb-txt"><span class="sb-name">mlx-serve 26.10.2 + DFlash2</span> <span class="eff">effort: xhigh</span></span></span><span class="sb-track"><span class="seg ttft" style="width:23.69%;background:var(--s5)"></span><span class="seg gen" style="width:74.37%;background:var(--s5)"></span></span><span class="sb-val">44.7 s</span></div><div class="sbar" data-effort="medium" title="mlx-serve 26.10.2 + DFlash2 · thinking effort: medium · 128K · agent turn time 34.8 s · warm TTFT (tool turn) 10.8 s · 512 tokens 24.0 s · decode 21.3 tok/s · cold TTFT 716.8 s · peak memory 69.5 GB" role="img" aria-label="mlx-serve 26.10.2 + DFlash2 · thinking effort: medium · 128K · agent turn time 34.8 s · warm TTFT (tool turn) 10.8 s · 512 tokens 24.0 s · decode 21.3 tok/s · cold TTFT 716.8 s · peak memory 69.5 GB"><span class="sb-lab"><span class="sw" style="background:var(--s5)"></span><span class="sb-txt"><span class="sb-name">mlx-serve 26.10.2 + DFlash2</span> <span class="eff">effort: medium</span></span></span><span class="sb-track"><span class="seg ttft" style="width:23.69%;background:var(--s5)"></span><span class="seg gen" style="width:52.72%;background:var(--s5)"></span></span><span class="sb-val">34.8 s</span></div><div class="sbar" data-ref="flashnext" title="Qwen3.8-Flash-Next · Swift 1.5 quant (our daily model) · thinking effort: xhigh · 128K · agent turn time 8.6 s · warm TTFT (tool turn) 1.9 s · 512 tokens 6.7 s · decode 76.7 tok/s · cold TTFT 165.5 s · peak memory 111.2 GB" role="img" aria-label="Qwen3.8-Flash-Next · Swift 1.5 quant (our daily model) · thinking effort: xhigh · 128K · agent turn time 8.6 s · warm TTFT (tool turn) 1.9 s · 512 tokens 6.7 s · decode 76.7 tok/s · cold TTFT 165.5 s · peak memory 111.2 GB"><span class="sb-lab"><span class="sw" style="background:var(--s3)"></span><span class="sb-txt"><span class="sb-name">Qwen3.8-Flash-Next · Swift 1.5 quant (our daily model)</span> <span class="eff">reference · effort: xhigh</span></span></span><span class="sb-track"><span class="seg ttft" style="width:4.17%;background:var(--s3)"></span><span class="seg gen" style="width:14.64%;background:var(--s3)"></span></span><span class="sb-val">8.6 s</span></div><div class="sbar" data-ref="flashnext" title="Qwen3.8-Flash-Next · ddalcu iQ quant · thinking effort: xhigh · 128K · agent turn time 8.9 s · warm TTFT (tool turn) 1.9 s · 512 tokens 7.0 s · decode 73.2 tok/s · cold TTFT 165.4 s · peak memory 110.6 GB" role="img" aria-label="Qwen3.8-Flash-Next · ddalcu iQ quant · thinking effort: xhigh · 128K · agent turn time 8.9 s · warm TTFT (tool turn) 1.9 s · 512 tokens 7.0 s · decode 73.2 tok/s · cold TTFT 165.4 s · peak memory 110.6 GB"><span class="sb-lab"><span class="sw" style="background:var(--ref-b)"></span><span class="sb-txt"><span class="sb-name">Qwen3.8-Flash-Next · ddalcu iQ quant</span> <span class="eff">reference · effort: xhigh</span></span></span><span class="sb-track"><span class="seg ttft" style="width:4.17%;background:var(--ref-b)"></span><span class="seg gen" style="width:15.34%;background:var(--ref-b)"></span></span><span class="sb-val">8.9 s</span></div></div><p class="sb-key"><span><span class="k ttft"></span>warm TTFT of the tool-result turn</span><span><span class="k gen"></span>512 tokens at the median decode speed</span><span>hover or tap a bar for decode, TTFT and memory</span></p><h3 class="c-head">32K context · agent turn time, shorter is better</h3><div class="sbars"><div class="sbar" data-effort="xhigh" title="mlx-dspark 0.20.3 + DFlash2 (baseline) · thinking effort: xhigh · 32K · agent turn time 17.0 s · warm TTFT (tool turn) 5.4 s · 512 tokens 11.6 s · decode 44.0 tok/s · cold TTFT 109.9 s · peak memory 43.3 GB" role="img" aria-label="mlx-dspark 0.20.3 + DFlash2 (baseline) · thinking effort: xhigh · 32K · agent turn time 17.0 s · warm TTFT (tool turn) 5.4 s · 512 tokens 11.6 s · decode 44.0 tok/s · cold TTFT 109.9 s · peak memory 43.3 GB"><span class="sb-lab"><span class="sw" style="background:var(--s1)"></span><span class="sb-txt"><span class="sb-name">mlx-dspark 0.20.3 + DFlash2 (baseline)</span> <span class="eff">effort: xhigh</span></span></span><span class="sb-track"><span class="seg ttft" style="width:26.60%;background:var(--s1)"></span><span class="seg gen" style="width:57.33%;background:var(--s1)"></span></span><span class="sb-val">17.0 s</span></div><div class="sbar" data-effort="medium" title="mlx-dspark 0.20.3 + DFlash2 (baseline) · thinking effort: medium · 32K · agent turn time 13.5 s · warm TTFT (tool turn) 5.5 s · 512 tokens 8.0 s · decode 63.8 tok/s · cold TTFT 109.5 s · peak memory 41.5 GB" role="img" aria-label="mlx-dspark 0.20.3 + DFlash2 (baseline) · thinking effort: medium · 32K · agent turn time 13.5 s · warm TTFT (tool turn) 5.5 s · 512 tokens 8.0 s · decode 63.8 tok/s · cold TTFT 109.5 s · peak memory 41.5 GB"><span class="sb-lab"><span class="sw" style="background:var(--s1)"></span><span class="sb-txt"><span class="sb-name">mlx-dspark 0.20.3 + DFlash2 (baseline)</span> <span class="eff">effort: medium</span></span></span><span class="sb-track"><span class="seg ttft" style="width:27.10%;background:var(--s1)"></span><span class="seg gen" style="width:39.54%;background:var(--s1)"></span></span><span class="sb-val">13.5 s</span></div><div class="sbar" data-effort="xhigh" title="Splash 1.3.1 + DFlash2 · thinking effort: xhigh · 32K · agent turn time 13.3 s · warm TTFT (tool turn) 3.9 s · 512 tokens 9.4 s · decode 54.7 tok/s · cold TTFT 76.3 s · peak memory 42.2 GB" role="img" aria-label="Splash 1.3.1 + DFlash2 · thinking effort: xhigh · 32K · agent turn time 13.3 s · warm TTFT (tool turn) 3.9 s · 512 tokens 9.4 s · decode 54.7 tok/s · cold TTFT 76.3 s · peak memory 42.2 GB"><span class="sb-lab"><span class="sw" style="background:var(--s2)"></span><span class="sb-txt"><span class="sb-name">Splash 1.3.1 + DFlash2</span> <span class="eff">effort: xhigh</span></span></span><span class="sb-track"><span class="seg ttft" style="width:19.21%;background:var(--s2)"></span><span class="seg gen" style="width:46.11%;background:var(--s2)"></span></span><span class="sb-val">13.3 s</span></div><div class="sbar" data-effort="medium" title="Splash 1.3.1 + DFlash2 · thinking effort: medium · 32K · agent turn time 10.4 s · warm TTFT (tool turn) 3.9 s · 512 tokens 6.5 s · decode 79.3 tok/s · cold TTFT 76.1 s · peak memory 42.0 GB" role="img" aria-label="Splash 1.3.1 + DFlash2 · thinking effort: medium · 32K · agent turn time 10.4 s · warm TTFT (tool turn) 3.9 s · 512 tokens 6.5 s · decode 79.3 tok/s · cold TTFT 76.1 s · peak memory 42.0 GB"><span class="sb-lab"><span class="sw" style="background:var(--s2)"></span><span class="sb-txt"><span class="sb-name">Splash 1.3.1 + DFlash2</span> <span class="eff">effort: medium</span></span></span><span class="sb-track"><span class="seg ttft" style="width:19.21%;background:var(--s2)"></span><span class="seg gen" style="width:31.81%;background:var(--s2)"></span></span><span class="sb-val">10.4 s</span></div><div class="sbar" data-effort="xhigh" title="mlx-serve 26.10.2 + DFlash2 · thinking effort: xhigh · 32K · agent turn time 19.9 s · warm TTFT (tool turn) 5.8 s · 512 tokens 14.1 s · decode 36.3 tok/s · cold TTFT 109.0 s · peak memory 59.3 GB" role="img" aria-label="mlx-serve 26.10.2 + DFlash2 · thinking effort: xhigh · 32K · agent turn time 19.9 s · warm TTFT (tool turn) 5.8 s · 512 tokens 14.1 s · decode 36.3 tok/s · cold TTFT 109.0 s · peak memory 59.3 GB"><span class="sb-lab"><span class="sw" style="background:var(--s5)"></span><span class="sb-txt"><span class="sb-name">mlx-serve 26.10.2 + DFlash2</span> <span class="eff">effort: xhigh</span></span></span><span class="sb-track"><span class="seg ttft" style="width:28.57%;background:var(--s5)"></span><span class="seg gen" style="width:69.49%;background:var(--s5)"></span></span><span class="sb-val">19.9 s</span></div><div class="sbar" data-effort="medium" title="mlx-serve 26.10.2 + DFlash2 · thinking effort: medium · 32K · agent turn time 15.7 s · warm TTFT (tool turn) 5.8 s · 512 tokens 9.9 s · decode 51.9 tok/s · cold TTFT 108.4 s · peak memory 63.0 GB" role="img" aria-label="mlx-serve 26.10.2 + DFlash2 · thinking effort: medium · 32K · agent turn time 15.7 s · warm TTFT (tool turn) 5.8 s · 512 tokens 9.9 s · decode 51.9 tok/s · cold TTFT 108.4 s · peak memory 63.0 GB"><span class="sb-lab"><span class="sw" style="background:var(--s5)"></span><span class="sb-txt"><span class="sb-name">mlx-serve 26.10.2 + DFlash2</span> <span class="eff">effort: medium</span></span></span><span class="sb-track"><span class="seg ttft" style="width:28.57%;background:var(--s5)"></span><span class="seg gen" style="width:48.60%;background:var(--s5)"></span></span><span class="sb-val">15.7 s</span></div><div class="sbar" data-ref="flashnext" title="Qwen3.8-Flash-Next · Swift 1.5 quant (our daily model) · thinking effort: xhigh · 32K · agent turn time 7.9 s · warm TTFT (tool turn) 1.8 s · 512 tokens 6.1 s · decode 84.6 tok/s · cold TTFT 34.5 s · peak memory 96.1 GB" role="img" aria-label="Qwen3.8-Flash-Next · Swift 1.5 quant (our daily model) · thinking effort: xhigh · 32K · agent turn time 7.9 s · warm TTFT (tool turn) 1.8 s · 512 tokens 6.1 s · decode 84.6 tok/s · cold TTFT 34.5 s · peak memory 96.1 GB"><span class="sb-lab"><span class="sw" style="background:var(--s3)"></span><span class="sb-txt"><span class="sb-name">Qwen3.8-Flash-Next · Swift 1.5 quant (our daily model)</span> <span class="eff">reference · effort: xhigh</span></span></span><span class="sb-track"><span class="seg ttft" style="width:8.87%;background:var(--s3)"></span><span class="seg gen" style="width:29.82%;background:var(--s3)"></span></span><span class="sb-val">7.9 s</span></div><div class="sbar" data-ref="flashnext" title="Qwen3.8-Flash-Next · ddalcu iQ quant · thinking effort: xhigh · 32K · agent turn time 8.1 s · warm TTFT (tool turn) 1.8 s · 512 tokens 6.2 s · decode 82.3 tok/s · cold TTFT 34.5 s · peak memory 96.0 GB" role="img" aria-label="Qwen3.8-Flash-Next · ddalcu iQ quant · thinking effort: xhigh · 32K · agent turn time 8.1 s · warm TTFT (tool turn) 1.8 s · 512 tokens 6.2 s · decode 82.3 tok/s · cold TTFT 34.5 s · peak memory 96.0 GB"><span class="sb-lab"><span class="sw" style="background:var(--ref-b)"></span><span class="sb-txt"><span class="sb-name">Qwen3.8-Flash-Next · ddalcu iQ quant</span> <span class="eff">reference · effort: xhigh</span></span></span><span class="sb-track"><span class="seg ttft" style="width:8.87%;background:var(--ref-b)"></span><span class="seg gen" style="width:30.65%;background:var(--ref-b)"></span></span><span class="sb-val">8.1 s</span></div></div><p class="sb-key"><span><span class="k ttft"></span>warm TTFT of the tool-result turn</span><span><span class="k gen"></span>512 tokens at the median decode speed</span><span>hover or tap a bar for decode, TTFT and memory</span></p>
+  <p class="quality-line">Quality and per-task time were not measured for the 27B.</p></div>
+</div>
+<p class="post-foot"><span>Median of the repetitions · per-request results in the repo</span>
+<span>snagnever.github.io/macstudio-local-llm/qwen38-27b-stacks.html</span></p>
+</div></body></html>
