@@ -797,7 +797,7 @@ def _html_run(p: dict) -> str:
             f'{draft_dl}\n'
             f'# serve (Splash 1.3.1)\n'
             f'splash {fl.get("SPLASH_SERVE_SUBCMD", "serve")} {fl.get("SPLASH_FLAG_MODEL", "--model")} {cmd["model"]} '
-            f'{fl.get("SPLASH_FLAG_HOST", "--host")} 0.0.0.0 {fl.get("SPLASH_FLAG_PORT", "--port")} {cmd["port"]} \\\n'
+            f'{fl.get("SPLASH_FLAG_HOST", "--host")} 127.0.0.1 {fl.get("SPLASH_FLAG_PORT", "--port")} {cmd["port"]} \\\n'
             f'  {fl.get("SPLASH_FLAG_CTX", "--max-context")} 131072 \\\n'
             f'  {fl.get("SPLASH_FLAG_REVISION", "--revision")} {rev} \\\n'
             f'  {fl.get("SPLASH_FLAG_DRAFTER", "--draft-model")} "$DRAFT_DIR" \\\n'

@@ -5,6 +5,8 @@ usage: driver_gate.py --results-dir DIR --w1 T32 T128 --ratio 1.25 [--skip-gates
 --skip-gates-arms: arms whose runtime may not report cached_tokens; their hit_append/hit_tool_turn gates
 are ignored when deciding eligibility (every other gate still applies).
 """
+from __future__ import annotations
+
 import argparse, json, sys
 from pathlib import Path
 

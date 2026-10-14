@@ -98,8 +98,9 @@ Ratios at 128K: Splash `xhigh` / control = **0.689** (phase P1 passed, rule ≤ 
 1.739 (phase P3 failed, rule ≤ 1.00). Splash `medium` / Flash-Next w1 = **1.85**; the rule to reopen the driver
 verdict is ≤ 1.25 on both bands.
 
-8K smokes (`medium`, 1 rep): decode Splash 86.5, mlx-serve drafter 83.6, oMLX 0.7.1.dev1 oQ4e 81.4, mlx-serve
-MTP-only 51.5, llama.cpp b11569 Q8_0 + draft-mtp 35.3 tok/s. The last three were not measured at 32K/128K.
+8K smokes (`medium`, 1 rep; warm decode = median of identical, append and tool_turn, as on the public page): Splash
+92.3, oMLX 0.7.1.dev1 oQ4e 81.4, mlx-serve drafter 80.6, mlx-serve MTP-only 51.5, llama.cpp b11569 Q8_0 + draft-mtp
+35.3 tok/s. The last three were not measured at 32K/128K.
 
 ## Role on this rig
 
