@@ -1,0 +1,6984 @@
+{
+ "bench/swift15-flashnext-2026-10/results/ab/t0/n2/livecodebench.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-10-10T19:36:56.784688",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-10-10T19:37:39.215680",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-10-10T19:38:13.373271",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-10-10T19:38:28.967651",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-10-10T19:38:44.502070",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-10-10T19:39:04.078383",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-10-10T19:39:23.927328",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-10-10T19:42:06.888359",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-10-10T19:43:53.219760",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-10-10T19:44:22.785160",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-10-10T19:44:54.478015",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-10-10T19:45:26.070354",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-10-10T19:45:40.860085",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-10-10T19:45:57.985984",
+   "original": false,
+   "original_reason": "fail_test6:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-10-10T19:50:56.249069",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-10-10T19:51:29.376037",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-10-10T19:53:05.355624",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-10-10T19:53:24.348690",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-10-10T19:58:52.237516",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-10-10T19:59:55.364394",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-10-10T20:00:36.174327",
+   "original": false,
+   "original_reason": "fail_test2:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 15, in <module>\n  File \"<string>\", line 9, in maxTotalReward\n",
+   "regraded": false,
+   "reason": "fail_test2:rc=1: 62fw60x3nvm0000gn/T/lcb_cw3vnklk.py\", line 45, in maxTotalReward\n    reachable |= (reachable & ((1 << value) - 1)) << value\n                                ~~^^~~~~~~\nValueError: negative shift count\n"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-10-10T20:00:54.159438",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-10-10T20:01:05.788869",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-10-10T20:17:53.492937",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-10-10T20:18:07.185758",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-10-10T20:18:24.104313",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-10-10T20:19:12.113598",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-10-10T20:20:31.751971",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-10-10T20:20:49.156350",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-10-10T20:21:06.792610",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-10-10T20:21:31.014516",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-10-10T20:21:47.901902",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-10-10T20:23:28.849320",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-10-10T20:24:16.034320",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-10-10T20:26:07.532148",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-10-10T20:28:36.310339",
+   "original": false,
+   "original_reason": "fail_test41:mismatch",
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-10-10T20:28:52.889213",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-10-10T20:33:33.469859",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-10-10T20:37:33.910582",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "timestamp": "2026-10-10T20:37:47.898105",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "timestamp": "2026-10-10T20:38:35.255833",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "timestamp": "2026-10-10T20:39:30.505087",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "timestamp": "2026-10-10T20:40:53.938680",
+   "original": false,
+   "original_reason": "fail_test14:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-10-10T20:49:18.686199",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-10-10T20:50:09.188973",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-10-10T21:07:13.028001",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "timestamp": "2026-10-10T21:07:33.484117",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-10-10T21:23:26.267147",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "timestamp": "2026-10-10T21:23:51.333439",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "timestamp": "2026-10-10T21:24:05.070875",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "bench/swift15-flashnext-2026-10/results/ab/t0/w1/livecodebench.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-10-11T05:25:11.997337",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-10-11T05:25:41.399021",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-10-11T05:26:10.375774",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-10-11T05:26:23.783913",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-10-11T05:26:38.587453",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-10-11T05:27:06.515214",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-10-11T05:27:26.214005",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-10-11T05:29:03.934331",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-10-11T05:30:24.577802",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-10-11T05:30:51.381134",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-10-11T05:31:13.247363",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-10-11T05:31:35.100680",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-10-11T05:31:49.544057",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-10-11T05:32:10.061850",
+   "original": false,
+   "original_reason": "fail_test6:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-10-11T05:34:51.146453",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-10-11T05:35:13.751954",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-10-11T05:36:13.164672",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-10-11T05:36:36.989743",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-10-11T05:40:00.468841",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-10-11T05:40:26.110174",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-10-11T05:40:53.450016",
+   "original": false,
+   "original_reason": "fail_test2:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 15, in <module>\n  File \"<string>\", line 9, in maxTotalReward\n",
+   "regraded": false,
+   "reason": "fail_test2:rc=1: ^^\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_t4mp0via.py\", line 45, in maxTotalReward\n    dp |= (dp & ((1 << v) - 1)) << v\n                  ~~^^~~\nValueError: negative shift count\n"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-10-11T05:41:10.711683",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-10-11T05:41:22.873429",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-10-11T05:46:16.905456",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-10-11T05:46:30.724129",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-10-11T05:46:45.971023",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-10-11T05:56:02.524337",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-10-11T05:57:32.274935",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-10-11T05:57:50.153579",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-10-11T05:58:06.045753",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-10-11T05:58:30.214829",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-10-11T05:58:45.629347",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-10-11T05:59:27.193806",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-10-11T05:59:56.014634",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-10-11T06:00:55.714952",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-10-11T06:02:04.859082",
+   "original": false,
+   "original_reason": "fail_test41:mismatch",
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-10-11T06:02:18.443583",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-10-11T06:04:04.033328",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-10-11T06:07:32.648999",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "timestamp": "2026-10-11T06:07:46.252155",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "timestamp": "2026-10-11T06:08:28.111833",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "timestamp": "2026-10-11T06:09:07.978818",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "timestamp": "2026-10-11T06:10:08.825719",
+   "original": false,
+   "original_reason": "fail_test14:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-10-11T06:15:20.727387",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-10-11T06:15:44.830522",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-10-11T06:16:07.896965",
+   "original": false,
+   "original_reason": "no_code",
+   "regraded": false,
+   "reason": "no_code"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "timestamp": "2026-10-11T06:16:27.079388",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-10-11T06:33:46.731737",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "timestamp": "2026-10-11T06:34:05.224733",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "timestamp": "2026-10-11T06:34:18.941917",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "bench/swift15-flashnext-2026-10/results/ab/t1/n2/livecodebench.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-10-10T12:22:41.969828",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-10-10T12:24:16.698286",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-10-10T12:25:49.316559",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-10-10T12:26:03.356854",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-10-10T12:26:20.028413",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-10-10T12:26:40.275018",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-10-10T12:27:02.847031",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-10-10T12:33:34.672776",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-10-10T12:35:35.859805",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-10-10T12:36:19.714969",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-10-10T12:36:48.398181",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-10-10T12:37:35.301560",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-10-10T12:37:48.842268",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-10-10T12:38:10.109614",
+   "original": false,
+   "original_reason": "fail_test6:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-10-10T12:50:48.361938",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-10-10T12:51:30.995617",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-10-10T12:55:19.475044",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-10-10T12:55:48.853811",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-10-10T13:02:16.199701",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-10-10T13:03:45.353978",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-10-10T13:04:45.595870",
+   "original": false,
+   "original_reason": "fail_test2:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 14, in <module>\n  File \"<string>\", line 8, in maxTotalReward\n",
+   "regraded": false,
+   "reason": "fail_test2:rc=1: 62fw60x3nvm0000gn/T/lcb_lo5auiri.py\", line 44, in maxTotalReward\n    reachable |= (reachable & ((1 << value) - 1)) << value\n                                ~~^^~~~~~~\nValueError: negative shift count\n"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-10-10T13:05:12.100791",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-10-10T13:05:23.853579",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-10-10T13:17:48.842455",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-10-10T13:18:03.277097",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-10-10T13:18:20.002646",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-10-10T13:19:58.087390",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-10-10T13:22:35.681249",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-10-10T13:22:51.086354",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-10-10T13:23:07.968714",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-10-10T13:23:37.111531",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-10-10T13:23:51.405304",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-10-10T13:25:34.309194",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-10-10T13:26:46.975167",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-10-10T13:30:17.611230",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-10-10T13:35:32.411107",
+   "original": false,
+   "original_reason": "fail_test41:mismatch",
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-10-10T13:35:46.277057",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-10-10T13:42:09.813806",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-10-10T13:51:57.767010",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "timestamp": "2026-10-10T13:52:13.861139",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "timestamp": "2026-10-10T13:54:04.471817",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "timestamp": "2026-10-10T13:55:30.568364",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "timestamp": "2026-10-10T13:57:08.583634",
+   "original": false,
+   "original_reason": "fail_test14:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-10-10T14:15:13.342884",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-10-10T14:16:02.285863",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-10-10T14:34:37.213041",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "timestamp": "2026-10-10T14:35:09.882295",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-10-10T14:53:30.027185",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "timestamp": "2026-10-10T14:53:54.802009",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "timestamp": "2026-10-10T14:54:09.321780",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "bench/swift15-flashnext-2026-10/results/ab/t1/w1/livecodebench.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-10-11T00:23:18.132194",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-10-11T00:24:26.354625",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-10-11T00:24:55.641245",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-10-11T00:25:08.824174",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-10-11T00:25:21.776678",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-10-11T00:25:48.386948",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-10-11T00:26:05.429608",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-10-11T00:30:28.797096",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-10-11T00:31:11.261048",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-10-11T00:31:42.462334",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-10-11T00:32:17.685245",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-10-11T00:32:40.620957",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-10-11T00:32:55.267340",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-10-11T00:33:12.930102",
+   "original": false,
+   "original_reason": "fail_test6:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-10-11T00:38:10.093269",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-10-11T00:38:28.563224",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-10-11T00:40:03.961436",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-10-11T00:40:25.947718",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-10-11T00:47:22.168161",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-10-11T00:47:45.384712",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-10-11T00:48:41.302774",
+   "original": false,
+   "original_reason": "fail_test2:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 15, in <module>\n  File \"<string>\", line 9, in maxTotalReward\n",
+   "regraded": false,
+   "reason": "fail_test2:rc=1: ^^\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_ypr4x_rz.py\", line 45, in maxTotalReward\n    dp |= (dp & ((1 << v) - 1)) << v\n                  ~~^^~~\nValueError: negative shift count\n"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-10-11T00:49:00.909373",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-10-11T00:49:13.112695",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-10-11T00:57:48.541966",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-10-11T00:58:02.251449",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-10-11T00:58:18.985548",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-10-11T00:59:03.654616",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-10-11T01:00:11.784497",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-10-11T01:00:26.929171",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-10-11T01:00:44.358033",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-10-11T01:01:09.183023",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-10-11T01:01:27.479737",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-10-11T01:02:09.188212",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-10-11T01:02:40.684541",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-10-11T01:03:44.373033",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-10-11T01:06:27.865139",
+   "original": false,
+   "original_reason": "fail_test41:mismatch",
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-10-11T01:06:43.901140",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-10-11T01:08:46.951125",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-10-11T01:12:00.118331",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "timestamp": "2026-10-11T01:12:14.286574",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "timestamp": "2026-10-11T01:12:49.747958",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "timestamp": "2026-10-11T01:13:47.198832",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "timestamp": "2026-10-11T01:14:59.279283",
+   "original": false,
+   "original_reason": "fail_test14:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-10-11T01:23:36.702989",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-10-11T01:24:13.604940",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-10-11T01:42:05.998995",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "timestamp": "2026-10-11T01:42:24.619248",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-10-11T01:50:57.396755",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "timestamp": "2026-10-11T01:51:17.507981",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "timestamp": "2026-10-11T01:51:35.218174",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench__Users_vitor_.lmstudio_models_mlx-community_DeepSeek-V4-Flash-2bit-DQ_20260531_020641.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-05-31T02:10:56.703643",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-05-31T02:11:11.091393",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-05-31T02:15:22.548453",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-05-31T02:15:36.164618",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-05-31T02:15:48.744398",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-05-31T02:20:01.024420",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-05-31T02:24:12.606147",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-05-31T02:28:23.321837",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-05-31T02:32:33.547909",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-05-31T02:36:44.448331",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-05-31T02:40:54.625519",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-05-31T02:45:06.017871",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-05-31T02:46:01.875572",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-05-31T02:46:15.955421",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-05-31T02:50:27.467674",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-05-31T02:54:38.431937",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-05-31T02:58:49.908672",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-05-31T02:59:04.051124",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": false,
+   "reason": "fail_test1:mismatch"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-05-31T03:03:15.007768",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-05-31T03:07:25.960209",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-05-31T03:11:36.263302",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-05-31T03:15:46.799426",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-05-31T03:15:58.250907",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-05-31T03:20:08.711359",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-05-31T03:20:22.316646",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-05-31T03:24:36.437519",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-05-31T03:28:48.001882",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-05-31T03:32:58.444966",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-05-31T03:33:12.331437",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-05-31T03:37:25.039135",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-05-31T03:41:35.882879",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-05-31T03:45:48.013927",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-05-31T03:49:58.431303",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-05-31T03:54:09.589074",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-05-31T03:58:20.765418",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-05-31T04:02:31.122074",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-05-31T04:02:56.838185",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-05-31T04:07:09.661954",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-05-31T04:11:21.561349",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "timestamp": "2026-05-31T04:15:31.470935",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "timestamp": "2026-05-31T04:19:42.694272",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "timestamp": "2026-05-31T04:23:53.448872",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "timestamp": "2026-05-31T04:28:05.897725",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-05-31T04:32:17.743289",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-05-31T04:36:28.337830",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-05-31T04:40:40.013029",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "timestamp": "2026-05-31T04:44:51.604505",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-05-31T04:49:04.421426",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "timestamp": "2026-05-31T04:53:15.589976",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "timestamp": "2026-05-31T04:57:27.283805",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_agents-a1-xl-mlx_20260704_221932.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-07-04T22:22:04.224721",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-07-04T22:32:34.364768",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-07-04T22:40:55.270005",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-07-04T22:41:30.994029",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-07-04T22:42:09.824685",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-07-04T22:45:16.947039",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-07-04T22:45:40.578148",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-07-04T23:14:40.614293",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-07-04T23:18:37.302259",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-07-04T23:22:21.091439",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-07-04T23:23:49.303960",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-07-04T23:26:30.158236",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-07-04T23:28:18.575153",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-07-04T23:28:42.826103",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-07-04T23:33:50.667385",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-07-04T23:36:42.780589",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-07-04T23:40:53.104406",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-07-04T23:41:39.337476",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-07-05T00:04:08.827273",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-07-05T00:09:43.503076",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-07-05T00:26:27.372352",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-07-05T00:29:27.949180",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-07-05T00:29:53.183015",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-07-05T00:41:49.389095",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-07-05T00:42:21.042420",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-07-05T00:44:25.439677",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-07-05T00:45:50.894120",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-07-05T00:56:05.893616",
+   "original": false,
+   "original_reason": "fail_test1:mismatch",
+   "regraded": false,
+   "reason": "fail_test1:mismatch"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-07-05T00:56:21.928277",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-07-05T00:56:36.865523",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-07-05T00:58:53.246214",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-07-05T01:00:17.724261",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-07-05T01:06:48.228588",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-07-05T01:09:03.983983",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-07-05T01:15:21.642226",
+   "original": false,
+   "original_reason": "fail_test7:mismatch",
+   "regraded": false,
+   "reason": "fail_test7:mismatch"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-07-05T01:19:34.695494",
+   "original": false,
+   "original_reason": "fail_test2:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 48, in <module>\n  File \"<string>\", line 33, in main\nValueErro",
+   "regraded": false,
+   "reason": "fail_test2:rc=1: main()\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb__4p7o3cm.py\", line 69, in main\n    s = math.isqrt(delta)\n        ^^^^^^^^^^^^^^^^^\nValueError: isqrt() argument must be nonnegative\n"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-07-05T01:19:58.199249",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-07-05T01:24:59.848735",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-07-05T01:40:29.679698",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "timestamp": "2026-07-05T01:40:46.375926",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "timestamp": "2026-07-05T01:42:54.715620",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "timestamp": "2026-07-05T01:46:21.638153",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "timestamp": "2026-07-05T01:49:25.385563",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-07-05T01:57:24.222189",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": false,
+   "reason": "fail_test14:mismatch"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-07-05T01:59:10.850190",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-07-05T02:06:08.812400",
+   "original": false,
+   "original_reason": "fail_test11:mismatch",
+   "regraded": false,
+   "reason": "fail_test11:mismatch"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "timestamp": "2026-07-05T02:06:39.696662",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-07-05T02:18:02.727312",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 321, in <module>\n  File \"<string>\", line 252, in solve\n  File",
+   "regraded": false,
+   "reason": "fail_test0:rc=1: 00gn/T/lcb_asmzjgg7.py\", line 286, in dfs_dp\n    choice[u] = best_child\n                ^^^^^^^^^^\nUnboundLocalError: cannot access local variable 'best_child' where it is not associated with a value\n"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "timestamp": "2026-07-05T02:18:37.034226",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "timestamp": "2026-07-05T02:20:09.169085",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_deepseek-v4-flash-iq2xs_20260705_164011.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-07-05T16:41:10.345548",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-07-05T16:56:30.523619",
+   "original": false,
+   "original_reason": "no_code",
+   "regraded": false,
+   "reason": "no_code"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-07-05T17:03:37.846141",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-07-05T17:04:05.150511",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-07-05T17:04:45.427774",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-07-05T17:23:47.942688",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-07-05T17:25:51.691702",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_gemma-4-26b-a4b-it-mlx@4bit_20260520_162943.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-05-20T16:29:59.441457",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-05-20T16:36:26.451370",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-05-20T16:36:42.103063",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-05-20T16:36:51.568367",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-05-20T16:37:02.465180",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-05-20T16:37:14.629693",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-05-20T16:37:28.791246",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-05-20T16:43:54.479161",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-05-20T16:44:07.095408",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-05-20T16:44:18.898202",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-05-20T16:50:47.408015",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-05-20T16:51:00.418729",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-05-20T16:51:10.798723",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-05-20T16:51:21.103934",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-05-20T16:52:35.525232",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-05-20T16:52:48.990261",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/.venv/bin/python3'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-05-20T16:53:40.958040",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-05-20T16:54:03.979267",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-05-20T17:00:27.929677",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-05-20T17:00:42.023658",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-05-20T17:02:14.200774",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": false,
+   "reason": "fail_test2:rc=1: \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_fme_ow1k.py\", line 52, in maxTotalReward\n    new_sums = (dp & ((1 << v) - 1)) << v\n                       ~~^^~~\nValueError: negative shift count\n"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-05-20T17:02:26.094957",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-05-20T17:02:34.912838",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-05-20T17:03:33.628603",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-05-20T17:03:44.571695",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-05-20T17:03:56.517468",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-05-20T17:04:15.649937",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-05-20T17:10:44.689631",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-05-20T17:10:55.145926",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-05-20T17:11:07.109221",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-05-20T17:11:18.343950",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-05-20T17:11:29.539547",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-05-20T17:11:54.656175",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-05-20T17:12:13.390890",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-05-20T17:12:38.691769",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 3, in <module>\n  File \"<string>\", line 4, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-05-20T17:12:58.189448",
+   "original": false,
+   "original_reason": "fail_test41:mismatch",
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-05-20T17:13:08.790374",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-05-20T17:14:18.456846",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 236, in <module>\n  File \"<string>\", line 68, in solve\n  File ",
+   "regraded": false,
+   "reason": "fail_test0:rc=1:   ^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_80e5mruk.py\", line 96, in find_dsu\n    if dsu_root[i] == i:\n       ~~~~~~~~^^^\nIndexError: list index out of range\n"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-05-20T17:20:45.677640",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "timestamp": "2026-05-20T17:20:55.666124",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "timestamp": "2026-05-20T17:21:43.576085",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "timestamp": "2026-05-20T17:22:14.323460",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "timestamp": "2026-05-20T17:22:28.148739",
+   "original": false,
+   "original_reason": "fail_test14:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/.venv/bin/python3'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-05-20T17:28:58.656202",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-05-20T17:35:29.508721",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-05-20T17:42:03.201755",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "timestamp": "2026-05-20T17:42:17.955771",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-05-20T17:44:12.305401",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "timestamp": "2026-05-20T17:44:27.012977",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "timestamp": "2026-05-20T17:44:38.471080",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_gemma-4-26b-a4b-it-mlx@4bit_20260524_133314.jsonl": [
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-05-24T13:33:37.495329",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-05-24T13:48:20.988602",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-05-24T14:02:47.322286",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-05-24T14:17:16.012395",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-05-24T14:31:41.635723",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-05-24T14:46:11.512542",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-05-24T15:00:41.651696",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-05-24T15:15:08.290941",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-05-24T15:29:37.490223",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_gemma-4-26b-a4b-it-mlx@6bit_20260521_202147.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-05-21T20:22:04.304862",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-05-21T20:22:25.189920",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-05-21T20:22:41.430084",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-05-21T20:22:51.622993",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-05-21T20:23:02.467931",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-05-21T20:23:14.493296",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-05-21T20:23:29.228296",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-05-21T20:30:51.234984",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-05-21T20:31:05.259737",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-05-21T20:31:18.186204",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-05-21T20:31:39.978540",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-05-21T20:31:53.470349",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-05-21T20:32:04.475489",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-05-21T20:32:16.016573",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-05-21T20:39:38.557741",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-05-21T20:39:53.479861",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/.venv/bin/python3'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-05-21T20:40:24.712352",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-05-21T20:40:37.065607",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-05-21T20:47:59.275528",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-05-21T20:48:14.278323",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-05-21T20:48:28.172059",
+   "original": false,
+   "original_reason": "fail_test2:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 43, in <module>\n  File \"<string>\", line 32, in maxTotalReward",
+   "regraded": false,
+   "reason": "fail_test2:rc=1: folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_t85oy11s.py\", line 68, in maxTotalReward\n    valid_sums_mask = dp & ((1 << v) - 1)\n                             ~~^^~~\nValueError: negative shift count\n"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-05-21T20:48:40.242110",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-05-21T20:48:49.139490",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-05-21T20:49:38.065027",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-05-21T20:49:49.650700",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-05-21T20:50:02.500886",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-05-21T20:50:20.026325",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-05-21T20:57:41.154984",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-05-21T20:57:52.052885",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-05-21T20:58:04.714129",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-05-21T20:58:17.507415",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-05-21T20:58:29.216803",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-05-21T20:58:51.223222",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-05-21T20:59:12.430056",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-05-21T20:59:37.043271",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 3, in <module>\n  File \"<string>\", line 4, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-05-21T20:59:59.040472",
+   "original": false,
+   "original_reason": "fail_test41:mismatch",
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-05-21T21:00:10.483118",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-05-21T21:02:24.577830",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-05-21T21:03:35.091218",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "timestamp": "2026-05-21T21:03:45.108251",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "timestamp": "2026-05-21T21:04:29.132058",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "timestamp": "2026-05-21T21:04:46.625923",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "timestamp": "2026-05-21T21:05:16.318634",
+   "original": false,
+   "original_reason": "fail_test14:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/.venv/bin/python3'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-05-21T21:06:21.463276",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-05-21T21:07:43.973515",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-05-21T21:08:15.420518",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 3, in <module>\n  File \"<string>\", line 4, in Solution\nNameErr",
+   "regraded": false,
+   "reason": "fail_test3:mismatch"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "timestamp": "2026-05-21T21:08:29.421435",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-05-21T21:11:03.842136",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "timestamp": "2026-05-21T21:11:20.328299",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "timestamp": "2026-05-21T21:11:32.936082",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_gemma-4-26b-a4b-it-mlx@6bit_20260524_153026.jsonl": [
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-05-24T15:32:45.010604",
+   "original": false,
+   "original_reason": "fail_test0:rc=1:   File \"<string>\", line 6\n    \"\"\"\n    ^\nSyntaxError: unterminated triple-quoted string literal (detected at line 312)\n",
+   "regraded": false,
+   "reason": "fail_test0:rc=1:   File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_etau25_m.py\", line 42\n    \"\"\"\n    ^\nSyntaxError: unterminated triple-quoted string literal (detected at line 347)\n"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-05-24T15:33:43.279348",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-05-24T15:50:31.526781",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-05-24T15:51:16.268266",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_gemma-4-31b-it-mlx_20260522_094125.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-05-22T09:42:03.675295",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-05-22T09:42:32.509306",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-05-22T09:43:21.255589",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-05-22T09:43:43.340351",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-05-22T09:44:13.394640",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-05-22T09:44:51.881817",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-05-22T09:45:38.129943",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-05-22T09:46:50.590917",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-05-22T09:47:44.386558",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-05-22T09:48:30.171586",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-05-22T09:49:12.526414",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-05-22T09:49:47.154788",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-05-22T09:50:14.568990",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-05-22T09:50:46.915316",
+   "original": false,
+   "original_reason": "fail_test6:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/.venv/bin/python3'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-05-22T09:52:45.418208",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 3, in <module>\n  File \"<string>\", line 4, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-05-22T09:53:27.033088",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/.venv/bin/python3'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-05-22T09:55:26.451186",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-05-22T09:55:55.838586",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-05-22T10:26:02.834247",
+   "original": false,
+   "original_reason": "no_code",
+   "regraded": false,
+   "reason": "no_code"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-05-22T10:26:45.571609",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-05-22T10:27:29.520806",
+   "original": false,
+   "original_reason": "fail_test2:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 41, in <module>\n  File \"<string>\", line 33, in maxTotalReward",
+   "regraded": false,
+   "reason": "fail_test2:rc=1: ers/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb__3j0r2sw.py\", line 69, in maxTotalReward\n    reachable_below_v = dp & ((1 << v) - 1)\n                               ~~^^~~\nValueError: negative shift count\n"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-05-22T10:28:05.986189",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-05-22T10:28:24.008559",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-05-22T10:30:03.901261",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-05-22T10:30:31.458381",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-05-22T10:31:08.465782",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-05-22T10:31:47.817100",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-05-22T10:32:32.365050",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-05-22T10:33:02.091177",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-05-22T10:33:37.004969",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-05-22T10:34:12.576158",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-05-22T10:34:45.552332",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-05-22T10:35:32.176052",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-05-22T10:36:39.087983",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-05-22T10:37:32.861770",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/.venv/bin/python3'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-05-22T10:38:58.270738",
+   "original": false,
+   "original_reason": "fail_test41:mismatch",
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-05-22T10:39:30.403642",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-05-22T10:41:47.858807",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-05-22T10:43:26.521360",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "timestamp": "2026-05-22T10:43:48.312715",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "timestamp": "2026-05-22T10:45:05.957589",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "timestamp": "2026-05-22T10:46:31.894444",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "timestamp": "2026-05-22T10:47:28.303127",
+   "original": false,
+   "original_reason": "fail_test14:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/.venv/bin/python3'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-05-22T10:48:25.547259",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-05-22T10:49:08.896587",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-05-22T10:50:48.387807",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 3, in <module>\n  File \"<string>\", line 4, in Solution\nNameErr",
+   "regraded": false,
+   "reason": "fail_test3:mismatch"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "timestamp": "2026-05-22T10:51:34.974127",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-05-22T10:53:47.979426",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "timestamp": "2026-05-22T10:54:24.740604",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "timestamp": "2026-05-22T10:54:57.286799",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_gemma-4-e4b-it-mlx_20260522_151009.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-05-22T15:10:38.408020",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-05-22T15:11:32.041296",
+   "original": false,
+   "original_reason": "fail_test10:timeout",
+   "regraded": false,
+   "reason": "fail_test10:timeout"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-05-22T15:12:13.782427",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-05-22T15:12:26.389485",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-05-22T15:12:46.287378",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-05-22T15:13:10.549304",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-05-22T15:13:34.347504",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-05-22T15:14:58.295319",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-05-22T15:15:45.978852",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-05-22T15:16:14.464355",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-05-22T15:17:52.744804",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-05-22T15:18:19.910768",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-05-22T15:18:33.765225",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-05-22T15:18:49.998905",
+   "original": false,
+   "original_reason": "fail_test6:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/.venv/bin/python3'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-05-22T15:19:49.179506",
+   "original": false,
+   "original_reason": "fail_test3:timeout",
+   "regraded": false,
+   "reason": "fail_test3:timeout"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-05-22T15:20:22.930436",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/.venv/bin/python3'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-05-22T15:21:42.682015",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-05-22T15:22:15.141485",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-05-22T15:24:17.509162",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-05-22T15:24:48.732855",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-05-22T15:26:18.201671",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-05-22T15:26:40.167352",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-05-22T15:26:50.199378",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-05-22T15:27:28.626708",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-05-22T15:27:40.481021",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-05-22T15:28:02.470631",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-05-22T15:28:55.536362",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-05-22T15:29:45.071187",
+   "original": false,
+   "original_reason": "fail_test13:timeout",
+   "regraded": false,
+   "reason": "fail_test13:timeout"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-05-22T15:30:03.530444",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-05-22T15:30:16.225763",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-05-22T15:30:40.924472",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-05-22T15:31:13.669518",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-05-22T15:32:26.502422",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-05-22T15:33:04.834937",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-05-22T15:33:49.062391",
+   "original": false,
+   "original_reason": "fail_test2:mismatch",
+   "regraded": false,
+   "reason": "fail_test2:mismatch"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-05-22T15:34:27.871067",
+   "original": false,
+   "original_reason": "fail_test41:mismatch",
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-05-22T15:34:46.822974",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-05-22T15:36:15.056627",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-05-22T15:37:28.820466",
+   "original": false,
+   "original_reason": "fail_test9:mismatch",
+   "regraded": false,
+   "reason": "fail_test9:mismatch"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "timestamp": "2026-05-22T15:37:53.209982",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "timestamp": "2026-05-22T15:38:44.022734",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "timestamp": "2026-05-22T15:39:57.410581",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "timestamp": "2026-05-22T15:40:33.224623",
+   "original": false,
+   "original_reason": "fail_test14:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/.venv/bin/python3'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-05-22T15:41:40.719170",
+   "original": false,
+   "original_reason": "fail_test1:mismatch",
+   "regraded": false,
+   "reason": "fail_test1:mismatch"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-05-22T15:42:13.126929",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-05-22T15:43:27.840740",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "timestamp": "2026-05-22T15:43:58.587570",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-05-22T15:44:53.797246",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "timestamp": "2026-05-22T15:45:27.176945",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "timestamp": "2026-05-22T15:45:51.060838",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_minimax-m2.5_20260704_133646.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-07-04T13:37:23.492131",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-07-04T13:41:55.614792",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-07-04T13:44:22.481104",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-07-04T13:44:38.617094",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-07-04T13:45:13.403762",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-07-04T13:46:31.539171",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-07-04T13:47:02.281281",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-07-04T13:54:14.959746",
+   "original": false,
+   "original_reason": "fail_test3:mismatch",
+   "regraded": false,
+   "reason": "fail_test3:mismatch"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-07-04T13:55:49.928114",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-07-04T13:57:16.556226",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-07-04T13:58:35.125987",
+   "original": false,
+   "original_reason": "no_code",
+   "regraded": false,
+   "reason": "no_code"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-07-04T14:00:32.889685",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-07-04T14:01:00.974593",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-07-04T14:01:40.211022",
+   "original": false,
+   "original_reason": "fail_test6:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/../../.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-07-04T14:13:13.700295",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-07-04T14:14:23.671462",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/../../.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_minimax-m2.5_20260704_143737.jsonl": [],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_minimax-m2.5_20260704_152521.jsonl": [
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-07-04T15:39:22.045970",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-07-04T15:40:26.939427",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-07-04T15:51:57.762668",
+   "original": false,
+   "original_reason": "no_code",
+   "regraded": false,
+   "reason": "no_code"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-07-04T15:57:00.741035",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-07-04T16:02:50.659729",
+   "original": false,
+   "original_reason": "fail_test2:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 24, in <module>\n  File \"<string>\", line 14, in maxTotalReward",
+   "regraded": false,
+   "reason": "fail_test2:rc=1: ^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_weqrnpid.py\", line 50, in maxTotalReward\n    mask = (1 << v) - 1\n            ~~^^~~\nValueError: negative shift count\n"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-07-04T16:03:42.789834",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-07-04T16:03:57.326245",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-07-04T16:08:32.409616",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-07-04T16:08:57.340978",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-07-04T16:09:39.600431",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-07-04T16:12:01.764279",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_minimax-m2.5_20260704_165910.jsonl": [
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-07-04T17:13:55.578630",
+   "original": false,
+   "original_reason": "no_code",
+   "regraded": false,
+   "reason": "no_code"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-07-04T17:14:49.598391",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-07-04T17:15:29.535043",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-07-04T17:16:25.824531",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-07-04T17:17:08.116999",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-07-04T17:23:44.820913",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-07-04T17:25:14.410360",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-07-04T17:28:56.485452",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/../../.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-07-04T17:34:30.330910",
+   "original": false,
+   "original_reason": "fail_test41:mismatch",
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-07-04T17:34:54.918584",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-07-04T17:48:49.248030",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-27b_20260523_003246.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-05-23T00:38:02.081689",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-05-23T01:08:21.658879",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-05-23T02:08:03.133783",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-05-23T02:14:00.223026",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-05-23T02:18:40.450763",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-05-23T02:33:47.276934",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-05-23T02:43:08.184589",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-05-23T03:07:53.267092",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-05-23T03:26:55.401870",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-27b_20260523_092939.jsonl": [
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-05-23T09:53:12.980370",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-05-23T10:11:18.978208",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-05-23T10:28:03.765851",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-05-23T10:33:27.605101",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-05-23T10:45:34.168275",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-27b_20260523_104610.jsonl": [
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-05-23T11:16:08.629343",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 178, in <module>\n  File \"<string>\", line 90, in minOperations",
+   "regraded": false,
+   "reason": "fail_test0:rc=1: lj_.py\", line 73, in rebalance\n    while valid_size_max > target_max:\n          ^^^^^^^^^^^^^^\nUnboundLocalError: cannot access local variable 'valid_size_max' where it is not associated with a value\n"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-05-23T11:29:37.195381",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/.venv/bin/python3'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-05-23T11:49:34.015556",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-05-23T11:56:09.144415",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-27b_20260523_230817.jsonl": [
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-05-24T00:04:06.836567",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-05-24T00:21:33.875237",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-05-24T00:45:11.915234",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": false,
+   "reason": "fail_test2:mismatch"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-27b_20260524_004542.jsonl": [
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-05-24T00:58:19.726388",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-05-24T01:06:12.670928",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-05-24T01:46:10.016429",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-27b_20260524_014640.jsonl": [
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-05-24T01:58:04.835590",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-05-24T02:03:29.316014",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-05-24T02:21:55.148726",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-27b_20260524_022225.jsonl": [
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-05-24T02:42:58.373083",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-05-24T02:46:20.852185",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-05-24T02:55:28.346645",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-27b_20260524_025559.jsonl": [
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-05-24T03:15:29.771603",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-05-24T03:25:16.230143",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-05-24T03:56:57.658388",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-27b_20260524_035728.jsonl": [
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-05-24T04:13:58.052525",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-05-24T04:47:41.199510",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": false,
+   "reason": "fail_test7:mismatch"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-05-24T05:13:46.551023",
+   "original": false,
+   "original_reason": "fail_test41:mismatch",
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-27b_20260524_051417.jsonl": [
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-05-24T05:26:48.443988",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-05-24T05:56:35.333742",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-05-24T06:21:54.883462",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-27b_20260524_062225.jsonl": [
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "timestamp": "2026-05-24T06:29:28.492637",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "timestamp": "2026-05-24T06:46:18.305425",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "timestamp": "2026-05-24T07:04:45.137422",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-27b_20260524_070516.jsonl": [
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "timestamp": "2026-05-24T07:23:40.097499",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-05-24T07:58:54.170004",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-05-24T08:21:53.485248",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-27b_20260524_082224.jsonl": [
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-05-24T09:07:34.008888",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": false,
+   "reason": "fail_test12:mismatch"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "timestamp": "2026-05-24T09:22:05.546129",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-05-24T09:53:25.445244",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-27b_20260524_095356.jsonl": [
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "timestamp": "2026-05-24T10:03:23.592767",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "timestamp": "2026-05-24T10:10:20.038726",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-35b-a3b@6bit_20260522_182159.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-05-22T18:23:56.646022",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-05-22T18:25:26.227433",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-05-22T18:39:39.260809",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-05-22T18:53:49.448771",
+   "original": false,
+   "original_reason": "no_code",
+   "regraded": false,
+   "reason": "no_code"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-05-22T18:54:29.324801",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-05-22T18:58:56.529978",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-05-22T19:01:29.641203",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-05-22T19:09:32.331323",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-05-22T19:17:38.172715",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-05-22T19:21:00.637671",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-05-22T19:23:51.266834",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-05-22T19:26:24.677407",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-05-22T19:27:36.084415",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-05-22T19:28:25.065253",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-05-22T19:38:44.099067",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-05-22T19:39:53.666004",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/.venv/bin/python3'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-05-22T19:47:48.248899",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-05-22T19:48:44.064382",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-05-22T19:59:34.554162",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-05-22T20:03:46.681148",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-05-22T20:10:45.693544",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": false,
+   "reason": "fail_test2:rc=1: ^^\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_of6x6p4l.py\", line 59, in maxTotalReward\n    dp |= (dp & ((1 << v) - 1)) << v\n                  ~~^^~~\nValueError: negative shift count\n"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-05-22T20:13:45.312001",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-05-22T20:27:57.250783",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-05-22T20:37:16.030231",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-35b-a3b@6bit_20260522_210336.jsonl": [
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-05-22T21:04:54.938298",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-05-22T21:07:07.292343",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-05-22T21:09:57.877418",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-05-22T21:14:52.902433",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-05-22T21:16:22.439060",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-05-22T21:17:56.427887",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-05-22T21:20:02.480826",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-05-22T21:23:24.240715",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-05-22T21:37:31.588101",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-05-22T21:41:40.452679",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-05-22T21:44:37.857540",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": false,
+   "reason": "fail_test3:rc=1: erence\n    return min(abs(nums_sorted[i] - nums_sorted[i+1]) for i in range(n-1))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: min() arg is an empty sequence\n"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-05-22T21:50:40.181580",
+   "original": false,
+   "original_reason": "fail_test41:mismatch",
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-05-22T21:52:12.787094",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-05-22T22:03:08.230763",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-05-22T22:17:16.124581",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "timestamp": "2026-05-22T22:17:45.744772",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "timestamp": "2026-05-22T22:21:29.677355",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "timestamp": "2026-05-22T22:26:29.930718",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "timestamp": "2026-05-22T22:30:51.109089",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-05-22T22:45:00.726984",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-05-22T22:56:01.284549",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-05-22T23:08:01.913521",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-35b-a3b@6bit_20260522_232735.jsonl": [
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "timestamp": "2026-05-22T23:30:58.011511",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-05-22T23:45:02.434089",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "timestamp": "2026-05-22T23:48:12.706086",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "timestamp": "2026-05-22T23:49:31.258777",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen3.6-35b-a3b@6bit_20260524_123328.jsonl": [
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-05-24T12:47:49.403958",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen_qwen3-coder-next_20260522_173911.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-05-22T17:39:30.306832",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-05-22T17:39:41.199979",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-05-22T17:40:05.991350",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-05-22T17:40:15.798716",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-05-22T17:40:25.292484",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-05-22T17:42:04.376917",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-05-22T17:42:23.358304",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-05-22T17:42:36.864142",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-05-22T17:42:48.306075",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-05-22T17:43:01.627412",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-05-22T17:43:13.397427",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-05-22T17:43:32.873294",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-05-22T17:43:47.197247",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-05-22T17:43:58.288251",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-05-22T17:46:59.993323",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": false,
+   "reason": "fail_test0:rc=1: current\n    return (sum_right - sum_left) + median * (len(left) - len(right))\n            ^^^^^^^^^\nUnboundLocalError: cannot access local variable 'sum_right' where it is not associated with a value\n"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-05-22T17:47:15.795695",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 3, in <module>\n  File \"<string>\", line 4, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-05-22T17:48:43.820797",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-05-22T17:48:54.783165",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-05-22T17:57:38.682667",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-05-22T17:58:07.881647",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-05-22T17:58:25.290235",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": false,
+   "reason": "fail_test2:rc=1: ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_k1mfbqgw.py\", line 65, in maxTotalReward\n    if dp[x] and r > x:\n       ~~^^^\nIndexError: list index out of range\n"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-05-22T17:58:36.758790",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-05-22T17:58:45.609822",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-05-22T17:59:01.938286",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-05-22T17:59:13.149417",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-05-22T17:59:31.467283",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-05-22T18:00:10.690111",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-05-22T18:01:38.399365",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-05-22T18:01:48.914080",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-05-22T18:02:04.826911",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-05-22T18:02:20.418753",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-05-22T18:02:59.266173",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-05-22T18:03:48.020337",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-05-22T18:04:33.819376",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-05-22T18:04:47.124022",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 3, in <module>\n  File \"<string>\", line 4, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-05-22T18:06:03.250121",
+   "original": false,
+   "original_reason": "fail_test41:mismatch",
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-05-22T18:06:13.843461",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-05-22T18:10:15.155156",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-05-22T18:13:00.826216",
+   "original": false,
+   "original_reason": "fail_test0:rc=1:   File \"<string>\", line 547\nSyntaxError: 'return' outside function\n",
+   "regraded": false,
+   "reason": "fail_test0:rc=1:   File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_rukvtd4p.py\", line 583\n    return 0\n    ^^^^^^^^\nSyntaxError: 'return' outside function\n"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "timestamp": "2026-05-22T18:13:10.927255",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "timestamp": "2026-05-22T18:13:55.567697",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "timestamp": "2026-05-22T18:15:01.382088",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "timestamp": "2026-05-22T18:15:17.978051",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-05-22T18:16:00.877767",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": false,
+   "reason": "fail_test0:rc=1: ^^^^^^^^^^^^^^^^^\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_tfz4d53l.py\", line 145, in minOperations\n    bits[i+1] += bits[i] // 2\n    ~~~~^^^^^\nIndexError: list index out of range\n"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-05-22T18:16:21.310828",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-05-22T18:17:08.013975",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "timestamp": "2026-05-22T18:17:20.976514",
+   "original": false,
+   "original_reason": "fail_test0:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 2, in Solution\nNameErr",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-05-22T18:20:33.065016",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "timestamp": "2026-05-22T18:20:54.080398",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "timestamp": "2026-05-22T18:21:14.431532",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_qwen_qwen3-coder-next_20260524_124855.jsonl": [
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-05-24T12:58:43.607728",
+   "original": false,
+   "original_reason": "fail_test0:rc=1:   File \"<string>\", line 1\n    j=2: [0,1]\u00d7[2,3]: even (black), [1,2]\u00d7[2,3]: even (black), [2,3]\u00d7[2,3]: odd (white)\n      ",
+   "regraded": false,
+   "reason": "fail_test0:rc=1: x5pv9l62fw60x3nvm0000gn/T/lcb_k72hbxo9.py\", line 37\n    j=2: [0,1]\u00d7[2,3]: even (black), [1,2]\u00d7[2,3]: even (black), [2,3]\u00d7[2,3]: odd (white)\n              ^\nSyntaxError: invalid character '\u00d7' (U+00D7)\n"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_unsloth_minimax-m2.5_20260705_200751.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "timestamp": "2026-07-05T20:08:37.528756",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "timestamp": "2026-07-05T20:13:41.852644",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "timestamp": "2026-07-05T20:15:54.435161",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "timestamp": "2026-07-05T20:16:14.278469",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "timestamp": "2026-07-05T20:16:51.405887",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "timestamp": "2026-07-05T20:20:49.083854",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "timestamp": "2026-07-05T20:21:38.249625",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-07-05T20:41:23.452173",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "timestamp": "2026-07-05T20:43:48.314471",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "timestamp": "2026-07-05T20:45:02.103870",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "timestamp": "2026-07-05T20:46:47.402361",
+   "original": false,
+   "original_reason": "fail_test2:mismatch",
+   "regraded": false,
+   "reason": "fail_test2:mismatch"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "timestamp": "2026-07-05T20:51:49.252283",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "timestamp": "2026-07-05T20:52:27.577468",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "timestamp": "2026-07-05T20:52:52.351987",
+   "original": false,
+   "original_reason": "fail_test6:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "timestamp": "2026-07-05T20:59:20.119431",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "timestamp": "2026-07-05T21:00:40.512503",
+   "original": false,
+   "original_reason": "fail_test13:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "timestamp": "2026-07-05T21:19:21.924829",
+   "original": false,
+   "original_reason": "fail_test0:mismatch",
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "timestamp": "2026-07-05T21:20:04.009051",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-07-05T21:39:52.149988",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "timestamp": "2026-07-05T21:41:57.262106",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "timestamp": "2026-07-05T21:51:41.513520",
+   "original": false,
+   "original_reason": "fail_test2:rc=1: Traceback (most recent call last):\n  File \"<string>\", line 27, in <module>\n  File \"<string>\", line 17, in maxTotalReward",
+   "regraded": false,
+   "reason": "fail_test2:rc=1: ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_bau3mof2.py\", line 53, in maxTotalReward\n    dp[t + v] = 1\n    ~~^^^^^^^\nIndexError: bytearray index out of range\n"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "timestamp": "2026-07-05T21:53:34.973066",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "timestamp": "2026-07-05T21:53:52.946325",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "timestamp": "2026-07-05T22:06:12.387561",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "timestamp": "2026-07-05T22:06:37.711321",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "timestamp": "2026-07-05T22:07:11.442262",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "timestamp": "2026-07-05T22:09:38.073493",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "timestamp": "2026-07-05T22:14:31.241737",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "timestamp": "2026-07-05T22:15:26.418104",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "timestamp": "2026-07-05T22:15:54.087320",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "timestamp": "2026-07-05T22:17:10.763482",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "timestamp": "2026-07-05T22:18:39.457464",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "timestamp": "2026-07-05T22:28:13.849941",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "timestamp": "2026-07-05T22:30:14.736536",
+   "original": false,
+   "original_reason": "fail_test0:rc=1:   File \"<string>\", line 19\n    graph[b]..append((a, c))\n             ^\nSyntaxError: invalid syntax\n",
+   "regraded": false,
+   "reason": "fail_test0:rc=1:   File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_1qwbq_hf.py\", line 55\n    graph[b]..append((a, c))\n             ^\nSyntaxError: invalid syntax\n"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "timestamp": "2026-07-05T22:36:55.386125",
+   "original": false,
+   "original_reason": "fail_test7:mismatch",
+   "regraded": false,
+   "reason": "fail_test7:mismatch"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "timestamp": "2026-07-05T22:41:14.022509",
+   "original": false,
+   "original_reason": "fail_test41:mismatch",
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "timestamp": "2026-07-05T22:41:38.922315",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-07-05T23:01:25.394443",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "timestamp": "2026-07-05T23:15:20.529621",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "timestamp": "2026-07-05T23:16:09.214403",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "timestamp": "2026-07-05T23:20:38.079946",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "timestamp": "2026-07-05T23:25:00.310449",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "timestamp": "2026-07-05T23:30:21.986080",
+   "original": false,
+   "original_reason": "fail_test14:exec_error: [Errno 7] Argument list too long: '/Users/vitor/LocalProjects/local-llms/tools/local-llm-bench-m4-32gb/.venv/bin/python'",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-07-05T23:50:09.910831",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "timestamp": "2026-07-06T00:06:35.474545",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "timestamp": "2026-07-06T00:22:22.577262",
+   "original": false,
+   "original_reason": "fail_test3:mismatch",
+   "regraded": false,
+   "reason": "fail_test3:mismatch"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "timestamp": "2026-07-06T00:24:14.698348",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-07-06T00:44:04.058080",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "timestamp": "2026-07-06T00:45:24.186404",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "timestamp": "2026-07-06T00:45:59.889355",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_unsloth_minimax-m2.5_20260706_004651.jsonl": [
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-07-06T00:47:01.959577",
+   "original": false,
+   "original_reason": "no_code",
+   "regraded": false,
+   "reason": "no_code"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-07-06T00:47:09.072486",
+   "original": false,
+   "original_reason": "no_code",
+   "regraded": false,
+   "reason": "no_code"
+  }
+ ],
+ "tools/local-llm-bench-m4-32gb/benchmarks/runs/livecodebench_unsloth_minimax-m2.5_20260706_090036.jsonl": [
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "timestamp": "2026-07-06T09:22:18.614981",
+   "original": false,
+   "original_reason": "fail_test11:mismatch",
+   "regraded": false,
+   "reason": "fail_test11:mismatch"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "timestamp": "2026-07-06T10:08:08.038473",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "timestamp": "2026-07-06T10:35:02.910946",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "timestamp": "2026-07-06T11:17:45.947625",
+   "original": false,
+   "original_reason": "truncated",
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "timestamp": "2026-07-06T11:38:56.931958",
+   "original": true,
+   "original_reason": "pass",
+   "regraded": true,
+   "reason": "pass"
+  }
+ ]
+}
