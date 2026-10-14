@@ -1704,6 +1704,51 @@ EOF
 )"
 ```
 
+
+### Task 10: Página pública para o Reddit (inglês, HTML, depois GitHub Pages)
+
+Decisões do usuário (14/10): a página fica em inglês; sai como arquivo HTML no repo e depois vai para o GitHub Pages (`https://snagnever.github.io/macstudio-local-llm/`). Precedente a seguir: `bench/qwen38-flashnext-daily-driver-2026-09/scripts/render_m4max_guide.py` (página pública do Flash-Next, nomes legíveis em vez de códigos, card `og:image`, imagem do post e PNG via Chrome headless).
+
+**Files:**
+- Modify: `bench/qwen38-27b-next-steps-2026-10/scripts/render_27b_page.py` (a página `reports/qwen38-27b-stacks.html` vira a versão pública; continua gerada só dos resultados, sem números escritos à mão)
+- Modify: `bench/qwen38-27b-next-steps-2026-10/tests/test_render_27b_page.py`
+- Create: `reports/assets/qwen38-27b-stacks-card.html` + `.png` (1200×630, `og:image`), `reports/assets/qwen38-27b-stacks-post.html` + `.png` (imagem do post: TL;DR, funil, gráfico principal)
+- Create: `bench/qwen38-27b-next-steps-2026-10/results/reddit-post.md` (gerado pelo renderizador)
+- Modify: `reports/index.html` (texto do card do 27B, se mudar)
+
+**Requisitos (cada um com teste quando verificável no HTML ou no JSON):**
+
+1. **Linguagem.** Nada de códigos internos no corpo da página: `s27r`, `k27`, `r27d`, `w1`, `n2`, `T_turno`, `P0..P8`, `gates.env`, `scope B`, `p<N>x`, "arm", "driver A/B", "band". Nomes públicos:
+   - s27r → "mlx-dspark 0.20.3 + DFlash2 (baseline)"
+   - k27 → "Splash 1.3.1 + DFlash2"
+   - r27d → "mlx-serve 26.10.2 + DFlash2"
+   - w1 → "Qwen3.8-Flash-Next · Swift 1.5 quant (our daily model)"; n2 → "Qwen3.8-Flash-Next · ddalcu iQ quant"
+   - "T_turno" → "agent turn time"; definido na primeira menção como "time to the first token of a turn that carries a tool result, plus 512 generated tokens".
+   - "xhigh"/"medium" → "thinking effort: xhigh / medium" (o valor de `reasoning_effort`), com uma frase: mais esforço = mais tokens de raciocínio e menor aceitação do draft, logo decode menor.
+   Os códigos só aparecem num apêndice `<details>` fechado "Raw data and reproduction" (tabela código → nome, gates crus, comandos da campanha).
+2. **TL;DR no topo** (3 linhas, números calculados dos dados): o setup mais rápido (Splash 1.3.1 + DFlash2, 8-bit) e seu agent turn time a 128K por esforço; a razão contra o baseline; a razão contra o Flash-Next (~2×) com a conclusão "for agent loops, Flash-Next is still faster". Caixa "What we did not measure": qualidade do 27B, tempo por tarefa, 8 setups cortados por escolha.
+3. **Glossário curto** (uma linha cada): TTFT, cold vs warm, prefill (prompt processing), decode (token generation), prefix cache e hit rate, context 32K/128K, draft model (DFlash2) e speculative decoding, MTP, thinking effort.
+4. **Funil em SVG inline** (sem bibliotecas), com contagem e nomes por etapa: 11 candidate setups (5 runtimes: mlx-dspark, Splash, mlx-serve, oMLX, llama.cpp) → 8K smoke test (decode) → full speed test at 32K and 128K (3 setups) → faster than the baseline (1: Splash) → within 1.25× of Flash-Next (0). Duas cores distintas e legenda: "cut by scope (not measured)" vs "failed a measurement". Decode do smoke: usar uma só definição — a do `summarize_driver.py` (mediana de identical, append, tool_turn) — e dizer qual é na legenda. Fonte das contagens: `page-data.json` e a lista NOT_RUN existente.
+5. **Controles:** checkboxes de thinking effort (xhigh, medium; ambos ligados por padrão) que filtram barras e linhas de tabela; abas 32K / 128K; toggle "show Flash-Next reference". Valor ausente (baseline medium a 128K) aparece como "not measured", nunca some em silêncio. Estado em `localStorage` com try/catch; a página funciona sem JS (estado padrão renderizado no HTML).
+6. **Barras empilhadas:** cada barra = TTFT warm do turno de ferramenta + tempo de 512 tokens ao decode mediano, com tooltip (title/aria) com decode tok/s, TTFT warm, TTFT cold, peak memory.
+7. **Correções de dados:** remover a frase que diz que o Splash não reporta cached tokens (os dados mostram hit 0.96/0.99); remover as seções "Time per task", "Tokens per answer" e "Accuracy" que só mostram o Flash-Next — trocar por uma linha "Quality and per-task time were not measured for the 27B"; renomear "Wired peak GB" para "Peak memory (GB)" com nota; adicionar coluna prefill tok/s = tokens do prompt cold ÷ TTFT cold (tokens do prompt lidos dos JSONL; se não existirem, mostrar "—" e dizer por quê).
+8. **Run it yourself:** comando exato do Splash 1.3.1 usado no braço k27 (ler `run-splash.sh` e o bloco k27 de `run-candidate.sh` da 2026-09), IDs no Hugging Face com revisão (`mlx-community/Qwen3.8-27B-8bit` @ 815b83c0, draft `incoai/Qwen3.8-27B-DFlash2` @ dedf8df6), KV int8, sampling do vendor (temperature 1.0, top_p 0.95, top_k 20). **Aviso:** a 128K o Splash 1.3.1 devolveu HTTP 400 em todo turno de ferramenta que reenviava o raciocínio anterior (modo `resend`, 6/6, os dois esforços); sem reenviar (modo `drop`) todos funcionaram com TTFT 7.4 s — diga ao cliente para não reenviar o reasoning. Fonte: `results/summary.md` e `results/think/`.
+9. **Hardware e software:** M4 Max 128 GB, versão do macOS (de `etapa0-preflight.md` se houver), versões dos runtimes, 3 repetições (mediana).
+10. **Limitations:** uma máquina; 3 repetições; probe sintético de turno de agente, não tarefa real; qualidade não medida; o ganho de prefill do Splash (+44% a 32K, +33% a 128K sobre o baseline) é atribuído ao ANE só pelo fabricante — o harness não confirma; o TTFT do turno de ferramenta do mlx-serve 26.10.2 no probe de pensamento foi 94–104 s contra 11 s no probe de cache, sem explicação.
+11. **Reddit:** `results/reddit-post.md` (título, TL;DR, tabela 3 setups × 2 contextos × esforço, link para `https://snagnever.github.io/macstudio-local-llm/qwen38-27b-stacks.html`, nota de limitações); `--png` gera card e imagem do post com Chrome headless, como no precedente; `og:title`, `og:description`, `og:image` na página.
+12. **Mobile:** sem rolagem horizontal da página a 375 px (tabelas rolam dentro de um contêiner); conferir no preview.
+13. **Tema:** manter claro/escuro da página atual.
+
+- [ ] **Step 1:** Testes que falham para 1, 2, 4, 5, 7, 8, 11 (strings proibidas fora do `<details>`, TL;DR com números esperados, SVG do funil com as 5 etapas e as duas classes, checkboxes e `data-effort` nas linhas, ausência das seções removidas, aviso do `resend`, arquivo do post).
+- [ ] **Step 2:** Implementar; rodar `uv run --no-project --with pytest python -m pytest bench/qwen38-27b-next-steps-2026-10/tests -q`.
+- [ ] **Step 3:** Gerar página, JSON, post e PNG (`--png`); conferir no preview desktop e 375 px, claro e escuro.
+- [ ] **Step 4:** Commit `bench(qwen38-27b): Task 10 - public Reddit page ...`.
+
+### Task 11: Referências pendentes do Task 9
+
+- Modify: `docs/models/README.md` (linha do qwen3.8-27b com link para o card), `docs/models/qwen3.8-flash-next.md` ("Next tests" → `bench/qwen38-27b-next-steps-2026-10/results/summary.md`), `docs/local-llm-reference.md` (linha do Qwen3.8-27B: 🔴 NO-GO como driver, link para o card), `bench/qwen38-flashnext-daily-driver-2026-09/plan.md` e `bench/qwen38-updates-2026-09/plan.md` (trocar `([[qwen38-27b-nogo-verdict]])` por `(veredito: docs/models/qwen3.8-27b.md)`), `docs/models/qwen3.8-27b.md` (o aviso do `resend` e o link da página pública, se faltarem).
+- Commit `docs(qwen38-27b): Task 11 - model index and reference links`.
+
 ---
 
 ## Auto-revisão (feita ao escrever o plano)
