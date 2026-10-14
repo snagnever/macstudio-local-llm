@@ -101,7 +101,10 @@ Estas notas vêm do mesmo runner, mas só o resumo existe. Nem o repositório ne
 
 ## Números publicados que mudam
 
-Nenhum destes arquivos foi editado. A coluna "proposta" é a edição sugerida, à espera de aprovação.
+As edições da coluna "proposta" foram aplicadas em 2026-10-15. Os cards guardam o valor antigo nas entradas datadas.
+Além da lista abaixo, a mesma revisão corrigiu `docs/models/qwen3.8-flash-next.md` e `docs/local-llm-reference.md`, e
+acrescentou uma nota em `docs/testing-plan.md`. O status 🟡 do agents-a1-xl não mudou: o gate falha, mas a decisão
+fica com o dono do repositório.
 
 ### Cards em `docs/models/`
 
@@ -158,7 +161,7 @@ segue dentro do ruído de 2–3 questões.
 | `bench/swift15-flashnext-2026-10/results/summary.md:28` | LCB 41 / 42 / 41 / 41 (n2 t1, w1 t1, n2 t0, w1 t0) | 45 / 47 / 45 / 45 |
 | `bench/swift15-flashnext-2026-10/results/ab-summary-t1.md:15` | 41/50, 42/50 | 45/50, 47/50 |
 | `bench/swift15-flashnext-2026-10/results/ab-summary-t0.md:15` | 41/50, 41/50 | 45/50, 45/50 |
-| `bench/swift15-flashnext-2026-10/results/page-data.json` | `livecodebench` com os acertos antigos | regenerar com os veredictos novos |
+| `bench/swift15-flashnext-2026-10/results/page-data.json` | `livecodebench` com os acertos antigos | regenerado: `summarize_ab.load_arm` aplica `verdicts.json` |
 
 ### Sem mudança
 

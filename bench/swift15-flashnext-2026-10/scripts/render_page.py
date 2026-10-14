@@ -219,7 +219,7 @@ def collect(results_dir: Path = RESULTS, reports_json: Path = REPORTS_JSON) -> d
     quality, time, tool_latency, difficulty = {}, {}, {}, {}
     for p in PROFILES:
         loaded = {a: S.load_arm(results_dir / "ab" / p / a) for a in ARMS}
-        raw = {a: {s: _read_jsonl(f) if (f := results_dir / "ab" / p / a / f"{s}.jsonl").is_file() else []
+        raw = {a: {s: S.read_rows(f) if (f := results_dir / "ab" / p / a / f"{s}.jsonl").is_file() else []
                    for s in S.SUITES if s not in S.TOOL_SUITES} for a in ARMS}
         quality[p] = {a: {} for a in ARMS}
         time[p] = {}
@@ -577,7 +577,9 @@ def _html_accuracy(d: dict) -> str:
                 f'<th>{_arm_lab("n2")}</th><th>{_arm_lab("w1")}</th><th>Swift − iQ</th></tr></thead>'
                 f'<tbody>{rows}</tbody></table></div>{foot}')
     return ('<section class="block" id="accuracy"><h2 class="sec">Accuracy</h2>'
-            '<p class="s-note">Correct answers per suite. A truncated answer counts as wrong.</p>'
+            '<p class="s-note">Correct answers per suite. A truncated answer counts as wrong. LiveCodeBench answers are '
+            'graded with the import prelude of the official LiveCodeBench harness (regraded 2026-10-14; the first '
+            'grading of this page scored both models 4–5 problems lower).</p>'
             + _per_profile(build) + '</section>')
 
 

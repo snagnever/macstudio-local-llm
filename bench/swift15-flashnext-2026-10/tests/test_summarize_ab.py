@@ -85,3 +85,31 @@ def test_reasoning_not_recorded_renders_nd():
     assert st["median_reasoning_chars"] is None
     md = S.render({"base": {"jdhodges": st}, "cand": {"jdhodges": st}}, {}, "n2", "w1")
     assert "| jdhodges | reasoning mediano (chars) | n/d | n/d |" in md
+
+
+def _lcb_row(qid, ok, fin="stop"):
+    return {"dataset_idx": 0, "lcb_question_id": qid, "correct": ok, "elapsed_s": 1.0,
+            "finish_reason": fin, "completion_tokens": 10}
+
+
+def test_load_arm_applies_lcb_regrade(tmp_path, monkeypatch):
+    arm = tmp_path / "bench" / "c" / "results" / "ab" / "t1" / "w1"
+    arm.mkdir(parents=True)
+    rows = [_lcb_row("q1", False), _lcb_row("q2", True), _lcb_row("q3", False, fin="length")]
+    (arm / "livecodebench.jsonl").write_text("\n".join(json.dumps(r) for r in rows))
+    verdicts = tmp_path / "verdicts.json"
+    verdicts.write_text(json.dumps({"bench/c/results/ab/t1/w1/livecodebench.jsonl": [
+        {"lcb_question_id": "q1", "regraded": True}, {"lcb_question_id": "q2", "regraded": True},
+        {"lcb_question_id": "q3", "regraded": False}]}))
+    monkeypatch.setattr(S, "REPO", tmp_path)
+    monkeypatch.setattr(S, "LCB_REGRADE", verdicts)
+    views = S.load_arm(arm)["livecodebench"]
+    assert [v["passed"] for v in views] == [True, True, False]
+
+
+def test_load_arm_without_lcb_regrade_keeps_original(tmp_path, monkeypatch):
+    arm = tmp_path / "w1"
+    arm.mkdir()
+    (arm / "livecodebench.jsonl").write_text(json.dumps(_lcb_row("q1", False)))
+    monkeypatch.setattr(S, "LCB_REGRADE", tmp_path / "missing.json")
+    assert S.load_arm(arm)["livecodebench"][0]["passed"] is False

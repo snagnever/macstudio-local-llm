@@ -117,7 +117,7 @@ It adds `--ctx-size 524288 --kv-quant 4` and a YaRN override
 
 | Stack | T_turno 32K / 128K | Verdict |
 |---|---|---|
-| **Swift 1.5 MLX-4.7bpw @ mlx-serve 26.10.1** | **7.9 / 8.6 s** | Default since 2026-10-11. Same quality as iQ in an A/B with `reasoning_effort xhigh` (HumanEval 158 vs 158, GPQA 43 vs 45, LCB 42 vs 41 of 50, vendor sampling); median time per GPQA question 0.35× and per LCB question 0.49×. |
+| **Swift 1.5 MLX-4.7bpw @ mlx-serve 26.10.1** | **7.9 / 8.6 s** | Default since 2026-10-11. Same quality as iQ in an A/B with `reasoning_effort xhigh` (HumanEval 158 vs 158, GPQA 43 vs 45, LCB 47 vs 45 of 50 after the [2026-10-14 regrade](../../bench/lcb-regrade-2026-10/results/regrade-summary.md) (was 42 vs 41), vendor sampling); median time per GPQA question 0.35× and per LCB question 0.49×. |
 | ddalcu iQ-MLX-4.7bpw @ mlx-serve 26.10.1 | 8.1 / 8.9 s (re-measured 2026-10-11) | Default 2026-10-07 → 2026-10-11; now the rollback. Same speed as mixed-4/8 on 26.10.1. |
 | ddalcu mixed-4/8 @ mlx-serve 26.10.1 | 8.3 / 8.8 s | Same speed as iQ. The pack is deprecated upstream. |
 | ddalcu mixed-4/8 @ mlx-serve 26.9.2 | 11.03 / 12.35 s | Default until 2026-10-07. Fastest stack of the 2026-09 campaign. |

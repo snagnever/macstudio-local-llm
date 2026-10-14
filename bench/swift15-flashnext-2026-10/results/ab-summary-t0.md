@@ -12,10 +12,10 @@
 | gpqa | tempo total (s) | 8375.8 | 3384.4 |
 | gpqa | tokens medianos | 1530.5 | 1147.5 |
 | gpqa | reasoning mediano (chars) | 4212.0 | 3003.5 |
-| livecodebench | acertos | 41/50 | 41/50 |
+| livecodebench | acertos | 45/50 | 45/50 |
 | livecodebench | truncadas | 3 | 2 |
 | livecodebench | tempo mediano (s) | 23.9 | 16.0 |
-| livecodebench | tempo total (s) | 5986.1 | 3701.9 |
+| livecodebench | tempo total (s) | 5986.2 | 3701.9 |
 | livecodebench | tokens medianos | 1859.5 | 1285.0 |
 | livecodebench | reasoning mediano (chars) | 5926.0 | 3455.5 |
 | jdhodges | acertos | 38/40 | 39/40 |

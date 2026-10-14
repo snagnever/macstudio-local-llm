@@ -56,7 +56,7 @@ Config: MLX 6-bit, n=100 per knowledge bench (LCB n=50), `temp=0, seed=42`, ctx 
 |---|---|---|
 | **Terminal-Bench 2.0** | **32.6 %** (29/89 PASS) | **#1 on rig** (vendor 36.2 % — 3.6 pp gap, consistent with 6-bit quant cost vs vendor BF16). ⌛0.5x agent-timeout cap → defensible floor. 16.8 h |
 | HumanEval | 89 % | Saturated bench — LCB is the canonical coding signal |
-| LiveCodeBench v6 (n=50) | 56 % | Clean: 0 truncations, 0 errors after Q19 rerun at 65k (Q19 = genuine model failure, not cap artifact). 42 min |
+| LiveCodeBench v6 (n=50) | **84 %** | Regraded 2026-10-14 (was 56 %; see [LCB regrade 2026-10-14](../../bench/lcb-regrade-2026-10/results/regrade-summary.md)). Clean: 0 truncations, 0 errors after Q19 rerun at 65k (Q19 = genuine model failure, not cap artifact). 42 min |
 | MMLU | 76 % | |
 | MATH | 84 % | On par with `qwen3.6-27b` (88 %) at 19× the suite speed |
 | DROP | 83 % | |
@@ -64,14 +64,14 @@ Config: MLX 6-bit, n=100 per knowledge bench (LCB n=50), `temp=0, seed=42`, ctx 
 | jdhodges tool-calling (40) | 90 % | |
 | Veerman tool-calling (12) | 83.3 % | Combined tool-calling 88.5 % |
 
-Knowledge avg 73.8 % — lowest of the Phase 1 trio, but the T-Bench inversion is the headline: **LCB rank 5th → T-Bench rank 1st (+4 spots)**. The agentic shell loop is this model's design target; static benches miss it. Best Gemma (LCB ceiling 80 %) lands ~10 pp behind on T-Bench.
+Knowledge avg 73.8 % — lowest of the Phase 1 trio, but the T-Bench inversion is the headline: **LCB rank 4th (84 %, regraded) → T-Bench rank 1st (+3 spots)**. The agentic shell loop is this model's design target; static benches miss it. Best Gemma on LCB (`31b`, 90 %) lands ~10 pp behind on T-Bench.
 Raw data: `tools/local-llm-bench-m4-32gb/benchmarks/runs/*_qwen_qwen3-coder-next_20260517_*`, `livecodebench_qwen_qwen3-coder-next_MERGED_summary.json`, `tbench_qwen-qwen3-coder-next_*.{jsonl,_summary.json}`.
 
 ## Feasibility & verdict
 
 - **Agent role winner — 🟢 DAILY DRIVER.** Confirmed twice: Phase 2 could not displace it (Gemma `@4bit` codes well but its knowledge floor is too low for general agentic use), and Terminal-Bench 2.0 (2026-05-29) put it **#1 on the rig at 32.6 %**.
 - `qwen3.6-27b` dense is only 1.1 pp behind on T-Bench (31.5 %) but 6× slower decode (~20 vs ~68 t/s) — in high-turn-count agentic loops the speed advantage compounds, so coder-next wins the speed-adjusted trade-off.
-- **Not the quality king:** switch to `qwen3.6-27b` for single hard questions (knowledge avg 85.8 vs 73.8), and `gemma-4-26b-a4b@6bit` holds the one-shot LCB ceiling (80 % vs 56 %). Those leads do **not** transfer to agentic shell.
+- **Not the quality king:** switch to `qwen3.6-27b` for single hard questions (knowledge avg 85.8 vs 73.8), and `gemma-4-31b` holds the one-shot LCB lead (90 % vs 84 %, regraded; `27b` and `26b@6bit` 88 %). Those leads do **not** transfer to agentic shell.
 - **Vendor honesty check:** 32.6 % measured vs 36.2 % claimed is a 3.6 pp gap, consistent with MLX 6-bit quant cost — the vendor's agentic-default branding is honest.
 - **Remaining work:** Phase 2 #8 quant A/B (`@4bit` vs `@6bit`) — unlocks the ⭐ recommended two-resident pair with measured numbers.
 
@@ -147,7 +147,7 @@ aider --openai-api-base http://<lm-studio-host>:1234/v1 \
 
 ## History
 - **2026-05-17** — Phase 1 full suite (n=100, 1.9 h): HumanEval 89 %, MMLU 76 %, MATH 84 %, DROP 83 %, GPQA 37 %, jdhodges 90 %, Veerman 83.3 %. Verdict: speed/agentic-tool king, not the quality king ([M4 notes](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md)).
-- **2026-05-22 → 05-24** — LCB v6 backfill ([plan](../../bench/lcb-phase1/plan.md)): 56 %, clean after Q19 rerun at 65k (genuine model failure, not cap artifact).
+- **2026-05-22 → 05-24** — LCB v6 backfill ([plan](../../bench/lcb-phase1/plan.md)): 56 % (84 % after the 2026-10-14 regrade), clean after Q19 rerun at 65k (genuine model failure, not cap artifact).
 - **2026-05-22** — Phase 2 verdict: agentic-coder slot **unchanged** — no Gemma displaced it on the combined coding + tool-calling + knowledge profile.
-- **2026-05-24 → 05-29** — Terminal-Bench 2.0 Phase A+B ([plan](../../bench/terminal-bench/plan.md)): **32.6 %, #1 on rig** (vendor 36.2 %); LCB rank inverted (+4 spots). Agent role winner confirmed.
+- **2026-05-24 → 05-29** — Terminal-Bench 2.0 Phase A+B ([plan](../../bench/terminal-bench/plan.md)): **32.6 %, #1 on rig** (vendor 36.2 %); LCB rank inverted (+4 spots; +3 after the regrade). Agent role winner confirmed.
 - **Pending** — Phase 2 #8: `@4bit` quant A/B to validate the ⭐ two-resident pair with measured numbers.
