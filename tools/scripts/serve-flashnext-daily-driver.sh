@@ -6,8 +6,8 @@
 #   daily  (default) 131072 tokens, MTP, prefix cache 16GB RAM / 100GB disk / 64 entries
 #                    measured with this pack in bench/swift15-flashnext-2026-10 (T_turno 7.9 s at 32K, 8.6 s at 128K)
 #   512k             524288 tokens via YaRN 2.0 + 4-bit KV; memory at the edge, close heavy apps first
-#                    measured with the iQ pack in bench/engine-updates-2026-10 (n2q4, 3 reps); 8-bit KV
-#                    refused some prefills at 512K (PrefillDoesNotFit); not measured with Swift 1.5
+#                    measured with Swift 1.5 in bench/flashnext-next-steps-2026-10 (Task 2, 3 reps): T_turno 13.3 s,
+#                    min free 0.01 GB, needles 13/13; 8-bit KV refused some prefills at 512K (PrefillDoesNotFit)
 # Overrides: FLASHNEXT_PORT (default 11234), FLASHNEXT_HOST (default 0.0.0.0),
 #            FLASHNEXT_BIN, FLASHNEXT_MODEL. Add --print to show the command without starting.
 set -euo pipefail
@@ -62,7 +62,7 @@ if lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
   exit 69
 fi
 if [[ "$PROFILE" == "512k" ]]; then
-  echo "512k profile: memory runs at the edge (min free ~0.05 GB measured). Close heavy apps." >&2
+  echo "512k profile: memory runs at the edge (min free ~0.01-0.05 GB measured). Close heavy apps." >&2
 fi
 echo "Flash-Next daily driver ($PROFILE) on http://$HOST:$PORT/v1" >&2
 exec "${COMMAND[@]}"

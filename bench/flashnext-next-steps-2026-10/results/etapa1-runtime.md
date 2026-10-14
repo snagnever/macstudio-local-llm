@@ -50,17 +50,3 @@ VERDICT: fail (razão 1.038 @32K; razão 1.000 @128K)
 | n2x | 32K | tool_turn | resend | 3 | 4.06 | 0.91 | 27272.00 | 30120.00 | 80.80 | 3/3 | 0 |
 | n2x | 32K | turn1 | drop | 3 | 34.55 | 0.00 | 0.00 | 27303.00 | 85.98 | 3/3 | 0 |
 | n2x | 32K | turn1 | resend | 3 | 34.56 | 0.00 | 0.00 | 27303.00 | 80.42 | 3/3 | 0 |
-
-## Veredito
-
-O mlx-serve 26.10.2 estável não substitui o 26.10.1 no driver secundário. A razão de `T_turno` foi 1.038 a 32K e 1.000 a 128K. O resultado reprova pela regra do plano (≤ 0.97×) e também pela regra de runtime estável do repo (≤ 1.03×). O driver principal `w1` fica no 26.10.1 sem smoke no 26.10.2 (Step 9 pulado). `driver-arms.env` fixa `RT=26.10.1` para as tasks seguintes.
-
-## Leitura
-
-- **Decode e memória.** O 26.10.2 decodifica 5% mais devagar a 32K (80.0 contra 84.3 tok/s) e usa 3 GB a mais de wired. A 128K o decode empata (74.0 contra 74.1), e o wired do 26.10.2 fica abaixo (106.4 contra 110.6 GB). TTFT frio, TTFT quente e hit são iguais nas duas bandas. **medido-no-rig**
-- **MTP.** A aceitação a 128K sobe de 0.642 para 0.775 no 26.10.2, sem ganho de decode. A 32K as duas ficam em ~0.65. **medido-no-rig**
-- **256K.** O 26.10.2 recusou o prefill do `tool_turn` (`PrefillDoesNotFit`: ~11.1 GB pedidos, ~10.0 GB livres). Os outros quatro cenários passaram, com cold de 350.8 s. O `n2` no 26.10.1 passou os cinco cenários a 256K em 2026-10-11 (9.8 s). A causa provável é o estado GDN em f32 do 26.10.2 (#815), que ocupa o dobro desse estado. **medido-no-rig**
-- **Thinking reenviado.** Nenhum dos dois runtimes reaproveita o thinking do `turn1`: o `cached` do `tool_turn` fica na base nos modos `resend` e `drop`. Reenviar o thinking só aumenta o TTFT: 1.86 → 3.15 s (26.10.1) e 1.84 → 4.06 s (26.10.2) a 32K; 2.39 → 3.65 s no 26.10.1 a 128K. Clientes que reenviam `reasoning_content` pagam esse custo. **medido-no-rig**
-- **1º prompt pós-load.** O TTFT ficou em 0.23 s em três loads e em 0.73 s no primeiro load do `n2` a 32K. Não há diferença consistente entre os runtimes. **medido-no-rig**
-- **Tempo de banda.** A 128K cada braço levou ~15 min, com 3 reps. As ~3 h por banda da campanha 27B não se repetem no Flash-Next.
-- **Smoke do pre-release.** O smoke de 8K do pre-release.1, feito em 13/10, saiu dos resultados e está em `logs/prerelease-smoke/`, no rig.
