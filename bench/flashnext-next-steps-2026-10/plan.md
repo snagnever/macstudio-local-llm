@@ -1738,3 +1738,62 @@ git push -u origin bench/flashnext-next-steps-2026-10
 ```
 
 Expected: nenhuma linha `missing:`. Abra o PR só quando o usuário pedir.
+
+---
+
+## Tasks possíveis (fora da fila)
+
+Experimentos que os resultados de 2026-10-14 justificam. Nenhum entra na fila sem o OK do usuário. Cada um diz de onde vem, o que mede e a regra que decidiria.
+
+| id | origem | o que mede | custo estimado |
+| --- | --- | --- | --- |
+| P1 | Task 3, 3e | effort no fim do prompt preserva o cache sem perder obediência ao effort | ~1 dia |
+| P2 | Task 1, sonda de thinking | descartar o thinking anterior muda a qualidade multi-turno | ~3 h |
+| P3 | Task 2, 256K | os needles errados a 256K são do Swift ou do contexto | ~3 h |
+| P4 | Task 1, 256K | o `PrefillDoesNotFit` do 26.10.2 a 256K vem do estado GDN em f32 | ~1 h |
+| P5 | Task 5 | braços oMLX no 0.7.1.dev2 quando sair | ~1 dia |
+
+### P1: effort no fim do prompt
+
+**Origem.** No 3e, trocar `xhigh` por `medium` ou `low` a 128K deu hit 0.00 e ~167 s de prefill. O `chat_template.jinja` oficial (MD5 `519239a4…`, igual nos três packs) escreve a instrução de effort no começo do system prompt, antes das tools. O runtime não tem como reaproveitar o cache nesse caso.
+
+**Braços.** `w1` com o template oficial (controle) e `w1t` com um template alterado: a instrução de effort sai do system prompt e entra como prefixo da última mensagem do usuário. Antes de criar o braço, confira no `--help` se o mlx-serve 26.10.1 aceita um template externo; se não aceitar, o `w1t` usa um diretório overlay com hardlinks dos pesos e só o `chat_template.jinja` trocado.
+
+**Medidas.**
+- 3e no `w1t`: hit da troca e TTFT.
+- Obediência ao effort: tokens de reasoning medianos por effort em GPQA 50 e LCB 50 (seed 42), nos dois braços.
+- Acerto: GPQA e LCB em `xhigh` e `low`, 2 rodadas.
+
+**Regra.** O harness adota o template alterado só se as três condições valerem: hit da troca ≥ 0.9; razão de tokens de reasoning `low/xhigh` do `w1t` dentro de ±20% da razão do `w1`; acerto dentro da margem G1 do `w1` (GPQA 3, LCB 3) nos dois efforts. Sem isso, o harness fixa o effort por sessão, como a regra do 3e já manda.
+
+### P2: custo e efeito de reenviar o thinking
+
+**Origem.** Na Task 1, nenhum runtime reaproveitou o thinking reenviado. Reenviar só aumentou o TTFT do `tool_turn`: +1.3 s a 32K e +1.3 s a 128K no 26.10.1.
+
+**Medida.** 3a (contradição pós-tool, 2 rodadas) no `w1` em dois modos de cliente: `resend` (default do card) e `drop` (o cliente não reenvia `reasoning_content`).
+
+**Regra.** Se o `drop` não aumentar `invented` + `missing` + `empty` em mais de 1 caso em 20, a recomendação aos clientes passa a ser descartar o thinking anterior.
+
+### P3: needles a 256K
+
+**Origem.** Na Task 2, o `w1` a 256K com KV sem quantização errou needles em 2 de 13 registros. Todos terminaram com `stop`, sem truncar. O `n2` a 256K tem só 1 rep, de 2026-10-11.
+
+**Braços.** `w1` e `n2` a 262144, 3 reps cada, na mesma sessão e com a ordem alternada.
+
+**Regra.** Se o `n2` acertar 13/13 e o `w1` errar de novo, registre no card que o Swift perde retrieval a 256K. Se os dois errarem, o limite é do contexto e não do pack.
+
+### P4: 26.10.2 a 256K com o estado GDN em bf16
+
+**Origem.** Na Task 1, o 26.10.2 recusou o `tool_turn` a 256K (`PrefillDoesNotFit`: ~11.1 GB pedidos, ~10.0 GB livres). O 26.10.2 guarda o estado GDN em f32 (#815). `MLX_SERVE_GDN_STATE_F32=0` volta ao bf16.
+
+**Braço.** `n2x` a 262144, 1 rep, com `MLX_SERVE_GDN_STATE_F32=0`.
+
+**Regra.** Diagnóstico apenas. Se o `tool_turn` passar, a causa está confirmada. Registre isso em `references.md` como condição para reavaliar o 26.10.2 quando sair uma versão que reduza o custo do estado em f32.
+
+### P5: oMLX 0.7.1.dev2
+
+**Origem.** O mantenedor confirmou o dev2 como próxima tag. Ele traz correções de reserva do KV, de estado GDN no prefill com padding e de memória da tabela n-gram.
+
+**Braços.** `o1x` e `o1r` da Task 5, no dev2.
+
+**Regra.** A mesma da Task 5.
