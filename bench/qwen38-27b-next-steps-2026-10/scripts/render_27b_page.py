@@ -93,7 +93,7 @@ PAGE_URL = f"{SITE}/qwen38-27b-stacks.html"
 CARD_URL = f"{SITE}/assets/qwen38-27b-stacks-card.png"
 CARD_HTML = ROOT / "reports/assets/qwen38-27b-stacks-card.html"
 POST_HTML = ROOT / "reports/assets/qwen38-27b-stacks-post.html"
-POST_W, POST_H = 1400, 1600
+POST_W, POST_H = 1400, 2080
 CHROME = Path("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
 RUN_CANDIDATE = ROOT / "bench/qwen38-flashnext-daily-driver-2026-09/scripts/run-candidate.sh"
 SPLASH_FLAGS = ROOT / "bench/qwen3.8-prefix-cache/config/splash-flags.env"
@@ -284,51 +284,50 @@ def _setups(p: dict) -> list[str]:
     return sorted(ids, key=lambda i: (ARM_IDS.index(i) if i in ARM_IDS else len(ARM_IDS), i))
 
 
+def _xhigh(p: dict, i: str, key: str) -> list:
+    return [((p["speed"].get(str(c)) or {}).get(f"{i}-xhigh") or {}).get(key) for c in BANDS]
+
+
 def funnel(p: dict) -> list[dict]:
-    """The selection funnel, from the payload: candidates → 8K smoke → full test → beats baseline → near Flash-Next.
-    Each stage: count, the ids that reach it, and the ids dropped right after it with a class (cut / fail)."""
+    """The selection funnel, from the payload: candidates → 8K smoke → full test → fastest setup.
+    Each stage: count, the ids that reach it, and entries (id, class keep / ref / cut / fail, speeds)."""
     ids = [a["id"] for a in p["arms"]]
     smoke = [i for i in ids if i in p.get("smoke", {})]
     full = [i for i in _setups(p) if all(any(lab.rpartition("-")[0] == i for lab in p["speed"].get(str(c), {}))
                                          for c in BANDS)]
-    faster, dropped3 = [], []
+    base_t = _xhigh(p, BASELINE, "t_turno_s")
+    faster = []
     for i in full:
         if i == BASELINE:
             continue
-        rs = [(_t(p, f"{i}-xhigh", c) / _t(p, f"{BASELINE}-xhigh", c))
-              if _t(p, f"{i}-xhigh", c) and _t(p, f"{BASELINE}-xhigh", c) else None for c in BANDS]
-        if None not in rs and all(r < 1 for r in rs):
+        t = _xhigh(p, i, "t_turno_s")
+        if None not in t + base_t and all(a < b for a, b in zip(t, base_t)):
             faster.append(i)
-        else:
-            dropped3.append({"id": i, "cls": "fail", "ratios": rs, "effort": "xhigh", "vs": "baseline"})
-    within, dropped4 = [], []
-    for i in faster:
-        best = None
-        for eff in EFFORTS:
-            rs = [(_t(p, f"{i}-{eff}", c) / _ref_t(p, "w1", c)) if _t(p, f"{i}-{eff}", c) and _ref_t(p, "w1", c)
-                  else None for c in BANDS]
-            if None not in rs and (best is None or max(rs) < max(best[1])):
-                best = (eff, rs)
-        if best and all(r <= DRIVER_RATIO for r in best[1]):
-            within.append(i)
-        else:
-            dropped4.append({"id": i, "cls": "fail" if best else "cut", "ratios": best[1] if best else None,
-                             "effort": best[0] if best else None, "vs": "flashnext"})
+    fastest = min(faster, key=lambda i: _xhigh(p, i, "t_turno_s")[-1]) if faster else None
+
+    def speeds(i):
+        t = _xhigh(p, i, "t_turno_s")
+        r = [a / b if a is not None and b else None for a, b in zip(t, base_t)] if i != BASELINE else None
+        return {"t_turno_s": t, "decode_tps": _xhigh(p, i, "decode_tps"), "ratios": r}
+
+    full_entries = []
+    for i in full:
+        cls = "ref" if i == BASELINE else "keep" if i == fastest else "fail"
+        full_entries.append(dict({"id": i, "cls": cls}, **speeds(i)))
     fams = []
     for a in p["arms"]:
         fam = a["runtime"].split()[0]
         if fam not in fams:
             fams.append(fam)
-    lim = [round(DRIVER_RATIO * v, 1) if v else None for v in (_ref_t(p, "w1", c) for c in BANDS)]
     return [
         {"stage": "candidates", "count": len(ids), "ids": ids, "runtimes": fams,
-         "dropped": [{"id": i, "cls": "cut"} for i in ids if i not in smoke and i not in full]},
+         "entries": [{"id": i, "cls": "cut"} for i in ids if i not in smoke and i not in full]},
         {"stage": "smoke", "count": len(smoke), "ids": smoke, "skipped": [i for i in full if i not in smoke],
-         "dropped": [{"id": i, "cls": "cut", "decode_tps": p["smoke"][i]["decode_tps"]}
-                     for i in smoke if i not in full]},
-        {"stage": "full", "count": len(full), "ids": full, "dropped": dropped3},
-        {"stage": "faster", "count": len(faster), "ids": faster, "dropped": dropped4},
-        {"stage": "within", "count": len(within), "ids": within, "limit_s": lim, "dropped": []},
+         "entries": [{"id": i, "cls": "keep" if i in full else "cut", "decode_tps": p["smoke"][i]["decode_tps"]}
+                     for i in smoke]},
+        {"stage": "full", "count": len(full), "ids": full, "entries": full_entries},
+        {"stage": "fastest", "count": 1 if fastest else 0, "ids": [fastest] if fastest else [],
+         "entries": [dict({"id": fastest, "cls": "keep"}, **speeds(fastest))] if fastest else []},
     ]
 
 
@@ -436,12 +435,15 @@ QUALITY_LINE = "Quality and per-task time were not measured for the 27B."
 
 def _html_tldr(p: dict) -> str:
     f = facts(p)
-    cut = [i for i in ARM_IDS if i in NOT_RUN]
+    sp = _smoke_split(p)
+    cut = sp["never"] + sp["smoked"]
+    names = "".join(f'<li>{E(_name(e["id"]))}{" (8K smoke only)" if e in sp["smoked"] else ""}</li>' for e in cut)
     not_measured = ('<aside class="nm-box"><p class="nm-h">What we did not measure</p><ul>'
                     '<li><b>Quality of the 27B.</b> No coding, reasoning or tool-calling accuracy run on any setup.</li>'
                     '<li><b>Time per real task.</b> Only a synthetic agent turn, not an end-to-end job.</li>'
-                    f'<li><b>{len(cut)} of the {len(ARMS)} candidate setups</b>, cut by choice before the full test: '
-                    f'{E(", ".join(PUBLIC[i] for i in cut))}.</li></ul></aside>')
+                    f'<li><b>{len(cut)} of the {len(ARMS)} candidate setups</b> never got the full 32K / 128K test '
+                    f'({len(sp["never"])} never ran; {len(sp["smoked"])} ran only the 8K smoke):'
+                    f'<ul class="nm-sub">{names}</ul></li></ul></aside>')
     if f is None:
         body = ('<p class="tl-line">The headline numbers (the fastest setup at 128K, the baseline and the Flash-Next '
                 'reference) were not measured.</p>')
@@ -483,83 +485,108 @@ def _html_glossary() -> str:
 
 
 def _wrap(text: str, width: int) -> list[str]:
-    return textwrap.wrap(text, width) or [""]
+    return textwrap.wrap(text, width, break_on_hyphens=False, break_long_words=False) or [""]
+
+
+FN_W = 360  # SVG units; at 375 px the figure is ~329 px wide, so 13.5-unit text stays above 12 px
+
+
+def _pair(v, fmt) -> str:
+    return " / ".join("—" if x is None else fmt.format(x) for x in v)
+
+
+def _fn_notes(e: dict) -> list[str]:
+    if e.get("decode_tps") is not None and "t_turno_s" not in e:
+        return [f'decode {e["decode_tps"]:.1f} tok/s at 8K']
+    if "t_turno_s" not in e:
+        return []
+    notes = [f'{_pair(e["t_turno_s"], "{:.1f}")} s per agent turn',
+             f'decode {_pair(e["decode_tps"], "{:.1f}")} tok/s']
+    if e.get("ratios") and None not in e["ratios"]:
+        notes.append(f'{_pair(e["ratios"], "{:.2f}×")} the baseline')
+    elif e["cls"] == "ref":
+        notes.append("the reference for the other two")
+    return notes
 
 
 def funnel_svg(p: dict) -> str:
-    """The funnel as inline SVG (no library). Bars scale with the count; dropped setups carry class cut or fail."""
+    """The funnel as inline SVG (no library). Bars scale with the count; each setup line carries class
+    keep / ref / cut / fail and its speeds from the payload."""
     st = p["funnel"]
-    W = 480
+    W = FN_W
     n0 = max(st[0]["count"], 1)
     out, y = [], 4
     smoke = p.get("smoke", {})
+    fastest = st[-1]["ids"][0] if st[-1]["ids"] else None
     labels = {
         "candidates": "candidate setups",
         "smoke": "8K smoke test (decode)",
         "full": "full speed test at 32K and 128K",
-        "faster": "faster than the baseline",
-        "within": "within 1.25× of Flash-Next",
+        "fastest": f"fastest: {_name(fastest)}" if fastest else "faster than the baseline: none",
     }
+    heads = {"candidates": "never ran, cut by choice:", "smoke": "decode at 8K, thinking effort medium:",
+             "full": "agent turn time at 32K / 128K, xhigh:", "fastest": ""}
     for k, s in enumerate(st):
         cnt = s["count"]
-        w = max(56.0, (W - 40) * cnt / n0)
+        w = max(48.0, (W - 24) * cnt / n0)
         x = (W - w) / 2
-        if cnt:
-            out.append(f'<rect class="fn-bar" x="{x:.1f}" y="{y}" width="{w:.1f}" height="34" rx="6"/>'
-                       f'<text class="fn-n" x="{W / 2}" y="{y + 23}" text-anchor="middle">{cnt}</text>')
-        else:
-            out.append(f'<rect class="fn-zero" x="{x:.1f}" y="{y}" width="{w:.1f}" height="34" rx="6"/>'
-                       f'<text class="fn-n0" x="{W / 2}" y="{y + 23}" text-anchor="middle">0</text>')
-        y += 34 + 22
-        lab = labels[s["stage"]]
-        if s["stage"] == "faster" and s["ids"]:
-            lab += ": " + ", ".join(SHORT.get(i, _name(i)) for i in s["ids"])
-        for line in _wrap(lab, 44):
+        cls, ncls = ("fn-bar", "fn-n") if cnt else ("fn-zero", "fn-n0")
+        out.append(f'<rect class="{cls}" x="{x:.1f}" y="{y}" width="{w:.1f}" height="32" rx="6"/>'
+                   f'<text class="{ncls}" x="{W / 2}" y="{y + 22}" text-anchor="middle">{cnt}</text>')
+        y += 32 + 21
+        for line in _wrap(labels[s["stage"]], 36):
             out.append(f'<text class="fn-lab" x="{W / 2}" y="{y}" text-anchor="middle">{E(line)}</text>')
-            y += 21
+            y += 20
         det = []
         if s["stage"] == "candidates":
             det = [f'{len(s["runtimes"])} runtimes: {", ".join(s["runtimes"])}']
         elif s["stage"] == "smoke":
-            adv = [i for i in s["ids"] if i not in {d["id"] for d in s["dropped"]}]
-            if adv:
-                det.append("passed: " + ", ".join(f'{SHORT.get(i, _name(i))} {smoke[i]["decode_tps"]:.1f} tok/s'
-                                                   for i in adv if smoke[i].get("decode_tps") is not None))
             if s.get("skipped") == [BASELINE]:
                 det.append("the baseline skips it: it is the reference")
             elif s.get("skipped"):
                 det.append("skipped: " + ", ".join(_name(i) for i in s["skipped"]))
-        elif s["stage"] == "within" and None not in s["limit_s"]:
-            det = [f'needs ≤ {s["limit_s"][0]:.1f} s at 32K and ≤ {s["limit_s"][1]:.1f} s at 128K']
         for d in det:
-            for line in _wrap(d, 60):
+            for line in _wrap(d, 44):
                 out.append(f'<text class="fn-det" x="{W / 2}" y="{y}" text-anchor="middle">{E(line)}</text>')
                 y += 18
-        if s["dropped"]:
+        ents = s["entries"]
+        if ents:
             y += 6
-        for d in s["dropped"]:
-            note = ""
-            if d.get("decode_tps") is not None:
-                note = f'smoke decode {d["decode_tps"]:.1f} tok/s'
-            elif d.get("ratios") and None not in d["ratios"]:
-                vs = "the baseline" if d["vs"] == "baseline" else "Flash-Next"
-                note = (f'{"best: " if d["vs"] == "flashnext" else ""}{d["ratios"][0]:.2f}× / {d["ratios"][1]:.2f}× '
-                        f'{vs} at 32K / 128K ({d["effort"]})')
-            out.append(f'<rect class="fn-sw {d["cls"]}" x="22" y="{y - 11}" width="12" height="12" rx="2"/>'
-                       f'<text class="fn-name {d["cls"]}" x="42" y="{y}">{E(_name(d["id"]))}</text>')
-            y += 18
-            if note:
-                out.append(f'<text class="fn-note" x="42" y="{y}">{E(note)}</text>')
+            if heads[s["stage"]]:
+                out.append(f'<text class="fn-grp" x="10" y="{y}">{E(heads[s["stage"]])}</text>')
+                y += 19
+        for e in ents:
+            notes = _fn_notes(e)
+            lines = _wrap(_name(e["id"]), 40)
+            out.append(f'<rect class="fn-sw {e["cls"]}" x="12" y="{y - 11}" width="12" height="12" rx="2"/>')
+            for line in lines:
+                out.append(f'<text class="fn-name {e["cls"]}" x="32" y="{y}">{E(line)}</text>')
                 y += 18
-            y += 2
+            for n in notes:
+                for line in _wrap(n, 44):
+                    out.append(f'<text class="fn-note" x="32" y="{y}">{E(line)}</text>')
+                    y += 17
+            y += 4
         if k < len(st) - 1:
-            y += 6
+            y += 4
             out.append(f'<path class="fn-arrow" d="M{W / 2 - 8} {y} L{W / 2} {y + 9} L{W / 2 + 8} {y}"/>')
             y += 18
-    h = y + 4
+    h = y + 2
     return (f'<svg class="funnel" viewBox="0 0 {W} {h}" width="{W}" height="{h}" role="img" '
             f'aria-labelledby="fn-title"><title id="fn-title">Selection funnel: '
             f'{" → ".join(str(s["count"]) for s in st)} setups</title>{"".join(out)}</svg>')
+
+
+def _smoke_split(p: dict) -> dict:
+    """Setups that ran the 8K smoke but not the full test, and which of them decoded slower than every setup
+    that went on."""
+    st = {s["stage"]: s for s in p["funnel"]}
+    sm = st["smoke"]["entries"]
+    kept = [e["decode_tps"] for e in sm if e["cls"] == "keep" and e["decode_tps"] is not None]
+    cut = [e for e in sm if e["cls"] == "cut"]
+    floor = min(kept) if kept else None
+    slow = [e for e in cut if floor is not None and e["decode_tps"] is not None and e["decode_tps"] < floor]
+    return {"never": st["candidates"]["entries"], "smoked": cut, "slow": slow, "floor": floor}
 
 
 def _funnel_legend(p: dict) -> str:
@@ -567,19 +594,40 @@ def _funnel_legend(p: dict) -> str:
     eff = next(iter(effs)) if len(effs) == 1 and None not in effs else None
     reps = {v.get("reps") for v in p.get("smoke", {}).values()}
     run = "one run" if reps == {1} else "median of the runs"
-    return ('<p class="fn-legend"><span><span class="fn-key cut"></span>cut by scope (not measured)</span>'
+    sp = _smoke_split(p)
+    smoked = ""
+    if sp["smoked"]:
+        smoked = (f' {len(sp["smoked"])} of them ran the 8K smoke first and were not taken further after it'
+                  + (f'; {len(sp["slow"])} of those decoded slower than every setup that went on '
+                     f'(under {sp["floor"]:.1f} tok/s)' if sp["slow"] else "") + '.')
+    return ('<p class="fn-legend"><span><span class="fn-key keep"></span>kept</span>'
+            '<span><span class="fn-key ref"></span>reference (baseline)</span>'
+            '<span><span class="fn-key cut"></span>cut by scope (not measured)</span>'
             '<span><span class="fn-key fail"></span>failed a measurement</span></p>'
-            '<p class="c-note">Smoke decode = the median of the identical, append and tool-turn requests at 8K '
+            '<p class="c-note">Grey means the setup never got the full 32K / 128K test.'
+            f'{smoked} Smoke decode = the median of the identical, append and tool-turn requests at 8K '
             f'(the same warm-decode definition as every decode number on this page){f", thinking effort {eff}" if eff else ""}, '
-            f'{run}. Ratios compare agent turn times at the same thinking effort.</p>')
+            f'{run}. Agent turn times in the funnel are at thinking effort xhigh, the only effort the baseline has '
+            'at 128K; failed = slower than the baseline.</p>')
+
+
+def _funnel_heading(p: dict) -> str:
+    st = p["funnel"]
+    end = st[-1]["ids"]
+    return (f'How {st[0]["count"]} candidate setups came down to '
+            f'{SHORT.get(end[0], _name(end[0])) if end else "none faster than the baseline"}')
 
 
 def _html_funnel(p: dict) -> str:
-    st = p["funnel"]
+    sp = _smoke_split(p)
+    n_never, n_smoked = len(sp["never"]), len(sp["smoked"])
     return ('<section class="block" id="funnel"><h2 class="sec">'
-            f'How {st[0]["count"]} candidate setups came down to {st[-1]["count"]}</h2>'
+            f'{E(_funnel_heading(p))}</h2>'
             '<p class="s-note">Each step keeps the setups that can still be the fastest way to run the dense 27B. '
-            'Setups left out before the full test were cut by choice to save rig time, not because they failed.</p>'
+            f'{n_never} setups never ran: they were cut by choice to save rig time. '
+            + (f'{n_smoked} ran the 8K smoke and were not taken further after it, so their smoke decode is all we '
+               'have for them. ' if n_smoked else '')
+            + 'The comparison with Flash-Next is in the TL;DR and the chart below.</p>'
             f'<div class="fn-wrap"><figure class="fn-fig">{funnel_svg(p)}</figure>'
             f'<div class="fn-side">{_funnel_legend(p)}</div></div></section>')
 
@@ -601,6 +649,13 @@ def _rows_for(p: dict, ctx: str) -> list[dict]:
             rows.append({"id": ref, "name": REF_NAMES[ref], "effort": "xhigh", "data": d, "ref": True,
                          "color": COLOR[ref]})
     return rows
+
+
+DEFAULT_EFFORTS = {"xhigh": True, "medium": False}  # medium shows only when the reader ticks it
+
+
+def _off(r: dict) -> str:
+    return "" if r["ref"] or DEFAULT_EFFORTS.get(r["effort"], True) else " off"
 
 
 def _attrs(r: dict) -> str:
@@ -631,13 +686,13 @@ def _bars(p: dict, ctx: str) -> str:
         lab = (f'<span class="sb-lab"><span class="sw" style="background:var({r["color"]})"></span>'
                f'<span class="sb-txt"><span class="sb-name">{E(r["name"])}</span> {eff}</span></span>')
         if not d or d.get("t_turno_s") is None or not d.get("decode_tps") or d.get("warm_ttft_tool_s") is None:
-            out += (f'<div class="sbar nm"{_attrs(r)} title="{E(r["name"])} · thinking effort: {r["effort"]} · '
+            out += (f'<div class="sbar nm{_off(r)}"{_attrs(r)} title="{E(r["name"])} · thinking effort: {r["effort"]} · '
                     f'{_ctx_lab(ctx)}: not measured">{lab}<span class="sb-track"><span class="sb-nm">not measured'
                     f'</span></span><span class="sb-val na">—</span></div>')
             continue
         ttft, gen = d["warm_ttft_tool_s"], REPLY_TOKENS / d["decode_tps"]
         tip = _tip(r, ctx)
-        out += (f'<div class="sbar"{_attrs(r)} title="{E(tip)}" role="img" aria-label="{E(tip)}">{lab}'
+        out += (f'<div class="sbar{_off(r)}"{_attrs(r)} title="{E(tip)}" role="img" aria-label="{E(tip)}">{lab}'
                 f'<span class="sb-track"><span class="seg ttft" style="width:{100 * ttft / mx:.2f}%;'
                 f'background:var({r["color"]})"></span><span class="seg gen" style="width:{100 * gen / mx:.2f}%;'
                 f'background:var({r["color"]})"></span></span>'
@@ -647,7 +702,7 @@ def _bars(p: dict, ctx: str) -> str:
     return (f'<div class="sbars">{out}</div>'
             '<p class="sb-key"><span><span class="k ttft"></span>warm TTFT of the tool-result turn</span>'
             f'<span><span class="k gen"></span>{REPLY_TOKENS} tokens at the median decode speed</span>'
-            '<span>hover or tap a bar for decode, TTFT and memory</span></p>')
+            '<span>hover a bar for decode, TTFT and memory; the table below has the same numbers</span></p>')
 
 
 def _table(p: dict, ctx: str) -> str:
@@ -658,11 +713,11 @@ def _table(p: dict, ctx: str) -> str:
                f'<span class="sb-name">{E(r["name"])}</span></span>')
         effcell = f'{E(r["effort"])}{" (reference)" if r["ref"] else ""}'
         if not d or all(d.get(k) is None for k in SPEED_KEYS):
-            body += (f'<tr{_attrs(r)}><td>{lab}</td><td class="tx">{effcell}</td>'
+            body += (f'<tr{_attrs(r)}{' class="off"' if _off(r) else ""}><td>{lab}</td><td class="tx">{effcell}</td>'
                      f'<td colspan="8" class="tx"><span class="na">not measured</span></td></tr>')
             continue
         acc = ND(d.get("mtp_acceptance"), "{:.2f}")
-        body += (f'<tr{_attrs(r)}><td>{lab}</td><td class="tx">{effcell}</td>'
+        body += (f'<tr{_attrs(r)}{' class="off"' if _off(r) else ""}><td>{lab}</td><td class="tx">{effcell}</td>'
                  f'<td><b>{ND(d.get("t_turno_s"), "{:.1f}")}</b></td><td>{ND(d.get("warm_ttft_tool_s"), "{:.1f}")}</td>'
                  f'<td>{ND(d.get("cold_ttft_s"), "{:.1f}")}</td><td>{ND(d.get("prefill_tps"), "{:,.0f}")}</td>'
                  f'<td>{ND(d.get("decode_tps"), "{:.1f}")}</td><td>{ND(d.get("hit_tool"), "{:.2f}")}</td>'
@@ -684,8 +739,8 @@ def _html_results(p: dict) -> str:
     default = "131072" if "131072" in ctxs else ctxs[0]
     tabs = "".join(f'<button type="button" role="tab" class="tab" data-ctx="{c}" '
                    f'aria-selected="{"true" if c == default else "false"}">{_ctx_lab(c)} context</button>' for c in ctxs)
-    effs = "".join(f'<label class="chk"><input type="checkbox" data-effort-toggle="{e}" checked> {e}</label>'
-                   for e in EFFORTS)
+    effs = "".join(f'<label class="chk"><input type="checkbox" data-effort-toggle="{e}"'
+                   f'{" checked" if DEFAULT_EFFORTS.get(e, True) else ""}> {e}</label>' for e in EFFORTS)
     controls = (f'<div class="controls" role="group" aria-label="Chart controls">'
                 f'<div class="ctl"><span class="ctl-h">Context</span><div class="tabs" role="tablist">{tabs}</div></div>'
                 f'<div class="ctl"><span class="ctl-h">Thinking effort</span>{effs}</div>'
@@ -701,6 +756,7 @@ def _html_results(p: dict) -> str:
     rep_txt = f"median of {reps[0]} repetitions" if len(reps) == 1 else "median of the repetitions"
     return ('<section class="block" id="results"><h2 class="sec">Agent turn time at 32K and 128K</h2>'
             f'<p class="s-note">Each bar is one agent turn: {AGENT_TURN_DEF}, {rep_txt}. {EFFORT_SENTENCE} '
+            'Only thinking effort xhigh shows by default; tick medium to add those rows. '
             'The Flash-Next rows are the reference we compare against (thinking effort xhigh, on '
             f'{REF_RUNTIME}).</p>{controls}{panels}'
             '<p class="s-note mt"><b>Peak memory (GB)</b> is the highest wired memory of the whole machine sampled '
@@ -720,7 +776,8 @@ def _think_facts(p: dict) -> dict:
             "efforts": sorted({v["effort"] for v in k}),
             "drop_err": sum(v["drop"]["errors"] for v in k), "drop_n": sum(v["drop"]["n"] for v in k),
             "drop_ttft": round(statistics.median(drop), 1) if drop else None,
-            "r_min": min(rr) if rr else None, "r_max": max(rr) if rr else None}
+            "r_min": min(rr) if rr else None, "r_max": max(rr) if rr else None,
+            "r_per_mode": max((v[m]["n"] for v in r for m in ("resend", "drop")), default=None)}
 
 
 def _html_run(p: dict) -> str:
@@ -730,21 +787,26 @@ def _html_run(p: dict) -> str:
     if cmd:
         rev, drev = cmd["revision"] or "", cmd["draft_rev"] or ""
         fl = cmd["flags"]
+        draft_dl = (f'DRAFT_DIR="$HOME/models/Qwen3.8-27B-DFlash2"   # any absolute directory you choose\n'
+                    f'hf download {cmd["draft_repo"]} --revision {drev} --local-dir "$DRAFT_DIR"\n'
+                    if cmd["draft_repo"] and drev else
+                    '# draft model: not found in the campaign launcher; set DRAFT_DIR to a local DFlash2 directory\n')
         shell = (
             f'# once: fill the Hugging Face cache (Splash wants a Hub ID for the target and --offline reads the cache)\n'
             f'hf download {cmd["model"]} --revision {rev}\n'
-            f'hf download {cmd["draft_repo"]} --revision {drev} \\\n  --local-dir {cmd["draft_dir"]}\n\n'
-            f'# serve (Splash 1.3.1; our binary: {cmd["bin"]})\n'
+            f'{draft_dl}\n'
+            f'# serve (Splash 1.3.1)\n'
             f'splash {fl.get("SPLASH_SERVE_SUBCMD", "serve")} {fl.get("SPLASH_FLAG_MODEL", "--model")} {cmd["model"]} '
             f'{fl.get("SPLASH_FLAG_HOST", "--host")} 0.0.0.0 {fl.get("SPLASH_FLAG_PORT", "--port")} {cmd["port"]} \\\n'
             f'  {fl.get("SPLASH_FLAG_CTX", "--max-context")} 131072 \\\n'
             f'  {fl.get("SPLASH_FLAG_REVISION", "--revision")} {rev} \\\n'
-            f'  {fl.get("SPLASH_FLAG_DRAFTER", "--draft-model")} {cmd["draft_dir"]} \\\n'
+            f'  {fl.get("SPLASH_FLAG_DRAFTER", "--draft-model")} "$DRAFT_DIR" \\\n'
             f'  {cmd["extra"]}')
         ids = (f'<li>Target: <code>{E(cmd["model"])}</code> @ <code>{E(rev[:8])}</code> '
                f'(full revision <code>{E(rev)}</code>).</li>'
-               f'<li>Draft: <code>{E(cmd["draft_repo"])}</code> @ <code>{E(drev[:8])}</code> '
-               f'(full revision <code>{E(drev)}</code>), passed as a local directory.</li>')
+               + (f'<li>Draft: <code>{E(cmd["draft_repo"])}</code> @ <code>{E(drev[:8])}</code> '
+                  f'(full revision <code>{E(drev)}</code>), passed as a local directory.</li>'
+                  if cmd["draft_repo"] and drev else '<li>Draft: —</li>'))
     else:
         shell, ids = "# launcher files not found", ""
     samp = (f'temperature {s["temperature"]}, top_p {s["top_p"]}, top_k {s["top_k"]}' if s else "not recorded")
@@ -755,8 +817,10 @@ def _html_run(p: dict) -> str:
     if t["resend_n"]:
         warn = (f'<div class="warnbox"><p><b>Do not resend the reasoning.</b> At 128K, Splash 1.3.1 returned '
                 f'<b>HTTP 400</b> on every tool turn that sent the previous <code>reasoning_content</code> back '
-                f'({t["resend_400"]} of {t["resend_n"]}, thinking effort {" and ".join(t["efforts"])}). Without it, '
-                f'{t["drop_n"] - t["drop_err"]} of {t["drop_n"]} worked, with a TTFT of {t["drop_ttft"]:.1f} s. '
+                f'({t["resend_400"]} of {t["resend_n"]}, thinking effort {" and ".join(t["efforts"])}). '
+                + (f'Without it, {t["drop_n"] - t["drop_err"]} of {t["drop_n"]} worked'
+                   + (f', with a TTFT of {t["drop_ttft"]:.1f} s. ' if t["drop_ttft"] is not None else '. ')
+                   if t["drop_n"] else '') +
                 'Configure your client to drop <code>reasoning_content</code> from earlier assistant messages.</p></div>')
     else:
         warn = '<p class="s-note">The thinking-turn probe was not run.</p>'
@@ -800,9 +864,11 @@ def _html_limits(p: dict) -> str:
                'so that cause is the vendor\'s claim only.</li>') if None not in gain else ""
     t = _think_facts(p)
     r128 = ((sp.get("131072") or {}).get("r27d-xhigh") or {}).get("warm_ttft_tool_s")
+    rn = t["r_per_mode"]
+    per = "one request per mode" if rn == 1 else f"{rn} requests per mode" if rn else "few requests"
     mlx_li = (f'<li>mlx-serve 26.10.2: the tool-turn TTFT in the thinking-turn probe was {t["r_min"]:.0f}–'
-              f'{t["r_max"]:.0f} s, against {r128:.1f} s in the cache probe at the same 128K. We have no explanation.'
-              '</li>') if t["r_min"] is not None and r128 is not None else ""
+              f'{t["r_max"]:.0f} s ({per}, resend and drop), against {r128:.1f} s in the cache probe at the same '
+              '128K. We have no explanation.</li>') if t["r_min"] is not None and r128 is not None else ""
     reps = sorted({d.get("reps") for rows in sp.values() for d in rows.values() if d.get("reps")})
     return ('<section class="block" id="limits"><h2 class="sec">Limitations</h2><ul class="s-note">'
             '<li>One machine (M4 Max, 128 GB). Other Macs will differ.</li>'
@@ -903,14 +969,19 @@ dl.gloss div{font-size:0.86rem; color:var(--ink-2); line-height:1.4}
 dl.gloss dt{display:inline; font-weight:700; color:var(--ink)} dl.gloss dt::after{content:": "}
 dl.gloss dd{display:inline; margin:0}
 /* funnel */
-.fn-wrap{display:grid; grid-template-columns:minmax(0,560px) minmax(0,1fr); gap:20px; align-items:start}
+.fn-wrap{display:grid; grid-template-columns:minmax(0,480px) minmax(0,1fr); gap:20px; align-items:start}
+.nm-sub{margin:4px 0 0; padding-left:16px} .nm-sub li{margin:2px 0}
 figure.fn-fig{margin:0; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px}
-svg.funnel{width:100%; height:auto; display:block; font-family:var(--sans)}
+svg.funnel{width:100%; max-width:440px; height:auto; display:block; margin:0 auto; font-family:var(--sans)}
 .fn-bar{fill:var(--accent)} .fn-zero{fill:none; stroke:var(--muted); stroke-dasharray:5 4; stroke-width:1.5}
-.fn-n{fill:#fff; font-size:19px; font-weight:700} .fn-n0{fill:var(--ink-2); font-size:19px; font-weight:700}
-.fn-lab{fill:var(--ink); font-size:17px; font-weight:700} .fn-det{fill:var(--ink-2); font-size:14px}
-.fn-name{fill:var(--ink); font-size:15px} .fn-name.cut{fill:var(--ink-2)} .fn-note{fill:var(--ink-2); font-size:13.5px}
+.fn-n{fill:#fff; font-size:18px; font-weight:700} .fn-n0{fill:var(--ink-2); font-size:18px; font-weight:700}
+.fn-lab{fill:var(--ink); font-size:16px; font-weight:700} .fn-det{fill:var(--ink-2); font-size:13.5px}
+.fn-grp{fill:var(--muted); font-size:13.5px; font-style:italic}
+.fn-name{fill:var(--ink); font-size:14.5px; font-weight:600} .fn-name.cut{fill:var(--ink-2); font-weight:400}
+.fn-note{fill:var(--ink-2); font-size:13.5px}
 .fn-sw.cut, .fn-key.cut{fill:var(--cut); background:var(--cut)} .fn-sw.fail, .fn-key.fail{fill:var(--fail); background:var(--fail)}
+.fn-sw.keep, .fn-key.keep{fill:var(--accent); background:var(--accent)}
+.fn-sw.ref{fill:var(--plane); stroke:var(--accent); stroke-width:2} .fn-key.ref{background:transparent; box-shadow:inset 0 0 0 2px var(--accent)}
 .fn-arrow{fill:none; stroke:var(--muted); stroke-width:2}
 .fn-legend{display:flex; flex-wrap:wrap; gap:8px 18px; margin:0; font-size:0.88rem; color:var(--ink)}
 .fn-legend > span{display:inline-flex; align-items:center; gap:7px}
@@ -977,9 +1048,10 @@ JS = r"""
 (function(){
   const root=document.documentElement; root.classList.add("js");
   const KEY="__KEY__";
-  let st={effort:{xhigh:true, medium:true}, ctx:"__DEFAULT__", ref:true};
+  const DEF_EFF=__DEFEFF__;
+  let st={effort:Object.assign({}, DEF_EFF), ctx:"__DEFAULT__", ref:true};
   try{ const s=JSON.parse(localStorage.getItem(KEY)||"null");
-       if(s && typeof s==="object"){ st=Object.assign(st, s); st.effort=Object.assign({xhigh:true, medium:true}, s.effort||{}); } }catch(e){}
+       if(s && typeof s==="object"){ st=Object.assign(st, s); st.effort=Object.assign({}, DEF_EFF, s.effort||{}); } }catch(e){}
   if(!document.querySelector('[data-ctx-panel="'+st.ctx+'"]')) st.ctx="__DEFAULT__";
   function save(){ try{ localStorage.setItem(KEY, JSON.stringify(st)); }catch(e){} }
   function apply(){
@@ -1076,7 +1148,8 @@ def render_html(p: dict) -> str:
     default = "131072" if "131072" in ctxs else ctxs[0]
     parts = {
         "/*__CSS__*/": PERF_CSS + PERF_EXTRA_CSS + PAGE_CSS,
-        "__JS__": JS.replace("__KEY__", STATE_KEY).replace("__DEFAULT__", default),
+        "__JS__": JS.replace("__KEY__", STATE_KEY).replace("__DEFAULT__", default)
+                     .replace("__DEFEFF__", json.dumps(DEFAULT_EFFORTS)),
         "__BODY__": body, "__DESC__": E(_desc(p)), "__OGTITLE__": E(_og_title(p)),
         "__PAGEURL__": PAGE_URL, "__CARDURL__": CARD_URL, "__REPO__": REPO_URL,
         "__REPOTXT__": E(REPO_URL.split("//")[1]), "__GENERATED__": E(p.get("generated_at", "")),
@@ -1148,7 +1221,7 @@ svg{{flex:none}}
 POST_CSS = r"""
 html,body{margin:0; width:__W__px; min-height:__H__px; background:var(--plane)}
 .wrap{max-width:none; width:__W__px; padding:44px 52px; box-sizing:border-box}
-.post-grid{display:grid; grid-template-columns:520px minmax(0,1fr); gap:28px; margin-top:22px; align-items:start}
+.post-grid{display:grid; grid-template-columns:400px minmax(0,1fr); gap:28px; margin-top:22px; align-items:start}
 .post-grid figure.fn-fig{padding:12px}
 .post-foot{margin-top:18px; font-size:15px; color:var(--muted); display:flex; justify-content:space-between}
 .tldr .tl-line{font-size:1.05rem}
@@ -1169,7 +1242,7 @@ def render_post(p: dict) -> str:
 <h1>Dense Qwen3.8-27B on an M4 Max: which local server runs it fastest?</h1></div></header>
 {_html_tldr(p)}
 <div class="post-grid">
-  <div><h2 class="sec">How {p["funnel"][0]["count"]} setups came down to {p["funnel"][-1]["count"]}</h2>
+  <div><h2 class="sec">{E(_funnel_heading(p))}</h2>
   <figure class="fn-fig">{funnel_svg(p)}</figure>{_funnel_legend(p)}</div>
   <div><h2 class="sec">Agent turn time</h2><p class="s-note">{AGENT_TURN_DEF}. {EFFORT_SENTENCE}</p>{charts}
   <p class="quality-line">{QUALITY_LINE}</p></div>
@@ -1210,14 +1283,18 @@ def render_reddit(p: dict) -> str:
     lines += ["", f"Full page (selection funnel, every number, how to run it): {PAGE_URL}", ""]
     if t["resend_n"]:
         lines += [f"**If you run it on Splash 1.3.1:** do not resend `reasoning_content` in earlier assistant messages. "
-                  f"At 128K every tool turn that did got HTTP 400 ({t['resend_400']}/{t['resend_n']}); without it all "
-                  f"worked (TTFT {t['drop_ttft']:.1f} s).", ""]
+                  f"At 128K every tool turn that did got HTTP 400 ({t['resend_400']}/{t['resend_n']})"
+                  + (f"; without it {t['drop_n'] - t['drop_err']}/{t['drop_n']} worked"
+                     + (f" (TTFT {t['drop_ttft']:.1f} s)" if t['drop_ttft'] is not None else "") if t['drop_n'] else "")
+                  + ".", ""]
     st = p["funnel"]
     reps = sorted({d.get("reps") for rows in p["speed"].values() for d in rows.values() if d.get("reps")})
     rep = f"{reps[0]} repetitions per point (median)" if len(reps) == 1 else "few repetitions per point"
     lines += [f"**Limitations.** One M4 Max 128 GB; {rep}; a synthetic agent-turn probe, not a real "
               "task. Quality and per-task time were not measured for the 27B. "
-              f"{len(NOT_RUN)} of the {st[0]['count']} candidate setups were cut by choice before the full test. "
+              f"{len(_smoke_split(p)['never']) + len(_smoke_split(p)['smoked'])} of the {st[0]['count']} candidate setups "
+              f"never got the full test ({len(_smoke_split(p)['never'])} never ran; "
+              f"{len(_smoke_split(p)['smoked'])} ran only an 8K smoke). "
               "The Splash prefill gain over the baseline is attributed to the Neural Engine by the vendor only.", ""]
     return "\n".join(lines)
 

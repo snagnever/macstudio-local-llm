@@ -21,6 +21,6 @@ Agent turn time = time to the first token of a turn that carries a tool result, 
 
 Full page (selection funnel, every number, how to run it): https://snagnever.github.io/macstudio-local-llm/qwen38-27b-stacks.html
 
-**If you run it on Splash 1.3.1:** do not resend `reasoning_content` in earlier assistant messages. At 128K every tool turn that did got HTTP 400 (6/6); without it all worked (TTFT 7.4 s).
+**If you run it on Splash 1.3.1:** do not resend `reasoning_content` in earlier assistant messages. At 128K every tool turn that did got HTTP 400 (6/6); without it 6/6 worked (TTFT 7.4 s).
 
-**Limitations.** One M4 Max 128 GB; 3 repetitions per point (median); a synthetic agent-turn probe, not a real task. Quality and per-task time were not measured for the 27B. 8 of the 11 candidate setups were cut by choice before the full test. The Splash prefill gain over the baseline is attributed to the Neural Engine by the vendor only.
+**Limitations.** One M4 Max 128 GB; 3 repetitions per point (median); a synthetic agent-turn probe, not a real task. Quality and per-task time were not measured for the 27B. 8 of the 11 candidate setups never got the full test (5 never ran; 3 ran only an 8K smoke). The Splash prefill gain over the baseline is attributed to the Neural Engine by the vendor only.

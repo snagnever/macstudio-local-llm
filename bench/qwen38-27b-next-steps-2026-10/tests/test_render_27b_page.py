@@ -66,7 +66,8 @@ def _body(html: str) -> str:
 
 
 FORBIDDEN = [r"\bs27r\b", r"\bk27\b", r"\br27d\b", r"\bw1\b", r"\bn2\b", r"T_turno", r"\bP[0-8]\b", r"gates\.env",
-             r"scope B", r"\bp\d[xm]\b", r"p&lt;N&gt;", r"(?i)\barms?\b", r"(?i)driver [AB]\b", r"(?i)\bbands?\b"]
+             r"scope B", r"\bp\d[xm]\b", r"p&lt;N&gt;", r"(?i)\barms?\b", r"(?i)driver [AB]\b", r"(?i)\bbands?\b",
+             r"\b[orwl]27\w*\b", r"tool_turn", r"NO-GO"]
 
 
 # --- payload (unchanged data layer) ---
@@ -199,6 +200,9 @@ def test_tldr_numbers_from_real_data(real):
     assert "for agent loops, Flash-Next is still faster" in tl
     assert "What we did not measure" in tl
     assert "Quality of the 27B" in tl and "Time per real task" in tl and "8 of the 11 candidate setups" in tl
+    assert "(5 never ran; 3 ran only the 8K smoke)" in tl
+    sub = tl[tl.index('<ul class="nm-sub">'):]
+    assert sub.count("<li>") == 8 and "<li>oMLX 0.7.1 · oQ4e refit, 4-bit (8K smoke only)</li>" in sub
 
 
 def test_tldr_from_fixture_numbers(tmp_path):
@@ -233,30 +237,55 @@ def test_glossary_terms(results):
 @real_only
 def test_funnel_counts_and_classes(real):
     p, html = real
-    assert [s["count"] for s in p["funnel"]] == [11, 5, 3, 1, 0]
+    assert [s["count"] for s in p["funnel"]] == [11, 5, 3, 1]
     assert p["funnel"][0]["runtimes"] == ["mlx-dspark", "Splash", "oMLX", "mlx-serve", "llama.cpp"]
+    sec = html[html.index('id="funnel"'):html.index('id="results"')]
+    assert "How 11 candidate setups came down to Splash</h2>" in sec and "down to 0" not in html
+    svg = sec[sec.index('<svg class="funnel"'):sec.index("</svg>")]
+    for label in ("candidate setups", "8K smoke test (decode)", "full speed test at 32K and 128K",
+                  "fastest: Splash 1.3.1 + DFlash2"):
+        assert label in svg
+    assert "within 1.25" not in svg and "Flash-Next" not in svg
+    lines = re.findall(r'<text class="fn-det"[^>]*>([^<]*)</text>', svg)
+    assert " ".join(lines).startswith("5 runtimes: mlx-dspark, Splash, oMLX, mlx-serve, llama.cpp")
+    assert svg.count('class="fn-sw cut"') == 8 and svg.count('class="fn-sw fail"') == 1
+    assert svg.count('class="fn-sw ref"') == 1 and svg.count('class="fn-sw keep"') == 4  # smoke 2, full 1, final 1
+    # smoke decode: summarize_driver definition (median of identical, append, tool_turn), kept and cut
+    for v in ("92.3", "80.6", "81.4", "51.5", "35.3"):
+        assert f"decode {v} tok/s at 8K" in svg
+    for v in ("17.0 / 25.7 s per agent turn", "13.3 / 17.7 s per agent turn", "19.9 / 44.7 s per agent turn",
+              "decode 44.0 / 32.3 tok/s", "decode 54.7 / 49.8 tok/s", "decode 36.3 / 15.1 tok/s",
+              "1.17× / 1.74× the baseline", "0.78× / 0.69× the baseline"):
+        assert v in svg, v
+    final = svg[svg.index("fastest: Splash"):]
+    assert "13.3 / 17.7 s per agent turn" in final and "decode 54.7 / 49.8 tok/s" in final
+    side = sec[sec.index('class="fn-side"'):]
+    assert "cut by scope (not measured)" in side and "failed a measurement" in side
+    assert "3 of them ran the 8K smoke first and were not taken further after it" in side
+    assert "2 of those decoded slower than every setup that went on (under 80.6 tok/s)" in side
+    assert "median of the identical, append and tool-turn requests at 8K" in side
+    assert "not because they failed" not in sec
+    assert "<script" not in svg
+
+
+@real_only
+def test_funnel_text_fits_viewbox(real):
+    """At 375 px the figure is ~329 px wide: the SVG must be ≤ 360 units wide and its smallest text ≥ 13.5 units
+    (≥ 12 px on screen); wrapped lines stay under the character budget."""
+    html = real[1]
     svg = html[html.index('<svg class="funnel"'):]
     svg = svg[:svg.index("</svg>")]
-    for label in ("candidate setups", "8K smoke test (decode)", "full speed test at 32K and 128K",
-                  "faster than the baseline: Splash", "within 1.25× of Flash-Next"):
-        assert label in svg
-    assert "5 runtimes: mlx-dspark, Splash, oMLX, mlx-serve, llama.cpp" in svg
-    assert svg.count('class="fn-sw cut"') == 8 and svg.count('class="fn-sw fail"') == 2
-    # smoke decode: summarize_driver definition (median of identical, append, tool_turn)
-    for v in ("Splash 92.3 tok/s", "mlx-serve 80.6 tok/s", "smoke decode 81.4 tok/s", "smoke decode 51.5 tok/s",
-              "smoke decode 35.3 tok/s"):
-        assert v in svg
-    assert "1.17× / 1.74× the baseline" in svg and "best: 1.32× / 1.85× Flash-Next" in svg
-    assert "needs ≤ 9.9 s at 32K and ≤ 10.8 s at 128K" in svg
-    side = html[html.index('class="fn-side"'):html.index('id="results"')]
-    assert "cut by scope (not measured)" in side and "failed a measurement" in side
-    assert "median of the identical, append and tool-turn requests at 8K" in side
-    assert "<script" not in svg
+    assert 'viewBox="0 0 360 ' in svg
+    css = html[html.index("<style>"):html.index("</style>")]
+    sizes = [float(x) for x in re.findall(r"\.fn-(?:lab|det|grp|name|note|n|n0)\{[^}]*font-size:([\d.]+)px", css)]
+    assert sizes and min(sizes) >= 13.5
+    for t in re.findall(r'<text class="fn-(?:note|det|name[^"]*)"[^>]*>([^<]*)</text>', svg):
+        assert len(t) <= 44, t
 
 
 def test_funnel_without_smoke_files(results):
     p = rp.build_payload(results, w1_summary={}, w1_ab=None)
-    assert [s["count"] for s in p["funnel"]][:3] == [11, 0, 2]
+    assert [s["count"] for s in p["funnel"]] == [11, 0, 2, 1]
     assert '<svg class="funnel"' in rp.render_html(p)
 
 
@@ -266,7 +295,7 @@ def test_funnel_without_smoke_files(results):
 def test_controls_and_effort_rows(real):
     html = real[1]
     assert '<input type="checkbox" data-effort-toggle="xhigh" checked>' in html
-    assert '<input type="checkbox" data-effort-toggle="medium" checked>' in html
+    assert '<input type="checkbox" data-effort-toggle="medium"> medium' in html  # xhigh only by default
     assert "data-ref-toggle checked> show Flash-Next reference" in html
     assert 'data-ctx="32768" aria-selected="false">32K context' in html
     assert 'data-ctx="131072" aria-selected="true">128K context' in html
@@ -278,15 +307,21 @@ def test_controls_and_effort_rows(real):
     # baseline medium at 128K: shown as not measured, never dropped
     panel = html[html.index('data-ctx-panel="131072"'):]
     panel = panel[:panel.index("</table>")]
-    nm = re.findall(r'<div class="sbar nm" data-effort="medium" title="([^"]+)"', panel)
+    nm = re.findall(r'<div class="sbar nm off" data-effort="medium" title="([^"]+)"', panel)
     assert nm == ["mlx-dspark 0.20.3 + DFlash2 (baseline) · thinking effort: medium · 128K: not measured"]
-    assert re.search(r'<tr data-effort="medium"><td>.*?\(baseline\).*?not measured</span></td></tr>', panel)
+    assert re.search(r'<tr data-effort="medium" class="off"><td>.*?\(baseline\).*?not measured</span></td></tr>', panel)
+    assert 'const DEF_EFF={"xhigh": true, "medium": false}' in html
 
 
-def test_js_free_default_hides_nothing(results):
+def test_default_state_is_xhigh_only_without_js(results):
     html = rp.render_html(rp.build_payload(results, w1_summary={}, w1_ab=None))
     assert "html.js .tab-off{display:none}" in html and "html.js .controls{display:flex}" in html
-    assert 'class="sbar off"' not in html
+    assert ".off{display:none!important}" in html
+    med = re.findall(r'<(?:div|tr) [^>]*data-effort="medium"[^>]*>', html)
+    xh = re.findall(r'<(?:div|tr) [^>]*data-effort="xhigh"[^>]*>', html)
+    assert med and all("off" in t for t in med)
+    assert xh and not any("off" in t for t in xh)
+    assert "Only thinking effort xhigh shows by default" in html
 
 
 # --- 6. stacked bars ---
@@ -333,6 +368,8 @@ def test_run_it_yourself(real):
         assert s in run, s
     assert "HTTP 400</b> on every tool turn that sent the previous <code>reasoning_content</code> back (6 of 6" in run
     assert "3 of 3 worked" not in run and "6 of 6 worked, with a TTFT of 7.4 s" in run
+    assert 'DRAFT_DIR=&quot;$HOME/models/Qwen3.8-27B-DFlash2&quot;' in run and '--draft-model &quot;$DRAFT_DIR&quot;' in run
+    assert ".cache/local-llms" not in run and "qwen3.8-prefix-cache" not in run
 
 
 def test_splash_command_parsed_from_launchers():
@@ -353,7 +390,7 @@ def test_hardware_and_limitations(real):
         assert v in hw
     lim = html[html.index('id="limits"'):html.index('id="raw"')]
     assert "+44% at 32K, +33% at 128K" in lim and "vendor" in lim
-    assert "94–104 s" in lim and "10.8 s in the cache probe" in lim
+    assert "94–104 s (one request per mode, resend and drop)" in lim and "10.8 s in the cache probe" in lim
     assert "One machine" in lim and "synthetic" in lim and "Quality was not measured" in lim
 
 
@@ -402,8 +439,27 @@ def test_references_rows_and_limit(results):
     html = rp.render_html(rp.build_payload(results, w1_summary=w1, w1_ab=None))
     body = _body(html)
     assert body.count(rp.W1_NAME) >= 4 and body.count(rp.N2_NAME) >= 4  # bars + tables, both contexts
-    assert "needs ≤ 9.9 s at 32K and ≤ 10.8 s at 128K" in body  # 1.25 × the daily model
     assert "10.1 s" not in body and "11.1 s" not in body  # never 1.25 × the iQ reference
+
+
+def test_bar_key_does_not_promise_tap(results):
+    html = rp.render_html(rp.build_payload(results, w1_summary={}, w1_ab=None))
+    assert "hover or tap" not in html and "the table below has the same numbers" in html
+
+
+def test_missing_drop_probe_and_draft_repo_do_not_crash(results, tmp_path, monkeypatch):
+    think = results / "think"; think.mkdir()
+    rows = [{"mode": "resend", "scenario": "tool_turn", "error": "HTTPError: HTTP Error 400: Bad Request", "ttft_ms": None},
+            {"mode": "drop", "scenario": "tool_turn", "error": "HTTPError: HTTP Error 500", "ttft_ms": None}]
+    (think / "k27-xhigh.jsonl").write_text("\n".join(json.dumps(r) for r in rows) + "\n")
+    real_cmd = rp.splash_command()
+    monkeypatch.setattr(rp, "splash_command", lambda: dict(real_cmd, draft_repo=None, draft_rev=None))
+    html = _main(tmp_path, results, "--no-w1")
+    run = html[html.index('id="run"'):html.index('id="hw"')]
+    assert "None" not in run and "HTTP 400" in run and "0 of 1 worked." in run
+    assert "<li>Draft: —</li>" in run
+    md = (tmp_path / "reddit.md").read_text()
+    assert "None" not in md and "0/1 worked." in md
 
 
 # --- 12. mobile ---

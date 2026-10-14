@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-14T06:57:57+00:00",
+ "generated_at": "2026-10-14T07:08:51+00:00",
  "arms": [
   {
    "id": "s27r",
@@ -579,7 +579,7 @@
     "mlx-serve",
     "llama.cpp"
    ],
-   "dropped": [
+   "entries": [
     {
      "id": "o27q8",
      "cls": "cut"
@@ -615,11 +615,21 @@
    "skipped": [
     "s27r"
    ],
-   "dropped": [
+   "entries": [
+    {
+     "id": "k27",
+     "cls": "keep",
+     "decode_tps": 92.3
+    },
     {
      "id": "o27q4",
      "cls": "cut",
      "decode_tps": 81.4
+    },
+    {
+     "id": "r27d",
+     "cls": "keep",
+     "decode_tps": 80.6
     },
     {
      "id": "r27m",
@@ -641,47 +651,78 @@
     "k27",
     "r27d"
    ],
-   "dropped": [
+   "entries": [
+    {
+     "id": "s27r",
+     "cls": "ref",
+     "t_turno_s": [
+      17.0,
+      25.7
+     ],
+     "decode_tps": [
+      44.0,
+      32.3
+     ],
+     "ratios": null
+    },
+    {
+     "id": "k27",
+     "cls": "keep",
+     "t_turno_s": [
+      13.3,
+      17.7
+     ],
+     "decode_tps": [
+      54.7,
+      49.8
+     ],
+     "ratios": [
+      0.7823529411764706,
+      0.688715953307393
+     ]
+    },
     {
      "id": "r27d",
      "cls": "fail",
+     "t_turno_s": [
+      19.9,
+      44.7
+     ],
+     "decode_tps": [
+      36.3,
+      15.1
+     ],
      "ratios": [
       1.1705882352941175,
       1.739299610894942
-     ],
-     "effort": "xhigh",
-     "vs": "baseline"
+     ]
     }
    ]
   },
   {
-   "stage": "faster",
+   "stage": "fastest",
    "count": 1,
    "ids": [
     "k27"
    ],
-   "dropped": [
+   "entries": [
     {
      "id": "k27",
-     "cls": "fail",
-     "ratios": [
-      1.3164556962025316,
-      1.8488372093023258
+     "cls": "keep",
+     "t_turno_s": [
+      13.3,
+      17.7
      ],
-     "effort": "medium",
-     "vs": "flashnext"
+     "decode_tps": [
+      54.7,
+      49.8
+     ],
+     "ratios": [
+      0.7823529411764706,
+      0.688715953307393
+     ]
     }
    ]
-  },
-  {
-   "stage": "within",
-   "count": 0,
-   "ids": [],
-   "limit_s": [
-    9.9,
-    10.8
-   ],
-   "dropped": []
   }
  ]
 }
