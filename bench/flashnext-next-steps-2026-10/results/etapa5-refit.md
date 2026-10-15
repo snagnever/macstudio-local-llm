@@ -60,7 +60,7 @@ RUN_TASK6=0
 ## Leitura
 
 - O decode explica a diferença: 74.9 contra 82.8 tok/s a 32K e 72.4 contra 76.1 a 128K. O TTFT frio e o quente são iguais nos dois braços. A aceitação MTP do `o1rm` é menor (0.551 contra 0.608 a 32K; 0.717 contra 0.779 a 128K).
-- O needle que falhou a 128K é de um `tool_turn` (rep 1): o modelo achou o needle de 10% e errou os de 50% e 90%, com `finish_reason=stop`. As outras 12 respostas acertaram os três.
+- O needle que falhou a 128K é o primeiro dos 3 `tool_turn`: o modelo achou o needle de 10% e errou os de 50% e 90%, com `finish_reason=stop`. As outras 12 respostas acertaram os três.
 - A 32K, o `(1 trunc)` é um `append` que bateu `max_tokens` 4096 sem conteúdo; não conta como erro de needle.
 - O wired do `o1rm` a 32K é 2.7 GB maior que o do `w1` (99.9 contra 97.2 GB). A 128K os dois passam de 102 GB e chegam a 0.01 GB livres.
 - A comparação mistura runtime e pesos (26.10.2 + refit contra 26.10.1 + Swift). Na Task 1, o 26.10.2 deu 1.038× e 1.000× o 26.10.1 no `n2`; o runtime explica parte da diferença a 32K, mas não a de 128K.

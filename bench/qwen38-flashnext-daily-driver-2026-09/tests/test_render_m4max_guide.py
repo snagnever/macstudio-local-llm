@@ -102,3 +102,18 @@ def test_slides_are_numbered_and_filled():
         assert f"{i} / {len(slides)}" in html
         assert not re.search(r"\{[a-z_0-9]+\}", visible_text(html)), stem
     assert "Use mlx-serve 26.10.1" in slides[-1][1]
+
+
+def test_post_charts_are_charts_not_prose():
+    data, swift = load()
+    charts = {stem: html for stem, html, _h in guide.render_post_charts(data, swift)}
+    assert list(charts) == ["01-turn", "02-first-message", "03-ttft-next-turn", "04-cache-miss", "05-decode-prefill", "06-memory"]
+    p = guide.build_payload(data, swift)["points"]
+    n256, d256 = p["n2"]["262144"], p["d1"]["262144"]
+    first = visible_text(charts["02-first-message"])
+    assert f'{n256["cold"] / 60:.1f} min' in first and f'{n256["resume"]:.1f} s' in first
+    miss = visible_text(charts["04-cache-miss"])
+    assert f'{d256["reuse"] * 100:.1f}% hit' in miss
+    # No heading, read line or callout: the post text carries the prose.
+    for html in charts.values():
+        assert "<h2" not in html and 'class="read"' not in html and 'class="callout"' not in html
