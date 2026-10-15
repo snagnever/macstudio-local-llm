@@ -68,6 +68,9 @@ OPT="$HOME/.local/opt/qwen38"
 MLXSERVE_26102="$OPT/mlx-serve-v26.10.2/mlx-serve"
 MLXSERVE_26102_VERSION=26.10.2
 OMLX_0711="$OPT/omlx-v0.7.1.dev1"
+# Flash-Next oMLX arms (o1x, o1r, x1): dev2 (2026-10-15) keeps GDN state exact on padded prefill (#4526) and cuts
+# fp16 Flash-Next prefill memory (89a40d113). The 27B arms keep dev1.
+OMLX_0712="$OPT/omlx-v0.7.1.dev2"
 LLAMA_B11569="$OPT/llama-b11569/llama-server"
 # Flash-Next GGUF arms: b11600+ stops pinning the lazy per-layer-embedding tensor in the GPU buffer (#30405).
 LLAMA_B11609="$OPT/llama-b11609/llama-server"
@@ -386,11 +389,11 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         if [[ "$CAND" == w1q4 || "$CAND" == w1xq4 ]]; then export QWEN38_MLX_KV_QUANT=4; REV="${REV%-kv8}-kv4"; fi
       fi ;;
   o1x|o1r|x1)
-      # flashnext-next-steps-2026-10 on oMLX 0.7.1.dev1 (isolated venv): o1x = Jundot oQ4e 2615fc0 (launcher arm FN),
+      # flashnext-next-steps-2026-10 on oMLX 0.7.1.dev2 (isolated venv): o1x = Jundot oQ4e 2615fc0 (launcher arm FN),
       # o1r = Jundot oQ4e refit c4ddfb5 (FR), x1 = umixer oQ4e-mix6-mtp v2 (FM). FR and FM enter
       # config/omlx-arms.json after each download (Tasks 5 and 7 of the campaign plan). umixer retired the -v2 repo
       # on 2026-10-14; the same bytes live in the original repo id at 73d2cd0.
-      LAUNCHER="$HARNESS/run-omlx.sh"; PORT=8000; RUNTIME=omlx; REV=v0.7.1.dev1
+      LAUNCHER="$HARNESS/run-omlx.sh"; PORT=8000; RUNTIME=omlx; REV=v0.7.1.dev2
       case "$CAND" in
         o1x) ARM=FN; MODEL_DIR="$OQ4E" ;;
         o1r) ARM=FR; MODEL_DIR="$(pack_dir Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-c4ddfb5)" ;;
@@ -398,9 +401,9 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       esac
       MODEL_REV="${MODEL_DIR##*-}"
       TOKENIZER="$MODEL_DIR"; METRICS=""; SERVER_NAME=omlx
-      PROBE_PY="$OMLX_0711/bin/python"
+      PROBE_PY="$OMLX_0712/bin/python"
       export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
-      export QWEN38_OMLX_BIN="$OMLX_0711/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.1.dev1 ;;
+      export QWEN38_OMLX_BIN="$OMLX_0712/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.1.dev2 ;;
   g0|g1|g1m)
       # flashnext-next-steps-2026-10, test #8: ggml-org GGUF IQ4_NL + MTP head Q8_0. g0 = llama.cpp b11569 without
       # speculative decoding; g1 = --spec-type draft-mtp; g1m = mlx-serve 26.10.2 (embedded llama.cpp), same files.

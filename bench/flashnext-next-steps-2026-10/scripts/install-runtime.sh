@@ -3,7 +3,7 @@
 # usage: install-runtime.sh <mlx-serve|omlx|llama|splash> [--print]
 #   mlx-serve  ddalcu/mlx-serve release $MLX_TAG (default v26.10.2-pre-release.1), asset mlx-serve-bin-macos-arm64.tar.gz, extracted with
 #              --strip-components=1 (same layout as v26.10.1) into mlx-serve-<tag>/
-#   omlx       jundot/omlx tag v0.7.1.dev1 in a uv venv (python 3.13) at omlx-v0.7.1.dev1/ (pattern of 0.7.0)
+#   omlx       jundot/omlx tag $OMLX_TAG (default v0.7.1.dev1) in a uv venv (python 3.13) at omlx-$OMLX_TAG/
 #   splash     incoai/splash release $SPLASH_TAG (default 1.3.1, no "v" prefix), asset
 #              splash-<tag>-arm64-macos26.tar.gz, extracted with --strip-components=1 into splash-v<tag>/ plus a bin/splash wrapper
 #   llama      ggml-org/llama.cpp release $LLAMA_TAG (default b11569), macOS arm64 asset, into llama-<tag>/
@@ -18,7 +18,7 @@ GH="${GH_BIN:-/opt/homebrew/bin/gh}"
 MLX_TAG="${MLX_TAG:-v26.10.2-pre-release.1}"
 SPLASH_TAG="${SPLASH_TAG:-1.3.1}"
 SPLASH_ASSET="splash-$SPLASH_TAG-arm64-macos26.tar.gz"
-OMLX_TAG=v0.7.1.dev1
+OMLX_TAG="${OMLX_TAG:-v0.7.1.dev1}"
 LLAMA_TAG="${LLAMA_TAG:-b11569}"
 
 case "$WHAT" in
