@@ -52,6 +52,10 @@
     "swift-oq4e": {
       "repository": "scottlowry/Swift-1.5-Qwen3.8-27b-oQ4e-mtp",
       "revision": "881dc1914f65"
+    },
+    "flashnext-oq4e-mix6-v2": {
+      "repository": "umixer/Qwen3.8-Flash-Next-oQ4e-mix6-mtp",
+      "revision": "73d2cd0bc0ac07bde45f374a1f7eff01fb06ac90"
     }
   },
   "arms": {
@@ -220,6 +224,16 @@
     },
     "FR": {
       "model_key": "flashnext-oq4e-refit",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": true,
+        "specprefill_enabled": false,
+        "qwen4_ple_ssd_offload": true,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "FM": {
+      "model_key": "flashnext-oq4e-mix6-v2",
       "cache_enabled": true,
       "model_settings": {
         "mtp_enabled": true,

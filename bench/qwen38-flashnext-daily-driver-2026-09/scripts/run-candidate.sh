@@ -387,13 +387,14 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       fi ;;
   o1x|o1r|x1)
       # flashnext-next-steps-2026-10 on oMLX 0.7.1.dev1 (isolated venv): o1x = Jundot oQ4e 2615fc0 (launcher arm FN),
-      # o1r = Jundot oQ4e refit c4ddfb5 (FR), x1 = umixer oQ4e-mix6-mtp-v2 (FM). FR and FM enter
-      # config/omlx-arms.json after each download (Tasks 5 and 7 of the campaign plan).
+      # o1r = Jundot oQ4e refit c4ddfb5 (FR), x1 = umixer oQ4e-mix6-mtp v2 (FM). FR and FM enter
+      # config/omlx-arms.json after each download (Tasks 5 and 7 of the campaign plan). umixer retired the -v2 repo
+      # on 2026-10-14; the same bytes live in the original repo id at 73d2cd0.
       LAUNCHER="$HARNESS/run-omlx.sh"; PORT=8000; RUNTIME=omlx; REV=v0.7.1.dev1
       case "$CAND" in
         o1x) ARM=FN; MODEL_DIR="$OQ4E" ;;
         o1r) ARM=FR; MODEL_DIR="$(pack_dir Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-c4ddfb5)" ;;
-        x1) ARM=FM; MODEL_DIR="$(pack_dir umixer-Qwen3.8-Flash-Next-oQ4e-mix6-mtp-v2-)" ;;
+        x1) ARM=FM; MODEL_DIR="$(pack_dir umixer-Qwen3.8-Flash-Next-oQ4e-mix6-mtp-73d2cd0)" ;;
       esac
       MODEL_REV="${MODEL_DIR##*-}"
       TOKENIZER="$MODEL_DIR"; METRICS=""; SERVER_NAME=omlx

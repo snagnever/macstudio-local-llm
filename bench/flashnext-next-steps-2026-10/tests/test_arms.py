@@ -72,3 +72,11 @@ def test_gguf_arms():
 def test_o1x_is_old_oq4e_on_omlx_0711():
     out = show("o1x")
     assert "omlx-v0.7.1.dev1/bin/omlx" in out and OQ4E in out and "--runtime-revision v0.7.1.dev1 " in out
+
+MIX6 = "umixer-Qwen3.8-Flash-Next-oQ4e-mix6-mtp-73d2cd0bc0ac07bde45f374a1f7eff01fb06ac90"
+
+@pytest.mark.skipif(not (ROOT / MIX6).is_dir(), reason="needs the mix6 pack (rig only)")
+def test_x1_is_mix6_from_the_consolidated_repo():
+    # umixer retired the -v2 repo; its bytes live in the original repo id at 73d2cd0.
+    out = show("x1")
+    assert MIX6 in out and "MISSING" not in out and "omlx-v0.7.1.dev1/bin/omlx" in out

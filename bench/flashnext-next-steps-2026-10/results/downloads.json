@@ -209,5 +209,209 @@
   "hardlinked": [],
   "validation": "all selected files present; sizes match pinned Hub metadata",
   "completed_at": "2026-10-13T09:56:20Z"
+ },
+ {
+  "repo": "umixer/Qwen3.8-Flash-Next-oQ4e-mix6-mtp",
+  "requested_revision": "73d2cd0bc0ac07bde45f374a1f7eff01fb06ac90",
+  "revision": "73d2cd0bc0ac07bde45f374a1f7eff01fb06ac90",
+  "local_dir": "/Users/vitor/.cache/local-llms/qwen3.8-prefix-cache/umixer-Qwen3.8-Flash-Next-oQ4e-mix6-mtp-73d2cd0bc0ac07bde45f374a1f7eff01fb06ac90",
+  "bytes": 125407470803,
+  "files": [
+   {
+    "path": ".gitattributes",
+    "size": 1570,
+    "lfs_sha256": null
+   },
+   {
+    "path": "LICENSE",
+    "size": 3235,
+    "lfs_sha256": null
+   },
+   {
+    "path": "README.md",
+    "size": 9673,
+    "lfs_sha256": null
+   },
+   {
+    "path": "README_zh.md",
+    "size": 8878,
+    "lfs_sha256": null
+   },
+   {
+    "path": "chat_template.jinja",
+    "size": 8952,
+    "lfs_sha256": null
+   },
+   {
+    "path": "config.json",
+    "size": 166719,
+    "lfs_sha256": null
+   },
+   {
+    "path": "generation_config.json",
+    "size": 202,
+    "lfs_sha256": null
+   },
+   {
+    "path": "merges.txt",
+    "size": 3353259,
+    "lfs_sha256": null
+   },
+   {
+    "path": "model-00001-of-00024.safetensors",
+    "size": 5190455845,
+    "lfs_sha256": "81e0d83249482bac44914778c9b6c762e8499459b611b0a8983d7a6a1b51d323"
+   },
+   {
+    "path": "model-00002-of-00024.safetensors",
+    "size": 5190455887,
+    "lfs_sha256": "65b59879a2b7584bd5a67d9929942d7e6f95474a606943e60932b0ebbe7b042b"
+   },
+   {
+    "path": "model-00003-of-00024.safetensors",
+    "size": 5190455886,
+    "lfs_sha256": "d70fde9052612c8433eaf381025437f98b0d9bc3bbc0778593bfaa1d07d0755f"
+   },
+   {
+    "path": "model-00004-of-00024.safetensors",
+    "size": 5190455880,
+    "lfs_sha256": "10dc74a6b0700965f9e4990b39ca1ccec41c000a9e82de3601409d33de016cbc"
+   },
+   {
+    "path": "model-00005-of-00024.safetensors",
+    "size": 5190455886,
+    "lfs_sha256": "6dfab5b4015c5b1409127106aefccb55132369c6249efc1f8523edf9eccb98d4"
+   },
+   {
+    "path": "model-00006-of-00024.safetensors",
+    "size": 5190455896,
+    "lfs_sha256": "4f1dc8cf5948f1903adf4d49514a5e9707832fc2f2845acb81f3cc8917ce9610"
+   },
+   {
+    "path": "model-00007-of-00024.safetensors",
+    "size": 5190455890,
+    "lfs_sha256": "56fd8c2ba7fa0a829958ad02acf8f2f1d4cd97f71e9e199d210e202cc859a271"
+   },
+   {
+    "path": "model-00008-of-00024.safetensors",
+    "size": 5190455894,
+    "lfs_sha256": "f53819487f9e94e9312ac858d3c6878795a6376de14f4c88d868f6c9e372ef83"
+   },
+   {
+    "path": "model-00009-of-00024.safetensors",
+    "size": 5190455880,
+    "lfs_sha256": "3bb49855550241d3d0abf042d1d61e0f99f17c3b36181fc079f47fc012754de4"
+   },
+   {
+    "path": "model-00010-of-00024.safetensors",
+    "size": 5190455884,
+    "lfs_sha256": "04deefa17e25fd34bdec797e6e207bde6010d99e33d516c63b29293c3db1dfd7"
+   },
+   {
+    "path": "model-00011-of-00024.safetensors",
+    "size": 5268690492,
+    "lfs_sha256": "78a9420f6c3b23443d845d4eb9d50f94af71d86bc69320ead4edae742fbf626d"
+   },
+   {
+    "path": "model-00012-of-00024.safetensors",
+    "size": 5250032369,
+    "lfs_sha256": "5f9d0b8d9de4b3a67ff02aa5a00ebee0728f3de04ecb3a07f9afbe5677e7f559"
+   },
+   {
+    "path": "model-00013-of-00024.safetensors",
+    "size": 5250032375,
+    "lfs_sha256": "92e43ac19d8267b50d834384a3fd75bf35c68bdda6744a016c20fb7d18ef94ec"
+   },
+   {
+    "path": "model-00014-of-00024.safetensors",
+    "size": 5250032371,
+    "lfs_sha256": "da754d9034b8154f3ed38d043f08ed10de7709d259da9df61f3695baec66eebb"
+   },
+   {
+    "path": "model-00015-of-00024.safetensors",
+    "size": 5250032379,
+    "lfs_sha256": "e45978bfb5ad7bbe3f7a64834a0cdc3b0853dd769ad907f158f9043bf15f3f79"
+   },
+   {
+    "path": "model-00016-of-00024.safetensors",
+    "size": 5250032365,
+    "lfs_sha256": "9aa790f4d3d3d26ebfc8f98e077b7be2c1e7989be9fec7b02c9e9ea682176beb"
+   },
+   {
+    "path": "model-00017-of-00024.safetensors",
+    "size": 5250032369,
+    "lfs_sha256": "1af2d2df7a1179714821a118fef4a87eb2e62b23e48e51c0771062d7ce2e9480"
+   },
+   {
+    "path": "model-00018-of-00024.safetensors",
+    "size": 5250032418,
+    "lfs_sha256": "92f4186da853ee324b432b7a492e9bd4f5779423048cff91debaf0144a8402ea"
+   },
+   {
+    "path": "model-00019-of-00024.safetensors",
+    "size": 5009877744,
+    "lfs_sha256": "5a3d4eeab9c7b0c21322be3929f9bde8dc7869d9049169d066a391e9a4dcc18b"
+   },
+   {
+    "path": "model-00020-of-00024.safetensors",
+    "size": 5374148790,
+    "lfs_sha256": "a1692eb985323da8ab899e6464276cd4011bc6739dd3a051c28609f7af2179ef"
+   },
+   {
+    "path": "model-00021-of-00024.safetensors",
+    "size": 5452598594,
+    "lfs_sha256": "3b359d3297d3e6a44b21f21a9f70834119ef90dabe42ee937e35591f67ba91a0"
+   },
+   {
+    "path": "model-00022-of-00024.safetensors",
+    "size": 5452598461,
+    "lfs_sha256": "e4ca3d154c1c8b233a42f250d4028ca779a1e981d0d09eaf515aff35e15458f4"
+   },
+   {
+    "path": "model-00023-of-00024.safetensors",
+    "size": 5400171068,
+    "lfs_sha256": "36f67509710df1845fb3bd964c14344cf866e5d69d384ff8fd56ea47f879b5f4"
+   },
+   {
+    "path": "model-00024-of-00024.safetensors",
+    "size": 4771023790,
+    "lfs_sha256": "b0c120819198fc562428fc0f8c85398dee831026697ad1c7f24776aba536c73b"
+   },
+   {
+    "path": "model.safetensors.index.json",
+    "size": 405177,
+    "lfs_sha256": null
+   },
+   {
+    "path": "oq_imatrix_report.json",
+    "size": 68328,
+    "lfs_sha256": null
+   },
+   {
+    "path": "preprocessor_config.json",
+    "size": 390,
+    "lfs_sha256": null
+   },
+   {
+    "path": "tokenizer.json",
+    "size": 12809320,
+    "lfs_sha256": "0997f410c57a1f4e53b09e4be8f4a172d90edd9564368fb0847030937229b9f3"
+   },
+   {
+    "path": "tokenizer_config.json",
+    "size": 17928,
+    "lfs_sha256": null
+   },
+   {
+    "path": "vocab.json",
+    "size": 6722759,
+    "lfs_sha256": null
+   }
+  ],
+  "hardlinked": [
+   "tokenizer.json"
+  ],
+  "validation": "all selected files present; sizes match pinned Hub metadata",
+  "completed_at": "2026-10-15T04:41:50Z"
  }
 ]

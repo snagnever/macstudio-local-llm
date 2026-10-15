@@ -2,6 +2,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE / "scripts"))
 
@@ -22,6 +24,7 @@ FUNCTIONAL_Q = {
 }
 
 
+@pytest.mark.skipif(sys.version_info >= (3, 14), reason="Python 3.14 defers annotations (PEP 649)")
 def test_original_grader_fails_on_missing_typing_import():
     ok, _, reason = lcb_regrade.bench2.grade_livecodebench(FUNCTIONAL_Q, ANNOTATED)
     assert not ok and reason.startswith("fail_test0:rc=1")
