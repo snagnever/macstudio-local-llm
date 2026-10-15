@@ -19,8 +19,9 @@ O runner de `tools/local-llm-bench-m4-32gb/scripts/bench2.py` (submódulo `a4a95
    falha com `[Errno 7] Argument list too long`.
 
 A correção do submódulo está no PR
-[snagnever/local-llm-bench-m4-32gb#3](https://github.com/snagnever/local-llm-bench-m4-32gb/pull/3). Ela não
-está mesclada; o ponteiro do submódulo aqui continua em `a4a95bb`.
+[snagnever/local-llm-bench-m4-32gb#3](https://github.com/snagnever/local-llm-bench-m4-32gb/pull/3). Ela foi
+mesclada em 2026-10-15 (`2403125`), e o ponteiro do submódulo aqui aponta para esse commit. Rodadas novas do
+`bench2` já saem corretas; o `lcb_regrade.py` serve só para respostas salvas antes disso.
 
 ## Método
 

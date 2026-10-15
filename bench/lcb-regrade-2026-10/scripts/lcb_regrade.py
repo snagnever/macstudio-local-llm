@@ -12,6 +12,9 @@ functions: each program gets the prelude and runs from a temporary file. It read
 bench2 (one row per question, with ``raw_response`` and ``lcb_question_id``), reloads the same 50 questions
 (bench2's seed), and prints the original and the regraded pass count per file.
 
+Since submodule commit 2403125 (snagnever/local-llm-bench-m4-32gb#3) bench2 has the same fix, so new runs grade
+correctly without this script. It stays to regrade answers saved before that commit.
+
 usage: lcb_regrade.py [--version release_v6] [--n 50] [--json OUT] FILE.jsonl [FILE.jsonl ...]
 """
 from __future__ import annotations

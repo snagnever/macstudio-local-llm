@@ -22,9 +22,9 @@ FUNCTIONAL_Q = {
 }
 
 
-def test_original_grader_fails_on_missing_typing_import():
-    ok, _, reason = lcb_regrade.bench2.grade_livecodebench(FUNCTIONAL_Q, ANNOTATED)
-    assert not ok and reason.startswith("fail_test0:rc=1")
+def test_fixed_bench2_agrees_with_regrade():
+    # Since submodule 2403125, bench2 itself runs the prelude from a file; before it failed with fail_test0:rc=1.
+    assert lcb_regrade.bench2.grade_livecodebench(FUNCTIONAL_Q, ANNOTATED) == lcb_regrade.regrade(FUNCTIONAL_Q, ANNOTATED)
 
 
 def test_regrade_adds_the_livecodebench_import_prelude():
