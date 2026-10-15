@@ -9,28 +9,28 @@ Per-model deep dives for every model with local experience on this rig (Mac Stud
 ### Active lineup (daily drivers + roles)
 | Model | Status | Role | HumanEval | LCB v6 | T-Bench | eff t/s | Disk | Runtime |
 |---|---|---|---|---|---|---|---|---|
-| [qwen3-coder-next](qwen3-coder-next.md) | 🟢 DAILY DRIVER | **Agent** (T-Bench #1) | 89% | 56% | **32.6%** | 55.8 | 64.76 GB (6-bit) | MLX |
-| [qwen3.8-flash-next](qwen3.8-flash-next.md) | 🟢 DAILY DRIVER | **Responsiveness default** — Swift 1.5 fine-tune (Dankpaws MLX-4.7bpw) since 2026-10-11: fastest turn on the rig (T_turno 7.9 s @32K / 8.6 s @128K) and 2–3× less thinking time than the base pack at equal quality; mlx-serve 26.10.1, 131K ctx, MTP + 16 GB prefix cache. Agent quality (T-Bench) not measured | — | — | pending | ~56 decode @32K / ~50 @128K | 75 GB (MLX-Serve mixed-4/8) | mlx-serve |
-| [qwen3.6-27b](qwen3.6-27b.md) | 🟢 DAILY DRIVER | **Planning / knowledge** (85.8% avg, top of rig) | 93% | 62% | 31.5% | 16.2 | 22.80 GB | MLX |
-| [gemma-4-26b-a4b](gemma-4-26b-a4b/README.md) | 🟢 DAILY DRIVER | **Code** (@6bit LCB ceiling; @4bit fastest on rig) | 97–98% | **80%** @6bit / 66% @4bit | 21.3 / 20.2% | 66.6 / **80.7** | 21.81 / 15.64 GB | MLX |
-| [qwen3.6-35b-a3b](qwen3.6-35b-a3b.md) | 🟢 DAILY DRIVER | Fast generalist (@8bit quant A/B pending) | 87% | 54% | 28.1% | 71.4 | 29.09 GB (6-bit) | MLX |
-| [gemma-4-e4b](gemma-4-e4b.md) | 🟡 NICHE | Tiny / FIM / quick tool-calls (⚠ MATH 14%) | 91% | 68% | 4.5% | 62.9 | 8.97 GB | MLX |
+| [qwen3-coder-next](qwen3-coder-next.md) | 🟢 DAILY DRIVER | **Agent** (T-Bench #1) | 89% | 84% | **32.6%** | 55.8 | 64.76 GB (6-bit) | MLX |
+| [qwen3.8-flash-next](qwen3.8-flash-next.md) | 🟢 DAILY DRIVER | **Responsiveness default** — Swift 1.5 fine-tune (Dankpaws MLX-4.7bpw) since 2026-10-11: fastest turn on the rig (T_turno 7.9 s @32K / 8.6 s @128K) and 2–3× less thinking time than the base pack at equal quality; mlx-serve 26.10.1, 131K ctx, MTP + 16 GB prefix cache. Agent quality (T-Bench) not measured | — | 94% (Swift 1.5, t1) | pending | ~56 decode @32K / ~50 @128K | 75 GB (MLX-Serve mixed-4/8) | mlx-serve |
+| [qwen3.6-27b](qwen3.6-27b.md) | 🟢 DAILY DRIVER | **Planning / knowledge** (85.8% avg, top of rig) | 93% | 88% | 31.5% | 16.2 | 22.80 GB | MLX |
+| [gemma-4-26b-a4b](gemma-4-26b-a4b/README.md) | 🟢 DAILY DRIVER | **Code** (@6bit LCB 88%, ties 27b; @4bit fastest on rig) | 97–98% | **88%** @6bit / 76% @4bit | 21.3 / 20.2% | 66.6 / **80.7** | 21.81 / 15.64 GB | MLX |
+| [qwen3.6-35b-a3b](qwen3.6-35b-a3b.md) | 🟢 DAILY DRIVER | Fast generalist (@8bit quant A/B pending) | 87% | 82% | 28.1% | 71.4 | 29.09 GB (6-bit) | MLX |
+| [gemma-4-e4b](gemma-4-e4b.md) | 🟡 NICHE | Tiny / FIM / quick tool-calls (⚠ MATH 14%) | 91% | 74% | 4.5% | 62.9 | 8.97 GB | MLX |
 | [nomic-embed-text-v1.5](nomic-embed-text-v1.5.md) | 🟢 ACTIVE | Embeddings for RAG (un-benched by design) | — | — | — | — | 84 MB | GGUF |
 
 ### Tested, parked
 | Model | Status | Why | Headline | Disk | Runtime |
 |---|---|---|---|---|---|
-| [minimax-m2.5](minimax-m2.5.md) | 🟢 GO via GGUF (MLX 🔴 NO-GO: kernel panic ×3) | MMLU pending; Terminal-Bench NO-GO (memory); ctx ≤64k (60k rec.) | jdhodges 95%, HumanEval 94%, LCB 72% @60k (68% @32k), 36.8 t/s | 98.7 GB | llama.cpp |
+| [minimax-m2.5](minimax-m2.5.md) | 🟢 GO via GGUF (MLX 🔴 NO-GO: kernel panic ×3) | MMLU pending; Terminal-Bench NO-GO (memory); ctx ≤64k (60k rec.) | jdhodges 95%, HumanEval 94%, LCB 78% @60k (74% @32k), 36.8 t/s | 98.7 GB | llama.cpp |
 | [deepseek-v4-flash](deepseek-v4-flash/README.md) | 🟢 GO via GGUF / 🟡 CONSTRAINED MLX (OOM patched; 2-bit loops) | LCB tail in progress; sole-model only | jdhodges 87.5%, HumanEval 88%, ~10 t/s non-thinking | 81 GB (GGUF) / 96.53 GB (MLX) | llama.cpp 2.24.0 / patched mlx-lm |
-| [agents-a1-xl](agents-a1-xl.md) | 🟡 GO (marginal) | thinking tax; expensive tail deferred | jdhodges 92.5%, HumanEval 97%, LCB 64%, eff 35.9 t/s | 27.8 GB | MLX |
-| [gemma-4-31b](gemma-4-31b.md) | 🟡 DEMOTED (MLX) / ⚪ QAT GGUF planned | dense tax: 6× slower than 26b-a4b@6bit, no quality return | LCB 76%, 13.7 t/s | 33.80 GB | MLX |
+| [agents-a1-xl](agents-a1-xl.md) | 🟡 GO (marginal) | thinking tax; expensive tail deferred | jdhodges 92.5%, HumanEval 97%, LCB 82%, eff 35.9 t/s | 27.8 GB | MLX |
+| [gemma-4-31b](gemma-4-31b.md) | 🟡 DEMOTED (MLX) / ⚪ QAT GGUF planned | dense tax: 6× slower than 26b-a4b@6bit, +2 pp LCB only | LCB 90%, 13.7 t/s | 33.80 GB | MLX |
 | [hermes-4-70b](hermes-4-70b/README.md) | 🔴 BLOCKED | minja template render error (fix documented, unbenched) | tool-calling 0% pre-fix (render error, not quality) | 57.3 GB | MLX |
 | [minicpm5-2b](minicpm5-2b.md) | 🔴 NO-GO as support (functional, parked) | driver loses 43–66% of decode under continuous concurrency; fits at every context tested (32K–512K) but still costs +31–50% T_turno — a speed gate, not memory. Viable only ≤32K with turns ≥1 s apart (+12%) | 159.7 tok/s solo @400; PT format/lang 100% | 1.8 GB (OptiQ-4bit) | optiq serve |
 
 ### NO-GO / removed
 | Model | Status | Why | Runtime |
 |---|---|---|---|
-| [qwen3.5-122b-a10b](qwen3.5-122b-a10b.md) | 🔴 NO-GO (2026-07-12) | Planning-slot challenger: LCB **62% exact tie** with 27B, ~2× faster, but weaker agent (T-Bench **24.7%**, #5) + truncation liability + sole-model 75 GB. Faster sidegrade, not an upgrade — test newest gen, not biggest old model | llama.cpp (GGUF Q4_K_S) |
+| [qwen3.5-122b-a10b](qwen3.5-122b-a10b.md) | 🔴 NO-GO (2026-07-12) | Planning-slot challenger: LCB 62% (lower bound: no saved answers to regrade; 27B regraded to 88%), ~2× faster, but weaker agent (T-Bench **24.7%**, #5) + truncation liability + sole-model 75 GB. Faster sidegrade, not an upgrade — test newest gen, not biggest old model | llama.cpp (GGUF Q4_K_S) |
 | [kimi-dev-72b](kimi-dev-72b.md) | 🔴 NO-GO (2026-07-05) | ~7 t/s — slowest on rig; disqualified at speed gate | llama.cpp |
 | [nemotron-3-nano-omni](nemotron-3-nano-omni.md) | ⚫ REMOVED 2026-05-18 | dropped in inventory pass, never benched | GGUF |
 
@@ -54,6 +54,6 @@ Model-specific patches live in each card's Known issues section. These span mode
 
 ## Conventions
 - **Badges:** 🟢 DAILY DRIVER / GO / ACTIVE · 🟡 GO (marginal) / DEMOTED / NICHE / CONSTRAINED · 🔴 NO-GO / BLOCKED · ⚫ REMOVED · ⚪ PLANNED
-- **Bench config** unless noted: temp=0, seed=42, ctx 32,768; n=100 (HumanEval/MMLU/MATH/DROP/GPQA), n=50 (LCB v6), n=40 (jdhodges), n=12 (Veerman). "eff t/s" = effective throughput in the ops-agent scenario harness.
+- **Bench config** unless noted: temp=0, seed=42, ctx 32,768; n=100 (HumanEval/MMLU/MATH/DROP/GPQA), n=50 (LCB v6; regraded 2026-10-14 with the official import prelude, see [regrade](../../bench/lcb-regrade-2026-10/results/regrade-summary.md) — earlier LCB numbers were 6–28 pp low), n=40 (jdhodges), n=12 (Veerman). "eff t/s" = effective throughput in the ops-agent scenario harness.
 - **Provenance:** every local number traces to a repo file; every official spec traces to a fetched URL; vendor claims are labeled *vendor*. Variants name their exact source repo (author/name on HF) — conversion-level quirks attach to the source repo, not the vendor.
 - **Pinned HF revisions:** each card's Variants section records the HF commit sha of the local snapshot (short sha linked to the full commit tree) plus the download date. Method: LM Studio stores no revision metadata, so pinning is established by cross-referencing local weight-file mtimes against the HF API's `sha`/`lastModified` — when no upstream commit postdates the download, local snapshot = that sha (verified 2026-07-06 for all 18 on-disk source repos). If a converter later force-pushes, re-verify before trusting the pin.

@@ -106,7 +106,7 @@
     },
     "livecodebench": {
      "n": 50,
-     "passed": 41,
+     "passed": 45,
      "missing": false
     },
     "jdhodges": {
@@ -138,7 +138,7 @@
     },
     "livecodebench": {
      "n": 50,
-     "passed": 42,
+     "passed": 47,
      "missing": false
     },
     "jdhodges": {
@@ -172,7 +172,7 @@
     },
     "livecodebench": {
      "n": 50,
-     "passed": 41,
+     "passed": 45,
      "missing": false
     },
     "jdhodges": {
@@ -204,7 +204,7 @@
     },
     "livecodebench": {
      "n": 50,
-     "passed": 41,
+     "passed": 45,
      "missing": false
     },
     "jdhodges": {
@@ -3347,7 +3347,7 @@
     "arms": {
      "n2": {
       "n": 50,
-      "passed": 41,
+      "passed": 45,
       "truncated": 3,
       "total_s": 8648.8,
       "median_s": 39.1,
@@ -3360,7 +3360,7 @@
       "median_tok_s": 73.9,
       "median_reasoning_tokens": 2850.0,
       "median_visible_tokens": 169.0,
-      "sec_per_correct": 210.9,
+      "sec_per_correct": 192.2,
       "points": [
        {
         "id": "abc308_b",
@@ -3456,7 +3456,7 @@
        {
         "id": "3373",
         "s": 12.6,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 970
        },
@@ -3470,7 +3470,7 @@
        {
         "id": "2868",
         "s": 33.87,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 2532
        },
@@ -3603,7 +3603,7 @@
        {
         "id": "3000",
         "s": 201.77,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 15670
        },
@@ -3659,7 +3659,7 @@
        {
         "id": "3219",
         "s": 89.16,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 6850
        },
@@ -3716,7 +3716,7 @@
      },
      "w1": {
       "n": 50,
-      "passed": 42,
+      "passed": 47,
       "truncated": 1,
       "total_s": 4853.7,
       "median_s": 19.1,
@@ -3729,7 +3729,7 @@
       "median_tok_s": 73.3,
       "median_reasoning_tokens": 1213.5,
       "median_visible_tokens": 158.5,
-      "sec_per_correct": 115.6,
+      "sec_per_correct": 103.3,
       "points": [
        {
         "id": "abc308_b",
@@ -3762,7 +3762,7 @@
        {
         "id": "3334",
         "s": 4.33,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 215
        },
@@ -3825,7 +3825,7 @@
        {
         "id": "3373",
         "s": 8.85,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 649
        },
@@ -3839,7 +3839,7 @@
        {
         "id": "2868",
         "s": 9.56,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 710
        },
@@ -3972,7 +3972,7 @@
        {
         "id": "3000",
         "s": 55.02,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 4554
        },
@@ -4028,7 +4028,7 @@
        {
         "id": "3219",
         "s": 63.3,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 4798
        },
@@ -8335,9 +8335,9 @@
     "arms": {
      "n2": {
       "n": 50,
-      "passed": 41,
+      "passed": 45,
       "truncated": 3,
-      "total_s": 5986.1,
+      "total_s": 5986.2,
       "median_s": 23.9,
       "median_completion": 1859.5,
       "median_reasoning_chars": 5926.0,
@@ -8348,7 +8348,7 @@
       "median_tok_s": 75.1,
       "median_reasoning_tokens": 1656.0,
       "median_visible_tokens": 150.5,
-      "sec_per_correct": 146.0,
+      "sec_per_correct": 133.0,
       "points": [
        {
         "id": "abc308_b",
@@ -8444,7 +8444,7 @@
        {
         "id": "3373",
         "s": 8.32,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 616
        },
@@ -8458,7 +8458,7 @@
        {
         "id": "2868",
         "s": 24.33,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 1872
        },
@@ -8591,7 +8591,7 @@
        {
         "id": "3000",
         "s": 102.56,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 8581
        },
@@ -8647,7 +8647,7 @@
        {
         "id": "3219",
         "s": 74.37,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 5733
        },
@@ -8704,7 +8704,7 @@
      },
      "w1": {
       "n": 50,
-      "passed": 41,
+      "passed": 45,
       "truncated": 2,
       "total_s": 3701.9,
       "median_s": 16.0,
@@ -8717,7 +8717,7 @@
       "median_tok_s": 76.1,
       "median_reasoning_tokens": 988.0,
       "median_visible_tokens": 171.5,
-      "sec_per_correct": 90.3,
+      "sec_per_correct": 82.3,
       "points": [
        {
         "id": "abc308_b",
@@ -8813,7 +8813,7 @@
        {
         "id": "3373",
         "s": 11.87,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 900
        },
@@ -8827,7 +8827,7 @@
        {
         "id": "2868",
         "s": 13.58,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 1055
        },
@@ -8960,7 +8960,7 @@
        {
         "id": "3000",
         "s": 50.91,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 4182
        },
@@ -9016,7 +9016,7 @@
        {
         "id": "3219",
         "s": 51.89,
-        "ok": false,
+        "ok": true,
         "trunc": false,
         "tok": 3993
        },
@@ -10318,7 +10318,7 @@
     "medium": {
      "n": 23,
      "median_s": 35.04,
-     "passed": 18
+     "passed": 22
     },
     "hard": {
      "n": 12,
@@ -10330,12 +10330,12 @@
     "easy": {
      "n": 15,
      "median_s": 7.74,
-     "passed": 14
+     "passed": 15
     },
     "medium": {
      "n": 23,
      "median_s": 22.41,
-     "passed": 18
+     "passed": 22
     },
     "hard": {
      "n": 12,
@@ -10354,7 +10354,7 @@
     "medium": {
      "n": 23,
      "median_s": 23.37,
-     "passed": 18
+     "passed": 22
     },
     "hard": {
      "n": 12,
@@ -10371,7 +10371,7 @@
     "medium": {
      "n": 23,
      "median_s": 15.54,
-     "passed": 18
+     "passed": 22
     },
     "hard": {
      "n": 12,
@@ -10665,14 +10665,14 @@
    },
    "livecodebench": {
     "t1": {
-     "n2": 41,
-     "w1": 42,
+     "n2": 45,
+     "w1": 47,
      "margin": 3,
      "pass": true
     },
     "t0": {
-     "n2": 41,
-     "w1": 41,
+     "n2": 45,
+     "w1": 45,
      "margin": 3,
      "pass": true
     }
@@ -10766,5 +10766,5 @@
    "promote": true
   }
  },
- "generated_at": "2026-10-11T19:53:17Z"
+ "generated_at": "2026-10-14T21:59:27Z"
 }

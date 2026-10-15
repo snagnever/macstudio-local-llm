@@ -98,6 +98,15 @@ reproduce them. Therefore:
 - **Track** distilled outputs — scores, verdict/telemetry JSONLs, small
   summaries; anything a doc cites (guideline **≤ ~1 MB per file**) — under
   `bench/<campaign>/results/`.
+- **Track the per-question answers of every graded run**, not only its summary.
+  For `bench2.py` this is the `benchmarks/runs/<bench>_<model>_<stamp>.jsonl`
+  file (one row per question, with `raw_response`), typically 0.1–1 MB. Commit
+  it under `bench/<campaign>/results/` next to the `_summary.json`, or in the
+  submodule `benchmarks/runs/`. A grader bug can only be fixed after the fact
+  if the answers exist: four published LiveCodeBench scores could not be
+  regraded in [`bench/lcb-regrade-2026-10/`](bench/lcb-regrade-2026-10/plan.md)
+  because only their summaries were committed. A file over ~1 MB still goes in;
+  note its size in the commit message.
 - **Ignore** raw outputs — transcripts, `*.log`, run dirs, `*.gputrace` — under
   `bench/<campaign>/logs/`. The `bench/**/logs/` gitignore rule covers this.
 - **Promote** canonical per-model scores into the submodule `results/` trees.

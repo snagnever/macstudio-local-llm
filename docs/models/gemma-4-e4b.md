@@ -54,7 +54,7 @@ Config: `temp=0, seed=42`, n=100 per knowledge bench (LCB n=50), run 2026-05-20 
 | Bench | `gemma-4-e4b-it-mlx` (8-bit) | Best Gemma sibling (`26b-a4b@6bit`) | Δ |
 |---|---|---|---|
 | HumanEval (100) | **91 %** | 97 % | −6 |
-| LiveCodeBench v6 (50) | **68 %** | 80 % | −12 |
+| LiveCodeBench v6 (50) | **74 %** | 88 % | −14 (regraded 2026-10-14, was 68 / 80 / −12; see [LCB regrade 2026-10-14](../../bench/lcb-regrade-2026-10/results/regrade-summary.md)) |
 | MMLU | **65 %** | 78 % | −13 |
 | MATH | **14 % ⚠️** | 83 % | **−69** |
 | DROP | **65 %** | 79 % | −14 |

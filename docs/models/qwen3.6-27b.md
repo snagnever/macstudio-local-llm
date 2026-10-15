@@ -83,7 +83,7 @@ Config: n=100 (LCB n=50), temp 0, seed 42, ctx 65,536; GPQA ran at the 32,768 ca
 |---|---|---|
 | Knowledge avg (5 benches) | **85.8 %** | **Top of rig** — best on 5 of 6 Phase 1 benches; Phase 2 confirmed no Gemma comes within 7.8 pp |
 | HumanEval (100) | **93 %** | Best of Phase 1 trio (HE saturated — LCB is the canonical coding signal) |
-| LiveCodeBench v6 (50) | **62 %** | Best Qwen on the rig; 1 truncation (Q3, spirals on every model). +6 pp over coder-next; rig ceiling is `gemma-4-26b-a4b@6bit` at 80 % |
+| LiveCodeBench v6 (50) | **88 %** | Regraded 2026-10-14 (was 62 %; see [LCB regrade 2026-10-14](../../bench/lcb-regrade-2026-10/results/regrade-summary.md)). Best Qwen on the rig; 1 truncation (Q3, spirals on every model). +4 pp over coder-next; ties `gemma-4-26b-a4b@6bit` (88 %), `gemma-4-31b` leads at 90 % |
 | MMLU | **88 %** | +10 pp over best Gemma |
 | MATH | **88 %** | ±1 pp of the rig best |
 | DROP | **90 %** | Rig best |
@@ -100,8 +100,8 @@ Raw data: `tools/local-llm-bench-m4-32gb/benchmarks/runs/*_qwen3.6-27b_20260517_
 
 - **Role: Planning** — design, hard reasoning, code review, careful single-file edits, knowledge-heavy Q&A. The rationale: slow, but *you wait once for a plan*, unlike an agent loop where the 67 s prefill compounds every turn.
 - **Phase 1 (2026-05-17→19): quality king by a wide margin.** Best or tied on every accuracy bench; knowledge avg 85.8 %.
-- **LCB backfill (2026-05-24):** only Phase 1 model to clear 60 % on LCB v6 — displaced the "coder-next is good enough" assumption when correctness > speed.
-- **Phase 2 (Gemma family):** **retained the knowledge generalist slot** — no Gemma beats it on knowledge (best Gemma trails by MMLU −10, MATH −5, DROP −11, GPQA −17 pp raw). But the **LCB-specific recommendation diverged**: `gemma-4-26b-a4b@6bit` is the single-shot code ceiling at 80 % (+18 pp).
+- **LCB backfill (2026-05-24):** only Phase 1 model to clear 60 % on LCB v6 (after the 2026-10-14 regrade all three Phase 1 models clear 80 %) — displaced the "coder-next is good enough" assumption when correctness > speed.
+- **Phase 2 (Gemma family):** **retained the knowledge generalist slot** — no Gemma beats it on knowledge (best Gemma trails by MMLU −10, MATH −5, DROP −11, GPQA −17 pp raw). But the **LCB-specific recommendation diverged**: `gemma-4-26b-a4b@6bit` was the single-shot code ceiling at 80 % (+18 pp). The 2026-10-14 regrade removes that gap: 27b and `@6bit` tie at 88 %, `gemma-4-31b` scores 90 %.
 - **T-Bench backfill (2026-05-29):** lands #2 (31.5 %), gaining 2 rank spots vs its LCB rank — Qwen's agentic training transfers — but coder-next wins the agent slot speed-adjusted.
 
 Plans: [2026-05-22-livecodebench-phase-1.md](../../bench/lcb-phase1/plan.md) · [2026-05-24-terminal-bench-phase-a-plus-b.md](../../bench/terminal-bench/plan.md) · [testing-plan.md](../testing-plan.md)
@@ -135,7 +135,7 @@ Plans: [2026-05-22-livecodebench-phase-1.md](../../bench/lcb-phase1/plan.md) · 
 ## History
 - **2026-05-17 → 05-19** — Phase 1 (Qwen daily-driver trio): quality king, knowledge avg 85.8 %; full suite 37.6 h ([M4 notes](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md)).
 - **2026-05-22** — Phase 2 concludes: no Gemma displaces it on knowledge; retains the knowledge-generalist slot.
-- **2026-05-24** — LCB v6 backfill: **62 %**, best Qwen, 16.2 h ([plan](../../bench/lcb-phase1/plan.md)); LCB-specific recommendation diverges to `gemma-4-26b-a4b@6bit` (80 %).
+- **2026-05-24** — LCB v6 backfill: **62 %** (88 % after the 2026-10-14 regrade), best Qwen, 16.2 h ([plan](../../bench/lcb-phase1/plan.md)); LCB-specific recommendation diverges to `gemma-4-26b-a4b@6bit` (80 %).
 - **2026-05-29** — Terminal-Bench 2.0 leg B5: **31.5 %** ⌛0.5x cap, #2 on rig ([plan](../../bench/terminal-bench/plan.md)); agent slot stays with coder-next on speed.
 - **2026-07-05** — Model card written; still the Planning daily driver post-Phase-5 arrivals (MiniMax-M2.5 GGUF is sole-model only and doesn't contest the slot).
 - **2026-07-10** — Draft MTP speculative-decoding study on the unsloth GGUF variant: MTP is a per-workload toggle (structured +15–28 %, creative −8 %), draft depth 2 optimal; matches the MoE 35B profile ([bench/qwen3.6-mtp/plan.md](../../bench/qwen3.6-mtp/plan.md)). MLX 6-bit remains the daily driver.

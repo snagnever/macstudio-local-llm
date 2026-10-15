@@ -1,7 +1,7 @@
 # DeepSeek-V4-Flash
 
 > **Status: 🟢 GO via ds4 (DwarfStar)** — antirez's dedicated C+Metal engine is now the recommended runtime for the **0731** checkpoint: **3.26× llama.cpp** (33.6 vs 10.3 t/s), builds clean with no patches, no `--no-repack`/`-np 1`/version-pin workarounds, and its own KV manager **eliminates the LCB HTTP-500 eviction bug** (0/50 vs llama.cpp's 12/50). · **llama.cpp GGUF: 🟡 SUPERSEDED** (still works — the 2026-07-05 GO path — but slower and artifact-prone). · **MLX: ⚫ DEAD** (arch PR #1192 closed unmerged; 2-bit DQ loops). · **4-bit: ⚫ won't fit** (155 GB > 128 GB).
-> **Quality verdict (0731, ds4, 2-bit):** a capable long-context tool-caller/coder, but **on this rig's coding+tool suites it is matched or beaten by `gemma-4-26b-a4b@6bit` at ¼ the memory and 2.4× the speed** (LCB 78 vs 80, HumanEval 90 vs 97, jdhodges tie). Its one unique win is **context**: 256k costs +3 GiB and holds >24 t/s to 128k — no other rig model comes close. Thinking-off is the right default for tool-calling/HumanEval; thinking only plausibly pays on hard code (LCB). Knowledge benches (MMLU/MATH/GPQA/DROP) not yet run for 0731 — the open question is whether the 284B buys knowledge the 26B lacks.
+> **Quality verdict (0731, ds4, 2-bit):** a capable long-context tool-caller/coder, but **on this rig's coding+tool suites it is matched or beaten by `gemma-4-26b-a4b@6bit` at ¼ the memory and 2.4× the speed** (LCB 78 vs 80 before the 2026-10-14 regrade; Gemma is now 88 and the 0731 answers were not saved, so 78 is a lower bound; HumanEval 90 vs 97, jdhodges tie). Its one unique win is **context**: 256k costs +3 GiB and holds >24 t/s to 128k — no other rig model comes close. Thinking-off is the right default for tool-calling/HumanEval; thinking only plausibly pays on hard code (LCB). Knowledge benches (MMLU/MATH/GPQA/DROP) not yet run for 0731 — the open question is whether the 284B buys knowledge the 26B lacks.
 > Full campaign: [bench/deepseek-v4-flash/results/0731-ds4-campaign-log.md](../../../bench/deepseek-v4-flash/results/0731-ds4-campaign-log.md) (T1–T5, 2026-08-15/16).
 > Last updated: 2026-08-16
 
@@ -57,7 +57,7 @@ Config: ctx 32,768, greedy temp 0, thinking OFF, sole-model. MLX numbers 2026-05
 | jdhodges tool-calling (40) | **87.5%** (35/40) — overturns the MLX 12.5% crash-floor; near coder-next's 90% | no template: 20% prose-only floor → Hermes workaround **82%** → **native DSML 98%** (39/40) — matches the best full-size local (`qwen3.6-35b-a3b`, 98%) |
 | Veerman tool-calling (12) | **58.3%** (7/12) — strong mechanics, weak agentic proactivity (p6/p8/p12 mismatch, p7 spiral); same shape as MiniMax | no template: 17% → Hermes 50% → **native DSML 75%** (9/12); parallel multi-tool 3/8 → **8/8** under DSML |
 | HumanEval (100) | **88%** — 0 trunc (~90% excl. 2 empty-response hiccups); ties coder-next 89% | 48% (15 TRUNC — degeneration, not runtime) |
-| LiveCodeBench v6 (50) | **86% partial (6/7)** ⏸ — stopped at 7/50, finish armed overnight (some cases blow to 11k tok / ~19 min) | 6% floor (40/50 degenerated) |
+| LiveCodeBench v6 (50) | **86% partial (6/7)** ⏸ — stopped at 7/50, finish armed overnight (some cases blow to 11k tok / ~19 min) | 6% floor (40/50 degenerated); 14% (7/50) after the [LCB regrade 2026-10-14](../../../bench/lcb-regrade-2026-10/results/regrade-summary.md) |
 | MMLU (100) | ⏸ not run (after LCB) | 44% |
 | GPQA (100) | ⏸ not run | 24% (36 TRUNC) |
 | DROP (100) | ⏸ not run | **71%** — best MLX knowledge result; extractive QA survives 2-bit |
