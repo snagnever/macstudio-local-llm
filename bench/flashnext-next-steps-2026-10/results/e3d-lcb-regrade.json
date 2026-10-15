@@ -1,0 +1,2114 @@
+{
+ "w1-low-r1/livecodebench.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:rc=1:  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_1b74_hrm.py\", line 39, in minOperations\n    from sortedcontainers import SortedList\nModuleNotFoundError: No module named 'sortedcontainers'\n"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test16:mismatch"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test4:timeout"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:rc=1: ^^^^^^^^^^^^^^^^^\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_0vc1vami.py\", line 66, in minOperations\n    cnt[i + 1] += cnt[i] // 2\n    ~~~^^^^^^^\nIndexError: list index out of range\n"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "w1-low-r2/livecodebench.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:rc=1: t):\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_8nv4gpr9.py\", line 37, in <module>\n    from sortedcontainers import SortedList\nModuleNotFoundError: No module named 'sortedcontainers'\n"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test16:mismatch"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:rc=1: t):\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_r9qtlvcp.py\", line 37, in <module>\n    from sortedcontainers import SortedList\nModuleNotFoundError: No module named 'sortedcontainers'\n"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test3:mismatch"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "w1-medium-r1/livecodebench.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test7:mismatch"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test16:mismatch"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test3:mismatch"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:rc=1: t):\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_ajc67z_w.py\", line 37, in <module>\n    from sortedcontainers import SortedList\nModuleNotFoundError: No module named 'sortedcontainers'\n"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test3:mismatch"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "w1-medium-r2/livecodebench.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test1:rc=1: 6, in minOperations\n    remove(nums[i - 1])\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_t3z1eafv.py\", line 78, in remove\n    lo.remove(-val)\nValueError: list.remove(x): x not in list\n"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test1:mismatch"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test16:mismatch"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test3:mismatch"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:rc=1: t):\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_xs7yia8m.py\", line 37, in <module>\n    from sortedcontainers import SortedList\nModuleNotFoundError: No module named 'sortedcontainers'\n"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test11:mismatch"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test0:mismatch"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "w1-xhigh-r1/livecodebench.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test2:rc=1: ^^^^^^^^^^^^^\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_2rapl4ou.py\", line 44, in maxTotalReward\n    mask = (1 << value) - 1\n            ~~^^~~~~~~\nValueError: negative shift count\n"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test12:mismatch"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  }
+ ],
+ "w1-xhigh-r2/livecodebench.jsonl": [
+  {
+   "question_num": 1,
+   "lcb_question_id": "abc308_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 2,
+   "lcb_question_id": "2857",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 3,
+   "lcb_question_id": "abc365_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 4,
+   "lcb_question_id": "3429",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 5,
+   "lcb_question_id": "3334",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 6,
+   "lcb_question_id": "abc321_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 7,
+   "lcb_question_id": "abc304_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 8,
+   "lcb_question_id": "3298",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 9,
+   "lcb_question_id": "3620",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 10,
+   "lcb_question_id": "2883",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 11,
+   "lcb_question_id": "2878",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 12,
+   "lcb_question_id": "abc301_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 13,
+   "lcb_question_id": "abc354_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 14,
+   "lcb_question_id": "3373",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 15,
+   "lcb_question_id": "3717",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 16,
+   "lcb_question_id": "2868",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 17,
+   "lcb_question_id": "abc346_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 18,
+   "lcb_question_id": "3632",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 19,
+   "lcb_question_id": "abc354_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 20,
+   "lcb_question_id": "abc393_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 21,
+   "lcb_question_id": "3442",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test2:rc=1: ^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/td/_v2phdsx5pv9l62fw60x3nvm0000gn/T/lcb_oo_6z6ly.py\", line 45, in maxTotalReward\n    mask = (1 << v) - 1\n            ~~^^~~\nValueError: negative shift count\n"
+  },
+  {
+   "question_num": 22,
+   "lcb_question_id": "2755",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 23,
+   "lcb_question_id": "abc329_a",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 24,
+   "lcb_question_id": "3690",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 25,
+   "lcb_question_id": "3540",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 26,
+   "lcb_question_id": "abc327_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 27,
+   "lcb_question_id": "abc352_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 28,
+   "lcb_question_id": "3528",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 29,
+   "lcb_question_id": "3347",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 30,
+   "lcb_question_id": "abc384_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 31,
+   "lcb_question_id": "abc302_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 32,
+   "lcb_question_id": "abc377_b",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 33,
+   "lcb_question_id": "3573",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 34,
+   "lcb_question_id": "abc361_e",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 35,
+   "lcb_question_id": "3000",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 36,
+   "lcb_question_id": "abc397_d",
+   "original": false,
+   "regraded": false,
+   "reason": "fail_test41:mismatch"
+  },
+  {
+   "question_num": 37,
+   "lcb_question_id": "abc313_a",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 38,
+   "lcb_question_id": "abc383_e",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 39,
+   "lcb_question_id": "3243",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 40,
+   "lcb_question_id": "3476",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 41,
+   "lcb_question_id": "abc377_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 42,
+   "lcb_question_id": "abc342_d",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 43,
+   "lcb_question_id": "3219",
+   "original": false,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 44,
+   "lcb_question_id": "3025",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 45,
+   "lcb_question_id": "3328",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 46,
+   "lcb_question_id": "3478",
+   "original": false,
+   "regraded": false,
+   "reason": "truncated"
+  },
+  {
+   "question_num": 47,
+   "lcb_question_id": "3245",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 48,
+   "lcb_question_id": "abc303_e",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 49,
+   "lcb_question_id": "abc395_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  },
+  {
+   "question_num": 50,
+   "lcb_question_id": "abc378_c",
+   "original": true,
+   "regraded": true,
+   "reason": "pass"
+  }
+ ]
+}
