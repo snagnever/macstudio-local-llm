@@ -107,3 +107,14 @@ def test_decide_ratio_and_verdict(tmp_path):
     rc = decide.main(["--results-dir", str(tmp_path), "--logs-dir", str(tmp_path), "--glob", "*-e1.jsonl",
                       "--base", "n2", "--cand", "n2x", "--ctx", "32768", "--mode", "parity", "--threshold", "0.03"])
     assert rc == 1
+
+
+def test_decide_needles_split_truncated_and_wrong(tmp_path, capsys):
+    import decide
+    recs = [_rec("o1x", 32768, "identical", 0.2, 60.0),
+            _rec("o1x", 32768, "append", 0.2, 60.0, correct=False, finish_reason="length"),
+            _rec("o1x", 32768, "tool_turn", 2.0, 60.0, correct=False),
+            _rec("o1x", 32768, "cold", 30.0, 60.0)]
+    (tmp_path / "o1x-32768-t1.0-e5.jsonl").write_text("".join(json.dumps(r) + "\n" for r in recs))
+    decide.main(["--results-dir", str(tmp_path), "--logs-dir", str(tmp_path), "--glob", "*-e5.jsonl"])
+    assert "| 2/4 (1 trunc, 1 erro) |" in capsys.readouterr().out

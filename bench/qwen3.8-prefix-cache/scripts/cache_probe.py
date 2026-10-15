@@ -45,8 +45,12 @@ SAMPLING_CONTROLS = {
     "reasoning_effort": "xhigh",
 }
 WARMUP_ID = "cache-probe-independent-v2"
-MAX_TOKENS = 4096
-REQUEST_RESERVE_TOKENS = MAX_TOKENS + 1024 + 512
+MAX_TOKENS = 4096  # main() replaces it with --max-tokens
+TEMPLATE_RESERVE_TOKENS = 1024 + 512
+REQUEST_RESERVE_TOKENS = MAX_TOKENS + TEMPLATE_RESERVE_TOKENS
+# A wrong answer keeps this much text, so a needle failure can be read later.
+CONTENT_HEAD_CHARS = 500
+REASONING_TAIL_CHARS = 300
 
 
 class RequestFailure(Exception):
@@ -104,11 +108,12 @@ def _stream_chat_checked(
 
 def fixture_token_target(context_size: int) -> int:
     """Reserve room for the chat template and the bounded diagnostic output."""
-    if context_size <= REQUEST_RESERVE_TOKENS:
+    reserve = MAX_TOKENS + TEMPLATE_RESERVE_TOKENS
+    if context_size <= reserve:
         raise ValueError(
-            f"context size must exceed the {REQUEST_RESERVE_TOKENS}-token request reserve"
+            f"context size must exceed the {reserve}-token request reserve"
         )
-    return context_size - REQUEST_RESERVE_TOKENS
+    return context_size - reserve
 
 
 def cache_hit_ratio(cached_tokens: int, prompt_tokens: int) -> float:
@@ -524,6 +529,7 @@ def _record(
         if code_expected_result is not None
         else (None, None)
     )
+    correct = code_result_ok if code_expected_result is not None else all(needles.values())
     now = datetime.now(timezone.utc)
     controls = sampling_controls or SAMPLING_CONTROLS
     mtp_acceptance = mtp_acceptance_from_snapshots(metrics_before, metrics_after)
@@ -633,7 +639,9 @@ def _record(
             and isinstance(server["static_prefix_cached_tokens"], (int, float))
             and server["static_prefix_cached_tokens"] >= server["static_prefix_boundary_tokens"]
         ),
-        "correct": code_result_ok if code_expected_result is not None else all(needles.values()),
+        "correct": correct,
+        "content_head": None if correct else result.text[:CONTENT_HEAD_CHARS],
+        "reasoning_tail": None if correct else result.reasoning_text[-REASONING_TAIL_CHARS:],
         "ram_peak_gb": None,
         "swap_delta_gb": None,
         "gpu_temp_start_c": None,
@@ -884,6 +892,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--drafter-revision")
     parser.add_argument("--tokenizer-path", type=Path)
     parser.add_argument(
+        "--max-tokens",
+        type=int,
+        default=MAX_TOKENS,
+        help=(
+            "max_tokens of each measured request. The fixture shrinks by the same "
+            "amount, so the request still fits the context."
+        ),
+    )
+    parser.add_argument(
         "--prime-max-tokens",
         type=int,
         default=1,
@@ -967,7 +984,9 @@ def selected_scenarios(raw: str, order: str = "canonical") -> tuple[str, ...]:
 
 
 def main() -> int:
+    global MAX_TOKENS
     args = build_parser().parse_args()
+    MAX_TOKENS = args.max_tokens
     sampling_controls = {
         **SAMPLING_CONTROLS,
         "temperature": args.temperature,

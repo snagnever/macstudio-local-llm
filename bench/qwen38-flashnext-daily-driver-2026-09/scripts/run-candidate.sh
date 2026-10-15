@@ -95,6 +95,7 @@ YARN27_JSON() { echo "{\"text_config\":{\"rope_parameters\":{\"mrope_interleaved
 
 # Por candidato: launcher, arm, porta, binario, python do probe, tokenizer, metrics.
 MODEL_ID_PREF=""; PROBE_SESSION_HEADER=""; PROBE_PRIME_MAX_TOKENS=""
+# QWEN38_PROBE_MAX_TOKENS (optional): --max-tokens of cache_probe.py; the fixture shrinks by the same amount.
 # --os-reserve-gib só no braço n2o: um valor herdado do shell não vale para os outros braços.
 unset QWEN38_MLX_OS_RESERVE_GIB
 # Extra mlx-serve flags only for the n2xd arm (flashnext-next-steps-2026-10); a shell value never leaks.
@@ -455,7 +456,7 @@ if [[ -n "$PRINT" ]]; then
   echo "launcher: $LAUNCHER $ARM"; bash "$LAUNCHER" "$ARM" --print; echo
   # --exec troca o probe por outro comando contra o servidor (ex.: bateria de qualidade).
   [[ -n "$EXEC_CMD" ]] && { echo "exec: $EXEC_CMD"; echo "effort: $EFFORT"; echo "saida: $OUT"; exit 0; }
-  echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS} ${PROBE_SESSION_HEADER:+--session-header $PROBE_SESSION_HEADER} ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens $PROBE_PRIME_MAX_TOKENS}"
+  echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS} ${PROBE_SESSION_HEADER:+--session-header $PROBE_SESSION_HEADER} ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens $PROBE_PRIME_MAX_TOKENS} ${QWEN38_PROBE_MAX_TOKENS:+--max-tokens $QWEN38_PROBE_MAX_TOKENS}"
   echo "effort: $EFFORT"
   echo "saida: $OUT"; exit 0
 fi
@@ -581,6 +582,7 @@ else
   ${SCENARIO_REPEATS:+--scenario-repeats "$SCENARIO_REPEATS"} \
   ${PROBE_SESSION_HEADER:+--session-header "$PROBE_SESSION_HEADER"} \
   ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens "$PROBE_PRIME_MAX_TOKENS"} \
+  ${QWEN38_PROBE_MAX_TOKENS:+--max-tokens "$QWEN38_PROBE_MAX_TOKENS"} \
   --output "$OUT" --cache-enabled $([[ "$GENMODE" == "" || "$GENMODE" == mtp ]] && echo --mtp-enabled) \
   || PROBE_EXIT=$?
 fi

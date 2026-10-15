@@ -80,3 +80,7 @@ def test_x1_is_mix6_from_the_consolidated_repo():
     # umixer retired the -v2 repo; its bytes live in the original repo id at 73d2cd0.
     out = show("x1")
     assert MIX6 in out and "MISSING" not in out and "omlx-v0.7.1.dev2/bin/omlx" in out
+
+def test_probe_max_tokens_is_opt_in():
+    assert "--max-tokens" not in show("w1")
+    assert "--max-tokens 8192" in show("w1", env={"QWEN38_PROBE_MAX_TOKENS": "8192"})

@@ -7,7 +7,7 @@ summarize_driver.summarize (same medians, same T_turno, same gates), and prints:
   1. the fixed table of the campaign:
      braço | contexto | T_turno | cold TTFT | warm TTFT | hit | decode | MTP acc | wired peak | swap Δ | HTTP errs | needles
      (warm TTFT = median TTFT of tool_turn; hit = append / tool_turn; needles = correct/records, with the
-     records truncated at max_tokens in parentheses: a truncation is not a needle failure)
+     records truncated at max_tokens and the wrong answers in parentheses: a truncation is not a needle failure)
   2. a memory line per row (minimum free memory from mem-sampler);
   3. with --base and --cand, the ratio T_turno(cand) / T_turno(base) per context and a verdict line:
        --mode le      pass when ratio <= --threshold at every context (adoption 0.97, condition 1.03, ple 0.95)
@@ -61,9 +61,10 @@ def table(records: list[dict], runs: dict) -> tuple[str, dict]:
     needles, free_min, runtime = {}, {}, {}
     for r in records:
         key = (r["arm"], int(r["context_target"]))
-        ok, n, t = needles.get(key, (0, 0, 0))
+        ok, n, t, w = needles.get(key, (0, 0, 0, 0))
         trunc = not r.get("correct") and r.get("finish_reason") == "length"
-        needles[key] = (ok + (1 if r.get("correct") else 0), n + 1, t + (1 if trunc else 0))
+        wrong = not r.get("correct") and not trunc
+        needles[key] = (ok + (1 if r.get("correct") else 0), n + 1, t + (1 if trunc else 0), w + (1 if wrong else 0))
         if r.get("mem_free_min_gb") is not None:
             free_min[key] = min(free_min.get(key, 1e9), r["mem_free_min_gb"])
         runtime[key] = r.get("runtime")
@@ -71,11 +72,12 @@ def table(records: list[dict], runs: dict) -> tuple[str, dict]:
     for (arm, ctx), s in sorted(summary.items(), key=lambda kv: (kv[0][1], kv[0][0])):
         h = s["hit"]
         hit = "/".join("—" if h.get(k) is None else f"{h[k]:.2f}" for k in ("append", "tool_turn"))
-        ok, n, t = needles[(arm, ctx)]
+        ok, n, t, w = needles[(arm, ctx)]
+        notes = ", ".join(x for x in (f"{t} trunc" if t else "", f"{w} erro" if w else "") if x)
         lines.append(f"| {arm} | {ctx // 1024}K | {fmt(s['t_turno_s'], 1, ' s')} | {fmt(s['cold_ttft_s'], 1, ' s')} | "
                      f"{fmt(s['warm_ttft_s'].get('tool_turn'), 2, ' s')} | {hit} | {fmt(s['decode_tps'])} | "
                      f"{fmt(s['mtp_acceptance'], 3)} | {fmt(s['wired_peak_gb'], 1, ' GB')} | "
-                     f"{fmt(s['swap_delta_gb'], 2, ' GB')} | {s['errors']} | {ok}/{n}{f' ({t} trunc)' if t else ''} |")
+                     f"{fmt(s['swap_delta_gb'], 2, ' GB')} | {s['errors']} | {ok}/{n}{f' ({notes})' if notes else ''} |")
     lines.append("")
     for key in sorted(summary, key=lambda k: (k[1], k[0])):
         s = summary[key]
