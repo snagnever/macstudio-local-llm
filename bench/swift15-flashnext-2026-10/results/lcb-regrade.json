@@ -1,0 +1,59 @@
+{
+ "n2-t1": {
+  "run": "livecodebench.jsonl",
+  "grader": "bench/flashnext-next-steps-2026-10/scripts/lcb_regrade.py (= bench2.py at 2403125)",
+  "n": 50,
+  "original": 41,
+  "regraded": 45,
+  "fixed_by_regrade": [
+   "3373",
+   "2868",
+   "3000",
+   "3219"
+  ],
+  "broken_by_regrade": []
+ },
+ "w1-t1": {
+  "run": "livecodebench.jsonl",
+  "grader": "bench/flashnext-next-steps-2026-10/scripts/lcb_regrade.py (= bench2.py at 2403125)",
+  "n": 50,
+  "original": 42,
+  "regraded": 47,
+  "fixed_by_regrade": [
+   "3334",
+   "3373",
+   "2868",
+   "3000",
+   "3219"
+  ],
+  "broken_by_regrade": []
+ },
+ "n2-t0": {
+  "run": "livecodebench.jsonl",
+  "grader": "bench/flashnext-next-steps-2026-10/scripts/lcb_regrade.py (= bench2.py at 2403125)",
+  "n": 50,
+  "original": 41,
+  "regraded": 45,
+  "fixed_by_regrade": [
+   "3373",
+   "2868",
+   "3000",
+   "3219"
+  ],
+  "broken_by_regrade": []
+ },
+ "w1-t0": {
+  "run": "livecodebench.jsonl",
+  "grader": "bench/flashnext-next-steps-2026-10/scripts/lcb_regrade.py (= bench2.py at 2403125)",
+  "n": 50,
+  "original": 41,
+  "regraded": 45,
+  "fixed_by_regrade": [
+   "3373",
+   "2868",
+   "3000",
+   "3219"
+  ],
+  "broken_by_regrade": []
+ }
+}

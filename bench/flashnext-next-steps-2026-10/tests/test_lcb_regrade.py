@@ -24,10 +24,23 @@ FUNCTIONAL_Q = {
 }
 
 
-@pytest.mark.skipif(sys.version_info >= (3, 14), reason="Python 3.14 defers annotations (PEP 649)")
+@pytest.mark.skipif(sys.version_info >= (3, 14) or hasattr(lcb_regrade.bench2, "LCB_PRELUDE"),
+                    reason="Python 3.14 defers annotations (PEP 649), or the submodule grader has the fix (2403125)")
 def test_original_grader_fails_on_missing_typing_import():
     ok, _, reason = lcb_regrade.bench2.grade_livecodebench(FUNCTIONAL_Q, ANNOTATED)
     assert not ok and reason.startswith("fail_test0:rc=1")
+
+
+@pytest.mark.skipif(not hasattr(lcb_regrade.bench2, "LCB_PRELUDE"), reason="submodule grader predates 2403125")
+def test_bench2_at_2403125_matches_regrade():
+    # The submodule fix (2403125) adds the same prelude and file runner, so both graders agree.
+    assert lcb_regrade.bench2.grade_livecodebench(FUNCTIONAL_Q, ANNOTATED) == \
+        lcb_regrade.regrade(FUNCTIONAL_Q, ANNOTATED)
+    big = list(range(400_000))
+    q = dict(FUNCTIONAL_Q, test_cases=[{"testtype": "functional", "input": json.dumps(big),
+                                        "output": str(sum(big))}])
+    ok, _, reason = lcb_regrade.bench2.grade_livecodebench(q, ANNOTATED)
+    assert ok and reason == "pass", reason
 
 
 def test_regrade_adds_the_livecodebench_import_prelude():

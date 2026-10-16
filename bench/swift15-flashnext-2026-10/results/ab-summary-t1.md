@@ -47,3 +47,5 @@
 | G1:if | passa |
 | G2:gpqa | passa |
 | G2:livecodebench | passa |
+
+LiveCodeBench reavaliado (2026-10-16): n2 45/50, w1 47/50. A tabela acima traz o avaliador antigo (41 e 42), que rodava sem o preâmbulo de imports do LiveCodeBench oficial. Ver [lcb-regrade.json](lcb-regrade.json) e [lcb-regrade-published.md](../../flashnext-next-steps-2026-10/results/lcb-regrade-published.md).

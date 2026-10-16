@@ -7,6 +7,10 @@ The runner in tools/local-llm-bench-m4-32gb/scripts/bench2.py (submodule a4a95bb
 2. It passes the program to ``python -c``; a functional test with a large input exceeds the OS argument
    limit (``[Errno 7] Argument list too long``).
 
+The fix is merged in the submodule at 2403125 (PR #3), and the parent repo now points there. bench2.py at 2403125
+gives the same verdict as this script on every saved Swift 1.5 campaign answer. The script stays to regrade JSONL
+files saved by the old runner.
+
 This script keeps bench2's code extraction, test decoding and comparison, and replaces only the two runner
 functions: each program gets the prelude and runs from a temporary file. It reads the JSONL files written by
 bench2 (one row per question, with ``raw_response`` and ``lcb_question_id``), reloads the same 50 questions

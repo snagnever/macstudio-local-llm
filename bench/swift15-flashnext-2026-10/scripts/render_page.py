@@ -213,14 +213,34 @@ def _gates(quality: dict, regrade: dict, time: dict, speed: dict) -> dict:
     return {"g1": g1, "g2": g2, "g3": g3, "time_ratio": S.TIME_RATIO, "g3_ratio": G3_RATIO, "decision": decision}
 
 
+def _lcb_regrade(results_dir: Path) -> dict:
+    """results/lcb-regrade.json: the LiveCodeBench answers that the corrected runner passes (see that file)."""
+    path = results_dir / "lcb-regrade.json"
+    return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+
+
+def _apply_lcb_regrade(views: list[dict] | None, rows: list[dict], fixed: set[str]) -> None:
+    """Mark the regraded LiveCodeBench answers as passed, in the summary views and in the raw rows."""
+    for v in views or []:
+        if v["id"] in fixed and not v["truncated"]:
+            v["passed"] = True
+    for r in rows:
+        if str(r.get("lcb_question_id")) in fixed and r.get("finish_reason") != "length":
+            r["correct"] = True
+
+
 def collect(results_dir: Path = RESULTS, reports_json: Path = REPORTS_JSON) -> dict:
     results_dir, reports_json = Path(results_dir), Path(reports_json)
     reports = json.loads(reports_json.read_text(encoding="utf-8"))
+    lcb_rg = _lcb_regrade(results_dir)
     quality, time, tool_latency, difficulty = {}, {}, {}, {}
     for p in PROFILES:
         loaded = {a: S.load_arm(results_dir / "ab" / p / a) for a in ARMS}
         raw = {a: {s: _read_jsonl(f) if (f := results_dir / "ab" / p / a / f"{s}.jsonl").is_file() else []
                    for s in S.SUITES if s not in S.TOOL_SUITES} for a in ARMS}
+        for a in ARMS:
+            fixed = set((lcb_rg.get(f"{a}-{p}") or {}).get("fixed_by_regrade") or [])
+            _apply_lcb_regrade(loaded[a].get("livecodebench"), raw[a].get("livecodebench", []), fixed)
         quality[p] = {a: {} for a in ARMS}
         time[p] = {}
         for suite in S.SUITES:
@@ -246,7 +266,9 @@ def collect(results_dir: Path = RESULTS, reports_json: Path = REPORTS_JSON) -> d
                    "truncated": len(v.get("truncated") or [])} for k, v in regrade.items()}
     speed = _speed(results_dir, reports)
     return {"arms": list(ARMS), "profiles": list(PROFILES), "suites": list(S.SUITES), "stacks": STACKS,
-            "rig": reports.get("rig", []), "quality": quality, "humaneval_regrade": regrade, "time": time,
+            "rig": reports.get("rig", []), "quality": quality, "humaneval_regrade": regrade,
+            "lcb_regrade": {k: {"n": v.get("n"), "original": v.get("original"), "regraded": v.get("regraded")}
+                            for k, v in lcb_rg.items()}, "time": time,
             "tool_latency": tool_latency, "lcb_difficulty": difficulty, "speed": speed, "legacy": LEGACY,
             "gates": _gates(quality, regrade, time, speed)}
 
@@ -573,6 +595,11 @@ def _html_accuracy(d: dict) -> str:
             foot = (f'<p class="s-note mt">HumanEval is graded with the imports of the prompt added, because a correct '
                     f'answer that omits <code>from typing import List</code> fails the strict grader. Strict grade: '
                     f'{strict[0]} (iQ-MLX) vs {strict[1]} (Swift 1.5).</p>')
+        orig = [(d.get("lcb_regrade", {}).get(f"{a}-{p}") or {}).get("original") for a in ARMS]
+        if None not in orig:
+            foot += (f'<p class="s-note mt">LiveCodeBench is regraded with the import prelude of the official '
+                     f'LiveCodeBench runner, and each program runs from a file. The first grader ran without the '
+                     f'prelude and failed correct answers. First grade: {orig[0]} (iQ-MLX) vs {orig[1]} (Swift 1.5).</p>')
         return ('<div class="tbl-scroll"><table class="qual"><thead><tr><th class="nm">Suite</th>'
                 f'<th>{_arm_lab("n2")}</th><th>{_arm_lab("w1")}</th><th>Swift − iQ</th></tr></thead>'
                 f'<tbody>{rows}</tbody></table></div>{foot}')
