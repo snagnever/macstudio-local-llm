@@ -355,7 +355,7 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         REV="v2.11.2-yarn${YARN}"
       fi ;;
   n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m)
-      # flashnext-next-steps-2026-10 on mlx-serve. An "x" in the arm = 26.10.2-pre-release.1, no "x" = 26.10.1.
+      # flashnext-next-steps-2026-10 on mlx-serve. An "x" in the arm = stable 26.10.2 (see line 66), no "x" = 26.10.1.
       # n2x/w1x = n2/w1 flags on 26.10.2; n2xd = n2x + MTP depth (FLASHNEXT_MTP_DEPTH_FLAG, FLASHNEXT_MTP_DEPTH);
       # w1q4/w1xq4 = w1 + 4-bit KV with --yarn (the 512k launcher profile); w1c8/w1xc8 = prefix cache 8GB
       # (control of test #9); w1p8/w1xp8 = w1c8 + --ple-gpu; o1rm = Jundot oQ4e refit c4ddfb5 and
@@ -376,7 +376,7 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       esac
       export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
-      unset QWEN38_MLX_PLE_GPU QWEN38_MLX_PREFIX_CACHE_MEM QWEN38_MLX_KV_QUANT QWEN38_MLX_CONFIG_OVERRIDES
+      unset QWEN38_MLX_PLE_GPU QWEN38_MLX_PREFIX_CACHE_MEM QWEN38_MLX_KV_QUANT QWEN38_MLX_CONFIG_OVERRIDES QWEN38_MLX_DRAFTER QWEN38_MLX_DRAFT_BLOCK_SIZE QWEN38_MLX_PREFIX_CACHE_DISK QWEN38_MLX_PREFIX_CACHE_ENTRIES
       case "$CAND" in
         w1c8|w1xc8) export QWEN38_MLX_PREFIX_CACHE_MEM=8GB; REV="${REV}-pc8" ;;
         w1p8|w1xp8) export QWEN38_MLX_PREFIX_CACHE_MEM=8GB QWEN38_MLX_PLE_GPU=1; REV="${REV}-pc8-plegpu" ;;

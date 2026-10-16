@@ -128,11 +128,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--cand")
     ap.add_argument("--ctx", default="32768,131072")
     ap.add_argument("--mode", choices=("le", "parity"), default="le")
-    ap.add_argument("--threshold", type=float, default=0.97)
+    ap.add_argument("--threshold", type=float, help="default 0.97 with --mode le, 0.03 with --mode parity")
     ap.add_argument("--skip-gates", default="", help="comma list of gate names to ignore, e.g. hit_append,hit_tool_turn")
     ap.add_argument("--title", default="")
     ap.add_argument("--out-md", type=Path, help="also write the output to this markdown file")
     a = ap.parse_args(argv)
+    if a.threshold is None:
+        a.threshold = 0.03 if a.mode == "parity" else 0.97
     records, runs = load(a.results_dir, a.glob)
     if not records:
         print(f"decide: no records for {a.glob} in {a.results_dir}", file=sys.stderr)

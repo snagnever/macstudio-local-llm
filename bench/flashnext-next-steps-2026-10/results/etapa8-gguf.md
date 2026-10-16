@@ -20,7 +20,7 @@ SMOKE: fail
 
 - **Smoke falhou.** O decode quente do `g1` (b11609 com `--spec-type draft-mtp`, `--spec-draft-n-max 3`) é 52.1 tok/s a 32K, abaixo do gate de 70. O `g0` (sem MTP) faz 36.0 tok/s. A Task 8 termina aqui: as bandas de 32K e 128K contra o `w1` não rodaram.
 - O braço `g1m` (GGUF no mlx-serve) saiu antes do smoke: o llama.cpp embutido (b11429) não tem o fix de `mul_mat_id` do b11569 nem o fix do PLE do b11600 (`research/qwen38-flashnext-updates-20261014.md`).
-- Os pesos (99 GB) ficam no rig. A limpeza de disco é de outra sessão; o GGUF pode sair sem perda para esta campanha.
+- Os pesos (99 GB) ficaram no rig até 2026-10-16, quando o usuário os apagou.
 - O pin `052beea` mede os mesmos bytes do HEAD `0a61d2b` (`gguf-pin-receipt.md`).
 
 ## Leitura

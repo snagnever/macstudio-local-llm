@@ -47,7 +47,6 @@ SAMPLING_CONTROLS = {
 WARMUP_ID = "cache-probe-independent-v2"
 MAX_TOKENS = 4096  # main() replaces it with --max-tokens
 TEMPLATE_RESERVE_TOKENS = 1024 + 512
-REQUEST_RESERVE_TOKENS = MAX_TOKENS + TEMPLATE_RESERVE_TOKENS
 # A wrong answer keeps this much text, so a needle failure can be read later.
 CONTENT_HEAD_CHARS = 500
 REASONING_TAIL_CHARS = 300

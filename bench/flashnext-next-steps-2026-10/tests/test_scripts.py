@@ -109,6 +109,17 @@ def test_decide_ratio_and_verdict(tmp_path):
     assert rc == 1
 
 
+def test_decide_parity_defaults_to_the_weights_rule(tmp_path):
+    import decide
+    for arm, tt in (("n2", 2.0), ("n2x", 1.5)):
+        recs = [_rec(arm, 32768, s, tt if s == "tool_turn" else 0.2, 80.0) for s in ("identical", "append", "tool_turn")]
+        recs.append(_rec(arm, 32768, "cold", 30.0, 70.0))
+        (tmp_path / f"{arm}-32768-t1.0-e1.jsonl").write_text("".join(json.dumps(r) + "\n" for r in recs))
+    rc = decide.main(["--results-dir", str(tmp_path), "--logs-dir", str(tmp_path), "--glob", "*-e1.jsonl",
+                      "--base", "n2", "--cand", "n2x", "--ctx", "32768", "--mode", "parity"])
+    assert rc == 1
+
+
 def test_decide_needles_split_truncated_and_wrong(tmp_path, capsys):
     import decide
     recs = [_rec("o1x", 32768, "identical", 0.2, 60.0),
@@ -118,3 +129,8 @@ def test_decide_needles_split_truncated_and_wrong(tmp_path, capsys):
     (tmp_path / "o1x-32768-t1.0-e5.jsonl").write_text("".join(json.dumps(r) + "\n" for r in recs))
     decide.main(["--results-dir", str(tmp_path), "--logs-dir", str(tmp_path), "--glob", "*-e5.jsonl"])
     assert "| 2/4 (1 trunc, 1 erro) |" in capsys.readouterr().out
+
+
+def test_test_name_regex_skips_the_suite_file_name():
+    import agent_probes
+    assert agent_probes.TEST_NAME.findall("tests/test_suite_03.py::test_parse_ok PASSED") == ["test_parse_ok"]

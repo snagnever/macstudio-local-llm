@@ -1,6 +1,6 @@
 # Etapa 5 — Jundot oQ4e refit (c4ddfb5) no mlx-serve 26.10.2 × Swift 1.5 (2026-10-15)
 
-Parte `o1rm`. Os braços oMLX (`o1x`, `o1r`) esperam o oMLX 0.7.1.dev2 até 2026-10-21 (ruling da Task R); este arquivo ganha essas seções depois.
+Parte `o1rm` primeiro. Os braços oMLX (`o1x`, `o1r`) rodaram depois, no oMLX 0.7.1.dev2 (seções abaixo).
 
 O `o1rm` roda no mlx-serve 26.10.2 e o `w1` no runtime do driver (26.10.1, Task 1). Smoke 8K do `o1rm`: OK, 15 linhas `[spec-stats]`.
 

@@ -31,7 +31,7 @@ Os braços `w1`, `n2`, `w1q4` e `w1p8` rodaram no mlx-serve 26.10.1.
 | 5 | Jundot refit | o1x, o1r, o1rm, W1 | paridade, G1, ≤ 0.97× | `o1rm` 1.075× e 1.046× o `w1`, needles 12/13 a 128K; `o1r`/`o1x` 1.000 e 1.034; G1 Veerman 7/12 contra 10/12 na rodada 1; 9/12 contra 8/12 na rodada 2 (16/24 contra 18/24) | o refit tem a mesma qualidade e velocidade do oQ4e antigo; com o `2615fc0` apagado, o refit fica como pack do oMLX; `o1rm` não vira driver | [etapa5-refit.md](etapa5-refit.md) |
 | 6 | scottlowry Swift oQ4e | s1m, W1 | ≤ 0.97×, G1 | não rodou: `o1rm` acima de 1.03× nas duas bandas (`RUN_TASK6=0`) | — | [etapa6-scottlowry.md](etapa6-scottlowry.md) |
 | 7 | mix6 v2 | x1, o1r | G1 + margem, swap 0 a 256K | G1 passa em todas as suítes; nenhuma suíte acima da margem; swap Δ 0.00 GB; wired +7.6 GB a 256K | não substitui o refit | [etapa7-mix6.md](etapa7-mix6.md) |
-| 8 | GGUF + MTP | g0, g1 | smoke ≥ 70 tok/s | decode `g1` 52.1 tok/s (`g0` 36.0) | parar; pesos (99 GB) mantidos no rig, a limpeza fica para outra sessão | [etapa8-gguf.md](etapa8-gguf.md) |
+| 8 | GGUF + MTP | g0, g1 | smoke ≥ 70 tok/s | decode `g1` 52.1 tok/s (`g0` 36.0) | parar; pesos (99 GB) apagados do rig em 2026-10-16 | [etapa8-gguf.md](etapa8-gguf.md) |
 | 9 | --ple-gpu + 8 GB | W1P8 | ≤ 0.95× a 128K | `ple gather: cpu`; headroom 16 GB fixo; bandas não rodaram | `--ple-gpu` não vira perfil opcional | [etapa9-plegpu.md](etapa9-plegpu.md) |
 
 ## Notas por task

@@ -12,7 +12,9 @@ for spec in "$@"; do
   [[ "$spec" =~ ^[a-z0-9]+:[0-9]+:[0-9]+:[a-z0-9]+(:[0-9]+\.[0-9]+)?$ ]] \
     || { echo "run-seq: bad spec: $spec" >&2; exit 64; }
 done
+n=0
 for spec in "$@"; do
+  n=$((n + 1))
   IFS=: read -r arm ctx reps tag yarn <<<"$spec"
   args=("$arm" "$ctx" --repeat "$reps" --tag "$tag")
   [[ -n "$yarn" ]] && args+=(--yarn "$yarn")
@@ -20,5 +22,5 @@ for spec in "$@"; do
   echo "=== $(date '+%F %T') start $arm@$ctx x$reps tag=$tag${yarn:+ yarn=$yarn}"
   rc=0; bash "$HERE/scripts/run-arm.sh" "${args[@]}" || rc=$?
   echo "=== $(date '+%F %T') exit[$arm@$ctx]=$rc"
-  sleep 120
+  if [[ $n -lt $# ]]; then sleep 120; fi
 done

@@ -7,6 +7,8 @@
 #   splash     incoai/splash release $SPLASH_TAG (default 1.3.1, no "v" prefix), asset
 #              splash-<tag>-arm64-macos26.tar.gz, extracted with --strip-components=1 into splash-v<tag>/ plus a bin/splash wrapper
 #   llama      ggml-org/llama.cpp release $LLAMA_TAG (default b11569), macOS arm64 asset, into llama-<tag>/
+# The defaults stay at the versions the 27B campaign pins (its tests read them). This campaign ran the stable
+# releases with overrides: MLX_TAG=v26.10.2 and OMLX_TAG=v0.7.1.dev2 (results/install-runtimes-stable.md).
 # Binary assets are checked against the SHA256 digest GitHub publishes for the asset. When GitHub has no
 # digest, the script stops (exit 65); compare the hash it prints with the release page and rerun with
 # INSTALL_EXPECTED_SHA256=<hex>.

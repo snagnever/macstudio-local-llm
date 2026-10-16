@@ -57,7 +57,7 @@ STEMS = ["parser", "cache", "router", "schema", "billing", "auth", "ledger", "ex
 DECOYS = ["main.py", "utils.py", "config.py", "helpers.py", "app.py", "__init__.py", "settings.py", "models.py"]
 CHAR_RUN = re.compile(r"(\S)\1{19,}")
 PY_NAME = re.compile(r"\b[\w-]+\.py\b")
-TEST_NAME = re.compile(r"\btest_[a-z0-9_]+\b")
+TEST_NAME = re.compile(r"\btest_(?!suite_)[a-z0-9_]+\b")  # test_suite_NN is the file name, not a test
 
 
 # ---------- HTTP ----------
