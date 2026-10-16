@@ -60,7 +60,7 @@ Assim o prefixo de uma conversa não depende do effort. Só o bloco final muda, 
 
 **Regras de decisão:**
 - Gate do 3e (Step 6): hit da troca ≥ 0.9 em `medium` e em `low`, nas 2 rodadas. Se falhar, a Task 11 para: escreva o `etapa11` com o 3e e o veredito "não adotar".
-- Obediência: razão de chars de reasoning medianos `low/xhigh` e `medium/xhigh` do `w1t` dentro de ±20% da razão do `w1` (3d), no GPQA e no LCB.
+- Obediência (`scripts/effort_obedience.py`, revisada em 2026-10-16): por questão do GPQA e do LCB, média sobre as 2 rodadas de log(`reasoning_tokens`). O deslocamento `w1t`/`w1` no mesmo effort tem IC de 90% por bootstrap sobre as questões. Passa se o IC ficar dentro de ×0.80–×1.25 em `xhigh` e em `low`. O `medium` renderiza igual nos dois templates e serve de teste A/A. A regra antiga (medianas dentro de ±20%) não separava sinal de ruído: o mesmo `w1` em `xhigh` deu mediana de 3129 e 5027 chars no GPQA entre rodadas. Calibração com os dados do 3d: no `w1`, `low` gasta ×0.45 (0.38–0.53) do `xhigh` e `medium` ×0.62; a rodada 1 contra a rodada 2 do `w1` dá IC de ±10–13%. Um `low` ignorado apareceria como ×1.38, e um `xhigh` ignorado como ×0.62.
 - Acerto: GPQA e LCB do `w1t` dentro da margem G1 do `w1` no mesmo effort (soma das 2 rodadas, margem × 2), nos três efforts.
 - Tool-calling: 3f do `w1t` em `xhigh` (jdhodges + Veerman, 1 rodada) dentro da margem G1 do `w1` r1.
 - Adoção: as quatro regras valem → o launcher diário ganha o perfil opcional `FLASHNEXT_TEMPLATE=efftail` (o default não muda sem o OK do usuário). Senão, o harness continua fixando o effort por sessão.
@@ -160,6 +160,8 @@ done; done
 ln -sfn ../../e3f/t1/w1-r1 $C/results/e11/t1x/w1-r1; ln -sfn ../t1/w1t-r1 $C/results/e11/t1x/w1t-r1
 python3 $S --ab-dir $C/results/e11/t1x --base w1-r1 --cand w1t-r1 --out $C/results/e11-summary-3f.md
 python3 $C/scripts/lcb_regrade.py $C/results/e3d/t1/w1-*/livecodebench.jsonl $C/results/e11/t1/w1t-*/livecodebench.jsonl
+python3 $C/scripts/effort_obedience.py --base-root $C/results/e3d/t1 --cand-root $C/results/e11/t1 \
+  --json $C/results/e11-obedience.json | tee $C/results/e11-obedience.md
 ```
 
 Expected: 7 resumos. O LCB do `w1` vem da reavaliação; o do `w1t` já sai correto (o `lcb_regrade` deve dar o mesmo número que o bruto nos arquivos `w1t`).
