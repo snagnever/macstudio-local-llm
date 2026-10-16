@@ -196,3 +196,30 @@ LiveCodeBench reavaliado com `scripts/lcb_regrade.py` (ver Task 3):
 - Loops: os 5 casos de `story_en` em cada braço (e o `list_en` do `o1x`) são respostas que bateram 16384 tokens sem EOS; na maioria o conteúdo veio vazio, ou seja, o raciocínio em `xhigh` consumiu todo o limite. A taxa é a mesma nos três packs oMLX (5/8). A campanha não tem a mesma bateria de loops no `w1`, então não há base no mlx-serve.
 - O KLD que o card do refit declara (código 0.0877 → 0.0776, **terceiro**) não aparece como ganho na bateria: o placar fica dentro da margem em cinco suítes e abaixo no Veerman.
 - A 32K, o oMLX fica 1.29× o `w1` no mlx-serve (10.3 s contra 8.0 s, Task 5 parte `o1rm`).
+
+# Rodadas extras (2026-10-16)
+
+Pedidas pelo usuário depois do veredito: uma segunda rodada do Veerman no `o1r` e no `o1x` (oMLX 0.7.1.dev2) e a bateria de loops no `w1` (mlx-serve 26.10.1), para ter base.
+
+| braço | Veerman r1 | Veerman r2 | total |
+| --- | ---: | ---: | ---: |
+| `o1x` (oQ4e `2615fc0`) | 10/12 | 8/12 | 18/24 |
+| `o1r` (refit `c4ddfb5`) | 7/12 | 9/12 | 16/24 |
+
+Fonte: `e5/t1/o1x-r2/veerman.jsonl` e `e5/t1/o1r-r2/veerman.jsonl`. Na rodada 2 o G1 do Veerman passa (`o1r` 9 contra `o1x` 8).
+
+Taxa de loop (`vendor_t1_xhigh`, 8 seeds), `w1` contra `o1r`:
+
+| prompt | `w1` loops | `w1` tokens médios | `o1r` loops | `o1r` tokens médios |
+| --- | ---: | ---: | ---: | ---: |
+| exec_pt | 0/8 | 336 | 0/8 | 566 |
+| list_en | 0/8 | 4154 | 0/8 | 12416 |
+| qa_fact | 0/8 | 84 | 0/8 | 97 |
+| story_en | 3/8 | 12911 | 5/8 | 15541 |
+
+Fonte: `loops/e5-w1.jsonl`.
+
+## Veredito (rodadas extras)
+
+- **A falha de G1 no Veerman era ruído.** A rodada 2 inverte a ordem, e o total fica 16/24 contra 18/24. O refit tem a mesma qualidade e a mesma velocidade do oQ4e antigo. O `2615fc0` foi apagado do rig em 2026-10-16, então o refit fica como pack do oMLX.
+- **O Swift bate o limite de tokens menos vezes que os packs oMLX.** No `story_en`, 3/8 contra 5/8, e no `list_en` usa ~1/3 dos tokens. Os 3 casos do `w1` também são respostas que bateram 16384 tokens sem EOS, 2 delas com o conteúdo vazio: é raciocínio longo em `xhigh`, não repetição de texto. A comparação mistura runtime e pack (mlx-serve × oMLX).
