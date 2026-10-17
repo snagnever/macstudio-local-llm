@@ -52,7 +52,7 @@ def test_obedience_factors_match_the_writeup():
 
 def test_page_renders_every_section(tmp_path):
     html = mod.render()
-    for sec in ("templates", "switch", "short", "obedience", "levels", "per-question", "numbers", "setup", "limits"):
+    for sec in ("templates", "switch", "short", "obedience", "levels", "per-question", "options", "numbers", "setup", "limits"):
         assert f'id="{sec}"' in html
     assert html.count('<figure class="strip"') == 2 + 2 * len(mod.SUITES) * len(mod.EFFORTS)
     assert "167" in html and "53 → 0" in html

@@ -377,8 +377,21 @@ details[open] > summary h2.sec::after{content:" ▾"}
 .pblk{font-family:var(--mono); font-size:0.72rem; padding:6px 9px; border-radius:6px; border:1px solid var(--border); background:var(--surface); color:var(--ink-2); white-space:nowrap; position:relative}
 .pblk.eff{background:var(--warn-bg); color:var(--warn); border-color:var(--warn); font-weight:700}
 .pblk.same{border-style:dashed}
-.pblk.ckpt::after{content:"▲ checkpoint"; position:absolute; left:0; top:100%; font-size:0.62rem; color:var(--accent); white-space:nowrap; margin-top:1px}
+.pblk.ckpt::after{content:"▲ " attr(data-ck); position:absolute; left:0; top:100%; font-size:0.62rem; color:var(--accent); white-space:nowrap; margin-top:1px}
 .prompt-diag.ck .prow{margin-bottom:12px}
+.pblk.gone{opacity:0.45}
+.pblk.arrow{border:0; background:none; color:var(--muted); padding:6px 2px}
+.opt{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-top:14px}
+.opt h3{font-size:0.95rem; margin:0 0 4px}
+.opt .o-what{font-size:0.86rem; color:var(--ink-2); margin:0 0 6px; line-height:1.45}
+.opt .o-cost{font-size:0.8rem; color:var(--ink-2); margin:8px 0 0; border-top:1px solid var(--border); padding-top:8px; line-height:1.4}
+.opt .o-cost b{color:var(--ink)}
+.opt .prompt-diag{margin-top:8px}
+.opt .prow .pl{font-size:0.72rem; font-weight:500; color:var(--ink-2)}
+.opt .prow{grid-template-columns:110px 1fr}
+.opt .ptrack{row-gap:20px}
+.opt .pblk{font-size:0.68rem; padding:5px 7px}
+.ptrack{row-gap:20px}
 .diag-note{font-size:0.8rem; color:var(--ink-2); margin:6px 0 0}
 @media (max-width:520px){.bline{grid-template-columns:80px 1fr minmax(80px,auto)} .tile .t-big{font-size:1.8rem} .prow{grid-template-columns:1fr}}
 """
@@ -399,8 +412,8 @@ applyLabel();
 """
 
 
-def blk(text: str, cls: str = "") -> str:
-    return f'<span class="pblk {cls}">{esc(text)}</span>'
+def blk(text: str, cls: str = "", ck: str = "checkpoint") -> str:
+    return f'<span class="pblk {cls}" data-ck="{esc(ck)}">{esc(text)}</span>'
 
 
 def section_templates() -> str:
@@ -591,6 +604,56 @@ truncated <code>xhigh</code> answers disappears. The campaign's recommendation: 
 </section>"""
 
 
+def _row(label: str, blocks: str) -> str:
+    return f'<div class="prow"><span class="pl">{esc(label)}</span><span class="ptrack">{blocks}</span></div>'
+
+
+def section_options() -> str:
+    o1_short = _row("request A", blk("system", "same") + blk("tools", "same") + blk("effort", "eff same") + blk("user: question 1", "ckpt") + blk("assistant")) + \
+        _row("request B", blk("system", "same") + blk("tools", "same") + blk("effort", "eff same") + blk("user: question 2", "ckpt") + blk("assistant"))
+    o1_switch = _row("turn N, xhigh", blk("system", "same") + blk("128K history", "same") + blk("effort: xhigh", "eff") + blk("user N", "ckpt") + blk("assistant")) + \
+        _row("turn N, low", blk("system", "same") + blk("128K history", "same") + blk("effort: low", "eff") + blk("user N", "ckpt") + blk("assistant"))
+    o1_next = _row("turn N", blk("system", "same") + blk("history", "same") + blk("effort", "eff") + blk("user N") + blk("assistant")) + \
+        _row("turn N+1", blk("system", "same") + blk("history", "same") + blk("user N") + blk("assistant N") + blk("effort", "eff") + blk("user N+1", "ckpt") + blk("assistant"))
+    o2 = _row("stride today", blk("system", "same") + blk("tools", "same") + blk("user: question") + blk("effort", "eff ckpt") + blk("assistant")) + \
+        _row("stride 512", blk("system", "same ckpt", ck="512") + blk("tools", "same ckpt", ck="1024") + blk("user: question") + blk("effort", "eff ckpt") + blk("assistant"))
+    o3 = _row("few messages", blk("effort", "eff") + blk("system", "same") + blk("tools", "same") + blk("user: question", "ckpt") + blk("assistant")) + \
+        _row("many messages", blk("system", "same") + blk("long history", "same") + blk("user N", "same") + blk("effort", "eff ckpt") + blk("assistant"))
+    o4 = _row("every boundary", blk("system", "same ckpt", ck="") + blk("tools", "same ckpt", ck="") + blk("user: question", "ckpt", ck="") + blk("effort", "eff ckpt") + blk("assistant"))
+    o5 = _row("request", blk("system", "same") + blk("tools", "same") + blk("user: question", "ckpt") + blk("assistant") + blk("+ thinking budget in the API call", "arrow"))
+
+    def opt(n: int, title: str, what: str, diag: str, cost: str) -> str:
+        return f'<div class="opt"><h3>{n}. {title}</h3><p class="o-what">{what}</p><div class="prompt-diag ck">{diag}</div><p class="o-cost">{cost}</p></div>'
+
+    return f"""
+<section class="block" id="options"><h2 class="sec">Ways to keep both: a cheap switch and the short-prompt cache</h2>
+<p class="s-note">Five options, none tested yet, written down on 2026-10-17. They all rest on the checkpoint rule inferred from the logs (one checkpoint at the start of the last message);
+confirming that rule in the mlx-serve source comes before options 4 and 5. Dashed blocks are the part that stays equal between the two requests of each diagram.</p>
+{opt(1, "Effort block before the last user message (template)",
+     "The last message is the user question again, so the checkpoint returns to the end of the shared prefix. Short prompts reuse the system prompt as with the official template; an effort switch at 128K keeps the history and re-reads only the effort block and the last question.",
+     '<p class="diag-note">Short prompts:</p>' + o1_short + '<p class="diag-note">Effort switch at 128K:</p>' + o1_switch + '<p class="diag-note">New question in a long session:</p>' + o1_next,
+     "<b>Cost:</b> in a long session every new question moves the effort block, so the server re-reads the whole previous turn (its question, tool results and answer). The cost is bounded by one turn, not by the session. <b>Test:</b> probes 3e and 3f and the obedience battery of Task 11, plus a short 3c to measure the control turn.")}
+{opt(2, "Smaller --ssm-checkpoint-stride",
+     "Keep the tail template and let the server write periodic checkpoints inside short prompts. With a stride of 512 tokens, a 600–1,200-token prompt gets one or two checkpoints inside the shared prefix.",
+     o2,
+     "<b>Cost:</b> the server help says each checkpoint forces a chunk boundary and re-reads the expert weights during prefill, and each one stores a copy of the GDN state. Reuse is partial: it stops at the last checkpoint before the end of the shared prefix. <b>Test:</b> prefill time and memory at 32K, 128K and 256K, then probe 3f.")}
+{opt(3, "Hybrid template by conversation length",
+     "The Jinja template can count messages and characters. With few messages the effort line goes first (short-prompt cache intact); past a threshold it goes last (cheap switch). A session pays one full prefill when it crosses the threshold.",
+     o3,
+     "<b>Cost:</b> the threshold is fixed in the template and invisible to the client. No server change. A fallback if option 1 regresses on long sessions.")}
+{opt(4, "A checkpoint at every message boundary (mlx-serve)",
+     "If the server saved the SSM state at the start of every message, not only the last one, there would always be a checkpoint at the end of the shared prefix, and the position of the effort block would stop mattering.",
+     o4,
+     "<b>Cost:</b> a change in mlx-serve, after the current rule is confirmed in its source. More checkpoints per prompt, each with a copy of the GDN state.")}
+{opt(5, "Take the effort out of the prompt",
+     "The client pins the effort per session (the current decision), or limits thinking with a per-request budget if the server exposes one. Without the line in the prompt, the cache does not depend on the effort.",
+     o5,
+     "<b>Cost:</b> a per-request thinking budget is not the same control as the effort line, and it was not checked whether mlx-serve exposes one.")}
+<p class="s-note mt">Suggested order: options 1 and 2 together, with the Task 11 battery, because both use the overlays and scripts that exist. Option 3 as a fallback. Options 4 and 5 depend on mlx-serve.</p>
+</section>"""
+
+
+
 def section_numbers(bat: dict) -> str:
     trs = []
     for pack, base, cand in PACKS:
@@ -639,7 +702,7 @@ def section_limits() -> str:
 <li>The iQ-MLX <code>xhigh</code> official run is from another server session (2026-10-10). Its thinking ratio against the tail run (×1.05) is close to the same-session A/A at <code>medium</code> (×1.01), so the sessions look comparable, but it is not a same-day pair.</li>
 <li>The checkpoint position (start of the last message) is inferred from the <code>hybrid miss</code> and <code>inherited N checkpoints</code> lines of the server log, not from the mlx-serve source.</li>
 <li>The short-prompt probe (3f) ran only on Swift 1.5. The prompt is the same for iQ-MLX, so the cache behaviour should match, but it was not measured.</li>
-<li>Two fixes were not tested: a smaller <code>--ssm-checkpoint-stride</code>, which would place checkpoints inside short prompts at a prefill cost, and a template that puts the effort block before the last user message.</li>
+<li>None of the five options in <a href="#options">Ways to keep both</a> was tested. They are listed as hypotheses with their expected cost.</li>
 <li>LiveCodeBench answers graded by the old runner were regraded with the official import prelude; no passing answer turned into a failure.</li>
 </ul></section>"""
 
@@ -665,7 +728,7 @@ def takeaways() -> str:
 <li><b>Both packs behave the same way.</b> Swift 1.5 and iQ-MLX give the same cache hits at every step of the probe (0.97–1.00 on switch, 0.98 on control) and pass the same accuracy rules.</li>
 <li><b>iQ-MLX cuts more thinking per level than Swift 1.5.</b> At <code>low</code>, iQ-MLX thinks ×0.26 of its <code>xhigh</code>; Swift 1.5 ×0.45. Swift 1.5 thinks less to begin with (GPQA median 1.7K vs 5.1K tokens at xhigh on the earlier page).</li>
 <li><b>At xhigh, the tail template hits the token limit a little more often</b> (Swift 4 → 7 in 2 rounds, iQ 7 → 9 in 1), and its thinking ratio leans to ×1.04–×1.05. The intervals include 1.0, so this is not confirmed.</li>
-<li><b>Decision:</b> the official template stays the default; the harness fixes the effort per session (<code>xhigh</code> for code and long sessions, <code>medium</code> for chat and short tool calling). The tail template is kept as an optional profile for long sessions that need to change effort mid-way.</li>
+<li><b>Decision:</b> the official template stays the default; the harness fixes the effort per session (<code>xhigh</code> for code and long sessions, <code>medium</code> for chat and short tool calling). The tail template is kept as an optional profile for long sessions that need to change effort mid-way. Five untested ways to keep both the cheap switch and the short-prompt cache are listed <a href="#options">below</a>.</li>
 </ul></div>"""
 
 
@@ -708,6 +771,7 @@ def render() -> str:
 {section_obedience(ob)}
 {section_levels(bat)}
 {section_per_question(bat)}
+{section_options()}
 {section_numbers(bat)}
 {section_setup()}
 {section_limits()}
