@@ -5,7 +5,7 @@ One page for readers outside this repo (Reddit): the best way to run Qwen3.8-Fla
 M4 Max 128 GB, from 8K to 512K. It joins the October runtime data (overview + perf-lines) and the
 Swift 1.5 A/B, and it uses plain names instead of the campaign codes (arms, T_turn, gates, bands).
 
-    python3 bench/qwen38-flashnext-daily-driver-2026-09/scripts/render_m4max_guide.py          # the page, card, post and slides HTML
+    python3 bench/qwen38-flashnext-daily-driver-2026-09/scripts/render_m4max_guide.py          # the page, card, post, slides and post-chart HTML
     python3 bench/qwen38-flashnext-daily-driver-2026-09/scripts/render_m4max_guide.py --png    # also the PNGs (Chrome)
 """
 from __future__ import annotations
@@ -29,6 +29,10 @@ POST_W, POST_H = 1400, 1560
 # The carousel: one square slide per chart, for a Reddit gallery post.
 SLIDES_DIR = REPO / "reports" / "assets" / "slides"
 SLIDE_W = 1200
+# The post charts: one landscape image per chart, for the inline images of the Reddit text post.
+# They carry no section title (the post has it) and they read at 256K, the native context.
+POST_CHARTS_DIR = REPO / "reports" / "assets" / "post"
+POST_CHART_W, POST_CHART_H = 1200, 675
 CHROME = Path("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
 
 CTX = [8192, 32768, 131072, 262144, 524288]
@@ -1391,10 +1395,12 @@ def _nice_ticks(top: float, n: int = 4) -> list[float]:
 
 
 def _line_panel(points: dict, key: str, title: str, unit: str, fmt, w: int = 620, h: int = 340,
-                clip: float | None = None, ticks: list[float] | None = None, fs: float = 1.0) -> str:
+                clip: float | None = None, ticks: list[float] | None = None, fs: float = 1.0,
+                hl: int | None = None) -> str:
     """One static line chart: a series per stack over the context sizes, with end labels.
 
-    fs scales the fonts, markers and margins (1.0 for the post image, ~1.6 for a slide)."""
+    fs scales the fonts, markers and margins (1.0 for the post image, ~1.6 for a slide).
+    hl shades the column of one context size, the one the prose reads."""
     left, right, top, bottom = int(58 * fs), int(165 * fs), int(54 * fs), int(40 * fs)
     x0, x1, y0, y1 = left, w - right, top, h - bottom
     vals = [points[(s["id"], c)][key] for s in STACKS for c in CTX if (s["id"], c) in points]
@@ -1409,6 +1415,10 @@ def _line_panel(points: dict, key: str, title: str, unit: str, fmt, w: int = 620
     if title:
         out += [f'<text x="0" y="{22 * fs:.0f}" font-size="{f_title:.0f}" font-weight="700" fill="{INK}">{title}</text>',
                 f'<text x="0" y="{42 * fs:.0f}" font-size="{f_unit:.0f}" fill="{MUTED}" font-family="Menlo,monospace">{unit}</text>']
+    if hl in xs:
+        hw = 26 * fs
+        out.append(f'<rect x="{xs[hl] - hw:.1f}" y="{y0 - 8 * fs:.1f}" width="{2 * hw:.1f}" height="{y1 - y0 + 8 * fs:.1f}" '
+                   f'rx="{8 * fs:.0f}" fill="#efede6"/>')
     for t in ticks:
         y = ys(t)
         out.append(f'<line x1="{x0}" y1="{y:.1f}" x2="{x1}" y2="{y:.1f}" stroke="{GRID if t else BASE}"/>')
@@ -1735,6 +1745,86 @@ oMLX 0.7.0 ({f["omlx_turn_128"]} s at 128K), but it stops at 256K.</p>
     return [(stem, _slide(i + 1, total, body, stem)) for i, (stem, body) in enumerate(slides)]
 
 
+POST_CHART_CSS = SLIDE_CSS + f"""
+html,body{{width:{POST_CHART_W}px; height:{POST_CHART_H}px}}
+.s{{width:{POST_CHART_W}px; height:{POST_CHART_H}px; padding:30px 40px 22px}}
+.main{{gap:12px; justify-content:flex-start}}
+.panel{{padding:10px 14px 4px}}
+.legend{{font-size:21px; gap:10px 28px}}
+.eyebrow{{font-size:15px}}
+.foot{{font-size:15px}}
+.hbars text{{font-family:-apple-system,Helvetica,Arial,sans-serif}}
+"""
+
+
+def _post_chart(body: str, title: str, h: int) -> str:
+    foot = (f'<p class="foot"><span>Qwen3.8-Flash-Next · Apple M4 Max 128 GB · October 2026</span>'
+            f'<span>snagnever.github.io/macstudio-local-llm</span></p>')
+    size = f"html,body,.s{{height:{h}px}}"
+    return (f'<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><title>{title}</title>'
+            f'<style>{POST_CHART_CSS}{size}</style></head><body><div class="s"><div class="main">{body}</div>{foot}</div></body></html>\n')
+
+
+POST_CHART_BARS_H = 440  # the two bar charts need less height than the line charts
+
+
+def render_post_charts(data: dict, swift: dict) -> list[tuple[str, str, int]]:
+    """The inline images of the Reddit text post: (file stem, html, height) per chart, in post order.
+
+    Each image is one chart with its legend and a one-line label. The post's own text carries the
+    headings and the reads, so the images hold no prose. The bar charts read at 256K, the native context."""
+    p = {k: point(g) for k, g in canonical(data).items() if not g["refused"]}
+    col = lambda sid: CARD_COLORS[sid]
+    fs, hl = 1.35, 262144
+    cw = POST_CHART_W - 2 * 40 - 2 * 14
+    ch = POST_CHART_H - 30 - 22 - 24 - 32 - 24 - 14 - 12 * 2  # what is left under the label, legend and footer
+    n256 = p[("n2", 262144)]
+    charts: list[tuple[str, int, str]] = []
+    H, HB = POST_CHART_H, POST_CHART_BARS_H
+
+    def line(stem: str, key: str, label: str, fmt, **kw) -> None:
+        charts.append((stem, H, f"""
+<p class="eyebrow">{label}</p>
+{_legend_html()}
+<div class="panel">{_line_panel(p, key, "", "", fmt, w=cw, h=ch, fs=fs, hl=hl, **kw)}</div>"""))
+
+    line("01-turn", "turn", "Agent turn = TTFT on the next turn + a 512-token reply · seconds · lower is better · 256K shaded",
+         lambda v: f"{v:.1f} s", clip=32)
+
+    bars = _hbars([("First message", n256["cold"], f'256K tokens · {n256["cold"] / 60:.1f} min', col("n2")),
+                   ("History edited halfway", n256["edit"], f'~{_k(round((1 - n256["reuse_edit"]) * 262144))} tokens · {n256["edit"] / 60:.1f} min', col("n2")),
+                   ("Next turn", n256["resume"], f'~{_k(n256["reread"])} tokens · {n256["resume"]:.1f} s', col("n2"))],
+                  width=cw, label_w=310, bar_max=500, h=84, font=27)
+    charts.append(("02-first-message", HB, f"""
+<p class="eyebrow">mlx-serve at 256K · tokens prefilled again · wait before the reply starts · shorter is better</p>
+<div class="panel" style="padding-top:26px">{bars}</div>"""))
+
+    line("03-ttft-next-turn", "resume", "Time to first token on the next turn, with a cache hit · seconds · lower is better · 256K shaded",
+         lambda v: f"{v:.1f} s", clip=10)
+
+    r256 = [(s, p[(s["id"], 262144)]) for s in STACKS if (s["id"], 262144) in p]
+    bars = _hbars([(s["short"], d["reread"], f'{_k(d["reread"])} tokens · {d["reuse"] * 100:.1f}% hit · reply in {d["resume"]:.1f} s', col(s["id"]))
+                   for s, d in r256], width=cw, label_w=170, bar_max=460, h=84, font=27)
+    charts.append(("04-cache-miss", HB, f"""
+<p class="eyebrow">256K · tokens prefilled again on the next turn · shorter is better · MTPLX does not reach 256K</p>
+<div class="panel" style="padding-top:26px">{bars}</div>"""))
+
+    half = (cw - 20) // 2
+    charts.append(("05-decode-prefill", H, f"""
+{_legend_html()}
+<div class="grid2" style="gap:20px">
+<div class="panel"><p class="eyebrow" style="margin-bottom:4px">Decode · tokens/s · higher is better</p>
+{_line_panel(p, "decode", "", "", lambda v: f"{v:.0f}", w=half, h=ch + 10, fs=1.2, hl=hl)}</div>
+<div class="panel"><p class="eyebrow" style="margin-bottom:4px">Prefill, cold prompt · tokens/s · higher is better</p>
+{_line_panel(p, "prefill", "", "", lambda v: f"{v:.0f}", w=half, h=ch + 10, fs=1.2, hl=hl)}</div>
+</div>"""))
+
+    line("06-memory", "wired", "Peak memory locked by the server · GB of 128 GB · no server used swap · 256K shaded",
+         lambda v: f"{v:.0f} GB", ticks=[0, 32, 64, 96, 128])
+
+    return [(stem, _post_chart(body, stem, h), h) for stem, h, body in charts]
+
+
 def write_png(page: Path, png: Path, size: tuple[int, int] = (1200, 630), scale: int = 1) -> bool:
     """Render a static page with headless Chrome. Returns False when Chrome is not installed."""
     import subprocess
@@ -1774,6 +1864,13 @@ def main(argv: list[str] | None = None) -> int:
         page.write_text(html, encoding="utf-8")
         jobs.append((page, (SLIDE_W, SLIDE_W), 2))
     print(f"wrote {len(jobs) - 2} slides in {SLIDES_DIR}")
+    POST_CHARTS_DIR.mkdir(parents=True, exist_ok=True)
+    charts = render_post_charts(data, swift)
+    for stem, html, h in charts:
+        page = POST_CHARTS_DIR / f"{stem}.html"
+        page.write_text(html, encoding="utf-8")
+        jobs.append((page, (POST_CHART_W, h), 2))
+    print(f"wrote {len(charts)} post charts in {POST_CHARTS_DIR}")
     if a.png:
         for page, size, scale in jobs:
             png = page.with_suffix(".png")

@@ -78,7 +78,7 @@ As quatro regras do plano passam: troca de effort com hit 0.97–1.00 (TTFT 0.8�
 - **Em prompts longos o problema não aparece.** No 3e (128K), o servidor guardou 16 checkpoints espaçados ao longo do prompt, e a troca de effort reaproveitou 122880 de ~126K tokens. O custo do `w1t` numa sessão longa no mesmo effort é o turno de controle: 3.0 s contra 1.3 s, porque o servidor reprocessa o trecho desde o último checkpoint antes do bloco de effort.
 - **Obediência.** O modelo segue a instrução no fim do prompt. No `w1t`, `low` gasta ×0.39 do reasoning do `xhigh` e `medium` ×0.59; no `w1`, ×0.45 e ×0.62. O `medium` (prompt idêntico nos dois braços) dá ×0.98, então o piso de ruído é ~±5% com 2 rodadas. O `low` do `w1t` fica 10% mais curto que o do `w1` (IC 0.86–0.94), fora do ruído mas dentro da margem.
 - **Custo por tarefa.** Sem as truncadas, os tempos e tokens ficam dentro do ruído do A/A. O `xhigh` do `w1t` truncou 7 respostas em 65536 tokens nas duas rodadas, contra 4 do `w1`; cada truncada soma ~1000 s.
-- **Próximos testes possíveis** (não rodados): `--ssm-checkpoint-stride` menor no `w1t`, para criar checkpoints dentro de prompts curtos (o `--help` avisa que cada checkpoint força uma fronteira de chunk e reprocessa os pesos dos experts); ou um template com o bloco de effort antes da última pergunta do usuário, que mantém o checkpoint depois do trecho comum, mas na troca de pergunta reprocessa a pergunta anterior e as respostas de tool dela.
+- **Próximos testes possíveis** (não rodados): as cinco opções da seção [Como manter a troca barata e o cache curto](#como-manter-a-troca-barata-e-o-cache-curto-opções-não-testadas), no fim deste arquivo. As duas primeiras (bloco de effort antes da última pergunta; `--ssm-checkpoint-stride` menor) usam os overlays e os scripts que já existem.
 
 ## Diagramas: por que o `w1t` perde o cache em prompts curtos
 
@@ -142,3 +142,46 @@ Em prompts longos, os checkpoints a cada `--ssm-checkpoint-stride` tokens ficam 
 | sessão longa, mesmo effort (turno de controle) | 1.3 s | 3.0 s |
 
 **Lição.** Num modelo híbrido, a posição de um texto variável no template decide onde o servidor grava o checkpoint. Antes de mudar um template, meça o reaproveitamento de prefixo em prompts curtos e longos, não só a troca do texto variável.
+
+## Como manter a troca barata e o cache curto: opções (não testadas)
+
+Registro de 2026-10-17. O objetivo é manter a troca de effort a 0.8–5.7 s (o ganho do `w1t`) sem perder o reaproveitamento do system prompt em prompts curtos (a regressão do 3f). Nenhuma opção rodou. A regra do checkpoint no começo da última mensagem continua uma inferência dos logs; confirmar no código do mlx-serve vem antes das opções 4 e 5.
+
+**1. Bloco de effort antes da última mensagem do usuário (template).** A última mensagem volta a ser a pergunta, e o checkpoint volta ao fim do trecho comum.
+
+```
+prompt curto:  [ system | tools | effort ][ user: pergunta 1 ][ assistant ]
+                                          ▲ checkpoint
+               [ system | tools | effort ][ user: pergunta 2 ][ assistant ]
+               └──── trecho igual ───────┘ → hit, como no w1
+
+troca a 128K:  [ system | 128K de histórico ][ effort xhigh ][ user N ][ assistant ]
+               [ system | 128K de histórico ][ effort low   ][ user N ][ assistant ]
+               └──────── trecho igual ──────┘ → reprocessa só effort + pergunta
+
+pergunta nova, sessão longa:
+  req N:    [ system | histórico ][ effort ][ user N ][ assistant ]
+  req N+1:  [ system | histórico ][ user N | assistant N ][ effort ][ user N+1 ][ assistant ]
+            └──── trecho igual ──┘ → reprocessa o último turno inteiro (user N, tools, assistant N)
+```
+
+Custo: em sessões longas, cada pergunta nova reprocessa o último turno, porque o bloco de effort muda de lugar. O custo é limitado ao tamanho de um turno. Teste: o mesmo 3e, 3f e obediência da Task 11, mais um 3c curto para medir o turno de controle.
+
+**2. `--ssm-checkpoint-stride` menor.** Mantém o `w1t` e cria checkpoints periódicos dentro dos prompts curtos.
+
+```
+stride atual:  [ system | tools ][ user: pergunta ][ effort ][ assistant ]   (600–1200 tokens, nenhum ▲ periódico)
+stride 512:    [ system | tools ][ user: pergunta ][ effort ][ assistant ]
+                      ▲512            ▲1024
+               └─ trecho igual ─┘ → reaproveita até o ▲ anterior ao fim do trecho igual
+```
+
+Custo: o `--help` avisa que cada checkpoint força uma fronteira de chunk e reprocessa os pesos dos experts, e cada checkpoint guarda uma cópia do estado GDN. Medir prefill e memória a 32K, 128K e 256K. O reaproveitamento fica parcial: termina no último `▲` antes do fim do trecho igual, não no fim.
+
+**3. Template híbrido por tamanho da conversa.** O Jinja vê `messages|length` e o tamanho em caracteres. Com poucas mensagens, o effort vai no topo (cache curto intacto); acima de um limiar, vai no fim (troca barata). A sessão paga um prefill completo uma vez, ao cruzar o limiar. Custo: o limiar fica fixo no template, invisível para o harness. Serve de fallback se a opção 1 regredir em sessões longas.
+
+**4. Checkpoint em toda fronteira de mensagem (mlx-serve).** Se o servidor gravasse o estado SSM no começo de cada mensagem, e não só da última, haveria sempre um checkpoint no fim do trecho comum, e a posição do bloco de effort deixaria de importar. É um pedido ao mlx-serve, depois de confirmar a regra atual no código.
+
+**5. Tirar o effort do prompt.** O harness fixa o effort por sessão (decisão atual), ou controla o reasoning por um limite de tokens de thinking na requisição, se o mlx-serve expuser isso (não verificado). Sem a linha no prompt, o cache não depende do effort.
+
+Ordem sugerida: 1 e 2 juntos, com a bateria da Task 11. A opção 3 como fallback. As opções 4 e 5 dependem do mlx-serve.
