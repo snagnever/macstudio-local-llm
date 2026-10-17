@@ -12,7 +12,7 @@
 | gpqa | tempo total (s) | 9487.4 | 5674.0 |
 | gpqa | tokens medianos | 5124.0 | 1689.0 |
 | gpqa | reasoning mediano (chars) | 19040.5 | 4237.5 |
-| livecodebench | acertos | 41/50 | 42/50 |
+| livecodebench | acertos | 45/50 | 47/50 |
 | livecodebench | truncadas | 3 | 1 |
 | livecodebench | tempo mediano (s) | 39.1 | 19.1 |
 | livecodebench | tempo total (s) | 8648.8 | 4853.7 |
@@ -47,5 +47,3 @@
 | G1:if | passa |
 | G2:gpqa | passa |
 | G2:livecodebench | passa |
-
-LiveCodeBench reavaliado (2026-10-16): n2 45/50, w1 47/50. A tabela acima traz o avaliador antigo (41 e 42), que rodava sem o preâmbulo de imports do LiveCodeBench oficial. Ver [lcb-regrade.json](lcb-regrade.json) e [lcb-regrade-published.md](../../flashnext-next-steps-2026-10/results/lcb-regrade-published.md).

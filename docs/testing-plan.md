@@ -4,6 +4,12 @@ The master plan for benchmarking and comparing the local models running on this
 rig. Coordinates the two benchmarking tools, the qualitative coding artifacts,
 and the dashboards.
 
+> **LiveCodeBench regrade (2026-10-14).** The LCB numbers in this plan are the
+> original scores, 6–28 pp low because the runner lacked the official import
+> prelude and passed large inputs through `python -c`. Current numbers are in the
+> model cards and in
+> [the regrade summary](../bench/lcb-regrade-2026-10/results/regrade-summary.md).
+
 ## What this rig enables
 
 | Constraint | This rig (Mac Studio M4 Max 128 GB) |

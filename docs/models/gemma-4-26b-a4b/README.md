@@ -1,7 +1,7 @@
 # Gemma-4-26B-A4B (it)
 
 > **Status: 🟢 DAILY DRIVER — Code role winner.**
-> `@6bit` is the rig's LiveCodeBench ceiling (**80 %**, +18 pp over the best Qwen); `@4bit` is the fastest model on the rig (**100+ gen t/s**). Both quants resident-friendly; `@6bit` is the ⭐ recommended pairing partner for `coder-next@4bit`.
+> `@6bit` scores **88 %** on LiveCodeBench, tied with `qwen3.6-27b` and 2 pp under `gemma-4-31b` (90 %) after the [LCB regrade 2026-10-14](../../../bench/lcb-regrade-2026-10/results/regrade-summary.md); `@4bit` is the fastest model on the rig (**100+ gen t/s**). Both quants resident-friendly; `@6bit` is the ⭐ recommended pairing partner for `coder-next@4bit`.
 > Last updated: 2026-07-05
 
 ## At a glance (official)
@@ -17,14 +17,14 @@
 | Reasoning | **None** — no thinking channel; `think=0` in every local response. Compensates by writing long, exhaustive code | HF card + [M4 notes §11](../../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md) |
 | Release | Training cutoff January 2025; release date not stated on card (fetched 2026-07-05) | HF card |
 | Vendor sampling | `temperature=1.0, top_p=0.95, top_k=64` | HF card |
-| Vendor claims | MMLU Pro 82.6 %, AIME 2026 (no tools) 88.3 %, LiveCodeBench v6 77.1 %, Codeforces ELO 1718, GPQA Diamond 82.3 %, MMMU Pro 73.8 % *(vendor — not reproduced locally; local LCB v6 n=50 subset scored 80 % @6bit, not directly comparable)* | HF card |
+| Vendor claims | MMLU Pro 82.6 %, AIME 2026 (no tools) 88.3 %, LiveCodeBench v6 77.1 %, Codeforces ELO 1718, GPQA Diamond 82.3 %, MMMU Pro 73.8 % *(vendor — not reproduced locally; local LCB v6 n=50 subset scored 88 % @6bit, not directly comparable)* | HF card |
 
 ## Variants on this rig
 
 | API id | Source repo | Format | Quant | Disk | Runtime | Status | Notes |
 |---|---|---|---|---|---|---|---|
 | `gemma-4-26b-a4b-it-mlx@4bit` | [lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit) | MLX | 4-bit (LM Studio team, `mlx_vlm` conversion) | 15.64 GB | LM Studio MLX | 🟢 **DAILY DRIVER** | Fastest model on rig (100–106 gen t/s); coding/tool-calling ties @6bit, hard-bench tax (LCB −14 pp) |
-| `gemma-4-26b-a4b-it-mlx@6bit` | [lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit) | MLX | 6-bit (LM Studio team, `mlx_vlm` conversion) | 21.81 GB | LM Studio MLX | 🟢 **DAILY DRIVER** | Family flagship; rig LCB ceiling 80 %; Code-role winner in the [recommended stack](../../local-llm-reference.md#recommended-stack--planning--code--agent) |
+| `gemma-4-26b-a4b-it-mlx@6bit` | [lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit) | MLX | 6-bit (LM Studio team, `mlx_vlm` conversion) | 21.81 GB | LM Studio MLX | 🟢 **DAILY DRIVER** | Family flagship; LCB 88 % (regraded; ties 27b); Code-role winner in the [recommended stack](../../local-llm-reference.md#recommended-stack--planning--code--agent) |
 
 **Pinned HF revisions** (verified 2026-07-06 via HF API: no upstream commits since download → local snapshot = current `main`): @4bit: [`3af5252`](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-4bit/tree/3af5252ed1e675e6bba9be8cc3087bc00920799c) (downloaded 2026-05-17) · @6bit: [`fd6c729`](https://huggingface.co/lmstudio-community/gemma-4-26B-A4B-it-MLX-6bit/tree/fd6c729deddbd6211b37be13f2a42ef2603b3b56) (downloaded 2026-05-17).
 
@@ -58,7 +58,7 @@ Config: n=100 per bench (LCB n=50), `temp=0, seed=42`, ctx 32,768; LCB/GPQA reru
 | Bench | `@4bit` | `@6bit` | Notes |
 |---|---|---|---|
 | HumanEval (100) | **98 %** | 97 % | Quant-insensitive; both at rig top |
-| LiveCodeBench v6 (n=50) | 66 % (8 trunc post-Step-B) | **80 %** (1 trunc) | **Rig ceiling** — +18 pp over best Qwen (`27b` 62 %) |
+| LiveCodeBench v6 (n=50) | 76 % (8 trunc post-Step-B) | **88 %** (1 trunc) | Ties `27b` (88 %); `31b` leads at 90 %. Regraded 2026-10-14 (was 66 / 80 %), see [LCB regrade 2026-10-14](../../../bench/lcb-regrade-2026-10/results/regrade-summary.md) |
 | MMLU | 78 % | 78 % | −10 pp vs `qwen3.6-27b` (88) |
 | MATH | 80 % (1 trunc) | 83 % | |
 | DROP | 79 % | 79 % | |
@@ -68,11 +68,11 @@ Config: n=100 per bench (LCB n=50), `temp=0, seed=42`, ctx 32,768; LCB/GPQA reru
 | Veerman tool-calling (12) | 83.3 % | 83.3 % | |
 | Terminal-Bench 2.0 (89 tasks, ⌛0.5x cap) | 20.2 % (18 PASS) | 21.3 % (19 PASS) | vs `coder-next` **32.6 %** — see below |
 
-**Quant A/B verdict:** the 4→6-bit cost is **material on hard benches** (LCB −14 pp, GPQA −6 pp) but invisible on HumanEval, jdhodges, Veerman — and only 1.1 pp on T-Bench. Pick `@6bit` for single-shot code correctness, `@4bit` when throughput matters more than the last 14 pp of LCB.
+**Quant A/B verdict:** the 4→6-bit cost is **material on hard benches** (LCB −12 pp regraded, GPQA −6 pp) but invisible on HumanEval, jdhodges, Veerman — and only 1.1 pp on T-Bench. Pick `@6bit` for single-shot code correctness, `@4bit` when throughput matters more than the last 12 pp of LCB.
 
-**Truncation profile (Step B, 2026-05-24):** LCB truncations at 32k are mostly *real model limits*, not cap-too-tight. Rerun at 65k: `@6bit` 4 → 1 truncation (Q28 recovered, 78 → 80 %); `@4bit` recovered only Q2 (64 → 66 %) — **8 of 9 remaining truncations are genuine model limits at the 65k cap**. Operational rule: run LCB on Gemma 4 with `--max-tokens 65536`, but expect ~+2 pp, not +10–15. Explicit truncated-question list in [M4 notes § Phase 2 truncations](../../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md).
+**Truncation profile (Step B, 2026-05-24):** LCB truncations at 32k are mostly *real model limits*, not cap-too-tight. Rerun at 65k: `@6bit` 4 → 1 truncation (Q28 recovered, 86 → 88 % regraded; 78 → 80 % before); `@4bit` recovered only Q2 (74 → 76 % regraded; 64 → 66 % before) — **8 of 9 remaining truncations are genuine model limits at the 65k cap**. Operational rule: run LCB on Gemma 4 with `--max-tokens 65536`, but expect ~+2 pp, not +10–15. Explicit truncated-question list in [M4 notes § Phase 2 truncations](../../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md).
 
-**The LCB lead does NOT transfer to agentic shell.** T-Bench inverts the LCB ranking: `@6bit` drops from 1st (80 %) to 5th (21.3 %); best Gemma on the rig is 22.5 % (`31b` dense) vs `coder-next` 32.6 %. Gemma is trained general-purpose/one-shot, not for agent loops — keep `coder-next` as the agentic default ([M4 notes § T-Bench Phase B](../../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md)).
+**The LCB lead does NOT transfer to agentic shell.** T-Bench inverts the LCB ranking: `@6bit` drops from a shared 2nd (88 %, regraded) to 5th (21.3 %); best Gemma on the rig is 22.5 % (`31b` dense) vs `coder-next` 32.6 %. Gemma is trained general-purpose/one-shot, not for agent loops — keep `coder-next` as the agentic default ([M4 notes § T-Bench Phase B](../../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md)).
 
 Vision quality: ⏸ not benchmarked (advertised on both quants; `@6bit` is the default vision pick, workload-specific).
 GGUF-engine A/B vs MLX: ⏸ not run (deferred since Phase 1).
@@ -81,8 +81,8 @@ Raw data: `tools/local-llm-bench-m4-32gb/benchmarks/runs/` incl. canonical `live
 
 ## Role & verdict
 
-- **Code role winner** in the [recommended stack](../../local-llm-reference.md#recommended-stack--planning--code--agent): `@6bit` for single-shot algorithm problems, isolated edits, code-generation peak — quality *and* speed (80 %, 80.8 t/s).
-- **Fast-coder slot:** `@4bit` when raw decode + tool-calling matter and the last 14 pp of LCB doesn't.
+- **Code role winner** in the [recommended stack](../../local-llm-reference.md#recommended-stack--planning--code--agent): `@6bit` for single-shot algorithm problems, isolated edits, code-generation peak — quality *and* speed (88 %, 80.8 t/s; `31b` scores 90 % at 13.7 t/s).
+- **Fast-coder slot:** `@4bit` when raw decode + tool-calling matter and the last 12 pp of LCB doesn't.
 - **Fast generalist peer** to `qwen3.6-35b-a3b@6bit` for non-vision work; strict winner if vision is needed.
 - **Not** the agentic default (T-Bench ~11 pp behind `coder-next`) and **not** the knowledge generalist (no Gemma comes within 7 pp of `qwen3.6-27b`'s knowledge avg).
 - Displaces `gemma-4-31b` dense entirely (6× slower for indistinguishable quality) and is not substituted by `gemma-4-e4b` (MATH collapses to 14 % at 4B).
@@ -120,7 +120,7 @@ Raw data: `tools/local-llm-bench-m4-32gb/benchmarks/runs/` incl. canonical `live
 
 - **2026-05-18** — both quants inventoried on rig; queued as Phase 2 #4/#5 in [testing-plan.md](../../testing-plan.md).
 - **2026-05-20 → 05-22** — Phase 2 full sweep ([plan](../../../bench/gemma-4-phase2/plan.md)): `@6bit` named Gemma flagship, `@4bit` named rig speed king; results in [M4 notes](../../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md).
-- **2026-05-24** — Step B LCB truncation reruns at 65k: `@4bit` 64 → 66 %, `@6bit` 78 → **80 %** (rig ceiling); most 32k truncations confirmed as real model limits.
+- **2026-05-24** — Step B LCB truncation reruns at 65k: `@4bit` 64 → 66 %, `@6bit` 78 → **80 %** (then the rig ceiling; regraded 2026-10-14 to 76 / 88 %); most 32k truncations confirmed as real model limits.
 - **2026-05-24 → 05-29** — Terminal-Bench 2.0 Phase A+B ([plan](../../../bench/terminal-bench/plan.md)): `@6bit` 21.3 %, `@4bit` 20.2 % — LCB lead does not transfer to agentic shell; `coder-next` keeps the Agent slot.
 - **2026-05-29** — Code-role winner in the post-T-Bench [recommended stack](../../local-llm-reference.md#recommended-stack--planning--code--agent); `coder-next@4bit` + `@6bit` named ⭐ two-resident pair.
 - *(undated)* — channel-token-leak incident on `@6bit` in Hermes diagnosed as client template mismatch, not quant ([writeup](channel-token-leak-writeup.md)).
