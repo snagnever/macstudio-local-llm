@@ -79,3 +79,66 @@ As quatro regras do plano passam: troca de effort com hit 0.97–1.00 (TTFT 0.8�
 - **Obediência.** O modelo segue a instrução no fim do prompt. No `w1t`, `low` gasta ×0.39 do reasoning do `xhigh` e `medium` ×0.59; no `w1`, ×0.45 e ×0.62. O `medium` (prompt idêntico nos dois braços) dá ×0.98, então o piso de ruído é ~±5% com 2 rodadas. O `low` do `w1t` fica 10% mais curto que o do `w1` (IC 0.86–0.94), fora do ruído mas dentro da margem.
 - **Custo por tarefa.** Sem as truncadas, os tempos e tokens ficam dentro do ruído do A/A. O `xhigh` do `w1t` truncou 7 respostas em 65536 tokens nas duas rodadas, contra 4 do `w1`; cada truncada soma ~1000 s.
 - **Próximos testes possíveis** (não rodados): `--ssm-checkpoint-stride` menor no `w1t`, para criar checkpoints dentro de prompts curtos (o `--help` avisa que cada checkpoint força uma fronteira de chunk e reprocessa os pesos dos experts); ou um template com o bloco de effort antes da última pergunta do usuário, que mantém o checkpoint depois do trecho comum, mas na troca de pergunta reprocessa a pergunta anterior e as respostas de tool dela.
+
+## Diagramas: por que o `w1t` perde o cache em prompts curtos
+
+Esta seção explica com desenhos o primeiro ponto da Leitura. A regra do checkpoint no começo da última mensagem continua uma inferência dos logs.
+
+**1. Cache de prefixo.** Cada requisição envia o prompt inteiro. O servidor reaproveita o começo que é igual ao da requisição anterior e processa só o resto.
+
+```
+requisição A:  [ system | tools | pergunta 1 ]
+requisição B:  [ system | tools | pergunta 2 ]
+               └─── igual ────┘ └ processa ┘
+```
+
+**2. O modelo híbrido.** As camadas de atenção guardam uma entrada por token e aceitam corte em qualquer token. As camadas GDN (SSM) guardam um estado só, que resume todos os tokens lidos. Para voltar a um ponto anterior, o servidor precisa de uma cópia salva desse estado (checkpoint). Ele só reaproveita o cache até o último checkpoint dentro do trecho igual.
+
+```
+atenção:      [t1][t2][t3][t4][t5][t6][t7][t8]   corta em qualquer token
+GDN (SSM):    t1 → t2 → ... → t8  ⇒  [estado]     só volta a um checkpoint
+
+prompt:       [##########################################]
+checkpoints:            ▲               ▲
+trecho igual: [=============================]
+reaproveita:  [========================]   até o último ▲ dentro do trecho igual
+```
+
+**3. Template oficial (`w1`).** A instrução de effort é o primeiro texto do prompt. A troca de effort muda o primeiro bloco, e o trecho igual cai para 0 tokens. Entre perguntas novas no mesmo effort, o checkpoint fica no começo da pergunta, dentro do trecho igual.
+
+```
+troca de effort:  [ "effort xhigh" | system | 128K ... ]
+                  [ "effort low"   | system | 128K ... ]   → reprocessa 128K (167 s)
+
+pergunta nova:    [ effort | system | tools ][ user: pergunta 1 ][ assistant ]
+                                            ▲ checkpoint
+                  [ effort | system | tools ][ user: pergunta 2 ][ assistant ]
+                  └────── trecho igual ─────┘                  → hit (53/55)
+```
+
+**4. Template novo (`w1t`).** A instrução de effort vem depois do histórico. A troca de effort mantém o histórico igual e reprocessa só o fim (0.8–5.7 s).
+
+```
+troca de effort:  [ system | 128K de histórico ][ "effort xhigh" ][ assistant ]
+                  [ system | 128K de histórico ][ "effort low"   ][ assistant ]
+                  └──────── trecho igual ──────┘
+```
+
+**5. Onde o `w1t` perde.** A última mensagem antes do `assistant` passa a ser o bloco de effort, depois da pergunta. O checkpoint fica fora do trecho igual quando a pergunta muda.
+
+```
+req A:  [ system | tools ][ user: pergunta 1 ][ effort ][ assistant ]
+                                              ▲ checkpoint
+req B:  [ system | tools ][ user: pergunta 2 ][ effort ][ assistant ]
+        └ trecho igual ──┘   → nenhum ▲ dentro do trecho → cold prefill (0/55)
+```
+
+Em prompts longos, os checkpoints a cada `--ssm-checkpoint-stride` tokens ficam dentro do histórico, e o cache volta a funcionar (3e). Nos prompts de ~600–1200 tokens do 3f, o log não mostra nenhum checkpoint dentro do trecho igual.
+
+| situação | `w1` (oficial) | `w1t` (effort no fim) |
+|---|---|---|
+| troca de effort a 128K | 167 s, hit 0.00 | 0.8–5.7 s, hit 0.97–1.00 |
+| turno 1 com prompt curto | reaproveita system + tools | prefill inteiro, +0.9 a +1.4 s |
+| sessão longa, mesmo effort (turno de controle) | 1.3 s | 3.0 s |
+
+**Lição.** Num modelo híbrido, a posição de um texto variável no template decide onde o servidor grava o checkpoint. Antes de mudar um template, meça o reaproveitamento de prefixo em prompts curtos e longos, não só a troca do texto variável.
