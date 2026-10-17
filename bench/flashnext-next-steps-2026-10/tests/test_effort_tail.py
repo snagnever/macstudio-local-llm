@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 from pathlib import Path
@@ -80,7 +81,17 @@ def test_overlay_does_not_touch_the_source_template(tmp_path):
     subprocess.run(["bash", str(OVERLAY), str(src), str(dst), str(tpl)], check=True, capture_output=True)
 
 
-def test_overlay_refuses_tokenizer_chat_template(tmp_path):
+def test_overlay_patches_a_tokenizer_chat_template_equal_to_the_jinja(tmp_path):
+    src = _make_src(tmp_path, '{"chat_template": "official", "eos_token": "<|im_end|>"}')
+    tpl = tmp_path / "new.jinja"
+    tpl.write_text("efftail")
+    subprocess.run(["bash", str(OVERLAY), str(src), str(tmp_path / "dst"), str(tpl)], check=True, capture_output=True)
+    cfg = json.loads((tmp_path / "dst" / "tokenizer_config.json").read_text())
+    assert cfg == {"chat_template": "efftail", "eos_token": "<|im_end|>"}
+    assert json.loads((src / "tokenizer_config.json").read_text())["chat_template"] == "official"
+
+
+def test_overlay_refuses_a_different_tokenizer_chat_template(tmp_path):
     src = _make_src(tmp_path, '{"chat_template": "x"}')
     tpl = tmp_path / "new.jinja"
     tpl.write_text("efftail")

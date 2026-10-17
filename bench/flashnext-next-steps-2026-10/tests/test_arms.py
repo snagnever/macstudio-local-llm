@@ -89,3 +89,8 @@ def test_w1t_uses_the_efftail_overlay():
     t = show("w1t", "131072")
     assert SWIFT + "-efftail" in t and "--runtime-revision v26.10.1-efftail " in t
     assert server(t).replace("-efftail", "") == server(show("w1", "131072"))
+
+def test_n2t_uses_the_efftail_overlay():
+    t = show("n2t", "131072")
+    assert IQ + "-efftail" in t and "--runtime-revision v26.10.1-efftail " in t
+    assert server(t).replace("-efftail", "") == server(show("n2", "131072"))

@@ -260,6 +260,23 @@ Acrescente a lista de erros classificados, `## Veredito` e `## Leitura` (com a t
 
 ---
 
+### Task 15: o mesmo template no iQ (`n2t`), pedida pelo usuário em 2026-10-16
+
+**Origem.** O pack iQ `dafff5c` usa o mesmo template oficial (MD5 `519239a4…`) e é o driver secundário. O Swift é um fine-tune que pensa menos; o iQ é o Flash-Next base quantizado. A obediência a uma instrução fora do lugar de treino pode ser diferente no modelo base.
+
+**Braços.** `n2t` = `n2` com o overlay `-efftail`. O iQ também guarda o template na chave `chat_template` do `tokenizer_config.json` (igual ao `.jinja`); o `make-overlay.sh` troca as duas cópias.
+
+**Medidas.**
+- 3e a 128K no `n2t` (`medium` e `low`, 2 rodadas). Mesmo gate da Task 11 (hit ≥ 0.9). Se falhar, a Task 15 para.
+- GPQA + LCB, 1 rodada: `n2t` em `xhigh`, `medium`, `low`; `n2` em `medium` e `low`. O controle `n2` em `xhigh` vem da campanha Swift (`bench/swift15-flashnext-2026-10/results/ab/t1/n2`, 2026-10-11, mesmo runtime e sampling), por symlink em `results/e15/t1x/n2-xhigh-r1`.
+
+**Regra.** `effort_obedience.py --rounds r1` passa; GPQA e LCB do `n2t` dentro da margem G1 do `n2` (3) em cada effort. LCB sempre no avaliador corrigido.
+
+- [ ] **Step 1:** rodar a fila (script do rig `task15.sh`: overlay, 3e, gate, bateria), depois da Task 11.
+- [ ] **Step 2:** `results/etapa15-iq-effort-tail.md` com o 3e, a obediência e o acerto; commit `bench(flashnext): Task 15 - effort-tail template on the iQ pack`.
+
+---
+
 ### Task 14: Resumo, docs e driver diário
 
 - [ ] **Step 1:** Em `results/summary.md`, acrescente as linhas 11, 12 e 13 à tabela de decisões e as notas por task. Atualize `docs/models/qwen3.8-flash-next.md` e `bench/qwen38-flash-next/references.md` com as decisões (effort por sessão ou por turno, `medium` fora do código, retrieval a 256K).
