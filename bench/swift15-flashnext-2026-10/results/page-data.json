@@ -251,28 +251,6 @@
    "truncated": 1
   }
  },
- "lcb_regrade": {
-  "n2-t1": {
-   "n": 50,
-   "original": 41,
-   "regraded": 45
-  },
-  "w1-t1": {
-   "n": 50,
-   "original": 42,
-   "regraded": 47
-  },
-  "n2-t0": {
-   "n": 50,
-   "original": 41,
-   "regraded": 45
-  },
-  "w1-t0": {
-   "n": 50,
-   "original": 41,
-   "regraded": 45
-  }
- },
  "time": {
   "t1": {
    "humaneval": {
@@ -10788,5 +10766,5 @@
    "promote": true
   }
  },
- "generated_at": "2026-10-16T15:12:27Z"
+ "generated_at": "2026-10-14T21:59:27Z"
 }

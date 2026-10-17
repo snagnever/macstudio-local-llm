@@ -25,20 +25,18 @@ Perfis de sampling: **t1** = sampling do vendor (`temperature 1.0`, `top_p 0.95`
 | HumanEval (164), com imports do prompt | 158 | 158 | 155 | 157 | 3 |
 | HumanEval (164), estrito | 144 | 147 | 138 | 143 | — |
 | GPQA-Diamond (50, seed 42) | 45 | 43 | 39 | 42 | 3 |
-| LiveCodeBench v6 (50, seed 42), reavaliado | 45 | 47 | 45 | 45 | 3 |
-| LiveCodeBench v6 (50, seed 42), avaliador antigo | 41 | 42 | 41 | 41 | — |
+| LiveCodeBench v6 (50, seed 42)¹ | 45 | 47 | 45 | 45 | 3 |
 | jdhodges (40) | 35 | 36 | 38 | 39 | 2 |
 | Veerman (12) | 10 | 10 | 10 | 9 | 1 |
 | IF, estilo IFEval (20) | 20 | 19 | 20 | 19 | 2 |
 
+¹ Reavaliado em 2026-10-14 com o prelúdio de imports do harness oficial
+([bench/lcb-regrade-2026-10](../../lcb-regrade-2026-10/results/regrade-summary.md)). Antes: 41, 42, 41, 41. O gate G1
+continua passando nos dois perfis.
+
 O G1 do HumanEval usa a nota com os imports do prompt
 ([humaneval-regrade.json](humaneval-regrade.json)): o grader estrito do `bench2.py` reprova respostas certas
 que não trazem `from typing import List`, e isso afeta os dois braços.
-
-O LiveCodeBench foi reavaliado em 2026-10-16 ([lcb-regrade.json](lcb-regrade.json)). O avaliador antigo
-(`bench2.py` em `a4a95bb`) rodava as respostas sem o preâmbulo de imports do LiveCodeBench oficial e por
-`python -c`. A correção está no submódulo em `2403125`. Nenhuma resposta aprovada passou a falhar; o G1 do LCB
-segue passando nos dois perfis. Detalhe: [lcb-regrade-published.md](../../flashnext-next-steps-2026-10/results/lcb-regrade-published.md).
 
 ### Tempo até a resposta final
 

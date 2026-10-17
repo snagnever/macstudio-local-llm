@@ -2,7 +2,8 @@
 
 > **Status: 🔴 NO-GO (Planning-slot challenger) — benched, rejected.** A *faster
 > sidegrade, not an upgrade*: one-shot quality ties [`qwen3.6-27b`](qwen3.6-27b.md)
-> (LCB **62 % exact tie**), decodes ~2× faster (~36 t/s), but is a distinctly
+> (LCB 62 % vs 62 % before the 2026-10-14 regrade; the 27B is now 88 % and the
+> 122B's answers were not saved, so the tie is unverified), decodes ~2× faster (~36 t/s), but is a distinctly
 > weaker agent (Terminal-Bench **24.7 %** vs 31.5 %, #5 on rig) and forces
 > sole-model 75 GB residency. **The 27B keeps the Planning slot.**
 > Last updated: 2026-07-12
@@ -73,7 +74,7 @@ Config: thinking ON, temp 0, seed 42, ctx 65,536, `--max-tokens 65536`.
 | MMLU (100) | 87 % | 88 % | −1 |
 | DROP (100) | 89 % | 90 % | −1 |
 | MATH | ~87 % (60/69, **skipped** at Q69 per user request) | 88 % | ~−1 |
-| **LiveCodeBench-50** | **62 % (31/50)** | 62 % (31/50) | **0 — exact tie** |
+| **LiveCodeBench-50** | **62 % (31/50)**, lower bound | 88 % (44/50) regraded | not comparable: the 27B was regraded ([LCB regrade 2026-10-14](../../bench/lcb-regrade-2026-10/results/regrade-summary.md)), the 122B has no saved answers to regrade |
 | jdhodges tool-calling (40) | 95 % (38/40) | 95 % | tie |
 | Veerman tool-calling (12) | 83 % (10/12) | 83.3 % | tie |
 | **Terminal-Bench 2.0 (89)** | **24.7 % (22/89)** ⌛0.5x | 31.5 % (28/89) | **−6.8** |
@@ -117,7 +118,7 @@ executor** — over-thinks, under-executes; same trait as its LCB truncations.
 
 - **Role tested: Planning-slot challenger** to `qwen3.6-27b`. **🔴 NO-GO.**
 - **Faster sidegrade, not an upgrade.** One-shot quality is a wash (±3 pp
-  everywhere, LCB an exact tie), decode ~2×, but a distinctly weaker agent
+  everywhere; the LCB tie is unverified after the 2026-10-14 regrade), decode ~2×, but a distinctly weaker agent
   (−6.8 pp T-Bench) with an active truncation/thrash liability, and it forces
   **sole-model 75 GB** where the 27B swaps in at 22.8 GB and pairs with the coder
   stack.
@@ -165,7 +166,7 @@ Plan + full data: [bench/qwen3.5-122b-a10b/plan.md](../../bench/qwen3.5-122b-a10
 - **2026-07-10** — Candidate identified + staged (unsloth Q4_K_S, 75.23 GB). Gate 0–2
   + fast tool-calling: speed ~2× the 27B, tool-calling ties.
 - **2026-07-11** — Quality ladder (thinking ON): HumanEval 96, MMLU 87, DROP 89,
-  MATH ~87 (cut at Q69), **LCB-50 62 % exact tie**. Fixed the no-think prefill in
+  MATH ~87 (cut at Q69), **LCB-50 62 % exact tie** (unverified after the 2026-10-14 regrade). Fixed the no-think prefill in
   `bench.py` + `speed_probe.py`.
 - **2026-07-12** — Terminal-Bench **24.7 % (22/89)**, #5 on rig. **Final verdict:
   🔴 NO-GO** — faster sidegrade, weaker agent; `qwen3.6-27b` keeps the Planning slot.

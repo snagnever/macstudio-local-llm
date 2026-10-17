@@ -58,7 +58,7 @@ Config: ctx 65,536, temp 0, seed 42, sole Gemma resident, n=100 (LCB n=50). Δ c
 | Tool calls jdhodges (40) | **97.5%** @ 11.4 t/s | tie |
 | Tool calls Veerman (12) | **83.3%** @ 12.3 t/s | tie |
 | HumanEval (100) | 95% | **−2** |
-| LiveCodeBench v6 (50) | 76% (0 trunc) | **−2** (vs 80% — the rig LCB ceiling) |
+| LiveCodeBench v6 (50) | **90%** (0 trunc) | **+2** (vs 88%). Highest LCB of the Phase 1–2 models after the [LCB regrade 2026-10-14](../../bench/lcb-regrade-2026-10/results/regrade-summary.md) (was 76% vs 80%, −2) |
 | MMLU | 77% | **−1** |
 | MATH | 79% | **−4** |
 | DROP | **85%** — its only standout | **+6** (but still trails `qwen3.6-27b`'s 90) |
@@ -70,8 +70,8 @@ Raw data: `tools/local-llm-bench-m4-32gb/benchmarks/runs/` (Phase 2 + `tbench_*`
 
 ## Verdict — the dense tax (🟡 DEMOTED)
 
-- **2026-05-22 — Phase 2 verdict: demote / skip in normal rotation.** Decode is **6× slower than `@6bit`** (13.7 vs 80.8 gen t/s) and quality is indistinguishable or worse on every bench except DROP (+6 pp): HumanEval −2, LCB −2, MMLU −1, MATH −4, GPQA −5. 33.80 GB on disk vs the flagship's 21.81 GB. It pays the dense tax for no return; DROP 85% is its only headline, and even that trails `qwen3.6-27b` (90%).
-- **2026-05-29 — the verdict generalizes to agentic shell.** Terminal-Bench 2.0: 22.5% — ties-or-loses to `26B-A4B@6bit` (21.3%) there too, and sits ~10 pp behind the agentic leader `qwen/qwen3-coder-next` (32.6%). Its LCB #2 rank (76%) drops to T-Bench #4 (−2 spots) — the Gemma one-shot-training pattern.
+- **2026-05-22 — Phase 2 verdict: demote / skip in normal rotation.** Decode is **6× slower than `@6bit`** (13.7 vs 80.8 gen t/s) and quality is indistinguishable or worse on every bench except DROP (+6 pp): HumanEval −2, LCB −2 (+2 after the 2026-10-14 regrade), MMLU −1, MATH −4, GPQA −5. 33.80 GB on disk vs the flagship's 21.81 GB. It pays the dense tax for no return; DROP 85% is its only headline, and even that trails `qwen3.6-27b` (90%).
+- **2026-05-29 — the verdict generalizes to agentic shell.** Terminal-Bench 2.0: 22.5% — ties-or-loses to `26B-A4B@6bit` (21.3%) there too, and sits ~10 pp behind the agentic leader `qwen/qwen3-coder-next` (32.6%). Its LCB #2 rank (76%; #1 at 90% after the 2026-10-14 regrade) drops to T-Bench #4 (−2 spots) — the Gemma one-shot-training pattern.
 - **Why it stays on disk:** reproducibility reference only — it is the MLX-8-bit baseline for the planned QAT GGUF engine A/B (below). Not for daily rotation.
 
 Plans: [2026-05-20-gemma-4-phase-2.md](../../bench/gemma-4-phase2/plan.md) · [2026-07-05-phase-5-new-arrivals.md](../../bench/phase-5-new-arrivals/plan.md)
@@ -115,6 +115,6 @@ The demoted MLX build gets a second life as a **baseline**: `google/gemma-4-31b-
 - QAT GGUF: https://huggingface.co/lmstudio-community/gemma-4-31B-it-QAT-GGUF (Q4_0, 17.7 GB per HF / 18.9 GB per LM Studio; lineage `gemma-4-31B-it` → `gemma-4-31B-it-qat-q4_0-unquantized` → this)
 
 ## History
-- **2026-05-20 → 05-22** — Phase 2 full suite on MLX 8-bit ([plan](../../bench/gemma-4-phase2/plan.md)): HE 95, LCB 76, MMLU 77, MATH 79, DROP 85, GPQA 48; 13.7 gen t/s. 🟡 **Demoted** — dense tax, no quality return vs `@6bit`.
+- **2026-05-20 → 05-22** — Phase 2 full suite on MLX 8-bit ([plan](../../bench/gemma-4-phase2/plan.md)): HE 95, LCB 76 (90 regraded 2026-10-14), MMLU 77, MATH 79, DROP 85, GPQA 48; 13.7 gen t/s. 🟡 **Demoted** — dense tax, no quality return vs `@6bit`.
 - **2026-05-26 → 05-29** — Terminal-Bench 2.0 Phase B: 22.5% (#4 of 7) — the demotion verdict generalizes to agentic shell.
 - **2026-07-05** — QAT GGUF (`google/gemma-4-31b-qat`, 18.9 GB) queued as seq 2 in the [Phase 5 plan](../../bench/phase-5-new-arrivals/plan.md): the deferred Step F engine A/B, with the demoted MLX build as baseline. Not yet run.

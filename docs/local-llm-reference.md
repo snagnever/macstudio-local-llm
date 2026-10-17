@@ -35,8 +35,8 @@ Post-Phase-2 + Terminal-Bench backfill (2026-05-29), each role has a different o
 | Role | Model | Why it wins (on-rig numbers) |
 |---|---|---|
 | **Responsive daily driver** — long sessions where turn latency matters (chat, agent loops at 32K–256K) | `Qwen3.8-Flash-Next` ddalcu mixed-4/8 on **mlx-serve 26.9.2** (75 GB, own server on :11234, not LM Studio) | T_turno **11.03 s @32K / 12.35 s @128K** (median of 3 reps), 18% ahead of the next stack; warm turn ~2 s at 128K, 256K multi-turn without `sudo`. Config: 131K ctx, `--mtp`, prefix cache 16 GB RAM / 100 GB disk / 64 entries, `--ssm-checkpoint-max 16`; sampling temp 1.0 / top_p 0.95 / top_k 20. Agent quality (T-Bench) **not measured** — keep coder-next as the Agent pick until it is. [card](models/qwen3.8-flash-next.md) · [campaign](../bench/qwen38-flashnext-daily-driver-2026-09/results/summary.md) |
-| **Planning** — design, hard reasoning, code review, careful single-file edits | `qwen3.6-27b` (6-bit dense, 22.80 GB) | Knowledge avg **85.8 %** (top of rig). MMLU 88, MATH 88, GPQA 70 (raw, ceiling ~78–85), DROP 90, LCB **62 %** (+6 pp over coder-next on contamination-resistant coding). Slow (~20 t/s gen, 67 s prefill @ 8.5k) but you wait once for a plan. |
-| **Code** — single-shot algorithm problems, isolated edits, code generation peak | `gemma-4-26b-a4b-it-mlx@6bit` (21.81 GB) | **Rig LCB ceiling at 80 %** (+18 pp over best Qwen). HumanEval 97, MATH 83, jdhodges 97.5, Veerman 83.3. **80.8 gen t/s** — quality *and* speed. Use `@4bit` (15.64 GB, **100 gen t/s**) when throughput matters more than the last 14 pp of LCB. |
+| **Planning** — design, hard reasoning, code review, careful single-file edits | `qwen3.6-27b` (6-bit dense, 22.80 GB) | Knowledge avg **85.8 %** (top of rig). MMLU 88, MATH 88, GPQA 70 (raw, ceiling ~78–85), DROP 90, LCB **88 %** (+4 pp over coder-next on contamination-resistant coding; [regrade 2026-10-14](../bench/lcb-regrade-2026-10/results/regrade-summary.md)). Slow (~20 t/s gen, 67 s prefill @ 8.5k) but you wait once for a plan. |
+| **Code** — single-shot algorithm problems, isolated edits, code generation peak | `gemma-4-26b-a4b-it-mlx@6bit` (21.81 GB) | LCB **88 %** (ties `27b`; `gemma-4-31b` scores 90 % at 6× slower decode). HumanEval 97, MATH 83, jdhodges 97.5, Veerman 83.3. **80.8 gen t/s** — quality *and* speed. Use `@4bit` (15.64 GB, **100 gen t/s**) when throughput matters more than the last 12 pp of LCB. |
 | **Agent** — OpenCode / Cline / Claude Code loops, shell, multi-step tool calls | `qwen/qwen3-coder-next` (6-bit MoE, 64.76 GB) | T-Bench 2.0 **32.6 %** — #1 on rig. Trained for Claude Code / Cline scaffolds. 256K native context (1M with YaRN), ~68 t/s effective thanks to 3B active. `qwen3.6-27b` is +0.9 pp behind on T-Bench but 6× slower decode → coder-next wins speed-adjusted. Gemma's LCB lead **does not transfer** to agentic shell (best Gemma 22.5 %, ~10 pp behind). |
 
 ### Loading patterns
@@ -48,7 +48,7 @@ Three roles cannot all be resident. `coder-next@6bit` (65 GB) + `qwen3.6-27b` (2
 | **JIT swap (default)** | One at a time | — | Cleanest. ~5–15 s cold-load when switching roles. Matches "use the right tool for the job". |
 | **Two-resident pair** | `coder-next@4bit` (~44 GB) + `qwen3.6-27b` (22.8 GB) | ~67 GB | Bouncing between planning and agent inside one session. Loses ~3–4 pp of coder-next quality at 4-bit; folds the code slot into agent (only −6 pp LCB vs Gemma peak). |
 | **Code-heavy resident** | `gemma-4-26b-a4b@6bit` (21.8 GB) + `qwen3.6-27b` (22.8 GB) | ~44.6 GB | Pure code + planning day, no agent loops. Two always-hot models, both Phase-2 winners. |
-| **Coder + fast Gemma** ⭐ | `coder-next@4bit` (~44 GB) + `gemma-4-26b-a4b@6bit` (21.8 GB) | ~66 GB | Agent loops + a fast always-hot generalist/code model in one session. The Gemma slot doubles as the rig's single-shot code-quality ceiling (LCB 80 %, 80 t/s). ~14 GB KV headroom — see [Two-Resident Pair: context math](#two-resident-pair-context-math). |
+| **Coder + fast Gemma** ⭐ | `coder-next@4bit` (~44 GB) + `gemma-4-26b-a4b@6bit` (21.8 GB) | ~66 GB | Agent loops + a fast always-hot generalist/code model in one session. The Gemma slot doubles as a fast single-shot coder (LCB 88 %, 80 t/s). ~14 GB KV headroom — see [Two-Resident Pair: context math](#two-resident-pair-context-math). |
 
 Default to JIT swap unless cold-loads start adding up in a session.
 
@@ -117,8 +117,8 @@ Verified against `lms ls` / `GET /v1/models` on 2026-05-18. All MLX models below
 | Pros | Cons |
 |---|---|
 | **HumanEval 98 %, jdhodges 98 %, Veerman 83 %** — coding + tool-calling parity with the best Phase 1 model | Knowledge ceiling **below `qwen3.6-27b`** by 10pp MMLU, 5pp MATH, 11pp DROP, 17pp GPQA — Phase 2 confirmed |
-| **`@4bit` is the fastest model on this rig** (100 t/s ops-agent gen, 15.64 GB) | LCB **66 %** (post-Step-B): 8 of 9 32k truncations are real model limits at 65k, not cap-too-tight |
-| **`@6bit` is the family flagship and the rig's LCB ceiling at 80 %** (post-Step-B, +18pp over best Qwen 27b 62 %) — MATH 83 %, GPQA 53 %; 80.8 t/s gen at 21.81 GB | |
+| **`@4bit` is the fastest model on this rig** (100 t/s ops-agent gen, 15.64 GB) | LCB **76 %** (post-Step-B, regraded 2026-10-14): 8 of 9 32k truncations are real model limits at 65k, not cap-too-tight |
+| **`@6bit` is the family flagship, LCB 88 %** (post-Step-B, regraded 2026-10-14; ties 27b 88 %, `31b` 90 %) — MATH 83 %, GPQA 53 %; 80.8 t/s gen at 21.81 GB | |
 | Vision + tools advertised on both quants | |
 | Knowledge avg 78.0 % (@6bit), 76.4 % (@4bit) — between coder-next and 35b-a3b | |
 
@@ -439,9 +439,9 @@ Headline accuracy + tool-calling scores from [`../tools/local-llm-bench-m4-32gb/
 † = GPQA at 32 768 cap, raw scores under-count due to thinking spirals. Corrected ceilings: 27b ≈ 78–85 %, 35b-a3b ≈ 75–83 %. See [testing-plan.md truncation finding](testing-plan.md#truncation-finding-gpqa--thinking-models).
 ⁑ = 122B MATH is a 60/69 partial (skipped at Q69); GPQA not run. Config thinking ON.
 
-- **`gemma-4-26b-a4b@6bit` is the rig's LCB ceiling at 80 %** (+18 pp over the best Qwen). Knowledge generalist slot is still `qwen3.6-27b`; LCB-specific recommendation has diverged from knowledge after Phase 2 + Step B.
-- **`qwen3.5-122b-a10b` 🔴 NO-GO (2026-07-12):** Planning-slot challenger — one-shot quality ties `qwen3.6-27b` (**LCB 62 % exact tie**, ±3 pp elsewhere) at ~2× decode, but a weaker agent (Terminal-Bench 24.7 % vs 31.5 %) and sole-model 75 GB. Faster sidegrade, not an upgrade; the 27B keeps the slot. See [card](models/qwen3.5-122b-a10b.md).
-- **LiveCodeBench (v6)** support was added to the harness on 2026-05-18 — see [`local-llm-bench-m4-32gb/scripts/bench2.py`](../tools/local-llm-bench-m4-32gb/scripts/bench2.py). Contamination-resistant rolling-window coding suite; supersedes HumanEval as the primary frontier-comparable coding metric. Run with `--max-tokens 65536` for any thinking model or Gemma 4.
+- **`gemma-4-26b-a4b@6bit` scores LCB 88 %**, tied with `qwen3.6-27b` after the [regrade 2026-10-14](../bench/lcb-regrade-2026-10/results/regrade-summary.md) (it was 80 % vs 62 %, +18 pp). `gemma-4-31b` scores 90 % at 6× slower decode. Knowledge generalist slot is still `qwen3.6-27b`; the LCB-specific recommendation for `@6bit` now rests on speed, not on an LCB lead.
+- **`qwen3.5-122b-a10b` 🔴 NO-GO (2026-07-12):** Planning-slot challenger — one-shot quality ties `qwen3.6-27b` (LCB 62 % tie before the 2026-10-14 regrade, now unverified: the 27B regrades to 88 % and the 122B has no saved answers; ±3 pp elsewhere) at ~2× decode, but a weaker agent (Terminal-Bench 24.7 % vs 31.5 %) and sole-model 75 GB. Faster sidegrade, not an upgrade; the 27B keeps the slot. See [card](models/qwen3.5-122b-a10b.md).
+- **LiveCodeBench (v6)** support was added to the harness on 2026-05-18 — see [`local-llm-bench-m4-32gb/scripts/bench2.py`](../tools/local-llm-bench-m4-32gb/scripts/bench2.py). Contamination-resistant rolling-window coding suite; supersedes HumanEval as the primary frontier-comparable coding metric. Scores before 2026-10-14 were 6–28 pp low: the runner lacked the official import prelude and passed large inputs through `python -c` ([regrade 2026-10-14](../bench/lcb-regrade-2026-10/results/regrade-summary.md)). Run with `--max-tokens 65536` for any thinking model or Gemma 4.
 - **GPQA gap** on `qwen3-coder-next` (37 %) reflects the reasoning-model vs single-pass divide — coder-next emits zero thinking tokens by design.
 - **Tool calling** ranks ahead of knowledge for daily-driver decisions (per upstream finding): both Phase 1 daily-drivers exceed 80 % on both suites with identical veerman scores, but jdhodges separates them (35b-a3b: 97.5 %, 27b: 95 %, coder-next: 90 %).
 

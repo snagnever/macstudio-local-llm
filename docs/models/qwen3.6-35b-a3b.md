@@ -84,7 +84,7 @@ Config: n=100 per knowledge bench (LCB n=50, jdhodges 40, Veerman 12), `temp=0, 
 | Bench | `@6bit` | Notes |
 |---|---|---|
 | HumanEval | **87 %** | Worst of the Phase 1 trio (27b 93, coder-next 89) — but HE is saturated; LCB is the canonical coding signal |
-| LiveCodeBench v6 | **54 %** (27/50) | 6 truncations *at 65k* (Q3, Q4, Q23, Q33, Q39, Q44 — real spirals, not cap artifacts; Q4 rerun on clean state confirmed). Most spiral-prone of the trio; ceiling ~66 % with cap ≥ 96k |
+| LiveCodeBench v6 | **82 %** (41/50) | Regraded 2026-10-14 (was 54 %, 27/50; see [LCB regrade 2026-10-14](../../bench/lcb-regrade-2026-10/results/regrade-summary.md)). 6 truncations *at 65k* (Q3, Q4, Q23, Q33, Q39, Q44 — real spirals, not cap artifacts; Q4 rerun on clean state confirmed). Most spiral-prone of the trio; ceiling ~94 % with cap ≥ 96k |
 | MMLU | **83 %** | 2 truncations. −5 pp vs 27b's 88 |
 | MATH | **89 %** | **Best in the Phase 1 set** — within ±1 pp of 27b at 3× the speed. 2 truncations |
 | DROP | **89 %** | −1 pp vs 27b |
@@ -92,17 +92,17 @@ Config: n=100 per knowledge bench (LCB n=50, jdhodges 40, Veerman 12), `temp=0, 
 | Knowledge avg (5 benches) | **82.6 %** | Between coder-next (73.8) and 27b (85.8) |
 | jdhodges tool-calling (40) | **97.5 %** | Best of the Phase 1 trio (M4 notes round it to 98 %) |
 | Veerman tool-calling (12) | **75.0 %** | Worst of the trio — multi-turn / ambiguous-intent cases trip it. **This is the rig's baseline band:** MiniMax-M2.5 GGUF landed at the same 75 % — the agentic tune didn't lift the holdout suite |
-| Terminal-Bench 2.0 | **28.1 %** (25/64 PASS, 47 errored, 15.6 h, ⌛0.5x agent-timeout cap) | **#3 on rig** — +3 rank spots vs its LCB rank (6th). F1 thinking-format guard PASSED: thinking works fine with terminus-2 on the LM Studio → LiteLLM chain |
+| Terminal-Bench 2.0 | **28.1 %** (25/64 PASS, 47 errored, 15.6 h, ⌛0.5x agent-timeout cap) | **#3 on rig** — +3 rank spots vs its LCB rank (6th; 5th after the regrade, so +2). F1 thinking-format guard PASSED: thinking works fine with terminus-2 on the LM Studio → LiteLLM chain |
 
 Raw data: `tools/local-llm-bench-m4-32gb/benchmarks/runs/*_qwen3.6-35b-a3b@6bit_20260519_*`, `livecodebench_qwen3.6-35b-a3b@6bit_MERGED_summary.json`, `tbench_*` per [M4 notes § Phase B](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md).
 
 ## Positioning & verdict
 
 - **The MoE-thinking middle.** Knowledge avg 82.6 % sits between coder-next (73.8) and 27b dense (85.8) at ~4.5× the dense model's speed. Best MATH (89 %) and best jdhodges (97.5 %) on the Phase 1 trio; worst HumanEval and Veerman.
-- **Knowledge ceiling is below `qwen3.6-27b`** (−5 MMLU, −5 GPQA raw, −8 LCB) — when you need accuracy on one hard question, wait for the dense model.
-- **T-Bench inverts LCB in its favor:** 6th on LCB (54 %) → **3rd on T-Bench (28.1 %)**, behind only coder-next (32.6 %) and 27b (31.5 %). The Qwen agentic-loop training transfers; Gemma's LCB lead does not.
+- **Knowledge ceiling is below `qwen3.6-27b`** (−5 MMLU, −5 GPQA raw, −6 LCB regraded) — when you need accuracy on one hard question, wait for the dense model.
+- **T-Bench inverts LCB in its favor:** 5th on LCB (82 %, regraded; was 6th at 54 %) → **3rd on T-Bench (28.1 %)**, behind only coder-next (32.6 %) and 27b (31.5 %). The Qwen agentic-loop training transfers; Gemma's LCB lead does not.
 - **Right choice when:** you want thinking-mode reasoning at MoE speed — fast general chat, math-flavored reasoning, single-call tool work. Drop-in replacement for coder-next when you specifically need a thinking model.
-- **Post-Phase-2 caveat:** `gemma-4-26b-a4b@6bit` is now a viable peer for the fast-generalist slot (+3 pp HumanEval, +26 pp LCB, ties tool-calling) but trails it on knowledge (78.0 vs 82.6 avg) and loses badly on agentic shell (21.3 vs 28.1 T-Bench). Pick by workload.
+- **Post-Phase-2 caveat:** `gemma-4-26b-a4b@6bit` is now a viable peer for the fast-generalist slot (+3 pp HumanEval, +6 pp LCB regraded, ties tool-calling) but trails it on knowledge (78.0 vs 82.6 avg) and loses badly on agentic shell (21.3 vs 28.1 T-Bench). Pick by workload.
 - **Serves as the rig's Veerman baseline** (75 % band) for judging new arrivals — MiniMax-M2.5 was scored against it.
 - **Remaining work:** `@8bit` quant A/B (Phase 2 #9); optional GPQA truncation rerun at 65k (`--only 2,4,12,...` — ~3–5 h); optional LCB spiral recovery at cap ≥ 96k.
 
@@ -113,7 +113,7 @@ Plans: [2026-05-22-livecodebench-phase-1.md](../../bench/lcb-phase1/plan.md) · 
 | Symptom | Cause | Fix / status |
 |---|---|---|
 | GPQA records `FAIL` on hard questions (23/100 truncated) | Thinking spirals past `max_tokens=32768` before the required final answer letter lands | Run GPQA (and any thinking bench) with `--max-tokens 65536`. Raw 65 % under-counts; corrected ceiling ~75–83 % |
-| LCB spirals even at 65k (6 questions) | Genuine deep-thinking limits on hard coding problems, not cap artifacts (Q4 rerun confirmed) | Accept 54 % as the defensible floor; a 96k rerun of the remaining spirals is estimated at +4–10 pp upside (untested; [M4 notes](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md)) |
+| LCB spirals even at 65k (6 questions) | Genuine deep-thinking limits on hard coding problems, not cap artifacts (Q4 rerun confirmed) | Accept 82 % (regraded; was 54 %) as the defensible floor; a 96k rerun of the remaining spirals is estimated at +4–10 pp upside (untested; [M4 notes](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md)) |
 | Malformed tool calls on `mlx-community` 4-bit checkpoints (historical concern) | MoE-MLX 4-bit conversion regression | Does **not** reproduce on `@6bit` (T-Bench leg B3 clean). Stay on 6-/8-bit conversions |
 | Low-rate MATH/MMLU truncations (2 each) | Same thinking-budget mechanism, lower severity | Format only matters meaningfully for GPQA; ignore elsewhere |
 
@@ -136,7 +136,7 @@ Plans: [2026-05-22-livecodebench-phase-1.md](../../bench/lcb-phase1/plan.md) · 
 
 ## History
 - **2026-05-17 → 05-19** — Phase 1 full suite (`@6bit`): knowledge avg 82.6 %, jdhodges 97.5 %, MATH 89 % best-in-trio; GPQA truncation finding documented ([M4 notes](../../tools/local-llm-bench-m4-32gb/results/M4_MAX_128GB_NOTES.md)).
-- **2026-05-24** — LCB v6 backfill at 65k cap: **54 %**, 6 real spirals ([plan](../../bench/lcb-phase1/plan.md)).
+- **2026-05-24** — LCB v6 backfill at 65k cap: **54 %** (82 % after the 2026-10-14 regrade), 6 real spirals ([plan](../../bench/lcb-phase1/plan.md)).
 - **2026-05-26 → 05-29** — Terminal-Bench 2.0 Phase B leg B3: **28.1 %**, #3 on rig; thinking-format guard passed ([plan](../../bench/terminal-bench/plan.md)).
 - **2026-07-05** — Confirmed as the Veerman 75 %-band baseline in the MiniMax-M2.5 GGUF evaluation ([minimax-m2.5.md](minimax-m2.5.md)). `@8bit` quant A/B still pending (Phase 2 #9).
 - **2026-07-10** — Draft MTP speculative-decoding study on the unsloth GGUF variant: MTP is a per-workload toggle (structured +13–22 %, creative −9 %), draft depth 2 optimal ([bench/qwen3.6-mtp/plan.md](../../bench/qwen3.6-mtp/plan.md)). MLX `@6bit` remains the daily driver.

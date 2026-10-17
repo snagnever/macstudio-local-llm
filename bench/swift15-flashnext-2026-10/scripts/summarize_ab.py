@@ -12,6 +12,10 @@ TOOL_SUITES = {"jdhodges", "veerman"}
 QUALITY_MARGIN = {"humaneval": 3, "gpqa": 3, "livecodebench": 3, "jdhodges": 2, "veerman": 1, "if": 2}
 TIME_SUITES = ("gpqa", "livecodebench")
 TIME_RATIO = 0.8
+REPO = Path(__file__).resolve().parents[3]
+# Verdicts of the LiveCodeBench regrade (official import prelude, file-based runner). The bench2 runner of the
+# A/B undercounted correct answers; see bench/lcb-regrade-2026-10/plan.md.
+LCB_REGRADE = REPO / "bench" / "lcb-regrade-2026-10" / "results" / "verdicts.json"
 
 
 def _true(v) -> bool:
@@ -51,12 +55,33 @@ def suite_stats(views: list[dict]) -> dict:
             "median_completion": med("completion_tokens"), "median_reasoning_chars": med("reasoning_chars")}
 
 
+def apply_lcb_regrade(path: Path, rows: list[dict]) -> list[dict]:
+    """Replace `correct` in LiveCodeBench rows with the regraded verdict, when LCB_REGRADE covers the file."""
+    if not LCB_REGRADE.is_file():
+        return rows
+    try:
+        key = Path(path).resolve().relative_to(Path(REPO).resolve()).as_posix()
+    except ValueError:
+        return rows
+    verdicts = json.loads(LCB_REGRADE.read_text(encoding="utf-8")).get(key)
+    if verdicts is None:
+        return rows
+    regraded = {v["lcb_question_id"]: v["regraded"] for v in verdicts}
+    return [dict(r, correct=regraded[r["lcb_question_id"]]) if r.get("lcb_question_id") in regraded else r
+            for r in rows]
+
+
+def read_rows(path: Path) -> list[dict]:
+    rows = [json.loads(l) for l in Path(path).read_text(encoding="utf-8").splitlines() if l.strip()]
+    return apply_lcb_regrade(path, rows) if Path(path).name == "livecodebench.jsonl" else rows
+
+
 def load_arm(path: Path) -> dict[str, list[dict]]:
     out = {}
     for suite in SUITES:
         f = Path(path) / f"{suite}.jsonl"
         if f.is_file():
-            out[suite] = [view(suite, json.loads(l)) for l in f.read_text(encoding="utf-8").splitlines() if l.strip()]
+            out[suite] = [view(suite, r) for r in read_rows(f)]
     return out
 
 
