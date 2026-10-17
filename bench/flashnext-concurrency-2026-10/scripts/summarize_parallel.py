@@ -59,8 +59,18 @@ def _overlaps(a: tuple[float, float], b: tuple[float, float]) -> bool:
     return a[0] < b[1] and b[0] < a[1]
 
 
+def _ttft_s(r: dict[str, Any]) -> float:
+    """Client-measured TTFT (includes queue wait) when the record has it, else the record's ttft_ms."""
+    ms = r.get("client_ttft_ms")
+    return (ms if ms is not None else r.get("ttft_ms") or 0.0) / 1000
+
+
 def _wall(r: dict[str, Any]) -> Optional[tuple[float, float]]:
-    ws, we = r.get("wall_start"), r.get("wall_end")
+    """Decode window [first token, end]. Queue wait and prefill are left out, so a request that waited for
+    another stream's request to finish never overlaps it."""
+    ws, we = r.get("wall_first_token"), r.get("wall_end")
+    if ws is None:
+        ws = r.get("wall_start")
     if isinstance(ws, (int, float)) and isinstance(we, (int, float)):
         return (float(ws), float(we))
     return None
@@ -69,7 +79,7 @@ def _wall(r: dict[str, Any]) -> Optional[tuple[float, float]]:
 def _overlap_fraction(mine: list[dict[str, Any]], others: list[dict[str, Any]]) -> Optional[float]:
     """Fraction of this stream's served warm records whose wall interval crosses a record of another stream."""
     warm = [w for w in (_wall(r) for r in mine if r.get("scenario") in WARM and _is_served(r)) if w]
-    other = [w for w in (_wall(r) for r in others) if w]
+    other = [w for w in (_wall(r) for r in others if _is_served(r)) if w]
     if not warm:
         return None
     return sum(1 for w in warm if any(_overlaps(w, o) for o in other)) / len(warm)
@@ -79,7 +89,8 @@ def _needles_failed(records: list[dict[str, Any]], arm: str, ctx: int) -> bool:
     good = sum(1 for r in records if r.get("correct"))
     n = len(records)
     if arm.endswith("q8"):
-        return good < n
+        # --kv-quant 8 must not lose a needle: every non-truncated record correct.
+        return any(not r.get("correct") and r.get("finish_reason") != "length" for r in records)
     if ctx >= 262144:
         return n == 0 or good / n < NEEDLES_256K - 1e-9
     return any(not r.get("correct") and r.get("finish_reason") != "length" for r in records)
@@ -92,7 +103,7 @@ def _ref(ctx: int, refs: dict[int, float]) -> Optional[float]:
 def _stream_row(k: int, ctx: int, records: list[dict[str, Any]], others: list[dict[str, Any]],
                 arm: str, refs: dict[int, float]) -> dict[str, Any]:
     served = [r for r in records if _is_served(r)]
-    tool = _median_raw([r["ttft_ms"] / 1000 for r in served if r.get("scenario") == "tool_turn"])
+    tool = _median_raw([_ttft_s(r) for r in served if r.get("scenario") == "tool_turn"])
     decode = _median_raw([r.get("decode_tps") for r in served if r.get("scenario") in WARM])
     tt = t_turno(tool, decode) if tool is not None and decode else None
     ref = _ref(ctx, refs)
@@ -108,7 +119,7 @@ def _stream_row(k: int, ctx: int, records: list[dict[str, Any]], others: list[di
         "http_errors": sum(1 for r in records if _is_http_error(r.get("error"))
                            and not str(r.get("error")).startswith("finish_reason:")),
         # cold and middle_mutation are prefill-bound by design (solo w1 middle_mutation is 92 s at 128K).
-        "stall": any(r.get("scenario") in WARM and (r.get("ttft_ms") or 0) > STALL_S * 1000 for r in records),
+        "stall": any(r.get("scenario") in WARM and _ttft_s(r) > STALL_S for r in records),
         "served_n": len(served), "n": len(records),
     }
 
@@ -167,6 +178,11 @@ def summarize(results_dir: Union[str, Path], arm: str, context: Union[int, str],
     memory = _memory_summary(logs_dir, arm, context, tag)
 
     failed: list[str] = []
+    expected = max([int(r.get("concurrency") or 1) for _, _, rs in data for r in rs] or [1])
+    if len(streams) < expected:
+        failed.append(f"missing streams ({len(streams)}/{expected})")
+    if aux is not None and aux["n"] == 0:
+        failed.append("aux no data")
     ratios = [s["ratio"] for s in streams if s["ratio"] is not None]
     if not streams or any(s["t_turno_s"] is None for s in streams):
         failed.append("no data")

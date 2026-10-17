@@ -199,6 +199,26 @@ class CacheProbeTests(unittest.TestCase):
         self.assertEqual(rec["wall_end"], 103.5)
         self.assertEqual(rec["concurrency"], 2)
 
+    def test_record_keeps_client_ttft_and_first_token_wall_clock(self):
+        args = SimpleNamespace(
+            arm="w1c2", context=32768, session_id="s1", runtime="mlx-serve",
+            runtime_revision="v26.10.1", model="swift", model_revision="13839b7",
+            cache_enabled=True, mtp_enabled=True, specprefill=None,
+            specprefill_keep_pct=None, specprefill_threshold=None,
+            ane_prefill_enabled=False, concurrency=2,
+        )
+        result = StreamResult(
+            text="XENON", reasoning_text="", finish_reason="stop", ttft_ms=1500.0,
+            e2e_ms=4000.0, usage={"prompt_tokens": 100, "completion_tokens": 1},
+            raw_chunks=1,
+        )
+        rec = _record(args, "append", 1, result, "XENON", "fixture", {}, {}, 0, 0, 0,
+                      wall_start=100.0, wall_end=104.0)
+        self.assertEqual(rec["client_ttft_ms"], 1500.0)
+        self.assertEqual(rec["wall_first_token"], 101.5)
+        plain = _record(args, "cold", 1, result, "XENON", "fixture", {}, {}, 0, 0, 0)
+        self.assertIsNone(plain["wall_first_token"])
+
     def test_record_defaults_to_concurrency_one_without_wall_clock(self):
         args = SimpleNamespace(
             arm="w1", context=32768, session_id="s1", runtime="mlx-serve",

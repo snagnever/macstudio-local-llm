@@ -50,6 +50,7 @@ fi
 BASE_URL="${BASE_URL:-http://127.0.0.1:11234/v1}"
 MODEL_ID="${MODEL_ID:-MODEL_ID}"
 RUNNING="$OUT/${ARM}-${CTX}-${TAG}.running"
+LOGDIR="${FLASHNEXT_LOGS_DIR:-$OUT}"  # per-stream stdout/stderr stays out of results/ when run-arm.sh sets it
 AUX_OUT="$OUT/${ARM}-${CTX}-${TAG}-aux.jsonl"
 
 # Each builder fills the global CMD array; the caller prints it (--dry-run) or runs it (no eval: bash 3.2
@@ -79,7 +80,7 @@ if [[ -n "$DRY" ]]; then
   exit 0
 fi
 
-mkdir -p "$OUT"
+mkdir -p "$OUT" "$LOGDIR"
 # cache_probe.py appends to --output: rotate a stale file so a retry never mixes two runs.
 for ((k = 1; k <= STREAMS; k++)); do
   f="$OUT/${ARM}-${CTXS[$((k - 1))]}-${TAG}-s${k}.jsonl"
@@ -101,10 +102,11 @@ trap cleanup EXIT
 
 : > "$RUNNING"
 if [[ -n "$AUX" ]]; then
+  : > "$AUX_OUT"  # an empty file means the generator ran and wrote nothing; summarize fails on that
   aux_cmd; "${CMD[@]}" & AUX_PID=$!
 fi
 for ((k = 1; k <= STREAMS; k++)); do
-  probe_cmd "$k"; "${CMD[@]}" > "$OUT/${ARM}-${CTXS[$((k - 1))]}-${TAG}-s${k}.log" 2>&1 & PIDS+=($!)
+  probe_cmd "$k"; "${CMD[@]}" > "$LOGDIR/${ARM}-${CTXS[$((k - 1))]}-${TAG}-s${k}.log" 2>&1 & PIDS+=($!)
 done
 
 FAILED=0
@@ -114,4 +116,12 @@ for ((k = 1; k <= STREAMS; k++)); do
   echo "    stream s$k exit $rc"
   [[ "$rc" -ne 0 ]] && FAILED=1
 done
+rm -f "$RUNNING"
+if [[ -n "$AUX_PID" ]]; then
+  # The generator exits after its current call (at most its 300 s timeout) once the duration file is gone.
+  rc=0; wait "$AUX_PID" || rc=$?
+  AUX_PID=""
+  echo "    aux exit $rc"
+  [[ "$rc" -ne 0 ]] && FAILED=1
+fi
 exit "$FAILED"

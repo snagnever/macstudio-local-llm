@@ -586,6 +586,15 @@ def _record(
         # Epoch seconds around the measured request; parallel streams use them to compute overlap.
         "wall_start": wall_start,
         "wall_end": wall_end,
+        # Client-side first token: the decode window [wall_first_token, wall_end] excludes queue wait, so
+        # serialized streams show no overlap. client_ttft_ms includes the wait even when a runtime reports
+        # its own ttft_ms.
+        "wall_first_token": (
+            wall_start + result.ttft_ms / 1000
+            if wall_start is not None and result.ttft_ms is not None
+            else None
+        ),
+        "client_ttft_ms": result.ttft_ms,
         "warmup_id": WARMUP_ID,
         "suffix_tokens": suffix_tokens if scenario in {"append", "tool_turn"} else 0,
         "mutation_prefix_tokens": (

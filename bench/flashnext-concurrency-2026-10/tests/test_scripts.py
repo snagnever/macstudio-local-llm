@@ -31,6 +31,7 @@ def write_fixture_streams(tmp_path, arm, ctx, tag, tturno, hit, overlap, needles
                     "cache_hit_ratio": hit[k - 1] if scenario in ("append", "tool_turn", "identical") else 0.0,
                     "finish_reason": "stop", "error": None, "correct": i < good,
                     "wall_start": start, "wall_end": start + 50.0,
+                    "wall_first_token": start + 2.0, "client_ttft_ms": None,
                 })
                 i += 1
         (tmp_path / f"{arm}-{ctx}-{tag}-s{k}.jsonl").write_text("".join(json.dumps(r) + "\n" for r in recs))
@@ -225,3 +226,70 @@ def test_summarize_parallel_stall_ignores_prefill_bound_middle_mutation(tmp_path
     assert summarize(tmp_path, "w1c2", 131072, "e1")["verdict"] == "pass"
     _set_ttft(tmp_path / "w1c2-131072-e1-s2.jsonl", "append", 61.0)
     assert "stall" in summarize(tmp_path, "w1c2", 131072, "e1")["verdict"]
+
+
+def _rewrite(path, fn):
+    rows = [json.loads(l) for l in path.read_text().splitlines()]
+    path.write_text("".join(json.dumps(fn(r)) + "\n" for r in rows))
+
+
+def test_summarize_parallel_detects_queued_serialization(tmp_path):
+    """Both streams submit at the same time, but B's first token only comes after A's request ends:
+    the requests overlap on the wall clock, the decode windows do not."""
+    from summarize_parallel import summarize
+    write_fixture_streams(tmp_path, arm="w1c2", ctx=32768, tag="e1", tturno=[9.0, 9.0], hit=[0.99, 0.99],
+                          overlap=[0.7, 0.7])
+    _rewrite(tmp_path / "w1c2-32768-e1-s2.jsonl", lambda r: {**r, "wall_first_token": r["wall_end"] - 1.0,
+                                                             "wall_end": r["wall_end"] + 49.0})
+    _rewrite(tmp_path / "w1c2-32768-e1-s1.jsonl", lambda r: {**r, "wall_end": r["wall_start"] + 49.0})
+    s = summarize(tmp_path, "w1c2", 32768, "e1")
+    assert "no overlap" in s["verdict"]
+
+
+def test_summarize_parallel_prefers_client_ttft(tmp_path):
+    from summarize_parallel import summarize
+    write_fixture_streams(tmp_path, arm="w1c1", ctx=32768, tag="e1", tturno=[7.9], hit=[0.99], overlap=[0.0])
+    _rewrite(tmp_path / "w1c1-32768-e1-s1.jsonl",
+             lambda r: {**r, "client_ttft_ms": r["ttft_ms"] + 3000.0})
+    s = summarize(tmp_path, "w1c1", 32768, "e1")
+    assert s["streams"][0]["t_turno_s"] == pytest.approx(10.9)
+
+
+def test_summarize_parallel_fails_on_missing_stream(tmp_path):
+    from summarize_parallel import summarize
+    write_fixture_streams(tmp_path, arm="w1c2", ctx=32768, tag="e1", tturno=[9.0, 9.0], hit=[0.99, 0.99],
+                          overlap=[0.7, 0.7])
+    (tmp_path / "w1c2-32768-e1-s2.jsonl").unlink()
+    s = summarize(tmp_path, "w1c2", 32768, "e1")
+    assert s["verdict"].startswith("fail") and "missing streams" in s["verdict"]
+
+
+def test_summarize_parallel_fails_on_empty_aux_file(tmp_path):
+    from summarize_parallel import summarize
+    write_fixture_streams(tmp_path, arm="w1c2a", ctx=32768, tag="e1", tturno=[9.0, 9.0], hit=[0.99, 0.99],
+                          overlap=[0.7, 0.7])
+    (tmp_path / "w1c2a-32768-e1-aux.jsonl").write_text("")
+    s = summarize(tmp_path, "w1c2a", 32768, "e1")
+    assert s["verdict"].startswith("fail") and "aux no data" in s["verdict"]
+
+
+def test_summarize_parallel_q8_needles_ignore_truncation(tmp_path):
+    from summarize_parallel import summarize
+    write_fixture_streams(tmp_path, arm="w1c2q8", ctx=262144, tag="e1b", tturno=[15.0, 16.0], hit=[0.99, 0.99],
+                          overlap=[0.7, 0.7], needles=["12/13", "13/13"])
+    _rewrite(tmp_path / "w1c2q8-262144-e1b-s1.jsonl",
+             lambda r: {**r, "finish_reason": "length", "error": "finish_reason:length"} if not r["correct"] else r)
+    assert summarize(tmp_path, "w1c2q8", 262144, "e1b", ref_256k=11.1)["verdict"] == "pass"
+
+
+def test_run_parallel_probes_fails_when_aux_fails_and_keeps_logs_out_of_results(tmp_path):
+    fake = tmp_path / "fakepy"
+    fake.write_text('#!/bin/bash\ncase "$*" in *aux_load.py*) exit 5 ;; *) exit 0 ;; esac\n')
+    fake.chmod(fake.stat().st_mode | stat.S_IEXEC)
+    out, logs = tmp_path / "results", tmp_path / "logs"
+    env = clean_env({"PARALLEL_PYTHON": str(fake), "FLASHNEXT_LOGS_DIR": str(logs)})
+    res = run("bash", SCRIPTS / "run-parallel-probes.sh", "--streams", "2", "--aux", "--context", "32768",
+              "--repeat", "1", "--arm", "w1c2a", "--tag", "t", "--out", out, env=env, check=False)
+    assert res.returncode != 0 and "aux exit 5" in res.stdout
+    assert (out / "w1c2a-32768-t-aux.jsonl").exists()
+    assert not list(out.glob("*.log")) and len(list(logs.glob("*.log"))) == 2
