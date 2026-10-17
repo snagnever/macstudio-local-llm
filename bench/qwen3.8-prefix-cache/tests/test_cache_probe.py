@@ -180,6 +180,70 @@ class CacheProbeTests(unittest.TestCase):
         self.assertEqual(length_record["error"], "finish_reason:length")
         self.assertIsNone(length_record["error_stage"])
 
+    def test_cache_probe_record_has_wall_clock_and_concurrency(self):
+        args = SimpleNamespace(
+            arm="w1c2", context=32768, session_id="s1", runtime="mlx-serve",
+            runtime_revision="v26.10.1", model="swift", model_revision="13839b7",
+            cache_enabled=True, mtp_enabled=True, specprefill=None,
+            specprefill_keep_pct=None, specprefill_threshold=None,
+            ane_prefill_enabled=False, concurrency=2,
+        )
+        result = StreamResult(
+            text="XENON", reasoning_text="", finish_reason="stop", ttft_ms=10.0,
+            e2e_ms=20.0, usage={"prompt_tokens": 100, "completion_tokens": 1},
+            raw_chunks=1,
+        )
+        rec = _record(args, "append", 1, result, "XENON", "fixture", {}, {}, 0, 0, 0,
+                      wall_start=100.0, wall_end=103.5)
+        self.assertEqual(rec["wall_start"], 100.0)
+        self.assertEqual(rec["wall_end"], 103.5)
+        self.assertEqual(rec["concurrency"], 2)
+
+    def test_record_defaults_to_concurrency_one_without_wall_clock(self):
+        args = SimpleNamespace(
+            arm="w1", context=32768, session_id="s1", runtime="mlx-serve",
+            runtime_revision="v26.10.1", model="swift", model_revision="13839b7",
+            cache_enabled=True, mtp_enabled=True, specprefill=None,
+            specprefill_keep_pct=None, specprefill_threshold=None,
+            ane_prefill_enabled=False,
+        )
+        result = StreamResult(
+            text="XENON", reasoning_text="", finish_reason="stop", ttft_ms=10.0,
+            e2e_ms=20.0, usage={"prompt_tokens": 100, "completion_tokens": 1},
+            raw_chunks=1,
+        )
+        rec = _record(args, "cold", 1, result, "XENON", "fixture", {}, {}, 0, 0, 0)
+        self.assertEqual(rec["concurrency"], 1)
+        self.assertIsNone(rec["wall_start"])
+        self.assertIsNone(rec["wall_end"])
+
+    def test_prompt_salt_changes_the_system_prefix_but_keeps_prime_and_measure_aligned(self):
+        plain = _base_messages("fixture", repeat=1)
+        salted = _base_messages("fixture", repeat=1, salt="s3")
+        self.assertEqual(plain[0]["content"], "You are a deterministic audit retrieval assistant. Cache probe trial 001.")
+        self.assertNotEqual(plain[0]["content"], salted[0]["content"])
+        self.assertIn("s3", salted[0]["content"])
+        prime = _priming_messages("fixture", 1, salt="s3")
+        measured = _messages_for_scenario("append", "fixture", "mutated", "suffix", 1, salt="s3")
+        self.assertEqual(prime[0], measured[0])
+        self.assertEqual(prime[1], measured[1])
+
+    def test_parser_accepts_prompt_salt(self):
+        base = ["--base-url", "http://x/v1", "--model", "m", "--runtime", "r",
+                "--runtime-revision", "v", "--model-revision", "mr", "--arm", "a",
+                "--session-id", "s", "--context", "32768", "--output", "/tmp/o.jsonl"]
+        parser = cache_probe.build_parser()
+        self.assertEqual(parser.parse_args(base).prompt_salt, "")
+        self.assertEqual(parser.parse_args(base + ["--prompt-salt", "s3"]).prompt_salt, "s3")
+
+    def test_parser_accepts_concurrency(self):
+        base = ["--base-url", "http://x/v1", "--model", "m", "--runtime", "r",
+                "--runtime-revision", "v", "--model-revision", "mr", "--arm", "a",
+                "--session-id", "s", "--context", "32768", "--output", "/tmp/o.jsonl"]
+        parser = cache_probe.build_parser()
+        self.assertEqual(parser.parse_args(base).concurrency, 1)
+        self.assertEqual(parser.parse_args(base + ["--concurrency", "2"]).concurrency, 2)
+
     def test_specprefill_request_options_are_sent_exactly(self):
         """Dropping a request override must make the runtime profile unobservable."""
         payload = _payload(
