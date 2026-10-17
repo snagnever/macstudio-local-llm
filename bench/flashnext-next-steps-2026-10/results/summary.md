@@ -1,11 +1,11 @@
-# Flash-Next, próximos passos de 2026-10 — resumo da campanha (2026-10-16)
+# Flash-Next, próximos passos de 2026-10 — resumo da campanha (2026-10-17)
 
 **O driver principal continua o Swift 1.5 (`Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw` `13839b7`) no mlx-serve 26.10.1.**
 **O driver secundário continua o ddalcu iQ-MLX-4.7bpw `dafff5c` no mesmo runtime e com as mesmas flags.**
 
-O `reasoning_effort` default continua `xhigh`. O harness deve fixar o effort por sessão: trocar o effort no meio da sessão zera o cache. O perfil `512k` do launcher passa a usar o Swift 1.5.
+O `reasoning_effort` default continua `xhigh`. O harness deve fixar o effort por sessão: trocar o effort no meio da sessão zera o cache. `medium` serve para chat e tool-calling curtos (Task 12). O template com o effort no fim do prompt resolve a troca, mas não vira default (Tasks 11 e 15). O perfil `512k` do launcher passa a usar o Swift 1.5.
 
-Rig: Mac Studio M4 Max 128 GB. Runbook: [plan.md](../plan.md). Metas e regras de cada task estão no runbook.
+Rig: Mac Studio M4 Max 128 GB. Runbooks: [plan.md](../plan.md) (Tasks 1–9) e [plan-effort-needles.md](../plan-effort-needles.md) (Tasks 11–15). Metas e regras de cada task estão no runbook.
 
 ## Runtimes que rodaram
 
@@ -33,6 +33,10 @@ Os braços `w1`, `n2`, `w1q4` e `w1p8` rodaram no mlx-serve 26.10.1.
 | 7 | mix6 v2 | x1, o1r | G1 + margem, swap 0 a 256K | G1 passa em todas as suítes; nenhuma suíte acima da margem; swap Δ 0.00 GB; wired +7.6 GB a 256K | não substitui o refit | [etapa7-mix6.md](etapa7-mix6.md) |
 | 8 | GGUF + MTP | g0, g1 | smoke ≥ 70 tok/s | decode `g1` 52.1 tok/s (`g0` 36.0) | parar; pesos (99 GB) apagados do rig em 2026-10-16 | [etapa8-gguf.md](etapa8-gguf.md) |
 | 9 | --ple-gpu + 8 GB | W1P8 | ≤ 0.95× a 128K | `ple gather: cpu`; headroom 16 GB fixo; bandas não rodaram | `--ple-gpu` não vira perfil opcional | [etapa9-plegpu.md](etapa9-plegpu.md) |
+| 11 | effort no fim do prompt (Swift) | w1, w1t | 3e hit ≥ 0.9; obediência ×0.80–×1.25; G1 | troca de effort 0.8–5.7 s, hit 0.97–1.00 (contra 167 s); obediência xhigh ×1.04, low ×0.90; G1 passa; prompts curtos perdem o reaproveitamento do system prompt (0/55 contra 53/55, +0.9 a +1.4 s no turno 1) | template não vira default; launcher sem mudança | [etapa11-effort-tail.md](etapa11-effort-tail.md) |
+| 12 | `medium` fora do código | w1 | G1 contra `xhigh`; 3c | jdhodges, Veerman, IF e GPQA dentro da margem (2 rodadas); 3c: 2 turnos vazios contra 0 | `medium` para chat e tool-calling curtos; `xhigh` para código e sessões longas | [etapa12-medium.md](etapa12-medium.md) |
+| 13 | needles a 256K | w1, n2 | needles | `w1` 15/15, `n2` 14/15 (1 truncado); `w1` somado com a Task 2: 26/28 | o Swift serve o perfil de 256K; o 11/13 da Task 2 era variância | [etapa13-needles256k.md](etapa13-needles256k.md) |
+| 15 | effort no fim do prompt (iQ) | n2, n2t | igual à 11, 1 rodada | 3e hit 0.97–1.00; obediência xhigh ×1.05, medium ×1.01, low ×1.02; G1 passa (GPQA `xhigh` 45 → 42, no limite; LCB `xhigh` 45 → 46) | mesmo comportamento do Swift; template não vira default | [etapa15-iq-effort-tail.md](etapa15-iq-effort-tail.md) |
 
 ## Notas por task
 
@@ -43,6 +47,10 @@ Os braços `w1`, `n2`, `w1q4` e `w1p8` rodaram no mlx-serve 26.10.1.
 - **Task 7.** O `x1` usou `umixer/Qwen3.8-Flash-Next-oQ4e-mix6-mtp` em `73d2cd0`. O umixer aposentou o repo `-v2`. Os arquivos têm o mesmo SHA de LFS do `-v2` em `ed5c722`.
 - **Task 8.** A MTP dá +45% de decode sobre o `g0`, mas parte de uma base baixa. O `g1` chega a 0.07 GB livres já a 32K.
 - **Task 9.** A conta do runtime é 68.2 GB de pesos + 29.8 GB de tabela + 16 GB de headroom = 114 GB. Isso passa do working set de 107.5 GB.
+- **Task 11.** O modelo segue a instrução de effort no fim do prompt. A causa da perda de cache é o checkpoint de estado GDN: o mlx-serve só restaura o prefixo num checkpoint, e com o `w1t` o checkpoint fica depois da pergunta do usuário (inferência dos logs). Diagramas na etapa 11. Correções possíveis, não testadas: `--ssm-checkpoint-stride` menor, ou o bloco de effort antes da última pergunta.
+- **Task 12.** No tool-calling curto, o `medium` gasta 23–28% menos tempo que o `xhigh`. Os 2 turnos vazios do 3c terminaram com `finish_reason=tool_calls`, como os do `n2` na Task 3.
+- **Task 13.** A 256K a memória livre mínima cai para 0.01 GB. `T_turno`: `w1` 9.8 s, `n2` 10.1 s.
+- **Task 15.** O controle `xhigh` do `n2` vem do A/B da campanha Swift (2026-10-10), com o LCB reavaliado. As 4 questões de GPQA que o `n2t` perdeu em `xhigh` truncaram em 65536 tokens. Nos dois packs, o `xhigh` com o effort no fim truncou mais (Swift 4 → 7, iQ 7 → 9), mas os ICs do reasoning incluem 1.0.
 
 ## Limites
 
