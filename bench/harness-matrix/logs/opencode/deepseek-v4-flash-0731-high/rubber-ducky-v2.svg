@@ -1,0 +1,207 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1f3a4d"/>
+      <stop offset="1" stop-color="#31566e"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6fc3e6"/>
+      <stop offset="0.55" stop-color="#3d94c4"/>
+      <stop offset="1" stop-color="#2a6f9c"/>
+    </linearGradient>
+    <linearGradient id="tub" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdf6ec"/>
+      <stop offset="1" stop-color="#efe2cf"/>
+    </linearGradient>
+    <radialGradient id="duckShade" cx="0.45" cy="0.35" r="0.85">
+      <stop offset="0" stop-color="#ffd94f"/>
+      <stop offset="0.6" stop-color="#f4b614"/>
+      <stop offset="1" stop-color="#d98f0a"/>
+    </radialGradient>
+    <radialGradient id="headShade" cx="0.4" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#ffe27a"/>
+      <stop offset="0.65" stop-color="#f7c21f"/>
+      <stop offset="1" stop-color="#e3a00c"/>
+    </radialGradient>
+    <radialGradient id="bubbleA" cx="0.35" cy="0.3" r="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.5" stop-color="#eaf7ff" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#aedcf5" stop-opacity="0.35"/>
+    </radialGradient>
+    <radialGradient id="bubbleB" cx="0.35" cy="0.3" r="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ffdde8" stop-opacity="0.2"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff3d0" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#fff3d0" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bg)"/>
+
+  <!-- Tile pattern -->
+  <g stroke="#2b4c63" stroke-width="3" fill="none">
+    <path d="M0 75 H800 M0 150 H800 M0 225 H800"/>
+    <path d="M100 0 V225 M200 0 V225 M300 0 V225 M400 0 V225 M500 0 V225 M600 0 V225 M700 0 V225"/>
+    <path d="M50 225 V300 M150 225 V300 M250 225 V300 M350 225 V300 M450 225 V300 M550 225 V300 M650 225 V300 M750 225 V300"/>
+    <line x1="0" y1="300" x2="800" y2="300"/>
+  </g>
+  <g opacity="0.15">
+    <path d="M0 37.5 H800 M0 112.5 H800 M0 187.5 H800 M0 262.5 H800"/>
+    <path d="M50 0 V225 M150 0 V225 M250 0 V225 M350 0 V225 M450 0 V225 M550 0 V225 M650 0 V225 M750 0 V225"/>
+  </g>
+
+  <!-- Floor -->
+  <rect y="300" width="800" height="300" fill="#3b6580"/>
+
+  <!-- Bathtub -->
+  <g>
+    <path d="M70 240 L120 530 Q130 555 160 558 L640 558 Q670 555 680 530 L730 240 Q735 228 722 228 L78 228 Q65 228 70 240 Z" fill="url(#tub)" stroke="#3d5f78" stroke-width="6" stroke-linejoin="round"/>
+    <ellipse cx="140" cy="556" rx="26" ry="10" fill="#314f63"/>
+    <ellipse cx="660" cy="556" rx="26" ry="10" fill="#314f63"/>
+    <!-- Rim -->
+    <path d="M60 212 Q60 196 78 192 L722 192 Q740 196 740 212 Q740 228 722 232 L78 232 Q60 228 60 212 Z" fill="#fff8ec" stroke="#3d5f78" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Water -->
+  <ellipse cx="400" cy="360" rx="300" ry="120" fill="url(#water)"/>
+  <ellipse cx="400" cy="360" rx="300" ry="120" fill="url(#halo)"/>
+
+  <!-- Soft warm light glint on water surface -->
+  <ellipse cx="400" cy="330" rx="220" ry="55" fill="#ffffff" opacity="0.18"/>
+  <ellipse cx="280" cy="300" rx="90" ry="18" fill="#ffffff" opacity="0.14"/>
+  <ellipse cx="560" cy="395" rx="110" ry="22" fill="#ffffff" opacity="0.1"/>
+
+  <!-- Ripples -->
+  <g fill="none" stroke="#2a6f9c" stroke-width="4" stroke-linecap="round">
+    <path d="M150 415 Q210 430 270 415" opacity="0.7"/>
+    <path d="M180 435 Q245 450 310 435" opacity="0.5"/>
+    <path d="M510 425 Q575 440 640 425" opacity="0.6"/>
+    <path d="M470 450 Q535 462 600 450" opacity="0.45"/>
+  </g>
+
+  <!-- Duck shadow on water -->
+  <ellipse cx="400" cy="415" rx="150" ry="34" fill="#15455f" opacity="0.5" filter="url(#shadow)"/>
+
+  <!-- Rubber ducky (3/4 view) -->
+  <g>
+    <!-- Tail, sweeping right -->
+    <path d="M535 385 C580 360 585 395 570 405 C555 415 545 410 535 405 Z" fill="#e3a00c"/>
+    <!-- Body -->
+    <path d="M275 410 C270 335 340 300 415 300 C505 300 560 350 555 418 C550 480 465 500 395 500 C320 500 282 465 275 410 Z" fill="url(#duckShade)" stroke="#c07f08" stroke-width="5" stroke-linejoin="round"/>
+    <!-- Body rim light (left) -->
+    <path d="M280 360 C285 320 330 305 360 302" fill="none" stroke="#ffe48a" stroke-width="7" stroke-linecap="round" opacity="0.8"/>
+
+    <!-- Wing -->
+    <g>
+      <path d="M445 385 C495 370 530 400 505 430 C480 458 440 445 425 430 C415 415 425 395 445 385 Z" fill="#f4b614" stroke="#c07f08" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M445 395 C475 388 495 405 482 422" fill="none" stroke="#e39b09" stroke-width="4" stroke-linecap="round"/>
+    </g>
+
+    <!-- Head -->
+    <circle cx="350" cy="240" r="72" fill="url(#headShade)" stroke="#c07f08" stroke-width="5"/>
+    <!-- Head highlight -->
+    <ellipse cx="315" cy="205" rx="22" ry="15" fill="#ffffff" opacity="0.5" transform="rotate(-22 315 205)"/>
+
+    <!-- Beak -->
+    <path d="M412 235 C465 225 492 245 478 268 C464 288 428 292 408 272 Z" fill="#f2801f" stroke="#c75e08" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M412 255 Q450 250 468 253" fill="none" stroke="#c75e08" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- Nostrils -->
+    <circle cx="456" cy="243" r="2.6" fill="#a84a06"/>
+    <circle cx="468" cy="247" r="2.6" fill="#a84a06"/>
+
+    <!-- Eye -->
+    <circle cx="380" cy="217" r="15" fill="#ffffff"/>
+    <circle cx="386" cy="217" r="9" fill="#16212b"/>
+    <circle cx="389" cy="213" r="3.4" fill="#ffffff"/>
+    <circle cx="383" cy="222" r="2" fill="#ffffff" opacity="0.7"/>
+
+    <!-- Cheek -->
+    <ellipse cx="360" cy="258" rx="14" ry="9" fill="#f7808c" opacity="0.65"/>
+
+    <!-- Neck shadow -->
+    <path d="M305 300 C325 318 375 318 395 300" fill="none" stroke="#d98f0a" stroke-width="10" stroke-linecap="round" opacity="0.35"/>
+  </g>
+
+  <!-- Foam crown in front of duck -->
+  <g filter="url(#blur)" opacity="0.55">
+    <ellipse cx="250" cy="395" rx="70" ry="22" fill="#ffffff"/>
+    <ellipse cx="400" cy="405" rx="120" ry="26" fill="#ffffff"/>
+    <ellipse cx="545" cy="393" rx="70" ry="20" fill="#ffffff"/>
+  </g>
+
+  <!-- Bubbles layer 1 (behind duck, large) -->
+  <g fill="url(#bubbleA)" stroke="#e8f6ff" stroke-width="1.5">
+    <circle cx="210" cy="330" r="34"/>
+    <circle cx="610" cy="310" r="38"/>
+    <circle cx="250" cy="350" r="24"/>
+    <circle cx="655" cy="355" r="26"/>
+  </g>
+
+  <!-- Bubbles layer 2 (foreground, crisp) -->
+  <g>
+    <g fill="url(#bubbleA)" stroke="#ffffff" stroke-width="2">
+      <circle cx="180" cy="430" r="30"/>
+      <circle cx="240" cy="455" r="22"/>
+      <circle cx="300" cy="440" r="18"/>
+      <circle cx="500" cy="450" r="26"/>
+      <circle cx="580" cy="435" r="20"/>
+      <circle cx="650" cy="425" r="28"/>
+    </g>
+    <g fill="url(#bubbleB)" stroke="#ffdde8" stroke-width="1">
+      <circle cx="215" cy="425" r="14"/>
+      <circle cx="525" cy="448" r="12"/>
+      <circle cx="620" cy="430" r="14"/>
+    </g>
+  </g>
+
+  <!-- Foamy cluster around duck's base -->
+  <g fill="url(#bubbleA)" stroke="#ffffff" stroke-width="1.5">
+    <circle cx="330" cy="470" r="20"/>
+    <circle cx="375" cy="478" r="24"/>
+    <circle cx="425" cy="472" r="22"/>
+    <circle cx="470" cy="470" r="18"/>
+  </g>
+
+  <!-- Bubble specular highlights -->
+  <g fill="#ffffff">
+    <ellipse cx="170" cy="418" rx="8" ry="5.5" transform="rotate(-18 170 418)"/>
+    <ellipse cx="600" cy="300" rx="9" ry="6" transform="rotate(-15 600 300)"/>
+    <ellipse cx="645" cy="414" rx="7" ry="5" transform="rotate(-20 645 414)"/>
+    <ellipse cx="200" cy="322" rx="8" ry="5" transform="rotate(-22 200 322)"/>
+    <ellipse cx="325" cy="433" rx="5" ry="3.5" transform="rotate(-15 325 433)"/>
+  </g>
+
+  <!-- Foam dollops on water -->
+  <g fill="#ffffff" opacity="0.9">
+    <path d="M120 370 Q150 350 172 368 Q158 385 138 388 Q118 388 120 370 Z"/>
+    <path d="M700 390 Q716 376 730 388 Q726 402 712 404 Q698 402 700 390 Z"/>
+  </g>
+
+  <!-- Faucet -->
+  <g>
+    <path d="M120 170 C120 215 155 225 195 225" fill="none" stroke="#b9c6d0" stroke-width="24" stroke-linecap="round"/>
+    <path d="M120 170 C120 215 155 225 195 225" fill="none" stroke="#eef4f8" stroke-width="17" stroke-linecap="round"/>
+    <rect x="122" y="128" width="34" height="52" rx="10" fill="#d5dee6" stroke="#93a4b1" stroke-width="4"/>
+    <ellipse cx="139" cy="130" rx="26" ry="13" fill="#e8eef3" stroke="#93a4b1" stroke-width="4"/>
+    <circle cx="139" cy="248" cx2="139" cy2="248" r="6" fill="#e8eef3" stroke="#93a4b1" stroke-width="2"/>
+  </g>
+
+  <!-- Dripping water from faucet -->
+  <ellipse cx="139" cy="272" rx="6" ry="9" fill="#6fc3e6" opacity="0.85"/>
+  <ellipse cx="139" cy="288" rx="3.5" ry="5" fill="#9bd7f0" opacity="0.6"/>
+
+  <!-- Steam wisps -->
+  <g stroke="#ffffff" stroke-width="0" opacity="0">
+    <path d="M600 150 Q618 128 600 108 Q582 90 600 70"/>
+  </g>
+</svg>

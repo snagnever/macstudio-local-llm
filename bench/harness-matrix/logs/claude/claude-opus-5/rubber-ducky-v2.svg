@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-label="A yellow rubber ducky floating on the soapy water of a bathtub">
+  <title>Rubber ducky floating on a soapy bathtub</title>
+  <defs>
+    <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e4f2f7"/>
+      <stop offset="1" stop-color="#b7d9e6"/>
+    </linearGradient>
+    <pattern id="tiles" width="82" height="82" patternUnits="userSpaceOnUse">
+      <rect width="82" height="82" fill="#a9cddc"/>
+      <rect x="3" y="3" width="76" height="76" rx="7" fill="url(#wallGrad)"/>
+    </pattern>
+    <linearGradient id="floorGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cbbaa9"/>
+      <stop offset="1" stop-color="#9b8877"/>
+    </linearGradient>
+    <linearGradient id="tubGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b9c8d0"/>
+      <stop offset="0.12" stop-color="#f6fafb"/>
+      <stop offset="0.28" stop-color="#ffffff"/>
+      <stop offset="0.62" stop-color="#eef4f7"/>
+      <stop offset="0.86" stop-color="#d3dee4"/>
+      <stop offset="1" stop-color="#aebdc5"/>
+    </linearGradient>
+    <linearGradient id="rimGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d5e1e7"/>
+    </linearGradient>
+    <radialGradient id="innerGrad" cx="0.5" cy="0.1" r="0.9">
+      <stop offset="0" stop-color="#9fb4bf"/>
+      <stop offset="1" stop-color="#dce8ed"/>
+    </radialGradient>
+    <radialGradient id="waterGrad" cx="0.5" cy="0.35" r="0.8">
+      <stop offset="0" stop-color="#cdeaf5"/>
+      <stop offset="0.6" stop-color="#8ccbe2"/>
+      <stop offset="1" stop-color="#4f9fc2"/>
+    </radialGradient>
+    <radialGradient id="duckGrad" gradientUnits="userSpaceOnUse" cx="352" cy="150" r="250">
+      <stop offset="0" stop-color="#fff6ac"/>
+      <stop offset="0.32" stop-color="#ffdc44"/>
+      <stop offset="0.72" stop-color="#f5bd06"/>
+      <stop offset="1" stop-color="#d99a00"/>
+    </radialGradient>
+    <linearGradient id="beakGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffb03c"/>
+      <stop offset="1" stop-color="#e46f0b"/>
+    </linearGradient>
+    <radialGradient id="foamGrad" cx="0.35" cy="0.28" r="0.85">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.7" stop-color="#f4fbfd"/>
+      <stop offset="1" stop-color="#cfe4ed"/>
+    </radialGradient>
+    <radialGradient id="bubbleGrad" cx="0.34" cy="0.28" r="0.78">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="0.5" stop-color="#e6f7ff" stop-opacity="0.22"/>
+      <stop offset="0.82" stop-color="#b7e2f5" stop-opacity="0.4"/>
+      <stop offset="0.95" stop-color="#ffe0f0" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.9"/>
+    </radialGradient>
+    <linearGradient id="chromeGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7d8c95"/>
+      <stop offset="0.3" stop-color="#f0f5f7"/>
+      <stop offset="0.62" stop-color="#aebbc2"/>
+      <stop offset="1" stop-color="#6f7d86"/>
+    </linearGradient>
+    <clipPath id="tubInside">
+      <ellipse cx="400" cy="252" rx="292" ry="30"/>
+    </clipPath>
+  </defs>
+
+  <!-- wall, skirting and floor -->
+  <rect x="0" y="0" width="800" height="404" fill="url(#tiles)"/>
+  <rect x="0" y="404" width="800" height="196" fill="url(#floorGrad)"/>
+  <rect x="0" y="396" width="800" height="14" fill="#eef5f8"/>
+
+  <!-- wall-mounted faucet, well clear of the duck -->
+  <g>
+    <rect x="676" y="150" width="44" height="20" rx="8" fill="#93a3ac"/>
+    <path d="M698 162 v 22 q 0 26 -26 26 h -22" fill="none" stroke="url(#chromeGrad)" stroke-width="17" stroke-linecap="round"/>
+    <circle cx="676" cy="150" r="11" fill="url(#chromeGrad)"/>
+    <circle cx="720" cy="150" r="11" fill="url(#chromeGrad)"/>
+    <rect x="670" y="128" width="12" height="16" rx="3" fill="#9fb0b8"/>
+    <rect x="714" y="128" width="12" height="16" rx="3" fill="#9fb0b8"/>
+  </g>
+
+  <!-- floor shadow -->
+  <ellipse cx="400" cy="500" rx="300" ry="26" fill="#6f5f51" opacity="0.35"/>
+
+  <!-- clawfoot legs -->
+  <g fill="#dbe4e9" stroke="#9db0b9" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M168 452 q -6 24 -22 36 q -14 10 -22 10 q -10 0 -10 -8 q 0 -8 12 -12 q 16 -6 22 -28 Z"/>
+    <path d="M158 470 q 8 18 26 22 q 12 3 12 -5 q 0 -6 -10 -9 q -14 -4 -20 -14 Z"/>
+    <path d="M632 452 q 6 24 22 36 q 14 10 22 10 q 10 0 10 -8 q 0 -8 -12 -12 q -16 -6 -22 -28 Z"/>
+    <path d="M642 470 q -8 18 -26 22 q -12 3 -12 -5 q 0 -6 10 -9 q 14 -4 20 -14 Z"/>
+  </g>
+
+  <!-- bathtub shell -->
+  <path d="M100 248 L100 392 Q100 476 210 476 L590 476 Q700 476 700 392 L700 248 Z" fill="url(#tubGrad)" stroke="#9db0b9" stroke-width="3"/>
+  <path d="M150 300 q 14 120 90 156" fill="none" stroke="#ffffff" stroke-width="16" opacity="0.75" stroke-linecap="round"/>
+  <path d="M196 306 q 8 96 56 138" fill="none" stroke="#ffffff" stroke-width="7" opacity="0.5" stroke-linecap="round"/>
+
+  <!-- tub rim + inner wall -->
+  <ellipse cx="400" cy="248" rx="312" ry="40" fill="url(#rimGrad)" stroke="#9db0b9" stroke-width="3"/>
+  <ellipse cx="400" cy="252" rx="292" ry="30" fill="url(#innerGrad)" stroke="#8fa5b0" stroke-width="2"/>
+
+  <!-- soapy water -->
+  <g clip-path="url(#tubInside)">
+    <rect x="100" y="240" width="600" height="60" fill="url(#waterGrad)"/>
+    <g opacity="0.5" stroke="#ffffff" fill="none" stroke-linecap="round">
+      <path d="M128 246 q 44 8 88 0 t 88 0 t 88 0 t 88 0 t 88 0" stroke-width="4"/>
+      <path d="M120 262 q 50 -9 100 0 t 100 0 t 100 0 t 100 0" stroke-width="3"/>
+      <path d="M140 274 q 40 8 80 0 t 80 0 t 80 0 t 80 0 t 80 0" stroke-width="2.5"/>
+    </g>
+    <!-- duck reflection under the surface -->
+    <ellipse cx="368" cy="268" rx="72" ry="16" fill="#f0bd00" opacity="0.4"/>
+    <ellipse cx="450" cy="262" rx="30" ry="9" fill="#f0bd00" opacity="0.35"/>
+  </g>
+
+  <!-- lather already sitting behind the duck -->
+  <g fill="url(#foamGrad)" opacity="0.98">
+    <circle cx="150" cy="240" r="26"/><circle cx="182" cy="232" r="18"/><circle cx="206" cy="243" r="24"/>
+    <circle cx="240" cy="234" r="15"/><circle cx="262" cy="244" r="21"/><circle cx="292" cy="234" r="17"/>
+    <circle cx="474" cy="236" r="19"/><circle cx="506" cy="244" r="26"/><circle cx="540" cy="232" r="16"/>
+    <circle cx="566" cy="243" r="23"/><circle cx="600" cy="234" r="18"/><circle cx="630" cy="243" r="25"/>
+  </g>
+
+  <!-- RUBBER DUCKY -->
+  <!-- pass 1: silhouette outline -->
+  <g fill="#c6870b" stroke="#c6870b" stroke-width="7" stroke-linejoin="round">
+    <path d="M300 216 C 278 210 260 194 250 172 C 278 176 304 188 322 204 C 316 212 308 216 300 216 Z"/>
+    <circle cx="452" cy="164" r="45"/>
+    <ellipse cx="368" cy="234" rx="88" ry="60"/>
+  </g>
+  <!-- pass 2: fills, no strokes, shared user-space gradient hides the seams -->
+  <g fill="url(#duckGrad)">
+    <path d="M300 216 C 278 210 260 194 250 172 C 278 176 304 188 322 204 C 316 212 308 216 300 216 Z"/>
+    <circle cx="452" cy="164" r="45"/>
+    <ellipse cx="368" cy="234" rx="88" ry="60"/>
+  </g>
+  <!-- bill -->
+  <path d="M488 152 C 524 144 562 152 564 168 C 566 184 536 190 504 186 C 488 180 484 164 488 152 Z" fill="url(#beakGrad)" stroke="#c05c07" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M492 172 C 516 180 546 180 562 172" fill="none" stroke="#c05c07" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- eye -->
+  <circle cx="466" cy="148" r="7.5" fill="#33261a"/>
+  <circle cx="469" cy="145" r="2.8" fill="#ffffff"/>
+  <ellipse cx="446" cy="184" rx="12" ry="7.5" fill="#ff9d8c" opacity="0.5"/>
+  <!-- wing -->
+  <path d="M322 216 C 348 194 392 194 414 220 C 402 250 368 266 338 258 C 318 252 312 230 322 216 Z" fill="#f7c40c" stroke="#c6870b" stroke-width="2.5"/>
+  <path d="M336 238 C 358 246 384 240 400 226" fill="none" stroke="#c6870b" stroke-width="2" opacity="0.7" stroke-linecap="round"/>
+  <path d="M334 252 C 354 258 376 254 392 244" fill="none" stroke="#c6870b" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+  <!-- glossy rubber highlights -->
+  <ellipse cx="336" cy="200" rx="30" ry="13" fill="#fffce6" opacity="0.55" transform="rotate(-20 336 200)"/>
+  <ellipse cx="434" cy="136" rx="16" ry="9" fill="#fffce6" opacity="0.6" transform="rotate(-28 434 136)"/>
+
+  <!-- foam in front: mounds of suds hiding the waterline -->
+  <g fill="url(#foamGrad)">
+    <circle cx="120" cy="258" r="22"/><circle cx="152" cy="266" r="28"/><circle cx="188" cy="256" r="19"/>
+    <circle cx="214" cy="268" r="26"/><circle cx="246" cy="258" r="17"/><circle cx="272" cy="270" r="24"/>
+    <circle cx="304" cy="262" r="20"/><circle cx="330" cy="276" r="16"/><circle cx="360" cy="282" r="18"/>
+    <circle cx="394" cy="284" r="15"/><circle cx="424" cy="276" r="20"/><circle cx="452" cy="264" r="17"/>
+    <circle cx="478" cy="272" r="25"/><circle cx="512" cy="262" r="18"/><circle cx="538" cy="272" r="26"/>
+    <circle cx="574" cy="260" r="20"/><circle cx="600" cy="270" r="24"/><circle cx="632" cy="260" r="18"/>
+    <circle cx="658" cy="266" r="22"/><circle cx="682" cy="256" r="15"/>
+  </g>
+  <g fill="#ffffff" opacity="0.85">
+    <circle cx="140" cy="248" r="9"/><circle cx="205" cy="250" r="7"/><circle cx="265" cy="252" r="10"/>
+    <circle cx="318" cy="256" r="6"/><circle cx="470" cy="252" r="8"/><circle cx="530" cy="250" r="10"/>
+    <circle cx="592" cy="252" r="7"/><circle cx="650" cy="250" r="9"/>
+  </g>
+  <!-- a dab of lather on the duck's back and head -->
+  <g fill="url(#foamGrad)">
+    <circle cx="298" cy="196" r="13"/><circle cx="314" cy="188" r="9"/>
+    <circle cx="446" cy="122" r="12"/><circle cx="462" cy="116" r="8"/><circle cx="432" cy="116" r="7"/>
+  </g>
+
+  <!-- floating soap bubbles -->
+  <g>
+    <circle cx="196" cy="150" r="28" fill="url(#bubbleGrad)"/><circle cx="187" cy="140" r="6.5" fill="#ffffff" opacity="0.9"/>
+    <circle cx="262" cy="92" r="18" fill="url(#bubbleGrad)"/><circle cx="256" cy="86" r="4.5" fill="#ffffff" opacity="0.9"/>
+    <circle cx="322" cy="140" r="13" fill="url(#bubbleGrad)"/>
+    <circle cx="392" cy="70" r="16" fill="url(#bubbleGrad)"/><circle cx="387" cy="64" r="4" fill="#ffffff" opacity="0.9"/>
+    <circle cx="556" cy="96" r="24" fill="url(#bubbleGrad)"/><circle cx="548" cy="88" r="5.5" fill="#ffffff" opacity="0.9"/>
+    <circle cx="614" cy="160" r="15" fill="url(#bubbleGrad)"/>
+    <circle cx="662" cy="206" r="20" fill="url(#bubbleGrad)"/><circle cx="655" cy="199" r="5" fill="#ffffff" opacity="0.9"/>
+    <circle cx="112" cy="104" r="14" fill="url(#bubbleGrad)"/>
+    <circle cx="146" cy="196" r="11" fill="url(#bubbleGrad)"/>
+    <circle cx="500" cy="60" r="11" fill="url(#bubbleGrad)"/>
+  </g>
+
+  <!-- soap dish resting on the near rim -->
+  <g>
+    <ellipse cx="196" cy="298" rx="52" ry="15" fill="#eef4f7" stroke="#a9bcc5" stroke-width="2"/>
+    <rect x="164" y="272" width="66" height="24" rx="11" fill="#f4b6d6" stroke="#d387b8" stroke-width="2"/>
+    <ellipse cx="188" cy="279" rx="18" ry="5" fill="#ffffff" opacity="0.5"/>
+  </g>
+</svg>

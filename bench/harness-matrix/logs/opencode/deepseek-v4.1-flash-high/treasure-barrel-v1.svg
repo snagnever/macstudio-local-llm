@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d3557"/>
+      <stop offset="0.45" stop-color="#4a7bb5"/>
+      <stop offset="0.78" stop-color="#9cc4e4"/>
+      <stop offset="1" stop-color="#f2d6a2"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b6a8f"/>
+      <stop offset="1" stop-color="#134a68"/>
+    </linearGradient>
+    <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e6c88a"/>
+      <stop offset="1" stop-color="#b98f4e"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5b3a1e"/>
+      <stop offset="0.5" stop-color="#8a5a2b"/>
+      <stop offset="1" stop-color="#4a2f16"/>
+    </linearGradient>
+    <linearGradient id="woodDark" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3a2410"/>
+      <stop offset="0.5" stop-color="#5b3a1e"/>
+      <stop offset="1" stop-color="#2e1c0c"/>
+    </linearGradient>
+    <linearGradient id="hoop" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4b4b4b"/>
+      <stop offset="0.5" stop-color="#9a9a9a"/>
+      <stop offset="1" stop-color="#3a3a3a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff6c4" stop-opacity="0.95"/>
+      <stop offset="0.5" stop-color="#ffd54a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffd54a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="coin" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#fff2a8"/>
+      <stop offset="0.55" stop-color="#f2c33c"/>
+      <stop offset="1" stop-color="#b8861a"/>
+    </radialGradient>
+    <radialGradient id="hole" cx="0.5" cy="0.4" r="0.7">
+      <stop offset="0" stop-color="#2a1a08"/>
+      <stop offset="1" stop-color="#120b03"/>
+    </radialGradient>
+    <ellipse id="coinShape" cx="0" cy="0" rx="13" ry="9"/>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="600" fill="url(#sky)"/>
+
+  <circle cx="650" cy="140" r="52" fill="#fff2c4" opacity="0.85"/>
+  <circle cx="650" cy="140" r="90" fill="#fff2c4" opacity="0.18"/>
+
+  <rect x="0" y="380" width="800" height="70" fill="url(#sea)"/>
+  <path d="M0 380 H800 V400 Q700 392 600 400 T400 400 T200 402 T0 398 Z" fill="#5fa3c4" opacity="0.5"/>
+
+  <rect x="0" y="430" width="800" height="170" fill="url(#sand)"/>
+  <path d="M0 430 Q120 420 260 434 Q400 448 540 432 Q680 416 800 430 V600 H0 Z" fill="#d9b877"/>
+
+  <ellipse cx="400" cy="470" rx="230" ry="46" fill="#9c7539" opacity="0.45"/>
+  <ellipse cx="400" cy="452" rx="190" ry="38" fill="#c79f5c"/>
+
+  <g>
+    <path d="M330 250
+             C 316 290 306 330 308 372
+             C 310 410 330 438 362 452
+             L 438 452
+             C 470 438 490 410 492 372
+             C 494 330 484 290 470 250 Z"
+          fill="url(#wood)" stroke="#2e1c0c" stroke-width="3"/>
+    <path d="M330 250 C 316 290 306 330 308 372 C 310 410 330 438 362 452 L 438 452 C 470 438 490 410 492 372 C 494 330 484 290 470 250 Z"
+          fill="none" stroke="#6b431f" stroke-width="2" opacity="0.6"/>
+
+    <path d="M352 250 C 342 292 336 332 337 372 C 338 412 352 440 372 452" fill="none" stroke="#3a2410" stroke-width="3" opacity="0.7"/>
+    <path d="M382 250 C 378 294 376 334 377 374 C 378 414 384 440 396 452" fill="none" stroke="#3a2410" stroke-width="3" opacity="0.7"/>
+    <path d="M412 250 C 416 294 418 334 417 374 C 416 414 410 440 398 452" fill="none" stroke="#3a2410" stroke-width="3" opacity="0.7"/>
+    <path d="M448 250 C 458 292 464 332 463 372 C 462 412 448 440 428 452" fill="none" stroke="#3a2410" stroke-width="3" opacity="0.7"/>
+
+    <path d="M320 300 C 360 322 440 322 480 300 L 484 322 C 440 346 360 346 316 322 Z" fill="url(#hoop)"/>
+    <path d="M320 300 C 360 322 440 322 480 300" fill="none" stroke="#2b2b2b" stroke-width="2"/>
+    <path d="M312 372 C 360 398 440 398 488 372 L 490 394 C 440 420 360 420 310 394 Z" fill="url(#hoop)"/>
+    <path d="M312 372 C 360 398 440 398 488 372" fill="none" stroke="#2b2b2b" stroke-width="2"/>
+
+    <ellipse cx="400" cy="250" rx="90" ry="26" fill="#3a2410"/>
+    <ellipse cx="400" cy="250" rx="74" ry="19" fill="url(#hole)"/>
+    <ellipse cx="400" cy="250" rx="74" ry="19" fill="none" stroke="#8a5a2b" stroke-width="3"/>
+
+    <ellipse cx="400" cy="252" rx="120" ry="70" fill="url(#glow)"/>
+
+    <ellipse cx="372" cy="258" rx="22" ry="13" fill="url(#coin)"/>
+    <ellipse cx="410" cy="262" rx="24" ry="14" fill="url(#coin)"/>
+    <ellipse cx="440" cy="252" rx="20" ry="12" fill="url(#coin)"/>
+    <ellipse cx="352" cy="246" rx="18" ry="11" fill="url(#coin)"/>
+    <ellipse cx="392" cy="240" rx="21" ry="12" fill="url(#coin)"/>
+    <ellipse cx="430" cy="240" rx="17" ry="10" fill="url(#coin)"/>
+    <ellipse cx="400" cy="252" rx="16" ry="10" fill="#fff2a8" opacity="0.5"/>
+
+    <g stroke="#a8771a" stroke-width="1.5">
+      <ellipse cx="372" cy="258" rx="22" ry="13" fill="none"/>
+      <ellipse cx="410" cy="262" rx="24" ry="14" fill="none"/>
+      <ellipse cx="440" cy="252" rx="20" ry="12" fill="none"/>
+      <ellipse cx="352" cy="246" rx="18" ry="11" fill="none"/>
+      <ellipse cx="392" cy="240" rx="21" ry="12" fill="none"/>
+      <ellipse cx="430" cy="240" rx="17" ry="10" fill="none"/>
+    </g>
+
+    <path d="M360 244 l6 -22 l8 14 z" fill="#e8c24a"/>
+    <circle cx="448" cy="228" r="6" fill="#ffd54a"/>
+    <circle cx="448" cy="228" r="3" fill="#fff2a8"/>
+  </g>
+
+  <g>
+    <use href="#coinShape" x="300" y="470" fill="url(#coin)"/>
+    <use href="#coinShape" x="330" y="486" fill="url(#coin)"/>
+    <use href="#coinShape" x="470" y="476" fill="url(#coin)"/>
+    <use href="#coinShape" x="500" y="462" fill="url(#coin)"/>
+    <use href="#coinShape" x="285" y="452" fill="url(#coin)"/>
+    <use href="#coinShape" x="520" y="486" fill="url(#coin)"/>
+    <use href="#coinShape" x="360" y="500" fill="url(#coin)"/>
+    <use href="#coinShape" x="440" y="498" fill="url(#coin)"/>
+    <use href="#coinShape" x="402" y="512" fill="url(#coin)"/>
+    <use href="#coinShape" x="250" y="486" fill="url(#coin)"/>
+    <use href="#coinShape" x="548" y="500" fill="url(#coin)"/>
+  </g>
+
+  <g fill="#a8771a" opacity="0.9">
+    <circle cx="360" cy="410" r="3"/>
+    <circle cx="430" cy="420" r="2.5"/>
+    <circle cx="300" cy="520" r="2.5"/>
+    <circle cx="500" cy="530" r="3"/>
+    <circle cx="560" cy="470" r="2"/>
+    <circle cx="240" cy="460" r="2"/>
+  </g>
+
+  <ellipse cx="400" cy="452" rx="200" ry="26" fill="#8a6530" opacity="0.35"/>
+
+  <path d="M120 470 q40 -30 80 0 q-40 12 -80 0 z" fill="#e0c084" opacity="0.6"/>
+  <path d="M620 500 q50 -34 96 0 q-46 14 -96 0 z" fill="#e0c084" opacity="0.6"/>
+</svg>

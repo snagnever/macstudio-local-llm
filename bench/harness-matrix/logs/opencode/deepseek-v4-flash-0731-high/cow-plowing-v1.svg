@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="A cow plowing a field in a rural landscape">
+  <title>Cow plowing a field</title>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7ec8e3"/>
+      <stop offset="100%" stop-color="#cdeeff"/>
+    </linearGradient>
+    <linearGradient id="cowBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#d8d2cc"/>
+    </linearGradient>
+    <linearGradient id="field" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8a5a2b"/>
+      <stop offset="100%" stop-color="#6b3f1f"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="800" height="500" fill="url(#sky)"/>
+
+  <!-- Sun -->
+  <circle cx="680" cy="80" r="45" fill="#ffd54f"/>
+  <circle cx="680" cy="80" r="40" fill="#ffe082"/>
+
+  <!-- Clouds -->
+  <g fill="#ffffff" opacity="0.9">
+    <ellipse cx="140" cy="80" rx="50" ry="22"/>
+    <ellipse cx="190" cy="70" rx="40" ry="18"/>
+    <ellipse cx="100" cy="75" rx="35" ry="16"/>
+    <ellipse cx="520" cy="110" rx="45" ry="20"/>
+    <ellipse cx="570" cy="100" rx="38" ry="17"/>
+  </g>
+
+  <!-- Rolling hills in background -->
+  <rect y="320" width="800" height="180" fill="#9ccc65"/>
+  <ellipse cx="200" cy="300" rx="260" ry="70" fill="#81c784"/>
+  <ellipse cx="600" cy="310" rx="300" ry="80" fill="#66bb6a"/>
+
+  <!-- Furrowed field -->
+  <rect y="380" width="800" height="120" fill="url(#field)"/>
+  <g stroke="#5d3318" stroke-width="3" opacity="0.85">
+    <line x1="0" y1="400" x2="800" y2="400"/>
+    <line x1="0" y1="420" x2="800" y2="420"/>
+    <line x1="0" y1="440" x2="800" y2="440"/>
+    <line x1="0" y1="460" x2="800" y2="460"/>
+    <line x1="0" y1="480" x2="800" y2="480"/>
+  </g>
+  <g stroke="#a57644" stroke-width="1.5" opacity="0.5">
+    <line x1="0" y1="410" x2="800" y2="410"/>
+    <line x1="0" y1="430" x2="800" y2="430"/>
+    <line x1="0" y1="450" x2="800" y2="450"/>
+    <line x1="0" y1="470" x2="800" y2="470"/>
+  </g>
+
+  <!-- Fence in distance -->
+  <g stroke="#6d4c3a" stroke-width="3">
+    <line x1="0" y1="372" x2="800" y2="372"/>
+    <line x1="0" y1="355" x2="800" y2="355"/>
+  </g>
+  <g stroke="#6d4c3a" stroke-width="4">
+    <line x1="40" y1="350" x2="40" y2="375"/>
+    <line x1="120" y1="350" x2="120" y2="375"/>
+    <line x1="200" y1="350" x2="200" y2="375"/>
+    <line x1="280" y1="350" x2="280" y2="375"/>
+    <line x1="360" y1="350" x2="360" y2="375"/>
+    <line x1="440" y1="350" x2="440" y2="375"/>
+    <line x1="520" y1="350" x2="520" y2="375"/>
+    <line x1="600" y1="350" x2="600" y2="375"/>
+    <line x1="680" y1="350" x2="680" y2="375"/>
+    <line x1="760" y1="350" x2="760" y2="375"/>
+  </g>
+
+  <!-- Furrow being freshly cut behind the plow -->
+  <g stroke="#4a2a12" stroke-width="4" opacity="0.9">
+    <line x1="40" y1="412" x2="150" y2="420"/>
+    <line x1="40" y1="432" x2="150" y2="440"/>
+  </g>
+
+  <!-- === PLOW === -->
+  <g>
+    <!-- Plow beam -->
+    <line x1="125" y1="352" x2="210" y2="392" stroke="#a4633a" stroke-width="9" stroke-linecap="round"/>
+    <!-- Plowshare blade -->
+    <polygon points="210,392 262,391 250,405 232,412 214,409" fill="#8d8d8d" stroke="#5a5a5a" stroke-width="2"/>
+    <!-- Moldboard -->
+    <path d="M250 405 Q300 395 320 408 Q285 415 258 412 Z" fill="#b0b0b0" stroke="#777777" stroke-width="2"/>
+    <!-- Depth wheel -->
+    <circle cx="205" cy="414" r="14" fill="none" stroke="#6b4f2f" stroke-width="5"/>
+    <line x1="205" y1="400" x2="205" y2="428" stroke="#6b4f2f" stroke-width="5"/>
+    <!-- Share tip -->
+    <polygon points="300,410 332,418 306,420" fill="#6e6e6e"/>
+  </g>
+
+  <!-- === HARNESS / YOKE === -->
+  <!-- Yoke on the cow's shoulders -->
+  <rect x="238" y="252" width="86" height="10" rx="5" fill="#8a5a2b" stroke="#5d3318" stroke-width="2"/>
+  <!-- Chains from yoke down to plow beam -->
+  <path d="M262 262 Q240 300 210 350" fill="none" stroke="#4d4d4d" stroke-width="2.5" stroke-dasharray="6 3"/>
+  <path d="M300 262 Q290 305 250 392" fill="none" stroke="#4d4d4d" stroke-width="2.5" stroke-dasharray="6 3"/>
+
+  <!-- === COW === -->
+  <g>
+    <!-- Back legs -->
+    <path d="M472 328 L462 392" stroke="#cfc8c0" stroke-width="26" stroke-linecap="round"/>
+    <rect x="448" y="388" width="28" height="12" rx="5" fill="#cfc8c0"/>
+    <path d="M512 328 L506 392" stroke="#b3aca4" stroke-width="24" stroke-linecap="round"/>
+    <!-- Front legs -->
+    <path d="M345 330 L335 392" stroke="#e6e0d8" stroke-width="26" stroke-linecap="round"/>
+    <rect x="322" y="388" width="26" height="12" rx="5" fill="#e6e0d8"/>
+    <path d="M392 330 L388 392" stroke="#d0c9c1" stroke-width="24" stroke-linecap="round"/>
+    <!-- Front hooves -->
+    <rect x="320" y="396" width="30" height="16" rx="7" fill="#4a3a2a"/>
+    <!-- Hind hooves -->
+    <rect x="446" y="396" width="30" height="16" rx="7" fill="#4a3a2a"/>
+
+    <!-- Body -->
+    <ellipse cx="425" cy="300" rx="105" ry="70" fill="url(#cowBody)" stroke="#b8b2aa" stroke-width="2"/>
+
+    <!-- Black patches -->
+    <g fill="#2e2a26">
+      <ellipse cx="500" cy="280" rx="42" ry="40" transform="rotate(-8 500 280)"/>
+      <ellipse cx="410" cy="342" rx="20" ry="14"/>
+      <path d="M455 352 Q465 360 470 350 Q475 338 460 336 Z"/>
+      <ellipse cx="392" cy="266" rx="16" ry="12"/>
+    </g>
+
+    <!-- Tail -->
+    <path d="M527 290 Q560 300 568 320" fill="none" stroke="#2e2a26" stroke-width="8" stroke-linecap="round"/>
+    <ellipse cx="570" cy="330" rx="7" ry="14" fill="#2e2a26" transform="rotate(25 570 330)"/>
+
+    <!-- Neck -->
+    <path d="M338 290 Q305 275 298 250 Q330 240 348 262 Z" fill="#e8e2da" stroke="#c4bcb2" stroke-width="1.5"/>
+    <!-- Head -->
+    <ellipse cx="280" cy="248" rx="55" ry="42" fill="#f2ede5" stroke="#ccc4ba" stroke-width="2"/>
+    <!-- Muzzle -->
+    <ellipse cx="235" cy="262" rx="26" ry="22" fill="#eae4da" stroke="#c4bcb2" stroke-width="1.5"/>
+
+    <!-- Nostrils -->
+    <ellipse cx="222" cy="266" rx="4" ry="5" fill="#4a3a2a"/>
+    <ellipse cx="246" cy="266" rx="4" ry="5" fill="#4a3a2a"/>
+
+    <!-- Facial patch -->
+    <path d="M268 222 Q288 214 298 230 Q292 258 276 262 Q258 252 268 222 Z" fill="#2e2a26" opacity="0.9"/>
+    <!-- White blaze up the face -->
+    <path d="M298 216 Q314 224 312 244 Q306 262 292 262 L286 240 Z" fill="#ffffff"/>
+
+    <!-- Eyes -->
+    <circle cx="270" cy="236" r="5" fill="#1c1a18"/>
+    <circle cx="298" cy="240" r="5" fill="#1c1a18"/>
+    <circle cx="272" cy="234.5" r="1.5" fill="#ffffff"/>
+    <circle cx="300" cy="238.5" r="1.5" fill="#ffffff"/>
+
+    <!-- Ears -->
+    <ellipse cx="300" cy="216" rx="10" ry="18" fill="#f2ede5" stroke="#c4bcb2" stroke-width="1.5" transform="rotate(-30 300 216)"/>
+    <ellipse cx="322" cy="220" rx="9" ry="16" fill="#eadfd0" stroke="#c4bcb2" stroke-width="1.5" transform="rotate(-10 322 220)"/>
+
+    <!-- Horns -->
+    <path d="M306 210 Q318 196 334 196" fill="none" stroke="#c9a86a" stroke-width="6" stroke-linecap="round"/>
+    <path d="M326 214 Q342 200 356 204" fill="none" stroke="#c9a86a" stroke-width="6" stroke-linecap="round"/>
+  </g>
+
+  <!-- Udders/belly shadows -->
+  <ellipse cx="425" cy="368" rx="58" ry="10" fill="#b3aca4" opacity="0.5"/>
+
+  <!-- Ground shadow under cow and plow -->
+  <ellipse cx="370" cy="404" rx="140" ry="12" fill="#3d2410" opacity="0.35"/>
+
+  <!-- Grass tufts -->
+  <g stroke="#3e8e41" stroke-width="3" stroke-linecap="round" fill="none">
+    <path d="M60 392 q4 -10 8 0"/>
+    <path d="M700 388 q4 -10 8 0"/>
+    <path d="M120 395 q3 -8 6 0 M128 395 q3 -8 6 0"/>
+  </g>
+
+  <!-- Bird silhouettes -->
+  <g stroke="#4a6a8a" stroke-width="2.5" stroke-linecap="round" fill="none">
+    <path d="M300 140 q6 -8 12 0 q6 -8 12 0"/>
+    <path d="M360 118 q5 -7 10 0 q5 -7 10 0"/>
+  </g>
+</svg>

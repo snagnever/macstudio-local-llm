@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" width="900" height="700">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d0418"/>
+      <stop offset="55%" stop-color="#25092f"/>
+      <stop offset="100%" stop-color="#4d1240"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff7a1a" stop-opacity="0.55"/>
+      <stop offset="55%" stop-color="#e2330b" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#e2330b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="portal" cx="50%" cy="46%" r="55%">
+      <stop offset="0%" stop-color="#ffdd8f" stop-opacity="0.70"/>
+      <stop offset="35%" stop-color="#ff7a1a" stop-opacity="0.55"/>
+      <stop offset="70%" stop-color="#e2330b" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#7a1500" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="fire" cx="42%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#fff8b0"/>
+      <stop offset="30%" stop-color="#ffd54d"/>
+      <stop offset="60%" stop-color="#ff8a1a"/>
+      <stop offset="85%" stop-color="#e2330b"/>
+      <stop offset="100%" stop-color="#7a1500"/>
+    </radialGradient>
+    <linearGradient id="carbody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a31224"/>
+      <stop offset="100%" stop-color="#5c0a14"/>
+    </linearGradient>
+    <linearGradient id="glassv2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#aef0ff"/>
+      <stop offset="55%" stop-color="#2e7fae"/>
+      <stop offset="100%" stop-color="#0f2f4a"/>
+    </linearGradient>
+    <radialGradient id="vig" cx="50%" cy="46%" r="70%">
+      <stop offset="0%" stop-color="#080413" stop-opacity="0"/>
+      <stop offset="68%" stop-color="#080413" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#04020a" stop-opacity="0.9"/>
+    </radialGradient>
+    <radialGradient id="glowflame" cx="50%" cy="55%" r="55%">
+      <stop offset="0%" stop-color="#ffd54d" stop-opacity="0.65"/>
+      <stop offset="55%" stop-color="#ff7a1a" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#e2330b" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blurB" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+    <filter id="blurM" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+    <filter id="blurS" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+
+  <!-- sky -->
+  <rect width="900" height="700" fill="url(#sky)"/>
+
+  <!-- stars -->
+  <g fill="#ffffff" opacity="0.8">
+    <circle cx="60" cy="50" r="1.6"/>
+    <circle cx="170" cy="95" r="1.2"/>
+    <circle cx="300" cy="38" r="1.4"/>
+    <circle cx="520" cy="60" r="1.5"/>
+    <circle cx="700" cy="40" r="1.3"/>
+    <circle cx="830" cy="110" r="1.6"/>
+    <circle cx="60" cy="180" r="1.1"/>
+    <circle cx="220" cy="170" r="1.3"/>
+    <circle cx="660" cy="150" r="1.2"/>
+    <circle cx="860" cy="260" r="1.4"/>
+  </g>
+  <g fill="#ffd54d" opacity="0.9">
+    <circle cx="760" cy="90" r="1.4"/>
+    <circle cx="120" cy="70" r="1.2"/>
+    <circle cx="420" cy="96" r="1.3"/>
+  </g>
+
+  <!-- warm halo behind the whole scene -->
+  <ellipse cx="450" cy="330" rx="360" ry="250" fill="url(#glowflame)" filter="url(#blurB)" opacity="0.8"/>
+  <ellipse cx="450" cy="330" rx="330" ry="210" fill="url(#halo)"/>
+
+  <!-- ground grid (synthwave perspective) -->
+  <polygon points="0,560 900,560 900,700 0,700" fill="#160a26"/>
+  <g stroke="#331c48" stroke-width="2" opacity="0.75">
+    <line x1="450" y1="560" x2="-140" y2="720"/>
+    <line x1="450" y1="560" x2="-40" y2="720"/>
+    <line x1="450" y1="560" x2="60" y2="720"/>
+    <line x1="450" y1="560" x2="160" y2="720"/>
+    <line x1="450" y1="560" x2="260" y2="720"/>
+    <line x1="450" y1="560" x2="360" y2="720"/>
+    <line x1="450" y1="560" x2="460" y2="720"/>
+    <line x1="450" y1="560" x2="560" y2="720"/>
+    <line x1="450" y1="560" x2="660" y2="720"/>
+    <line x1="450" y1="560" x2="760" y2="720"/>
+    <line x1="450" y1="560" x2="860" y2="720"/>
+    <line x1="450" y1="560" x2="960" y2="720"/>
+    <line x1="450" y1="560" x2="1040" y2="720"/>
+    <line x1="0" y1="585" x2="900" y2="585"/>
+    <line x1="0" y1="605" x2="900" y2="605"/>
+    <line x1="0" y1="628" x2="900" y2="628"/>
+    <line x1="0" y1="655" x2="900" y2="655"/>
+    <line x1="0" y1="688" x2="900" y2="688"/>
+  </g>
+  <line x1="0" y1="560" x2="900" y2="560" stroke="#ff8a1a" stroke-width="2" opacity="0.6"/>
+  <rect x="0" y="476" width="900" height="84" fill="url(#portal)" opacity="0.35"/>
+
+  <!-- energy orbit ring -->
+  <ellipse cx="450" cy="320" rx="318" ry="176" fill="none" stroke="#19e3ff" stroke-width="2" stroke-dasharray="3 12" opacity="0.22"/>
+
+  <!-- emissive core of the fire circle -->
+  <ellipse cx="450" cy="320" rx="210" ry="118" fill="url(#portal)"/>
+  <ellipse cx="450" cy="320" rx="205" ry="112" fill="none" stroke="#ffb347" stroke-width="6" opacity="0.55" filter="url(#blurM)"/>
+
+  <!-- ring: upper/back facets (behind the car) -->
+  <g stroke="#7a1500" stroke-width="1.5" stroke-linejoin="round">
+    <polygon points="700,320 666.5,255 597.2,276 620,320" fill="#d23a08"/>
+    <polygon points="666.5,255 575,207.4 535,243.8 597.2,276" fill="#b02b05"/>
+    <polygon points="575,207.4 450,190 450,232 535,243.8" fill="#8f1d03"/>
+    <polygon points="450,190 325,207.4 365,243.8 450,232" fill="#8f1d03"/>
+    <polygon points="325,207.4 233.5,255 302.8,276 365,243.8" fill="#c2330b"/>
+    <polygon points="233.5,255 200,320 280,320 302.8,276" fill="#d23a08"/>
+  </g>
+  <path d="M 200 320 A 250 130 0 0 1 700 320" fill="none" stroke="#d23a08" stroke-width="5" opacity="0.85"/>
+  <path d="M 280 320 A 170 88 0 0 1 620 320" fill="none" stroke="#ffb347" stroke-width="8" opacity="0.9"/>
+
+  <!-- rocket flame base glow, partially behind the car -->
+  <ellipse cx="402" cy="398" rx="62" ry="92" fill="url(#glowflame)" filter="url(#blurM)"/>
+
+  <!-- ================= STUNT CAR ================= -->
+  <g transform="translate(424 326) rotate(-16)">
+    <!-- body -->
+    <path d="M -74 -12 L -60 -28 L -28 -36 L 6 -38 L 38 -36 L 62 -22 L 74 -4 L 72 8 L 56 18 L 34 18 L 30 10 L -18 8 L -24 18 L -62 16 L -72 4 Z" fill="url(#carbody)"/>
+    <!-- upper shoulder facet -->
+    <polygon points="-54,-20 44,-22 50,-14 -58,-12" fill="#c21a2e" opacity="0.85"/>
+    <!-- lower skirt -->
+    <polygon points="-70,4 40,2 36,14 -66,10" fill="#2b0509"/>
+    <!-- pillar / door seam -->
+    <line x1="-44" y1="-20" x2="-51" y2="6" stroke="#3a0a0e" stroke-width="1.5"/>
+    <line x1="30" y1="-18" x2="34" y2="10" stroke="#3a0a0e" stroke-width="1.5"/>
+    <!-- window -->
+    <polygon points="-36,-34 -8,-37 -2,-29 -30,-26" fill="url(#glassv2)"/>
+    <line x1="-34" y1="-33" x2="-9" y2="-36" stroke="#d9f6ff" stroke-width="1.5" opacity="0.7"/>
+    <!-- spoiler -->
+    <polygon points="-58,-34 -30,-42 -26,-34 -52,-28" fill="#99112a"/>
+    <line x1="-56" y1="-35" x2="-31" y2="-41" stroke="#ff8a1a" stroke-width="2"/>
+    <line x1="-48" y1="-32" x2="-50" y2="-12" stroke="#1a0408" stroke-width="3"/>
+    <!-- neon side stripe -->
+    <polygon points="-52,-6 38,-7 36,2 -50,4" fill="#19e3ff" stroke="#0a1630" stroke-width="0.8"/>
+    <!-- headlight -->
+    <rect x="66" y="-16" width="9" height="7" rx="1" fill="#fff3b0"/>
+    <line x1="70" y1="-9" x2="76" y2="12" stroke="#fff8b0" stroke-width="2.5" opacity="0.8"/>
+    <!-- taillight -->
+    <rect x="-78" y="-6" width="7" height="9" rx="1" fill="#ff5a1a"/>
+    <rect x="-75" y="-4" width="2" height="5" fill="#ffd54d"/>
+    <!-- rear wheel -->
+    <polygon points="-61,12 -56.6,1.4 -46,-3 -35.4,1.4 -31,12 -35.4,22.6 -46,27 -56.6,22.6" fill="#151521" stroke="#3a3a4c" stroke-width="3"/>
+    <circle cx="-46" cy="12" r="5.5" fill="#0e0e16"/>
+    <circle cx="-46" cy="12" r="2.2" fill="#ffd54d"/>
+    <!-- front wheel -->
+    <polygon points="-2,12 1.5,3.5 10,0 19.5,3.5 22,12 19.5,20.5 10,24 1.5,20.5" fill="#151521" stroke="#3a3a4c" stroke-width="3"/>
+    <circle cx="10" cy="12" r="4.5" fill="#0e0e16"/>
+    <circle cx="10" cy="12" r="2.2" fill="#ffd54d"/>
+    <!-- exhaust tips -->
+    <rect x="-72" y="12" width="30" height="7" rx="2" fill="#14141f"/>
+  </g>
+
+  <!-- cyan under-glow -->
+  <ellipse cx="415" cy="352" rx="130" ry="20" fill="#19e3ff" opacity="0.2" filter="url(#blurS)"/>
+
+  <!-- ============ ROCKET THRUST FLAMES ============ -->
+  <g filter="url(#blurS)" opacity="0.5">
+    <polygon points="352,340 322,396 388,348" fill="#ff7a1a"/>
+  </g>
+  <polygon points="372,352 362,412 402,356" fill="#ffd54d" opacity="0.9"/>
+  <polygon points="382,348 350,438 404,378" fill="#ff8a1a" opacity="0.92"/>
+  <polygon points="414,350 442,432 452,340" fill="#e34a0e" opacity="0.9"/>
+  <polygon points="396,352 392,470 404,352 416,470 422,352" fill="#ff8a1a"/>
+  <polygon points="398,352 400,462 410,352" fill="#ffd54d"/>
+  <polygon points="403,353 404,440 414,353" fill="#fff8b0"/>
+  <rect x="403" y="352" width="3" height="112" rx="1.5" fill="#fff8b0" opacity="0.95"/>
+
+  <!-- ring: lower/front facets (in front of the car) -->
+  <g stroke="#b33a10" stroke-width="1.5" stroke-linejoin="round">
+    <polygon points="200,320 233.5,385 302.8,364 280,320" fill="#e34a0e"/>
+    <polygon points="233.5,385 325,432.6 365,396.2 302.8,364" fill="#ff6a1a"/>
+    <polygon points="325,432.6 450,450 450,408 365,396.2" fill="#ff8f2a"/>
+    <polygon points="450,450 575,432.6 535,396.2 450,408" fill="#ff9c33"/>
+    <polygon points="575,432.6 666.5,385 597.2,364 535,396.2" fill="#ff7a1a"/>
+    <polygon points="666.5,385 700,320 620,320 597.2,364" fill="#e34a0e"/>
+  </g>
+  <!-- white-hot lower rim lips -->
+  <path d="M 200 320 A 250 130 0 0 0 700 320" fill="none" stroke="#ffcf6b" stroke-width="5" opacity="0.95"/>
+  <path d="M 280 320 A 170 88 0 0 0 620 320" fill="none" stroke="#ffe08a" stroke-width="9" opacity="0.95"/>
+  <path d="M 280 320 A 170 88 0 0 0 620 320" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.9"/>
+
+  <!-- flame tongues on the ring -->
+  <g fill="url(#fire)">
+    <path d="M 0 -20 C 5 -10 8 -2 7 5 C 6 9 3 13 0 15 C -3 13 -6 9 -7 5 C -8 -2 -5 -10 0 -20 Z" transform="translate(666.5 255) rotate(73.3) scale(2.6)"/>
+    <path d="M 0 -20 C 5 -10 8 -2 7 5 C 6 9 3 13 0 15 C -3 13 -6 9 -7 5 C -8 -2 -5 -10 0 -20 Z" transform="translate(450 190) rotate(0) scale(2.8)"/>
+    <path d="M 0 -20 C 5 -10 8 -2 7 5 C 6 9 3 13 0 15 C -3 13 -6 9 -7 5 C -8 -2 -5 -10 0 -20 Z" transform="translate(233.5 255) rotate(-73.3) scale(2.5)"/>
+    <path d="M 0 -20 C 5 -10 8 -2 7 5 C 6 9 3 13 0 15 C -3 13 -6 9 -7 5 C -8 -2 -5 -10 0 -20 Z" transform="translate(700 320) rotate(90) scale(1.7)"/>
+    <path d="M 0 -20 C 5 -10 8 -2 7 5 C 6 9 3 13 0 15 C -3 13 -6 9 -7 5 C -8 -2 -5 -10 0 -20 Z" transform="translate(200 320) rotate(270) scale(1.7)"/>
+    <path d="M 0 -20 C 5 -10 8 -2 7 5 C 6 9 3 13 0 15 C -3 13 -6 9 -7 5 C -8 -2 -5 -10 0 -20 Z" transform="translate(233.5 385) rotate(-106.7) scale(2.5)"/>
+    <path d="M 0 -20 C 5 -10 8 -2 7 5 C 6 9 3 13 0 15 C -3 13 -6 9 -7 5 C -8 -2 -5 -10 0 -20 Z" transform="translate(450 450) rotate(180) scale(2.6)"/>
+    <path d="M 0 -20 C 5 -10 8 -2 7 5 C 6 9 3 13 0 15 C -3 13 -6 9 -7 5 C -8 -2 -5 -10 0 -20 Z" transform="translate(666.5 385) rotate(106.7) scale(2.4)"/>
+  </g>
+
+  <!-- motion streaks -->
+  <g opacity="0.3">
+    <polygon points="150,300 300,330 290,342 148,314" fill="#7fe9ff"/>
+    <polygon points="110,348 270,372 262,382 108,360" fill="#7fe9ff"/>
+    <polygon points="180,404 330,398 324,408 178,414" fill="#19e3ff"/>
+  </g>
+  <g opacity="0.5">
+    <line x1="60" y1="330" x2="270" y2="322" stroke="#ffffff" stroke-width="2"/>
+    <line x1="90" y1="392" x2="250" y2="366" stroke="#ffffff" stroke-width="2" stroke-dasharray="14 22"/>
+  </g>
+
+  <!-- ring reflection on floor -->
+  <ellipse cx="450" cy="585" rx="240" ry="30" fill="#ff6a1a" opacity="0.16" filter="url(#blurB)"/>
+  <ellipse cx="450" cy="585" rx="150" ry="16" fill="#ffb347" opacity="0.14" filter="url(#blurS)"/>
+
+  <!-- dust kick-up -->
+  <ellipse cx="430" cy="668" rx="130" ry="26" fill="#ff8a1a" opacity="0.18" filter="url(#blurB)"/>
+  <ellipse cx="300" cy="690" rx="90" ry="20" fill="#e2330b" opacity="0.16" filter="url(#blurB)"/>
+
+  <!-- embers -->
+  <g filter="url(#blurS)" opacity="0.85">
+    <polygon points="470,238 476,222 482,240 476,236" fill="#ffd54d"/>
+    <polygon points="360,150 366,134 372,152 365,148" fill="#fff8b0"/>
+    <polygon points="560,250 566,234 572,252 565,248" fill="#ff7a1a"/>
+    <polygon points="300,300 306,284 312,302 305,298" fill="#ffd54d"/>
+    <polygon points="560,420 566,404 572,422 565,418" fill="#ffd54d"/>
+    <polygon points="370,500 376,484 382,502 375,498" fill="#ff7a1a"/>
+    <circle cx="520" cy="170" r="3" fill="#ff8a1a"/>
+    <circle cx="360" cy="400" r="2.8" fill="#ffd54d"/>
+    <circle cx="640" cy="180" r="2.4" fill="#8fe3ff"/>
+    <circle cx="280" cy="440" r="3" fill="#ffd54d"/>
+  </g>
+
+  <!-- sparkle flares (+ shape) -->
+  <g stroke="#fff8b0" stroke-width="1.5" stroke-linecap="round">
+    <line x1="392" y1="208" x2="408" y2="224"/>
+    <line x1="408" y1="208" x2="392" y2="224"/>
+    <line x1="542" y1="228" x2="554" y2="240"/>
+    <line x1="554" y1="228" x2="542" y2="240"/>
+    <line x1="250" y1="350" x2="262" y2="362"/>
+    <line x1="262" y1="350" x2="250" y2="362"/>
+  </g>
+  <g stroke="#19e3ff" stroke-width="1.3" stroke-linecap="round" opacity="0.8">
+    <line x1="690" y1="300" x2="706" y2="300"/>
+    <line x1="698" y1="292" x2="698" y2="308"/>
+  </g>
+
+  <!-- vignette + foreground shade -->
+  <rect width="900" height="700" fill="url(#vig)"/>
+  <rect x="0" y="668" width="900" height="32" fill="#0a0512" opacity="0.85"/>
+</svg>

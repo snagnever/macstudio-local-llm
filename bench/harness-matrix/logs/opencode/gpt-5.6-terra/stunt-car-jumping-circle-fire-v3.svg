@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title desc">
+  <title id="title">Stunt car leaping through a ring of fire</title>
+  <desc id="desc">A red stunt coupe launches from a ramp and jumps through a blazing circle of fire in a floodlit night arena.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#020611"/><stop offset=".48" stop-color="#102b49"/><stop offset="1" stop-color="#351722"/></linearGradient>
+    <radialGradient id="moonGlow"><stop stop-color="#ffd99a" stop-opacity=".24"/><stop offset=".38" stop-color="#e75128" stop-opacity=".08"/><stop offset="1" stop-color="#d92c1e" stop-opacity="0"/></radialGradient>
+    <radialGradient id="fireGlow"><stop stop-color="#fff4a8" stop-opacity=".85"/><stop offset=".22" stop-color="#ff9a29" stop-opacity=".45"/><stop offset=".58" stop-color="#ef321e" stop-opacity=".13"/><stop offset="1" stop-color="#e92d19" stop-opacity="0"/></radialGradient>
+    <linearGradient id="fire" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fffbd2"/><stop offset=".21" stop-color="#ffe669"/><stop offset=".53" stop-color="#ff8b1d"/><stop offset="1" stop-color="#d52a16"/></linearGradient>
+    <linearGradient id="ember" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff3a0"/><stop offset=".5" stop-color="#ff7621"/><stop offset="1" stop-color="#c51c18"/></linearGradient>
+    <linearGradient id="paint" x1="0" y1="0" x2=".85" y2="1"><stop stop-color="#ff9160"/><stop offset=".18" stop-color="#e8412d"/><stop offset=".62" stop-color="#9c1320"/><stop offset="1" stop-color="#420915"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e9ffff"/><stop offset=".14" stop-color="#89cbd6"/><stop offset=".46" stop-color="#1e5579"/><stop offset="1" stop-color="#061322"/></linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8b959a"/><stop offset=".25" stop-color="#303942"/><stop offset="1" stop-color="#080b10"/></linearGradient>
+    <filter id="soft" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="20"/></filter>
+    <filter id="smallGlow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5"/></filter>
+    <filter id="carShadow" x="-30%" y="-40%" width="180%" height="190%"><feDropShadow dx="17" dy="25" stdDeviation="12" flood-color="#000" flood-opacity=".82"/></filter>
+    <path id="flameA" d="M0 0C-25-29-10-63 8-90c-4 32 25 43 13 70C15-9 7-3 0 0Z"/>
+    <path id="flameB" d="M0 0C-18-22-8-49 11-71 3-40 29-35 18-11 13-2 5 1 0 0Z"/>
+  </defs>
+
+  <rect width="1400" height="900" fill="url(#sky)"/>
+  <ellipse cx="970" cy="386" rx="430" ry="410" fill="url(#moonGlow)"/>
+  <g fill="#ddecff" opacity=".8"><circle cx="76" cy="122" r="2"/><circle cx="187" cy="201" r="1.5"/><circle cx="320" cy="94" r="2"/><circle cx="491" cy="174" r="1"/><circle cx="649" cy="84" r="2"/><circle cx="1123" cy="91" r="1.5"/><circle cx="1268" cy="180" r="2"/><circle cx="1350" cy="71" r="1"/></g>
+  <path d="M0 426c153-76 289-14 433-73 127-52 268 15 395-27 192-64 336 23 572-36v312H0Z" fill="#071626" opacity=".82"/>
+  <path d="M0 527c162-35 295 10 434-29 195-54 267 30 447-17 193-50 325-24 519 22v136H0Z" fill="#040a12"/>
+  <g opacity=".52" fill="#9fc9e1"><path d="M64 507h202v9H64zM341 492h155v9H341zM1111 493h190v9h-190z"/><circle cx="125" cy="519" r="5"/><circle cx="211" cy="519" r="5"/><circle cx="399" cy="504" r="5"/><circle cx="452" cy="504" r="5"/><circle cx="1171" cy="505" r="5"/><circle cx="1243" cy="505" r="5"/></g>
+  <path d="M0 650h1400v250H0z" fill="#080a0e"/>
+  <path d="M0 687c172-39 336 13 506 15 242 2 356-53 578-38 133 9 237 31 316 55v181H0Z" fill="#101116"/>
+  <path d="M0 713c251-46 446 21 689 3 229-17 456-83 711 13" fill="none" stroke="#653129" stroke-width="6" opacity=".82"/>
+  <path d="M0 743c210-23 434 16 658 2 254-15 481-67 742 4" fill="none" stroke="#251923" stroke-width="4"/>
+
+  <!-- Ramp and its landing shadow anchor the stunt in the arena. -->
+  <path d="M0 705h283l144-143h72L337 729H0Z" fill="#151b22" stroke="#687078" stroke-width="5"/>
+  <path d="M43 695h231l131-123" fill="none" stroke="#a1a9ad" stroke-width="4" opacity=".52"/>
+  <path d="M30 715h278" stroke="#f07b32" stroke-width="3" opacity=".65"/>
+  <ellipse cx="682" cy="720" rx="325" ry="29" fill="#000" opacity=".65" filter="url(#smallGlow)"/>
+
+  <!-- Hoop frame and rear fire sit behind the airborne car. -->
+  <g transform="translate(980 408)">
+    <ellipse rx="390" ry="382" fill="url(#fireGlow)" filter="url(#soft)"/>
+    <path d="M-188 226-232 365M188 226l45 139" stroke="url(#steel)" stroke-width="24" stroke-linecap="round"/>
+    <path d="M-278 368h92M185 368h92" stroke="#555e64" stroke-width="15" stroke-linecap="round"/>
+    <circle r="255" fill="#080e17" fill-opacity=".32" stroke="#40191a" stroke-width="38"/>
+    <circle r="255" fill="none" stroke="#e8371a" stroke-width="28" opacity=".72" filter="url(#smallGlow)"/>
+    <circle r="255" fill="none" stroke="url(#fire)" stroke-width="16" stroke-dasharray="15 7" stroke-linecap="round"/>
+    <g fill="url(#fire)" stroke="#ffad31" stroke-width="2" stroke-linejoin="round">
+      <use href="#flameA" transform="translate(-183 -177) rotate(-38)"/><use href="#flameB" transform="translate(-91 -237) rotate(-15)"/>
+      <use href="#flameA" transform="translate(22 -252) rotate(8)"/><use href="#flameB" transform="translate(137 -213) rotate(37)"/>
+      <use href="#flameA" transform="translate(223 -118) rotate(64)"/><use href="#flameB" transform="translate(252 1) rotate(93)"/>
+      <use href="#flameA" transform="translate(203 144) rotate(130)"/><use href="#flameB" transform="translate(111 227) rotate(151)"/>
+      <use href="#flameA" transform="translate(-18 253) rotate(181)"/><use href="#flameB" transform="translate(-135 215) rotate(213)"/>
+      <use href="#flameA" transform="translate(-225 113) rotate(249)"/><use href="#flameB" transform="translate(-254 -13) rotate(270)"/>
+    </g>
+    <g fill="#fff5a2" opacity=".92"><circle cx="-222" cy="-104" r="4"/><circle cx="-132" cy="-217" r="3"/><circle cx="7" cy="-251" r="4"/><circle cx="155" cy="-199" r="3"/><circle cx="246" cy="-53" r="4"/><circle cx="230" cy="132" r="3"/><circle cx="69" cy="245" r="4"/><circle cx="-115" cy="228" r="3"/><circle cx="-239" cy="71" r="4"/></g>
+  </g>
+
+  <!-- Red stunt coupe in the clear opening of the ring. -->
+  <g transform="translate(321 276) rotate(-10 290 160)" filter="url(#carShadow)">
+    <path d="M34 191c5-39 28-65 73-79l76-68c27-24 59-33 116-31l112 10c39 4 67 27 87 73l51 13c32 9 48 32 49 65l2 35-49 8c-13 41-45 63-89 63-40 0-69-23-81-60H190c-13 37-43 59-82 59-44 0-76-30-84-68l-34-5 11-48c4-19 14-26 33-26Z" fill="url(#paint)" stroke="#470a14" stroke-width="8" stroke-linejoin="round"/>
+    <path d="m140 111 71-64c23-20 49-26 87-23l92 9c29 3 48 22 65 64l-315 18Z" fill="url(#glass)" stroke="#5f1220" stroke-width="6" stroke-linejoin="round"/>
+    <path d="m219 47-12 65m90-80-4 74m91-65-12 61" stroke="#751824" stroke-width="6"/>
+    <path d="M151 57c25-18 54-23 78-21" fill="none" stroke="#d9ffff" stroke-width="7" stroke-linecap="round" opacity=".58"/>
+    <path d="M13 152c137-12 346-16 534-10l20 38-568 11Z" fill="#fa5940" opacity=".75"/>
+    <path d="M0 191h570l2 29-580 6Z" fill="#4b0a13"/>
+    <path d="M223 132h127l8 27H207Z" fill="#ffd98b"/><path d="M371 128h90l21 30H379Z" fill="#bc2023"/>
+    <path d="M38 157h89l-21 22H28Z" fill="#ffe079"/><path d="M506 154h41l10 21h-48Z" fill="#fff5bf"/>
+    <path d="M140 116h52" stroke="#fff8ce" stroke-width="7" stroke-linecap="round" opacity=".9"/>
+    <path d="M178 180v45m183-45v43m126-45v37" stroke="#73101b" stroke-width="6"/>
+    <path d="M237 204h115" stroke="#ff9673" stroke-width="6" stroke-linecap="round" opacity=".76"/>
+    <path d="M329 181h18v37h-18z" fill="#d11920" opacity=".7"/>
+    <g>
+      <circle cx="108" cy="218" r="60" fill="#070a0f" stroke="#353d46" stroke-width="9"/><circle cx="108" cy="218" r="35" fill="#b6bec0" stroke="#4c545e" stroke-width="7"/><circle cx="108" cy="218" r="13" fill="#20262e"/>
+      <path d="M108 185v66m-33-33h66m-55-23 44 46m0-46-44 46" stroke="#5d6670" stroke-width="5"/>
+      <circle cx="445" cy="218" r="60" fill="#070a0f" stroke="#353d46" stroke-width="9"/><circle cx="445" cy="218" r="35" fill="#b6bec0" stroke="#4c545e" stroke-width="7"/><circle cx="445" cy="218" r="13" fill="#20262e"/>
+      <path d="M445 185v66m-33-33h66m-55-23 44 46m0-46-44 46" stroke="#5d6670" stroke-width="5"/>
+    </g>
+    <path d="M44 128c-30-5-45 9-58 33l50 1ZM516 115l32-16 11 23-34 14Z" fill="#222a34" stroke="#080b10" stroke-width="6"/>
+    <text x="260" y="91" fill="#fff6d0" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="bold" letter-spacing="3">RUSH</text>
+  </g>
+
+  <!-- Foreground flame tongues overlap the coupe, proving its passage through the hoop. -->
+  <g transform="translate(980 408)" fill="url(#ember)" stroke="#ffb330" stroke-width="2" stroke-linejoin="round">
+    <path d="M-244 35c-44 25-57 69-46 108 19-42 61-22 69-67 4-19-3-34-23-41Z"/>
+    <path d="M-225 112c-38 35-27 80-1 106-9-46 30-53 24-95-3-17-10-25-23-11Z"/>
+    <path d="M-184 175c-23 46 2 82 34 98-16-43 22-59 5-98-7-16-23-20-39-0Z"/>
+    <path d="M-118 224c-5 54 30 78 61 87-30-36 3-60-33-91-15-13-25-11-28 4Z"/>
+    <path d="M-27 250c19 48 61 55 93 42-42-15-28-51-73-61-17-4-25 4-20 19Z"/>
+    <path d="M72 241c33 42 77 41 107 16-48-4-40-45-86-43-18 1-26 11-21 27Z"/>
+    <path d="M160 191c48 21 88-4 102-37-42 23-66-12-104 12-15 10-18 21 2 25Z"/>
+  </g>
+  <g fill="#ffd75e"><circle cx="579" cy="190" r="4"/><circle cx="711" cy="126" r="3"/><circle cx="1142" cy="135" r="4"/><circle cx="1280" cy="320" r="3"/><circle cx="675" cy="607" r="4"/><circle cx="1212" cy="650" r="3"/></g>
+  <g fill="#ff6425"><circle cx="616" cy="235" r="3"/><circle cx="746" cy="190" r="2"/><circle cx="1292" cy="428" r="4"/><circle cx="699" cy="573" r="2"/><circle cx="1136" cy="701" r="3"/></g>
+</svg>

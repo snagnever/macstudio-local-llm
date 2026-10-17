@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Rubber ducky floating in a soapy bathtub</title>
+  <desc id="desc">A cheerful yellow rubber duck floats amid blue bathwater and glossy soap bubbles in a white porcelain bathtub.</desc>
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#eaf8f8"/>
+      <stop offset="1" stop-color="#b9e1e0"/>
+    </linearGradient>
+    <linearGradient id="porcelain" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#ffffff"/>
+      <stop offset=".5" stop-color="#f5ffff"/>
+      <stop offset="1" stop-color="#b9dce1"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#8de5e7"/>
+      <stop offset=".52" stop-color="#35c2d1"/>
+      <stop offset="1" stop-color="#168cae"/>
+    </linearGradient>
+    <radialGradient id="duck" cx="36%" cy="22%" r="76%">
+      <stop stop-color="#fffbc0"/>
+      <stop offset=".27" stop-color="#ffe957"/>
+      <stop offset=".72" stop-color="#ffc51f"/>
+      <stop offset="1" stop-color="#ed9b0c"/>
+    </radialGradient>
+    <linearGradient id="beak" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#ffb342"/>
+      <stop offset=".58" stop-color="#f87a25"/>
+      <stop offset="1" stop-color="#d8521b"/>
+    </linearGradient>
+    <radialGradient id="foam" cx="30%" cy="22%" r="80%">
+      <stop stop-color="#ffffff" stop-opacity=".98"/>
+      <stop offset=".55" stop-color="#f8ffff" stop-opacity=".94"/>
+      <stop offset="1" stop-color="#b9eced" stop-opacity=".9"/>
+    </radialGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="13"/>
+      <feOffset dy="13"/>
+      <feComponentTransfer><feFuncA type="linear" slope=".22"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="duckShadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="9"/>
+      <feOffset dy="11"/>
+      <feComponentTransfer><feFuncA type="linear" slope=".28"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#tile)"/>
+  <g fill="none" stroke="#9ccdcc" stroke-width="5" opacity=".6">
+    <path d="M0 195H1200M0 390H1200"/>
+    <path d="M195 0V390M600 0V390M1005 0V390"/>
+  </g>
+  <g fill="none" stroke="#fff" stroke-width="3" opacity=".7">
+    <path d="M0 199H1200M0 394H1200"/>
+    <path d="M199 0V390M604 0V390M1009 0V390"/>
+  </g>
+
+  <!-- Soft morning light on the tiled wall. -->
+  <path d="M71 0h237l-95 390H0V100z" fill="#fff" opacity=".16"/>
+  <g transform="translate(891 103)" opacity=".82">
+    <path d="M84 0v112M29 56h110" stroke="#83b7bd" stroke-width="25" stroke-linecap="round"/>
+    <path d="M84 0v112M29 56h110" stroke="#efffff" stroke-width="15" stroke-linecap="round"/>
+    <path d="M67 105c3 28 13 42 17 42s14-14 17-42" fill="none" stroke="#efffff" stroke-width="11" stroke-linecap="round"/>
+  </g>
+
+  <ellipse cx="600" cy="797" rx="518" ry="72" fill="#588e98" opacity=".23"/>
+  <path d="M91 492c0-87 69-140 158-140h702c89 0 158 53 158 140v181c0 116-89 190-200 190H291c-111 0-200-74-200-190z" fill="url(#porcelain)" filter="url(#softShadow)"/>
+  <path d="M119 493c0-72 57-111 133-111h696c76 0 133 39 133 111v103c0 108-75 166-180 166H299c-105 0-180-58-180-166z" fill="#c1ebeb"/>
+  <path d="M145 507c0-58 45-91 110-91h690c65 0 110 33 110 91v92c0 93-64 143-161 143H306c-97 0-161-50-161-143z" fill="url(#water)"/>
+  <path d="M173 524c77-24 141-5 206 13 83 24 133 17 209-8 72-24 140-34 220-5 84 30 149 24 219-6" fill="none" stroke="#d9ffff" stroke-width="12" stroke-linecap="round" opacity=".62"/>
+  <path d="M164 627c81-29 155-22 235 4 85 28 159 25 231-4 68-27 154-38 236-8 68 25 125 21 173 0" fill="none" stroke="#097d9e" stroke-width="13" stroke-linecap="round" opacity=".37"/>
+  <path d="M240 690c93 18 155 9 225-13 82-25 163-21 235 4 74 26 142 28 232 3" fill="none" stroke="#c9ffff" stroke-width="7" stroke-linecap="round" opacity=".36"/>
+
+  <!-- The duck is tucked behind a foreground layer of water so it visibly floats. -->
+  <g filter="url(#duckShadow)">
+    <ellipse cx="617" cy="648" rx="177" ry="33" fill="#087c97" opacity=".42"/>
+    <path d="M503 599c-35-48-32-126 10-175 29-33 74-46 115-35 12-48 56-82 107-82 67 0 122 55 122 122 0 73-66 132-159 142-75 8-161-5-195-42z" fill="url(#duck)"/>
+    <path d="M504 596c43 27 129 43 201 28-32 25-88 39-144 31-26-4-46-13-57-24z" fill="#d98c0a" opacity=".48"/>
+    <ellipse cx="569" cy="427" rx="28" ry="43" fill="#fff8a7" opacity=".58"/>
+    <path d="M683 381c21-17 53-16 75 1" fill="none" stroke="#f4ad12" stroke-width="10" stroke-linecap="round" opacity=".62"/>
+    <ellipse cx="734" cy="399" rx="14" ry="17" fill="#27394b"/>
+    <ellipse cx="730" cy="394" rx="4.5" ry="6" fill="#fff"/>
+    <path d="M762 437c28-20 74-17 97 9 2 3 2 7-1 10-24 34-75 46-106 22-13-10-7-32 10-41z" fill="url(#beak)"/>
+    <path d="M777 468c18 8 45 6 63-6" fill="none" stroke="#bd421c" stroke-width="5" stroke-linecap="round" opacity=".78"/>
+    <path d="M656 474c21 14 45 16 67 6" fill="none" stroke="#e4a10d" stroke-width="7" stroke-linecap="round" opacity=".6"/>
+  </g>
+
+  <path d="M413 641c72-17 132-10 190 12 54 20 120 20 185-3 70-25 135-26 208-5" fill="none" stroke="#b8fbf6" stroke-width="18" stroke-linecap="round" opacity=".68"/>
+
+  <g fill="url(#foam)" stroke="#b9e9e9" stroke-width="3">
+    <g transform="translate(208 493)">
+      <circle cx="0" cy="25" r="31"/><circle cx="34" cy="0" r="27"/><circle cx="70" cy="25" r="37"/><circle cx="35" cy="48" r="35"/>
+      <path d="M15 18c9-15 23-19 33-15" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(854 510)">
+      <circle cx="0" cy="29" r="34"/><circle cx="37" cy="2" r="29"/><circle cx="75" cy="30" r="40"/><circle cx="39" cy="55" r="34"/>
+      <path d="M22 21c10-16 25-20 37-15" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(242 653)">
+      <circle cx="0" cy="22" r="25"/><circle cx="30" cy="2" r="20"/><circle cx="57" cy="25" r="28"/>
+      <path d="M-8 16c7-9 14-12 21-9" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(952 642)">
+      <circle cx="0" cy="24" r="28"/><circle cx="34" cy="0" r="21"/><circle cx="62" cy="27" r="30"/>
+      <path d="M-8 17c7-10 16-12 23-9" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+    </g>
+  </g>
+  <g fill="url(#foam)" stroke="#c4eeee" stroke-width="3" opacity=".95">
+    <circle cx="164" cy="344" r="18"/><circle cx="195" cy="308" r="11"/><circle cx="1035" cy="337" r="20"/><circle cx="1072" cy="293" r="12"/>
+    <circle cx="397" cy="302" r="13"/><circle cx="759" cy="268" r="16"/><circle cx="791" cy="236" r="9"/>
+  </g>
+  <g fill="#fff" opacity=".82">
+    <circle cx="159" cy="338" r="5"/><circle cx="1028" cy="329" r="6"/><circle cx="753" cy="262" r="5"/>
+  </g>
+</svg>

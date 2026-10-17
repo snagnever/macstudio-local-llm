@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdf1e3"/>
+      <stop offset="1" stop-color="#f6e0c7"/>
+    </linearGradient>
+    <linearGradient id="tubGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#efe0cc"/>
+    </linearGradient>
+    <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fd0ea"/>
+      <stop offset="1" stop-color="#4fa3c9"/>
+    </linearGradient>
+    <linearGradient id="duckGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffce4a"/>
+      <stop offset="1" stop-color="#f29c10"/>
+    </linearGradient>
+    <linearGradient id="headGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe89a"/>
+      <stop offset="1" stop-color="#f5b320"/>
+    </linearGradient>
+    <linearGradient id="soapGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f2dcc8"/>
+    </linearGradient>
+    <radialGradient id="bubble" cx="0.32" cy="0.3" r="0.9">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#f4fbff" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#cde8f4" stop-opacity="0.25"/>
+    </radialGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff2c8" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#fff2c8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Warm cream background with sun burst -->
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+  <circle cx="660" cy="130" r="190" fill="url(#sun)"/>
+
+  <!-- Subtle vertical stripe motif -->
+  <g stroke="#f3dfc8" stroke-width="2">
+    <line x1="90" y1="0" x2="90" y2="600"/>
+    <line x1="180" y1="0" x2="180" y2="600"/>
+    <line x1="620" y1="0" x2="620" y2="600"/>
+    <line x1="710" y1="0" x2="710" y2="600"/>
+  </g>
+
+  <!-- Floating bubbles in air -->
+  <g fill="url(#bubble)" stroke="#dfeef5" stroke-width="1.5">
+    <circle cx="130" cy="120" r="18"/>
+    <circle cx="170" cy="90" r="10"/>
+    <circle cx="240" cy="140" r="24"/>
+    <circle cx="60" cy="210" r="12"/>
+    <circle cx="200" cy="60" r="8"/>
+    <circle cx="700" cy="250" r="20"/>
+    <circle cx="740" cy="180" r="12"/>
+    <circle cx="650" cy="60" r="9"/>
+  </g>
+  <g fill="#ffffff">
+    <ellipse cx="123" cy="113" rx="5" ry="3.4" transform="rotate(-20 123 113)"/>
+    <ellipse cx="233" cy="132" rx="6" ry="4" transform="rotate(-18 233 132)"/>
+    <ellipse cx="694" cy="243" rx="5.5" ry="3.6" transform="rotate(-15 694 243)"/>
+  </g>
+
+  <!-- Bathtub bowl -->
+  <path d="M120 300 Q140 540 250 552 L550 552 Q660 540 680 300 L700 300 Q710 555 610 568 L190 568 Q90 555 100 300 Z" fill="url(#tubGrad)" stroke="#d9c2a6" stroke-width="5" stroke-linejoin="round"/>
+  <!-- Tub feet -->
+  <circle cx="210" cy="566" r="12" fill="#d9c2a6"/>
+  <circle cx="240" cy="570" r="9" fill="#d9c2a6"/>
+  <circle cx="560" cy="566" r="12" fill="#d9c2a6"/>
+  <circle cx="590" cy="570" r="9" fill="#d9c2a6"/>
+  <!-- Rim -->
+  <path d="M92 288 Q92 270 112 268 L688 268 Q708 270 708 288 Q708 306 688 308 L112 308 Q92 306 92 288 Z" fill="#ffffff" stroke="#d9c2a6" stroke-width="5" stroke-linejoin="round"/>
+
+  <!-- Soapy water -->
+  <ellipse cx="400" cy="408" rx="250" ry="90" fill="url(#waterGrad)"/>
+
+  <!-- Concentric ripple mark (graphic motif under duck) -->
+  <g fill="none" stroke="#3f8cb4" stroke-width="3" opacity="0.5">
+    <circle cx="360" cy="430" r="60"/>
+    <circle cx="360" cy="430" r="95" opacity="0.6"/>
+    <circle cx="360" cy="430" r="130" opacity="0.4"/>
+  </g>
+
+  <!-- Rubber ducky, slightly to the left, resting in foam -->
+  <g>
+    <!-- Shadow on water -->
+    <ellipse cx="360" cy="450" rx="120" ry="26" fill="#3f7691" opacity="0.35"/>
+
+    <!-- Body -->
+    <path d="M250 445 Q246 380 320 372 Q405 362 450 390 Q490 425 470 460 Q440 500 355 500 Q265 500 250 445 Z" fill="url(#duckGrad)" stroke="#c88510" stroke-width="5" stroke-linejoin="round"/>
+
+    <!-- Wing -->
+    <path d="M400 405 Q445 392 455 425 Q440 452 405 448 Q380 438 400 405 Z" fill="#f2a312" stroke="#c88510" stroke-width="4" stroke-linejoin="round"/>
+
+    <!-- Tail -->
+    <path d="M470 445 Q502 430 496 458 Q488 470 472 462 Z" fill="#f2a312" stroke="#c88510" stroke-width="4" stroke-linejoin="round"/>
+
+    <!-- Head, looking to the right with an open-beak smile -->
+    <circle cx="330" cy="292" r="66" fill="url(#headGrad)" stroke="#c88510" stroke-width="5"/>
+    <ellipse cx="298" cy="262" rx="20" ry="13" fill="#ffffff" opacity="0.5" transform="rotate(-20 298 262)"/>
+
+    <!-- Open beak -->
+    <path d="M392 272 C438 262 462 286 450 310 C438 332 400 336 386 318 L386 272 Z" fill="#f7841f" stroke="#c75e08" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M386 300 C415 300 445 304 456 300" fill="none" stroke="#c75e08" stroke-width="3" stroke-linecap="round"/>
+    <path d="M396 272 C410 268 434 274 446 282" fill="none" stroke="#a84a06" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+
+    <!-- Eye -->
+    <circle cx="362" cy="268" r="14" fill="#ffffff"/>
+    <circle cx="368" cy="268" r="8.5" fill="#1c2b33"/>
+    <circle cx="371" cy="264" r="3.2" fill="#ffffff"/>
+
+    <!-- Cheek -->
+    <ellipse cx="344" cy="306" rx="12" ry="8" fill="#f28a96" opacity="0.7"/>
+  </g>
+
+  <!-- Big foam crown wrapped in front of the duck -->
+  <g fill="url(#soapGrad)" stroke="#ead5bd" stroke-width="3" stroke-linejoin="round">
+    <circle cx="240" cy="452" r="32"/>
+    <circle cx="290" cy="470" r="38"/>
+    <circle cx="345" cy="478" r="34"/>
+    <circle cx="405" cy="472" r="38"/>
+    <circle cx="455" cy="458" r="30"/>
+    <circle cx="500" cy="448" r="24"/>
+  </g>
+  <!-- Foam highlight -->
+  <g fill="#ffffff">
+    <circle cx="245" cy="440" r="10"/>
+    <circle cx="295" cy="456" r="11"/>
+    <circle cx="348" cy="466" r="10"/>
+    <circle cx="408" cy="460" r="11"/>
+    <circle cx="452" cy="446" r="9"/>
+  </g>
+
+  <!-- Bubbles on water -->
+  <g fill="url(#bubble)" stroke="#dfeef5" stroke-width="1.5">
+    <circle cx="150" cy="420" r="16"/>
+    <circle cx="180" cy="445" r="20"/>
+    <circle cx="560" cy="415" r="18"/>
+    <circle cx="600" cy="430" r="12"/>
+    <circle cx="635" cy="415" r="8"/>
+    <circle cx="545" cy="442" r="10"/>
+    <circle cx="120" cy="438" r="9"/>
+  </g>
+
+  <!-- Foam dollops -->
+  <g fill="#ffffff">
+    <path d="M135 405 C160 388 180 400 172 418 C158 420 146 414 135 405 Z" opacity="0.9"/>
+    <path d="M640 452 C652 440 665 450 660 462 C650 464 643 458 640 452 Z" opacity="0.9"/>
+  </g>
+
+  <!-- Simple sponge on the rim -->
+  <g>
+    <rect x="585" y="262" width="74" height="40" rx="8" fill="#e8a14b" stroke="#c07e2a" stroke-width="4" transform="rotate(-6 622 282)"/>
+    <g stroke="#c07e2a" stroke-width="2.5" opacity="0.6" transform="rotate(-6 622 282)">
+      <path d="M596 272 L596 292"/>
+      <path d="M616 270 L616 294"/>
+      <path d="M636 272 L636 292"/>
+      <path d="M652 274 L652 290"/>
+    </g>
+  </g>
+
+  <!-- Steam wisps -->
+  <g fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" opacity="0.6">
+    <path d="M160 260 C175 235 160 218 175 200"/>
+    <path d="M640 230 C655 205 640 188 655 170"/>
+  </g>
+</svg>
