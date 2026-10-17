@@ -197,7 +197,7 @@ Rodar em mlx-serve. Medir decode vs densa 27B; **Terminal-Bench** para qualidade
   de boot já chegou a 0 livre. Vale para os itens 6 e 7.
 - **Correção é eliminatória; velocidade sozinha não promove.** Um build que muda pesos ou qualidade
   (itens 6 e 7) passa pelo **Terminal-Bench** antes de qualquer veredito — foi o gate que deu NO-GO
-  na densa 27B ([[qwen38-27b-nogo-verdict]]).
+  na densa 27B (veredito: docs/models/qwen3.8-27b.md).
 - P1/P2 são só runtime/config sobre os mesmos pesos: o gate é decode/prefill/cache + estabilidade,
   não qualidade.
 

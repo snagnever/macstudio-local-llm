@@ -77,6 +77,12 @@ fi
 if [[ -n "${QWEN38_MLX_PLE_GPU:-}" ]]; then
   COMMAND+=(--ple-gpu)
 fi
+# Extra flags of one diagnostic arm (n2xd: MTP depth sweep on mlx-serve 26.10.2), split on spaces on purpose.
+# run-candidate.sh unsets the variable for every other arm.
+if [[ -n "${QWEN38_MLX_EXTRA_ARGS:-}" ]]; then
+  # shellcheck disable=SC2206
+  COMMAND+=($QWEN38_MLX_EXTRA_ARGS)
+fi
 # Drafter de speculative decoding (DFlash/Gemma) para modelos sem cabeça MTP, ex. o 27B 8-bit
 # da campanha engine-updates-2026-10. O mlx-serve detecta o tipo pelo config do drafter.
 if [[ -n "${QWEN38_MLX_DRAFTER:-}" ]]; then

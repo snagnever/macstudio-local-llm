@@ -1,5 +1,12 @@
 # Qwen3.8-27B — ranking (2026-10-08)
 
+> **Atualização (14/10/2026): o Splash 1.3.1 é agora o stack mais rápido do 27B.** O braço k27 (Splash 1.3.1 +
+> DFlash2, mlx-community 8bit) faz `T_turno` de 13.3 / 17.7 s em `xhigh` a 32K / 128K (10.4 / 15.9 s em `medium`),
+> contra 17.0 / 25.7 s do s27r re-medido na mesma sessão: razão 0.689 a 128K. O NO-GO como driver continua (k27 `medium`:
+> 1.85× o driver Flash-Next a 128K). A linha **o27** abaixo ainda usa o pin obsoleto do oQ8e (`c99e5aad`); o repin
+> `6c76ddfb82af` (braço o27q8) foi cortado e não foi re-medido. Ver
+> [qwen38-27b-next-steps-2026-10/results/summary.md](../../qwen38-27b-next-steps-2026-10/results/summary.md).
+
 **Líder: o27 (oMLX 0.7.0 + oQ8e-mtp), o único braço que passa nos gates a 32K e a 128K.** Ele bate a referência
 r27 (mlx-serve 26.10.1 + DFlash2) em 9% a 32K (18.0 contra 19.7 s) e em 32% a 128K (29.8 contra 44.0 s). O s27
 (mlx-dspark 0.20.3 + DFlash2) tem o menor `T_turno` nas duas bandas (16.9 / 25.0 s), mas falha no gate de hit do

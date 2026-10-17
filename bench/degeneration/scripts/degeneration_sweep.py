@@ -59,6 +59,9 @@ CONFIGS = [
     # --- controls (reproduce prior results) ---
     ("ctrl_greedy_t0",        {"temperature": 0.0}),
     ("ctrl_t0.6",             {"temperature": 0.6}),
+    # --- vendor thinking profile of Qwen3.8-Flash-Next (bench/flashnext-next-steps-2026-10) ---
+    ("vendor_t1_xhigh",       {"temperature": 1.0, "top_p": 0.95, "top_k": 20, "presence_penalty": 0.0,
+                               "reasoning_effort": "xhigh"}),
     # --- XTC: the big untested knob (needs temp>0) ---
     ("xtc_p0.5_th0.1",        {"temperature": 0.6, "xtc_probability": 0.5, "xtc_threshold": 0.1}),
     ("xtc_p0.5_th0.1_minp",   {"temperature": 0.6, "min_p": 0.02, "xtc_probability": 0.5, "xtc_threshold": 0.1}),

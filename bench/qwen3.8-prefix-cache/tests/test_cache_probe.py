@@ -219,6 +219,46 @@ class CacheProbeTests(unittest.TestCase):
         self.assertEqual(first_append[: len(first_prime)], first_prime)
         self.assertEqual(second_append[: len(second_prime)], second_prime)
 
+    def test_wrong_answer_keeps_the_head_of_the_answer_and_the_tail_of_the_reasoning(self):
+        args = SimpleNamespace(
+            arm="M", context=16384, session_id="session", runtime="oMLX",
+            runtime_revision="v0.6.3rc2", model="awq5", model_revision="target",
+            cache_enabled=True, mtp_enabled=True, specprefill=None,
+            specprefill_keep_pct=None, specprefill_threshold=None,
+            ane_prefill_enabled=False,
+        )
+        wrong = StreamResult(
+            text="ARGON " + "x" * 900, reasoning_text="r" * 900 + "END", finish_reason="stop",
+            ttft_ms=10.0, e2e_ms=20.0, usage={"prompt_tokens": 100, "completion_tokens": 300},
+            raw_chunks=1,
+        )
+        right = StreamResult(
+            text="XENON", reasoning_text="think", finish_reason="stop", ttft_ms=10.0,
+            e2e_ms=20.0, usage={"prompt_tokens": 100, "completion_tokens": 1}, raw_chunks=1,
+        )
+
+        bad = _record(args, "cold", 1, wrong, "XENON", "fixture", {}, {}, 0, 0, 0)
+        good = _record(args, "cold", 1, right, "XENON", "fixture", {}, {}, 0, 0, 0)
+
+        self.assertFalse(bad["correct"])
+        self.assertEqual(bad["content_head"], ("ARGON " + "x" * 900)[:500])
+        self.assertEqual(bad["reasoning_tail"], ("r" * 900 + "END")[-300:])
+        self.assertIsNone(good["content_head"])
+        self.assertIsNone(good["reasoning_tail"])
+
+    def test_max_tokens_option_sets_payload_record_and_fixture_reserve(self):
+        with patch.object(cache_probe, "MAX_TOKENS", 8192):
+            payload = _payload("model", [{"role": "user", "content": "probe"}])
+            self.assertEqual(payload["max_tokens"], 8192)
+            self.assertEqual(fixture_token_target(32768), 32768 - 8192 - 1536)
+        self.assertEqual(fixture_token_target(32768), 27136)
+
+    def test_max_tokens_flag_defaults_to_4096(self):
+        self.assertEqual(cache_probe.build_parser().parse_args(
+            ["--base-url", "u", "--model", "m", "--runtime", "r", "--runtime-revision", "v",
+             "--model-revision", "m", "--arm", "A", "--session-id", "s", "--context", "32768",
+             "--output", "o.jsonl"]).max_tokens, 4096)
+
     def test_prime_is_bounded_to_one_token_and_keeps_vendor_controls(self):
         payload = _prime_payload("model", _priming_messages("fixture", 1))
 
@@ -505,3 +545,9 @@ class CacheProbeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ParserHelpTest(unittest.TestCase):
+    def test_help_strings_format(self):
+        # Python 3.14 argparse rejects a bare "%" in a help string at add_argument time.
+        self.assertIn("--scenario-repeats", cache_probe.build_parser().format_help())

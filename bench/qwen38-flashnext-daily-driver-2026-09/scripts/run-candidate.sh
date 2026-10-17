@@ -11,9 +11,14 @@
 #   m1p/m1hp = m1 + prime com 64 tokens / + header de sessão;
 #   m27f = m27 + knob de ENGINE_M27F; r27b = r27 + --draft-block-size 5; s27g = s27 + --no-memory-guard;
 #   s27r = s27 + --prefix-cache-rungs 1024
+#   qwen38-27b-next-steps-2026-10: o27q8/o27q4/o27sw = oMLX 0.7.1.dev1 + Jundot oQ8e/oQ4e refit and Swift 1.5 oQ4e;
+#   r27d = ddalcu 27B 8bit @ mlx-serve 26.10.2 (bundled DFlash2 drafter only, --no-mtp), r27m = same pack with
+#   --no-drafter (MTP only); mlx-serve speculation priority is MTP > drafter > PLD, so each arm switches the other off;
+#   w27d/w27m = the same two modes on the Swift 1.5 oQ4e pack (w27d borrows the ddalcu drafter);
+#   k27 = Splash 1.3.1 + mlx-community 8bit; l27/l27n = llama.cpp b11569 Q8_0 with/without MTP draft
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
 # A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
@@ -40,6 +45,8 @@ HARNESS="$REPO/bench/qwen3.8-prefix-cache/scripts"
 HERE="$REPO/bench/qwen38-flashnext-daily-driver-2026-09"
 # Outra campanha pode reusar este driver apontando a saída para o próprio diretório.
 RESULTS="${FLASHNEXT_RESULTS_DIR:-$HERE/results}"; LOGS="${FLASHNEXT_LOGS_DIR:-$HERE/logs}"
+EFFORT="${FLASHNEXT_EFFORT:-xhigh}"
+case "$EFFORT" in xhigh|medium|low) ;; *) echo "run-candidate: FLASHNEXT_EFFORT must be xhigh, medium or low: $EFFORT" >&2; exit 64 ;; esac
 MODEL_ROOT="$HOME/.cache/local-llms/qwen3.8-prefix-cache"
 DDALCU="$MODEL_ROOT/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit-ef5b919d31534faa1997666f1a22d362cd6383cd"
 OQ4E="$MODEL_ROOT/Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-2615fc0e976e65c2f3b55daca3a948f1cdc5b9f8"
@@ -54,17 +61,45 @@ SWIFTDIR="$MODEL_ROOT/Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191
 MLXSERVE_26101="$HOME/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve"
 # Campanha engine-updates-2026-10: runtimes atualizados e pesos do 27B.
 OPT="$HOME/.local/opt/qwen38"
+# Campaign flashnext-next-steps-2026-10: runtimes installed by its scripts/install-runtime.sh and packs downloaded
+# by its scripts/fetch_pack.py (directory names end in the full revision; pack_dir resolves the prefix).
+# Stable 26.10.2 (2026-10-12) replaced pre-release.1: it adds the f32 GDN state (#815) and the n-gram
+# prefill calibration fix (#821).
+MLXSERVE_26102="$OPT/mlx-serve-v26.10.2/mlx-serve"
+MLXSERVE_26102_VERSION=26.10.2
+OMLX_0711="$OPT/omlx-v0.7.1.dev1"
+# Flash-Next oMLX arms (o1x, o1r, x1): dev2 (2026-10-15) keeps GDN state exact on padded prefill (#4526) and cuts
+# fp16 Flash-Next prefill memory (89a40d113). The 27B arms keep dev1.
+OMLX_0712="$OPT/omlx-v0.7.1.dev2"
+LLAMA_B11569="$OPT/llama-b11569/llama-server"
+# Flash-Next GGUF arms: b11600+ stops pinning the lazy per-layer-embedding tensor in the GPU buffer (#30405).
+LLAMA_B11609="$OPT/llama-b11609/llama-server"
+pack_dir() {
+  local m=("$MODEL_ROOT/$1"*)
+  if [[ -e "${m[0]}" ]]; then echo "${m[0]}"; else echo "$MODEL_ROOT/$1-MISSING"; fi
+}
 MC27="$MODEL_ROOT/mlx-community--Qwen3.8-27B-8bit-815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9"
 DFLASH2="$MODEL_ROOT/incoai--Qwen3.8-27B-DFlash2-dedf8df68adfb1afeaf7b7480c0a0243108177b4"
 M27PACK="$MODEL_ROOT/Youssofal-Qwen3.8-27B-MTPLX-Optimized-Speed-1d5087d2062c02b279180a53e4016cf9cd7a3d7e"
 OQ8E="$MODEL_ROOT/Jundot-Qwen3.8-27B-oQ8e-mtp-c99e5aad8a478f71c10b9a3dde6709158b690da6"
+# Campaign qwen38-27b-next-steps-2026-10: final mlx-serve 26.10.2, Splash 1.3.1 and the dense 27B packs
+# (pack_dir returns a -MISSING path when a pack is not on disk: --print still works, a real run exits 66).
+MLXSERVE_26102F="$OPT/mlx-serve-v26.10.2/mlx-serve"
+DD27="$(pack_dir ddalcu-Qwen3.8-27B-MLX-Serve-8bit-7775059e955f)"
+OQ8E_R="$(pack_dir Jundot-Qwen3.8-27B-oQ8e-mtp-6c76ddfb82af)"
+OQ4E_R="$(pack_dir Jundot-Qwen3.8-27B-oQ4e-mtp-49c1d60367d9)"
+SW27="$(pack_dir scottlowry-Swift-1.5-Qwen3.8-27b-oQ4e-mtp-881dc1914f65)"
+GGUF27="$(pack_dir ggml-org-Qwen3.8-27B-GGUF-71bc7b627595)"
 # YaRN do 27B (qwen3_5, mrope): o override repete os campos mrope do config original.
 YARN27_JSON() { echo "{\"text_config\":{\"rope_parameters\":{\"mrope_interleaved\":true,\"mrope_section\":[11,11,10],\"partial_rotary_factor\":0.25,\"rope_theta\":10000000,\"rope_type\":\"yarn\",\"factor\":$1,\"original_max_position_embeddings\":262144},\"max_position_embeddings\":$2}}"; }
 
 # Por candidato: launcher, arm, porta, binario, python do probe, tokenizer, metrics.
 MODEL_ID_PREF=""; PROBE_SESSION_HEADER=""; PROBE_PRIME_MAX_TOKENS=""
+# QWEN38_PROBE_MAX_TOKENS (optional): --max-tokens of cache_probe.py; the fixture shrinks by the same amount.
 # --os-reserve-gib só no braço n2o: um valor herdado do shell não vale para os outros braços.
 unset QWEN38_MLX_OS_RESERVE_GIB
+# Extra mlx-serve flags only for the n2xd arm (flashnext-next-steps-2026-10); a shell value never leaks.
+unset QWEN38_MLX_EXTRA_ARGS
 case "$CAND" in
   c1) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.9.2
       MODEL_DIR="$DDALCU"; MODEL_REV=ef5b919d31534faa1997666f1a22d362cd6383cd
@@ -198,6 +233,51 @@ case "$CAND" in
       [[ "$CAND" == s27g ]] && { export QWEN38_MLX_DSPARK_NO_MEMORY_GUARD=1; REV=v0.20.3-noguard; }
       [[ "$CAND" == s27r ]] && { export QWEN38_MLX_DSPARK_RUNGS=1024; REV=v0.20.3-rungs1024; }
       : ;;
+  # --- Qwen3.8-27B next steps 2026-10 (bench/qwen38-27b-next-steps-2026-10) ---
+  o27q8|o27q4|o27sw) LAUNCHER="$HARNESS/run-omlx.sh"; PORT=8000; RUNTIME=omlx; REV=v0.7.1.dev1
+      PROBE_PY="$OMLX_0711/bin/python"; TOKENIZER=""; SERVER_NAME=omlx; METRICS=""
+      export QWEN38_OMLX_BIN="$OMLX_0711/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.1.dev1 OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
+      case "$CAND" in
+        o27q8) ARM=T8R; MODEL_DIR="$OQ8E_R"; MODEL_REV=6c76ddfb82af ;;
+        o27q4) ARM=T4R; MODEL_DIR="$OQ4E_R"; MODEL_REV=49c1d60367d9 ;;
+        o27sw) ARM=TSW; MODEL_DIR="$SW27"; MODEL_REV=881dc1914f65 ;;
+      esac
+      TOKENIZER="$MODEL_DIR" ;;
+  r27d|r27m) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=C; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.2
+      MODEL_DIR="$DD27"; MODEL_REV=7775059e955f; PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""
+      export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26102F" MLX_SERVE_EXPECTED_VERSION=26.10.2 QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_MLX_PREFIX_CACHE_MEM=16GB QWEN38_MLX_PREFIX_CACHE_DISK=100GB QWEN38_MLX_PREFIX_CACHE_ENTRIES=64
+      unset QWEN38_MLX_DRAFTER QWEN38_MLX_KV_QUANT QWEN38_MLX_PLE_GPU QWEN38_MLX_DRAFT_BLOCK_SIZE QWEN38_MLX_CONFIG_OVERRIDES
+      # Priority is MTP > drafter > PLD: r27m forces MTP alone (--no-drafter), r27d forces the drafter alone (--no-mtp).
+      if [[ "$CAND" == r27m ]]; then
+        REV=v26.10.2-mtp; export QWEN38_MLX_EXTRA_ARGS="--no-drafter --mtp-max-depth 3"
+      else
+        REV=v26.10.2-drafter; export QWEN38_MLX_EXTRA_ARGS="--no-mtp"
+      fi
+      export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" ;;
+  w27d|w27m) LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=C; PORT=11234; RUNTIME=mlx-serve
+      MODEL_DIR="$SW27"; MODEL_REV=881dc1914f65; PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""
+      export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26102F" MLX_SERVE_EXPECTED_VERSION=26.10.2 QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_MLX_PREFIX_CACHE_MEM=16GB QWEN38_MLX_PREFIX_CACHE_DISK=100GB QWEN38_MLX_PREFIX_CACHE_ENTRIES=64
+      unset QWEN38_MLX_DRAFTER QWEN38_MLX_KV_QUANT QWEN38_MLX_PLE_GPU QWEN38_MLX_DRAFT_BLOCK_SIZE QWEN38_MLX_CONFIG_OVERRIDES
+      # Swift 1.5 27B (oQ4e, MTP head inherited from the base). w27m: MTP alone; w27d: the ddalcu DFlash2 drafter alone.
+      if [[ "$CAND" == w27m ]]; then
+        REV=v26.10.2-swift-mtp; export QWEN38_MLX_EXTRA_ARGS="--no-drafter --mtp-max-depth 3"
+      else
+        REV=v26.10.2-swift-drafter; export QWEN38_MLX_EXTRA_ARGS="--no-mtp" QWEN38_MLX_DRAFTER="$DD27/drafter"
+      fi
+      export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" ;;
+  k27) LAUNCHER="$HARNESS/run-splash.sh"; ARM=K; PORT=8585; RUNTIME=splash; REV=v1.3.1
+      MODEL_DIR="$MC27"; MODEL_REV=815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9
+      PROBE_PY="$OPT/mlx-dspark-v0.20.3/bin/python"; TOKENIZER="$MC27"; SERVER_NAME=splash; METRICS=""
+      # Splash serves the Hub ID as its single model id; MODEL_DIR stays the local pack (probe tokenizer, weights check).
+      MODEL_ID_PREF=mlx-community/Qwen3.8-27B-8bit
+      export SPLASH_MODEL=mlx-community/Qwen3.8-27B-8bit SPLASH_REVISION=815b83c0df8ffd1d1b5244cf75fd6ef14fca9ef9 SPLASH_DRAFTER="$DFLASH2" QWEN38_CTX_SIZE="$CTX" QWEN38_SPLASH_EXPECTED_VERSION=1.3.1 QWEN38_SPLASH_PORT=8585 ;;
+  l27|l27n) LAUNCHER="$REPO/bench/qwen38-27b-next-steps-2026-10/scripts/run-llama-27b.sh"; PORT=8080; RUNTIME=llama.cpp; REV=b11569
+      MODEL_DIR="$GGUF27"; MODEL_REV=71bc7b627595; PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=llama-server; METRICS=""
+      MODEL_ID_PREF=qwen38-27b-gguf
+      export QWEN38_GGUF_DIR="$GGUF27" QWEN38_LLAMA_SERVER_BIN="$LLAMA_B11569" QWEN38_CTX_SIZE="$CTX" FLASHNEXT_EFFORT="$EFFORT"
+      if [[ "$CAND" == l27 ]]; then ARM=L27M; else ARM=L27N; REV=b11569-nospec; fi ;;
   d1) LAUNCHER="$HARNESS/run-ds4.sh"; ARM=FD; PORT=11234; RUNTIME=ds4
       MODEL_DIR="$OPT/ds4-upstream"; MODEL_REV=qwen38-q4k
       REV="upstream-$(git -C "$MODEL_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
@@ -274,6 +354,77 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         MODEL_DIR="$YARN_MODEL_DIR"; TOKENIZER="$YARN_MODEL_DIR"
         REV="v2.11.2-yarn${YARN}"
       fi ;;
+  n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t)
+      # flashnext-next-steps-2026-10 on mlx-serve. An "x" in the arm = stable 26.10.2 (see line 66), no "x" = 26.10.1.
+      # n2x/w1x = n2/w1 flags on 26.10.2; n2xd = n2x + MTP depth (FLASHNEXT_MTP_DEPTH_FLAG, FLASHNEXT_MTP_DEPTH);
+      # w1q4/w1xq4 = w1 + 4-bit KV with --yarn (the 512k launcher profile); w1c8/w1xc8 = prefix cache 8GB
+      # (control of test #9); w1p8/w1xp8 = w1c8 + --ple-gpu; o1rm = Jundot oQ4e refit c4ddfb5 and
+      # s1m = scottlowry Swift 1.5 oQ4e e8ed008, oMLX packs that 26.10.2 loads natively.
+      # w1t = w1 from an overlay pack whose chat template puts the effort instruction after the last message
+      # (fixes/qwen3.8-flash-next/swift15-effort-tail.jinja, built by scripts/make-overlay.sh of next-steps-2026-10).
+      # n2t = n2 from the same kind of overlay (the iQ pack ships the same official template).
+      LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve
+      PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""
+      if [[ "$CAND" == *x* || "$CAND" == o1rm || "$CAND" == s1m ]]; then
+        export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26102" MLX_SERVE_EXPECTED_VERSION="$MLXSERVE_26102_VERSION"
+        REV="v$MLXSERVE_26102_VERSION"
+      else
+        export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26101" MLX_SERVE_EXPECTED_VERSION=26.10.1; REV=v26.10.1
+      fi
+      case "$CAND" in
+        n2x|n2xd) MODEL_DIR="$IQDIR"; MODEL_REV=dafff5c3d8168c9d13275661153911096499a80a ;;
+        n2t) MODEL_DIR="$IQDIR-efftail"; MODEL_REV=dafff5c3d8168c9d13275661153911096499a80a; REV="${REV}-efftail" ;;
+        w1t) MODEL_DIR="$SWIFTDIR-efftail"; MODEL_REV=13839b7191e0973ff9fea58232267c395b76c6c0; REV="${REV}-efftail" ;;
+        w1*) MODEL_DIR="$SWIFTDIR"; MODEL_REV=13839b7191e0973ff9fea58232267c395b76c6c0 ;;
+        o1rm) MODEL_DIR="$(pack_dir Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-c4ddfb5)"; MODEL_REV="${MODEL_DIR##*-}" ;;
+        s1m) MODEL_DIR="$(pack_dir scottlowry-Swift1.5-Qwen3.8-Flash-Next-oQ4e-mtp-e8ed008)"; MODEL_REV="${MODEL_DIR##*-}" ;;
+      esac
+      export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
+      unset QWEN38_MLX_PLE_GPU QWEN38_MLX_PREFIX_CACHE_MEM QWEN38_MLX_KV_QUANT QWEN38_MLX_CONFIG_OVERRIDES QWEN38_MLX_DRAFTER QWEN38_MLX_DRAFT_BLOCK_SIZE QWEN38_MLX_PREFIX_CACHE_DISK QWEN38_MLX_PREFIX_CACHE_ENTRIES
+      case "$CAND" in
+        w1c8|w1xc8) export QWEN38_MLX_PREFIX_CACHE_MEM=8GB; REV="${REV}-pc8" ;;
+        w1p8|w1xp8) export QWEN38_MLX_PREFIX_CACHE_MEM=8GB QWEN38_MLX_PLE_GPU=1; REV="${REV}-pc8-plegpu" ;;
+        n2xd) export QWEN38_MLX_EXTRA_ARGS="${FLASHNEXT_MTP_DEPTH_FLAG:?n2xd needs FLASHNEXT_MTP_DEPTH_FLAG} ${FLASHNEXT_MTP_DEPTH:?n2xd needs FLASHNEXT_MTP_DEPTH}"
+              REV="${REV}-mtpd${FLASHNEXT_MTP_DEPTH}" ;;
+      esac
+      if [[ -n "$YARN" ]]; then
+        export QWEN38_MLX_KV_QUANT=8
+        export QWEN38_MLX_CONFIG_OVERRIDES="{\"text_config\":{\"rope_parameters\":{\"rope_type\":\"yarn\",\"factor\":${YARN},\"original_max_position_embeddings\":262144},\"max_position_embeddings\":${CTX}}}"
+        REV="${REV}-yarn${YARN}-kv8"
+        if [[ "$CAND" == w1q4 || "$CAND" == w1xq4 ]]; then export QWEN38_MLX_KV_QUANT=4; REV="${REV%-kv8}-kv4"; fi
+      fi ;;
+  o1x|o1r|x1)
+      # flashnext-next-steps-2026-10 on oMLX 0.7.1.dev2 (isolated venv): o1x = Jundot oQ4e 2615fc0 (launcher arm FN),
+      # o1r = Jundot oQ4e refit c4ddfb5 (FR), x1 = umixer oQ4e-mix6-mtp v2 (FM). FR and FM enter
+      # config/omlx-arms.json after each download (Tasks 5 and 7 of the campaign plan). umixer retired the -v2 repo
+      # on 2026-10-14; the same bytes live in the original repo id at 73d2cd0.
+      LAUNCHER="$HARNESS/run-omlx.sh"; PORT=8000; RUNTIME=omlx; REV=v0.7.1.dev2
+      case "$CAND" in
+        o1x) ARM=FN; MODEL_DIR="$OQ4E" ;;
+        o1r) ARM=FR; MODEL_DIR="$(pack_dir Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-c4ddfb5)" ;;
+        x1) ARM=FM; MODEL_DIR="$(pack_dir umixer-Qwen3.8-Flash-Next-oQ4e-mix6-mtp-73d2cd0)" ;;
+      esac
+      MODEL_REV="${MODEL_DIR##*-}"
+      TOKENIZER="$MODEL_DIR"; METRICS=""; SERVER_NAME=omlx
+      PROBE_PY="$OMLX_0712/bin/python"
+      export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_OMLX_BIN="$OMLX_0712/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.1.dev2 ;;
+  g0|g1|g1m)
+      # flashnext-next-steps-2026-10, test #8: ggml-org GGUF IQ4_NL + MTP head Q8_0. g0 = llama.cpp b11569 without
+      # speculative decoding; g1 = --spec-type draft-mtp; g1m = mlx-serve 26.10.2 (embedded llama.cpp), same files.
+      LAUNCHER="$REPO/bench/flashnext-next-steps-2026-10/scripts/run-llama-flashnext.sh"
+      MODEL_DIR="$(pack_dir ggml-org-Qwen3.8-Flash-Next-GGUF-)"; MODEL_REV="${MODEL_DIR##*-}"
+      TOKENIZER=""; METRICS=""; PROBE_PY=python3
+      export QWEN38_GGUF_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"
+      if [[ "$CAND" == g1m ]]; then
+        ARM=GX; PORT=11234; RUNTIME=mlx-serve; SERVER_NAME=mlx-serve; REV="v$MLXSERVE_26102_VERSION-gguf"
+        export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26102" MLX_SERVE_EXPECTED_VERSION="$MLXSERVE_26102_VERSION"
+      else
+        PORT=8080; RUNTIME=llama.cpp; SERVER_NAME=llama-server; MODEL_ID_PREF=flashnext-gguf
+        export QWEN38_LLAMA_SERVER_BIN="$LLAMA_B11609"
+        if [[ "$CAND" == g0 ]]; then ARM=GN; REV=b11609; else ARM=GM; REV=b11609-mtp; fi
+      fi ;;
   *) echo "candidato desconhecido: $CAND" >&2; exit 64 ;;
 esac
 export QWEN38_MODEL_ROOT="$MODEL_ROOT"
@@ -309,8 +460,9 @@ if [[ -n "$PRINT" ]]; then
   echo "model_select: $MODEL_SELECT"
   echo "launcher: $LAUNCHER $ARM"; bash "$LAUNCHER" "$ARM" --print; echo
   # --exec troca o probe por outro comando contra o servidor (ex.: bateria de qualidade).
-  [[ -n "$EXEC_CMD" ]] && { echo "exec: $EXEC_CMD"; echo "saida: $OUT"; exit 0; }
-  echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS} ${PROBE_SESSION_HEADER:+--session-header $PROBE_SESSION_HEADER} ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens $PROBE_PRIME_MAX_TOKENS}"
+  [[ -n "$EXEC_CMD" ]] && { echo "exec: $EXEC_CMD"; echo "effort: $EFFORT"; echo "saida: $OUT"; exit 0; }
+  echo "probe: $PROBE_PY cache_probe.py --base-url $BASE/v1 --runtime $RUNTIME --runtime-revision $REV --context $CTX --repeat $REPEAT --temperature $TEMP ${SCENARIOS:+--scenarios $SCENARIOS} ${TOKENIZER:+--tokenizer-path $TOKENIZER} ${METRICS:+--metrics-url $METRICS} ${SCENARIO_REPEATS:+--scenario-repeats $SCENARIO_REPEATS} ${PROBE_SESSION_HEADER:+--session-header $PROBE_SESSION_HEADER} ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens $PROBE_PRIME_MAX_TOKENS} ${QWEN38_PROBE_MAX_TOKENS:+--max-tokens $QWEN38_PROBE_MAX_TOKENS}"
+  echo "effort: $EFFORT"
   echo "saida: $OUT"; exit 0
 fi
 # Um pack ausente ou incompleto faz o servidor morrer no boot com erro pouco claro: recusar antes.
@@ -428,13 +580,14 @@ else
   --runtime "$RUNTIME" --runtime-revision "$REV" --model-revision "$MODEL_REV" \
   --arm "$CAND" --session-id "${TS}-${NAME}" \
   --context "$CTX" --content-class audit_retrieval --repeat "$REPEAT" \
-  --temperature "$TEMP" --top-p 0.95 --top-k 20 --reasoning-effort xhigh \
+  --temperature "$TEMP" --top-p 0.95 --top-k 20 --reasoning-effort "$EFFORT" \
   ${SCENARIOS:+--scenarios "$SCENARIOS"} \
   ${TOKENIZER:+--tokenizer-path "$TOKENIZER"} \
   ${METRICS:+--metrics-url "$METRICS"} \
   ${SCENARIO_REPEATS:+--scenario-repeats "$SCENARIO_REPEATS"} \
   ${PROBE_SESSION_HEADER:+--session-header "$PROBE_SESSION_HEADER"} \
   ${PROBE_PRIME_MAX_TOKENS:+--prime-max-tokens "$PROBE_PRIME_MAX_TOKENS"} \
+  ${QWEN38_PROBE_MAX_TOKENS:+--max-tokens "$QWEN38_PROBE_MAX_TOKENS"} \
   --output "$OUT" --cache-enabled $([[ "$GENMODE" == "" || "$GENMODE" == mtp ]] && echo --mtp-enabled) \
   || PROBE_EXIT=$?
 fi

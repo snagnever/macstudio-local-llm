@@ -2,12 +2,20 @@
 
 > **Status: 🟡 PROMOÇÃO CONDICIONAL.** MoE de geração "Qwen4", mais rápido que a densa 3.8-27B
 > e reusa cache melhor, mas não desloca a densa em trabalho de agente sustentado (qualidade).
-> **Driver do rig (2026-09-13): ddalcu mixed-4/8 no mlx-serve 26.9.2**, `--mtp` + prefix-cache
-> 16GB/100GB/64 — decode 67/58/57 tok/s a 32K/128K/262K, cache reusa em todo o range, YaRN a 512K
-> (51 tok/s). Fechamento em
-> [../qwen38-updates-2026-09/results/flashnext-stacks-summary.md](../qwen38-updates-2026-09/results/flashnext-stacks-summary.md).
-> Campanha seguinte (driver mais responsivo, quants × runtimes):
-> [../qwen38-flashnext-daily-driver-2026-09/plan.md](../qwen38-flashnext-daily-driver-2026-09/plan.md).
+> **Drivers do rig (confirmados em 2026-10-16), ambos no mlx-serve 26.10.1** (`--mtp`, prefix-cache 16GB/100GB/64):
+> **principal** Swift 1.5 (`Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw` `13839b7`), T_turno 7.9 / 8.6 s a
+> 32K / 128K; **secundário** ddalcu iQ-MLX-4.7bpw (`dafff5c`, HEAD no HF em 12/10), T_turno 8.1 / 8.9 s, com
+> 256K (9.8 s) e 512K (13.0 s, `--kv-quant 4` + YaRN 2.0) medidos. O perfil `512k` usa o Swift desde 14/10
+> (13.3 s, needles 13/13). O mlx-serve 26.10.2 não foi adotado (1.038× / 1.000× do 26.10.1 a 32K / 128K).
+> Card do driver: [docs/models/qwen3.8-flash-next.md](../../docs/models/qwen3.8-flash-next.md). Campanhas:
+> [flashnext-next-steps-2026-10](../flashnext-next-steps-2026-10/results/summary.md) (16–17/10, drivers e runtime mantidos; effort `xhigh` fixo por sessão, `medium` só em chat e tool-calling curtos, Swift aprovado a 256K com needles 26/28; o template com o effort no fim do prompt resolve a troca de effort, mas perde o cache em prompts curtos e não vira default),
+> [swift15-flashnext-2026-10](../swift15-flashnext-2026-10/results/summary.md) (11/10, Swift vence o iQ),
+> [engine-updates-2026-10](../engine-updates-2026-10/results/flashnext-summary.md) (26.10.1, oMLX 0.7.0, MTPLX, 512K),
+> [qwen38-flashnext-daily-driver-2026-09](../qwen38-flashnext-daily-driver-2026-09/plan.md).
+> Histórico: driver de 2026-09-13 era o ddalcu mixed-4/8 no 26.9.2 (decode 67/58/57 tok/s a 32K/128K/262K, 51 tok/s a 512K;
+> [flashnext-stacks-summary.md](../qwen38-updates-2026-09/results/flashnext-stacks-summary.md)); o pack foi apagado em 10/10.
+> Plano de 12/10: [research/qwen38-flashnext-next-steps-20261012.md](../../research/qwen38-flashnext-next-steps-20261012.md);
+> executado na campanha flashnext-next-steps-2026-10 (Terminal-Bench segue adiado).
 > Primeira medição no rig em 2026-08-31 (oMLX 0.6.4, build oQ4e): decode ~40 tok/s @32K, ~33 @128K.
 > Fonte da research: notas consolidadas em 2026-08-29 (branch absorvida `worktree-bench+qwen38-flash-next`).
 
@@ -322,8 +330,38 @@ não medem qualidade de agente: o MiniMax IQ2_M empatou com o Q3_K_S no Terminal
    mais responsivo entre ddalcu/mlx-serve, oQ4e/oMLX 0.6.4, oQ4e/oMLX 0.7.0.dev2 e MTPLX pack.
    GGUF fica fora (sem MTP).
    **Atualização (2026-10-09):** o llama.cpp upstream tem MTP para `qwen4exp` desde a PR #29761 (01/10), e o
-   mlx-serve 26.10.1 carrega GGUF Flash-Next pelo engine llama.cpp. A premissa "sem MTP" caiu; ainda não medido.
+   mlx-serve 26.10.1 carrega GGUF Flash-Next pelo engine llama.cpp. A premissa "sem MTP" caiu.
+   **Medido em 14/10** ([etapa8-gguf.md](../flashnext-next-steps-2026-10/results/etapa8-gguf.md)): `ggml-org` IQ4_NL + MTP Q8_0 no llama.cpp b11609
+   decodifica 52.1 tok/s a 32K (36.0 sem MTP), abaixo do smoke de 70. O GGUF não é candidato a driver neste rig.
    Ver [research/qwen38-flashnext-derivatives-20261009.md](../../research/qwen38-flashnext-derivatives-20261009.md).
+4. **Pesos novos para testar (lista de 2026-10-10, revisada em 2026-10-12).** Ordem de prioridade. Detalhes e braços em
+   [research §11.5](../../research/qwen38-flashnext-derivatives-20261009.md#115-plano-de-teste-proposto-não-executado).
+   A revisão de 12/10 e o plano completo (runtime 26.10.2-pre, Swift a 512K, bateria agêntica) estão em
+   [research/qwen38-flashnext-next-steps-20261012.md](../../research/qwen38-flashnext-next-steps-20261012.md).
+   Resultado (16/10): [flashnext-next-steps-2026-10/results/summary.md](../flashnext-next-steps-2026-10/results/summary.md). Rodaram o mlx-serve 26.10.2
+   estável, o oMLX 0.7.1.dev2 e o llama.cpp b11609, no lugar das versões do plano.
+
+   | # | Pesos | Runtime | Download | Por quê | Condição |
+   |---|---|---|---:|---|---|
+   | 4a | [GBP-DE/Qwen3.8-Flash-Next-oQ5e-mtp](https://huggingface.co/GBP-DE/Qwen3.8-Flash-Next-oQ5e-mtp) `75abb40` | oMLX | 128.6 GB | A/B de qualidade contra o Jundot oQ4e no mesmo runtime. Pack oQ5e mais citado no r/oMLX; o card relata menos loops. | **Substituído em 12/10** pelo umixer oQ4e-mix6 v2 (teste #7 do plano de 12/10). O oMLX 0.7.x recusou um oQ5e num M4 Max 128 GB ([jundot/omlx#4349](https://github.com/jundot/omlx/issues/4349)). **Teste #7 feito em 16/10:** o mix6 não substitui o refit ([etapa7-mix6.md](../flashnext-next-steps-2026-10/results/etapa7-mix6.md)); ver 4e. |
+   | 4b | [Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw](https://huggingface.co/Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw) `13839b7` | mlx-serve 26.10.1 | 106.8 GB | Único candidato novo a driver: mesmo layout e runtime do n2, e o card declara 63% menos thinking tokens. | **Feito em 11/10: venceu e é o driver principal** ([swift15 summary](../swift15-flashnext-2026-10/results/summary.md)). Licença aprovada em 10/10. **256K e 512K medidos em 14/10** ([etapa2-swift-long.md](../flashnext-next-steps-2026-10/results/etapa2-swift-long.md)): 512K com KV 4-bit passa todos os gates (13.3 s, needles 13/13, livre mínimo 0.01 GB) e vira o pack do perfil `512k`; 256K com KV sem quantização erra needles em 2 de 13 registros (11.1 s). |
+   | 4c | [scottlowry/Swift1.5-Qwen3.8-Flash-Next-oQ4e-mtp](https://huggingface.co/scottlowry/Swift1.5-Qwen3.8-Flash-Next-oQ4e-mtp) `e8ed008` | oMLX ou mlx-serve 26.10.2 | 106.3 GB | Swift 1.5 no oMLX. Variante sem `-fp16`, porque o M4 Max tem bf16. | Condição "4b ganhar" atingida em 11/10. **Nova condição (12/10)**: rodar só se o teste #5 (Jundot refit) mostrar um pack oMLX a ≤ 1.03× do Swift no mlx-serve. O pack é anterior ao refit. **Não rodou (15/10):** condição do teste #5 não atingida; o `o1rm` ficou a 1.075× / 1.046× do Swift ([etapa6-scottlowry.md](../flashnext-next-steps-2026-10/results/etapa6-scottlowry.md)). |
+   | 4d | [Jundot/Qwen3.8-Flash-Next-oQ4e-mtp](https://huggingface.co/Jundot/Qwen3.8-Flash-Next-oQ4e-mtp) `c4ddfb5` (re-quantizado com oQe refit em 11/10) | oMLX 0.7.1.dev1 ou mlx-serve 26.10.2-pre | 106.3 GB | O card declara KLD contra BF16 0.0877→0.0776 em código (−11.6%) e 0.1909→0.1713 em prosa (**terceiro**). | **Obsoleta a reconversão local de ~354 GB.** Teste #5 do plano de 12/10. Registrar a linha `Qwen4-Exp PLE forced to SSD` no `server.log`. **Feito em 15–16/10** ([etapa5-refit.md](../flashnext-next-steps-2026-10/results/etapa5-refit.md)): no mlx-serve 26.10.2 o refit fica a 1.075× / 1.046× do Swift e erra needles a 128K (12/13), então não vira driver. No oMLX 0.7.1.dev2 tem a mesma velocidade do `2615fc0`, e a mesma qualidade: Veerman 7/12 contra 10/12 na rodada 1 e 9/12 contra 8/12 na rodada 2 (16/24 contra 18/24, ruído). Com o `2615fc0` apagado em 16/10, o refit fica como pack do oMLX. O ganho de KLD (**terceiro**) não aparece na bateria. |
+   | 4e | [txgsync/Qwen3.8-Flash-Next-Dynamic-oQ5e-BF16-PLE-mtp](https://huggingface.co/txgsync/Qwen3.8-Flash-Next-Dynamic-oQ5e-BF16-PLE-mtp) `b62713a` | oMLX | 187.4 GB | Feito para M4 Max 128 GB: tabela n-gram, MTP e atenção em alta precisão. | **Substituído em 12/10** pelo umixer oQ4e-mix6 v2 (teste #7), que a comunidade relata acima do oQ5e com ~9 GB a menos (**terceiro**, sem KLD). **Teste #7 feito em 16/10** ([etapa7-mix6.md](../flashnext-next-steps-2026-10/results/etapa7-mix6.md)), com `umixer/Qwen3.8-Flash-Next-oQ4e-mix6-mtp` `73d2cd0` (mesmos bytes do `-v2`, aposentado): G1 passa em todas as suítes contra o refit, mas nenhuma suíte fica acima da margem; wired +7.6 GB a 256K, swap 0. Não substitui o refit. |
+   | 4f | [ISTA-DASLab GSQ-RCO IQ3_S](https://huggingface.co/ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF) | mlx-serve (engine llama.cpp) ou llama.cpp ≥ b11569 | 83.6 GB | Libera memória (KV de 512K ou um segundo modelo). | Só se a meta for memória, não qualidade. O primeiro GGUF a testar é o `ggml-org` IQ4_NL + cabeça MTP Q8_0 (teste #8 de 12/10), com smoke de decode ≥ 70 tok/s a 32K. **Smoke falhou em 14/10** ([etapa8-gguf.md](../flashnext-next-steps-2026-10/results/etapa8-gguf.md)): 52.1 tok/s no llama.cpp b11609. O GSQ-RCO não foi testado. Os pesos GGUF (99 GB) foram apagados do rig em 16/10. |
+
+   Fora da lista: `mlx-community/…-oQ6e-mtp` (150.5 GB, grande demais para uso diário), variantes `-fp16`,
+   packs podados (REAP, Coder), quants abaixo de ~4 bpw, `ben0112/…-oQ4e-mtp` (mesmo quantizador do Jundot)
+   e builds abliterated (ver [backlog-uncensored-models.md](../../docs/superpowers/plans/backlog-uncensored-models.md)).
+
+   **Disco do rig (limpeza de 2026-10-10):** de 37 GiB para 918 GiB livres (50% usado). Saíram os caches de
+   KV em SSD dos `logs/` das campanhas (subpastas `cache/` do oMLX e `ssd-session-cache/` do MTPLX; os
+   `server.log`, `crash.log`, `stats.json`, settings e `flight.jsonl` ficaram), `~/.ds4/engine-updates-kv/`,
+   o GGUF do ds4 upstream (reprovado no gate de decode), o ivanfioravanti DS4-Q4 (fork de setembro) e o
+   ddalcu mixed-4-8bit (rollback descontinuado; a tabela n-gram segue no pack iQ). Ficaram o ARC4NUM
+   Uncensored, o DeepSeek-V4-Flash 0731 do LM Studio, o Jundot oQ4e (base de 4a) e o Youssofal MTPLX.
+   Com o mixed-4-8bit e o GGUF do ds4 fora, os braços c1 e d1 de `run-candidate.sh` precisam de novo
+   download para rodar.
 
 Empírico desta campanha: `results/refresh-flashnext-*.jsonl` (movidos do smoke R5 do runtime-refresh).
 Runbook: [plan.md](plan.md). O smoke R5 original: `../qwen3.8-prefix-cache/plan-runtime-refresh.md` (seção R5, agora um ponteiro).

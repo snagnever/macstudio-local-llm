@@ -36,6 +36,26 @@
     "draft-dflash2": {
       "repository": "incoai/Qwen3.8-27B-DFlash2",
       "revision": "dedf8df68adfb1afeaf7b7480c0a0243108177b4"
+    },
+    "flashnext-oq4e-refit": {
+      "repository": "Jundot/Qwen3.8-Flash-Next-oQ4e-mtp",
+      "revision": "c4ddfb54a967a9bc74d7da16425f55f0872f8aac"
+    },
+    "oq8e-refit": {
+      "repository": "Jundot/Qwen3.8-27B-oQ8e-mtp",
+      "revision": "6c76ddfb82af"
+    },
+    "oq4e-refit": {
+      "repository": "Jundot/Qwen3.8-27B-oQ4e-mtp",
+      "revision": "49c1d60367d9"
+    },
+    "swift-oq4e": {
+      "repository": "scottlowry/Swift-1.5-Qwen3.8-27b-oQ4e-mtp",
+      "revision": "881dc1914f65"
+    },
+    "flashnext-oq4e-mix6-v2": {
+      "repository": "umixer/Qwen3.8-Flash-Next-oQ4e-mix6-mtp",
+      "revision": "73d2cd0bc0ac07bde45f374a1f7eff01fb06ac90"
     }
   },
   "arms": {
@@ -118,6 +138,42 @@
         "qwen35_ane_prefill_enabled": false
       }
     },
+    "T8R": {
+      "model_key": "oq8e-refit",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": true,
+        "mtp_adaptive_max_depth": 3,
+        "dflash_enabled": false,
+        "turboquant_kv_enabled": false,
+        "specprefill_enabled": false,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "T4R": {
+      "model_key": "oq4e-refit",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": true,
+        "mtp_adaptive_max_depth": 3,
+        "dflash_enabled": false,
+        "turboquant_kv_enabled": false,
+        "specprefill_enabled": false,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "TSW": {
+      "model_key": "swift-oq4e",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": true,
+        "mtp_adaptive_max_depth": 3,
+        "dflash_enabled": false,
+        "turboquant_kv_enabled": false,
+        "specprefill_enabled": false,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
     "U": {
       "model_key": "oq8e-fp16",
       "cache_enabled": true,
@@ -158,6 +214,26 @@
     },
     "FN": {
       "model_key": "flashnext-oq4e",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": true,
+        "specprefill_enabled": false,
+        "qwen4_ple_ssd_offload": true,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "FR": {
+      "model_key": "flashnext-oq4e-refit",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": true,
+        "specprefill_enabled": false,
+        "qwen4_ple_ssd_offload": true,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "FM": {
+      "model_key": "flashnext-oq4e-mix6-v2",
       "cache_enabled": true,
       "model_settings": {
         "mtp_enabled": true,

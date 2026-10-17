@@ -14,6 +14,11 @@ GitHub (`gh api`) para releases e PRs. O Reddit não foi consultado: o Claude in
 derivados novos. As referências Reddit do lançamento ficam em
 [references.md](../bench/qwen38-flash-next/references.md).
 
+**Adendo de 10/10.** A [seção 11](#11-adendo-1010-alternativas-ao-jundot-oq4e-mtp-no-omlx) responde à
+pergunta "existe pack mais novo que o Jundot oQ4e-mtp para o oMLX?". O adendo usa trechos do Reddit que
+a busca Google exibe (`site:reddit.com`). As threads não foram abertas: o Claude in Chrome e o WebFetch
+bloqueiam `reddit.com`.
+
 ## Resumo
 
 1. **Os pesos oficiais não mudaram.** `Qwen/Qwen3.8-Flash-Next` está na revisão `de4b8e4` (27/08). A
@@ -73,7 +78,7 @@ O ranking do Hugging Face em 09/10 mostra para onde a comunidade foi:
 | [ddalcu mixed-4-8bit](https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-mixed-4-8bit) | Descontinuado em 06/10 (commit `3191916`, só README). Fica como rollback. | nenhuma |
 | [ddalcu iQ-MLX-3.3bpw](https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-3.3bpw) | Publicado em 16/09, ~4 600 downloads. Pack menor para Macs de 96 GB. | não priorizar no 128 GB |
 | [Youssofal MTPLX Optimized-Speed](https://huggingface.co/Youssofal/Qwen3.8-Flash-Next-MTPLX-Optimized-Speed) | Commits de 17 a 27/09, só no card: velocidades do MTPLX 2.11.3/2.12.0, recomendação de 128 GB ou mais (pico de 87 GiB) e tag image-text-to-text. Pesos iguais. | nenhuma |
-| [Jundot oQ4e-mtp](https://huggingface.co/Jundot/Qwen3.8-Flash-Next-oQ4e-mtp) `2615fc0` | Sem mudança desde 27/08. | nenhuma |
+| [Jundot oQ4e-mtp](https://huggingface.co/Jundot/Qwen3.8-Flash-Next-oQ4e-mtp) `2615fc0` | Sem mudança desde 27/08 (HEAD conferido de novo em 10/10). | ver [seção 11](#11-adendo-1010-alternativas-ao-jundot-oq4e-mtp-no-omlx) |
 
 O card do iQ-MLX-4.7bpw declara, contra os logits do bf16, KLD mediana 0.0052 contra 0.0066 e top-1
 88.6% contra 87.9%. A campanha de 07/10 mediu paridade de velocidade (±1%) e HumanEval 154 contra 151.
@@ -243,14 +248,139 @@ Speedups do MLX declarados por terceiros, sem medição no M4 Max:
 4. **Esperar o oMLX 0.7.1 estável** antes de medir de novo. O ganho de group size 32 foi declarado num
    M3 Ultra e exige um pack g32 (por exemplo
    [mlx-community/Qwen3.8-Flash-Next-4bit](https://huggingface.co/mlx-community/Qwen3.8-Flash-Next-4bit)).
+   O 0.7.1 também traz o oQe refit, que muda a qualidade de conversões novas. O plano de teste do oMLX
+   está na [seção 11](#11-adendo-1010-alternativas-ao-jundot-oq4e-mtp-no-omlx).
 5. **Não usar como driver:** os packs podados (REAP, Coder), os quants abaixo de ~4 bpw e os builds
    abliterated. Os abliterated pertencem ao backlog de modelos sem censura, não ao driver diário.
+
+## 11. Adendo 10/10: alternativas ao Jundot oQ4e-mtp no oMLX
+
+Pergunta: existe pack mais novo que o `Jundot/Qwen3.8-Flash-Next-oQ4e-mtp` para o oMLX?
+
+**Resposta: não existe sucessor do Jundot.** O pack segue em `2615fc0` (27/08). Há três caminhos com o
+mesmo modelo base: um oQ5e da comunidade, uma reconversão local com o oQe refit do oMLX 0.7.1, e o
+fine-tune Swift 1.5 em oQ. Nenhum deles deve vencer o driver (n2) em velocidade. O ganho possível é de
+qualidade dentro do oMLX.
+
+### 11.1 O que mudou desde o pack do Jundot
+
+- **Uploads novos do Jundot não substituem o Flash-Next.** Depois de 27/08 o Jundot publicou
+  `DeepSeek-V4.1-Flash-oQ4e-mtp` e `-oQ3e-mtp` (10–11/09; o oQ4e tem 432 GB e não cabe no rig) e
+  `clef-oQ4e` / `clef-flash-oQ4e` (06/10). O clef é um modelo de decisão: o oMLX o serve em
+  `POST /v1/systemone` e o modelo devolve uma probabilidade por opção, sem gerar texto. Não é chat.
+- **oQe refit no oMLX 0.7.1.dev1** ([jundot/omlx#4385](https://github.com/jundot/omlx/pull/4385),
+  merge em 09/10). Depois do arredondamento, o oQe refaz a escala e o bias de cada grupo por mínimos
+  quadrados ponderados pelo imatrix. Um grupo só aceita o refit se o erro ponderado cai. O layout, o
+  dtype e a alocação de bits não mudam, então a velocidade dos kernels é a mesma. **Só conversões novas
+  mudam.** Validação do PR (Qwen3.5-9B e Qwen3.6-35B-A3B, não o Flash-Next):
+
+  | Modelo | KL de texto oQ4e → oQ4e + refit | Acerto agregado oQ4e → + refit (original) |
+  |---|---|---|
+  | Qwen3.5-9B | 0.0326 → 0.0276 | 75.44 → 77.47 (77.08) |
+  | Qwen3.6-35B-A3B (MoE) | 0.0723 → 0.0628 | 83.72 → 84.01 (83.62) |
+
+  O acerto agregado soma MMLU 1000, Winogrande 300, HumanEval 164, MBPP 300 e GSM8K 300 (greedy, thinking
+  desligado).
+- **Variantes `-fp16`.** As notas do oMLX 0.7.0 dizem que os checkpoints fp16 servem GPUs sem bf16 nativo.
+  O M4 Max tem bf16: use a variante sem `-fp16`.
+- **Calibração layer-streaming** (oMLX 0.7.0rc1, [#2161](https://github.com/jundot/omlx/pull/2161))
+  calibra o Flash-Next uma camada por vez. Ela torna possível converter no rig um modelo maior que a RAM.
+
+### 11.2 Packs oQ do Flash-Next no Hugging Face (10/10)
+
+Tamanho total pela API do HF (`?blobs=true`). Números de qualidade e memória são dos autores.
+
+| Repo | HEAD | Data | Total | Quantizador | Nota |
+|---|---|---|---:|---|---|
+| [Jundot/…-oQ4e-mtp](https://huggingface.co/Jundot/Qwen3.8-Flash-Next-oQ4e-mtp) | `2615fc0` | 27/08 | 106.3 GB | oMLX 0.6.3rc3 | Braço o1 de [engine-updates-2026-10](../bench/engine-updates-2026-10/results/flashnext-summary.md). |
+| [GBP-DE/…-oQ5e-mtp](https://huggingface.co/GBP-DE/Qwen3.8-Flash-Next-oQ5e-mtp) | `75abb40` | 08/09 | 128.6 GB | oMLX 0.6.4 | Quantizado do BF16. Usa o pack do Jundot só como modelo de sensibilidade. O autor mede ~9 GB a mais de memória do sistema que o oQ4e (M5 Max 128 GB, SSD N-gram Offload e Lightning MTP ligados). O card relata um loop de autocorreção no oQ4e que o oQ5e não repetiu. |
+| [txgsync/…-Dynamic-oQ5e-BF16-PLE-mtp](https://huggingface.co/txgsync/Qwen3.8-Flash-Next-Dynamic-oQ5e-BF16-PLE-mtp) | `b62713a` | 14/09 | 187.4 GB | conversão própria (imatrix da Unsloth) | Feito para M4 Max 128 GB com PLE SSD offload. Experts gate/up em Q4 e down em Q5 (algumas camadas em Q8). Atenção, GDN e mixer em Q8. Tabela n-gram (PLE), as 32 tensores MTP e a visão em BF16. ~5.0 bpw nos tensores quantizados. Sem números de qualidade. |
+| [mlx-community/…-oQ6e-mtp](https://huggingface.co/mlx-community/Qwen3.8-Flash-Next-oQ6e-mtp) | `e171af8` | 31/08 | 150.5 GB | oMLX | Grande demais para uso diário no 128 GB. |
+| [scottlowry/Swift1.5-…-oQ4e-mtp](https://huggingface.co/scottlowry/Swift1.5-Qwen3.8-Flash-Next-oQ4e-mtp) | `e8ed008` | 03/10 | 106.3 GB | oMLX | Fine-tune Swift 1.5 (seção 3). Também há oQ5e (`c3524ba`, 128.6 GB), oQ6e e oQ8e, e variantes `-fp16` de 07/10 (oMLX 0.7.0). Outros ports oQ: thosewhowrite, mrmurphydotdev, arkham00, b2z. Licença: ver seção 3. |
+| ben0112/…-oQ4e-mtp | — | 07/10 | — | oMLX 0.6.3rc3 | Mesma versão de quantizador do Jundot. Sem ganho. |
+
+Nenhum pack Flash-Next público usa o oQe refit em 10/10.
+
+### 11.3 Reddit (somente trechos da busca Google)
+
+As threads não foram abertas. Cada linha resume o trecho que o Google mostra.
+
+- **r/oMLX, "Made an oQ5e" (~1 mês).** O autor do oQ5e relata raciocínio e geração mais estáveis que o oQ4e
+  em prompts difíceis.
+- **r/oMLX, thread do 0.7.0.dev2 (~3 semanas).** Um usuário relata oQ5e a ~500/60 tok/s (prefill/decode) num
+  M4 Max 128 GB, +10% sobre a versão anterior.
+- **r/oMLX, "Qwen3.8 Flash Next with oMLX + Pi for long-running agentic work" (~1 semana).** Um usuário usa
+  oQ5e com os ajustes que o oMLX 0.7.0 aplica sozinho.
+- **r/oMLX, "What's your current favorite engine for large MoEs" (~1 semana).** Um usuário roda o GBP-DE
+  oQ5e num M2 Ultra 192 GB.
+- **r/LocalLLM, "Qwen 3.8 Flash Next for MLX-Serve".** O trecho diz que o quant do ddalcu para o mlx-serve
+  é rápido mas "somewhat weaker in reasoning", e cita o quant do Jundot para o oMLX como alternativa de
+  qualidade. O trecho não diz qual pack do ddalcu. O card do iQ-MLX-4.7bpw declara KLD menor que o do
+  mixed-4-8bit (seção 2). A queixa pode ser do pack antigo.
+- **r/oMLX, "oq4e Quantization of Qwen Flash Next, Swift Edition" e "Swift/ThinkingCap fp16
+  quantizations".** Anúncios dos ports oQ do Swift 1.5, sem medições no trecho.
+
+### 11.4 Leitura para o rig
+
+- **Velocidade.** O o1 (oMLX 0.7.0 + Jundot oQ4e) já fica em 1.23× (32K) e 1.38× (128K) o `T_turno` do n2.
+  Um oQ5e lê mais bytes por token, então o decode deve cair mais. Nenhum pack oQ substitui o n2 pelo
+  critério `T_turno ≤ 0.97 × n2`.
+- **Memória.** O o1 mediu wired de 91.2 / 98.0 / 100.5 GB a 32K / 128K / 256K. Com os +9 GB que o
+  GBP-DE declara, a estimativa do oQ5e é ~100 / ~107 / ~110 GB. Esses valores ficam perto do n2
+  (96.8 / 110.6 / 111.7 GB). A estimativa não foi medida, e o 256K pode ficar apertado.
+- **Reconversão com refit.** Exige baixar o BF16 oficial (~354 GB para ~177B parâmetros) e espaço em
+  disco para a saída. O tempo de calibração layer-streaming no M4 Max é desconhecido.
+- **Uso do oMLX no rig.** O oMLX faz sentido como segundo runtime (wired menor, reuso de `append`) ou
+  como base de qualidade. Ele não é candidato a driver.
+
+### 11.5 Plano de teste proposto (não executado; revisado em 12/10)
+
+**Revisão de 2026-10-12.** O plano vigente está em
+[qwen38-flashnext-next-steps-20261012.md](qwen38-flashnext-next-steps-20261012.md). Mudanças: o braço `s1` no
+mlx-serve já rodou em 11/10 e virou o driver principal; `o3` passa a ser o Jundot oQ4e `c4ddfb5`, já re-quantizado
+com o refit (sem reconversão local); `o2` e `o4` cedem lugar ao umixer oQ4e-mix6 v2. A tabela abaixo é a de 10/10.
+
+Campanha sugerida: `bench/qwen38-flashnext-omlx-quants-2026-10/`. Siga o padrão de instalação isolada
+de [engine-updates-2026-10](../bench/engine-updates-2026-10/plan.md) (`~/.local/opt/qwen38/`).
+
+**Pré-condição.** oMLX 0.7.1 estável, ou o 0.7.1.dev1 isolado. Antes, procure a versão em
+`bench/*/results/` e `docs/models/`.
+
+**Disco.** Em 10/10 o rig tem 37 GiB livres (98% usado). Libere espaço antes de baixar qualquer braço. A lista
+priorizada de pesos, com os packs que podem sair do cache, fica em
+[references.md, Próximos passos, item 4](../bench/qwen38-flash-next/references.md#próximos-passos).
+
+| Braço | Pesos | Runtime | Condição |
+|---|---|---|---|
+| o1 | Jundot oQ4e-mtp | mesma versão do oMLX dos outros braços | referência; repetir para isolar o efeito do runtime |
+| o2 | GBP-DE oQ5e-mtp | idem | download de 128.6 GB |
+| o3 | Jundot oQ4e-mtp `c4ddfb5` (refit publicado em 11/10) | oMLX 0.7.1.dev1 ou mlx-serve 26.10.2-pre | 106.3 GB; substitui a reconversão local de ~354 GB |
+| o4 | txgsync Dynamic-oQ5e | idem | opcional; 187.4 GB em disco |
+| s1 | Swift1.5 oQ4e (sem `-fp16`) | idem | licença aprovada em 10/10; a variante mlx-serve já é o driver principal desde 11/10; esta só roda se o3 ficar a ≤ 1.03× do Swift no mlx-serve |
+
+Medições:
+
+1. **Probe de cache e velocidade** de [engine-updates-2026-10](../bench/engine-updates-2026-10/results/flashnext-summary.md):
+   `T_turno`, TTFT, hit, decode e wired a 32K, 128K e 256K, com a mesma amostragem
+   (`temperature=1.0`, `top_p=0.95`, `top_k=20`). Gate de memória: swap delta 0 a 256K.
+2. **Estabilidade de geração.** O GBP-DE declara menos loops. Reaproveite a taxa de loop de
+   [bench/degeneration/](../bench/degeneration/plan-quant-validation.md) com a mesma bateria nos braços o1–o4.
+3. **Qualidade.** HumanEval e tool-calling com reasoning ativo, como na seção 10, item 2. O rig não comporta
+   o BF16, então não há KLD contra os logits de referência. Registre isso como limite.
+4. **Swift (s1).** Tempo até a resposta final com thinking livre, mais uma bateria de instruction-following
+   (o card declara −3 no IFBench).
+
+Regra de decisão: um braço vira o pack padrão do oMLX se a qualidade empata ou supera o o1 e o 256K roda
+sem swap. O driver só muda pelo critério já em uso (`T_turno ≤ 0.97 × n2`).
 
 ## O que não foi verificado
 
 - Nenhum número deste documento foi medido no rig, salvo os que citam campanhas do repositório.
 - O Reddit não foi lido (bloqueio do Claude in Chrome). Opiniões da comunidade sobre Swift 1.5 e GSQ-RCO
-  ficaram de fora.
+  ficaram de fora. O adendo de 10/10 (seção 11.3) usa só os trechos da busca Google; o WebFetch também
+  bloqueia `reddit.com`.
+- O efeito do oQe refit no Flash-Next. O PR valida só Qwen3.5-9B e Qwen3.6-35B-A3B.
+- A memória do oQ5e no rig. Os valores da seção 11.4 são estimativas a partir do o1 e do card do GBP-DE.
 - O primeiro build numerado do llama.cpp que contém a #29761.
 - As avaliações do Swift 1.5, do GSQ-RCO e do REAP320 são dos autores.
 
@@ -326,3 +456,16 @@ Runtimes:
 
 Destilação:
 [empero-ai Qwen3.8-35B-A3B-Distill](https://huggingface.co/empero-ai/Qwen3.8-35B-A3B-Distill)
+
+Adendo de 10/10 (oMLX):
+[oMLX releases](https://github.com/jundot/omlx/releases) ·
+[jundot/omlx#4385 (oQe refit)](https://github.com/jundot/omlx/pull/4385) ·
+[Jundot no HF](https://huggingface.co/Jundot) ·
+[GBP-DE oQ5e](https://huggingface.co/GBP-DE/Qwen3.8-Flash-Next-oQ5e-mtp) ·
+[txgsync Dynamic-oQ5e](https://huggingface.co/txgsync/Qwen3.8-Flash-Next-Dynamic-oQ5e-BF16-PLE-mtp) ·
+[mlx-community oQ6e](https://huggingface.co/mlx-community/Qwen3.8-Flash-Next-oQ6e-mtp) ·
+[scottlowry Swift1.5 oQ4e](https://huggingface.co/scottlowry/Swift1.5-Qwen3.8-Flash-Next-oQ4e-mtp) ·
+[r/oMLX: oq4e Swift Edition](https://www.reddit.com/r/oMLX/comments/1ws1zlm/oq4e_quantization_of_qwen_flash_next_swift_edition/) ·
+[r/LocalLLM: Qwen 3.8 Flash Next for MLX-Serve](https://www.reddit.com/r/LocalLLM/comments/1wudu2v/qwen_38_flash_next_for_mlxserve/) ·
+[r/oMLX: I do not get the love for Qwen3.8-Flash-Next](https://www.reddit.com/r/oMLX/comments/1wp8mvi/i_do_not_get_the_love_for_qwen38flashnext/) ·
+[r/oMLX: Flash Next with oMLX + Pi](https://www.reddit.com/r/oMLX/comments/1wqkqeu/qwen38_flash_next_with_omlx_pi_for_longrunning/)

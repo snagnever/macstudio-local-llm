@@ -206,6 +206,15 @@ class OmlxConfigTests(unittest.TestCase):
             write_omlx_state(base_path, load_arm(CONFIG, "J"), paths)
         self.assertFalse(base_path.exists())
 
+    def test_short_revision_resolves_to_the_full_sha_pack_directory(self):
+        full = self.model_root / ("Jundot-Qwen3.8-27B-oQ4e-mtp-49c1d60367d9" + "a" * 28)
+        full.mkdir()
+        base_path = self.root / "state-t4r"
+        write_omlx_state(base_path, load_arm(CONFIG, "T4R"), self.model_paths)
+        model_state = json.loads((base_path / "model_settings.json").read_text())
+        self.assertEqual(list(model_state["models"]), [full.name])
+        self.assertEqual(model_state["models"][full.name]["mtp_adaptive_max_depth"], 3)
+
     def test_ane_tuner_profile_rejects_unknown_keys_and_invalid_values(self):
         invalid_profiles = (
             {"qwen35_ane_prefill_typo": True},
