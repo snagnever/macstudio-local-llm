@@ -8,7 +8,7 @@
 > 256K (9.8 s) e 512K (13.0 s, `--kv-quant 4` + YaRN 2.0) medidos. O perfil `512k` usa o Swift desde 14/10
 > (13.3 s, needles 13/13). O mlx-serve 26.10.2 não foi adotado (1.038× / 1.000× do 26.10.1 a 32K / 128K).
 > Card do driver: [docs/models/qwen3.8-flash-next.md](../../docs/models/qwen3.8-flash-next.md). Campanhas:
-> [flashnext-next-steps-2026-10](../flashnext-next-steps-2026-10/results/summary.md) (16/10, drivers e runtime mantidos),
+> [flashnext-next-steps-2026-10](../flashnext-next-steps-2026-10/results/summary.md) (16–17/10, drivers e runtime mantidos; effort `xhigh` fixo por sessão, `medium` só em chat e tool-calling curtos, Swift aprovado a 256K com needles 26/28; o template com o effort no fim do prompt resolve a troca de effort, mas perde o cache em prompts curtos e não vira default),
 > [swift15-flashnext-2026-10](../swift15-flashnext-2026-10/results/summary.md) (11/10, Swift vence o iQ),
 > [engine-updates-2026-10](../engine-updates-2026-10/results/flashnext-summary.md) (26.10.1, oMLX 0.7.0, MTPLX, 512K),
 > [qwen38-flashnext-daily-driver-2026-09](../qwen38-flashnext-daily-driver-2026-09/plan.md).

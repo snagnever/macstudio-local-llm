@@ -18,7 +18,7 @@
 #   k27 = Splash 1.3.1 + mlx-community 8bit; l27/l27n = llama.cpp b11569 Q8_0 with/without MTP draft
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
 # A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
@@ -354,12 +354,15 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         MODEL_DIR="$YARN_MODEL_DIR"; TOKENIZER="$YARN_MODEL_DIR"
         REV="v2.11.2-yarn${YARN}"
       fi ;;
-  n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m)
+  n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t)
       # flashnext-next-steps-2026-10 on mlx-serve. An "x" in the arm = stable 26.10.2 (see line 66), no "x" = 26.10.1.
       # n2x/w1x = n2/w1 flags on 26.10.2; n2xd = n2x + MTP depth (FLASHNEXT_MTP_DEPTH_FLAG, FLASHNEXT_MTP_DEPTH);
       # w1q4/w1xq4 = w1 + 4-bit KV with --yarn (the 512k launcher profile); w1c8/w1xc8 = prefix cache 8GB
       # (control of test #9); w1p8/w1xp8 = w1c8 + --ple-gpu; o1rm = Jundot oQ4e refit c4ddfb5 and
       # s1m = scottlowry Swift 1.5 oQ4e e8ed008, oMLX packs that 26.10.2 loads natively.
+      # w1t = w1 from an overlay pack whose chat template puts the effort instruction after the last message
+      # (fixes/qwen3.8-flash-next/swift15-effort-tail.jinja, built by scripts/make-overlay.sh of next-steps-2026-10).
+      # n2t = n2 from the same kind of overlay (the iQ pack ships the same official template).
       LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve
       PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""
       if [[ "$CAND" == *x* || "$CAND" == o1rm || "$CAND" == s1m ]]; then
@@ -370,6 +373,8 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       fi
       case "$CAND" in
         n2x|n2xd) MODEL_DIR="$IQDIR"; MODEL_REV=dafff5c3d8168c9d13275661153911096499a80a ;;
+        n2t) MODEL_DIR="$IQDIR-efftail"; MODEL_REV=dafff5c3d8168c9d13275661153911096499a80a; REV="${REV}-efftail" ;;
+        w1t) MODEL_DIR="$SWIFTDIR-efftail"; MODEL_REV=13839b7191e0973ff9fea58232267c395b76c6c0; REV="${REV}-efftail" ;;
         w1*) MODEL_DIR="$SWIFTDIR"; MODEL_REV=13839b7191e0973ff9fea58232267c395b76c6c0 ;;
         o1rm) MODEL_DIR="$(pack_dir Jundot-Qwen3.8-Flash-Next-oQ4e-mtp-c4ddfb5)"; MODEL_REV="${MODEL_DIR##*-}" ;;
         s1m) MODEL_DIR="$(pack_dir scottlowry-Swift1.5-Qwen3.8-Flash-Next-oQ4e-mtp-e8ed008)"; MODEL_REV="${MODEL_DIR##*-}" ;;

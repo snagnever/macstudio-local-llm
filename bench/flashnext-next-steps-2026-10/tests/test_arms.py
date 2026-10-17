@@ -84,3 +84,13 @@ def test_x1_is_mix6_from_the_consolidated_repo():
 def test_probe_max_tokens_is_opt_in():
     assert "--max-tokens" not in show("w1")
     assert "--max-tokens 8192" in show("w1", env={"QWEN38_PROBE_MAX_TOKENS": "8192"})
+
+def test_w1t_uses_the_efftail_overlay():
+    t = show("w1t", "131072")
+    assert SWIFT + "-efftail" in t and "--runtime-revision v26.10.1-efftail " in t
+    assert server(t).replace("-efftail", "") == server(show("w1", "131072"))
+
+def test_n2t_uses_the_efftail_overlay():
+    t = show("n2t", "131072")
+    assert IQ + "-efftail" in t and "--runtime-revision v26.10.1-efftail " in t
+    assert server(t).replace("-efftail", "") == server(show("n2", "131072"))
