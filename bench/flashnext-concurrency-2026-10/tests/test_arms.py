@@ -55,3 +55,8 @@ def test_run_seq_dry_run_accepts_campaign_arms():
     out = run("bash", SCRIPTS / "run-seq.sh", "--dry-run", "w1c1:32768:3:e1", "w1c2L:262144:3:e1b").stdout
     assert out.splitlines() == ["bash run-arm.sh w1c1 32768 --repeat 3 --tag e1",
                                 "bash run-arm.sh w1c2L 262144 --repeat 3 --tag e1b"]
+
+
+def test_arm_w1c1x2_two_streams_on_one_slot():
+    out = run_candidate_print("w1c1x2", "32768")
+    assert "--max-concurrent 1" in out and "--streams 2" in out and "--aux" in out

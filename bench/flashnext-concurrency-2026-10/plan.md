@@ -419,3 +419,13 @@ def test_run_claude_pair_dry_run():
 ### Smoke (1 rep, `w1c2a` a 32K, antes da Etapa 1)
 
 O harness rodou de ponta a ponta no rig. O log de boot mostra `[batched] gdn batched decode engaged (slots=2)`. Cada stream decodificou a ~42.8 tok/s enquanto o outro rodava (sozinho: 84.6), então o total ficou perto do decode de um stream só. `T_turno` 13.8 s nos dois streams (razão 1.75). É uma rep só; a Etapa 1 mede com 3.
+
+### Braço `w1c1x2` (pedido do usuário, 2026-10-17)
+
+| braço | `--max-concurrent` | `--prefix-cache-mem` | streams | gerador auxiliar | task |
+| --- | ---: | ---: | ---: | --- | --- |
+| `w1c1x2` | 1 (explícito) | 16 GB | 2 | sim | 2 (controle serializado: a fila de hoje com duas sessões) |
+
+O gate contra o `w1` sozinho compara com uma sessão que não divide o servidor. A pergunta "o batch é melhor que a fila?" pede o mesmo par de streams num slot só. O `w1c1x2` roda a 32K e a 128K. O `summarize_parallel.py --vs w1c1x2` imprime a razão do pior stream e a da média entre o braço com batch e o serializado, mais `batch beats queue: yes|no` (as duas razões ≤ 1.0). O gate de overlap não vale para o `w1c1x2`, porque ali o overlap 0 é o esperado.
+
+Regra de decisão acrescentada ao Task 2 Step 7 e ao Task 4 Step 1: o `etapa1-verdict.env` ganha `BATCH_BEATS_QUEUE=<yes|no>` por banda. O launcher só muda o default para `N = 2` se o braço `*a` passou **e** `batch beats queue: yes` nas duas bandas. Sem isso, a concorrência fica como opt-in documentado.

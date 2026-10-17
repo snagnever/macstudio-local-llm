@@ -298,3 +298,24 @@ def test_run_parallel_probes_fails_when_aux_fails_and_keeps_logs_out_of_results(
     assert res.returncode != 0 and "aux exit 5" in res.stdout
     assert (out / "w1c2a-32768-t-aux.jsonl").exists()
     assert not list(out.glob("*.log")) and len(list(logs.glob("*.log"))) == 2
+
+
+def test_summarize_parallel_serialized_control_skips_overlap_gate(tmp_path):
+    from summarize_parallel import summarize
+    write_fixture_streams(tmp_path, arm="w1c1x2", ctx=32768, tag="e1", tturno=[8.0, 15.0], hit=[0.99, 0.99],
+                          overlap=[0.0, 0.0])
+    s = summarize(tmp_path, "w1c1x2", 32768, "e1")
+    assert "no overlap" not in s["verdict"] and s["verdict"] == "pass-with-warning"
+
+
+def test_summarize_parallel_compares_against_serialized_arm(tmp_path):
+    from summarize_parallel import summarize
+    write_fixture_streams(tmp_path, arm="w1c2a", ctx=32768, tag="e1", tturno=[8.9, 13.9], hit=[0.99, 0.99],
+                          overlap=[0.3, 1.0])
+    write_fixture_streams(tmp_path, arm="w1c1x2", ctx=32768, tag="e1", tturno=[8.0, 16.0], hit=[0.99, 0.99],
+                          overlap=[0.0, 0.0])
+    s = summarize(tmp_path, "w1c2a", 32768, "e1", vs_arm="w1c1x2")
+    assert s["vs"]["arm"] == "w1c1x2"
+    assert s["vs"]["worst_ratio"] == pytest.approx(13.9 / 16.0)
+    assert s["vs"]["mean_ratio"] == pytest.approx(((8.9 + 13.9) / 2) / ((8.0 + 16.0) / 2))
+    assert s["vs"]["batch_beats_queue"] is True

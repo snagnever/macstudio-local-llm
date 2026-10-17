@@ -159,9 +159,26 @@ def _memory_summary(logs_dir: Path, arm: str, context: Union[int, str], tag: str
     }
 
 
+def _is_serialized(arm: str) -> bool:
+    """w1c1x2: the serialized control (2 streams on one slot); overlap is expected to be 0 there."""
+    return arm.endswith("x2")
+
+
+def _vs(streams: list[dict[str, Any]], other: list[dict[str, Any]], other_arm: str) -> Optional[dict[str, Any]]:
+    """Compare this arm with another arm of the same band, stream by stream (batch against the queue)."""
+    mine = [s["t_turno_s"] for s in streams if s["t_turno_s"] is not None]
+    theirs = [s["t_turno_s"] for s in other if s["t_turno_s"] is not None]
+    if not mine or not theirs:
+        return None
+    worst = max(mine) / max(theirs)
+    mean = (sum(mine) / len(mine)) / (sum(theirs) / len(theirs))
+    return {"arm": other_arm, "worst_ratio": worst, "mean_ratio": mean,
+            "batch_beats_queue": worst <= 1.0 and mean <= 1.0}
+
+
 def summarize(results_dir: Union[str, Path], arm: str, context: Union[int, str], tag: str,
               ref_32k: float = 7.9, ref_128k: float = 8.6, ref_256k: float = 11.1,
-              logs_dir: Optional[Union[str, Path]] = None) -> dict[str, Any]:
+              logs_dir: Optional[Union[str, Path]] = None, vs_arm: Optional[str] = None) -> dict[str, Any]:
     results_dir = Path(results_dir)
     logs_dir = Path(logs_dir) if logs_dir is not None else results_dir.parent / "logs"
     refs = {32768: ref_32k, 131072: ref_128k, 262144: ref_256k}
@@ -198,7 +215,7 @@ def summarize(results_dir: Union[str, Path], arm: str, context: Union[int, str],
         failed.append("http errors")
     if any(s["stall"] for s in streams) or (aux and aux["stall"]):
         failed.append(f"stall>{int(STALL_S)}s")
-    if len(streams) >= 2 and not any((s["overlap"] or 0) > 0 for s in streams):
+    if len(streams) >= 2 and not _is_serialized(arm) and not any((s["overlap"] or 0) > 0 for s in streams):
         failed.append("no overlap")
     if memory and memory["swap_delta_gb"] > SWAP_MAX_GB:
         failed.append(f"swap>{SWAP_MAX_GB}")
@@ -209,8 +226,12 @@ def summarize(results_dir: Union[str, Path], arm: str, context: Union[int, str],
         verdict = "pass-with-warning"
     else:
         verdict = "pass"
+    vs = None
+    if vs_arm:
+        vs = _vs(streams, summarize(results_dir, vs_arm, context, tag, ref_32k, ref_128k, ref_256k,
+                                    logs_dir)["streams"], vs_arm)
     return {"arm": arm, "context": context, "tag": tag, "streams": streams, "aux": aux, "memory": memory,
-            "gates_failed": failed, "verdict": verdict}
+            "gates_failed": failed, "verdict": verdict, "vs": vs}
 
 
 def _f(x: Optional[float], fmt: str = "{:.1f}") -> str:
@@ -231,6 +252,10 @@ def markdown(summary: dict[str, Any]) -> str:
         ]) + " |")
     lines.append("")
     lines.append(f"gates failed: {', '.join(summary['gates_failed']) or 'none'}")
+    vs = summary.get("vs")
+    if vs:
+        lines.append(f"vs {vs['arm']}: worst stream {vs['worst_ratio']:.2f}x, mean {vs['mean_ratio']:.2f}x, "
+                     f"batch beats queue: {'yes' if vs['batch_beats_queue'] else 'no'}")
     lines.append(f"VERDICT: {summary['verdict']}")
     return "\n".join(lines)
 
@@ -245,10 +270,11 @@ def main(argv: Optional[list[str]] = None) -> int:
     p.add_argument("--ref-32k", type=float, default=7.9)
     p.add_argument("--ref-128k", type=float, default=8.6)
     p.add_argument("--ref-256k", type=float, default=11.1)
+    p.add_argument("--vs", help="compare with another arm of the same band and tag (e.g. w1c1x2)")
     p.add_argument("--markdown", action="store_true")
     a = p.parse_args(argv)
     context: Union[int, str] = "all" if a.context == "all" else int(a.context)
-    s = summarize(a.results_dir, a.arm, context, a.tag, a.ref_32k, a.ref_128k, a.ref_256k, a.logs_dir)
+    s = summarize(a.results_dir, a.arm, context, a.tag, a.ref_32k, a.ref_128k, a.ref_256k, a.logs_dir, a.vs)
     print(markdown(s) if a.markdown else json.dumps(s, indent=2))
     return 0
 

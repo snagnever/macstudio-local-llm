@@ -19,7 +19,7 @@
 #   flashnext-concurrency-2026-10: w1c1..w1c2m4q8 = w1 with --max-concurrent N and N parallel probe streams
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1c1|w1c1a|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1c1|w1c1a|w1c1x2|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
 # A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
@@ -427,11 +427,12 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         export QWEN38_LLAMA_SERVER_BIN="$LLAMA_B11609"
         if [[ "$CAND" == g0 ]]; then ARM=GN; REV=b11609; else ARM=GM; REV=b11609-mtp; fi
       fi ;;
-  w1c1|w1c1a|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8)
+  w1c1|w1c1a|w1c1x2|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8)
       # flashnext-concurrency-2026-10: w1 (Swift 1.5 @ 26.10.1) with --max-concurrent N and N parallel
       # cache_probe streams (bench/flashnext-concurrency-2026-10/scripts/run-parallel-probes.sh).
       # "a" = auxiliary load generator on; m8/m4 = prefix cache 8/4 GB; q8 = 8-bit KV;
       # L = asymmetric streams (262144 + 32768). Every 256K arm and w1c2m8 runs with the generator.
+      # w1c1x2 = serialized control: 2 streams + generator on one slot (--max-concurrent 1 pinned).
       LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.1
       MODEL_DIR="$SWIFTDIR"; MODEL_REV=13839b7191e0973ff9fea58232267c395b76c6c0
       PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""
@@ -440,15 +441,16 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
       unset QWEN38_MLX_PLE_GPU QWEN38_MLX_PREFIX_CACHE_MEM QWEN38_MLX_KV_QUANT QWEN38_MLX_CONFIG_OVERRIDES QWEN38_MLX_EXTRA_ARGS
       PAR_N=1; PAR_AUX=""; PAR_CONTEXTS=""
-      case "$CAND" in w1c2*) PAR_N=2 ;; w1c4*) PAR_N=4 ;; esac
-      case "$CAND" in w1c1a|w1c2a|w1c4a|w1c2m8|w1c2L|w1c2m4|w1c2q8|w1c2m4q8) PAR_AUX=1 ;; esac
+      case "$CAND" in w1c2*|w1c1x2) PAR_N=2 ;; w1c4*) PAR_N=4 ;; esac
+      MC="$PAR_N"; [[ "$CAND" == w1c1x2 ]] && MC=1
+      case "$CAND" in w1c1a|w1c1x2|w1c2a|w1c4a|w1c2m8|w1c2L|w1c2m4|w1c2q8|w1c2m4q8) PAR_AUX=1 ;; esac
       [[ "$CAND" == w1c2L ]] && PAR_CONTEXTS="262144,32768"
       case "$CAND" in
         w1c2m8) export QWEN38_MLX_PREFIX_CACHE_MEM=8GB; REV="${REV}-pc8" ;;
         w1c2m4|w1c2m4q8) export QWEN38_MLX_PREFIX_CACHE_MEM=4GB; REV="${REV}-pc4" ;;
       esac
       if [[ "$CAND" == *q8 ]]; then export QWEN38_MLX_KV_QUANT=8; REV="${REV}-kv8"; fi
-      if [[ "$PAR_N" -gt 1 ]]; then export QWEN38_MLX_EXTRA_ARGS="--max-concurrent $PAR_N"; REV="${REV}-mc${PAR_N}"; fi
+      if [[ "$PAR_N" -gt 1 ]]; then export QWEN38_MLX_EXTRA_ARGS="--max-concurrent $MC"; REV="${REV}-mc${MC}"; fi
       ARM_EXEC="bash $REPO/bench/flashnext-concurrency-2026-10/scripts/run-parallel-probes.sh --streams $PAR_N${PAR_AUX:+ --aux}"
       ARM_EXEC="$ARM_EXEC --context $CTX${PAR_CONTEXTS:+ --contexts $PAR_CONTEXTS} --repeat $REPEAT --arm $CAND --tag ${TAG:-untagged}"
       ARM_EXEC="$ARM_EXEC --temperature $TEMP --reasoning-effort $EFFORT --runtime-revision $REV --model-revision $MODEL_REV"
