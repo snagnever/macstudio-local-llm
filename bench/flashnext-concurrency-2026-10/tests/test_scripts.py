@@ -185,7 +185,12 @@ def test_summarize_parallel_reads_memory_sampler(tmp_path):
     (logs / "w1c2-131072-t1.0-e1-mem.jsonl").write_text("".join(json.dumps(m) + "\n" for m in mem))
     s = summarize(tmp_path, "w1c2", 131072, "e1", logs_dir=logs)
     assert s["memory"] == {"wired_peak_gb": 112.5, "free_min_gb": 0.3, "swap_delta_gb": pytest.approx(0.2)}
-    assert s["verdict"].startswith("fail") and "free" in s["verdict"]
+    # vm_stat "Pages free" falls to ~0.01 GB during every model load (file cache): informational, not a gate.
+    assert s["verdict"] == "pass"
+    mem.append({"t": 3, "free_gb": 0.2, "wired_gb": 112.0, "swap_used_gb": 1.9})
+    (logs / "w1c2-131072-t1.0-e1-mem.jsonl").write_text("".join(json.dumps(m) + "\n" for m in mem))
+    s = summarize(tmp_path, "w1c2", 131072, "e1", logs_dir=logs)
+    assert s["verdict"].startswith("fail") and "swap" in s["verdict"]
 
 
 def test_summarize_parallel_context_all_uses_ref_per_stream(tmp_path):

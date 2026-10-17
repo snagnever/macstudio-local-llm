@@ -28,7 +28,9 @@ RATIO_FAIL = 2.0
 HIT_MIN = 0.95
 STALL_S = 60.0
 SWAP_MAX_GB = 0.5
-FREE_MIN_GB = 0.5
+# No free-memory gate: vm_stat "Pages free" drops to ~0.01 GB during every model load (file cache), and the
+# 2026-10 solo runs logged 0.01-0.06 GB at 32K-256K. Memory failure shows up as swap, HTTP refusals
+# (PrefillDoesNotFit) or a stream that dies; free_min_gb stays in the table for reading.
 NEEDLES_256K = 11 / 13  # the solo 256K reference got 11/13
 HEADER = ("| braço | contexto | stream | T_turno | razão ÷ w1 | warm TTFT tool | hit app / tool | decode | overlap "
           "| aux p50 / p95 / errs | wired peak | livre mín | swap Δ | HTTP errs | needles |")
@@ -200,8 +202,6 @@ def summarize(results_dir: Union[str, Path], arm: str, context: Union[int, str],
         failed.append("no overlap")
     if memory and memory["swap_delta_gb"] > SWAP_MAX_GB:
         failed.append(f"swap>{SWAP_MAX_GB}")
-    if memory and memory["free_min_gb"] < FREE_MIN_GB:
-        failed.append(f"free<{FREE_MIN_GB}GB")
 
     if failed:
         verdict = f"fail ({', '.join(failed)})"

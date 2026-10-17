@@ -405,3 +405,17 @@ def test_run_claude_pair_dry_run():
 - `--os-reserve-gib` abaixo de 8: só anotado (Task 2b Step 7), nunca rodado.
 - mlx-serve 26.10.2 (cache só-SSD, batch de Flash-Next com imagens): fora, por decisão da campanha anterior.
 - Qualidade da resposta sob concorrência: a amostragem é a mesma; `needles` é o único controle.
+
+## Emendas durante a execução (2026-10-17)
+
+- **Livre mínimo deixa de ser gate.** O `vm_stat` "Pages free" cai para ~0.01 GB no carregamento de todo modelo (cache de arquivo), e as rodadas sozinho de 2026-10 já registravam 0.01–0.06 GB de 32K a 256K. O valor fica na tabela só para leitura. A falta de memória aparece como swap Δ > 0.5 GB, recusa HTTP (`PrefillDoesNotFit`) ou um stream que morre (`missing streams`).
+- **Condição do `w1c4` a 128K** (Task 2 Step 6): roda se o `w1c2a` a 128K passou e o wired peak dele ficou ≤ 115 GB, no lugar de "livre mínimo ≥ 8 GB".
+- **Etapa 1b:** a reprovação "por memória" do Task 2b Steps 4 e 6 passa a ser recusa HTTP, swap ou stream ausente.
+- **Overlap** usa a janela de decode de cada requisição (`wall_first_token` a `wall_end`), não a requisição inteira: a espera na fila não conta. O `T_turno` usa o TTFT medido no cliente (`client_ttft_ms`).
+- **Trava (> 60 s)** vale para `identical`, `append`, `tool_turn` e chamadas auxiliares. `cold` e `middle_mutation` são presos ao prefill (o `w1` sozinho leva 92 s no `middle_mutation` a 128K).
+- **Streams 3 e 4** recebem `--prompt-salt s3`/`s4`: o prompt do `cache_probe.py` não depende do `--session-id`.
+- **Commits** terminam com `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>` (modelo da sessão de execução).
+
+### Smoke (1 rep, `w1c2a` a 32K, antes da Etapa 1)
+
+O harness rodou de ponta a ponta no rig. O log de boot mostra `[batched] gdn batched decode engaged (slots=2)`. Cada stream decodificou a ~42.8 tok/s enquanto o outro rodava (sozinho: 84.6), então o total ficou perto do decode de um stream só. `T_turno` 13.8 s nos dois streams (razão 1.75). É uma rep só; a Etapa 1 mede com 3.

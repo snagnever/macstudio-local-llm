@@ -48,3 +48,10 @@ def test_run_arm_writes_into_this_campaign():
     from conftest import HERE, SCRIPTS, run
     out = run("bash", SCRIPTS / "run-arm.sh", "w1c2a", "32768", "--repeat", "3", "--tag", "e1", "--print").stdout
     assert f"--out {HERE / 'results'}" in out
+
+
+def test_run_seq_dry_run_accepts_campaign_arms():
+    from conftest import SCRIPTS, run
+    out = run("bash", SCRIPTS / "run-seq.sh", "--dry-run", "w1c1:32768:3:e1", "w1c2L:262144:3:e1b").stdout
+    assert out.splitlines() == ["bash run-arm.sh w1c1 32768 --repeat 3 --tag e1",
+                                "bash run-arm.sh w1c2L 262144 --repeat 3 --tag e1b"]
