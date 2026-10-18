@@ -120,3 +120,76 @@ def test_collect_real_matches_summary():
     assert d["claude_code"]["serial_sum"] == pytest.approx(137.6, abs=0.1)
     assert _cfg(d, "w1c2a", 131072)["wired_peak"] == pytest.approx(113.5)
     assert d["by_n"]["ratio"][131072][4] == pytest.approx(3.85, abs=0.01)
+
+
+# ---- SVG builders ----
+
+GROUPS = [
+    {"label": "32k", "values": {"A": 1.2, "B": 2.4}},
+    {"label": "128k", "values": {"A": 1.6, "B": None}},
+]
+
+
+def _opening_tag(svg):
+    return svg[: svg.index(">") + 1]
+
+
+def test_grouped_bars_one_rect_per_value_and_viewbox():
+    svg = R.svg_grouped_bars(GROUPS, ["A", "B"], 3.0)
+    assert svg.startswith("<svg")
+    assert svg.count("<rect") == 3
+    tag = _opening_tag(svg)
+    assert "viewBox=" in tag and "width=" not in tag and "height=" not in tag
+
+
+def test_grouped_bars_none_is_na_without_rect():
+    svg = R.svg_grouped_bars(GROUPS, ["A", "B"], 3.0)
+    assert svg.count(">n/a</text>") == 1
+    only_none = R.svg_grouped_bars([{"label": "x", "values": {"A": None}}], ["A"], 3.0)
+    assert "<rect" not in only_none and ">n/a</text>" in only_none
+
+
+def test_grouped_bars_bands_are_lines():
+    svg = R.svg_grouped_bars(GROUPS, ["A", "B"], 3.0, bands=[(1.5, "1.5x"), (2.0, "2.0x")])
+    assert svg.count('<line class="band"') == 2
+    assert "1.5x" in svg and "2.0x" in svg
+
+
+def test_grouped_bars_escapes_labels():
+    svg = R.svg_grouped_bars([{"label": "<b>", "values": {"A": 1.0}}], ["A"], 2.0)
+    assert "<b>" not in svg and "&lt;b&gt;" in svg
+
+
+ROWS = [
+    {"label": "r1", "p50": 5.0, "p95": 12.0, "max": 20.0},
+    {"label": "r2", "p50": None, "p95": None, "max": None},
+]
+
+
+def test_dots_circles_and_60s_reference():
+    svg = R.svg_dots(ROWS)
+    assert svg.startswith("<svg")
+    assert svg.count('<circle class="p50"') == 1 and svg.count('<circle class="p95"') == 1
+    assert svg.count('<line class="band"') == 1 and "60 s" in svg
+    tag = _opening_tag(svg)
+    assert "viewBox=" in tag and "width=" not in tag
+
+
+def test_dots_none_is_na_without_circle():
+    svg = R.svg_dots([{"label": "r", "p50": None, "p95": None, "max": None}])
+    assert "<circle" not in svg and ">n/a</text>" in svg
+
+
+PAIRS = [
+    {"label": "p1", "a": 10.0, "b": 20.0, "a_label": "A", "b_label": "B"},
+    {"label": "p2", "a": 5.0, "b": None, "a_label": "A", "b_label": "B"},
+]
+
+
+def test_paired_bars_rects_and_none():
+    svg = R.svg_paired_bars(PAIRS)
+    assert svg.startswith("<svg")
+    assert svg.count('<rect class="a"') == 2 and svg.count('<rect class="b"') == 1
+    assert svg.count(">n/a</text>") == 1
+    tag = _opening_tag(svg)
+    assert "viewBox=" in tag and "width=" not in tag
