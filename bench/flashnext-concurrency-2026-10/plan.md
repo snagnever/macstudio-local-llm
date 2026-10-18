@@ -436,8 +436,8 @@ Rodam depois da Etapa 2, numa fila própria (`logs/q-e3.sh`), nesta ordem:
 
 | braço | contexto | reps | por quê |
 | --- | ---: | ---: | --- |
-| `w1c1` | 262144 | 3 (tag `e1c`) | Fecha a referência a 256K (9.8 s medidos em 1 rep contra 11.1 s do plano) e a regra de needles, que supõe 3 reps. |
 | `w1c2ap3` | 131072 | 3 | `w1c2a` + `--prefill-decode-share 0.3`. O stall de aux (p95 170–356 s) é o único gate que reprova a 128K e a 256K; a flag faz o decode guardar uma fração do tempo enquanto outro request faz prefill. |
 | `w1c2ap5` | 131072 | 3 | O mesmo com `0.5`. |
+| `w1c1` | 262144 | 3 (tag `e1c`) | Fecha a referência a 256K (9.8 s medidos em 1 rep contra 11.1 s do plano) e a regra de needles, que supõe 3 reps. |
 
 Gate dos `w1c2ap*`: os mesmos do `w1c2a`. Comparar `aux p95` e o `T_turno` dos dois streams contra o `w1c2a` a 128K (tag `e1`). Se um deles tirar o stall sem passar de 2.0× no pior stream, ele vira candidato a flag do launcher.
