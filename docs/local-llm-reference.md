@@ -11,7 +11,7 @@
 
 | Task | Model |
 |---|---|
-| **Most responsive long-context daily driver** (fastest turn at 32K–256K, prefix cache) | **Qwen3.8-Flash-Next** on **mlx-serve 26.9.2** — `tools/scripts/serve-flashnext-daily-driver.sh` → `http://<rig>:11234/v1`; see [card](models/qwen3.8-flash-next.md) |
+| **Most responsive long-context daily driver** (fastest turn at 32K–256K, prefix cache) | **Qwen3.8-Flash-Next** (Swift 1.5) on **mlx-serve 26.10.1** — `tools/scripts/serve-flashnext-daily-driver.sh` → `http://<rig>:11234/v1`; see [card](models/qwen3.8-flash-next.md) |
 | Agentic coding (OpenCode, Cline, OpenClaw) | `qwen/qwen3-coder-next` |
 | Hard reasoning, code review, careful single-file edits | `qwen3.6-27b` |
 | Knowledge-heavy Q&A, broad-domain quality | `qwen3.6-27b` (still the knowledge king post-Phase-2) |
@@ -34,7 +34,7 @@ Post-Phase-2 + Terminal-Bench backfill (2026-05-29), each role has a different o
 
 | Role | Model | Why it wins (on-rig numbers) |
 |---|---|---|
-| **Responsive daily driver** — long sessions where turn latency matters (chat, agent loops at 32K–256K) | `Qwen3.8-Flash-Next` ddalcu mixed-4/8 on **mlx-serve 26.9.2** (75 GB, own server on :11234, not LM Studio) | T_turno **11.03 s @32K / 12.35 s @128K** (median of 3 reps), 18% ahead of the next stack; warm turn ~2 s at 128K, 256K multi-turn without `sudo`. Config: 131K ctx, `--mtp`, prefix cache 16 GB RAM / 100 GB disk / 64 entries, `--ssm-checkpoint-max 16`; sampling temp 1.0 / top_p 0.95 / top_k 20. Agent quality (T-Bench) **not measured** — keep coder-next as the Agent pick until it is. [card](models/qwen3.8-flash-next.md) · [campaign](../bench/qwen38-flashnext-daily-driver-2026-09/results/summary.md) |
+| **Responsive daily driver** — long sessions where turn latency matters (chat, agent loops at 32K–256K) | `Qwen3.8-Flash-Next` Swift 1.5 MLX-4.7bpw (`Dankpaws`, rev `13839b7`) on **mlx-serve 26.10.1** (own server on :11234, not LM Studio) | T_turno **7.9 s @32K / 8.6 s @128K** (median of 3 reps) and **11.1 s @256K** (Task 2 of the 2026-10 next-steps campaign); free memory reaches 0.01 GB at 256K. Config: 262144 ctx (native maximum, since 2026-10-18), unquantized KV, `--mtp`, prefix cache 16 GB RAM / 100 GB disk / 64 entries, `--ssm-checkpoint-max 16`; sampling temp 1.0 / top_p 0.95 / top_k 20. Agent quality (T-Bench) **not measured** — keep coder-next as the Agent pick until it is. [card](models/qwen3.8-flash-next.md) · [campaign](../bench/qwen38-flashnext-daily-driver-2026-09/results/summary.md) |
 | **Planning** — design, hard reasoning, code review, careful single-file edits | `qwen3.6-27b` (6-bit dense, 22.80 GB) | Knowledge avg **85.8 %** (top of rig). MMLU 88, MATH 88, GPQA 70 (raw, ceiling ~78–85), DROP 90, LCB **88 %** (+4 pp over coder-next on contamination-resistant coding; [regrade 2026-10-14](../bench/lcb-regrade-2026-10/results/regrade-summary.md)). Slow (~20 t/s gen, 67 s prefill @ 8.5k) but you wait once for a plan. |
 | **Code** — single-shot algorithm problems, isolated edits, code generation peak | `gemma-4-26b-a4b-it-mlx@6bit` (21.81 GB) | LCB **88 %** (ties `27b`; `gemma-4-31b` scores 90 % at 6× slower decode). HumanEval 97, MATH 83, jdhodges 97.5, Veerman 83.3. **80.8 gen t/s** — quality *and* speed. Use `@4bit` (15.64 GB, **100 gen t/s**) when throughput matters more than the last 12 pp of LCB. |
 | **Agent** — OpenCode / Cline / Claude Code loops, shell, multi-step tool calls | `qwen/qwen3-coder-next` (6-bit MoE, 64.76 GB) | T-Bench 2.0 **32.6 %** — #1 on rig. Trained for Claude Code / Cline scaffolds. 256K native context (1M with YaRN), ~68 t/s effective thanks to 3B active. `qwen3.6-27b` is +0.9 pp behind on T-Bench but 6× slower decode → coder-next wins speed-adjusted. Gemma's LCB lead **does not transfer** to agentic shell (best Gemma 22.5 %, ~10 pp behind). |
@@ -341,8 +341,8 @@ curl -s http://<lm-studio-host>:1234/v1/chat/completions \
     "messages": [{"role": "user", "content": "hello"}]
   }' | jq '.choices[0].message.content'
 
-# Flash-Next responsive daily driver (mlx-serve 26.9.2, port 11234)
-tools/scripts/serve-flashnext-daily-driver.sh            # daily profile, 131K context
+# Flash-Next responsive daily driver (Swift 1.5 on mlx-serve 26.10.1, port 11234)
+tools/scripts/serve-flashnext-daily-driver.sh            # daily profile, 256K context
 tools/scripts/serve-flashnext-daily-driver.sh 512k       # 512K via YaRN + 4-bit KV (memory at the edge)
 tools/scripts/serve-flashnext-daily-driver.sh --print    # show the exact command
 curl -s http://<rig>:11234/v1/models | jq '.data[].id'

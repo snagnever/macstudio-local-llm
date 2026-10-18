@@ -12,7 +12,7 @@
 > The 2026-10 next-steps campaign kept both drivers and the runtime: mlx-serve 26.10.2 was not adopted, and no
 > other pack or runtime beat Swift 1.5. Summary: [`bench/flashnext-next-steps-2026-10/results/summary.md`](../../bench/flashnext-next-steps-2026-10/results/summary.md).
 > Dense 27B next steps: [`bench/qwen38-27b-next-steps-2026-10/results/summary.md`](../../bench/qwen38-27b-next-steps-2026-10/results/summary.md) (Splash 1.3.1 is the fastest 27B stack, still about 2x this driver).
-> Last updated: 2026-10-16
+> Last updated: 2026-10-18 (daily profile context raised to 262144)
 
 Campaign that kept the drivers and tested 26.10.2, 512K, the agent battery, oMLX packs, GGUF and `--ple-gpu`: [`bench/flashnext-next-steps-2026-10/results/summary.md`](../../bench/flashnext-next-steps-2026-10/results/summary.md) (2026-10-16).
 Campaign that selected these weights: [`bench/swift15-flashnext-2026-10/results/summary.md`](../../bench/swift15-flashnext-2026-10/results/summary.md) (2026-10-11: iQ-MLX-4.7bpw → Swift 1.5 MLX-4.7bpw, same runtime and flags).
@@ -35,26 +35,26 @@ Dashboard: [`reports/qwen38-flashnext-driver.html`](../../reports/qwen38-flashne
 | API model id | the weights directory name above (read it from `/v1/models`) |
 | Launcher | [`tools/scripts/serve-flashnext-daily-driver.sh`](../../tools/scripts/serve-flashnext-daily-driver.sh) |
 
-### Launch command (daily profile, 131K context)
+### Launch command (daily profile, 256K context)
 
 ```bash
 ~/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve \
   --model ~/.cache/local-llms/qwen3.8-prefix-cache/Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0 \
   --serve --host 0.0.0.0 --port 11234 \
-  --ctx-size 131072 \
+  --ctx-size 262144 \
   --mtp \
   --ssm-checkpoint-max 16 \
   --prefix-cache-mem 16GB --prefix-cache-disk 100GB --prefix-cache-entries 64 \
   --metrics
 ```
 
-This is the config the 2026-10-11 campaign measured (arm w1): the flags of arm n2 (2026-10-07) and of the 2026-09 candidate c1, with the Swift 1.5 weights.
+These are the flags the 2026-10-11 campaign measured (arm w1): the flags of arm n2 (2026-10-07) and of the 2026-09 candidate c1, with the Swift 1.5 weights. The campaign served 131072 tokens. The daily profile serves 262144 tokens since 2026-10-18. The w1 arm at 256K was measured in Task 2 and Task 13 of the 2026-10 next-steps campaign (see the 256K/512K table and the open risks).
 
 ### Why each parameter
 
 | Parameter | Value | Reason |
 |---|---|---|
-| `--ctx-size` | 131072 | Daily band. T_turno grows only 12% from 32K to 128K on this stack. The native maximum is 262144. |
+| `--ctx-size` | 262144 | The native maximum. Chosen on 2026-10-18 so that long sessions do not hit the context limit. T_turno grows only 12% from 32K to 128K and is 11.1 s at 256K. At 256K with unquantized KV, free memory reaches 0.01 GB; close heavy apps before long sessions. |
 | `--mtp` | on | MTP is forced on for MoE targets; the runtime picks depth 6 and keeps PLD on (`draft_len=5`). MTP stays active at long context (`--max-mtp-ctx` default 0 = no ceiling). Measured acceptance 0.50–0.67. |
 | `--prefix-cache-mem` | 16GB | The binary default (2 GB) cannot hold a 128K prefix (~3.7 GB) and re-prefills every turn (~184 s). 16 GB keeps identical/append/tool_turn at ~2 s. Decode cost: none. |
 | `--prefix-cache-disk` | 100GB | Spill tier in `~/.mlx-serve/kv-cache`. Long KV goes to SSD by design, so RAM stays bounded and 256K/512K fit without swap. |
@@ -162,7 +162,7 @@ It adds `--ctx-size 524288 --kv-quant 4` and a YaRN override
 
 - **Agent quality is unmeasured.** The older conditional promotion stands on quality: run Terminal-Bench before replacing `qwen3-coder-next` in the agent role. The driver for it is ready (`bench/terminal-bench/scripts/run-tbench-flashnext.sh`); the run is on hold because it needs a second machine for the Docker containers.
 - **Instruction following (Swift 1.5).** Its card declares −3 on IFBench. The A/B's 20-case IFEval-style probe found one consistent miss (two paragraphs separated by `***`) in both sampling profiles.
-- **Swift 1.5 at 256K with unquantized KV: needles 26 of 28 records over two campaigns.** The 2 misses of Task 2 (11/13, all `finish_reason=stop`) did not repeat in Task 13 (15/15). Both arms reach 0.01 GB free memory at 256K. The daily profile stays at 131072. Sources: [`etapa2-swift-long.md`](../../bench/flashnext-next-steps-2026-10/results/etapa2-swift-long.md), [`etapa13-needles256k.md`](../../bench/flashnext-next-steps-2026-10/results/etapa13-needles256k.md).
+- **Swift 1.5 at 256K with unquantized KV: needles 26 of 28 records over two campaigns.** The 2 misses of Task 2 (11/13, all `finish_reason=stop`) did not repeat in Task 13 (15/15). Both arms reach 0.01 GB free memory at 256K. The daily profile serves 262144 since 2026-10-18 with this risk accepted. Sources: [`etapa2-swift-long.md`](../../bench/flashnext-next-steps-2026-10/results/etapa2-swift-long.md), [`etapa13-needles256k.md`](../../bench/flashnext-next-steps-2026-10/results/etapa13-needles256k.md).
 - **Long sessions:** no `char_run` degeneration up to ~203K prompt tokens on Swift 1.5 or iQ (3c). iQ had 4 turns that called a tool instead of answering (`finish_reason=tool_calls`, empty content); Swift had none. Source: [`etapa3-agent.md`](../../bench/flashnext-next-steps-2026-10/results/etapa3-agent.md).
 - **Switching `reasoning_effort` mid-session drops the prefix cache** (3e): hit 0.00 and TTFT ~167 s at 128K, against 1.3 s with the same effort. The official template writes the effort instruction at the start of the system prompt. Pin the effort per session. Source: [`etapa3-agent.md`](../../bench/flashnext-next-steps-2026-10/results/etapa3-agent.md). A template with the effort instruction at the end of the prompt (`w1t`, [`swift15-effort-tail.jinja`](../../fixes/qwen3.8-flash-next/swift15-effort-tail.jinja)) makes the switch cost 0.8–5.7 s, but it is not the default. On this hybrid model, mlx-serve restores a prefix only at a GDN state checkpoint. The logs suggest that it writes one at the start of the last message, which with `w1t` is the effort block after the user question. Short prompts then lose system-prompt reuse (0/55 against 53/55, +0.9 to +1.4 s on turn 1). The iQ pack with the same template (`n2t`) behaves the same: switch hit 0.97–1.00, reasoning within ×0.95–1.16 of the official template at each effort, accuracy within margin ([`etapa15-iq-effort-tail.md`](../../bench/flashnext-next-steps-2026-10/results/etapa15-iq-effort-tail.md)). Lesson: before you change where a variable text sits in a template, measure prefix reuse on short and long prompts. Diagrams, and five untested ways to keep both the cheap switch and the short-prompt cache (effort block before the last user message, smaller `--ssm-checkpoint-stride`, a template that moves the block by conversation length, a checkpoint at every message boundary, effort outside the prompt): [`etapa11-effort-tail.md`](../../bench/flashnext-next-steps-2026-10/results/etapa11-effort-tail.md). Public page: [`qwen38-flashnext-effort-tail.html`](../../reports/qwen38-flashnext-effort-tail.html).
 - **`--ple-gpu` stays off.** With an 8 GB prefix cache, mlx-serve 26.10.1 still keeps the PLE gather on the CPU: weights 68.2 GB + table 29.8 GB + a fixed 16 GB headroom = 114 GB, above the 107.5 GB Metal working set. The headroom does not depend on the prefix cache. Source: [`etapa9-plegpu.md`](../../bench/flashnext-next-steps-2026-10/results/etapa9-plegpu.md).
