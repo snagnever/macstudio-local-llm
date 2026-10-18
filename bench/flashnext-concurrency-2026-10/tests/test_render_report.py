@@ -1,3 +1,4 @@
+import html
 import json
 from pathlib import Path
 
@@ -429,3 +430,22 @@ def test_render_hero_labels_by_context(tmp_path):
     hero = R.render(R.collect(tmp_path))
     hero = hero[hero.index('id="hero"'):hero.index('id="how-it-works"')]
     assert "n/a at 32K and 1.94× at 128K" in hero
+
+
+def test_illustration_labels_fit_their_boxes():
+    for svg in (R.ILLUSTRATION_TIMELINE, R.ILLUSTRATION_BATCH):
+        rects, checked = [], 0
+        for m in re.finditer(r'<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"'
+                             r'|<text x="([\d.]+)" y="([\d.]+)" text-anchor="middle"[^>]*>([^<]*)</text>', svg):
+            if m.group(1):
+                x, y, w, h = (float(m.group(i)) for i in range(1, 5))
+                assert x >= 0 and x + w <= 760, "box leaves the viewBox"
+                rects.append((x, y, w, h))
+                continue
+            tx, ty, label = float(m.group(5)), float(m.group(6)), html.unescape(m.group(7))
+            box = [r for r in rects if abs(r[0] + r[2] / 2 - tx) < 0.6 and r[1] <= ty <= r[1] + r[3]]
+            if not box:
+                continue  # free-standing label (caption, "waits here")
+            checked += 1
+            assert len(label) * 6.6 <= box[-1][2] - 4, label
+        assert svg is R.ILLUSTRATION_BATCH or checked >= 10

@@ -346,8 +346,8 @@ def _ibox(x: int, y: int, w: int, h: int, label: str, color: str, op: str = "0.3
     d = ' stroke-dasharray="4 3"' if dash else ""
     return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="4" fill="{color}" fill-opacity="{op}" '
             f'stroke="{color}"{d}/>'
-            f'<text x="{x + w / 2:g}" y="{y + h / 2 + 4:g}" text-anchor="middle" font-size="12" '
-            f'fill="currentColor">{html.escape(label)}</text>')
+            + (f'<text x="{x + w / 2:g}" y="{y + h / 2 + 4:g}" text-anchor="middle" font-size="12" '
+               f'fill="currentColor">{html.escape(label)}</text>' if label else ""))
 
 
 def _itext(x: float, y: float, s: str, anchor: str = "start", weight: str = "") -> str:
@@ -359,10 +359,12 @@ def _itext(x: float, y: float, s: str, anchor: str = "start", weight: str = "") 
 _TL = [
     _itext(10, 26, "One session alone", weight="600"),
     _ibox(10, 34, 320, 36, "prefill: the server reads the prompt", "var(--s2)"),
-    _ibox(334, 34, 110, 36, "decode: one token", "var(--s1)"),
-    _ibox(448, 34, 60, 36, "reply", "var(--s1)", "0.12"),
-    _ibox(512, 34, 110, 36, "decode: one token", "var(--s1)"),
-    _ibox(626, 34, 60, 36, "reply", "var(--s1)", "0.12"),
+    _ibox(334, 34, 124, 36, "decode: one token", "var(--s1)"),
+    _ibox(462, 34, 52, 36, "reply", "var(--s1)", "0.12"),
+    _ibox(522, 34, 110, 36, "", "var(--s2)", "0.06", dash=True),
+    _itext(577, 49, "prompt cache:", "middle"),
+    _itext(577, 63, "already read", "middle"),
+    _ibox(636, 34, 72, 36, "decode", "var(--s1)"),
     _itext(10, 112, "Two sessions together (the server shares generation between them)", weight="600"),
     _ibox(10, 122, 320, 34, "A prefill: the server reads the prompt", "var(--s2)"),
     _ibox(10, 160, 320, 34, "B prefill", "var(--s2)"),
@@ -372,11 +374,12 @@ _TL = [
     _ibox(562, 160, 72, 34, "B decode", "var(--s3)"),
     _ibox(638, 122, 52, 34, "A reply", "var(--s1)", "0.12"),
     _ibox(694, 160, 52, 34, "B reply", "var(--s3)", "0.12"),
-    '<line x1="190" y1="198" x2="190" y2="224" stroke="var(--s4)" stroke-width="2"/>',
-    '<path d="M184 218 L190 227 L196 218 Z" fill="var(--s4)"/>',
-    _ibox(130, 228, 120, 26, "short side request", "var(--s4)"),
-    '<line x1="250" y1="241" x2="330" y2="241" stroke="var(--s4)" stroke-width="2" stroke-dasharray="4 3"/>',
-    _itext(290, 236, "waits here", "middle"),
+    '<line x1="190" y1="228" x2="190" y2="202" stroke="var(--s4)" stroke-width="2"/>',
+    '<path d="M184 208 L190 198 L196 208 Z" fill="var(--s4)"/>',
+    _itext(200, 218, "arrives here"),
+    _ibox(130, 228, 132, 26, "short side request", "var(--s4)"),
+    '<line x1="262" y1="241" x2="330" y2="241" stroke="var(--s4)" stroke-width="2" stroke-dasharray="4 3"/>',
+    _itext(296, 236, "waits here", "middle"),
     _ibox(334, 228, 52, 26, "reply", "var(--s4)", "0.12"),
     # legend
     '<rect x="10" y="272" width="14" height="14" rx="2" fill="var(--s2)" fill-opacity="0.35" stroke="var(--s2)"/>',
