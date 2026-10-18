@@ -233,3 +233,116 @@ def test_svg_contract_markers_in_all_builders():
     assert 'class="value"' in g and ">1.2</text>" in g
     assert ">60 s</text>" in R.svg_dots(ROWS)
     assert R.svg_paired_bars(PAIRS).count("<title>") == 3
+
+
+# ---- render() and main() ----
+
+import re
+
+SECTION_IDS = ["hero", "how-it-works", "glossary", "sessions", "throughput", "side-requests", "max-concurrent",
+               "long-context", "claude-code", "pds", "learned", "upstream", "refusals", "not-measured",
+               "reproduce", "terms"]
+INSIDER = re.compile(r"\b(w1c\w*|T_turno|braço|aux|needle|needles|stream|streams|rig|daily driver|etapa)\b",
+                     re.IGNORECASE)
+
+
+@pytest.fixture(scope="module")
+def real_html():
+    return R.render(R.collect(REAL_RESULTS))
+
+
+def _payload(page):
+    m = re.search(r'<script id="data" type="application/json">(.*?)</script>', page, re.S)
+    assert m, "data payload missing"
+    return m.group(1)
+
+
+def _public_body(page):
+    body = re.sub(r"<footer\b.*?</footer>", "", page, flags=re.S)
+    body = re.sub(r"<details\b.*?</details>", "", body, flags=re.S)
+    body = re.sub(r'<script id="data" type="application/json">.*?</script>', "", body, flags=re.S)
+    # "stream" is allowed only inside <code> (server messages and flags)
+    return re.sub(r"<code\b.*?</code>", lambda m: re.sub(r"\bstreams?\b", "", m.group(0), flags=re.I),
+                  body, flags=re.S)
+
+
+def test_render_sections_present(real_html):
+    for sid in SECTION_IDS:
+        assert f'id="{sid}"' in real_html, sid
+    assert real_html.lstrip().lower().startswith("<!doctype html>")
+    assert '<html lang="en"' in real_html
+    assert "<title>Flash-Next: how many agent sessions fit on one server?</title>" in real_html
+
+
+def test_render_illustration_anchors(real_html):
+    how = real_html[real_html.index('id="how-it-works"'):real_html.index('id="glossary"')]
+    assert "<!-- ILLUSTRATION_TIMELINE -->" in how
+    thr = real_html[real_html.index('id="throughput"'):real_html.index('id="side-requests"')]
+    assert "<!-- ILLUSTRATION_BATCH -->" in thr
+
+
+def test_render_no_insider_terms(real_html):
+    hits = sorted({m.group(0) for m in INSIDER.finditer(_public_body(real_html))})
+    assert hits == []
+    footer = re.search(r"<footer\b.*?</footer>", real_html, re.S).group(0)
+    assert "w1c2a" in footer and "T_turno" in footer
+
+
+def test_render_no_insider_terms_empty_results(tmp_path):
+    hits = sorted({m.group(0) for m in INSIDER.finditer(_public_body(R.render(R.collect(tmp_path))))})
+    assert hits == []
+
+
+def test_render_no_placeholders(real_html):
+    assert not re.search(r"__[A-Z_]+__", real_html)
+
+
+def test_render_payload_escaped(tmp_path):
+    data = R.collect(tmp_path)
+    data["configs"][0]["public_name"] = "</script><b>x</b>"
+    page = R.render(data)
+    payload = _payload(page)
+    assert "</" not in payload
+    assert json.loads(payload)["configs"][0]["public_name"] == "</script><b>x</b>"
+    assert "<b>x</b>" not in page.replace(payload, "")
+
+
+def test_render_payload_is_collect_output(real_html):
+    p = json.loads(_payload(real_html))
+    assert len(p["configs"]) == 23 and p["claude_code"]["pair_wall"] == pytest.approx(147.6, abs=0.1)
+
+
+def test_render_na_for_missing(tmp_path):
+    page = R.render(R.collect(tmp_path))
+    row = re.search(r'<tr data-config="w1c4-131072">(.*?)</tr>', page, re.S)
+    assert row, "results table row for a missing configuration"
+    cells = re.findall(r"<td[^>]*>(.*?)</td>", row.group(1), re.S)
+    assert cells[0] == "w1c4"
+    assert cells.count("n/a") >= 4
+
+
+def test_render_na_for_missing_in_real_data(real_html):
+    row = re.search(r'<tr data-config="w1c1a-131072">(.*?)</tr>', real_html, re.S)
+    assert row and "n/a" in row.group(1)
+
+
+def test_render_numbers_match_summary(real_html):
+    for s in ("1.76×", "1.94×", "2.37×", "2.36×", "2.84×", "3.85×", "1.68×", "1.81×", "147.6 s", "137.6 s"):
+        assert s in real_html, s
+
+
+def test_main_writes_files(tmp_path):
+    out_html, out_json = tmp_path / "page" / "r.html", tmp_path / "r.json"
+    rc = R.main(["--results-dir", str(REAL_RESULTS), "--out-html", str(out_html), "--out-json", str(out_json)])
+    assert rc == 0
+    page = out_html.read_text(encoding="utf-8")
+    assert 'id="hero"' in page and "1.94×" in page
+    data = json.loads(out_json.read_text(encoding="utf-8"))
+    assert data["claude_code"]["serial_sum"] == pytest.approx(137.6, abs=0.1)
+
+
+def test_main_defaults():
+    p = R._parser().parse_args([])
+    assert Path(p.results_dir) == R.RESULTS
+    assert Path(p.out_html) == R.REPO / "reports" / "qwen38-flashnext-concurrency.html"
+    assert Path(p.out_json) == R.RESULTS / "report-data.json"
