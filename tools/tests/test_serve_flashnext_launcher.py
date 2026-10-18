@@ -21,3 +21,23 @@ def test_daily_default_is_swift15_pack():
 
 def test_model_override_still_wins():
     assert "/tmp/other-pack" in _print(extra={"FLASHNEXT_MODEL": "/tmp/other-pack"})
+
+
+def test_daily_passes_no_max_concurrent_by_default():
+    # bench/flashnext-concurrency-2026-10: 26.10.1 already batches decode with its default of 1.
+    assert "--max-concurrent" not in _print()
+
+
+def test_max_concurrent_override_reaches_daily_command():
+    assert "--max-concurrent 2" in _print(extra={"FLASHNEXT_MAX_CONCURRENT": "2"})
+
+
+def test_256k_profile_uses_the_measured_two_session_config():
+    out = _print("256k")
+    assert "--ctx-size 262144" in out and "--max-concurrent 2" in out
+    assert "--prefix-cache-mem 4GB" in out and "16GB" not in out and "--kv-quant" not in out
+
+
+def test_512k_profile_forces_one_slot_even_with_override():
+    out = _print("512k", extra={"FLASHNEXT_MAX_CONCURRENT": "2"})
+    assert "--max-concurrent 1" in out and "--max-concurrent 2" not in out
