@@ -17,7 +17,7 @@ Rig: Mac Studio M4 Max 128 GB. Driver: Swift 1.5 (`Dankpaws/Swift1.5-Qwen3.8-Fla
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | 2 streams a 32K e 128K | w1c2, w1c2a | pior stream ≤ 2.0×; gates do `w1c2a` | 32K: 1.76×; 128K: 1.94×; stall de aux a 128K (p95 323 s) | N = 2 aprovado com aviso; o stall vem do prefill longo | [etapa1-sintetica.md](etapa1-sintetica.md) |
 | 2 | controle serializado | w1c1x2 | `batch beats queue` nas duas bandas | o `--max-concurrent 1` também faz batch; razão contra o `w1c2a` 1.00–1.06× | `BATCH_BEATS_QUEUE=n/a`; sem default novo | [etapa1-sintetica.md](etapa1-sintetica.md) |
-| 3 | 4 streams | w1c4, w1c4a | igual ao 1 | pior stream 2.84× a 32K e 3.85× a 128K; 3 `PrefillDoesNotFit` a 128K | N = 4 reprovado | [etapa1-sintetica.md](etapa1-sintetica.md) |
+| 3 | 3 e 4 streams | w1c3a, w1c4, w1c4a | igual ao 1 | 3 streams: pior stream 2.37× a 32K e 2.36× a 128K, sem recusa; 4 streams: 2.84× a 32K e 3.85× a 128K, 3 `PrefillDoesNotFit` a 128K | N = 3 e N = 4 reprovados; o máximo é 2 | [etapa1-sintetica.md](etapa1-sintetica.md) |
 | 4 | 2 streams a 256K | w1c2L, w1c2m4, w1c2q8, w1c2m4q8 | primeiro braço que passa | `L` (rerun com barreira): recusa e needles 10/12; `q8` recusado; `m4q8` cabe e erra 1 needle; `m4` 1.68× (1.81× contra o controle de 3 reps) | `MODE_256K=m4`: perfil `256k` com cache de 4 GB; KV de 8 bits fora | [etapa1b-256k.md](etapa1b-256k.md), [etapa1c-extras.md](etapa1c-extras.md) |
 | 5 | Claude Code em par | cc1, cc2 | `wall_s` ≤ 1.5× o controle | 1.84–2.36× por sessão; zero erros; tarefas feitas; o par termina ~7% depois das duas tarefas em sequência | reprovado no tempo; `daily` sem `--max-concurrent` | [etapa2-claude-code.md](etapa2-claude-code.md) |
 | 6 | `--prefill-decode-share` 0.3 e 0.5 | w1c2ap3, w1c2ap5 | tirar o stall sem passar de 2.0× | aux > 60 s igual ao controle (8); cold TTFT dobra (168 → ~320 s) | a flag não entra no launcher | [etapa1c-extras.md](etapa1c-extras.md) |
@@ -35,6 +35,6 @@ Rig: Mac Studio M4 Max 128 GB. Driver: Swift 1.5 (`Dankpaws/Swift1.5-Qwen3.8-Fla
 - O pack iQ `dafff5c` com duas sessões.
 - 512K com duas sessões (o perfil `512k` força 1 slot).
 - mlx-serve 26.10.2 (o batch em contexto longo e o cache só no SSD são novidades dele) e o PR #884 numa release futura.
-- Mais de 4 streams.
+- Mais de 4 streams. O N = 3 rodou só com o gerador de aux (`w1c3a`), sem o braço sem gerador.
 - Fila real no cliente (lock que serializa os requests): o 26.10.1 não tem chave para desligar o batch.
 - A sessão interativa da Etapa 2 (Step 6), com permissões e títulos reais: fica para o usuário (`scripts/run-claude-pair.sh --interactive-env`).

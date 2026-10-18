@@ -41,6 +41,7 @@ O hit do `tool_turn` não mudou com o gerador (0.961 a 32K, 0.991 a 128K). O hot
 ## Veredito por N
 
 - **N = 2: aprovado com aviso.** O pior stream fica em 1.76× a 32K e 1.94× a 128K, abaixo de 2.0. O `--max-concurrent 2` não muda nada mensurável contra o default.
+- **N = 3: reprovado.** O pior stream fica em 2.37× a 32K e 2.36× a 128K (seção abaixo).
 - **N = 4: reprovado.** O pior stream fica em 2.84× a 32K e 3.85× a 128K (seção abaixo).
 - **Prefix cache:** 16 GB. O `w1c2m8` não foi preciso: wired peak 113.5 GB, sem recusa, sem swap.
 
@@ -68,3 +69,18 @@ O hit do `tool_turn` não mudou com o gerador (0.961 a 32K, 0.991 a 128K). O hot
 Vereditos: `w1c4` 32K fail (ratio>2.0); `w1c4a` 32K fail (ratio>2.0, stall>60s); `w1c4` 128K fail (ratio>2.0, needles); `w1c4a` 128K fail (ratio>2.0, needles, http errors, stall>60s).
 
 Com 4 streams o decode se divide em ~17–40 tok/s por stream. O pior stream passa de 2.0× já a 32K sem gerador. A 128K com gerador, o servidor recusou 3 prefills: `prompt 125549 tokens needs ~6266MB at prefill chunk 512 (the narrowest width tried), ~5968MB available + ~13863MB the hot cache can give back (~17420MB resident, ~3556MB of it pinned by this request's own prefix) — refused before prefill`. Pela própria mensagem, o cache devolvível sem o prefixo preso (~10.3 GB) mais o livre (~6 GB) passa do pedido. É o mesmo padrão das recusas de 256K (Etapa 1b) e parece um problema da admissão do 26.10.1; a causa não foi confirmada.
+
+## N = 3 (pedido do usuário, 2026-10-18, com barreira de início)
+
+| braço | contexto | stream | T_turno | razão ÷ w1 | warm TTFT tool | hit app / tool | decode | overlap | aux p50 / p95 / errs | wired peak | livre mín | swap Δ | HTTP errs | needles |
+|---|---:|---|---:|---:|---:|---|---:|---|---|---:|---:|---:|---:|---|
+| w1c3a | 131072 | s1 | 17.6 | 2.05 | 2.2 | 0.992 / 0.991 | 33.1 | 1.00 | 1.1 / 168.1 / 0 | 114.7 | 0.02 | 0.00 | 0 | 13/13 |
+| w1c3a | 131072 | s2 | 20.3 | 2.36 | 2.3 | 0.992 / 0.991 | 28.3 | 1.00 | 1.1 / 168.1 / 0 | 114.7 | 0.02 | 0.00 | 0 | 13/13 |
+| w1c3a | 131072 | s3 | 17.0 | 1.98 | 2.2 | 0.992 / 0.991 | 34.6 | 0.78 | 1.1 / 168.1 / 0 | 114.7 | 0.02 | 0.00 | 0 | 13/13 |
+| w1c3a | 32768 | s1 | 15.0 | 1.90 | 1.9 | 0.962 / 0.961 | 39.0 | 1.00 | 1.8 / 29.2 / 0 | 101.4 | 0.04 | 0.00 | 0 | 13/13 |
+| w1c3a | 32768 | s2 | 18.7 | 2.37 | 1.9 | 0.962 / 0.961 | 30.4 | 1.00 | 1.8 / 29.2 / 0 | 101.4 | 0.04 | 0.00 | 0 | 13/13 |
+| w1c3a | 32768 | s3 | 15.4 | 1.95 | 2.0 | 0.962 / 0.961 | 38.1 | 1.00 | 1.8 / 29.2 / 0 | 101.4 | 0.04 | 0.00 | 0 | 13/13 |
+
+Vereditos: `w1c3a` 32K fail (ratio>2.0, stall>60s); `w1c3a` 128K fail (ratio>2.0, stall>60s).
+
+Com a barreira, os três streams começam juntos e se sobrepõem (overlap 0.78–1.00). Cada um decodifica a 28–39 tok/s. O pior stream passa de 2.0× nas duas bandas. A memória cabe: wired peak 101.4 GB a 32K e 114.7 GB a 128K, sem recusa e sem swap. O hit do `tool_turn` não muda. O stall a 32K vem de uma chamada aux de 90 s; a 128K, o p95 das aux é 168 s, como no controle de 2 streams.

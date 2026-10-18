@@ -95,6 +95,7 @@ mlx-serve 26.10.1 batches decode for this model at its default `--max-concurrent
 | 2 streams, 32K | 1.76× | no errors, swap 0 |
 | 2 streams, 128K | 1.94× | wired peak 113.5 GB, swap 0 |
 | 2 streams, 256K, `256k` profile (4 GB prefix cache) | 1.68× (1.81× against the campaign's 3-rep 256K control) | with the daily 16 GB cache, a 256K session beside a 32K one got `PrefillDoesNotFit` and missed a needle; 8-bit KV was refused with the 16 GB cache and missed a needle with the 4 GB cache |
+| 3 streams with aux load, 32K / 128K | 2.37× / 2.36× | fails; fits in memory (wired peak 114.7 GB at 128K), no refusal |
 | 4 streams, 32K / 128K | 2.84× / 3.85× | fails; 128K also refused 3 prefills |
 | 2 Claude Code sessions (`claude -p`), 128K | 1.84–2.36× per session | every task done, no errors; the pair ends ~7% later than the two tasks run one after the other |
 
