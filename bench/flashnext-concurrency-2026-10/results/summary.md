@@ -2,6 +2,8 @@
 
 **Duas sessões funcionam num driver só, mas não ganham tempo.** O mlx-serve 26.10.1 já faz batched decode para o Swift 1.5 com o default `--max-concurrent 1`. A segunda sessão divide o decode com a primeira: cada uma fica ~2× mais lenta, e a vazão total não cresce. O perfil `daily` do launcher não muda. O launcher ganha o perfil `256k` (duas sessões longas, prefix cache de 4 GB) e a variável opcional `FLASHNEXT_MAX_CONCURRENT`.
 
+Página pública: [reports/qwen38-flashnext-concurrency.html](../../../reports/qwen38-flashnext-concurrency.html) (gerada por `scripts/render_report.py`).
+
 Rig: Mac Studio M4 Max 128 GB. Driver: Swift 1.5 (`Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw` `13839b7`) no mlx-serve 26.10.1. Runbook: [plan.md](../plan.md). Metas e regras de cada task estão no runbook; as decisões tomadas durante a execução estão na seção "Emendas".
 
 ## Runtimes que rodaram

@@ -1,0 +1,877 @@
+{
+  "rig": "Mac Studio M4 Max 128 GB",
+  "model": "Dankpaws Swift 1.5 Qwen3.8 Flash-Next MLX 4.7 bpw",
+  "server": "mlx-serve 26.10.1",
+  "dates": [
+    "2026-10-17",
+    "2026-10-18"
+  ],
+  "configs": [
+    {
+      "code": "w1c1",
+      "public_name": "1 session, 32K",
+      "n": 1,
+      "ctx": 32768,
+      "aux": false,
+      "tag": "e1",
+      "worst_ratio": 1.0,
+      "worst_stream": "s1",
+      "decode_per_session": 84.02650645448092,
+      "decode_total": 84.02650645448092,
+      "aux_p50": null,
+      "aux_p95": null,
+      "aux_over_60": 0,
+      "refused": 0,
+      "needles": "13/13",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 34.50873879203573,
+      "wired_peak": 96.0,
+      "result": "pass"
+    },
+    {
+      "code": "w1c1a",
+      "public_name": "1 session + side requests, 32K",
+      "n": 1,
+      "ctx": 32768,
+      "aux": true,
+      "tag": "e1",
+      "worst_ratio": 1.0379746835443036,
+      "worst_stream": "s1",
+      "decode_per_session": 81.11330427331411,
+      "decode_total": 81.11330427331411,
+      "aux_p50": 0.8596370220184326,
+      "aux_p95": 22.047327995300293,
+      "aux_over_60": 0,
+      "refused": 0,
+      "needles": "13/13",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 34.49978816602379,
+      "wired_peak": 96.9,
+      "result": "pass"
+    },
+    {
+      "code": "w1c2",
+      "public_name": "2 sessions, 32K",
+      "n": 2,
+      "ctx": 32768,
+      "aux": false,
+      "tag": "e1",
+      "worst_ratio": 1.7468354430379747,
+      "worst_stream": "s2",
+      "decode_per_session": 62.33362480494499,
+      "decode_total": 124.66724960988998,
+      "aux_p50": null,
+      "aux_p95": null,
+      "aux_over_60": 0,
+      "refused": 0,
+      "needles": "26/26",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 35.85581652028486,
+      "wired_peak": 100.7,
+      "result": "warning"
+    },
+    {
+      "code": "w1c2a",
+      "public_name": "2 sessions + side requests, 32K",
+      "n": 2,
+      "ctx": 32768,
+      "aux": true,
+      "tag": "e1",
+      "worst_ratio": 1.759493670886076,
+      "worst_stream": "s2",
+      "decode_per_session": 57.541583440451774,
+      "decode_total": 115.08316688090355,
+      "aux_p50": 0.9663598537445068,
+      "aux_p95": 33.79155778884888,
+      "aux_over_60": 0,
+      "refused": 0,
+      "needles": "25/26",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "12/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 36.16780454199761,
+      "wired_peak": 99.9,
+      "result": "warning"
+    },
+    {
+      "code": "w1c1x2",
+      "public_name": "2 sessions, --max-concurrent 1, 32K",
+      "n": 2,
+      "ctx": 32768,
+      "aux": true,
+      "tag": "e1",
+      "worst_ratio": 1.759493670886076,
+      "worst_stream": "s2",
+      "decode_per_session": 61.32722673105957,
+      "decode_total": 122.65445346211914,
+      "aux_p50": 0.9367519617080688,
+      "aux_p95": 25.336703062057495,
+      "aux_over_60": 0,
+      "refused": 0,
+      "needles": "26/26",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 36.10030235396698,
+      "wired_peak": 100.1,
+      "result": "warning"
+    },
+    {
+      "code": "w1c3a",
+      "public_name": "3 sessions + side requests",
+      "n": 3,
+      "ctx": 32768,
+      "aux": true,
+      "tag": "e1",
+      "worst_ratio": 2.3670886075949364,
+      "worst_stream": "s2",
+      "decode_per_session": 35.821231119585235,
+      "decode_total": 107.4636933587557,
+      "aux_p50": 1.8497965335845947,
+      "aux_p95": 29.23585295677185,
+      "aux_over_60": 1,
+      "refused": 0,
+      "needles": "39/39",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s3",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 36.84081483306363,
+      "wired_peak": 101.4,
+      "result": "fail"
+    },
+    {
+      "code": "w1c4",
+      "public_name": "4 sessions",
+      "n": 4,
+      "ctx": 32768,
+      "aux": false,
+      "tag": "e1",
+      "worst_ratio": 2.835443037974683,
+      "worst_stream": "s2",
+      "decode_per_session": 33.12814211713618,
+      "decode_total": 132.5125684685447,
+      "aux_p50": null,
+      "aux_p95": null,
+      "aux_over_60": 0,
+      "refused": 0,
+      "needles": "52/52",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s3",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s4",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 36.95657393778674,
+      "wired_peak": 103.6,
+      "result": "fail"
+    },
+    {
+      "code": "w1c4a",
+      "public_name": "4 sessions + side requests",
+      "n": 4,
+      "ctx": 32768,
+      "aux": true,
+      "tag": "e1",
+      "worst_ratio": 3.367088607594937,
+      "worst_stream": "s4",
+      "decode_per_session": 29.26816147077185,
+      "decode_total": 117.0726458830874,
+      "aux_p50": 1.2775646448135376,
+      "aux_p95": 41.149515867233276,
+      "aux_over_60": 1,
+      "refused": 0,
+      "needles": "52/52",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s3",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s4",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 36.89962354209274,
+      "wired_peak": 104.3,
+      "result": "fail"
+    },
+    {
+      "code": "w1c1",
+      "public_name": "1 session, 128K",
+      "n": 1,
+      "ctx": 131072,
+      "aux": false,
+      "tag": "e1",
+      "worst_ratio": 1.0,
+      "worst_stream": "s1",
+      "decode_per_session": 77.31781949707573,
+      "decode_total": 77.31781949707573,
+      "aux_p50": null,
+      "aux_p95": null,
+      "aux_over_60": 0,
+      "refused": 0,
+      "needles": "12/13",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "12/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 165.58522641612217,
+      "wired_peak": 110.5,
+      "result": "pass"
+    },
+    {
+      "code": "w1c1a",
+      "public_name": "1 session + side requests, 128K",
+      "n": 1,
+      "ctx": 131072,
+      "aux": false,
+      "tag": "e1",
+      "worst_ratio": null,
+      "worst_stream": null,
+      "decode_per_session": null,
+      "decode_total": null,
+      "aux_p50": null,
+      "aux_p95": null,
+      "aux_over_60": 0,
+      "refused": 0,
+      "needles": null,
+      "needles_ok": null,
+      "needles_per_stream": [],
+      "cold_ttft_s": null,
+      "wired_peak": null,
+      "result": "n/a"
+    },
+    {
+      "code": "w1c2",
+      "public_name": "2 sessions, 128K",
+      "n": 2,
+      "ctx": 131072,
+      "aux": false,
+      "tag": "e1",
+      "worst_ratio": 1.7790697674418605,
+      "worst_stream": "s2",
+      "decode_per_session": 56.31800387319404,
+      "decode_total": 112.63600774638807,
+      "aux_p50": null,
+      "aux_p95": null,
+      "aux_over_60": 0,
+      "refused": 0,
+      "needles": "26/26",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 168.5606108752545,
+      "wired_peak": 112.6,
+      "result": "warning"
+    },
+    {
+      "code": "w1c2a",
+      "public_name": "2 sessions + side requests, 128K",
+      "n": 2,
+      "ctx": 131072,
+      "aux": true,
+      "tag": "e1",
+      "worst_ratio": 1.941860465116279,
+      "worst_stream": "s2",
+      "decode_per_session": 48.72839572199436,
+      "decode_total": 97.45679144398872,
+      "aux_p50": 1.0427395105361938,
+      "aux_p95": 322.63269209861755,
+      "aux_over_60": 6,
+      "refused": 0,
+      "needles": "26/26",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 168.27704739617184,
+      "wired_peak": 113.5,
+      "result": "warning"
+    },
+    {
+      "code": "w1c1x2",
+      "public_name": "2 sessions, --max-concurrent 1, 128K",
+      "n": 2,
+      "ctx": 131072,
+      "aux": true,
+      "tag": "e1",
+      "worst_ratio": 1.8255813953488371,
+      "worst_stream": "s2",
+      "decode_per_session": 50.81240174982115,
+      "decode_total": 101.6248034996423,
+      "aux_p50": 1.0205814838409424,
+      "aux_p95": 169.65532517433167,
+      "aux_over_60": 8,
+      "refused": 0,
+      "needles": "26/26",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 169.49097312474623,
+      "wired_peak": 113.5,
+      "result": "warning"
+    },
+    {
+      "code": "w1c3a",
+      "public_name": "3 sessions + side requests",
+      "n": 3,
+      "ctx": 131072,
+      "aux": true,
+      "tag": "e1",
+      "worst_ratio": 2.36046511627907,
+      "worst_stream": "s2",
+      "decode_per_session": 32.029195253382184,
+      "decode_total": 96.08758576014655,
+      "aux_p50": 1.1116480827331543,
+      "aux_p95": 168.12377905845642,
+      "aux_over_60": 9,
+      "refused": 0,
+      "needles": "39/39",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s3",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 241.5325491670519,
+      "wired_peak": 114.7,
+      "result": "fail"
+    },
+    {
+      "code": "w1c4",
+      "public_name": "4 sessions",
+      "n": 4,
+      "ctx": 131072,
+      "aux": false,
+      "tag": "e1",
+      "worst_ratio": 3.662790697674419,
+      "worst_stream": "s4",
+      "decode_per_session": 25.46161836145231,
+      "decode_total": 101.84647344580924,
+      "aux_p50": null,
+      "aux_p95": null,
+      "aux_over_60": 0,
+      "refused": 0,
+      "needles": "51/52",
+      "needles_ok": false,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s3",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s4",
+          "needles": "12/13",
+          "ok": false
+        }
+      ],
+      "cold_ttft_s": 337.46599020808935,
+      "wired_peak": 116.0,
+      "result": "fail"
+    },
+    {
+      "code": "w1c4a",
+      "public_name": "4 sessions + side requests",
+      "n": 4,
+      "ctx": 131072,
+      "aux": true,
+      "tag": "e1",
+      "worst_ratio": 3.8488372093023258,
+      "worst_stream": "s1",
+      "decode_per_session": 19.406816181267434,
+      "decode_total": 77.62726472506974,
+      "aux_p50": 1.3532540798187256,
+      "aux_p95": 351.34142327308655,
+      "aux_over_60": 9,
+      "refused": 1,
+      "needles": "49/51",
+      "needles_ok": false,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "12/13",
+          "ok": false
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s3",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s4",
+          "needles": "11/12",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 392.69870808394626,
+      "wired_peak": 115.9,
+      "result": "fail"
+    },
+    {
+      "code": "w1c2ap3",
+      "public_name": "2 sessions + side requests, prefill-decode-share 0.3, 128K",
+      "n": 2,
+      "ctx": 131072,
+      "aux": true,
+      "tag": "e1",
+      "worst_ratio": 2.0232558139534884,
+      "worst_stream": "s2",
+      "decode_per_session": 36.68668986706525,
+      "decode_total": 73.3733797341305,
+      "aux_p50": 0.9998180866241455,
+      "aux_p95": 176.4207112789154,
+      "aux_over_60": 8,
+      "refused": 0,
+      "needles": "26/26",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 319.2108962922357,
+      "wired_peak": null,
+      "result": "fail"
+    },
+    {
+      "code": "w1c2ap5",
+      "public_name": "2 sessions + side requests, prefill-decode-share 0.5, 128K",
+      "n": 2,
+      "ctx": 131072,
+      "aux": true,
+      "tag": "e1",
+      "worst_ratio": 1.9186046511627908,
+      "worst_stream": "s2",
+      "decode_per_session": 48.26981015690584,
+      "decode_total": 96.53962031381168,
+      "aux_p50": 1.188783884048462,
+      "aux_p95": 175.38283610343933,
+      "aux_over_60": 8,
+      "refused": 0,
+      "needles": "26/26",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 327.29471624991857,
+      "wired_peak": null,
+      "result": "warning"
+    },
+    {
+      "code": "w1c1",
+      "public_name": "1 session, 256K",
+      "n": 1,
+      "ctx": 262144,
+      "aux": false,
+      "tag": "e1c",
+      "worst_ratio": 0.927927927927928,
+      "worst_stream": "s1",
+      "decode_per_session": 67.00232649468245,
+      "decode_total": 67.00232649468245,
+      "aux_p50": null,
+      "aux_p95": null,
+      "aux_over_60": 0,
+      "refused": 0,
+      "needles": "12/13",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "12/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 350.7678149170242,
+      "wired_peak": 113.9,
+      "result": "pass"
+    },
+    {
+      "code": "w1c2L",
+      "public_name": "256K + 32K sessions, 16 GB prompt cache",
+      "n": 2,
+      "ctx": 262144,
+      "aux": true,
+      "tag": "e1d",
+      "worst_ratio": 1.9620253164556962,
+      "worst_stream": "s2",
+      "decode_per_session": 49.58992853711574,
+      "decode_total": 99.17985707423148,
+      "aux_p50": 0.9267888069152832,
+      "aux_p95": 353.6116716861725,
+      "aux_over_60": 4,
+      "refused": 1,
+      "needles": "23/25",
+      "needles_ok": false,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "10/12",
+          "ok": false
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 344.7200825626496,
+      "wired_peak": 115.0,
+      "result": "warning"
+    },
+    {
+      "code": "w1c2m4",
+      "public_name": "2 × 256K, 4 GB prompt cache",
+      "n": 2,
+      "ctx": 262144,
+      "aux": true,
+      "tag": "e1b",
+      "worst_ratio": 1.6756756756756759,
+      "worst_stream": "s2",
+      "decode_per_session": 45.32404696527088,
+      "decode_total": 90.64809393054176,
+      "aux_p50": 1.4553595781326294,
+      "aux_p95": 355.85907793045044,
+      "aux_over_60": 14,
+      "refused": 0,
+      "needles": "24/26",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "11/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 395.2568373545073,
+      "wired_peak": 113.3,
+      "result": "warning"
+    },
+    {
+      "code": "w1c2q8",
+      "public_name": "2 × 256K, 8-bit KV cache",
+      "n": 2,
+      "ctx": 262144,
+      "aux": true,
+      "tag": "e1b",
+      "worst_ratio": 1.5585585585585586,
+      "worst_stream": "s2",
+      "decode_per_session": 44.19859324984246,
+      "decode_total": 88.39718649968492,
+      "aux_p50": 1.0461559295654297,
+      "aux_p95": 351.3569221496582,
+      "aux_over_60": 8,
+      "refused": 1,
+      "needles": "25/25",
+      "needles_ok": true,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "13/13",
+          "ok": true
+        },
+        {
+          "session": "s2",
+          "needles": "12/12",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 355.37550974916667,
+      "wired_peak": 113.7,
+      "result": "warning"
+    },
+    {
+      "code": "w1c2m4q8",
+      "public_name": "2 × 256K, 4 GB cache + 8-bit KV",
+      "n": 2,
+      "ctx": 262144,
+      "aux": true,
+      "tag": "e1d",
+      "worst_ratio": 1.5045045045045045,
+      "worst_stream": "s2",
+      "decode_per_session": 50.14595118281083,
+      "decode_total": 100.29190236562167,
+      "aux_p50": 1.6618645191192627,
+      "aux_p95": 358.6405498981476,
+      "aux_over_60": 11,
+      "refused": 0,
+      "needles": "25/26",
+      "needles_ok": false,
+      "needles_per_stream": [
+        {
+          "session": "s1",
+          "needles": "12/13",
+          "ok": false
+        },
+        {
+          "session": "s2",
+          "needles": "13/13",
+          "ok": true
+        }
+      ],
+      "cold_ttft_s": 354.0224304795265,
+      "wired_peak": 107.7,
+      "result": "warning"
+    }
+  ],
+  "by_n": {
+    "ratio": {
+      "32768": {
+        "1": 1.0379746835443036,
+        "2": 1.759493670886076,
+        "3": 2.3670886075949364,
+        "4": 3.367088607594937
+      },
+      "131072": {
+        "1": 1.0,
+        "2": 1.941860465116279,
+        "3": 2.36046511627907,
+        "4": 3.8488372093023258
+      },
+      "262144": {
+        "1": 0.927927927927928,
+        "2": 1.6756756756756759
+      }
+    },
+    "decode": {
+      "32768": {
+        "1": 81.11330427331411,
+        "2": 57.541583440451774,
+        "3": 35.821231119585235,
+        "4": 29.26816147077185
+      },
+      "131072": {
+        "1": 77.31781949707573,
+        "2": 48.72839572199436,
+        "3": 32.029195253382184,
+        "4": 19.406816181267434
+      },
+      "262144": {
+        "1": 67.00232649468245,
+        "2": 45.32404696527088
+      }
+    }
+  },
+  "claude_code": {
+    "tasks": {
+      "a": {
+        "alone_mean": 75.4,
+        "together_mean": 144.93333333333334,
+        "together_reps": [
+          145.6,
+          138.5,
+          150.7
+        ]
+      },
+      "b": {
+        "alone_mean": 62.2,
+        "together_mean": 137.8,
+        "together_reps": [
+          127.3,
+          146.6,
+          139.5
+        ]
+      }
+    },
+    "serial_sum": 137.60000000000002,
+    "pair_wall": 147.63333333333333
+  },
+  "verdicts": {
+    "etapa1": {
+      "N_APPROVED": "2",
+      "PREFIX_CACHE_MEM": "16GB",
+      "BATCH_BEATS_QUEUE_32K": "n/a",
+      "BATCH_BEATS_QUEUE_128K": "n/a",
+      "NOTE": "mlx-serve 26.10.1 faz batched decode com --max-concurrent=1 (o driver atual ja divide o decode entre 2 sessoes); w1c2a pass-with-warning a 32K (pior stream 1.76x) e a 128K (1.94x) com o stall de aux reclassificado como efeito do prefill longo, presente tambem no controle; w1c3a reprovado (pior stream 2.37x a 32K, 2.36x a 128K); w1c4 reprovado (pior stream 2.84x a 32K, 3.85x a 128K)"
+    },
+    "etapa1b": {
+      "N_APPROVED_256K": "2",
+      "MODE_256K": "m4",
+      "PREFIX_CACHE_MEM_256K": "4GB",
+      "KV_QUANT_256K": "off",
+      "NOTE": "w1c2m4 pass-with-warning (pior stream 1.68x contra 11.1 s, 1.81x contra o controle de 3 reps de 10.3 s; stall de aux reclassificado como efeito do prefill longo); w1c2L (rerun com barreira) recusa + needles 10/12; w1c2q8 recusado por PrefillDoesNotFit; w1c2m4q8 cabe mas errou 1 needle"
+    }
+  },
+  "refs": {
+    "32768": 7.9,
+    "131072": 8.6,
+    "262144": 11.1,
+    "262144_measured": 10.3
+  },
+  "text_facts": {
+    "claude_code_version": "2.1.292",
+    "drowzeys_short_prompt_gain": 1.4
+  }
+}
