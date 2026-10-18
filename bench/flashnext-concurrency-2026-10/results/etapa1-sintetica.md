@@ -6,7 +6,7 @@ Rig: Mac Studio M4 Max 128 GB. Modelo: Dankpaws Swift 1.5 Qwen3.8 Flash-Next MLX
 
 O mlx-serve 26.10.1 faz batched decode com qualquer valor de `--max-concurrent`. Com o default `1`, o log de boot mostra `Concurrency: --max-concurrent=1, batched decode on` e `[batched] gdn batched decode engaged (slots=2)`. O driver diário de hoje já divide o decode entre duas sessões.
 
-Com duas sessões, o decode não soma: cada stream sobreposto roda a ~38–42 tok/s, contra 77–84 tok/s sozinho. O stream que entra segundo paga a espera: razão de 1.75–1.94× contra o `w1`. O que entra primeiro fica em 1.03–1.21×.
+Com duas sessões, o decode não soma: cada stream sobreposto roda a ~38–42 tok/s, contra 77–84 tok/s sozinho. O stream que entra segundo paga a espera: razão de 1.75–1.94× contra o `w1`, com overlap 1.00. O primeiro stream (1.03–1.21×) começou 36–169 s antes do segundo e tem overlap de só 0.11–0.44: boa parte dos turnos quentes dele rodou sozinha, então a razão dele é quase um número solo. O veredito usa o pior stream, que não muda.
 
 O braço `w1c1x2` (2 streams, `--max-concurrent 1` explícito) não é uma fila. O overlap do stream 2 é 1.00 e os números são os do `w1c2a` dentro do ruído. Não existe fila serializada para comparar, então `BATCH_BEATS_QUEUE` fica `n/a`. O `--help` do 26.10.1 não documenta uma chave que desligue o batch.
 
