@@ -52,6 +52,7 @@ MODEL_ID="${MODEL_ID:-MODEL_ID}"
 RUNNING="$OUT/${ARM}-${CTX}-${TAG}.running"
 LOGDIR="${FLASHNEXT_LOGS_DIR:-$OUT}"  # per-stream stdout/stderr stays out of results/ when run-arm.sh sets it
 AUX_OUT="$OUT/${ARM}-${CTX}-${TAG}-aux.jsonl"
+BARRIER="$LOGDIR/${ARM}-${CTX}-${TAG}.barrier"  # sK.ready per stream, then start once all are ready
 
 # Each builder fills the global CMD array; the caller prints it (--dry-run) or runs it (no eval: bash 3.2
 # turns the exit status of a backgrounded eval into 1).
@@ -66,6 +67,7 @@ probe_cmd() {  # $1 = stream index (1-based)
     --temperature "$TEMP" --top-p 0.95 --top-k 20 --reasoning-effort "$EFFORT")
   if [[ "$REPEAT" -gt 1 ]]; then CMD+=(--scenario-repeats middle_mutation=1); fi
   if [[ -n "$salt" ]]; then CMD+=(--prompt-salt "$salt"); fi
+  CMD+=(--ready-file "$BARRIER/s${k}.ready" --start-file "$BARRIER/start")
   CMD+=(--output "$OUT/${ARM}-${ctx}-${TAG}-s${k}.jsonl" --cache-enabled --mtp-enabled)
 }
 
@@ -101,13 +103,25 @@ cleanup() {
 trap cleanup EXIT
 
 : > "$RUNNING"
+rm -rf "$BARRIER"; mkdir -p "$BARRIER"
+for ((k = 1; k <= STREAMS; k++)); do
+  probe_cmd "$k"; "${CMD[@]}" > "$LOGDIR/${ARM}-${CTXS[$((k - 1))]}-${TAG}-s${k}.log" 2>&1 & PIDS+=($!)
+done
+# Start barrier: a 256K stream builds its fixture for minutes; open the gate when every stream is ready
+# or has exited, so the measured requests (and the aux generator) start together.
+for _ in $(seq 1 18000); do
+  pending=0
+  for ((k = 1; k <= STREAMS; k++)); do
+    [[ -e "$BARRIER/s$k.ready" ]] || ! kill -0 "${PIDS[$((k - 1))]}" 2>/dev/null || pending=1
+  done
+  [[ "$pending" -eq 0 ]] && break
+  sleep 0.1
+done
+touch "$BARRIER/start"
 if [[ -n "$AUX" ]]; then
   : > "$AUX_OUT"  # an empty file means the generator ran and wrote nothing; summarize fails on that
   aux_cmd; "${CMD[@]}" & AUX_PID=$!
 fi
-for ((k = 1; k <= STREAMS; k++)); do
-  probe_cmd "$k"; "${CMD[@]}" > "$LOGDIR/${ARM}-${CTXS[$((k - 1))]}-${TAG}-s${k}.log" 2>&1 & PIDS+=($!)
-done
 
 FAILED=0
 for ((k = 1; k <= STREAMS; k++)); do

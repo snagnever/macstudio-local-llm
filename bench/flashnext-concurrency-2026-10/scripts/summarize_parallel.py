@@ -88,6 +88,8 @@ def _overlap_fraction(mine: list[dict[str, Any]], others: list[dict[str, Any]]) 
 
 
 def _needles_failed(records: list[dict[str, Any]], arm: str, ctx: int) -> bool:
+    # Only answered requests grade a needle; a refused or broken request fails the http-errors gate instead.
+    records = [r for r in records if _is_served(r)]
     good = sum(1 for r in records if r.get("correct"))
     n = len(records)
     if arm.endswith("q8"):
@@ -116,7 +118,7 @@ def _stream_row(k: int, ctx: int, records: list[dict[str, Any]], others: list[di
         "ratio": (tt / ref) if tt is not None and ref else None,
         "warm_ttft_tool_s": tool, "hit_append": hit_app, "hit_tool": hit_tool, "decode_tps": decode,
         "overlap": _overlap_fraction(records, others),
-        "needles": f"{sum(1 for r in records if r.get('correct'))}/{len(records)}",
+        "needles": f"{sum(1 for r in served if r.get('correct'))}/{len(served)}",
         "needles_failed": _needles_failed(records, arm, ctx),
         "http_errors": sum(1 for r in records if _is_http_error(r.get("error"))
                            and not str(r.get("error")).startswith("finish_reason:")),

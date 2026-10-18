@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import sys
 import time
 from copy import deepcopy
 from datetime import datetime, timezone
@@ -895,6 +896,19 @@ def _run_scenario_repeat(
     return record, False
 
 
+def wait_for_start(ready_file: Path, start_file: Path, timeout: float = 1800.0, poll: float = 0.2) -> bool:
+    """Mark this stream ready, then block until the shared start file exists; False on timeout."""
+    ready_file = Path(ready_file)
+    ready_file.parent.mkdir(parents=True, exist_ok=True)
+    ready_file.touch()
+    deadline = time.monotonic() + timeout
+    while not Path(start_file).exists():
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(poll)
+    return True
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Measure Qwen3.8 prefix-cache scenarios through an OpenAI API."
@@ -917,6 +931,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--concurrency", type=int, default=1,
         help="number of probe streams running in parallel against the server (recorded only)",
+    )
+    parser.add_argument(
+        "--ready-file", type=Path, default=None,
+        help="start barrier: touched once the fixture is built and the warmup is done",
+    )
+    parser.add_argument(
+        "--start-file", type=Path, default=None,
+        help="start barrier: measured requests wait until this file exists (30 min timeout)",
     )
     parser.add_argument("--cache-enabled", action="store_true")
     parser.add_argument("--mtp-enabled", action="store_true")
@@ -1095,6 +1117,12 @@ def main() -> int:
             error_stage="warmup",
         )
         stop = failure.fatal
+
+    if args.start_file is not None and not stop:
+        # Parallel streams build fixtures of different sizes; start the measured requests together.
+        ready = args.ready_file or args.output.with_suffix(".ready")
+        if not wait_for_start(ready, args.start_file):
+            print(f"start barrier timed out waiting for {args.start_file}; continuing", file=sys.stderr, flush=True)
 
     with args.output.open("a", encoding="utf-8") as output:
         if warmup_record is not None:

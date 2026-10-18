@@ -319,3 +319,52 @@ def test_summarize_parallel_compares_against_serialized_arm(tmp_path):
     assert s["vs"]["worst_ratio"] == pytest.approx(13.9 / 16.0)
     assert s["vs"]["mean_ratio"] == pytest.approx(((8.9 + 13.9) / 2) / ((8.0 + 16.0) / 2))
     assert s["vs"]["batch_beats_queue"] is True
+
+
+def _stream_error(r):
+    return {**r, "finish_reason": "error", "error": "stream_error:error"} if not r["correct"] else r
+
+
+def test_summarize_parallel_needles_skip_errored_requests_q8(tmp_path):
+    # Review finding: a refused request (stream_error) is not a wrong answer; the http-errors gate owns it.
+    from summarize_parallel import summarize
+    write_fixture_streams(tmp_path, arm="w1c2q8", ctx=262144, tag="e1b", tturno=[15.0, 16.0], hit=[0.99, 0.99],
+                          overlap=[0.7, 0.7], needles=["12/13", "13/13"])
+    _rewrite(tmp_path / "w1c2q8-262144-e1b-s1.jsonl", _stream_error)
+    s = summarize(tmp_path, "w1c2q8", 262144, "e1b", ref_256k=11.1)
+    assert "needles" not in s["gates_failed"]
+    assert s["streams"][0]["needles"] == "12/12"
+
+
+def test_summarize_parallel_needles_skip_errored_requests_128k(tmp_path):
+    from summarize_parallel import summarize
+    write_fixture_streams(tmp_path, arm="w1c2", ctx=131072, tag="e1", tturno=[9.0, 10.0], hit=[0.99, 0.99],
+                          overlap=[0.7, 0.7], needles=["12/13", "13/13"])
+    _rewrite(tmp_path / "w1c2-131072-e1-s1.jsonl", _stream_error)
+    assert "needles" not in summarize(tmp_path, "w1c2", 131072, "e1")["gates_failed"]
+
+
+def test_run_parallel_probes_passes_start_barrier_files():
+    out = run("bash", SCRIPTS / "run-parallel-probes.sh", "--dry-run", "--streams", "2", "--context", "32768",
+              "--repeat", "3", "--arm", "w1c2", "--tag", "e1", "--out", "/tmp/x").stdout
+    lines = [l for l in out.splitlines() if "cache_probe.py" in l]
+    assert all("--ready-file" in l and "--start-file" in l for l in lines)
+    assert "s1.ready" in lines[0] and "s2.ready" in lines[1]
+
+
+def test_run_parallel_probes_opens_the_barrier_once_every_stream_is_ready(tmp_path):
+    # Each fake probe marks ready, then refuses to exit until the shared start file appears.
+    fake = tmp_path / "fakepy"
+    fake.write_text(
+        '#!/bin/bash\n'
+        'case "$*" in *aux_load.py*) exit 0 ;; esac\n'
+        'while [[ $# -gt 0 ]]; do case "$1" in --ready-file) R="$2"; shift 2 ;; --start-file) S="$2"; shift 2 ;;'
+        ' *) shift ;; esac; done\n'
+        'touch "$R"; for i in $(seq 1 100); do [[ -e "$S" ]] && exit 0; sleep 0.05; done; exit 9\n')
+    fake.chmod(0o755)
+    import subprocess
+    env = {**clean_env(), "PARALLEL_PYTHON": str(fake), "FLASHNEXT_LOGS_DIR": str(tmp_path / "logs")}
+    r = subprocess.run(["bash", str(SCRIPTS / "run-parallel-probes.sh"), "--streams", "2", "--context", "32768",
+                        "--repeat", "1", "--arm", "w1c2", "--tag", "e1", "--out", str(tmp_path / "out")],
+                       capture_output=True, text=True, env=env, timeout=30)
+    assert r.returncode == 0, r.stdout + r.stderr

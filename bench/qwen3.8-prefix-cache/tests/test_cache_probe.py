@@ -635,3 +635,37 @@ class ParserHelpTest(unittest.TestCase):
     def test_help_strings_format(self):
         # Python 3.14 argparse rejects a bare "%" in a help string at add_argument time.
         self.assertIn("--scenario-repeats", cache_probe.build_parser().format_help())
+
+
+def test_wait_for_start_marks_ready_then_waits_for_the_start_file(tmp_path):
+    # Review finding: a 256K stream built its fixture for 221 s while the 32K stream ran alone.
+    import threading
+    import time
+    from cache_probe import wait_for_start
+
+    ready, start = tmp_path / "s1.ready", tmp_path / "start"
+    seen = {}
+
+    def opener():
+        while not ready.exists():
+            time.sleep(0.01)
+        seen["ready_before_start"] = not start.exists()
+        start.touch()
+
+    threading.Thread(target=opener).start()
+    assert wait_for_start(ready, start, timeout=5, poll=0.01) is True
+    assert seen["ready_before_start"] is True
+
+
+def test_wait_for_start_gives_up_after_timeout(tmp_path):
+    from cache_probe import wait_for_start
+
+    assert wait_for_start(tmp_path / "r", tmp_path / "never", timeout=0.05, poll=0.01) is False
+
+
+def test_parser_accepts_start_barrier_files():
+    base = ["--base-url", "http://x/v1", "--model", "m", "--runtime", "r",
+            "--runtime-revision", "v", "--model-revision", "mr", "--arm", "a",
+            "--session-id", "s", "--context", "32768", "--output", "/tmp/o.jsonl"]
+    args = cache_probe.build_parser().parse_args(base + ["--ready-file", "/tmp/r", "--start-file", "/tmp/s"])
+    assert str(args.ready_file) == "/tmp/r" and str(args.start_file) == "/tmp/s"
