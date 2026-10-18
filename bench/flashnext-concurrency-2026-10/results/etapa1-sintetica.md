@@ -41,5 +41,30 @@ O hit do `tool_turn` não mudou com o gerador (0.961 a 32K, 0.991 a 128K). O hot
 ## Veredito por N
 
 - **N = 2: aprovado com aviso.** O pior stream fica em 1.76× a 32K e 1.94× a 128K, abaixo de 2.0. O `--max-concurrent 2` não muda nada mensurável contra o default.
-- **N = 4: não rodou.** A Etapa 1 foi fechada antes do Step 6 por decisão do usuário.
+- **N = 4: reprovado.** O pior stream fica em 2.84× a 32K e 3.85× a 128K (seção abaixo).
 - **Prefix cache:** 16 GB. O `w1c2m8` não foi preciso: wired peak 113.5 GB, sem recusa, sem swap.
+
+## N = 4 (pedido do usuário, rodou depois da Etapa 1b)
+
+| braço | contexto | stream | T_turno | razão ÷ w1 | warm TTFT tool | hit app / tool | decode | overlap | aux p50 / p95 / errs | wired peak | livre mín | swap Δ | HTTP errs | needles |
+|---|---:|---|---:|---:|---:|---|---:|---|---|---:|---:|---:|---:|---|
+| w1c4 | 32768 | s1 | 14.7 | 1.86 | 1.9 | 0.962 / 0.961 | 40.1 | 1.00 | — | 103.6 | 0.02 | 0.00 | 0 | 13/13 |
+| w1c4 | 32768 | s2 | 22.4 | 2.84 | 1.9 | 0.962 / 0.961 | 25.0 | 1.00 | — | 103.6 | 0.02 | 0.00 | 0 | 13/13 |
+| w1c4 | 32768 | s3 | 14.7 | 1.86 | 1.9 | 0.962 / 0.961 | 39.9 | 0.89 | — | 103.6 | 0.02 | 0.00 | 0 | 13/13 |
+| w1c4 | 32768 | s4 | 20.4 | 2.58 | 1.9 | 0.962 / 0.961 | 27.6 | 1.00 | — | 103.6 | 0.02 | 0.00 | 0 | 13/13 |
+| w1c4 | 131072 | s1 | 18.2 | 2.12 | 2.2 | 0.992 / 0.991 | 31.9 | 1.00 | — | 116.0 | 0.03 | 0.00 | 0 | 13/13 |
+| w1c4 | 131072 | s2 | 30.3 | 3.52 | 2.3 | 0.992 / 0.991 | 18.3 | 1.00 | — | 116.0 | 0.03 | 0.00 | 0 | 13/13 |
+| w1c4 | 131072 | s3 | 17.3 | 2.01 | 2.2 | 0.992 / 0.991 | 34.0 | 1.00 | — | 116.0 | 0.03 | 0.00 | 0 | 13/13 |
+| w1c4 | 131072 | s4 | 31.5 | 3.66 | 2.4 | 0.992 / 0.991 | 17.6 | 1.00 | — | 116.0 | 0.03 | 0.00 | 0 | 12/13 |
+| w1c4a | 32768 | s1 | 15.6 | 1.97 | 1.9 | 0.962 / 0.961 | 37.4 | 1.00 | 1.3 / 41.1 / 0 | 104.3 | 0.01 | 0.00 | 0 | 13/13 |
+| w1c4a | 32768 | s2 | 25.1 | 3.18 | 1.9 | 0.962 / 0.961 | 22.1 | 1.00 | 1.3 / 41.1 / 0 | 104.3 | 0.01 | 0.00 | 0 | 13/13 |
+| w1c4a | 32768 | s3 | 15.8 | 2.00 | 1.9 | 0.962 / 0.961 | 36.8 | 1.00 | 1.3 / 41.1 / 0 | 104.3 | 0.01 | 0.00 | 0 | 13/13 |
+| w1c4a | 32768 | s4 | 26.6 | 3.37 | 1.9 | 0.962 / 0.961 | 20.7 | 1.00 | 1.3 / 41.1 / 0 | 104.3 | 0.01 | 0.00 | 0 | 13/13 |
+| w1c4a | 131072 | s1 | 33.1 | 3.85 | 2.1 | 0.992 / 0.991 | 16.5 | 0.78 | 1.4 / 351.3 / 0 | 115.9 | 0.02 | 0.00 | 0 | 12/13 |
+| w1c4a | 131072 | s2 | 27.6 | 3.21 | 2.3 | 0.992 / 0.991 | 20.2 | 1.00 | 1.4 / 351.3 / 0 | 115.9 | 0.02 | 0.00 | 0 | 13/13 |
+| w1c4a | 131072 | s3 | 28.1 | 3.27 | 2.1 | 0.992 / 0.991 | 19.7 | 1.00 | 1.4 / 351.3 / 0 | 115.9 | 0.02 | 0.00 | 0 | 13/13 |
+| w1c4a | 131072 | s4 | 26.4 | 3.07 | 2.2 | 0.992 / 0.991 | 21.1 | 1.00 | 1.4 / 351.3 / 0 | 115.9 | 0.02 | 0.00 | 1 | 11/13 |
+
+Vereditos: `w1c4` 32K fail (ratio>2.0); `w1c4a` 32K fail (ratio>2.0, stall>60s); `w1c4` 128K fail (ratio>2.0, needles); `w1c4a` 128K fail (ratio>2.0, needles, http errors, stall>60s).
+
+Com 4 streams o decode se divide em ~17–40 tok/s por stream. O pior stream passa de 2.0× já a 32K sem gerador. A 128K com gerador, o servidor recusou 3 prefills: `prompt 125549 tokens needs ~6266MB at prefill chunk 512 (the narrowest width tried), ~5968MB available + ~13863MB the hot cache can give back (~17420MB resident, ~3556MB of it pinned by this request's own prefix) — refused before prefill`. Pela própria mensagem, o cache devolvível sem o prefixo preso (~10.3 GB) mais o livre (~6 GB) passa do pedido. É o mesmo padrão das recusas de 256K (Etapa 1b) e parece um problema da admissão do 26.10.1; a causa não foi confirmada.
