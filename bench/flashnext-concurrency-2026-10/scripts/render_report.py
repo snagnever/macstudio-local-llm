@@ -203,6 +203,7 @@ def _fmt(v: float) -> str:
 
 
 def _scale(v: float, vmax: float, size: float) -> float:
+    """Map v in [0, vmax] to [0, size]; values above vmax or below 0 are clamped."""
     return 0.0 if vmax <= 0 else max(0.0, min(v, vmax)) / vmax * size
 
 
@@ -229,15 +230,30 @@ def _text(x: float, y: float, s: str, cls: str = "", anchor: str = "middle") -> 
             f'fill="currentColor">{html.escape(s)}</text>')
 
 
+def _baseline(left: float, right: float, y: float) -> str:
+    return f'<line x1="{left}" y1="{y}" x2="{right}" y2="{y}" stroke="currentColor" opacity="0.4"/>'
+
+
+def _bar(x: float, bw: float, base_y: float, plot_h: float, value: Optional[float], vmax: float,
+         fill: str, tip: str, cls: str) -> list[str]:
+    """One bar with its <title> and value text, or an "n/a" placeholder when value is None."""
+    if value is None:
+        return [_text(x + bw / 2, base_y - 4, "n/a", "na")]
+    bh = _scale(value, vmax, plot_h)
+    return [f'<rect class="{cls}" x="{x:.1f}" y="{base_y - bh:.1f}" width="{bw * 0.9:.1f}" '
+            f'height="{bh:.1f}" fill="{fill}"><title>{html.escape(tip)}</title></rect>',
+            _text(x + bw * 0.45, base_y - bh - 3, _fmt(value), "value")]
+
+
 def svg_grouped_bars(groups: list[dict], series: list[str], ymax: float,
                      bands: Sequence[tuple[float, str]] = ()) -> str:
     w, h, left, top, bottom = 640, 320, 40, 20, 40
-    plot_h, slot = h - top - bottom, (640 - left - 10) / max(len(groups), 1)
+    plot_h, slot = h - top - bottom, (w - left - 10) / max(len(groups), 1)
     bw = slot * 0.8 / max(len(series), 1)
-    y_of = lambda v: top + plot_h - _scale(v, ymax, plot_h)  # noqa: E731
-    body = [f'<line x1="{left}" y1="{top + plot_h}" x2="{w - 10}" y2="{top + plot_h}" stroke="currentColor" opacity="0.4"/>']
+    base_y = top + plot_h
+    body = [_baseline(left, w - 10, base_y)]
     for value, text in bands:
-        y = y_of(value)
+        y = base_y - _scale(value, ymax, plot_h)
         body.append(f'<line class="band" x1="{left}" y1="{y:.1f}" x2="{w - 10}" y2="{y:.1f}" '
                     f'stroke="currentColor" stroke-dasharray="4 3" opacity="0.6"/>')
         body.append(_text(left - 4, y + 4, text, anchor="end"))
@@ -245,15 +261,9 @@ def svg_grouped_bars(groups: list[dict], series: list[str], ymax: float,
         x0 = left + gi * slot + slot * 0.1
         body.append(_text(left + gi * slot + slot / 2, h - bottom + 16, g["label"]))
         for si, name in enumerate(series):
-            x, v = x0 + si * bw, g["values"].get(name)
-            if v is None:
-                body.append(_text(x + bw / 2, top + plot_h - 4, "n/a", "na"))
-                continue
-            y = y_of(v)
-            tip = html.escape(f'{g["label"]} · {name}: {_fmt(v)}')
-            body.append(f'<rect class="s{si + 1}" x="{x:.1f}" y="{y:.1f}" width="{bw * 0.9:.1f}" '
-                        f'height="{top + plot_h - y:.1f}" fill="var(--s{si % 4 + 1})"><title>{tip}</title></rect>')
-            body.append(_text(x + bw * 0.45, y - 3, _fmt(v), "value"))
+            v = g["values"].get(name)
+            tip = f'{g["label"]} · {name}: {_fmt(v) if v is not None else "n/a"}'
+            body += _bar(x0 + si * bw, bw, base_y, plot_h, v, ymax, f"var(--s{si % 4 + 1})", tip, f"s{si + 1}")
     return _svg(w, h, f'Grouped bars: {", ".join(series)} by {", ".join(g["label"] for g in groups)}', body)
 
 
@@ -261,7 +271,10 @@ def svg_dots(rows: list[dict]) -> str:
     w, left, right, row_h, top = 640, 110, 20, 32, 24
     h = top + row_h * len(rows) + 28
     xmax = _nice(max([60.0] + [r[k] for r in rows for k in ("p50", "p95", "max") if r.get(k) is not None]))
-    x_of = lambda v: left + _scale(v, xmax, w - left - right)  # noqa: E731
+
+    def x_of(v: float) -> float:
+        return left + _scale(v, xmax, w - left - right)
+
     x60 = x_of(60)
     body = [f'<line class="band" x1="{x60:.1f}" y1="{top - 8}" x2="{x60:.1f}" y2="{h - 24}" '
             f'stroke="currentColor" stroke-dasharray="4 3" opacity="0.6"/>',
@@ -276,11 +289,13 @@ def svg_dots(rows: list[dict]) -> str:
             body.append(_text(left + 6, y + 4, "n/a", "na", "start"))
             continue
         if p50 is not None and p95 is not None:
-            body.append(f'<line x1="{x_of(p50):.1f}" y1="{y:.1f}" x2="{x_of(p95):.1f}" y2="{y:.1f}" '
+            body.append(f'<line class="span" x1="{x_of(p50):.1f}" y1="{y:.1f}" x2="{x_of(p95):.1f}" y2="{y:.1f}" '
                         f'stroke="var(--s2)" stroke-width="2"/>')
         for cls, v, color in (("p50", p50, "var(--s1)"), ("p95", p95, "var(--s2)")):
             if v is None:
-                body.append(_text(left + 6, y + 4, "n/a", "na", "start"))
+                # Label sits above the track, clear of the remaining dot's circle (r=5).
+                other = p95 if cls == "p50" else p50
+                body.append(_text(x_of(other), y - 9, f"{cls} n/a", "na"))
             else:
                 body.append(f'<circle class="{cls}" cx="{x_of(v):.1f}" cy="{y:.1f}" r="5" fill="{color}">'
                             f'<title>{html.escape(r["label"])} · {cls}: {_fmt(v)} s</title></circle>')
@@ -292,21 +307,15 @@ def svg_paired_bars(pairs: list[dict]) -> str:
     plot_h, slot = h - top - bottom, (w - left - 10) / max(len(pairs), 1)
     vmax = _nice(max([0.0] + [p[k] for p in pairs for k in ("a", "b") if p.get(k) is not None]))
     bw = slot * 0.35
-    body = [f'<line x1="{left}" y1="{top + plot_h}" x2="{w - 10}" y2="{top + plot_h}" stroke="currentColor" opacity="0.4"/>']
+    base_y = top + plot_h
+    body = [_baseline(left, w - 10, base_y)]
     for i, p in enumerate(pairs):
         x0 = left + i * slot + slot * 0.1
         body.append(_text(left + i * slot + slot / 2, h - bottom + 16, p["label"]))
         for j, (k, name) in enumerate((("a", p.get("a_label", "a")), ("b", p.get("b_label", "b")))):
-            x, v = x0 + j * bw, p.get(k)
-            if v is None:
-                body.append(_text(x + bw / 2, top + plot_h - 4, "n/a", "na"))
-                continue
-            bh = _scale(v, vmax, plot_h)
-            tip = html.escape(p["label"] + f" · {name}: {_fmt(v)}")
-            body.append(f'<rect class="{k}" x="{x:.1f}" y="{top + plot_h - bh:.1f}" width="{bw * 0.9:.1f}" '
-                        f'height="{bh:.1f}" fill="var(--s{j + 1})">'
-                        f'<title>{tip}</title></rect>')
-            body.append(_text(x + bw * 0.45, top + plot_h - bh - 3, _fmt(v), "value"))
+            v = p.get(k)
+            tip = p["label"] + f' · {name}: {_fmt(v) if v is not None else "n/a"}'
+            body += _bar(x0 + j * bw, bw, base_y, plot_h, v, vmax, f"var(--s{j + 1})", tip, k)
     return _svg(w, h, f'Paired bars: {", ".join(p["label"] for p in pairs)}', body)
 
 

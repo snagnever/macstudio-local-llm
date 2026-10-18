@@ -193,3 +193,43 @@ def test_paired_bars_rects_and_none():
     assert svg.count(">n/a</text>") == 1
     tag = _opening_tag(svg)
     assert "viewBox=" in tag and "width=" not in tag
+
+
+# ---- review fixes: partial None, clamping, contract ----
+
+def _rect_heights(svg):
+    import re
+    return [float(m) for m in re.findall(r'<rect[^>]* height="([\d.]+)"', svg)]
+
+
+def test_grouped_bars_clamps_over_ymax_zero_and_negative():
+    svg = R.svg_grouped_bars([{"label": "g", "values": {"A": 9.0, "B": 0.0, "C": -2.0}}],
+                             ["A", "B", "C"], 3.0)
+    plot_h = 320 - 20 - 40
+    assert _rect_heights(svg) == [float(plot_h), 0.0, 0.0]
+
+
+def test_paired_bars_zero_and_negative_have_zero_height():
+    svg = R.svg_paired_bars([{"label": "p", "a": 0.0, "b": -1.0, "a_label": "A", "b_label": "B"},
+                             {"label": "q", "a": 5.0, "b": 2.0, "a_label": "A", "b_label": "B"}])
+    h = _rect_heights(svg)
+    assert h[:2] == [0.0, 0.0] and h[2] == 300 - 24 - 40
+
+
+def test_dots_partial_none_has_distinct_label_and_other_circle():
+    svg = R.svg_dots([{"label": "r", "p50": 5.0, "p95": None, "max": None},
+                      {"label": "s", "p50": None, "p95": 9.0, "max": None}])
+    assert ">p95 n/a</text>" in svg and ">p50 n/a</text>" in svg
+    assert svg.count('<circle class="p50"') == 1 and svg.count('<circle class="p95"') == 1
+
+
+def test_svg_contract_markers_in_all_builders():
+    for svg in (R.svg_grouped_bars(GROUPS, ["A", "B"], 3.0), R.svg_dots(ROWS), R.svg_paired_bars(PAIRS)):
+        assert 'role="img"' in svg and 'aria-label="' in svg
+        assert 'preserveAspectRatio="xMidYMid meet"' in svg
+        assert "var(--s" in svg and "currentColor" in svg
+    g = R.svg_grouped_bars(GROUPS, ["A", "B"], 3.0)
+    assert g.count("<title>") == 3 and "32k · A: 1.2" in g
+    assert 'class="value"' in g and ">1.2</text>" in g
+    assert ">60 s</text>" in R.svg_dots(ROWS)
+    assert R.svg_paired_bars(PAIRS).count("<title>") == 3
