@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any, Optional, Sequence, Union
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from summarize_parallel import summarize  # noqa: E402
+from summarize_parallel import _is_served, _read_jsonl, _stream_files, _ttft_s, summarize  # noqa: E402
 
 CAMPAIGN = Path(__file__).resolve().parents[1]
 RESULTS = CAMPAIGN / "results"
@@ -117,7 +117,8 @@ def _config(results_dir: Path, code: str, ctx: int, tag: str, context: Union[int
         "code": code, "public_name": _public_name(code, ctx), "n": PUBLIC[code][1], "ctx": ctx, "aux": False,
         "tag": tag, "worst_ratio": None, "worst_stream": None, "decode_per_session": None,
         "decode_total": None, "aux_p50": None, "aux_p95": None, "aux_over_60": 0, "refused": 0,
-        "needles": None, "needles_ok": None, "wired_peak": None, "result": "n/a",
+        "needles": None, "needles_ok": None, "needles_per_stream": [], "cold_ttft_s": None,
+        "wired_peak": None, "result": "n/a",
     }
     s = summarize(results_dir, code, context, tag)
     streams = s["streams"]
@@ -141,8 +142,18 @@ def _config(results_dir: Path, code: str, ctx: int, tag: str, context: Union[int
     total = sum(int(st["needles"].split("/")[1]) for st in streams)
     entry["needles"] = f"{good}/{total}"
     entry["needles_ok"] = not any(st["needles_failed"] for st in streams)
+    entry["needles_per_stream"] = [{"session": st["stream"], "needles": st["needles"], "ok": not st["needles_failed"]}
+                                   for st in streams]
+    entry["cold_ttft_s"] = _cold_ttft(results_dir, code, context, tag)
     entry["result"] = _result(entry["worst_ratio"])
     return entry
+
+
+def _cold_ttft(results_dir: Path, code: str, context: Union[int, str], tag: str) -> Optional[float]:
+    """Median first-token time of the served cold-start records, all sessions of the configuration pooled."""
+    cold = [_ttft_s(r) for _, _, path in _stream_files(results_dir, code, context, tag)
+            for r in _read_jsonl(path) if r.get("scenario") == "cold" and _is_served(r)]
+    return statistics.median(cold) if cold else None
 
 
 def _read_env(path: Path) -> dict[str, str]:
@@ -326,8 +337,8 @@ def svg_paired_bars(pairs: list[dict]) -> str:
 
 # ---- RENDER ----
 # render(data) turns the collect() dict into the public page. Every measured number on the page is formatted
-# here from `data`; the few facts collect() cannot derive (cold-start timings and server log lines are not in
-# results/) live in TEXT_FACTS with their source and travel in the payload too.
+# here from `data`; the two facts collect() cannot derive (the Claude Code version and the external benchmark's
+# gain) live in TEXT_FACTS with their source and travel in the payload too.
 
 TITLE = "Flash-Next: how many agent sessions fit on one server?"
 H1 = "How many agent sessions fit on one local Flash-Next server?"
@@ -339,13 +350,8 @@ DROWZEYS_URL = ("https://github.com/drowzeys/"
                 "keys-Independent-Bench-MLX-Serve-26.9.7-dev-Qwen3.8-Flash-Next-4bit-8bit-mixed")
 
 TEXT_FACTS: dict[str, Any] = {
-    # Cold prefill of a full prompt, one session alone: ~165 s at 128K (etapa1-sintetica.md, stall section) and
-    # 350.8 s at 256K (docs/models/qwen3.8-flash-next.md, 2026-10-14 table).
-    "cold_prefill_s": {"131072": 165, "262144": 350},
-    # Median cold first-token time at 128K, both sessions pooled (etapa1c-extras.md, second table).
-    "cold_ttft_median_s": {"w1c2a": 168, "w1c1x2": 169, "w1c2ap3": 319, "w1c2ap5": 327},
     "claude_code_version": "2.1.292",  # etapa2-claude-code.md
-    "drowzeys_short_prompt_gain": 1.4,  # summary.md, Notas
+    "drowzeys_short_prompt_gain": 1.4,  # summary.md, Notas (external benchmark, not measured here)
 }
 
 # Exact server message (etapa1-sintetica.md, N = 4 section; same text quoted in summary.md).
@@ -403,6 +409,10 @@ TERMS = [("arm (<code>braço</code>), e.g. <code>w1c2a</code>", "test configurat
          ("gate / verdict", "pass rule / result"),
          ("wired peak", "peak memory held by the server"),
          ("hot cache / prefix cache", "prompt cache")]
+
+BANDS = [(RATIO_PASS, f"pass ≤ {RATIO_PASS:.1f}"), (RATIO_FAIL, f"fail > {RATIO_FAIL:.1f}")]
+BAND_NOTE = (f"Dashed lines: at or below {RATIO_PASS:.1f}× passes; between {RATIO_PASS:.1f}× and "
+             f"{RATIO_FAIL:.1f}× is a warning (passes); above {RATIO_FAIL:.1f}× fails.")
 
 RESULT_TEXT = {"pass": "pass", "warning": "pass with a warning", "fail": "fail", "n/a": "n/a"}
 
@@ -462,6 +472,14 @@ def _recall(c: Optional[dict]) -> str:
     return c["needles"] + ("" if c["needles_ok"] else " (miss)")
 
 
+def _recall_per_session(c: Optional[dict]) -> str:
+    per = _get(c, "needles_per_stream") or []
+    if not per:
+        return "n/a"
+    return "<br>".join(f"session {s['session'].lstrip('s')}: {_e(s['needles'])}" + ("" if s["ok"] else " (miss)")
+                       for s in per)
+
+
 def _span(vals: list[Optional[float]], fmt) -> str:
     v = [x for x in vals if x is not None]
     if not v:
@@ -504,8 +522,8 @@ def _hero(data: dict) -> str:
         if None in vals or max(vals) > RATIO_FAIL:
             break
         n_max = n
-    two = [_get(_find(data, "w1c2a", ctx), "worst_ratio") for ctx in (32768, 131072)]
-    two = [v for v in two if v is not None]
+    two_by_ctx = {ctx: _get(_find(data, "w1c2a", ctx), "worst_ratio") for ctx in (32768, 131072)}
+    two = [v for v in two_by_ctx.values() if v is not None]
     cc = data["claude_code"]
     serial, pair = cc.get("serial_sum"), cc.get("pair_wall")
     saved = None if serial is None or pair is None else max(0.0, serial - pair)
@@ -513,8 +531,8 @@ def _hero(data: dict) -> str:
     dates = " and ".join(data["dates"])
     tiles = [
         ("Maximum that passes", f"{n_max} sessions" if n_max else "n/a",
-         f"Two sessions pass the rule with a warning: worst slowdown {_x(two[0] if two else None)} at 32K "
-         f"and {_x(two[1] if len(two) > 1 else None)} at 128K. Three and four sessions fail."),
+         f"Two sessions pass the rule with a warning: worst slowdown {_x(two_by_ctx[32768])} at 32K "
+         f"and {_x(two_by_ctx[131072])} at 128K. Three and four sessions fail."),
         ("Each session", f"~{round(statistics.mean(two)):.0f}× slower" if two else "n/a",
          "When two sessions share the server, each one generates at about half its speed alone."),
         ("Time saved", f"{saved:.0f} s saved" if saved is not None else "n/a",
@@ -549,8 +567,10 @@ def _how(data: dict) -> str:
         'this?”, sent while the sessions work. Each configuration ran 3 times unless noted.</p>'
         f'<p class="s-note"><b>Pass rule:</b> worst slowdown ≤ {RATIO_PASS:.1f}× passes; '
         f'{RATIO_PASS:.1f}–{RATIO_FAIL:.1f}× passes with a warning; above {RATIO_FAIL:.1f}× fails. The slowest '
-        'session decides. A configuration also fails if the server refuses a request or the model misses a '
-        '<b>recall check</b> (a fact planted in the prompt that the reply must find).</p>'
+        'session decides. A configuration also fails if the server refuses a request or a session misses more '
+        '<b>recall checks</b> (a fact planted in the prompt that the reply must find) than its rule allows: '
+        'none at 32K and 128K (a reply cut off at its length limit does not count), up to 2 of 13 per session '
+        'at 256K, and none with the 8-bit KV cache. Recall counts only answered requests.</p>'
         '</div></div>')
     return _section("how-it-works", "How the test works", body)
 
@@ -570,15 +590,14 @@ def _sessions(data: dict) -> str:
     groups = [{"label": f"{n} session{'s' if n > 1 else ''}",
                "values": {"32K": _by_n(data, "ratio", 32768, n), "128K": _by_n(data, "ratio", 131072, n)}}
               for n in range(1, 5)]
-    chart = svg_grouped_bars(groups, ["32K", "128K"], 4.5, bands=[(1.5, "pass"), (2.0, "fail above")])
+    chart = svg_grouped_bars(groups, ["32K", "128K"], 4.5, bands=BANDS)
     plain = {(code, ctx): _x(_get(_find(data, code, ctx), "worst_ratio"))
              for code in ("w1c2", "w1c4") for ctx in (32768, 131072)}
     note = (f"Worst slowdown per configuration, with short side requests running. One session at 128K is the "
             f"session alone. Without side requests: 2 sessions {plain[('w1c2', 32768)]} at 32K and "
             f"{plain[('w1c2', 131072)]} at 128K; 4 sessions {plain[('w1c4', 32768)]} and "
             f"{plain[('w1c4', 131072)]}.")
-    body = (f'<p class="s-note">Bars below the {RATIO_PASS:.1f}× line pass; between the lines pass with a warning; '
-            f'above {RATIO_FAIL:.1f}× fail.</p>'
+    body = (f'<p class="s-note">{_e(BAND_NOTE)}</p>'
             + _legend([("var(--s1)", "32K"), ("var(--s2)", "128K")]) + _panel(chart, _e(note)))
     return _section("sessions", "More sessions, slower turns", body)
 
@@ -627,13 +646,14 @@ def _side_requests(data: dict) -> str:
         rows.append({"label": label, "p50": _get(c, "aux_p50"), "p95": _get(c, "aux_p95"), "max": None})
         table.append([_e(label), _sec(_get(c, "aux_p50")), _sec(_get(c, "aux_p95")),
                       str(c["aux_over_60"]) if _has_data(c) else "n/a"])
-    cold = TEXT_FACTS["cold_prefill_s"]
+    cold = {ctx: _get(_find(data, "w1c1", ctx), "cold_ttft_s") for ctx in (131072, 262144)}
     long_p95 = [_get(_find(data, code, ctx), "aux_p95") for code, ctx, _ in SIDE_ROWS if ctx != 32768]
     short_p95 = [_get(_find(data, code, ctx), "aux_p95") for code, ctx, _ in SIDE_ROWS if ctx == 32768]
     body = (
         '<p class="s-note">A side request takes about a second when the server is free. When it arrives while '
         'another session is reading a long prompt, it waits for that read to finish: a cold 128K prompt takes '
-        f'about {cold["131072"]} s to read and a 256K one about {cold["262144"]} s. At 32K the slowest '
+        f'about {_num(cold[131072], "{:.0f}", " s")} to read and a 256K one about '
+        f'{_num(cold[262144], "{:.0f}", " s")} (one session alone, median). At 32K the slowest '
         f'side requests (95th percentile) took {_span(short_p95, _sec)}; at 128K and 256K, '
         f'{_span(long_p95, _sec)}.</p>'
         + _legend([("var(--s1)", "median (p50)"), ("var(--s2)", "95th percentile (p95)")])
@@ -676,11 +696,11 @@ def _long_context(data: dict) -> str:
         groups.append({"label": label + (" " + mark if mark else ""),
                        "values": {"worst slowdown": _get(c, "worst_ratio")}})
         rows.append([_e(sessions), cache, kv, _num(_get(c, "wired_peak"), unit=" GB"),
-                     (str(c["refused"]) if _has_data(c) else "n/a"), _recall(c), _x(_get(c, "worst_ratio")),
+                     (str(c["refused"]) if _has_data(c) else "n/a"), _recall_per_session(c), _x(_get(c, "worst_ratio")),
                      RESULT_TEXT[_verdict(c)]])
     m4 = _get(_find(data, "w1c2m4", 262144), "worst_ratio")
     m4_measured = None if m4 is None else m4 * refs[262144] / refs["262144_measured"]
-    table = _table(["Sessions", "Prompt cache in RAM", "KV cache", "Peak memory", "Refused", "Recall",
+    table = _table(["Sessions", "Prompt cache in RAM", "KV cache", "Peak memory", "Refused", "Recall per session",
                     "Worst slowdown", "Result"], rows)
     body = (
         '<p class="s-note">Two 256K sessions fit only when the prompt cache kept in RAM is cut from 16 GB to '
@@ -688,10 +708,13 @@ def _long_context(data: dict) -> str:
         f'{_sec(refs[262144])} reference, or {_x(m4_measured)} against the {_sec(refs["262144_measured"])} we '
         'measured for one 256K session alone over 3 runs. With the 4 GB cache, warm turns lose about a second '
         'restoring the cache from the SSD.</p>'
+        '<p class="s-note"><b>Recall rule at 256K:</b> a session may miss up to 2 of 13 recall checks (at '
+        'least 11/13 of its answered checks right), the same as one 256K session alone. With the 8-bit KV '
+        'cache it must miss none. The table shows each session’s count.</p>'
         + _legend([("var(--s1)", "worst slowdown")])
-        + _panel(svg_grouped_bars(groups, ["worst slowdown"], 2.5, bands=[(1.5, "pass"), (2.0, "fail above")]),
-                 "† the server refused a request &nbsp; ‡ the model missed a recall check. In the 256K + 32K "
-                 "configuration the slowest session is the 32K one.")
+        + _panel(svg_grouped_bars(groups, ["worst slowdown"], 2.5, bands=BANDS),
+                 _e(BAND_NOTE) + " † the server refused a request; ‡ a session missed more recall checks "
+                 "than the rule allows. In the 256K + 32K configuration the slowest session is the 32K one.")
         + table)
     return _section("long-context", "256K: two long sessions", body)
 
@@ -722,7 +745,6 @@ def _claude_code_section(data: dict) -> str:
 
 
 def _pds(data: dict) -> str:
-    cold = TEXT_FACTS["cold_ttft_median_s"]
     spec = [("w1c2a", "off (default), <code>--max-concurrent 2</code>"),
             ("w1c1x2", "off (default), <code>--max-concurrent 1</code>"),
             ("w1c2ap3", "<code>--prefill-decode-share 0.3</code>"),
@@ -732,7 +754,7 @@ def _pds(data: dict) -> str:
         c = _find(data, code, 131072)
         rows.append([label, _x(_get(c, "worst_ratio")),
                      str(c["aux_over_60"]) if _has_data(c) else "n/a", _sec(_get(c, "aux_p95")),
-                     _num(cold.get(code), "{:.0f}", " s")])
+                     _num(_get(c, "cold_ttft_s"), "{:.0f}", " s")])
     body = (
         '<p class="s-note"><code>--prefill-decode-share</code> makes generation keep a share of the time while '
         'another request reads its prompt. We tried it at 128K to clear the side-request wait. It did not: as '

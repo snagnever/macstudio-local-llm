@@ -346,3 +346,61 @@ def test_main_defaults():
     assert Path(p.results_dir) == R.RESULTS
     assert Path(p.out_html) == R.REPO / "reports" / "qwen38-flashnext-concurrency.html"
     assert Path(p.out_json) == R.RESULTS / "report-data.json"
+
+
+# ---- review round 1: derived cold times, recall rule, band labels, hero labels ----
+
+def test_collect_cold_ttft_median_over_served_records_of_all_streams(tmp_path):
+    _stream(tmp_path, "w1c2a", 131072, "e1", 1, 1.1)
+    _stream(tmp_path, "w1c2a", 131072, "e1", 2, 1.9)
+    for k, ttfts in ((1, [100.0, 300.0]), (2, [200.0])):
+        path = tmp_path / f"w1c2a-131072-e1-s{k}.jsonl"
+        extra = [_rec("cold", t, 512.0) for t in ttfts]
+        refused = dict(_rec("cold", 999.0, 512.0), error="HTTP 500: PrefillDoesNotFit", finish_reason=None)
+        path.write_text(path.read_text() + "\n".join(json.dumps(r) for r in extra + [refused]) + "\n")
+    c = _cfg(R.collect(tmp_path), "w1c2a", 131072)
+    assert c["cold_ttft_s"] == pytest.approx(200.0)
+    assert [s["session"] for s in c["needles_per_stream"]] == ["s1", "s2"]
+
+
+def test_collect_cold_ttft_none_without_cold_records(tmp_path):
+    _stream(tmp_path, "w1c1", 32768, "e1", 1, 1.0)
+    c = _cfg(R.collect(tmp_path), "w1c1", 32768)
+    assert c["cold_ttft_s"] is None and c["needles_per_stream"] == [{"session": "s1", "needles": "3/3", "ok": True}]
+    assert _cfg(R.collect(tmp_path), "w1c4", 131072)["needles_per_stream"] == []
+
+
+def test_collect_real_cold_ttft():
+    d = R.collect(REAL_RESULTS)
+    assert _cfg(d, "w1c1", 131072)["cold_ttft_s"] == pytest.approx(165.6, abs=1.0)
+    assert _cfg(d, "w1c1", 262144)["cold_ttft_s"] == pytest.approx(350.8, abs=1.0)
+    assert _cfg(d, "w1c2ap5", 131072)["cold_ttft_s"] == pytest.approx(327, abs=3)
+
+
+def test_text_facts_only_non_derivable():
+    assert set(R.TEXT_FACTS) == {"claude_code_version", "drowzeys_short_prompt_gain"}
+
+
+def test_render_cold_times_come_from_data(real_html):
+    side = real_html[real_html.index('id="side-requests"'):real_html.index('id="max-concurrent"')]
+    assert "about 166 s" in side and "about 351 s" in side
+
+
+def test_render_long_context_recall_rule_and_per_session(real_html):
+    lc = real_html[real_html.index('id="long-context"'):real_html.index('id="claude-code"')]
+    assert "2 of 13" in lc and "8-bit" in lc
+    assert "session 1: 11/13" in lc and "session 2: 13/13" in lc
+    assert "24/26" not in lc
+
+
+def test_render_band_labels(real_html):
+    for s in ("pass ≤ 1.5", "fail &gt; 2.0", "warning"):
+        assert s in real_html[real_html.index('id="sessions"'):real_html.index('id="throughput"')], s
+
+
+def test_render_hero_labels_by_context(tmp_path):
+    _stream(tmp_path, "w1c2a", 131072, "e1", 1, 1.1)
+    _stream(tmp_path, "w1c2a", 131072, "e1", 2, 1.94)
+    hero = R.render(R.collect(tmp_path))
+    hero = hero[hero.index('id="hero"'):hero.index('id="how-it-works"')]
+    assert "n/a at 32K and 1.94× at 128K" in hero
