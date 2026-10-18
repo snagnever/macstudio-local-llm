@@ -83,8 +83,26 @@ Cap `max_tokens` above 4096 for hard prompts: with `xhigh` the reasoning can pas
   remaining **~21–36 GB** of wired is fixed overhead (16 GB prefix cache, DeltaNet state, MLX
   pools). The context KV is the *smallest* term — a second small model (~2 GB) fits beside the
   driver at every context up to 512K. Source: [bench/minicpm5-2b-support-2026-09](../../bench/minicpm5-2b-support-2026-09/results/etapa2-maior.md).
-- One model at a time. The MoE does not batch decode: parallel requests queue on one slot.
+- One model at a time. Parallel requests to the driver batch their decode (see "Concurrent sessions" below).
 - Keep ≥ 100 GB free on the boot volume for the prefix-cache disk tier.
+
+### Concurrent sessions (measured 2026-10-17/18)
+
+mlx-serve 26.10.1 batches decode for this model at its default `--max-concurrent 1`: the boot log shows `batched decode on` and `gdn batched decode engaged (slots=2)`. A second session does not queue behind the first. It shares decode: each overlapped stream runs at ~38–42 tok/s against 77–84 tok/s alone, so total decode does not grow. `--max-concurrent 2` measured the same as the default.
+
+| Case | Worst stream ÷ solo T_turno | Notes |
+|---|---:|---|
+| 2 streams, 32K | 1.76× | no errors, swap 0 |
+| 2 streams, 128K | 1.94× | wired peak 113.5 GB, swap 0 |
+| 2 streams, 256K, `256k` profile (4 GB prefix cache) | 1.68× (1.81× against the campaign's 3-rep 256K control) | the daily 16 GB cache gets `PrefillDoesNotFit` on the second 256K prompt; 8-bit KV also refused and missed a needle |
+| 4 streams, 32K / 128K | 2.84× / 3.85× | fails; 128K also refused 3 prefills |
+| 2 Claude Code sessions (`claude -p`), 128K | 1.84–2.36× per session | every task done, no errors; the pair ends ~7% later than the two tasks run one after the other |
+
+A short request from one session (permission check, title) waits behind another session's long prefill: p95 TTFT 170–356 s at 128K and 256K, during cold or mutated-prompt prefills. The same wait shows with `--max-concurrent 1`, and `--prefill-decode-share` 0.3 or 0.5 does not remove it (it doubles cold TTFT). Two sessions work on one driver, but they gain no time over running the tasks one after the other. Source: [`bench/flashnext-concurrency-2026-10/results/summary.md`](../../bench/flashnext-concurrency-2026-10/results/summary.md).
+
+```bash
+tools/scripts/serve-flashnext-daily-driver.sh 256k   # two long sessions: 262144 tokens, 4 GB RAM prefix cache
+```
 
 ## Measured performance (2026-10-07, M4 Max 128 GB, temp 1.0)
 
