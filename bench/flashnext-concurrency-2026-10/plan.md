@@ -429,3 +429,15 @@ O harness rodou de ponta a ponta no rig. O log de boot mostra `[batched] gdn bat
 O gate contra o `w1` sozinho compara com uma sessão que não divide o servidor. A pergunta "o batch é melhor que a fila?" pede o mesmo par de streams num slot só. O `w1c1x2` roda a 32K e a 128K. O `summarize_parallel.py --vs w1c1x2` imprime a razão do pior stream e a da média entre o braço com batch e o serializado, mais `batch beats queue: yes|no` (as duas razões ≤ 1.0). O gate de overlap não vale para o `w1c1x2`, porque ali o overlap 0 é o esperado.
 
 Regra de decisão acrescentada ao Task 2 Step 7 e ao Task 4 Step 1: o `etapa1-verdict.env` ganha `BATCH_BEATS_QUEUE=<yes|no>` por banda. O launcher só muda o default para `N = 2` se o braço `*a` passou **e** `batch beats queue: yes` nas duas bandas. Sem isso, a concorrência fica como opt-in documentado.
+
+### Braços extras (pedido do usuário, 2026-10-18)
+
+Rodam depois da Etapa 2, numa fila própria (`logs/q-e3.sh`), nesta ordem:
+
+| braço | contexto | reps | por quê |
+| --- | ---: | ---: | --- |
+| `w1c1` | 262144 | 3 (tag `e1c`) | Fecha a referência a 256K (9.8 s medidos em 1 rep contra 11.1 s do plano) e a regra de needles, que supõe 3 reps. |
+| `w1c2ap3` | 131072 | 3 | `w1c2a` + `--prefill-decode-share 0.3`. O stall de aux (p95 170–356 s) é o único gate que reprova a 128K e a 256K; a flag faz o decode guardar uma fração do tempo enquanto outro request faz prefill. |
+| `w1c2ap5` | 131072 | 3 | O mesmo com `0.5`. |
+
+Gate dos `w1c2ap*`: os mesmos do `w1c2a`. Comparar `aux p95` e o `T_turno` dos dois streams contra o `w1c2a` a 128K (tag `e1`). Se um deles tirar o stall sem passar de 2.0× no pior stream, ele vira candidato a flag do launcher.

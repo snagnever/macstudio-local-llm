@@ -60,3 +60,14 @@ def test_run_seq_dry_run_accepts_campaign_arms():
 def test_arm_w1c1x2_two_streams_on_one_slot():
     out = run_candidate_print("w1c1x2", "32768")
     assert "--max-concurrent 1" in out and "--streams 2" in out and "--aux" in out
+
+
+def test_arm_w1c2ap3_adds_prefill_decode_share():
+    out = run_candidate_print("w1c2ap3", "131072")
+    assert "--max-concurrent 2" in out and "--prefill-decode-share 0.3" in out
+    assert "--streams 2" in out and "--aux" in out and "-pds3" in out
+
+
+def test_arm_w1c2ap5_adds_prefill_decode_share():
+    out = run_candidate_print("w1c2ap5", "131072")
+    assert "--prefill-decode-share 0.5" in out and "-pds5" in out
