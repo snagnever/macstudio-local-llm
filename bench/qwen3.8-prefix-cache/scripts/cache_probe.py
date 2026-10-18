@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import sys
 import time
 from copy import deepcopy
 from datetime import datetime, timezone
@@ -326,13 +327,18 @@ def _quant_label(model: str) -> str:
 
 
 def _base_messages(
-    text: str, question: str = NEEDLE_QUESTION, repeat: Optional[int] = None
+    text: str,
+    question: str = NEEDLE_QUESTION,
+    repeat: Optional[int] = None,
+    salt: str = "",
 ) -> list[dict[str, Any]]:
     trial = f" Cache probe trial {repeat:03d}." if repeat is not None else ""
+    # A salt gives a parallel stream its own prefix when it reuses another stream's content class.
+    stream = f" Stream {salt}." if salt else ""
     return [
         {
             "role": "system",
-            "content": f"You are a deterministic audit retrieval assistant.{trial}",
+            "content": f"You are a deterministic audit retrieval assistant.{trial}{stream}",
         },
         {"role": "user", "content": f"{text}\n\n{question}"},
     ]
@@ -342,8 +348,9 @@ def _priming_messages(
     fixture_text: str,
     repeat: int,
     question: str = NEEDLE_QUESTION,
+    salt: str = "",
 ) -> list[dict[str, Any]]:
-    return _base_messages(fixture_text, question, repeat)
+    return _base_messages(fixture_text, question, repeat, salt)
 
 
 def _messages_for_scenario(
@@ -353,11 +360,12 @@ def _messages_for_scenario(
     suffix: str,
     repeat: int,
     question: str = NEEDLE_QUESTION,
+    salt: str = "",
 ) -> list[dict[str, Any]]:
     if name == "middle_mutation":
-        return _base_messages(mutated_text, question, repeat)
+        return _base_messages(mutated_text, question, repeat, salt)
     return scenario_messages(
-        name, _base_messages(fixture_text, question, repeat), suffix
+        name, _base_messages(fixture_text, question, repeat, salt), suffix
     )
 
 
@@ -511,6 +519,8 @@ def _record(
     drafter_id: Optional[str] = None,
     drafter_revision: Optional[str] = None,
     sampling_controls: Optional[dict[str, Any]] = None,
+    wall_start: Optional[float] = None,
+    wall_end: Optional[float] = None,
 ) -> dict[str, Any]:
     usage = result.usage
     prompt_tokens = int(usage.get("prompt_tokens") or 0)
@@ -573,7 +583,19 @@ def _record(
         "scenario": scenario,
         "content_class": getattr(args, "content_class", "audit_retrieval"),
         "prompt_identity": _prompt_identity(getattr(args, "messages", [])),
-        "concurrency": 1,
+        "concurrency": int(getattr(args, "concurrency", 1) or 1),
+        # Epoch seconds around the measured request; parallel streams use them to compute overlap.
+        "wall_start": wall_start,
+        "wall_end": wall_end,
+        # Client-side first token: the decode window [wall_first_token, wall_end] excludes queue wait, so
+        # serialized streams show no overlap. client_ttft_ms includes the wait even when a runtime reports
+        # its own ttft_ms.
+        "wall_first_token": (
+            wall_start + result.ttft_ms / 1000
+            if wall_start is not None and result.ttft_ms is not None
+            else None
+        ),
+        "client_ttft_ms": result.ttft_ms,
         "warmup_id": WARMUP_ID,
         "suffix_tokens": suffix_tokens if scenario in {"append", "tool_turn"} else 0,
         "mutation_prefix_tokens": (
@@ -680,6 +702,8 @@ def _error_record(
     sampling_controls: Optional[dict[str, Any]] = None,
     *,
     error_stage: str,
+    wall_start: Optional[float] = None,
+    wall_end: Optional[float] = None,
 ) -> dict[str, Any]:
     """Build a full-schema record for a request that failed before any
     response could be parsed (HTTP refusal or connection failure), so a
@@ -717,6 +741,8 @@ def _error_record(
         mutation_tokens,
         code_expected_result,
         sampling_controls=sampling_controls,
+        wall_start=wall_start,
+        wall_end=wall_end,
     )
     record["error"] = failure.message
     record["error_stage"] = error_stage
@@ -751,7 +777,9 @@ def _run_scenario_repeat(
     prime_messages = (
         None
         if scenario == "cold"
-        else _priming_messages(fixture.text, repeat, fixture.question)
+        else _priming_messages(
+            fixture.text, repeat, fixture.question, getattr(args, "prompt_salt", "") or ""
+        )
     )
     messages = _messages_for_scenario(
         scenario,
@@ -760,6 +788,7 @@ def _run_scenario_repeat(
         suffix,
         repeat,
         fixture.question,
+        getattr(args, "prompt_salt", "") or "",
     )
     # Assign THIS scenario's identity/hash on `args` before sending anything --
     # if the prime below is refused (the likely case at 256K), the error
@@ -786,6 +815,7 @@ def _run_scenario_repeat(
         else None
     )
     stage = "prime"
+    wall_start: Optional[float] = None
     try:
         if prime_messages is not None:
             _stream_chat_checked(
@@ -803,6 +833,7 @@ def _run_scenario_repeat(
             )
         stage = "measured"
         metrics_before = _metrics_snapshot(args.metrics_url, args.runtime)
+        wall_start = time.time()
         result = _stream_chat_checked(
             args.base_url,
             _payload(
@@ -815,6 +846,7 @@ def _run_scenario_repeat(
             ),
             headers,
         )
+        wall_end = time.time()
     except RequestFailure as failure:
         # A refused prime (stage == "prime") must not fall through to the
         # measured request -- returning here skips it.
@@ -831,6 +863,8 @@ def _run_scenario_repeat(
             fixture.expected_result,
             sampling_controls,
             error_stage=stage,
+            wall_start=wall_start,
+            wall_end=time.time() if wall_start is not None else None,
         )
         return record, failure.fatal
 
@@ -856,8 +890,23 @@ def _run_scenario_repeat(
         args.drafter_id,
         args.drafter_revision,
         sampling_controls,
+        wall_start=wall_start,
+        wall_end=wall_end,
     )
     return record, False
+
+
+def wait_for_start(ready_file: Path, start_file: Path, timeout: float = 1800.0, poll: float = 0.2) -> bool:
+    """Mark this stream ready, then block until the shared start file exists; False on timeout."""
+    ready_file = Path(ready_file)
+    ready_file.parent.mkdir(parents=True, exist_ok=True)
+    ready_file.touch()
+    deadline = time.monotonic() + timeout
+    while not Path(start_file).exists():
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(poll)
+    return True
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -875,6 +924,22 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--context", required=True, type=int)
     parser.add_argument("--content-class", default="audit_retrieval")
     parser.add_argument("--repeat", type=int, default=3)
+    parser.add_argument(
+        "--prompt-salt", default="",
+        help="extra token in the system prompt so a parallel stream gets its own prefix",
+    )
+    parser.add_argument(
+        "--concurrency", type=int, default=1,
+        help="number of probe streams running in parallel against the server (recorded only)",
+    )
+    parser.add_argument(
+        "--ready-file", type=Path, default=None,
+        help="start barrier: touched once the fixture is built and the warmup is done",
+    )
+    parser.add_argument(
+        "--start-file", type=Path, default=None,
+        help="start barrier: measured requests wait until this file exists (30 min timeout)",
+    )
     parser.add_argument("--cache-enabled", action="store_true")
     parser.add_argument("--mtp-enabled", action="store_true")
     parser.add_argument("--specprefill", type=lambda value: value.lower() == "true")
@@ -1052,6 +1117,12 @@ def main() -> int:
             error_stage="warmup",
         )
         stop = failure.fatal
+
+    if args.start_file is not None and not stop:
+        # Parallel streams build fixtures of different sizes; start the measured requests together.
+        ready = args.ready_file or args.output.with_suffix(".ready")
+        if not wait_for_start(ready, args.start_file):
+            print(f"start barrier timed out waiting for {args.start_file}; continuing", file=sys.stderr, flush=True)
 
     with args.output.open("a", encoding="utf-8") as output:
         if warmup_record is not None:

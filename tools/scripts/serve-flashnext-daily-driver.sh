@@ -8,17 +8,23 @@
 #   512k             524288 tokens via YaRN 2.0 + 4-bit KV; memory at the edge, close heavy apps first
 #                    measured with Swift 1.5 in bench/flashnext-next-steps-2026-10 (Task 2, 3 reps): T_turno 13.3 s,
 #                    min free 0.01 GB, needles 13/13; 8-bit KV refused some prefills at 512K (PrefillDoesNotFit)
-# Overrides: FLASHNEXT_PORT (default 11234), FLASHNEXT_HOST (default 0.0.0.0),
-#            FLASHNEXT_BIN, FLASHNEXT_MODEL. Add --print to show the command without starting.
+#   256k             262144 tokens for two long sessions at once: prefix cache cut to 4GB RAM (SSD restores cost
+#                    ~1 s per warm turn); measured in bench/flashnext-concurrency-2026-10 (Etapa 1b, w1c2m4).
+#                    With the daily 16GB cache a second 256K prompt gets PrefillDoesNotFit.
+# Concurrency: mlx-serve 26.10.1 batches decode at its default --max-concurrent 1, so two Claude Code sessions
+#   already share the driver; each runs at about half the solo decode speed (bench/flashnext-concurrency-2026-10).
+# Overrides: FLASHNEXT_PORT (default 11234), FLASHNEXT_HOST (default 0.0.0.0), FLASHNEXT_BIN, FLASHNEXT_MODEL,
+#            FLASHNEXT_MAX_CONCURRENT (opt-in --max-concurrent; no measured effect on 26.10.1; 512k forces 1).
+#            Add --print to show the command without starting.
 set -euo pipefail
 
 PROFILE="daily"
 PRINT=""
 for arg in "$@"; do
   case "$arg" in
-    daily|512k) PROFILE="$arg" ;;
+    daily|256k|512k) PROFILE="$arg" ;;
     --print) PRINT=1 ;;
-    *) echo "usage: $0 [daily|512k] [--print]" >&2; exit 64 ;;
+    *) echo "usage: $0 [daily|256k|512k] [--print]" >&2; exit 64 ;;
   esac
 done
 
@@ -26,6 +32,12 @@ BIN="${FLASHNEXT_BIN:-$HOME/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve}"
 MODEL="${FLASHNEXT_MODEL:-$HOME/.cache/local-llms/qwen3.8-prefix-cache/Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0}"
 HOST="${FLASHNEXT_HOST:-0.0.0.0}"
 PORT="${FLASHNEXT_PORT:-11234}"
+MAX_CONCURRENT="${FLASHNEXT_MAX_CONCURRENT:-}"
+PREFIX_CACHE_MEM=16GB
+case "$PROFILE" in
+  256k) PREFIX_CACHE_MEM=4GB; MAX_CONCURRENT=2 ;;
+  512k) MAX_CONCURRENT=1 ;;
+esac
 
 COMMAND=(
   "$BIN"
@@ -34,12 +46,15 @@ COMMAND=(
   --metrics
   --mtp
   --ssm-checkpoint-max 16
-  --prefix-cache-mem 16GB --prefix-cache-disk 100GB --prefix-cache-entries 64
+  --prefix-cache-mem "$PREFIX_CACHE_MEM" --prefix-cache-disk 100GB --prefix-cache-entries 64
 )
 
 case "$PROFILE" in
   daily)
     COMMAND+=(--ctx-size 131072)
+    ;;
+  256k)
+    COMMAND+=(--ctx-size 262144)
     ;;
   512k)
     COMMAND+=(
@@ -49,6 +64,7 @@ case "$PROFILE" in
     )
     ;;
 esac
+[[ -n "$MAX_CONCURRENT" ]] && COMMAND+=(--max-concurrent "$MAX_CONCURRENT")
 
 if [[ -n "$PRINT" ]]; then
   printf '%q ' "${COMMAND[@]}"; printf '\n'
