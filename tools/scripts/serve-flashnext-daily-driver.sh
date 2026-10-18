@@ -3,8 +3,9 @@
 # Promoted by bench/swift15-flashnext-2026-10 (2026-10-11): same quality as the iQ-MLX-4.7bpw pack, 2-3x less
 # thinking time. Rollback: FLASHNEXT_MODEL=<cache>/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c...
 # Profiles (the configs measured in bench/qwen38-flashnext-daily-driver-2026-09):
-#   daily  (default) 131072 tokens, MTP, prefix cache 16GB RAM / 100GB disk / 64 entries
-#                    measured with this pack in bench/swift15-flashnext-2026-10 (T_turno 7.9 s at 32K, 8.6 s at 128K)
+#   daily  (default) 262144 tokens (native maximum), unquantized KV, MTP, prefix cache 16GB RAM / 100GB disk / 64 entries
+#                    T_turno 7.9 s at 32K, 8.6 s at 128K (bench/swift15-flashnext-2026-10); 11.1 s at 256K,
+#                    min free 0.01 GB, needles 26/28 over two campaigns (bench/flashnext-next-steps-2026-10, Tasks 2 and 13)
 #   512k             524288 tokens via YaRN 2.0 + 4-bit KV; memory at the edge, close heavy apps first
 #                    measured with Swift 1.5 in bench/flashnext-next-steps-2026-10 (Task 2, 3 reps): T_turno 13.3 s,
 #                    min free 0.01 GB, needles 13/13; 8-bit KV refused some prefills at 512K (PrefillDoesNotFit)
@@ -51,7 +52,7 @@ COMMAND=(
 
 case "$PROFILE" in
   daily)
-    COMMAND+=(--ctx-size 131072)
+    COMMAND+=(--ctx-size 262144)
     ;;
   256k)
     COMMAND+=(--ctx-size 262144)
