@@ -441,3 +441,11 @@ Rodam depois da Etapa 2, numa fila própria (`logs/q-e3.sh`), nesta ordem:
 | `w1c1` | 262144 | 3 (tag `e1c`) | Fecha a referência a 256K (9.8 s medidos em 1 rep contra 11.1 s do plano) e a regra de needles, que supõe 3 reps. |
 
 Gate dos `w1c2ap*`: os mesmos do `w1c2a`. Comparar `aux p95` e o `T_turno` dos dois streams contra o `w1c2a` a 128K (tag `e1`). Se um deles tirar o stall sem passar de 2.0× no pior stream, ele vira candidato a flag do launcher.
+
+### Braço `w1c3a` (pedido do usuário, 2026-10-18)
+
+| braço | `--max-concurrent` | `--prefix-cache-mem` | streams | gerador auxiliar | contextos |
+| --- | ---: | ---: | ---: | --- | --- |
+| `w1c3a` | 3 | 16 GB | 3 | sim | 131072, depois 32768 (tag `e1`, 3 reps, com barreira de início) |
+
+Versão curta: só o braço com gerador, que é o que decide o `N`. Mesmos gates do `w1c2a`. Se passar nas duas bandas, `N_APPROVED` passa a 3. Fila: `logs/q-e5.sh`, com o daily driver parado antes e religado depois.

@@ -71,3 +71,8 @@ def test_arm_w1c2ap3_adds_prefill_decode_share():
 def test_arm_w1c2ap5_adds_prefill_decode_share():
     out = run_candidate_print("w1c2ap5", "131072")
     assert "--prefill-decode-share 0.5" in out and "-pds5" in out
+
+
+def test_arm_w1c3a_three_streams_with_aux():
+    out = run_candidate_print("w1c3a", "131072")
+    assert "--max-concurrent 3" in out and "--streams 3" in out and "--aux" in out and "-mc3" in out
