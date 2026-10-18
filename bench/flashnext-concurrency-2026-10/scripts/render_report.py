@@ -54,7 +54,7 @@ WIRED_PEAK_GB: dict[tuple[str, Union[int, str], str], float] = {
 }
 
 # code -> (public name, number of sessions). The ctx suffix is added for the arms whose name does not already
-# carry the configuration (w1c1, w1c1a, w1c2, w1c2a, w1c1x2 at 32K/128K, and w1c1 at 256K).
+# carry the context size (every arm that ran at 32K or 128K, and w1c1 at 256K); the other 256K arms name it.
 PUBLIC = {
     "w1c1": ("1 session", 1), "w1c1a": ("1 session + side requests", 1), "w1c2": ("2 sessions", 2),
     "w1c2a": ("2 sessions + side requests", 2), "w1c1x2": ("2 sessions, --max-concurrent 1", 2),
@@ -66,13 +66,13 @@ PUBLIC = {
     "w1c2m4": ("2 × 256K, 4 GB prompt cache", 2), "w1c2q8": ("2 × 256K, 8-bit KV cache", 2),
     "w1c2m4q8": ("2 × 256K, 4 GB cache + 8-bit KV", 2),
 }
-CTX_SUFFIX = {"w1c1", "w1c1a", "w1c2", "w1c2a", "w1c1x2", "w1c2ap3", "w1c2ap5"}
+CTX_SUFFIX = {"w1c1", "w1c1a", "w1c2", "w1c2a", "w1c1x2", "w1c3a", "w1c4", "w1c4a", "w1c2ap3", "w1c2ap5"}
 CTX_LABEL = {32768: "32K", 131072: "128K", 262144: "256K"}
 BASE = ("w1c1", "w1c1a", "w1c2", "w1c2a", "w1c1x2", "w1c3a", "w1c4", "w1c4a")
 
 # (code, ctx key, tag, context argument for summarize)
 CONFIGS: list[tuple[str, int, str, Union[int, str]]] = (
-    [(c, ctx, "e1", ctx) for ctx in (32768, 131072) for c in BASE]
+    [(c, ctx, "e1", ctx) for ctx in (32768, 131072) for c in BASE if (c, ctx) != ("w1c1a", 131072)]  # w1c1a never ran at 128K
     + [("w1c2ap3", 131072, "e1", 131072), ("w1c2ap5", 131072, "e1", 131072),
        ("w1c1", 262144, "e1c", 262144), ("w1c2L", 262144, "e1d", "all"),
        ("w1c2m4", 262144, "e1b", 262144), ("w1c2q8", 262144, "e1b", 262144),
@@ -242,7 +242,7 @@ def _svg(w: int, h: int, label: str, body: list[str]) -> str:
 
 def _text(x: float, y: float, s: str, cls: str = "", anchor: str = "middle") -> str:
     c = f' class="{cls}"' if cls else ""
-    return (f'<text{c} x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" font-size="11" '
+    return (f'<text{c} x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" font-size="13" '
             f'fill="currentColor">{html.escape(s)}</text>')
 
 
@@ -263,7 +263,7 @@ def _bar(x: float, bw: float, base_y: float, plot_h: float, value: Optional[floa
 
 def svg_grouped_bars(groups: list[dict], series: list[str], ymax: float,
                      bands: Sequence[tuple[float, str]] = ()) -> str:
-    w, h, left, top, bottom = 640, 320, 40, 20, 40
+    w, h, left, top, bottom = 640, 320, 84, 20, 40
     plot_h, slot = h - top - bottom, (w - left - 10) / max(len(groups), 1)
     bw = slot * 0.8 / max(len(series), 1)
     base_y = top + plot_h
@@ -284,7 +284,7 @@ def svg_grouped_bars(groups: list[dict], series: list[str], ymax: float,
 
 
 def svg_dots(rows: list[dict]) -> str:
-    w, left, right, row_h, top = 640, 110, 20, 32, 24
+    w, left, right, row_h, top = 640, 140, 20, 32, 24
     h = top + row_h * len(rows) + 28
     xmax = _nice(max([60.0] + [r[k] for r in rows for k in ("p50", "p95", "max") if r.get(k) is not None]))
 
@@ -311,7 +311,7 @@ def svg_dots(rows: list[dict]) -> str:
             if v is None:
                 # Label sits above the track, clear of the remaining dot's circle (r=5).
                 other = p95 if cls == "p50" else p50
-                body.append(_text(x_of(other), y - 9, f"{cls} n/a", "na"))
+                body.append(_text(x_of(other), y - 10, f"{cls} n/a", "na"))
             else:
                 body.append(f'<circle class="{cls}" cx="{x_of(v):.1f}" cy="{y:.1f}" r="5" fill="{color}">'
                             f'<title>{html.escape(r["label"])} · {cls}: {_fmt(v)} s</title></circle>')
@@ -400,8 +400,8 @@ ILLUSTRATION_TIMELINE = (
 
 _BX, _BW = 150, 600
 _BATCH = []
-for _i, (_n, _lab) in enumerate([(1, "1 session: 80 tok/s"), (2, "2 sessions: 2 × 40"),
-                                 (3, "3 sessions: 3 × 27"), (4, "4 sessions: 4 × 20")]):
+for _i, (_n, _lab) in enumerate([(1, "1 session"), (2, "2 sessions"),
+                                 (3, "3 sessions"), (4, "4 sessions")]):
     _y = 16 + _i * 40
     _BATCH.append(_itext(10, _y + 18, _lab))
     _sw = (_BW - 4 * (_n - 1)) / _n
@@ -412,10 +412,10 @@ for _i, (_n, _lab) in enumerate([(1, "1 session: 80 tok/s"), (2, "2 sessions: 2 
 ILLUSTRATION_BATCH = (
     '<svg viewBox="0 0 760 220" preserveAspectRatio="xMidYMid meet" role="img" '
     'aria-labelledby="illus-batch-title" xmlns="http://www.w3.org/2000/svg" style="font-family:inherit">'
-    '<title id="illus-batch-title">One bar of about 80 tokens per second, the whole server, split into 1, 2, 3 '
-    'and 4 equal slices, one slice per session: the total stays the same, each session gets less.</title>'
+    '<title id="illus-batch-title">Schematic: one bar, the server’s generation budget, split into 1, 2, 3 and 4 equal '
+    'slices, one slice per session: each session gets less.</title>'
     + "".join(_BATCH)
-    + _itext(380, 200, "About 80 tokens/s in total: the server's generation speed is shared, not multiplied",
+    + _itext(380, 200, "Schematic: one generation budget divided among the sessions; measured totals are in the chart below",
              "middle")
     + '</svg>')
 
@@ -614,7 +614,7 @@ def _hero(data: dict) -> str:
          f"Two sessions pass the rule with a warning: worst slowdown {_x(two_by_ctx[32768])} at 32K "
          f"and {_x(two_by_ctx[131072])} at 128K. Three and four sessions fail."),
         ("Each session", f"~{round(statistics.mean(two)):.0f}× slower" if two else "n/a",
-         "When two sessions share the server, each one generates at about half its speed alone."),
+         "When two sessions share the server, each turn takes about twice as long as it does alone."),
         ("Time saved", f"{saved:.0f} s saved" if saved is not None else "n/a",
          f"Two real Claude Code sessions together finished in {_sec(pair)} on average; the same two tasks "
          f"one after the other took {_sec(serial)}. Together is {_num(later, '{:.0f}', '%')} later."),
@@ -623,7 +623,7 @@ def _hero(data: dict) -> str:
                          f'<p class="t-sub">{_e(c)}</p></div>' for a, b, c in tiles)
     lead = (f"We ran several agent sessions at once against one local server: the {_e(data['model'])} model "
             f"on {_e(data['server'])}, on the test machine ({_e(data['rig'])}), on {_e(dates)}. "
-            "Two sessions work and stay within the pass rule, but each runs at about half its speed alone, so "
+            "Two sessions work and stay within the pass rule, but each turn takes about twice as long, so "
             "two tasks run together finish no sooner than the same tasks one after the other.")
     return (f'<section class="hero" id="hero"><p class="hero-lead">{lead}</p>'
             f'<div class="tiles">{tiles_html}</div></section>')
@@ -649,8 +649,8 @@ def _how(data: dict) -> str:
         f'{RATIO_PASS:.1f}–{RATIO_FAIL:.1f}× passes with a warning; above {RATIO_FAIL:.1f}× fails. The slowest '
         'session decides. A configuration also fails if the server refuses a request or a session misses more '
         '<b>recall checks</b> (a fact planted in the prompt that the reply must find) than its rule allows: '
-        'none at 32K and 128K (a reply cut off at its length limit does not count), up to 2 of 13 per session '
-        'at 256K, and none with the 8-bit KV cache. Recall counts only answered requests.</p>'
+        'at least 11 of every 13 answered checks (85%) per session at 256K; none missed at 32K and 128K (a '
+        'reply cut off at its length limit does not count); none missed with the 8-bit KV cache. Recall counts only answered requests.</p>'
         '</div></div>')
     return _section("how-it-works", "How the test works", body)
 
@@ -706,7 +706,7 @@ def _throughput(data: dict) -> str:
         '<div class="illus">' + ILLUSTRATION_BATCH + '</div>'
         '<p class="s-note">The server already batches the sessions’ generation: it writes one token for each '
         'session in the same step. On this model that step gets slower as sessions are added, so the total '
-        'barely grows. Going from 1 to 4 sessions, the best total is '
+        'grows little. Going from 1 to 4 sessions, the best total grows at most '
         f'{_num(gains[32768], "{:.2f}", "×")} the speed of one session alone at 32K and '
         f'{_num(gains[131072], "{:.2f}", "×")} at 128K, while each session slows down by more.</p>'
         + _legend([("var(--s1)", "32K"), ("var(--s2)", "128K")])
@@ -714,8 +714,8 @@ def _throughput(data: dict) -> str:
         + table
         + '<p class="s-note">In the 2-session runs the first session started before the second and ran some '
         'turns alone, which lifts the 2-session average. An '
-        f'<a href="{DROWZEYS_URL}">independent benchmark</a> of the same model shows the same pattern: about '
-        f'{gain}× total throughput with short prompts and less than one session alone from 32K up.</p>')
+        f'<a href="{DROWZEYS_URL}">independent benchmark</a> of the same model agrees from 128K up: about '
+        f'{gain}× total throughput with short prompts, but no gain over one session alone at long contexts.</p>')
     return _section("throughput", "Why two sessions do not add up", body)
 
 
@@ -780,7 +780,7 @@ def _long_context(data: dict) -> str:
                      RESULT_TEXT[_verdict(c)]])
     m4 = _get(_find(data, "w1c2m4", 262144), "worst_ratio")
     m4_measured = None if m4 is None else m4 * refs[262144] / refs["262144_measured"]
-    table = _table(["Sessions", "Prompt cache in RAM", "KV cache", "Peak memory", "Refused", "Recall per session",
+    table = _table(["Sessions", "Prompt cache in RAM", "KV cache", "Peak memory", "Refused / HTTP errors (client)", "Recall per session",
                     "Worst slowdown", "Result"], rows)
     body = (
         '<p class="s-note">Two 256K sessions fit only when the prompt cache kept in RAM is cut from 16 GB to '
@@ -788,14 +788,16 @@ def _long_context(data: dict) -> str:
         f'{_sec(refs[262144])} reference, or {_x(m4_measured)} against the {_sec(refs["262144_measured"])} we '
         'measured for one 256K session alone over 3 runs. With the 4 GB cache, warm turns lose about a second '
         'restoring the cache from the SSD.</p>'
-        '<p class="s-note"><b>Recall rule at 256K:</b> a session may miss up to 2 of 13 recall checks (at '
-        'least 11/13 of its answered checks right), the same as one 256K session alone. With the 8-bit KV '
-        'cache it must miss none. The table shows each session’s count.</p>'
+        '<p class="s-note"><b>Recall rule at 256K:</b> a session must get at least 11 of every '
+        '13 answered checks (85%) right, so it may miss up to 2 of 13, the same as one 256K session alone. '
+        'With the 8-bit KV cache it must miss none. The table shows each session’s count.</p>'
         + _legend([("var(--s1)", "worst slowdown")])
         + _panel(svg_grouped_bars(groups, ["worst slowdown"], 2.5, bands=BANDS),
                  _e(BAND_NOTE) + " † the server refused a request; ‡ a session missed more recall checks "
                  "than the rule allows. In the 256K + 32K configuration the slowest session is the 32K one.")
-        + table)
+        + table
+        + '<p class="s-note">Refused / HTTP errors (client): requests the client saw fail. The server log can '
+        'count more refusals than the client sees, so the two numbers can differ.</p>')
     return _section("long-context", "256K: two long sessions", body)
 
 
@@ -817,7 +819,8 @@ def _claude_code_section(data: dict) -> str:
         'fast model. Every task was done, with no errors and no refusals. Each session took '
         f'{_span(per, _x)} its time alone, above the {RATIO_PASS:.1f}× rule.</p>'
         + _legend([("var(--s1)", "alone (mean)"), ("var(--s2)", "together (mean)")])
-        + _panel(svg_paired_bars(pairs), "Wall time per task, seconds.")
+        + _panel(svg_paired_bars(pairs), "Wall time per task, seconds. The “alone” control has 2 repetitions per task "
+                 "and “together” has 3.")
         + f'<p class="s-note"><b>Functional pass, time fail.</b> The pair finished in {_sec(pair)} on average; '
         f'the two tasks one after the other take {_sec(serial)}. Running them together finishes '
         f'{_num(later, "{:.0f}", "%")} later.</p>')
@@ -856,7 +859,7 @@ def _learned(data: dict) -> str:
         f"Two sessions is the most that passes: {r('w1c2a', 32768)} at 32K and {r('w1c2a', 131072)} at 128K. "
         f"Three fail ({r('w1c3a', 32768)} / {r('w1c3a', 131072)}), four fail ({r('w1c4a', 32768)} / "
         f"{r('w1c4a', 131072)} with side requests, {r('w1c4', 32768)} / {r('w1c4', 131072)} without).",
-        "Total generation speed barely grows with more sessions, so two sessions together are not faster: "
+        "Total generation speed grows little with more sessions, so two sessions together are not faster: "
         f"two real Claude Code tasks took {_sec(cc.get('pair_wall'))} together against "
         f"{_sec(cc.get('serial_sum'))} one after the other.",
         "A short request that arrives while another session reads a long prompt waits for it "
@@ -935,8 +938,9 @@ def _reproduce(data: dict) -> str:
         '<details><summary>All test configurations</summary>'
         '<p class="s-note">Result applies the pass rule to the worst slowdown (session, ÷ the session alone), '
         'then fails any configuration with a refused request or a recall miss. Recall counts only answered '
-        'requests. 256K slowdowns use the 11.1 s reference.</p>'
-        + _table(["Code", "Configuration", "Sessions", "Context", "Side requests", "Worst slowdown", "Refused",
+        'requests. Refused / HTTP errors (client) counts what the client saw; the server log can count more refusals. '
+        '256K slowdowns use the 11.1 s reference.</p>'
+        + _table(["Code", "Configuration", "Sessions", "Context", "Side requests", "Worst slowdown", "Refused / HTTP errors (client)",
                   "Recall", "Peak memory", "Result"], rows, "all", attrs)
         + "</details>")
     return _section("reproduce", "Reproduce and data", body)
@@ -1013,7 +1017,7 @@ section.block{margin-top:34px}
 .chip .sw{width:12px; height:12px; border-radius:3px; flex:none}
 .panel{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 14px 10px; margin:6px 0 12px}
 .chart{color:var(--ink-2); padding-left:30px}
-.chart svg{width:100%; max-width:760px; height:auto; display:block; margin:0 auto; overflow:visible; font-family:var(--mono)}
+.chart svg{width:100%; max-width:760px; height:auto; display:block; margin:0 auto; overflow:visible; font-family:var(--sans); font-variant-numeric:tabular-nums}
 .chart rect.s1,.chart rect.a,.chart circle.p50{fill:var(--s1)}
 .chart rect.s2,.chart rect.b,.chart circle.p95{fill:var(--s2)}
 .chart line.span{stroke:var(--s2)}

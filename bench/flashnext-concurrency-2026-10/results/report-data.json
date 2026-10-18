@@ -164,7 +164,7 @@
     },
     {
       "code": "w1c3a",
-      "public_name": "3 sessions + side requests",
+      "public_name": "3 sessions + side requests, 32K",
       "n": 3,
       "ctx": 32768,
       "aux": true,
@@ -202,7 +202,7 @@
     },
     {
       "code": "w1c4",
-      "public_name": "4 sessions",
+      "public_name": "4 sessions, 32K",
       "n": 4,
       "ctx": 32768,
       "aux": false,
@@ -245,7 +245,7 @@
     },
     {
       "code": "w1c4a",
-      "public_name": "4 sessions + side requests",
+      "public_name": "4 sessions + side requests, 32K",
       "n": 4,
       "ctx": 32768,
       "aux": true,
@@ -313,28 +313,6 @@
       "cold_ttft_s": 165.58522641612217,
       "wired_peak": 110.5,
       "result": "pass"
-    },
-    {
-      "code": "w1c1a",
-      "public_name": "1 session + side requests, 128K",
-      "n": 1,
-      "ctx": 131072,
-      "aux": false,
-      "tag": "e1",
-      "worst_ratio": null,
-      "worst_stream": null,
-      "decode_per_session": null,
-      "decode_total": null,
-      "aux_p50": null,
-      "aux_p95": null,
-      "aux_over_60": 0,
-      "refused": 0,
-      "needles": null,
-      "needles_ok": null,
-      "needles_per_stream": [],
-      "cold_ttft_s": null,
-      "wired_peak": null,
-      "result": "n/a"
     },
     {
       "code": "w1c2",
@@ -437,7 +415,7 @@
     },
     {
       "code": "w1c3a",
-      "public_name": "3 sessions + side requests",
+      "public_name": "3 sessions + side requests, 128K",
       "n": 3,
       "ctx": 131072,
       "aux": true,
@@ -475,7 +453,7 @@
     },
     {
       "code": "w1c4",
-      "public_name": "4 sessions",
+      "public_name": "4 sessions, 128K",
       "n": 4,
       "ctx": 131072,
       "aux": false,
@@ -518,7 +496,7 @@
     },
     {
       "code": "w1c4a",
-      "public_name": "4 sessions + side requests",
+      "public_name": "4 sessions + side requests, 128K",
       "n": 4,
       "ctx": 131072,
       "aux": true,

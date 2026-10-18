@@ -41,10 +41,17 @@ def test_collect_worst_stream_decides(tmp_path):
     assert c["result"] == "warning"
 
 
-@pytest.mark.parametrize("ratio,expected", [(1.4, "pass"), (1.9, "warning"), (2.1, "fail")])
+@pytest.mark.parametrize("ratio,expected", [(1.4, "pass"), (1.9, "warning"), (2.0, "warning"), (2.1, "fail")])
 def test_collect_result_bands(tmp_path, ratio, expected):
     _stream(tmp_path, "w1c1", 32768, "e1", 1, ratio)
     assert _cfg(R.collect(tmp_path), "w1c1", 32768)["result"] == expected
+
+
+def test_result_band_boundaries_are_inclusive():
+    # Exactly 1.5 passes and exactly 2.0 is a warning (the stream helper cannot hit 1.5 exactly: turn times are
+    # rounded to 0.1 s), so the boundary is asserted on the classifier itself.
+    assert R._result(1.5) == "pass" and R._result(2.0) == "warning"
+    assert R._result(1.5000001) == "warning" and R._result(2.0000001) == "fail"
 
 
 def test_collect_missing_config_is_na(tmp_path):
@@ -106,7 +113,7 @@ def test_collect_static_fields(tmp_path):
     assert d["verdicts"]["etapa1"] == {"N_APPROVED": "2", "NOTE": "a=b"}
     assert d["verdicts"]["etapa1b"] == {}
     assert d["by_n"]["ratio"] == {} or isinstance(d["by_n"]["ratio"], dict)
-    assert len(d["configs"]) == 8 * 2 + 2 + 5
+    assert len(d["configs"]) == 8 * 2 - 1 + 2 + 5
 
 
 def test_collect_real_matches_summary():
@@ -303,8 +310,9 @@ def test_illustration_svg_contract(name):
 def test_illustration_labels():
     for t in ("One session alone", "Two sessions together", "waits here", "prompt cache"):
         assert t in R.ILLUSTRATION_TIMELINE
-    for t in ("1 session: 80 tok/s", "4 sessions: 4 × 20", "shared, not multiplied", "about"):
+    for t in ("1 session", "4 sessions", "Schematic", "measured totals are in the chart below"):
         assert t in R.ILLUSTRATION_BATCH
+    assert not re.search(r"\d+ tok/s|× \d|About 80", R.ILLUSTRATION_BATCH)
 
 
 def test_render_no_insider_terms(real_html):
@@ -335,7 +343,7 @@ def test_render_payload_escaped(tmp_path):
 
 def test_render_payload_is_collect_output(real_html):
     p = json.loads(_payload(real_html))
-    assert len(p["configs"]) == 23 and p["claude_code"]["pair_wall"] == pytest.approx(147.6, abs=0.1)
+    assert len(p["configs"]) == 22 and p["claude_code"]["pair_wall"] == pytest.approx(147.6, abs=0.1)
 
 
 def test_render_na_for_missing(tmp_path):
@@ -348,7 +356,8 @@ def test_render_na_for_missing(tmp_path):
 
 
 def test_render_na_for_missing_in_real_data(real_html):
-    row = re.search(r'<tr data-config="w1c1a-131072">(.*?)</tr>', real_html, re.S)
+    assert 'data-config="w1c1a-131072"' not in real_html  # never ran at 128K
+    row = re.search(r'<tr data-config="w1c2ap3-131072">(.*?)</tr>', real_html, re.S)
     assert row and "n/a" in row.group(1)
 
 
@@ -449,3 +458,38 @@ def test_illustration_labels_fit_their_boxes():
             checked += 1
             assert len(label) * 6.6 <= box[-1][2] - 4, label
         assert svg is R.ILLUSTRATION_BATCH or checked >= 10
+
+
+def test_chart_css_uses_sans_and_tabular_nums(real_html):
+    rule = re.search(r"\.chart svg\{([^}]*)\}", real_html).group(1)
+    assert "font-family:var(--sans)" in rule and "var(--mono)" not in rule
+    assert "font-variant-numeric:tabular-nums" in rule
+
+
+def test_chart_text_is_13_units():
+    svgs = [R.svg_grouped_bars(GROUPS, ["A", "B"], 3.0, bands=[(1.5, "pass")]), R.svg_paired_bars(PAIRS),
+            R.svg_dots([{"label": "x", "p50": 1.0, "p95": 2.0}])]
+    for svg in svgs:
+        assert set(re.findall(r'font-size="([\d.]+)"', svg)) == {"13"}
+
+
+def test_dots_row_labels_fit_left_gutter():
+    svg = R.svg_dots([{"label": "2 (limit 1), 128K", "p50": 1.0, "p95": 2.0}])
+    x = float(re.search(r'<text x="([\d.]+)" y="[\d.]+" text-anchor="end"', svg).group(1))
+    assert x - len("2 (limit 1), 128K") * 7.2 >= 0  # 13-unit sans, about 7 units per character
+
+
+def test_render_wording_fixes(real_html):
+    hero = real_html[real_html.index('id="hero"'):real_html.index('id="how-it-works"')]
+    assert "each turn takes about twice as long" in hero and "about half its speed" not in hero
+    assert "barely grows" not in real_html and "the same pattern" not in real_html
+    assert "at most 1.44×" in real_html and "1.26×" in real_html
+    assert "at least 11 of every 13 answered checks (85%) per session at 256K" in real_html
+    assert "Refused / HTTP errors (client)" in real_html and "server log can count more refusals" in real_html
+    cc = real_html[real_html.index('id="claude-code"'):real_html.index('id="pds"')] if 'id="pds"' in real_html else real_html
+    assert "2 repetitions per task" in cc and "“together” has 3" in cc
+
+
+def test_public_names_carry_context_for_all_arms():
+    for code in ("w1c3a", "w1c4", "w1c4a"):
+        assert R._public_name(code, 32768).endswith(", 32K")
