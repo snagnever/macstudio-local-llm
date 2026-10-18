@@ -274,11 +274,36 @@ def test_render_sections_present(real_html):
     assert "<title>Flash-Next: how many agent sessions fit on one server?</title>" in real_html
 
 
-def test_render_illustration_anchors(real_html):
+def test_render_illustrations_replace_anchors(real_html):
+    assert "ILLUSTRATION_" not in real_html
     how = real_html[real_html.index('id="how-it-works"'):real_html.index('id="glossary"')]
-    assert "<!-- ILLUSTRATION_TIMELINE -->" in how
+    assert how.count(R.ILLUSTRATION_TIMELINE) == 1
     thr = real_html[real_html.index('id="throughput"'):real_html.index('id="side-requests"')]
-    assert "<!-- ILLUSTRATION_BATCH -->" in thr
+    assert thr.count(R.ILLUSTRATION_BATCH) == 1
+    assert real_html.count(R.ILLUSTRATION_TIMELINE) == 1 and real_html.count(R.ILLUSTRATION_BATCH) == 1
+
+
+@pytest.mark.parametrize("name", ["ILLUSTRATION_TIMELINE", "ILLUSTRATION_BATCH"])
+def test_illustration_svg_contract(name):
+    svg = getattr(R, name)
+    assert svg.startswith("<svg")
+    assert 'role="img"' in svg and 'preserveAspectRatio="xMidYMid meet"' in svg
+    assert re.search(r"<svg[^>]*\sviewBox=", svg)
+    assert not re.search(r"<svg[^>]*\s(width|height)=", svg)
+    m = re.search(r'aria-labelledby="([^"]+)"', svg)
+    assert m and f'<title id="{m.group(1)}">' in svg
+    assert svg.index("<title") < svg.index("<rect")
+    assert not re.search(r"#[0-9a-fA-F]{3,6}\b|rgb\(", svg)
+    sizes = [float(x) for x in re.findall(r'font-size="([\d.]+)"', svg)]
+    assert sizes and min(sizes) >= 11
+    assert INSIDER.search(re.sub(r"<[^>]+>", " ", svg)) is None
+
+
+def test_illustration_labels():
+    for t in ("One session alone", "Two sessions together", "waits here", "prompt cache"):
+        assert t in R.ILLUSTRATION_TIMELINE
+    for t in ("1 session: 80 tok/s", "4 sessions: 4 × 20", "shared, not multiplied", "about"):
+        assert t in R.ILLUSTRATION_BATCH
 
 
 def test_render_no_insider_terms(real_html):

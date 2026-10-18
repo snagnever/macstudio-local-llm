@@ -340,6 +340,83 @@ def svg_paired_bars(pairs: list[dict]) -> str:
 # here from `data`; the two facts collect() cannot derive (the Claude Code version and the external benchmark's
 # gain) live in TEXT_FACTS with their source and travel in the payload too.
 
+# ---- didactic illustrations (static SVG; colors only via --s1..--s4 and currentColor) ----
+
+def _ibox(x: int, y: int, w: int, h: int, label: str, color: str, op: str = "0.35", dash: bool = False) -> str:
+    d = ' stroke-dasharray="4 3"' if dash else ""
+    return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="4" fill="{color}" fill-opacity="{op}" '
+            f'stroke="{color}"{d}/>'
+            f'<text x="{x + w / 2:g}" y="{y + h / 2 + 4:g}" text-anchor="middle" font-size="12" '
+            f'fill="currentColor">{html.escape(label)}</text>')
+
+
+def _itext(x: float, y: float, s: str, anchor: str = "start", weight: str = "") -> str:
+    wt = f' font-weight="{weight}"' if weight else ""
+    return (f'<text x="{x:g}" y="{y:g}" text-anchor="{anchor}" font-size="12"{wt} '
+            f'fill="currentColor">{html.escape(s)}</text>')
+
+
+_TL = [
+    _itext(10, 26, "One session alone", weight="600"),
+    _ibox(10, 34, 320, 36, "prefill: the server reads the prompt", "var(--s2)"),
+    _ibox(334, 34, 110, 36, "decode: one token", "var(--s1)"),
+    _ibox(448, 34, 60, 36, "reply", "var(--s1)", "0.12"),
+    _ibox(512, 34, 110, 36, "decode: one token", "var(--s1)"),
+    _ibox(626, 34, 60, 36, "reply", "var(--s1)", "0.12"),
+    _itext(10, 112, "Two sessions together (the server shares generation between them)", weight="600"),
+    _ibox(10, 122, 320, 34, "A prefill: the server reads the prompt", "var(--s2)"),
+    _ibox(10, 160, 320, 34, "B prefill", "var(--s2)"),
+    _ibox(334, 122, 72, 34, "A decode", "var(--s1)"),
+    _ibox(410, 160, 72, 34, "B decode", "var(--s3)"),
+    _ibox(486, 122, 72, 34, "A decode", "var(--s1)"),
+    _ibox(562, 160, 72, 34, "B decode", "var(--s3)"),
+    _ibox(638, 122, 52, 34, "A reply", "var(--s1)", "0.12"),
+    _ibox(694, 160, 52, 34, "B reply", "var(--s3)", "0.12"),
+    '<line x1="190" y1="198" x2="190" y2="224" stroke="var(--s4)" stroke-width="2"/>',
+    '<path d="M184 218 L190 227 L196 218 Z" fill="var(--s4)"/>',
+    _ibox(130, 228, 120, 26, "short side request", "var(--s4)"),
+    '<line x1="250" y1="241" x2="330" y2="241" stroke="var(--s4)" stroke-width="2" stroke-dasharray="4 3"/>',
+    _itext(290, 236, "waits here", "middle"),
+    _ibox(334, 228, 52, 26, "reply", "var(--s4)", "0.12"),
+    # legend
+    '<rect x="10" y="272" width="14" height="14" rx="2" fill="var(--s2)" fill-opacity="0.35" stroke="var(--s2)"/>',
+    _itext(30, 284, "prefill: reads the prompt"),
+    '<rect x="205" y="272" width="14" height="14" rx="2" fill="var(--s1)" fill-opacity="0.35" stroke="var(--s1)"/>',
+    _itext(225, 284, "decode: writes one token at a time"),
+    '<rect x="480" y="272" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-dasharray="3 2"/>',
+    _itext(500, 284, "prompt cache: skips re-reading"),
+]
+
+ILLUSTRATION_TIMELINE = (
+    '<svg viewBox="0 0 760 300" preserveAspectRatio="xMidYMid meet" role="img" '
+    'aria-labelledby="illus-timeline-title" xmlns="http://www.w3.org/2000/svg" style="font-family:inherit">'
+    '<title id="illus-timeline-title">Timeline of one session alone versus two sessions together: the server '
+    'first reads each prompt (prefill), then writes tokens one at a time (decode), alternating between the two '
+    'sessions; a short side request that arrives during a long prefill waits until it ends.</title>'
+    + "".join(_TL) + '</svg>')
+
+_BX, _BW = 150, 600
+_BATCH = []
+for _i, (_n, _lab) in enumerate([(1, "1 session: 80 tok/s"), (2, "2 sessions: 2 × 40"),
+                                 (3, "3 sessions: 3 × 27"), (4, "4 sessions: 4 × 20")]):
+    _y = 16 + _i * 40
+    _BATCH.append(_itext(10, _y + 18, _lab))
+    _sw = (_BW - 4 * (_n - 1)) / _n
+    for _k in range(_n):
+        _BATCH.append(f'<rect x="{_BX + _k * (_sw + 4):.1f}" y="{_y}" width="{_sw:.1f}" height="28" rx="4" '
+                      f'fill="var(--s{_k + 1})" fill-opacity="0.45" stroke="var(--s{_k + 1})"/>')
+
+ILLUSTRATION_BATCH = (
+    '<svg viewBox="0 0 760 220" preserveAspectRatio="xMidYMid meet" role="img" '
+    'aria-labelledby="illus-batch-title" xmlns="http://www.w3.org/2000/svg" style="font-family:inherit">'
+    '<title id="illus-batch-title">One bar of about 80 tokens per second, the whole server, split into 1, 2, 3 '
+    'and 4 equal slices, one slice per session: the total stays the same, each session gets less.</title>'
+    + "".join(_BATCH)
+    + _itext(380, 200, "About 80 tokens/s in total: the server's generation speed is shared, not multiplied",
+             "middle")
+    + '</svg>')
+
+
 TITLE = "Flash-Next: how many agent sessions fit on one server?"
 H1 = "How many agent sessions fit on one local Flash-Next server?"
 GITHUB = "https://github.com/snagnever/macstudio-local-llm"
@@ -552,7 +629,7 @@ def _hero(data: dict) -> str:
 def _how(data: dict) -> str:
     refs = data["refs"]
     body = (
-        '<div class="two-col"><div class="illus"><!-- ILLUSTRATION_TIMELINE --></div><div>'
+        '<div class="two-col"><div class="illus">' + ILLUSTRATION_TIMELINE + '</div><div>'
         '<p class="s-note">Each <b>session</b> replays a coding agent’s conversation at a fixed context size. '
         'It starts cold: the server reads the whole prompt once (<b>prefill</b>, reading the prompt before the '
         'first token). Then come warm turns that add a tool result to a prompt the server already holds in its '
@@ -623,7 +700,7 @@ def _throughput(data: dict) -> str:
     table = _table(["Sessions", "32K per session", "32K total", "128K per session", "128K total"], rows)
     gain = TEXT_FACTS["drowzeys_short_prompt_gain"]
     body = (
-        '<div class="illus"><!-- ILLUSTRATION_BATCH --></div>'
+        '<div class="illus">' + ILLUSTRATION_BATCH + '</div>'
         '<p class="s-note">The server already batches the sessions’ generation: it writes one token for each '
         'session in the same step. On this model that step gets slower as sessions are added, so the total '
         'barely grows. Going from 1 to 4 sessions, the best total is '
