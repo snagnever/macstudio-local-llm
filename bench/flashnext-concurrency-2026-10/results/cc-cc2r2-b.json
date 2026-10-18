@@ -1,0 +1,92 @@
+{
+  "duration_api_ms": 145787,
+  "stop_reason": "end_turn",
+  "session_id": "1280655d-1596-41b1-9f89-9eb8cefa9989",
+  "total_cost_usd": 0.4573712,
+  "usage": {
+    "input_tokens": 103041,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 65536,
+    "output_tokens": 1605,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0": {
+      "inputTokens": 103041,
+      "outputTokens": 1605,
+      "cacheReadInputTokens": 65536,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.4573712,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 0,
+      "canonicalModel": "dankpaws-swift1.5-qwen3.8-flash-next-mlx-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 6,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `wc_report.sh` (glob loop with quoted paths fixes space-splitting; `sort -k1,1 -rn` fixes numeric ranking) and `tests/run_tests.sh` (one test per bug) \u2014 all 3 tests pass.",
+  "ttft_ms": 54354,
+  "type": "result",
+  "duration_ms": 145916,
+  "uuid": "85ec648a-7f7d-4fb7-8cec-bfda1c7bda71",
+  "ttft_stream_ms": 48,
+  "time_to_request_ms": 35,
+  "first_content_frame_ms": 51378,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "b",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 146.6,
+  "task_done": true
+}
