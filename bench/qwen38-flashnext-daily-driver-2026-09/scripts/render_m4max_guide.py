@@ -18,6 +18,8 @@ CAMPAIGN = Path(__file__).resolve().parents[1]
 REPO = CAMPAIGN.parents[1]
 REPORTS_JSON = REPO / "bench" / "engine-updates-2026-10" / "results" / "reports-2026-10.json"
 SWIFT_JSON = REPO / "bench" / "swift15-flashnext-2026-10" / "results" / "page-data.json"
+# LiveCodeBench of the oMLX pack, regraded (flashnext-next-steps-2026-10, task 5, arm o1x on oMLX 0.7.1.dev1).
+OMLX_LCB_MD = REPO / "bench" / "flashnext-next-steps-2026-10" / "results" / "e5-lcb-regrade.md"
 OUT = REPO / "reports" / "qwen38-flashnext-m4max-guide.html"
 # The link-preview card (og:image). The HTML is the source; --png renders it with headless Chrome.
 CARD_HTML = REPO / "reports" / "assets" / "qwen38-flashnext-m4max-guide-card.html"
@@ -77,7 +79,7 @@ CONFIG_LABEL = {
     "YaRN 2.0 + KV 4-bit": "YaRN 2.0 + 4-bit KV cache",
     "YaRN 2.0": "YaRN 2.0",
 }
-QUALITY_SUITES = [("humaneval", "HumanEval (164)"), ("jdhodges", "Tool calls A (40)"), ("veerman", "Tool calls B (12)")]
+QUALITY_SUITES = [("humaneval", "HumanEval (164)"), ("livecodebench", "LiveCodeBench v6 (50)"), ("jdhodges", "Tool calls A (40)"), ("veerman", "Tool calls B (12)")]
 SWIFT_SUITES = [("gpqa", "GPQA-Diamond (50)"), ("livecodebench", "LiveCodeBench v6 (50)"), ("humaneval", "HumanEval (164)")]
 
 
@@ -98,18 +100,32 @@ def point(g: dict) -> dict:
     }
 
 
+def omlx_lcb(path: Path = OMLX_LCB_MD) -> list[int]:
+    """[passed, n] of the regraded o1x row in the e5 regrade table ("| o1x/livecodebench.jsonl | 41/50 | 45/50 |...")."""
+    for line in path.read_text(encoding="utf-8").splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if cells[0] == "o1x/livecodebench.jsonl":
+            passed, n = cells[2].split("/")
+            return [int(passed), int(n)]
+    raise ValueError(f"no o1x row in {path}")
+
+
 def quality_rows(data: dict, swift: dict) -> list[dict]:
     # mlx-serve: the 2026-10-11 run with explicit reasoning (Swift A/B, vendor sampling). The 2026-10-07 run
-    # did not think, so it is left out. oMLX and MTPLX: the 2026-10-09 runs.
+    # did not think, so it is left out. oMLX and MTPLX: the 2026-10-09 runs. Those runs had no LiveCodeBench:
+    # oMLX takes it from the 2026-10-15 run of the same pack on oMLX 0.7.1.dev1, and MTPLX has none (None).
     q = swift["quality"]["t1"]["n2"]
     he = swift["humaneval_regrade"]["n2-t1"]
+    lcb = swift["time"]["t1"]["livecodebench"]["arms"]["n2"]
     rows = [{"id": "n2", "date": "2026-10-11", "humaneval": [he["with_imports"], he["n"]],
+             "livecodebench": [lcb["passed"], lcb["n"]],
              "jdhodges": [q["jdhodges"]["passed"], q["jdhodges"]["n"]],
              "veerman": [q["veerman"]["passed"], q["veerman"]["n"]]}]
     legacy = {r["arm"]: r for r in data["quality"]["rows"]}
-    for sid, arm in (("o1", "o1"), ("m1", "m1x")):
+    for sid, arm, lcb in (("o1", "o1", omlx_lcb()), ("m1", "m1x", None)):
         r = legacy[arm]
         rows.append({"id": sid, "date": r["date"], "humaneval": [r["humaneval_imports"], r["humaneval_n"]],
+                     "livecodebench": lcb,
                      "jdhodges": [r["jdhodges"], r["jdhodges_n"]], "veerman": [r["veerman"], r["veerman_n"]]})
     return rows
 
@@ -497,9 +513,11 @@ BODY = r"""
   a few cases of each other. One run per server, on different dates, with a small sample. Read it as a sanity check,
   not as a ranking. ds4 was not checked.</p>
   <div class="panel big"><div id="chQuality"></div></div>
-  <p class="foot-note">HumanEval with the prompt's import lines added before the answer. Tool calls A = jdhodges tool-call
+  <p class="foot-note">HumanEval with the prompt's import lines added before the answer. LiveCodeBench v6: 50 questions
+  (seed 42), graded with the official import lines. Tool calls A = jdhodges tool-call
   test; tool calls B = Veerman tool-call test. mlx-serve: 2026-10-11 run with reasoning effort xhigh; oMLX and MTPLX
-  (with --memory-limit max): 2026-10-09 runs.</p>
+  (with --memory-limit max): 2026-10-09 runs. The 2026-10-09 runs had no LiveCodeBench: the oMLX bar comes from a
+  2026-10-15 run of the same pack on oMLX 0.7.1.dev1, and MTPLX was not measured.</p>
 </section>
 
 <section class="block" id="swift">
@@ -1191,7 +1209,10 @@ function groupedBars(host, groups, series, o){
     g += `<text x="0" y="${gy + gh / 2 + 4}" class="rowlab">${esc(gr.label)}</text>`;
     series.forEach((s, si) => {
       const v = o.value(gr, s); const y = gy + si * (barH + gap);
-      if (v == null) return;
+      if (v == null){
+        if (o.missing) g += `<text x="${x0 + 6}" y="${y + barH - 4}" class="dv">${esc(o.missing)}</text>`;
+        return;
+      }
       const w = Math.max(3, xAt(v) - x0);
       g += `<path d="M${x0},${y} h${w - 4} a4,4 0 0 1 4,4 v${barH - 8} a4,4 0 0 1 -4,4 h${-(w - 4)} Z" style="fill:${s.color}" data-g="${gi}" data-i="${si}"/>`;
       g += `<text x="${x0 + w + 6}" y="${y + barH - 4}" class="dv">${o.label_of(gr, s)}</text>`;
@@ -1217,8 +1238,9 @@ function qualityChart(){
   const groups = P.quality_suites.map(([key, label]) => ({key, label}));
   groupedBars(document.getElementById("chQuality"), groups, series, {
     max: 100, label: "Share of correct answers per test and server", tick: v => v.toFixed(0) + "%",
-    value: (gr, s) => { const q = rows[s.id][gr.key]; return 100 * q[0] / q[1]; },
-    label_of: (gr, s) => { const q = rows[s.id][gr.key]; return `${q[0]}/${q[1]} · ${(100*q[0]/q[1]).toFixed(0)}%`; },
+    missing: "not measured",
+    value: (gr, s) => { const q = rows[s.id][gr.key]; return q ? 100 * q[0] / q[1] : null; },
+    label_of: (gr, s) => { const q = rows[s.id][gr.key]; return q ? `${q[0]}/${q[1]} · ${(100*q[0]/q[1]).toFixed(0)}%` : "not measured"; },
   });
 }
 

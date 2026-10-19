@@ -117,3 +117,14 @@ def test_post_charts_are_charts_not_prose():
     # No heading, read line or callout: the post text carries the prose.
     for html in charts.values():
         assert "<h2" not in html and 'class="read"' not in html and 'class="callout"' not in html
+
+
+def test_quality_has_livecodebench_and_no_mtplx_value():
+    data, swift = load()
+    rows = {r["id"]: r for r in guide.build_payload(data, swift)["quality"]}
+    assert "livecodebench" in dict(guide.QUALITY_SUITES)
+    # mlx-serve: the regraded Swift A/B t1 run; oMLX: the regraded o1x run of e5; MTPLX: not measured.
+    assert rows["n2"]["livecodebench"] == [45, 50]
+    assert rows["o1"]["livecodebench"] == [45, 50]
+    assert rows["m1"]["livecodebench"] is None
+    assert "not measured" in guide.render(data, swift)
