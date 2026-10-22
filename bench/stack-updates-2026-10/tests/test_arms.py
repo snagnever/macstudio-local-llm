@@ -63,5 +63,5 @@ def test_r1_is_the_gsq_coder_on_omlx_072():
 def test_toolcall_probe_sends_both_penalties():
     out = subprocess.run(["bash", str(HERE / "scripts" / "toolcall-probe.sh"), "w1z", "--print"],
                          capture_output=True, text=True, env=_env(), check=True).stdout
-    assert "--frequency-penalty 0;" in out and out.rstrip().count("--frequency-penalty 1") == 1
+    assert "--frequency-penalty 0;" in out and "--frequency-penalty 1;" in out and "--turns 4 " in out
     assert "w1z-fp0.jsonl" in out and "w1z-fp1.jsonl" in out and " 65536 " in out
