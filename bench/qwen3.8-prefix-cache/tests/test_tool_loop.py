@@ -17,6 +17,7 @@ from tool_loop import (
     _tool_payload,
     _final_payload,
     build_parser,
+    sampling_controls_from_args,
     sampling_record_fields,
 )
 
@@ -154,6 +155,18 @@ class ToolLoopTests(unittest.TestCase):
         }
 
         self.assertEqual(sampling_record_fields(controls), controls)
+
+    def test_frequency_penalty_flag_reaches_the_request(self):
+        """mlx-serve #912: a client frequency_penalty of 1 broke tool calls on 26.10.2."""
+        base = ["--base-url", "u", "--model", "m", "--runtime", "r", "--runtime-revision", "v",
+                "--model-revision", "w", "--arm", "a", "--session-id", "s", "--output", "o.jsonl"]
+        default = sampling_controls_from_args(build_parser().parse_args(base))
+        self.assertEqual(default["frequency_penalty"], 0.0)
+
+        controls = sampling_controls_from_args(build_parser().parse_args(base + ["--frequency-penalty", "1"]))
+        payload = _tool_payload("m", [{"role": "user", "content": "probe"}], sampling_controls=controls)
+        self.assertEqual(payload["frequency_penalty"], 1.0)
+        self.assertEqual(sampling_record_fields(controls)["frequency_penalty"], 1.0)
 
     def test_build_tools_returns_fresh_stably_ordered_schemas(self):
         first = build_tools()

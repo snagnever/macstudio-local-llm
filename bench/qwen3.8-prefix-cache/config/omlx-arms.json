@@ -56,6 +56,10 @@
     "flashnext-oq4e-mix6-v2": {
       "repository": "umixer/Qwen3.8-Flash-Next-oQ4e-mix6-mtp",
       "revision": "73d2cd0bc0ac07bde45f374a1f7eff01fb06ac90"
+    },
+    "flashnext-gsq-coder": {
+      "repository": "mbrown-uno/Qwen3.8-Flash-Next-GSQ-RCO-Coder-MLX",
+      "revision": "50fa68c5e9cebf53276d8eae8af594fa8b3de9e4"
     }
   },
   "arms": {
@@ -234,6 +238,16 @@
     },
     "FM": {
       "model_key": "flashnext-oq4e-mix6-v2",
+      "cache_enabled": true,
+      "model_settings": {
+        "mtp_enabled": true,
+        "specprefill_enabled": false,
+        "qwen4_ple_ssd_offload": true,
+        "qwen35_ane_prefill_enabled": false
+      }
+    },
+    "FG": {
+      "model_key": "flashnext-gsq-coder",
       "cache_enabled": true,
       "model_settings": {
         "mtp_enabled": true,

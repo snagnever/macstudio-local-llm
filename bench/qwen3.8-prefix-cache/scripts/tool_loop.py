@@ -359,7 +359,22 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--reasoning-effort", default=SAMPLING_CONTROLS["reasoning_effort"]
     )
+    # Some agent harnesses (Crush) send frequency_penalty 1; mlx-serve 26.10.2 mapped it wrongly (#912).
+    parser.add_argument(
+        "--frequency-penalty", type=float, default=SAMPLING_CONTROLS["frequency_penalty"]
+    )
     return parser
+
+
+def sampling_controls_from_args(args: argparse.Namespace) -> dict[str, Any]:
+    return {
+        **SAMPLING_CONTROLS,
+        "temperature": args.temperature,
+        "top_p": args.top_p,
+        "top_k": args.top_k,
+        "frequency_penalty": args.frequency_penalty,
+        "reasoning_effort": args.reasoning_effort,
+    }
 
 
 def main() -> int:
@@ -368,13 +383,7 @@ def main() -> int:
         raise SystemExit("--turns must be positive")
     args.output.parent.mkdir(parents=True, exist_ok=True)
     api_model = args.api_model or args.model
-    sampling_controls = {
-        **SAMPLING_CONTROLS,
-        "temperature": args.temperature,
-        "top_p": args.top_p,
-        "top_k": args.top_k,
-        "reasoning_effort": args.reasoning_effort,
-    }
+    sampling_controls = sampling_controls_from_args(args)
 
     messages = _initial_messages()
     last_tool: Optional[str] = None
