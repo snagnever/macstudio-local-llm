@@ -65,3 +65,13 @@ def test_toolcall_probe_sends_both_penalties():
                          capture_output=True, text=True, env=_env(), check=True).stdout
     assert "--frequency-penalty 0;" in out and "--frequency-penalty 1;" in out and "--turns 4 " in out
     assert "w1z-fp0.jsonl" in out and "w1z-fp1.jsonl" in out and " 65536 " in out
+
+
+def test_k2_arms_are_the_swift_gguf_with_the_k1_flags():
+    k2, k2a, k1 = server(show("k2")), server(show("k2a")), server(show("k1"))
+    assert "--model ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS " in k2
+    assert "--revision 0142554c963a8653912c0c8283f05f13f63653f3 " in k2
+    assert k2.endswith("--verify-rows all") and k2a.endswith("--verify-rows auto")
+    strip = lambda s: s.split("--revision")[1].split(" ", 2)[2]
+    assert strip(k2) == strip(k1)
+    assert "model_select: ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS" in show("k2a")

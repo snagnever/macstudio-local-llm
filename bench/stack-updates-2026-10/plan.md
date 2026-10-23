@@ -154,6 +154,23 @@ Se uma condição falha, o veredito é "não adotar" e a nota registra qual.
 - tool calls estruturadas em 20/20 turnos;
 - `T_turno(r1) ≤ 0.97 × T_turno(w1)` a 32K.
 
+### Task 8: Swift 1.5 GGUF no Splash 1.4.0 (`k2`, `k2a` × `w1`) — adicionado em 2026-10-23
+
+O Task 5 mediu o Splash com os pesos do Flash-Next base (UD-IQ4_XS). A comparação com o `w1` misturava runtime e pesos. O Task 8 usa os pesos do `w1` em GGUF: `ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF` `IQ4_XS` `0142554` (97.7 GB, repo gated, pasta `IQ4_XS/`). `k2` usa `--verify-rows all`, e `k2a` usa `auto`.
+
+- [ ] **Step 1: Download.** `snapshot_download` para o cache do HF com `allow_patterns=["IQ4_XS/*", "*.json"]`. O token do HF do rig já tem acesso ao repo.
+- [ ] **Step 2: Fila.** Parar o driver diário. `run-tasks.sh t8`: `k2`/`k2a` a 32K e 128K (3 reps), `k2a` a 256K (1 rep), `toolcall-probe.sh k2a` e bateria `humaneval livecodebench` do `k2a` com o rótulo `e6` (mesma pasta da bateria do `w1`).
+- [ ] **Step 3: Resultado.** `results/etapa8-splash-swift.md`: tabela fixa com `w1`, `k1a`, `k2` e `k2a`, razão contra o `w1`, wired a 256K, notas da bateria (`summarize_ab.py --ab-dir results/e6/t1 --base w1 --cand k2a`) e tool calls.
+
+**Regra de decisão.** O `k2a` (ou o `k2`) é candidato a driver diário quando todas as condições valem:
+
+- `T_turno ≤ 0.97 ×` o `w1` a 32K e a 128K, com gates;
+- 256K sem swap (Δ ≤ 0.5 GB);
+- HumanEval e LiveCodeBench a no máximo 2 pontos do `w1`;
+- tool calls em 20/20 com `frequency_penalty` 0.
+
+A troca do driver fica com o usuário.
+
 ### Task 7: Fechamento
 
 - [ ] **Step 1: Resumo.** Escrever `results/summary.md`: uma linha por teste, com o veredito, os números que decidem e o link para o `etapa<N>`.

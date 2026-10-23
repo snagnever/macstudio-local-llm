@@ -18,7 +18,7 @@
 #   k27 = Splash 1.3.1 + mlx-community 8bit; l27/l27n = llama.cpp b11569 Q8_0 with/without MTP draft
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1z|n2z|t6z|k1|k1a|r1> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1z|n2z|t6z|k1|k1a|k2|k2a|r1> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
 # A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
@@ -428,19 +428,23 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
       unset QWEN38_MLX_PLE_GPU QWEN38_MLX_PREFIX_CACHE_MEM QWEN38_MLX_KV_QUANT QWEN38_MLX_CONFIG_OVERRIDES QWEN38_MLX_DRAFTER QWEN38_MLX_DRAFT_BLOCK_SIZE QWEN38_MLX_PREFIX_CACHE_DISK QWEN38_MLX_PREFIX_CACHE_ENTRIES ;;
-  k1|k1a)
-      # stack-updates-2026-10: Splash 1.4.0 serving the unsloth Flash-Next GGUF UD-IQ4_XS at 766911a with the DFlash2
-      # draft Splash selects. k1 = --verify-rows all (reproducible), k1a = auto (the 1.4.0 default). Splash takes only a
-      # Hub ID and loads a split GGUF only from a VARIANT/ folder, so the ggml-org IQ4_NL (split at the repo root) does
-      # not load. MODEL_DIR is the HF cache entry.
+  k1|k1a|k2|k2a)
+      # stack-updates-2026-10: Splash 1.4.0 serving a Flash-Next GGUF with the DFlash2 draft Splash selects.
+      # k1/k1a = unsloth UD-IQ4_XS at 766911a (Flash-Next base); k2/k2a = UkisAI Swift 1.5 IQ4_XS at 0142554 (the
+      # w1 weights in GGUF, gated repo). No "a" = --verify-rows all (reproducible), "a" = auto (the 1.4.0 default).
+      # Splash takes only a Hub ID and loads a split GGUF only from a VARIANT/ folder, so the ggml-org IQ4_NL (split
+      # at the repo root) does not load. MODEL_DIR is the HF cache entry.
       LAUNCHER="$HARNESS/run-splash.sh"; ARM=KF; PORT=8585; RUNTIME=splash
-      MODEL_DIR="$HOME/.cache/huggingface/hub/models--unsloth--Qwen3.8-Flash-Next-GGUF"
-      MODEL_REV=766911a6b7369840a91dbcd95f9f997acaab6cd6
+      case "$CAND" in
+        k1*) HUB=unsloth/Qwen3.8-Flash-Next-GGUF; VARIANT=UD-IQ4_XS; MODEL_REV=766911a6b7369840a91dbcd95f9f997acaab6cd6 ;;
+        k2*) HUB=ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF; VARIANT=IQ4_XS; MODEL_REV=0142554c963a8653912c0c8283f05f13f63653f3 ;;
+      esac
+      MODEL_DIR="$HOME/.cache/huggingface/hub/models--${HUB//\//--}"
       PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=splash; METRICS=""
-      MODEL_ID_PREF="${K1_MODEL_ID:-unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ4_XS}"
-      if [[ "$CAND" == k1 ]]; then VR=all; else VR=auto; fi
+      MODEL_ID_PREF="$HUB:$VARIANT"
+      if [[ "$CAND" == *a ]]; then VR=auto; else VR=all; fi
       REV="v1.4.0-verify-$VR"
-      export SPLASH_MODEL=unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ4_XS SPLASH_REVISION="$MODEL_REV" QWEN38_CTX_SIZE="$CTX"
+      export SPLASH_MODEL="$HUB:$VARIANT" SPLASH_REVISION="$MODEL_REV" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_SPLASH_BIN="$SPLASH_140" QWEN38_SPLASH_EXPECTED_VERSION=1.4.0 QWEN38_SPLASH_PORT=8585
       export QWEN38_SPLASH_EXTRA_ARGS="--verify-rows $VR"
       unset SPLASH_DRAFTER ;;
