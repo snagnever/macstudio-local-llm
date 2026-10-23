@@ -46,8 +46,8 @@ def test_t6z_uses_the_twyx_pack_with_n2_flags():
 def test_splash_arms_differ_only_in_verify_rows():
     k1, k1a = show("k1"), show("k1a")
     assert "splash-v1.4.0/bin/splash" in server(k1)
-    assert "--model ggml-org/Qwen3.8-Flash-Next-GGUF:IQ4_NL " in server(k1)
-    assert "--revision 91fb00353e766eb43944ed223665ea4fb87dad47 " in server(k1)
+    assert "--model unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ4_XS " in server(k1)
+    assert "--revision 766911a6b7369840a91dbcd95f9f997acaab6cd6 " in server(k1)
     assert server(k1).endswith("--verify-rows all") and server(k1a).endswith("--verify-rows auto")
     assert server(k1).replace("all", "X") == server(k1a).replace("auto", "X")
     assert "--draft-model" not in server(k1)

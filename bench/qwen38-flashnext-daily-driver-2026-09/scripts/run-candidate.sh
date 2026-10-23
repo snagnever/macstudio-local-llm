@@ -429,17 +429,18 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
       unset QWEN38_MLX_PLE_GPU QWEN38_MLX_PREFIX_CACHE_MEM QWEN38_MLX_KV_QUANT QWEN38_MLX_CONFIG_OVERRIDES QWEN38_MLX_DRAFTER QWEN38_MLX_DRAFT_BLOCK_SIZE QWEN38_MLX_PREFIX_CACHE_DISK QWEN38_MLX_PREFIX_CACHE_ENTRIES ;;
   k1|k1a)
-      # stack-updates-2026-10: Splash 1.4.0 serving the ggml-org Flash-Next GGUF IQ4_NL at 91fb003 with the DFlash2 draft
-      # Splash selects. k1 = --verify-rows all (reproducible), k1a = auto (the 1.4.0 default). Splash takes only a Hub
-      # ID, so MODEL_DIR is the HF cache entry the smoke run downloads.
+      # stack-updates-2026-10: Splash 1.4.0 serving the unsloth Flash-Next GGUF UD-IQ4_XS at 766911a with the DFlash2
+      # draft Splash selects. k1 = --verify-rows all (reproducible), k1a = auto (the 1.4.0 default). Splash takes only a
+      # Hub ID and loads a split GGUF only from a VARIANT/ folder, so the ggml-org IQ4_NL (split at the repo root) does
+      # not load. MODEL_DIR is the HF cache entry.
       LAUNCHER="$HARNESS/run-splash.sh"; ARM=KF; PORT=8585; RUNTIME=splash
-      MODEL_DIR="$HOME/.cache/huggingface/hub/models--ggml-org--Qwen3.8-Flash-Next-GGUF"
-      MODEL_REV=91fb00353e766eb43944ed223665ea4fb87dad47
+      MODEL_DIR="$HOME/.cache/huggingface/hub/models--unsloth--Qwen3.8-Flash-Next-GGUF"
+      MODEL_REV=766911a6b7369840a91dbcd95f9f997acaab6cd6
       PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=splash; METRICS=""
-      MODEL_ID_PREF="${K1_MODEL_ID:-ggml-org/Qwen3.8-Flash-Next-GGUF:IQ4_NL}"
+      MODEL_ID_PREF="${K1_MODEL_ID:-unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ4_XS}"
       if [[ "$CAND" == k1 ]]; then VR=all; else VR=auto; fi
       REV="v1.4.0-verify-$VR"
-      export SPLASH_MODEL=ggml-org/Qwen3.8-Flash-Next-GGUF:IQ4_NL SPLASH_REVISION="$MODEL_REV" QWEN38_CTX_SIZE="$CTX"
+      export SPLASH_MODEL=unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ4_XS SPLASH_REVISION="$MODEL_REV" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_SPLASH_BIN="$SPLASH_140" QWEN38_SPLASH_EXPECTED_VERSION=1.4.0 QWEN38_SPLASH_PORT=8585
       export QWEN38_SPLASH_EXTRA_ARGS="--verify-rows $VR"
       unset SPLASH_DRAFTER ;;
