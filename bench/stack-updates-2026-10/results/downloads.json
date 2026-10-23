@@ -575,5 +575,152 @@
   "hardlinked": [],
   "validation": "all selected files present; sizes match pinned Hub metadata",
   "completed_at": "2026-10-22T21:14:09Z"
+ },
+ {
+  "repo": "mbrown-uno/Qwen3.8-Flash-Next-GSQ-RCO-Coder-MLX",
+  "requested_revision": "50fa68c",
+  "revision": "50fa68c5e9cebf53276d8eae8af594fa8b3de9e4",
+  "local_dir": "/Users/vitor/.cache/local-llms/qwen3.8-prefix-cache/mbrown-uno-Qwen3.8-Flash-Next-GSQ-RCO-Coder-MLX-50fa68c5e9cebf53276d8eae8af594fa8b3de9e4",
+  "bytes": 81285781239,
+  "files": [
+   {
+    "path": ".gitattributes",
+    "size": 1570,
+    "lfs_sha256": null
+   },
+   {
+    "path": "README.md",
+    "size": 13319,
+    "lfs_sha256": null
+   },
+   {
+    "path": "chat_template.jinja",
+    "size": 9993,
+    "lfs_sha256": null
+   },
+   {
+    "path": "config.json",
+    "size": 293907,
+    "lfs_sha256": null
+   },
+   {
+    "path": "generation_config.json",
+    "size": 202,
+    "lfs_sha256": null
+   },
+   {
+    "path": "merges.txt",
+    "size": 3353259,
+    "lfs_sha256": null
+   },
+   {
+    "path": "model-00001-of-00016.safetensors",
+    "size": 5518750491,
+    "lfs_sha256": "39ae1b8b55bc669441c100e92c800726f503d5858c395650bb77d4aef4ebfcfd"
+   },
+   {
+    "path": "model-00002-of-00016.safetensors",
+    "size": 5372645660,
+    "lfs_sha256": "6dc551bf80e9fad4743c0eddbbcbc15fab6000ff3b2ccbf96ef8ee9b9aa7c37a"
+   },
+   {
+    "path": "model-00003-of-00016.safetensors",
+    "size": 5376767540,
+    "lfs_sha256": "0c8714e35ffca55c7934a89268f1398fe9cbdfa8f34372d0ea0ff6eadab5604f"
+   },
+   {
+    "path": "model-00004-of-00016.safetensors",
+    "size": 5457544652,
+    "lfs_sha256": "2d5ed5395208e16d06590f69e87a4fd532267c37ad139456492c200ec42b2189"
+   },
+   {
+    "path": "model-00005-of-00016.safetensors",
+    "size": 5407979289,
+    "lfs_sha256": "c493347cfa6b54ff31413fe142fd44a0bdc68d02ff2651cc7ffe19e18d48d82b"
+   },
+   {
+    "path": "model-00006-of-00016.safetensors",
+    "size": 5505369167,
+    "lfs_sha256": "46e6812ff186bcc91a3b46c33b629c0ec4092624be5230480c53937f00558bd6"
+   },
+   {
+    "path": "model-00007-of-00016.safetensors",
+    "size": 5557915868,
+    "lfs_sha256": "60ea8f6b5c99671099bb3d86934491491a9ab9b73679775c97fd7b722d7ed023"
+   },
+   {
+    "path": "model-00008-of-00016.safetensors",
+    "size": 5375034203,
+    "lfs_sha256": "b2f743340c03c82b24e06b7cf87dd62a30c7c691506cb71e91b2eb954c88d91f"
+   },
+   {
+    "path": "model-00009-of-00016.safetensors",
+    "size": 5375034247,
+    "lfs_sha256": "b9e33d92b97bf984892adf6dd67a968df85c91ee25caa75149fba552f49d5dce"
+   },
+   {
+    "path": "model-00010-of-00016.safetensors",
+    "size": 5400034524,
+    "lfs_sha256": "23d9e6523ce2925a4b38d8d5c37b401b76347688c859d4d055368f81b1e918ad"
+   },
+   {
+    "path": "model-00011-of-00016.safetensors",
+    "size": 5400034522,
+    "lfs_sha256": "29580ec6d37f6910a3e8d6a1fb140eaf5eb4dec9058279e74ac30e9c84dbe033"
+   },
+   {
+    "path": "model-00012-of-00016.safetensors",
+    "size": 5400034508,
+    "lfs_sha256": "e2906bc00f949ea2bc98addc47edea16f8558fab2820d54cf6c570a584f6583a"
+   },
+   {
+    "path": "model-00013-of-00016.safetensors",
+    "size": 5400034534,
+    "lfs_sha256": "1398e2a3a0a1d28078735397c1657bd7eef4804b305af35f0fa76a7e7edc13f0"
+   },
+   {
+    "path": "model-00014-of-00016.safetensors",
+    "size": 5400034574,
+    "lfs_sha256": "1dc19e01284a235d25912c3f58a4c96f2ef057c60486644e01d9b06f373053b2"
+   },
+   {
+    "path": "model-00015-of-00016.safetensors",
+    "size": 4664935733,
+    "lfs_sha256": "718f13d416e3b8d9ef125862c5648fa8eec749fd34637fc9c026b4d60184bc16"
+   },
+   {
+    "path": "model-00016-of-00016.safetensors",
+    "size": 650004413,
+    "lfs_sha256": "1c3721e0b88e48a3ee6adff7970f77e879949a51a2d83f7d0946aa8a284785ed"
+   },
+   {
+    "path": "model.safetensors.index.json",
+    "size": 405177,
+    "lfs_sha256": null
+   },
+   {
+    "path": "preprocessor_config.json",
+    "size": 390,
+    "lfs_sha256": null
+   },
+   {
+    "path": "tokenizer.json",
+    "size": 12809320,
+    "lfs_sha256": "0997f410c57a1f4e53b09e4be8f4a172d90edd9564368fb0847030937229b9f3"
+   },
+   {
+    "path": "tokenizer_config.json",
+    "size": 17418,
+    "lfs_sha256": null
+   },
+   {
+    "path": "vocab.json",
+    "size": 6722759,
+    "lfs_sha256": null
+   }
+  ],
+  "hardlinked": [],
+  "validation": "all selected files present; sizes match pinned Hub metadata",
+  "completed_at": "2026-10-22T23:46:21Z"
  }
 ]
