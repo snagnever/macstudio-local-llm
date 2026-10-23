@@ -1,5 +1,7 @@
 # Stack updates 2026-10-22 — runbook dos testes 1, 4, 5 e 6
 
+> **Status (2026-10-23): concluída.** Resultados e recomendações em [results/summary.md](results/summary.md). O Task 4 parou na banda de 32K, e os Tasks 8 e 9 foram adicionados durante a campanha.
+>
 > **Para agentes:** execute as tasks em ordem, sem pedir confirmação entre elas. Marque cada step (`- [ ]` → `- [x]`). Pare só nas condições de parada da seção "Execução autônoma".
 
 **Objetivo:** rodar os testes 1, 4, 5 e 6 de [research/rig-stack-updates-20261022.md](../../research/rig-stack-updates-20261022.md). Cada teste termina com um arquivo `results/etapa<N>-*.md` e uma recomendação. Nenhum teste troca o driver diário. O usuário decide a troca.

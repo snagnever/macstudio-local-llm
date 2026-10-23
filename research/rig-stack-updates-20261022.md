@@ -147,3 +147,18 @@ Linha de base: [`rig-stack-updates-20261019.md`](rig-stack-updates-20261019.md).
 - https://huggingface.co/mbrown-uno/Qwen3.8-Flash-Next-GSQ-RCO-Coder-MLX
 - https://github.com/anomalyco/opencode/releases/tag/v1.19.4
 - https://github.com/NousResearch/hermes-agent/releases
+
+## Resultado no rig (2026-10-23)
+
+A campanha [`bench/stack-updates-2026-10`](../bench/stack-updates-2026-10/results/summary.md) rodou os testes 1, 4, 5 e 6, mais dois testes adicionados durante a campanha: o Swift 1.5 GGUF no Splash e o GSQ-RCO-Coder no mlx-serve. Todos os números são **medido-no-rig**.
+
+| teste | `T_turno` / `w1` (32K · 128K) | veredito |
+|---|---|---|
+| 1 mlx-serve 26.10.3 (Swift 1.5) | 1.00 · 1.02 (0.93 a 256K) | passa; tool calls 20/20 |
+| 4 twyx iQ-MLX-6.6bpw | 1.26 × iQ 4.7bpw a 32K | não adotar: swap 0.91 GB |
+| 5 Splash 1.4.0, Flash-Next UD-IQ4_XS | 0.85 · 0.78 | passa na velocidade; pesos diferentes |
+| 6 GSQ-RCO-Coder, oMLX 0.7.2 | 1.31 · 1.40 | não adotar: lento; HumanEval 154/164 contra 141 |
+| Splash 1.4.0, Swift 1.5 IQ4_XS | 0.75 · 0.72 (0.64 a 256K) | qualidade igual; falha em 1 de 5 sessões de tool calls |
+| GSQ-RCO-Coder, mlx-serve 26.10.3 | 1.10 · 1.12 | não adotar: 10% mais lento |
+
+Dois achados mudam a leitura desta nota. A 26.10.3 aplica `frequency_penalty` com a definição aditiva. Com penalidade 1, as respostas finais degeneram em 3 de 5 sessões no Swift 1.5 e em 5 de 5 no GSQ-RCO-Coder. Além disso, o Splash 1.4.0 só carrega um GGUF dividido quando as partes ficam numa pasta `VARIANT/`, então o pack da ggml-org não carrega nele.
