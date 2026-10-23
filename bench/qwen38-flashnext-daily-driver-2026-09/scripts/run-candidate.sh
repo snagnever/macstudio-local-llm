@@ -18,7 +18,7 @@
 #   k27 = Splash 1.3.1 + mlx-community 8bit; l27/l27n = llama.cpp b11569 Q8_0 with/without MTP draft
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1z|n2z|t6z|k1|k1a|k2|k2a|r1> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1z|n2z|t6z|k1|k1a|k2|k2a|r1|r1z> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
 # A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
@@ -414,15 +414,17 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       PROBE_PY="$OMLX_0712/bin/python"
       export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_OMLX_BIN="$OMLX_0712/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.1.dev2 ;;
-  w1z|n2z|t6z)
+  w1z|n2z|t6z|r1z)
       # stack-updates-2026-10 on mlx-serve 26.10.3 with the w1/n2 flags: w1z = Swift 1.5, n2z = iQ 4.7bpw,
-      # t6z = twyx iQ-MLX-6.6bpw 884894d (same iQ layout as n2).
+      # t6z = twyx iQ-MLX-6.6bpw 884894d (same iQ layout as n2), r1z = the r1 pack (GSQ-RCO-Coder, oMLX layout,
+      # which mlx-serve loads natively; 26.10.3 reads its 8-bit g32 n-gram table, #936).
       LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.3
       PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""
       case "$CAND" in
         w1z) MODEL_DIR="$SWIFTDIR"; MODEL_REV=13839b7191e0973ff9fea58232267c395b76c6c0 ;;
         n2z) MODEL_DIR="$IQDIR"; MODEL_REV=dafff5c3d8168c9d13275661153911096499a80a ;;
         t6z) MODEL_DIR="$(pack_dir twyx-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-6.6bpw-884894d)"; MODEL_REV="${MODEL_DIR##*-}" ;;
+        r1z) MODEL_DIR="$(pack_dir mbrown-uno-Qwen3.8-Flash-Next-GSQ-RCO-Coder-MLX-50fa68c)"; MODEL_REV="${MODEL_DIR##*-}" ;;
       esac
       export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26103" MLX_SERVE_EXPECTED_VERSION=26.10.3
       export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"

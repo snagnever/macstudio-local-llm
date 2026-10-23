@@ -6,8 +6,9 @@
 #   t6  Task 6: r1 at 32K and 128K (3 reps), tool-call probe, battery (humaneval livecodebench) of r1 and w1.
 #   t8  Task 8: k2 x k2a (Swift 1.5 GGUF on Splash) at 32K and 128K (3 reps), k2a at 256K (1 rep), tool-call probe
 #       and battery (humaneval livecodebench) of k2a; references w1 (t1, t6) and k1/k1a (t5).
+#   t9  Task 9: r1z (the r1 pack on mlx-serve 26.10.3) at 32K and 128K (3 reps) and its tool-call probe.
 # A failing arm does not stop the queue (run-seq.sh prints its exit code). Lines "=== task <t> done" mark the end.
-# usage: run-tasks.sh <t1|t4|t5|t6|t8> [...] [--dry-run]
+# usage: run-tasks.sh <t1|t4|t5|t6|t8|t9> [...] [--dry-run]
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GATE="$HERE/../flashnext-next-steps-2026-10/scripts/idle-gate.sh"
@@ -17,11 +18,11 @@ DRY=""; TASKS=()
 for a in "$@"; do
   case "$a" in
     --dry-run) DRY=1 ;;
-    t1|t4|t5|t6|t8) TASKS+=("$a") ;;
-    *) echo "usage: $0 <t1|t4|t5|t6|t8> [...] [--dry-run]" >&2; exit 64 ;;
+    t1|t4|t5|t6|t8|t9) TASKS+=("$a") ;;
+    *) echo "usage: $0 <t1|t4|t5|t6|t8|t9> [...] [--dry-run]" >&2; exit 64 ;;
   esac
 done
-[[ ${#TASKS[@]} -gt 0 ]] || { echo "usage: $0 <t1|t4|t5|t6|t8> [...] [--dry-run]" >&2; exit 64; }
+[[ ${#TASKS[@]} -gt 0 ]] || { echo "usage: $0 <t1|t4|t5|t6|t8|t9> [...] [--dry-run]" >&2; exit 64; }
 
 run() { if [[ -n "$DRY" ]]; then echo "$*"; else echo "=== $(date '+%F %T') $*"; "$@"; echo "=== rc=$?"; fi; }
 gate() { run bash "$GATE"; }
@@ -50,6 +51,9 @@ for t in "${TASKS[@]}"; do
         gate; run bash "$SEQ" k2a:262144:1:e8
         gate; run bash "$HERE/scripts/toolcall-probe.sh" k2a
         gate; battery k2a e6 --suites "humaneval livecodebench" ;;
+    t9) gate; run bash "$SEQ" r1z:32768:3:e9
+        gate; run bash "$SEQ" r1z:131072:3:e9
+        gate; run bash "$HERE/scripts/toolcall-probe.sh" r1z ;;
   esac
   echo "=== task $t done $(date '+%F %T')"
 done

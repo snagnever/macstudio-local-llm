@@ -171,6 +171,15 @@ O Task 5 mediu o Splash com os pesos do Flash-Next base (UD-IQ4_XS). A comparaç
 
 A troca do driver fica com o usuário.
 
+### Task 9: GSQ-RCO-Coder no mlx-serve 26.10.3 (`r1z` × `r1`, `w1`) — adicionado em 2026-10-23
+
+O `r1` ficou 31–40% atrás do `w1` no oMLX 0.7.2. O `r1z` roda o mesmo pack no mlx-serve 26.10.3, que carrega packs oMLX nativamente (o `o1rm` da campanha next-steps rodou assim) e lê a tabela n-gram 8-bit g32 desde a #936. O teste separa o efeito do runtime do efeito do modelo.
+
+- [ ] **Step 1: Fila.** Depois do Task 8, com o driver diário parado: `run-tasks.sh t9` (`r1z` a 32K e 128K, 3 reps, e `toolcall-probe.sh r1z`).
+- [ ] **Step 2: Resultado.** `results/etapa9-gsq-coder-mlx-serve.md`: tabela fixa com `w1`, `r1` e `r1z`, aceitação MTP do `r1z` e tool calls. A qualidade vem da bateria do `r1` (Task 6), porque os pesos são os mesmos.
+
+**Regra de decisão.** A mesma do Task 6, com a qualidade do `r1`: o `r1z` é candidato a perfil "código" quando `T_turno ≤ 0.97 ×` o `w1` a 32K e as tool calls ficam em 20/20 com `frequency_penalty` 0.
+
 ### Task 7: Fechamento
 
 - [ ] **Step 1: Resumo.** Escrever `results/summary.md`: uma linha por teste, com o veredito, os números que decidem e o link para o `etapa<N>`.

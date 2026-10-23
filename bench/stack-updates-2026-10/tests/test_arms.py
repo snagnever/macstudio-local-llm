@@ -75,3 +75,9 @@ def test_k2_arms_are_the_swift_gguf_with_the_k1_flags():
     strip = lambda s: s.split("--revision")[1].split(" ", 2)[2]
     assert strip(k2) == strip(k1)
     assert "model_select: ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS" in show("k2a")
+
+
+def test_r1z_is_the_r1_pack_with_the_n2_flags_on_26103():
+    r1z, n2 = server(show("r1z")), server(show("n2z"))
+    assert NEW in r1z and "mbrown-uno-Qwen3.8-Flash-Next-GSQ-RCO-Coder-MLX-50fa68c" in r1z
+    assert r1z.split("--serve", 1)[1] == n2.split("--serve", 1)[1]
