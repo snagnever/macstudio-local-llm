@@ -442,3 +442,21 @@ def test_splash_canonical_and_config_labels(tmp_path):
     assert _canon(data, "g1", 524288)["config"] == "YaRN 2.0 + KV 4-bit"
     assert _canon(data, "k1", 1000000)["context"] == 1000000
     assert _canon(data, "w1", 32768)["arm"] == "w1z"
+
+
+def test_perf_lines_2026_10_has_the_1m_band(tmp_path):
+    payload = rpl.build_payload(cr.build_2026_10(*_splash_dirs(tmp_path)))
+    assert payload["line_ctx"][-1] == 1000000 and 1000000 in payload["table_ctx"]
+    p1m = payload["points"]["k1"]["1000000"]
+    assert p1m["status"] == "" and p1m["t_turno"] > 0
+    assert {s["id"] for s in payload["series"]} >= {"w1", "k2", "k1", "g1"}
+    assert len({s["cv"] for s in payload["series"]}) == len(payload["series"])
+
+
+def test_perf_lines_september_keeps_512k_ceiling():
+    payload = rpl.build_payload(cr.build(CAMPAIGN / "results"))
+    assert payload["line_ctx"][-1] == 524288 and 1000000 not in payload["table_ctx"]
+
+
+def test_perf_lines_labels_1m():
+    assert 'c>=1000000?(c/1000000)+"M"' in rpl.TEMPLATE.replace(" ", "")

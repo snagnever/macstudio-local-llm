@@ -142,6 +142,7 @@ def build_payload(data: dict) -> dict:
     oct_ = data.get("profile") == "2026-10"
     absent = ABSENT_2026_10 if oct_ else ABSENT
     colors = SERIES_COLOR_2026_10 if oct_ else SERIES_COLOR
+    line_ctx, table_ctx = (LINE_CTX_2026_10, TABLE_CTX_2026_10) if oct_ else (LINE_CTX, TABLE_CTX)
     chart_cands = [c for c in data["candidates"] if c.get("chart", True)]
     canon = {(g["cand"], g["context"]): g for g in data["groups"] if g["canonical"]}
     points: dict = {}
@@ -149,7 +150,7 @@ def build_payload(data: dict) -> dict:
     for c in chart_cands:
         cid = c["id"]
         points[cid], hitmap[cid] = {}, {}
-        for ctx in TABLE_CTX:
+        for ctx in table_ctx:
             g = canon.get((cid, ctx))
             if g is None:
                 if (cid, ctx) in absent:
@@ -165,18 +166,22 @@ def build_payload(data: dict) -> dict:
     cfg = {c["id"]: {"runtime": f'{c["runtime"]} {c["runtime_version"]}',
                      "model": f'{c["model"]} ({c["revision"]})',
                      "quant": " · ".join([c["quant"]] + ([f'{c["bpw"]} bpw'] if c.get("bpw") else [])
-                                         + [f'{c["disk_gb"]:.0f} GB']),
+                                         + ([f'{c["disk_gb"]:.0f} GB'] if c.get("disk_gb") else [])),
                      "cache": c["cache"], "spec": c["spec"], "ceiling": c["ceiling"],
                      "status": c["status"], "state": c["state"]}
            for c in chart_cands}
     return {"points": points, "hitmap": hitmap, "series": series, "cfg": cfg,
             "rig": data["rig"], "takeaways": data["takeaways"],
-            "tech": TECH_2026_10 if oct_ else TECH, "tech_src": TECH_SRC_2026_10 if oct_ else TECH_SRC, "line_ctx": LINE_CTX, "table_ctx": TABLE_CTX,
+            "tech": TECH_2026_10 if oct_ else TECH, "tech_src": TECH_SRC_2026_10 if oct_ else TECH_SRC, "line_ctx": line_ctx, "table_ctx": table_ctx,
             "generated_at": data["generated_at"]}
 
 
 # --- 2026-10 profile: October stack (engine-updates-2026-10), c1 as the September reference ----------
-SERIES_COLOR_2026_10 = {"n2": "--s1", "o1": "--s3", "m1": "--s5", "d1": "--s4"}
+SERIES_COLOR_2026_10 = {"n2": "--s1", "o1": "--s3", "m1": "--s5", "d1": "--s4",
+                        "w1": "--s2", "k2": "--s6", "k1": "--s7", "g1": "--s8"}
+# splash-longctx-2026-10: the 1M band (1000000 tokens, the Splash --max-context ceiling is 1010000).
+LINE_CTX_2026_10 = LINE_CTX + [1000000]
+TABLE_CTX_2026_10 = TABLE_CTX + [1000000]
 ABSENT_2026_10 = {
     ("o1", 524288): "no YaRN: 262K ceiling",
     ("m1", 524288): "not run: MTPLX refuses 256K (memory-plan fit 237,568 tokens)",
@@ -311,7 +316,7 @@ CSS = r"""
   --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
   --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
   --accent:#2a78d6; --accent-rgb:42,120,214; --warn:#b06a00; --warn-bg:#fbf1dd;
-  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#7c5cd6; --s7:#1597b0; --s8:#7a7f87;
   --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -322,7 +327,7 @@ CSS = r"""
     --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
     --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
     --accent:#3987e5; --accent-rgb:57,135,229; --warn:#e0a63a; --warn-bg:#2a2312;
-    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6; --s7:#1fa9c4; --s8:#9aa0a8;
   }
 }
 :root[data-theme="dark"]{
@@ -331,7 +336,7 @@ CSS = r"""
   --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
   --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
   --accent:#3987e5; --accent-rgb:57,135,229; --warn:#e0a63a; --warn-bg:#2a2312;
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6; --s7:#1fa9c4; --s8:#9aa0a8;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -556,7 +561,7 @@ __NOTICE__
 const P = __PAYLOAD__;
 const DATA = P.points, HITMAP = P.hitmap, SERIES = P.series, CFG = P.cfg;
 const CTX = P.line_ctx, TCTX = P.table_ctx;
-const ctxLab = c => (c/1024)+"K";
+const ctxLab = c => c>=1000000 ? (c/1000000)+"M" : (c/1024)+"K";
 const STAGE = P.page.stage;
 const MISS = P.page.miss;
 const PANELS = [

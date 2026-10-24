@@ -472,7 +472,7 @@ CANDIDATES_SPLASH = [
     {"id": "w1", "name": "Swift 1.5 MLX 4.7 bpw · mlx-serve 26.10.3", "short": "w1 mlx-serve",
      "runtime": "mlx-serve", "runtime_version": "26.10.3",
      "model": "Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw", "revision": "13839b7",
-     "quant": "MLX 4.7 bpw", "bpw": 4.7, "disk_gb": None, "port": 11234,
+     "quant": "MLX 4.7 bpw", "bpw": 4.7, "disk_gb": 99.0, "port": 11234,
      "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
      "spec": "native MTP", "ceiling": "512K with YaRN 2.0 + KV 4-bit", "state": "pass", "status": "daily driver",
      "note": ""},
