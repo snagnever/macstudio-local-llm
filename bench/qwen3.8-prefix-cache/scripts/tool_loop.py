@@ -152,7 +152,7 @@ def execute_fixture_tool(name: str, arguments: dict[str, str], turn: int) -> str
 
 def _chat_once(
     base_url: str, payload: dict[str, Any], timeout_s: int
-) -> tuple[dict[str, Any], dict[str, Any]]:
+) -> tuple[dict[str, Any], dict[str, Any], Optional[str]]:
     request = Request(
         f"{base_url.rstrip('/')}/chat/completions",
         data=json.dumps(payload).encode("utf-8"),
@@ -164,7 +164,7 @@ def _chat_once(
     choices = body.get("choices") or []
     if not choices or not isinstance(choices[0].get("message"), dict):
         raise ValueError("chat response must contain choices[0].message")
-    return choices[0]["message"], body.get("usage") or {}
+    return choices[0]["message"], body.get("usage") or {}, choices[0].get("finish_reason")
 
 
 def _flatten_json_metrics(
@@ -302,6 +302,17 @@ def _final_payload(
     return payload
 
 
+def _dump_debug(output: Path, name: str, data: dict[str, Any]) -> None:
+    try:
+        debug_dir = output.parent.parent / "logs" / "tool-loop"
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        (debug_dir / name).write_text(
+            json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+    except OSError:
+        pass
+
+
 def _write_record(output, record: dict[str, Any]) -> None:
     serialized = json.dumps(record, sort_keys=True)
     output.write(serialized + "\n")
@@ -401,9 +412,10 @@ def main() -> int:
             arguments_valid = False
             reasoning_preserved = False
             tool_name: Optional[str] = None
+            finish_reason: Optional[str] = None
 
             try:
-                assistant_message, usage = _chat_once(
+                assistant_message, usage, finish_reason = _chat_once(
                     args.base_url,
                     _tool_payload(
                         api_model,
@@ -509,6 +521,8 @@ def main() -> int:
                 "reasoning_preserved": reasoning_preserved,
                 "response_empty": response_empty,
                 "correct": correct,
+                "finish_reason": finish_reason,
+                "completion_tokens": int(usage.get("completion_tokens") or 0),
                 "metrics_available": bool(before),
                 "ane_compiled_mlp_layers": server["ane_compiled_mlp_layers"],
                 "ane_compiled_gdn_layers": server["ane_compiled_gdn_layers"],
@@ -534,6 +548,15 @@ def main() -> int:
             }
             _write_record(output, record)
             if not correct:
+                # Diagnostic dump of the failed turn (logs/, never results/): shows whether the
+                # model answered in text, stopped at max_tokens inside its reasoning, or sent a
+                # malformed call.
+                _dump_debug(
+                    args.output,
+                    f"{args.session_id}-turn{turn}-fail.json",
+                    {"finish_reason": finish_reason, "usage": usage, "error": error,
+                     "message": assistant_message},
+                )
                 run_failed = True
                 break
 
@@ -541,7 +564,7 @@ def main() -> int:
         final_error: Optional[str] = None
         if not run_failed:
             try:
-                final_message, _ = _chat_once(
+                final_message, _, _ = _chat_once(
                     args.base_url,
                     _final_payload(
                         api_model,

@@ -1,4 +1,6 @@
+import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -20,6 +22,7 @@ from tool_loop import (
     sampling_controls_from_args,
     sampling_record_fields,
 )
+import tool_loop
 
 
 class ToolLoopTests(unittest.TestCase):
@@ -167,6 +170,26 @@ class ToolLoopTests(unittest.TestCase):
         payload = _tool_payload("m", [{"role": "user", "content": "probe"}], sampling_controls=controls)
         self.assertEqual(payload["frequency_penalty"], 1.0)
         self.assertEqual(sampling_record_fields(controls)["frequency_penalty"], 1.0)
+
+    def test_failed_turn_records_finish_reason_and_dumps_the_message(self):
+        """Splash k2a answered turn 1 without a tool call: keep the reply to see why."""
+        reply = {"role": "assistant", "content": "", "reasoning_content": "thinking..."}
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "results" / "probe.jsonl"
+            argv = ["tool_loop.py", "--base-url", "u", "--model", "m", "--runtime", "r",
+                    "--runtime-revision", "v", "--model-revision", "w", "--arm", "a",
+                    "--session-id", "s1", "--output", str(out), "--turns", "4"]
+            with patch.object(sys, "argv", argv), \
+                    patch.object(tool_loop, "_chat_once",
+                                 return_value=(reply, {"completion_tokens": 512}, "length")):
+                tool_loop.main()
+            turn = json.loads(out.read_text().splitlines()[0])
+            self.assertFalse(turn["correct"])
+            self.assertEqual(turn["finish_reason"], "length")
+            self.assertEqual(turn["completion_tokens"], 512)
+            dump = json.loads((Path(tmp) / "logs" / "tool-loop" / "s1-turn1-fail.json").read_text())
+            self.assertEqual(dump["finish_reason"], "length")
+            self.assertEqual(dump["message"], reply)
 
     def test_build_tools_returns_fresh_stably_ordered_schemas(self):
         first = build_tools()

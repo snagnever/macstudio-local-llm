@@ -75,6 +75,16 @@ def test_k2_arms_are_the_swift_gguf_with_the_k1_flags():
     strip = lambda s: s.split("--revision")[1].split(" ", 2)[2]
     assert strip(k2) == strip(k1)
     assert "model_select: ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS" in show("k2a")
+    k2ab = server(show("k2ab"))
+    assert k2ab == k2a + " --kv-format bf16"
+
+
+def test_toolcall_probe_sessions_and_suffix_keep_earlier_files():
+    out = subprocess.run(["bash", str(HERE / "scripts" / "toolcall-probe.sh"), "k2a", "--sessions", "20",
+                          "--suffix", "x20", "--print"],
+                         capture_output=True, text=True, env=_env(), check=True).stdout
+    assert "seq 20" in out and "k2a-fp0-x20.jsonl" in out and "k2a-fp1-x20.jsonl" in out
+    assert "k2a-fp0.jsonl" not in out and "toolcall-x20" in out
 
 
 def test_r1z_is_the_r1_pack_with_the_n2_flags_on_26103():
