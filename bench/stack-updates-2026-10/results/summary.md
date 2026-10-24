@@ -9,12 +9,13 @@ Rig: Mac Studio M4 Max 128 GB. Referência: `w1` = Swift 1.5 MLX "4.7" (Dankpaws
 | 5 | `k1a` Flash-Next base UD-IQ4_XS, Splash 1.4.0 | 0.85 · 0.78 · — | — | — | passa na velocidade; pesos diferentes do `w1` | [etapa5](etapa5-splash140.md) |
 | 6 | `r1` GSQ-RCO-Coder, oMLX 0.7.2 | 1.31 · 1.40 · — | 154 · 45 (`w1` 141 · 46) | 20/20 | não adotar: lento | [etapa6](etapa6-gsq-coder.md) |
 | 8 | `k2a` Swift 1.5 IQ4_XS, Splash 1.4.0 | **0.75 · 0.72 · 0.64** | 142 · 47 | **16/17** | não trocar ainda: falha nas tool calls | [etapa8](etapa8-splash-swift.md) |
+| 10 | `k2`, `k2a`, `k2ab` Swift 1.5 IQ4_XS, Splash 1.4.0 | — | — | **80/80** em cada braço (20/20 sessões) | tool calls passam; a falha do Task 8 foi o `max_tokens` do probe | [etapa10](etapa10-splash-toolcalls.md) |
 | 9 | `r1z` GSQ-RCO-Coder, mlx-serve 26.10.3 | 1.10 · 1.12 · — | 154 · 45 (pesos do `r1`) | 20/20 | não adotar: 10% mais lento | [etapa9](etapa9-gsq-coder-mlx-serve.md) |
 
 ## Recomendações
 
 1. **mlx-serve 26.10.3 no driver diário.** Ele empata com a 26.10.1 a 32K e 128K e é 7% mais rápido a 256K. Corrige a #912. Um harness que mande `frequency_penalty 1` (o Crush) recebe respostas finais degeneradas nas duas versões testadas da 26.10.3 (`w1z` 3/5 e `r1z` 5/5 sessões). Adotada em 2026-10-24: `tools/scripts/serve-flashnext-daily-driver.sh` usa a 26.10.3 por padrão.
-2. **Splash 1.4.0 com o Swift 1.5 GGUF é o próximo candidato a driver.** Ele é 25–36% mais rápido com a mesma qualidade, mas falhou em 1 de 5 sessões do probe de tool calls (turno 1 sem tool call). Antes de trocar, medir a taxa de falha com mais sessões, no `k2` e no `k2a`, e ler as respostas que vieram sem tool call. A origem do ganho e os custos estão em [`research/splash-speed-tradeoffs-20261024.md`](../../../research/splash-speed-tradeoffs-20261024.md).
+2. **Splash 1.4.0 com o Swift 1.5 GGUF é o próximo candidato a driver.** Ele é 25–36% mais rápido com a mesma qualidade. O Task 10 repetiu o probe de tool calls com 20 sessões: 80/80 turnos com penalidade 0 no `k2`, no `k2a` e no `k2ab`. A falha do Task 8 veio do `max_tokens` 512 do probe (`finish_reason: length` no turno 1). A campanha `bench/splash-longctx-2026-10` mede o Splash até 1M antes da troca. A origem do ganho e os custos estão em [`research/splash-speed-tradeoffs-20261024.md`](../../../research/splash-speed-tradeoffs-20261024.md).
 3. **GSQ-RCO-Coder** só vale num perfil que precise de memória livre (68–78 GB no mlx-serve), não como driver.
 
 ## Desvios do plano
@@ -23,5 +24,5 @@ Rig: Mac Studio M4 Max 128 GB. Referência: `w1` = Swift 1.5 MLX "4.7" (Dankpaws
 - O probe de tool calls passou de 1 sessão de 20 turnos para 5 sessões de 4 turnos. A versão de 20 turnos falha no turno 5 também na 26.10.1.
 - Task 4: só a banda de 32K rodou. Swap e lentidão já decidiam o veredito.
 - Task 5: o Splash 1.4.0 não carrega o GGUF dividido do ggml-org (shards na raiz). O teste usou o UD-IQ4_XS da Unsloth.
-- Tasks 8 e 9 foram adicionados durante a campanha, a pedido do usuário.
+- Tasks 8, 9 e 10 foram adicionados durante a campanha, a pedido do usuário.
 - O driver diário ficou parado durante as filas e voltou com o mesmo comando (`results/daily-driver-cmd.txt`).
