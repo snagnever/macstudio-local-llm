@@ -23,6 +23,8 @@ EFFORT="${AB_EFFORT:-xhigh}"
 PROFILES="${AB_PROFILES:-t1 t0}"
 SUITES="${AB_SUITES:-humaneval gpqa livecodebench jdhodges veerman if}"
 RESULTS="${AB_RESULTS:-$HERE/results}"
+# A fila do rig roda sob nohup com PATH=/usr/bin:/bin: o uv do Homebrew fica fora do PATH.
+UV="${AB_UV:-$(command -v uv || echo /opt/homebrew/bin/uv)}"
 # 65K tokens a ~80 tok/s passam de 800 s: o timeout default (1800 s) fica curto com fila.
 export BENCH_TIMEOUT="${BENCH_TIMEOUT:-3600}" TOOLBENCH_MAX_TOKENS="${TOOLBENCH_MAX_TOKENS:-32768}"
 # Só aceita um run gravado depois do marcador: um runner que morre antes de gravar não pode deixar o run de
@@ -54,7 +56,7 @@ for p in $PROFILES; do
           ${AB_ONLY:+--only "$AB_ONLY"}) || rc=$?
         copy_run "${s}_*.jsonl" "$OUT/$s.jsonl" || rc=1 ;;
       jdhodges|veerman)
-        (cd "$BENCH" && uv run --no-project --with openai --with pyyaml python scripts/tool_call_bench.py \
+        (cd "$BENCH" && "$UV" run --no-project --with openai --with pyyaml python scripts/tool_call_bench.py \
           --model "$MODEL_ID" --suite "$s" --base-url "$BASE_URL" --run-prefix "toolcall_ab_${p}_$AB_ARM" \
           --no-cooldown --force --reasoning-effort "$EFFORT" $FLAGS) || rc=$?
         copy_run "toolcall_ab_${p}_${AB_ARM}_${s}_*.jsonl" "$OUT/$s.jsonl" || rc=1 ;;
