@@ -13,8 +13,8 @@ Rig: Mac Studio M4 Max 128 GB. Referência: `w1` = Swift 1.5 MLX "4.7" (Dankpaws
 
 ## Recomendações
 
-1. **mlx-serve 26.10.3 no driver diário.** Ele empata com a 26.10.1 a 32K e 128K e é 7% mais rápido a 256K. Corrige a #912. Um harness que mande `frequency_penalty 1` (o Crush) recebe respostas finais degeneradas nas duas versões testadas da 26.10.3 (`w1z` 3/5 e `r1z` 5/5 sessões). A troca de `FLASHNEXT_BIN` em `tools/scripts/serve-flashnext-daily-driver.sh` fica com o usuário.
-2. **Splash 1.4.0 com o Swift 1.5 GGUF é o próximo candidato a driver.** Ele é 25–36% mais rápido com a mesma qualidade, mas falhou em 1 de 5 sessões do probe de tool calls (turno 1 sem tool call). Antes de trocar, medir a taxa de falha com mais sessões, no `k2` e no `k2a`, e ler as respostas que vieram sem tool call.
+1. **mlx-serve 26.10.3 no driver diário.** Ele empata com a 26.10.1 a 32K e 128K e é 7% mais rápido a 256K. Corrige a #912. Um harness que mande `frequency_penalty 1` (o Crush) recebe respostas finais degeneradas nas duas versões testadas da 26.10.3 (`w1z` 3/5 e `r1z` 5/5 sessões). Adotada em 2026-10-24: `tools/scripts/serve-flashnext-daily-driver.sh` usa a 26.10.3 por padrão.
+2. **Splash 1.4.0 com o Swift 1.5 GGUF é o próximo candidato a driver.** Ele é 25–36% mais rápido com a mesma qualidade, mas falhou em 1 de 5 sessões do probe de tool calls (turno 1 sem tool call). Antes de trocar, medir a taxa de falha com mais sessões, no `k2` e no `k2a`, e ler as respostas que vieram sem tool call. A origem do ganho e os custos estão em [`research/splash-speed-tradeoffs-20261024.md`](../../../research/splash-speed-tradeoffs-20261024.md).
 3. **GSQ-RCO-Coder** só vale num perfil que precise de memória livre (68–78 GB no mlx-serve), não como driver.
 
 ## Desvios do plano
