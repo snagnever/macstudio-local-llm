@@ -70,7 +70,7 @@ As restrições de [bench/flashnext-next-steps-2026-10/plan.md](../flashnext-nex
 
 1. **Prompt maior que o contexto.** A 1000000, o `cache_probe` e o `longctx_probe` precisam deixar espaço para a saída. Teste: o prompt gerado tem ≤ `ctx − 8192` tokens.
 2. **Splash recusa o boot a 512K ou 1M** por falta de memória. A fila registra a recusa, com a mensagem do plano de memória, e segue para o próximo braço. Teste: `--print` do braço `k2as` mostra `--state-format bf16`.
-3. **Splash recusa o GGUF do GSQ-RCO-Coder.** O Task 5 assume no mlx-serve. Teste: o smoke do Task 0 grava `results/etapa0-k3-load.md` com "carrega" ou "recusa".
+3. **Splash recusa o GGUF do GSQ-RCO-Coder.** A 1.4.0 recusa com `GGUF metadata does not match the target: expert_count 256 (expected 512)` ([#527](https://github.com/incoai/splash/issues/527)). A correção ([#561](https://github.com/incoai/splash/pull/561)) entrou no `main` em 23/10 e ainda não saiu numa release. O Task 5 assume no mlx-serve, e o Task 5b roda o `k3` numa release nova, se ela sair. Teste: o smoke do Task 0 grava `results/etapa0-k3-load.md` com "carrega" ou "recusa" e a mensagem do Splash.
 4. **Laptop dorme ou o Docker para** no meio do Terminal-Bench. O runner usa `caffeinate -i`, e um job parado volta com `harbor job resume`. Teste: `--print` do runner mostra `caffeinate -i harbor run`.
 5. **Tool call cortada pelo `max_tokens`.** O Task 10 da stack-updates mostrou falhas com `finish_reason: length` a 512 tokens. O probe ganha `--max-tokens`. Teste: o payload carrega o valor passado.
 
@@ -115,8 +115,10 @@ As restrições de [bench/flashnext-next-steps-2026-10/plan.md](../flashnext-nex
 | `k2a` | ukisai Swift 1.5 `IQ4_XS` `0142554` | Splash 1.4.0, `--verify-rows auto` | 8585 |
 | `k2ab` | igual ao `k2a` | + `--kv-format bf16` (já existe) | 8585 |
 | `k2as` | igual ao `k2a` | + `--state-format bf16` | 8585 |
-| `k3`, `k3a`, `k3ab` | ISTA `Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF:IQ1_M` `bba8885` (58.4 GB, 256 de 512 experts) | como `k2`, `k2a`, `k2ab` | 8585 |
+| `k3`, `k3a`, `k3ab` | ISTA `Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF:IQ1_M` `bba8885` (58.4 GB, 256 de 512 experts) | como `k2`, `k2a`, `k2ab`; a 1.4.0 recusa (#527), então eles só rodam no Task 5b | 8585 |
 | `r1zy` | mbrown-uno GSQ-RCO-Coder-MLX `50fa68c` | o `r1z` + YaRN + KV 4-bit (só no Task 5) | 11234 |
+
+O draft DFlash2 que o Splash escolhe é o `incoai/Qwen3.8-Flash-Next-DFlash2` `a22a174`, que já está no cache do rig. Com `--offline`, ele não muda durante a campanha.
 
 Os dados já medidos entram sem nova run:
 - `k1a` e `k2a` a 32K e 128K (Tasks 5 e 8 da stack-updates);
@@ -139,7 +141,10 @@ Os dados já medidos entram sem nova run:
 
 - [ ] **Step 1: Estado do rig e versões.** Gravar tudo em `results/etapa0-preflight.md`, com uma tabela "componente | versão | onde".
   - **Rig:** rodar `df -g /` e `idle-gate.sh --minutes 0`.
-  - **Runtimes.** Conferir as releases de `incoai/splash` e `ddalcu/mlx-serve` com `gh api repos/<repo>/releases`. Em 24/10, as últimas eram Splash 1.4.0 (20/10) e mlx-serve 26.10.3 (22/10), as mesmas que a campanha fixa. Se sair uma versão nova antes do Task 1, registrar e não instalar. Ela fica para outra campanha, porque os dados de 32K e 128K da stack-updates usam estas versões.
+  - **Runtimes.** Conferir as releases de `incoai/splash` e `ddalcu/mlx-serve` com `gh api repos/<repo>/releases`.
+    - Em 24/10, as últimas eram Splash 1.4.0 (20/10) e mlx-serve 26.10.3 (22/10), as mesmas que a campanha fixa.
+    - O `main` do Splash tinha 29 commits depois da 1.4.0. A única mudança de runtime que afeta a campanha é a #561 (GGUF com menos experts). As #562 e #564 mexem só nas ferramentas de release.
+    - Uma versão nova não substitui a 1.4.0 nos braços `k1*` e `k2*`, porque os dados de 32K e 128K da stack-updates usam a 1.4.0. Ela entra só no Task 5b.
   - **Harbor no laptop.**
     - Fixar a versão: `uv tool install --force harbor==0.24.0` (o laptop tinha a 0.18.0). Os flags que o runner usa continuam na 0.24.0: `--agent-timeout-multiplier`, `--environment-build-timeout-multiplier`, `-n`, `--ak`, `--jobs-dir` e `--job-name`.
     - Registrar a versão do agente `terminus-2` que vem com o harbor. Os runs antigos do repo usaram a 0.8.0, então um número novo não compara 1:1 com eles.
@@ -174,7 +179,7 @@ Os dados já medidos entram sem nova run:
     - Usa os kwargs do perfil t1 do `run-tbench-flashnext.sh`, com `--job-name tb21-<arm>` e `--jobs-dir bench/splash-longctx-2026-10/logs/tbench-runs`.
 - [ ] **Step 6: Rodar os testes e ver que passam.** As suítes de `bench/stack-updates-2026-10/tests` e `bench/qwen38-flashnext-daily-driver-2026-09/tests` também passam.
 - [ ] **Step 7: Smoke no rig.** Uma fila curta com o driver parado:
-  1. `k3a` a 32768, só o cenário cold. Gravar em `results/etapa0-k3-load.md` se o Splash carrega o GGUF (o Splash diz que aceita GGUF com 256 experts);
+  1. `k3a` a 32768, só o cenário cold. O esperado na 1.4.0 é a recusa da #527. Gravar a mensagem em `results/etapa0-k3-load.md`. Se o GGUF carregar, os braços `k3*` seguem nos Tasks 1 a 4, e o Task 5 não roda;
   2. `k2a` a 1000000, só o boot. Copiar do boot log o plano de memória do Splash (`/status`, contexto aceito, memória reservada);
   3. o `longctx_probe` contra o `k2a` a 32768, para conferir o formato da saída.
 - [ ] **Step 8: Commit.** `bench(splash-longctx): Task 0 — arms, long-context probe, remote Terminal-Bench runner`.
@@ -234,11 +239,20 @@ O `if` é a sonda de instruction following do `if_probe.py`: 20 prompts no estil
   - Gravar `results/etapa4-quality.md`. Ele fecha a regra "aceitável" de 512K e de 1M.
 - [ ] **Step 3: Commit.**
 
-### Task 5: GSQ-RCO-Coder no mlx-serve (só se o Splash recusou o `k3` no Task 0)
+### Task 5: GSQ-RCO-Coder no mlx-serve (se o Splash recusou o `k3` no Task 0)
 
 - [ ] **Step 1: Bandas.** Rodar o `r1z` a 8K e 256K (3 reps) e o `r1zy` a 524288 (3 reps) e a 1000000 (1 rep, YaRN fator 3.815, KV 4-bit).
 - [ ] **Step 2: Qualidade.** Rodar a bateria do `r1z` a 262144 e o longctx a 512K e a 1M. A bateria de 131072 do Task 6 da stack-updates continua valendo como referência.
 - [ ] **Step 3: Gravar `results/etapa5-gsq-mlx-serve.md` e commitar.** Se o Splash carregou o `k3`, gravar só uma linha dizendo que o Task 5 não rodou e por quê.
+
+### Task 5b: GSQ-RCO-Coder numa release nova do Splash (condicional)
+
+Roda só se, antes do Task 6, o Splash publicar uma release que contenha a #561. Conferir com `gh api repos/incoai/splash/releases` e com as notas da release.
+
+- [ ] **Step 1: Instalar** em `~/.local/opt/qwen38/splash-v<versão>/` com o `install-runtime.sh`, que confere o digest. A 1.4.0 continua instalada e serve os outros braços.
+- [ ] **Step 2: Controle de versão.** Rodar o `k2a` a 32768 na versão nova, com 1 rep. Se o `T_turno` ficar fora de ±5% do `k2a` na 1.4.0, registrar a diferença: os números do `k3` não comparam 1:1 com os do `k2a`.
+- [ ] **Step 3: Braços `k3n`, `k3na`, `k3nab`** (o `k3` na versão nova). Rodar os Tasks 1 a 4 com eles: bandas, 512K, 1M e qualidade. Gravar `results/etapa5b-gsq-splash.md`.
+- [ ] **Step 4: Commit.** No Task 6, o braço GSQ passa a ser o `k3na`, em vez do `r1z`.
 
 ### Task 6: Terminal-Bench 2.1, do MacBook contra o rig
 
