@@ -137,11 +137,18 @@ Os dados já medidos entram sem nova run:
   - `run-tbench-remote.sh <arm> <base-url> [--print]`, que roda no laptop;
   - `tool_loop.py --max-tokens N`.
 
-- [ ] **Step 1: Estado do rig.**
-  - Rodar `df -g /`, `idle-gate.sh --minutes 0` e `harbor --version` no laptop.
-  - Atualizar o harbor no laptop para 0.24.0: `uv tool upgrade harbor`.
-  - Confirmar que `harbor dataset list` mostra `terminal-bench/terminal-bench-2-1`.
-  - Gravar tudo em `results/etapa0-preflight.md`.
+- [ ] **Step 1: Estado do rig e versões.** Gravar tudo em `results/etapa0-preflight.md`, com uma tabela "componente | versão | onde".
+  - **Rig:** rodar `df -g /` e `idle-gate.sh --minutes 0`.
+  - **Runtimes.** Conferir as releases de `incoai/splash` e `ddalcu/mlx-serve` com `gh api repos/<repo>/releases`. Em 24/10, as últimas eram Splash 1.4.0 (20/10) e mlx-serve 26.10.3 (22/10), as mesmas que a campanha fixa. Se sair uma versão nova antes do Task 1, registrar e não instalar. Ela fica para outra campanha, porque os dados de 32K e 128K da stack-updates usam estas versões.
+  - **Harbor no laptop.**
+    - Fixar a versão: `uv tool install --force harbor==0.24.0` (o laptop tinha a 0.18.0). Os flags que o runner usa continuam na 0.24.0: `--agent-timeout-multiplier`, `--environment-build-timeout-multiplier`, `-n`, `--ak`, `--jobs-dir` e `--job-name`.
+    - Registrar a versão do agente `terminus-2` que vem com o harbor. Os runs antigos do repo usaram a 0.8.0, então um número novo não compara 1:1 com eles.
+  - **Terminal-Bench 2.1 no laptop.**
+    - Confirmar que `harbor dataset list` mostra `terminal-bench/terminal-bench-2-1`.
+    - Baixar as tarefas antes com `harbor download terminal-bench/terminal-bench-2-1`.
+    - Conferir se o Docker Desktop responde (`docker info`), se há ≥ 100 GB livres para as imagens amd64 (o laptop tinha 1.3 TB) e se o Docker tem ≥ 16 GB de RAM.
+  - **Bateria no rig.** O `ab-battery.sh` roda com `uv run --with openai --with pyyaml`, sem versão fixa. Registrar as versões que o `uv` resolve (`uv run --no-project --with openai --with pyyaml python -c 'import openai, yaml; print(openai.__version__, yaml.__version__)'`) e não mudar mais durante a campanha. Os datasets (HumanEval 164, GPQA-Diamond 50, LiveCodeBench v6 50, IF 20, tool calls A 40 e B 12) são os da swift15, sem atualização.
+  - **Renderização:** confirmar que o Chrome existe no laptop, porque o `render_m4max_guide.py --png` usa o Chrome headless.
 - [ ] **Step 2: Download do GSQ-RCO-Coder GGUF no rig.** `fetch_pack.py` com `ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF`, revisão `bba88856f8c3c0c9e40e45f82d05e228b814ac43`, pasta `IQ1_M/`. Não baixar o `mmproj` (`--language-only`). São 58.4 GB.
 - [ ] **Step 3: Testes que falham** em `tests/test_campaign.py`:
   - `test_k3_arms_are_the_ista_gguf_with_the_k2_flags`: `--model ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF:IQ1_M`, `--revision bba88856...`, `k3` termina em `--verify-rows all`, `k3a` em `auto`, `k3ab` em `auto --kv-format bf16`;
@@ -150,7 +157,7 @@ Os dados já medidos entram sem nova run:
   - `test_splash_1m_band_uses_1000000`: `run-arm.sh k2a 1000000 --print` mostra `--max-context 1000000`;
   - `test_longctx_prompt_leaves_room_for_output`: para `context` 1000000, o prompt estimado tem ≤ 991808 tokens, e as respostas esperadas estão no haystack;
   - `test_longctx_is_deterministic`: o mesmo `seed` gera o mesmo haystack e as mesmas respostas;
-  - `test_tbench_runner_uses_21_and_caffeinate`: o `--print` contém `caffeinate -i harbor run`, `--dataset terminal-bench/terminal-bench-2-1`, `--agent terminus-2`, `-n 1` e `--agent-timeout-multiplier 1.0`;
+  - `test_tbench_runner_uses_21_and_caffeinate`: o `--print` contém `caffeinate -i harbor run`, `--dataset terminal-bench/terminal-bench-2-1`, `--agent terminus-2`, `-n 1`, `--agent-timeout-multiplier 1.0` e `--environment-build-timeout-multiplier 3.0` (o build amd64 sob emulação é lento);
   - `test_tool_loop_max_tokens_reaches_payload` (em `test_tool_loop.py`): `--max-tokens 2048` vira `payload["max_tokens"] == 2048`, e o default continua 512.
 - [ ] **Step 4: Rodar os testes e ver que falham.** `uvx pytest -q bench/splash-longctx-2026-10/tests`.
 - [ ] **Step 5: Implementar.**
