@@ -6,6 +6,7 @@ from pathlib import Path
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
+import fixtures as fixtures_module
 from fixtures import (
     build_fixture,
     build_suffix,
@@ -61,6 +62,23 @@ class FixtureTests(unittest.TestCase):
         )
         for needle in fixture.needles:
             self.assertIn(needle, fixture.text)
+
+    def test_fixture_uses_few_encodes_and_matches_the_linear_scan(self):
+        calls = []
+
+        def encode(text):
+            calls.append(len(text))
+            return text.split()
+
+        fixture = build_fixture(16384, encode)
+
+        # The linear scan of the original loop: the first record count that reaches the target.
+        records = []
+        while len("\n".join(records).split()) < 16384:
+            records.append(fixtures_module._record(len(records)))
+        self.assertLessEqual(len(calls), 40)
+        self.assertEqual(fixture.text.count("\n") + 1, len(records))
+        self.assertGreaterEqual(len(fixture.token_ids), 16384)
 
     def test_middle_mutation_changes_requested_span_after_stable_prefix(self):
         original = " ".join(f"w{i}" for i in range(1000))
