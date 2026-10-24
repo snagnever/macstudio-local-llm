@@ -20,9 +20,9 @@ from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-CHARS_PER_TOKEN = 3.6
+CHARS_PER_TOKEN = 3.6  # only for the tests; a run measures the ratio on the server with calibrate()
 OUTPUT_ROOM = 8192
-FILL = 0.9
+FILL = 0.97
 ACCOUNTS = ("ORION", "VEGA", "LYRA", "ALTAIR", "DENEB", "RIGEL", "SIRIUS", "CAPELLA", "POLLUX", "CASTOR",
             "SPICA", "ANTARES", "ARCTURUS", "BETELGEUSE", "ALDEBARAN", "REGULUS", "FOMALHAUT", "MIRA",
             "ACHERNAR", "CANOPUS", "PROCYON", "HADAR", "MIMOSA", "ATRIA", "SHAULA", "ELNATH", "MIRFAK",
@@ -33,8 +33,8 @@ INSTRUCTION = ("\n\nAnswer from the ledger records in the log above. "
 SAMPLING = {"temperature": 1.0, "top_p": 0.95, "top_k": 20}
 
 
-def estimate_tokens(text: str) -> int:
-    return math.ceil(len(text) / CHARS_PER_TOKEN)
+def estimate_tokens(text: str, chars_per_token: float = CHARS_PER_TOKEN) -> int:
+    return math.ceil(len(text) / chars_per_token)
 
 
 def parse_records(text: str) -> list[tuple[str, int, str]]:
@@ -72,11 +72,12 @@ def _records_and_questions(rng: random.Random) -> tuple[list[tuple[str, int, str
     return records, questions
 
 
-def build_case(context: int, seed: int = 0, fill: float = FILL) -> tuple[str, list[dict]]:
+def build_case(context: int, seed: int = 0, fill: float = FILL,
+               chars_per_token: float = CHARS_PER_TOKEN) -> tuple[str, list[dict]]:
     rng = random.Random(seed)
     records, questions = _records_and_questions(rng)
-    target_tokens = min(int(fill * context), context - OUTPUT_ROOM - 512)
-    target_chars = int(target_tokens * CHARS_PER_TOKEN)
+    target_tokens = int(fill * (context - OUTPUT_ROOM - 512))
+    target_chars = int(target_tokens * chars_per_token)
     header = "Service log of the billing cluster. Ledger records are mixed with routine lines.\n\n"
     depths = [0.05 + 0.9 * i / (len(records) - 1) for i in range(len(records))]
     lines, size, placed, t = [], len(header), 0, 0
@@ -107,6 +108,14 @@ def score(text: str, answer: int | str) -> bool:
     return re.search(rf"\b{re.escape(answer)}\b", tail, re.IGNORECASE) is not None
 
 
+def calibrate(base_url: str, model: str, chat=None, timeout: int = 600) -> float:
+    """Characters per token of the haystack text on this server, from usage.prompt_tokens of a 1-token request."""
+    sample, _ = build_case(16384, seed=99, fill=1.0, chars_per_token=4.0)
+    body = (chat or _chat)(base_url, {"model": model, "max_tokens": 1,
+                                      "messages": [{"role": "user", "content": sample}]}, timeout)
+    return len(sample) / int(body["usage"]["prompt_tokens"])
+
+
 def _chat(base_url: str, payload: dict, timeout: int) -> dict:
     req = Request(f"{base_url.rstrip('/')}/chat/completions", data=json.dumps(payload).encode(),
                   headers={"Content-Type": "application/json"}, method="POST")
@@ -129,7 +138,8 @@ def main(argv: list[str] | None = None) -> int:
     args.output.parent.mkdir(parents=True, exist_ok=True)
 
     fill = FILL
-    prefix, questions = build_case(args.context, args.seed, fill)
+    cpt = calibrate(args.base_url, args.model, timeout=args.timeout)
+    prefix, questions = build_case(args.context, args.seed, fill, cpt)
     results = []
     with args.output.open("a", encoding="utf-8") as out:
         for q in questions:
@@ -146,7 +156,7 @@ def main(argv: list[str] | None = None) -> int:
                     if e.code != 400 or q is not questions[0]:
                         break
                     fill *= 0.9
-                    prefix, questions = build_case(args.context, args.seed, fill)
+                    prefix, questions = build_case(args.context, args.seed, fill, cpt)
                     q = questions[0]
                     payload["messages"][0]["content"] = prefix + q["question"] + INSTRUCTION
                 except Exception as e:  # noqa: BLE001 - the record keeps the error
@@ -157,7 +167,7 @@ def main(argv: list[str] | None = None) -> int:
             usage = body.get("usage") or {}
             ok = bool(body) and score(content, q["answer"])
             rec = {"record_type": "longctx", "arm": args.arm, "context": args.context, "seed": args.seed,
-                   "fill": round(fill, 4), "id": q["id"], "kind": q["kind"], "answer": q["answer"], "correct": ok,
+                   "fill": round(fill, 4), "chars_per_token": round(cpt, 3), "id": q["id"], "kind": q["kind"], "answer": q["answer"], "correct": ok,
                    "prompt_tokens": usage.get("prompt_tokens"),
                    "cached_tokens": (usage.get("prompt_tokens_details") or {}).get("cached_tokens"),
                    "completion_tokens": usage.get("completion_tokens"),

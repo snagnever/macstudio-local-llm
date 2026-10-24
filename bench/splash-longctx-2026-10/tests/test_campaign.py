@@ -161,3 +161,26 @@ def test_run_tasks_t5_gsq_on_mlx_serve():
     assert "r1z:8192:3:lc r1z:262144:3:lc" in out
     assert "r1zy:524288:3:lc:2.0 r1zy:1000000:1:lc:3.815" in out
     assert "run-battery.sh r1z q262 --ctx 262144" in out
+
+
+def test_longctx_fill_shrinks_small_contexts():
+    lc = _longctx()
+    assert len(lc.build_case(32768, fill=0.8)[0]) < 0.9 * len(lc.build_case(32768, fill=0.97)[0])
+
+
+def test_longctx_respects_measured_ratio():
+    lc = _longctx()
+    prefix, questions = lc.build_case(32768, chars_per_token=2.4)
+    assert len(prefix) / 2.4 <= 32768 - 8192
+
+
+def test_longctx_calibrates_chars_per_token_from_usage():
+    lc = _longctx()
+    seen = {}
+
+    def fake_chat(base_url, payload, timeout):
+        seen["max_tokens"] = payload["max_tokens"]
+        return {"usage": {"prompt_tokens": len(payload["messages"][0]["content"]) // 2}}
+
+    assert abs(lc.calibrate("u", "m", chat=fake_chat) - 2.0) < 0.05
+    assert seen["max_tokens"] == 1
