@@ -208,7 +208,9 @@ Os dados já medidos entram sem nova run:
 
 ### Task 4: Qualidade leve do Splash com o Swift (e do GSQ)
 
-Cada linha sobe o servidor com o `--max-context` da coluna. A bateria usa `run-battery.sh --suites "humaneval gpqa livecodebench jdhodges veerman"` (perfil t1, xhigh).
+Cada linha sobe o servidor com o `--max-context` da coluna. A bateria usa `run-battery.sh --suites "humaneval gpqa livecodebench if jdhodges veerman"` (perfil t1, xhigh).
+
+O `if` é a sonda de instruction following do `if_probe.py`: 20 prompts no estilo IFEval, verificados por código. Ela custa minutos e tem pouca resolução: o `w1` fez 20/20 e o `n2` 19/20 na [swift15](../swift15-flashnext-2026-10/results/summary.md). Mesmo assim, ela pega a regressão que mais importa aqui. Com o YaRN estático, o servidor de 512K e o de 1M também mudam as respostas a prompts curtos, e um erro de formato aparece nessa sonda antes de aparecer em código.
 
 | braço | 262144 | 524288 | 1000000 |
 |---|---|---|---|
