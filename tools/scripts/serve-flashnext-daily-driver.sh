@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# Start the Qwen3.8-Flash-Next daily driver: Swift 1.5 (Dankpaws MLX-4.7bpw) on mlx-serve 26.10.1.
+# Start the Qwen3.8-Flash-Next daily driver: Swift 1.5 (Dankpaws MLX-4.7bpw) on mlx-serve 26.10.3.
 # Promoted by bench/swift15-flashnext-2026-10 (2026-10-11): same quality as the iQ-MLX-4.7bpw pack, 2-3x less
 # thinking time. Rollback: FLASHNEXT_MODEL=<cache>/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c...
+# Runtime 26.10.3 since 2026-10-24 (bench/stack-updates-2026-10, Task 1): T_turno 1.00/1.02/0.93 x 26.10.1 at
+# 32K/128K/256K, tool calls 20/20. It applies frequency_penalty (#912): clients that send 1 get degenerate
+# final answers, so send 0. Rollback: FLASHNEXT_BIN=$HOME/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve
 # Profiles (the configs measured in bench/qwen38-flashnext-daily-driver-2026-09):
 #   daily  (default) 262144 tokens (native maximum), unquantized KV, MTP, prefix cache 16GB RAM / 100GB disk / 64 entries
 #                    T_turno 7.9 s at 32K, 8.6 s at 128K (bench/swift15-flashnext-2026-10); 11.1 s at 256K,
@@ -29,7 +32,7 @@ for arg in "$@"; do
   esac
 done
 
-BIN="${FLASHNEXT_BIN:-$HOME/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve}"
+BIN="${FLASHNEXT_BIN:-$HOME/.local/opt/qwen38/mlx-serve-v26.10.3/mlx-serve}"
 MODEL="${FLASHNEXT_MODEL:-$HOME/.cache/local-llms/qwen3.8-prefix-cache/Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0}"
 HOST="${FLASHNEXT_HOST:-0.0.0.0}"
 PORT="${FLASHNEXT_PORT:-11234}"

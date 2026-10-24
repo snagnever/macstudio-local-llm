@@ -1,0 +1,1 @@
+/Users/vitor/.local/opt/qwen38/mlx-serve-v26.10.1/mlx-serve --model /Users/vitor/.cache/local-llms/qwen3.8-prefix-cache/Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0 --serve --host 0.0.0.0 --port 11234 --metrics --mtp --ssm-checkpoint-max 16 --prefix-cache-mem 16GB --prefix-cache-disk 100GB --prefix-cache-entries 64 --ctx-size 262144

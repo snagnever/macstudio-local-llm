@@ -19,7 +19,7 @@
 #   flashnext-concurrency-2026-10: w1c1..w1c2m4q8 = w1 with --max-concurrent N and N parallel probe streams
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1c1|w1c1a|w1c1x2|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8|w1c2ap3|w1c2ap5|w1c3a> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1c1|w1c1a|w1c1x2|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8|w1c2ap3|w1c2ap5|w1c3a|w1z|n2z|t6z|k1|k1a|k2|k2a|k2ab|r1|r1z> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
 # A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
@@ -75,6 +75,10 @@ OMLX_0712="$OPT/omlx-v0.7.1.dev2"
 LLAMA_B11569="$OPT/llama-b11569/llama-server"
 # Flash-Next GGUF arms: b11600+ stops pinning the lazy per-layer-embedding tensor in the GPU buffer (#30405).
 LLAMA_B11609="$OPT/llama-b11609/llama-server"
+# Campaign stack-updates-2026-10: mlx-serve 26.10.3 (#912 frequency_penalty fix), oMLX 0.7.2, Splash 1.4.0.
+MLXSERVE_26103="$OPT/mlx-serve-v26.10.3/mlx-serve"
+OMLX_072="$OPT/omlx-v0.7.2"
+SPLASH_140="$OPT/splash-v1.4.0/bin/splash"
 pack_dir() {
   local m=("$MODEL_ROOT/$1"*)
   if [[ -e "${m[0]}" ]]; then echo "${m[0]}"; else echo "$MODEL_ROOT/$1-MISSING"; fi
@@ -412,6 +416,52 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       PROBE_PY="$OMLX_0712/bin/python"
       export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_OMLX_BIN="$OMLX_0712/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.1.dev2 ;;
+  w1z|n2z|t6z|r1z)
+      # stack-updates-2026-10 on mlx-serve 26.10.3 with the w1/n2 flags: w1z = Swift 1.5, n2z = iQ 4.7bpw,
+      # t6z = twyx iQ-MLX-6.6bpw 884894d (same iQ layout as n2), r1z = the r1 pack (GSQ-RCO-Coder, oMLX layout,
+      # which mlx-serve loads natively; 26.10.3 reads its 8-bit g32 n-gram table, #936).
+      LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.3
+      PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""
+      case "$CAND" in
+        w1z) MODEL_DIR="$SWIFTDIR"; MODEL_REV=13839b7191e0973ff9fea58232267c395b76c6c0 ;;
+        n2z) MODEL_DIR="$IQDIR"; MODEL_REV=dafff5c3d8168c9d13275661153911096499a80a ;;
+        t6z) MODEL_DIR="$(pack_dir twyx-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-6.6bpw-884894d)"; MODEL_REV="${MODEL_DIR##*-}" ;;
+        r1z) MODEL_DIR="$(pack_dir mbrown-uno-Qwen3.8-Flash-Next-GSQ-RCO-Coder-MLX-50fa68c)"; MODEL_REV="${MODEL_DIR##*-}" ;;
+      esac
+      export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26103" MLX_SERVE_EXPECTED_VERSION=26.10.3
+      export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
+      unset QWEN38_MLX_PLE_GPU QWEN38_MLX_PREFIX_CACHE_MEM QWEN38_MLX_KV_QUANT QWEN38_MLX_CONFIG_OVERRIDES QWEN38_MLX_DRAFTER QWEN38_MLX_DRAFT_BLOCK_SIZE QWEN38_MLX_PREFIX_CACHE_DISK QWEN38_MLX_PREFIX_CACHE_ENTRIES ;;
+  k1|k1a|k2|k2a|k2ab)
+      # stack-updates-2026-10: Splash 1.4.0 serving a Flash-Next GGUF with the DFlash2 draft Splash selects.
+      # k1/k1a = unsloth UD-IQ4_XS at 766911a (Flash-Next base); k2/k2a = UkisAI Swift 1.5 IQ4_XS at 0142554 (the
+      # w1 weights in GGUF, gated repo). No "a" = --verify-rows all (reproducible), "a" = auto (the 1.4.0 default).
+      # Splash takes only a Hub ID and loads a split GGUF only from a VARIANT/ folder, so the ggml-org IQ4_NL (split
+      # at the repo root) does not load. MODEL_DIR is the HF cache entry. k2ab = k2a with --kv-format bf16 (the
+      # Splash default is int8 KV; w1 runs unquantized KV), for the tool-call probe of the Task 8 failures.
+      LAUNCHER="$HARNESS/run-splash.sh"; ARM=KF; PORT=8585; RUNTIME=splash
+      case "$CAND" in
+        k1*) HUB=unsloth/Qwen3.8-Flash-Next-GGUF; VARIANT=UD-IQ4_XS; MODEL_REV=766911a6b7369840a91dbcd95f9f997acaab6cd6 ;;
+        k2*) HUB=ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF; VARIANT=IQ4_XS; MODEL_REV=0142554c963a8653912c0c8283f05f13f63653f3 ;;
+      esac
+      MODEL_DIR="$HOME/.cache/huggingface/hub/models--${HUB//\//--}"
+      PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=splash; METRICS=""
+      MODEL_ID_PREF="$HUB:$VARIANT"
+      if [[ "$CAND" == *a || "$CAND" == *ab ]]; then VR=auto; else VR=all; fi
+      KVF=""; [[ "$CAND" == *b ]] && KVF=" --kv-format bf16"
+      REV="v1.4.0-verify-$VR${KVF:+-kv-bf16}"
+      export SPLASH_MODEL="$HUB:$VARIANT" SPLASH_REVISION="$MODEL_REV" QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_SPLASH_BIN="$SPLASH_140" QWEN38_SPLASH_EXPECTED_VERSION=1.4.0 QWEN38_SPLASH_PORT=8585
+      export QWEN38_SPLASH_EXTRA_ARGS="--verify-rows $VR$KVF"
+      unset SPLASH_DRAFTER ;;
+  r1)
+      # stack-updates-2026-10: mbrown-uno GSQ-RCO-Coder-MLX 50fa68c (256 experts + Lightning MTP) on oMLX 0.7.2, arm FG.
+      LAUNCHER="$HARNESS/run-omlx.sh"; ARM=FG; PORT=8000; RUNTIME=omlx; REV=v0.7.2
+      MODEL_DIR="$(pack_dir mbrown-uno-Qwen3.8-Flash-Next-GSQ-RCO-Coder-MLX-50fa68c)"; MODEL_REV="${MODEL_DIR##*-}"
+      TOKENIZER="$MODEL_DIR"; METRICS=""; SERVER_NAME=omlx
+      PROBE_PY="$OMLX_072/bin/python"
+      export OMLX_MODEL_ROOT="$MODEL_ROOT" QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_OMLX_BIN="$OMLX_072/bin/omlx" QWEN38_OMLX_EXPECTED_VERSION=0.7.2 ;;
   g0|g1|g1m)
       # flashnext-next-steps-2026-10, test #8: ggml-org GGUF IQ4_NL + MTP head Q8_0. g0 = llama.cpp b11569 without
       # speculative decoding; g1 = --spec-type draft-mtp; g1m = mlx-serve 26.10.2 (embedded llama.cpp), same files.
