@@ -63,7 +63,7 @@ def test_r1_is_the_gsq_coder_on_omlx_072():
 def test_toolcall_probe_sends_both_penalties():
     out = subprocess.run(["bash", str(HERE / "scripts" / "toolcall-probe.sh"), "w1z", "--print"],
                          capture_output=True, text=True, env=_env(), check=True).stdout
-    assert "--frequency-penalty 0;" in out and "--frequency-penalty 1;" in out and "--turns 4 " in out
+    assert "--frequency-penalty 0 --max-tokens 512;" in out and "--frequency-penalty 1 --max-tokens 512;" in out and "--turns 4 " in out
     assert "w1z-fp0.jsonl" in out and "w1z-fp1.jsonl" in out and " 65536 " in out
 
 
@@ -91,3 +91,13 @@ def test_r1z_is_the_r1_pack_with_the_n2_flags_on_26103():
     r1z, n2 = server(show("r1z")), server(show("n2z"))
     assert NEW in r1z and "mbrown-uno-Qwen3.8-Flash-Next-GSQ-RCO-Coder-MLX-50fa68c" in r1z
     assert r1z.split("--serve", 1)[1] == n2.split("--serve", 1)[1]
+
+
+def test_toolcall_probe_passes_max_tokens():
+    probe = str(HERE / "scripts" / "toolcall-probe.sh")
+    out = subprocess.run(["bash", probe, "k2a", "--max-tokens", "2048", "--print"],
+                         capture_output=True, text=True, env=_env(), check=True).stdout
+    assert out.count("--max-tokens 2048") == 2
+    default = subprocess.run(["bash", probe, "k2a", "--print"], capture_output=True, text=True, env=_env(),
+                             check=True).stdout
+    assert "--max-tokens 512" in default

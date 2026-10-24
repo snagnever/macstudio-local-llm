@@ -171,6 +171,17 @@ class ToolLoopTests(unittest.TestCase):
         self.assertEqual(payload["frequency_penalty"], 1.0)
         self.assertEqual(sampling_record_fields(controls)["frequency_penalty"], 1.0)
 
+    def test_tool_loop_max_tokens_reaches_payload(self):
+        """Splash stack-updates Task 10: turn-1 failures were finish_reason length at 512 tokens."""
+        base = ["--base-url", "u", "--model", "m", "--runtime", "r", "--runtime-revision", "v",
+                "--model-revision", "w", "--arm", "a", "--session-id", "s", "--output", "o.jsonl"]
+        self.assertEqual(build_parser().parse_args(base).max_tokens, 512)
+        args = build_parser().parse_args(base + ["--max-tokens", "2048"])
+        payload = _tool_payload("m", [{"role": "user", "content": "probe"}],
+                                sampling_controls=sampling_controls_from_args(args), max_tokens=args.max_tokens)
+        self.assertEqual(payload["max_tokens"], 2048)
+        self.assertEqual(_tool_payload("m", [])["max_tokens"], 512)
+
     def test_failed_turn_records_finish_reason_and_dumps_the_message(self):
         """Splash k2a answered turn 1 without a tool call: keep the reply to see why."""
         reply = {"role": "assistant", "content": "", "reasoning_content": "thinking..."}
