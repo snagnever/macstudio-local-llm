@@ -115,3 +115,25 @@ def test_hold_arm_waits_for_the_flag_file():
     out = subprocess.run(["bash", str(HERE / "scripts" / "hold-arm.sh"), "k2a", "262144", "logs/tb21-k2a.done",
                           "--print"], capture_output=True, text=True, env=_env(), check=True).stdout
     assert "-hold.jsonl" in out and f"until [ -f {HERE}/logs/tb21-k2a.done ]" in out
+
+
+def tasks(*args, extra=None):
+    return subprocess.run(["bash", str(HERE / "scripts" / "run-tasks.sh"), *args, "--dry-run"],
+                          capture_output=True, text=True, env=_env(extra), check=True).stdout
+
+
+def test_run_tasks_t1_bands_and_k3_switch():
+    out = tasks("t1")
+    assert "k1a:8192:3:lc k2a:8192:3:lc w1z:8192:3:lc" in out
+    assert "k1a:262144:3:lc k2a:262144:3:lc" in out and "k3a" not in out
+    assert "k3a:8192:3:lc k3a:32768:3:lc k3a:131072:3:lc" in tasks("t1", extra={"K3": "1"})
+
+
+def test_run_tasks_t2_sweep_then_chosen_kv():
+    assert "k2a:524288:1:sw k2ab:524288:1:sw w1zq4:524288:1:sw:2.0" in tasks("t2a")
+    out = tasks("t2b", extra={"SW": "k2ab"})
+    assert "k2ab:524288:3:lc w1zq4:524288:3:lc:2.0 k1a:524288:3:lc" in out
+
+
+def test_run_tasks_t3_uses_1000000():
+    assert "k2a:1000000:1:lc k1a:1000000:1:lc" in tasks("t3", extra={"SW": "k2a"})
