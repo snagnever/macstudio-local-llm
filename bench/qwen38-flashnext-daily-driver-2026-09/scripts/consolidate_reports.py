@@ -408,6 +408,8 @@ def build(results_dir: Path) -> dict:
 REPO = CAMPAIGN.parents[1]
 ENGINE_RESULTS = REPO / "bench" / "engine-updates-2026-10" / "results"
 UPDATES_RESULTS = REPO / "bench" / "qwen38-flashnext-updates-2026-10" / "results"
+STACK_RESULTS = REPO / "bench" / "stack-updates-2026-10" / "results"
+LONGCTX_RESULTS = REPO / "bench" / "splash-longctx-2026-10" / "results"
 OUT_2026_10 = ENGINE_RESULTS / "reports-2026-10.json"
 FILE_RE_2026_10 = re.compile(r"^([a-z]\d+[a-z0-9]*)-(\d+)-t([\d.]+)(?:-(.+))?\.jsonl$")
 
@@ -421,6 +423,12 @@ MTPLX_CONFIG = {"m1": "prime 64", "m1p": "prime 64", "m1v": "vendor default",
                 "m1x": "memory limit max", "m1q": "KV q8",
                 "m1xq": "memory limit max (KV q8 ignored)", "m1s": "sparse QSA prefill"}
 MTPLX_PRIME1_TAGS = {"fn", "smoke", "gate"}
+# splash-longctx-2026-10: Swift 1.5 on mlx-serve 26.10.3 (w1), on Splash 1.4.0 (k2), the Flash-Next base on Splash
+# (k1) and the GSQ-RCO-Coder on mlx-serve (g1). Only the speed tags of each campaign count: smoke, hold, q-* (battery)
+# and toolcall runs are not probe bands.
+SERIES_ARMS_SPLASH = {"w1z": "w1", "w1zq4": "w1", "k2a": "k2", "k2ab": "k2", "k2as": "k2", "k1a": "k1",
+                      "r1z": "g1", "r1zy": "g1"}
+SPLASH_TAGS = {"stack-updates-2026-10": {"e1", "e5", "e8", "e9"}, "splash-longctx-2026-10": {"lc", "sw"}}
 
 CANDIDATES_2026_10 = [
     {"id": "n2", "name": "ddalcu iQ-MLX-4.7bpw · mlx-serve 26.10.1", "short": "n2 mlx-serve",
@@ -459,16 +467,52 @@ CANDIDATES_2026_10 = [
 ]
 
 
+# Candidate cards of the splash-longctx series. The notes are filled from the campaign results (Task 8).
+CANDIDATES_SPLASH = [
+    {"id": "w1", "name": "Swift 1.5 MLX 4.7 bpw · mlx-serve 26.10.3", "short": "w1 mlx-serve",
+     "runtime": "mlx-serve", "runtime_version": "26.10.3",
+     "model": "Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw", "revision": "13839b7",
+     "quant": "MLX 4.7 bpw", "bpw": 4.7, "disk_gb": None, "port": 11234,
+     "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
+     "spec": "native MTP", "ceiling": "512K with YaRN 2.0 + KV 4-bit", "state": "pass", "status": "daily driver",
+     "note": ""},
+    {"id": "k2", "name": "Swift 1.5 IQ4_XS GGUF · Splash 1.4.0", "short": "k2 Splash",
+     "runtime": "Splash", "runtime_version": "1.4.0",
+     "model": "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS", "revision": "0142554",
+     "quant": "IQ4_XS GGUF", "bpw": None, "disk_gb": 97.7, "port": 8585,
+     "cache": "prefix cache in RAM + SSD cache (32 GiB) · KV int8",
+     "spec": "DFlash2 draft, 8 rows per cycle", "ceiling": "1M with YaRN (KV past 860K tokens on the SSD cache)",
+     "state": "pass", "status": "measured", "note": ""},
+    {"id": "k1", "name": "Flash-Next UD-IQ4_XS GGUF · Splash 1.4.0", "short": "k1 Splash",
+     "runtime": "Splash", "runtime_version": "1.4.0",
+     "model": "unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ4_XS", "revision": "766911a",
+     "quant": "UD-IQ4_XS GGUF", "bpw": None, "disk_gb": 87.0, "port": 8585,
+     "cache": "prefix cache in RAM + SSD cache (32 GiB) · KV int8",
+     "spec": "DFlash2 draft, 8 rows per cycle", "ceiling": "1M with YaRN", "state": "control", "status": "measured",
+     "note": ""},
+    {"id": "g1", "name": "GSQ-RCO-Coder MLX · mlx-serve 26.10.3", "short": "g1 GSQ",
+     "runtime": "mlx-serve", "runtime_version": "26.10.3",
+     "model": "mbrown-uno/Qwen3.8-Flash-Next-GSQ-RCO-Coder-MLX", "revision": "50fa68c",
+     "quant": "GSQ-RCO 256 experts", "bpw": None, "disk_gb": 76.0, "port": 11234,
+     "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
+     "spec": "Lightning MTP head", "ceiling": "1M with YaRN + KV 4-bit", "state": "control", "status": "measured",
+     "note": ""},
+]
+
+
 def _stamp(records: list[dict]) -> str:
     return max((str(r.get("run_id") or "")[:16] for r in records), default="")
 
 
-def _meta_2026_10(path: Path) -> tuple | None:
+def _meta_2026_10(path: Path, campaign_tags: set | None = None) -> tuple | None:
     m = FILE_RE_2026_10.match(path.name)
     if not m:
         return None
     arm, ctx, temperature, tag = m.group(1), int(m.group(2)), m.group(3), m.group(4) or ""
-    series = SERIES_ARMS_2026_10.get(arm)
+    if campaign_tags is not None:
+        series = SERIES_ARMS_SPLASH.get(arm) if tag in campaign_tags else None
+    else:
+        series = SERIES_ARMS_2026_10.get(arm)
     if series is None or temperature not in ("1.0", "1"):
         return None
     if arm == "m1" and tag in MTPLX_PRIME1_TAGS:
@@ -480,6 +524,10 @@ def _config_label(arm: str, records: list[dict]) -> str:
     if arm in MTPLX_CONFIG:
         return MTPLX_CONFIG[arm]
     rev = str(records[0].get("runtime_revision") or "")
+    if rev.endswith("-kv-bf16"):
+        return "KV bf16"
+    if rev.endswith("-state-bf16"):
+        return "state bf16"
     if "yarn" in rev:
         factor = rev.split("yarn", 1)[1].split("-", 1)[0]
         label = f"YaRN {factor}" + (" + KV 8-bit" if "-kv8" in rev else " + KV 4-bit" if "-kv4" in rev else "")
@@ -624,11 +672,14 @@ DELTAS_2026_10 = [
 
 
 def build_2026_10(sept_dir: Path = RESULTS, engine_dir: Path = ENGINE_RESULTS,
-                  updates_dir: Path = UPDATES_RESULTS) -> dict:
+                  updates_dir: Path = UPDATES_RESULTS, stack_dir: Path = STACK_RESULTS,
+                  longctx_dir: Path = LONGCTX_RESULTS) -> dict:
     groups = []
-    for d in (engine_dir, updates_dir):
+    sources = [(engine_dir, None), (updates_dir, None), (stack_dir, SPLASH_TAGS["stack-updates-2026-10"]),
+               (longctx_dir, SPLASH_TAGS["splash-longctx-2026-10"])]
+    for d, tags in sources:
         for path in sorted(d.glob("*-t*.jsonl")):
-            meta = _meta_2026_10(path)
+            meta = _meta_2026_10(path, tags)
             if meta is None:
                 continue
             arm, series, ctx, tag = meta
@@ -648,7 +699,8 @@ def build_2026_10(sept_dir: Path = RESULTS, engine_dir: Path = ENGINE_RESULTS,
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "campaign": "bench/engine-updates-2026-10",
         "rig": RIG, "sampling": SAMPLING,
-        "candidates": CANDIDATES_2026_10, "groups": groups,
+        "candidates": CANDIDATES_2026_10 + [c for c in CANDIDATES_SPLASH if c["id"] in {g["cand"] for g in groups}],
+        "groups": groups,
         "takeaways": TAKEAWAYS_2026_10,
         "runtime_profiles": RUNTIME_PROFILES_2026_10, "quant_profiles": QUANT_PROFILES_2026_10,
         "gates_glossary": sept["gates_glossary"], "test_catalog": sept["test_catalog"],

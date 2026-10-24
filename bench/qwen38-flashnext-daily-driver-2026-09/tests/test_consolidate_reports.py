@@ -167,6 +167,7 @@ def _rep_set(reps, stamp, ctx=32768, rev="v", tool_ttft=1.0, error=None):
 
 def _dirs(tmp_path):
     sept, eng, upd = tmp_path / "sept", tmp_path / "eng", tmp_path / "upd"
+    (tmp_path / "stack").mkdir(); (tmp_path / "longctx").mkdir()
     _write(sept, "c1-32768-t1.0-b.jsonl", _rep_set(3, "20260901T000000Z"))
     _write(eng, "n2-32768-t1.0-fn.jsonl", _rep_set(3, "20261007T000000Z", tool_ttft=2.0))
     _write(upd, "n2-32768-t1.0-ab.jsonl", _rep_set(3, "20261006T000000Z", tool_ttft=3.0))
@@ -181,7 +182,7 @@ def _dirs(tmp_path):
     _write(eng, "d1-8192-t1.0-pg.jsonl", _rep_set(3, "20261009T000000Z", ctx=8192))
     _write(eng, "d1-262144-t1.0-pg.jsonl",
            _rep_set(1, "20261009T000000Z", ctx=262144, error="http_500: PrefillDoesNotFit"))
-    return sept, eng, upd
+    return sept, eng, upd, tmp_path / "stack", tmp_path / "longctx"
 
 
 def test_profile_2026_10_reads_both_campaigns(tmp_path):
@@ -245,9 +246,9 @@ def test_render_panel_without_interp_prints_nothing():
 
 def test_m1xq_label_says_kv_q8_was_ignored(tmp_path):
     # O MTPLX 2.12.2 rebaixa --paged-kv-quantization q8 para off no Flash-Next (boot log do m1xq).
-    sept, eng, upd = _dirs(tmp_path)
+    sept, eng, upd, *rest = _dirs(tmp_path)
     _write(eng, "m1xq-262144-t1.0-pg.jsonl", _rep_set(1, "20261009T200000Z", ctx=262144, rev="v2.12.2-memmax-kvq8"))
-    g = _canon(cr.build_2026_10(sept, eng, upd), "m1", 262144)
+    g = _canon(cr.build_2026_10(sept, eng, upd, *rest), "m1", 262144)
     assert g["arm"] == "m1xq" and g["config"] == "memory limit max (KV q8 ignored)"
 
 
@@ -256,8 +257,8 @@ def test_render_2026_10_marks_mtplx_512k_absent():
 
 
 def test_2026_10_has_takeaways_with_quality_line(tmp_path):
-    sept, eng, upd = _dirs(tmp_path)
-    tk = cr.build_2026_10(sept, eng, upd)["takeaways"]
+    sept, eng, upd, *rest = _dirs(tmp_path)
+    tk = cr.build_2026_10(sept, eng, upd, *rest)["takeaways"]
     assert len(tk) >= 4 and all(len(t) == 2 for t in tk)
     assert any("HumanEval" in body for _, body in tk)
 
@@ -273,8 +274,8 @@ def test_2026_10_tech_cards_name_measured_configs():
 
 
 def test_review_takeaways_rank_and_quality_wording(tmp_path):
-    sept, eng, upd = _dirs(tmp_path)
-    tk = dict(cr.build_2026_10(sept, eng, upd)["takeaways"])
+    sept, eng, upd, *rest = _dirs(tmp_path)
+    tk = dict(cr.build_2026_10(sept, eng, upd, *rest)["takeaways"])
     body = " ".join(tk.values())
     text = " ".join(tk) + " " + body
     assert "second at 128K and 256K" in text and "second up to 256K" not in text
@@ -379,23 +380,23 @@ def test_m1_and_m1p_share_the_prime_64_label():
 
 def test_os_reserve_diagnostics_stay_out_of_the_n2_ranking(tmp_path):
     # n2o/n2o2 (--os-reserve-gib 4/2) foram diagnóstico: reserva 2 virou OOM de Metal. Não entram na série n2.
-    sept, eng, upd = _dirs(tmp_path)
+    sept, eng, upd, *rest = _dirs(tmp_path)
     _write(eng, "n2-524288-t1.0-yarn2.jsonl",
            _rep_set(1, "20261007T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv8"))
     _write(eng, "n2o2-524288-t1.0-osr2x3.jsonl",
            _rep_set(3, "20261011T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv8-osr2"))
     _write(eng, "n2o-524288-t1.0-osr.jsonl",
            _rep_set(1, "20261010T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv8-osr4"))
-    data = cr.build_2026_10(sept, eng, upd)
+    data = cr.build_2026_10(sept, eng, upd, *rest)
     assert _canon(data, "n2", 524288)["arm"] == "n2"
     assert not any(g["arm"] in ("n2o", "n2o2") for g in data["groups"])
 
 
 def test_n2q4_joins_n2_series_with_kv4_label(tmp_path):
-    sept, eng, upd = _dirs(tmp_path)
+    sept, eng, upd, *rest = _dirs(tmp_path)
     _write(eng, "n2q4-524288-t1.0-kv4x3.jsonl",
            _rep_set(3, "20261011T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv4"))
-    g = _canon(cr.build_2026_10(sept, eng, upd), "n2", 524288)
+    g = _canon(cr.build_2026_10(sept, eng, upd, *rest), "n2", 524288)
     assert g["arm"] == "n2q4" and g["config"] == "YaRN 2.0 + KV 4-bit"
 
 
@@ -406,3 +407,38 @@ def test_n2_ceiling_names_kv4():
 
 def test_n2q4_512k_note_explains_kv4():
     assert "PrefillDoesNotFit" in cr.GROUP_NOTES_2026_10[("n2q4", 524288)]
+
+
+# splash-longctx-2026-10: séries w1 (w1z/w1zq4), k2 (Swift no Splash), k1 (Flash-Next no Splash) e g1 (GSQ-RCO-Coder),
+# lidas da stack-updates (tags e1, e5, e8, e9) e da splash-longctx (tags lc e sw); smoke, hold, q-* e toolcall ficam fora.
+def _splash_dirs(tmp_path):
+    sept, eng, upd, stack, lc = _dirs(tmp_path)
+    _write(stack, "w1z-32768-t1.0-e1.jsonl", _rep_set(3, "20261023T000000Z", rev="v26.10.3"))
+    _write(stack, "w1-32768-t1.0-e1.jsonl", _rep_set(3, "20261023T000000Z", rev="v26.10.1"))
+    _write(stack, "k2a-32768-t1.0-e8.jsonl", _rep_set(3, "20261023T000000Z", rev="v1.4.0-verify-auto"))
+    _write(stack, "k2a-65536-t1.0-toolcall.jsonl", _rep_set(1, "20261023T000000Z", ctx=65536))
+    _write(lc, "k2a-32768-t1.0-smoke2.jsonl", _rep_set(1, "20261024T000000Z"))
+    _write(lc, "k2a-524288-t1.0-sw.jsonl", _rep_set(1, "20261024T000000Z", ctx=524288, rev="v1.4.0-verify-auto"))
+    _write(lc, "k2ab-524288-t1.0-lc.jsonl",
+           _rep_set(3, "20261025T000000Z", ctx=524288, rev="v1.4.0-verify-auto-kv-bf16"))
+    _write(lc, "k1a-1000000-t1.0-lc.jsonl", _rep_set(1, "20261025T000000Z", ctx=1000000, rev="v1.4.0-verify-auto"))
+    _write(lc, "r1zy-524288-t1.0-lc.jsonl", _rep_set(3, "20261025T000000Z", ctx=524288, rev="v26.10.3-yarn2.0-kv4"))
+    return sept, eng, upd, stack, lc
+
+
+def test_profile_2026_10_adds_splash_series(tmp_path):
+    data = cr.build_2026_10(*_splash_dirs(tmp_path))
+    assert {"w1", "k2", "k1", "g1"} <= {c["id"] for c in data["candidates"]}
+    assert {g["cand"] for g in data["groups"]} == {"n2", "o1", "m1", "d1", "w1", "k2", "k1", "g1"}
+    files = {g["file"] for g in data["groups"]}
+    assert "w1-32768-t1.0-e1.jsonl" not in files and "k2a-65536-t1.0-toolcall.jsonl" not in files
+    assert "k2a-32768-t1.0-smoke2.jsonl" not in files
+
+
+def test_splash_canonical_and_config_labels(tmp_path):
+    data = cr.build_2026_10(*_splash_dirs(tmp_path))
+    g = _canon(data, "k2", 524288)
+    assert g["arm"] == "k2ab" and g["config"] == "KV bf16" and g["reps"] == 3
+    assert _canon(data, "g1", 524288)["config"] == "YaRN 2.0 + KV 4-bit"
+    assert _canon(data, "k1", 1000000)["context"] == 1000000
+    assert _canon(data, "w1", 32768)["arm"] == "w1z"
