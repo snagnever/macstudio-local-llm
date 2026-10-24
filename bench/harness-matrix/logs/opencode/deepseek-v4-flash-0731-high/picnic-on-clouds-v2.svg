@@ -1,0 +1,416 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <title>Picnic on the Clouds</title>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4fa8e8"/>
+      <stop offset="45%" stop-color="#9ed3f5"/>
+      <stop offset="100%" stop-color="#eaf6ff"/>
+    </linearGradient>
+    <radialGradient id="puffShade" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="70%" stop-color="#e9f4fc"/>
+      <stop offset="100%" stop-color="#cfe5f5"/>
+    </radialGradient>
+    <linearGradient id="envGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff6b6b"/>
+      <stop offset="55%" stop-color="#f2573f"/>
+      <stop offset="100%" stop-color="#c93a2b"/>
+    </linearGradient>
+    <linearGradient id="envGrad2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffe08a"/>
+      <stop offset="100%" stop-color="#f5a623"/>
+    </linearGradient>
+    <linearGradient id="grassEdge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#dff1ff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- sky -->
+  <rect width="800" height="600" fill="url(#sky)"/>
+
+  <!-- sun -->
+  <g>
+    <circle cx="655" cy="92" r="60" fill="#fff3b0" opacity="0.35"/>
+    <circle cx="655" cy="92" r="40" fill="#ffe27a" opacity="0.55"/>
+    <circle cx="655" cy="92" r="26" fill="#ffd54f"/>
+  </g>
+
+  <!-- thin high cirrus strokes -->
+  <g fill="none" stroke="#ffffff" stroke-width="2" opacity="0.6" stroke-linecap="round">
+    <path d="M120 90 q26 -10 52 0 q14 -5 28 0"/>
+    <path d="M300 150 q22 -8 44 0 q12 -4 24 0"/>
+    <path d="M520 60 q20 -7 40 0"/>
+  </g>
+
+  <!-- distant little clouds -->
+  <g fill="#ffffff" opacity="0.75">
+    <ellipse cx="90" cy="210" rx="42" ry="16"/>
+    <ellipse cx="120" cy="204" rx="28" ry="12"/>
+    <ellipse cx="720" cy="240" rx="48" ry="16"/>
+    <ellipse cx="760" cy="234" rx="28" ry="10"/>
+  </g>
+
+  <!-- birds -->
+  <g stroke="#5b87ad" stroke-width="2.4" fill="none" stroke-linecap="round">
+    <path d="M150 170 q7 -9 14 0 q7 -9 14 0"/>
+    <path d="M180 130 q6 -8 12 0 q6 -8 12 0"/>
+    <path d="M600 300 q7 -9 14 0 q7 -9 14 0"/>
+  </g>
+
+  <!-- === the cloud meadow === -->
+  <!-- back shelf for depth -->
+  <ellipse cx="400" cy="430" rx="360" ry="50" fill="url(#grassEdge)" opacity="0.8"/>
+  <!-- main top surface -->
+  <ellipse cx="400" cy="448" rx="370" ry="110" fill="url(#grassEdge)"/>
+  <ellipse cx="400" cy="452" rx="340" ry="96" fill="#ffffff"/>
+  <!-- puffy bottom fringe -->
+  <g fill="#ffffff">
+    <ellipse cx="120" cy="520" rx="110" ry="70"/>
+    <ellipse cx="260" cy="545" rx="120" ry="80"/>
+    <ellipse cx="410" cy="560" rx="135" ry="85"/>
+    <ellipse cx="550" cy="545" rx="120" ry="78"/>
+    <ellipse cx="680" cy="520" rx="110" ry="70"/>
+    <ellipse cx="400" cy="580" rx="200" ry="55"/>
+  </g>
+  <ellipse cx="400" cy="470" rx="330" ry="30" fill="#ffffff"/>
+
+  <!-- gentle flower dots on the meadow -->
+  <g>
+    <circle cx="130" cy="455" r="2.5" fill="#ffd166"/>
+    <circle cx="160" cy="462" r="2" fill="#ff8fa3"/>
+    <circle cx="640" cy="452" r="2.5" fill="#ffd166"/>
+    <circle cx="670" cy="460" r="2" fill="#ff8fa3"/>
+    <circle cx="100" cy="468" r="2" fill="#c9b8f0"/>
+    <circle cx="690" cy="470" r="2" fill="#c9b8f0"/>
+  </g>
+
+  <!-- === hot air balloon (tied to the meadow, upper left) === -->
+  <!-- mooring rope -->
+  <path d="M188 392 C200 420 210 435 235 448" fill="none" stroke="#9c6b3f" stroke-width="2.5"/>
+
+  <g transform="translate(210,170)">
+    <!-- radiant rays behind crown -->
+    <g fill="#ffd54f" opacity="0.16">
+      <path d="M0 -58 l14 6 l-22 6 z"/>
+      <path d="M-30 -50 l14 6 l-20 12 z"/>
+      <path d="M30 -50 l-14 6 l20 12 z"/>
+    </g>
+
+    <!-- envelope: gore stripes on a teardrop -->
+    <path d="M0 -130 C-78 18 -70 120 0 150 C70 120 78 18 0 -130 Z" fill="#f2573f"/>
+    <path d="M0 -130 C-78 18 -70 120 0 150" fill="none" stroke="#ffe08a" stroke-width="14" opacity="0.85"/>
+    <path d="M0 -130 C-32 -40 -38 40 0 150" fill="none" stroke="#ffe08a" stroke-width="12" opacity="0.9"/>
+    <path d="M0 -130 C30 -40 38 40 0 150" fill="none" stroke="#ffffff" stroke-width="12" opacity="0.85"/>
+    <path d="M0 -130 C-46 -70 -58 30 -36 148" fill="none" stroke="#ffffff" stroke-width="7" opacity="0.4"/>
+    <path d="M0 -130 C46 -70 58 30 36 148" fill="none" stroke="#f7c948" stroke-width="6" opacity="0.5"/>
+    <!-- shading -->
+    <path d="M0 -130 C66 40 58 112 12 149 C-4 70 -10 -20 0 -130 Z" fill="#c93a2b" opacity="0.16"/>
+
+    <!-- crown tip -->
+    <circle cx="0" cy="-132" r="7" fill="#b83527"/>
+
+    <!-- mouth ring + skirt -->
+    <ellipse cx="0" cy="150" rx="34" ry="10" fill="#c93a2b"/>
+    <path d="M-38 156 Q0 172 38 156 Z" fill="#f7c948"/>
+
+    <!-- burner cage + flame -->
+    <rect x="-26" y="166" width="52" height="14" rx="6" fill="#8a97a5"/>
+    <path d="M0 180 l-10 -12 a12 12 0 0 0 20 0 Z" fill="#ffc24f"/>
+    <path d="M0 176 l-6 -8 a8 8 0 0 0 12 0 Z" fill="#ffe27a"/>
+
+    <!-- rope lines to basket -->
+    <path d="M-30 180 L-42 216" stroke="#8a5a2b" stroke-width="2"/>
+    <path d="M30 180 L42 216" stroke="#8a5a2b" stroke-width="2"/>
+    <path d="M-10 182 L-12 216" stroke="#8a5a2b" stroke-width="2"/>
+    <path d="M10 182 L12 216" stroke="#8a5a2b" stroke-width="2"/>
+
+    <!-- basket -->
+    <g>
+      <path d="M-50 216 L50 216 L44 262 L-44 262 Z" fill="#a8723f"/>
+      <path d="M-50 216 L50 216 L48 232 L-48 232 Z" fill="#c8904f"/>
+      <line x1="-46" y1="240" x2="46" y2="240" stroke="#8a5a2b" stroke-width="2.5"/>
+      <line x1="-44" y1="252" x2="44" y2="252" stroke="#8a5a2b" stroke-width="2.5"/>
+      <line x1="-26" y1="216" x2="-24" y2="262" stroke="#8a5a2b" stroke-width="2"/>
+      <line x1="26" y1="216" x2="24" y2="262" stroke="#8a5a2b" stroke-width="2"/>
+      <rect x="-46" y="258" width="92" height="8" rx="3" fill="#7d4f24"/>
+      <!-- sandbags -->
+      <ellipse cx="-34" cy="270" rx="10" ry="7" fill="#b98a52"/>
+      <ellipse cx="34" cy="270" rx="10" ry="7" fill="#a8723f"/>
+      <line x1="-30" y1="216" x2="-31" y2="266" stroke="#8a5a2b" stroke-width="1.2"/>
+      <line x1="30" y1="216" x2="31" y2="266" stroke="#8a5a2b" stroke-width="1.2"/>
+      <!-- red picnic blanket folded over the rim -->
+      <path d="M-40 214 Q-30 204 -18 216 Q-14 222 -18 230 Q-28 228 -40 214 Z" fill="#e8444c"/>
+      <path d="M20 214 Q30 204 42 216 Q46 224 40 232 Q28 228 20 214 Z" fill="#e8444c"/>
+    </g>
+  </g>
+
+  <!-- === picnic tarp (deep blue-grey chequer laid across the meadow) === -->
+  <g transform="translate(300,448) skewX(-6)">
+    <rect x="0" y="0" width="280" height="150" rx="6" fill="#35507a"/>
+    <rect x="0" y="0" width="280" height="150" rx="6" fill="#2e4468"/>
+    <g fill="#f5f6d8">
+      <rect x="6" y="6" width="46" height="40" rx="3"/>
+      <rect x="86" y="6" width="46" height="40" rx="3"/>
+      <rect x="166" y="6" width="46" height="40" rx="3"/>
+      <rect x="8" y="80" width="46" height="40" rx="3"/>
+      <rect x="88" y="80" width="46" height="40" rx="3"/>
+      <rect x="168" y="80" width="46" height="40" rx="3"/>
+    </g>
+    <g fill="#d7e0f0">
+      <rect x="52" y="6" width="34" height="40" rx="3"/>
+      <rect x="132" y="6" width="34" height="40" rx="3"/>
+      <rect x="212" y="6" width="34" height="40" rx="3"/>
+      <rect x="54" y="80" width="34" height="40" rx="3"/>
+      <rect x="134" y="80" width="34" height="40" rx="3"/>
+      <rect x="214" y="80" width="34" height="40" rx="3"/>
+    </g>
+    <g fill="#90a4c9">
+      <rect x="6" y="46" width="46" height="34" rx="3"/>
+      <rect x="86" y="46" width="46" height="34" rx="3"/>
+      <rect x="166" y="46" width="46" height="34" rx="3"/>
+      <rect x="8" y="120" width="46" height="24" rx="3"/>
+      <rect x="88" y="120" width="46" height="24" rx="3"/>
+      <rect x="168" y="120" width="46" height="24" rx="3"/>
+    </g>
+    <g fill="#35507a">
+      <rect x="52" y="46" width="34" height="34" rx="3"/>
+      <rect x="132" y="46" width="34" height="34" rx="3"/>
+      <rect x="212" y="46" width="34" height="34" rx="3"/>
+      <rect x="54" y="120" width="34" height="24" rx="3"/>
+      <rect x="134" y="120" width="34" height="24" rx="3"/>
+      <rect x="214" y="120" width="34" height="24" rx="3"/>
+    </g>
+    <path d="M0 0 L8 8 M280 0 L272 8 M0 150 L8 158 M280 150 L272 158" stroke="#4a5f8c" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- === food spread === -->
+
+  <!-- wicker basket with handle (open lid beside) -->
+  <g transform="translate(495,470)">
+    <path d="M-30 -46 Q0 -70 30 -46" fill="none" stroke="#8a5a2b" stroke-width="6" stroke-linecap="round"/>
+    <rect x="-34" y="-38" width="68" height="42" rx="6" fill="#c8904f"/>
+    <line x1="-34" y1="-26" x2="34" y2="-26" stroke="#a8723f" stroke-width="2.5"/>
+    <line x1="-34" y1="-10" x2="34" y2="-10" stroke="#a8723f" stroke-width="2.5"/>
+    <line x1="-18" y1="-38" x2="-18" y2="4" stroke="#a8723f" stroke-width="2"/>
+    <line x1="18" y1="-38" x2="18" y2="4" stroke="#a8723f" stroke-width="2"/>
+    <ellipse cx="0" cy="4" rx="32" ry="5" fill="#8a5a2b"/>
+    <!-- open lid with cloth -->
+    <g transform="translate(56,-28) rotate(46)">
+      <rect x="-30" y="-4" width="60" height="8" rx="4" fill="#b98145"/>
+      <path d="M-24 -6 q14 -12 28 -4 q-6 -14 -22 -14 q-10 0 -16 6" fill="#fbe9c9" opacity="0.9"/>
+    </g>
+  </g>
+
+  <!-- big round plate of fruit -->
+  <g transform="translate(360,505)">
+    <ellipse cx="0" cy="10" rx="40" ry="9" fill="#d8d2c8"/>
+    <ellipse cx="0" cy="0" rx="40" ry="11" fill="#f7f4ee"/>
+    <ellipse cx="0" cy="-2" rx="30" ry="7" fill="#e8f1fa"/>
+    <!-- watermelon round -->
+    <circle cx="-12" cy="-12" r="15" fill="#2e7d32"/>
+    <path d="M-12 -27 A15 15 0 0 1 3 -12 A15 15 0 0 0 1 -27 Z" fill="#66bb6a"/>
+    <path d="M-12 -27 q-3 -6 2 -7 M-12 -27 q4 -5 9 1" stroke="#2e7d32" stroke-width="1"/>
+    <circle cx="8" cy="-14" r="13" fill="#ff8a65"/>
+    <path d="M8 -27 A13 13 0 0 1 21 -14 A13 13 0 0 0 19 -27 Z" fill="#ffab91"/>
+    <!-- banana -->
+    <path d="M-6 2 q14 -10 26 2 q-12 10 -26 -2" fill="#ffe27a"/>
+    <line x1="18" y1="-4" x2="24" y2="-6" stroke="#c8903f" stroke-width="1.4" stroke-linecap="round"/>
+    <!-- grapes bunch -->
+    <g fill="#9b7bc9">
+      <circle cx="-30" cy="-6" r="4"/>
+      <circle cx="-24" cy="-12" r="4"/>
+      <circle cx="-34" cy="-14" r="4"/>
+      <circle cx="-28" cy="-20" r="4"/>
+      <circle cx="-22" cy="-4" r="4"/>
+      <circle cx="-26" cy="-10" r="4.5"/>
+    </g>
+    <path d="M-28 -24 q-8 -10 -14 -14" fill="none" stroke="#7a9c4a" stroke-width="1.6" stroke-linecap="round"/>
+  </g>
+
+  <!-- sandwiches + lemonade group -->
+  <g transform="translate(420,545)">
+    <!-- plate -->
+    <ellipse cx="0" cy="8" rx="42" ry="8" fill="#d8d2c8"/>
+    <ellipse cx="0" cy="0" rx="42" ry="10" fill="#ffffff"/>
+    <!-- three sandwiches -->
+    <g>
+      <rect x="-30" y="-12" width="22" height="10" rx="4" fill="#c8934f"/>
+      <rect x="-28" y="-12" width="22" height="4.5" rx="2" fill="#f0e3b0"/>
+      <path d="M-28 -8 l3 3 l3 -1" stroke="#6b8e23" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <rect x="-6" y="-14" width="22" height="10" rx="4" fill="#c8934f" transform="rotate(6 5 -9)"/>
+      <rect x="-4" y="-14" width="22" height="4.5" rx="2" fill="#cfe3b0"/>
+      <rect x="16" y="-12" width="22" height="10" rx="4" fill="#c8934f" transform="rotate(-8 27 -7)"/>
+      <rect x="18" y="-12" width="22" height="4.5" rx="2" fill="#e0c8a8"/>
+    </g>
+    <!-- cup of lemonade -->
+    <ellipse cx="21" cy="-24" rx="9" ry="12" fill="#ffd54f"/>
+    <ellipse cx="21" cy="-24" rx="9" ry="12" fill="none" stroke="#f0b429" stroke-width="1.6"/>
+    <rect x="21" y="-36" width="10" height="26" rx="2" fill="#ffd54f" stroke="#f0b429" stroke-width="1.2"/>
+    <circle cx="21" cy="-33" r="3" fill="#ff8a3c"/>
+  </g>
+
+  <!-- scattered strawberries (on tarp) -->
+  <g>
+    <g transform="translate(470,520)">
+      <path d="M-4 -1 q-7 -6 1 -9 q10 0 8 6 q0 4 -3 5 q-6 2 -6 -2" fill="#e53935"/>
+      <path d="M-2 -9 q-2 -4 0 -5 q2 1 1 5" fill="#7a9c4a"/>
+      <circle cx="-3" cy="-5" r="0.8" fill="#ffe082"/>
+      <circle cx="1" cy="-3" r="0.8" fill="#ffe082"/>
+    </g>
+    <g transform="translate(492,528)">
+      <path d="M-4 -1 q-7 -6 1 -9 q10 0 8 6 q0 4 -3 5 q-6 2 -6 -2" fill="#e53935"/>
+      <path d="M-2 -9 q-2 -4 0 -5 q2 1 1 5" fill="#7a9c4a"/>
+      <circle cx="-3" cy="-5" r="0.8" fill="#ffe082"/>
+      <circle cx="1" cy="-3" r="0.8" fill="#ffe082"/>
+    </g>
+    <g transform="translate(520,515)">
+      <path d="M-3.5 -1 q-6 -5 1 -8 q8 0 7 5 q0 3 -3 4 q-5 2 -5 -1" fill="#e53935"/>
+    </g>
+  </g>
+
+  <!-- === people === -->
+
+  <!-- DAD: kneeling, pouring lemonade into a cup -->
+  <g transform="translate(400,470)">
+    <g transform="rotate(-2)">
+      <!-- legs tucked -->
+      <path d="M-13 30 l-12 10" stroke="#334a73" stroke-width="9" stroke-linecap="round"/>
+      <path d="M13 30 l12 10" stroke="#334a73" stroke-width="9" stroke-linecap="round"/>
+      <!-- torso -->
+      <rect x="-16" y="-6" width="32" height="38" rx="7" fill="#d9552e"/>
+      <rect x="-16" y="-6" width="32" height="12" rx="6" fill="#e8754f"/>
+      <!-- arms -->
+      <path d="M-13 2 l-16 16" stroke="#d9552e" stroke-width="8" stroke-linecap="round"/>
+      <path d="M13 2 l16 12" stroke="#d9552e" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="-29" cy="18" r="5" fill="#e8b890"/>
+      <circle cx="29" cy="14" r="5" fill="#e8b890"/>
+      <!-- pitcher -->
+      <g transform="translate(40,2) rotate(-28)">
+        <path d="M-8 0 L-6 -16 L3 -17 L8 0 Q0 6 -8 0" fill="#7fd4c1"/>
+        <path d="M-6 -16 L3 -17 L5 -4 L-7 -4 Z" fill="#b1e8da"/>
+        <rect x="4" y="-14" width="2.6" height="11" rx="1.3" fill="#5bb8a4"/>
+        <path d="M-8 -2 Q-13 2 -8 8" fill="none" stroke="#b1e8da" stroke-width="3"/>
+        <path d="M-2 -4 q-4 -5 -7 -6 q3 1 4 4" fill="#7fd4c1"/>
+      </g>
+      <!-- head -->
+      <circle cx="0" cy="-18" r="15" fill="#e8b890"/>
+      <path d="M-13 -24 q0 -14 13 -14 q12 0 14 11 q-4 3 -16 3" fill="#3f4a38"/>
+      <path d="M12 -42 q4 -1 8 1 q-6 7 -8 8" fill="#3f4a38"/>
+      <ellipse cx="-5" cy="-18" rx="2.6" ry="1.6" fill="#4b3621"/>
+      <ellipse cx="5" cy="-18" rx="2.6" ry="1.6" fill="#4b3621"/>
+      <path d="M-2 -13 q3 3 6 0" stroke="#8a5a34" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M-6 -8 q-1 4 5 3" stroke="#8a5a34" stroke-width="2" fill="none"/>
+    </g>
+  </g>
+
+  <!-- MOM: sitting, holding a cup in one hand, plate on lap -->
+  <g transform="translate(560,468)">
+    <g transform="rotate(2)">
+      <!-- legs under skirt -->
+      <path d="M-10 40 l-6 9" stroke="#e8b890" stroke-width="6" stroke-linecap="round"/>
+      <path d="M10 40 l7 9" stroke="#e8b890" stroke-width="6" stroke-linecap="round"/>
+      <!-- skirt -->
+      <path d="M-22 14 Q0 46 22 14 L12 14 L-12 14 Z" fill="#e04a6a"/>
+      <path d="M-12 14 L12 14 L20 34 L-20 34 Z" fill="#e04a6a"/>
+      <!-- torso -->
+      <path d="M0 -24 Q-20 -16 -18 8 L18 8 Q20 -16 0 -24 Z" fill="#e04a6a"/>
+      <path d="M0 -24 Q-20 -16 -18 8 L18 8 Q20 -16 0 -24 Z" fill="#ff8aa3" opacity="0.2"/>
+      <!-- arms -->
+      <path d="M-15 -2 l-14 18" stroke="#e04a6a" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="-29" cy="16" r="5" fill="#e8b890"/>
+      <path d="M15 -2 l15 16" stroke="#e04a6a" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="30" cy="14" r="5" fill="#e8b890"/>
+      <!-- cup in hand -->
+      <g transform="translate(-37,22)">
+        <path d="M-7 2 L-5 -9 L5 -9 L7 2 Z" fill="#ffffff"/>
+        <ellipse cx="0" cy="-9" rx="5" ry="2" fill="#ffe9b0"/>
+      </g>
+      <!-- hair with bun -->
+      <path d="M0 -34 q-18 -6 -23 8 q14 -8 46 -8 q22 2 24 14" fill="#5b2d1a"/>
+      <path d="M0 -38 q-14 -4 -18 6 q-2 -14 18 -8" fill="#5b2d1a"/>
+      <circle cx="2" cy="-40" r="8" fill="#5b2d1a"/>
+      <circle cx="3" cy="-40" r="4" fill="#c9885a"/>
+      <path d="M22 -28 q5 -8 1 -14 q8 -2 8 6 q0 8 -9 8" fill="#5b2d1a"/>
+      <!-- face -->
+      <circle cx="2" cy="-24" r="14" fill="#e8b890"/>
+      <ellipse cx="-3" cy="-24" rx="2.4" ry="1.6" fill="#4b3621"/>
+      <ellipse cx="8" cy="-24" rx="2.4" ry="1.6" fill="#4b3621"/>
+      <path d="M0 -18 q3 3 6 0" stroke="#8a5a34" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M-2 -14 q0 3 5 3 q4 0 5 -3" stroke="#a84b61" stroke-width="2" fill="none"/>
+      <circle cx="4" cy="-12" r="2" fill="#ffd166"/>
+      <circle cx="8" cy="-12" r="2" fill="#ffd166"/>
+    </g>
+  </g>
+
+  <!-- CHILD (girl, 6): sitting, holding up a strawberry -->
+  <g transform="translate(320,505)">
+    <g transform="rotate(-3)">
+      <!-- crossed legs -->
+      <path d="M-9 26 q6 8 16 4 M9 26 q-6 8 -16 4" stroke="#c25052" stroke-width="6" stroke-linecap="round"/>
+      <!-- dress -->
+      <path d="M0 -16 Q-14 -8 -12 12 L12 12 Q14 -8 0 -16 Z" fill="#c25052"/>
+      <path d="M0 -16 L-12 12 L12 12 Z" fill="#dE7a7d" opacity="0.5"/>
+      <path d="M-12 12 Q0 26 12 12 L7 12 L-7 12 Z" fill="#c25052"/>
+      <!-- arms -->
+      <path d="M-10 -6 l-9 14" stroke="#c25052" stroke-width="5.5" stroke-linecap="round"/>
+      <circle cx="-19" cy="8" r="3.8" fill="#e8b890"/>
+      <!-- tiny strawberry in raised hand -->
+      <g transform="translate(-24,3)">
+        <path d="M-3.5 -1 q-6 -5 1 -8 q8 0 7 5 q0 3 -3 4 q-5 2 -5 -1" fill="#e53935"/>
+        <path d="M-2 -8 q-1 -3 0 -4 q1 1 1 4" fill="#7a9c4a"/>
+      </g>
+      <path d="M10 -6 l9 12" stroke="#c25052" stroke-width="5.5" stroke-linecap="round"/>
+      <circle cx="19" cy="6" r="3.8" fill="#e8b890"/>
+      <!-- head -->
+      <circle cx="2" cy="-24" r="12" fill="#e8b890"/>
+      <path d="M-7 -28 q0 -11 10 -11 q9 0 11 9 q-3 2 -11 2" fill="#3d2b1f"/>
+      <path d="M-4 -34 q4 -7 10 -6 q4 0 5 2 q-2 5 -7 5" fill="#3d2b1f"/>
+      <path d="M4 -30 q9 -7 11 -11 q-11 6 -11 11" fill="#2a1d16"/>
+      <path d="M-4 -19 q1 3 4 3 q2 -2 0 -4" fill="none" stroke="#8a5a34" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="-2" cy="-22" r="1.8" fill="#4b3621"/>
+      <circle cx="3" cy="-22" r="1.8" fill="#4b3621"/>
+      <!-- bow -->
+      <path d="M21 -33 l6 -3 l-5 5 l6 4 l-7 -2 l-4 2 z" fill="#ff5180"/>
+    </g>
+  </g>
+
+  <!-- CHILD (boy, 8): sitting cross-legged, stacking something -->
+  <g transform="translate(615,505)">
+    <g transform="rotate(3)">
+      <!-- crossed legs -->
+      <path d="M-9 26 q7 9 17 4 M9 26 q-7 9 -17 4" stroke="#3a5f8a" stroke-width="6.5" stroke-linecap="round"/>
+      <!-- body -->
+      <path d="M-13 0 L13 0 L11 24 L-11 24 Z" fill="#ffb74d"/>
+      <path d="M0 0 l4 4 l-4 4 l-4 -4 Z" fill="#ffffff" opacity="0.85"/>
+      <circle cx="0" cy="4" r="2" fill="#3a5f8a"/>
+      <!-- arms -->
+      <path d="M10 4 l12 8" stroke="#ffb74d" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="22" cy="12" r="4.2" fill="#e8b890"/>
+      <!-- stacking blocks -->
+      <g transform="translate(27,10)">
+        <rect x="-6" y="-4" width="12" height="8" rx="1.5" fill="#5bb8d4"/>
+        <rect x="-6" y="-10" width="10" height="6" rx="1.5" fill="#ffd166"/>
+        <rect x="-6" y="-6" width="10" height="6" rx="1.5" fill="#ffffff" opacity="0"/>
+      </g>
+      <path d="M-10 4 l-11 10" stroke="#ffb74d" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="-21" cy="14" r="4.2" fill="#e8b890"/>
+      <!-- head -->
+      <circle cx="0" cy="-14" r="13" fill="#e8b890"/>
+      <path d="M-11 -19 q0 -13 11 -13 q11 0 13 10 q-3 2 -14 2" fill="#6b3f1f"/>
+      <path d="M-3 -24 l0 0 M14 -30 q6 2 7 6 q-7 3 -8 -2" fill="#6b3f1f"/>
+      <ellipse cx="-4" cy="-14" rx="2.4" ry="1.5" fill="#4b3621"/>
+      <ellipse cx="5" cy="-14" rx="2.4" ry="1.5" fill="#4b3621"/>
+      <path d="M-1 -9 q3 3 6 0" stroke="#8a5a34" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+      <ellipse cx="1" cy="-22" rx="6" ry="2.4" fill="#ffd166" opacity="0.25"/>
+    </g>
+  </g>
+
+  <!-- tiny white flags / pennant on tarp edge -->
+  <g>
+    <line x1="190" y1="430" x2="188" y2="408" stroke="#7d8ca8" stroke-width="2"/>
+    <path d="M188 408 l14 3 l-14 4 z" fill="#ff5180"/>
+    <line x1="690" y1="432" x2="692" y2="412" stroke="#7d8ca8" stroke-width="2"/>
+    <path d="M692 412 l14 3 l-14 4 z" fill="#5bb8d4"/>
+  </g>
+</svg>

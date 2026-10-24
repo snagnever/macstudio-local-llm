@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">A family picnic above the clouds</title>
+  <desc id="desc">Two parents and two children prepare a picnic on a mustard tarp on soft clouds beside their landed hot air balloon.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#74c9e9"/>
+      <stop offset="0.62" stop-color="#bce9ee"/>
+      <stop offset="1" stop-color="#edf8ef"/>
+    </linearGradient>
+    <linearGradient id="balloon" x1="0" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#ffcb4c"/>
+      <stop offset="0.43" stop-color="#f36e4d"/>
+      <stop offset="1" stop-color="#bc3f58"/>
+    </linearGradient>
+    <linearGradient id="cloud" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffef6"/>
+      <stop offset="1" stop-color="#d9ecdf"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-30%" width="140%" height="170%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="9"/>
+      <feOffset dy="8"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.16"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="soft" x="-15%" y="-25%" width="130%" height="150%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <circle cx="996" cy="123" r="55" fill="#fff3b2" opacity="0.92"/>
+  <g fill="#fff" opacity="0.7" filter="url(#soft)">
+    <ellipse cx="145" cy="174" rx="101" ry="22"/>
+    <ellipse cx="228" cy="162" rx="74" ry="30"/>
+    <ellipse cx="622" cy="125" rx="122" ry="21"/>
+    <ellipse cx="720" cy="114" rx="85" ry="26"/>
+  </g>
+
+  <!-- Distant cloud layers establish the floating landscape. -->
+  <g fill="#d4e9e5" opacity="0.75">
+    <ellipse cx="88" cy="568" rx="150" ry="49"/>
+    <ellipse cx="260" cy="574" rx="162" ry="54"/>
+    <ellipse cx="789" cy="549" rx="190" ry="56"/>
+    <ellipse cx="1053" cy="567" rx="194" ry="61"/>
+  </g>
+  <g fill="url(#cloud)">
+    <ellipse cx="28" cy="690" rx="140" ry="92"/>
+    <ellipse cx="161" cy="650" rx="124" ry="110"/>
+    <ellipse cx="320" cy="676" rx="176" ry="112"/>
+    <ellipse cx="478" cy="643" rx="156" ry="107"/>
+    <ellipse cx="668" cy="682" rx="183" ry="117"/>
+    <ellipse cx="861" cy="655" rx="159" ry="107"/>
+    <ellipse cx="1045" cy="675" rx="170" ry="113"/>
+    <ellipse cx="1200" cy="636" rx="132" ry="101"/>
+    <rect y="684" width="1200" height="116" fill="#e4f1e8"/>
+  </g>
+  <g fill="#c9e1d7" opacity="0.72">
+    <ellipse cx="149" cy="731" rx="101" ry="26"/>
+    <ellipse cx="453" cy="740" rx="137" ry="31"/>
+    <ellipse cx="797" cy="727" rx="112" ry="25"/>
+    <ellipse cx="1089" cy="742" rx="128" ry="30"/>
+  </g>
+
+  <!-- The balloon rests behind the picnic. -->
+  <g filter="url(#shadow)">
+    <path d="M179 115 C96 151 95 288 182 364 C206 385 269 385 294 362 C382 280 375 151 294 115 C262 100 212 100 179 115Z" fill="url(#balloon)" stroke="#9d4354" stroke-width="5"/>
+    <path d="M190 120 C157 167 154 279 205 359" fill="none" stroke="#ffdd69" stroke-width="28" opacity="0.88"/>
+    <path d="M246 108 C274 176 276 286 252 375" fill="none" stroke="#963a58" stroke-width="28" opacity="0.8"/>
+    <path d="M301 123 C340 177 341 280 282 362" fill="none" stroke="#ffd357" stroke-width="25" opacity="0.87"/>
+    <path d="M181 365 L200 427 M291 365 L269 427" stroke="#72534b" stroke-width="5"/>
+    <path d="M205 371 L265 371 L278 428 L194 428Z" fill="#a66b45" stroke="#6d493b" stroke-width="5"/>
+    <path d="M208 390 L264 390" stroke="#d9a86e" stroke-width="5"/>
+    <path d="M238 369 L238 426" stroke="#6d493b" stroke-width="4"/>
+  </g>
+
+  <!-- Tarp and picnic food. -->
+  <g filter="url(#shadow)">
+    <path d="M406 577 L769 545 L886 677 L471 704Z" fill="#eeb34d" stroke="#c37c43" stroke-width="5"/>
+    <path d="M433 588 L756 559 L845 667 L487 688Z" fill="#f8ce62"/>
+    <path d="M520 579 L592 691 M677 565 L744 678" stroke="#e2a34d" stroke-width="3" opacity="0.75"/>
+    <ellipse cx="653" cy="617" rx="83" ry="26" fill="#e98e63"/>
+    <ellipse cx="653" cy="610" rx="83" ry="26" fill="#fff7df" stroke="#c97a59" stroke-width="4"/>
+    <circle cx="622" cy="607" r="10" fill="#e9534e"/>
+    <circle cx="651" cy="613" r="10" fill="#f2bd3f"/>
+    <circle cx="679" cy="606" r="10" fill="#65a866"/>
+    <path d="M702 635 L741 631 L753 670 L710 675Z" fill="#c9774a" stroke="#85533f" stroke-width="4"/>
+    <path d="M710 638 L738 635 L747 649 L715 653Z" fill="#fff3c9"/>
+    <path d="M498 637 C507 609 545 606 555 633 C563 655 545 669 526 667 C507 666 490 655 498 637Z" fill="#df4b4e" stroke="#a93847" stroke-width="3"/>
+    <path d="M526 622 C525 610 533 601 544 596" fill="none" stroke="#4e925b" stroke-width="6" stroke-linecap="round"/>
+    <path d="M539 599 C551 591 561 598 554 607" fill="#62a866"/>
+    <path d="M787 601 C803 574 838 581 846 604 L840 634 L790 630Z" fill="#80a85e" stroke="#567a4d" stroke-width="4"/>
+    <path d="M792 605 C809 594 830 596 844 608" fill="none" stroke="#eff0bd" stroke-width="5"/>
+  </g>
+
+  <!-- Parent at left, laying out the meal. -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M407 480 C382 493 370 529 379 571 L402 616 L445 598 L432 544 L453 498Z" fill="#405c80" stroke="#30445e" stroke-width="5"/>
+    <path d="M394 561 L365 622" stroke="#c77858" stroke-width="18"/>
+    <path d="M420 563 L467 615" stroke="#c77858" stroke-width="18"/>
+    <path d="M355 621 L374 628" stroke="#754d43" stroke-width="15"/>
+    <path d="M460 615 L479 610" stroke="#754d43" stroke-width="15"/>
+    <path d="M390 501 C397 477 431 470 448 491 C462 508 450 533 428 534 C405 536 383 520 390 501Z" fill="#c77858" stroke="#754d43" stroke-width="4"/>
+    <path d="M388 501 C395 472 435 464 453 491 C439 494 424 489 413 500 C405 508 397 508 388 501Z" fill="#513d3e"/>
+    <path d="M445 491 C456 496 461 507 456 518" fill="none" stroke="#513d3e" stroke-width="8"/>
+    <path d="M438 544 L478 581 L513 637" fill="none" stroke="#c77858" stroke-width="17"/>
+    <path d="M507 632 L520 643" stroke="#754d43" stroke-width="13"/>
+    <circle cx="424" cy="507" r="2.8" fill="#463438" stroke="none"/>
+    <path d="M416 521 Q426 527 436 519" fill="none" stroke="#9d4c4a" stroke-width="3"/>
+  </g>
+
+  <!-- Parent at right carrying a rolled blanket. -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M884 458 C853 474 845 514 860 553 L877 605 L923 595 L923 535 L938 490Z" fill="#d86455" stroke="#a9464b" stroke-width="5"/>
+    <path d="M874 548 L848 618" stroke="#a86a4e" stroke-width="18"/>
+    <path d="M912 553 L949 613" stroke="#a86a4e" stroke-width="18"/>
+    <path d="M841 616 L859 622" stroke="#5e4741" stroke-width="15"/>
+    <path d="M944 611 L963 606" stroke="#5e4741" stroke-width="15"/>
+    <path d="M865 476 C868 448 906 442 923 465 C937 484 923 506 901 505 C878 504 859 495 865 476Z" fill="#a86a4e" stroke="#5e4741" stroke-width="4"/>
+    <path d="M864 473 C869 445 909 439 927 464 C914 470 906 478 902 489 C888 478 876 481 864 473Z" fill="#2e3139"/>
+    <circle cx="901" cy="478" r="2.8" fill="#302a2b" stroke="none"/>
+    <path d="M892 492 Q902 498 911 491" fill="none" stroke="#844445" stroke-width="3"/>
+    <path d="M921 523 L965 544 L995 572" fill="none" stroke="#a86a4e" stroke-width="17"/>
+    <rect x="984" y="556" width="72" height="28" rx="14" fill="#6687a7" stroke="#415d78" stroke-width="4" transform="rotate(14 1020 570)"/>
+    <path d="M998 557 L992 583 M1041 563 L1034 588" stroke="#e3d28b" stroke-width="4"/>
+  </g>
+
+  <!-- Two children help with the picnic. -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M540 510 C519 520 513 551 523 579 L535 611 L572 607 L575 565 L590 530Z" fill="#6aa77d" stroke="#4d8067" stroke-width="4"/>
+    <path d="M536 605 L521 649 M565 604 L587 645" stroke="#c87a55" stroke-width="14"/>
+    <path d="M515 648 L528 651 M581 644 L594 641" stroke="#68473e" stroke-width="12"/>
+    <path d="M526 522 C526 501 554 493 570 510 C583 525 570 544 551 544 C532 545 519 536 526 522Z" fill="#c87a55" stroke="#68473e" stroke-width="3.5"/>
+    <path d="M525 519 C530 495 562 493 575 511 C558 509 545 510 532 522Z" fill="#613e38"/>
+    <circle cx="553" cy="523" r="2.4" fill="#33292b" stroke="none"/>
+    <path d="M548 533 Q555 538 562 532" fill="none" stroke="#954a46" stroke-width="2.5"/>
+    <path d="M574 552 L601 573 L613 592" fill="none" stroke="#c87a55" stroke-width="13"/>
+    <path d="M608 587 L618 596" stroke="#68473e" stroke-width="10"/>
+  </g>
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M729 479 C703 491 700 529 713 559 L730 602 L771 593 L768 546 L782 500Z" fill="#8372ae" stroke="#62558a" stroke-width="4"/>
+    <path d="M730 595 L709 642 M761 591 L788 633" stroke="#8f5e48" stroke-width="14"/>
+    <path d="M702 641 L716 644 M782 632 L796 629" stroke="#553e3b" stroke-width="12"/>
+    <path d="M713 492 C713 470 742 464 758 481 C771 497 758 517 739 517 C719 516 707 508 713 492Z" fill="#8f5e48" stroke="#553e3b" stroke-width="3.5"/>
+    <path d="M712 491 C714 466 748 461 764 482 C748 481 736 486 724 500Z" fill="#3b3132"/>
+    <circle cx="742" cy="495" r="2.4" fill="#30292a" stroke="none"/>
+    <path d="M735 506 Q743 511 750 505" fill="none" stroke="#734247" stroke-width="2.5"/>
+    <path d="M714 544 L680 568 L661 588" fill="none" stroke="#8f5e48" stroke-width="13"/>
+    <path d="M666 581 L656 594" stroke="#553e3b" stroke-width="10"/>
+  </g>
+
+  <g fill="#fff" opacity="0.92">
+    <circle cx="1080" cy="205" r="4"/><circle cx="1117" cy="261" r="3"/><circle cx="466" cy="171" r="3"/><circle cx="82" cy="332" r="3"/>
+  </g>
+</svg>

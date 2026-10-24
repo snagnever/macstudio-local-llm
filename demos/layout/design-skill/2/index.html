@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steno — every note is one thought away</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400&family=Hanken+Grotesque:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#181426; --panel:#221C35; --line:#322B4B;
+    --bone:#EBE6DC; --muted:#A8A090;
+    --coral:#FF7A5C; --butter:#F2C14E; --sage:#7FB77E; --sky:#7FA6E8; --lilac:#B49AF5;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--night);color:var(--bone);font:400 17px/1.6 "Hanken Grotesque",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  :focus-visible{outline:2px solid var(--butter);outline-offset:3px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+  h1,h2{font-family:"Fraunces",serif;font-weight:480;font-variation-settings:"SOFT" 40,"WONK" 1;letter-spacing:-.015em;line-height:1.08}
+  a{color:var(--bone)}
+  .serif-it{font-family:"Fraunces",serif;font-style:italic}
+
+  header{padding:26px 0}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:24px}
+  .wordmark{font-family:"Fraunces",serif;font-weight:600;font-size:23px;letter-spacing:-.01em;text-decoration:none}
+  .wordmark em{color:var(--butter);font-style:normal}
+  .nav nav{display:flex;gap:28px;font-size:15px}
+  .nav nav a{text-decoration:none;color:var(--muted)}
+  .nav nav a:hover{color:var(--bone)}
+  .btn{display:inline-block;background:var(--bone);color:#191527;font-weight:600;font-size:15.5px;
+    padding:12px 22px;border-radius:8px;text-decoration:none;border:0;cursor:pointer}
+  .btn:hover{background:#fff}
+  .btn--ghost{background:transparent;color:var(--bone);border:1px solid var(--line)}
+  .btn--ghost:hover{border-color:var(--bone);background:transparent}
+
+  /* hero */
+  .hero{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:48px;align-items:center;padding:64px 0 80px;min-height:72vh}
+  .hero h1{font-size:clamp(38px,5vw,68px)}
+  .hero h1 .serif-it{color:var(--butter)}
+  .hero p{color:var(--muted);font-size:19px;max-width:44ch;margin:26px 0 34px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  .graph-stage{position:relative}
+  .graph-stage svg{width:100%;height:auto;display:block}
+
+  .n rect{fill:var(--panel);stroke-width:1.4;transition:stroke-width .18s}
+  .n text{font:600 12.5px "Hanken Grotesque",sans-serif;fill:var(--bone)}
+  .n:hover rect{stroke-width:2.6}
+  .n{cursor:default}
+  .edge{fill:none;stroke:var(--line);stroke-width:1.5}
+  .edge--lit{stroke:var(--butter);opacity:.85}
+  .pulse{offset-path:path('M352 58 Q 400 66 436 128');animation:travel 3.6s linear infinite}
+  @keyframes travel{from{offset-distance:0%}to{offset-distance:100%}}
+  @media (prefers-reduced-motion:no-preference){
+    .n{animation:bob 6.5s ease-in-out infinite alternate;animation-delay:var(--d,0s)}
+    @keyframes bob{from{transform:translateY(0)}to{transform:translateY(-5px)}}
+  }
+  @media (prefers-reduced-motion:reduce){.pulse{display:none}}
+
+  /* legend */
+  .legend{border-top:1px solid var(--line);padding:72px 0}
+  .legend h2{font-size:clamp(26px,3.2vw,40px);margin-bottom:12px}
+  .legend > p{color:var(--muted);max-width:52ch;margin-bottom:40px}
+  .legend ul{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:2px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .legend li{background:var(--night);padding:22px 24px}
+  .legend li b{display:flex;align-items:center;gap:10px;font-size:16.5px;font-weight:600;margin-bottom:6px}
+  .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .legend li p{color:var(--muted);font-size:15px;line-height:1.5}
+
+  /* recall */
+  .recall{border-top:1px solid var(--line);padding:72px 0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;align-items:center}
+  .recall h2{font-size:clamp(26px,3.2vw,40px);margin-bottom:12px}
+  .recall .copy p{color:var(--muted);max-width:44ch}
+  .query{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:15px 18px;margin-bottom:18px;font-size:16px}
+  .query .caret{width:2px;height:1.2em;background:var(--butter);animation:blink 1.1s step-end infinite}
+  @keyframes blink{50%{opacity:0}}
+  .hit{display:flex;gap:14px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line);font-size:15.5px}
+  .hit:last-child{border-bottom:0}
+  .hit .dot{transform:translateY(-1px)}
+  .hit small{color:var(--muted);margin-left:auto;white-space:nowrap;font-size:13px}
+
+  /* quote */
+  .quote{border-top:1px solid var(--line);padding:80px 0;text-align:left}
+  .quote blockquote{font-family:"Fraunces",serif;font-weight:420;font-variation-settings:"SOFT" 60,"WONK" 1;font-size:clamp(24px,3.2vw,38px);letter-spacing:-.015em;max-width:26ch}
+  .quote cite{display:block;font-style:normal;color:var(--muted);margin-top:20px;font-size:16px}
+
+  /* cta */
+  .cta{border-top:1px solid var(--line);padding:88px 0 96px;display:flex;justify-content:space-between;align-items:center;gap:40px;flex-wrap:wrap}
+  .cta h2{font-size:clamp(28px,3.6vw,46px)}
+  .cta .fine{color:var(--muted);margin-top:12px;font-size:15px}
+  footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);font-size:14px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  footer a{color:var(--muted)}
+
+  .iter-switch{position:fixed;right:16px;bottom:16px;display:flex;gap:4px;padding:6px 8px;align-items:center;
+    background:#0e0b18;border:1px solid var(--line);border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);z-index:99}
+  .iter-switch span{color:#7d7694;font:11px/1 ui-monospace,monospace;padding:0 4px}
+  .iter-switch a{display:grid;place-items:center;width:28px;height:28px;border-radius:999px;
+    color:#cfc9e2;text-decoration:none;font:13px/1 ui-monospace,monospace}
+  .iter-switch a:hover{background:rgba(255,255,255,.1)}
+  .iter-switch a[aria-current]{background:var(--butter);color:#191527;font-weight:700}
+
+  @media (max-width:960px){
+    .hero,.recall{grid-template-columns:1fr}
+    .nav nav{display:none}
+    .cta{flex-direction:column;align-items:flex-start}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="wordmark" href="../2/">Steno<em>.</em></a>
+    <nav aria-label="Main">
+      <a href="#legend">The graph</a>
+      <a href="#recall">Recall</a>
+      <a href="#cta">Pricing</a>
+    </nav>
+    <a class="btn" href="#cta">Download</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <div>
+      <h1>Every note is one thought away from the thought it <span class="serif-it">belongs to</span>.</h1>
+      <p>Steno grows a graph while you write — books quoted, people mentioned, ideas that rhyme. Your archive stops being a pile and starts being a conversation.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#cta">Open the graph — free</a>
+        <a class="btn btn--ghost" href="#recall">Take the 2‑minute tour</a>
+      </div>
+    </div>
+    <div class="graph-stage" role="img" aria-label="A graph of linked notes: Seeing Like a State connects to legibility, which connects to dashboards lie.">
+      <svg viewBox="0 0 620 520">
+        <!-- edges -->
+        <path class="edge" d="M170 82 Q 218 55 260 58"/>
+        <path class="edge edge--lit" id="lit" d="M352 58 Q 400 66 436 128"/>
+        <path class="edge" d="M95 100 Q 78 170 100 240"/>
+        <path class="edge" d="M170 262 Q 220 268 270 268"/>
+        <path class="edge" d="M325 286 Q 322 358 322 430"/>
+        <path class="edge" d="M100 280 Q 74 350 90 420"/>
+        <path class="edge" d="M380 262 Q 442 282 482 330"/>
+        <path class="edge" d="M160 440 Q 200 446 240 450"/>
+        <path class="edge" d="M306 76 Q 322 160 326 250"/>
+        <!-- traveling recall pulse -->
+        <circle class="pulse" r="4" fill="#F2C14E"/>
+        <!-- nodes -->
+        <g class="n" style="--d:0s" transform="translate(20,60)">
+          <rect width="152" height="40" rx="9" stroke="#FF7A5C"/><text x="14" y="25">Seeing Like a State</text>
+        </g>
+        <g class="n" style="--d:.7s" transform="translate(260,40)">
+          <rect width="92" height="36" rx="9" stroke="#F2C14E"/><text x="14" y="23">legibility</text>
+        </g>
+        <g class="n" style="--d:1.4s" transform="translate(436,120)">
+          <rect width="150" height="40" rx="9" stroke="#7FA6E8"/><text x="14" y="25">dashboards lie</text>
+        </g>
+        <g class="n" style="--d:.3s" transform="translate(30,240)">
+          <rect width="140" height="40" rx="9" stroke="#7FB77E"/><text x="14" y="25">pitch = garden</text>
+        </g>
+        <g class="n" style="--d:1s" transform="translate(270,250)">
+          <rect width="112" height="36" rx="9" stroke="#7FB77E"/><text x="14" y="23">note decay</text>
+        </g>
+        <g class="n" style="--d:1.8s" transform="translate(20,420)">
+          <rect width="140" height="40" rx="9" stroke="#F2C14E"/><text x="14" y="25">slow software</text>
+        </g>
+        <g class="n" style="--d:.5s" transform="translate(430,330)">
+          <rect width="152" height="40" rx="9" stroke="#FF7A5C"/><text x="14" y="25">typography memo</text>
+        </g>
+        <g class="n" style="--d:1.2s" transform="translate(240,430)">
+          <rect width="160" height="40" rx="9" stroke="#B49AF5"/><text x="14" y="25">ask Mia — Iceland</text>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <section class="legend" id="legend">
+    <h2>Five colors, and that’s the whole system.</h2>
+    <p>Steno suggests a hue when you capture — reading, projects, people, someday, archive. No taxonomy to maintain, nothing to configure. Drag a dot when you disagree.</p>
+    <ul>
+      <li><b><i class="dot" style="background:var(--coral)"></i>Reading</b><p>Books, essays, papers — with the quotes that made you stop scrolling.</p></li>
+      <li><b><i class="dot" style="background:var(--sage)"></i>Projects</b><p>Anything with a verb in it. Decisions stay attached to the thinking behind them.</p></li>
+      <li><b><i class="dot" style="background:var(--lilac)"></i>People</b><p>Names you keep writing. Steno notices, and pulls them together.</p></li>
+      <li><b><i class="dot" style="background:var(--butter)"></i>Someday</b><p>Ideas with no deadline. They float; they don’t rot at the bottom of a list.</p></li>
+      <li><b><i class="dot" style="background:var(--sky)"></i>Archive</b><p>Finished things. Still linkable, still recallable, just quiet.</p></li>
+    </ul>
+  </section>
+
+  <section class="recall" id="recall">
+    <div class="copy">
+      <h2>Ask the way you’d ask a friend.</h2>
+      <p>Recall works across the whole graph, not just where you saved things. The answer arrives with the two notes that orbit it, because context is half the memory.</p>
+    </div>
+    <div>
+      <div class="query" aria-label="Example recall query">what did I read about legibility<span class="caret" aria-hidden="true"></span></div>
+      <div class="hit"><i class="dot" style="background:var(--coral)"></i>Dashboards are legibility machines<small>2 months ago</small></div>
+      <div class="hit"><i class="dot" style="background:var(--sky)"></i>Metrics meeting — notes<small>5 months ago</small></div>
+      <div class="hit"><i class="dot" style="background:var(--butter)"></i>Why state-like tools fail<small>11 months ago</small></div>
+    </div>
+  </section>
+
+  <section class="quote">
+    <blockquote>“Steno surfaced a note I forgot writing. It changed the decision I was about to make.”
+      <cite>Priya Nair · product lead</cite>
+    </blockquote>
+  </section>
+
+  <section class="cta" id="cta">
+    <div>
+      <h2>Start the graph with your first note.</h2>
+      <p class="fine">Free for personal notes. Your data syncs end‑to‑end encrypted.</p>
+    </div>
+    <a class="btn" href="#cta">Get Steno</a>
+  </section>
+
+  <footer>
+    <span>Steno © 2026</span>
+    <span><a href="#legend">The graph</a> · <a href="#cta">Pricing</a> · Privacy</span>
+  </footer>
+
+</main>
+
+<nav class="iter-switch" aria-label="Design directions">
+  <span>dir.</span>
+  <a href="../1/">1</a>
+  <a href="../2/" aria-current="page">2</a>
+  <a href="../3/">3</a>
+  <a href="../4/">4</a>
+  <a href="../5/">5</a>
+</nav>
+
+</body>
+</html>

@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title desc">
+  <title id="title">Stunt car jumping through a circle of fire</title>
+  <desc id="desc">A red stunt coupe flies nose-up through a blazing ring in a night-time arena.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#020914"/><stop offset=".48" stop-color="#102844"/><stop offset="1" stop-color="#301827"/>
+    </linearGradient>
+    <radialGradient id="halo"><stop stop-color="#ffb135" stop-opacity=".5"/><stop offset=".35" stop-color="#e94b1b" stop-opacity=".16"/><stop offset="1" stop-color="#df2918" stop-opacity="0"/></radialGradient>
+    <linearGradient id="fire" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff9c4"/><stop offset=".22" stop-color="#ffe363"/><stop offset=".58" stop-color="#ff841d"/><stop offset="1" stop-color="#d62516"/></linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#59626c"/><stop offset=".45" stop-color="#202730"/><stop offset="1" stop-color="#080c12"/></linearGradient>
+    <linearGradient id="paint" x1="0" y1="0" x2=".85" y2="1"><stop stop-color="#ff7651"/><stop offset=".22" stop-color="#e33729"/><stop offset=".67" stop-color="#971322"/><stop offset="1" stop-color="#4d0a16"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d3f3f4"/><stop offset=".23" stop-color="#639bb0"/><stop offset=".58" stop-color="#173a59"/><stop offset="1" stop-color="#071426"/></linearGradient>
+    <filter id="blur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="24"/></filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>
+    <filter id="shadow" x="-30%" y="-40%" width="170%" height="190%"><feDropShadow dx="14" dy="25" stdDeviation="13" flood-color="#000" flood-opacity=".8"/></filter>
+  </defs>
+
+  <rect width="1400" height="900" fill="url(#sky)"/>
+  <path d="M0 420C145 359 243 392 378 348s256 28 399-23 233-48 354-5 195 25 269-2V606H0Z" fill="#071525" opacity=".74"/>
+  <path d="M0 523c140-32 260-4 416-42s298 26 458-16 316-21 526 28v140H0Z" fill="#040b14"/>
+  <g fill="#d9eeff" opacity=".72"><circle cx="91" cy="125" r="2"/><circle cx="211" cy="215" r="1.5"/><circle cx="345" cy="108" r="2"/><circle cx="523" cy="183" r="1"/><circle cx="698" cy="95" r="2"/><circle cx="1125" cy="111" r="2"/><circle cx="1280" cy="220" r="1.5"/><circle cx="1342" cy="88" r="2"/></g>
+  <g opacity=".35"><path d="M0 637H1400" stroke="#ff9364" stroke-width="2"/><path d="M0 655H1400" stroke="#172536" stroke-width="7"/></g>
+  <path d="M0 693C174 649 371 670 536 696s339-3 514-22 271 7 350 29v197H0Z" fill="#07090d"/>
+  <path d="M0 719c253-41 460 24 705 8s439-73 695 8" fill="none" stroke="#4b2b30" stroke-width="5" opacity=".8"/>
+
+  <!-- The metal hoop gives the fire a believable structure. -->
+  <g transform="translate(962 421)">
+    <ellipse rx="365" ry="355" fill="url(#halo)" filter="url(#blur)"/>
+    <path d="M-184 219L-228 358M185 219L230 358" stroke="url(#steel)" stroke-width="22" stroke-linecap="round"/>
+    <path d="M-264 360h78M192 360h78" stroke="#4b535c" stroke-width="13" stroke-linecap="round"/>
+    <circle r="255" fill="none" stroke="#4a1715" stroke-width="34"/>
+    <circle r="255" fill="none" stroke="#f0441b" stroke-width="25" opacity=".75" filter="url(#glow)"/>
+    <circle r="255" fill="none" stroke="url(#fire)" stroke-width="17" stroke-dasharray="10 6" stroke-linecap="round"/>
+    <circle r="255" fill="none" stroke="#fff09a" stroke-width="3" stroke-dasharray="5 20" opacity=".9"/>
+    <g fill="url(#fire)" stroke="#ff9c24" stroke-width="2" stroke-linejoin="round">
+      <path d="M-177-183c-31-54-7-92 26-125-8 47 34 56 8 105-10 20-23 29-34 20Z"/>
+      <path d="M-79-241c-12-58 22-90 51-112-18 45 17 66-18 108-14 17-27 21-33 4Z"/>
+      <path d="M35-249c7-54 48-76 82-82-35 33-8 65-52 88-18 9-29 6-30-6Z"/>
+      <path d="M147-210c43-37 86-18 113 12-47-15-60 25-103 4-17-9-20-19-10-16Z"/>
+      <path d="M231-116c58-13 87 25 98 60-39-30-67 4-96-35-11-16-11-27-2-25Z"/>
+      <path d="M249 8c53 17 66 60 59 94-22-43-59-24-67-70-3-18 0-28 8-24Z"/>
+      <path d="M206 143c35 43 15 87-14 111 15-47-25-60-5-102 8-16 18-19 19-9Z"/>
+      <path d="M111 225c8 56-29 84-63 96 29-38-6-65 31-99 15-13 27-13 32 3Z"/>
+      <path d="M-3 247c-19 52-62 65-97 55 45-21 28-58 75-67 18-3 27 2 22 12Z"/>
+      <path d="M-129 211c-48 30-88 3-105-29 46 21 65-16 104 12 15 11 18 22 1 17Z"/>
+      <path d="M-220 111c-57 1-80-37-83-72 34 36 65 7 86 49 8 17 5 28-3 23Z"/>
+      <path d="M-252-15c-40-39-25-83 0-111-8 49 31 57 18 103-6 18-16 23-18 8Z"/>
+    </g>
+  </g>
+
+  <!-- Distant ramp establishes the launch, while the car is still in clean air. -->
+  <path d="M20 700L285 700 418 573 480 573 330 724H20Z" fill="#161b22" stroke="#4a5058" stroke-width="5"/>
+  <path d="M54 689h231l105-105" fill="none" stroke="#818990" stroke-width="4" opacity=".62"/>
+  <ellipse cx="682" cy="713" rx="307" ry="31" fill="#000" opacity=".55" filter="url(#glow)"/>
+
+  <!-- Airborne stunt coupe, nose raised into the ring. -->
+  <g transform="translate(354 296) rotate(-9 290 160)" filter="url(#shadow)">
+    <path d="M35 190c5-39 27-65 73-78l74-67c26-24 57-33 115-31l111 9c39 3 65 24 86 72l52 13c31 8 47 31 48 65l3 35-48 7c-13 42-46 64-89 64-40 0-68-25-80-61H190c-13 38-43 59-82 59-43 0-75-30-83-68l-34-4 10-48c4-20 14-27 34-27Z" fill="url(#paint)" stroke="#480b15" stroke-width="8" stroke-linejoin="round"/>
+    <path d="m141 111 69-63c22-19 49-25 86-23l91 8c26 2 46 19 64 63l-310 19Z" fill="url(#glass)" stroke="#611321" stroke-width="6" stroke-linejoin="round"/>
+    <path d="m220 47-13 65m89-81-3 75m91-66-12 61" stroke="#7d1a27" stroke-width="6"/>
+    <path d="M14 151c129-12 338-15 529-10l21 39-565 10Z" fill="#fa5035" opacity=".78"/>
+    <path d="M0 190h567l3 29-579 6Z" fill="#4b0b14"/>
+    <path d="M225 131h123l8 27H209Z" fill="#ffd78d"/><path d="M369 127h91l20 30H378Z" fill="#c42424"/>
+    <path d="M39 157h88l-20 21H29Z" fill="#ffd56d"/><path d="M505 154h41l9 21h-47Z" fill="#fff4bb"/>
+    <path d="M139 116h51" stroke="#fff6ca" stroke-width="7" stroke-linecap="round" opacity=".85"/>
+    <path d="M177 180v44m183-44v42m126-44v37" stroke="#75101b" stroke-width="6"/>
+    <path d="M237 203h113" stroke="#ff8a67" stroke-width="6" stroke-linecap="round" opacity=".72"/>
+    <g>
+      <circle cx="108" cy="217" r="59" fill="#080b10" stroke="#313943" stroke-width="9"/><circle cx="108" cy="217" r="35" fill="#aeb7bc" stroke="#464d56" stroke-width="7"/><circle cx="108" cy="217" r="13" fill="#202630"/>
+      <path d="M108 185v64m-32-32h64m-54-22 44 44m0-44-44 44" stroke="#59616a" stroke-width="5"/>
+      <circle cx="444" cy="217" r="59" fill="#080b10" stroke="#313943" stroke-width="9"/><circle cx="444" cy="217" r="35" fill="#aeb7bc" stroke="#464d56" stroke-width="7"/><circle cx="444" cy="217" r="13" fill="#202630"/>
+      <path d="M444 185v64m-32-32h64m-54-22 44 44m0-44-44 44" stroke="#59616a" stroke-width="5"/>
+    </g>
+    <path d="M45 127c-29-4-44 9-57 33l49 1ZM515 115l32-16 11 23-34 14Z" fill="#222933" stroke="#080b10" stroke-width="6"/>
+    <text x="262" y="91" fill="#fff5d2" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="bold" letter-spacing="3">RUSH</text>
+  </g>
+
+  <!-- Near-side flames cross the body to sell the pass through the hoop. -->
+  <g transform="translate(962 421)" fill="url(#fire)" stroke="#ffac2c" stroke-width="2" stroke-linejoin="round">
+    <path d="M-235 94c-46 20-65 63-58 105 23-42 61-18 72-63 5-19 0-36-14-42Z"/>
+    <path d="M-205 164c-24 43-4 83 27 103-13-44 25-56 11-96-6-17-22-23-38-7Z"/>
+    <path d="M-139 218c-6 53 28 79 59 88-29-36 3-60-33-91-15-13-25-12-26 3Z"/>
+    <path d="M-49 246c20 45 61 53 91 41-41-16-28-49-71-60-17-4-25 3-20 19Z"/>
+    <path d="M53 244c29 42 75 43 105 20-47-6-38-46-84-46-18 0-26 10-21 26Z"/>
+    <path d="M148 203c47 24 88 1 104-31-43 21-65-15-104 8-15 9-19 20 0 23Z"/>
+  </g>
+  <g fill="#ffd65d"><circle cx="583" cy="191" r="4"/><circle cx="729" cy="130" r="3"/><circle cx="1147" cy="145" r="4"/><circle cx="1260" cy="331" r="3"/><circle cx="678" cy="616" r="4"/><circle cx="1197" cy="652" r="3"/></g>
+  <g fill="#ff6825"><circle cx="616" cy="240" r="3"/><circle cx="749" cy="195" r="2"/><circle cx="1277" cy="433" r="4"/><circle cx="706" cy="576" r="2"/><circle cx="1147" cy="698" r="3"/></g>
+</svg>
