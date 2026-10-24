@@ -21,7 +21,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 [[ "$SESSIONS" =~ ^[1-9][0-9]*$ ]] || { echo "toolcall-probe: --sessions must be a positive integer" >&2; exit 64; }
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# TOOLCALL_CAMPAIGN_DIR sends results and the server run to another campaign folder (it needs scripts/run-arm.sh).
+HERE="${TOOLCALL_CAMPAIGN_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 REPO="$(cd "$HERE/../.." && pwd)"
 OUT="$HERE/results/toolcall"
 TL="$REPO/bench/qwen3.8-prefix-cache/scripts/tool_loop.py"

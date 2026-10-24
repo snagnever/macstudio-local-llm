@@ -101,3 +101,12 @@ def test_toolcall_probe_passes_max_tokens():
     default = subprocess.run(["bash", probe, "k2a", "--print"], capture_output=True, text=True, env=_env(),
                              check=True).stdout
     assert "--max-tokens 512" in default
+
+
+def test_toolcall_probe_writes_to_another_campaign():
+    other = HERE.parent / "splash-longctx-2026-10"
+    out = subprocess.run(["bash", str(HERE / "scripts" / "toolcall-probe.sh"), "k2a", "--print"],
+                         capture_output=True, text=True, env=_env({"TOOLCALL_CAMPAIGN_DIR": str(other)}),
+                         check=True).stdout
+    assert f"{other}/results/toolcall/k2a-fp0.jsonl" in out and f"{other}/results/k2a-65536" in out
+    assert str(HERE / "results") not in out

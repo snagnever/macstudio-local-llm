@@ -137,3 +137,27 @@ def test_run_tasks_t2_sweep_then_chosen_kv():
 
 def test_run_tasks_t3_uses_1000000():
     assert "k2a:1000000:1:lc k1a:1000000:1:lc" in tasks("t3", extra={"SW": "k2a"})
+
+
+def test_longctx_arm_runs_every_band_on_one_server():
+    out = subprocess.run(["bash", str(HERE / "scripts" / "longctx-arm.sh"), "k2a", "524288", "131072", "524288",
+                          "--print"], capture_output=True, text=True, env=_env(), check=True).stdout
+    assert "--max-context 524288" in server(out) and "-lc-q.jsonl" in out
+    assert "for b in 131072 524288" in out and "longctx/k2a-524288-$b.jsonl" in out
+
+
+def test_run_tasks_t4_quality_matrix():
+    out = tasks("t4", extra={"SW": "k2a"})
+    assert "run-battery.sh w1z q262 --ctx 262144 --suites humaneval gpqa livecodebench if jdhodges veerman" in out
+    assert "run-battery.sh k2a q1m --ctx 1000000" in out and "run-battery.sh k2a q512 --ctx 524288" in out
+    assert "longctx-arm.sh w1zq4 524288 131072 262144 524288 --yarn 2.0" in out
+    assert "longctx-arm.sh k2a 1000000 131072 262144 524288 1000000" in out
+    assert "toolcall-probe.sh k2a --sessions 20 --suffix t4 --max-tokens 2048" in out
+    assert "k3a" not in out
+
+
+def test_run_tasks_t5_gsq_on_mlx_serve():
+    out = tasks("t5")
+    assert "r1z:8192:3:lc r1z:262144:3:lc" in out
+    assert "r1zy:524288:3:lc:2.0 r1zy:1000000:1:lc:3.815" in out
+    assert "run-battery.sh r1z q262 --ctx 262144" in out
