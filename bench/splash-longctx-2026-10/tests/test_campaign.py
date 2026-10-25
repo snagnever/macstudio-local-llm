@@ -48,6 +48,16 @@ def test_k3ma_is_k3a_on_the_main_build():
     assert server(out).replace("splash-main-3135ab4", "BIN") == server(show("k3a")).replace("splash-v1.4.0", "BIN")
 
 
+def test_k2m_is_k2a_with_the_swift_mlx_pack():
+    out = show("k2m")
+    k2m = server(out)
+    assert "--model Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw --" in k2m
+    assert "--revision 13839b7191e0973ff9fea58232267c395b76c6c0 " in k2m
+    assert "--runtime-revision v1.4.0-verify-auto " in out and "splash-v1.4.0" in k2m
+    strip = lambda s: s.split("--revision")[1].split(" ", 2)[2]
+    assert strip(k2m) == strip(server(show("k2a")))
+
+
 def test_k2as_adds_bf16_state():
     assert server(show("k2as")) == server(show("k2a")) + " --state-format bf16"
 
@@ -177,6 +187,12 @@ def test_run_tasks_t5m_gsq_on_the_splash_main_build():
     out = tasks("t5m")
     assert "k3ma:8192:3:lc k3ma:262144:3:lc" in out and "idle-gate.sh" in out
     assert "run-battery.sh" not in out and "longctx-arm.sh" not in out
+
+
+def test_run_tasks_t5x_loads_k2m_at_32k_before_its_bands():
+    out = tasks("t5x")
+    load = out.index("run-arm.sh k2m 32768 --scenarios cold --repeat 1 --tag load")
+    assert load < out.index("k2m:8192:3:lc k2m:262144:3:lc")
 
 
 def test_longctx_fill_shrinks_small_contexts():
