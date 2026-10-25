@@ -241,8 +241,8 @@ O `if` é a sonda de instruction following do `if_probe.py`: 20 prompts no estil
 
 ### Task 5: GSQ-RCO-Coder no mlx-serve (se o Splash recusou o `k3` no Task 0)
 
-- [ ] **Step 1: Bandas.** Rodar o `r1z` a 8K e 256K (3 reps) e o `r1zy` a 524288 (3 reps) e a 1000000 (1 rep, YaRN fator 3.815, KV 4-bit).
-- [ ] **Step 2: Qualidade.** Rodar a bateria do `r1z` a 262144 e o longctx a 512K e a 1M. A bateria de 131072 do Task 6 da stack-updates continua valendo como referência.
+- [ ] **Step 1: Bandas.** Rodar o `r1z` a 8K e 256K (3 reps). Em 25/10, o usuário limitou o GSQ a 256K: o `r1zy` (512K e 1M) não roda.
+- [ ] **Step 2: Qualidade.** Rodar a bateria do `r1z` a 262144, o probe de tool calls e o longctx no servidor de 262144 (bandas 128K e 256K). A bateria de 131072 do Task 6 da stack-updates continua valendo como referência.
 - [ ] **Step 3: Gravar `results/etapa5-gsq-mlx-serve.md` e commitar.** Se o Splash carregou o `k3`, gravar só uma linha dizendo que o Task 5 não rodou e por quê.
 
 ### Task 5b: GSQ-RCO-Coder numa release nova do Splash (condicional)

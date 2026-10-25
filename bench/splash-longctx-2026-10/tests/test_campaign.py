@@ -161,8 +161,10 @@ def test_run_tasks_t4_quality_matrix():
 def test_run_tasks_t5_gsq_on_mlx_serve():
     out = tasks("t5")
     assert "r1z:8192:3:lc r1z:262144:3:lc" in out
-    assert "r1zy:524288:3:lc:2.0 r1zy:1000000:1:lc:3.815" in out
     assert "run-battery.sh r1z q262 --ctx 262144" in out
+    assert "toolcall-probe.sh r1z --sessions 20" in out
+    # The user limited the GSQ to 256K (2026-10-25): no YaRN arm, longctx on the 262144 server.
+    assert "longctx-arm.sh r1z 262144 131072 262144" in out and "r1zy" not in out
 
 
 def test_longctx_fill_shrinks_small_contexts():

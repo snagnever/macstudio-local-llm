@@ -56,10 +56,10 @@ for t in "${TASKS[@]}"; do
           battery "$K3ARM" q262 262144; longctx "$K3ARM" 262144 131072 262144; toolcall "$K3ARM"
           longctx "$K3ARM" 524288 524288; longctx "$K3ARM" 1000000 1000000
         fi ;;
+    # The GSQ runs only up to 256K (user decision, 2026-10-25): no r1zy at 512K or 1M.
     t5) gate; run bash "$SEQ" r1z:8192:3:lc r1z:262144:3:lc
-        gate; run bash "$SEQ" r1zy:524288:3:lc:2.0 r1zy:1000000:1:lc:3.815
         battery r1z q262 262144; toolcall r1z
-        longctx r1zy 524288 524288 --yarn 2.0; longctx r1zy 1000000 1000000 --yarn 3.815 ;;
+        longctx r1z 262144 131072 262144 ;;
   esac
   echo "=== task $t done $(date '+%F %T')"
 done
