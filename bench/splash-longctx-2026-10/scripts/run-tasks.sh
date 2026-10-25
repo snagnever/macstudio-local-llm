@@ -9,9 +9,10 @@
 #        524288 and 1000000; K3=1 adds the same for k3a (or k3ab) at 262144 and longctx at 524288 and 1000000.
 #   t5   Task 5, GSQ-RCO-Coder on mlx-serve: r1z at 8K and 256K (3 reps), r1zy at 512K (3) and 1M (1),
 #        battery and tool calls of r1z at 262144, longctx of r1zy at 524288 and 1000000.
+#   t5m  GSQ-RCO-Coder on a Splash package built from main 3135ab4 (it holds #561): k3ma at 8K and 256K (3 reps).
 # The 32K and 128K bands of k1a, k2a and w1z come from bench/stack-updates-2026-10 (Tasks 1, 5 and 8).
 # A failing arm does not stop the queue (run-seq.sh prints its exit code). Lines "=== task <t> done" mark the end.
-# usage: [K3=1] [SW=k2a|k2ab|k2as] run-tasks.sh <t1|t2a|t2b|t3|t4|t5> [...] [--dry-run]
+# usage: [K3=1] [SW=k2a|k2ab|k2as] run-tasks.sh <t1|t2a|t2b|t3|t4|t5|t5m> [...] [--dry-run]
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GATE="$HERE/../flashnext-next-steps-2026-10/scripts/idle-gate.sh"
@@ -25,11 +26,11 @@ DRY=""; TASKS=()
 for a in "$@"; do
   case "$a" in
     --dry-run) DRY=1 ;;
-    t1|t2a|t2b|t3|t4|t5) TASKS+=("$a") ;;
-    *) echo "usage: $0 <t1|t2a|t2b|t3|t4|t5> [...] [--dry-run]" >&2; exit 64 ;;
+    t1|t2a|t2b|t3|t4|t5|t5m) TASKS+=("$a") ;;
+    *) echo "usage: $0 <t1|t2a|t2b|t3|t4|t5|t5m> [...] [--dry-run]" >&2; exit 64 ;;
   esac
 done
-[[ ${#TASKS[@]} -gt 0 ]] || { echo "usage: $0 <t1|t2a|t2b|t3|t4|t5> [...] [--dry-run]" >&2; exit 64; }
+[[ ${#TASKS[@]} -gt 0 ]] || { echo "usage: $0 <t1|t2a|t2b|t3|t4|t5|t5m> [...] [--dry-run]" >&2; exit 64; }
 [[ "$SW" =~ ^k2a(b|s)?$ ]] || { echo "run-tasks: SW must be k2a, k2ab or k2as" >&2; exit 64; }
 K3ARM=k3a; [[ "$SW" == k2ab ]] && K3ARM=k3ab
 
@@ -60,6 +61,8 @@ for t in "${TASKS[@]}"; do
     t5) gate; run bash "$SEQ" r1z:8192:3:lc r1z:262144:3:lc
         battery r1z q262 262144; toolcall r1z
         longctx r1z 262144 131072 262144 ;;
+    # Speed only, against r1z (user decision, 2026-10-25): the official release with #561 has not shipped.
+    t5m) gate; run bash "$SEQ" k3ma:8192:3:lc k3ma:262144:3:lc ;;
   esac
   echo "=== task $t done $(date '+%F %T')"
 done

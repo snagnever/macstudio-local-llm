@@ -42,6 +42,12 @@ def test_k3_arms_are_the_ista_gguf_with_the_k2_flags():
     assert strip(k3a) == strip(server(show("k2a")))
 
 
+def test_k3ma_is_k3a_on_the_main_build():
+    out = show("k3ma")
+    assert "--runtime-revision v1.4.0-main-3135ab4-verify-auto " in out
+    assert server(out).replace("splash-main-3135ab4", "BIN") == server(show("k3a")).replace("splash-v1.4.0", "BIN")
+
+
 def test_k2as_adds_bf16_state():
     assert server(show("k2as")) == server(show("k2a")) + " --state-format bf16"
 
@@ -165,6 +171,12 @@ def test_run_tasks_t5_gsq_on_mlx_serve():
     assert "toolcall-probe.sh r1z --sessions 20" in out
     # The user limited the GSQ to 256K (2026-10-25): no YaRN arm, longctx on the 262144 server.
     assert "longctx-arm.sh r1z 262144 131072 262144" in out and "r1zy" not in out
+
+
+def test_run_tasks_t5m_gsq_on_the_splash_main_build():
+    out = tasks("t5m")
+    assert "k3ma:8192:3:lc k3ma:262144:3:lc" in out and "idle-gate.sh" in out
+    assert "run-battery.sh" not in out and "longctx-arm.sh" not in out
 
 
 def test_longctx_fill_shrinks_small_contexts():

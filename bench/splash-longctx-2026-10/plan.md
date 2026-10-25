@@ -249,6 +249,8 @@ O `if` é a sonda de instruction following do `if_probe.py`: 20 prompts no estil
 
 Roda só se, antes do Task 6, o Splash publicar uma release que contenha a #561. Conferir com `gh api repos/incoai/splash/releases` e com as notas da release.
 
+Em 25/10 ainda não havia release com a #561. Por decisão do usuário, o braço `k3ma` (o `k3a` num pacote compilado do `main` em `3135ab4`, versão `1.4.0-main-3135ab4`, em `~/.local/opt/qwen38/splash-main-3135ab4/`) roda só as bandas de 8K e 256K (3 reps) no fim da fila (`run-tasks.sh t5m`), para comparar a velocidade com o `r1z`. Os Steps abaixo continuam valendo para uma release oficial.
+
 - [ ] **Step 1: Instalar** em `~/.local/opt/qwen38/splash-v<versão>/` com o `install-runtime.sh`, que confere o digest. A 1.4.0 continua instalada e serve os outros braços.
 - [ ] **Step 2: Controle de versão.** Rodar o `k2a` a 32768 na versão nova, com 1 rep. Se o `T_turno` ficar fora de ±5% do `k2a` na 1.4.0, registrar a diferença: os números do `k3` não comparam 1:1 com os do `k2a`.
 - [ ] **Step 3: Braços `k3n`, `k3na`, `k3nab`** (o `k3` na versão nova). Rodar os Tasks 1 a 4 com eles: bandas, 512K, 1M e qualidade. Gravar `results/etapa5b-gsq-splash.md`.
