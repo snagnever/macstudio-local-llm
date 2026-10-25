@@ -19,5 +19,5 @@ OUT="$HERE/results/longctx"
 # run-candidate.sh attaches memory samples to results/<arm>-<ctx>-t1.0-lc-q.jsonl after the command: create it.
 EXEC="mkdir -p '$OUT' && touch '$HERE/results/$ARM-$CTX-t1.0-lc-q.jsonl' && rc=0; for b in ${BANDS[*]}; do"
 EXEC+=" python3 '$HERE/scripts/longctx_probe.py' --base-url \"\$BASE_URL\" --model \"\$MODEL_ID\" --context \$b"
-EXEC+=" --arm $ARM --output '$OUT/$ARM-$CTX-\$b.jsonl' || rc=\$?; done; exit \$rc"
+EXEC+=" --arm $ARM --output \"$OUT/$ARM-$CTX-\$b.jsonl\" || rc=\$?; done; exit \$rc"
 exec bash "$HERE/scripts/run-arm.sh" "$ARM" "$CTX" --tag lc-q --exec "$EXEC" ${PASS[@]+"${PASS[@]}"}

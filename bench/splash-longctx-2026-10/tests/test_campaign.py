@@ -144,6 +144,8 @@ def test_longctx_arm_runs_every_band_on_one_server():
                           "--print"], capture_output=True, text=True, env=_env(), check=True).stdout
     assert "--max-context 524288" in server(out) and "-lc-q.jsonl" in out
     assert "for b in 131072 524288" in out and "longctx/k2a-524288-$b.jsonl" in out
+    # Single quotes kept $b literal: every band of a server went to one file named "<arm>-<ctx>-$b.jsonl".
+    assert "-$b.jsonl'" not in out
 
 
 def test_run_tasks_t4_quality_matrix():
