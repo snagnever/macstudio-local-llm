@@ -6,25 +6,25 @@ O braço Swift é o `k2a` (Swift 1.5 GGUF IQ4_XS no Splash 1.4.0, KV int8, `--ve
 
 | suíte | w1z 262144 | k2a 262144 | k2a 524288 | k2a 1000000 |
 |---|---:|---:|---:|---:|
-| HumanEval | 142/164 | 147/164 | 147/164 | 142/164 |
+| HumanEval | 142/164 | 147/164 · 151/164 (2ª rodada) | 147/164 | 142/164 · 148/164 (2ª rodada) |
 | GPQA | 43/50 | 41/50 (3 trunc) | 43/50 (3 trunc) | 43/50 (2 trunc) |
 | LiveCodeBench | 47/50 | 47/50 | 47/50 | 47/50 |
 | IF | 19/20 | 19/20 | 18/20 | 19/20 |
-| jdhodges | pendente | 37/40 | 37/40 | 36/40 |
-| veerman | pendente | 10/12 | 10/12 | 9/12 |
+| jdhodges | 34/40 | 37/40 | 37/40 | 36/40 |
+| veerman | 10/12 | 10/12 | 10/12 | 9/12 |
 | tempo mediano GPQA / LCB | 15.4 / 19.0 s | 16.0 / 15.9 s | 13.2 / 18.1 s | 20.7 / 14.2 s |
 
 Gates do `summarize_ab.py`:
 
 | comparação | G1 (acertos ≥ base − margem) | G2 (tempo ≤ 0.8 × base) |
 |---|---|---|
-| k2a 262144 × w1z 262144 | passa nas 4 suítes comuns | falha (GPQA, LCB) |
+| k2a 262144 × w1z 262144 | passa nas 6 | falha (GPQA, LCB) |
 | k2a 524288 × k2a 262144 | passa nas 6 | falha (GPQA, LCB) |
-| k2a 1000000 × k2a 262144 | **falha no HumanEval** (142 contra 147, margem 3); passa nas outras 5 | falha (GPQA, LCB) |
+| k2a 1000000 × k2a 262144 | HumanEval: média de 145 contra 149 em 2 rodadas, 1 abaixo da margem 3 (aceito como ruído, decisão do usuário); passa nas outras 5 | falha (GPQA, LCB) |
 
 - O G2 foi feito para um candidato que deveria pensar menos (o A/B n2 × w1 da swift15). Aqui ele só informa: o Splash não é 20% mais rápido por questão, porque o `k2a` raciocina um pouco mais (GPQA: 4868 contra 3702 chars medianos). O veredito usa só o G1.
-- O jdhodges e o veerman do `w1z` não rodaram: a fila não achava o `uv` (ruling do Task 4). A reposição roda na fila `chain-t3b`.
-- **HumanEval a 1M.** A diferença de 5 questões fica perto do ruído de uma rodada t1 (desvio de ~4 questões por rodada a 88%). Uma segunda rodada do HumanEval a 262144 e a 1000000 decide o G1 pela média das duas rodadas de cada lado. A regra foi fixada antes da rodada.
+- Na primeira rodada, o jdhodges e o veerman do `w1z` não rodaram, porque a fila não achava o `uv`. A reposição rodou em 25/10.
+- **HumanEval a 1M.** A primeira rodada deu 142 contra 147. Uma segunda rodada a 262144 e a 1000000 deu 151 e 148. A regra fixada antes da rodada compara as médias: 145 a 1M contra 149 a 262144, 1 questão abaixo da margem de 3. As rodadas do mesmo perfil variam 4 a 6 questões (147 e 151; 142 e 148), então a diferença fica dentro do ruído. O usuário decidiu ignorar a regra e aceitar o resultado.
 
 ## Longctx (`longctx_probe.py`, 8 perguntas, fill 0.97)
 
@@ -58,9 +58,9 @@ Para um agente, isso afeta:
 
 Com penalidade 0, que os clientes do driver enviam, os dois braços passam em tudo. Com penalidade 1, os dois braços falham. No mlx-serve, a causa é o #912 (penalidade aditiva).
 
-## Veredito (parcial)
+## Veredito
 
 | perfil | gates e folga | T_turno ≤ 13.3 s | G1 contra 262144 | longctx | aceitável |
 |---|---|---|---|---|---|
 | k2a 524288 | passa | 6.7 s | passa | 100% | **sim** |
-| k2a 1000000 | passa | 9.3–9.4 s | falha no HumanEval (pendente da 2ª rodada) | 100% a 1M, 87.5% a 128K | pendente |
+| k2a 1000000 | passa | 9.3–9.4 s | passa em 5 suítes; HumanEval 1 abaixo da margem, dentro do ruído | 100% a 1M, 87.5% a 128K | **sim** (decisão do usuário sobre o HumanEval) |
