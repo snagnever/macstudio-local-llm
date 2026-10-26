@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
  "profile": "2026-10",
- "generated_at": "2026-10-11T13:03:59Z",
+ "generated_at": "2026-10-26T13:28:16Z",
  "campaign": "bench/engine-updates-2026-10",
  "rig": [
   {
@@ -110,6 +110,101 @@
    "state": "control",
    "status": "measured",
    "note": "Serves every band to 512K; decode 43–54 tok/s and a slow warm tool turn at 256K and 512K."
+  },
+  {
+   "id": "w1",
+   "name": "Swift 1.5 MLX 4.7 bpw · mlx-serve 26.10.3",
+   "short": "w1 mlx-serve",
+   "runtime": "mlx-serve",
+   "runtime_version": "26.10.3",
+   "model": "Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw",
+   "revision": "13839b7",
+   "quant": "MLX 4.7 bpw",
+   "bpw": 4.7,
+   "disk_gb": 99.0,
+   "port": 11234,
+   "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
+   "spec": "native MTP",
+   "ceiling": "512K with YaRN 2.0 + KV 4-bit (no 1M)",
+   "state": "pass",
+   "status": "daily driver",
+   "note": "The daily driver: 8.9 s at 128K, 9.2 s at 256K, 12.7 s at 512K with 3.8 GB of headroom. A change in the middle of the history reuses ~45% of the prompt."
+  },
+  {
+   "id": "k2",
+   "name": "Swift 1.5 IQ4_XS GGUF · Splash 1.4.0",
+   "short": "k2 Splash",
+   "runtime": "Splash",
+   "runtime_version": "1.4.0",
+   "model": "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS",
+   "revision": "0142554",
+   "quant": "IQ4_XS GGUF",
+   "bpw": null,
+   "disk_gb": 97.7,
+   "port": 8585,
+   "cache": "prefix cache in RAM + SSD cache (32 GiB) · KV int8",
+   "spec": "DFlash2 draft · --verify-rows auto",
+   "ceiling": "1M with YaRN (KV past ~860K tokens on the SSD cache)",
+   "state": "pass",
+   "status": "long-context option",
+   "note": "Lowest T_turn of the full-size arms in every band: 6.6 s at 256K, 6.7 s at 512K, 9.3 s at 1M (a cold 1M prompt takes ~25.5 min). Passes the quality check at 512K and 1M. A change in the middle of the history re-prefills the whole prompt (hit 0)."
+  },
+  {
+   "id": "k1",
+   "name": "Flash-Next UD-IQ4_XS GGUF · Splash 1.4.0",
+   "short": "k1 Splash",
+   "runtime": "Splash",
+   "runtime_version": "1.4.0",
+   "model": "unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ4_XS",
+   "revision": "766911a",
+   "quant": "UD-IQ4_XS GGUF",
+   "bpw": null,
+   "disk_gb": 87.0,
+   "port": 8585,
+   "cache": "prefix cache in RAM + SSD cache (32 GiB) · KV int8",
+   "spec": "DFlash2 draft · --verify-rows auto",
+   "ceiling": "1M with YaRN",
+   "state": "control",
+   "status": "measured",
+   "note": "Between w1 and k2: 7.0 s at 256K, 7.4 s at 512K, 10.5 s at 1M (1 rep). It ran out of the 4,096-token budget in 5 of 13 turns at 512K. Quality not measured."
+  },
+  {
+   "id": "g1",
+   "name": "GSQ-RCO-Coder MLX · mlx-serve 26.10.3",
+   "short": "g1 GSQ",
+   "runtime": "mlx-serve",
+   "runtime_version": "26.10.3",
+   "model": "mbrown-uno/Qwen3.8-Flash-Next-GSQ-RCO-Coder-MLX",
+   "revision": "50fa68c",
+   "quant": "GSQ-RCO · 256 of 512 experts",
+   "bpw": null,
+   "disk_gb": 76.0,
+   "port": 11234,
+   "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
+   "spec": "Lightning MTP head",
+   "ceiling": "256K (the GSQ was limited to 256K)",
+   "state": "control",
+   "status": "fails GPQA",
+   "note": "Slower than w1 (11.0 s at 256K) with ~24 GB less memory. Quality at 262144: HumanEval 152/164, but GPQA 31/50 against 43/50 for w1."
+  },
+  {
+   "id": "g2",
+   "name": "GSQ-RCO-Coder IQ1_M GGUF · Splash main 3135ab4",
+   "short": "g2 GSQ Splash",
+   "runtime": "Splash",
+   "runtime_version": "1.4.0-main-3135ab4",
+   "model": "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF:IQ1_M",
+   "revision": "bba8885",
+   "quant": "GSQ-RCO IQ1_M GGUF · 256 of 512 experts",
+   "bpw": null,
+   "disk_gb": 58.4,
+   "port": 8585,
+   "cache": "prefix cache in RAM + SSD cache (32 GiB) · KV int8",
+   "spec": "DFlash2 draft · --verify-rows auto",
+   "ceiling": "256K (the GSQ was limited to 256K)",
+   "state": "control",
+   "status": "unofficial build",
+   "note": "Lowest T_turn of the campaign: 5.9 s at 8K, 6.3 s at 256K, decode 112 and 107 tok/s. Splash 1.4.0 refuses this GGUF (#527); the build from main has the fix (#561). Quality not measured."
   }
  ],
  "groups": [
@@ -500,6 +595,1468 @@
    "config": "YaRN 2.0",
    "campaign": "engine-updates-2026-10",
    "stamp": "20261009T165441Z"
+  },
+  {
+   "cand": "g1",
+   "context": 8192,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "r1z-8192-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 8.45,
+   "cold_ttft_s": 3.24,
+   "ttft_s": {
+    "cold": 3.24,
+    "identical": 0.16,
+    "append": 1.49,
+    "middle_mutation": 3.23,
+    "tool_turn": 1.53
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.989,
+    "append": 0.718,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.71
+   },
+   "decode_tps": 73.9,
+   "decode_range": [
+    71.9,
+    83.5
+   ],
+   "prefill_tps": 842.0,
+   "wired_peak_gb": 57.3,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.63,
+   "correct": 9,
+   "truncated": 4,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "r1z",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261025T141739Z"
+  },
+  {
+   "cand": "g1",
+   "context": 32768,
+   "stage": "e9",
+   "mode": "canonical",
+   "tag": "",
+   "file": "r1z-32768-t1.0-e9.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 8.8,
+   "cold_ttft_s": 33.96,
+   "ttft_s": {
+    "cold": 33.96,
+    "identical": 0.18,
+    "append": 1.64,
+    "middle_mutation": 24.41,
+    "tool_turn": 1.69
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.999,
+    "append": 0.962,
+    "middle_mutation": 0.3,
+    "tool_turn": 0.961
+   },
+   "decode_tps": 72.0,
+   "decode_range": [
+    66.4,
+    75.1
+   ],
+   "prefill_tps": 804.0,
+   "wired_peak_gb": 68.3,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.61,
+   "correct": 12,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "r1z",
+   "config": "",
+   "campaign": "stack-updates-2026-10",
+   "stamp": "20261023T112246Z"
+  },
+  {
+   "cand": "g1",
+   "context": 131072,
+   "stage": "e9",
+   "mode": "canonical",
+   "tag": "",
+   "file": "r1z-131072-t1.0-e9.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 9.75,
+   "cold_ttft_s": 170.03,
+   "ttft_s": {
+    "cold": 170.03,
+    "identical": 0.43,
+    "append": 1.94,
+    "middle_mutation": 94.59,
+    "tool_turn": 1.96
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.992,
+    "middle_mutation": 0.456,
+    "tool_turn": 0.991
+   },
+   "decode_tps": 65.8,
+   "decode_range": [
+    62.1,
+    71.1
+   ],
+   "prefill_tps": 739.0,
+   "wired_peak_gb": 77.9,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.79,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "r1z",
+   "config": "",
+   "campaign": "stack-updates-2026-10",
+   "stamp": "20261023T115113Z"
+  },
+  {
+   "cand": "g1",
+   "context": 262144,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "r1z-262144-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 11.03,
+   "cold_ttft_s": 360.34,
+   "ttft_s": {
+    "cold": 360.34,
+    "identical": 0.78,
+    "append": 2.44,
+    "middle_mutation": 206.12,
+    "tool_turn": 2.5
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.996,
+    "middle_mutation": 0.447,
+    "tool_turn": 0.996
+   },
+   "decode_tps": 60.0,
+   "decode_range": [
+    49.3,
+    63.3
+   ],
+   "prefill_tps": 712.0,
+   "wired_peak_gb": 89.3,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.75,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "r1z",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261025T145219Z"
+  },
+  {
+   "cand": "g2",
+   "context": 8192,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k3ma-8192-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 5.92,
+   "cold_ttft_s": 3.12,
+   "ttft_s": {
+    "cold": 3.12,
+    "identical": 0.06,
+    "append": 1.29,
+    "middle_mutation": 3.14,
+    "tool_turn": 1.34
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.996,
+    "append": 0.723,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.715
+   },
+   "decode_tps": 111.8,
+   "decode_range": [
+    101.8,
+    136.3
+   ],
+   "prefill_tps": 877.0,
+   "wired_peak_gb": 67.4,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 12,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "k3ma",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261026T023151Z"
+  },
+  {
+   "cand": "g2",
+   "context": 262144,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k3ma-262144-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 6.35,
+   "cold_ttft_s": 335.35,
+   "ttft_s": {
+    "cold": 335.35,
+    "identical": 0.09,
+    "append": 1.52,
+    "middle_mutation": 335.42,
+    "tool_turn": 1.57
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.996,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.996
+   },
+   "decode_tps": 107.2,
+   "decode_range": [
+    103.7,
+    123.8
+   ],
+   "prefill_tps": 765.0,
+   "wired_peak_gb": 79.9,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 10,
+   "truncated": 3,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "k3ma",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261026T030326Z"
+  },
+  {
+   "cand": "k1",
+   "context": 8192,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k1a-8192-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 7.22,
+   "cold_ttft_s": 3.51,
+   "ttft_s": {
+    "cold": 3.51,
+    "identical": 0.06,
+    "append": 1.44,
+    "middle_mutation": 3.54,
+    "tool_turn": 1.49
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.996,
+    "append": 0.723,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.715
+   },
+   "decode_tps": 89.4,
+   "decode_range": [
+    80.8,
+    101.6
+   ],
+   "prefill_tps": 779.0,
+   "wired_peak_gb": 108.7,
+   "mem_free_min_gb": 0.03,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 10,
+   "truncated": 3,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "k1a",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261024T103738Z"
+  },
+  {
+   "cand": "k1",
+   "context": 32768,
+   "stage": "e5",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k1a-32768-t1.0-e5.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 6.81,
+   "cold_ttft_s": 36.77,
+   "ttft_s": {
+    "cold": 36.77,
+    "identical": 0.05,
+    "append": 1.54,
+    "middle_mutation": 36.87,
+    "tool_turn": 1.59
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.963,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.962
+   },
+   "decode_tps": 98.1,
+   "decode_range": [
+    94.9,
+    104.1
+   ],
+   "prefill_tps": 742.0,
+   "wired_peak_gb": 110.3,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "k1a",
+   "config": "",
+   "campaign": "stack-updates-2026-10",
+   "stamp": "20261023T052637Z"
+  },
+  {
+   "cand": "k1",
+   "context": 131072,
+   "stage": "e5",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k1a-131072-t1.0-e5.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 6.83,
+   "cold_ttft_s": 176.94,
+   "ttft_s": {
+    "cold": 176.94,
+    "identical": 0.09,
+    "append": 1.61,
+    "middle_mutation": 177.01,
+    "tool_turn": 1.67
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.992,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.991
+   },
+   "decode_tps": 99.1,
+   "decode_range": [
+    91.1,
+    104.8
+   ],
+   "prefill_tps": 710.0,
+   "wired_peak_gb": 114.9,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "k1a",
+   "config": "",
+   "campaign": "stack-updates-2026-10",
+   "stamp": "20261023T055454Z"
+  },
+  {
+   "cand": "k1",
+   "context": 262144,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k1a-262144-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 6.98,
+   "cold_ttft_s": 370.58,
+   "ttft_s": {
+    "cold": 370.58,
+    "identical": 0.14,
+    "append": 1.75,
+    "middle_mutation": 371.23,
+    "tool_turn": 1.81
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.996,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.996
+   },
+   "decode_tps": 99.1,
+   "decode_range": [
+    91.4,
+    108.4
+   ],
+   "prefill_tps": 693.0,
+   "wired_peak_gb": 116.4,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 11,
+   "truncated": 0,
+   "failed": 2,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "k1a",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261024T113944Z"
+  },
+  {
+   "cand": "k1",
+   "context": 524288,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k1a-524288-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 7.35,
+   "cold_ttft_s": 784.43,
+   "ttft_s": {
+    "cold": 784.43,
+    "identical": 0.15,
+    "append": 1.88,
+    "middle_mutation": 782.7,
+    "tool_turn": 1.92
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.998,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.998
+   },
+   "decode_tps": 94.3,
+   "decode_range": [
+    87.6,
+    110.1
+   ],
+   "prefill_tps": 661.0,
+   "wired_peak_gb": 116.7,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": -0.03,
+   "mtp_acceptance": null,
+   "correct": 8,
+   "truncated": 5,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "k1a",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261024T174235Z"
+  },
+  {
+   "cand": "k1",
+   "context": 1000000,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k1a-1000000-t1.0-lc.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 5,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 10.48,
+   "cold_ttft_s": 1607.69,
+   "ttft_s": {
+    "cold": 1607.69,
+    "identical": 2.52,
+    "append": 2.58,
+    "middle_mutation": 1607.47,
+    "tool_turn": 2.56
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.999,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.999
+   },
+   "decode_tps": 64.6,
+   "decode_range": [
+    54.7,
+    85.3
+   ],
+   "prefill_tps": 619.0,
+   "wired_peak_gb": 111.8,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 4,
+   "truncated": 0,
+   "failed": 1,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "k1a",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261024T194421Z"
+  },
+  {
+   "cand": "k2",
+   "context": 8192,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k2a-8192-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 6.18,
+   "cold_ttft_s": 3.28,
+   "ttft_s": {
+    "cold": 3.28,
+    "identical": 0.06,
+    "append": 1.36,
+    "middle_mutation": 3.31,
+    "tool_turn": 1.4
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.996,
+    "append": 0.723,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.715
+   },
+   "decode_tps": 107.2,
+   "decode_range": [
+    92.1,
+    110.8
+   ],
+   "prefill_tps": 832.0,
+   "wired_peak_gb": 106.6,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 11,
+   "truncated": 1,
+   "failed": 1,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "k2a",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261024T104337Z"
+  },
+  {
+   "cand": "k2",
+   "context": 32768,
+   "stage": "e8",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k2a-32768-t1.0-e8.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 6.04,
+   "cold_ttft_s": 34.65,
+   "ttft_s": {
+    "cold": 34.65,
+    "identical": 0.05,
+    "append": 1.45,
+    "middle_mutation": 34.73,
+    "tool_turn": 1.5
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.963,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.962
+   },
+   "decode_tps": 112.7,
+   "decode_range": [
+    104.2,
+    124.9
+   ],
+   "prefill_tps": 788.0,
+   "wired_peak_gb": 108.0,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "k2a",
+   "config": "",
+   "campaign": "stack-updates-2026-10",
+   "stamp": "20261023T081137Z"
+  },
+  {
+   "cand": "k2",
+   "context": 131072,
+   "stage": "e8",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k2a-131072-t1.0-e8.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 6.31,
+   "cold_ttft_s": 167.44,
+   "ttft_s": {
+    "cold": 167.44,
+    "identical": 0.09,
+    "append": 1.53,
+    "middle_mutation": 167.45,
+    "tool_turn": 1.58
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.992,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.991
+   },
+   "decode_tps": 108.2,
+   "decode_range": [
+    106.4,
+    115.0
+   ],
+   "prefill_tps": 750.0,
+   "wired_peak_gb": 112.6,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "k2a",
+   "config": "",
+   "campaign": "stack-updates-2026-10",
+   "stamp": "20261023T083746Z"
+  },
+  {
+   "cand": "k2",
+   "context": 262144,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k2a-262144-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 6.57,
+   "cold_ttft_s": 351.05,
+   "ttft_s": {
+    "cold": 351.05,
+    "identical": 0.09,
+    "append": 1.58,
+    "middle_mutation": 351.55,
+    "tool_turn": 1.73
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.996,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.996
+   },
+   "decode_tps": 105.8,
+   "decode_range": [
+    101.3,
+    120.1
+   ],
+   "prefill_tps": 731.0,
+   "wired_peak_gb": 116.4,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 12,
+   "truncated": 0,
+   "failed": 1,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "k2a",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261024T121927Z"
+  },
+  {
+   "cand": "k2",
+   "context": 262144,
+   "stage": "e8",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k2a-262144-t1.0-e8.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 5,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 6.3,
+   "cold_ttft_s": 351.09,
+   "ttft_s": {
+    "cold": 351.09,
+    "identical": 0.09,
+    "append": 1.59,
+    "middle_mutation": 351.18,
+    "tool_turn": 1.64
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.996,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.996
+   },
+   "decode_tps": 110.1,
+   "decode_range": [
+    101.0,
+    112.1
+   ],
+   "prefill_tps": 731.0,
+   "wired_peak_gb": 110.9,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": -0.03,
+   "mtp_acceptance": null,
+   "correct": 5,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": false,
+   "arm": "k2a",
+   "config": "",
+   "campaign": "stack-updates-2026-10",
+   "stamp": "20261023T093008Z"
+  },
+  {
+   "cand": "k2",
+   "context": 524288,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k2a-524288-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 6.67,
+   "cold_ttft_s": 744.48,
+   "ttft_s": {
+    "cold": 744.48,
+    "identical": 0.15,
+    "append": 1.81,
+    "middle_mutation": 743.55,
+    "tool_turn": 1.86
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.998,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.998
+   },
+   "decode_tps": 106.6,
+   "decode_range": [
+    96.1,
+    137.6
+   ],
+   "prefill_tps": 697.0,
+   "wired_peak_gb": 116.4,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "k2a",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261024T154359Z"
+  },
+  {
+   "cand": "k2",
+   "context": 524288,
+   "stage": "sw",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k2a-524288-t1.0-sw.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 5,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 6.65,
+   "cold_ttft_s": 743.27,
+   "ttft_s": {
+    "cold": 743.27,
+    "identical": 0.11,
+    "append": 1.73,
+    "middle_mutation": 743.34,
+    "tool_turn": 1.8
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.998,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.998
+   },
+   "decode_tps": 105.6,
+   "decode_range": [
+    97.4,
+    119.8
+   ],
+   "prefill_tps": 698.0,
+   "wired_peak_gb": 116.1,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 4,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": false,
+   "arm": "k2a",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261024T134306Z"
+  },
+  {
+   "cand": "k2",
+   "context": 524288,
+   "stage": "sw",
+   "mode": "canonical",
+   "tag": "KV bf16",
+   "file": "k2ab-524288-t1.0-sw.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 5,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 7.78,
+   "cold_ttft_s": 770.73,
+   "ttft_s": {
+    "cold": 770.73,
+    "identical": 1.95,
+    "append": 2.01,
+    "middle_mutation": 770.69,
+    "tool_turn": 2.01
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.998,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.998
+   },
+   "decode_tps": 88.8,
+   "decode_range": [
+    82.4,
+    110.1
+   ],
+   "prefill_tps": 673.0,
+   "wired_peak_gb": 110.0,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 5,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": false,
+   "arm": "k2ab",
+   "config": "KV bf16",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261024T141234Z"
+  },
+  {
+   "cand": "k2",
+   "context": 1000000,
+   "stage": "lc2",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k2a-1000000-t1.0-lc2.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 5,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 9.31,
+   "cold_ttft_s": 1532.31,
+   "ttft_s": {
+    "cold": 1532.31,
+    "identical": 2.56,
+    "append": 2.63,
+    "middle_mutation": 1531.88,
+    "tool_turn": 2.63
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.999,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.999
+   },
+   "decode_tps": 76.7,
+   "decode_range": [
+    76.6,
+    77.9
+   ],
+   "prefill_tps": 649.0,
+   "wired_peak_gb": 109.7,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": -0.01,
+   "mtp_acceptance": null,
+   "correct": 4,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "k2a",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261024T205139Z"
+  },
+  {
+   "cand": "k2",
+   "context": 1000000,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "k2a-1000000-t1.0-lc.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 5,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 9.45,
+   "cold_ttft_s": 1532.08,
+   "ttft_s": {
+    "cold": 1532.08,
+    "identical": 2.55,
+    "append": 2.6,
+    "middle_mutation": 1531.56,
+    "tool_turn": 2.65
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.999,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.999
+   },
+   "decode_tps": 75.3,
+   "decode_range": [
+    71.8,
+    76.8
+   ],
+   "prefill_tps": 649.0,
+   "wired_peak_gb": 109.7,
+   "mem_free_min_gb": 0.06,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": null,
+   "correct": 5,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": false,
+   "arm": "k2a",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261024T184625Z"
   },
   {
    "cand": "m1",
@@ -2045,12 +3602,430 @@
    "config": "",
    "campaign": "engine-updates-2026-10",
    "stamp": "20261007T202623Z"
+  },
+  {
+   "cand": "w1",
+   "context": 8192,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "w1z-8192-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 7.72,
+   "cold_ttft_s": 3.33,
+   "ttft_s": {
+    "cold": 3.33,
+    "identical": 0.15,
+    "append": 1.57,
+    "middle_mutation": 3.33,
+    "tool_turn": 1.61
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.989,
+    "append": 0.718,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.71
+   },
+   "decode_tps": 83.7,
+   "decode_range": [
+    80.7,
+    98.8
+   ],
+   "prefill_tps": 819.0,
+   "wired_peak_gb": 90.2,
+   "mem_free_min_gb": 0.01,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.75,
+   "correct": 11,
+   "truncated": 1,
+   "failed": 1,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "w1z",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261024T104955Z"
+  },
+  {
+   "cand": "w1",
+   "context": 32768,
+   "stage": "e1",
+   "mode": "canonical",
+   "tag": "",
+   "file": "w1z-32768-t1.0-e1.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 8.04,
+   "cold_ttft_s": 34.56,
+   "ttft_s": {
+    "cold": 34.56,
+    "identical": 0.18,
+    "append": 1.72,
+    "middle_mutation": 24.98,
+    "tool_turn": 1.79
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.999,
+    "append": 0.962,
+    "middle_mutation": 0.3,
+    "tool_turn": 0.961
+   },
+   "decode_tps": 81.8,
+   "decode_range": [
+    78.8,
+    96.3
+   ],
+   "prefill_tps": 790.0,
+   "wired_peak_gb": 100.0,
+   "mem_free_min_gb": 0.02,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.66,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "w1z",
+   "config": "",
+   "campaign": "stack-updates-2026-10",
+   "stamp": "20261022T213826Z"
+  },
+  {
+   "cand": "w1",
+   "context": 131072,
+   "stage": "e1",
+   "mode": "canonical",
+   "tag": "",
+   "file": "w1z-131072-t1.0-e1.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 8.87,
+   "cold_ttft_s": 165.69,
+   "ttft_s": {
+    "cold": 165.69,
+    "identical": 0.41,
+    "append": 1.99,
+    "middle_mutation": 94.0,
+    "tool_turn": 1.95
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.992,
+    "middle_mutation": 0.456,
+    "tool_turn": 0.991
+   },
+   "decode_tps": 74.0,
+   "decode_range": [
+    70.8,
+    77.8
+   ],
+   "prefill_tps": 758.0,
+   "wired_peak_gb": 107.5,
+   "mem_free_min_gb": 0.03,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.71,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "w1z",
+   "config": "",
+   "campaign": "stack-updates-2026-10",
+   "stamp": "20261022T220247Z"
+  },
+  {
+   "cand": "w1",
+   "context": 262144,
+   "stage": "e1",
+   "mode": "canonical",
+   "tag": "",
+   "file": "w1z-262144-t1.0-e1.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 5,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 9.23,
+   "cold_ttft_s": 350.74,
+   "ttft_s": {
+    "cold": 350.74,
+    "identical": 1.21,
+    "append": 2.32,
+    "middle_mutation": 205.88,
+    "tool_turn": 2.32
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.996,
+    "middle_mutation": 0.447,
+    "tool_turn": 0.996
+   },
+   "decode_tps": 74.1,
+   "decode_range": [
+    63.8,
+    75.7
+   ],
+   "prefill_tps": 732.0,
+   "wired_peak_gb": 113.2,
+   "mem_free_min_gb": 0.05,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.91,
+   "correct": 5,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "w1z",
+   "config": "",
+   "campaign": "stack-updates-2026-10",
+   "stamp": "20261022T230153Z"
+  },
+  {
+   "cand": "w1",
+   "context": 524288,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "YaRN 2.0 + KV 4-bit",
+   "file": "w1zq4-524288-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 12.69,
+   "cold_ttft_s": 784.18,
+   "ttft_s": {
+    "cold": 784.18,
+    "identical": 1.36,
+    "append": 4.05,
+    "middle_mutation": 587.79,
+    "tool_turn": 3.7
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.998,
+    "middle_mutation": 0.442,
+    "tool_turn": 0.998
+   },
+   "decode_tps": 57.0,
+   "decode_range": [
+    52.0,
+    63.0
+   ],
+   "prefill_tps": 662.0,
+   "wired_peak_gb": 113.8,
+   "mem_free_min_gb": 0.04,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.87,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "w1zq4",
+   "config": "YaRN 2.0 + KV 4-bit",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261024T164122Z"
+  },
+  {
+   "cand": "w1",
+   "context": 524288,
+   "stage": "sw",
+   "mode": "canonical",
+   "tag": "YaRN 2.0 + KV 4-bit",
+   "file": "w1zq4-524288-t1.0-sw.jsonl",
+   "reps": 1,
+   "n": 5,
+   "served_n": 5,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 11.77,
+   "cold_ttft_s": 782.61,
+   "ttft_s": {
+    "cold": 782.61,
+    "identical": 0.84,
+    "append": 2.73,
+    "middle_mutation": 517.0,
+    "tool_turn": 2.72
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.998,
+    "middle_mutation": 0.442,
+    "tool_turn": 0.998
+   },
+   "decode_tps": 56.6,
+   "decode_range": [
+    51.0,
+    60.6
+   ],
+   "prefill_tps": 663.0,
+   "wired_peak_gb": 113.6,
+   "mem_free_min_gb": 0.04,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.78,
+   "correct": 5,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": false,
+   "arm": "w1zq4",
+   "config": "YaRN 2.0 + KV 4-bit",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261024T143820Z"
   }
  ],
  "takeaways": [
   [
-   "mlx-serve 26.10.1 leads every band",
-   "n2 has the lowest T_turn from 8K to 512K: 7.8, 8.2, 8.8, 9.8 and 13.0 s, with the tool turn under 3 s up to 256K and 3.9 s at 512K (KV 4-bit)."
+   "Splash 1.4.0 has the lowest T_turn in every band",
+   "k2 (Swift 1.5 IQ4_XS GGUF on Splash) takes 6.6 s at 256K and 6.7 s at 512K, against 9.2 and 12.7 s for w1, the same fine-tune in MLX on mlx-serve 26.10.3 (the daily driver). The gain comes from decode, ~106 tok/s up to 512K against 57–74; the cold prefill is the same (731 and 732 tok/s at 256K). The comparison mixes runtime and weight format: Splash loads Flash-Next from a GGUF only."
+  ],
+  [
+   "Only Splash reaches 1M",
+   "k2 serves 1,000,000 tokens with KV int8 and the KV past ~860K tokens on its SSD cache: 9.3 s per turn, decode ~77 tok/s, 16.9 GB of headroom. A cold 1M prompt takes 25.5 min. mlx-serve stops at 512K (YaRN 2.0 + KV 4-bit, 3.8 GB of headroom)."
+  ],
+  [
+   "Splash re-prefills a changed history",
+   "<code>middle_mutation</code> reuses nothing on Splash in every band (hit 0), against ~0.45 on mlx-serve. Splash keeps the hybrid recurrent state only where a request ends, so an edit, a compaction or a branch before that point re-prefills the whole prompt: 25 min at 1M (incoai/splash #387, #361)."
+  ],
+  [
+   "k2 keeps its quality to 1M",
+   "At 262144, k2 passes the quality floor against w1 in all six suites. Against k2 at 262144, it passes all six at 512K and five at 1M: HumanEval at 1M sits one question under the margin, within run noise. The long-context probe answers 8/8 at 256K, 512K and 1M. Tool calls: 20/20 sessions with frequency_penalty 0."
+  ],
+  [
+   "GSQ-RCO-Coder: fastest on Splash, weak on GPQA",
+   "g2 (IQ1_M GGUF on an unofficial Splash build from main 3135ab4) has the lowest T_turn of the campaign, 6.3 s at 256K; its quality was not measured. g1 (the MLX pack on mlx-serve 26.10.3) fails the GPQA floor: 31/50 against 43/50 for w1."
+  ],
+  [
+   "mlx-serve 26.10.1 leads the four runtimes of the engine round",
+   "n2 has the lowest T_turn of n2, o1, m1 and d1 from 8K to 512K: 7.8, 8.2, 8.8, 9.8 and 13.0 s, with the tool turn under 3 s up to 256K and 3.9 s at 512K (KV 4-bit)."
   ],
   [
    "oMLX is second at 128K and 256K",

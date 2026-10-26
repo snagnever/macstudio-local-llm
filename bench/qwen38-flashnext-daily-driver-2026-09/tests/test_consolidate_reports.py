@@ -167,6 +167,7 @@ def _rep_set(reps, stamp, ctx=32768, rev="v", tool_ttft=1.0, error=None):
 
 def _dirs(tmp_path):
     sept, eng, upd = tmp_path / "sept", tmp_path / "eng", tmp_path / "upd"
+    (tmp_path / "stack").mkdir(); (tmp_path / "longctx").mkdir()
     _write(sept, "c1-32768-t1.0-b.jsonl", _rep_set(3, "20260901T000000Z"))
     _write(eng, "n2-32768-t1.0-fn.jsonl", _rep_set(3, "20261007T000000Z", tool_ttft=2.0))
     _write(upd, "n2-32768-t1.0-ab.jsonl", _rep_set(3, "20261006T000000Z", tool_ttft=3.0))
@@ -181,7 +182,7 @@ def _dirs(tmp_path):
     _write(eng, "d1-8192-t1.0-pg.jsonl", _rep_set(3, "20261009T000000Z", ctx=8192))
     _write(eng, "d1-262144-t1.0-pg.jsonl",
            _rep_set(1, "20261009T000000Z", ctx=262144, error="http_500: PrefillDoesNotFit"))
-    return sept, eng, upd
+    return sept, eng, upd, tmp_path / "stack", tmp_path / "longctx"
 
 
 def test_profile_2026_10_reads_both_campaigns(tmp_path):
@@ -245,9 +246,9 @@ def test_render_panel_without_interp_prints_nothing():
 
 def test_m1xq_label_says_kv_q8_was_ignored(tmp_path):
     # O MTPLX 2.12.2 rebaixa --paged-kv-quantization q8 para off no Flash-Next (boot log do m1xq).
-    sept, eng, upd = _dirs(tmp_path)
+    sept, eng, upd, *rest = _dirs(tmp_path)
     _write(eng, "m1xq-262144-t1.0-pg.jsonl", _rep_set(1, "20261009T200000Z", ctx=262144, rev="v2.12.2-memmax-kvq8"))
-    g = _canon(cr.build_2026_10(sept, eng, upd), "m1", 262144)
+    g = _canon(cr.build_2026_10(sept, eng, upd, *rest), "m1", 262144)
     assert g["arm"] == "m1xq" and g["config"] == "memory limit max (KV q8 ignored)"
 
 
@@ -256,8 +257,8 @@ def test_render_2026_10_marks_mtplx_512k_absent():
 
 
 def test_2026_10_has_takeaways_with_quality_line(tmp_path):
-    sept, eng, upd = _dirs(tmp_path)
-    tk = cr.build_2026_10(sept, eng, upd)["takeaways"]
+    sept, eng, upd, *rest = _dirs(tmp_path)
+    tk = cr.build_2026_10(sept, eng, upd, *rest)["takeaways"]
     assert len(tk) >= 4 and all(len(t) == 2 for t in tk)
     assert any("HumanEval" in body for _, body in tk)
 
@@ -273,8 +274,8 @@ def test_2026_10_tech_cards_name_measured_configs():
 
 
 def test_review_takeaways_rank_and_quality_wording(tmp_path):
-    sept, eng, upd = _dirs(tmp_path)
-    tk = dict(cr.build_2026_10(sept, eng, upd)["takeaways"])
+    sept, eng, upd, *rest = _dirs(tmp_path)
+    tk = dict(cr.build_2026_10(sept, eng, upd, *rest)["takeaways"])
     body = " ".join(tk.values())
     text = " ".join(tk) + " " + body
     assert "second at 128K and 256K" in text and "second up to 256K" not in text
@@ -379,23 +380,23 @@ def test_m1_and_m1p_share_the_prime_64_label():
 
 def test_os_reserve_diagnostics_stay_out_of_the_n2_ranking(tmp_path):
     # n2o/n2o2 (--os-reserve-gib 4/2) foram diagnóstico: reserva 2 virou OOM de Metal. Não entram na série n2.
-    sept, eng, upd = _dirs(tmp_path)
+    sept, eng, upd, *rest = _dirs(tmp_path)
     _write(eng, "n2-524288-t1.0-yarn2.jsonl",
            _rep_set(1, "20261007T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv8"))
     _write(eng, "n2o2-524288-t1.0-osr2x3.jsonl",
            _rep_set(3, "20261011T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv8-osr2"))
     _write(eng, "n2o-524288-t1.0-osr.jsonl",
            _rep_set(1, "20261010T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv8-osr4"))
-    data = cr.build_2026_10(sept, eng, upd)
+    data = cr.build_2026_10(sept, eng, upd, *rest)
     assert _canon(data, "n2", 524288)["arm"] == "n2"
     assert not any(g["arm"] in ("n2o", "n2o2") for g in data["groups"])
 
 
 def test_n2q4_joins_n2_series_with_kv4_label(tmp_path):
-    sept, eng, upd = _dirs(tmp_path)
+    sept, eng, upd, *rest = _dirs(tmp_path)
     _write(eng, "n2q4-524288-t1.0-kv4x3.jsonl",
            _rep_set(3, "20261011T000000Z", ctx=524288, rev="v26.10.1-yarn2.0-kv4"))
-    g = _canon(cr.build_2026_10(sept, eng, upd), "n2", 524288)
+    g = _canon(cr.build_2026_10(sept, eng, upd, *rest), "n2", 524288)
     assert g["arm"] == "n2q4" and g["config"] == "YaRN 2.0 + KV 4-bit"
 
 
@@ -406,3 +407,109 @@ def test_n2_ceiling_names_kv4():
 
 def test_n2q4_512k_note_explains_kv4():
     assert "PrefillDoesNotFit" in cr.GROUP_NOTES_2026_10[("n2q4", 524288)]
+
+
+# splash-longctx-2026-10: séries w1 (w1z/w1zq4), k2 (Swift no Splash), k1 (Flash-Next no Splash) e g1 (GSQ-RCO-Coder),
+# lidas da stack-updates (tags e1, e5, e8, e9) e da splash-longctx (tags lc e sw); smoke, hold, q-* e toolcall ficam fora.
+def _splash_dirs(tmp_path):
+    sept, eng, upd, stack, lc = _dirs(tmp_path)
+    _write(stack, "w1z-32768-t1.0-e1.jsonl", _rep_set(3, "20261023T000000Z", rev="v26.10.3"))
+    _write(stack, "w1-32768-t1.0-e1.jsonl", _rep_set(3, "20261023T000000Z", rev="v26.10.1"))
+    _write(stack, "k2a-32768-t1.0-e8.jsonl", _rep_set(3, "20261023T000000Z", rev="v1.4.0-verify-auto"))
+    _write(stack, "k2a-65536-t1.0-toolcall.jsonl", _rep_set(1, "20261023T000000Z", ctx=65536))
+    _write(lc, "k2a-32768-t1.0-smoke2.jsonl", _rep_set(1, "20261024T000000Z"))
+    _write(lc, "k2a-524288-t1.0-sw.jsonl", _rep_set(1, "20261024T000000Z", ctx=524288, rev="v1.4.0-verify-auto"))
+    _write(lc, "k2ab-524288-t1.0-lc.jsonl",
+           _rep_set(3, "20261025T000000Z", ctx=524288, rev="v1.4.0-verify-auto-kv-bf16"))
+    _write(lc, "k1a-1000000-t1.0-lc.jsonl", _rep_set(1, "20261025T000000Z", ctx=1000000, rev="v1.4.0-verify-auto"))
+    _write(lc, "r1zy-524288-t1.0-lc.jsonl", _rep_set(3, "20261025T000000Z", ctx=524288, rev="v26.10.3-yarn2.0-kv4"))
+    return sept, eng, upd, stack, lc
+
+
+def test_profile_2026_10_adds_splash_series(tmp_path):
+    data = cr.build_2026_10(*_splash_dirs(tmp_path))
+    assert {"w1", "k2", "k1", "g1"} <= {c["id"] for c in data["candidates"]}
+    assert {g["cand"] for g in data["groups"]} == {"n2", "o1", "m1", "d1", "w1", "k2", "k1", "g1"}
+    files = {g["file"] for g in data["groups"]}
+    assert "w1-32768-t1.0-e1.jsonl" not in files and "k2a-65536-t1.0-toolcall.jsonl" not in files
+    assert "k2a-32768-t1.0-smoke2.jsonl" not in files
+
+
+def test_splash_canonical_and_config_labels(tmp_path):
+    data = cr.build_2026_10(*_splash_dirs(tmp_path))
+    g = _canon(data, "k2", 524288)
+    assert g["arm"] == "k2ab" and g["config"] == "KV bf16" and g["reps"] == 3
+    assert _canon(data, "g1", 524288)["config"] == "YaRN 2.0 + KV 4-bit"
+    assert _canon(data, "k1", 1000000)["context"] == 1000000
+    assert _canon(data, "w1", 32768)["arm"] == "w1z"
+
+
+def test_perf_lines_2026_10_has_the_1m_band(tmp_path):
+    payload = rpl.build_payload(cr.build_2026_10(*_splash_dirs(tmp_path)))
+    assert payload["line_ctx"][-1] == 1000000 and 1000000 in payload["table_ctx"]
+    p1m = payload["points"]["k1"]["1000000"]
+    assert p1m["status"] == "" and p1m["t_turno"] > 0
+    assert {s["id"] for s in payload["series"]} >= {"w1", "k2", "k1", "g1"}
+    assert len({s["cv"] for s in payload["series"]}) == len(payload["series"])
+
+
+def test_perf_lines_september_keeps_512k_ceiling():
+    payload = rpl.build_payload(cr.build(CAMPAIGN / "results"))
+    assert payload["line_ctx"][-1] == 524288 and 1000000 not in payload["table_ctx"]
+
+
+def test_perf_lines_labels_1m():
+    assert 'c>=1000000?(c/1000000)+"M"' in rpl.TEMPLATE.replace(" ", "")
+
+
+# k3ma: GSQ-RCO-Coder IQ1_M GGUF on a Splash package built from main 3135ab4 (Splash 1.4.0 refuses that GGUF), series g2.
+def test_k3ma_is_its_own_g2_series(tmp_path):
+    sept, eng, upd, stack, lc = _splash_dirs(tmp_path)
+    _write(lc, "k3ma-262144-t1.0-lc.jsonl",
+           _rep_set(3, "20261025T000000Z", ctx=262144, rev="v1.4.0-main-3135ab4-verify-auto"))
+    data = cr.build_2026_10(sept, eng, upd, stack, lc)
+    g = _canon(data, "g2", 262144)
+    assert g["arm"] == "k3ma" and g["reps"] == 3
+    g2 = next(c for c in data["candidates"] if c["id"] == "g2")
+    assert g2["model"] == "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF:IQ1_M" and g2["revision"] == "bba8885"
+    assert g2["runtime"] == "Splash" and g2["runtime_version"] == "1.4.0-main-3135ab4"
+    assert "256 of 512 experts" in g2["quant"] and "unofficial" in g2["status"]
+
+
+def test_second_1m_rep_of_k2a_counts(tmp_path):
+    # Etapa 3 ran k2a at 1M twice (tags lc and lc2); the band shows the most recent rep.
+    sept, eng, upd, stack, lc = _splash_dirs(tmp_path)
+    _write(lc, "k2a-1000000-t1.0-lc.jsonl", _rep_set(1, "20261024T181917Z", ctx=1000000, rev="v1.4.0-verify-auto"))
+    _write(lc, "k2a-1000000-t1.0-lc2.jsonl", _rep_set(1, "20261024T202405Z", ctx=1000000, rev="v1.4.0-verify-auto"))
+    data = cr.build_2026_10(sept, eng, upd, stack, lc)
+    assert _canon(data, "k2", 1000000)["file"] == "k2a-1000000-t1.0-lc2.jsonl"
+
+
+def test_splash_candidates_carry_the_campaign_results():
+    cands = {c["id"]: c for c in cr.CANDIDATES_SPLASH}
+    assert list(cands) == ["w1", "k2", "k1", "g1", "g2"]
+    for c in cands.values():
+        assert c["note"], c["id"]
+    # The user limited the GSQ to 256K: neither GSQ arm claims a longer ceiling.
+    assert cands["g1"]["ceiling"].startswith("256K") and cands["g2"]["ceiling"].startswith("256K")
+    assert cands["k2"]["ceiling"].startswith("1M")
+    # k2a and k1a run --verify-rows auto, not a fixed 8 rows per cycle.
+    assert "8 rows" not in cands["k2"]["spec"] and "8 rows" not in cands["k1"]["spec"]
+
+
+def test_perf_lines_2026_10_gives_a_reason_for_every_gap():
+    # Every series × band of the real October data shows a number or the reason it has none.
+    payload = rpl.build_payload(cr.build_2026_10())
+    gaps = [(s["id"], ctx) for s in payload["series"] for ctx in payload["table_ctx"]
+            if str(ctx) not in payload["points"][s["id"]]]
+    assert gaps == []
+    assert payload["points"]["w1"]["1000000"]["status"].startswith("mlx-serve does not run 1M")
+    assert "limited to 256K" in payload["points"]["g2"]["524288"]["status"]
+    assert len({s["cv"] for s in payload["series"]}) == len(payload["series"])
+
+
+def test_perf_lines_2026_10_describes_splash():
+    splash = next(t for t in rpl.TECH_2026_10 if t["name"].startswith("Splash 1.4.0"))
+    for fact in ("DFlash2", "int8", "--max-context", "#387", "YaRN"):
+        assert fact in " ".join(splash.values()), fact
+    assert any(src[0] == "incoai/splash" for src in rpl.TECH_SRC_2026_10)

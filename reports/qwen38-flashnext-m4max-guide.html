@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qwen3.8-Flash-Next on M4 Max</title>
-<meta name="description" content="Four local servers for Qwen3.8-Flash-Next on an Apple M4 Max 128 GB, from 8K to 512K context: agent turn time, prefix cache, memory.">
+<meta name="description" content="Five local servers for Qwen3.8-Flash-Next on an Apple M4 Max 128 GB, from 8K to 1M context: agent turn time, prefix cache, memory.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Qwen3.8-Flash-Next on an M4 Max 128 GB: four local servers, 8K to 512K context">
-<meta property="og:description" content="Agent turn time, prefix cache hit and memory for mlx-serve, oMLX, MTPLX and ds4. Cache hit matters more than tokens per second.">
+<meta property="og:title" content="Qwen3.8-Flash-Next on an M4 Max 128 GB: six local stacks, 8K to 1M context">
+<meta property="og:description" content="Agent turn time, prefix cache hit and memory for mlx-serve, oMLX, MTPLX, ds4 and Splash. Cache hit matters more than tokens per second.">
 <meta property="og:url" content="https://snagnever.github.io/macstudio-local-llm/qwen38-flashnext-m4max-guide.html">
 <meta property="og:image" content="https://snagnever.github.io/macstudio-local-llm/assets/qwen38-flashnext-m4max-guide-card.png">
 <meta property="og:image:width" content="1200">
@@ -20,7 +20,7 @@
   --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
   --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
   --accent:#2a78d6; --accent-soft:rgba(42,120,214,0.16);
-  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#7c5cd6;
   --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -31,7 +31,7 @@
     --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
     --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
     --accent:#3987e5; --accent-soft:rgba(57,135,229,0.22);
-    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6;
   }
 }
 :root[data-theme="dark"]{
@@ -40,7 +40,7 @@
   --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
   --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
   --accent:#3987e5; --accent-soft:rgba(57,135,229,0.22);
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -178,6 +178,7 @@ table.txt td{font-size:0.84rem; line-height:1.4}
 table.txt td:first-child{white-space:nowrap; font-weight:600}
 table.txt a{color:var(--ink); text-decoration-color:var(--baseline)}
 #tblAll{min-width:900px}
+table.sq td:not(:first-child),table.sq th:not(:first-child){font-family:var(--mono); white-space:nowrap}
 #tblAll .cfg{display:block; color:var(--muted); font-size:0.72rem; white-space:nowrap}
 
 .cmds{display:grid; grid-template-columns:minmax(0,1fr); gap:12px}
@@ -217,12 +218,13 @@ dl.method dd{margin:0; color:var(--ink-2)}
   <div>
     <p class="eyebrow">Benchmark · Apple M4 Max 128 GB · October 2026</p>
     <h1>The best way to run Qwen3.8-Flash-Next on an M4 Max 128 GB</h1>
-    <p class="sub">Four local inference servers, the same model, contexts from 8K to 512K tokens. I measured what
-    you wait for in a real agent session, not only tokens per second.</p>
-    <div class="chips"><span class="chip"><span class="lab">Chip</span> Apple M4 Max</span><span class="chip"><span class="lab">GPU</span> 40 cores · Metal 4</span><span class="chip"><span class="lab">Unified memory</span> 128 GB</span><span class="chip"><span class="lab">macOS</span> 26.6.2</span><span class="chip"><span class="lab">Measured</span> 2026-10-07 to 2026-10-11</span></div>
+    <p class="sub">Five local inference servers, the same model and its Swift 1.5 fine-tune, contexts from 8K to 1M
+    tokens. I measured what you wait for in a real agent session, not only tokens per second.</p>
+    <div class="chips"><span class="chip"><span class="lab">Chip</span> Apple M4 Max</span><span class="chip"><span class="lab">GPU</span> 40 cores · Metal 4</span><span class="chip"><span class="lab">Unified memory</span> 128 GB</span><span class="chip"><span class="lab">macOS</span> 26.6.2</span><span class="chip"><span class="lab">Measured</span> 2026-10-07 to 2026-10-25</span></div>
     <p class="tldr"><b>Result:</b> mlx-serve 26.10.1 with the ddalcu iQ-MLX 4.7 bpw quant. 8.8 s per agent turn at
     128K, 13.0 s at 512K, 3.9 s to start the next reply at 512K from the cache.
-    <a href="#conclusion">Conclusion</a> · <a href="#run">commands</a>.</p>
+    <a href="#conclusion">Conclusion</a> · <a href="#run">commands</a>. Above 512K, only Splash 1.4.0 served the model:
+    9.3 s per agent turn at 1M, with caveats (<a href="#splash">section 9</a>).</p>
   </div>
   <button class="theme" id="themeBtn" type="button">theme: auto</button>
 </header>
@@ -231,11 +233,13 @@ dl.method dd{margin:0; color:var(--ink-2)}
   <div class="pm"><p class="kicker">Goal</p><p>Find the best stack to run Qwen3.8-Flash-Next as a daily driver on one
   Mac Studio (M4 Max, 128 GB). The model is a 125B mixture-of-experts with 6B active parameters and a native context of
   262K tokens, so it fits in 128 GB at 4 to 6 bits per weight and decodes fast.</p></div>
-  <div class="pm"><p class="kicker">Weights</p><p>Each stack runs the pack its runtime's author publishes for it, in the
-  runtime's own format: the current ddalcu pack for mlx-serve, the only oMLX pack for Flash-Next, the pack MTPLX
-  recommends for 128 GB Macs, and the larger of the two ds4 GGUFs, chosen for quality parity. The files are as close to
-  each other as the formats allow (4.7 to 5.97 bits per weight), but they are not identical. The quality check in
-  <a href="#quality">section 11</a> shows the three servers I checked within a few cases of each other; ds4 was not checked.</p></div>
+  <div class="pm"><p class="kicker">Weights</p><p>The four servers of the October round each run the pack the runtime's
+  author publishes for it, in the runtime's own format: the current ddalcu pack for mlx-serve, the only oMLX pack for
+  Flash-Next, the pack MTPLX recommends for 128 GB Macs, and the larger of the two ds4 GGUFs, chosen for quality parity.
+  The files are as close to each other as the formats allow (4.7 to 5.97 bits per weight), but they are not identical. The
+  quality check in <a href="#quality">section 12</a> shows the three servers I checked within a few cases of each other;
+  ds4 was not checked. The two Swift 1.5 stacks run a community fine-tune: in MLX on mlx-serve, and as a GGUF on Splash,
+  which loads Flash-Next from a GGUF only.</p></div>
   <div class="pm"><p class="kicker">Precision</p><p>A personal test for my own daily use and curiosity, not a lab
   benchmark. I aimed for accurate numbers without letting the runs take days: one machine, one test prompt, 1 to 3
   runs per point. Small differences can be run-to-run variation.</p></div>
@@ -247,31 +251,36 @@ dl.method dd{margin:0; color:var(--ink-2)}
 </details>
 
 <section class="block" id="stacks">
-  <h2 class="sec">1 · The four stacks: each server runs its own weight file</h2>
+  <h2 class="sec">1 · The six stacks: each server runs its own weight file</h2>
   <p class="s-note">Each server needs its own weight format, so every stack below is a <b>server + quant</b> pair with a
-  different file (4.7 to 5.97 bits per weight). The results compare these stacks, not the servers alone. Same base
+  different file (about 4 to 6 bits per weight). The results compare these stacks, not the servers alone. Same base
   model, same test prompt, same sampling: temperature 1.0, top_p 0.95, top_k 20, reasoning effort xhigh, max 4,096
-  output tokens. All four use speculative decoding with the model's MTP head and a prefix cache. They differ in where
-  the cache lives and in how they handle the memory limit.</p>
-  <p class="s-note">Why these four: in October 2026 they were the servers that ran Flash-Next on Apple Silicon with MTP
-  and a prefix cache, each on its newest release. I did not measure llama.cpp, LM Studio or mlx-vlm in this round.
-  mlx-dspark 0.20.3 ran at 32K only and behind these four, so it is not on the page.</p>
-  <div class="tbl-scroll"><table class="txt"><thead><tr><th>Server</th><th>Weights (quant)</th><th>Disk</th><th>Prefix cache lives in</th><th>Speculative decoding</th><th>Largest context on 128 GB</th></tr></thead><tbody><tr><td><span class="sw" style="background:var(--s1)"></span><a href="https://github.com/ddalcu/mlx-serve" target="_blank" rel="noopener">mlx-serve 26.10.1</a><br><small class="about">MLX server by ddalcu</small></td><td><a href="https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw" target="_blank" rel="noopener">ddalcu iQ-MLX 4.7 bpw</a></td><td>107 GB</td><td>RAM (16 GB) + disk (100 GB)</td><td>MTP + n-gram lookup</td><td>512K (YaRN 2.0 + 4-bit KV cache)</td></tr><tr><td><span class="sw" style="background:var(--s2)"></span><a href="https://github.com/jundot/omlx" target="_blank" rel="noopener">oMLX 0.7.0</a><br><small class="about">MLX server by Jundot</small></td><td><a href="https://huggingface.co/Jundot/Qwen3.8-Flash-Next-oQ4e-mtp" target="_blank" rel="noopener">Jundot oQ4e-mtp (5.97 bpw)</a></td><td>132 GB</td><td>paged, spills over to SSD</td><td>MTP</td><td>262K (no YaRN support)</td></tr><tr><td><span class="sw" style="background:var(--s3)"></span><a href="https://github.com/youssofal/MTPLX" target="_blank" rel="noopener">MTPLX 2.12.2</a><br><small class="about">MLX server by Youssofal, ships its own quant packs</small></td><td><a href="https://huggingface.co/Youssofal/Qwen3.8-Flash-Next-MTPLX-Optimized-Speed" target="_blank" rel="noopener">MTPLX Optimized-Speed (5.43 bpw)</a></td><td>120 GB</td><td>session bank in RAM + SSD</td><td>MTP (depth 3)</td><td>128K, only with --memory-limit max</td></tr><tr><td><span class="sw" style="background:var(--s4)"></span><a href="https://github.com/antirez/ds4" target="_blank" rel="noopener">ds4 (antirez, build 0aaea5a)</a><br><small class="about">antirez's inference engine, Metal backend, GGUF weights</small></td><td><a href="https://huggingface.co/antirez/qwen3.8-flash-next-gguf" target="_blank" rel="noopener">antirez Q4 GGUF</a></td><td>177 GB</td><td>on disk (100 GB)</td><td>MTP (1 draft token)</td><td>512K (YaRN 2.0)</td></tr></tbody></table></div>
+  output tokens. All of them use speculative decoding and a prefix cache: the MLX servers and ds4 with the model's MTP
+  head, Splash with a separate draft model (DFlash2). They differ in where the cache lives and in how they handle the
+  memory limit.</p>
+  <p class="s-note">Why these: in October 2026 the first four were the servers that ran Flash-Next on Apple Silicon with
+  MTP and a prefix cache, each on its newest release. I did not measure llama.cpp, LM Studio or mlx-vlm in that round.
+  mlx-dspark 0.20.3 ran at 32K only and behind these four, so it is not on the page. In a later round (2026-10-23 to
+  2026-10-25) I added Splash 1.4.0 with Swift 1.5, next to the same fine-tune on mlx-serve 26.10.3, the server I use
+  every day.</p>
+  <div class="tbl-scroll"><table class="txt"><thead><tr><th>Server</th><th>Weights (quant)</th><th>Disk</th><th>Prefix cache lives in</th><th>Speculative decoding</th><th>Largest context on 128 GB</th></tr></thead><tbody><tr><td><span class="sw" style="background:var(--s1)"></span><a href="https://github.com/ddalcu/mlx-serve" target="_blank" rel="noopener">mlx-serve 26.10.1</a><br><small class="about">MLX server by ddalcu</small></td><td><a href="https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw" target="_blank" rel="noopener">ddalcu iQ-MLX 4.7 bpw</a></td><td>107 GB</td><td>RAM (16 GB) + disk (100 GB)</td><td>MTP + n-gram lookup</td><td>512K (YaRN 2.0 + 4-bit KV cache)</td></tr><tr><td><span class="sw" style="background:var(--s2)"></span><a href="https://github.com/jundot/omlx" target="_blank" rel="noopener">oMLX 0.7.0</a><br><small class="about">MLX server by Jundot</small></td><td><a href="https://huggingface.co/Jundot/Qwen3.8-Flash-Next-oQ4e-mtp" target="_blank" rel="noopener">Jundot oQ4e-mtp (5.97 bpw)</a></td><td>132 GB</td><td>paged, spills over to SSD</td><td>MTP</td><td>262K (no YaRN support)</td></tr><tr><td><span class="sw" style="background:var(--s3)"></span><a href="https://github.com/youssofal/MTPLX" target="_blank" rel="noopener">MTPLX 2.12.2</a><br><small class="about">MLX server by Youssofal, ships its own quant packs</small></td><td><a href="https://huggingface.co/Youssofal/Qwen3.8-Flash-Next-MTPLX-Optimized-Speed" target="_blank" rel="noopener">MTPLX Optimized-Speed (5.43 bpw)</a></td><td>120 GB</td><td>session bank in RAM + SSD</td><td>MTP (depth 3)</td><td>128K, only with --memory-limit max</td></tr><tr><td><span class="sw" style="background:var(--s4)"></span><a href="https://github.com/antirez/ds4" target="_blank" rel="noopener">ds4 (antirez, build 0aaea5a)</a><br><small class="about">antirez's inference engine, Metal backend, GGUF weights</small></td><td><a href="https://huggingface.co/antirez/qwen3.8-flash-next-gguf" target="_blank" rel="noopener">antirez Q4 GGUF</a></td><td>177 GB</td><td>on disk (100 GB)</td><td>MTP (1 draft token)</td><td>512K (YaRN 2.0)</td></tr><tr><td><span class="sw" style="background:var(--s5)"></span><a href="https://github.com/ddalcu/mlx-serve" target="_blank" rel="noopener">Swift 1.5 on mlx-serve 26.10.3</a><br><small class="about">my daily driver: the Swift 1.5 fine-tune in MLX</small></td><td><a href="https://huggingface.co/Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw" target="_blank" rel="noopener">Dankpaws Swift 1.5 MLX 4.7 bpw</a></td><td>99 GB</td><td>RAM (16 GB) + disk (100 GB)</td><td>MTP + n-gram lookup</td><td>512K (YaRN 2.0 + 4-bit KV cache)</td></tr><tr><td><span class="sw" style="background:var(--s6)"></span><a href="https://github.com/incoai/splash" target="_blank" rel="noopener">Swift 1.5 on Splash 1.4.0</a><br><small class="about">Inco AI's native Metal engine, GGUF weights only</small></td><td><a href="https://huggingface.co/ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF" target="_blank" rel="noopener">ukisai Swift 1.5 IQ4_XS GGUF</a></td><td>98 GB</td><td>RAM (8-bit KV cache) + SSD (32 GiB)</td><td>DFlash2 draft model</td><td>1M (YaRN, the KV past ~860K tokens on SSD)</td></tr></tbody></table></div>
 </section>
 
 <section class="block" id="glance">
-  <h2 class="sec">2 · At a glance: mlx-serve leads every speed metric</h2>
-  <p class="s-note">Five speed metrics and the largest context, one panel each. Pick a context size: mlx-serve has the
-  best value in every panel at every size I tested.</p>
+  <h2 class="sec">2 · At a glance: Splash is the fastest, mlx-serve leads the base-model servers</h2>
+  <p class="s-note">Five speed metrics and the largest context, one panel each. Pick a context size. Splash with Swift
+  1.5 has the shortest agent turn, the fastest next-turn TTFT and the fastest decode at every size I tested, and it is
+  the only stack that reached 1M. Among the four servers that run the base model, mlx-serve has the best value in every
+  panel at every size.</p>
   <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="glance"></div></div>
   <div class="legend" data-legend></div>
   <div class="glance" id="chGlance"></div>
-  <p class="foot-note">The trade-off is memory: mlx-serve locks 111 GB at 128K, against 90–110 GB
-  for the other servers (<a href="#limits">memory chart</a>). No server used swap.</p>
+  <p class="foot-note">The trade-off is memory: mlx-serve locks 111 GB at 128K and Splash 113 GB, against
+  90–110 GB for oMLX, MTPLX and ds4 (<a href="#limits">memory chart</a>). No server used swap.</p>
 </section>
 
 <section class="block" id="turn">
-  <h2 class="sec">3 · Agent turn time: mlx-serve is the fastest at every context size</h2>
+  <h2 class="sec">3 · Agent turn time: Splash is the fastest at every context size, mlx-serve among the base-model servers</h2>
   <p class="s-note"><b>Agent turn time</b> = the wait from sending a tool result to the end of a 512-token reply:
   TTFT (time to first token) + 512 ÷ decode speed. A coding agent pays this at every step. Lower is better.</p>
   <div class="legend" data-legend></div>
@@ -282,6 +291,9 @@ dl.method dd{margin:0; color:var(--ink-2)}
     <li><b>oMLX</b> is second at 128K and 256K (12.1 and 14.5 s). <b>MTPLX</b> is close at 32K
     (8.8 s), but needs a flag to reach 128K and refuses 256K.</li>
     <li><b>ds4</b> serves every size up to 512K, but its turn grows from 12.6 s at 32K to 61.9 s at 512K.</li>
+    <li><b>Swift 1.5 on Splash</b> takes 6.2 s at 8K, 6.3 s at 128K, 6.7 s at 512K and
+    9.3 s at 1M. The same fine-tune on mlx-serve 26.10.3 takes 8.9 s at 128K and
+    12.7 s at 512K (<a href="#splash">section 9</a>).</li>
   </ul>
 </section>
 
@@ -321,7 +333,7 @@ dl.method dd{margin:0; color:var(--ink-2)}
   <div class="callout"><span class="c-big">13 min → 3.9 s</span>
   <span class="c-txt">At 512K, mlx-serve needs 13 minutes to prefill the full prompt the first time. With a
   cache hit, the next reply starts after 3.9 s, about 200× faster. No server prefilled
-  faster than 821 tokens/s on this machine, so the first message is slow everywhere. The cache makes the
+  faster than 832 tokens/s on this machine, so the first message is slow everywhere. The cache makes the
   difference.</span></div>
   <p class="s-note"><b>The wait is the tokens that miss the cache, divided by the prefill speed.</b> The scenario only
   decides how many tokens miss. On this machine at 512K: 1K ≈ 1.5 s · 10K ≈ 15 s · 100K ≈ 2.5 min · 300K ≈ 7.5 min · 512K ≈ 13 min.</p>
@@ -335,6 +347,9 @@ dl.method dd{margin:0; color:var(--ink-2)}
     <tr><td><b>Next turn</b></td><td>~1K</td><td>3.9 s</td><td>Every normal step: the tool result or the new message
     at the end.</td></tr>
   </tbody></table></div>
+  <p class="s-note" style="margin-top:14px"><b>Splash is the exception.</b> When the history changes halfway it reuses none of the prompt and
+  prefills all of it again: 12 min at 512K, against 10 min for the same fine-tune on
+  mlx-serve. <a href="#splash">Section 9</a> explains why.</p>
   <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="wait"></div></div>
   <div class="panel big"><div id="chWait"></div>
     <div class="shape-key"><span><i class="k-cold"></i>first message (cold prefill)</span><span><i class="k-edit"></i>history changes halfway</span><span><i class="k-next"></i>next turn (cache hit)</span></div>
@@ -344,7 +359,7 @@ dl.method dd{margin:0; color:var(--ink-2)}
 
 <section class="block" id="reuse">
   <h2 class="sec">5 · At long context, a 95% cache hit is not enough</h2>
-  <p class="s-note">All four servers have a high cache hit rate on the next turn. At 512K the part that misses can still
+  <p class="s-note">All six stacks have a high cache hit rate on the next turn. At 512K the part that misses can still
   be a lot of tokens. ds4 hits 94.5% and prefills about 29K tokens again, so its next reply
   starts after 50 s. mlx-serve hits 99.8%, prefills about 1K tokens and starts
   after 3.9 s.</p>
@@ -365,7 +380,7 @@ dl.method dd{margin:0; color:var(--ink-2)}
   <h2 class="sec">6 · Cache hit by scenario</h2>
   <p class="s-note">Share of the prompt the server took from the cache, per scenario. <b>First message</b> is 0% by
   design. <b>History changes halfway</b> (a fork, a compaction, an edit of an earlier message) can reuse at most the part
-  before the change, about half. The two scenarios an agent
+  before the change, about half; Splash reuses none of it. The two scenarios an agent
   repeats all day are <b>user adds a message</b> and <b>next turn</b>: above 90% is good.</p>
   <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="hits"></div></div>
   <div class="tbl-scroll"><table id="tblHits" class="heat"></table></div>
@@ -381,7 +396,8 @@ dl.method dd{margin:0; color:var(--ink-2)}
   <div class="panel big"><div class="p-head"><span class="p-title">Decode speed vs agent turn time</span><span class="p-unit">best = bottom right</span></div><div id="chScatter"></div></div>
   <div class="grid2">
     <div class="panel"><div class="p-head"><span class="p-title">Decode speed</span><span class="p-unit">tokens/s · higher is better</span></div><div id="chDecode"></div>
-    <p class="p-interp">mlx-serve: 74 tokens/s at 128K, 56 at 512K. ds4 stays at 43–54 tokens/s.</p></div>
+    <p class="p-interp">mlx-serve: 74 tokens/s at 128K, 56 at 512K. ds4 stays at 43–54 tokens/s.
+    Splash: 108 tokens/s at 128K, 77 at 1M.</p></div>
     <div class="panel"><div class="p-head"><span class="p-title">Prefill speed (cold prompt)</span><span class="p-unit">tokens/s · higher is better</span></div><div id="chPrefill"></div>
     <p class="p-interp">MTPLX drops to 274 tokens/s at 128K. The others stay almost flat.</p></div>
   </div>
@@ -390,21 +406,72 @@ dl.method dd{margin:0; color:var(--ink-2)}
 <section class="block" id="limits">
   <h2 class="sec">8 · What each server can serve on 128 GB</h2>
   <p class="s-note">The model's native context is 262,144 tokens. 512K uses YaRN 2.0, a context extension that
-  oMLX does not support. A cell shows the agent turn time, or why that size did not run.</p>
+  oMLX does not support. 1M ran only on Splash, which turns YaRN on by itself above 262K and keeps the KV cache past
+  about 860K tokens on its SSD cache. A cell shows the agent turn time, or why that size did not run.</p>
   <div class="tbl-scroll"><table id="tblSupport"></table></div>
   <ol class="fn" id="fnSupport"></ol>
   <div class="panel big" style="margin-top:14px"><div class="p-head"><span class="p-title">Peak memory locked by the server</span><span class="p-unit">GB · of 128 GB</span></div><div id="chMem"></div>
   <p class="p-interp">No server used swap. mlx-serve locks the KV and prefix cache in memory on purpose: 97–114 GB
-  from 32K to 512K. Close other large apps before a long session.</p></div>
+  from 32K to 512K, Splash 108–116 GB from 32K to 1M. Close other large apps before a long session.</p></div>
+</section>
+
+<section class="block" id="splash">
+  <h2 class="sec">9 · Up to 1M and the fastest decode: Splash 1.4.0</h2>
+  <p class="s-note"><a href="https://github.com/incoai/splash" target="_blank" rel="noopener">Splash</a> is Inco AI's
+  inference engine on native Metal. It loads Flash-Next from a GGUF only, so I ran it with the Swift 1.5 fine-tune as an
+  IQ4_XS GGUF, next to the same fine-tune in MLX on mlx-serve 26.10.3, the stack I use every day. The two stacks differ in
+  runtime and in weight format, so the gap belongs to the stack, not to the server alone.</p>
+  <div class="tiles">
+    <div class="tile"><span class="t-val">6.6<small> s</small></span><span class="t-lab">per agent turn at 256K, against 9.2 s on mlx-serve</span></div>
+    <div class="tile"><span class="t-val">6.7<small> s</small></span><span class="t-lab">per agent turn at 512K, against 12.7 s on mlx-serve</span></div>
+    <div class="tile"><span class="t-val">9.3<small> s</small></span><span class="t-lab">per agent turn at 1M; mlx-serve stops at 512K</span></div>
+    <div class="tile"><span class="t-val">25.5<small> min</small></span><span class="t-lab">first message at 1M, nothing cached</span></div>
+  </div>
+  <ul class="reads">
+    <li><b>The gain comes from decode.</b> Splash writes 106 tokens/s at 256K against 74
+    on mlx-serve, and 107 against 57 at 512K. The first message costs the same: the cold
+    prefill runs at 731 and 732 tokens/s at 256K.</li>
+    <li><b>1M.</b> Above 262K Splash turns YaRN on by itself. With the 8-bit KV cache, about 860K tokens stay in memory and
+    the rest goes to its SSD cache: 9.3 s per agent turn, 2.6 s to start the next reply,
+    77 tokens/s, 110 GB of peak memory.</li>
+    <li><b>A change halfway costs the whole prompt.</b> Flash-Next is a hybrid model: some layers carry a recurrent state
+    that cannot be rolled back, and Splash saves that state only where a request ends. An edit of an earlier message, a
+    compaction, a retried turn or a fork before that point reuses none of the prompt, against
+    44% on mlx-serve at 512K: 12 min at 512K and 25.5 min at 1M
+    (<a href="https://github.com/incoai/splash/issues/387" target="_blank" rel="noopener">splash #387</a>,
+    <a href="https://github.com/incoai/splash/issues/361" target="_blank" rel="noopener">#361</a>).</li>
+    <li><b>YaRN changes short answers too.</b> Above 262K the context extension is static, so it applies to every prompt.
+    Use the 512K or 1M setting only when the context needs it.</li>
+  </ul>
+  <h3>Quality: within the noise of mlx-serve, up to 1M</h3>
+  <div class="tbl-scroll"><table class="txt sq"><thead><tr><th>Test</th><th>Swift 1.5 · mlx-serve · 262K</th><th>Splash · 262K</th><th>Splash · 512K</th><th>Splash · 1M</th></tr></thead><tbody><tr><td>HumanEval (164)</td><td>142/164</td><td>147/164 · 151/164</td><td>147/164</td><td>142/164 · 148/164</td></tr><tr><td>GPQA-Diamond (50)</td><td>43/50</td><td>41/50</td><td>43/50</td><td>43/50</td></tr><tr><td>LiveCodeBench v6 (50)</td><td>47/50</td><td>47/50</td><td>47/50</td><td>47/50</td></tr><tr><td>Instruction following (20)</td><td>19/20</td><td>19/20</td><td>18/20</td><td>19/20</td></tr><tr><td>Tool calls A (40)</td><td>34/40</td><td>37/40</td><td>37/40</td><td>36/40</td></tr><tr><td>Tool calls B (12)</td><td>10/12</td><td>10/12</td><td>10/12</td><td>9/12</td></tr><tr><td>Long-context recall at the server's size (8)</td><td>8/8</td><td>8/8</td><td>8/8</td><td>8/8</td></tr></tbody></table></div>
+  <p class="foot-note">One run per cell, vendor sampling, reasoning effort xhigh; each column starts the server at that
+  context size. HumanEval ran twice at 262K and 1M on Splash: two runs of the same setup differ by 4 to 6 questions, so
+  the 1M result is within the noise. Long-context recall: 8 questions about a document filled to the server's size. Tool
+  calls A and B as in <a href="#quality">section 12</a>.</p>
+  <h3>Run it</h3>
+  <p class="s-note">Download <a href="https://huggingface.co/ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF" target="_blank" rel="noopener">ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF</a>
+  (IQ4_XS, 98 GB). This is the 1M setting; for 256K or 512K, set <code>--max-context</code> to 262144 or 524288 (I
+  measured all three). Splash picks the DFlash2 draft model and the 8-bit KV cache by itself.</p>
+  <div class="cmds"><div class="cmd">
+      <p class="cmd-lab">Splash 1.4.0, Swift 1.5 IQ4_XS, 1M</p>
+<pre><code>splash serve --model ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS \
+  --host 0.0.0.0 --port 8585 --max-context 1000000 \
+  --revision 0142554c963a8653912c0c8283f05f13f63653f3 \
+  --idle-release off --language-only --no-webui --offline \
+  --verify-rows auto</code></pre>
+    </div></div>
 </section>
 
 <section class="verdict" id="conclusion" aria-labelledby="v-title">
   <div class="v-main">
     <p class="kicker">Conclusion</p>
     <h2 id="v-title">Use <b>mlx-serve 26.10.1</b> with the <b>ddalcu iQ-MLX 4.7 bpw</b> quant.</h2>
-    <p>It had the shortest agent turn at every context size I tested, from 8K to 512K. It is the only server
-    that kept a turn under 15 s at 512K. The runner-up is <b>oMLX 0.7.0</b> (12.1 s at 128K), but it stops
-    at 256K. <a href="#run">Commands below.</a></p>
+    <p>Among the four servers that run the base model, it had the shortest agent turn at every context size, from 8K
+    to 512K, and it is the only one of them that kept a turn under 15 s at 512K. The runner-up is <b>oMLX 0.7.0</b>
+    (12.1 s at 128K), but it stops at 256K. <a href="#run">Commands below.</a> For the fastest decode or a
+    context above 512K, try <b>Splash 1.4.0</b> with Swift 1.5 (6.7 s at 512K, 9.3 s at 1M), and
+    keep the history stable: a change halfway prefills the whole prompt again (<a href="#splash">section 9</a>).</p>
   </div>
   <div class="tiles">
     <div class="tile"><span class="t-val">8.8<small> s</small></span><span class="t-lab">per agent turn at 128K context</span></div>
@@ -415,7 +482,7 @@ dl.method dd{margin:0; color:var(--ink-2)}
 </section>
 
 <section class="block" id="run">
-  <h2 class="sec">9 · Run it yourself</h2>
+  <h2 class="sec">10 · Run it yourself</h2>
   <p class="s-note">Download <a href="https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw" target="_blank" rel="noopener">ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw</a>
   (107 GB) and <a href="https://github.com/ddalcu/mlx-serve" target="_blank" rel="noopener">mlx-serve 26.10.1</a>. These are the
   flags I measured. The server exposes OpenAI and Anthropic compatible endpoints. The data, the prompt generator and
@@ -444,7 +511,7 @@ dl.method dd{margin:0; color:var(--ink-2)}
 </section>
 
 <section class="block" id="tips">
-  <h2 class="sec">10 · Tips for daily use</h2>
+  <h2 class="sec">11 · Tips for daily use</h2>
   <ul class="tips">
     <li><b>Keep the start of the prompt stable.</b> System prompt, tool list and project rules come first. A change
     there invalidates the cache for everything after it.</li>
@@ -461,7 +528,7 @@ dl.method dd{margin:0; color:var(--ink-2)}
 </section>
 
 <section class="block" id="quality">
-  <h2 class="sec">11 · Quality sanity check</h2>
+  <h2 class="sec">12 · Quality sanity check</h2>
   <p class="s-note">Does a server or quant break the model? Not in these runs: the three servers I checked are within
   a few cases of each other. One run per server, on different dates, with a small sample. Read it as a sanity check,
   not as a ranking. ds4 was not checked.</p>
@@ -474,7 +541,7 @@ dl.method dd{margin:0; color:var(--ink-2)}
 </section>
 
 <section class="block" id="swift">
-  <h2 class="sec">12 · Bonus: Swift 1.5, a fine-tune on the same stack</h2>
+  <h2 class="sec">13 · Bonus: Swift 1.5, a fine-tune on the same stack</h2>
   <p class="s-note">Swift 1.5 is a community fine-tune of Qwen3.8-Flash-Next that thinks less before it answers. I ran
   it on the same mlx-serve setup. It scored the same as the base quant within the noise of these samples, and it reached
   the final answer 2.9× faster on GPQA and 2.0× faster on LiveCodeBench. Its agent turn time is the
@@ -486,7 +553,7 @@ dl.method dd{margin:0; color:var(--ink-2)}
 </section>
 
 <section class="block" id="method">
-  <h2 class="sec">13 · How I measured</h2>
+  <h2 class="sec">14 · How I measured</h2>
   <dl class="method">
     <dt>Test prompt</dt><dd>A long audit document filled to the target size, with three facts hidden at 10%, 50% and
     90% of the text. A reply is correct when it finds all three.</dd>
@@ -505,7 +572,8 @@ dl.method dd{margin:0; color:var(--ink-2)}
     No coding agent sits in the loop.</dd>
     <dt>Data and scripts</dt><dd>The raw results, the prompt generator and this page's script are in the
     <a href="https://github.com/snagnever/macstudio-local-llm" target="_blank" rel="noopener">repository</a>
-    (<code>bench/engine-updates-2026-10</code> and <code>bench/swift15-flashnext-2026-10</code>).</dd>
+    (<code>bench/engine-updates-2026-10</code>, <code>bench/swift15-flashnext-2026-10</code>,
+    <code>bench/stack-updates-2026-10</code> and <code>bench/splash-longctx-2026-10</code>).</dd>
   </dl>
   <h3>What this page does not measure</h3>
   <ul class="reads">
@@ -515,18 +583,21 @@ dl.method dd{margin:0; color:var(--ink-2)}
     also true.</li>
     <li><b>Power draw and fan noise.</b></li>
     <li><b>Several requests at once.</b> Every run sent one request at a time.</li>
-    <li><b>The quality of ds4.</b> Only the three MLX servers went through the sanity check in <a href="#quality">section 11</a>.</li>
+    <li><b>The quality of ds4.</b> Only the three MLX servers of the October round (<a href="#quality">section 12</a>) and
+    Swift 1.5 on Splash and mlx-serve 26.10.3 (<a href="#splash">section 9</a>) went through a quality check.</li>
   </ul>
   <h3>Setup notes</h3>
   <ul class="reads">
     <li><b>MTPLX.</b> The default config plans only a 65,536-token window on this machine and refuses 128K;
     128K needs <code>--memory-limit max</code>. Short requests without history skip its session cache, so the test
     sends a 64-token warm-up first.</li>
+    <li><b>Splash.</b> It refuses Flash-Next in MLX format, so it cannot run the same file as mlx-serve. Clients must send
+    <code>frequency_penalty</code> 0, as with mlx-serve 26.10.3: with 1, the tool-call test failed on both servers.</li>
   </ul>
 </section>
 
 <section class="block" id="data">
-  <h2 class="sec">14 · All values</h2>
+  <h2 class="sec">15 · All values</h2>
   <p class="s-note">One row per server and context size. Times in seconds (TTFT = time to first token). Decode and
   prefill in tokens/s, memory in GB.</p>
   <div class="tbl-scroll"><table id="tblAll"></table></div>
@@ -536,11 +607,11 @@ dl.method dd{margin:0; color:var(--ink-2)}
 </div>
 <div id="tip" class="tip" role="tooltip"></div>
 <script>
-const P = {"ctx": [8192, 32768, 131072, 262144, 524288], "stacks": [{"id": "n2", "name": "mlx-serve 26.10.1", "short": "mlx-serve", "cv": "--s1", "marker": "circle", "max_ctx": 524288}, {"id": "o1", "name": "oMLX 0.7.0", "short": "oMLX", "cv": "--s2", "marker": "square", "max_ctx": 262144}, {"id": "m1", "name": "MTPLX 2.12.2", "short": "MTPLX", "cv": "--s3", "marker": "triangle", "max_ctx": 131072}, {"id": "d1", "name": "ds4 (antirez, build 0aaea5a)", "short": "ds4", "cv": "--s4", "marker": "diamond", "max_ctx": 524288}], "points": {"n2": {"8192": {"turn": 7.78, "resume": 1.68, "append": 1.6, "cold": 3.33, "edit": 3.39, "decode": 83.9, "prefill": 821.0, "wired": 84.0, "swap": 0, "reuse": 0.71, "reuse_edit": 0.0, "reread": 2376, "reps": 3, "hits": {"cold": 0.0, "identical": 0.989, "append": 0.718, "middle_mutation": 0.0, "tool_turn": 0.71}, "config": ""}, "32768": {"turn": 8.23, "resume": 1.86, "append": 1.76, "cold": 34.52, "edit": 24.96, "decode": 80.4, "prefill": 791.0, "wired": 96.8, "swap": 0, "reuse": 0.961, "reuse_edit": 0.3, "reread": 1278, "reps": 3, "hits": {"cold": 0.0, "identical": 0.999, "append": 0.962, "middle_mutation": 0.3, "tool_turn": 0.961}, "config": ""}, "131072": {"turn": 8.84, "resume": 1.92, "append": 1.87, "cold": 165.59, "edit": 92.36, "decode": 74.0, "prefill": 759.0, "wired": 110.6, "swap": 0, "reuse": 0.991, "reuse_edit": 0.456, "reread": 1180, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.992, "middle_mutation": 0.456, "tool_turn": 0.991}, "config": ""}, "262144": {"turn": 9.77, "resume": 2.13, "append": 2.02, "cold": 350.4, "edit": 192.08, "decode": 67.0, "prefill": 732.0, "wired": 111.7, "swap": 0, "reuse": 0.996, "reuse_edit": 0.479, "reread": 1049, "reps": 1, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.996, "middle_mutation": 0.479, "tool_turn": 0.996}, "config": ""}, "524288": {"turn": 13.0, "resume": 3.88, "append": 2.68, "cold": 784.0, "edit": 537.8, "decode": 56.2, "prefill": 662.0, "wired": 113.9, "swap": 0, "reuse": 0.998, "reuse_edit": 0.411, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.998, "middle_mutation": 0.411, "tool_turn": 0.998}, "config": "YaRN 2.0 + 4-bit KV cache"}}, "o1": {"8192": {"turn": 9.35, "resume": 2.2, "append": 2.13, "cold": 4.1, "edit": 4.19, "decode": 71.6, "prefill": 666.0, "wired": 82.9, "swap": 0, "reuse": 0.717, "reuse_edit": 0.0, "reread": 2318, "reps": 3, "hits": {"cold": 0.0, "identical": 0.998, "append": 0.724, "middle_mutation": 0.0, "tool_turn": 0.717}, "config": ""}, "32768": {"turn": 10.06, "resume": 2.38, "append": 2.29, "cold": 49.59, "edit": 28.57, "decode": 66.6, "prefill": 551.0, "wired": 91.2, "swap": 0, "reuse": 0.962, "reuse_edit": 0.449, "reread": 1245, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.963, "middle_mutation": 0.449, "tool_turn": 0.962}, "config": ""}, "131072": {"turn": 12.09, "resume": 3.17, "append": 3.11, "cold": 248.53, "edit": 133.25, "decode": 57.4, "prefill": 505.0, "wired": 98.0, "swap": 0, "reuse": 0.992, "reuse_edit": 0.489, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.992, "middle_mutation": 0.489, "tool_turn": 0.992}, "config": ""}, "262144": {"turn": 14.49, "resume": 4.28, "append": 4.19, "cold": 552.26, "edit": 304.23, "decode": 50.2, "prefill": 465.0, "wired": 100.5, "swap": 0, "reuse": 0.996, "reuse_edit": 0.495, "reread": 1049, "reps": 1, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.996, "middle_mutation": 0.495, "tool_turn": 0.996}, "config": ""}, "524288": {"reason": "no YaRN: oMLX stops at the native 262K"}}, "m1": {"8192": {"turn": 8.21, "resume": 1.68, "append": 1.68, "cold": 3.77, "edit": 3.87, "decode": 78.5, "prefill": 724.0, "wired": 94.7, "swap": 0, "reuse": 0.718, "reuse_edit": 0.0, "reread": 2310, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.709, "middle_mutation": 0.0, "tool_turn": 0.718}, "config": ""}, "32768": {"turn": 8.84, "resume": 2.4, "append": 2.5, "cold": 44.13, "edit": 33.23, "decode": 79.6, "prefill": 619.0, "wired": 98.4, "swap": 0, "reuse": 0.962, "reuse_edit": 0.3, "reread": 1245, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.961, "middle_mutation": 0.3, "tool_turn": 0.962}, "config": ""}, "131072": {"turn": 15.1, "resume": 7.83, "append": 6.14, "cold": 458.07, "edit": 403.7, "decode": 70.4, "prefill": 274.0, "wired": 109.7, "swap": 0, "reuse": 0.992, "reuse_edit": 0.261, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.991, "middle_mutation": 0.261, "tool_turn": 0.992}, "config": "--memory-limit max"}, "262144": {"reason": "refused: the MTPLX memory plan fits at most 237,568 tokens on 128 GB"}, "524288": {"reason": "not run: MTPLX already refuses 256K"}}, "d1": {"8192": {"turn": 12.73, "resume": 2.95, "append": 2.88, "cold": 4.78, "edit": 4.73, "decode": 52.4, "prefill": 571.0, "wired": 84.9, "swap": 0, "reuse": 0.539, "reuse_edit": 0.0, "reread": 3777, "reps": 3, "hits": {"cold": 0.0, "identical": 0.75, "append": 0.544, "middle_mutation": 0.0, "tool_turn": 0.539}, "config": ""}, "32768": {"turn": 12.59, "resume": 3.02, "append": 2.95, "cold": 41.42, "edit": 41.5, "decode": 53.5, "prefill": 659.0, "wired": 86.0, "swap": 0, "reuse": 0.938, "reuse_edit": 0.0, "reread": 2032, "reps": 1, "hits": {"cold": 0.0, "identical": 0.975, "append": 0.94, "middle_mutation": 0.0, "tool_turn": 0.938}, "config": ""}, "131072": {"turn": 16.41, "resume": 6.38, "append": 6.31, "cold": 195.69, "edit": 133.65, "decode": 51.0, "prefill": 642.0, "wired": 90.1, "swap": 0, "reuse": 0.97, "reuse_edit": 0.326, "reread": 3932, "reps": 3, "hits": {"cold": 0.0, "identical": 0.978, "append": 0.97, "middle_mutation": 0.326, "tool_turn": 0.97}, "config": ""}, "262144": {"turn": 30.66, "resume": 19.94, "append": 19.87, "cold": 407.22, "edit": 224.04, "decode": 47.8, "prefill": 630.0, "wired": 95.6, "swap": 0, "reuse": 0.954, "reuse_edit": 0.479, "reread": 12059, "reps": 1, "hits": {"cold": 0.0, "identical": 0.958, "append": 0.954, "middle_mutation": 0.479, "tool_turn": 0.954}, "config": ""}, "524288": {"turn": 61.87, "resume": 49.99, "append": 49.9, "cold": 894.68, "edit": 887.96, "decode": 43.1, "prefill": 580.0, "wired": 106.6, "swap": 0, "reuse": 0.945, "reuse_edit": 0.0, "reread": 28836, "reps": 1, "hits": {"cold": 0.0, "identical": 0.947, "append": 0.946, "middle_mutation": 0.0, "tool_turn": 0.945}, "config": "YaRN 2.0"}}}, "quality": [{"id": "n2", "date": "2026-10-11", "humaneval": [158, 164], "livecodebench": [45, 50], "jdhodges": [35, 40], "veerman": [10, 12]}, {"id": "o1", "date": "2026-10-09", "humaneval": [157, 164], "livecodebench": [45, 50], "jdhodges": [36, 40], "veerman": [10, 12]}, {"id": "m1", "date": "2026-10-09", "humaneval": [151, 164], "livecodebench": null, "jdhodges": [35, 40], "veerman": [10, 12]}], "quality_suites": [["humaneval", "HumanEval (164)"], ["livecodebench", "LiveCodeBench v6 (50)"], ["jdhodges", "Tool calls A (40)"], ["veerman", "Tool calls B (12)"]], "swift": [{"key": "gpqa", "label": "GPQA-Diamond (50)", "n2": {"median": 63.9, "passed": 45, "n": 50}, "w1": {"median": 22.3, "passed": 43, "n": 50}}, {"key": "livecodebench", "label": "LiveCodeBench v6 (50)", "n2": {"median": 39.1, "passed": 45, "n": 50}, "w1": {"median": 19.1, "passed": 47, "n": 50}}, {"key": "humaneval", "label": "HumanEval (164)", "n2": {"median": 6.8, "passed": 158, "n": 164}, "w1": {"median": 5.7, "passed": 158, "n": 164}}], "generated_at": "2026-10-11T13:03:59Z"};
+const P = {"ctx": [8192, 32768, 131072, 262144, 524288, 1000000], "stacks": [{"id": "n2", "name": "mlx-serve 26.10.1", "short": "mlx-serve", "cv": "--s1", "marker": "circle", "max_ctx": 524288}, {"id": "o1", "name": "oMLX 0.7.0", "short": "oMLX", "cv": "--s2", "marker": "square", "max_ctx": 262144}, {"id": "m1", "name": "MTPLX 2.12.2", "short": "MTPLX", "cv": "--s3", "marker": "triangle", "max_ctx": 131072}, {"id": "d1", "name": "ds4 (antirez, build 0aaea5a)", "short": "ds4", "cv": "--s4", "marker": "diamond", "max_ctx": 524288}, {"id": "w1", "name": "Swift 1.5 on mlx-serve 26.10.3", "short": "Swift MLX", "cv": "--s5", "marker": "invtriangle", "max_ctx": 524288}, {"id": "k2", "name": "Swift 1.5 on Splash 1.4.0", "short": "Splash", "cv": "--s6", "marker": "hexagon", "max_ctx": 1000000}], "points": {"n2": {"8192": {"turn": 7.78, "resume": 1.68, "append": 1.6, "cold": 3.33, "edit": 3.39, "decode": 83.9, "prefill": 821.0, "wired": 84.0, "swap": 0, "reuse": 0.71, "reuse_edit": 0.0, "reread": 2376, "reps": 3, "hits": {"cold": 0.0, "identical": 0.989, "append": 0.718, "middle_mutation": 0.0, "tool_turn": 0.71}, "config": ""}, "32768": {"turn": 8.23, "resume": 1.86, "append": 1.76, "cold": 34.52, "edit": 24.96, "decode": 80.4, "prefill": 791.0, "wired": 96.8, "swap": 0, "reuse": 0.961, "reuse_edit": 0.3, "reread": 1278, "reps": 3, "hits": {"cold": 0.0, "identical": 0.999, "append": 0.962, "middle_mutation": 0.3, "tool_turn": 0.961}, "config": ""}, "131072": {"turn": 8.84, "resume": 1.92, "append": 1.87, "cold": 165.59, "edit": 92.36, "decode": 74.0, "prefill": 759.0, "wired": 110.6, "swap": 0, "reuse": 0.991, "reuse_edit": 0.456, "reread": 1180, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.992, "middle_mutation": 0.456, "tool_turn": 0.991}, "config": ""}, "262144": {"turn": 9.77, "resume": 2.13, "append": 2.02, "cold": 350.4, "edit": 192.08, "decode": 67.0, "prefill": 732.0, "wired": 111.7, "swap": 0, "reuse": 0.996, "reuse_edit": 0.479, "reread": 1049, "reps": 1, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.996, "middle_mutation": 0.479, "tool_turn": 0.996}, "config": ""}, "524288": {"turn": 13.0, "resume": 3.88, "append": 2.68, "cold": 784.0, "edit": 537.8, "decode": 56.2, "prefill": 662.0, "wired": 113.9, "swap": 0, "reuse": 0.998, "reuse_edit": 0.411, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.998, "middle_mutation": 0.411, "tool_turn": 0.998}, "config": "YaRN 2.0 + 4-bit KV cache"}, "1000000": {"reason": "not run: the October round stopped at 512K"}}, "o1": {"8192": {"turn": 9.35, "resume": 2.2, "append": 2.13, "cold": 4.1, "edit": 4.19, "decode": 71.6, "prefill": 666.0, "wired": 82.9, "swap": 0, "reuse": 0.717, "reuse_edit": 0.0, "reread": 2318, "reps": 3, "hits": {"cold": 0.0, "identical": 0.998, "append": 0.724, "middle_mutation": 0.0, "tool_turn": 0.717}, "config": ""}, "32768": {"turn": 10.06, "resume": 2.38, "append": 2.29, "cold": 49.59, "edit": 28.57, "decode": 66.6, "prefill": 551.0, "wired": 91.2, "swap": 0, "reuse": 0.962, "reuse_edit": 0.449, "reread": 1245, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.963, "middle_mutation": 0.449, "tool_turn": 0.962}, "config": ""}, "131072": {"turn": 12.09, "resume": 3.17, "append": 3.11, "cold": 248.53, "edit": 133.25, "decode": 57.4, "prefill": 505.0, "wired": 98.0, "swap": 0, "reuse": 0.992, "reuse_edit": 0.489, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.992, "middle_mutation": 0.489, "tool_turn": 0.992}, "config": ""}, "262144": {"turn": 14.49, "resume": 4.28, "append": 4.19, "cold": 552.26, "edit": 304.23, "decode": 50.2, "prefill": 465.0, "wired": 100.5, "swap": 0, "reuse": 0.996, "reuse_edit": 0.495, "reread": 1049, "reps": 1, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.996, "middle_mutation": 0.495, "tool_turn": 0.996}, "config": ""}, "524288": {"reason": "no YaRN: oMLX stops at the native 262K"}, "1000000": {"reason": "no YaRN: oMLX stops at the native 262K"}}, "m1": {"8192": {"turn": 8.21, "resume": 1.68, "append": 1.68, "cold": 3.77, "edit": 3.87, "decode": 78.5, "prefill": 724.0, "wired": 94.7, "swap": 0, "reuse": 0.718, "reuse_edit": 0.0, "reread": 2310, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.709, "middle_mutation": 0.0, "tool_turn": 0.718}, "config": ""}, "32768": {"turn": 8.84, "resume": 2.4, "append": 2.5, "cold": 44.13, "edit": 33.23, "decode": 79.6, "prefill": 619.0, "wired": 98.4, "swap": 0, "reuse": 0.962, "reuse_edit": 0.3, "reread": 1245, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.961, "middle_mutation": 0.3, "tool_turn": 0.962}, "config": ""}, "131072": {"turn": 15.1, "resume": 7.83, "append": 6.14, "cold": 458.07, "edit": 403.7, "decode": 70.4, "prefill": 274.0, "wired": 109.7, "swap": 0, "reuse": 0.992, "reuse_edit": 0.261, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.991, "middle_mutation": 0.261, "tool_turn": 0.992}, "config": "--memory-limit max"}, "262144": {"reason": "refused: the MTPLX memory plan fits at most 237,568 tokens on 128 GB"}, "524288": {"reason": "not run: MTPLX already refuses 256K"}, "1000000": {"reason": "not run: MTPLX already refuses 256K"}}, "d1": {"8192": {"turn": 12.73, "resume": 2.95, "append": 2.88, "cold": 4.78, "edit": 4.73, "decode": 52.4, "prefill": 571.0, "wired": 84.9, "swap": 0, "reuse": 0.539, "reuse_edit": 0.0, "reread": 3777, "reps": 3, "hits": {"cold": 0.0, "identical": 0.75, "append": 0.544, "middle_mutation": 0.0, "tool_turn": 0.539}, "config": ""}, "32768": {"turn": 12.59, "resume": 3.02, "append": 2.95, "cold": 41.42, "edit": 41.5, "decode": 53.5, "prefill": 659.0, "wired": 86.0, "swap": 0, "reuse": 0.938, "reuse_edit": 0.0, "reread": 2032, "reps": 1, "hits": {"cold": 0.0, "identical": 0.975, "append": 0.94, "middle_mutation": 0.0, "tool_turn": 0.938}, "config": ""}, "131072": {"turn": 16.41, "resume": 6.38, "append": 6.31, "cold": 195.69, "edit": 133.65, "decode": 51.0, "prefill": 642.0, "wired": 90.1, "swap": 0, "reuse": 0.97, "reuse_edit": 0.326, "reread": 3932, "reps": 3, "hits": {"cold": 0.0, "identical": 0.978, "append": 0.97, "middle_mutation": 0.326, "tool_turn": 0.97}, "config": ""}, "262144": {"turn": 30.66, "resume": 19.94, "append": 19.87, "cold": 407.22, "edit": 224.04, "decode": 47.8, "prefill": 630.0, "wired": 95.6, "swap": 0, "reuse": 0.954, "reuse_edit": 0.479, "reread": 12059, "reps": 1, "hits": {"cold": 0.0, "identical": 0.958, "append": 0.954, "middle_mutation": 0.479, "tool_turn": 0.954}, "config": ""}, "524288": {"turn": 61.87, "resume": 49.99, "append": 49.9, "cold": 894.68, "edit": 887.96, "decode": 43.1, "prefill": 580.0, "wired": 106.6, "swap": 0, "reuse": 0.945, "reuse_edit": 0.0, "reread": 28836, "reps": 1, "hits": {"cold": 0.0, "identical": 0.947, "append": 0.946, "middle_mutation": 0.0, "tool_turn": 0.945}, "config": "YaRN 2.0"}, "1000000": {"reason": "not run: the October round stopped at 512K"}}, "w1": {"8192": {"turn": 7.72, "resume": 1.61, "append": 1.57, "cold": 3.33, "edit": 3.33, "decode": 83.7, "prefill": 819.0, "wired": 90.2, "swap": 0, "reuse": 0.71, "reuse_edit": 0.0, "reread": 2376, "reps": 3, "hits": {"cold": 0.0, "identical": 0.989, "append": 0.718, "middle_mutation": 0.0, "tool_turn": 0.71}, "config": ""}, "32768": {"turn": 8.04, "resume": 1.79, "append": 1.72, "cold": 34.56, "edit": 24.98, "decode": 81.8, "prefill": 790.0, "wired": 100.0, "swap": 0, "reuse": 0.961, "reuse_edit": 0.3, "reread": 1278, "reps": 3, "hits": {"cold": 0.0, "identical": 0.999, "append": 0.962, "middle_mutation": 0.3, "tool_turn": 0.961}, "config": ""}, "131072": {"turn": 8.87, "resume": 1.95, "append": 1.99, "cold": 165.69, "edit": 94.0, "decode": 74.0, "prefill": 758.0, "wired": 107.5, "swap": 0, "reuse": 0.991, "reuse_edit": 0.456, "reread": 1180, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.992, "middle_mutation": 0.456, "tool_turn": 0.991}, "config": ""}, "262144": {"turn": 9.23, "resume": 2.32, "append": 2.32, "cold": 350.74, "edit": 205.88, "decode": 74.1, "prefill": 732.0, "wired": 113.2, "swap": 0, "reuse": 0.996, "reuse_edit": 0.447, "reread": 1049, "reps": 1, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.996, "middle_mutation": 0.447, "tool_turn": 0.996}, "config": ""}, "524288": {"turn": 12.69, "resume": 3.7, "append": 4.05, "cold": 784.18, "edit": 587.79, "decode": 57.0, "prefill": 662.0, "wired": 113.8, "swap": 0, "reuse": 0.998, "reuse_edit": 0.442, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.998, "middle_mutation": 0.442, "tool_turn": 0.998}, "config": "YaRN 2.0 + 4-bit KV cache"}, "1000000": {"reason": "not served: mlx-serve stops at 512K (YaRN 2.0 + 4-bit KV cache, 3.8 GB of memory left)"}}, "k2": {"8192": {"turn": 6.18, "resume": 1.4, "append": 1.36, "cold": 3.28, "edit": 3.31, "decode": 107.2, "prefill": 832.0, "wired": 106.6, "swap": 0, "reuse": 0.715, "reuse_edit": 0.0, "reread": 2335, "reps": 3, "hits": {"cold": 0.0, "identical": 0.996, "append": 0.723, "middle_mutation": 0.0, "tool_turn": 0.715}, "config": ""}, "32768": {"turn": 6.04, "resume": 1.5, "append": 1.45, "cold": 34.65, "edit": 34.73, "decode": 112.7, "prefill": 788.0, "wired": 108.0, "swap": 0, "reuse": 0.962, "reuse_edit": 0.0, "reread": 1245, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.963, "middle_mutation": 0.0, "tool_turn": 0.962}, "config": ""}, "131072": {"turn": 6.31, "resume": 1.58, "append": 1.53, "cold": 167.44, "edit": 167.45, "decode": 108.2, "prefill": 750.0, "wired": 112.6, "swap": 0, "reuse": 0.991, "reuse_edit": 0.0, "reread": 1180, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.992, "middle_mutation": 0.0, "tool_turn": 0.991}, "config": ""}, "262144": {"turn": 6.57, "resume": 1.73, "append": 1.58, "cold": 351.05, "edit": 351.55, "decode": 105.8, "prefill": 731.0, "wired": 116.4, "swap": 0, "reuse": 0.996, "reuse_edit": 0.0, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.996, "middle_mutation": 0.0, "tool_turn": 0.996}, "config": ""}, "524288": {"turn": 6.67, "resume": 1.86, "append": 1.81, "cold": 744.48, "edit": 743.55, "decode": 106.6, "prefill": 697.0, "wired": 116.4, "swap": 0, "reuse": 0.998, "reuse_edit": 0.0, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.998, "middle_mutation": 0.0, "tool_turn": 0.998}, "config": ""}, "1000000": {"turn": 9.31, "resume": 2.63, "append": 2.63, "cold": 1532.31, "edit": 1531.88, "decode": 76.7, "prefill": 649.0, "wired": 109.7, "swap": -0.01, "reuse": 0.999, "reuse_edit": 0.0, "reread": 1000, "reps": 1, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.999, "middle_mutation": 0.0, "tool_turn": 0.999}, "config": ""}}}, "quality": [{"id": "n2", "date": "2026-10-11", "humaneval": [158, 164], "livecodebench": [45, 50], "jdhodges": [35, 40], "veerman": [10, 12]}, {"id": "o1", "date": "2026-10-09", "humaneval": [157, 164], "livecodebench": [45, 50], "jdhodges": [36, 40], "veerman": [10, 12]}, {"id": "m1", "date": "2026-10-09", "humaneval": [151, 164], "livecodebench": null, "jdhodges": [35, 40], "veerman": [10, 12]}], "quality_suites": [["humaneval", "HumanEval (164)"], ["livecodebench", "LiveCodeBench v6 (50)"], ["jdhodges", "Tool calls A (40)"], ["veerman", "Tool calls B (12)"]], "swift": [{"key": "gpqa", "label": "GPQA-Diamond (50)", "n2": {"median": 63.9, "passed": 45, "n": 50}, "w1": {"median": 22.3, "passed": 43, "n": 50}}, {"key": "livecodebench", "label": "LiveCodeBench v6 (50)", "n2": {"median": 39.1, "passed": 45, "n": 50}, "w1": {"median": 19.1, "passed": 47, "n": 50}}, {"key": "humaneval", "label": "HumanEval (164)", "n2": {"median": 6.8, "passed": 158, "n": 164}, "w1": {"median": 5.7, "passed": 158, "n": 164}}], "generated_at": "2026-10-26T13:28:16Z"};
 
 const CTX = P.ctx, STACKS = P.stacks, PTS = P.points;
 const NS = "http://www.w3.org/2000/svg";
-const ctxLab = c => (c/1024) + "K";
+const ctxLab = c => c >= 1000000 ? (c / 1000000) + "M" : (c / 1024) + "K";
 const pt = (sid, c) => (PTS[sid] || {})[String(c)];
 const val = (sid, c, k) => { const d = pt(sid, c); return d && d[k] != null ? d[k] : null; };
 const col = s => `var(${s.cv})`;
@@ -570,6 +641,11 @@ function marker(shape, x, y, r, fill, extra){
   if (shape === "square") return `<rect x="${x-r*0.9}" y="${y-r*0.9}" width="${r*1.8}" height="${r*1.8}" rx="1.5" style="${ring}" ${a}/>`;
   if (shape === "triangle") return `<path d="M${x},${y-r*1.15} L${x+r*1.05},${y+r*0.8} L${x-r*1.05},${y+r*0.8} Z" style="${ring}" ${a}/>`;
   if (shape === "diamond") return `<path d="M${x},${y-r*1.2} L${x+r*1.1},${y} L${x},${y+r*1.2} L${x-r*1.1},${y} Z" style="${ring}" ${a}/>`;
+  if (shape === "invtriangle") return `<path d="M${x},${y+r*1.15} L${x+r*1.05},${y-r*0.8} L${x-r*1.05},${y-r*0.8} Z" style="${ring}" ${a}/>`;
+  if (shape === "hexagon"){
+    const pts = [0, 1, 2, 3, 4, 5].map(k => { const t = Math.PI / 3 * k; return `${x + r * 1.1 * Math.cos(t)},${y + r * 1.1 * Math.sin(t)}`; });
+    return `<path d="M${pts.join(" L")} Z" style="${ring}" ${a}/>`;
+  }
   return `<circle cx="${x}" cy="${y}" r="${r}" style="${ring}" ${a}/>`;
 }
 function swatch(s){ return `<svg width="26" height="12" aria-hidden="true"><line x1="1" y1="6" x2="25" y2="6" style="stroke:${col(s)};stroke-width:2"/>${marker(s.marker,13,6,4.2,col(s))}</svg>`; }
@@ -707,11 +783,11 @@ function waitChart(c){
   const host = document.getElementById("chWait");
   const W = 760, rowH = 54, MT = 14, MB = 34, ML = 112, MR = 30;
   const H = MT + rowH * STACKS.length + MB, x0 = ML, x1 = W - MR, y0 = H - MB;
-  const lmin = Math.log10(0.5), lmax = Math.log10(1200);
+  const lmin = Math.log10(0.5), lmax = Math.log10(2400);  // up to 40 min: a cold 1M prompt takes ~26 min
   const xAt = v => x0 + (x1 - x0) * ((Math.log10(Math.max(v, 0.5)) - lmin) / (lmax - lmin));
   const svg = mkSvg(W, H, `Wait per scenario at ${ctxLab(c)} context, log scale`);
   let g = "";
-  [[1, "1 s"], [10, "10 s"], [60, "1 min"], [600, "10 min"]].forEach(([v, lab]) => {
+  [[1, "1 s"], [10, "10 s"], [60, "1 min"], [600, "10 min"], [1800, "30 min"]].forEach(([v, lab]) => {
     g += `<line x1="${xAt(v)}" x2="${xAt(v)}" y1="${MT}" y2="${y0}" class="gl"/><text x="${xAt(v)}" y="${H - 12}" text-anchor="middle" class="ax">${lab}</text>`;
   });
   g += `<line x1="${x0}" x2="${x1}" y1="${y0}" y2="${y0}" class="bl"/>`;
@@ -806,14 +882,22 @@ function scatterChart(c){
   for (let v = xlo; v <= xhi; v += 10) g += `<text x="${xAt(v)}" y="${y0 + 18}" text-anchor="middle" class="ax">${v}</text>`;
   g += `<text x="${(x0 + x1) / 2}" y="${H - 4}" text-anchor="middle" class="ax-t">decode speed (tokens/s) →</text>`;
   g += `<text x="${x0 + 4}" y="${y1 + 10}" class="ax-t">↑ agent turn time (s)</text>`;
+  const labs = [];
   STACKS.forEach(s => {
     const d = pt(s.id, c);
     if (!d || d.reason) return;
     const x = xAt(d.decode), y = yAt(d.turn);
     g += marker(s.marker, x, y, 7, col(s), `data-s="${s.id}"`);
-    const left = x > x1 - 200;
-    g += `<text x="${left ? x - 12 : x + 12}" y="${y + 4}" text-anchor="${left ? "end" : "start"}" class="dl">${esc(s.short)} <tspan class="dv">${d.turn.toFixed(1)} s · ${d.decode.toFixed(0)} tok/s</tspan></text>`;
+    labs.push({x, y, ly: y + 4, s, d});
     g += `<circle cx="${x}" cy="${y}" r="16" fill="transparent" data-s="${s.id}"/>`;
+  });
+  // Two stacks with almost the same point (the two mlx-serve stacks) would print one label over the other: push apart.
+  labs.sort((a, b) => a.ly - b.ly);
+  for (let k = 1; k < labs.length; k++) for (let j = 0; j < k; j++)
+    if (Math.abs(labs[k].x - labs[j].x) < 220 && labs[k].ly - labs[j].ly < 16) labs[k].ly = labs[j].ly + 16;
+  labs.forEach(({x, ly, s, d}) => {
+    const left = x > x1 - 200;
+    g += `<text x="${left ? x - 12 : x + 12}" y="${ly}" text-anchor="${left ? "end" : "start"}" class="dl">${esc(s.short)} <tspan class="dv">${d.turn.toFixed(1)} s · ${d.decode.toFixed(0)} tok/s</tspan></text>`;
   });
   const miss = STACKS.filter(s => { const d = pt(s.id, c); return !d || d.reason; }).map(s => `${s.short}: ${(pt(s.id, c) || {}).reason || "no data"}`);
   if (miss.length) g += `<text x="${x1}" y="${y1 + 10}" text-anchor="end" class="miss">${esc(miss.join(" · "))}</text>`;
@@ -1003,10 +1087,11 @@ function allTable(){
 function buildFoot(){
   document.getElementById("foot").innerHTML =
     `Data: <code>bench/engine-updates-2026-10/results/reports-2026-10.json</code> and ` +
-    `<code>bench/swift15-flashnext-2026-10/results/page-data.json</code>, generated at <code>${esc(P.generated_at)}</code>. ` +
+    `<code>bench/swift15-flashnext-2026-10/results/page-data.json</code>, generated at <code>${esc(P.generated_at)}</code>; ` +
+    `Splash quality from <code>bench/splash-longctx-2026-10/results/etapa4-quality.md</code>. ` +
     `Page: <code>render_m4max_guide.py</code>. Detailed pages: ` +
     `<a href="qwen38-flashnext-overview.html">campaign dashboard</a> · ` +
-    `<a href="qwen38-flashnext-perf-lines.html">four runtimes from 8K to 512K</a> · ` +
+    `<a href="qwen38-flashnext-perf-lines.html">five runtimes from 8K to 1M</a> · ` +
     `<a href="qwen38-flashnext-swift15.html">Swift 1.5 A/B</a> · ` +
     `<a href="https://github.com/snagnever/macstudio-local-llm" target="_blank" rel="noopener">repository</a>.`;
 }
@@ -1025,18 +1110,18 @@ function buildToc(){
 function build(){
   buildToc();
   buildLegends();
-  segControl("glance", [32768, 131072, 262144, 524288], 131072, glance);
+  segControl("glance", [32768, 131072, 262144, 524288, 1000000], 131072, glance);
   lineChart(document.getElementById("chTurn"), {key: "turn", title: "agent turn time", label: "Agent turn time by context size",
     big: true, max: 32, ticks: 4, fmt: v => v.toFixed(1) + " s", tick: v => v.toFixed(0) + " s"});
   gapsNote(document.getElementById("gapsTurn"));
   turnTable();
-  segControl("wait", [32768, 131072, 262144, 524288], 131072, waitChart);
-  segControl("reread", [131072, 262144, 524288], 131072, rereadChart);
+  segControl("wait", [32768, 131072, 262144, 524288, 1000000], 131072, waitChart);
+  segControl("reread", [131072, 262144, 524288, 1000000], 131072, rereadChart);
   lineChart(document.getElementById("chResume"), {key: "resume", title: "TTFT on the next turn", label: "TTFT on the next turn by context",
     max: 10, fmt: v => fmtS(v), tick: v => v.toFixed(0)});
   lineChart(document.getElementById("chReuse"), {key: "reuse", title: "cache hit rate", label: "Cache hit rate on the next turn by context",
-    ctx: [32768, 131072, 262144, 524288], min: 0.9, max: 1, fmt: v => (v*100).toFixed(1) + "%", tick: v => (v*100).toFixed(0) + "%"});
-  segControl("hits", [8192, 32768, 131072, 262144, 524288], 131072, hitTable);
+    ctx: [32768, 131072, 262144, 524288, 1000000], min: 0.9, max: 1, fmt: v => (v*100).toFixed(1) + "%", tick: v => (v*100).toFixed(0) + "%"});
+  segControl("hits", [8192, 32768, 131072, 262144, 524288, 1000000], 131072, hitTable);
   segControl("scatter", [32768, 131072, 262144], 131072, scatterChart);
   lineChart(document.getElementById("chDecode"), {key: "decode", title: "decode speed", label: "Decode speed by context",
     fmt: v => v.toFixed(1) + " tok/s", tick: v => v.toFixed(0)});

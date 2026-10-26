@@ -245,13 +245,14 @@ def _tool_payload(
     specprefill_keep_pct: Optional[float] = None,
     specprefill_threshold: Optional[int] = None,
     sampling_controls: Optional[dict[str, Any]] = None,
+    max_tokens: int = 512,
 ) -> dict[str, Any]:
     payload = {
         "model": model,
         "messages": messages,
         "tools": build_tools(),
         "tool_choice": "required",
-        "max_tokens": 512,
+        "max_tokens": max_tokens,
         **(sampling_controls or SAMPLING_CONTROLS),
     }
     if specprefill is not None:
@@ -352,6 +353,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--metrics-url")
     parser.add_argument("--turns", type=int, default=20)
     parser.add_argument("--timeout", type=int, default=900)
+    # Per tool turn. 512 is the historical probe cap; a long reasoning turn can stop at it before the call.
+    parser.add_argument("--max-tokens", type=int, default=512)
     parser.add_argument("--cache-enabled", action="store_true")
     parser.add_argument("--mtp-enabled", action="store_true")
     parser.add_argument("--specprefill", type=lambda value: value.lower() == "true")
@@ -424,6 +427,7 @@ def main() -> int:
                         specprefill_keep_pct=args.specprefill_keep_pct,
                         specprefill_threshold=args.specprefill_threshold,
                         sampling_controls=sampling_controls,
+                        max_tokens=args.max_tokens,
                     ),
                     args.timeout,
                 )

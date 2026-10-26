@@ -44,3 +44,20 @@ def test_new_run_is_copied(tmp_path):
     res = subprocess.run(["bash", str(BATTERY)], capture_output=True, text=True, env=env, timeout=60)
     assert res.returncode == 0, res.stderr
     assert (out_root / "ab" / "t1" / "n2" / "humaneval.jsonl").read_text() == '{"fresh": true}\n'
+
+
+def test_toolcall_suite_runs_uv_outside_the_path(tmp_path):
+    # A fila do rig roda sob nohup com PATH=/usr/bin:/bin, sem o uv do Homebrew: jdhodges e veerman não rodavam.
+    bench = tmp_path / "bench"
+    (bench / "benchmarks" / "runs").mkdir(parents=True)
+    uv = tmp_path / "uv"
+    uv.write_text('#!/bin/sh\necho \'{"fresh": true}\' > benchmarks/runs/toolcall_ab_t1_n2_jdhodges_20261024.jsonl\n')
+    uv.chmod(0o755)
+    out_root = tmp_path / "results"
+    env = {k: v for k, v in os.environ.items() if not k.startswith("AB_")}
+    env.update({"PATH": "/usr/bin:/bin", "BASE_URL": "http://127.0.0.1:9/v1", "MODEL_ID": "m", "AB_ARM": "n2",
+                "AB_PROFILES": "t1", "AB_SUITES": "jdhodges", "AB_BENCH": str(bench), "AB_RESULTS": str(out_root),
+                "AB_UV": str(uv)})
+    res = subprocess.run(["bash", str(BATTERY)], capture_output=True, text=True, env=env, timeout=60)
+    assert res.returncode == 0, res.stderr
+    assert (out_root / "ab" / "t1" / "n2" / "jdhodges.jsonl").read_text() == '{"fresh": true}\n'

@@ -38,13 +38,23 @@ def build_fixture(
     if target_tokens <= 0:
         raise ValueError("target_tokens must be positive")
 
-    records: list[str] = []
-    index = 0
-    token_ids: list[int] = []
-    while len(token_ids) < target_tokens:
-        records.append(_record(index))
-        index += 1
-        token_ids = encode("\n".join(records))
+    # The fewest records whose join reaches target_tokens. Encoding once per appended record is quadratic and took
+    # ~47 min at 512K over HTTP; doubling then bisecting finds the same count in ~2·log2(n) encodes, because the
+    # token count grows with the record count.
+    def reaches(count: int) -> bool:
+        return len(encode("\n".join(_record(i) for i in range(count)))) >= target_tokens
+
+    high = 1
+    while not reaches(high):
+        high *= 2
+    low = high // 2  # reaches(low) is False, or low == 0
+    while high - low > 1:
+        mid = (low + high) // 2
+        if reaches(mid):
+            high = mid
+        else:
+            low = mid
+    records = [_record(i) for i in range(high)]
 
     for fraction, needle in zip((0.1, 0.5, 0.9), NEEDLES):
         position = min(len(records) - 1, int(len(records) * fraction))
