@@ -1,5 +1,6 @@
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -30,11 +31,15 @@ def test_default_sources_exist():
     assert guide.REPORTS_JSON.is_file() and guide.SWIFT_JSON.is_file()
 
 
-def test_payload_has_four_stacks_and_canonical_points():
+def test_payload_has_six_stacks_and_canonical_points():
     data, swift = load()
     p = guide.build_payload(data, swift)
-    assert [s["id"] for s in p["stacks"]] == ["n2", "o1", "m1", "d1"]
-    canon = {(g["cand"], g["context"]): g for g in data["groups"] if g["canonical"] and not g["refused"]}
+    # The four servers of the October round, then Swift 1.5 on mlx-serve 26.10.3 and on Splash 1.4.0.
+    assert [s["id"] for s in p["stacks"]] == ["n2", "o1", "m1", "d1", "w1", "k2"]
+    assert p["ctx"][-1] == 1000000
+    ids = {s["id"] for s in p["stacks"]}
+    canon = {(g["cand"], g["context"]): g for g in data["groups"]
+             if g["canonical"] and not g["refused"] and g["cand"] in ids}
     for (cid, ctx), g in canon.items():
         pt = p["points"][cid][str(ctx)]
         assert pt["turn"] == g["t_turno_s"]
@@ -45,6 +50,44 @@ def test_payload_has_four_stacks_and_canonical_points():
     # Refused or unsupported bands carry a reason, never a number.
     assert "reason" in p["points"]["m1"]["262144"]
     assert "reason" in p["points"]["o1"]["524288"]
+    # Every stack × size shows a number or the reason it has none: 1M ran only on Splash.
+    for st in p["stacks"]:
+        for ctx in p["ctx"]:
+            assert str(ctx) in p["points"][st["id"]], (st["id"], ctx)
+    assert p["points"]["k2"]["1000000"]["turn"] > 0
+    assert "mlx-serve stops at 512K" in p["points"]["w1"]["1000000"]["reason"]
+    assert len({s["cv"] for s in p["stacks"]}) == len(p["stacks"])
+    assert len({s["marker"] for s in p["stacks"]}) == len(p["stacks"])
+
+
+def test_js_labels_1m_and_draws_every_marker():
+    assert 'c >= 1000000 ? (c / 1000000) + "M"' in guide.JS
+    for s in guide.STACKS:
+        assert f'shape === "{s["marker"]}"' in guide.JS or s["marker"] == "circle", s["marker"]
+
+
+def test_splash_command_matches_the_launcher():
+    # The page shows the 1M profile of tools/scripts/serve-flashnext-splash.sh with the binary named splash.
+    out = subprocess.run(["bash", str(REPO / "tools" / "scripts" / "serve-flashnext-splash.sh"), "1m", "--print"],
+                         capture_output=True, text=True, check=True).stdout.split()
+    assert out[1] == "serve"
+    shown = guide.SPLASH_COMMAND.replace("\\\n", " ").split()
+    assert shown == ["splash"] + out[1:]
+    assert guide.SPLASH_COMMAND in guide.render(*load())
+
+
+def test_splash_facts_and_quality():
+    data, swift = load()
+    f = guide.facts(data, swift)
+    assert f["splash_turn_512"] == "6.7" and f["splash_turn_1m"] == "9.3"
+    assert f["swift_mlx_turn_512"] == "12.7"
+    assert f["splash_cold_1m_min"] == "25.5"
+    html = guide.render(data, swift)
+    assert 'id="splash"' in html and "incoai/splash/issues/387" in html
+    # Terminal-Bench 2.1 is not ready: the page carries no number or placeholder for it.
+    assert "Terminal-Bench" not in html and "TB2" not in html
+    rows = {r[0]: r for r in guide.SPLASH_QUALITY}
+    assert rows["HumanEval (164)"][1:] == ("142/164", "147/164 · 151/164", "147/164", "142/164 · 148/164")
 
 
 def test_reread_tokens_follow_reuse():
@@ -69,7 +112,7 @@ def test_render_has_no_placeholders_or_internal_terms():
     assert not re.search(r"\{[a-z_0-9]+\}", visible_text(html))
     text = visible_text(html)
     for term in ("T_turn", "T_turno", "middle_mutation", "tool_turn", "n2", "n2q4", "o1", "m1", "m1x", "d1",
-                 "gates?", "bands?"):
+                 "w1", "w1z", "w1zq4", "k2", "k2a", "k3ma", "g1", "g2", "folga", "gates?", "bands?"):
         assert not re.search(rf"\b{term}\b", text), term
 
 
@@ -89,8 +132,10 @@ def test_post_image_has_the_four_charts_and_the_512k_bars():
     post = guide.render_post(data, swift)
     for title in ("Agent turn time", "Time to first token on the next turn", "Decode speed", "Peak memory"):
         assert title in post
-    # Only mlx-serve and ds4 serve 512K, so the cache-miss bars name those two.
+    # The post image is the October round: four servers, 8K to 512K. Only mlx-serve and ds4 serve 512K, so the
+    # cache-miss bars name those two.
     assert post.count("tokens prefilled again ·") == 2
+    assert "Splash" not in post and "1M" not in post
     assert guide.POST_PNG == REPO / "reports" / "assets" / "qwen38-flashnext-m4max-guide-post.png"
 
 

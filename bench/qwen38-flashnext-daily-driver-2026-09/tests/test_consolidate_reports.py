@@ -460,3 +460,56 @@ def test_perf_lines_september_keeps_512k_ceiling():
 
 def test_perf_lines_labels_1m():
     assert 'c>=1000000?(c/1000000)+"M"' in rpl.TEMPLATE.replace(" ", "")
+
+
+# k3ma: GSQ-RCO-Coder IQ1_M GGUF on a Splash package built from main 3135ab4 (Splash 1.4.0 refuses that GGUF), series g2.
+def test_k3ma_is_its_own_g2_series(tmp_path):
+    sept, eng, upd, stack, lc = _splash_dirs(tmp_path)
+    _write(lc, "k3ma-262144-t1.0-lc.jsonl",
+           _rep_set(3, "20261025T000000Z", ctx=262144, rev="v1.4.0-main-3135ab4-verify-auto"))
+    data = cr.build_2026_10(sept, eng, upd, stack, lc)
+    g = _canon(data, "g2", 262144)
+    assert g["arm"] == "k3ma" and g["reps"] == 3
+    g2 = next(c for c in data["candidates"] if c["id"] == "g2")
+    assert g2["model"] == "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF:IQ1_M" and g2["revision"] == "bba8885"
+    assert g2["runtime"] == "Splash" and g2["runtime_version"] == "1.4.0-main-3135ab4"
+    assert "256 of 512 experts" in g2["quant"] and "unofficial" in g2["status"]
+
+
+def test_second_1m_rep_of_k2a_counts(tmp_path):
+    # Etapa 3 ran k2a at 1M twice (tags lc and lc2); the band shows the most recent rep.
+    sept, eng, upd, stack, lc = _splash_dirs(tmp_path)
+    _write(lc, "k2a-1000000-t1.0-lc.jsonl", _rep_set(1, "20261024T181917Z", ctx=1000000, rev="v1.4.0-verify-auto"))
+    _write(lc, "k2a-1000000-t1.0-lc2.jsonl", _rep_set(1, "20261024T202405Z", ctx=1000000, rev="v1.4.0-verify-auto"))
+    data = cr.build_2026_10(sept, eng, upd, stack, lc)
+    assert _canon(data, "k2", 1000000)["file"] == "k2a-1000000-t1.0-lc2.jsonl"
+
+
+def test_splash_candidates_carry_the_campaign_results():
+    cands = {c["id"]: c for c in cr.CANDIDATES_SPLASH}
+    assert list(cands) == ["w1", "k2", "k1", "g1", "g2"]
+    for c in cands.values():
+        assert c["note"], c["id"]
+    # The user limited the GSQ to 256K: neither GSQ arm claims a longer ceiling.
+    assert cands["g1"]["ceiling"].startswith("256K") and cands["g2"]["ceiling"].startswith("256K")
+    assert cands["k2"]["ceiling"].startswith("1M")
+    # k2a and k1a run --verify-rows auto, not a fixed 8 rows per cycle.
+    assert "8 rows" not in cands["k2"]["spec"] and "8 rows" not in cands["k1"]["spec"]
+
+
+def test_perf_lines_2026_10_gives_a_reason_for_every_gap():
+    # Every series × band of the real October data shows a number or the reason it has none.
+    payload = rpl.build_payload(cr.build_2026_10())
+    gaps = [(s["id"], ctx) for s in payload["series"] for ctx in payload["table_ctx"]
+            if str(ctx) not in payload["points"][s["id"]]]
+    assert gaps == []
+    assert payload["points"]["w1"]["1000000"]["status"].startswith("mlx-serve does not run 1M")
+    assert "limited to 256K" in payload["points"]["g2"]["524288"]["status"]
+    assert len({s["cv"] for s in payload["series"]}) == len(payload["series"])
+
+
+def test_perf_lines_2026_10_describes_splash():
+    splash = next(t for t in rpl.TECH_2026_10 if t["name"].startswith("Splash 1.4.0"))
+    for fact in ("DFlash2", "int8", "--max-context", "#387", "YaRN"):
+        assert fact in " ".join(splash.values()), fact
+    assert any(src[0] == "incoai/splash" for src in rpl.TECH_SRC_2026_10)

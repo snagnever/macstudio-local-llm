@@ -424,11 +424,12 @@ MTPLX_CONFIG = {"m1": "prime 64", "m1p": "prime 64", "m1v": "vendor default",
                 "m1xq": "memory limit max (KV q8 ignored)", "m1s": "sparse QSA prefill"}
 MTPLX_PRIME1_TAGS = {"fn", "smoke", "gate"}
 # splash-longctx-2026-10: Swift 1.5 on mlx-serve 26.10.3 (w1), on Splash 1.4.0 (k2), the Flash-Next base on Splash
-# (k1) and the GSQ-RCO-Coder on mlx-serve (g1). Only the speed tags of each campaign count: smoke, hold, q-* (battery)
-# and toolcall runs are not probe bands.
+# (k1), the GSQ-RCO-Coder on mlx-serve (g1) and its IQ1_M GGUF on a Splash build from main 3135ab4 (g2: k3ma; the
+# 1.4.0 release refuses that GGUF). Only the speed tags of each campaign count: smoke, hold, q-* (battery) and
+# toolcall runs are not probe bands. lc2 is the second k2a rep at 1M (Etapa 3).
 SERIES_ARMS_SPLASH = {"w1z": "w1", "w1zq4": "w1", "k2a": "k2", "k2ab": "k2", "k2as": "k2", "k1a": "k1",
-                      "r1z": "g1", "r1zy": "g1"}
-SPLASH_TAGS = {"stack-updates-2026-10": {"e1", "e5", "e8", "e9"}, "splash-longctx-2026-10": {"lc", "sw"}}
+                      "r1z": "g1", "r1zy": "g1", "k3ma": "g2"}
+SPLASH_TAGS = {"stack-updates-2026-10": {"e1", "e5", "e8", "e9"}, "splash-longctx-2026-10": {"lc", "lc2", "sw"}}
 
 CANDIDATES_2026_10 = [
     {"id": "n2", "name": "ddalcu iQ-MLX-4.7bpw · mlx-serve 26.10.1", "short": "n2 mlx-serve",
@@ -467,36 +468,53 @@ CANDIDATES_2026_10 = [
 ]
 
 
-# Candidate cards of the splash-longctx series. The notes are filled from the campaign results (Task 8).
+# Candidate cards of the splash-longctx series, from bench/splash-longctx-2026-10/results (etapa1 to etapa5 and
+# params-512k-1m.md). Headroom = 128 GB - wired peak - compressor peak.
 CANDIDATES_SPLASH = [
     {"id": "w1", "name": "Swift 1.5 MLX 4.7 bpw · mlx-serve 26.10.3", "short": "w1 mlx-serve",
      "runtime": "mlx-serve", "runtime_version": "26.10.3",
      "model": "Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw", "revision": "13839b7",
      "quant": "MLX 4.7 bpw", "bpw": 4.7, "disk_gb": 99.0, "port": 11234,
      "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
-     "spec": "native MTP", "ceiling": "512K with YaRN 2.0 + KV 4-bit", "state": "pass", "status": "daily driver",
-     "note": ""},
+     "spec": "native MTP", "ceiling": "512K with YaRN 2.0 + KV 4-bit (no 1M)", "state": "pass", "status": "daily driver",
+     "note": "The daily driver: 8.9 s at 128K, 9.2 s at 256K, 12.7 s at 512K with 3.8 GB of headroom. "
+             "A change in the middle of the history reuses ~45% of the prompt."},
     {"id": "k2", "name": "Swift 1.5 IQ4_XS GGUF · Splash 1.4.0", "short": "k2 Splash",
      "runtime": "Splash", "runtime_version": "1.4.0",
      "model": "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS", "revision": "0142554",
      "quant": "IQ4_XS GGUF", "bpw": None, "disk_gb": 97.7, "port": 8585,
      "cache": "prefix cache in RAM + SSD cache (32 GiB) · KV int8",
-     "spec": "DFlash2 draft, 8 rows per cycle", "ceiling": "1M with YaRN (KV past 860K tokens on the SSD cache)",
-     "state": "pass", "status": "measured", "note": ""},
+     "spec": "DFlash2 draft · --verify-rows auto", "ceiling": "1M with YaRN (KV past ~860K tokens on the SSD cache)",
+     "state": "pass", "status": "long-context option",
+     "note": "Lowest T_turn of the full-size arms in every band: 6.6 s at 256K, 6.7 s at 512K, 9.3 s at 1M "
+             "(a cold 1M prompt takes ~25.5 min). Passes the quality check at 512K and 1M. A change in the middle "
+             "of the history re-prefills the whole prompt (hit 0)."},
     {"id": "k1", "name": "Flash-Next UD-IQ4_XS GGUF · Splash 1.4.0", "short": "k1 Splash",
      "runtime": "Splash", "runtime_version": "1.4.0",
      "model": "unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ4_XS", "revision": "766911a",
      "quant": "UD-IQ4_XS GGUF", "bpw": None, "disk_gb": 87.0, "port": 8585,
      "cache": "prefix cache in RAM + SSD cache (32 GiB) · KV int8",
-     "spec": "DFlash2 draft, 8 rows per cycle", "ceiling": "1M with YaRN", "state": "control", "status": "measured",
-     "note": ""},
+     "spec": "DFlash2 draft · --verify-rows auto", "ceiling": "1M with YaRN", "state": "control", "status": "measured",
+     "note": "Between w1 and k2: 7.0 s at 256K, 7.4 s at 512K, 10.5 s at 1M (1 rep). It ran out of the "
+             "4,096-token budget in 5 of 13 turns at 512K. Quality not measured."},
     {"id": "g1", "name": "GSQ-RCO-Coder MLX · mlx-serve 26.10.3", "short": "g1 GSQ",
      "runtime": "mlx-serve", "runtime_version": "26.10.3",
      "model": "mbrown-uno/Qwen3.8-Flash-Next-GSQ-RCO-Coder-MLX", "revision": "50fa68c",
-     "quant": "GSQ-RCO 256 experts", "bpw": None, "disk_gb": 76.0, "port": 11234,
+     "quant": "GSQ-RCO · 256 of 512 experts", "bpw": None, "disk_gb": 76.0, "port": 11234,
      "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
-     "spec": "Lightning MTP head", "ceiling": "1M with YaRN + KV 4-bit", "state": "control", "status": "measured",
-     "note": ""},
+     "spec": "Lightning MTP head", "ceiling": "256K (the GSQ was limited to 256K)", "state": "control",
+     "status": "fails GPQA",
+     "note": "Slower than w1 (11.0 s at 256K) with ~24 GB less memory. Quality at 262144: HumanEval 152/164, "
+             "but GPQA 31/50 against 43/50 for w1."},
+    {"id": "g2", "name": "GSQ-RCO-Coder IQ1_M GGUF · Splash main 3135ab4", "short": "g2 GSQ Splash",
+     "runtime": "Splash", "runtime_version": "1.4.0-main-3135ab4",
+     "model": "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF:IQ1_M", "revision": "bba8885",
+     "quant": "GSQ-RCO IQ1_M GGUF · 256 of 512 experts", "bpw": None, "disk_gb": 58.4, "port": 8585,
+     "cache": "prefix cache in RAM + SSD cache (32 GiB) · KV int8",
+     "spec": "DFlash2 draft · --verify-rows auto", "ceiling": "256K (the GSQ was limited to 256K)",
+     "state": "control", "status": "unofficial build",
+     "note": "Lowest T_turn of the campaign: 5.9 s at 8K, 6.3 s at 256K, decode 112 and 107 tok/s. Splash 1.4.0 "
+             "refuses this GGUF (#527); the build from main has the fix (#561). Quality not measured."},
 ]
 
 
@@ -553,8 +571,24 @@ def mark_canonical_2026_10(groups: list[dict]) -> None:
 
 
 TAKEAWAYS_2026_10 = [
-    ["mlx-serve 26.10.1 leads every band", "n2 has the lowest T_turn from 8K to 512K: 7.8, 8.2, 8.8, 9.8 and 13.0 s, "
-     "with the tool turn under 3 s up to 256K and 3.9 s at 512K (KV 4-bit)."],
+    ["Splash 1.4.0 has the lowest T_turn in every band", "k2 (Swift 1.5 IQ4_XS GGUF on Splash) takes 6.6 s at 256K and "
+     "6.7 s at 512K, against 9.2 and 12.7 s for w1, the same fine-tune in MLX on mlx-serve 26.10.3 (the daily driver). "
+     "The gain comes from decode, ~106 tok/s up to 512K against 57–74; the cold prefill is the same (731 and 732 tok/s "
+     "at 256K). The comparison mixes runtime and weight format: Splash loads Flash-Next from a GGUF only."],
+    ["Only Splash reaches 1M", "k2 serves 1,000,000 tokens with KV int8 and the KV past ~860K tokens on its SSD cache: "
+     "9.3 s per turn, decode ~77 tok/s, 16.9 GB of headroom. A cold 1M prompt takes 25.5 min. mlx-serve stops at 512K "
+     "(YaRN 2.0 + KV 4-bit, 3.8 GB of headroom)."],
+    ["Splash re-prefills a changed history", "<code>middle_mutation</code> reuses nothing on Splash in every band (hit 0), "
+     "against ~0.45 on mlx-serve. Splash keeps the hybrid recurrent state only where a request ends, so an edit, a "
+     "compaction or a branch before that point re-prefills the whole prompt: 25 min at 1M (incoai/splash #387, #361)."],
+    ["k2 keeps its quality to 1M", "At 262144, k2 passes the quality floor against w1 in all six suites. Against k2 at "
+     "262144, it passes all six at 512K and five at 1M: HumanEval at 1M sits one question under the margin, within run "
+     "noise. The long-context probe answers 8/8 at 256K, 512K and 1M. Tool calls: 20/20 sessions with frequency_penalty 0."],
+    ["GSQ-RCO-Coder: fastest on Splash, weak on GPQA", "g2 (IQ1_M GGUF on an unofficial Splash build from main 3135ab4) "
+     "has the lowest T_turn of the campaign, 6.3 s at 256K; its quality was not measured. g1 (the MLX pack on mlx-serve "
+     "26.10.3) fails the GPQA floor: 31/50 against 43/50 for w1."],
+    ["mlx-serve 26.10.1 leads the four runtimes of the engine round", "n2 has the lowest T_turn of n2, o1, m1 and d1 "
+     "from 8K to 512K: 7.8, 8.2, 8.8, 9.8 and 13.0 s, with the tool turn under 3 s up to 256K and 3.9 s at 512K (KV 4-bit)."],
     ["oMLX is second at 128K and 256K", "o1 T_turn is 12.1 s at 128K and 14.5 s at 256K. MTPLX is second at 8K and "
      "32K (8.2 and 8.8 s). oMLX has no YaRN, so it stops at 262K."],
     ["MTPLX fits 128K only with --memory-limit max", "The vendor default plans a 65,536-token window on this 128 GB "

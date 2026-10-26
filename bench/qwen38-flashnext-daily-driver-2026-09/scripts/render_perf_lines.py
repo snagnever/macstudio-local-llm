@@ -178,20 +178,32 @@ def build_payload(data: dict) -> dict:
 
 # --- 2026-10 profile: October stack (engine-updates-2026-10), c1 as the September reference ----------
 SERIES_COLOR_2026_10 = {"n2": "--s1", "o1": "--s3", "m1": "--s5", "d1": "--s4",
-                        "w1": "--s2", "k2": "--s6", "k1": "--s7", "g1": "--s8"}
+                        "w1": "--s2", "k2": "--s6", "k1": "--s7", "g1": "--s8", "g2": "--s9"}
 # splash-longctx-2026-10: the 1M band (1000000 tokens, the Splash --max-context ceiling is 1010000).
 LINE_CTX_2026_10 = LINE_CTX + [1000000]
 TABLE_CTX_2026_10 = TABLE_CTX + [1000000]
+GSQ_256K = "not run: the GSQ was limited to 256K"
+NOT_RUN_1M = "not run in this campaign: 1M ran only on Splash (splash-longctx-2026-10)"
 ABSENT_2026_10 = {
     ("o1", 524288): "no YaRN: 262K ceiling",
     ("m1", 524288): "not run: MTPLX refuses 256K (memory-plan fit 237,568 tokens)",
+    ("n2", 1000000): NOT_RUN_1M,
+    ("o1", 1000000): "no YaRN: 262K ceiling",
+    ("m1", 1000000): "not run: MTPLX refuses 256K (memory-plan fit 237,568 tokens)",
+    ("d1", 1000000): NOT_RUN_1M,
+    ("w1", 1000000): "mlx-serve does not run 1M (512K is the ceiling with YaRN 2.0 + 4-bit KV, 3.8 GB of headroom)",
+    ("g1", 524288): GSQ_256K, ("g1", 1000000): GSQ_256K,
+    ("g2", 32768): "not run: k3ma ran only the 8K and 256K bands",
+    ("g2", 131072): "not run: k3ma ran only the 8K and 256K bands",
+    ("g2", 524288): GSQ_256K, ("g2", 1000000): GSQ_256K,
 }
 TECH_2026_10 = [
-    {"name": "mlx-serve 26.10.1", "repo": "ddalcu/mlx-serve",
-     "what": "MLX server with <b>native MTP for Flash-Next</b> and a two-tier prefix cache. Daily driver (n2) with the ddalcu iQ-MLX pack.",
+    {"name": "mlx-serve 26.10.1 and 26.10.3", "repo": "ddalcu/mlx-serve",
+     "what": "MLX server with <b>native MTP for Flash-Next</b> and a two-tier prefix cache. n2 runs the ddalcu iQ-MLX pack on 26.10.1; the daily driver is Swift 1.5 on 26.10.3 (w1).",
      "cache": "Hot cache in RAM (<b>16 GB, 64 entries</b>) and a disk cache (100 GB). <code>--ssm-checkpoint-max 16</code> keeps checkpoints of the DeltaNet state.",
      "spec": "MTP with PLD (prompt lookup through the pack's n-gram table). The acceptance comes from the <code>[spec-stats]</code> log.",
-     "configs": "n2 iQ-MLX-4.7bpw; 512K with YaRN 2.0 + KV 4-bit (n2q4)"},
+     "configs": "n2 iQ-MLX-4.7bpw; 512K with YaRN 2.0 + KV 4-bit (n2q4). w1 Swift 1.5 MLX 4.7 bpw and g1 GSQ-RCO-Coder MLX on 26.10.3; "
+                "w1 at 512K with the same YaRN 2.0 + KV 4-bit (w1zq4)"},
     {"name": "oMLX 0.7.0", "repo": "jundot/omlx",
      "what": "MLX server for agents: continuous batching and a <b>two-tier paged KV cache</b>.",
      "cache": "Blocks in RAM that <b>spill over to an SSD tier</b>. The oQ4e PLE stays in mmap (<code>model_settings.json</code>).",
@@ -209,27 +221,45 @@ TECH_2026_10 = [
      "cache": "KV prefix cache <b>on disk</b> (<code>--kv-disk-dir</code>, 100 GB budget), cleared at each start.",
      "spec": "Built-in MTP (<code>--mtp-timing</code>, 1 draft). Static YaRN through <code>DS4_QWEN4_YARN_FACTOR</code> for 512K.",
      "configs": "d1 <code>qwen38-q4k</code>: Q4_K gate/up + MXFP4 down experts · 69.7 GiB resident · BF16 n-gram table on SSD"},
+    {"name": "Splash 1.4.0", "repo": "incoai/splash",
+     "what": "Inference engine on <b>native Metal</b> that serves Flash-Next from a <b>GGUF only</b> (it refuses the MLX packs).",
+     "cache": "Prefix cache in RAM with <b>KV int8</b> by default. <code>--max-context</code> above the resident plan sends "
+              "the rest of the KV to an <b>SSD cache</b> (32 GiB; at 1M about 860K tokens stay resident). It keeps the "
+              "hybrid recurrent state only where a request ends: an edit or a branch before the last saved state "
+              "re-prefills the whole prompt (hit 0 on <code>middle_mutation</code>; incoai/splash #387, #361).",
+     "spec": "<b>DFlash2 draft</b> that Splash selects, <code>--verify-rows auto</code>. Static YaRN above 262,144 tokens, "
+             "turned on by <code>--max-context</code>; it changes answers to short prompts too.",
+     "configs": "k2 Swift 1.5 IQ4_XS and k1 Flash-Next UD-IQ4_XS on 1.4.0; g2 GSQ-RCO-Coder IQ1_M on an unofficial build from main <code>3135ab4</code> (1.4.0 refuses that GGUF)."},
 ]
 TECH_SRC_2026_10 = [
     ["ddalcu/mlx-serve", "https://github.com/ddalcu/mlx-serve"],
     ["jundot/omlx", "https://github.com/jundot/omlx"],
     ["youssofal/MTPLX", "https://github.com/youssofal/MTPLX"],
     ["antirez/ds4", "https://github.com/antirez/ds4"],
+    ["incoai/splash", "https://github.com/incoai/splash"],
 ]
 ZENN = "https://zenn.dev/jtechjapan_pub/articles/qwen-flash-next-runtime-comparison"
 ISSUE_658 = "https://github.com/ddalcu/mlx-serve/issues/658"
 PAGE_2026_10 = {
     "title": "Qwen3.8-Flash-Next Runtimes, October 2026",
     "eyebrow": "Responsiveness test by context · October 2026 stack",
-    "h1": "Qwen3.8-Flash-Next: four runtimes from 8K to 512K",
-    "sub": "The same model on four runtimes, with the same fixture and the vendor sampling: mlx-serve 26.10.1, "
-           "oMLX 0.7.0, MTPLX 2.12.2 and ds4. Each panel "
-           "is one metric; each line is one runtime. Hover over a chart to read the values by context.",
+    "h1": "Qwen3.8-Flash-Next: five runtimes from 8K to 1M",
+    "sub": "The same model family on five runtimes, with the same fixture and the vendor sampling: mlx-serve 26.10.1 and "
+           "26.10.3, oMLX 0.7.0, MTPLX 2.12.2, ds4 and Splash 1.4.0. w1 and k2 run Swift 1.5 (a fine-tune of Flash-Next), "
+           "g1 and g2 the GSQ-RCO-Coder (256 of 512 experts), the others the base model. Each panel is one metric; each "
+           "line is one runtime and weight file. Hover over a chart to read the values by context.",
     "notice": (
         '<section class="block notice">\n'
-        '    <p><b>Apple M4 Max · 128 GB · measured 2026-10-07 to 2026-10-09.</b> mlx-serve 26.10.1 · oMLX 0.7.0 · '
-        'MTPLX 2.12.2 · ds4 upstream <code>0aaea5a</code>.</p>\n'
+        '    <p><b>Apple M4 Max · 128 GB · measured 2026-10-07 to 2026-10-25.</b> mlx-serve 26.10.1 and 26.10.3 · '
+        'oMLX 0.7.0 · MTPLX 2.12.2 · ds4 upstream <code>0aaea5a</code> · Splash 1.4.0 and a Splash build from main '
+        '<code>3135ab4</code>.</p>\n'
         '    <ul>\n'
+        '      <li><b>Splash runs other weight files.</b> Splash loads Flash-Next from a GGUF only, so k2 (Swift 1.5 '
+        'IQ4_XS GGUF) against w1 (Swift 1.5 MLX 4.7 bpw on mlx-serve 26.10.3) mixes runtime and weight format. The g2 '
+        'points come from an unofficial build from main; a release can change them.</li>\n'
+        '      <li><b>Splash re-prefills a changed history.</b> It keeps the recurrent state of the hybrid layers only '
+        'where a request ends. A change in the middle of the prompt (<code>middle_mutation</code>) reuses nothing on '
+        'Splash in every band, against ~45% on mlx-serve; at 1M that is ~25 min of prefill.</li>\n'
         '      <li><b>Speed, cache and memory only.</b> This page does not measure agent reliability. A community '
         f'test on an M4 Max 128 GB found differences between these runtimes in multi-turn agent tasks '
         f'(<a href="{ZENN}" target="_blank" rel="noopener">zenn.dev</a>). Test your own agent workload before you choose.</li>\n'
@@ -244,20 +274,23 @@ PAGE_2026_10 = {
     "setup_note": "What changes between runtimes: runtime, quant, prefix cache mechanism and speculation. Sampling is the "
                   "same for all of them (vendor): <code>temperature 1.0</code>, <code>top_p 0.95</code>, <code>top_k 20</code>, "
                   "<code>reasoning xhigh</code>, <code>max_tokens 4096</code>. Fixture <code>audit_retrieval</code> with needles "
-                  "at 10/50/90%. Native context: 262,144 tokens; 512K uses YaRN 2.0.",
-    "runtimes_note": "All four runtimes do speculative decoding with MTP and prefix caching on Apple Silicon. They differ in "
-                     "<b>where the KV cache lives</b> (RAM, disk or paged SSD) and in <b>how they handle the memory "
-                     "limit</b>: mlx-serve pins it as wired memory, oMLX spills over to SSD, MTPLX refuses the prompt "
-                     "and ds4 keeps the prefix cache on disk.",
+                  "at 10/50/90%. Native context: 262,144 tokens; 512K uses YaRN 2.0 on mlx-serve and ds4. Splash turns on a static "
+                  "YaRN by itself above 262,144 tokens and serves 1M (1,000,000 tokens) with KV int8, the KV past its "
+                  "resident plan on an SSD cache.",
+    "runtimes_note": "All five runtimes do speculative decoding and prefix caching on Apple Silicon: MTP on mlx-serve, "
+                     "oMLX, MTPLX and ds4, a DFlash2 draft on Splash. They differ in <b>where the KV cache lives</b> (RAM, "
+                     "disk or SSD) and in <b>how they handle the memory limit</b>: mlx-serve pins it as wired memory, oMLX "
+                     "spills over to SSD, MTPLX refuses the prompt, ds4 keeps the prefix cache on disk and Splash moves "
+                     "the KV past its resident plan to an SSD cache.",
     "hit_note": "Fraction of the prefix reused in each scenario, for the band's selected group. <code>cold</code> = first "
-                "pass (≈0 by design). <code>middle_mutation</code> = the prefix diverges in the middle. <code>append</code> "
-                "and <code>tool_turn</code> are the gate: ≥ 0.90.",
+                "pass (≈0 by design). <code>middle_mutation</code> = the prefix diverges in the middle: Splash reuses none of it. "
+                "<code>append</code> and <code>tool_turn</code> are the gate: ≥ 0.90.",
     "est_note": "<b>400</b>, <b>500</b> or <b>507</b> = scenario refused with that HTTP status (400 = context window "
                 "exceeded, 507 = MTPLX memory plan). A stream error (the server cut the response) also counts as "
                 "refused. <b>—</b> = scenario outside the "
                 "band's protocol: the 256K and 512K bands of some runtimes run only cold, identical and tool_turn.",
     "table_note": "Source: <code>bench/engine-updates-2026-10/results/reports-2026-10.json</code>, generated from the "
-                  "<code>*.jsonl</code> files of the October campaigns. Per runtime and band, "
+                  "<code>*.jsonl</code> files of the October campaigns (engine-updates, stack-updates and splash-longctx). Per series and band, "
                   "the page shows the served group with the most reps (tie: the most recent). <code>T_turn</code> = "
                   "tool_turn TTFT + 512 / warm decode. Warm decode = median of served identical, append and tool_turn.",
     "stage": {},
@@ -265,24 +298,31 @@ PAGE_2026_10 = {
     "hit_flag": {},
     "panels": {
         "t_turno": {"note": "Points with 3 reps show the median; the tooltip gives the reps.",
-                    "interp": "<b>n2 is the lowest line at every band</b>: 8.2 s at 32K, 8.8 s at 128K, 13.0 s at 512K. "
+                    "interp": "<b>The Splash lines are the lowest</b>: k2 takes 6.0–6.7 s from 8K to 512K and 9.3 s at 1M; "
+                              "g2 takes 6.3 s at 256K. n2 and w1 stay within 0.6 s of each other up to 512K (13.0 and 12.7 s). "
                               "o1 stays 1.8–4.7 s above n2. MTPLX jumps to 15.1 s at 128K and stops at 256K. "
                               "d1 grows from 12.6 s at 32K to 61.9 s at 512K."},
         "ttft_tool": {"interp": "The warm tool turn stays under 3 s on n2 up to 256K (3.9 s at 512K) and under 4.3 s on o1 up to 256K. "
+                                "Splash stays under 2 s up to 512K and reaches 2.6 s at 1M. "
                                 "On d1 it grows with the context: 6.4 s at 128K, 20 s at 256K, 50 s at 512K. "
                                 "This term drives most of the T_turn gap."},
-        "cold": {"interp": "Cold TTFT is a one-time cost per conversation. n2 is the lowest: 166 s at 128K and 784 s at 512K. "
-                           "MTPLX needs 458 s at 128K, 2.8× n2."},
-        "decode": {"interp": "n2 decodes 80 tok/s at 32K and 56 tok/s at 512K. MTPLX is close to n2 at 32K (80 tok/s) "
+        "cold": {"interp": "Cold TTFT is a one-time cost per conversation. mlx-serve and Splash sit together: 166–177 s at "
+                           "128K, 744–784 s at 512K. MTPLX needs 458 s at 128K, 2.8× n2. A cold 1M prompt takes 25.5 min "
+                           "on k2 and 26.8 min on k1."},
+        "decode": {"interp": "Splash decodes fastest: k2 106–113 tok/s from 8K to 512K and 77 tok/s at 1M, g2 107 tok/s at "
+                             "256K. n2 decodes 80 tok/s at 32K and 56 tok/s at 512K. MTPLX is close to n2 at 32K (80 tok/s) "
                              "and 70 tok/s at 128K. d1 stays at 43–54 tok/s in every band."},
-        "prefill": {"interp": "n2 and d1 keep the prefill almost flat up to 512K (n2: 791 to 662 tok/s). "
+        "prefill": {"interp": "n2, d1 and Splash keep the prefill almost flat up to 512K (n2: 791 to 662 tok/s; k2: 788 "
+                              "to 697 tok/s, and 649 tok/s at 1M). "
                               "<b>MTPLX drops from 619 tok/s at 32K to 274 tok/s at 128K</b>. The likely cause is the dense lane "
                               "of the QSA indexer on the M4 Max (no NAX kernels; not profiled); the sparse lane failed to "
                               "allocate. The 128K point also runs with <code>--memory-limit max</code>."},
-        "wired": {"interp": "Every runtime ran without swap. n2 pins 97–114 GB as wired memory by design. "
+        "wired": {"interp": "Every runtime ran without swap. n2 pins 97–114 GB as wired memory by design. Splash wires "
+                            "107–117 GB on k1 and k2 up to 512K (it compresses nothing) and 110–112 GB at 1M, where part of "
+                            "the KV moves to the SSD cache. The GSQ lines need 57–89 GB. "
                             "MTPLX with <code>--memory-limit max</code> reaches 110 GB at 128K; d1 reaches 107 GB at 512K."},
     },
-    "foot": ("<b>How to read.</b> x axis = context (32K, 128K, 256K, 512K; categorical axis). One line per runtime. "
+    "foot": ("<b>How to read.</b> x axis = context (32K, 128K, 256K, 512K, 1M; categorical axis). One line per series. "
              "Each point is the band's selected group; the tooltip gives its reps and, for MTPLX, the config. "
              "A gap in a line is a refusal or a band outside the runtime's reach; the tooltip says which. "
              "8K is in the table, not in the lines. "
@@ -316,7 +356,7 @@ CSS = r"""
   --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
   --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
   --accent:#2a78d6; --accent-rgb:42,120,214; --warn:#b06a00; --warn-bg:#fbf1dd;
-  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#7c5cd6; --s7:#1597b0; --s8:#7a7f87;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#7c5cd6; --s7:#1597b0; --s8:#7a7f87; --s9:#8a6d3b;
   --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -327,7 +367,7 @@ CSS = r"""
     --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
     --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
     --accent:#3987e5; --accent-rgb:57,135,229; --warn:#e0a63a; --warn-bg:#2a2312;
-    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6; --s7:#1fa9c4; --s8:#9aa0a8;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6; --s7:#1fa9c4; --s8:#9aa0a8; --s9:#b08d57;
   }
 }
 :root[data-theme="dark"]{
@@ -336,7 +376,7 @@ CSS = r"""
   --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
   --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
   --accent:#3987e5; --accent-rgb:57,135,229; --warn:#e0a63a; --warn-bg:#2a2312;
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6; --s7:#1fa9c4; --s8:#9aa0a8;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6; --s7:#1fa9c4; --s8:#9aa0a8; --s9:#b08d57;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -686,7 +726,8 @@ function buildPanel(p){
   ends.sort((a,b)=>a.y-b.y);
   const MINGAP=11;
   for(let k=1;k<ends.length;k++){ if(ends[k].y-ends[k-1].y<MINGAP) ends[k].y=ends[k-1].y+MINGAP; }
-  const maxY=y0-2; for(let k=ends.length-1;k>0;k--){ if(ends[k].y>maxY){ends[k].y=maxY; if(ends[k].y-ends[k-1].y<MINGAP)ends[k-1].y=ends[k].y-MINGAP;} }
+  // Labels pushed below the axis move back up, and each one pushes the label above it (nine series crowd the bottom).
+  const maxY=y0-2; for(let k=ends.length-1;k>=0;k--){ ends[k].y=Math.min(ends[k].y, k===ends.length-1?maxY:ends[k+1].y-MINGAP); }
   ends.forEach(e=>{ g+=`<text class="endlab" x="${x1+5}" y="${e.y+3.5}" fill="${e.col}">${e.lab}</text>`; });
   g+=`<rect x="${x0}" y="${y1}" width="${x1-x0}" height="${y0-y1}" fill="transparent" style="cursor:crosshair"/>`;
   svg.innerHTML=g;
