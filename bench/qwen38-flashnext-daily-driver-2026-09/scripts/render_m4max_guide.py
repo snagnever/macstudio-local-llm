@@ -5,7 +5,8 @@ One page for readers outside this repo (Reddit): the best way to run Qwen3.8-Fla
 M4 Max 128 GB, from 8K to 1M. It joins the October runtime data (overview + perf-lines), the
 Swift 1.5 A/B and the Splash long-context round (bench/splash-longctx-2026-10), and it uses plain
 names instead of the campaign codes (arms, T_turn, gates, bands). The card previews the page; the
-post image, the slides and the post charts stay the October round (four servers, 8K to 512K).
+post image, the slides and the post charts stay the October round (four servers, 8K to 512K, mlx-serve 26.10.1).
+The page and the card run the iQ pack on mlx-serve 26.10.3, the build of the Swift 1.5 stack (page_data()).
 
     python3 bench/qwen38-flashnext-daily-driver-2026-09/scripts/render_m4max_guide.py          # the page, card, post, slides and post-chart HTML
     python3 bench/qwen38-flashnext-daily-driver-2026-09/scripts/render_m4max_guide.py --png    # also the PNGs (Chrome)
@@ -44,7 +45,7 @@ CTX = [8192, 32768, 131072, 262144, 524288, 1000000]
 # Plain names for the four October arms and the two Swift 1.5 stacks of the Splash round (w1 = the daily driver on
 # mlx-serve 26.10.3, k2 = Splash 1.4.0). The color slot and the marker shape follow the stack on every chart.
 STACKS = [
-    {"id": "n2", "name": "mlx-serve 26.10.1", "short": "mlx-serve", "cv": "--s1", "marker": "circle",
+    {"id": "n2", "name": "mlx-serve 26.10.3", "round_name": "mlx-serve 26.10.1", "short": "mlx-serve", "cv": "--s1", "marker": "circle",
      "about": "MLX server by ddalcu",
      "quant": "ddalcu iQ-MLX 4.7 bpw", "model": "ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw",
      "repo": "https://github.com/ddalcu/mlx-serve", "disk": "107 GB",
@@ -83,7 +84,7 @@ STACKS = [
 ]
 STACK = {s["id"]: s for s in STACKS}
 # The post image, the slides and the post charts were published for the October round: four servers, 8K to 512K.
-ROUND_STACKS = STACKS[:4]
+ROUND_STACKS = [dict(s, name=s.get("round_name", s["name"])) for s in STACKS[:4]]
 ROUND_CTX = CTX[:5]
 
 # The 1M probe of mlx-serve 26.10.3 (t7: YaRN 3.815 + KV 4-bit). Its runs stay out of the series, because some
@@ -102,7 +103,8 @@ MISSING = {
     ("o1", 524288): "no YaRN: oMLX stops at the native 262K",
     ("m1", 262144): "refused: the MTPLX memory plan fits at most 237,568 tokens on 128 GB",
     ("m1", 524288): "not run: MTPLX already refuses 256K",
-    ("n2", 1000000): NOT_RUN_1M,
+    ("n2", 1000000): "loads, but fails: mlx-serve 26.10.3 serves the first 1M message, then 3 of 5 requests fail "
+                     "with PrefillDoesNotFit (~18 GB needed, 7–9 GB free)",
     ("o1", 1000000): "no YaRN: oMLX stops at the native 262K",
     ("m1", 1000000): "not run: MTPLX already refuses 256K",
     ("d1", 1000000): NOT_RUN_1M,
@@ -139,6 +141,16 @@ SWIFT_SUITES = [("gpqa", "GPQA-Diamond (50)"), ("livecodebench", "LiveCodeBench 
 
 def canonical(data: dict) -> dict:
     return {(g["cand"], g["context"]): g for g in data["groups"] if g["canonical"]}
+
+
+# The page shows the iQ pack on mlx-serve 26.10.3 (series n3, splash-longctx t6) as its mlx-serve stack, so iQ and
+# Swift 1.5 share one build. The 26.10.1 run of the October round stays under LEGACY_N2 for the same-build table.
+LEGACY_N2 = "n2@26.10.1"
+
+
+def page_data(data: dict) -> dict:
+    rename = {"n2": LEGACY_N2, "n3": "n2"}
+    return dict(data, groups=[dict(g, cand=rename.get(g["cand"], g["cand"])) for g in data["groups"]])
 
 
 def point(g: dict) -> dict:
@@ -287,12 +299,13 @@ def facts(data: dict, swift: dict) -> dict:
             f[f"swift_mlx_turn_{tag}"] = f'{p[("w1", ctx)]["turn"]:.1f}'
             f[f"swift_mlx_decode_{tag}"] = f'{p[("w1", ctx)]["decode"]:.0f}'
     canon = canonical(data)
-    for cid in ("n3", "w1"):
-        for ctx, tag in ((262144, "256"), (524288, "512")):
-            f[f"sb_turn_{cid}_{tag}"] = f'{canon[(cid, ctx)]["t_turno_s"]:.1f}'
-    names = {"n2": "iQ on 26.10.1", "n3": "iQ on 26.10.3", "w1": "Swift 1.5"}
+    if (LEGACY_N2, 262144) in canon:
+        for cid, key in (("n2", "n3"), ("w1", "w1")):
+            for ctx, tag in ((262144, "256"), (524288, "512")):
+                f[f"sb_turn_{key}_{tag}"] = f'{canon[(cid, ctx)]["t_turno_s"]:.1f}'
+    names = {LEGACY_N2: "iQ on 26.10.1", "n2": "iQ on 26.10.3", "w1": "Swift 1.5"}
     f["sb_one_run"] = " and ".join(f"{names[cid]} at {ctx // 1024}K" for cid in names for ctx in ROUND_CTX
-                                   if canon[(cid, ctx)]["reps"] < 3)
+                                   if (cid, ctx) in canon and canon[(cid, ctx)]["reps"] < 3)
     f["mlx_cold_1m_min"] = f"{mlx_cold_1m_s() / 60:.1f}"
     k256, k512, k1m = p[("k2", 262144)], p[("k2", 524288)], p[("k2", 1000000)]
     f["splash_prefill_256"] = f'{k256["prefill"]:.0f}'
@@ -323,9 +336,9 @@ def stacks_table() -> str:
 
 
 def same_build_table(data: dict) -> str:
-    """Agent turn and decode of the iQ pack on 26.10.1 (n2) and 26.10.3 (n3) and of Swift 1.5 on 26.10.3 (w1)."""
+    """Agent turn and decode of the iQ pack on 26.10.1 and 26.10.3 and of Swift 1.5 on 26.10.3, from page_data()."""
     canon = canonical(data)
-    cols = (("n2", "iQ-MLX 4.7 bpw · mlx-serve 26.10.1"), ("n3", "iQ-MLX 4.7 bpw · mlx-serve 26.10.3"),
+    cols = ((LEGACY_N2, "iQ-MLX 4.7 bpw · mlx-serve 26.10.1"), ("n2", "iQ-MLX 4.7 bpw · mlx-serve 26.10.3"),
             ("w1", "Swift 1.5 · mlx-serve 26.10.3"))
     head = "<th>Context</th>" + "".join(f"<th>{name}</th>" for _, name in cols)
     rows = "".join(
@@ -351,6 +364,7 @@ def rig_strip(data: dict) -> str:
 
 
 def render(data: dict, swift: dict) -> str:
+    data = page_data(data)
     f = facts(data, swift)
     body = BODY.format_map(f)
     html = TEMPLATE.replace("/*__CSS__*/", CSS).replace("__BODY__", body)
@@ -388,7 +402,7 @@ BODY = r"""
     <p class="sub">Five local inference servers, the same model and its Swift 1.5 fine-tune, contexts from 8K to 1M
     tokens. I measured what you wait for in a real agent session, not only tokens per second.</p>
     <div class="chips">__RIG__<span class="chip"><span class="lab">Measured</span> 2026-10-07 to 2026-10-25</span></div>
-    <p class="tldr"><b>Result:</b> mlx-serve 26.10.1 with the ddalcu iQ-MLX 4.7 bpw quant. {mlx_turn_128} s per agent turn at
+    <p class="tldr"><b>Result:</b> mlx-serve 26.10.3 with the ddalcu iQ-MLX 4.7 bpw quant. {mlx_turn_128} s per agent turn at
     128K, {mlx_turn_512} s at 512K, {mlx_resume_512} s to start the next reply at 512K from the cache.
     <a href="#conclusion">Conclusion</a> · <a href="#run">commands</a>. Above 512K, only Splash 1.4.0 served the model:
     {splash_turn_1m} s per agent turn at 1M, with caveats (<a href="#splash">section 9</a>).</p>
@@ -429,8 +443,8 @@ BODY = r"""
   MTP and a prefix cache, each on its newest release. I did not measure llama.cpp, LM Studio or mlx-vlm in that round.
   mlx-dspark 0.20.3 ran at 32K only and behind these four, so it is not on the page. In a later round (2026-10-23 to
   2026-10-25) I added Splash 1.4.0 with Swift 1.5, next to the same fine-tune on mlx-serve 26.10.3, the server I use
-  every day. So the iQ pack ran on mlx-serve 26.10.1 and Swift 1.5 on 26.10.3. On 2026-10-27 I ran the iQ pack again
-  on 26.10.3: <a href="#samebuild">section 9</a> compares the two on one build.</p>
+  every day. On 2026-10-27 I ran the iQ pack again on 26.10.3, so both mlx-serve stacks on this page run the same
+  build. The October round had it on 26.10.1 (<a href="#samebuild">section 9</a> shows both builds).</p>
   <div class="tbl-scroll">__STACKS_TABLE__</div>
 </section>
 
@@ -455,7 +469,7 @@ BODY = r"""
   <div class="panel big"><div id="chTurn"></div><p class="gaps" id="gapsTurn"></p></div>
   <div class="tbl-scroll"><table id="tblTurn"></table></div>
   <ul class="reads">
-    <li><b>mlx-serve stays almost flat:</b> {mlx_turn_8} s at 8K, {mlx_turn_128} s at 128K, {mlx_turn_512} s at 512K.</li>
+    <li><b>mlx-serve grows the least of the base-model servers:</b> {mlx_turn_8} s at 8K, {mlx_turn_128} s at 128K, {mlx_turn_512} s at 512K.</li>
     <li><b>oMLX</b> is second at 128K and 256K ({omlx_turn_128} and {omlx_turn_256} s). <b>MTPLX</b> is close at 32K
     ({mtplx_turn_32} s), but needs a flag to reach 128K and refuses 256K.</li>
     <li><b>ds4</b> serves every size up to 512K, but its turn grows from {ds4_turn_32} s at 32K to {ds4_turn_512} s at 512K.</li>
@@ -618,8 +632,7 @@ BODY = r"""
   <h3 id="samebuild">iQ-MLX and Swift 1.5 on the same mlx-serve build</h3>
   <p class="s-note">Agent turn time and decode speed, same flags. Up to 128K the two quants tie on 26.10.3. Past
   128K, Swift 1.5 is faster: {sb_turn_w1_256} s against {sb_turn_n3_256} s at 256K, and {sb_turn_w1_512} s against
-  {sb_turn_n3_512} s at 512K. The iQ pack lost decode speed on 26.10.3, so the base-model results of this page
-  (iQ on 26.10.1) are not the same build as the Swift results.</p>
+  {sb_turn_n3_512} s at 512K. The iQ pack lost decode speed from 26.10.1 to 26.10.3, while Swift 1.5 gained.</p>
   <div class="tbl-scroll">__SAME_BUILD__</div>
   <p class="foot-note">3 runs per cell, except {sb_one_run}: 1 run. 512K uses YaRN 2.0 and the 4-bit KV cache on both builds.</p>
   <h3>Quality: within the noise of mlx-serve, up to 1M</h3>
@@ -641,7 +654,7 @@ BODY = r"""
 <section class="verdict" id="conclusion" aria-labelledby="v-title">
   <div class="v-main">
     <p class="kicker">Conclusion</p>
-    <h2 id="v-title">Use <b>mlx-serve 26.10.1</b> with the <b>ddalcu iQ-MLX 4.7 bpw</b> quant.</h2>
+    <h2 id="v-title">Use <b>mlx-serve 26.10.3</b> with the <b>ddalcu iQ-MLX 4.7 bpw</b> quant.</h2>
     <p>Among the four servers that run the base model, it had the shortest agent turn at every context size, from 8K
     to 512K, and it is the only one of them that kept a turn under 15 s at 512K. The runner-up is <b>oMLX 0.7.0</b>
     ({omlx_turn_128} s at 128K), but it stops at 256K. <a href="#run">Commands below.</a> For the fastest decode or a
@@ -661,7 +674,7 @@ BODY = r"""
 <section class="block" id="run">
   <h2 class="sec">10 · Run it yourself</h2>
   <p class="s-note">Download <a href="https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw" target="_blank" rel="noopener">ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw</a>
-  (107 GB) and <a href="https://github.com/ddalcu/mlx-serve" target="_blank" rel="noopener">mlx-serve 26.10.1</a>. These are the
+  (107 GB) and <a href="https://github.com/ddalcu/mlx-serve" target="_blank" rel="noopener">mlx-serve 26.10.3</a>. These are the
   flags I measured. The server exposes OpenAI and Anthropic compatible endpoints. The data, the prompt generator and
   the scripts behind this page are in the <a href="https://github.com/snagnever/macstudio-local-llm" target="_blank" rel="noopener">repository</a>.</p>
   <div class="cmds">__COMMANDS__</div>
@@ -697,7 +710,7 @@ BODY = r"""
   <div class="panel big"><div id="chQuality"></div></div>
   <p class="foot-note">HumanEval with the prompt's import lines added before the answer. LiveCodeBench v6: 50 questions
   (seed 42), graded with the official import lines. Tool calls A = jdhodges tool-call
-  test; tool calls B = Veerman tool-call test. mlx-serve: 2026-10-11 run with reasoning effort xhigh; oMLX and MTPLX
+  test; tool calls B = Veerman tool-call test. mlx-serve: 2026-10-11 run on 26.10.1 with reasoning effort xhigh; oMLX and MTPLX
   (with --memory-limit max): 2026-10-09 runs. The 2026-10-09 runs had no LiveCodeBench: the oMLX bar comes from a
   2026-10-15 run of the same pack on oMLX 0.7.1.dev1, and MTPLX was not measured.</p>
 </section>
@@ -1551,6 +1564,7 @@ INK, INK2, MUTED, GRID, BASE = "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#c3c
 
 def render_card(data: dict, swift: dict) -> str:
     """A 1200x630 static card: the agent turn at 128K per stack and the three headline numbers."""
+    data = page_data(data)
     f = facts(data, swift)
     p = {k: point(g) for k, g in canonical(data).items() if not g["refused"]}
     turns = [(s, p[(s["id"], 131072)]["turn"]) for s in STACKS]
