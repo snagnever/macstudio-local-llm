@@ -19,15 +19,15 @@ svg{flex:none}
 .t-lab{font-size:16px; color:#444a55; line-height:1.3}
 </style></head><body><div class="card">
 <p class="eyebrow">Benchmark · Apple M4 Max 128 GB · October 2026</p>
-<h1>Qwen3.8-Flash-Next on an M4 Max: six local stacks, 8K to 1M context</h1>
+<h1>Qwen3.8-Flash-Next on an M4 Max: seven local stacks, 8K to 1M context</h1>
 <p class="sub">Cache hit and the next turn matter more than tokens per second.</p>
 <div class="row">
-  <svg width="700" height="270" viewBox="0 0 700 270"><text x="0" y="18" class="axis">Agent turn time at 128K · seconds · shorter is better</text><text x="0" y="53" class="lab">mlx-serve</text><rect x="130" y="34" width="239" height="26" rx="5" fill="#2a78d6"/><text x="381" y="53" class="val">8.9 s</text><text x="0" y="91" class="lab">oMLX</text><rect x="130" y="72" width="324" height="26" rx="5" fill="#eb6834"/><text x="466" y="91" class="val">12.1 s</text><text x="0" y="129" class="lab">MTPLX</text><rect x="130" y="110" width="405" height="26" rx="5" fill="#1baf7a"/><text x="547" y="129" class="val">15.1 s</text><text x="0" y="167" class="lab">ds4</text><rect x="130" y="148" width="440" height="26" rx="5" fill="#eda100"/><text x="582" y="167" class="val">16.4 s</text><text x="0" y="205" class="lab">Swift MLX</text><rect x="130" y="186" width="238" height="26" rx="5" fill="#e87ba4"/><text x="380" y="205" class="val">8.9 s</text><text x="0" y="243" class="lab">Splash</text><rect x="130" y="224" width="169" height="26" rx="5" fill="#7c5cd6"/><text x="311" y="243" class="val">6.3 s ★</text></svg>
+  <svg width="700" height="270" viewBox="0 0 700 270"><text x="0" y="18" class="axis">Agent turn time at 128K · seconds · shorter is better</text><text x="0" y="50" class="lab">mlx-serve</text><rect x="150" y="32" width="239" height="24" rx="5" fill="#2a78d6"/><text x="401" y="50" class="val">8.9 s</text><text x="0" y="83" class="lab">oMLX</text><rect x="150" y="65" width="324" height="24" rx="5" fill="#eb6834"/><text x="486" y="83" class="val">12.1 s</text><text x="0" y="116" class="lab">MTPLX</text><rect x="150" y="98" width="405" height="24" rx="5" fill="#1baf7a"/><text x="567" y="116" class="val">15.1 s</text><text x="0" y="149" class="lab">ds4</text><rect x="150" y="131" width="440" height="24" rx="5" fill="#eda100"/><text x="602" y="149" class="val">16.4 s</text><text x="0" y="182" class="lab">Splash</text><rect x="150" y="164" width="183" height="24" rx="5" fill="#8a5a2b"/><text x="345" y="182" class="val">6.8 s</text><text x="0" y="215" class="lab">Swift Splash</text><rect x="150" y="197" width="169" height="24" rx="5" fill="#7c5cd6"/><text x="331" y="215" class="val">6.3 s ★</text><text x="0" y="248" class="lab">Swift MLX</text><rect x="150" y="230" width="238" height="24" rx="5" fill="#e87ba4"/><text x="400" y="248" class="val">8.9 s</text></svg>
   <div class="tiles">
+    <div class="tile"><span class="t-val">7.3<small> s</small></span><span class="t-lab">per agent turn at 512K on Splash</span></div>
     <div class="tile"><span class="t-val">14.5<small> s</small></span><span class="t-lab">per agent turn at 512K on mlx-serve</span></div>
-    <div class="tile"><span class="t-val">4.1<small> s</small></span><span class="t-lab">to start the next reply at 512K, from the cache</span></div>
-    <div class="tile"><span class="t-val">13<small> min</small></span><span class="t-lab">first message at 512K, nothing cached</span></div>
-    <div class="tile"><span class="t-val">114<small> GB</small></span><span class="t-lab">peak memory at 512K, no swap</span></div>
+    <div class="tile"><span class="t-val">10.5<small> s</small></span><span class="t-lab">per agent turn at 1M, only on Splash</span></div>
+    <div class="tile"><span class="t-val">13<small> min</small></span><span class="t-lab">on Splash after a change halfway at 512K</span></div>
   </div>
 </div>
 </div></body></html>

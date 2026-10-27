@@ -31,12 +31,12 @@ def test_default_sources_exist():
     assert guide.REPORTS_JSON.is_file() and guide.SWIFT_JSON.is_file()
 
 
-def test_payload_has_six_stacks_and_canonical_points():
+def test_payload_has_seven_stacks_and_canonical_points():
     data, swift = load()
     data = guide.page_data(data)
     p = guide.build_payload(data, swift)
-    # The four servers of the October round, then Swift 1.5 on mlx-serve 26.10.3 and on Splash 1.4.0.
-    assert [s["id"] for s in p["stacks"]] == ["n2", "o1", "m1", "d1", "w1", "k2"]
+    # The five base-model stacks (the October round and Splash 1.4.0), then Swift 1.5 on Splash and on mlx-serve.
+    assert [s["id"] for s in p["stacks"]] == ["n2", "o1", "m1", "d1", "k1", "k2", "w1"]
     assert p["ctx"][-1] == 1000000
     ids = {s["id"] for s in p["stacks"]}
     canon = {(g["cand"], g["context"]): g for g in data["groups"]
@@ -56,6 +56,7 @@ def test_payload_has_six_stacks_and_canonical_points():
         for ctx in p["ctx"]:
             assert str(ctx) in p["points"][st["id"]], (st["id"], ctx)
     assert p["points"]["k2"]["1000000"]["turn"] > 0
+    assert p["points"]["k1"]["1000000"]["turn"] > 0
     assert "PrefillDoesNotFit" in p["points"]["w1"]["1000000"]["reason"]
     assert len({s["cv"] for s in p["stacks"]}) == len(p["stacks"])
     assert len({s["marker"] for s in p["stacks"]}) == len(p["stacks"])
@@ -128,7 +129,7 @@ def test_render_has_no_placeholders_or_internal_terms():
     assert not re.search(r"\{[a-z_0-9]+\}", visible_text(html))
     text = visible_text(html)
     for term in ("T_turn", "T_turno", "middle_mutation", "tool_turn", "n2", "n2q4", "o1", "m1", "m1x", "d1",
-                 "w1", "w1z", "w1zq4", "k2", "k2a", "k3ma", "g1", "g2", "folga", "gates?", "bands?"):
+                 "w1", "w1z", "w1zq4", "k1", "k1a", "k2", "k2a", "k3ma", "g1", "g2", "folga", "gates?", "bands?"):
         assert not re.search(rf"\b{term}\b", text), term
 
 
@@ -205,3 +206,21 @@ def test_same_build_table_puts_iq_and_swift_on_26103():
     assert table in html
     text = visible_text(html)
     assert "mlx-serve stops at 512K" not in text and "PrefillDoesNotFit" in text
+
+
+def test_splash_with_the_base_model_leads_the_base_model_stacks():
+    data, swift = load()
+    page = guide.page_data(data)
+    canon = guide.canonical(page)
+    for ctx in guide.ROUND_CTX:
+        base = {sid: canon[(sid, ctx)]["t_turno_s"] for sid in ("n2", "o1", "m1", "d1", "k1")
+                if (sid, ctx) in canon and not canon[(sid, ctx)]["refused"]}
+        assert min(base, key=base.get) == "k1", ctx
+    f = guide.facts(page, swift)
+    assert f["base_splash_turn_512"] == f'{canon[("k1", 524288)]["t_turno_s"]:.1f}'
+    assert float(f["splash_swift_gain_lo"]) > 0
+    text = re.sub(r"\s+", " ", visible_text(guide.render(data, swift)))
+    assert "Use Splash 1.4.0 with the unsloth UD-IQ4_XS GGUF for the shortest agent turn" in text
+    assert "I did not check the quality of the base model on Splash" in text
+    assert "unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ4_XS" in guide.render(data, swift)
+    assert "seven local stacks" in guide.render_card(data, swift)
