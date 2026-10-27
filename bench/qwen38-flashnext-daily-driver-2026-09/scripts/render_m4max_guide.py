@@ -442,20 +442,12 @@ BODY = r"""
 </header>
 
 <section class="premises" aria-label="Assumptions">
-  <div class="pm"><p class="kicker">Goal</p><p>Find the best stack to run Qwen3.8-Flash-Next as a daily driver on one
-  Mac Studio (M4 Max, 128 GB). The model is a 125B mixture-of-experts with 6B active parameters and a native context of
-  262K tokens, so it fits in 128 GB at 4 to 6 bits per weight and decodes fast.</p></div>
-  <div class="pm"><p class="kicker">Weights</p><p>The four servers of the October round each run the pack the runtime's
-  author publishes for it, in the runtime's own format: the current ddalcu pack for mlx-serve, the only oMLX pack for
-  Flash-Next, the pack MTPLX recommends for 128 GB Macs, and the larger of the two ds4 GGUFs, chosen for quality parity.
-  The files are as close to each other as the formats allow (4.7 to 5.97 bits per weight), but they are not identical. The
-  quality check in <a href="#quality">section 12</a> shows the three servers I checked within a few cases of each other;
-  ds4 and Splash with the base model were not checked. Splash loads Flash-Next from a GGUF only: it runs the base model as
-  the unsloth UD-IQ4_XS GGUF. The two Swift 1.5 stacks run a community fine-tune: in MLX on mlx-serve, and as a GGUF on
-  Splash.</p></div>
-  <div class="pm"><p class="kicker">Precision</p><p>A personal test for my own daily use and curiosity, not a lab
-  benchmark. I aimed for accurate numbers without letting the runs take days: one machine, one test prompt, 1 to 3
-  runs per point. Small differences can be run-to-run variation.</p></div>
+  <div class="pm"><p class="kicker">Goal</p><p>The best stack for Qwen3.8-Flash-Next as a daily driver on one Mac Studio
+  (M4 Max, 128 GB): a 125B mixture-of-experts with 6B active parameters and a native context of 262K tokens.</p></div>
+  <div class="pm"><p class="kicker">Weights</p><p>Each server runs the pack its author publishes, in its own format, 4.7 to
+  5.97 bits per weight (<a href="#stacks">table</a>). The results compare server + quant pairs, not servers alone.</p></div>
+  <div class="pm"><p class="kicker">Precision</p><p>A personal test, not a lab benchmark: one machine, one test prompt,
+  1 to 3 runs per point. Small differences can be run-to-run variation.</p></div>
 </section>
 
 <details class="toc">
@@ -464,60 +456,53 @@ BODY = r"""
 </details>
 
 <section class="block" id="stacks">
-  <h2 class="sec">1 · The seven stacks: each server runs its own weight file</h2>
-  <p class="s-note">Each server needs its own weight format, so every stack below is a <b>server + quant</b> pair with a
-  different file (about 4 to 6 bits per weight). The results compare these stacks, not the servers alone. Same base
-  model, same test prompt, same sampling: temperature 1.0, top_p 0.95, top_k 20, reasoning effort xhigh, max 4,096
-  output tokens. All of them use speculative decoding and a prefix cache: the MLX servers and ds4 with the model's MTP
-  head, Splash with a separate draft model (DFlash2). They differ in where the cache lives and in how they handle the
-  memory limit.</p>
-  <p class="s-note">Why these: in October 2026 the first four were the servers that ran Flash-Next on Apple Silicon with
-  MTP and a prefix cache, each on its newest release. I did not measure llama.cpp, LM Studio or mlx-vlm in that round.
-  mlx-dspark 0.20.3 ran at 32K only and behind these four, so it is not on the page. In a later round (2026-10-23 to
-  2026-10-25) I added Splash 1.4.0, with the base model and with Swift 1.5, next to Swift 1.5 on mlx-serve 26.10.3, the
-  stack I use every day. The first five rows run the base model; the last two run Swift 1.5. On 2026-10-27 I ran the iQ pack again on 26.10.3, so both mlx-serve stacks on this page run the same
-  build. The October round had it on 26.10.1 (<a href="#samebuild">section 9</a> shows both builds).</p>
+  <h2 class="sec">1 · The seven stacks</h2>
+  <p class="s-note">The first five rows run the base model; the last two run the Swift 1.5 fine-tune. Same test prompt,
+  same sampling (temperature 1.0, top_p 0.95, top_k 20, reasoning effort xhigh, max 4,096 output tokens). All use
+  speculative decoding and a prefix cache; they differ in where the cache lives and in how they handle the memory limit.
+  Why these servers and when each ran: <a href="#method">section 8</a>.</p>
   <div class="tbl-scroll">__STACKS_TABLE__</div>
 </section>
 
-<section class="block" id="glance">
-  <h2 class="sec">2 · At a glance: Splash is the fastest, with the base model and with Swift 1.5</h2>
-  <p class="s-note">Five speed metrics and the largest context, one panel each. Pick a context size. Among the five
-  servers that run the base model, Splash has the shortest agent turn, the fastest next-turn TTFT and the fastest decode
-  at every size I tested, and it is the only one that reached 1M. mlx-serve has the fastest cold prompt, by up to
-  {cold_gap_hi_pct}%, and it leads the three MLX servers in every panel. With Swift 1.5, Splash is faster again.</p>
+<section class="block" id="turn">
+  <h2 class="sec">2 · Agent turn time by context size</h2>
+  <p class="s-note"><b>Agent turn time</b> = the wait from sending a tool result to the end of a 512-token reply:
+  TTFT (time to first token) + 512 ÷ decode speed. A coding agent pays this at every step. Lower is better. Pick a
+  context size: one panel per metric, then the turn time across all sizes.</p>
   <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="glance"></div></div>
   <div class="legend" data-legend></div>
   <div class="glance" id="chGlance"></div>
-  <p class="foot-note">The trade-off is memory: mlx-serve locks {mlx_wired_128} GB at 128K and Splash {splash_wired_128_lo}–{splash_wired_128_hi} GB, against
-  {others_wired_128_lo}–{others_wired_128_hi} GB for oMLX, MTPLX and ds4 (<a href="#limits">memory chart</a>). No server used swap.</p>
-</section>
-
-<section class="block" id="turn">
-  <h2 class="sec">3 · Agent turn time: Splash is the fastest at every context size, mlx-serve among the MLX servers</h2>
-  <p class="s-note"><b>Agent turn time</b> = the wait from sending a tool result to the end of a 512-token reply:
-  TTFT (time to first token) + 512 ÷ decode speed. A coding agent pays this at every step. Lower is better.</p>
-  <div class="legend" data-legend></div>
-  <div class="panel big"><div id="chTurn"></div><p class="gaps" id="gapsTurn"></p></div>
+  <div class="panel big" style="margin-top:14px"><div id="chTurn"></div><p class="gaps" id="gapsTurn"></p></div>
   <div class="tbl-scroll"><table id="tblTurn"></table></div>
   <ul class="reads">
-    <li><b>Splash with the base model is almost flat:</b> {base_splash_turn_8} s at 8K, {base_splash_turn_128} s at 128K,
-    {base_splash_turn_512} s at 512K and {base_splash_turn_1m} s at 1M.</li>
-    <li><b>mlx-serve is the fastest MLX server:</b> {mlx_turn_8} s at 8K, {mlx_turn_128} s at 128K, {mlx_turn_512} s at 512K.</li>
-    <li><b>oMLX</b> is second at 128K and 256K ({omlx_turn_128} and {omlx_turn_256} s). <b>MTPLX</b> is close at 32K
-    ({mtplx_turn_32} s), but needs a flag to reach 128K and refuses 256K.</li>
-    <li><b>ds4</b> serves every size up to 512K, but its turn grows from {ds4_turn_32} s at 32K to {ds4_turn_512} s at 512K.</li>
-    <li><b>Swift 1.5 on Splash</b> takes {splash_turn_8} s at 8K, {splash_turn_128} s at 128K, {splash_turn_512} s at 512K and
-    {splash_turn_1m} s at 1M. The same fine-tune on mlx-serve 26.10.3 takes {swift_mlx_turn_128} s at 128K and
-    {swift_mlx_turn_512} s at 512K (<a href="#splash">section 9</a>).</li>
+    <li><b>Splash</b> is almost flat: {base_splash_turn_128} s at 128K, {base_splash_turn_1m} s at 1M with the base model;
+    Swift 1.5 is faster again by {splash_swift_gain_lo} to {splash_swift_gain_hi} s per turn.</li>
+    <li><b>mlx-serve</b> is the fastest MLX server: {mlx_turn_128} s at 128K, {mlx_turn_512} s at 512K. It also has the
+    fastest cold prompt, by up to {cold_gap_hi_pct}%.</li>
+    <li><b>oMLX</b> is second among the MLX servers ({omlx_turn_128} s at 128K) and stops at 256K. <b>MTPLX</b> needs a
+    flag to reach 128K and refuses 256K. <b>ds4</b> serves 512K, but its turn grows to {ds4_turn_512} s there.</li>
   </ul>
+  <p class="s-note" style="margin-top:14px"><b>Tokens per second is not the whole story.</b> At 128K, MTPLX decodes almost as
+  fast as mlx-serve ({mtplx_decode_128} vs {mlx_decode_128} tokens/s), but its turn takes {mtplx_turn_128} s against
+  {mlx_turn_128} s: its TTFT on the next turn is {mtplx_resume_128} s and its prefill runs at {mtplx_prefill_128} tokens/s
+  against {mlx_prefill_128}. Compare servers on turn time and cache behavior.</p>
+  <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="scatter"></div></div>
+  <div class="panel big"><div class="p-head"><span class="p-title">Decode speed vs agent turn time</span><span class="p-unit">best = bottom right</span></div><div id="chScatter"></div></div>
+  <div class="grid2">
+    <div class="panel"><div class="p-head"><span class="p-title">Decode speed</span><span class="p-unit">tokens/s · higher is better</span></div><div id="chDecode"></div>
+    <p class="p-interp">Splash: {base_splash_decode_128} tokens/s at 128K with the base model, {splash_decode_128} with Swift 1.5.
+    mlx-serve: {mlx_decode_128}. ds4 stays at {ds4_decode_lo}–{ds4_decode_hi}.</p></div>
+    <div class="panel"><div class="p-head"><span class="p-title">Prefill speed (cold prompt)</span><span class="p-unit">tokens/s · higher is better</span></div><div id="chPrefill"></div>
+    <p class="p-interp">MTPLX drops to {mtplx_prefill_128} tokens/s at 128K. The others stay almost flat.</p></div>
+  </div>
 </section>
 
 <section class="block" id="cache">
-  <h2 class="sec">4 · The first message is slow on every server. The next one is what you feel.</h2>
-  <p class="s-note">In an agent session, every step sends the whole conversation again: system prompt, files, earlier
-  replies and tool results, plus a small new part at the end. A server with a <b>prefix cache</b> keeps the already
-  processed part and prefills only the new tokens. Without a cache hit, the step prefills the whole prompt again.</p>
+  <h2 class="sec">3 · The cache decides the wait</h2>
+  <p class="s-note">In an agent session, every step sends the whole conversation again plus a small new part at the end.
+  A server with a <b>prefix cache</b> keeps the already processed part and prefills only the new tokens. <b>The wait is the
+  tokens that miss the cache, divided by the prefill speed.</b> No server prefilled faster than {prefill_hi} tokens/s on
+  this machine, so the scenario decides how many tokens miss. At 512K: {scale}.</p>
   <div class="explain">
     <svg viewBox="0 0 720 196" role="img" aria-label="How the prefix cache works: first message, next turn, history changes halfway">
       <g class="ex-row">
@@ -546,100 +531,62 @@ BODY = r"""
     </svg>
     <p class="ex-cap">mlx-serve at 512K. The bar lengths are schematic; the times are measured.</p>
   </div>
-  <div class="callout"><span class="c-big">{mlx_cold_512_min} min → {mlx_resume_512} s</span>
-  <span class="c-txt">At 512K, mlx-serve needs {mlx_cold_512_min} minutes to prefill the full prompt the first time. With a
-  cache hit, the next reply starts after {mlx_resume_512} s, about {cold_ratio_512}× faster. No server prefilled
-  faster than {prefill_hi} tokens/s on this machine, so the first message is slow everywhere. The cache makes the
-  difference.</span></div>
-  <p class="s-note"><b>The wait is the tokens that miss the cache, divided by the prefill speed.</b> The scenario only
-  decides how many tokens miss. On this machine at 512K: {scale}.</p>
   <div class="tbl-scroll"><table class="txt cases"><thead><tr><th>Case</th><th>Tokens prefilled again</th><th>Wait at 512K</th><th>When it happens</th></tr></thead><tbody>
-    <tr><td><b>First message</b></td><td>512K (100%)</td><td>{mlx_cold_512_min} min</td><td>A new session that already starts with 512K, or a server whose
-    cache is empty. In daily use the context grows step by step and each step prefills only the new part, so this cost is paid
-    in small parts over the session, never at once.</td></tr>
-    <tr><td><b>History changes halfway</b></td><td>~{edit_tokens_512} ({edit_pct_512}%)</td><td>{mlx_edit_512_min} min</td><td>Something before the end
-    changes: an edit of an earlier message, a compaction or summary of the history, a new system prompt or tool list, or a
-    fork of the session. The cost is the tokens after the point that changed.</td></tr>
+    <tr><td><b>First message</b></td><td>512K (100%)</td><td>{mlx_cold_512_min} min</td><td>A session that already starts with 512K, or an empty
+    cache. In daily use the context grows step by step, so this cost is paid in small parts, never at once.</td></tr>
+    <tr><td><b>History changes halfway</b></td><td>~{edit_tokens_512} ({edit_pct_512}%)</td><td>{mlx_edit_512_min} min</td><td>An edit of an earlier message,
+    a compaction, a new system prompt or tool list, or a fork. The cost is the tokens after the point that changed.</td></tr>
     <tr><td><b>Next turn</b></td><td>~{resume_tokens_512}</td><td>{mlx_resume_512} s</td><td>Every normal step: the tool result or the new message
     at the end.</td></tr>
   </tbody></table></div>
-  <p class="s-note" style="margin-top:14px"><b>Splash is the exception.</b> When the history changes halfway it reuses none of the prompt and
-  prefills all of it again. At 512K that takes {base_splash_edit_512_min} min with the base model, against {mlx_edit_512_min}
-  min on mlx-serve, and {splash_edit_512_min} min with Swift 1.5, against {swift_mlx_edit_512_min} min on mlx-serve.
-  <a href="#splash">Section 9</a> explains why.</p>
+  <p class="s-note" style="margin-top:14px"><b>Splash is the exception.</b> When the history changes halfway it reuses none of the prompt:
+  {base_splash_edit_512_min} min at 512K with the base model, against {mlx_edit_512_min} min on mlx-serve.
+  <a href="#splash">Section 5</a> explains why.</p>
   <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="wait"></div></div>
   <div class="panel big"><div id="chWait"></div>
     <div class="shape-key"><span><i class="k-cold"></i>first message (cold prefill)</span><span><i class="k-edit"></i>history changes halfway</span><span><i class="k-next"></i>next turn (cache hit)</span></div>
   </div>
   <div class="tbl-scroll"><table id="tblWait"></table></div>
-</section>
-
-<section class="block" id="reuse">
-  <h2 class="sec">5 · At long context, a 95% cache hit is not enough</h2>
-  <p class="s-note">All seven stacks have a high cache hit rate on the next turn. At 512K the part that misses can still
-  be a lot of tokens. ds4 hits {ds4_reuse_512}% and prefills about {ds4_reread_512} tokens again, so its next reply
-  starts after {ds4_resume_512} s. mlx-serve hits {mlx_reuse_512}%, prefills about {mlx_reread_512} tokens and starts
-  after {mlx_resume_512} s.</p>
+  <h3>A 95% cache hit is not enough at long context</h3>
+  <p class="s-note">All seven stacks hit the cache on the next turn. At 512K, ds4 hits {ds4_reuse_512}% and prefills about
+  {ds4_reread_512} tokens again, so its next reply starts after {ds4_resume_512} s. mlx-serve hits {mlx_reuse_512}%,
+  prefills about {mlx_reread_512} tokens and starts after {mlx_resume_512} s.</p>
   <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="reread"></div></div>
   <div class="panel big"><div id="chReread"></div></div>
   <div class="callout small"><span class="c-big">1% ≈ {sec_per_pct_512} s</span><span class="c-txt">Rule of thumb at 512K:
-  each 1% of cache miss is about {pct_tokens_512} tokens, or about {sec_per_pct_512} s of extra wait
-  on this machine. It is the same scale as in <a href="#cache">section 4</a>: tokens that miss the cache ÷ prefill speed.</span></div>
+  each 1% of cache miss is about {pct_tokens_512} tokens, or about {sec_per_pct_512} s of extra wait on this machine.</span></div>
   <div class="grid2">
     <div class="panel"><div class="p-head"><span class="p-title">TTFT on the next turn (cache hit)</span><span class="p-unit">s · lower is better</span></div><div id="chResume"></div>
     <p class="p-interp">mlx-serve stays under 4 s up to 512K. ds4 grows from {ds4_resume_128} s at 128K to {ds4_resume_512} s at 512K.</p></div>
     <div class="panel"><div class="p-head"><span class="p-title">Cache hit rate on the next turn</span><span class="p-unit">% · higher is better</span></div><div id="chReuse"></div>
-    <p class="p-interp">The lines look close, but at 512K the gap between {ds4_reuse_512}% and {mlx_reuse_512}% is about {gap_tokens_512} tokens.</p></div>
+    <p class="p-interp">At 512K the gap between {ds4_reuse_512}% and {mlx_reuse_512}% is about {gap_tokens_512} tokens.</p></div>
   </div>
-</section>
-
-<section class="block" id="scenarios">
-  <h2 class="sec">6 · Cache hit by scenario</h2>
-  <p class="s-note">Share of the prompt the server took from the cache, per scenario. <b>First message</b> is 0% by
-  design. <b>History changes halfway</b> (a fork, a compaction, an edit of an earlier message) can reuse at most the part
-  before the change, about half; Splash reuses none of it. The two scenarios an agent
-  repeats all day are <b>user adds a message</b> and <b>next turn</b>: above 90% is good.</p>
+  <h3>Cache hit by scenario</h3>
+  <p class="s-note">Share of the prompt the server took from the cache. <b>First message</b> is 0% by design. <b>History
+  changes halfway</b> can reuse at most the part before the change; Splash reuses none. The two scenarios an agent repeats
+  all day are <b>user adds a message</b> and <b>next turn</b>: above 90% is good.</p>
   <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="hits"></div></div>
   <div class="tbl-scroll"><table id="tblHits" class="heat"></table></div>
 </section>
 
-<section class="block" id="speed">
-  <h2 class="sec">7 · Tokens per second is not the whole story</h2>
-  <p class="s-note">At 128K, MTPLX decodes almost as fast as mlx-serve ({mtplx_decode_128} vs {mlx_decode_128}
-  tokens/s). Its agent turn still takes {mtplx_turn_128} s against {mlx_turn_128} s: its TTFT on the next turn is
-  {mtplx_resume_128} s, and its prefill runs at {mtplx_prefill_128} tokens/s against {mlx_prefill_128}. Compare
-  servers on turn time and cache behavior, not on decode speed alone.</p>
-  <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="scatter"></div></div>
-  <div class="panel big"><div class="p-head"><span class="p-title">Decode speed vs agent turn time</span><span class="p-unit">best = bottom right</span></div><div id="chScatter"></div></div>
-  <div class="grid2">
-    <div class="panel"><div class="p-head"><span class="p-title">Decode speed</span><span class="p-unit">tokens/s · higher is better</span></div><div id="chDecode"></div>
-    <p class="p-interp">mlx-serve: {mlx_decode_128} tokens/s at 128K, {mlx_decode_512} at 512K. ds4 stays at {ds4_decode_lo}–{ds4_decode_hi} tokens/s.
-    Splash: {base_splash_decode_128} tokens/s at 128K and {base_splash_decode_1m} at 1M with the base model,
-    {splash_decode_128} and {splash_decode_1m} with Swift 1.5.</p></div>
-    <div class="panel"><div class="p-head"><span class="p-title">Prefill speed (cold prompt)</span><span class="p-unit">tokens/s · higher is better</span></div><div id="chPrefill"></div>
-    <p class="p-interp">MTPLX drops to {mtplx_prefill_128} tokens/s at 128K. The others stay almost flat.</p></div>
-  </div>
-</section>
-
 <section class="block" id="limits">
-  <h2 class="sec">8 · What each server can serve on 128 GB</h2>
-  <p class="s-note">The model's native context is 262,144 tokens. 512K uses YaRN 2.0, a context extension that
-  oMLX does not support. 1M ran only on Splash, which turns YaRN on by itself above 262K and keeps the KV cache past
-  about 860K tokens on its SSD cache. A cell shows the agent turn time, or why that size did not run.</p>
+  <h2 class="sec">4 · Context limits and memory on 128 GB</h2>
+  <p class="s-note">The native context is 262,144 tokens. 512K uses YaRN 2.0, a context extension that oMLX does not
+  support. 1M ran only on Splash. A cell shows the agent turn time, or why that size did not run.</p>
   <div class="tbl-scroll"><table id="tblSupport"></table></div>
   <ol class="fn" id="fnSupport"></ol>
   <div class="panel big" style="margin-top:14px"><div class="p-head"><span class="p-title">Peak memory locked by the server</span><span class="p-unit">GB · of 128 GB</span></div><div id="chMem"></div>
-  <p class="p-interp">No server used swap. mlx-serve locks the KV and prefix cache in memory on purpose: {mlx_wired_min}–{mlx_wired_max} GB
-  from 32K to 512K, Splash {splash_wired_min}–{splash_wired_max} GB from 32K to 1M, with either weight file. Close other large apps before a long session.</p></div>
+  <p class="p-interp">No server used swap. mlx-serve locks {mlx_wired_min}–{mlx_wired_max} GB from 32K to 512K and Splash
+  {splash_wired_min}–{splash_wired_max} GB from 32K to 1M, against {others_wired_128_lo}–{others_wired_128_hi} GB for oMLX, MTPLX
+  and ds4 at 128K. Close other large apps before a long session.</p></div>
 </section>
 
 <section class="block" id="splash">
-  <h2 class="sec">9 · Up to 1M and the fastest decode: Splash 1.4.0</h2>
+  <h2 class="sec">5 · Splash up to 1M, and Swift 1.5</h2>
   <p class="s-note"><a href="https://github.com/incoai/splash" target="_blank" rel="noopener">Splash</a> is Inco AI's
-  inference engine on native Metal. It loads Flash-Next from a GGUF only, so I ran it with two GGUFs: the base model as
-  the unsloth UD-IQ4_XS, and the Swift 1.5 fine-tune as the ukisai IQ4_XS. The tiles and the quality table compare Swift
-  1.5 on Splash with the same fine-tune in MLX on mlx-serve 26.10.3, the stack I use every day. The two stacks differ in
-  runtime and in weight format, so the gap belongs to the stack, not to the server alone.</p>
+  inference engine on native Metal. It loads Flash-Next from a GGUF only: the base model as the unsloth UD-IQ4_XS, the
+  Swift 1.5 fine-tune as the ukisai IQ4_XS. The tiles compare Swift 1.5 on Splash with the same fine-tune in MLX on
+  mlx-serve 26.10.3, the stack I use every day. The gap belongs to the stack (runtime + weight format), not to the server alone.</p>
   <div class="tiles">
     <div class="tile"><span class="t-val">{splash_turn_256}<small> s</small></span><span class="t-lab">per agent turn at 256K, against {swift_mlx_turn_256} s on mlx-serve</span></div>
     <div class="tile"><span class="t-val">{splash_turn_512}<small> s</small></span><span class="t-lab">per agent turn at 512K, against {swift_mlx_turn_512} s on mlx-serve</span></div>
@@ -647,53 +594,33 @@ BODY = r"""
     <div class="tile"><span class="t-val">{splash_cold_1m_min}<small> min</small></span><span class="t-lab">first message at 1M, nothing cached</span></div>
   </div>
   <ul class="reads">
-    <li><b>The base model on Splash.</b> {base_splash_turn_256} s per agent turn at 256K, {base_splash_turn_512} s at
-    512K and {base_splash_turn_1m} s at 1M, against {mlx_turn_256} and {mlx_turn_512} s for the iQ pack on mlx-serve.
-    Swift 1.5 on Splash is faster again, by {splash_swift_gain_lo} to {splash_swift_gain_hi} s per turn. At 512K,
-    {base_splash_truncated_512} of {base_splash_n_512} replies of the base model reached the 4,096-token limit while it
-    was still reasoning.</li>
-    <li><b>The gain comes from decode.</b> Splash writes {splash_decode_256} tokens/s at 256K against {swift_mlx_decode_256}
-    on mlx-serve, and {splash_decode_512} against {swift_mlx_decode_512} at 512K. The first message costs the same: the cold
-    prefill runs at {splash_prefill_256} and {swift_mlx_prefill_256} tokens/s at 256K.</li>
-    <li><b>1M.</b> Above 262K Splash turns YaRN on by itself. With the 8-bit KV cache, about 860K tokens stay in memory and
-    the rest goes to its SSD cache: {splash_turn_1m} s per agent turn, {splash_resume_1m} s to start the next reply,
-    {splash_decode_1m} tokens/s, {splash_wired_1m} GB of peak memory.</li>
+    <li><b>The gain comes from decode.</b> Splash writes {splash_decode_512} tokens/s at 512K against {swift_mlx_decode_512}
+    on mlx-serve. The cold prefill costs the same ({splash_prefill_256} and {swift_mlx_prefill_256} tokens/s at 256K).
+    At 512K, {base_splash_truncated_512} of {base_splash_n_512} replies of the base model reached the 4,096-token limit while
+    still reasoning.</li>
+    <li><b>1M.</b> Above 262K Splash turns YaRN on by itself and keeps the KV cache past about 860K tokens on its SSD:
+    {splash_turn_1m} s per agent turn, {splash_resume_1m} s to start the next reply, {splash_wired_1m} GB of peak memory.
+    YaRN is static above 262K and applies to every prompt, so use the 512K or 1M setting only when the context needs it.</li>
     <li><b>A change halfway costs the whole prompt.</b> Flash-Next is a hybrid model: some layers carry a recurrent state
-    that cannot be rolled back, and Splash saves that state only where a request ends. An edit of an earlier message, a
-    compaction, a retried turn or a fork before that point reuses none of the prompt, against
-    {swift_mlx_reuse_edit_512}% on mlx-serve at 512K: {splash_edit_512_min} min at 512K and {splash_edit_1m_min} min at 1M
+    that cannot be rolled back, and Splash saves that state only where a request ends. An edit, a compaction, a retried
+    turn or a fork reuses none of the prompt, against {swift_mlx_reuse_edit_512}% on mlx-serve at 512K:
+    {splash_edit_512_min} min at 512K and {splash_edit_1m_min} min at 1M
     (<a href="https://github.com/incoai/splash/issues/387" target="_blank" rel="noopener">splash #387</a>,
     <a href="https://github.com/incoai/splash/issues/361" target="_blank" rel="noopener">#361</a>).</li>
-    <li><b>mlx-serve at 1M.</b> With YaRN 3.815 and the 4-bit KV cache, mlx-serve 26.10.3 starts at 1M and serves the
-    first message ({mlx_cold_1m_min} min), but the next requests fail with <code>PrefillDoesNotFit</code>: they need
-    about 18 GB for the prefill, and 7 to 9 GB are free. 2 of 5 requests failed with Swift 1.5 and 3 of 5 with the iQ
-    pack, so the page has no 1M turn time for mlx-serve.</li>
-    <li><b>YaRN changes short answers too.</b> Above 262K the context extension is static, so it applies to every prompt.
-    Use the 512K or 1M setting only when the context needs it.</li>
   </ul>
   <h3 id="samebuild">iQ-MLX and Swift 1.5 on the same mlx-serve build</h3>
-  <p class="s-note">Agent turn time and decode speed, same flags. Up to 128K the two quants tie on 26.10.3. Past
-  128K, Swift 1.5 is faster: {sb_turn_w1_256} s against {sb_turn_n3_256} s at 256K, and {sb_turn_w1_512} s against
+  <p class="s-note">Up to 128K the two quants tie on 26.10.3. Past 128K, Swift 1.5 is faster: {sb_turn_w1_512} s against
   {sb_turn_n3_512} s at 512K. The iQ pack lost decode speed from 26.10.1 to 26.10.3, while Swift 1.5 gained.</p>
   <div class="tbl-scroll">__SAME_BUILD__</div>
   <p class="foot-note">3 runs per cell, except {sb_one_run}: 1 run. 512K uses YaRN 2.0 and the 4-bit KV cache on both builds.</p>
-  <h3>Quality of Swift 1.5: within the noise of mlx-serve, up to 1M</h3>
-  <div class="tbl-scroll">__SPLASH_QUALITY__</div>
-  <p class="foot-note">One run per cell, vendor sampling, reasoning effort xhigh; each column starts the server at that
-  context size. HumanEval ran twice at 262K and 1M on Splash: two runs of the same setup differ by 4 to 6 questions, so
-  the 1M result is within the noise. I did not run this check for the base model on Splash. Long-context recall: 8 questions about a document filled to the server's size. Tool
-  calls A and B as in <a href="#quality">section 12</a>.</p>
-  <h3>Run it</h3>
-  <p class="s-note">Download <a href="https://huggingface.co/ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF" target="_blank" rel="noopener">ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF</a>
-  (IQ4_XS, 98 GB). This is the 1M setting; for 256K or 512K, set <code>--max-context</code> to 262144 or 524288 (I
-  measured all three). Splash picks the DFlash2 draft model and the 8-bit KV cache by itself.</p>
-  <div class="cmds"><div class="cmd">
-      <p class="cmd-lab">Splash 1.4.0, Swift 1.5 IQ4_XS, 1M</p>
-<pre><code>__SPLASH_COMMAND__</code></pre>
-    </div><div class="cmd">
-      <p class="cmd-lab">Splash 1.4.0, base model UD-IQ4_XS (unsloth, 94 GB), 1M</p>
-<pre><code>__SPLASH_BASE_CMD__</code></pre>
-    </div></div>
+  <h3>Swift 1.5 thinks less and scores the same</h3>
+  <p class="s-note">Swift 1.5 is a community fine-tune that thinks less before it answers. On mlx-serve it scored the same
+  as the base quant within the noise of these samples and reached the final answer {swift_gpqa_x}× faster on GPQA and
+  {swift_lcb_x}× faster on LiveCodeBench. Its agent turn time is the same, because prefill and the cache do not change.</p>
+  <div class="panel big"><div class="p-head"><span class="p-title">Median time to the final answer</span><span class="p-unit">s per question · lower is better</span></div><div id="chSwift"></div></div>
+  <p class="foot-note">Vendor sampling, reasoning effort xhigh, one run per model. Base: ddalcu iQ-MLX 4.7 bpw. Swift 1.5:
+  <a href="https://huggingface.co/Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw" target="_blank" rel="noopener">Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw</a>.
+  The two packs also have different n-gram tables, so the comparison is between the packs, not only the fine-tune.</p>
 </section>
 
 <section class="verdict" id="conclusion" aria-labelledby="v-title">
@@ -701,14 +628,12 @@ BODY = r"""
     <p class="kicker">Conclusion</p>
     <h2 id="v-title">Use <b>Splash 1.4.0</b> with the <b>unsloth UD-IQ4_XS</b> GGUF for the shortest agent turn.
     Use <b>mlx-serve 26.10.3</b> with the <b>ddalcu iQ-MLX 4.7 bpw</b> quant when the history changes often.</h2>
-    <p>Among the five servers that run the base model, Splash had the shortest agent turn at every context size, from 8K
-    to 1M, and it is the only one that served 1M. The cost is the cache: a change halfway in the history (an edit of an
-    earlier message, a compaction, a fork) prefills the whole prompt again, {base_splash_edit_512_min} min at 512K against
-    {mlx_edit_512_min} min on mlx-serve. I did not check the quality of the base model on Splash. mlx-serve leads the MLX
-    servers, and the runner-up among them is <b>oMLX 0.7.0</b> ({omlx_turn_128} s at 128K), but it stops at 256K.
-    <a href="#run">Commands below.</a> With Swift 1.5, Splash is faster again ({splash_turn_512} s at 512K, {splash_turn_1m} s
-    at 1M, <a href="#splash">section 9</a>). On mlx-serve 26.10.3 the iQ pack is slower past 128K, and Swift 1.5 is the faster
-    quant there (<a href="#samebuild">same-build table</a>).</p>
+    <p>Splash had the shortest agent turn at every context size, from 8K to 1M, and it is the only server that served 1M.
+    The cost is the cache: a change halfway in the history prefills the whole prompt again, {base_splash_edit_512_min} min
+    at 512K against {mlx_edit_512_min} min on mlx-serve. I did not check the quality of the base model on Splash. Among
+    the MLX servers the runner-up is <b>oMLX 0.7.0</b> ({omlx_turn_128} s at 128K), but it stops at 256K. With Swift 1.5,
+    Splash is faster again ({splash_turn_512} s at 512K, {splash_turn_1m} s at 1M), and on mlx-serve 26.10.3 Swift 1.5 is
+    the faster quant past 128K (<a href="#samebuild">same-build table</a>).</p>
   </div>
   <div class="tiles">
     <div class="tile"><span class="t-val">{base_splash_turn_128}<small> s</small></span><span class="t-lab">per agent turn at 128K on Splash, against {mlx_turn_128} s on mlx-serve</span></div>
@@ -719,79 +644,80 @@ BODY = r"""
 </section>
 
 <section class="block" id="run">
-  <h2 class="sec">10 · Run it yourself</h2>
+  <h2 class="sec">6 · Run it yourself</h2>
+  <p class="s-note">These are the flags I measured. The data, the prompt generator and the scripts behind this page are in the
+  <a href="https://github.com/snagnever/macstudio-local-llm" target="_blank" rel="noopener">repository</a>.</p>
+  <h3>Splash 1.4.0</h3>
+  <p class="s-note">Download <a href="https://huggingface.co/unsloth/Qwen3.8-Flash-Next-GGUF" target="_blank" rel="noopener">unsloth/Qwen3.8-Flash-Next-GGUF</a>
+  (UD-IQ4_XS, 94 GB) or <a href="https://huggingface.co/ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF" target="_blank" rel="noopener">ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF</a>
+  (IQ4_XS, 98 GB). This is the 1M setting; for 256K or 512K, set <code>--max-context</code> to 262144 or 524288.
+  Splash picks the DFlash2 draft model and the 8-bit KV cache by itself.</p>
+  <div class="cmds"><div class="cmd">
+      <p class="cmd-lab">Splash 1.4.0, base model UD-IQ4_XS, 1M</p>
+<pre><code>__SPLASH_BASE_CMD__</code></pre>
+    </div><div class="cmd">
+      <p class="cmd-lab">Splash 1.4.0, Swift 1.5 IQ4_XS, 1M</p>
+<pre><code>__SPLASH_COMMAND__</code></pre>
+    </div></div>
+  <h3>mlx-serve 26.10.3</h3>
   <p class="s-note">Download <a href="https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw" target="_blank" rel="noopener">ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw</a>
-  (107 GB) and <a href="https://github.com/ddalcu/mlx-serve" target="_blank" rel="noopener">mlx-serve 26.10.3</a>. These are the
-  flags I measured. The Splash commands are in <a href="#splash">section 9</a>. The server exposes OpenAI and Anthropic compatible endpoints. The data, the prompt generator and
-  the scripts behind this page are in the <a href="https://github.com/snagnever/macstudio-local-llm" target="_blank" rel="noopener">repository</a>.</p>
+  (107 GB) and <a href="https://github.com/ddalcu/mlx-serve" target="_blank" rel="noopener">mlx-serve 26.10.3</a>, which exposes
+  OpenAI and Anthropic compatible endpoints. The prefix
+  cache flags matter: with the default 2 GB cache, a 128K session read the whole prompt again on every turn. For 512K, use the
+  4-bit KV cache; with 8-bit, some long prompts did not fit in memory.</p>
   <div class="cmds">__COMMANDS__</div>
-  <ul class="reads">
-    <li>The prefix cache flags matter. In my September test (mlx-serve 26.9.1), the default 2 GB cache could not hold a
-    128K session, and every turn read the whole prompt again.</li>
-    <li>For 512K, use the 4-bit KV cache. With 8-bit, some long prompts were refused because they did not fit in memory.</li>
-  </ul>
-</section>
-
-<section class="block" id="tips">
-  <h2 class="sec">11 · Tips for daily use</h2>
+  <h3>Tips for daily use</h3>
   <ul class="tips">
     <li><b>Keep the start of the prompt stable.</b> System prompt, tool list and project rules come first. A change
     there invalidates the cache for everything after it.</li>
-    <li><b>Add to the end; avoid changes earlier in the history.</b> At 512K, a change halfway (a fork, a compaction, an edit of
-    an earlier message) costs {mlx_edit_512_min} min on mlx-serve, because ~{edit_tokens_512} tokens are prefilled again, and
-    {base_splash_edit_512_min} min on Splash, which prefills the whole prompt. A new message at the end costs seconds.</li>
-    <li><b>The first load is paid in parts.</b> Prefilling a cold 128K prompt takes about {mlx_cold_128_min} min, 512K about
-    {mlx_cold_512_min} min, but only a session that starts that large pays it at once. In daily use the context grows step by
-    step and each step prefills only the new part. Keep working in the same session.</li>
-    <li><b>Leave memory headroom.</b> mlx-serve locks {mlx_wired_min}–{mlx_wired_max} GB from 32K to 512K.</li>
-    <li><b>Use the context you need.</b> The turn grows from {mlx_turn_128} s at 128K to {mlx_turn_512} s at 512K, and 512K
-    needs the 4-bit KV cache.</li>
+    <li><b>Add to the end.</b> A new message at the end costs seconds. A fork, a compaction or an edit of an earlier
+    message costs minutes (<a href="#cache">section 3</a>).</li>
+    <li><b>Keep working in the same session.</b> The context grows step by step and each step prefills only the new part.
+    Only a session that starts large pays the cold prefill at once.</li>
+    <li><b>Use the context you need.</b> The turn grows with the context size, and 512K needs the 4-bit KV cache on mlx-serve.
+    Leave memory headroom: both servers lock over 100 GB.</li>
   </ul>
 </section>
 
 <section class="block" id="quality">
-  <h2 class="sec">12 · Quality sanity check</h2>
-  <p class="s-note">Does a server or quant break the model? Not in these runs: the three servers I checked are within
-  a few cases of each other. One run per server, on different dates, with a small sample. Read it as a sanity check,
-  not as a ranking. ds4 and Splash with the base model were not checked.</p>
+  <h2 class="sec">7 · Quality sanity check</h2>
+  <p class="s-note">Does a server or quant break the model? Not in these runs: the stacks I checked are within a few cases
+  of each other. One run per cell, on different dates, with a small sample. Read it as a sanity check, not as a ranking.
+  ds4 and Splash with the base model were not checked.</p>
   <div class="panel big"><div id="chQuality"></div></div>
   <p class="foot-note">HumanEval with the prompt's import lines added before the answer. LiveCodeBench v6: 50 questions
-  (seed 42), graded with the official import lines. Tool calls A = jdhodges tool-call
-  test; tool calls B = Veerman tool-call test. mlx-serve: 2026-10-11 run on 26.10.1 with reasoning effort xhigh; oMLX and MTPLX
-  (with --memory-limit max): 2026-10-09 runs. The 2026-10-09 runs had no LiveCodeBench: the oMLX bar comes from a
-  2026-10-15 run of the same pack on oMLX 0.7.1.dev1, and MTPLX was not measured.</p>
-</section>
-
-<section class="block" id="swift">
-  <h2 class="sec">13 · Bonus: Swift 1.5, a fine-tune on the same stack</h2>
-  <p class="s-note">Swift 1.5 is a community fine-tune of Qwen3.8-Flash-Next that thinks less before it answers. I ran
-  it on the same mlx-serve setup. It scored the same as the base quant within the noise of these samples, and it reached
-  the final answer {swift_gpqa_x}× faster on GPQA and {swift_lcb_x}× faster on LiveCodeBench. Its agent turn time is the
-  same, because prefill and the cache do not change. I now use it every day.</p>
-  <div class="panel big"><div class="p-head"><span class="p-title">Median time to the final answer</span><span class="p-unit">s per question · lower is better</span></div><div id="chSwift"></div></div>
-  <p class="foot-note">Vendor sampling, reasoning effort xhigh, one run per model. Base: ddalcu iQ-MLX 4.7 bpw. Swift 1.5:
-  <a href="https://huggingface.co/Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw" target="_blank" rel="noopener">Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw</a>.
-  The two packs also have different n-gram tables, so the comparison is between the packs, not only the fine-tune.</p>
+  (seed 42), graded with the official import lines. Tool calls A = jdhodges tool-call test; tool calls B = Veerman
+  tool-call test. mlx-serve: 2026-10-11 run on 26.10.1; oMLX and MTPLX (with --memory-limit max): 2026-10-09 runs. The
+  oMLX LiveCodeBench bar comes from a 2026-10-15 run of the same pack on oMLX 0.7.1.dev1; MTPLX was not measured.</p>
+  <h3>Swift 1.5 on Splash, up to 1M</h3>
+  <div class="tbl-scroll">__SPLASH_QUALITY__</div>
+  <p class="foot-note">One run per cell, vendor sampling, reasoning effort xhigh; each column starts the server at that
+  context size. HumanEval ran twice at 262K and 1M on Splash: two runs of the same setup differ by 4 to 6 questions, so
+  the 1M result is within the noise. Long-context recall: 8 questions about a document filled to the server's size.</p>
 </section>
 
 <section class="block" id="method">
-  <h2 class="sec">14 · How I measured</h2>
+  <h2 class="sec">8 · How I measured</h2>
   <dl class="method">
     <dt>Test prompt</dt><dd>A long audit document filled to the target size, with three facts hidden at 10%, 50% and
     90% of the text. A reply is correct when it finds all three.</dd>
     <dt>Scenarios</dt><dd><b>First message</b>: the full prompt, no cache (cold prefill). <b>Next turn</b>: the same prompt plus a tool
     result at the end. <b>User adds a message</b>: the same prompt plus a new user message. <b>History changes halfway</b>:
-    the prompt changes at its midpoint, so only the first half can be a cache hit. This is what a fork, a compaction or an
-    edit of an earlier message does to the cache.</dd>
+    the prompt changes at its midpoint, so only the first half can be a cache hit.</dd>
     <dt>Agent turn time</dt><dd>TTFT on the next turn + 512 ÷ median decode speed. It is the wait
     for one agent step with a 512-token reply.</dd>
     <dt>Runs</dt><dd>One to three runs per point; the "Runs" column of the last table gives the number. A point with
     three runs shows the median.</dd>
-    <dt>Speculative decoding (MTP)</dt><dd>The model has a small extra head that drafts the next tokens; the server
-    checks them in one pass. Output stays the same, decode gets faster.</dd>
+    <dt>Speculative decoding</dt><dd>The MLX servers and ds4 use the model's MTP head, a small extra head that drafts the
+    next tokens; Splash uses a separate draft model (DFlash2). Output stays the same, decode gets faster.</dd>
     <dt>YaRN</dt><dd>A method that stretches the model's position encoding beyond its native 262K tokens.</dd>
     <dt>Harness</dt><dd>A script sends each scenario to the server's HTTP API and reads the timings from the stream.
     No coding agent sits in the loop.</dd>
+    <dt>Which servers, when</dt><dd>In October 2026 mlx-serve, oMLX, MTPLX and ds4 were the servers that ran Flash-Next on
+    Apple Silicon with MTP and a prefix cache, each on its newest release (2026-10-07 to 2026-10-15). mlx-dspark 0.20.3 ran
+    at 32K only and behind these four; llama.cpp, LM Studio and mlx-vlm were not measured. Splash 1.4.0 and Swift 1.5 on
+    mlx-serve 26.10.3 ran from 2026-10-23 to 2026-10-25. On 2026-10-27 I ran the iQ pack again on 26.10.3, so both
+    mlx-serve stacks on this page run the same build; the <a href="#samebuild">same-build table</a> keeps 26.10.1 too.</dd>
     <dt>Data and scripts</dt><dd>The raw results, the prompt generator and this page's script are in the
     <a href="https://github.com/snagnever/macstudio-local-llm" target="_blank" rel="noopener">repository</a>
     (<code>bench/engine-updates-2026-10</code>, <code>bench/swift15-flashnext-2026-10</code>,
@@ -801,12 +727,9 @@ BODY = r"""
   <ul class="reads">
     <li><b>Agent reliability over many turns.</b> Speed, cache and memory only. Test your own agent workload before
     you choose.</li>
-    <li><b>Other chips.</b> Numbers from an M5 Max or an M3 Ultra do not transfer to this M4 Max, and the reverse is
-    also true.</li>
-    <li><b>Power draw and fan noise.</b></li>
-    <li><b>Several requests at once.</b> Every run sent one request at a time.</li>
-    <li><b>The quality of ds4.</b> Only the three MLX servers of the October round (<a href="#quality">section 12</a>) and
-    Swift 1.5 on Splash and mlx-serve 26.10.3 (<a href="#splash">section 9</a>) went through a quality check.</li>
+    <li><b>Other chips.</b> Numbers from an M5 Max or an M3 Ultra do not transfer to this M4 Max.</li>
+    <li><b>Power draw, fan noise, and several requests at once.</b> Every run sent one request at a time.</li>
+    <li><b>The quality of ds4 and of the base model on Splash</b> (<a href="#quality">section 7</a>).</li>
   </ul>
   <h3>Setup notes</h3>
   <ul class="reads">
@@ -815,11 +738,12 @@ BODY = r"""
     sends a 64-token warm-up first.</li>
     <li><b>Splash.</b> It refuses Flash-Next in MLX format, so it cannot run the same file as mlx-serve. Clients must send
     <code>frequency_penalty</code> 0, as with mlx-serve 26.10.3: with 1, the tool-call test failed on both servers.</li>
+    <li><b>mlx-serve at 1M.</b> With YaRN 3.815 and the 4-bit KV cache, mlx-serve 26.10.3 serves the first message
+    ({mlx_cold_1m_min} min), but the next requests fail with <code>PrefillDoesNotFit</code>: they need about 18 GB for the
+    prefill, and 7 to 9 GB are free. 2 of 5 requests failed with Swift 1.5 and 3 of 5 with the iQ pack, so the page has no
+    1M turn time for mlx-serve.</li>
   </ul>
-</section>
-
-<section class="block" id="data">
-  <h2 class="sec">15 · All values</h2>
+  <h3 id="data">All values</h3>
   <p class="s-note">One row per server and context size. Times in seconds (TTFT = time to first token). Decode and
   prefill in tokens/s, memory in GB.</p>
   <div class="tbl-scroll"><table id="tblAll"></table></div>
