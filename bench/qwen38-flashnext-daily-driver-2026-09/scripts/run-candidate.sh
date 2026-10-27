@@ -19,7 +19,7 @@
 #   flashnext-concurrency-2026-10: w1c1..w1c2m4q8 = w1 with --max-concurrent N and N parallel probe streams
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1c1|w1c1a|w1c1x2|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8|w1c2ap3|w1c2ap5|w1c3a|w1z|n2z|t6z|k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|w1zq4|r1zy|r1|r1z> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1c1|w1c1a|w1c1x2|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8|w1c2ap3|w1c2ap5|w1c3a|w1z|n2z|t6z|k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|k3r|w1zq4|r1zy|r1|r1z> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
 # A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
@@ -80,6 +80,7 @@ MLXSERVE_26103="$OPT/mlx-serve-v26.10.3/mlx-serve"
 OMLX_072="$OPT/omlx-v0.7.2"
 SPLASH_140="$OPT/splash-v1.4.0/bin/splash"
 SPLASH_MAIN="$OPT/splash-main-3135ab4/bin/splash"
+SPLASH_141="$OPT/splash-v1.4.1/bin/splash"
 pack_dir() {
   local m=("$MODEL_ROOT/$1"*)
   if [[ -e "${m[0]}" ]]; then echo "${m[0]}"; else echo "$MODEL_ROOT/$1-MISSING"; fi
@@ -440,7 +441,7 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         export QWEN38_MLX_CONFIG_OVERRIDES="{\"text_config\":{\"rope_parameters\":{\"rope_type\":\"yarn\",\"factor\":${YARN},\"original_max_position_embeddings\":262144},\"max_position_embeddings\":${CTX}}}"
         REV="${REV}-yarn${YARN}-kv4"
       fi ;;
-  k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma)
+  k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|k3r)
       # stack-updates-2026-10: Splash 1.4.0 serving a Flash-Next GGUF with the DFlash2 draft Splash selects.
       # k1/k1a = unsloth UD-IQ4_XS at 766911a (Flash-Next base); k2/k2a = UkisAI Swift 1.5 IQ4_XS at 0142554 (the
       # w1 weights in GGUF, gated repo). No "a" = --verify-rows all (reproducible), "a" = auto (the 1.4.0 default).
@@ -451,6 +452,7 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       # GSQ-RCO-Coder IQ1_M at bba8885 (256 of 512 experts). Splash 1.4.0 refuses it ("expert_count 256 (expected
       # 512)", incoai/splash#527); the fix #561 is on main, not in a release. k3ma = k3a on a package built from
       # main 3135ab4 (version 1.4.0-main-3135ab4; run-splash checks only its x.y.z part, so the path tells them apart).
+      # k3r = k3a on the Splash 1.4.1 release (2026-10-26), the first release with #561.
       # k2m = k2a's flags on the w1 weights (Dankpaws Swift 1.5 MLX 4.7bpw, affine 4-bit g64): Splash takes only a Hub
       # ID, so the HF cache holds a snapshot of symlinks to the local pack, read with --offline.
       LAUNCHER="$HARNESS/run-splash.sh"; ARM=KF; PORT=8585; RUNTIME=splash
@@ -467,11 +469,12 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       KVF=""; REVX=""
       [[ "$CAND" == *b ]] && { KVF=" --kv-format bf16"; REVX="-kv-bf16"; }
       [[ "$CAND" == *s ]] && { KVF=" --state-format bf16"; REVX="-state-bf16"; }
-      SBIN="$SPLASH_140"; SREV=v1.4.0
+      SBIN="$SPLASH_140"; SREV=v1.4.0; SVER=1.4.0
       [[ "$CAND" == k3ma ]] && { SBIN="$SPLASH_MAIN"; SREV=v1.4.0-main-3135ab4; }
+      [[ "$CAND" == k3r ]] && { SBIN="$SPLASH_141"; SREV=v1.4.1; SVER=1.4.1; }
       REV="$SREV-verify-$VR$REVX"
       export SPLASH_MODEL="$MODEL_ID_PREF" SPLASH_REVISION="$MODEL_REV" QWEN38_CTX_SIZE="$CTX"
-      export QWEN38_SPLASH_BIN="$SBIN" QWEN38_SPLASH_EXPECTED_VERSION=1.4.0 QWEN38_SPLASH_PORT=8585
+      export QWEN38_SPLASH_BIN="$SBIN" QWEN38_SPLASH_EXPECTED_VERSION="$SVER" QWEN38_SPLASH_PORT=8585
       export QWEN38_SPLASH_EXTRA_ARGS="--verify-rows $VR$KVF"
       unset SPLASH_DRAFTER ;;
   r1)

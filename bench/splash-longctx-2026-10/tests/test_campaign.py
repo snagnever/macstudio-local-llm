@@ -48,6 +48,12 @@ def test_k3ma_is_k3a_on_the_main_build():
     assert server(out).replace("splash-main-3135ab4", "BIN") == server(show("k3a")).replace("splash-v1.4.0", "BIN")
 
 
+def test_k3r_is_k3a_on_the_1_4_1_release():
+    out = show("k3r")
+    assert "--runtime-revision v1.4.1-verify-auto " in out and "splash-v1.4.1/bin/splash" in out
+    assert server(out).replace("splash-v1.4.1", "BIN") == server(show("k3a")).replace("splash-v1.4.0", "BIN")
+
+
 def test_k2m_is_k2a_with_the_swift_mlx_pack():
     out = show("k2m")
     k2m = server(out)
@@ -187,6 +193,14 @@ def test_run_tasks_t5m_gsq_on_the_splash_main_build():
     out = tasks("t5m")
     assert "k3ma:8192:3:lc k3ma:262144:3:lc" in out and "idle-gate.sh" in out
     assert "run-battery.sh" not in out and "longctx-arm.sh" not in out
+
+
+def test_run_tasks_t5r_gsq_speed_and_battery_on_splash_1_4_1():
+    out = tasks("t5r")
+    bands = out.index("k3r:8192:3:lc k3r:262144:3:lc")
+    battery = out.index("run-battery.sh k3r q262 --ctx 262144")
+    assert bands < battery and "idle-gate.sh" in out
+    assert "longctx-arm.sh" not in out and "toolcall-probe.sh" not in out
 
 
 def test_run_tasks_t5x_loads_k2m_at_32k_before_its_bands():

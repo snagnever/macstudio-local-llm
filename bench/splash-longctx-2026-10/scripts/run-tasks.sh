@@ -10,11 +10,13 @@
 #   t5   Task 5, GSQ-RCO-Coder on mlx-serve: r1z at 8K and 256K (3 reps), r1zy at 512K (3) and 1M (1),
 #        battery and tool calls of r1z at 262144, longctx of r1zy at 524288 and 1000000.
 #   t5m  GSQ-RCO-Coder on a Splash package built from main 3135ab4 (it holds #561): k3ma at 8K and 256K (3 reps).
+#   t5r  GSQ-RCO-Coder on the Splash 1.4.1 release (the first with #561): k3r at 8K and 256K (3 reps) and the
+#        battery at 262144.
 #   t5x  Swift 1.5 MLX 4.7bpw (the w1z weights) on Splash 1.4.0: k2m loads at 32768 (cold, 1 rep); only if it
 #        loads, its 8K and 256K bands (3 reps).
 # The 32K and 128K bands of k1a, k2a and w1z come from bench/stack-updates-2026-10 (Tasks 1, 5 and 8).
 # A failing arm does not stop the queue (run-seq.sh prints its exit code). Lines "=== task <t> done" mark the end.
-# usage: [K3=1] [SW=k2a|k2ab|k2as] run-tasks.sh <t1|t2a|t2b|t3|t4|t5|t5m|t5x> [...] [--dry-run]
+# usage: [K3=1] [SW=k2a|k2ab|k2as] run-tasks.sh <t1|t2a|t2b|t3|t4|t5|t5m|t5r|t5x> [...] [--dry-run]
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GATE="$HERE/../flashnext-next-steps-2026-10/scripts/idle-gate.sh"
@@ -29,11 +31,11 @@ DRY=""; TASKS=()
 for a in "$@"; do
   case "$a" in
     --dry-run) DRY=1 ;;
-    t1|t2a|t2b|t3|t4|t5|t5m|t5x) TASKS+=("$a") ;;
-    *) echo "usage: $0 <t1|t2a|t2b|t3|t4|t5|t5m|t5x> [...] [--dry-run]" >&2; exit 64 ;;
+    t1|t2a|t2b|t3|t4|t5|t5m|t5r|t5x) TASKS+=("$a") ;;
+    *) echo "usage: $0 <t1|t2a|t2b|t3|t4|t5|t5m|t5r|t5x> [...] [--dry-run]" >&2; exit 64 ;;
   esac
 done
-[[ ${#TASKS[@]} -gt 0 ]] || { echo "usage: $0 <t1|t2a|t2b|t3|t4|t5|t5m|t5x> [...] [--dry-run]" >&2; exit 64; }
+[[ ${#TASKS[@]} -gt 0 ]] || { echo "usage: $0 <t1|t2a|t2b|t3|t4|t5|t5m|t5r|t5x> [...] [--dry-run]" >&2; exit 64; }
 [[ "$SW" =~ ^k2a(b|s)?$ ]] || { echo "run-tasks: SW must be k2a, k2ab or k2as" >&2; exit 64; }
 K3ARM=k3a; [[ "$SW" == k2ab ]] && K3ARM=k3ab
 
@@ -66,6 +68,9 @@ for t in "${TASKS[@]}"; do
         longctx r1z 262144 131072 262144 ;;
     # Speed only, against r1z (user decision, 2026-10-25): the official release with #561 has not shipped.
     t5m) gate; run bash "$SEQ" k3ma:8192:3:lc k3ma:262144:3:lc ;;
+    # Speed and quality on the official release (user request, 2026-10-27).
+    t5r) gate; run bash "$SEQ" k3r:8192:3:lc k3r:262144:3:lc
+        battery k3r q262 262144 ;;
     # The README lists no MLX target for Flash-Next (user request, 2026-10-25): a failed load skips the bands.
     t5x) gate
         if run bash "$RUN_ARM" k2m 32768 --scenarios cold --repeat 1 --tag load; then
