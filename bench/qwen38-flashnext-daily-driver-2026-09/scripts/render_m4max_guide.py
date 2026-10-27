@@ -76,13 +76,13 @@ STACKS = [
      "repo": "https://github.com/incoai/splash", "disk": "94 GB",
      "cache": "RAM (8-bit KV cache) + SSD (32 GiB)", "spec": "DFlash2 draft model",
      "max": "1M (YaRN, the KV past ~860K tokens on SSD)", "max_ctx": 1000000},
-    {"id": "k2", "name": "Swift 1.5 on Splash 1.4.0", "short": "Swift Splash", "cv": "--s6", "marker": "hexagon",
+    {"id": "k2", "name": "Splash 1.4.0 / Swift 1.5", "short": "Splash/Swift", "cv": "--s6", "marker": "hexagon",
      "about": "Inco AI's native Metal engine, GGUF weights only",
      "quant": "ukisai Swift 1.5 IQ4_XS GGUF", "model": "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF",
      "repo": "https://github.com/incoai/splash", "disk": "98 GB",
      "cache": "RAM (8-bit KV cache) + SSD (32 GiB)", "spec": "DFlash2 draft model",
      "max": "1M (YaRN, the KV past ~860K tokens on SSD)", "max_ctx": 1000000},
-    {"id": "w1", "name": "Swift 1.5 on mlx-serve 26.10.3", "short": "Swift MLX", "cv": "--s5", "marker": "invtriangle",
+    {"id": "w1", "name": "mlx-serve 26.10.3 / Swift 1.5", "short": "mlx-serve/Swift", "cv": "--s5", "marker": "invtriangle",
      "about": "my daily driver: the Swift 1.5 fine-tune in MLX",
      "quant": "Dankpaws Swift 1.5 MLX 4.7 bpw", "model": "Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw",
      "repo": "https://github.com/ddalcu/mlx-serve", "disk": "99 GB",
@@ -1431,7 +1431,7 @@ function glance(c){
     const get = s => m.static ? s.max_ctx : val(s.id, c, m.key);
     const vs = STACKS.map(get).filter(v => v != null);
     const best = m.better === "low" ? Math.min(...vs) : Math.max(...vs);
-    const W = 360, rowH = 30, MT = 6, ML = 78, MR = 70;
+    const W = 360, rowH = 30, MT = 6, ML = 104, MR = 70;
     const H = MT + rowH * STACKS.length + 4, x0 = ML, x1 = W - MR;
     const top = Math.max(...vs) * 1.02;
     const panel = document.createElement("div"); panel.className = "panel";
@@ -1623,10 +1623,10 @@ def render_card(data: dict, swift: dict) -> str:
     bars = ""
     for i, (s, t) in enumerate(turns):
         y = 32 + i * 33
-        w = 440 * t / top
+        w = 400 * t / top
         bars += (f'<text x="0" y="{y + 18}" class="lab">{s["short"]}</text>'
-                 f'<rect x="150" y="{y}" width="{w:.0f}" height="24" rx="5" fill="{CARD_COLORS[s["id"]]}"/>'
-                 f'<text x="{150 + w + 12:.0f}" y="{y + 18}" class="val">{t:.1f} s{" ★" if t == best else ""}</text>')
+                 f'<rect x="185" y="{y}" width="{w:.0f}" height="24" rx="5" fill="{CARD_COLORS[s["id"]]}"/>'
+                 f'<text x="{185 + w + 12:.0f}" y="{y + 18}" class="val">{t:.1f} s{" ★" if t == best else ""}</text>')
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>Card</title>
 <style>
