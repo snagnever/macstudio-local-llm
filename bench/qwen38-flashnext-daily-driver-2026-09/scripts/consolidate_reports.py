@@ -426,10 +426,15 @@ MTPLX_PRIME1_TAGS = {"fn", "smoke", "gate"}
 # splash-longctx-2026-10: Swift 1.5 on mlx-serve 26.10.3 (w1), on Splash 1.4.0 (k2), the Flash-Next base on Splash
 # (k1), the GSQ-RCO-Coder on mlx-serve (g1) and its IQ1_M GGUF on a Splash build from main 3135ab4 (g2: k3ma; the
 # 1.4.0 release refuses that GGUF). Only the speed tags of each campaign count: smoke, hold, q-* (battery) and
-# toolcall runs are not probe bands. lc2 is the second k2a rep at 1M (Etapa 3).
-SERIES_ARMS_SPLASH = {"w1z": "w1", "w1zq4": "w1", "k2a": "k2", "k2ab": "k2", "k2as": "k2", "k1a": "k1",
+# toolcall runs are not probe bands. lc2 is the second k2a rep at 1M (Etapa 3). n3 = the n2 iQ pack on 26.10.3
+# (t6, 2026-10-27), so iQ and Swift share one mlx-serve build.
+SERIES_ARMS_SPLASH = {"w1z": "w1", "w1zq4": "w1", "n2z": "n3", "n2zq4": "n3", "k2a": "k2", "k2ab": "k2", "k2as": "k2", "k1a": "k1",
                       "r1z": "g1", "r1zy": "g1", "k3ma": "g2"}
 SPLASH_TAGS = {"stack-updates-2026-10": {"e1", "e5", "e8", "e9"}, "splash-longctx-2026-10": {"lc", "lc2", "sw"}}
+# t7 (2026-10-27): mlx-serve 26.10.3 loads 1000000 with YaRN 3.815 + KV 4-bit and serves the cold prompt, but 2 of
+# 5 (w1zq4) and 3 of 5 (n2zq4) requests fail with PrefillDoesNotFit. These runs have no T_turn, so they stay out
+# of the series; the pages show the reason (MLX_SERVE_1M).
+SPLASH_SKIP = {("w1zq4", 1000000), ("n2zq4", 1000000)}
 
 CANDIDATES_2026_10 = [
     {"id": "n2", "name": "ddalcu iQ-MLX-4.7bpw · mlx-serve 26.10.1", "short": "n2 mlx-serve",
@@ -476,9 +481,22 @@ CANDIDATES_SPLASH = [
      "model": "Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw", "revision": "13839b7",
      "quant": "MLX 4.7 bpw", "bpw": 4.7, "disk_gb": 99.0, "port": 11234,
      "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
-     "spec": "native MTP", "ceiling": "512K with YaRN 2.0 + KV 4-bit (no 1M)", "state": "pass", "status": "daily driver",
+     "spec": "native MTP",
+     "ceiling": "512K with YaRN 2.0 + KV 4-bit (1M loads, but 2 of 5 requests fail with PrefillDoesNotFit)",
+     "state": "pass", "status": "daily driver",
      "note": "The daily driver: 8.9 s at 128K, 9.2 s at 256K, 12.7 s at 512K with 3.8 GB of headroom. "
              "A change in the middle of the history reuses ~45% of the prompt."},
+    {"id": "n3", "name": "ddalcu iQ-MLX-4.7bpw · mlx-serve 26.10.3", "short": "n3 mlx-serve",
+     "runtime": "mlx-serve", "runtime_version": "26.10.3",
+     "model": "ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw", "revision": "dafff5c",
+     "quant": "iQ-MLX 4.7 bpw", "bpw": 4.7, "disk_gb": 107.4, "port": 11234,
+     "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
+     "spec": "native MTP + PLD (n-gram)",
+     "ceiling": "512K with YaRN 2.0 + KV 4-bit (1M loads, but 3 of 5 requests fail with PrefillDoesNotFit)",
+     "state": "control", "status": "measured",
+     "note": "The n2 pack and flags on the w1 build: equal to w1 up to 128K (8.9 s), slower at 256K (11.9 against "
+             "9.2 s) and 512K (14.5 against 12.7 s). Decode falls to 57 and 49 tok/s, against 67 and 56 for n2 on "
+             "26.10.1."},
     {"id": "k2", "name": "Swift 1.5 IQ4_XS GGUF · Splash 1.4.0", "short": "k2 Splash",
      "runtime": "Splash", "runtime_version": "1.4.0",
      "model": "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS", "revision": "0142554",
@@ -533,6 +551,8 @@ def _meta_2026_10(path: Path, campaign_tags: set | None = None) -> tuple | None:
         series = SERIES_ARMS_2026_10.get(arm)
     if series is None or temperature not in ("1.0", "1"):
         return None
+    if campaign_tags is not None and (arm, ctx) in SPLASH_SKIP:
+        return None
     if arm == "m1" and tag in MTPLX_PRIME1_TAGS:
         return None
     return arm, series, ctx, tag
@@ -576,8 +596,13 @@ TAKEAWAYS_2026_10 = [
      "The gain comes from decode, ~106 tok/s up to 512K against 57–74; the cold prefill is the same (731 and 732 tok/s "
      "at 256K). The comparison mixes runtime and weight format: Splash loads Flash-Next from a GGUF only."],
     ["Only Splash reaches 1M", "k2 serves 1,000,000 tokens with KV int8 and the KV past ~860K tokens on its SSD cache: "
-     "9.3 s per turn, decode ~77 tok/s, 16.9 GB of headroom. A cold 1M prompt takes 25.5 min. mlx-serve stops at 512K "
-     "(YaRN 2.0 + KV 4-bit, 3.8 GB of headroom)."],
+     "9.3 s per turn, decode ~77 tok/s, 16.9 GB of headroom. A cold 1M prompt takes 25.5 min. mlx-serve 26.10.3 "
+     "loads 1M (YaRN 3.815 + KV 4-bit) and serves the cold prompt in 28.6 min, but the next requests fail with "
+     "PrefillDoesNotFit (~18 GB needed, 7–9 GB free): 2 of 5 for w1, 3 of 5 for n3."],
+    ["On one mlx-serve build, Swift 1.5 beats the iQ pack past 128K", "On mlx-serve 26.10.3 with the same flags, n3 "
+     "(iQ-MLX 4.7 bpw) and w1 (Swift 1.5) tie up to 128K (8.0 and 8.9 s). At 256K n3 takes 11.9 s against 9.2 s, and "
+     "at 512K 14.5 s against 12.7 s. On 26.10.1 the iQ pack took 9.8 and 13.0 s: the iQ pack lost speed on 26.10.3, "
+     "Swift gained."],
     ["Splash re-prefills a changed history", "<code>middle_mutation</code> reuses nothing on Splash in every band (hit 0), "
      "against ~0.45 on mlx-serve. Splash keeps the hybrid recurrent state only where a request ends, so an edit, a "
      "compaction or a branch before that point re-prefills the whole prompt: 25 min at 1M (incoai/splash #387, #361)."],

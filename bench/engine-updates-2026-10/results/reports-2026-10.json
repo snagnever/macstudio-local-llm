@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
  "profile": "2026-10",
- "generated_at": "2026-10-26T13:28:16Z",
+ "generated_at": "2026-10-27T14:54:20Z",
  "campaign": "bench/engine-updates-2026-10",
  "rig": [
   {
@@ -125,10 +125,29 @@
    "port": 11234,
    "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
    "spec": "native MTP",
-   "ceiling": "512K with YaRN 2.0 + KV 4-bit (no 1M)",
+   "ceiling": "512K with YaRN 2.0 + KV 4-bit (1M loads, but 2 of 5 requests fail with PrefillDoesNotFit)",
    "state": "pass",
    "status": "daily driver",
    "note": "The daily driver: 8.9 s at 128K, 9.2 s at 256K, 12.7 s at 512K with 3.8 GB of headroom. A change in the middle of the history reuses ~45% of the prompt."
+  },
+  {
+   "id": "n3",
+   "name": "ddalcu iQ-MLX-4.7bpw · mlx-serve 26.10.3",
+   "short": "n3 mlx-serve",
+   "runtime": "mlx-serve",
+   "runtime_version": "26.10.3",
+   "model": "ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw",
+   "revision": "dafff5c",
+   "quant": "iQ-MLX 4.7 bpw",
+   "bpw": 4.7,
+   "disk_gb": 107.4,
+   "port": 11234,
+   "cache": "hot cache in RAM 16 GB + disk 100 GB · 64 entries · ssm-checkpoint 16",
+   "spec": "native MTP + PLD (n-gram)",
+   "ceiling": "512K with YaRN 2.0 + KV 4-bit (1M loads, but 3 of 5 requests fail with PrefillDoesNotFit)",
+   "state": "control",
+   "status": "measured",
+   "note": "The n2 pack and flags on the w1 build: equal to w1 up to 128K (8.9 s), slower at 256K (11.9 against 9.2 s) and 512K (14.5 against 12.7 s). Decode falls to 57 and 49 tok/s, against 67 and 56 for n2 on 26.10.1."
   },
   {
    "id": "k2",
@@ -3283,6 +3302,337 @@
    "stamp": "20261010T100726Z"
   },
   {
+   "cand": "n3",
+   "context": 8192,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "n2z-8192-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 7.91,
+   "cold_ttft_s": 3.33,
+   "ttft_s": {
+    "cold": 3.33,
+    "identical": 0.16,
+    "append": 1.56,
+    "middle_mutation": 3.33,
+    "tool_turn": 1.6
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.989,
+    "append": 0.718,
+    "middle_mutation": 0.0,
+    "tool_turn": 0.71
+   },
+   "decode_tps": 81.2,
+   "decode_range": [
+    80.1,
+    88.4
+   ],
+   "prefill_tps": 820.0,
+   "wired_peak_gb": 88.6,
+   "mem_free_min_gb": 0.01,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.68,
+   "correct": 9,
+   "truncated": 3,
+   "failed": 1,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "n2z",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261027T094310Z"
+  },
+  {
+   "cand": "n3",
+   "context": 32768,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "n2z-32768-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 8.05,
+   "cold_ttft_s": 34.54,
+   "ttft_s": {
+    "cold": 34.54,
+    "identical": 0.18,
+    "append": 1.73,
+    "middle_mutation": 24.99,
+    "tool_turn": 1.77
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 0.999,
+    "append": 0.962,
+    "middle_mutation": 0.3,
+    "tool_turn": 0.961
+   },
+   "decode_tps": 81.6,
+   "decode_range": [
+    78.2,
+    84.3
+   ],
+   "prefill_tps": 790.0,
+   "wired_peak_gb": 100.2,
+   "mem_free_min_gb": 0.01,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.66,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [],
+   "note": "",
+   "canonical": true,
+   "arm": "n2z",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261027T095157Z"
+  },
+  {
+   "cand": "n3",
+   "context": 131072,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "n2z-131072-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 8.9,
+   "cold_ttft_s": 165.43,
+   "ttft_s": {
+    "cold": 165.43,
+    "identical": 0.44,
+    "append": 1.99,
+    "middle_mutation": 93.98,
+    "tool_turn": 1.97
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.992,
+    "middle_mutation": 0.456,
+    "tool_turn": 0.991
+   },
+   "decode_tps": 74.0,
+   "decode_range": [
+    67.2,
+    78.5
+   ],
+   "prefill_tps": 759.0,
+   "wired_peak_gb": 106.5,
+   "mem_free_min_gb": 0.04,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.63,
+   "correct": 13,
+   "truncated": 0,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "n2z",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261027T100805Z"
+  },
+  {
+   "cand": "n3",
+   "context": 262144,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "",
+   "file": "n2z-262144-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 11.91,
+   "cold_ttft_s": 351.22,
+   "ttft_s": {
+    "cold": 351.22,
+    "identical": 1.31,
+    "append": 2.98,
+    "middle_mutation": 214.99,
+    "tool_turn": 2.95
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.996,
+    "middle_mutation": 0.447,
+    "tool_turn": 0.996
+   },
+   "decode_tps": 57.2,
+   "decode_range": [
+    50.8,
+    67.6
+   ],
+   "prefill_tps": 731.0,
+   "wired_peak_gb": 114.1,
+   "mem_free_min_gb": 0.01,
+   "swap_delta_gb": -0.01,
+   "mtp_acceptance": 0.7,
+   "correct": 12,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "n2z",
+   "config": "",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261027T104010Z"
+  },
+  {
+   "cand": "n3",
+   "context": 524288,
+   "stage": "lc",
+   "mode": "canonical",
+   "tag": "YaRN 2.0 + KV 4-bit",
+   "file": "n2zq4-524288-t1.0-lc.jsonl",
+   "reps": 3,
+   "n": 13,
+   "served_n": 13,
+   "scenarios_run": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "scenarios_served": [
+    "cold",
+    "identical",
+    "append",
+    "middle_mutation",
+    "tool_turn"
+   ],
+   "t_turno_s": 14.53,
+   "cold_ttft_s": 783.47,
+   "ttft_s": {
+    "cold": 783.47,
+    "identical": 0.92,
+    "append": 2.81,
+    "middle_mutation": 475.48,
+    "tool_turn": 4.09
+   },
+   "hit": {
+    "cold": 0.0,
+    "identical": 1.0,
+    "append": 0.998,
+    "middle_mutation": 0.442,
+    "tool_turn": 0.998
+   },
+   "decode_tps": 49.1,
+   "decode_range": [
+    45.2,
+    62.5
+   ],
+   "prefill_tps": 662.0,
+   "wired_peak_gb": 112.8,
+   "mem_free_min_gb": 0.03,
+   "swap_delta_gb": 0,
+   "mtp_acceptance": 0.8,
+   "correct": 12,
+   "truncated": 1,
+   "failed": 0,
+   "refused": false,
+   "error_kinds": [],
+   "stream_failures": 0,
+   "gates_failed": [],
+   "warnings": [
+    "wired>102"
+   ],
+   "note": "",
+   "canonical": true,
+   "arm": "n2zq4",
+   "config": "YaRN 2.0 + KV 4-bit",
+   "campaign": "splash-longctx-2026-10",
+   "stamp": "20261027T114018Z"
+  },
+  {
    "cand": "o1",
    "context": 8192,
    "stage": "pg",
@@ -4009,7 +4359,11 @@
   ],
   [
    "Only Splash reaches 1M",
-   "k2 serves 1,000,000 tokens with KV int8 and the KV past ~860K tokens on its SSD cache: 9.3 s per turn, decode ~77 tok/s, 16.9 GB of headroom. A cold 1M prompt takes 25.5 min. mlx-serve stops at 512K (YaRN 2.0 + KV 4-bit, 3.8 GB of headroom)."
+   "k2 serves 1,000,000 tokens with KV int8 and the KV past ~860K tokens on its SSD cache: 9.3 s per turn, decode ~77 tok/s, 16.9 GB of headroom. A cold 1M prompt takes 25.5 min. mlx-serve 26.10.3 loads 1M (YaRN 3.815 + KV 4-bit) and serves the cold prompt in 28.6 min, but the next requests fail with PrefillDoesNotFit (~18 GB needed, 7–9 GB free): 2 of 5 for w1, 3 of 5 for n3."
+  ],
+  [
+   "On one mlx-serve build, Swift 1.5 beats the iQ pack past 128K",
+   "On mlx-serve 26.10.3 with the same flags, n3 (iQ-MLX 4.7 bpw) and w1 (Swift 1.5) tie up to 128K (8.0 and 8.9 s). At 256K n3 takes 11.9 s against 9.2 s, and at 512K 14.5 s against 12.7 s. On 26.10.1 the iQ pack took 9.8 and 13.0 s: the iQ pack lost speed on 26.10.3, Swift gained."
   ],
   [
    "Splash re-prefills a changed history",

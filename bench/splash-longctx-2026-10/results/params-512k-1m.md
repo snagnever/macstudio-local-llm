@@ -10,7 +10,7 @@ A regra "aceitável" pede os gates do `decide.py`, folga ≥ 2 GB, `T_turno` ≤
 | k1a (Flash Next base, Splash) | 524288 | `--verify-rows auto` | 7.4 s | 9.2 GB | passa | não medido | não medido | velocidade e folga sim; qualidade não medida |
 | k1a | 1000000 | `--verify-rows auto` | 10.5 s | 14.8 GB | passa (1 rep) | não medido | não medido | velocidade e folga sim; qualidade não medida |
 | w1zq4 (mlx-serve 26.10.3) | 524288 | `--kv-quant 4`, YaRN 2.0 | 12.7 s | 3.8 GB | passa | — | 100% | sim, perto do limite (perfil `512k` do driver diário) |
-| w1z / w1zq4 | 1000000 | — | — | — | — | — | — | não roda |
+| w1zq4 / n2zq4 (mlx-serve 26.10.3) | 1000000 | `--kv-quant 4`, YaRN 3.815 | — | — | falha: 2 e 3 de 5 requisições com `PrefillDoesNotFit` | — | — | não ([etapa6](etapa6-n2z-1m.md)) |
 | r1z / k3ma (GSQ) | > 262144 | — | — | — | — | — | — | fora do escopo (o usuário limitou o GSQ a 256K) |
 
 O 1M passou, então a escada de recuo (`k2as`, 786432) não rodou.

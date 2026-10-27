@@ -487,7 +487,7 @@ def test_second_1m_rep_of_k2a_counts(tmp_path):
 
 def test_splash_candidates_carry_the_campaign_results():
     cands = {c["id"]: c for c in cr.CANDIDATES_SPLASH}
-    assert list(cands) == ["w1", "k2", "k1", "g1", "g2"]
+    assert list(cands) == ["w1", "n3", "k2", "k1", "g1", "g2"]
     for c in cands.values():
         assert c["note"], c["id"]
     # The user limited the GSQ to 256K: neither GSQ arm claims a longer ceiling.
@@ -503,7 +503,8 @@ def test_perf_lines_2026_10_gives_a_reason_for_every_gap():
     gaps = [(s["id"], ctx) for s in payload["series"] for ctx in payload["table_ctx"]
             if str(ctx) not in payload["points"][s["id"]]]
     assert gaps == []
-    assert payload["points"]["w1"]["1000000"]["status"].startswith("mlx-serve does not run 1M")
+    assert "PrefillDoesNotFit" in payload["points"]["w1"]["1000000"]["status"]
+    assert "PrefillDoesNotFit" in payload["points"]["n3"]["1000000"]["status"]
     assert "limited to 256K" in payload["points"]["g2"]["524288"]["status"]
     assert len({s["cv"] for s in payload["series"]}) == len(payload["series"])
 
@@ -513,3 +514,21 @@ def test_perf_lines_2026_10_describes_splash():
     for fact in ("DFlash2", "int8", "--max-context", "#387", "YaRN"):
         assert fact in " ".join(splash.values()), fact
     assert any(src[0] == "incoai/splash" for src in rpl.TECH_SRC_2026_10)
+
+
+# t6/t7 (2026-10-27): the iQ pack on mlx-serve 26.10.3 is series n3; the 1M bands of mlx-serve are a probe, not a band.
+def test_n2z_on_26103_is_series_n3_and_1m_mlx_serve_stays_out(tmp_path):
+    sept, eng, upd, stack, lc = _splash_dirs(tmp_path)
+    _write(lc, "n2z-131072-t1.0-lc.jsonl", _rep_set(3, "20261027T000000Z", ctx=131072, rev="v26.10.3"))
+    _write(lc, "n2zq4-524288-t1.0-lc.jsonl", _rep_set(3, "20261027T000000Z", ctx=524288, rev="v26.10.3-yarn2.0-kv4"))
+    _write(lc, "n2zq4-1000000-t1.0-lc.jsonl", _rep_set(1, "20261027T000000Z", ctx=1000000, rev="v26.10.3-yarn3.815-kv4"))
+    _write(lc, "w1zq4-1000000-t1.0-lc.jsonl", _rep_set(1, "20261027T000000Z", ctx=1000000, rev="v26.10.3-yarn3.815-kv4"))
+    _write(stack, "n2z-32768-t1.0-e4.jsonl", _rep_set(3, "20261022T000000Z"))
+    data = cr.build_2026_10(sept, eng, upd, stack, lc)
+    assert _canon(data, "n3", 131072)["arm"] == "n2z"
+    assert _canon(data, "n3", 524288)["config"] == "YaRN 2.0 + KV 4-bit"
+    files = {g["file"] for g in data["groups"]}
+    assert "n2zq4-1000000-t1.0-lc.jsonl" not in files and "w1zq4-1000000-t1.0-lc.jsonl" not in files
+    assert "n2z-32768-t1.0-e4.jsonl" not in files
+    n3 = next(c for c in data["candidates"] if c["id"] == "n3")
+    assert n3["runtime_version"] == "26.10.3" and n3["revision"] == "dafff5c"
