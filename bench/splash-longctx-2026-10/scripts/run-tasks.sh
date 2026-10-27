@@ -14,9 +14,13 @@
 #        battery at 262144.
 #   t5x  Swift 1.5 MLX 4.7bpw (the w1z weights) on Splash 1.4.0: k2m loads at 32768 (cold, 1 rep); only if it
 #        loads, its 8K and 256K bands (3 reps).
+#   t6   iQ-MLX 4.7bpw on mlx-serve 26.10.3: n2z at 8K, 32K, 128K and 256K and n2zq4 (YaRN 2.0) at 512K, 3 reps,
+#        the bands of the guide's n2 series (26.10.1), so iQ and Swift (w1z) share one mlx-serve build.
+#   t7   1M on mlx-serve 26.10.3, never run before: w1zq4 and n2zq4 load at 1000000 (YaRN 3.815, cold, 1 rep);
+#        a loaded arm runs its 1M band (1 rep), a failed load falls back to 786432 (YaRN 3.0), same steps.
 # The 32K and 128K bands of k1a, k2a and w1z come from bench/stack-updates-2026-10 (Tasks 1, 5 and 8).
 # A failing arm does not stop the queue (run-seq.sh prints its exit code). Lines "=== task <t> done" mark the end.
-# usage: [K3=1] [SW=k2a|k2ab|k2as] run-tasks.sh <t1|t2a|t2b|t3|t4|t5|t5m|t5r|t5x> [...] [--dry-run]
+# usage: [K3=1] [SW=k2a|k2ab|k2as] run-tasks.sh <t1|t2a|t2b|t3|t4|t5|t5m|t5r|t5x|t6|t7> [...] [--dry-run]
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GATE="$HERE/../flashnext-next-steps-2026-10/scripts/idle-gate.sh"
@@ -31,11 +35,11 @@ DRY=""; TASKS=()
 for a in "$@"; do
   case "$a" in
     --dry-run) DRY=1 ;;
-    t1|t2a|t2b|t3|t4|t5|t5m|t5r|t5x) TASKS+=("$a") ;;
-    *) echo "usage: $0 <t1|t2a|t2b|t3|t4|t5|t5m|t5r|t5x> [...] [--dry-run]" >&2; exit 64 ;;
+    t1|t2a|t2b|t3|t4|t5|t5m|t5r|t5x|t6|t7) TASKS+=("$a") ;;
+    *) echo "usage: $0 <t1|t2a|t2b|t3|t4|t5|t5m|t5r|t5x|t6|t7> [...] [--dry-run]" >&2; exit 64 ;;
   esac
 done
-[[ ${#TASKS[@]} -gt 0 ]] || { echo "usage: $0 <t1|t2a|t2b|t3|t4|t5|t5m|t5r|t5x> [...] [--dry-run]" >&2; exit 64; }
+[[ ${#TASKS[@]} -gt 0 ]] || { echo "usage: $0 <t1|t2a|t2b|t3|t4|t5|t5m|t5r|t5x|t6|t7> [...] [--dry-run]" >&2; exit 64; }
 [[ "$SW" =~ ^k2a(b|s)?$ ]] || { echo "run-tasks: SW must be k2a, k2ab or k2as" >&2; exit 64; }
 K3ARM=k3a; [[ "$SW" == k2ab ]] && K3ARM=k3ab
 
@@ -45,6 +49,19 @@ k3() { [[ -n "$K3" ]] && echo "$@"; }
 battery() { gate; run env BATTERY_CAMPAIGN_DIR="$HERE" bash "$BATTERY" "$1" "$2" --ctx "$3" --suites "$SUITES"; }
 longctx() { gate; run bash "$LONGCTX" "$@"; }
 toolcall() { gate; run env TOOLCALL_CAMPAIGN_DIR="$HERE" bash "$PROBE" "$1" --sessions 20 --suffix t4 --max-tokens 2048; }
+# probe_ctx <arm> <ctx> <yarn> <tag>: a cold load at <ctx>; only a loaded arm runs the band (1 rep).
+probe_ctx() {
+  gate
+  if run bash "$RUN_ARM" "$1" "$2" --scenarios cold --repeat 1 --tag "$4" --yarn "$3"; then
+    gate; run bash "$SEQ" "$1:$2:1:lc:$3"; return 0
+  fi
+  echo "=== $1 did not load at $2"; return 1
+}
+# probe_1m <arm>: 1000000 first, 786432 only when 1M fails. The dry run prints both.
+probe_1m() {
+  if probe_ctx "$1" 1000000 3.815 load1m && [[ -z "$DRY" ]]; then return; fi
+  probe_ctx "$1" 786432 3.0 load768 || true
+}
 
 for t in "${TASKS[@]}"; do
   case "$t" in
@@ -76,6 +93,10 @@ for t in "${TASKS[@]}"; do
         if run bash "$RUN_ARM" k2m 32768 --scenarios cold --repeat 1 --tag load; then
           gate; run bash "$SEQ" k2m:8192:3:lc k2m:262144:3:lc
         else echo "=== k2m did not load; bands skipped"; fi ;;
+    # The guide mixed iQ on 26.10.1 with Swift on 26.10.3 (user request, 2026-10-27).
+    t6) gate; run bash "$SEQ" n2z:8192:3:lc n2z:32768:3:lc n2z:131072:3:lc n2z:262144:3:lc n2zq4:524288:3:lc:2.0 ;;
+    # 1M on mlx-serve was only extrapolated from the 3.8 GB left at 512K (user request, 2026-10-27).
+    t7) probe_1m w1zq4; probe_1m n2zq4 ;;
   esac
   echo "=== task $t done $(date '+%F %T')"
 done

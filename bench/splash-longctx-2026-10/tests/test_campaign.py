@@ -76,6 +76,22 @@ def test_w1zq4_is_w1q4_on_26103():
     assert "--kv-quant 4 " in server(out)
 
 
+def test_n2zq4_is_n2q4_on_26103():
+    out = show("n2zq4", "524288", "--yarn", "2.0")
+    old = show("n2q4", "524288", "--yarn", "2.0")
+    assert "--runtime-revision v26.10.3-yarn2.0-kv4 " in out
+    assert "iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a" in server(out)
+    assert server(out).replace("mlx-serve-v26.10.3", "BIN") == server(old).replace("mlx-serve-v26.10.1", "BIN")
+    assert "--kv-quant 4 " in server(out)
+
+
+def test_n2zq4_differs_from_w1zq4_only_in_weights():
+    n2, w1 = server(show("n2zq4", "524288", "--yarn", "2.0")), server(show("w1zq4", "524288", "--yarn", "2.0"))
+    norm = lambda s: s.replace("ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c3d8168c9d13275661153911096499a80a", "W").replace(
+        "Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0", "W")
+    assert norm(n2) == norm(w1)
+
+
 def test_r1zy_is_r1z_with_yarn_and_4bit_kv():
     out = show("r1zy", "1000000", "--yarn", "3.815")
     assert "mbrown-uno-Qwen3.8-Flash-Next-GSQ-RCO-Coder-MLX-50fa68c" in out
@@ -207,6 +223,22 @@ def test_run_tasks_t5x_loads_k2m_at_32k_before_its_bands():
     out = tasks("t5x")
     load = out.index("run-arm.sh k2m 32768 --scenarios cold --repeat 1 --tag load")
     assert load < out.index("k2m:8192:3:lc k2m:262144:3:lc")
+
+
+def test_run_tasks_t6_runs_n2z_on_26103_in_the_guide_bands():
+    out = tasks("t6")
+    assert "n2z:8192:3:lc n2z:32768:3:lc n2z:131072:3:lc n2z:262144:3:lc n2zq4:524288:3:lc:2.0" in out
+    assert "idle-gate.sh" in out and "run-battery.sh" not in out
+
+
+def test_run_tasks_t7_probes_1m_on_mlx_serve_before_its_band():
+    out = tasks("t7")
+    for arm in ("w1zq4", "n2zq4"):
+        load = out.index(f"run-arm.sh {arm} 1000000 --scenarios cold --repeat 1 --tag load1m --yarn 3.815")
+        band = out.index(f"{arm}:1000000:1:lc:3.815")
+        fallback = out.index(f"run-arm.sh {arm} 786432 --scenarios cold --repeat 1 --tag load768 --yarn 3.0")
+        assert load < band < fallback
+    assert out.index("w1zq4:1000000") < out.index("n2zq4 1000000")
 
 
 def test_longctx_fill_shrinks_small_contexts():
