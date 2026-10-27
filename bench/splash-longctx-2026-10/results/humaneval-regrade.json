@@ -1,0 +1,129 @@
+{
+ "w1z-262144": {
+  "run": "humaneval.jsonl",
+  "n": 164,
+  "strict": 142,
+  "with_imports": 158,
+  "fixed_by_imports": [
+   3,
+   8,
+   10,
+   13,
+   27,
+   38,
+   64,
+   75,
+   82,
+   84,
+   96,
+   111,
+   126,
+   131,
+   147,
+   148
+  ],
+  "truncated": []
+ },
+ "k2a-262144": {
+  "run": "humaneval.jsonl",
+  "n": 164,
+  "strict": 147,
+  "with_imports": 158,
+  "fixed_by_imports": [
+   2,
+   10,
+   13,
+   27,
+   38,
+   45,
+   84,
+   96,
+   111,
+   131,
+   148
+  ],
+  "truncated": [
+   121
+  ]
+ },
+ "k2a-262144-r2": {
+  "run": "humaneval.jsonl",
+  "n": 164,
+  "strict": 151,
+  "with_imports": 159,
+  "fixed_by_imports": [
+   2,
+   8,
+   10,
+   27,
+   45,
+   84,
+   96,
+   131
+  ],
+  "truncated": []
+ },
+ "k2a-524288": {
+  "run": "humaneval.jsonl",
+  "n": 164,
+  "strict": 147,
+  "with_imports": 156,
+  "fixed_by_imports": [
+   13,
+   14,
+   38,
+   45,
+   64,
+   82,
+   84,
+   111,
+   131
+  ],
+  "truncated": []
+ },
+ "k2a-1000000": {
+  "run": "humaneval.jsonl",
+  "n": 164,
+  "strict": 142,
+  "with_imports": 155,
+  "fixed_by_imports": [
+   2,
+   3,
+   8,
+   10,
+   13,
+   27,
+   45,
+   75,
+   82,
+   84,
+   111,
+   126,
+   147
+  ],
+  "truncated": [
+   160
+  ]
+ },
+ "k2a-1000000-r2": {
+  "run": "humaneval.jsonl",
+  "n": 164,
+  "strict": 148,
+  "with_imports": 158,
+  "fixed_by_imports": [
+   3,
+   8,
+   13,
+   38,
+   75,
+   96,
+   111,
+   126,
+   147,
+   148
+  ],
+  "truncated": [
+   160
+  ]
+ }
+}

@@ -23,6 +23,8 @@ REPORTS_JSON = REPO / "bench" / "engine-updates-2026-10" / "results" / "reports-
 SWIFT_JSON = REPO / "bench" / "swift15-flashnext-2026-10" / "results" / "page-data.json"
 # LiveCodeBench of the oMLX pack, regraded (flashnext-next-steps-2026-10, task 5, arm o1x on oMLX 0.7.1.dev1).
 OMLX_LCB_MD = REPO / "bench" / "flashnext-next-steps-2026-10" / "results" / "e5-lcb-regrade.md"
+# HumanEval of the Splash round regraded with the prompt's import lines (regrade_humaneval.py), like the October round.
+SPLASH_HE_REGRADE = REPO / "bench" / "splash-longctx-2026-10" / "results" / "humaneval-regrade.json"
 OUT = REPO / "reports" / "qwen38-flashnext-m4max-guide.html"
 # The link-preview card (og:image). The HTML is the source; --png renders it with headless Chrome.
 CARD_HTML = REPO / "reports" / "assets" / "qwen38-flashnext-m4max-guide-card.html"
@@ -128,8 +130,17 @@ SPLASH_COMMAND = r"""splash serve --model ukisai/Swift-1.5-Qwen3.8-Flash-Next-GG
 # Quality of Swift 1.5 on Splash against the same fine-tune on mlx-serve 26.10.3, from
 # bench/splash-longctx-2026-10/results/etapa4-quality.md: (suite, mlx-serve 262K, Splash 262K, Splash 512K, Splash 1M).
 # Vendor sampling, reasoning effort xhigh. Two HumanEval cells hold two runs of the same setup.
+def splash_humaneval(path: Path = SPLASH_HE_REGRADE) -> tuple[str, ...]:
+    """The HumanEval row of SPLASH_QUALITY, with the prompt's import lines; two runs joined by ' · '."""
+    rg = json.loads(path.read_text(encoding="utf-8"))
+    def cell(*keys: str) -> str:
+        return " · ".join(f'{rg[k]["with_imports"]}/{rg[k]["n"]}' for k in keys)
+    return ("HumanEval (164)", cell("w1z-262144"), cell("k2a-262144", "k2a-262144-r2"), cell("k2a-524288"),
+            cell("k2a-1000000", "k2a-1000000-r2"))
+
+
 SPLASH_QUALITY = [
-    ("HumanEval (164)", "142/164", "147/164 · 151/164", "147/164", "142/164 · 148/164"),
+    splash_humaneval(),
     ("GPQA-Diamond (50)", "43/50", "41/50", "43/50", "43/50"),
     ("LiveCodeBench v6 (50)", "47/50", "47/50", "47/50", "47/50"),
     ("Instruction following (20)", "19/20", "19/20", "18/20", "19/20"),
@@ -145,7 +156,8 @@ CONFIG_LABEL = {
     "YaRN 2.0 + KV 4-bit": "YaRN 2.0 + 4-bit KV cache",
     "YaRN 2.0": "YaRN 2.0",
 }
-QUALITY_SUITES = [("humaneval", "HumanEval (164)"), ("livecodebench", "LiveCodeBench v6 (50)"), ("jdhodges", "Tool calls A (40)"), ("veerman", "Tool calls B (12)")]
+QUALITY_SUITES = [("humaneval", "HumanEval (164)"), ("livecodebench", "LiveCodeBench v6 (50)"),
+                  ("if", "Instruction following (20)"), ("jdhodges", "Tool calls A (40)"), ("veerman", "Tool calls B (12)")]
 SWIFT_SUITES = [("gpqa", "GPQA-Diamond (50)"), ("livecodebench", "LiveCodeBench v6 (50)"), ("humaneval", "HumanEval (164)")]
 
 
@@ -194,15 +206,24 @@ def quality_rows(data: dict, swift: dict) -> list[dict]:
     he = swift["humaneval_regrade"]["n2-t1"]
     lcb = swift["time"]["t1"]["livecodebench"]["arms"]["n2"]
     rows = [{"id": "n2", "date": "2026-10-11", "humaneval": [he["with_imports"], he["n"]],
-             "livecodebench": [lcb["passed"], lcb["n"]],
+             "livecodebench": [lcb["passed"], lcb["n"]], "if": [q["if"]["passed"], q["if"]["n"]],
              "jdhodges": [q["jdhodges"]["passed"], q["jdhodges"]["n"]],
              "veerman": [q["veerman"]["passed"], q["veerman"]["n"]]}]
     legacy = {r["arm"]: r for r in data["quality"]["rows"]}
     for sid, arm, lcb in (("o1", "o1", omlx_lcb()), ("m1", "m1x", None)):
         r = legacy[arm]
         rows.append({"id": sid, "date": r["date"], "humaneval": [r["humaneval_imports"], r["humaneval_n"]],
-                     "livecodebench": lcb,
+                     "livecodebench": lcb, "if": None,
                      "jdhodges": [r["jdhodges"], r["jdhodges_n"]], "veerman": [r["veerman"], r["veerman_n"]]})
+    # Swift 1.5 on mlx-serve 26.10.3 (w1) and on Splash 1.4.0 (k2), the 262K columns of SPLASH_QUALITY, on the same
+    # four suites. A cell with two runs ("158/164 · 159/164") keeps the first run; the footnote names the second.
+    sq = {r[0]: r for r in SPLASH_QUALITY}
+    for sid, col in (("w1", 1), ("k2", 2)):
+        row = {"id": sid, "date": "2026-10-25", "ctx": 262144}
+        for key, label in QUALITY_SUITES:
+            passed, n = sq[label][col].split(" · ")[0].split("/")
+            row[key] = [int(passed), int(n)]
+        rows.append(row)
     return rows
 
 
@@ -681,19 +702,23 @@ BODY = r"""
 
 <section class="block" id="quality">
   <h2 class="sec">7 · Quality sanity check</h2>
-  <p class="s-note">Does a server or quant break the model? Not in these runs: the stacks I checked are within a few cases
-  of each other. One run per cell, on different dates, with a small sample. Read it as a sanity check, not as a ranking.
-  ds4 and Splash with the base model were not checked.</p>
+  <p class="s-note">Does a server or quant break the model? Not in these runs: the five stacks I checked are within a few
+  cases of each other. One run per cell, on different dates, with a small sample. Read it as a sanity check, not as a
+  ranking. ds4 and Splash with the base model were not checked.</p>
   <div class="panel big"><div id="chQuality"></div></div>
-  <p class="foot-note">HumanEval with the prompt's import lines added before the answer. LiveCodeBench v6: 50 questions
-  (seed 42), graded with the official import lines. Tool calls A = jdhodges tool-call test; tool calls B = Veerman
-  tool-call test. mlx-serve: 2026-10-11 run on 26.10.1; oMLX and MTPLX (with --memory-limit max): 2026-10-09 runs. The
-  oMLX LiveCodeBench bar comes from a 2026-10-15 run of the same pack on oMLX 0.7.1.dev1; MTPLX was not measured.</p>
+  <p class="foot-note">Context sizes differ: the three base-model stacks ran at 128K, the two Swift 1.5 stacks at 262K
+  (the 262K columns of the table below). HumanEval with the prompt's import lines added before the answer; on Splash it ran
+  twice at 262K (158 and 159 of 164) and the bar shows the first run. LiveCodeBench v6: 50 questions (seed 42), graded with
+  the official import lines. Instruction following: 20 prompts with format constraints, an IFEval-style probe. Tool calls
+  A = jdhodges tool-call test; tool calls B = Veerman tool-call test. mlx-serve with the iQ pack: 2026-10-11 run on
+  26.10.1; oMLX and MTPLX (with --memory-limit max): 2026-10-09 runs, without instruction following. The oMLX
+  LiveCodeBench bar comes from a 2026-10-15 run of the same pack on oMLX 0.7.1.dev1; MTPLX was not measured. Swift 1.5
+  stacks: 2026-10-25 runs.</p>
   <h3>Swift 1.5 on Splash, up to 1M</h3>
   <div class="tbl-scroll">__SPLASH_QUALITY__</div>
   <p class="foot-note">One run per cell, vendor sampling, reasoning effort xhigh; each column starts the server at that
-  context size. HumanEval ran twice at 262K and 1M on Splash: two runs of the same setup differ by 4 to 6 questions, so
-  the 1M result is within the noise. Long-context recall: 8 questions about a document filled to the server's size.</p>
+  context size. HumanEval with the prompt's import lines, as in the chart; it ran twice at 262K and 1M on Splash, and the
+  1M result is within the run-to-run noise. Long-context recall: 8 questions about a document filled to the server's size.</p>
 </section>
 
 <section class="block" id="method">
@@ -1415,7 +1440,7 @@ function groupedBars(host, groups, series, o){
     if (gi == null){ hideTip(); return; }
     const gr = groups[+gi];
     showTip(ev, `<div class="t-h">${esc(gr.label)}</div>` + series.map(s =>
-      `<div class="t-r"><span class="t-k"><i style="background:${s.color}"></i>${esc(s.name)}</span><span>${o.label_of(gr, s)}</span></div>`).join(""));
+      `<div class="t-r"><span class="t-k"><i style="background:${s.color}"></i>${esc(s.name)}</span><span>${(o.tip_of || o.label_of)(gr, s)}</span></div>`).join(""));
   });
   const leg = document.createElement("div"); leg.className = "legend";
   leg.innerHTML = series.map(s => `<span class="lg"><svg width="14" height="12" aria-hidden="true"><rect x="1" y="1" width="12" height="10" rx="2" style="fill:${s.color}"/></svg>${esc(s.name)}</span>`).join("");
@@ -1427,10 +1452,11 @@ function qualityChart(){
   const series = P.quality.map(r => { const s = STACKS.find(x => x.id === r.id); return {id: r.id, name: s.name, color: col(s)}; });
   const groups = P.quality_suites.map(([key, label]) => ({key, label}));
   groupedBars(document.getElementById("chQuality"), groups, series, {
-    max: 100, label: "Share of correct answers per test and server", tick: v => v.toFixed(0) + "%",
+    max: 100, label: "Share of correct answers per test and stack", tick: v => v.toFixed(0) + "%",
     missing: "not measured",
     value: (gr, s) => { const q = rows[s.id][gr.key]; return q ? 100 * q[0] / q[1] : null; },
-    label_of: (gr, s) => { const q = rows[s.id][gr.key]; return q ? `${q[0]}/${q[1]} · ${(100*q[0]/q[1]).toFixed(0)}%` : "not measured"; },
+    label_of: (gr, s) => { const q = rows[s.id][gr.key]; return q ? `${(100*q[0]/q[1]).toFixed(0)}%` : "not measured"; },
+    tip_of: (gr, s) => { const q = rows[s.id][gr.key]; return q ? `${q[0]}/${q[1]} · ${(100*q[0]/q[1]).toFixed(0)}%` : "not measured"; },
   });
 }
 
