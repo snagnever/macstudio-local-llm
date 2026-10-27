@@ -33,6 +33,7 @@ def test_default_sources_exist():
 
 def test_payload_has_six_stacks_and_canonical_points():
     data, swift = load()
+    data = guide.page_data(data)
     p = guide.build_payload(data, swift)
     # The four servers of the October round, then Swift 1.5 on mlx-serve 26.10.3 and on Splash 1.4.0.
     assert [s["id"] for s in p["stacks"]] == ["n2", "o1", "m1", "d1", "w1", "k2"]
@@ -98,11 +99,26 @@ def test_reread_tokens_follow_reuse():
 
 def test_facts_match_data():
     data, swift = load()
+    # The October round (post, slides, post charts): the iQ pack on mlx-serve 26.10.1.
     f = guide.facts(data, swift)
     assert f["mlx_turn_512"] == "13.0"
     assert f["mlx_turn_128"] == "8.8"
     assert f["mlx_cold_512_min"] == "13"
     assert f["mlx_resume_512"] == "3.9"
+    # The page: the same pack on mlx-serve 26.10.3, the build of the Swift 1.5 stack.
+    f = guide.facts(guide.page_data(data), swift)
+    assert f["mlx_turn_512"] == "14.5" and f["mlx_turn_128"] == "8.9"
+
+
+def test_page_runs_the_iq_pack_on_26103_and_the_post_keeps_the_october_round():
+    data, swift = load()
+    assert guide.STACK["n2"]["name"] == "mlx-serve 26.10.3"
+    assert "mlx-serve 26.10.1" not in guide.stacks_table()
+    text = re.sub(r"\s+", " ", visible_text(guide.render(data, swift)))
+    assert "Use mlx-serve 26.10.3 with the ddalcu iQ-MLX 4.7 bpw quant" in text
+    assert "Use mlx-serve 26.10.1" not in text
+    post = guide.render_post(data, swift)
+    assert "mlx-serve 26.10.1" in post and "mlx-serve 26.10.3" not in post
 
 
 def test_render_has_no_placeholders_or_internal_terms():
@@ -123,7 +139,7 @@ def test_render_has_open_graph_card():
     card = guide.render_card(data, swift)
     for s in guide.STACKS:
         assert s["short"] in card
-    assert guide.facts(data, swift)["mlx_turn_512"] in card
+    assert guide.facts(guide.page_data(data), swift)["mlx_turn_512"] in card
     assert guide.CARD_PNG == REPO / "reports" / "assets" / "qwen38-flashnext-m4max-guide-card.png"
 
 
@@ -179,7 +195,7 @@ def test_same_build_table_puts_iq_and_swift_on_26103():
     # The iQ pack on 26.10.3 (series n3, t6 of splash-longctx) next to Swift 1.5 on the same build and iQ on 26.10.1.
     data, swift = load()
     canon = guide.canonical(data)
-    table = guide.same_build_table(data)
+    table = guide.same_build_table(guide.page_data(data))
     for h in ("iQ-MLX 4.7 bpw · mlx-serve 26.10.1", "iQ-MLX 4.7 bpw · mlx-serve 26.10.3", "Swift 1.5 · mlx-serve 26.10.3"):
         assert h in table
     for cid in ("n2", "n3", "w1"):
