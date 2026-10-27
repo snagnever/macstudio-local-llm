@@ -64,3 +64,16 @@ Com penalidade 0, que os clientes do driver enviam, os dois braços passam em tu
 |---|---|---|---|---|---|
 | k2a 524288 | passa | 6.7 s | passa | 100% | **sim** |
 | k2a 1000000 | passa | 9.3–9.4 s | passa em 5 suítes; HumanEval 1 abaixo da margem, dentro do ruído | 100% a 1M, 87.5% a 128K | **sim** (decisão do usuário sobre o HumanEval) |
+
+## HumanEval com os imports do prompt (2026-10-27)
+
+O guia público nota o HumanEval com as linhas de import do prompt na frente da resposta (`regrade_humaneval.py` do `engine-updates-2026-10`), como a rodada de outubro. A nota estrita da tabela acima falha respostas sem `from typing import List` com lógica certa. Resultado em [`humaneval-regrade.json`](humaneval-regrade.json):
+
+| run | estrita | com imports |
+|---|---:|---:|
+| w1z 262144 | 142/164 | 158/164 |
+| k2a 262144 | 147/164 · 151/164 | 158/164 · 159/164 |
+| k2a 524288 | 147/164 | 156/164 |
+| k2a 1000000 | 142/164 · 148/164 | 155/164 · 158/164 |
+
+Com os imports, o w1z e o k2a empatam a 262144, e a diferença de 1M fica em 0 a 3 questões.

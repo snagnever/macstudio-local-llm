@@ -88,8 +88,16 @@ def test_splash_facts_and_quality():
     assert 'id="splash"' in html and "incoai/splash/issues/387" in html
     # Terminal-Bench 2.1 is not ready: the page carries no number or placeholder for it.
     assert "Terminal-Bench" not in html and "TB2" not in html
+    # HumanEval with the prompt's import lines (bench/splash-longctx-2026-10/results/humaneval-regrade.json), like the
+    # October round; strict grading gave 142, 147 · 151, 147 and 142 · 148.
     rows = {r[0]: r for r in guide.SPLASH_QUALITY}
-    assert rows["HumanEval (164)"][1:] == ("142/164", "147/164 · 151/164", "147/164", "142/164 · 148/164")
+    assert rows["HumanEval (164)"][1:] == ("158/164", "158/164 · 159/164", "156/164", "155/164 · 158/164")
+    rows = {r["id"]: r for r in guide.build_payload(data, swift)["quality"]}
+    assert rows["w1"]["humaneval"] == [158, 164] and rows["k2"]["humaneval"] == [158, 164]
+    assert rows["k2"]["jdhodges"] == [37, 40] and rows["k2"]["ctx"] == 262144
+    # Instruction following: the Swift A/B run of the iQ pack and the Splash round; not in the oMLX and MTPLX runs.
+    assert rows["n2"]["if"] == [20, 20] and rows["w1"]["if"] == [19, 20] and rows["k2"]["if"] == [19, 20]
+    assert rows["o1"]["if"] is None and rows["m1"]["if"] is None
 
 
 def test_reread_tokens_follow_reuse():
