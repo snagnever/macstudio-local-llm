@@ -178,12 +178,15 @@ def build_payload(data: dict) -> dict:
 
 # --- 2026-10 profile: October stack (engine-updates-2026-10), c1 as the September reference ----------
 SERIES_COLOR_2026_10 = {"n2": "--s1", "o1": "--s3", "m1": "--s5", "d1": "--s4",
-                        "w1": "--s2", "k2": "--s6", "k1": "--s7", "g1": "--s8", "g2": "--s9"}
+                        "w1": "--s2", "k2": "--s6", "k1": "--s7", "g1": "--s8", "g2": "--s9",
+                        "n3": "--s10"}
 # splash-longctx-2026-10: the 1M band (1000000 tokens, the Splash --max-context ceiling is 1010000).
 LINE_CTX_2026_10 = LINE_CTX + [1000000]
 TABLE_CTX_2026_10 = TABLE_CTX + [1000000]
 GSQ_256K = "not run: the GSQ was limited to 256K"
 NOT_RUN_1M = "not run in this campaign: 1M ran only on Splash (splash-longctx-2026-10)"
+MLX_SERVE_1M = ("no T_turn: mlx-serve 26.10.3 loads 1M (YaRN 3.815 + 4-bit KV) and serves the cold prompt, but {} of 5 "
+                "requests fail with PrefillDoesNotFit (~18 GB needed, 7-9 GB free)")
 ABSENT_2026_10 = {
     ("o1", 524288): "no YaRN: 262K ceiling",
     ("m1", 524288): "not run: MTPLX refuses 256K (memory-plan fit 237,568 tokens)",
@@ -191,7 +194,8 @@ ABSENT_2026_10 = {
     ("o1", 1000000): "no YaRN: 262K ceiling",
     ("m1", 1000000): "not run: MTPLX refuses 256K (memory-plan fit 237,568 tokens)",
     ("d1", 1000000): NOT_RUN_1M,
-    ("w1", 1000000): "mlx-serve does not run 1M (512K is the ceiling with YaRN 2.0 + 4-bit KV, 3.8 GB of headroom)",
+    ("w1", 1000000): MLX_SERVE_1M.format("2"),
+    ("n3", 1000000): MLX_SERVE_1M.format("3"),
     ("g1", 524288): GSQ_256K, ("g1", 1000000): GSQ_256K,
     ("g2", 32768): "not run: k3ma ran only the 8K and 256K bands",
     ("g2", 131072): "not run: k3ma ran only the 8K and 256K bands",
@@ -199,11 +203,12 @@ ABSENT_2026_10 = {
 }
 TECH_2026_10 = [
     {"name": "mlx-serve 26.10.1 and 26.10.3", "repo": "ddalcu/mlx-serve",
-     "what": "MLX server with <b>native MTP for Flash-Next</b> and a two-tier prefix cache. n2 runs the ddalcu iQ-MLX pack on 26.10.1; the daily driver is Swift 1.5 on 26.10.3 (w1).",
+     "what": "MLX server with <b>native MTP for Flash-Next</b> and a two-tier prefix cache. n2 runs the ddalcu iQ-MLX pack on 26.10.1 and n3 runs it on 26.10.3; the daily driver is Swift 1.5 on 26.10.3 (w1).",
      "cache": "Hot cache in RAM (<b>16 GB, 64 entries</b>) and a disk cache (100 GB). <code>--ssm-checkpoint-max 16</code> keeps checkpoints of the DeltaNet state.",
      "spec": "MTP with PLD (prompt lookup through the pack's n-gram table). The acceptance comes from the <code>[spec-stats]</code> log.",
      "configs": "n2 iQ-MLX-4.7bpw; 512K with YaRN 2.0 + KV 4-bit (n2q4). w1 Swift 1.5 MLX 4.7 bpw and g1 GSQ-RCO-Coder MLX on 26.10.3; "
-                "w1 at 512K with the same YaRN 2.0 + KV 4-bit (w1zq4)"},
+                "w1 at 512K with the same YaRN 2.0 + KV 4-bit (w1zq4); n3 = n2 on 26.10.3, 512K as n2zq4. "
+                "1M (YaRN 3.815 + KV 4-bit) loads on 26.10.3, but some requests fail with PrefillDoesNotFit"},
     {"name": "oMLX 0.7.0", "repo": "jundot/omlx",
      "what": "MLX server for agents: continuous batching and a <b>two-tier paged KV cache</b>.",
      "cache": "Blocks in RAM that <b>spill over to an SSD tier</b>. The oQ4e PLE stays in mmap (<code>model_settings.json</code>).",
@@ -356,7 +361,7 @@ CSS = r"""
   --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
   --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
   --accent:#2a78d6; --accent-rgb:42,120,214; --warn:#b06a00; --warn-bg:#fbf1dd;
-  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#7c5cd6; --s7:#1597b0; --s8:#7a7f87; --s9:#8a6d3b;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#7c5cd6; --s7:#1597b0; --s8:#7a7f87; --s9:#8a6d3b; --s10:#3f8f3a;
   --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -367,7 +372,7 @@ CSS = r"""
     --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
     --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
     --accent:#3987e5; --accent-rgb:57,135,229; --warn:#e0a63a; --warn-bg:#2a2312;
-    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6; --s7:#1fa9c4; --s8:#9aa0a8; --s9:#b08d57;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6; --s7:#1fa9c4; --s8:#9aa0a8; --s9:#b08d57; --s10:#5cb356;
   }
 }
 :root[data-theme="dark"]{
@@ -376,7 +381,7 @@ CSS = r"""
   --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
   --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
   --accent:#3987e5; --accent-rgb:57,135,229; --warn:#e0a63a; --warn-bg:#2a2312;
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6; --s7:#1fa9c4; --s8:#9aa0a8; --s9:#b08d57;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6; --s7:#1fa9c4; --s8:#9aa0a8; --s9:#b08d57; --s10:#5cb356;
 }
 *{box-sizing:border-box}
 html,body{margin:0}

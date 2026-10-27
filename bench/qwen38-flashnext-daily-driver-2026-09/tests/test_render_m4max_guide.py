@@ -55,7 +55,7 @@ def test_payload_has_six_stacks_and_canonical_points():
         for ctx in p["ctx"]:
             assert str(ctx) in p["points"][st["id"]], (st["id"], ctx)
     assert p["points"]["k2"]["1000000"]["turn"] > 0
-    assert "mlx-serve stops at 512K" in p["points"]["w1"]["1000000"]["reason"]
+    assert "PrefillDoesNotFit" in p["points"]["w1"]["1000000"]["reason"]
     assert len({s["cv"] for s in p["stacks"]}) == len(p["stacks"])
     assert len({s["marker"] for s in p["stacks"]}) == len(p["stacks"])
 
@@ -173,3 +173,19 @@ def test_quality_has_livecodebench_and_no_mtplx_value():
     assert rows["o1"]["livecodebench"] == [45, 50]
     assert rows["m1"]["livecodebench"] is None
     assert "not measured" in guide.render(data, swift)
+
+
+def test_same_build_table_puts_iq_and_swift_on_26103():
+    # The iQ pack on 26.10.3 (series n3, t6 of splash-longctx) next to Swift 1.5 on the same build and iQ on 26.10.1.
+    data, swift = load()
+    canon = guide.canonical(data)
+    table = guide.same_build_table(data)
+    for h in ("iQ-MLX 4.7 bpw · mlx-serve 26.10.1", "iQ-MLX 4.7 bpw · mlx-serve 26.10.3", "Swift 1.5 · mlx-serve 26.10.3"):
+        assert h in table
+    for cid in ("n2", "n3", "w1"):
+        for ctx in guide.ROUND_CTX:
+            assert f'{canon[(cid, ctx)]["t_turno_s"]:.1f} s' in table, (cid, ctx)
+    html = guide.render(data, swift)
+    assert table in html
+    text = visible_text(html)
+    assert "mlx-serve stops at 512K" not in text and "PrefillDoesNotFit" in text

@@ -86,6 +86,16 @@ STACK = {s["id"]: s for s in STACKS}
 ROUND_STACKS = STACKS[:4]
 ROUND_CTX = CTX[:5]
 
+# The 1M probe of mlx-serve 26.10.3 (t7: YaRN 3.815 + KV 4-bit). Its runs stay out of the series, because some
+# requests fail; the page quotes only the cold TTFT of the Swift 1.5 run.
+MLX_1M_JSONL = REPO / "bench" / "splash-longctx-2026-10" / "results" / "w1zq4-1000000-t1.0-lc.jsonl"
+
+
+def mlx_cold_1m_s(path: Path = MLX_1M_JSONL) -> float:
+    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    return next(r["ttft_ms"] for r in rows if r["scenario"] == "cold" and not r.get("error")) / 1000
+
+
 # Sizes a stack does not serve: the page shows the reason instead of a number.
 NOT_RUN_1M = "not run: the October round stopped at 512K"
 MISSING = {
@@ -96,7 +106,8 @@ MISSING = {
     ("o1", 1000000): "no YaRN: oMLX stops at the native 262K",
     ("m1", 1000000): "not run: MTPLX already refuses 256K",
     ("d1", 1000000): NOT_RUN_1M,
-    ("w1", 1000000): "not served: mlx-serve stops at 512K (YaRN 2.0 + 4-bit KV cache, 3.8 GB of memory left)",
+    ("w1", 1000000): "loads, but fails: mlx-serve 26.10.3 serves the first 1M message, then 2 of 5 requests fail "
+                     "with PrefillDoesNotFit (~18 GB needed, 7–9 GB free)",
 }
 # The 1M profile of tools/scripts/serve-flashnext-splash.sh (--print), with the binary named splash. The 256k and
 # 512k profiles change only --max-context (262144, 524288).
@@ -275,6 +286,14 @@ def facts(data: dict, swift: dict) -> dict:
         if ("w1", ctx) in p:
             f[f"swift_mlx_turn_{tag}"] = f'{p[("w1", ctx)]["turn"]:.1f}'
             f[f"swift_mlx_decode_{tag}"] = f'{p[("w1", ctx)]["decode"]:.0f}'
+    canon = canonical(data)
+    for cid in ("n3", "w1"):
+        for ctx, tag in ((262144, "256"), (524288, "512")):
+            f[f"sb_turn_{cid}_{tag}"] = f'{canon[(cid, ctx)]["t_turno_s"]:.1f}'
+    names = {"n2": "iQ on 26.10.1", "n3": "iQ on 26.10.3", "w1": "Swift 1.5"}
+    f["sb_one_run"] = " and ".join(f"{names[cid]} at {ctx // 1024}K" for cid in names for ctx in ROUND_CTX
+                                   if canon[(cid, ctx)]["reps"] < 3)
+    f["mlx_cold_1m_min"] = f"{mlx_cold_1m_s() / 60:.1f}"
     k256, k512, k1m = p[("k2", 262144)], p[("k2", 524288)], p[("k2", 1000000)]
     f["splash_prefill_256"] = f'{k256["prefill"]:.0f}'
     f["swift_mlx_prefill_256"] = f'{p[("w1", 262144)]["prefill"]:.0f}'
@@ -303,6 +322,20 @@ def stacks_table() -> str:
     return f'<table class="txt"><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table>'
 
 
+def same_build_table(data: dict) -> str:
+    """Agent turn and decode of the iQ pack on 26.10.1 (n2) and 26.10.3 (n3) and of Swift 1.5 on 26.10.3 (w1)."""
+    canon = canonical(data)
+    cols = (("n2", "iQ-MLX 4.7 bpw · mlx-serve 26.10.1"), ("n3", "iQ-MLX 4.7 bpw · mlx-serve 26.10.3"),
+            ("w1", "Swift 1.5 · mlx-serve 26.10.3"))
+    head = "<th>Context</th>" + "".join(f"<th>{name}</th>" for _, name in cols)
+    rows = "".join(
+        f"<tr><td>{ctx // 1024}K</td>" + "".join(
+            f'<td>{canon[(cid, ctx)]["t_turno_s"]:.1f} s<small>{canon[(cid, ctx)]["decode_tps"]:.0f} tok/s</small></td>'
+            for cid, _ in cols) + "</tr>"
+        for ctx in ROUND_CTX)
+    return f'<table class="txt sb"><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table>'
+
+
 def splash_quality_table() -> str:
     head = "".join(f"<th>{h}</th>" for h in ("Test", "Swift 1.5 · mlx-serve · 262K", "Splash · 262K", "Splash · 512K",
                                                "Splash · 1M"))
@@ -322,6 +355,7 @@ def render(data: dict, swift: dict) -> str:
     body = BODY.format_map(f)
     html = TEMPLATE.replace("/*__CSS__*/", CSS).replace("__BODY__", body)
     html = html.replace("__STACKS_TABLE__", stacks_table()).replace("__RIG__", rig_strip(data))
+    html = html.replace("__SAME_BUILD__", same_build_table(data))
     html = html.replace("__SPLASH_QUALITY__", splash_quality_table()).replace("__SPLASH_COMMAND__", SPLASH_COMMAND)
     html = html.replace("__COMMANDS__", COMMANDS).replace("__JS__", JS)
     payload = json.dumps(build_payload(data, swift), ensure_ascii=False).replace("</", "<\\/")
@@ -395,7 +429,8 @@ BODY = r"""
   MTP and a prefix cache, each on its newest release. I did not measure llama.cpp, LM Studio or mlx-vlm in that round.
   mlx-dspark 0.20.3 ran at 32K only and behind these four, so it is not on the page. In a later round (2026-10-23 to
   2026-10-25) I added Splash 1.4.0 with Swift 1.5, next to the same fine-tune on mlx-serve 26.10.3, the server I use
-  every day.</p>
+  every day. So the iQ pack ran on mlx-serve 26.10.1 and Swift 1.5 on 26.10.3. On 2026-10-27 I ran the iQ pack again
+  on 26.10.3: <a href="#samebuild">section 9</a> compares the two on one build.</p>
   <div class="tbl-scroll">__STACKS_TABLE__</div>
 </section>
 
@@ -557,7 +592,7 @@ BODY = r"""
   <div class="tiles">
     <div class="tile"><span class="t-val">{splash_turn_256}<small> s</small></span><span class="t-lab">per agent turn at 256K, against {swift_mlx_turn_256} s on mlx-serve</span></div>
     <div class="tile"><span class="t-val">{splash_turn_512}<small> s</small></span><span class="t-lab">per agent turn at 512K, against {swift_mlx_turn_512} s on mlx-serve</span></div>
-    <div class="tile"><span class="t-val">{splash_turn_1m}<small> s</small></span><span class="t-lab">per agent turn at 1M; mlx-serve stops at 512K</span></div>
+    <div class="tile"><span class="t-val">{splash_turn_1m}<small> s</small></span><span class="t-lab">per agent turn at 1M; mlx-serve fails some 1M requests</span></div>
     <div class="tile"><span class="t-val">{splash_cold_1m_min}<small> min</small></span><span class="t-lab">first message at 1M, nothing cached</span></div>
   </div>
   <ul class="reads">
@@ -573,9 +608,20 @@ BODY = r"""
     {swift_mlx_reuse_edit_512}% on mlx-serve at 512K: {splash_edit_512_min} min at 512K and {splash_edit_1m_min} min at 1M
     (<a href="https://github.com/incoai/splash/issues/387" target="_blank" rel="noopener">splash #387</a>,
     <a href="https://github.com/incoai/splash/issues/361" target="_blank" rel="noopener">#361</a>).</li>
+    <li><b>mlx-serve at 1M.</b> With YaRN 3.815 and the 4-bit KV cache, mlx-serve 26.10.3 starts at 1M and serves the
+    first message ({mlx_cold_1m_min} min), but the next requests fail with <code>PrefillDoesNotFit</code>: they need
+    about 18 GB for the prefill, and 7 to 9 GB are free. 2 of 5 requests failed with Swift 1.5 and 3 of 5 with the iQ
+    pack, so the page has no 1M turn time for mlx-serve.</li>
     <li><b>YaRN changes short answers too.</b> Above 262K the context extension is static, so it applies to every prompt.
     Use the 512K or 1M setting only when the context needs it.</li>
   </ul>
+  <h3 id="samebuild">iQ-MLX and Swift 1.5 on the same mlx-serve build</h3>
+  <p class="s-note">Agent turn time and decode speed, same flags. Up to 128K the two quants tie on 26.10.3. Past
+  128K, Swift 1.5 is faster: {sb_turn_w1_256} s against {sb_turn_n3_256} s at 256K, and {sb_turn_w1_512} s against
+  {sb_turn_n3_512} s at 512K. The iQ pack lost decode speed on 26.10.3, so the base-model results of this page
+  (iQ on 26.10.1) are not the same build as the Swift results.</p>
+  <div class="tbl-scroll">__SAME_BUILD__</div>
+  <p class="foot-note">3 runs per cell, except {sb_one_run}: 1 run. 512K uses YaRN 2.0 and the 4-bit KV cache on both builds.</p>
   <h3>Quality: within the noise of mlx-serve, up to 1M</h3>
   <div class="tbl-scroll">__SPLASH_QUALITY__</div>
   <p class="foot-note">One run per cell, vendor sampling, reasoning effort xhigh; each column starts the server at that
@@ -600,7 +646,9 @@ BODY = r"""
     to 512K, and it is the only one of them that kept a turn under 15 s at 512K. The runner-up is <b>oMLX 0.7.0</b>
     ({omlx_turn_128} s at 128K), but it stops at 256K. <a href="#run">Commands below.</a> For the fastest decode or a
     context above 512K, try <b>Splash 1.4.0</b> with Swift 1.5 ({splash_turn_512} s at 512K, {splash_turn_1m} s at 1M), and
-    keep the history stable: a change halfway prefills the whole prompt again (<a href="#splash">section 9</a>).</p>
+    keep the history stable: a change halfway prefills the whole prompt again (<a href="#splash">section 9</a>). On
+    mlx-serve 26.10.3 the iQ pack is slower past 128K, and Swift 1.5 is the faster quant there
+    (<a href="#samebuild">same-build table</a>).</p>
   </div>
   <div class="tiles">
     <div class="tile"><span class="t-val">{mlx_turn_128}<small> s</small></span><span class="t-lab">per agent turn at 128K context</span></div>
@@ -915,6 +963,8 @@ table.txt td:first-child{white-space:nowrap; font-weight:600}
 table.txt a{color:var(--ink); text-decoration-color:var(--baseline)}
 #tblAll{min-width:900px}
 table.sq td:not(:first-child),table.sq th:not(:first-child){font-family:var(--mono); white-space:nowrap}
+table.sb td:not(:first-child){font-family:var(--mono); white-space:nowrap}
+table.sb td small{display:block; color:var(--muted)}
 #tblAll .cfg{display:block; color:var(--muted); font-size:0.72rem; white-space:nowrap}
 
 .cmds{display:grid; grid-template-columns:minmax(0,1fr); gap:12px}
