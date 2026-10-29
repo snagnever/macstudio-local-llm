@@ -166,7 +166,8 @@ def _read_env(path: Path) -> dict[str, str]:
     return out
 
 
-def _claude_code(results_dir: Path) -> dict[str, Any]:
+def _claude_code(results_dir: Path, prefix: str = "") -> dict[str, Any]:
+    """Claude Code pair results; prefix "k" reads the Splash files (cc-kcc1r1-a.json)."""
     def wall(name: str) -> Optional[float]:
         p = results_dir / f"cc-{name}.json"
         return json.loads(p.read_text(encoding="utf-8"))["wall_s"] if p.exists() else None
@@ -176,14 +177,14 @@ def _claude_code(results_dir: Path) -> dict[str, Any]:
 
     tasks: dict[str, Any] = {}
     for t in ("a", "b"):
-        alone = [w for w in (wall(f"cc1r{r}-{t}") for r in reps("cc1")) if w is not None]
-        together = [w for w in (wall(f"cc2r{r}-{t}") for r in reps("cc2")) if w is not None]
+        alone = [w for w in (wall(f"{prefix}cc1r{r}-{t}") for r in reps(f"{prefix}cc1")) if w is not None]
+        together = [w for w in (wall(f"{prefix}cc2r{r}-{t}") for r in reps(f"{prefix}cc2")) if w is not None]
         tasks[t] = {"alone_mean": statistics.mean(alone) if alone else None,
                     "together_mean": statistics.mean(together) if together else None,
                     "together_reps": together}
     pairs = []
-    for r in reps("cc2"):
-        a, b = wall(f"cc2r{r}-a"), wall(f"cc2r{r}-b")
+    for r in reps(f"{prefix}cc2"):
+        a, b = wall(f"{prefix}cc2r{r}-a"), wall(f"{prefix}cc2r{r}-b")
         if a is not None and b is not None:
             pairs.append(max(a, b))
     means = [tasks[t]["alone_mean"] for t in ("a", "b")]
@@ -195,8 +196,7 @@ SPLASH_RESULTS = REPO / "bench" / "splash-concurrency-2026-10" / "results"
 SPLASH_SERVER = "Splash 1.5.0"
 SPLASH_MODEL = "ukisai Swift 1.5 Qwen3.8 Flash-Next GGUF IQ4_XS with the DFlash2 draft model"
 SPLASH_MLX_SERVER = "mlx-serve 26.10.3"
-SPLASH_STATUS = ("Partial results, 2026-10-29: 32K, 128K and 256K are done. The real Claude Code pair is still "
-                 "running.")
+SPLASH_STATUS = "Measured 2026-10-29."
 # code -> (public name, sessions, solo reference code). k2c* run on Splash 1.5.0; w1zc* rerun the mlx-serve
 # model on mlx-serve 26.10.3 the same day, as a same-day control.
 SPLASH_PUBLIC: dict[str, tuple[str, int, str]] = {
@@ -219,8 +219,8 @@ SPLASH_CONFIGS: list[tuple[str, int]] = (
 )
 # k2c2L mixes a 256K and a 32K session; each stream takes the solo reference of its own band.
 SPLASH_SUMMARY_CTX = {("k2c2L", 262144): "all"}
-# The first 32K client-queue run left the queue wait out of the first-token time; it reruns at the end of the queue.
-SPLASH_PENDING = {("k2c1x2", 32768): "rerun pending"}
+# Configurations whose numbers are not final, with the reason shown in place of the result.
+SPLASH_PENDING: dict[tuple[str, int], str] = {}
 GATE_TEXT = {"ratio>2.0": "slowdown above 2.0×", "needles": "recall miss", "no overlap": "sessions did not overlap",
              "stall>60s": "a request waited over 60 s", "http errors": "refused request", "no data": "no data"}
 
@@ -263,7 +263,8 @@ def collect_splash(results_dir: Path) -> Optional[dict[str, Any]]:
     if not any(results_dir.glob("k2c1-*-e1-s1.jsonl")):
         return None
     return {"server": SPLASH_SERVER, "model": SPLASH_MODEL, "status": SPLASH_STATUS,
-            "configs": [_splash_config(results_dir, code, ctx) for code, ctx in SPLASH_CONFIGS]}
+            "configs": [_splash_config(results_dir, code, ctx) for code, ctx in SPLASH_CONFIGS],
+            "claude_code": _claude_code(results_dir, "k")}
 
 
 def collect(results_dir: Path, splash_dir: Optional[Path] = None) -> dict[str, Any]:
@@ -707,7 +708,7 @@ def _hero(data: dict) -> str:
             "two tasks run together finish no sooner than the same tasks one after the other.")
     if data.get("splash"):
         lead += (f' <a href="#splash">Update: the same tests on {_e(data["splash"]["server"])}</a> '
-                 "(partial results).")
+                 "— two real Claude Code sessions now finish sooner together than one after the other.")
     return (f'<section class="hero" id="hero"><p class="hero-lead">{lead}</p>'
             f'<div class="tiles">{tiles_html}</div></section>')
 
@@ -753,7 +754,26 @@ def _splash(data: dict) -> str:
     two_gain = {ctx: [g(code, ctx, "gain") for code in ("k2c2", "k2c2a")] for ctx in (32768, 131072)}
     m4 = _get(_find(data, "w1c2m4", 262144), "worst_ratio")
     m4_turn = None if m4 is None else m4 * data["refs"][262144]
+    cc_m, cc_s = data["claude_code"], sp.get("claude_code") or {}
+
+    def cc_row(cc, server):
+        t = cc.get("tasks", {})
+        per = [r / t[k]["alone_mean"] for k in t if t[k].get("alone_mean") for r in t[k].get("together_reps", [])]
+        serial, pair = cc.get("serial_sum"), cc.get("pair_wall")
+        return [_e(server), _sec(t.get("a", {}).get("alone_mean")), _sec(t.get("b", {}).get("alone_mean")),
+                _span(per, _x), _sec(pair), _sec(serial),
+                _num(None if not serial or pair is None else pair / serial, "{:.2f}")]
+    cc_per = [r / t["alone_mean"] for t in cc_s.get("tasks", {}).values() if t.get("alone_mean")
+              for r in t.get("together_reps", [])]
+    cc_gain = (None if not cc_s.get("serial_sum") or cc_s.get("pair_wall") is None
+               else (1 - cc_s["pair_wall"] / cc_s["serial_sum"]) * 100)
     items = [
+        f"With real Claude Code sessions, Splash wins. Each task alone takes "
+        f"{_sec(_get(cc_s.get('tasks', {}).get('a'), 'alone_mean'))} and "
+        f"{_sec(_get(cc_s.get('tasks', {}).get('b'), 'alone_mean'))}; two sessions together take {_span(cc_per, _x)} "
+        f"their time alone, and the pair finishes {_num(cc_gain, '{:.0f}', '%')} sooner than the two tasks one "
+        "after the other. Claude Code prompts are almost all cached, so each turn reads few new tokens and the "
+        "batch has little prompt reading to wait for.",
         f"One session is faster on Splash: {_sec(solo[32768])} per turn at 32K and {_sec(solo[131072])} at 128K, "
         f"against {_sec(mlx_solo[32768])} and {_sec(mlx_solo[131072])} on {SPLASH_MLX_SERVER} the same day.",
         f"Two sessions are also about 2× slower on Splash: worst slowdown {_span(two, _x)}, so they fail the "
@@ -761,7 +781,8 @@ def _splash(data: dict) -> str:
         f"{_span(two_gain[131072], _x)} at 128K: the batch does not add speed.",
         f"A client queue that sends one request at a time does as well at 128K: worst turn "
         f"{_sec(g('k2c1x2', 131072, 'worst_turn_s'))}, against {_sec(g('k2c2', 131072, 'worst_turn_s'))} for "
-        "two sessions batched.",
+        f"two sessions batched. At 32K the batch wins: {_sec(g('k2c2', 32768, 'worst_turn_s'))} against "
+        f"{_sec(g('k2c1x2', 32768, 'worst_turn_s'))} for the queue.",
         f"<code>--decode-share 1.0</code> is the only two-session setting under 2.0× at 128K: "
         f"{_x(g('k2c2ad1', 131072, 'worst_ratio'))}, total generation {_x(g('k2c2ad1', 131072, 'gain'))} one "
         f"session alone. It still missed one recall check. <code>--decode-share 0</code> starves one session "
@@ -780,8 +801,8 @@ def _splash(data: dict) -> str:
         f"({_x(g('k2c2L', 262144, 'worst_ratio'))}).",
     ]
     body = (
-        f'<p class="callout">{_e(sp["status"])} Numbers below can change when the campaign ends.</p>'
-        f'<p class="s-note">We repeated the 32K, 128K and 256K tests on {_e(sp["server"])} (released 2026-10-28), '
+        f'<p class="callout">{_e(sp["status"])}</p>'
+        f'<p class="s-note">We repeated the 32K, 128K and 256K tests and the Claude Code pair on {_e(sp["server"])} (released 2026-10-28), '
         f'with the {_e(sp["model"])}. Splash batches the generation of several sessions in one step and reads '
         'prompts one at a time. The same rules apply: slowdown is each session against one session alone on '
         'the same server, 3 runs per configuration.</p>'
@@ -789,6 +810,9 @@ def _splash(data: dict) -> str:
         + _table(["Sessions", "Context", f"{_e(data['server'])} worst turn", "slowdown",
                   f"{_e(sp['server'])} worst turn", "slowdown", "total generation ÷ one session"], cmp_rows, "cmp")
         + '<ol class="learned">' + "".join(f"<li>{i}</li>" for i in items) + "</ol>"
+        + _table(["Two Claude Code sessions", "Task A alone", "Task B alone", "Each session together ÷ alone",
+                  "Pair (both done)", "Tasks one after the other", "Pair ÷ one after the other"],
+                 [cc_row(cc_m, data["server"]), cc_row(cc_s, sp["server"])], "cc")
         + '<details><summary>All Splash test configurations</summary>'
         '<p class="s-note">Total generation is the sum of the sessions’ generation speeds ÷ one session alone. '
         '“Sessions did not overlap” fails a run whose sessions never generated at the same time; Splash reads '
@@ -798,7 +822,7 @@ def _splash(data: dict) -> str:
                   "Total generation ÷ one", "Recall", "Side-request p95", "Result"], rows, "all")
         + f'<p class="s-note">Runbook: <a href="{SPLASH_RUNBOOK_URL}">plan.md</a>. Results: '
         f'<a href="{SPLASH_RESULTS_URL}">results/</a>.</p></details>')
-    return _section("splash", f"Update: the same tests on {_e(sp['server'])} (partial)", body, "block card")
+    return _section("splash", f"Update: the same tests on {_e(sp['server'])}", body, "block card")
 
 
 def _how(data: dict) -> str:

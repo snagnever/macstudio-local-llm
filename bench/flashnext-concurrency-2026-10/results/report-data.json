@@ -851,7 +851,7 @@
   "splash": {
     "server": "Splash 1.5.0",
     "model": "ukisai Swift 1.5 Qwen3.8 Flash-Next GGUF IQ4_XS with the DFlash2 draft model",
-    "status": "Partial results, 2026-10-29: 32K, 128K and 256K are done. The real Claude Code pair is still running.",
+    "status": "Measured 2026-10-29.",
     "configs": [
       {
         "code": "k2c1",
@@ -927,15 +927,19 @@
         "n": 2,
         "ctx": 32768,
         "ref": "k2c1",
-        "worst_ratio": null,
-        "worst_turn_s": null,
-        "decode_per_session": null,
+        "worst_ratio": 3.3793103448275867,
+        "worst_turn_s": 19.6,
+        "decode_per_session": 113.53907407057609,
         "gain": null,
-        "needles": null,
-        "aux_p95": null,
-        "gates": [],
-        "result": "n/a",
-        "pending": "rerun pending"
+        "needles": "25/26",
+        "aux_p95": 80.48140287399292,
+        "gates": [
+          "slowdown above 2.0×",
+          "recall miss",
+          "a request waited over 60 s"
+        ],
+        "result": "fail",
+        "pending": null
       },
       {
         "code": "k2c3a",
@@ -1260,7 +1264,31 @@
         "result": "fail",
         "pending": null
       }
-    ]
+    ],
+    "claude_code": {
+      "tasks": {
+        "a": {
+          "alone_mean": 40.95,
+          "together_mean": 58.66666666666667,
+          "together_reps": [
+            55.6,
+            60.7,
+            59.7
+          ]
+        },
+        "b": {
+          "alone_mean": 40.5,
+          "together_mean": 59.96666666666667,
+          "together_reps": [
+            64.7,
+            57.6,
+            57.6
+          ]
+        }
+      },
+      "serial_sum": 81.45,
+      "pair_wall": 61.7
+    }
   },
   "text_facts": {
     "claude_code_version": "2.1.292",
