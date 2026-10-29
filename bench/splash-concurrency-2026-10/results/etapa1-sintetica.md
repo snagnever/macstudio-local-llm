@@ -23,13 +23,13 @@ Tag `e1`, 2026-10-29. Três reps por braço. Os braços `k2c*` usam o Splash 1.5
 | k2c4a | 32768 | s2 | 24.3 | 4.19 | 7.3 | 0.962 / 0.961 | 30.2 | 0.89 | 1.9 / 15.9 / 0 | 116.5 | 0.06 | 0.00 | 0 | 13/13 |
 | k2c4a | 32768 | s3 | 17.0 | 2.93 | 3.9 | 0.963 / 0.962 | 39.2 | 0.44 | 1.9 / 15.9 / 0 | 116.5 | 0.06 | 0.00 | 0 | 13/13 |
 | k2c4a | 32768 | s4 | 20.9 | 3.60 | 4.1 | 0.962 / 0.961 | 30.6 | 0.56 | 1.9 / 15.9 / 0 | 116.5 | 0.06 | 0.00 | 0 | 11/13 |
-| k2c1x2 | 32768 | s1 | 6.1 | 1.05 | 1.5 | 0.963 / 0.962 | 112.0 | 1.00 | 11.9 / 76.9 / 0 | 112.3 | 0.06 | 0.00 | 0 | 13/13 |
-| k2c1x2 | 32768 | s2 | 5.8 | 1.00 | 1.5 | 0.962 / 0.961 | 120.8 | 1.00 | 11.9 / 76.9 / 0 | 112.3 | 0.06 | 0.00 | 0 | 13/13 |
+| k2c1x2 | 32768 | s1 | 6.3 | 1.09 | 1.6 | 0.963 / 0.962 | 110.2 | 0.00 | 10.1 / 80.5 / 0 | 112.1 | 0.06 | 0.00 | 0 | 13/13 |
+| k2c1x2 | 32768 | s2 | 19.6 | 3.38 | 15.2 | 0.962 / 0.961 | 116.9 | 0.00 | 10.1 / 80.5 / 0 | 112.1 | 0.06 | 0.00 | 0 | 12/13 |
 | w1zc1 | 32768 | s1 | 7.9 | 1.00 | 1.8 | 0.962 / 0.961 | 83.2 | 0.00 | — | 100.7 | 0.05 | 0.00 | 0 | 12/13 |
 | w1zc2a | 32768 | s1 | 8.5 | 1.08 | 1.8 | 0.962 / 0.961 | 76.1 | 0.33 | 0.9 / 51.9 / 0 | 103.0 | 0.05 | 0.01 | 0 | 13/13 |
 | w1zc2a | 32768 | s2 | 13.8 | 1.75 | 1.8 | 0.962 / 0.961 | 42.4 | 1.00 | 0.9 / 51.9 / 0 | 103.0 | 0.05 | 0.01 | 0 | 13/13 |
 
-O `k2c1x2` a 32K desta tabela é o controle com defeito: o probe não contava a espera pelo lock no TTFT. O rerun com o fix `27c48ff` roda no fim da fila da Etapa 2.
+O `k2c1x2` a 32K desta tabela é o rerun com o fix `27c48ff` (a espera pelo lock conta no TTFT), feito no fim da fila da Etapa 2. A primeira rodada, sem o fix, está em `results/superseded-k2c1x2-32768/` no rig.
 
 ## 128K
 
@@ -54,7 +54,7 @@ O `k2c4` e o `k2c4a` não rodaram a 128K: a fila só roda N = 4 se o N = 3 passa
 
 ## Batch contra fila
 
-O `--vs k2c1x2` compara o `k2c2` com o controle serializado (um request por vez, mesma carga). A 128K o pior stream do batch fica 1.08× acima do pior stream da fila, e a média fica 1.42×: o batch não ganha da fila. A 32K o número (1.97×) usa o controle com defeito e fica em aberto até o rerun.
+O `--vs k2c1x2` compara o `k2c2` com o controle serializado (um request por vez, mesma carga). A 32K o batch ganha: o pior stream do `k2c2` fica em 0.61× o pior stream da fila (12.0 contra 19.6 s), média 0.90×. A 128K o batch perde: pior stream 1.08×, média 1.42×. A 128K o prefill de cada turno é longo, e o batch não esconde a espera.
 
 ## Overlap e `/status`
 
