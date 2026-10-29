@@ -101,6 +101,18 @@ mlx-serve 26.10.1 batches decode for this model at its default `--max-concurrent
 
 A short request from one session (permission check, title) waits behind another session's long prefill: p95 TTFT 170–356 s at 128K and 256K, during cold or mutated-prompt prefills. The same wait shows with `--max-concurrent 1`, and `--prefill-decode-share` 0.3 or 0.5 does not remove it (it doubles cold TTFT). Two sessions work on one driver, but they gain no time over running the tasks one after the other. Source: [`bench/flashnext-concurrency-2026-10/results/summary.md`](../../bench/flashnext-concurrency-2026-10/results/summary.md).
 
+Splash 1.5.0 (measured 2026-10-29, `tools/scripts/serve-flashnext-splash.sh`) batches decode too, but reads one prompt at a time. The result depends on how much new prompt each turn brings:
+
+| Test | mlx-serve | Splash 1.5.0 |
+|---|---:|---:|
+| One session, T_turno at 32K / 128K | 7.9 / 9.0 s (26.10.3) | 5.8 / 6.1 s |
+| Two sessions, worst turn at 32K / 128K | 13.8 / 15.6 s (1.75× / 1.73×) | 14.1 / 15.4 s (2.43× / 2.52×) |
+| Two 256K sessions, worst turn | 18.6 s, only with a 4 GB prompt cache (26.10.1) | 12.1 s, no memory setting |
+| Short side request p95 at 128K | 183 s | 5 s |
+| Claude Code pair ÷ the two tasks in sequence | 1.07 (26.10.1) | 0.76 |
+
+With Claude Code (prompts almost all cached), two Splash sessions finish 24% sooner than the same tasks in sequence, and each task alone takes ~41 s against 62–75 s on mlx-serve. The daily driver stays on mlx-serve: Splash runs the GGUF pack, and agent quality on it is not measured. Source: [`bench/splash-concurrency-2026-10/results/summary.md`](../../bench/splash-concurrency-2026-10/results/summary.md).
+
 ```bash
 tools/scripts/serve-flashnext-daily-driver.sh 256k   # two long sessions: 262144 tokens, 4 GB RAM prefix cache
 ```
