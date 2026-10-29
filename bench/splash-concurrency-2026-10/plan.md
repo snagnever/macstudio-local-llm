@@ -126,7 +126,7 @@ A tabela do `summarize_parallel.py` é a mesma da campanha anterior, com duas co
 - [x] **Step 1: Testes que falham** em `tests/test_splash_arms.py` (`--print` dos `k2c*`) e nos testes do `summarize_parallel.py` (`--ref-arm`, `vazão total`) e do `run-parallel-probes.sh` (`--serialize`, `--status-url`).
 - [x] **Step 2:** bloco `k2c*` no `run-candidate.sh`, copiado da forma do bloco `w1c*` (linhas 504–522), com `PAR_N`, `PAR_AUX` e `PARALLEL_CONTEXTS` pelo nome do braço e sem `--max-concurrent`.
 - [x] **Step 3:** flags novas nos scripts da campanha anterior. Os testes antigos continuam passando.
-- [ ] **Step 4:** smoke de ponta a ponta no rig: `k2c2a` a 32K, 1 rep, tag `smoke`. Commit.
+- [x] **Step 4:** smoke de ponta a ponta no rig: `k2c2a` a 32K, 1 rep, tag `smoke`. Commit.
 
 ### Task 2: Etapa 1 — tráfego artificial, 32K e 128K
 
@@ -192,3 +192,14 @@ A estimativa usa os tempos da campanha anterior. O Splash decodifica ~35% mais r
 - 512K e 1M com dois streams.
 - Mais de 4 streams.
 - O app desktop do Splash 1.5.0 (só o CLI roda no rig).
+
+## Emendas durante a execução (2026-10-29)
+
+- **Filas no rig.** Os scripts de fila ficam em `logs/` do worktree do rig (não rastreados), como nas campanhas anteriores:
+  - `logs/chain.sh <label> "<step>"`: para o daily driver, roda os steps e religa o driver;
+  - `logs/q-e1.sh`: Etapa 1 a 32K e a 128K (com os `w1zc*`), depois a Etapa 1c (`k2c2ad1`, `k2c2ad0`) e a Etapa 1b (256K). Os braços condicionais (`k2c4*` a 128K, `k2c2Ls`) decidem pelo `VERDICT` do `summarize_parallel.py`;
+  - `logs/q-e2.sh`: Etapa 2. Um waiter começa a fila quando aparece `CHAIN-e1: done`.
+- **Etapa 1c antes da 1b.** As variantes de `--decode-share` rodam a 128K, logo depois da banda de 128K. A 256K vem por último, porque é a mais longa.
+- **Etapa 2 sem esperar o `N_APPROVED`.** A Etapa 2 roda em seguida, na mesma janela de rig, para a comparação com o mlx-serve ficar completa. O gate de tempo continua o mesmo; o veredito usa o `N_APPROVED` da Etapa 1.
+- **Etapa 2 no Splash.** O servidor é o `k2c1` a 131072, um boot por rep, como o `w1c1` da campanha anterior. O `run-claude-pair.sh` já lê `BASE_URL` e `MODEL_ID` do `run-candidate.sh --exec`, então não mudou. No rig, o `claude` não está no `PATH` de um shell sem login: a fila usa `CLAUDE_BIN=/opt/homebrew/bin/claude` (Claude Code 2.1.292).
+- **Smoke de ponta a ponta (Task 1 Step 4).** `k2c2a` a 32K, 1 rep, tag `smoke`: dois streams e o gerador auxiliar terminam com exit 0, overlap 0.33, hit 0.96, o `status.jsonl` tem dados. É uma rep só, então a razão não vale como resultado.
