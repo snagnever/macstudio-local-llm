@@ -14,4 +14,4 @@ Tag `e1`, 2026-10-29. Três reps por braço, 2 sessões com requests curtos ao l
 - **`--decode-share 1.0` (`k2c2ad1`):** melhor braço de 2 sessões no Splash. O pior stream cai de 15.4 para 10.8 s (1.77×), e a vazão total sobe para 1.24×. Reprova por 1 needle errado em 13 no s2 e pelo "no overlap", que aqui é efeito da medida (ver [Etapa 1](etapa1-sintetica.md)).
 - **`--decode-share 0` (`k2c2ad0`):** o prefill tem prioridade. Um stream fica quase sozinho (1.07×), e o outro espera: 50.5 s, 8.28×.
 - **`k2c2v`:** não rodou. As needles do `k2c2ad1` erram 1 em 13, como as do `k2c2a`. A diferença com o N = 1 é de 1 needle, dentro do ruído de 3 reps. O `k2c2v` fica como pergunta aberta.
-- **Launcher:** o `--decode-share 1.0` não passa no gate e não entra no perfil diário. O `SPLASH_DECODE_SHARE` entra no launcher como opção, com default igual ao do Splash.
+- **Launcher:** o `--decode-share 1.0` não passa no gate. O plano só põe o `SPLASH_DECODE_SHARE` no launcher se o Task 3 aprovar, então o launcher fica com o default do Splash.
