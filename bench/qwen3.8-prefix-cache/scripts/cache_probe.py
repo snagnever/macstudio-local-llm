@@ -6,6 +6,7 @@ import json
 import sys
 import time
 from copy import deepcopy
+from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, Union
@@ -89,9 +90,15 @@ def _stream_chat_checked(
         if lock is not None:
             # Serialized control: one request at a time across every process that shares the lock file.
             fcntl.flock(lock, fcntl.LOCK_EX)
+        wait_ms = (time.perf_counter() - started) * 1000
         if headers:
-            return stream_chat(base_url, payload, headers=headers)
-        return stream_chat(base_url, payload)
+            result = stream_chat(base_url, payload, headers=headers)
+        else:
+            result = stream_chat(base_url, payload)
+        if lock is None:
+            return result
+        # The client sees the queue wait as part of TTFT; shifting both ends keeps the decode window unchanged.
+        return replace(result, ttft_ms=result.ttft_ms + wait_ms, e2e_ms=result.e2e_ms + wait_ms)
     except HTTPError as error:
         elapsed_ms = (time.perf_counter() - started) * 1000
         body = ""

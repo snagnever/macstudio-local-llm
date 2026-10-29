@@ -3,7 +3,7 @@ import stat
 
 import pytest
 
-from conftest import SCRIPTS, clean_env, run
+from conftest import REPO, SCRIPTS, clean_env, run
 
 SCENARIOS = (("cold", 3), ("identical", 3), ("append", 3), ("middle_mutation", 1), ("tool_turn", 3))
 
@@ -399,6 +399,23 @@ def test_aux_load_request_lock_serializes(tmp_path):
     assert t.is_alive() and not done  # waits on the lock before any connection
     held.close(); t.join(5)
     assert done and done[0][3].startswith("connection:")
+
+
+def test_cache_probe_request_lock_wait_counts_in_ttft(tmp_path, monkeypatch):
+    import fcntl
+    import threading
+    import sys
+    sys.path.insert(0, str(REPO / "bench/qwen3.8-prefix-cache/scripts"))
+    import cache_probe
+    from sse_client import StreamResult
+    monkeypatch.setattr(cache_probe, "stream_chat", lambda *a, **k: StreamResult("", "", "stop", 100.0, 600.0, {}, 1))
+    lock = tmp_path / "q.lock"
+    monkeypatch.setattr(cache_probe, "REQUEST_LOCK", lock)
+    held = lock.open("a")
+    fcntl.flock(held, fcntl.LOCK_EX)
+    threading.Timer(0.4, held.close).start()
+    r = cache_probe._stream_chat_checked("http://x/v1", {})
+    assert r.ttft_ms >= 100.0 + 350 and r.e2e_ms - r.ttft_ms == pytest.approx(500.0)
 
 
 def test_summarize_parallel_ref_arm_and_aggregate_decode(tmp_path):
