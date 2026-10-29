@@ -851,7 +851,7 @@
   "splash": {
     "server": "Splash 1.5.0",
     "model": "ukisai Swift 1.5 Qwen3.8 Flash-Next GGUF IQ4_XS with the DFlash2 draft model",
-    "status": "Partial results, 2026-10-29: 32K and 128K are done. The 256K runs and the real Claude Code pair are still running.",
+    "status": "Partial results, 2026-10-29: 32K, 128K and 256K are done. The real Claude Code pair is still running.",
     "configs": [
       {
         "code": "k2c1",
@@ -1201,6 +1201,59 @@
         "gain": 1.4895909577463935,
         "needles": "26/26",
         "aux_p95": 183.04781818389893,
+        "gates": [
+          "a request waited over 60 s"
+        ],
+        "result": "fail",
+        "pending": null
+      },
+      {
+        "code": "k2c1",
+        "public_name": "1 session",
+        "n": 1,
+        "ctx": 262144,
+        "ref": "k2c1",
+        "worst_ratio": 1.0,
+        "worst_turn_s": 6.4,
+        "decode_per_session": 108.60925694385372,
+        "gain": null,
+        "needles": "12/13",
+        "aux_p95": null,
+        "gates": [],
+        "result": "pass",
+        "pending": null
+      },
+      {
+        "code": "k2c2L",
+        "public_name": "256K + 32K sessions",
+        "n": 2,
+        "ctx": 262144,
+        "ref": "k2c1",
+        "worst_ratio": 2.4827586206896552,
+        "worst_turn_s": 14.4,
+        "decode_per_session": 79.32151737747793,
+        "gain": null,
+        "needles": "26/26",
+        "aux_p95": 5.008172035217285,
+        "gates": [
+          "slowdown above 2.0×",
+          "sessions did not overlap"
+        ],
+        "result": "fail",
+        "pending": null
+      },
+      {
+        "code": "k2c2LL",
+        "public_name": "2 × 256K sessions",
+        "n": 2,
+        "ctx": 262144,
+        "ref": "k2c1",
+        "worst_ratio": 1.8906249999999998,
+        "worst_turn_s": 12.1,
+        "decode_per_session": 100.6661174360469,
+        "gain": 1.8537299723556147,
+        "needles": "26/26",
+        "aux_p95": 8.255941152572632,
         "gates": [
           "a request waited over 60 s"
         ],

@@ -195,8 +195,8 @@ SPLASH_RESULTS = REPO / "bench" / "splash-concurrency-2026-10" / "results"
 SPLASH_SERVER = "Splash 1.5.0"
 SPLASH_MODEL = "ukisai Swift 1.5 Qwen3.8 Flash-Next GGUF IQ4_XS with the DFlash2 draft model"
 SPLASH_MLX_SERVER = "mlx-serve 26.10.3"
-SPLASH_STATUS = ("Partial results, 2026-10-29: 32K and 128K are done. The 256K runs and the real Claude Code "
-                 "pair are still running.")
+SPLASH_STATUS = ("Partial results, 2026-10-29: 32K, 128K and 256K are done. The real Claude Code pair is still "
+                 "running.")
 # code -> (public name, sessions, solo reference code). k2c* run on Splash 1.5.0; w1zc* rerun the mlx-serve
 # model on mlx-serve 26.10.3 the same day, as a same-day control.
 SPLASH_PUBLIC: dict[str, tuple[str, int, str]] = {
@@ -207,6 +207,7 @@ SPLASH_PUBLIC: dict[str, tuple[str, int, str]] = {
     "k2c4a": ("4 sessions + side requests", 4, "k2c1"),
     "k2c2ad1": ("2 sessions + side requests, --decode-share 1.0", 2, "k2c1"),
     "k2c2ad0": ("2 sessions + side requests, --decode-share 0", 2, "k2c1"),
+    "k2c2L": ("256K + 32K sessions", 2, "k2c1"), "k2c2LL": ("2 × 256K sessions", 2, "k2c1"),
     "w1zc1": (f"1 session, {SPLASH_MLX_SERVER}", 1, "w1zc1"),
     "w1zc2a": (f"2 sessions + side requests, {SPLASH_MLX_SERVER}", 2, "w1zc1"),
 }
@@ -214,7 +215,10 @@ SPLASH_CONFIGS: list[tuple[str, int]] = (
     [(c, 32768) for c in ("k2c1", "k2c1a", "k2c2", "k2c2a", "k2c1x2", "k2c3a", "k2c4", "k2c4a", "w1zc1", "w1zc2a")]
     + [(c, 131072) for c in ("k2c1", "k2c1a", "k2c2", "k2c2a", "k2c1x2", "k2c3a", "k2c2ad1", "k2c2ad0",
                              "w1zc1", "w1zc2a")]
+    + [(c, 262144) for c in ("k2c1", "k2c2L", "k2c2LL")]
 )
+# k2c2L mixes a 256K and a 32K session; each stream takes the solo reference of its own band.
+SPLASH_SUMMARY_CTX = {("k2c2L", 262144): "all"}
 # The first 32K client-queue run left the queue wait out of the first-token time; it reruns at the end of the queue.
 SPLASH_PENDING = {("k2c1x2", 32768): "rerun pending"}
 GATE_TEXT = {"ratio>2.0": "slowdown above 2.0×", "needles": "recall miss", "no overlap": "sessions did not overlap",
@@ -229,7 +233,8 @@ def _splash_config(results_dir: Path, code: str, ctx: int) -> dict[str, Any]:
                              "pending": SPLASH_PENDING.get((code, ctx))}
     if entry["pending"]:
         return entry
-    s = summarize(results_dir, code, ctx, "e1", ref_arm=None if code == ref else ref)
+    s = summarize(results_dir, code, SPLASH_SUMMARY_CTX.get((code, ctx), ctx), "e1",
+                  ref_arm=None if code == ref else ref)
     streams = s["streams"]
     if not streams:
         return entry
@@ -746,6 +751,8 @@ def _splash(data: dict) -> str:
     mlx_solo = {ctx: g("w1zc1", ctx, "worst_turn_s") for ctx in (32768, 131072)}
     two = [g(code, ctx, "worst_ratio") for code in ("k2c2", "k2c2a") for ctx in (32768, 131072)]
     two_gain = {ctx: [g(code, ctx, "gain") for code in ("k2c2", "k2c2a")] for ctx in (32768, 131072)}
+    m4 = _get(_find(data, "w1c2m4", 262144), "worst_ratio")
+    m4_turn = None if m4 is None else m4 * data["refs"][262144]
     items = [
         f"One session is faster on Splash: {_sec(solo[32768])} per turn at 32K and {_sec(solo[131072])} at 128K, "
         f"against {_sec(mlx_solo[32768])} and {_sec(mlx_solo[131072])} on {SPLASH_MLX_SERVER} the same day.",
@@ -764,10 +771,17 @@ def _splash(data: dict) -> str:
         f"with total generation {_x(g('w1zc2a', 32768, 'gain'))} and {_x(g('w1zc2a', 131072, 'gain'))}. Its "
         f"worst turn at 128K ({_sec(g('w1zc2a', 131072, 'worst_turn_s'))}) equals Splash’s "
         f"({_sec(g('k2c2a', 131072, 'worst_turn_s'))}), because Splash starts from a faster single session.",
+        f"Two 256K sessions fit on Splash with no memory setting: worst turn "
+        f"{_sec(g('k2c2LL', 262144, 'worst_turn_s'))} ({_x(g('k2c2LL', 262144, 'worst_ratio'))}), total generation "
+        f"{_x(g('k2c2LL', 262144, 'gain'))}, recall {_e(g('k2c2LL', 262144, 'needles') or 'n/a')}. It fails only "
+        "because a cold 256K prompt takes about 12 minutes to read and the other session waits. "
+        f"{_e(data['server'])} needed the prompt cache cut to 4 GB, and its worst turn was {_sec(m4_turn)}. "
+        f"With one 256K and one 32K session, the short session waits: {_sec(g('k2c2L', 262144, 'worst_turn_s'))} "
+        f"({_x(g('k2c2L', 262144, 'worst_ratio'))}).",
     ]
     body = (
         f'<p class="callout">{_e(sp["status"])} Numbers below can change when the campaign ends.</p>'
-        f'<p class="s-note">We repeated the 32K and 128K tests on {_e(sp["server"])} (released 2026-10-28), '
+        f'<p class="s-note">We repeated the 32K, 128K and 256K tests on {_e(sp["server"])} (released 2026-10-28), '
         f'with the {_e(sp["model"])}. Splash batches the generation of several sessions in one step and reads '
         'prompts one at a time. The same rules apply: slowdown is each session against one session alone on '
         'the same server, 3 runs per configuration.</p>'
