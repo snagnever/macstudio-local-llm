@@ -22,7 +22,8 @@ from typing import Any, Optional
 def prompt(tokens: int, salt: str) -> str:
     # ~4 characters per token; numbered lines keep the prompt from compressing into a repeated pattern.
     lines = [f"{salt} line {i}: the quick brown fox jumps over the lazy dog." for i in range(tokens // 14)]
-    return "\n".join(lines) + "\n\nSummarize the text above in one sentence."
+    # A long-answer instruction keeps every request decoding long enough for the decode windows to overlap.
+    return "\n".join(lines) + "\n\nWrite a detailed 900-word story about this fox, in numbered paragraphs."
 
 
 def one_request(base_url: str, model: str, text: str, max_tokens: int, out: dict[str, Any]) -> None:
@@ -58,7 +59,7 @@ def one_request(base_url: str, model: str, text: str, max_tokens: int, out: dict
 def main(argv: Optional[list[str]] = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--requests", type=int, default=2)
-    p.add_argument("--prompt-tokens", type=int, default=16000)
+    p.add_argument("--prompt-tokens", type=int, default=2000)
     p.add_argument("--max-tokens", type=int, default=1024)
     p.add_argument("--output", required=True, type=Path)
     a = p.parse_args(argv)
@@ -80,7 +81,10 @@ def main(argv: Optional[list[str]] = None) -> int:
         time.sleep(5)
     windows = [(r["t_first_token"], r["t_end"]) for r in results if r.get("t_first_token")]
     overlap = any(a0 < b1 and b0 < a1 for i, (a0, a1) in enumerate(windows) for (b0, b1) in windows[i + 1:])
+    # Splash /status: the scheduler counts requests per phase; max_decoding >= 2 means a batched decode.
+    decoding = [((r.get("status") or {}).get("scheduler") or {}).get("decoding") for r in samples]
     verdict = {"kind": "verdict", "overlap": overlap, "decode_tps": [r.get("decode_tps") for r in results],
+               "max_decoding": max([d for d in decoding if isinstance(d, int)] or [None], key=lambda d: d or 0),
                "errors": [r.get("error") for r in results if r.get("error")]}
     with a.output.open("w", encoding="utf-8") as fh:
         for row in results + samples + [verdict]:
