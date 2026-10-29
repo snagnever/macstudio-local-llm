@@ -368,3 +368,54 @@ def test_run_parallel_probes_opens_the_barrier_once_every_stream_is_ready(tmp_pa
                         "--repeat", "1", "--arm", "w1c2", "--tag", "e1", "--out", str(tmp_path / "out")],
                        capture_output=True, text=True, env=env, timeout=30)
     assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_run_parallel_probes_runtime_serialize_and_status(tmp_path):
+    out = run("bash", SCRIPTS / "run-parallel-probes.sh", "--dry-run", "--streams", "2", "--aux", "--serialize",
+              "--runtime", "splash", "--status-url", "http://127.0.0.1:8585/status", "--context", "32768",
+              "--repeat", "3", "--arm", "k2c1x2", "--tag", "e1", "--out", str(tmp_path)).stdout
+    lines = [l for l in out.splitlines() if l.strip()]
+    assert len(lines) == 3 and all("--request-lock" in l and "k2c1x2-32768-e1.lock" in l for l in lines)
+    assert "--runtime splash" in lines[0] and "--runtime mlx-serve" not in out
+
+
+def test_run_parallel_probes_default_runtime_and_no_lock():
+    out = run("bash", SCRIPTS / "run-parallel-probes.sh", "--dry-run", "--streams", "2", "--context", "32768",
+              "--repeat", "3", "--arm", "w1c2", "--tag", "e1", "--out", "/tmp/x").stdout
+    assert "--runtime mlx-serve" in out and "--request-lock" not in out
+
+
+def test_aux_load_request_lock_serializes(tmp_path):
+    import fcntl
+    import threading
+    import aux_load
+    lock = tmp_path / "q.lock"
+    held = lock.open("a")
+    fcntl.flock(held, fcntl.LOCK_EX)
+    done = []
+    t = threading.Thread(target=lambda: done.append(
+        aux_load.send("http://127.0.0.1:1/v1", {"x": 1}, timeout=1, lock_path=lock)))
+    t.start(); t.join(0.5)
+    assert t.is_alive() and not done  # waits on the lock before any connection
+    held.close(); t.join(5)
+    assert done and done[0][3].startswith("connection:")
+
+
+def test_summarize_parallel_ref_arm_and_aggregate_decode(tmp_path):
+    from summarize_parallel import summarize
+    write_fixture_streams(tmp_path, "k2c1", 32768, "e1", [6.0], [0.96], [0.0])
+    write_fixture_streams(tmp_path, "k2c2", 32768, "e1", [9.0, 9.0], [0.96, 0.96], [1.0, 1.0])
+    s = summarize(tmp_path, "k2c2", 32768, "e1", ref_arm="k2c1")
+    assert s["streams"][0]["ratio"] == pytest.approx(1.5)
+    tp = s["throughput"]
+    solo = 512 / (6.0 - 2.0)
+    assert tp["ref_decode_tps"] == pytest.approx(solo)
+    assert tp["aggregate_decode_tps"] == pytest.approx(2 * 512 / (9.0 - 2.0))
+    assert tp["gain"] == pytest.approx(2 * (512 / 7.0) / solo)
+
+
+def test_summarize_parallel_ref_arm_missing_band_gives_no_ratio(tmp_path):
+    from summarize_parallel import summarize
+    write_fixture_streams(tmp_path, "k2c2", 131072, "e1", [9.0, 9.0], [0.96, 0.96], [1.0, 1.0])
+    s = summarize(tmp_path, "k2c2", 131072, "e1", ref_arm="k2c1")
+    assert s["streams"][0]["ratio"] is None and s["throughput"]["gain"] is None

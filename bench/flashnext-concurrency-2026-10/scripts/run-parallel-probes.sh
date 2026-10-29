@@ -3,6 +3,8 @@
 # one JSONL per stream, plus an optional auxiliary load generator (aux_load.py) while the probes run.
 # Odd streams use the audit_retrieval fixture, even streams the code fixture; streams 3+ add a prompt salt
 # so they never share a prefix with streams 1 and 2. Exit status is non-zero if any probe stream failed.
+# --serialize: every probe and aux request holds one flock (the client-side queue of a serialized control on a
+# server with no switch to turn batching off). --status-url: sample that URL every 10 s into <name>-status.jsonl.
 # bash 3.2 (the rig's): no associative arrays, no mapfile.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -10,9 +12,10 @@ REPO="$(cd "$HERE/../../.." && pwd)"
 PROBE="$REPO/bench/qwen3.8-prefix-cache/scripts/cache_probe.py"
 PY="${PARALLEL_PYTHON:-python3}"
 
-usage() { echo "usage: $0 --streams N [--aux] --context CTX [--contexts C1,C2,...] --repeat R --arm ARM --tag TAG --out DIR [--temperature T] [--reasoning-effort E] [--runtime-revision REV] [--model-revision SHA] [--dry-run]" >&2; exit 64; }
+usage() { echo "usage: $0 --streams N [--aux] --context CTX [--contexts C1,C2,...] --repeat R --arm ARM --tag TAG --out DIR [--temperature T] [--reasoning-effort E] [--runtime NAME] [--runtime-revision REV] [--model-revision SHA] [--serialize] [--status-url URL] [--dry-run]" >&2; exit 64; }
 
-STREAMS=""; AUX=""; CTX=""; CONTEXTS=""; REPEAT=""; ARM=""; TAG=""; OUT=""; DRY=""
+STREAMS=""; AUX=""; CTX=""; CONTEXTS=""; REPEAT=""; ARM=""; TAG=""; OUT=""; DRY=""; SERIALIZE=""; STATUS_URL=""
+RUNTIME=mlx-serve
 TEMP=1.0; EFFORT=xhigh; RUNTIME_REV=v26.10.1; MODEL_REV=13839b7191e0973ff9fea58232267c395b76c6c0
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -26,7 +29,10 @@ while [[ $# -gt 0 ]]; do
     --out) OUT="$2"; shift 2 ;;
     --temperature) TEMP="$2"; shift 2 ;;
     --reasoning-effort) EFFORT="$2"; shift 2 ;;
+    --runtime) RUNTIME="$2"; shift 2 ;;
     --runtime-revision) RUNTIME_REV="$2"; shift 2 ;;
+    --serialize) SERIALIZE=1; shift ;;
+    --status-url) STATUS_URL="$2"; shift 2 ;;
     --model-revision) MODEL_REV="$2"; shift 2 ;;
     --dry-run) DRY=1; shift ;;
     *) echo "run-parallel-probes: unknown option: $1" >&2; usage ;;
@@ -53,6 +59,8 @@ RUNNING="$OUT/${ARM}-${CTX}-${TAG}.running"
 LOGDIR="${FLASHNEXT_LOGS_DIR:-$OUT}"  # per-stream stdout/stderr stays out of results/ when run-arm.sh sets it
 AUX_OUT="$OUT/${ARM}-${CTX}-${TAG}-aux.jsonl"
 BARRIER="$LOGDIR/${ARM}-${CTX}-${TAG}.barrier"  # sK.ready per stream, then start once all are ready
+LOCK="$LOGDIR/${ARM}-${CTX}-${TAG}.lock"
+STATUS_OUT="$LOGDIR/${ARM}-${CTX}-${TAG}-status.jsonl"
 
 # Each builder fills the global CMD array; the caller prints it (--dry-run) or runs it (no eval: bash 3.2
 # turns the exit status of a backgrounded eval into 1).
@@ -61,12 +69,13 @@ probe_cmd() {  # $1 = stream index (1-based)
   (( k % 2 == 0 )) && class=code
   (( k >= 3 )) && salt="s$k"
   CMD=("$PY" "$PROBE" --base-url "$BASE_URL" --model "$MODEL_ID" --api-model "$MODEL_ID"
-    --runtime mlx-serve --runtime-revision "$RUNTIME_REV" --model-revision "$MODEL_REV"
+    --runtime "$RUNTIME" --runtime-revision "$RUNTIME_REV" --model-revision "$MODEL_REV"
     --arm "$ARM" --session-id "${ARM}-${TAG}-s${k}" --context "$ctx" --content-class "$class"
     --repeat "$REPEAT" --concurrency "$STREAMS"
     --temperature "$TEMP" --top-p 0.95 --top-k 20 --reasoning-effort "$EFFORT")
   if [[ "$REPEAT" -gt 1 ]]; then CMD+=(--scenario-repeats middle_mutation=1); fi
   if [[ -n "$salt" ]]; then CMD+=(--prompt-salt "$salt"); fi
+  if [[ -n "$SERIALIZE" ]]; then CMD+=(--request-lock "$LOCK"); fi
   CMD+=(--ready-file "$BARRIER/s${k}.ready" --start-file "$BARRIER/start")
   CMD+=(--output "$OUT/${ARM}-${ctx}-${TAG}-s${k}.jsonl" --cache-enabled --mtp-enabled)
 }
@@ -74,6 +83,7 @@ probe_cmd() {  # $1 = stream index (1-based)
 aux_cmd() {
   CMD=("$PY" "$HERE/aux_load.py" --base-url "$BASE_URL" --model "$MODEL_ID" --period 20
     --duration-file "$RUNNING" --output "$AUX_OUT")
+  if [[ -n "$SERIALIZE" ]]; then CMD+=(--request-lock "$LOCK"); fi
 }
 
 if [[ -n "$DRY" ]]; then
@@ -90,9 +100,10 @@ for ((k = 1; k <= STREAMS; k++)); do
 done
 [[ -n "$AUX" && -s "$AUX_OUT" ]] && mv "$AUX_OUT" "$AUX_OUT.bak.$(date -u +%Y%m%dT%H%M%SZ)"
 
-AUX_PID=""; PIDS=()
+AUX_PID=""; STATUS_PID=""; PIDS=()
 cleanup() {
   rm -f "$RUNNING"
+  [[ -n "$STATUS_PID" ]] && kill "$STATUS_PID" 2>/dev/null || true
   for p in "${PIDS[@]:-}"; do [[ -n "$p" ]] && kill "$p" 2>/dev/null || true; done
   if [[ -n "$AUX_PID" ]]; then
     # aux_load.py exits after its current call once the duration file is gone; kill it if it lingers.
@@ -103,6 +114,15 @@ cleanup() {
 trap cleanup EXIT
 
 : > "$RUNNING"
+if [[ -n "$STATUS_URL" ]]; then
+  # One JSON line per sample: {"t": epoch, "status": <body or null>}; stops with the duration file.
+  ( while [[ -e "$RUNNING" ]]; do
+      body="$(curl -fsS --max-time 5 "$STATUS_URL" 2>/dev/null | tr -d '\n' || true)"
+      [[ "$body" == \{* ]] || body=null
+      printf '{"t": %s, "status": %s}\n' "$(date +%s)" "${body:-null}" >> "$STATUS_OUT"
+      sleep 10
+    done ) & STATUS_PID=$!
+fi
 rm -rf "$BARRIER"; mkdir -p "$BARRIER"
 for ((k = 1; k <= STREAMS; k++)); do
   probe_cmd "$k"; "${CMD[@]}" > "$LOGDIR/${ARM}-${CTXS[$((k - 1))]}-${TAG}-s${k}.log" 2>&1 & PIDS+=($!)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import fcntl
 import hashlib
 import json
 import sys
@@ -47,6 +48,7 @@ SAMPLING_CONTROLS = {
 }
 WARMUP_ID = "cache-probe-independent-v2"
 MAX_TOKENS = 4096  # main() replaces it with --max-tokens
+REQUEST_LOCK: Optional[Path] = None  # main() replaces it with --request-lock
 TEMPLATE_RESERVE_TOKENS = 1024 + 512
 # A wrong answer keeps this much text, so a needle failure can be read later.
 CONTENT_HEAD_CHARS = 500
@@ -82,7 +84,11 @@ def _stream_chat_checked(
     scenario's JSONL output silently missing.
     """
     started = time.perf_counter()
+    lock = REQUEST_LOCK.open("a") if REQUEST_LOCK is not None else None
     try:
+        if lock is not None:
+            # Serialized control: one request at a time across every process that shares the lock file.
+            fcntl.flock(lock, fcntl.LOCK_EX)
         if headers:
             return stream_chat(base_url, payload, headers=headers)
         return stream_chat(base_url, payload)
@@ -104,6 +110,9 @@ def _stream_chat_checked(
         raise RequestFailure(
             f"connection: {error}", elapsed_ms=elapsed_ms, fatal=True
         ) from error
+    finally:
+        if lock is not None:
+            lock.close()
 
 
 def fixture_token_target(context_size: int) -> int:
@@ -940,6 +949,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--start-file", type=Path, default=None,
         help="start barrier: measured requests wait until this file exists (30 min timeout)",
     )
+    parser.add_argument(
+        "--request-lock", type=Path, default=None,
+        help="hold an exclusive flock on this file around each request (client-side queue)",
+    )
     parser.add_argument("--cache-enabled", action="store_true")
     parser.add_argument("--mtp-enabled", action="store_true")
     parser.add_argument("--specprefill", type=lambda value: value.lower() == "true")
@@ -1048,9 +1061,10 @@ def selected_scenarios(raw: str, order: str = "canonical") -> tuple[str, ...]:
 
 
 def main() -> int:
-    global MAX_TOKENS
+    global MAX_TOKENS, REQUEST_LOCK
     args = build_parser().parse_args()
     MAX_TOKENS = args.max_tokens
+    REQUEST_LOCK = args.request_lock
     sampling_controls = {
         **SAMPLING_CONTROLS,
         "temperature": args.temperature,
