@@ -191,7 +191,77 @@ def _claude_code(results_dir: Path) -> dict[str, Any]:
             "pair_wall": statistics.mean(pairs) if pairs else None}
 
 
-def collect(results_dir: Path) -> dict[str, Any]:
+SPLASH_RESULTS = REPO / "bench" / "splash-concurrency-2026-10" / "results"
+SPLASH_SERVER = "Splash 1.5.0"
+SPLASH_MODEL = "ukisai Swift 1.5 Qwen3.8 Flash-Next GGUF IQ4_XS with the DFlash2 draft model"
+SPLASH_MLX_SERVER = "mlx-serve 26.10.3"
+SPLASH_STATUS = ("Partial results, 2026-10-29: 32K and 128K are done. The 256K runs and the real Claude Code "
+                 "pair are still running.")
+# code -> (public name, sessions, solo reference code). k2c* run on Splash 1.5.0; w1zc* rerun the mlx-serve
+# model on mlx-serve 26.10.3 the same day, as a same-day control.
+SPLASH_PUBLIC: dict[str, tuple[str, int, str]] = {
+    "k2c1": ("1 session", 1, "k2c1"), "k2c1a": ("1 session + side requests", 1, "k2c1"),
+    "k2c2": ("2 sessions", 2, "k2c1"), "k2c2a": ("2 sessions + side requests", 2, "k2c1"),
+    "k2c1x2": ("2 sessions, client queue (one request at a time)", 2, "k2c1"),
+    "k2c3a": ("3 sessions + side requests", 3, "k2c1"), "k2c4": ("4 sessions", 4, "k2c1"),
+    "k2c4a": ("4 sessions + side requests", 4, "k2c1"),
+    "k2c2ad1": ("2 sessions + side requests, --decode-share 1.0", 2, "k2c1"),
+    "k2c2ad0": ("2 sessions + side requests, --decode-share 0", 2, "k2c1"),
+    "w1zc1": (f"1 session, {SPLASH_MLX_SERVER}", 1, "w1zc1"),
+    "w1zc2a": (f"2 sessions + side requests, {SPLASH_MLX_SERVER}", 2, "w1zc1"),
+}
+SPLASH_CONFIGS: list[tuple[str, int]] = (
+    [(c, 32768) for c in ("k2c1", "k2c1a", "k2c2", "k2c2a", "k2c1x2", "k2c3a", "k2c4", "k2c4a", "w1zc1", "w1zc2a")]
+    + [(c, 131072) for c in ("k2c1", "k2c1a", "k2c2", "k2c2a", "k2c1x2", "k2c3a", "k2c2ad1", "k2c2ad0",
+                             "w1zc1", "w1zc2a")]
+)
+# The first 32K client-queue run left the queue wait out of the first-token time; it reruns at the end of the queue.
+SPLASH_PENDING = {("k2c1x2", 32768): "rerun pending"}
+GATE_TEXT = {"ratio>2.0": "slowdown above 2.0×", "needles": "recall miss", "no overlap": "sessions did not overlap",
+             "stall>60s": "a request waited over 60 s", "http errors": "refused request", "no data": "no data"}
+
+
+def _splash_config(results_dir: Path, code: str, ctx: int) -> dict[str, Any]:
+    name, n, ref = SPLASH_PUBLIC[code]
+    entry: dict[str, Any] = {"code": code, "public_name": name, "n": n, "ctx": ctx, "ref": ref,
+                             "worst_ratio": None, "worst_turn_s": None, "decode_per_session": None, "gain": None,
+                             "needles": None, "aux_p95": None, "gates": [], "result": "n/a",
+                             "pending": SPLASH_PENDING.get((code, ctx))}
+    if entry["pending"]:
+        return entry
+    s = summarize(results_dir, code, ctx, "e1", ref_arm=None if code == ref else ref)
+    streams = s["streams"]
+    if not streams:
+        return entry
+    turns = [st["t_turno_s"] for st in streams if st["t_turno_s"] is not None]
+    ratios = [st["ratio"] for st in streams if st["ratio"] is not None]
+    decodes = [st["decode_tps"] for st in streams if st["decode_tps"] is not None]
+    good = sum(int(st["needles"].split("/")[0]) for st in streams)
+    total = sum(int(st["needles"].split("/")[1]) for st in streams)
+    entry.update(
+        worst_turn_s=max(turns) if turns else None,
+        worst_ratio=(max(ratios) if ratios else None) if code != ref else 1.0,
+        decode_per_session=statistics.mean(decodes) if decodes else None,
+        # A queue generates one session at a time, so a sum of per-session speeds would count the same time twice.
+        gain=None if code == "k2c1x2" else (s.get("throughput") or {}).get("gain"),
+        needles=f"{good}/{total}", aux_p95=(s["aux"] or {}).get("p95"),
+        gates=[GATE_TEXT.get(g, g) for g in s["gates_failed"]],
+    )
+    v = s["verdict"]
+    entry["result"] = "warning" if v.startswith("pass-with-warning") else "pass" if v.startswith("pass") else "fail"
+    return entry
+
+
+def collect_splash(results_dir: Path) -> Optional[dict[str, Any]]:
+    """The Splash 1.5.0 campaign (bench/splash-concurrency-2026-10), or None when its results are absent."""
+    results_dir = Path(results_dir)
+    if not any(results_dir.glob("k2c1-*-e1-s1.jsonl")):
+        return None
+    return {"server": SPLASH_SERVER, "model": SPLASH_MODEL, "status": SPLASH_STATUS,
+            "configs": [_splash_config(results_dir, code, ctx) for code, ctx in SPLASH_CONFIGS]}
+
+
+def collect(results_dir: Path, splash_dir: Optional[Path] = None) -> dict[str, Any]:
     results_dir = Path(results_dir)
     configs = [_config(results_dir, code, ctx, tag, context) for code, ctx, tag, context in CONFIGS]
     by_code = {(c["code"], c["ctx"]): c for c in configs}
@@ -209,6 +279,7 @@ def collect(results_dir: Path) -> dict[str, Any]:
         "verdicts": {"etapa1": _read_env(results_dir / "etapa1-verdict.env"),
                      "etapa1b": _read_env(results_dir / "etapa1b-verdict.env")},
         "refs": dict(REFS),
+        "splash": collect_splash(splash_dir) if splash_dir is not None else None,
     }
 
 
@@ -425,6 +496,10 @@ H1 = "How many agent sessions fit on one local Flash-Next server?"
 GITHUB = "https://github.com/snagnever/macstudio-local-llm"
 RUNBOOK_URL = f"{GITHUB}/blob/main/bench/flashnext-concurrency-2026-10/plan.md"
 RESULTS_URL = f"{GITHUB}/tree/main/bench/flashnext-concurrency-2026-10/results"
+SPLASH_RUNBOOK_URL = f"{GITHUB}/blob/main/bench/splash-concurrency-2026-10/plan.md"
+SPLASH_RESULTS_URL = f"{GITHUB}/tree/main/bench/splash-concurrency-2026-10/results"
+# Splash arms comparable with CHART_ARMS (n sessions with side requests); 4 sessions did not run at 128K.
+SPLASH_CHART_ARMS = {1: "k2c1a", 2: "k2c2a", 3: "k2c3a", 4: "k2c4a"}
 UPSTREAM = "https://github.com/ddalcu/mlx-serve"
 DROWZEYS_URL = ("https://github.com/drowzeys/"
                 "keys-Independent-Bench-MLX-Serve-26.9.7-dev-Qwen3.8-Flash-Next-4bit-8bit-mixed")
@@ -625,8 +700,91 @@ def _hero(data: dict) -> str:
             f"on {_e(data['server'])}, on the test machine ({_e(data['rig'])}), on {_e(dates)}. "
             "Two sessions work and stay within the pass rule, but each turn takes about twice as long, so "
             "two tasks run together finish no sooner than the same tasks one after the other.")
+    if data.get("splash"):
+        lead += (f' <a href="#splash">Update: the same tests on {_e(data["splash"]["server"])}</a> '
+                 "(partial results).")
     return (f'<section class="hero" id="hero"><p class="hero-lead">{lead}</p>'
             f'<div class="tiles">{tiles_html}</div></section>')
+
+
+def _sp(data: dict, code: str, ctx: int) -> Optional[dict]:
+    sp = data.get("splash") or {}
+    return next((c for c in sp.get("configs", []) if c["code"] == code and c["ctx"] == ctx), None)
+
+
+def _splash(data: dict) -> str:
+    sp = data.get("splash")
+    if not sp:
+        return ""
+
+    def g(code, ctx, key):
+        return _get(_sp(data, code, ctx), key)
+
+    charts, cmp_rows = [], []
+    for ctx in (32768, 131072):
+        groups = []
+        for n in range(1, 5):
+            mlx = _by_n(data, "ratio", ctx, n)
+            spl = g(SPLASH_CHART_ARMS[n], ctx, "worst_ratio")
+            groups.append({"label": f"{n} session{'s' if n > 1 else ''}",
+                           "values": {data["server"]: mlx, sp["server"]: spl}})
+            mlx_turn = None if mlx is None else mlx * data["refs"][ctx]
+            ran = _sp(data, SPLASH_CHART_ARMS[n], ctx) is not None
+            cmp_rows.append([f"{n}", CTX_LABEL[ctx], _sec(mlx_turn), _x(mlx)] + (
+                [_sec(g(SPLASH_CHART_ARMS[n], ctx, "worst_turn_s")), _x(g(SPLASH_CHART_ARMS[n], ctx, "worst_ratio")),
+                 _x(g(SPLASH_CHART_ARMS[n], ctx, "gain"))] if ran else ["not run"] * 3))
+        charts.append(_panel(svg_grouped_bars(groups, [data["server"], sp["server"]], 4.5, bands=BANDS),
+                             f"{CTX_LABEL[ctx]}: worst slowdown with side requests, each server against its own "
+                             "single session. " + _e(BAND_NOTE)))
+    rows = []
+    for c in sp["configs"]:
+        why = c["pending"] or (", ".join(c["gates"]) if c["result"] == "fail" else "")
+        rows.append([_e(c["public_name"]), CTX_LABEL[c["ctx"]], _sec(c["worst_turn_s"]), _x(c["worst_ratio"]),
+                     _num(c["decode_per_session"]), _x(c["gain"]), _e(c["needles"] or "n/a"), _sec(c["aux_p95"]),
+                     RESULT_TEXT[c["result"]] + (f" ({_e(why)})" if why else "")])
+    solo = {ctx: g("k2c1", ctx, "worst_turn_s") for ctx in (32768, 131072)}
+    mlx_solo = {ctx: g("w1zc1", ctx, "worst_turn_s") for ctx in (32768, 131072)}
+    two = [g(code, ctx, "worst_ratio") for code in ("k2c2", "k2c2a") for ctx in (32768, 131072)]
+    two_gain = {ctx: [g(code, ctx, "gain") for code in ("k2c2", "k2c2a")] for ctx in (32768, 131072)}
+    items = [
+        f"One session is faster on Splash: {_sec(solo[32768])} per turn at 32K and {_sec(solo[131072])} at 128K, "
+        f"against {_sec(mlx_solo[32768])} and {_sec(mlx_solo[131072])} on {SPLASH_MLX_SERVER} the same day.",
+        f"Two sessions are also about 2× slower on Splash: worst slowdown {_span(two, _x)}, so they fail the "
+        f"rule. Total generation is {_span(two_gain[32768], _x)} one session alone at 32K and "
+        f"{_span(two_gain[131072], _x)} at 128K: the batch does not add speed.",
+        f"A client queue that sends one request at a time does as well at 128K: worst turn "
+        f"{_sec(g('k2c1x2', 131072, 'worst_turn_s'))}, against {_sec(g('k2c2', 131072, 'worst_turn_s'))} for "
+        "two sessions batched.",
+        f"<code>--decode-share 1.0</code> is the only two-session setting under 2.0× at 128K: "
+        f"{_x(g('k2c2ad1', 131072, 'worst_ratio'))}, total generation {_x(g('k2c2ad1', 131072, 'gain'))} one "
+        f"session alone. It still missed one recall check. <code>--decode-share 0</code> starves one session "
+        f"({_x(g('k2c2ad0', 131072, 'worst_ratio'))}).",
+        f"Same-day control on {SPLASH_MLX_SERVER}: two sessions with side requests "
+        f"{_x(g('w1zc2a', 32768, 'worst_ratio'))} at 32K and {_x(g('w1zc2a', 131072, 'worst_ratio'))} at 128K, "
+        f"with total generation {_x(g('w1zc2a', 32768, 'gain'))} and {_x(g('w1zc2a', 131072, 'gain'))}. Its "
+        f"worst turn at 128K ({_sec(g('w1zc2a', 131072, 'worst_turn_s'))}) equals Splash’s "
+        f"({_sec(g('k2c2a', 131072, 'worst_turn_s'))}), because Splash starts from a faster single session.",
+    ]
+    body = (
+        f'<p class="callout">{_e(sp["status"])} Numbers below can change when the campaign ends.</p>'
+        f'<p class="s-note">We repeated the 32K and 128K tests on {_e(sp["server"])} (released 2026-10-28), '
+        f'with the {_e(sp["model"])}. Splash batches the generation of several sessions in one step and reads '
+        'prompts one at a time. The same rules apply: slowdown is each session against one session alone on '
+        'the same server, 3 runs per configuration.</p>'
+        + _legend([("var(--s1)", data["server"]), ("var(--s2)", sp["server"])]) + "".join(charts)
+        + _table(["Sessions", "Context", f"{_e(data['server'])} worst turn", "slowdown",
+                  f"{_e(sp['server'])} worst turn", "slowdown", "total generation ÷ one session"], cmp_rows, "cmp")
+        + '<ol class="learned">' + "".join(f"<li>{i}</li>" for i in items) + "</ol>"
+        + '<details><summary>All Splash test configurations</summary>'
+        '<p class="s-note">Total generation is the sum of the sessions’ generation speeds ÷ one session alone. '
+        '“Sessions did not overlap” fails a run whose sessions never generated at the same time; Splash reads '
+        'one prompt at a time, so at 128K the two sessions alternate more than they overlap. 4 sessions did '
+        'not run at 128K because 3 sessions failed.</p>'
+        + _table(["Configuration", "Context", "Worst turn", "Worst slowdown", "Generation per session, tokens/s",
+                  "Total generation ÷ one", "Recall", "Side-request p95", "Result"], rows, "all")
+        + f'<p class="s-note">Runbook: <a href="{SPLASH_RUNBOOK_URL}">plan.md</a>. Results: '
+        f'<a href="{SPLASH_RESULTS_URL}">results/</a>.</p></details>')
+    return _section("splash", f"Update: the same tests on {_e(sp['server'])} (partial)", body, "block card")
 
 
 def _how(data: dict) -> str:
@@ -906,8 +1064,8 @@ def _not_measured() -> str:
              "mlx-serve 26.10.2, which changes batching at long context and the SSD cache, and PR #884 in a "
              "future release.",
              "More than four sessions. Three sessions ran only with side requests.",
-             "A real queue in the client (a lock that sends one request at a time): this server version has no "
-             "switch to turn batching off.",
+             "A real queue in the client (a lock that sends one request at a time) on mlx-serve: this server "
+             "version has no switch to turn batching off. The Splash update above measures it on Splash.",
              "An interactive Claude Code pair with real permission prompts and titles."]
     return _section("not-measured", "Not measured",
                     "<ul>" + "".join(f"<li>{_e(i)}</li>" for i in items) + "</ul>")
@@ -1041,6 +1199,7 @@ pre{background:var(--surface-2); border:1px solid var(--border); border-radius:1
 pre code{background:none; padding:0; overflow-wrap:normal}
 details{margin-top:8px}
 summary{cursor:pointer; font-weight:600; margin:0 0 10px}
+.callout{margin:0 0 12px; padding:10px 14px; border-left:3px solid var(--warn); background:var(--warn-bg); border-radius:6px; font-size:0.92rem}
 footer{margin-top:48px; padding-top:20px; border-top:1px solid var(--border)}
 """
 
@@ -1080,7 +1239,7 @@ def render(data: dict, generated: Optional[str] = None) -> str:
         f"<style>{CSS}</style>\n</head>\n<body>\n<div class=\"wrap\">\n",
         f'<header><div><p class="eyebrow">{_e(eyebrow)}</p><h1>{_e(H1)}</h1></div>'
         '<button class="theme" id="themeBtn" type="button">theme: auto</button></header>\n',
-        _hero(data), _how(data), _glossary(), _sessions(data), _throughput(data), _side_requests(data),
+        _hero(data), _splash(data), _how(data), _glossary(), _sessions(data), _throughput(data), _side_requests(data),
         _max_concurrent(data), _long_context(data), _claude_code_section(data), _pds(data), _learned(data),
         _upstream(), _refusals(data), _not_measured(), _reproduce(data), "\n", _footer(generated),
         "\n</div>\n",
@@ -1095,12 +1254,13 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument("--results-dir", default=str(RESULTS))
     p.add_argument("--out-html", default=str(REPO / "reports" / "qwen38-flashnext-concurrency.html"))
     p.add_argument("--out-json", default=str(RESULTS / "report-data.json"))
+    p.add_argument("--splash-results-dir", default=str(SPLASH_RESULTS))
     return p
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     args = _parser().parse_args(argv)
-    data = collect(Path(args.results_dir))
+    data = collect(Path(args.results_dir), Path(args.splash_results_dir))
     out_html, out_json = Path(args.out_html), Path(args.out_json)
     out_html.parent.mkdir(parents=True, exist_ok=True)
     out_json.parent.mkdir(parents=True, exist_ok=True)
