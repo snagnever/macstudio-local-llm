@@ -115,17 +115,17 @@ A tabela do `summarize_parallel.py` é a mesma da campanha anterior, com duas co
 
 ### Task 0: Pré-voo e coordenação do rig
 
-- [ ] **Step 1: Confirmar que o rig está livre.** A sessão "Atualizações de stack preferidas" parou o Terminal-Bench do `w1z` às 09:56 CET de 29/10, em 51 de 89 tarefas. Ela retoma o `w1z` (~16 h, contra o driver na 11234) quando esta campanha avisar. Conferir no rig: `pgrep -fl "cache_probe|run-candidate|harbor|splash serve"` vazio, além do daily driver na 11234. O waiter `bench/splash-longctx-2026-10/logs/wait-t5r.sh` fica vivo: ele só dispara depois de `CHAIN-tb21-r1z: done`, que não acontece durante esta campanha.
-- [ ] **Step 2: Instalar o Splash 1.5.0** em `~/.local/opt/qwen38/splash-v1.5.0/`, lado a lado. Não alterar a 1.4.0 nem a 1.4.1: o `k2a` e o `k3r` da outra sessão dependem delas. Usar o mesmo método da 1.4.1 (ver `bench/stack-updates-2026-10/plan.md`). Conferir `sw_vers` (≥ 26.4 não é exigido para o CLI, só para o app), `splash --version` e ≥ 150 GB livres em disco.
-- [ ] **Step 3: Gravar o `--help`** em `results/splash-150-help.txt`. Conferir que `--queue-size`, `--decode-share` e `--verify-rows` existem e anotar os defaults.
-- [ ] **Step 4: Smoke de batch.** Parar o daily driver. Subir o `k2c1` a 32K. Mandar dois `cold` de 32K ao mesmo tempo, gravar `/status` a cada 5 s e o log do servidor. Esperado: as duas janelas de decode se sobrepõem e o `/status` mostra dois requests rodando. Se o Splash serializar, a campanha para e o veredito é "o Splash não faz batch para o Flash-Next".
-- [ ] **Step 5:** escrever `results/etapa0-preflight.md` (versão, flags, formato do `/status`, resultado do smoke) e fazer commit.
+- [x] **Step 1: Confirmar que o rig está livre.** A sessão "Atualizações de stack preferidas" parou o Terminal-Bench do `w1z` às 09:56 CET de 29/10, em 51 de 89 tarefas. Ela retoma o `w1z` (~16 h, contra o driver na 11234) quando esta campanha avisar. Conferir no rig: `pgrep -fl "cache_probe|run-candidate|harbor|splash serve"` vazio, além do daily driver na 11234. O waiter `bench/splash-longctx-2026-10/logs/wait-t5r.sh` fica vivo: ele só dispara depois de `CHAIN-tb21-r1z: done`, que não acontece durante esta campanha.
+- [x] **Step 2: Instalar o Splash 1.5.0** em `~/.local/opt/qwen38/splash-v1.5.0/`, lado a lado. Não alterar a 1.4.0 nem a 1.4.1: o `k2a` e o `k3r` da outra sessão dependem delas. Usar o mesmo método da 1.4.1 (ver `bench/stack-updates-2026-10/plan.md`). Conferir `sw_vers` (≥ 26.4 não é exigido para o CLI, só para o app), `splash --version` e ≥ 150 GB livres em disco.
+- [x] **Step 3: Gravar o `--help`** em `results/splash-150-help.txt`. Conferir que `--queue-size`, `--decode-share` e `--verify-rows` existem e anotar os defaults.
+- [x] **Step 4: Smoke de batch.** Parar o daily driver. Subir o `k2c1` a 32K. Mandar dois `cold` de 32K ao mesmo tempo, gravar `/status` a cada 5 s e o log do servidor. Esperado: as duas janelas de decode se sobrepõem e o `/status` mostra dois requests rodando. Se o Splash serializar, a campanha para e o veredito é "o Splash não faz batch para o Flash-Next".
+- [x] **Step 5:** escrever `results/etapa0-preflight.md` (versão, flags, formato do `/status`, resultado do smoke) e fazer commit.
 
 ### Task 1: Harness
 
-- [ ] **Step 1: Testes que falham** em `tests/test_splash_arms.py` (`--print` dos `k2c*`) e nos testes do `summarize_parallel.py` (`--ref-arm`, `vazão total`) e do `run-parallel-probes.sh` (`--serialize`, `--status-url`).
-- [ ] **Step 2:** bloco `k2c*` no `run-candidate.sh`, copiado da forma do bloco `w1c*` (linhas 504–522), com `PAR_N`, `PAR_AUX` e `PARALLEL_CONTEXTS` pelo nome do braço e sem `--max-concurrent`.
-- [ ] **Step 3:** flags novas nos scripts da campanha anterior. Os testes antigos continuam passando.
+- [x] **Step 1: Testes que falham** em `tests/test_splash_arms.py` (`--print` dos `k2c*`) e nos testes do `summarize_parallel.py` (`--ref-arm`, `vazão total`) e do `run-parallel-probes.sh` (`--serialize`, `--status-url`).
+- [x] **Step 2:** bloco `k2c*` no `run-candidate.sh`, copiado da forma do bloco `w1c*` (linhas 504–522), com `PAR_N`, `PAR_AUX` e `PARALLEL_CONTEXTS` pelo nome do braço e sem `--max-concurrent`.
+- [x] **Step 3:** flags novas nos scripts da campanha anterior. Os testes antigos continuam passando.
 - [ ] **Step 4:** smoke de ponta a ponta no rig: `k2c2a` a 32K, 1 rep, tag `smoke`. Commit.
 
 ### Task 2: Etapa 1 — tráfego artificial, 32K e 128K
