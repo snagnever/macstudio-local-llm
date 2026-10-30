@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synapse — the second brain you actually feed</title>
+<meta name="description" content="Synapse captures, connects, and recalls everything you know in one living knowledge base.">
+<style>
+  :root{
+    --bg:#0b0d12;
+    --card:#12151d;
+    --card2:#161a24;
+    --line:rgba(255,255,255,.08);
+    --txt:#e9ecf3;
+    --dim:#8a91a5;
+    --acc:#7c6cff;
+    --acc2:#3ddbd0;
+    --acc3:#ff7a90;
+    --r:20px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--txt);font-family:Inter,ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  a{color:inherit}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(11,13,18,.75);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .bar{display:flex;justify-content:space-between;align-items:center;padding:16px 0}
+  .logo{display:flex;gap:10px;align-items:center;font-weight:700;font-size:17px;letter-spacing:-.01em}
+  .logo i{width:26px;height:26px;border-radius:8px;background:conic-gradient(from 220deg,var(--acc),var(--acc2),var(--acc3),var(--acc));display:inline-block}
+  nav{display:flex;gap:6px;align-items:center}
+  nav a{text-decoration:none;color:var(--dim);font-size:14px;padding:8px 14px;border-radius:10px}
+  nav a:hover{color:var(--txt);background:rgba(255,255,255,.05)}
+  .btn{font-size:14px;font-weight:600;padding:11px 22px;border-radius:12px;text-decoration:none;display:inline-block;border:1px solid transparent}
+  .btn-a{background:var(--txt);color:var(--bg)}
+  .btn-a:hover{background:#fff}
+  .btn-b{border-color:var(--line);color:var(--txt);background:rgba(255,255,255,.03)}
+  .btn-b:hover{border-color:rgba(255,255,255,.25)}
+  nav .btn{margin-left:10px}
+
+  .hero{text-align:center;padding:104px 0 64px;position:relative}
+  .hero::before{content:"";position:absolute;width:720px;height:360px;left:50%;top:-40px;transform:translateX(-50%);
+    background:radial-gradient(50% 50% at 50% 50%,rgba(124,108,255,.25),transparent 70%);pointer-events:none}
+  .chip{display:inline-flex;gap:8px;align-items:center;font-size:12.5px;font-weight:600;color:var(--dim);border:1px solid var(--line);
+    background:var(--card);border-radius:999px;padding:7px 16px;margin-bottom:26px;position:relative}
+  .chip b{color:var(--acc2)}
+  h1{font-size:clamp(40px,6.4vw,68px);font-weight:800;letter-spacing:-.035em;line-height:1.05;position:relative}
+  h1 .grad{background:linear-gradient(92deg,var(--acc) 5%,var(--acc2) 55%,var(--acc3) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:18px;color:var(--dim);max-width:56ch;margin:22px auto 0}
+  .cta{display:flex;gap:14px;justify-content:center;margin-top:36px}
+  .trust{margin-top:26px;font-size:13px;color:var(--dim)}
+  .trust b{color:var(--txt)}
+
+  /* bento */
+  .bento{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:112px;gap:14px;padding-bottom:24px}
+  .cell{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px;overflow:hidden;position:relative;transition:border-color .18s,transform .18s}
+  .cell:hover{border-color:rgba(255,255,255,.18);transform:translateY(-2px)}
+  .cell h3{font-size:17px;font-weight:700;letter-spacing:-.01em;margin-bottom:6px}
+  .cell p{font-size:13.5px;color:var(--dim);max-width:38ch}
+  .cap{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--acc);margin-bottom:12px;display:block}
+  .a1{grid-column:span 3;grid-row:span 3}
+  .a2{grid-column:span 3;grid-row:span 2}
+  .a3{grid-column:span 3;grid-row:span 2}
+  .a4{grid-column:span 2;grid-row:span 2}
+  .a5{grid-column:span 2;grid-row:span 2}
+  .a6{grid-column:span 2;grid-row:span 2}
+
+  .glowpurple{background:radial-gradient(80% 90% at 20% 100%,rgba(124,108,255,.16),transparent 60%),var(--card)}
+  .glowteal{background:radial-gradient(80% 90% at 80% 100%,rgba(61,219,208,.13),transparent 60%),var(--card)}
+
+  /* fake app UI in a1 */
+  .app{position:absolute;inset:auto 18px 18px 18px;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:14px;font-size:12px}
+  .app .row{display:flex;gap:8px;align-items:center;padding:7px 8px;border-radius:8px;color:var(--dim)}
+  .app .row.on{background:rgba(124,108,255,.14);color:var(--txt)}
+  .app .row i{width:7px;height:7px;border-radius:50%;background:var(--acc)}
+  .app .row:nth-child(2) i{background:var(--acc2)}.app .row:nth-child(3) i{background:var(--acc3)}
+  .app .bar-top{display:flex;gap:6px;margin-bottom:10px;color:#5c6376;font-size:11px}
+  .app .bar-top span{width:9px;height:9px;border-radius:50%;background:#262b38}
+
+  .graph{position:absolute;inset:auto 14px 14px 14px;height:96px;opacity:.9}
+  .bignum{position:absolute;right:22px;top:16px;font-size:44px;font-weight:800;letter-spacing:-.04em;color:rgba(255,255,255,.06)}
+
+  section.mid{padding:56px 0 8px;text-align:center}
+  section.mid h2{font-size:clamp(28px,4.4vw,42px);font-weight:800;letter-spacing:-.025em}
+  section.mid .sub{color:var(--dim);max-width:52ch;margin:14px auto 44px;font-size:16.5px}
+
+  .quote{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:34px;font-size:17px;letter-spacing:-.01em;line-height:1.55;max-width:720px;margin:64px auto 0;text-align:center}
+  .quote .who{display:block;margin-top:16px;font-size:13px;color:var(--dim);font-weight:600}
+  .quote .who::before{content:"— "}
+
+  .pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:48px}
+  .tier{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:28px;text-align:left}
+  .tier.hot{border-color:rgba(124,108,255,.55);background:radial-gradient(120% 80% at 50% 0%,rgba(124,108,255,.12),transparent 60%),var(--card)}
+  .tier h4{font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:700}
+  .tier .p{font-size:38px;font-weight:800;letter-spacing:-.03em;margin:12px 0 4px}
+  .tier .p small{font-size:14px;color:var(--dim);font-weight:500;letter-spacing:0}
+  .tier ul{list-style:none;margin:18px 0 24px;font-size:14px;color:var(--dim)}
+  .tier li{padding:5px 0 5px 22px;position:relative}
+  .tier li::before{content:"✓";position:absolute;left:0;color:var(--acc2);font-weight:700}
+  .tier .btn{width:100%;text-align:center}
+
+  .endcard{margin:88px 0 0;text-align:center;border-radius:28px;padding:80px 24px;position:relative;overflow:hidden;
+    background:radial-gradient(90% 140% at 50% 0%,rgba(124,108,255,.22),transparent 55%),var(--card);border:1px solid var(--line)}
+  .endcard h2{font-size:clamp(30px,4.8vw,46px);font-weight:800;letter-spacing:-.03em}
+  .endcard p{color:var(--dim);margin:14px 0 30px}
+
+  footer{padding:40px 0;margin-top:80px;color:var(--dim);font-size:13px;border-top:1px solid var(--line)}
+  footer .wrap{display:flex;justify-content:space-between}
+
+  /* iteration switcher */
+  .iter-switcher{position:fixed;right:20px;bottom:20px;z-index:99;display:flex;align-items:center;gap:4px;
+    background:rgba(18,21,29,.9);border:1px solid var(--line);backdrop-filter:blur(10px);padding:8px 10px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+  .iter-switcher .lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);padding:0 8px 0 4px;font-weight:700}
+  .iter-switcher a{font-size:13px;font-weight:600;width:30px;height:30px;display:flex;align-items:center;justify-content:center;color:var(--txt);text-decoration:none;border-radius:999px}
+  .iter-switcher a:hover{background:rgba(255,255,255,.08)}
+  .iter-switcher a[aria-current="page"]{background:linear-gradient(92deg,var(--acc),var(--acc2));color:#0b0d12;font-weight:800}
+
+  @media(max-width:960px){
+    .bento{grid-template-columns:1fr;grid-auto-rows:auto}
+    .cell{grid-column:1/-1 !important;grid-row:auto !important;min-height:180px}
+    .app{position:static;margin-top:18px}
+    .graph{position:static;margin-top:18px}
+    .pricing{grid-template-columns:1fr}
+    nav a:not(.btn){display:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="logo"><i></i>Synapse</div>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#start">Changelog</a>
+      <a class="btn btn-a" href="#start">Get Synapse</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <span class="chip">✦ New — <b>Synapse 4.0:</b> memory that runs on-device</span>
+    <h1>One place for<br>everything you <span class="grad">know.</span></h1>
+    <p class="lede">Synapse is a second brain that captures your notes, links them automatically, and resurfaces the right idea at the right moment — before you even search.</p>
+    <div class="cta">
+      <a class="btn btn-a" href="#start">Start free →</a>
+      <a class="btn btn-b" href="#features">Watch the 2-min demo</a>
+    </div>
+    <p class="trust">Free 30-day Pro trial · <b>4.9★</b> average across 12,000 reviews</p>
+  </section>
+
+  <section id="features">
+    <div class="bento">
+      <div class="cell a1 glowpurple">
+        <span class="cap">The canvas</span>
+        <h3>Notes that connect themselves</h3>
+        <p>Write in a fast editor. Synapse quietly builds a living graph of every idea you've ever noted.</p>
+        <div class="app" aria-hidden="true">
+          <div class="bar-top"><span></span><span></span><span></span>&nbsp; synapse — q3 strategy</div>
+          <div class="row on"><i></i>“pricing mirrors the roadmap” ← linked 3×</div>
+          <div class="row"><i></i>call-memo-acme.md · Mar 14</div>
+          <div class="row"><i></i>idea-vault.md · Feb 2</div>
+        </div>
+      </div>
+      <div class="cell a2 glowteal">
+        <span class="cap">Recall</span>
+        <h3>Ask your past self anything</h3>
+        <p>Natural-language search with citations — across notes, PDFs, and clipped articles.</p>
+        <div class="bignum">41ms</div>
+      </div>
+      <div class="cell a3">
+        <span class="cap">Capture</span>
+        <h3>Everything has an inbox now</h3>
+        <p>Global quick-capture, email-to-note, web clipper, voice memos. It all lands, tagged and titled.</p>
+      </div>
+      <div class="cell a4 glowpurple">
+        <span class="cap">Resurface</span>
+        <h3>Ideas, replayed</h3>
+        <p>Smart echoes bring old notes back exactly when they're relevant.</p>
+        <svg class="graph" viewBox="0 0 220 96" fill="none" aria-hidden="true">
+          <path d="M20 70 L70 30 L120 60 L170 20 L205 50" stroke="#7c6cff" stroke-width="1.5"/>
+          <circle cx="20" cy="70" r="5" fill="#7c6cff"/><circle cx="70" cy="30" r="6" fill="#3ddbd0"/>
+          <circle cx="120" cy="60" r="4" fill="#ff7a90"/><circle cx="170" cy="20" r="6" fill="#7c6cff"/>
+          <circle cx="205" cy="50" r="4" fill="#3ddbd0"/>
+        </svg>
+      </div>
+      <div class="cell a5">
+        <span class="cap">Sync</span>
+        <h3>Every device, zero conflicts</h3>
+        <p>End-to-end encrypted CRDT sync. Works on a plane, works offline, works forever.</p>
+      </div>
+      <div class="cell a6 glowteal">
+        <span class="cap">Open</span>
+        <h3>Your data, on your terms</h3>
+        <p>Local-first files, one-click export, API for your own automations.</p>
+      </div>
+    </div>
+
+    <blockquote class="quote">
+      "Synapse gave me back the one resource I couldn't buy more of — <b>my own remembered knowledge.</b> Two weeks in, I know more about my own work than Google ever did."
+      <span class="who">Elena Vasquez, staff engineer &amp; 10-year note hoarder</span>
+    </blockquote>
+  </section>
+
+  <section class="mid" id="pricing">
+    <h2>Simple, honest pricing</h2>
+    <p class="sub">Start free. Upgrade when your brain gets big.</p>
+    <div class="pricing">
+      <div class="tier">
+        <h4>Solo</h4>
+        <div class="p">$0<small>/forever</small></div>
+        <ul><li>Unlimited notes</li><li>2 devices</li><li>Semantic search</li><li>Local-first vault</li></ul>
+        <a class="btn btn-b" href="#start">Start free</a>
+      </div>
+      <div class="tier hot">
+        <h4>Pro</h4>
+        <div class="p">$8<small>/month</small></div>
+        <ul><li>Everything in Solo</li><li>Unlimited devices &amp; sync</li><li>Resurfacing &amp; echoes</li><li>AI recall with citations</li><li>Priority support</li></ul>
+        <a class="btn btn-a" href="#start">Try Pro free</a>
+      </div>
+      <div class="tier">
+        <h4>Teams</h4>
+        <div class="p">$14<small>/user/mo</small></div>
+        <ul><li>Shared knowledge base</li><li>Permissions &amp; SSO</li><li>Team graph search</li></ul>
+        <a class="btn btn-b" href="#start">Talk to us</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="start" class="endcard">
+    <h2>Feed your second brain.</h2>
+    <p>Download Synapse and watch your ideas start finding each other.</p>
+    <div class="cta" style="margin-top:0"><a class="btn btn-a" href="#">Download free →</a><a class="btn btn-b" href="#">See it in action</a></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Synapse Labs, Inc.</span>
+    <span>Privacy · Security · Status · @synapseapp</span>
+  </div>
+</footer>
+
+<nav class="iter-switcher" aria-label="Design iterations">
+  <span class="lbl">style</span>
+  <a href="../1/" title="1 · Editorial">1</a>
+  <a href="../2/" title="2 · Terminal">2</a>
+  <a href="../3/" title="3 · Playground">3</a>
+  <a href="../4/" aria-current="page" title="4 · Bento">4</a>
+  <a href="../5/" title="5 · Atelier">5</a>
+</nav>
+
+</body>
+</html>

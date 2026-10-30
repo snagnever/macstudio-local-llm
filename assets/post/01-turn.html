@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>01-turn</title><style>
+html,body{margin:0; width:1200px; height:1200px; background:#fbfaf7; color:#0b0b0b;
+  font-family:-apple-system,"SF Pro Text","Inter",Helvetica,Arial,sans-serif}
+.s{width:1200px; height:1200px; padding:64px 68px; box-sizing:border-box; display:flex; flex-direction:column; position:relative}
+.main{flex:1; display:flex; flex-direction:column; justify-content:center; gap:24px}
+.eyebrow{font-family:"SF Mono",Menlo,monospace; font-size:17px; letter-spacing:0.14em; text-transform:uppercase; color:#898781; margin:0}
+h1{font-size:54px; line-height:1.08; letter-spacing:-0.025em; margin:0}
+h2{font-size:42px; line-height:1.12; letter-spacing:-0.02em; margin:0; max-width:1000px}
+.lead{font-size:25px; color:#52514e; line-height:1.4; margin:0; max-width:1020px}
+.lead b{color:#0b0b0b}
+.tiles{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+.tile{background:#f0eee8; border-radius:16px; padding:22px 26px}
+.t-val{font-size:64px; font-weight:700; letter-spacing:-0.025em; display:block; line-height:1.05}
+.t-val small{font-size:28px; font-weight:600; color:#52514e}
+.t-lab{font-size:21px; color:#52514e; line-height:1.3; margin-top:6px; display:block}
+.panel{background:#fcfcfb; border:1px solid rgba(11,11,11,0.10); border-radius:16px; padding:22px 24px 14px}
+.panel svg{display:block}
+.legend{display:flex; flex-wrap:wrap; gap:14px 30px; font-size:22px; color:#52514e}
+.lg{display:inline-flex; align-items:center; gap:10px}
+.read{font-size:24px; line-height:1.4; color:#52514e; margin:0}
+.read b{color:#0b0b0b}
+.foot{margin-top:auto; display:flex; justify-content:space-between; font-size:18px; color:#898781}
+table{border-collapse:collapse; width:100%; font-size:22px}
+th{text-align:left; font-weight:500; color:#898781; font-size:18px; padding:0 12px 12px 0; border-bottom:1px solid #c3c2b7}
+td{padding:16px 12px 16px 0; border-bottom:1px solid #e1e0d9; vertical-align:top; line-height:1.3}
+td.n{font-weight:700; white-space:nowrap}
+td small{display:block; color:#898781; font-size:17px; font-weight:400}
+.sw{display:inline-block; width:16px; height:16px; border-radius:4px; margin-right:12px; vertical-align:-1px}
+.callout{display:flex; gap:28px; align-items:center; background:#f0eee8; border-radius:16px; padding:22px 26px}
+.c-big{font-size:56px; font-weight:700; letter-spacing:-0.025em; white-space:nowrap}
+.c-txt{font-size:22px; color:#52514e; line-height:1.4}
+pre{margin:0; font-family:"SF Mono",Menlo,monospace; font-size:19px; line-height:1.5; white-space:pre-wrap; word-break:break-all; background:#f0eee8; border-radius:14px; padding:20px 24px}
+ul.tips{margin:0; padding-left:28px; font-size:23px; line-height:1.45; color:#52514e}
+ul.tips b{color:#0b0b0b}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+.hbars text{font-family:-apple-system,Helvetica,Arial,sans-serif}
+
+html,body{width:1200px; height:675px}
+.s{width:1200px; height:675px; padding:30px 40px 22px}
+.main{gap:12px; justify-content:flex-start}
+.panel{padding:10px 14px 4px}
+.legend{font-size:21px; gap:10px 28px}
+.eyebrow{font-size:15px}
+.foot{font-size:15px}
+.hbars text{font-family:-apple-system,Helvetica,Arial,sans-serif}
+html,body,.s{height:675px}</style></head><body><div class="s"><div class="main">
+<p class="eyebrow">Agent turn = TTFT on the next turn + a 512-token reply · seconds · lower is better · 256K shaded</p>
+<div class="legend"><span class="lg"><svg width="30" height="16"><line x1="0" y1="8" x2="30" y2="8" stroke="#2a78d6" stroke-width="3"/><circle cx="15.0" cy="8.0" r="6" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/></svg>mlx-serve 26.10.1</span><span class="lg"><svg width="30" height="16"><line x1="0" y1="8" x2="30" y2="8" stroke="#eb6834" stroke-width="3"/><rect x="9.0" y="2.0" width="12" height="12" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/></svg>oMLX 0.7.0</span><span class="lg"><svg width="30" height="16"><line x1="0" y1="8" x2="30" y2="8" stroke="#1baf7a" stroke-width="3"/><polygon points="15.0,1.0 22.0,14.0 8.0,14.0" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/></svg>MTPLX 2.12.2</span><span class="lg"><svg width="30" height="16"><line x1="0" y1="8" x2="30" y2="8" stroke="#eda100" stroke-width="3"/><polygon points="15.0,1.0 22.0,8.0 15.0,15.0 8.0,8.0" fill="#eda100" stroke="#fcfcfb" stroke-width="2"/></svg>ds4 (antirez, build 0aaea5a)</span></div>
+<div class="panel"><svg width="1092" height="505" viewBox="0 0 1092 505" font-family="-apple-system,Helvetica,Arial,sans-serif"><rect x="636.9" y="61.2" width="70.2" height="389.8" rx="11" fill="#efede6"/><line x1="78" y1="451.0" x2="870" y2="451.0" stroke="#c3c2b7"/><text x="67" y="456.4" font-size="18" text-anchor="end" fill="#898781" font-family="Menlo,monospace">0</text><line x1="78" y1="356.2" x2="870" y2="356.2" stroke="#e1e0d9"/><text x="67" y="361.6" font-size="18" text-anchor="end" fill="#898781" font-family="Menlo,monospace">10</text><line x1="78" y1="261.5" x2="870" y2="261.5" stroke="#e1e0d9"/><text x="67" y="266.9" font-size="18" text-anchor="end" fill="#898781" font-family="Menlo,monospace">20</text><line x1="78" y1="166.8" x2="870" y2="166.8" stroke="#e1e0d9"/><text x="67" y="172.2" font-size="18" text-anchor="end" fill="#898781" font-family="Menlo,monospace">30</text><line x1="78" y1="72.0" x2="870" y2="72.0" stroke="#e1e0d9"/><text x="67" y="77.4" font-size="18" text-anchor="end" fill="#898781" font-family="Menlo,monospace">40</text><text x="78.0" y="481" font-size="18" text-anchor="middle" fill="#898781" font-family="Menlo,monospace">8K</text><text x="276.0" y="481" font-size="18" text-anchor="middle" fill="#898781" font-family="Menlo,monospace">32K</text><text x="474.0" y="481" font-size="18" text-anchor="middle" fill="#898781" font-family="Menlo,monospace">128K</text><text x="672.0" y="481" font-size="18" text-anchor="middle" fill="#898781" font-family="Menlo,monospace">256K</text><text x="870.0" y="481" font-size="18" text-anchor="middle" fill="#898781" font-family="Menlo,monospace">512K</text><line x1="78.0" y1="377.3" x2="276.0" y2="373.0" stroke="#2a78d6" stroke-width="3.4"/><line x1="276.0" y1="373.0" x2="474.0" y2="367.2" stroke="#2a78d6" stroke-width="3.4"/><line x1="474.0" y1="367.2" x2="672.0" y2="358.4" stroke="#2a78d6" stroke-width="3.4"/><line x1="672.0" y1="358.4" x2="870.0" y2="327.8" stroke="#2a78d6" stroke-width="3.4"/><circle cx="78.0" cy="377.3" r="6.75" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/><circle cx="276.0" cy="373.0" r="6.75" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/><circle cx="474.0" cy="367.2" r="6.75" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/><circle cx="672.0" cy="358.4" r="6.75" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/><circle cx="870.0" cy="327.8" r="6.75" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/><line x1="78.0" y1="362.4" x2="276.0" y2="355.7" stroke="#eb6834" stroke-width="3.4"/><line x1="276.0" y1="355.7" x2="474.0" y2="336.4" stroke="#eb6834" stroke-width="3.4"/><line x1="474.0" y1="336.4" x2="672.0" y2="313.7" stroke="#eb6834" stroke-width="3.4"/><rect x="71.2" y="355.7" width="13.5" height="13.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/><rect x="269.2" y="348.9" width="13.5" height="13.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/><rect x="467.2" y="329.7" width="13.5" height="13.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/><rect x="665.2" y="307.0" width="13.5" height="13.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/><line x1="78.0" y1="373.2" x2="276.0" y2="367.2" stroke="#1baf7a" stroke-width="3.4"/><line x1="276.0" y1="367.2" x2="474.0" y2="307.9" stroke="#1baf7a" stroke-width="3.4"/><polygon points="78.0,365.5 85.8,380.0 70.2,380.0" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/><polygon points="276.0,359.5 283.8,374.0 268.2,374.0" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/><polygon points="474.0,300.2 481.8,314.7 466.2,314.7" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/><line x1="78.0" y1="330.4" x2="276.0" y2="331.7" stroke="#eda100" stroke-width="3.4"/><line x1="276.0" y1="331.7" x2="474.0" y2="295.5" stroke="#eda100" stroke-width="3.4"/><line x1="474.0" y1="295.5" x2="672.0" y2="160.5" stroke="#eda100" stroke-width="3.4"/><line x1="672.0" y1="160.5" x2="870.0" y2="72.0" stroke="#eda100" stroke-width="3.4" stroke-dasharray="5 4"/><polygon points="78.0,322.6 85.8,330.4 78.0,338.1 70.2,330.4" fill="#eda100" stroke="#fcfcfb" stroke-width="2"/><polygon points="276.0,324.0 283.8,331.7 276.0,339.5 268.2,331.7" fill="#eda100" stroke="#fcfcfb" stroke-width="2"/><polygon points="474.0,287.8 481.8,295.5 474.0,303.3 466.2,295.5" fill="#eda100" stroke="#fcfcfb" stroke-width="2"/><polygon points="672.0,152.7 679.8,160.5 672.0,168.2 664.2,160.5" fill="#eda100" stroke="#fcfcfb" stroke-width="2"/><polygon points="870.0,64.2 877.8,72.0 870.0,79.8 862.2,72.0" fill="#eda100" stroke="#fcfcfb" stroke-width="2"/><text x="886.2" y="77.4" font-size="19" font-weight="600" fill="#0b0b0b">ds4 ↑ 61.9 s</text><text x="490.2" y="313.3" font-size="19" font-weight="600" fill="#0b0b0b">MTPLX 15.1 s</text><text x="688.2" y="337.6" font-size="19" font-weight="600" fill="#0b0b0b">oMLX 14.5 s</text><text x="886.2" y="361.9" font-size="19" font-weight="600" fill="#0b0b0b">mlx-serve 13.0 s</text></svg></div></div><p class="foot"><span>Qwen3.8-Flash-Next · Apple M4 Max 128 GB · October 2026</span><span>snagnever.github.io/macstudio-local-llm</span></p></div></body></html>

@@ -1,0 +1,193 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Stunt car jumping through a circle of fire</title>
+  <desc id="desc">A red stunt car, fully airborne with all four wheels above the ground, passes through the open center of a complete flaming hoop between two ramps.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#030612"/>
+      <stop offset=".52" stop-color="#111e35"/>
+      <stop offset=".82" stop-color="#3c1c28"/>
+      <stop offset="1" stop-color="#7d3024"/>
+    </linearGradient>
+    <radialGradient id="arenaHaze" cx="50%" cy="42%" r="60%">
+      <stop offset="0" stop-color="#f45b2d" stop-opacity=".34"/>
+      <stop offset=".52" stop-color="#7d2832" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#050914" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="carRed" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff7768"/>
+      <stop offset=".27" stop-color="#f33b45"/>
+      <stop offset=".62" stop-color="#c9182a"/>
+      <stop offset="1" stop-color="#620913"/>
+    </linearGradient>
+    <linearGradient id="carHighlight" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffad91" stop-opacity=".1"/>
+      <stop offset=".45" stop-color="#fff" stop-opacity=".82"/>
+      <stop offset="1" stop-color="#ffad91" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e6fbff"/>
+      <stop offset=".25" stop-color="#83bfd4"/>
+      <stop offset=".58" stop-color="#315774"/>
+      <stop offset="1" stop-color="#0b1729"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c5ccd2"/>
+      <stop offset=".18" stop-color="#707b85"/>
+      <stop offset=".62" stop-color="#343d47"/>
+      <stop offset="1" stop-color="#171d24"/>
+    </linearGradient>
+    <linearGradient id="asphalt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#292d35"/>
+      <stop offset="1" stop-color="#080a0e"/>
+    </linearGradient>
+    <radialGradient id="flameColor" cx="50%" cy="80%" r="72%">
+      <stop offset="0" stop-color="#fffbd0"/>
+      <stop offset=".22" stop-color="#fff16b"/>
+      <stop offset=".52" stop-color="#ffc323"/>
+      <stop offset=".78" stop-color="#ff6817"/>
+      <stop offset="1" stop-color="#d91c0b"/>
+    </radialGradient>
+    <radialGradient id="lamp">
+      <stop offset="0" stop-color="#f8fbff" stop-opacity=".78"/>
+      <stop offset=".15" stop-color="#dcecff" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#bddcff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="crowd" width="44" height="34" patternUnits="userSpaceOnUse">
+      <circle cx="11" cy="9" r="4.5" fill="#242b3c"/>
+      <path d="M1 34c1-13 19-13 20 0" fill="#1b2130"/>
+      <circle cx="33" cy="16" r="4.5" fill="#151b29"/>
+      <path d="M23 34c1-12 19-12 20 0" fill="#121725"/>
+    </pattern>
+    <filter id="wideGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="28"/>
+    </filter>
+    <filter id="fireBloom" x="-55%" y="-55%" width="210%" height="210%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="drop" x="-35%" y="-50%" width="190%" height="220%">
+      <feDropShadow dx="13" dy="20" stdDeviation="16" flood-color="#000" flood-opacity=".78"/>
+    </filter>
+    <filter id="smallGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+    <g id="fireTongue">
+      <path d="M-28 20C-57-20-22-66 4-94c-9 37 16 47 12 73 16-20 19-45 44-61 1 41 22 67-4 101C36 45-9 47-28 20Z" fill="url(#flameColor)" stroke="#ff8d13" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M-7 20C-24-7-3-35 12-51c-4 24 13 31 8 49 11-12 15-27 29-36 0 28 4 47-17 59C18 30 2 31-7 20Z" fill="#fff48a"/>
+    </g>
+    <g id="wheel">
+      <circle r="63" fill="#06080b" stroke="#252c35" stroke-width="10"/>
+      <circle r="52" fill="none" stroke="#11151b" stroke-width="5" stroke-dasharray="9 7"/>
+      <circle r="35" fill="#b6c0c9" stroke="#59646e" stroke-width="7"/>
+      <circle r="12" fill="#202733"/>
+      <path d="M0-31V31M-31 0H31M-22-22L22 22M22-22L-22 22" stroke="#77838e" stroke-width="5"/>
+      <circle r="6" fill="#d9e1e7"/>
+    </g>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <ellipse cx="800" cy="420" rx="720" ry="520" fill="url(#arenaHaze)"/>
+  <g fill="#dfeaff" opacity=".72">
+    <circle cx="92" cy="82" r="2"/><circle cx="207" cy="159" r="1.5"/><circle cx="350" cy="76" r="2"/>
+    <circle cx="516" cy="135" r="1.5"/><circle cx="703" cy="72" r="2"/><circle cx="897" cy="117" r="1.5"/>
+    <circle cx="1068" cy="62" r="2"/><circle cx="1228" cy="143" r="1.5"/><circle cx="1432" cy="80" r="2"/>
+  </g>
+  <g opacity=".7">
+    <circle cx="188" cy="335" r="135" fill="url(#lamp)"/>
+    <circle cx="1412" cy="335" r="135" fill="url(#lamp)"/>
+    <path d="M188 335V695M1412 335V695" stroke="#4c5665" stroke-width="9"/>
+    <rect x="158" y="315" width="60" height="30" rx="5" fill="#e8f3ff"/>
+    <rect x="1382" y="315" width="60" height="30" rx="5" fill="#e8f3ff"/>
+  </g>
+  <path d="M0 648l126-51 120 38 127-71 134 67 125-46 153 58 144-55 137 52 129-81 138 66 167-64v215H0Z" fill="#0e1623"/>
+  <path d="M0 674h1600v145H0z" fill="url(#crowd)"/>
+  <g fill="#ffd15b" opacity=".75">
+    <circle cx="76" cy="716" r="3"/><circle cx="181" cy="685" r="2"/><circle cx="313" cy="727" r="3"/>
+    <circle cx="1284" cy="691" r="3"/><circle cx="1415" cy="734" r="2"/><circle cx="1513" cy="688" r="3"/>
+  </g>
+
+  <g aria-label="large complete circle of fire">
+    <circle cx="800" cy="420" r="337" fill="none" stroke="#ff4b16" stroke-width="104" opacity=".25" filter="url(#wideGlow)"/>
+    <circle cx="800" cy="420" r="306" fill="none" stroke="#191f28" stroke-width="30"/>
+    <circle cx="800" cy="420" r="306" fill="none" stroke="#949da6" stroke-width="8" stroke-dasharray="21 13"/>
+    <g filter="url(#fireBloom)">
+      <use href="#fireTongue" transform="translate(800 107) rotate(0) scale(1.08)"/>
+      <use href="#fireTongue" transform="translate(883 118) rotate(15) scale(1.03)"/>
+      <use href="#fireTongue" transform="translate(962 151) rotate(30) scale(1.10)"/>
+      <use href="#fireTongue" transform="translate(1026 203) rotate(44) scale(1.04)"/>
+      <use href="#fireTongue" transform="translate(1074 270) rotate(59) scale(1.10)"/>
+      <use href="#fireTongue" transform="translate(1100 349) rotate(74) scale(1.03)"/>
+      <use href="#fireTongue" transform="translate(1107 433) rotate(90) scale(1.10)"/>
+      <use href="#fireTongue" transform="translate(1090 515) rotate(105) scale(1.04)"/>
+      <use href="#fireTongue" transform="translate(1052 590) rotate(120) scale(1.10)"/>
+      <use href="#fireTongue" transform="translate(996 652) rotate(135) scale(1.03)"/>
+      <use href="#fireTongue" transform="translate(926 697) rotate(150) scale(1.10)"/>
+      <use href="#fireTongue" transform="translate(844 721) rotate(165) scale(1.04)"/>
+      <use href="#fireTongue" transform="translate(760 722) rotate(180) scale(1.10)"/>
+      <use href="#fireTongue" transform="translate(678 699) rotate(195) scale(1.03)"/>
+      <use href="#fireTongue" transform="translate(607 655) rotate(210) scale(1.10)"/>
+      <use href="#fireTongue" transform="translate(550 594) rotate(225) scale(1.04)"/>
+      <use href="#fireTongue" transform="translate(511 520) rotate(240) scale(1.10)"/>
+      <use href="#fireTongue" transform="translate(493 439) rotate(255) scale(1.03)"/>
+      <use href="#fireTongue" transform="translate(499 354) rotate(270) scale(1.10)"/>
+      <use href="#fireTongue" transform="translate(525 276) rotate(285) scale(1.04)"/>
+      <use href="#fireTongue" transform="translate(571 208) rotate(300) scale(1.10)"/>
+      <use href="#fireTongue" transform="translate(635 155) rotate(315) scale(1.03)"/>
+      <use href="#fireTongue" transform="translate(713 121) rotate(330) scale(1.10)"/>
+      <use href="#fireTongue" transform="translate(757 109) rotate(345) scale(.98)"/>
+    </g>
+    <path d="M489 673v176h34V651M1077 651v198h34V673" fill="none" stroke="#4e5864" stroke-width="19"/>
+    <path d="M446 849h121M1033 849h121" stroke="#929ba5" stroke-width="16" stroke-linecap="round"/>
+  </g>
+
+  <g aria-label="motion streaks behind airborne car" opacity=".55" fill="none" stroke-linecap="round">
+    <path d="M287 443h166" stroke="#e9f3ff" stroke-width="7"/>
+    <path d="M331 473h94" stroke="#aabfd0" stroke-width="5"/>
+    <path d="M363 411h68" stroke="#ffb24d" stroke-width="5"/>
+  </g>
+
+  <g aria-label="red stunt car airborne inside the hoop" transform="translate(402 318) rotate(-7 365 140)" filter="url(#drop)">
+    <path d="M46 174l33-67c10-20 35-34 66-38l118-14 76-51h186c38 1 68 17 91 50l39 56 86 23 28 42-11 43-86 4H58l-39-22 6-19Z" fill="url(#carRed)" stroke="#470810" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M279 55l73-39h89l11 61z" fill="url(#glass)" stroke="#101c2c" stroke-width="8"/>
+    <path d="M464 16h53c30 2 52 16 71 42l20 34-135-15z" fill="url(#glass)" stroke="#101c2c" stroke-width="8"/>
+    <path d="M458 13l11 67M347 15l-69 43" stroke="#e8f8fb" stroke-width="7" opacity=".75"/>
+    <path d="M82 116l-38 57 156-12 53-94-108 15c-29 4-50 16-63 34Z" fill="#a41020" opacity=".76"/>
+    <path d="M262 56h348" stroke="#fff" stroke-width="8" opacity=".78"/>
+    <path d="M237 57h34v121h-34zM606 92h32v87h-32z" fill="#f6eedc" opacity=".92"/>
+    <path d="M210 154c26-31 91-36 131-1M530 154c26-30 92-31 132-1" fill="none" stroke="#5e0914" stroke-width="17"/>
+    <use href="#wheel" transform="translate(279 201)"/>
+    <use href="#wheel" transform="translate(605 201)"/>
+    <path d="M28 178l119-8 22 35-123 5zM674 172l70 4 8 28-93 5z" fill="#131820"/>
+    <path d="M95 123l-29 10-13 33 53-7z" fill="#fff8c5" stroke="#ffca30" stroke-width="6"/>
+    <path d="M660 129l53 15 12 21-67-9z" fill="#ff5a32"/>
+    <path d="M378 106h128v50H378z" fill="#fbf2df" stroke="#a20d1d" stroke-width="7"/>
+    <text x="442" y="145" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="39" font-weight="700" fill="#b11625">07</text>
+    <path d="M392 169h100" stroke="#ff9a7d" stroke-width="6"/>
+    <path d="M70 188h99M682 191h55" stroke="#dfe7ed" stroke-width="6"/>
+    <path d="M253 77l360 32" stroke="url(#carHighlight)" stroke-width="11"/>
+    <path d="M18 218l-82 13M60 236l-103 32" stroke="#c4cdd5" stroke-width="8" stroke-linecap="round" opacity=".44"/>
+  </g>
+
+  <g aria-label="visible gap below all four wheels" opacity=".85">
+    <path d="M561 662q239 42 478 0" fill="none" stroke="#ffbc3f" stroke-width="4" stroke-dasharray="11 14"/>
+  </g>
+
+  <g aria-label="launch ramp on left and landing ramp on right">
+    <path d="M0 866h420L0 674z" fill="url(#steel)" stroke="#9fa9b2" stroke-width="7"/>
+    <path d="M0 693l385 173M0 757h239M85 715v151M188 758v108" fill="none" stroke="#46515c" stroke-width="10"/>
+    <path d="M0 666l429 197" stroke="#ffe063" stroke-width="15"/>
+    <path d="M24 688l59 27M124 734l59 27M224 780l59 27" stroke="#20262e" stroke-width="15"/>
+    <path d="M1180 866h420V674z" fill="url(#steel)" stroke="#9fa9b2" stroke-width="7"/>
+    <path d="M1215 866l385-173M1361 757h239M1515 715v151M1412 758v108" fill="none" stroke="#46515c" stroke-width="10"/>
+    <path d="M1171 863l429-197" stroke="#ffe063" stroke-width="15"/>
+    <path d="M1576 688l-59 27M1476 734l-59 27M1376 780l-59 27" stroke="#20262e" stroke-width="15"/>
+  </g>
+
+  <path d="M0 867h1600v133H0z" fill="url(#asphalt)"/>
+  <path d="M0 871h1600" stroke="#4b5058" stroke-width="10"/>
+  <ellipse cx="800" cy="912" rx="370" ry="35" fill="#000" opacity=".38"/>
+  <g fill="#ffad25" opacity=".9" filter="url(#smallGlow)">
+    <circle cx="432" cy="490" r="5"/><circle cx="452" cy="446" r="3"/><circle cx="1152" cy="441" r="5"/>
+    <circle cx="1169" cy="501" r="3"/><circle cx="589" cy="105" r="4"/><circle cx="1007" cy="99" r="4"/>
+  </g>
+</svg>

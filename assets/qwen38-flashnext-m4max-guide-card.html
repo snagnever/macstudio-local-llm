@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Card</title>
+<style>
+html,body{margin:0; width:1200px; height:630px; background:#fbfaf7; color:#15171b;
+  font-family:-apple-system,"SF Pro Text","Inter",Helvetica,Arial,sans-serif}
+.card{position:relative; width:1200px; height:630px; padding:56px 64px; box-sizing:border-box}
+.eyebrow{font-family:"SF Mono",Menlo,monospace; font-size:17px; letter-spacing:0.14em; text-transform:uppercase; color:#6b7280; margin:0 0 14px}
+h1{font-size:50px; line-height:1.1; letter-spacing:-0.025em; margin:0; max-width:1060px}
+.sub{font-size:23px; color:#444a55; margin:16px 0 0}
+.row{display:flex; gap:48px; margin-top:38px; align-items:flex-start}
+svg{flex:none}
+.lab{font-size:19px; font-weight:600; fill:#15171b}
+.val{font-family:"SF Mono",Menlo,monospace; font-size:19px; fill:#15171b}
+.axis{font-size:16px; fill:#6b7280}
+.tiles{display:grid; grid-template-columns:1fr 1fr; gap:14px; flex:1}
+.tile{background:#f0eee8; border-radius:12px; padding:14px 18px}
+.t-val{font-size:40px; font-weight:700; letter-spacing:-0.02em; display:block}
+.t-val small{font-size:19px; font-weight:600; color:#444a55}
+.t-lab{font-size:16px; color:#444a55; line-height:1.3}
+</style></head><body><div class="card">
+<p class="eyebrow">Benchmark · Apple M4 Max 128 GB · October 2026</p>
+<h1>Qwen3.8-Flash-Next on an M4 Max: seven local stacks, 8K to 1M context</h1>
+<p class="sub">Cache hit and the next turn matter more than tokens per second.</p>
+<div class="row">
+  <svg width="700" height="270" viewBox="0 0 700 270"><text x="0" y="18" class="axis">Agent turn time at 128K · seconds · shorter is better</text><text x="0" y="50" class="lab">mlx-serve</text><rect x="185" y="32" width="217" height="24" rx="5" fill="#2a78d6"/><text x="414" y="50" class="val">8.9 s</text><text x="0" y="83" class="lab">oMLX</text><rect x="185" y="65" width="295" height="24" rx="5" fill="#eb6834"/><text x="492" y="83" class="val">12.1 s</text><text x="0" y="116" class="lab">MTPLX</text><rect x="185" y="98" width="368" height="24" rx="5" fill="#1baf7a"/><text x="565" y="116" class="val">15.1 s</text><text x="0" y="149" class="lab">ds4</text><rect x="185" y="131" width="400" height="24" rx="5" fill="#eda100"/><text x="597" y="149" class="val">16.4 s</text><text x="0" y="182" class="lab">Splash</text><rect x="185" y="164" width="166" height="24" rx="5" fill="#8a5a2b"/><text x="363" y="182" class="val">6.8 s</text><text x="0" y="215" class="lab">Splash/Swift</text><rect x="185" y="197" width="154" height="24" rx="5" fill="#7c5cd6"/><text x="351" y="215" class="val">6.3 s ★</text><text x="0" y="248" class="lab">mlx-serve/Swift</text><rect x="185" y="230" width="216" height="24" rx="5" fill="#e87ba4"/><text x="413" y="248" class="val">8.9 s</text></svg>
+  <div class="tiles">
+    <div class="tile"><span class="t-val">7.3<small> s</small></span><span class="t-lab">per agent turn at 512K on Splash</span></div>
+    <div class="tile"><span class="t-val">14.5<small> s</small></span><span class="t-lab">per agent turn at 512K on mlx-serve</span></div>
+    <div class="tile"><span class="t-val">10.5<small> s</small></span><span class="t-lab">per agent turn at 1M, only on Splash</span></div>
+    <div class="tile"><span class="t-val">13<small> min</small></span><span class="t-lab">on Splash after a change halfway at 512K</span></div>
+  </div>
+</div>
+</div></body></html>

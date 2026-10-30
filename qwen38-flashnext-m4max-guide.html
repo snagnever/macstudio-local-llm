@@ -1,0 +1,1127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qwen3.8-Flash-Next on M4 Max</title>
+<meta name="description" content="Five local servers for Qwen3.8-Flash-Next on an Apple M4 Max 128 GB, from 8K to 1M context: agent turn time, prefix cache, memory.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Qwen3.8-Flash-Next on an M4 Max 128 GB: seven local stacks, 8K to 1M context">
+<meta property="og:description" content="Agent turn time, prefix cache hit and memory for mlx-serve, oMLX, MTPLX, ds4 and Splash. Cache hit matters more than tokens per second.">
+<meta property="og:url" content="https://snagnever.github.io/macstudio-local-llm/qwen38-flashnext-m4max-guide.html">
+<meta property="og:image" content="https://snagnever.github.io/macstudio-local-llm/assets/qwen38-flashnext-m4max-guide-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{
+  color-scheme: light;
+  --plane:#f9f9f7; --surface:#fcfcfb; --surface-2:#f3f2ee;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
+  --accent:#2a78d6; --accent-soft:rgba(42,120,214,0.16);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#7c5cd6; --s7:#8a5a2b;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232321;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+    --accent:#3987e5; --accent-soft:rgba(57,135,229,0.22);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6; --s7:#b58552;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232321;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+  --accent:#3987e5; --accent-soft:rgba(57,135,229,0.22);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6; --s7:#b58552;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--plane); color:var(--ink); font-family:var(--sans); line-height:1.5; -webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+code{font-family:var(--mono); font-size:0.88em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+.wrap{max-width:1080px; margin:0 auto; padding:32px 16px 64px}
+header.top{display:flex; gap:20px; align-items:flex-start; justify-content:space-between}
+h1{font-size:2rem; line-height:1.15; letter-spacing:-0.025em; margin:0; text-wrap:balance; max-width:22ch}
+.sub{color:var(--ink-2); max-width:62ch; margin:10px 0 0; font-size:1.02rem}
+.eyebrow{font-family:var(--mono); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin:0 0 8px}
+.chips{display:flex; flex-wrap:wrap; gap:6px 8px; margin-top:16px}
+.tldr{margin:16px 0 0; padding:10px 14px; border-left:3px solid var(--accent); background:var(--surface); border-radius:0 8px 8px 0; font-size:0.95rem; max-width:72ch}
+.tldr a{color:var(--accent)}
+.about{display:block; color:var(--muted); font-weight:400; font-size:0.78rem; margin-top:2px; padding-left:18px}
+.block h3{font-size:1rem; margin:20px 0 6px; letter-spacing:-0.01em}
+table.cases td{white-space:normal; font-family:var(--sans); text-align:left; vertical-align:top; line-height:1.4}
+table.cases td:nth-child(2),table.cases td:nth-child(3){font-family:var(--mono); white-space:nowrap}
+table.cases td:last-child{min-width:280px; color:var(--ink-2); font-size:0.84rem}
+.chip{font-family:var(--mono); font-size:0.74rem; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:3px 10px; color:var(--ink)}
+.chip .lab{color:var(--muted)}
+button.theme{flex:none; font-family:var(--mono); font-size:0.74rem; color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:7px 12px; cursor:pointer}
+button.theme:focus-visible,.seg button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+details.toc{margin-top:14px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 14px}
+details.toc summary{cursor:pointer; font-size:0.88rem; font-weight:600; color:var(--ink); list-style-position:inside}
+details.toc summary:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+details.toc ol{list-style:none; margin:10px 0 2px; padding:0; columns:2 260px; column-gap:24px}
+details.toc li{break-inside:avoid; padding:3px 0}
+details.toc a{color:var(--ink-2); text-decoration:none; font-size:0.86rem; display:flex; gap:8px}
+details.toc a:hover{color:var(--accent)}
+.toc-n{font-family:var(--mono); font-size:0.78rem; color:var(--muted); min-width:1.6em; text-align:right}
+.premises{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px; margin-top:24px}
+.pm{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px}
+.pm .kicker{margin-bottom:4px}
+.pm p:last-child{margin:0; font-size:0.86rem; color:var(--ink-2); line-height:1.45}
+.verdict{margin-top:44px; background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--s1); border-radius:12px; padding:20px; display:grid; gap:18px}
+.kicker{font-family:var(--mono); font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin:0 0 6px}
+.verdict h2{font-size:1.35rem; line-height:1.3; margin:0 0 8px; letter-spacing:-0.015em; font-weight:600}
+.verdict h2 b{font-weight:750}
+.verdict p{margin:0; color:var(--ink-2); max-width:72ch}
+.tiles{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px}
+@media (min-width:880px){.tiles{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.tile{background:var(--surface-2); border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:2px}
+.t-val{font-size:1.9rem; font-weight:700; letter-spacing:-0.02em; font-variant-numeric:tabular-nums}
+.t-val small{font-size:0.9rem; font-weight:600; color:var(--ink-2)}
+.t-lab{font-size:0.84rem; color:var(--ink-2); line-height:1.35}
+
+section.block{margin-top:44px}
+h2.sec{font-size:1.25rem; margin:0 0 6px; letter-spacing:-0.015em; text-wrap:balance}
+.s-note{color:var(--ink-2); font-size:0.95rem; margin:0 0 14px; max-width:78ch}
+.reads,.tips{margin:14px 0 0; padding-left:18px; color:var(--ink-2); font-size:0.92rem; display:grid; gap:6px; max-width:80ch}
+.reads b,.tips b{color:var(--ink)}
+.tips li{padding-left:2px}
+.foot-note{color:var(--muted); font-size:0.8rem; margin:10px 0 0; max-width:86ch}
+
+.legend{display:flex; flex-wrap:wrap; gap:8px 18px; margin:6px 0 10px}
+.lg{display:inline-flex; align-items:center; gap:7px; font-size:0.86rem; color:var(--ink-2)}
+.lg svg{flex:none}
+.panel{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 14px 10px; position:relative}
+.panel.big{margin-bottom:14px}
+.p-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; margin:0 2px 4px}
+.p-title{font-size:0.98rem; font-weight:700; letter-spacing:-0.01em}
+.p-unit{font-family:var(--mono); font-size:0.72rem; color:var(--muted)}
+.p-interp{font-size:0.84rem; color:var(--ink-2); margin:6px 2px 2px}
+.gaps{font-size:0.8rem; color:var(--muted); margin:4px 2px 0}
+.grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:14px; margin-top:14px}
+svg.chart{width:100%; height:auto; display:block; overflow:visible}
+svg.chart text{font-family:var(--sans)}
+.ax{font-size:11px; fill:var(--muted); font-family:var(--mono) !important}
+.ax-t{font-size:11px; fill:var(--muted)}
+.gl{stroke:var(--grid); stroke-width:1}
+.bl{stroke:var(--baseline); stroke-width:1}
+.dl{font-size:12px; font-weight:600; fill:var(--ink)}
+.dv{font-size:11.5px; fill:var(--ink-2); font-family:var(--mono) !important}
+.rowlab{font-size:12.5px; font-weight:600; fill:var(--ink)}
+.miss{font-size:12px; fill:var(--muted); font-style:italic}
+.ref{stroke:var(--muted); stroke-width:1; stroke-dasharray:4 4}
+.reflab{font-size:10.5px; fill:var(--muted)}
+.ch{stroke:var(--baseline); stroke-width:1; opacity:0; pointer-events:none}
+
+.ctl{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:6px 0 10px}
+.ctl-lab{font-size:0.8rem; color:var(--muted)}
+.seg{display:inline-flex; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:2px}
+.seg button{font-family:var(--mono); font-size:0.78rem; border:0; background:transparent; color:var(--ink-2); padding:5px 11px; border-radius:6px; cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface-2); color:var(--ink); font-weight:700}
+
+.explain{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:14px}
+.explain svg{width:100%; height:auto; display:block}
+.ex-lab{font-size:13px; font-weight:600; fill:var(--ink)}
+.ex-read{fill:var(--muted); opacity:0.55}
+.ex-hit{fill:var(--accent-soft); stroke:var(--accent); stroke-width:1}
+.ex-in{font-size:12px; fill:var(--ink); text-anchor:middle}
+.ex-in.hit{fill:var(--accent)}
+.ex-val{font-size:14px; font-weight:700; fill:var(--ink); font-family:var(--mono)}
+.ex-note{font-size:11px; fill:var(--muted); text-anchor:middle}
+.ex-cut{stroke:var(--ink); stroke-width:2; stroke-dasharray:3 3}
+.ex-cap{font-size:0.78rem; color:var(--muted); margin:6px 0 0}
+.callout{display:flex; gap:16px; align-items:center; flex-wrap:wrap; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 18px; margin:0 0 16px}
+.callout.small{margin-top:4px}
+.c-big{font-size:1.7rem; font-weight:750; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; white-space:nowrap}
+.callout.small .c-big{font-size:1.3rem}
+.c-txt{flex:1 1 320px; color:var(--ink-2); font-size:0.92rem}
+.shape-key{display:flex; flex-wrap:wrap; gap:6px 18px; font-size:0.8rem; color:var(--ink-2); margin:6px 2px 2px}
+.shape-key i{display:inline-block; width:11px; height:11px; margin-right:6px; vertical-align:-1px}
+.k-cold{border:2px solid var(--muted); border-radius:2px}
+.k-edit{border:2px solid var(--ink-2); transform:rotate(45deg) scale(0.85)}
+.k-next{background:var(--ink); border-radius:50%}
+
+.tbl-scroll{overflow-x:auto; border:1px solid var(--border); border-radius:10px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:0.85rem}
+th,td{padding:8px 11px; text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+th{font-size:0.72rem; letter-spacing:0.03em; color:var(--muted); font-weight:500; border-bottom:1px solid var(--border); background:var(--surface)}
+td{font-family:var(--mono); font-size:0.82rem}
+td:first-child,th:first-child{text-align:left; font-family:var(--sans)}
+tbody tr+tr td{border-top:1px solid var(--border)}
+td .sw,.txt .sw{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:8px; vertical-align:0}
+td.best{font-weight:700; color:var(--ink)}
+td .x{color:var(--muted); font-size:0.9em; margin-left:6px}
+td.na{color:var(--muted); font-family:var(--sans); font-style:italic; white-space:normal; text-align:left; font-size:0.8rem; min-width:140px; max-width:200px}
+td .cfg{display:block; color:var(--muted); font-size:0.85em}
+td.ok{color:var(--ink)}
+td.no{color:var(--muted)}
+td sup{font-size:0.7em; color:var(--accent); margin-left:2px}
+ol.fn{margin:8px 0 0; padding-left:22px; color:var(--muted); font-size:0.8rem; display:grid; gap:2px}
+table.heat td.hc{text-align:center; font-weight:600}
+table.heat th{text-align:center; white-space:normal; min-width:84px}
+table.heat th:first-child{text-align:left}
+.glance .p-head{flex-direction:column; gap:0}
+.p-desc{font-size:0.8rem; color:var(--ink-2); line-height:1.4; margin:2px 2px 8px; min-height:4.2em}
+.glance{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px}
+td.stk{font-weight:600}
+table.txt td,table.txt th{text-align:left; white-space:normal; font-family:var(--sans); vertical-align:top}
+table.txt td{font-size:0.84rem; line-height:1.4}
+table.txt td:first-child{white-space:nowrap; font-weight:600}
+table.txt a{color:var(--ink); text-decoration-color:var(--baseline)}
+#tblAll{min-width:900px}
+table.sq td:not(:first-child),table.sq th:not(:first-child){font-family:var(--mono); white-space:nowrap}
+table.sb td:not(:first-child){font-family:var(--mono); white-space:nowrap}
+table.sb td small{display:block; color:var(--muted)}
+#tblAll .cfg{display:block; color:var(--muted); font-size:0.72rem; white-space:nowrap}
+
+.cmds{display:grid; grid-template-columns:minmax(0,1fr); gap:12px}
+.cmd{min-width:0; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px}
+.cmd-lab{font-size:0.8rem; font-weight:600; margin:0 0 6px}
+.cmd pre{margin:0; overflow-x:auto; font-family:var(--mono); font-size:0.78rem; line-height:1.55; color:var(--ink)}
+.cmd code{background:none; padding:0}
+dl.method{display:grid; grid-template-columns:minmax(140px,200px) 1fr; gap:8px 18px; margin:0; font-size:0.9rem; max-width:90ch}
+dl.method dt{font-weight:600}
+dl.method dd{margin:0; color:var(--ink-2)}
+
+.tip{position:fixed; pointer-events:none; opacity:0; z-index:10; background:var(--surface); color:var(--ink); border:1px solid var(--border);
+  border-radius:8px; padding:8px 10px; font-size:0.78rem; box-shadow:0 6px 24px rgba(0,0,0,0.14); max-width:320px; transition:opacity .08s}
+.tip .t-h{font-weight:700; margin-bottom:4px}
+.tip .t-r{display:flex; gap:10px; justify-content:space-between; align-items:baseline}
+.tip .t-r span:last-child{font-family:var(--mono)}
+.tip .t-k{display:inline-flex; align-items:center; gap:6px}
+.tip .t-k i{width:9px; height:9px; border-radius:2px; display:inline-block}
+.foot{margin-top:48px; padding-top:16px; border-top:1px solid var(--border); color:var(--muted); font-size:0.8rem}
+.foot a{color:var(--ink-2)}
+
+@media (max-width:640px){
+  h1{font-size:1.55rem}
+  header.top{display:block; position:relative}
+  header.top .eyebrow{padding-right:112px}
+  button.theme{position:absolute; top:0; right:0; padding:5px 9px; font-size:0.7rem}
+  dl.method{grid-template-columns:1fr; gap:2px}
+  dl.method dd{margin-bottom:8px}
+  .t-val{font-size:1.6rem}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <p class="eyebrow">Benchmark · Apple M4 Max 128 GB · October 2026</p>
+    <h1>The best way to run Qwen3.8-Flash-Next on an M4 Max 128 GB</h1>
+    <p class="sub">Five local inference servers, the same model and its Swift 1.5 fine-tune, contexts from 8K to 1M
+    tokens. I measured what you wait for in a real agent session, not only tokens per second.</p>
+    <div class="chips"><span class="chip"><span class="lab">Chip</span> Apple M4 Max</span><span class="chip"><span class="lab">GPU</span> 40 cores · Metal 4</span><span class="chip"><span class="lab">Unified memory</span> 128 GB</span><span class="chip"><span class="lab">macOS</span> 26.6.2</span><span class="chip"><span class="lab">Measured</span> 2026-10-07 to 2026-10-25</span></div>
+    <p class="tldr"><b>Result:</b> Splash 1.4.0 with the unsloth UD-IQ4_XS GGUF has the shortest agent turn at every
+    context size: 6.8 s at 128K, 7.3 s at 512K, 10.5 s at 1M. It
+    is the only server that reached 1M. Its cost: a change halfway in the history prefills the whole prompt again. If your
+    agent edits, compacts or forks the history often, use mlx-serve 26.10.3 with the ddalcu iQ-MLX 4.7 bpw quant
+    (8.9 s at 128K, 14.5 s at 512K). <a href="#conclusion">Conclusion</a> · <a href="#run">commands</a>.</p>
+  </div>
+  <button class="theme" id="themeBtn" type="button">theme: auto</button>
+</header>
+
+<section class="premises" aria-label="Assumptions">
+  <div class="pm"><p class="kicker">Goal</p><p>The best stack for Qwen3.8-Flash-Next as a daily driver on one Mac Studio
+  (M4 Max, 128 GB): a 125B mixture-of-experts with 6B active parameters and a native context of 262K tokens.</p></div>
+  <div class="pm"><p class="kicker">Weights</p><p>Each server runs the pack its author publishes, in its own format, 4.7 to
+  5.97 bits per weight (<a href="#stacks">table</a>). The results compare server + quant pairs, not servers alone.</p></div>
+  <div class="pm"><p class="kicker">Precision</p><p>A personal test, not a lab benchmark: one machine, one test prompt,
+  1 to 3 runs per point. Small differences can be run-to-run variation.</p></div>
+</section>
+
+<details class="toc">
+  <summary>Table of contents</summary>
+  <ol id="tocList"></ol>
+</details>
+
+<section class="block" id="stacks">
+  <h2 class="sec">1 · The seven stacks</h2>
+  <p class="s-note">The first five rows run the base model; the last two run the Swift 1.5 fine-tune. Same test prompt,
+  same sampling (temperature 1.0, top_p 0.95, top_k 20, reasoning effort xhigh, max 4,096 output tokens). All use
+  speculative decoding and a prefix cache; they differ in where the cache lives and in how they handle the memory limit.
+  Why these servers and when each ran: <a href="#method">section 8</a>.</p>
+  <div class="tbl-scroll"><table class="txt"><thead><tr><th>Server</th><th>Weights (quant)</th><th>Disk</th><th>Prefix cache lives in</th><th>Speculative decoding</th><th>Largest context on 128 GB</th></tr></thead><tbody><tr><td><span class="sw" style="background:var(--s1)"></span><a href="https://github.com/ddalcu/mlx-serve" target="_blank" rel="noopener">mlx-serve 26.10.3</a><br><small class="about">MLX server by ddalcu</small></td><td><a href="https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw" target="_blank" rel="noopener">ddalcu iQ-MLX 4.7 bpw</a></td><td>107 GB</td><td>RAM (16 GB) + disk (100 GB)</td><td>MTP + n-gram lookup</td><td>512K (YaRN 2.0 + 4-bit KV cache)</td></tr><tr><td><span class="sw" style="background:var(--s2)"></span><a href="https://github.com/jundot/omlx" target="_blank" rel="noopener">oMLX 0.7.0</a><br><small class="about">MLX server by Jundot</small></td><td><a href="https://huggingface.co/Jundot/Qwen3.8-Flash-Next-oQ4e-mtp" target="_blank" rel="noopener">Jundot oQ4e-mtp (5.97 bpw)</a></td><td>132 GB</td><td>paged, spills over to SSD</td><td>MTP</td><td>262K (no YaRN support)</td></tr><tr><td><span class="sw" style="background:var(--s3)"></span><a href="https://github.com/youssofal/MTPLX" target="_blank" rel="noopener">MTPLX 2.12.2</a><br><small class="about">MLX server by Youssofal, ships its own quant packs</small></td><td><a href="https://huggingface.co/Youssofal/Qwen3.8-Flash-Next-MTPLX-Optimized-Speed" target="_blank" rel="noopener">MTPLX Optimized-Speed (5.43 bpw)</a></td><td>120 GB</td><td>session bank in RAM + SSD</td><td>MTP (depth 3)</td><td>128K, only with --memory-limit max</td></tr><tr><td><span class="sw" style="background:var(--s4)"></span><a href="https://github.com/antirez/ds4" target="_blank" rel="noopener">ds4 (antirez, build 0aaea5a)</a><br><small class="about">antirez's inference engine, Metal backend, GGUF weights</small></td><td><a href="https://huggingface.co/antirez/qwen3.8-flash-next-gguf" target="_blank" rel="noopener">antirez Q4 GGUF</a></td><td>177 GB</td><td>on disk (100 GB)</td><td>MTP (1 draft token)</td><td>512K (YaRN 2.0)</td></tr><tr><td><span class="sw" style="background:var(--s7)"></span><a href="https://github.com/incoai/splash" target="_blank" rel="noopener">Splash 1.4.0</a><br><small class="about">Inco AI's native Metal engine, GGUF weights only</small></td><td><a href="https://huggingface.co/unsloth/Qwen3.8-Flash-Next-GGUF" target="_blank" rel="noopener">unsloth UD-IQ4_XS GGUF</a></td><td>94 GB</td><td>RAM (8-bit KV cache) + SSD (32 GiB)</td><td>DFlash2 draft model</td><td>1M (YaRN, the KV past ~860K tokens on SSD)</td></tr><tr><td><span class="sw" style="background:var(--s6)"></span><a href="https://github.com/incoai/splash" target="_blank" rel="noopener">Splash 1.4.0 / Swift 1.5</a><br><small class="about">Inco AI's native Metal engine, GGUF weights only</small></td><td><a href="https://huggingface.co/ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF" target="_blank" rel="noopener">ukisai Swift 1.5 IQ4_XS GGUF</a></td><td>98 GB</td><td>RAM (8-bit KV cache) + SSD (32 GiB)</td><td>DFlash2 draft model</td><td>1M (YaRN, the KV past ~860K tokens on SSD)</td></tr><tr><td><span class="sw" style="background:var(--s5)"></span><a href="https://github.com/ddalcu/mlx-serve" target="_blank" rel="noopener">mlx-serve 26.10.3 / Swift 1.5</a><br><small class="about">my daily driver: the Swift 1.5 fine-tune in MLX</small></td><td><a href="https://huggingface.co/Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw" target="_blank" rel="noopener">Dankpaws Swift 1.5 MLX 4.7 bpw</a></td><td>99 GB</td><td>RAM (16 GB) + disk (100 GB)</td><td>MTP + n-gram lookup</td><td>512K (YaRN 2.0 + 4-bit KV cache)</td></tr></tbody></table></div>
+</section>
+
+<section class="block" id="turn">
+  <h2 class="sec">2 · Agent turn time by context size</h2>
+  <p class="s-note"><b>Agent turn time</b> = the wait from sending a tool result to the end of a 512-token reply:
+  TTFT (time to first token) + 512 ÷ decode speed. A coding agent pays this at every step. Lower is better. Pick a
+  context size: one panel per metric, then the turn time across all sizes.</p>
+  <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="glance"></div></div>
+  <div class="legend" data-legend></div>
+  <div class="glance" id="chGlance"></div>
+  <div class="panel big" style="margin-top:14px"><div id="chTurn"></div><p class="gaps" id="gapsTurn"></p></div>
+  <div class="tbl-scroll"><table id="tblTurn"></table></div>
+  <ul class="reads">
+    <li><b>Splash</b> is almost flat: 6.8 s at 128K, 10.5 s at 1M with the base model;
+    Swift 1.5 is faster again by 0.4 to 1.2 s per turn.</li>
+    <li><b>mlx-serve</b> is the fastest MLX server: 8.9 s at 128K, 14.5 s at 512K. It also has the
+    fastest cold prompt, by up to 7%.</li>
+    <li><b>oMLX</b> is second among the MLX servers (12.1 s at 128K) and stops at 256K. <b>MTPLX</b> needs a
+    flag to reach 128K and refuses 256K. <b>ds4</b> serves 512K, but its turn grows to 61.9 s there.</li>
+  </ul>
+  <p class="s-note" style="margin-top:14px"><b>Tokens per second is not the whole story.</b> At 128K, MTPLX decodes almost as
+  fast as mlx-serve (70 vs 74 tokens/s), but its turn takes 15.1 s against
+  8.9 s: its TTFT on the next turn is 7.8 s and its prefill runs at 274 tokens/s
+  against 759. Compare servers on turn time and cache behavior.</p>
+  <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="scatter"></div></div>
+  <div class="panel big"><div class="p-head"><span class="p-title">Decode speed vs agent turn time</span><span class="p-unit">best = bottom right</span></div><div id="chScatter"></div></div>
+  <div class="grid2">
+    <div class="panel"><div class="p-head"><span class="p-title">Decode speed</span><span class="p-unit">tokens/s · higher is better</span></div><div id="chDecode"></div>
+    <p class="p-interp">Splash: 99 tokens/s at 128K with the base model, 108 with Swift 1.5.
+    mlx-serve: 74. ds4 stays at 43–54.</p></div>
+    <div class="panel"><div class="p-head"><span class="p-title">Prefill speed (cold prompt)</span><span class="p-unit">tokens/s · higher is better</span></div><div id="chPrefill"></div>
+    <p class="p-interp">MTPLX drops to 274 tokens/s at 128K. The others stay almost flat.</p></div>
+  </div>
+</section>
+
+<section class="block" id="cache">
+  <h2 class="sec">3 · The cache decides the wait</h2>
+  <p class="s-note">In an agent session, every step sends the whole conversation again plus a small new part at the end.
+  A server with a <b>prefix cache</b> keeps the already processed part and prefills only the new tokens. <b>The wait is the
+  tokens that miss the cache, divided by the prefill speed.</b> No server prefilled faster than 832 tokens/s on
+  this machine, so the scenario decides how many tokens miss. At 512K: 1K ≈ 1.5 s · 10K ≈ 15 s · 100K ≈ 2.5 min · 300K ≈ 7.5 min · 512K ≈ 13 min.</p>
+  <div class="explain">
+    <svg viewBox="0 0 720 196" role="img" aria-label="How the prefix cache works: first message, next turn, history changes halfway">
+      <g class="ex-row">
+        <text x="0" y="30" class="ex-lab">First message</text>
+        <rect x="150" y="14" width="440" height="26" rx="4" class="ex-read"/>
+        <text x="370" y="32" class="ex-in">whole prompt prefilled from scratch · 512K tokens</text>
+        <text x="600" y="32" class="ex-val">13 min</text>
+      </g>
+      <g class="ex-row">
+        <text x="0" y="94" class="ex-lab">Next turn</text>
+        <rect x="150" y="78" width="426" height="26" rx="4" class="ex-hit"/>
+        <rect x="578" y="78" width="12" height="26" rx="3" class="ex-read"/>
+        <text x="363" y="96" class="ex-in hit">cache hit</text>
+        <text x="600" y="96" class="ex-val">4.1 s</text>
+        <text x="584" y="124" class="ex-note">~1K new tokens</text>
+      </g>
+      <g class="ex-row">
+        <text x="0" y="166" class="ex-lab">History changes halfway</text>
+        <rect x="150" y="150" width="218" height="26" rx="4" class="ex-hit"/>
+        <rect x="370" y="150" width="220" height="26" rx="4" class="ex-read"/>
+        <line x1="369" y1="142" x2="369" y2="184" class="ex-cut"/>
+        <text x="259" y="168" class="ex-in hit">cache hit</text>
+        <text x="480" y="168" class="ex-in">prefilled again · ~293K tokens</text>
+        <text x="600" y="168" class="ex-val">8 min</text>
+      </g>
+    </svg>
+    <p class="ex-cap">mlx-serve at 512K. The bar lengths are schematic; the times are measured.</p>
+  </div>
+  <div class="tbl-scroll"><table class="txt cases"><thead><tr><th>Case</th><th>Tokens prefilled again</th><th>Wait at 512K</th><th>When it happens</th></tr></thead><tbody>
+    <tr><td><b>First message</b></td><td>512K (100%)</td><td>13 min</td><td>A session that already starts with 512K, or an empty
+    cache. In daily use the context grows step by step, so this cost is paid in small parts, never at once.</td></tr>
+    <tr><td><b>History changes halfway</b></td><td>~293K (56%)</td><td>8 min</td><td>An edit of an earlier message,
+    a compaction, a new system prompt or tool list, or a fork. The cost is the tokens after the point that changed.</td></tr>
+    <tr><td><b>Next turn</b></td><td>~1K</td><td>4.1 s</td><td>Every normal step: the tool result or the new message
+    at the end.</td></tr>
+  </tbody></table></div>
+  <p class="s-note" style="margin-top:14px"><b>Splash is the exception.</b> When the history changes halfway it reuses none of the prompt:
+  13 min at 512K with the base model, against 8 min on mlx-serve.
+  <a href="#splash">Section 5</a> explains why.</p>
+  <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="wait"></div></div>
+  <div class="panel big"><div id="chWait"></div>
+    <div class="shape-key"><span><i class="k-cold"></i>first message (cold prefill)</span><span><i class="k-edit"></i>history changes halfway</span><span><i class="k-next"></i>next turn (cache hit)</span></div>
+  </div>
+  <div class="tbl-scroll"><table id="tblWait"></table></div>
+  <h3>A 95% cache hit is not enough at long context</h3>
+  <p class="s-note">All seven stacks hit the cache on the next turn. At 512K, ds4 hits 94.5% and prefills about
+  29K tokens again, so its next reply starts after 50 s. mlx-serve hits 99.8%,
+  prefills about 1K tokens and starts after 4.1 s.</p>
+  <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="reread"></div></div>
+  <div class="panel big"><div id="chReread"></div></div>
+  <div class="callout small"><span class="c-big">1% ≈ 8 s</span><span class="c-txt">Rule of thumb at 512K:
+  each 1% of cache miss is about 5,243 tokens, or about 8 s of extra wait on this machine.</span></div>
+  <div class="grid2">
+    <div class="panel"><div class="p-head"><span class="p-title">TTFT on the next turn (cache hit)</span><span class="p-unit">s · lower is better</span></div><div id="chResume"></div>
+    <p class="p-interp">mlx-serve stays under 4 s up to 512K. ds4 grows from 6.4 s at 128K to 50 s at 512K.</p></div>
+    <div class="panel"><div class="p-head"><span class="p-title">Cache hit rate on the next turn</span><span class="p-unit">% · higher is better</span></div><div id="chReuse"></div>
+    <p class="p-interp">At 512K the gap between 94.5% and 99.8% is about 28,000 tokens.</p></div>
+  </div>
+  <h3>Cache hit by scenario</h3>
+  <p class="s-note">Share of the prompt the server took from the cache. <b>First message</b> is 0% by design. <b>History
+  changes halfway</b> can reuse at most the part before the change; Splash reuses none. The two scenarios an agent repeats
+  all day are <b>user adds a message</b> and <b>next turn</b>: above 90% is good.</p>
+  <div class="ctl"><span class="ctl-lab">Context size</span><div class="seg" data-seg="hits"></div></div>
+  <div class="tbl-scroll"><table id="tblHits" class="heat"></table></div>
+</section>
+
+<section class="block" id="limits">
+  <h2 class="sec">4 · Context limits and memory on 128 GB</h2>
+  <p class="s-note">The native context is 262,144 tokens. 512K uses YaRN 2.0, a context extension that oMLX does not
+  support. 1M ran only on Splash. A cell shows the agent turn time, or why that size did not run.</p>
+  <div class="tbl-scroll"><table id="tblSupport"></table></div>
+  <ol class="fn" id="fnSupport"></ol>
+  <div class="panel big" style="margin-top:14px"><div class="p-head"><span class="p-title">Peak memory locked by the server</span><span class="p-unit">GB · of 128 GB</span></div><div id="chMem"></div>
+  <p class="p-interp">No server used swap. mlx-serve locks 100–114 GB from 32K to 512K and Splash
+  108–117 GB from 32K to 1M, against 90–110 GB for oMLX, MTPLX
+  and ds4 at 128K. Close other large apps before a long session.</p></div>
+</section>
+
+<section class="block" id="splash">
+  <h2 class="sec">5 · Splash up to 1M, and Swift 1.5</h2>
+  <p class="s-note"><a href="https://github.com/incoai/splash" target="_blank" rel="noopener">Splash</a> is Inco AI's
+  inference engine on native Metal. It loads Flash-Next from a GGUF only: the base model as the unsloth UD-IQ4_XS, the
+  Swift 1.5 fine-tune as the ukisai IQ4_XS. The tiles compare Swift 1.5 on Splash with the same fine-tune in MLX on
+  mlx-serve 26.10.3, the stack I use every day. The gap belongs to the stack (runtime + weight format), not to the server alone.</p>
+  <div class="tiles">
+    <div class="tile"><span class="t-val">6.6<small> s</small></span><span class="t-lab">per agent turn at 256K, against 9.2 s on mlx-serve</span></div>
+    <div class="tile"><span class="t-val">6.7<small> s</small></span><span class="t-lab">per agent turn at 512K, against 12.7 s on mlx-serve</span></div>
+    <div class="tile"><span class="t-val">9.3<small> s</small></span><span class="t-lab">per agent turn at 1M; mlx-serve fails some 1M requests</span></div>
+    <div class="tile"><span class="t-val">25.5<small> min</small></span><span class="t-lab">first message at 1M, nothing cached</span></div>
+  </div>
+  <ul class="reads">
+    <li><b>The gain comes from decode.</b> Splash writes 107 tokens/s at 512K against 57
+    on mlx-serve. The cold prefill costs the same (731 and 732 tokens/s at 256K).
+    At 512K, 5 of 13 replies of the base model reached the 4,096-token limit while
+    still reasoning.</li>
+    <li><b>1M.</b> Above 262K Splash turns YaRN on by itself and keeps the KV cache past about 860K tokens on its SSD:
+    9.3 s per agent turn, 2.6 s to start the next reply, 110 GB of peak memory.
+    YaRN is static above 262K and applies to every prompt, so use the 512K or 1M setting only when the context needs it.</li>
+    <li><b>A change halfway costs the whole prompt.</b> Flash-Next is a hybrid model: some layers carry a recurrent state
+    that cannot be rolled back, and Splash saves that state only where a request ends. An edit, a compaction, a retried
+    turn or a fork reuses none of the prompt, against 44% on mlx-serve at 512K:
+    12 min at 512K and 25.5 min at 1M
+    (<a href="https://github.com/incoai/splash/issues/387" target="_blank" rel="noopener">splash #387</a>,
+    <a href="https://github.com/incoai/splash/issues/361" target="_blank" rel="noopener">#361</a>).</li>
+  </ul>
+  <h3 id="samebuild">iQ-MLX and Swift 1.5 on the same mlx-serve build</h3>
+  <p class="s-note">Up to 128K the two quants tie on 26.10.3. Past 128K, Swift 1.5 is faster: 12.7 s against
+  14.5 s at 512K. The iQ pack lost decode speed from 26.10.1 to 26.10.3, while Swift 1.5 gained.</p>
+  <div class="tbl-scroll"><table class="txt sb"><thead><tr><th>Context</th><th>iQ-MLX 4.7 bpw · mlx-serve 26.10.1</th><th>iQ-MLX 4.7 bpw · mlx-serve 26.10.3</th><th>Swift 1.5 · mlx-serve 26.10.3</th></tr></thead><tbody><tr><td>8K</td><td>7.8 s<small>84 tok/s</small></td><td>7.9 s<small>81 tok/s</small></td><td>7.7 s<small>84 tok/s</small></td></tr><tr><td>32K</td><td>8.2 s<small>80 tok/s</small></td><td>8.1 s<small>82 tok/s</small></td><td>8.0 s<small>82 tok/s</small></td></tr><tr><td>128K</td><td>8.8 s<small>74 tok/s</small></td><td>8.9 s<small>74 tok/s</small></td><td>8.9 s<small>74 tok/s</small></td></tr><tr><td>256K</td><td>9.8 s<small>67 tok/s</small></td><td>11.9 s<small>57 tok/s</small></td><td>9.2 s<small>74 tok/s</small></td></tr><tr><td>512K</td><td>13.0 s<small>56 tok/s</small></td><td>14.5 s<small>49 tok/s</small></td><td>12.7 s<small>57 tok/s</small></td></tr></tbody></table></div>
+  <p class="foot-note">3 runs per cell, except iQ on 26.10.1 at 256K and Swift 1.5 at 256K: 1 run. 512K uses YaRN 2.0 and the 4-bit KV cache on both builds.</p>
+  <h3>Swift 1.5 thinks less and scores the same</h3>
+  <p class="s-note">Swift 1.5 is a community fine-tune that thinks less before it answers. On mlx-serve it scored the same
+  as the base quant within the noise of these samples and reached the final answer 2.9× faster on GPQA and
+  2.0× faster on LiveCodeBench. Its agent turn time is the same, because prefill and the cache do not change.</p>
+  <div class="panel big"><div class="p-head"><span class="p-title">Median time to the final answer</span><span class="p-unit">s per question · lower is better</span></div><div id="chSwift"></div></div>
+  <p class="foot-note">Vendor sampling, reasoning effort xhigh, one run per model. Base: ddalcu iQ-MLX 4.7 bpw. Swift 1.5:
+  <a href="https://huggingface.co/Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw" target="_blank" rel="noopener">Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw</a>.
+  The two packs also have different n-gram tables, so the comparison is between the packs, not only the fine-tune.</p>
+</section>
+
+<section class="verdict" id="conclusion" aria-labelledby="v-title">
+  <div class="v-main">
+    <p class="kicker">Conclusion</p>
+    <h2 id="v-title">Use <b>Splash 1.4.0</b> with the <b>unsloth UD-IQ4_XS</b> GGUF for the shortest agent turn.
+    Use <b>mlx-serve 26.10.3</b> with the <b>ddalcu iQ-MLX 4.7 bpw</b> quant when the history changes often.</h2>
+    <p>Splash had the shortest agent turn at every context size, from 8K to 1M, and it is the only server that served 1M.
+    The cost is the cache: a change halfway in the history prefills the whole prompt again, 13 min
+    at 512K against 8 min on mlx-serve. I did not check the quality of the base model on Splash. Among
+    the MLX servers the runner-up is <b>oMLX 0.7.0</b> (12.1 s at 128K), but it stops at 256K. With Swift 1.5,
+    Splash is faster again (6.7 s at 512K, 9.3 s at 1M), and on mlx-serve 26.10.3 Swift 1.5 is
+    the faster quant past 128K (<a href="#samebuild">same-build table</a>).</p>
+  </div>
+  <div class="tiles">
+    <div class="tile"><span class="t-val">6.8<small> s</small></span><span class="t-lab">per agent turn at 128K on Splash, against 8.9 s on mlx-serve</span></div>
+    <div class="tile"><span class="t-val">7.3<small> s</small></span><span class="t-lab">per agent turn at 512K on Splash, against 14.5 s on mlx-serve</span></div>
+    <div class="tile"><span class="t-val">1.9<small> s</small></span><span class="t-lab">to start the next reply at 512K on Splash, from cache (first message: 13 min)</span></div>
+    <div class="tile"><span class="t-val">13<small> min</small></span><span class="t-lab">after a change halfway at 512K on Splash, against 8 min on mlx-serve</span></div>
+  </div>
+</section>
+
+<section class="block" id="run">
+  <h2 class="sec">6 · Run it yourself</h2>
+  <p class="s-note">These are the flags I measured. The data, the prompt generator and the scripts behind this page are in the
+  <a href="https://github.com/snagnever/macstudio-local-llm" target="_blank" rel="noopener">repository</a>.</p>
+  <h3>Splash 1.4.0</h3>
+  <p class="s-note">Download <a href="https://huggingface.co/unsloth/Qwen3.8-Flash-Next-GGUF" target="_blank" rel="noopener">unsloth/Qwen3.8-Flash-Next-GGUF</a>
+  (UD-IQ4_XS, 94 GB) or <a href="https://huggingface.co/ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF" target="_blank" rel="noopener">ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF</a>
+  (IQ4_XS, 98 GB). This is the 1M setting; for 256K or 512K, set <code>--max-context</code> to 262144 or 524288.
+  Splash picks the DFlash2 draft model and the 8-bit KV cache by itself.</p>
+  <div class="cmds"><div class="cmd">
+      <p class="cmd-lab">Splash 1.4.0, base model UD-IQ4_XS, 1M</p>
+<pre><code>splash serve --model unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ4_XS \
+  --host 0.0.0.0 --port 8585 --max-context 1000000 \
+  --revision 766911a6b7369840a91dbcd95f9f997acaab6cd6 \
+  --idle-release off --language-only --no-webui --offline \
+  --verify-rows auto</code></pre>
+    </div><div class="cmd">
+      <p class="cmd-lab">Splash 1.4.0, Swift 1.5 IQ4_XS, 1M</p>
+<pre><code>splash serve --model ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS \
+  --host 0.0.0.0 --port 8585 --max-context 1000000 \
+  --revision 0142554c963a8653912c0c8283f05f13f63653f3 \
+  --idle-release off --language-only --no-webui --offline \
+  --verify-rows auto</code></pre>
+    </div></div>
+  <h3>mlx-serve 26.10.3</h3>
+  <p class="s-note">Download <a href="https://huggingface.co/ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw" target="_blank" rel="noopener">ddalcu/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw</a>
+  (107 GB) and <a href="https://github.com/ddalcu/mlx-serve" target="_blank" rel="noopener">mlx-serve 26.10.3</a>, which exposes
+  OpenAI and Anthropic compatible endpoints. The prefix
+  cache flags matter: with the default 2 GB cache, a 128K session read the whole prompt again on every turn. For 512K, use the
+  4-bit KV cache; with 8-bit, some long prompts did not fit in memory.</p>
+  <div class="cmds"><div class="cmd">
+      <p class="cmd-lab">Up to 256K (native context)</p>
+<pre><code>mlx-serve --model ~/models/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw \
+  --serve --host 127.0.0.1 --port 11234 \
+  --ctx-size 262144 --mtp --ssm-checkpoint-max 16 \
+  --prefix-cache-mem 16GB --prefix-cache-disk 100GB --prefix-cache-entries 64</code></pre>
+    </div>
+    <div class="cmd">
+      <p class="cmd-lab">512K (YaRN 2.0 + 4-bit KV cache)</p>
+<pre><code>mlx-serve --model ~/models/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw \
+  --serve --host 127.0.0.1 --port 11234 \
+  --ctx-size 524288 --mtp --ssm-checkpoint-max 16 \
+  --prefix-cache-mem 16GB --prefix-cache-disk 100GB --prefix-cache-entries 64 \
+  --kv-quant 4 --kv-attn-mode fused \
+  --config-overrides '{"text_config":{"rope_parameters":{"rope_type":"yarn","factor":2.0,"original_max_position_embeddings":262144},"max_position_embeddings":524288}}'</code></pre>
+    </div></div>
+  <h3>Tips for daily use</h3>
+  <ul class="tips">
+    <li><b>Keep the start of the prompt stable.</b> System prompt, tool list and project rules come first. A change
+    there invalidates the cache for everything after it.</li>
+    <li><b>Add to the end.</b> A new message at the end costs seconds. A fork, a compaction or an edit of an earlier
+    message costs minutes (<a href="#cache">section 3</a>).</li>
+    <li><b>Keep working in the same session.</b> The context grows step by step and each step prefills only the new part.
+    Only a session that starts large pays the cold prefill at once.</li>
+    <li><b>Use the context you need.</b> The turn grows with the context size, and 512K needs the 4-bit KV cache on mlx-serve.
+    Leave memory headroom: both servers lock over 100 GB.</li>
+  </ul>
+</section>
+
+<section class="block" id="quality">
+  <h2 class="sec">7 · Quality sanity check</h2>
+  <p class="s-note">Does a server or quant break the model? Not in these runs: the five stacks I checked are within a few
+  cases of each other. One run per cell, on different dates, with a small sample. Read it as a sanity check, not as a
+  ranking. ds4 and Splash with the base model were not checked.</p>
+  <div class="panel big"><div id="chQuality"></div></div>
+  <p class="foot-note">Context sizes differ: the three base-model stacks ran at 128K, the two Swift 1.5 stacks at 262K
+  (the 262K columns of the table below). HumanEval with the prompt's import lines added before the answer; on Splash it ran
+  twice at 262K (158 and 159 of 164) and the bar shows the first run. LiveCodeBench v6: 50 questions (seed 42), graded with
+  the official import lines. Instruction following: 20 prompts with format constraints, an IFEval-style probe. Tool calls
+  A = jdhodges tool-call test; tool calls B = Veerman tool-call test. mlx-serve with the iQ pack: 2026-10-11 run on
+  26.10.1; oMLX and MTPLX (with --memory-limit max): 2026-10-09 runs, without instruction following. The oMLX
+  LiveCodeBench bar comes from a 2026-10-15 run of the same pack on oMLX 0.7.1.dev1; MTPLX was not measured. Swift 1.5
+  stacks: 2026-10-25 runs.</p>
+  <h3>Swift 1.5 on Splash, up to 1M</h3>
+  <div class="tbl-scroll"><table class="txt sq"><thead><tr><th>Test</th><th>Swift 1.5 · mlx-serve · 262K</th><th>Splash · 262K</th><th>Splash · 512K</th><th>Splash · 1M</th></tr></thead><tbody><tr><td>HumanEval (164)</td><td>158/164</td><td>158/164 · 159/164</td><td>156/164</td><td>155/164 · 158/164</td></tr><tr><td>GPQA-Diamond (50)</td><td>43/50</td><td>41/50</td><td>43/50</td><td>43/50</td></tr><tr><td>LiveCodeBench v6 (50)</td><td>47/50</td><td>47/50</td><td>47/50</td><td>47/50</td></tr><tr><td>Instruction following (20)</td><td>19/20</td><td>19/20</td><td>18/20</td><td>19/20</td></tr><tr><td>Tool calls A (40)</td><td>34/40</td><td>37/40</td><td>37/40</td><td>36/40</td></tr><tr><td>Tool calls B (12)</td><td>10/12</td><td>10/12</td><td>10/12</td><td>9/12</td></tr><tr><td>Long-context recall at the server's size (8)</td><td>8/8</td><td>8/8</td><td>8/8</td><td>8/8</td></tr></tbody></table></div>
+  <p class="foot-note">One run per cell, vendor sampling, reasoning effort xhigh; each column starts the server at that
+  context size. HumanEval with the prompt's import lines, as in the chart; it ran twice at 262K and 1M on Splash, and the
+  1M result is within the run-to-run noise. Long-context recall: 8 questions about a document filled to the server's size.</p>
+</section>
+
+<section class="block" id="method">
+  <h2 class="sec">8 · How I measured</h2>
+  <dl class="method">
+    <dt>Test prompt</dt><dd>A long audit document filled to the target size, with three facts hidden at 10%, 50% and
+    90% of the text. A reply is correct when it finds all three.</dd>
+    <dt>Scenarios</dt><dd><b>First message</b>: the full prompt, no cache (cold prefill). <b>Next turn</b>: the same prompt plus a tool
+    result at the end. <b>User adds a message</b>: the same prompt plus a new user message. <b>History changes halfway</b>:
+    the prompt changes at its midpoint, so only the first half can be a cache hit.</dd>
+    <dt>Agent turn time</dt><dd>TTFT on the next turn + 512 ÷ median decode speed. It is the wait
+    for one agent step with a 512-token reply.</dd>
+    <dt>Runs</dt><dd>One to three runs per point; the "Runs" column of the last table gives the number. A point with
+    three runs shows the median.</dd>
+    <dt>Speculative decoding</dt><dd>The MLX servers and ds4 use the model's MTP head, a small extra head that drafts the
+    next tokens; Splash uses a separate draft model (DFlash2). Output stays the same, decode gets faster.</dd>
+    <dt>YaRN</dt><dd>A method that stretches the model's position encoding beyond its native 262K tokens.</dd>
+    <dt>Harness</dt><dd>A script sends each scenario to the server's HTTP API and reads the timings from the stream.
+    No coding agent sits in the loop.</dd>
+    <dt>Which servers, when</dt><dd>In October 2026 mlx-serve, oMLX, MTPLX and ds4 were the servers that ran Flash-Next on
+    Apple Silicon with MTP and a prefix cache, each on its newest release (2026-10-07 to 2026-10-15). mlx-dspark 0.20.3 ran
+    at 32K only and behind these four; llama.cpp, LM Studio and mlx-vlm were not measured. Splash 1.4.0 and Swift 1.5 on
+    mlx-serve 26.10.3 ran from 2026-10-23 to 2026-10-25. On 2026-10-27 I ran the iQ pack again on 26.10.3, so both
+    mlx-serve stacks on this page run the same build; the <a href="#samebuild">same-build table</a> keeps 26.10.1 too.</dd>
+    <dt>Data and scripts</dt><dd>The raw results, the prompt generator and this page's script are in the
+    <a href="https://github.com/snagnever/macstudio-local-llm" target="_blank" rel="noopener">repository</a>
+    (<code>bench/engine-updates-2026-10</code>, <code>bench/swift15-flashnext-2026-10</code>,
+    <code>bench/stack-updates-2026-10</code> and <code>bench/splash-longctx-2026-10</code>).</dd>
+  </dl>
+  <h3>What this page does not measure</h3>
+  <ul class="reads">
+    <li><b>Agent reliability over many turns.</b> Speed, cache and memory only. Test your own agent workload before
+    you choose.</li>
+    <li><b>Other chips.</b> Numbers from an M5 Max or an M3 Ultra do not transfer to this M4 Max.</li>
+    <li><b>Power draw, fan noise, and several requests at once.</b> Every run sent one request at a time.</li>
+    <li><b>The quality of ds4 and of the base model on Splash</b> (<a href="#quality">section 7</a>).</li>
+  </ul>
+  <h3>Setup notes</h3>
+  <ul class="reads">
+    <li><b>MTPLX.</b> The default config plans only a 65,536-token window on this machine and refuses 128K;
+    128K needs <code>--memory-limit max</code>. Short requests without history skip its session cache, so the test
+    sends a 64-token warm-up first.</li>
+    <li><b>Splash.</b> It refuses Flash-Next in MLX format, so it cannot run the same file as mlx-serve. Clients must send
+    <code>frequency_penalty</code> 0, as with mlx-serve 26.10.3: with 1, the tool-call test failed on both servers.</li>
+    <li><b>mlx-serve at 1M.</b> With YaRN 3.815 and the 4-bit KV cache, mlx-serve 26.10.3 serves the first message
+    (28.6 min), but the next requests fail with <code>PrefillDoesNotFit</code>: they need about 18 GB for the
+    prefill, and 7 to 9 GB are free. 2 of 5 requests failed with Swift 1.5 and 3 of 5 with the iQ pack, so the page has no
+    1M turn time for mlx-serve.</li>
+  </ul>
+  <h3 id="data">All values</h3>
+  <p class="s-note">One row per server and context size. Times in seconds (TTFT = time to first token). Decode and
+  prefill in tokens/s, memory in GB.</p>
+  <div class="tbl-scroll"><table id="tblAll"></table></div>
+</section>
+
+<footer class="foot" id="foot"></footer>
+</div>
+<div id="tip" class="tip" role="tooltip"></div>
+<script>
+const P = {"ctx": [8192, 32768, 131072, 262144, 524288, 1000000], "stacks": [{"id": "n2", "name": "mlx-serve 26.10.3", "short": "mlx-serve", "cv": "--s1", "marker": "circle", "max_ctx": 524288}, {"id": "o1", "name": "oMLX 0.7.0", "short": "oMLX", "cv": "--s2", "marker": "square", "max_ctx": 262144}, {"id": "m1", "name": "MTPLX 2.12.2", "short": "MTPLX", "cv": "--s3", "marker": "triangle", "max_ctx": 131072}, {"id": "d1", "name": "ds4 (antirez, build 0aaea5a)", "short": "ds4", "cv": "--s4", "marker": "diamond", "max_ctx": 524288}, {"id": "k1", "name": "Splash 1.4.0", "short": "Splash", "cv": "--s7", "marker": "pentagon", "max_ctx": 1000000}, {"id": "k2", "name": "Splash 1.4.0 / Swift 1.5", "short": "Splash/Swift", "cv": "--s6", "marker": "hexagon", "max_ctx": 1000000}, {"id": "w1", "name": "mlx-serve 26.10.3 / Swift 1.5", "short": "mlx-serve/Swift", "cv": "--s5", "marker": "invtriangle", "max_ctx": 524288}], "points": {"n2": {"8192": {"turn": 7.91, "resume": 1.6, "append": 1.56, "cold": 3.33, "edit": 3.33, "decode": 81.2, "prefill": 820.0, "wired": 88.6, "swap": 0, "reuse": 0.71, "reuse_edit": 0.0, "reread": 2376, "reps": 3, "hits": {"cold": 0.0, "identical": 0.989, "append": 0.718, "middle_mutation": 0.0, "tool_turn": 0.71}, "config": ""}, "32768": {"turn": 8.05, "resume": 1.77, "append": 1.73, "cold": 34.54, "edit": 24.99, "decode": 81.6, "prefill": 790.0, "wired": 100.2, "swap": 0, "reuse": 0.961, "reuse_edit": 0.3, "reread": 1278, "reps": 3, "hits": {"cold": 0.0, "identical": 0.999, "append": 0.962, "middle_mutation": 0.3, "tool_turn": 0.961}, "config": ""}, "131072": {"turn": 8.9, "resume": 1.97, "append": 1.99, "cold": 165.43, "edit": 93.98, "decode": 74.0, "prefill": 759.0, "wired": 106.5, "swap": 0, "reuse": 0.991, "reuse_edit": 0.456, "reread": 1180, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.992, "middle_mutation": 0.456, "tool_turn": 0.991}, "config": ""}, "262144": {"turn": 11.91, "resume": 2.95, "append": 2.98, "cold": 351.22, "edit": 214.99, "decode": 57.2, "prefill": 731.0, "wired": 114.1, "swap": -0.01, "reuse": 0.996, "reuse_edit": 0.447, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.996, "middle_mutation": 0.447, "tool_turn": 0.996}, "config": ""}, "524288": {"turn": 14.53, "resume": 4.09, "append": 2.81, "cold": 783.47, "edit": 475.48, "decode": 49.1, "prefill": 662.0, "wired": 112.8, "swap": 0, "reuse": 0.998, "reuse_edit": 0.442, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.998, "middle_mutation": 0.442, "tool_turn": 0.998}, "config": "YaRN 2.0 + 4-bit KV cache"}, "1000000": {"reason": "loads, but fails: mlx-serve 26.10.3 serves the first 1M message, then 3 of 5 requests fail with PrefillDoesNotFit (~18 GB needed, 7–9 GB free)"}}, "o1": {"8192": {"turn": 9.35, "resume": 2.2, "append": 2.13, "cold": 4.1, "edit": 4.19, "decode": 71.6, "prefill": 666.0, "wired": 82.9, "swap": 0, "reuse": 0.717, "reuse_edit": 0.0, "reread": 2318, "reps": 3, "hits": {"cold": 0.0, "identical": 0.998, "append": 0.724, "middle_mutation": 0.0, "tool_turn": 0.717}, "config": ""}, "32768": {"turn": 10.06, "resume": 2.38, "append": 2.29, "cold": 49.59, "edit": 28.57, "decode": 66.6, "prefill": 551.0, "wired": 91.2, "swap": 0, "reuse": 0.962, "reuse_edit": 0.449, "reread": 1245, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.963, "middle_mutation": 0.449, "tool_turn": 0.962}, "config": ""}, "131072": {"turn": 12.09, "resume": 3.17, "append": 3.11, "cold": 248.53, "edit": 133.25, "decode": 57.4, "prefill": 505.0, "wired": 98.0, "swap": 0, "reuse": 0.992, "reuse_edit": 0.489, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.992, "middle_mutation": 0.489, "tool_turn": 0.992}, "config": ""}, "262144": {"turn": 14.49, "resume": 4.28, "append": 4.19, "cold": 552.26, "edit": 304.23, "decode": 50.2, "prefill": 465.0, "wired": 100.5, "swap": 0, "reuse": 0.996, "reuse_edit": 0.495, "reread": 1049, "reps": 1, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.996, "middle_mutation": 0.495, "tool_turn": 0.996}, "config": ""}, "524288": {"reason": "no YaRN: oMLX stops at the native 262K"}, "1000000": {"reason": "no YaRN: oMLX stops at the native 262K"}}, "m1": {"8192": {"turn": 8.21, "resume": 1.68, "append": 1.68, "cold": 3.77, "edit": 3.87, "decode": 78.5, "prefill": 724.0, "wired": 94.7, "swap": 0, "reuse": 0.718, "reuse_edit": 0.0, "reread": 2310, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.709, "middle_mutation": 0.0, "tool_turn": 0.718}, "config": ""}, "32768": {"turn": 8.84, "resume": 2.4, "append": 2.5, "cold": 44.13, "edit": 33.23, "decode": 79.6, "prefill": 619.0, "wired": 98.4, "swap": 0, "reuse": 0.962, "reuse_edit": 0.3, "reread": 1245, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.961, "middle_mutation": 0.3, "tool_turn": 0.962}, "config": ""}, "131072": {"turn": 15.1, "resume": 7.83, "append": 6.14, "cold": 458.07, "edit": 403.7, "decode": 70.4, "prefill": 274.0, "wired": 109.7, "swap": 0, "reuse": 0.992, "reuse_edit": 0.261, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.991, "middle_mutation": 0.261, "tool_turn": 0.992}, "config": "--memory-limit max"}, "262144": {"reason": "refused: the MTPLX memory plan fits at most 237,568 tokens on 128 GB"}, "524288": {"reason": "not run: MTPLX already refuses 256K"}, "1000000": {"reason": "not run: MTPLX already refuses 256K"}}, "d1": {"8192": {"turn": 12.73, "resume": 2.95, "append": 2.88, "cold": 4.78, "edit": 4.73, "decode": 52.4, "prefill": 571.0, "wired": 84.9, "swap": 0, "reuse": 0.539, "reuse_edit": 0.0, "reread": 3777, "reps": 3, "hits": {"cold": 0.0, "identical": 0.75, "append": 0.544, "middle_mutation": 0.0, "tool_turn": 0.539}, "config": ""}, "32768": {"turn": 12.59, "resume": 3.02, "append": 2.95, "cold": 41.42, "edit": 41.5, "decode": 53.5, "prefill": 659.0, "wired": 86.0, "swap": 0, "reuse": 0.938, "reuse_edit": 0.0, "reread": 2032, "reps": 1, "hits": {"cold": 0.0, "identical": 0.975, "append": 0.94, "middle_mutation": 0.0, "tool_turn": 0.938}, "config": ""}, "131072": {"turn": 16.41, "resume": 6.38, "append": 6.31, "cold": 195.69, "edit": 133.65, "decode": 51.0, "prefill": 642.0, "wired": 90.1, "swap": 0, "reuse": 0.97, "reuse_edit": 0.326, "reread": 3932, "reps": 3, "hits": {"cold": 0.0, "identical": 0.978, "append": 0.97, "middle_mutation": 0.326, "tool_turn": 0.97}, "config": ""}, "262144": {"turn": 30.66, "resume": 19.94, "append": 19.87, "cold": 407.22, "edit": 224.04, "decode": 47.8, "prefill": 630.0, "wired": 95.6, "swap": 0, "reuse": 0.954, "reuse_edit": 0.479, "reread": 12059, "reps": 1, "hits": {"cold": 0.0, "identical": 0.958, "append": 0.954, "middle_mutation": 0.479, "tool_turn": 0.954}, "config": ""}, "524288": {"turn": 61.87, "resume": 49.99, "append": 49.9, "cold": 894.68, "edit": 887.96, "decode": 43.1, "prefill": 580.0, "wired": 106.6, "swap": 0, "reuse": 0.945, "reuse_edit": 0.0, "reread": 28836, "reps": 1, "hits": {"cold": 0.0, "identical": 0.947, "append": 0.946, "middle_mutation": 0.0, "tool_turn": 0.945}, "config": "YaRN 2.0"}, "1000000": {"reason": "not run: the October round stopped at 512K"}}, "k1": {"8192": {"turn": 7.22, "resume": 1.49, "append": 1.44, "cold": 3.51, "edit": 3.54, "decode": 89.4, "prefill": 779.0, "wired": 108.7, "swap": 0, "reuse": 0.715, "reuse_edit": 0.0, "reread": 2335, "reps": 3, "hits": {"cold": 0.0, "identical": 0.996, "append": 0.723, "middle_mutation": 0.0, "tool_turn": 0.715}, "config": ""}, "32768": {"turn": 6.81, "resume": 1.59, "append": 1.54, "cold": 36.77, "edit": 36.87, "decode": 98.1, "prefill": 742.0, "wired": 110.3, "swap": 0, "reuse": 0.962, "reuse_edit": 0.0, "reread": 1245, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.963, "middle_mutation": 0.0, "tool_turn": 0.962}, "config": ""}, "131072": {"turn": 6.83, "resume": 1.67, "append": 1.61, "cold": 176.94, "edit": 177.01, "decode": 99.1, "prefill": 710.0, "wired": 114.9, "swap": 0, "reuse": 0.991, "reuse_edit": 0.0, "reread": 1180, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.992, "middle_mutation": 0.0, "tool_turn": 0.991}, "config": ""}, "262144": {"turn": 6.98, "resume": 1.81, "append": 1.75, "cold": 370.58, "edit": 371.23, "decode": 99.1, "prefill": 693.0, "wired": 116.4, "swap": 0, "reuse": 0.996, "reuse_edit": 0.0, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.996, "middle_mutation": 0.0, "tool_turn": 0.996}, "config": ""}, "524288": {"turn": 7.35, "resume": 1.92, "append": 1.88, "cold": 784.43, "edit": 782.7, "decode": 94.3, "prefill": 661.0, "wired": 116.7, "swap": -0.03, "reuse": 0.998, "reuse_edit": 0.0, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.998, "middle_mutation": 0.0, "tool_turn": 0.998}, "config": ""}, "1000000": {"turn": 10.48, "resume": 2.56, "append": 2.58, "cold": 1607.69, "edit": 1607.47, "decode": 64.6, "prefill": 619.0, "wired": 111.8, "swap": 0, "reuse": 0.999, "reuse_edit": 0.0, "reread": 1000, "reps": 1, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.999, "middle_mutation": 0.0, "tool_turn": 0.999}, "config": ""}}, "k2": {"8192": {"turn": 6.18, "resume": 1.4, "append": 1.36, "cold": 3.28, "edit": 3.31, "decode": 107.2, "prefill": 832.0, "wired": 106.6, "swap": 0, "reuse": 0.715, "reuse_edit": 0.0, "reread": 2335, "reps": 3, "hits": {"cold": 0.0, "identical": 0.996, "append": 0.723, "middle_mutation": 0.0, "tool_turn": 0.715}, "config": ""}, "32768": {"turn": 6.04, "resume": 1.5, "append": 1.45, "cold": 34.65, "edit": 34.73, "decode": 112.7, "prefill": 788.0, "wired": 108.0, "swap": 0, "reuse": 0.962, "reuse_edit": 0.0, "reread": 1245, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.963, "middle_mutation": 0.0, "tool_turn": 0.962}, "config": ""}, "131072": {"turn": 6.31, "resume": 1.58, "append": 1.53, "cold": 167.44, "edit": 167.45, "decode": 108.2, "prefill": 750.0, "wired": 112.6, "swap": 0, "reuse": 0.991, "reuse_edit": 0.0, "reread": 1180, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.992, "middle_mutation": 0.0, "tool_turn": 0.991}, "config": ""}, "262144": {"turn": 6.57, "resume": 1.73, "append": 1.58, "cold": 351.05, "edit": 351.55, "decode": 105.8, "prefill": 731.0, "wired": 116.4, "swap": 0, "reuse": 0.996, "reuse_edit": 0.0, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.996, "middle_mutation": 0.0, "tool_turn": 0.996}, "config": ""}, "524288": {"turn": 6.67, "resume": 1.86, "append": 1.81, "cold": 744.48, "edit": 743.55, "decode": 106.6, "prefill": 697.0, "wired": 116.4, "swap": 0, "reuse": 0.998, "reuse_edit": 0.0, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.998, "middle_mutation": 0.0, "tool_turn": 0.998}, "config": ""}, "1000000": {"turn": 9.31, "resume": 2.63, "append": 2.63, "cold": 1532.31, "edit": 1531.88, "decode": 76.7, "prefill": 649.0, "wired": 109.7, "swap": -0.01, "reuse": 0.999, "reuse_edit": 0.0, "reread": 1000, "reps": 1, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.999, "middle_mutation": 0.0, "tool_turn": 0.999}, "config": ""}}, "w1": {"8192": {"turn": 7.72, "resume": 1.61, "append": 1.57, "cold": 3.33, "edit": 3.33, "decode": 83.7, "prefill": 819.0, "wired": 90.2, "swap": 0, "reuse": 0.71, "reuse_edit": 0.0, "reread": 2376, "reps": 3, "hits": {"cold": 0.0, "identical": 0.989, "append": 0.718, "middle_mutation": 0.0, "tool_turn": 0.71}, "config": ""}, "32768": {"turn": 8.04, "resume": 1.79, "append": 1.72, "cold": 34.56, "edit": 24.98, "decode": 81.8, "prefill": 790.0, "wired": 100.0, "swap": 0, "reuse": 0.961, "reuse_edit": 0.3, "reread": 1278, "reps": 3, "hits": {"cold": 0.0, "identical": 0.999, "append": 0.962, "middle_mutation": 0.3, "tool_turn": 0.961}, "config": ""}, "131072": {"turn": 8.87, "resume": 1.95, "append": 1.99, "cold": 165.69, "edit": 94.0, "decode": 74.0, "prefill": 758.0, "wired": 107.5, "swap": 0, "reuse": 0.991, "reuse_edit": 0.456, "reread": 1180, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.992, "middle_mutation": 0.456, "tool_turn": 0.991}, "config": ""}, "262144": {"turn": 9.23, "resume": 2.32, "append": 2.32, "cold": 350.74, "edit": 205.88, "decode": 74.1, "prefill": 732.0, "wired": 113.2, "swap": 0, "reuse": 0.996, "reuse_edit": 0.447, "reread": 1049, "reps": 1, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.996, "middle_mutation": 0.447, "tool_turn": 0.996}, "config": ""}, "524288": {"turn": 12.69, "resume": 3.7, "append": 4.05, "cold": 784.18, "edit": 587.79, "decode": 57.0, "prefill": 662.0, "wired": 113.8, "swap": 0, "reuse": 0.998, "reuse_edit": 0.442, "reread": 1049, "reps": 3, "hits": {"cold": 0.0, "identical": 1.0, "append": 0.998, "middle_mutation": 0.442, "tool_turn": 0.998}, "config": "YaRN 2.0 + 4-bit KV cache"}, "1000000": {"reason": "loads, but fails: mlx-serve 26.10.3 serves the first 1M message, then 2 of 5 requests fail with PrefillDoesNotFit (~18 GB needed, 7–9 GB free)"}}}, "quality": [{"id": "n2", "date": "2026-10-11", "humaneval": [158, 164], "livecodebench": [45, 50], "if": [20, 20], "jdhodges": [35, 40], "veerman": [10, 12]}, {"id": "o1", "date": "2026-10-09", "humaneval": [157, 164], "livecodebench": [45, 50], "if": null, "jdhodges": [36, 40], "veerman": [10, 12]}, {"id": "m1", "date": "2026-10-09", "humaneval": [151, 164], "livecodebench": null, "if": null, "jdhodges": [35, 40], "veerman": [10, 12]}, {"id": "w1", "date": "2026-10-25", "ctx": 262144, "humaneval": [158, 164], "livecodebench": [47, 50], "if": [19, 20], "jdhodges": [34, 40], "veerman": [10, 12]}, {"id": "k2", "date": "2026-10-25", "ctx": 262144, "humaneval": [158, 164], "livecodebench": [47, 50], "if": [19, 20], "jdhodges": [37, 40], "veerman": [10, 12]}], "quality_suites": [["humaneval", "HumanEval (164)"], ["livecodebench", "LiveCodeBench v6 (50)"], ["if", "Instruction following (20)"], ["jdhodges", "Tool calls A (40)"], ["veerman", "Tool calls B (12)"]], "swift": [{"key": "gpqa", "label": "GPQA-Diamond (50)", "n2": {"median": 63.9, "passed": 45, "n": 50}, "w1": {"median": 22.3, "passed": 43, "n": 50}}, {"key": "livecodebench", "label": "LiveCodeBench v6 (50)", "n2": {"median": 39.1, "passed": 45, "n": 50}, "w1": {"median": 19.1, "passed": 47, "n": 50}}, {"key": "humaneval", "label": "HumanEval (164)", "n2": {"median": 6.8, "passed": 158, "n": 164}, "w1": {"median": 5.7, "passed": 158, "n": 164}}], "generated_at": "2026-10-27T14:54:20Z"};
+
+const CTX = P.ctx, STACKS = P.stacks, PTS = P.points;
+const NS = "http://www.w3.org/2000/svg";
+const ctxLab = c => c >= 1000000 ? (c / 1000000) + "M" : (c / 1024) + "K";
+const pt = (sid, c) => (PTS[sid] || {})[String(c)];
+const val = (sid, c, k) => { const d = pt(sid, c); return d && d[k] != null ? d[k] : null; };
+const col = s => `var(${s.cv})`;
+const tip = document.getElementById("tip");
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+function fmtS(v){
+  if (v == null) return "—";
+  if (v < 10) return v.toFixed(1) + " s";
+  if (v < 120) return v.toFixed(0) + " s";
+  return (v/60).toFixed(1) + " min";
+}
+function fmtTok(n){ return n >= 1000 ? (n/1000).toFixed(n >= 10000 ? 0 : 1) + "K" : String(n); }
+// Tick count that keeps round steps for the axis tops niceMax() returns (1, 2, 2.5, 5 × 10^k).
+function tickCount(span){
+  const n = span / Math.pow(10, Math.floor(Math.log10(span) + 1e-9));
+  return Math.abs(n - 2) < 1e-6 ? 4 : 5;
+}
+function niceMax(v){
+  const p = Math.pow(10, Math.floor(Math.log10(v))); const n = v / p;
+  return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * p;
+}
+// Marker shapes give a second channel besides color (palette is below the CVD target for all pairs).
+function marker(shape, x, y, r, fill, extra){
+  const ring = `stroke:var(--surface);stroke-width:2;fill:${fill}`;
+  const a = extra || "";
+  if (shape === "square") return `<rect x="${x-r*0.9}" y="${y-r*0.9}" width="${r*1.8}" height="${r*1.8}" rx="1.5" style="${ring}" ${a}/>`;
+  if (shape === "triangle") return `<path d="M${x},${y-r*1.15} L${x+r*1.05},${y+r*0.8} L${x-r*1.05},${y+r*0.8} Z" style="${ring}" ${a}/>`;
+  if (shape === "diamond") return `<path d="M${x},${y-r*1.2} L${x+r*1.1},${y} L${x},${y+r*1.2} L${x-r*1.1},${y} Z" style="${ring}" ${a}/>`;
+  if (shape === "invtriangle") return `<path d="M${x},${y+r*1.15} L${x+r*1.05},${y-r*0.8} L${x-r*1.05},${y-r*0.8} Z" style="${ring}" ${a}/>`;
+  if (shape === "pentagon"){
+    const pts = [0, 1, 2, 3, 4].map(k => { const t = -Math.PI / 2 + 2 * Math.PI / 5 * k; return `${x + r * 1.15 * Math.cos(t)},${y + r * 1.15 * Math.sin(t)}`; });
+    return `<path d="M${pts.join(" L")} Z" style="${ring}" ${a}/>`;
+  }
+  if (shape === "hexagon"){
+    const pts = [0, 1, 2, 3, 4, 5].map(k => { const t = Math.PI / 3 * k; return `${x + r * 1.1 * Math.cos(t)},${y + r * 1.1 * Math.sin(t)}`; });
+    return `<path d="M${pts.join(" L")} Z" style="${ring}" ${a}/>`;
+  }
+  return `<circle cx="${x}" cy="${y}" r="${r}" style="${ring}" ${a}/>`;
+}
+function swatch(s){ return `<svg width="26" height="12" aria-hidden="true"><line x1="1" y1="6" x2="25" y2="6" style="stroke:${col(s)};stroke-width:2"/>${marker(s.marker,13,6,4.2,col(s))}</svg>`; }
+
+function showTip(ev, html){
+  tip.innerHTML = html; tip.style.opacity = 1;
+  let tx = ev.clientX + 14, ty = ev.clientY - 10;
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  if (tx + tw > window.innerWidth - 8) tx = ev.clientX - tw - 14;
+  if (ty + th > window.innerHeight - 8) ty = window.innerHeight - th - 8;
+  if (ty < 8) ty = 8;
+  tip.style.left = tx + "px"; tip.style.top = ty + "px";
+}
+function hideTip(){ tip.style.opacity = 0; }
+function tipRow(s, txt){ return `<div class="t-r"><span class="t-k"><i style="background:${col(s)}"></i>${esc(s.short)}</span><span>${txt}</span></div>`; }
+function bindHover(el, fn){
+  el.addEventListener("mousemove", fn);
+  el.addEventListener("mouseleave", hideTip);
+  el.addEventListener("touchstart", e => { if (e.touches[0]) fn(e.touches[0]); }, {passive:true});
+  el.addEventListener("touchend", hideTip);
+}
+function mkSvg(W, H, label){
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("class", "chart");
+  svg.setAttribute("role", "img"); svg.setAttribute("aria-label", label);
+  return svg;
+}
+
+function buildLegends(){
+  document.querySelectorAll("[data-legend]").forEach(el => {
+    el.innerHTML = STACKS.map(s => `<span class="lg">${swatch(s)}${esc(s.name)}</span>`).join("");
+  });
+}
+
+// Line chart by context: one line per stack, categorical x axis, direct end labels, crosshair tooltip.
+function lineChart(host, o){
+  const W = o.big ? 760 : 380, H = o.big ? 330 : 236;
+  const ML = 46, MR = o.big ? 92 : 70, MT = 14, MB = 30;
+  const x0 = ML, x1 = W - MR, y0 = H - MB, y1 = MT;
+  const ctx = o.ctx || CTX;
+  const xAt = i => x0 + (x1 - x0) * (i / (ctx.length - 1));
+  let vmax = o.ref ? o.ref.v : 0, vmin = Infinity;
+  STACKS.forEach(s => ctx.forEach(c => { const v = val(s.id, c, o.key); if (v != null){ vmax = Math.max(vmax, v); vmin = Math.min(vmin, v); } }));
+  const lo = o.min != null ? o.min : 0;
+  const top = o.max != null ? o.max : niceMax(vmax * 1.06);
+  // o.clip: values above the axis top sit on the top edge with their value, so one outlier does not flatten the rest.
+  const yAt = v => y0 - (y0 - y1) * ((Math.min(v, top) - lo) / (top - lo));
+  const svg = mkSvg(W, H, o.label);
+  let g = "";
+  const nt = o.ticks || tickCount(top - lo);
+  for (let t = 0; t <= nt; t++){
+    const v = lo + (top - lo) * t / nt, y = yAt(v);
+    g += `<line x1="${x0}" x2="${x1}" y1="${y}" y2="${y}" class="${t ? "gl" : "bl"}"/>`;
+    g += `<text x="${x0 - 8}" y="${y + 4}" text-anchor="end" class="ax">${o.tick ? o.tick(v) : v}</text>`;
+  }
+  if (o.ref){ const ry = yAt(o.ref.v); g += `<line x1="${x0}" x2="${x1}" y1="${ry}" y2="${ry}" class="ref"/><text x="${x0 + 4}" y="${ry - 5}" class="reflab">${o.ref.lab}</text>`; }
+  ctx.forEach((c, i) => { g += `<text x="${xAt(i)}" y="${H - 9}" text-anchor="middle" class="ax">${ctxLab(c)}</text>`; });
+  const ends = [];
+  STACKS.forEach(s => {
+    const pts = [];
+    ctx.forEach((c, i) => { const v = val(s.id, c, o.key); if (v != null) pts.push([xAt(i), yAt(v), i, v > top ? v : null]); });
+    for (let k = 1; k < pts.length; k++) if (pts[k][2] === pts[k-1][2] + 1)
+      g += `<line x1="${pts[k-1][0]}" y1="${pts[k-1][1]}" x2="${pts[k][0]}" y2="${pts[k][1]}" style="stroke:${col(s)};stroke-width:2;stroke-linecap:round${pts[k][3] ? ";stroke-dasharray:4 4" : ""}"/>`;
+    pts.forEach(p => {
+      g += marker(s.marker, p[0], p[1], o.big ? 5 : 4.2, col(s));
+      if (p[3]) g += `<text x="${p[0]}" y="${p[1] + 22}" text-anchor="middle" class="dv">↑ ${o.fmt(p[3])}</text>`;
+    });
+    if (pts.length){ const last = pts[pts.length - 1]; ends.push({x: last[0], y: last[1], s}); }
+  });
+  ends.sort((a, b) => a.y - b.y);
+  for (let k = 1; k < ends.length; k++) if (ends[k].y - ends[k-1].y < 14) ends[k].y = ends[k-1].y + 14;
+  ends.forEach(e => { g += `<text x="${e.x + 10}" y="${e.y + 4}" class="dl">${esc(e.s.short)}</text>`; });
+  g += `<line class="ch" x1="0" x2="0" y1="${y1}" y2="${y0}"/>`;
+  g += `<rect x="${x0 - 20}" y="${y1}" width="${x1 - x0 + 40}" height="${y0 - y1}" fill="transparent"/>`;
+  svg.innerHTML = g;
+  host.innerHTML = ""; host.appendChild(svg);
+  const ch = svg.querySelector(".ch");
+  bindHover(svg, ev => {
+    const r = svg.getBoundingClientRect();
+    const mx = (ev.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(ctx.length - 1, Math.round((mx - x0) / ((x1 - x0) / (ctx.length - 1)))));
+    const c = ctx[i];
+    ch.setAttribute("x1", xAt(i)); ch.setAttribute("x2", xAt(i)); ch.style.opacity = 1;
+    let h = `<div class="t-h">${ctxLab(c)} context · ${esc(o.title)}</div>`;
+    STACKS.forEach(s => {
+      const d = pt(s.id, c);
+      let txt = "no data";
+      if (d && d.reason) txt = esc(d.reason);
+      else if (d && d[o.key] != null) txt = o.fmt(d[o.key]) + (d.config ? " · " + esc(d.config) : "");
+      h += tipRow(s, txt);
+    });
+    showTip(ev, h);
+  });
+  svg.addEventListener("mouseleave", () => { ch.style.opacity = 0; });
+}
+
+function gapsNote(el){
+  const items = [];
+  STACKS.forEach(s => CTX.forEach(c => { const d = pt(s.id, c); if (d && d.reason) items.push(`<b>${esc(s.short)} ${ctxLab(c)}</b>: ${esc(d.reason)}`); }));
+  el.innerHTML = "Missing points · " + items.join(" · ");
+}
+
+// Turn-time table: best value per context in bold, the others with the ratio to the best.
+function turnTable(){
+  const t = document.getElementById("tblTurn");
+  let h = "<thead><tr><th>Server</th>" + CTX.map(c => `<th>${ctxLab(c)}</th>`).join("") + "</tr></thead><tbody>";
+  const best = {}; CTX.forEach(c => { const vs = STACKS.map(s => val(s.id, c, "turn")).filter(v => v != null); best[c] = Math.min(...vs); });
+  STACKS.forEach(s => {
+    h += `<tr><td class="stk"><span class="sw" style="background:${col(s)}"></span>${esc(s.name)}</td>`;
+    CTX.forEach(c => {
+      const d = pt(s.id, c);
+      if (!d) { h += `<td class="na">—</td>`; return; }
+      if (d.reason) { h += `<td class="na">${esc(d.reason.split(":")[0])}</td>`; return; }
+      const r = d.turn / best[c];
+      h += r < 1.005 ? `<td class="best">${d.turn.toFixed(1)} s</td>` : `<td>${d.turn.toFixed(1)} s<span class="x">${r.toFixed(2)}×</span></td>`;
+    });
+    h += "</tr>";
+  });
+  t.innerHTML = h + "</tbody>";
+}
+
+function segControl(name, options, initial, onChange){
+  const el = document.querySelector(`[data-seg="${name}"]`);
+  el.innerHTML = options.map(c => `<button type="button" data-v="${c}" aria-pressed="${c === initial}">${ctxLab(c)}</button>`).join("");
+  el.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    onChange(Number(b.dataset.v));
+  });
+  onChange(initial);
+}
+
+// Log-scale dot plot: per server, first message vs history changes halfway vs next turn, for one context size.
+function waitChart(c){
+  const host = document.getElementById("chWait");
+  const W = 760, rowH = 54, MT = 14, MB = 34, ML = 112, MR = 30;
+  const H = MT + rowH * STACKS.length + MB, x0 = ML, x1 = W - MR, y0 = H - MB;
+  const lmin = Math.log10(0.5), lmax = Math.log10(2400);  // up to 40 min: a cold 1M prompt takes ~26 min
+  const xAt = v => x0 + (x1 - x0) * ((Math.log10(Math.max(v, 0.5)) - lmin) / (lmax - lmin));
+  const svg = mkSvg(W, H, `Wait per scenario at ${ctxLab(c)} context, log scale`);
+  let g = "";
+  [[1, "1 s"], [10, "10 s"], [60, "1 min"], [600, "10 min"], [1800, "30 min"]].forEach(([v, lab]) => {
+    g += `<line x1="${xAt(v)}" x2="${xAt(v)}" y1="${MT}" y2="${y0}" class="gl"/><text x="${xAt(v)}" y="${H - 12}" text-anchor="middle" class="ax">${lab}</text>`;
+  });
+  g += `<line x1="${x0}" x2="${x1}" y1="${y0}" y2="${y0}" class="bl"/>`;
+  STACKS.forEach((s, i) => {
+    const y = MT + rowH * i + rowH / 2;
+    g += `<text x="0" y="${y + 4}" class="rowlab">${esc(s.short)}</text>`;
+    const d = pt(s.id, c);
+    if (!d || d.reason){ g += `<text x="${x0}" y="${y + 4}" class="miss">${esc(d ? d.reason : "no data")}</text>`; return; }
+    const vs = [d.cold, d.edit, d.resume].filter(v => v != null);
+    g += `<line x1="${xAt(Math.min(...vs))}" x2="${xAt(Math.max(...vs))}" y1="${y}" y2="${y}" style="stroke:var(--baseline);stroke-width:2"/>`;
+    const hit = `data-s="${s.id}"`;
+    if (d.cold != null) g += `<rect x="${xAt(d.cold) - 6}" y="${y - 6}" width="12" height="12" rx="2" style="fill:var(--surface);stroke:var(--muted);stroke-width:2" ${hit}/>`;
+    if (d.edit != null) g += `<path d="M${xAt(d.edit)},${y - 7.5} L${xAt(d.edit) + 7.5},${y} L${xAt(d.edit)},${y + 7.5} L${xAt(d.edit) - 7.5},${y} Z" style="fill:var(--surface);stroke:var(--ink-2);stroke-width:2" ${hit}/>`;
+    g += marker("circle", xAt(d.resume), y, 7, col(s), hit);
+    g += `<text x="${xAt(d.resume)}" y="${y - 12}" text-anchor="middle" class="dv">${fmtS(d.resume)}</text>`;
+    if (d.cold != null) g += `<text x="${xAt(d.cold)}" y="${y - 12}" text-anchor="middle" class="dv">${fmtS(d.cold)}</text>`;
+    g += `<rect x="0" y="${y - rowH/2}" width="${W}" height="${rowH}" fill="transparent" ${hit}/>`;
+  });
+  svg.innerHTML = g; host.innerHTML = ""; host.appendChild(svg);
+  bindHover(svg, ev => {
+    const t = ev.target && ev.target.getAttribute ? ev.target.getAttribute("data-s") : null;
+    if (!t){ hideTip(); return; }
+    const s = STACKS.find(x => x.id === t), d = pt(t, c);
+    showTip(ev, `<div class="t-h">${esc(s.name)} · ${ctxLab(c)}</div>` +
+      `<div class="t-r"><span>TTFT · first message (cold)</span><span>${fmtS(d.cold)}</span></div>` +
+      `<div class="t-r"><span>TTFT · history changes halfway</span><span>${fmtS(d.edit)}</span></div>` +
+      `<div class="t-r"><span>TTFT · next turn (cache hit)</span><span>${fmtS(d.resume)}</span></div>` +
+      `<div class="t-r"><span>Cache hit rate</span><span>${(d.reuse*100).toFixed(1)}%</span></div>`);
+  });
+  waitTable(c);
+}
+function waitTable(c){
+  const t = document.getElementById("tblWait");
+  let h = `<thead><tr><th>Server · ${ctxLab(c)}</th><th>Cold TTFT</th><th>TTFT · next turn</th><th>TTFT · added message</th><th>TTFT · halfway change</th><th>Cache hit</th><th>Cold ÷ next turn</th></tr></thead><tbody>`;
+  STACKS.forEach(s => {
+    const d = pt(s.id, c);
+    h += `<tr><td class="stk"><span class="sw" style="background:${col(s)}"></span>${esc(s.name)}</td>`;
+    if (!d || d.reason){ h += `<td class="na" colspan="6">${esc(d ? d.reason : "no data")}</td></tr>`; return; }
+    h += `<td>${fmtS(d.cold)}</td><td>${fmtS(d.resume)}</td><td>${fmtS(d.append)}</td><td>${fmtS(d.edit)}</td><td>${(d.reuse*100).toFixed(1)}%</td><td>${(d.cold/d.resume).toFixed(0)}×</td></tr>`;
+  });
+  t.innerHTML = h + "</tbody>";
+}
+
+// Horizontal bars: tokens prefilled again on the next turn, labeled with reuse and the wait it causes.
+function rereadChart(c){
+  const host = document.getElementById("chReread");
+  const W = 760, rowH = 44, MT = 8, MB = 30, ML = 112, MR = 250;
+  const H = MT + rowH * STACKS.length + MB, x0 = ML, x1 = W - MR, y0 = H - MB;
+  const vs = STACKS.map(s => val(s.id, c, "reread")).filter(v => v != null);
+  const top = niceMax(Math.max(...vs) * 1.02);
+  const xAt = v => x0 + (x1 - x0) * v / top;
+  const svg = mkSvg(W, H, `Tokens prefilled again on the next turn at ${ctxLab(c)}`);
+  let g = "";
+  const nt = tickCount(top);
+  for (let t = 0; t <= nt; t++){ const v = top * t / nt; g += `<line x1="${xAt(v)}" x2="${xAt(v)}" y1="${MT}" y2="${y0}" class="${t ? "gl" : "bl"}"/><text x="${xAt(v)}" y="${H - 10}" text-anchor="middle" class="ax">${fmtTok(Math.round(v))}</text>`; }
+  STACKS.forEach((s, i) => {
+    const y = MT + rowH * i + rowH / 2;
+    g += `<text x="0" y="${y + 4}" class="rowlab">${esc(s.short)}</text>`;
+    const d = pt(s.id, c);
+    if (!d || d.reason){ g += `<text x="${x0 + 6}" y="${y + 4}" class="miss">${esc(d ? d.reason : "no data")}</text>`; return; }
+    const w = Math.max(3, xAt(d.reread) - x0);
+    g += `<path d="M${x0},${y - 9} h${w - 4} a4,4 0 0 1 4,4 v10 a4,4 0 0 1 -4,4 h${-(w - 4)} Z" style="fill:${col(s)}" data-s="${s.id}"/>`;
+    g += `<text x="${x0 + w + 8}" y="${y + 4}" class="dv">${fmtTok(d.reread)} tokens · ${(d.reuse*100).toFixed(1)}% cache hit · TTFT ${fmtS(d.resume)}</text>`;
+    g += `<rect x="0" y="${y - rowH/2}" width="${W}" height="${rowH}" fill="transparent" data-s="${s.id}"/>`;
+  });
+  svg.innerHTML = g; host.innerHTML = ""; host.appendChild(svg);
+  bindHover(svg, ev => {
+    const t = ev.target && ev.target.getAttribute ? ev.target.getAttribute("data-s") : null;
+    if (!t){ hideTip(); return; }
+    const s = STACKS.find(x => x.id === t), d = pt(t, c);
+    showTip(ev, `<div class="t-h">${esc(s.name)} · ${ctxLab(c)}</div>` +
+      `<div class="t-r"><span>Tokens prefilled again</span><span>${d.reread.toLocaleString("en-US")}</span></div>` +
+      `<div class="t-r"><span>Cache hit rate</span><span>${(d.reuse*100).toFixed(1)}%</span></div>` +
+      `<div class="t-r"><span>TTFT · next turn</span><span>${fmtS(d.resume)}</span></div>`);
+  });
+}
+
+// Scatter: decode speed (x) vs agent turn time (y) at one context size, one point per server.
+function scatterChart(c){
+  const host = document.getElementById("chScatter");
+  const W = 760, H = 320, ML = 50, MR = 30, MT = 14, MB = 40;
+  const x0 = ML, x1 = W - MR, y0 = H - MB, y1 = MT;
+  const xs = [], ys = [];
+  STACKS.forEach(s => { const d = pt(s.id, c); if (d && !d.reason){ xs.push(d.decode); ys.push(d.turn); } });
+  const xlo = Math.floor((Math.min(...xs) - 8) / 10) * 10, xhi = Math.ceil((Math.max(...xs) + 6) / 10) * 10;
+  const ytop = niceMax(Math.max(...ys) * 1.15);
+  const xAt = v => x0 + (x1 - x0) * (v - xlo) / (xhi - xlo), yAt = v => y0 - (y0 - y1) * v / ytop;
+  const svg = mkSvg(W, H, `Decode speed vs agent turn time at ${ctxLab(c)}`);
+  let g = "";
+  const nt = tickCount(ytop);
+  for (let t = 0; t <= nt; t++){ const v = ytop * t / nt; g += `<line x1="${x0}" x2="${x1}" y1="${yAt(v)}" y2="${yAt(v)}" class="${t ? "gl" : "bl"}"/><text x="${x0 - 8}" y="${yAt(v) + 4}" text-anchor="end" class="ax">${v.toFixed(0)}</text>`; }
+  for (let v = xlo; v <= xhi; v += 10) g += `<text x="${xAt(v)}" y="${y0 + 18}" text-anchor="middle" class="ax">${v}</text>`;
+  g += `<text x="${(x0 + x1) / 2}" y="${H - 4}" text-anchor="middle" class="ax-t">decode speed (tokens/s) →</text>`;
+  g += `<text x="${x0 + 4}" y="${y1 + 10}" class="ax-t">↑ agent turn time (s)</text>`;
+  const labs = [];
+  STACKS.forEach(s => {
+    const d = pt(s.id, c);
+    if (!d || d.reason) return;
+    const x = xAt(d.decode), y = yAt(d.turn);
+    g += marker(s.marker, x, y, 7, col(s), `data-s="${s.id}"`);
+    labs.push({x, y, ly: y + 4, s, d});
+    g += `<circle cx="${x}" cy="${y}" r="16" fill="transparent" data-s="${s.id}"/>`;
+  });
+  // Two stacks with almost the same point (the two mlx-serve stacks) would print one label over the other: push apart.
+  labs.sort((a, b) => a.ly - b.ly);
+  for (let k = 1; k < labs.length; k++) for (let j = 0; j < k; j++)
+    if (Math.abs(labs[k].x - labs[j].x) < 220 && labs[k].ly - labs[j].ly < 16) labs[k].ly = labs[j].ly + 16;
+  labs.forEach(({x, ly, s, d}) => {
+    const left = x > x1 - 200;
+    g += `<text x="${left ? x - 12 : x + 12}" y="${ly}" text-anchor="${left ? "end" : "start"}" class="dl">${esc(s.short)} <tspan class="dv">${d.turn.toFixed(1)} s · ${d.decode.toFixed(0)} tok/s</tspan></text>`;
+  });
+  const miss = STACKS.filter(s => { const d = pt(s.id, c); return !d || d.reason; }).map(s => `${s.short}: ${(pt(s.id, c) || {}).reason || "no data"}`);
+  if (miss.length) g += `<text x="${x1}" y="${y1 + 10}" text-anchor="end" class="miss">${esc(miss.join(" · "))}</text>`;
+  svg.innerHTML = g; host.innerHTML = ""; host.appendChild(svg);
+  bindHover(svg, ev => {
+    const t = ev.target && ev.target.getAttribute ? ev.target.getAttribute("data-s") : null;
+    if (!t){ hideTip(); return; }
+    const s = STACKS.find(x => x.id === t), d = pt(t, c);
+    showTip(ev, `<div class="t-h">${esc(s.name)} · ${ctxLab(c)}</div>` +
+      `<div class="t-r"><span>Agent turn time</span><span>${d.turn.toFixed(1)} s</span></div>` +
+      `<div class="t-r"><span>Decode speed</span><span>${d.decode.toFixed(1)} tok/s</span></div>` +
+      `<div class="t-r"><span>TTFT · next turn</span><span>${fmtS(d.resume)}</span></div>` +
+      `<div class="t-r"><span>Prefill speed</span><span>${d.prefill.toFixed(0)} tok/s</span></div>`);
+  });
+}
+
+function supportTable(){
+  // Cells stay short: the reason or the special config goes to a numbered note under the table.
+  const t = document.getElementById("tblSupport"), notes = [];
+  const note = txt => { notes.push(txt); return `<sup>${notes.length}</sup>`; };
+  let h = "<thead><tr><th>Server</th>" + CTX.map(c => `<th>${ctxLab(c)}</th>`).join("") + "</tr></thead><tbody>";
+  STACKS.forEach(s => {
+    h += `<tr><td class="stk"><span class="sw" style="background:${col(s)}"></span>${esc(s.name)}</td>`;
+    CTX.forEach(c => {
+      const d = pt(s.id, c);
+      if (!d) h += `<td class="no">—</td>`;
+      else if (d.reason){
+        const [head, ...rest] = d.reason.split(": ");
+        h += `<td class="no">✕ ${esc(head)}${note(`${esc(s.short)} ${ctxLab(c)}: ${esc(rest.join(": "))}.`)}</td>`;
+      }
+      else h += `<td class="ok">✓ ${d.turn.toFixed(1)} s${d.config ? note(`${esc(s.short)} ${ctxLab(c)}: runs with ${esc(d.config)}.`) : ""}</td>`;
+    });
+    h += "</tr>";
+  });
+  t.innerHTML = h + "</tbody>";
+  document.getElementById("fnSupport").innerHTML = notes.map(n => `<li>${n}</li>`).join("");
+}
+
+// Cache hit heatmap: one row per server, one column per scenario, cell shade = share served from cache.
+const HIT_SCEN = [["cold", "First message"], ["identical", "Same prompt again"], ["append", "User adds a message"],
+                  ["middle_mutation", "History changes halfway"], ["tool_turn", "Next turn (tool result)"]];
+function hitTable(c){
+  const t = document.getElementById("tblHits");
+  let h = `<thead><tr><th>Server · ${ctxLab(c)}</th>` + HIT_SCEN.map(x => `<th>${x[1]}</th>`).join("") + "</tr></thead><tbody>";
+  STACKS.forEach(s => {
+    const d = pt(s.id, c);
+    h += `<tr><td class="stk"><span class="sw" style="background:${col(s)}"></span>${esc(s.name)}</td>`;
+    if (!d || d.reason){ h += `<td class="no" colspan="${HIT_SCEN.length}">✕ ${esc(d ? d.reason : "no data")}</td></tr>`; return; }
+    h += HIT_SCEN.map(([k]) => {
+      const v = d.hits[k];
+      if (v === undefined) return `<td class="no">—</td>`;
+      if (v === null) return `<td class="no">✕</td>`;
+      const a = (0.06 + v * 0.8).toFixed(3);
+      return `<td class="hc" style="background:color-mix(in srgb, var(--accent) ${(a * 100).toFixed(0)}%, transparent);${v >= 0.55 ? "color:#fff" : ""}">${(v * 100).toFixed(v === 1 || v === 0 ? 0 : 1)}%</td>`;
+    }).join("") + "</tr>";
+  });
+  t.innerHTML = h + "</tbody>";
+}
+
+// At-a-glance panels: one small horizontal bar chart per metric, the best server's value in bold.
+const GLANCE = [
+  {key: "turn", title: "Agent turn time", unit: "s", better: "low", fmt: v => v.toFixed(1) + " s",
+   desc: "The wait for one agent step: from sending a tool result to the end of a 512-token reply (TTFT on the next turn + 512 ÷ decode speed)."},
+  {key: "resume", title: "TTFT · next turn (cache hit)", unit: "s", better: "low", fmt: v => fmtS(v),
+   desc: "Time to first token when the conversation continues: the server reuses the cached prompt and prefills only the new part."},
+  {key: "cold", title: "TTFT · first message (cold)", unit: "s", better: "low", fmt: v => fmtS(v),
+   desc: "Time to first token for a new conversation: the server prefills the whole prompt, with nothing in the cache."},
+  {key: "decode", title: "Decode speed", unit: "tokens/s", better: "high", fmt: v => v.toFixed(1),
+   desc: "How fast the server writes the reply, after the first token. This is the usual “tokens per second”."},
+  {key: "prefill", title: "Prefill speed", unit: "tokens/s", better: "high", fmt: v => v.toFixed(0),
+   desc: "How fast the server reads a prompt it has not seen before. It sets the cold TTFT."},
+  {key: "max_ctx", title: "Largest context on 128 GB", unit: "tokens · any size", better: "high", fmt: v => ctxLab(v), static: true,
+   desc: "The longest prompt the stack served on this machine. It does not change with the selector."},
+];
+function glance(c){
+  const host = document.getElementById("chGlance"); host.innerHTML = "";
+  GLANCE.forEach(m => {
+    const get = s => m.static ? s.max_ctx : val(s.id, c, m.key);
+    const vs = STACKS.map(get).filter(v => v != null);
+    const best = m.better === "low" ? Math.min(...vs) : Math.max(...vs);
+    const W = 360, rowH = 30, MT = 6, ML = 104, MR = 70;
+    const H = MT + rowH * STACKS.length + 4, x0 = ML, x1 = W - MR;
+    const top = Math.max(...vs) * 1.02;
+    const panel = document.createElement("div"); panel.className = "panel";
+    panel.innerHTML = `<div class="p-head"><span class="p-title">${m.title}</span><span class="p-unit">${m.unit} · ${m.better === "low" ? "shorter is better" : "longer is better"}</span></div>` +
+      `<p class="p-desc">${m.desc}</p>`;
+    const svg = mkSvg(W, H, `${m.title}${m.static ? "" : " at " + ctxLab(c)}`);
+    let g = "";
+    STACKS.forEach((s, i) => {
+      const y = MT + rowH * i + rowH / 2, v = get(s);
+      g += `<text x="0" y="${y + 4}" class="rowlab">${esc(s.short)}</text>`;
+      if (v == null){ const d = pt(s.id, c); g += `<text x="${x0}" y="${y + 4}" class="miss">${esc(d && d.reason ? d.reason.split(": ")[0] : "no data")}</text>`; return; }
+      const w = Math.max(3, (x1 - x0) * v / top), isBest = Math.abs(v - best) < 1e-9;
+      g += `<path d="M${x0},${y - 7} h${w - 4} a4,4 0 0 1 4,4 v6 a4,4 0 0 1 -4,4 h${-(w - 4)} Z" style="fill:${col(s)}" data-s="${s.id}"/>`;
+      g += `<text x="${x0 + w + 6}" y="${y + 4}" class="${isBest ? "dl" : "dv"}">${m.fmt(v)}${isBest ? " ★" : ""}</text>`;
+      g += `<rect x="0" y="${y - rowH / 2}" width="${W}" height="${rowH}" fill="transparent" data-s="${s.id}"/>`;
+    });
+    svg.innerHTML = g; panel.appendChild(svg); host.appendChild(panel);
+    bindHover(svg, ev => {
+      const id = ev.target && ev.target.getAttribute ? ev.target.getAttribute("data-s") : null;
+      if (!id){ hideTip(); return; }
+      const s = STACKS.find(x => x.id === id), v = get(s), d = pt(id, c);
+      const txt = v != null ? m.fmt(v) + (d && d.config && !m.static ? " · " + esc(d.config) : "") : esc(d && d.reason ? d.reason : "no data");
+      showTip(ev, `<div class="t-h">${esc(m.title)}${m.static ? "" : " · " + ctxLab(c)}</div>` + tipRow(s, txt));
+    });
+  });
+}
+
+// Grouped horizontal bars (share of correct answers), one group per suite.
+function groupedBars(host, groups, series, o){
+  const W = 760, barH = 16, gap = 2, groupGap = 22, MT = 8, MB = 30, ML = 170, MR = 120;
+  const gh = series.length * (barH + gap) - gap;
+  const H = MT + groups.length * (gh + groupGap) - groupGap + MB, x0 = ML, x1 = W - MR, y0 = H - MB;
+  const top = o.max || niceMax(Math.max(...groups.flatMap(gr => series.map(s => o.value(gr, s) || 0))) * 1.05);
+  const xAt = v => x0 + (x1 - x0) * v / top;
+  const svg = mkSvg(W, H, o.label);
+  let g = "";
+  const nt = tickCount(top);
+  for (let t = 0; t <= nt; t++){ const v = top * t / nt; g += `<line x1="${xAt(v)}" x2="${xAt(v)}" y1="${MT}" y2="${y0}" class="${t ? "gl" : "bl"}"/><text x="${xAt(v)}" y="${H - 10}" text-anchor="middle" class="ax">${o.tick(v)}</text>`; }
+  groups.forEach((gr, gi) => {
+    const gy = MT + gi * (gh + groupGap);
+    g += `<text x="0" y="${gy + gh / 2 + 4}" class="rowlab">${esc(gr.label)}</text>`;
+    series.forEach((s, si) => {
+      const v = o.value(gr, s); const y = gy + si * (barH + gap);
+      if (v == null){
+        if (o.missing) g += `<text x="${x0 + 6}" y="${y + barH - 4}" class="dv">${esc(o.missing)}</text>`;
+        return;
+      }
+      const w = Math.max(3, xAt(v) - x0);
+      g += `<path d="M${x0},${y} h${w - 4} a4,4 0 0 1 4,4 v${barH - 8} a4,4 0 0 1 -4,4 h${-(w - 4)} Z" style="fill:${s.color}" data-g="${gi}" data-i="${si}"/>`;
+      g += `<text x="${x0 + w + 6}" y="${y + barH - 4}" class="dv">${o.label_of(gr, s)}</text>`;
+      g += `<rect x="${x0}" y="${y}" width="${x1 - x0}" height="${barH}" fill="transparent" data-g="${gi}" data-i="${si}"/>`;
+    });
+  });
+  svg.innerHTML = g; host.innerHTML = ""; host.appendChild(svg);
+  bindHover(svg, ev => {
+    const gi = ev.target && ev.target.getAttribute ? ev.target.getAttribute("data-g") : null;
+    if (gi == null){ hideTip(); return; }
+    const gr = groups[+gi];
+    showTip(ev, `<div class="t-h">${esc(gr.label)}</div>` + series.map(s =>
+      `<div class="t-r"><span class="t-k"><i style="background:${s.color}"></i>${esc(s.name)}</span><span>${(o.tip_of || o.label_of)(gr, s)}</span></div>`).join(""));
+  });
+  const leg = document.createElement("div"); leg.className = "legend";
+  leg.innerHTML = series.map(s => `<span class="lg"><svg width="14" height="12" aria-hidden="true"><rect x="1" y="1" width="12" height="10" rx="2" style="fill:${s.color}"/></svg>${esc(s.name)}</span>`).join("");
+  host.prepend(leg);
+}
+
+function qualityChart(){
+  const rows = Object.fromEntries(P.quality.map(r => [r.id, r]));
+  const series = P.quality.map(r => { const s = STACKS.find(x => x.id === r.id); return {id: r.id, name: s.name, color: col(s)}; });
+  const groups = P.quality_suites.map(([key, label]) => ({key, label}));
+  groupedBars(document.getElementById("chQuality"), groups, series, {
+    max: 100, label: "Share of correct answers per test and stack", tick: v => v.toFixed(0) + "%",
+    missing: "not measured",
+    value: (gr, s) => { const q = rows[s.id][gr.key]; return q ? 100 * q[0] / q[1] : null; },
+    label_of: (gr, s) => { const q = rows[s.id][gr.key]; return q ? `${(100*q[0]/q[1]).toFixed(0)}%` : "not measured"; },
+    tip_of: (gr, s) => { const q = rows[s.id][gr.key]; return q ? `${q[0]}/${q[1]} · ${(100*q[0]/q[1]).toFixed(0)}%` : "not measured"; },
+  });
+}
+
+function swiftChart(){
+  const series = [{id: "n2", name: "Qwen3.8-Flash-Next (ddalcu iQ-MLX 4.7 bpw)", color: "var(--s1)"},
+                  {id: "w1", name: "Swift 1.5 (same runtime and flags)", color: "var(--s5)"}];
+  groupedBars(document.getElementById("chSwift"), P.swift, series, {
+    label: "Median time to the final answer per suite", tick: v => v.toFixed(0) + " s",
+    value: (gr, s) => gr[s.id].median,
+    label_of: (gr, s) => `${gr[s.id].median.toFixed(1)} s · ${gr[s.id].passed}/${gr[s.id].n} correct`,
+  });
+}
+
+function allTable(){
+  const t = document.getElementById("tblAll");
+  const cols = [["turn", "Agent turn", v => v.toFixed(1)], ["resume", "TTFT next turn", v => v.toFixed(2)],
+    ["append", "TTFT added msg", v => v.toFixed(2)], ["cold", "Cold TTFT", v => v.toFixed(1)],
+    ["edit", "TTFT halfway change", v => v.toFixed(1)], ["reuse", "Cache hit", v => (v*100).toFixed(1) + "%"],
+    ["decode", "Decode", v => v.toFixed(1)], ["prefill", "Prefill", v => v.toFixed(0)],
+    ["wired", "Peak memory", v => v.toFixed(1)], ["swap", "Swap", v => v.toFixed(1)], ["reps", "Runs", v => String(v)]];
+  let h = "<thead><tr><th>Server</th><th>Context</th>" + cols.map(c => `<th>${c[1]}</th>`).join("") + "</tr></thead><tbody>";
+  STACKS.forEach(s => CTX.forEach(c => {
+    const d = pt(s.id, c); if (!d) return;
+    h += `<tr><td class="stk"><span class="sw" style="background:${col(s)}"></span>${esc(s.short)}</td><td>${ctxLab(c)}${d.config ? `<span class="cfg">${esc(d.config)}</span>` : ""}</td>`;
+    if (d.reason){ h += `<td class="na" colspan="${cols.length}">${esc(d.reason)}</td></tr>`; return; }
+    h += cols.map(cl => d[cl[0]] == null ? `<td class="na">—</td>` : `<td>${cl[2](d[cl[0]])}</td>`).join("") + "</tr>";
+  }));
+  t.innerHTML = h + "</tbody>";
+}
+
+function buildFoot(){
+  document.getElementById("foot").innerHTML =
+    `Data: <code>bench/engine-updates-2026-10/results/reports-2026-10.json</code> and ` +
+    `<code>bench/swift15-flashnext-2026-10/results/page-data.json</code>, generated at <code>${esc(P.generated_at)}</code>; ` +
+    `Splash quality from <code>bench/splash-longctx-2026-10/results/etapa4-quality.md</code>. ` +
+    `Page: <code>render_m4max_guide.py</code>. Detailed pages: ` +
+    `<a href="qwen38-flashnext-overview.html">campaign dashboard</a> · ` +
+    `<a href="qwen38-flashnext-perf-lines.html">five runtimes from 8K to 1M</a> · ` +
+    `<a href="qwen38-flashnext-swift15.html">Swift 1.5 A/B</a> · ` +
+    `<a href="https://github.com/snagnever/macstudio-local-llm" target="_blank" rel="noopener">repository</a>.`;
+}
+
+// Table of contents from the section headings, in page order; the conclusion block has no number.
+function buildToc(){
+  const items = [...document.querySelectorAll("section.block[id] > h2.sec, #conclusion")].map(el => {
+    const sec = el.closest("section");
+    const label = sec.id === "conclusion" ? "Conclusion" : el.textContent.replace(/^\d+ · /, "");
+    const num = sec.id === "conclusion" ? "→" : (el.textContent.match(/^(\d+) · /) || [, ""])[1];
+    return `<li><a href="#${sec.id}"><span class="toc-n">${num}</span>${esc(label)}</a></li>`;
+  });
+  document.getElementById("tocList").innerHTML = items.join("");
+}
+
+function build(){
+  buildToc();
+  buildLegends();
+  segControl("glance", [32768, 131072, 262144, 524288, 1000000], 131072, glance);
+  lineChart(document.getElementById("chTurn"), {key: "turn", title: "agent turn time", label: "Agent turn time by context size",
+    big: true, max: 32, ticks: 4, fmt: v => v.toFixed(1) + " s", tick: v => v.toFixed(0) + " s"});
+  gapsNote(document.getElementById("gapsTurn"));
+  turnTable();
+  segControl("wait", [32768, 131072, 262144, 524288, 1000000], 131072, waitChart);
+  segControl("reread", [131072, 262144, 524288, 1000000], 131072, rereadChart);
+  lineChart(document.getElementById("chResume"), {key: "resume", title: "TTFT on the next turn", label: "TTFT on the next turn by context",
+    max: 10, fmt: v => fmtS(v), tick: v => v.toFixed(0)});
+  lineChart(document.getElementById("chReuse"), {key: "reuse", title: "cache hit rate", label: "Cache hit rate on the next turn by context",
+    ctx: [32768, 131072, 262144, 524288, 1000000], min: 0.9, max: 1, fmt: v => (v*100).toFixed(1) + "%", tick: v => (v*100).toFixed(0) + "%"});
+  segControl("hits", [8192, 32768, 131072, 262144, 524288, 1000000], 131072, hitTable);
+  segControl("scatter", [32768, 131072, 262144], 131072, scatterChart);
+  lineChart(document.getElementById("chDecode"), {key: "decode", title: "decode speed", label: "Decode speed by context",
+    fmt: v => v.toFixed(1) + " tok/s", tick: v => v.toFixed(0)});
+  lineChart(document.getElementById("chPrefill"), {key: "prefill", title: "prefill speed", label: "Prefill speed by context",
+    fmt: v => v.toFixed(0) + " tok/s", tick: v => v.toFixed(0)});
+  supportTable();
+  lineChart(document.getElementById("chMem"), {key: "wired", title: "peak memory", label: "Peak memory locked by the server by context",
+    big: true, max: 128, ticks: 4, ref: {v: 128, lab: "128 GB total"}, fmt: v => v.toFixed(1) + " GB", tick: v => v.toFixed(0)});
+  qualityChart(); swiftChart(); allTable(); buildFoot();
+}
+build();
+
+document.addEventListener("click", e => {
+  const a = e.target.closest('a[href^="#"]'); if (!a) return;
+  const el = document.getElementById(a.getAttribute("href").slice(1)); if (!el) return;
+  e.preventDefault(); el.scrollIntoView({behavior: "smooth", block: "start"});
+  try { history.replaceState(null, "", a.getAttribute("href")); } catch (err) {}
+});
+
+const btn = document.getElementById("themeBtn");
+function applyLabel(){ btn.textContent = "theme: " + (document.documentElement.getAttribute("data-theme") || "auto"); }
+btn.addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  const next = cur == null ? "light" : cur === "light" ? "dark" : null;
+  if (next) document.documentElement.setAttribute("data-theme", next); else document.documentElement.removeAttribute("data-theme");
+  try { next ? localStorage.setItem("theme", next) : localStorage.removeItem("theme"); } catch (e) {}
+  applyLabel();
+});
+try { const saved = localStorage.getItem("theme"); if (saved) document.documentElement.setAttribute("data-theme", saved); } catch (e) {}
+applyLabel();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+{
+  "artifact": "logs/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-animated.svg",
+  "question_index": 5,
+  "render": "logs/renders/opencode/gpt-5.6-terra/picnic-clouds-hot-air-balloon-animated.png",
+  "judge": {
+    "kind": "claude-vision",
+    "model": "claude-opus-5",
+    "date": "2026-09-07",
+    "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {
+      "text": "Create a scene set on top of a solid-looking cloudscape that serves as the ground.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Include a hot air balloon with a large envelope featuring vertical red and white stripes and a brown wicker basket.",
+      "met": false,
+      "note": "The envelope is orange-red with pale yellow vertical stripes and no white stripe, so it is not red-and-white striped."
+    },
+    {
+      "text": "The balloon's basket must be resting firmly on the surface of a large, flat-topped cloud.",
+      "met": false,
+      "note": "The balloon floats in the upper-left sky with its basket in clear blue sky and a mooring rope hanging loose beneath it; it rests on no cloud."
+    },
+    {
+      "text": "Show ropes connecting the balloon's envelope to the basket.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Include four human figures styled as a family: two adults and two children.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Position one adult figure holding a corner of a red and white checkered picnic blanket, while one child figure holds the opposite corner, as if they are spreading it out together on the cloud.",
+      "met": false,
+      "note": "The checkered blanket lies flat and untouched; no adult and child pair holds opposite corners."
+    },
+    {
+      "text": "Place an open picnic basket on a corner of the blanket that is already spread out.",
+      "met": false,
+      "note": "The wicker basket stands on the cloud outside the blanket's left corner rather than on the blanket."
+    },
+    {
+      "text": "A thermos, a bunch of grapes, and a sandwich must be visible emerging from the open picnic basket.",
+      "met": false,
+      "note": "The basket holds only a small yellow slab; no thermos, bunch of grapes or sandwich emerges from it."
+    },
+    {
+      "text": "Position the second adult and second child near the landed hot air balloon, with the adult pointing up at the balloon's envelope.",
+      "met": false,
+      "note": "All four figures are grouped at the blanket far from the balloon, and no adult points up at the envelope."
+    },
+    {
+      "text": "The background must be a clear blue sky containing a bright yellow sun and two small, distant clouds.",
+      "met": false,
+      "note": "Only one small distant cloud is drawn - a faint wisp beside the sun at about (860,155)."
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title description">
+  <title id="title">Dolphin jumping through a hula hoop to bite a fish from its trainer's hand</title>
+  <desc id="description">A dolphin bursts from a pool, passes through a bright hula hoop, and opens its mouth around a fish held by a trainer leaning from a platform.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#58c7ed"/>
+      <stop offset="0.7" stop-color="#d8f6ff"/>
+      <stop offset="1" stop-color="#fff2cc"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#18a9ce"/>
+      <stop offset="1" stop-color="#064f7b"/>
+    </linearGradient>
+    <linearGradient id="dolphin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b6e3ea"/>
+      <stop offset="0.34" stop-color="#5a9eb3"/>
+      <stop offset="0.7" stop-color="#28677f"/>
+      <stop offset="1" stop-color="#123d55"/>
+    </linearGradient>
+    <linearGradient id="belly" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f4ffff"/>
+      <stop offset="1" stop-color="#a9d5de"/>
+    </linearGradient>
+    <linearGradient id="deck" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#a8b9bf"/>
+    </linearGradient>
+    <pattern id="hoopBands" width="72" height="72" patternUnits="userSpaceOnUse" patternTransform="rotate(30)">
+      <rect width="24" height="72" fill="#ffcf2f"/>
+      <rect x="24" width="24" height="72" fill="#f04469"/>
+      <rect x="48" width="24" height="72" fill="#704ad5"/>
+    </pattern>
+    <filter id="shadow" x="-25%" y="-25%" width="160%" height="170%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="6" dy="9"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.2"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+
+  <!-- Clear outdoor aquatic-show setting -->
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <circle cx="164" cy="125" r="83" fill="#fff7ad" opacity="0.3" filter="url(#glow)"/>
+  <circle cx="164" cy="125" r="42" fill="#ffe66f"/>
+  <g fill="#fff" opacity="0.76">
+    <path d="M38 224c16-30 62-34 84-6c20-26 65-18 74 11c26-21 70-5 71 28H22c0-15 5-26 16-33z"/>
+    <path d="M742 139c13-25 52-27 70-5c17-21 54-14 62 10c22-17 57-3 58 23H729c0-12 5-22 13-28z"/>
+  </g>
+  <g fill="none" stroke="#397f9e" stroke-width="5" stroke-linecap="round" opacity="0.55">
+    <path d="M270 145q15-14 30 0q15-14 30 0"/>
+    <path d="M655 211q13-12 26 0q13-12 26 0"/>
+  </g>
+  <path d="M0 549c144-34 260 29 398-2c145-33 267 31 411-2c141-32 263 27 391 2v253H0z" fill="url(#water)"/>
+  <path d="M0 570c130-31 254 28 384 0c143-31 274 28 410-2c141-30 267 27 406 0" fill="none" stroke="#8de6ef" stroke-width="11" opacity="0.68"/>
+  <path d="M17 654c114-23 216 23 329-1c122-25 235 23 355-1c127-25 238 24 359 0c53-11 99-8 140 1" fill="none" stroke="#08769f" stroke-width="12" opacity="0.6"/>
+  <path d="M67 738c95-19 178 17 272-1m516 1c98-19 181 11 281-5" fill="none" stroke="#56c5d9" stroke-width="8" opacity="0.56" stroke-linecap="round"/>
+
+  <!-- Trainer platform -->
+  <g filter="url(#shadow)">
+    <path d="M925 493h275v99H870c-25 0-40-22-30-44l14-33c6-14 28-22 71-22z" fill="url(#deck)" stroke="#596d74" stroke-width="6"/>
+    <path d="M863 514h337" stroke="#fff" stroke-width="12" opacity="0.8"/>
+    <path d="M904 592h87l-17 208h-91zM1103 592h74l23 208h-82z" fill="#48646d" stroke="#334c54" stroke-width="5"/>
+  </g>
+
+  <!-- Trainer visibly leans toward the dolphin and presents the fish -->
+  <g filter="url(#shadow)">
+    <path d="M991 259c-23 21-35 61-31 105l10 118h151l-9-129c-4-55-26-88-63-102z" fill="#ed6b3d" stroke="#673629" stroke-width="6"/>
+    <path d="M1000 278c-31 10-57 25-83 49l-93-50l-29 45l103 70c36 24 72 19 100-12l45-50z" fill="#efa97d" stroke="#694235" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M826 277c-17-9-39-3-48 12c-7 13 2 31 24 35l26-4z" fill="#f3ba91" stroke="#694235" stroke-width="6"/>
+    <path d="M966 468h75l-7 102h-80zM1047 468h74l20 102h-82z" fill="#164d70" stroke="#12364e" stroke-width="6"/>
+    <path d="M954 570h80v25h-88zM1059 570h82l8 25h-90z" fill="#152c3a"/>
+    <ellipse cx="1037" cy="204" rx="48" ry="57" fill="#f2b58c" stroke="#694235" stroke-width="6"/>
+    <path d="M988 203c-2-45 26-75 64-69c35 6 49 39 36 77c-20-20-45-28-76-19l-10 28z" fill="#35261f"/>
+    <circle cx="1052" cy="199" r="4.5" fill="#28201d"/>
+    <path d="M1056 222q17 13 31-2" fill="none" stroke="#864c3c" stroke-width="4" stroke-linecap="round"/>
+    <path d="M987 280l50 43l43-54" fill="none" stroke="#fff6e9" stroke-width="10"/>
+    <path d="M1010 278l28 20l23-27" fill="#193e55"/>
+  </g>
+
+  <!-- The trainer's fingers visibly grip the fish tail -->
+  <g transform="translate(781 298) rotate(-5)" filter="url(#shadow)">
+    <path d="M2 1c28-27 74-25 104 0C77 30 31 32 2 8l-30 20l5-28l-4-28z" fill="#f4b52f" stroke="#624619" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M37-16l18-26l18 28M41 22l18 23l17-28" fill="#ee7e2f" stroke="#624619" stroke-width="5" stroke-linejoin="round"/>
+    <circle cx="87" cy="-1" r="5" fill="#15232b"/>
+    <circle cx="85.5" cy="-2.5" r="1.5" fill="#fff"/>
+    <path d="M99 8q8-6 14 0M11-3q31 9 61 0" fill="none" stroke="#fff1a2" stroke-width="4" stroke-linecap="round"/>
+    <path d="M-19-14l16 13l-17 12" fill="none" stroke="#694235" stroke-width="4"/>
+  </g>
+
+  <!-- Back half of the upright hula hoop -->
+  <ellipse cx="549" cy="351" rx="224" ry="170" fill="none" stroke="#78233e" stroke-width="47" opacity="0.28"/>
+  <ellipse cx="549" cy="351" rx="224" ry="170" fill="none" stroke="url(#hoopBands)" stroke-width="34"/>
+  <ellipse cx="549" cy="351" rx="208" ry="154" fill="none" stroke="#fff" stroke-width="4" opacity="0.72"/>
+
+  <!-- Dolphin body crosses the hoop opening and reaches the fish -->
+  <g transform="rotate(-14 555 389)" filter="url(#shadow)">
+    <path d="M210 451c44-23 86-22 125-4c45-91 137-151 252-140c88 8 150 48 214 95c26 19 34 48 18 69c-15 19-46 18-77-1c-26-15-50-24-76-27c-65 54-153 84-248 70c-54-8-94-26-127-49c-38 11-78 6-113-11z" fill="url(#dolphin)" stroke="#123d53" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M337 446c47-79 133-125 237-119c75 4 136 34 189 70c-93-26-172-4-229 46c-55 49-122 50-197 3z" fill="url(#belly)" opacity="0.87"/>
+    <path d="M441 340c19-59 57-99 93-116c11 49 1 91-34 126z" fill="#367b91" stroke="#123d53" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M483 497c2 56-18 95-50 121c-20-44-22-84-1-126z" fill="#377d93" stroke="#123d53" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M322 446c-39-40-84-59-134-57c17 34 42 58 75 71c-34 14-60 39-76 74c54-4 97-26 129-69z" fill="#377d93" stroke="#123d53" stroke-width="7" stroke-linejoin="round"/>
+    <circle cx="704" cy="385" r="9" fill="#0c1b22"/>
+    <circle cx="707" cy="382" r="3" fill="#fff"/>
+    <path d="M748 406c27 1 51-2 71-8c18-5 34 1 44 14c-12 14-29 21-50 21h-66z" fill="#e2f5f6" stroke="#123d53" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M752 418c30 5 61 3 91-3" fill="none" stroke="#9a4350" stroke-width="6" stroke-linecap="round"/>
+    <path d="M815 403l8 14l10-16" fill="#fff" stroke="#123d53" stroke-width="2"/>
+    <path d="M720 365q16-8 30 3" fill="none" stroke="#16495f" stroke-width="5" stroke-linecap="round"/>
+    <path d="M662 444c24 12 48 16 72 10" fill="none" stroke="#d9f5f7" stroke-width="6" opacity="0.75"/>
+  </g>
+
+  <!-- Fish overlaps the open mouth so the intended bite is unambiguous -->
+  <path d="M836 392c-5 11-7 22-4 33" fill="none" stroke="#f4b52f" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Foreground half of hoop occludes the dolphin, proving passage through it -->
+  <path d="M342 418c43 68 119 103 207 103c89 0 165-35 207-103" fill="none" stroke="#78233e" stroke-width="47" opacity="0.28"/>
+  <path d="M342 418c43 68 119 103 207 103c89 0 165-35 207-103" fill="none" stroke="url(#hoopBands)" stroke-width="34"/>
+  <path d="M352 414c42 60 112 90 197 90c84 0 155-30 197-90" fill="none" stroke="#fff" stroke-width="4" opacity="0.75"/>
+
+  <!-- Large launch splash establishes that the dolphin jumped out of the water -->
+  <g fill="#e8fdff" stroke="#168aaa" stroke-width="5" stroke-linejoin="round">
+    <path d="M188 586c55-34 103-35 148-7c48-31 100-27 151 6c-70 7-116 28-151 64c-36-34-83-55-148-63z"/>
+    <path d="M258 579c-32-66-34-117-7-164c10 60 32 101 66 127c-4-77 14-133 59-174c-18 78-3 137 43 182c-2-59 11-102 45-130c-10 61 1 107 34 143z"/>
+    <path d="M222 558c-46-39-68-80-66-125c25 48 55 78 94 95z"/>
+  </g>
+  <g fill="#eaffff" stroke="#2094b1" stroke-width="3">
+    <circle cx="176" cy="492" r="10"/><circle cx="219" cy="427" r="8"/>
+    <circle cx="281" cy="394" r="7"/><circle cx="429" cy="434" r="10"/>
+    <circle cx="480" cy="499" r="7"/><circle cx="514" cy="536" r="5"/>
+  </g>
+
+  <!-- Small droplets connect the upward motion to the target -->
+  <g fill="#ccf7fb" stroke="#278da8" stroke-width="2">
+    <path d="M744 338c11 16 9 28-3 34c-12-6-11-18 3-34z"/>
+    <path d="M772 320c8 12 7 22-2 26c-9-5-9-14 2-26z"/>
+  </g>
+</svg>

@@ -1,0 +1,73 @@
+{
+  "artifact": "logs/opencode/qwen3.8-27b-8bit/cow-plowing.svg",
+  "question_index": 0,
+  "render": "logs/renders/opencode/qwen3.8-27b-8bit/cow-plowing.png",
+  "judge": {
+    "kind": "claude-vision",
+    "model": "claude-opus-5",
+    "date": "2026-09-07",
+    "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {
+      "text": "Create a cow with clearly recognizable bovine features, including a body, head, four legs, tail, and udder.",
+      "met": false,
+      "note": "No udder is drawn anywhere under the belly; body, head, four legs and tail are all present, but the udder is absent."
+    },
+    {
+      "text": "The cow must have black and white patches for its coloring.",
+      "met": false,
+      "note": "The cow is mid-brown with two off-white patches; there is no black on the body."
+    },
+    {
+      "text": "Add cow ears, eyes, and snout for facial recognition.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Position the cow in a realistic plowing stance, leaning forward as if pulling.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "The cow's hooves must be colored brown, as if covered in soil from the field.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Include a traditional wooden plow with a visible metal blade/share.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Depict a wooden yoke across the cow's shoulders, connected to the plow by visible chains.",
+      "met": false,
+      "note": "There is no yoke across the shoulders - the plow beam runs straight to a brown boss at the cow's chest - and no chains are drawn anywhere."
+    },
+    {
+      "text": "The plow's blade must be partially buried in the soil, actively turning over a chunk of earth.",
+      "met": false,
+      "note": "The pale grey triangular share stands on top of the green turf, fully visible, with no soil over any part of it and no chunk of earth lifted or turned."
+    },
+    {
+      "text": "Show at least three distinct, dark furrows in the soil trailing directly behind the plow.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "The field must be split into a plowed section and an unplowed section, with the cow and plow positioned at the boundary between them.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "The unplowed section of the field must have short green grass, which is visibly being overturned by the plow.",
+      "met": false,
+      "note": "The field is flat green, but no grass is shown being overturned at the share - the blade sits on undisturbed turf and nothing green is lifted."
+    },
+    {
+      "text": "Add a simple background with a clear horizon line and a blue sky containing a yellow sun.",
+      "met": true,
+      "note": ""
+    }
+  ]
+}
