@@ -94,3 +94,14 @@ def test_empty_200_responses_are_not_model_turns():
              "output_tokens": 0, "tps": None, "status": 200, "stream": None}
     s = summarize_requests([dict(WARM, t_start_s=0.0, t_end_s=3.0), empty])
     assert s["n"] == 1 and s["max_concurrent"] == 1 and s["errors"] == 0 and s["warm"]["n"] == 1
+
+
+def test_empty_404_is_not_an_error_but_an_empty_500_is():
+    # mlx-serve has no count_tokens endpoint: Claude Code's call gets a 1 ms 404 with no tokens. A server error
+    # with nothing else in it is still an error.
+    base = {"t_start_s": 1.0, "ttft_s": None, "t_end_s": 1.001, "input_tokens": 0, "cached_tokens": None,
+            "output_tokens": 0, "tps": None, "stream": None}
+    s = summarize_requests([dict(WARM, t_start_s=0.0, t_end_s=3.0), dict(base, status=404)])
+    assert s["n"] == 1 and s["errors"] == 0
+    s = summarize_requests([dict(WARM, t_start_s=0.0, t_end_s=3.0), dict(base, status=500)])
+    assert s["n"] == 2 and s["errors"] == 1

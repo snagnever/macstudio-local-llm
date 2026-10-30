@@ -101,9 +101,19 @@ def _profile(results_dir: Path, prefix: str, tasks: tuple[str, ...]) -> Optional
     return {k: block[k] for k in order}
 
 
+PROFILE_OF_TASK = {t: name for name, tasks in PROFILES.items() for t in tasks}
+
+
+def _task_of(name: str) -> str:
+    """The task letter of req-<kind>r<rep>-<task>.jsonl, or "" for the old one-file-per-rep layout."""
+    stem = name.rsplit(".", 1)[0]
+    return stem.rsplit("-", 1)[1] if stem.count("-") >= 2 else ""
+
+
 def _requests(results_dir: Path, prefix: str, kind: str, per_file: bool, variant: str = "") -> Optional[dict[str, Any]]:
     """Pool the request files of one kind (1 = alone, 2 = pair). Files of the same group share one clock (the
-    sessions of a pair rep, written by the proxy); groups are laid end to end so runs never look concurrent."""
+    sessions of a pair rep of one profile, written by the proxy; the a+b and c+d pairs reuse the rep tags but
+    are separate boots); groups are laid end to end so runs never look concurrent."""
     groups: dict[str, list[dict[str, Any]]] = {}
     for p in sorted(results_dir.glob(f"req-{prefix}{kind}{variant}r*.jsonl")):
         rep = _rep(p.name, prefix, kind, variant)
@@ -111,7 +121,8 @@ def _requests(results_dir: Path, prefix: str, kind: str, per_file: bool, variant
             continue
         rows = read_requests(p)
         if rows:
-            groups.setdefault(p.name if per_file else rep, []).extend(rows)
+            key = p.name if per_file else f"{rep}-{PROFILE_OF_TASK.get(_task_of(p.name), '')}"
+            groups.setdefault(key, []).extend(rows)
     reqs: list[dict[str, Any]] = []
     offset = 0.0
     for key in sorted(groups):

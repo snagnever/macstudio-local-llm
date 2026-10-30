@@ -142,3 +142,15 @@ def test_main_variants_flag(tmp_path):
                  "--variants", "s=subagents,d=decode_share"]) == 0
     data = json.loads(out.read_text())
     assert data["decode_share"]["profile"]["pair_wall_s"] == 380 and "subagents" not in data
+
+
+def test_pair_reps_of_different_profiles_do_not_share_a_clock(tmp_path):
+    # The queues reuse the tags r1..r3 for the a+b pair and for the c+d pair (separate boots): files of one rep
+    # share a clock only within one profile, else two pairs look like four concurrent sessions.
+    a = [dict(COLD, t_start_s=0.0, t_end_s=25.0)]
+    _req(tmp_path, "rc2r1-a", a)
+    _req(tmp_path, "rc2r1-b", a)
+    _req(tmp_path, "rc2r1-c", a)
+    _req(tmp_path, "rc2r1-d", a)
+    r = summarize_claude(tmp_path, "rc")["requests"]["pair"]
+    assert r["n"] == 4 and r["max_concurrent"] == 2

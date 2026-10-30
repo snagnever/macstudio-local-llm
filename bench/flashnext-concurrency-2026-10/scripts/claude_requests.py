@@ -106,9 +106,11 @@ def is_prefill(r: dict[str, Any]) -> bool:
 
 
 def is_model_turn(r: dict[str, Any]) -> bool:
-    """A 200 with no content delta and no output tokens is another endpoint behind the proxy (Claude Code's
-    count_tokens call answers {"input_tokens": N}), not a request to the model."""
-    return not (r.get("status", 200) == 200 and r.get("ttft_s") is None and not r.get("output_tokens"))
+    """A response with no content delta and no tokens is another endpoint behind the proxy, not a request to
+    the model: Claude Code's count_tokens call answers {"input_tokens": N} (200 on Splash) or 404 (mlx-serve has
+    no such endpoint). Any other status with nothing in it is still an error."""
+    empty = r.get("ttft_s") is None and not r.get("output_tokens") and not r.get("input_tokens")
+    return not (empty and r.get("status", 200) in (200, 404))
 
 
 def summarize_requests(reqs: list[dict[str, Any]]) -> dict[str, Any]:
