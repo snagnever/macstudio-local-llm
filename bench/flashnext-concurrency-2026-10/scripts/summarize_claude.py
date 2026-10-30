@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import statistics
 import sys
 from pathlib import Path
@@ -32,43 +33,64 @@ def _load(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _rep(name: str, prefix: str, kind: str) -> Optional[str]:
+    """The rep number in cc-<prefix><kind>r<rep>-<task>.json or req-<prefix><kind>r<rep>[-<task>].jsonl."""
+    m = re.match(rf"^(?:cc|req)-{re.escape(prefix)}{kind}r(\d+)(?:-[^.]+)?\.jsonl?$", name)
+    return m.group(1) if m else None
+
+
+def _failed(r: dict[str, Any]) -> bool:
+    """A session that timed out, exited non-zero or whose output did not parse: an error, not a wall time."""
+    return bool(r.get("is_error") or r.get("parse_error") or r.get("exit", 0) != 0)
+
+
 def _profile(results_dir: Path, prefix: str, tasks: tuple[str, ...]) -> Optional[dict[str, Any]]:
     alone = {t: [_load(p) for p in _reps(results_dir, f"{prefix}1", t)] for t in tasks}
     pair = {t: [_load(p) for p in _reps(results_dir, f"{prefix}2", t)] for t in tasks}
     if not any(alone.values()) and not any(pair.values()):
         return None
-    alone_s = {t: statistics.mean(r["wall_s"] for r in rs) if rs else None for t, rs in alone.items()}
-    pair_s = {t: statistics.mean(r["wall_s"] for r in rs) if rs else None for t, rs in pair.items()}
-    # One pair wall per rep: the later of the two sessions.
-    by_rep: dict[str, list[float]] = {}
+    runs = [r for rs in list(alone.values()) + list(pair.values()) for r in rs]
+    good_alone = {t: [r for r in rs if not _failed(r)] for t, rs in alone.items()}
+    good_pair = {t: [r for r in rs if not _failed(r)] for t, rs in pair.items()}
+    alone_s = {t: statistics.mean(r["wall_s"] for r in rs) if rs else None for t, rs in good_alone.items()}
+    pair_s = {t: statistics.mean(r["wall_s"] for r in rs) if rs else None for t, rs in good_pair.items()}
+    # One pair wall per rep: the later of the two sessions; a rep with a failed session has no pair wall.
+    by_rep: dict[str, list[Optional[float]]] = {}
     for t in tasks:
         for p in _reps(results_dir, f"{prefix}2", t):
-            rep = p.name.split("r")[1].split("-")[0]
-            by_rep.setdefault(rep, []).append(_load(p)["wall_s"])
-    pair_walls = [max(ws) for ws in by_rep.values() if len(ws) == len(tasks)]
+            r = _load(p)
+            by_rep.setdefault(_rep(p.name, prefix, "2") or p.name, []).append(None if _failed(r) else r["wall_s"])
+    pair_walls = [max(ws) for ws in by_rep.values() if len(ws) == len(tasks) and None not in ws]
     pair_wall = statistics.mean(pair_walls) if pair_walls else None
     serial = sum(alone_s.values()) if all(v is not None for v in alone_s.values()) else None
-    runs = [r for rs in list(alone.values()) + list(pair.values()) for r in rs]
-    turns = {t: statistics.median(r["num_turns"] for r in alone[t] + pair[t]) if alone[t] + pair[t] else None
-             for t in tasks}
+    turns = {}
+    for t in tasks:
+        n = [r["num_turns"] for r in alone[t] + pair[t] if r.get("num_turns") is not None]
+        turns[t] = statistics.median(n) if n else None
     return {"tasks": list(tasks), "alone_s": alone_s, "pair_s": pair_s, "pair_wall_s": pair_wall,
             "serial_sum_s": serial,
             "time_saved": (1 - pair_wall / serial) if pair_wall is not None and serial else None,
             "turns": turns, "task_done": all(r.get("task_done") for r in runs),
-            "errors": sum(1 for r in runs if r.get("is_error"))}
+            "errors": sum(1 for r in runs if _failed(r))}
 
 
-def _requests(results_dir: Path, patterns: list[str]) -> Optional[dict[str, Any]]:
-    """Pool the request files; each file counts time from its own origin, so the files are laid end to end."""
+def _requests(results_dir: Path, prefix: str, kind: str, per_file: bool) -> Optional[dict[str, Any]]:
+    """Pool the request files of one kind (1 = alone, 2 = pair). Files of the same group share one clock (the
+    sessions of a pair rep, written by the proxy); groups are laid end to end so runs never look concurrent."""
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for p in sorted(results_dir.glob(f"req-{prefix}{kind}r*.jsonl")):
+        rep = _rep(p.name, prefix, kind)
+        if rep is None:
+            continue
+        rows = read_requests(p)
+        if rows:
+            groups.setdefault(p.name if per_file else rep, []).extend(rows)
     reqs: list[dict[str, Any]] = []
     offset = 0.0
-    for pat in patterns:
-        for p in sorted(results_dir.glob(pat)):
-            rows = read_requests(p)
-            if not rows:
-                continue
-            reqs += [dict(r, t_start_s=r["t_start_s"] + offset, t_end_s=r["t_end_s"] + offset) for r in rows]
-            offset = max(r["t_end_s"] for r in reqs) + 1.0
+    for key in sorted(groups):
+        rows = groups[key]
+        reqs += [dict(r, t_start_s=r["t_start_s"] + offset, t_end_s=r["t_end_s"] + offset) for r in rows]
+        offset = max(r["t_end_s"] for r in reqs) + 1.0
     return summarize_requests(reqs) if reqs else None
 
 
@@ -76,8 +98,8 @@ def summarize_claude(results_dir: Path, prefix: str) -> dict[str, Any]:
     results_dir = Path(results_dir)
     profiles = {name: _profile(results_dir, prefix, tasks) for name, tasks in PROFILES.items()}
     return {"prefix": prefix, "profiles": {k: v for k, v in profiles.items() if v is not None},
-            "requests": {"alone": _requests(results_dir, [f"req-{prefix}1r*-*.jsonl"]),
-                         "pair": _requests(results_dir, [f"req-{prefix}2r*.jsonl", f"req-{prefix}2r*-*.jsonl"])}}
+            "requests": {"alone": _requests(results_dir, prefix, "1", per_file=True),
+                         "pair": _requests(results_dir, prefix, "2", per_file=False)}}
 
 
 def _f(v: Optional[float], fmt: str = "{:.1f}") -> str:

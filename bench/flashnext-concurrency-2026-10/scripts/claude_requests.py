@@ -88,16 +88,24 @@ def _p90(xs: list[float]) -> float:
     return sorted(xs)[int(0.9 * (len(xs) - 1))]
 
 
+PREFILL_NEW_TOKENS = 2000  # above this many new tokens a request is a prefill turn (a session start), not a warm turn
+
+
 def summarize_requests(reqs: list[dict[str, Any]]) -> dict[str, Any]:
-    warm = [r for r in reqs if r["cached_tokens"] > 0]
-    cold = [r["ttft_s"] for r in reqs if r["cached_tokens"] == 0]
+    """Warm = cached prompt and few new tokens; a prefill turn is a cold prompt or one with a big new block
+    (the second session of a pair starts with the shared system prompt cached but a new task prompt)."""
+    def prefill(r: dict[str, Any]) -> bool:
+        return r["cached_tokens"] == 0 or r["input_tokens"] - r["cached_tokens"] > PREFILL_NEW_TOKENS
+
+    warm = [r for r in reqs if not prefill(r)]
+    cold = [r["ttft_s"] for r in reqs if prefill(r)]
     warm_summary = None
     if warm:
         ttfts = [r["ttft_s"] for r in warm]
         tps = [r["tps"] for r in warm]
         warm_summary = {"n": len(warm), "ttft_p50": statistics.median(ttfts), "ttft_p90": _p90(ttfts),
                         "tps_p50": statistics.median(tps), "tps_min": min(tps), "tps_max": max(tps)}
-    return {"n": len(reqs), "max_concurrent": max_concurrent(reqs),
+    return {"n": len(reqs), "max_concurrent": max_concurrent(reqs), "prefill_turns": len(cold),
             "first_prompt_ttft_s": statistics.median(cold) if cold else None,
             "new_tokens_p50": statistics.median([r["input_tokens"] - r["cached_tokens"] for r in reqs]) if reqs else None,
             "warm": warm_summary}

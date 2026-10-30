@@ -687,3 +687,11 @@ def test_model_doc_numbers_match_payload():
     assert f'{sc["two_sessions"]["splash"]["time_saved"] * 100:.0f}%' in sec
     assert f'{sc["by_n"]["splash"]["4"]["turn_s"]:.1f} s' in sec
     assert "qwen38-flashnext-concurrency.html" in sec
+
+
+def test_read_claude_summary_generic_name_only_when_allowed(tmp_path):
+    (tmp_path / "claude-summary.json").write_text(json.dumps({"prefix": "rc", "profiles": {}, "requests": {}}))
+    assert R.read_claude_summary(tmp_path, "mlx", generic=False) is None
+    assert R.read_claude_summary(tmp_path, "mlx")["prefix"] == "rc"
+    (tmp_path / "claude-summary-mlx.json").write_text(json.dumps({"prefix": "rm", "profiles": {}, "requests": {}}))
+    assert R.read_claude_summary(tmp_path, "mlx", generic=False)["prefix"] == "rm"

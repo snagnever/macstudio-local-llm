@@ -97,9 +97,9 @@ the values marked (26.10.1) come from the older build.
 | what you wait for | Splash 1.5.0 | mlx-serve 26.10.3 |
 |---|---:|---:|
 | Reply starts, one session (warm turn, prompt cached) | 0.8 s (Claude Code) | 2.0 s (synthetic tool turn) |
-| Reply starts, two sessions (median / p90) | 1.9 s / 3.7 s | n/m |
+| Reply starts, two sessions (median / p90) | 1.8 s / 3.4 s | n/m |
 | Generation, one session (slowest–fastest turn) | 93–176 tok/s | 73–83 tok/s |
-| Generation, two sessions (median / slowest turn) | 93 / 40 tok/s | n/m |
+| Generation, two sessions (median / slowest turn) | 90 / 40 tok/s | n/m |
 | First prompt of a session (~20K tokens) | 24 s | n/m |
 | Resume a 128K session (cold read) | 168 s | 165 s |
 | Small task, alone → in a pair | 41 → 59 s | n/m (26.10.1: 62–75 → 127–151 s) |

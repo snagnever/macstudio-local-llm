@@ -51,3 +51,12 @@ def test_main_writes_jsonl(tmp_path):
     out = tmp_path / "req.jsonl"
     assert main(["--splash-log", str(log), "--out", str(out)]) == 0
     assert len(read_requests(out)) == 2
+
+
+def test_prefill_turn_with_big_new_prompt_is_not_warm():
+    # Session B's first prompt in a pair: the system prompt is cached, 3,245 tokens are new, TTFT 23.7 s.
+    text = LOG + "19:03:00 Started · input 19,277 · cached 16,032 · effort xhigh · thinking on\n" \
+                 "19:03:30 Done · input 19,277 · cached 16,032 · output 100 · tools 23·d2a9ad50 · TTFT 23.7s · 120.0 tok/s · 4.0 tok/cycle\n"
+    s = summarize_requests(parse_splash_log(text))
+    assert s["warm"]["n"] == 1 and s["warm"]["ttft_p90"] == 0.6
+    assert s["first_prompt_ttft_s"] == 23.7 and s["prefill_turns"] == 2

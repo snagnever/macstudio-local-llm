@@ -29,6 +29,7 @@
     "alone": {
       "n": 23,
       "max_concurrent": 1,
+      "prefill_turns": 4,
       "first_prompt_ttft_s": 23.7,
       "new_tokens_p50": 567,
       "warm": {
@@ -43,13 +44,14 @@
     "pair": {
       "n": 35,
       "max_concurrent": 2,
-      "first_prompt_ttft_s": 31.8,
+      "prefill_turns": 6,
+      "first_prompt_ttft_s": 27.75,
       "new_tokens_p50": 575,
       "warm": {
-        "n": 32,
-        "ttft_p50": 1.85,
-        "ttft_p90": 3.7,
-        "tps_p50": 93.45,
+        "n": 29,
+        "ttft_p50": 1.8,
+        "ttft_p90": 3.4,
+        "tps_p50": 90.0,
         "tps_min": 40.0,
         "tps_max": 163.0
       }

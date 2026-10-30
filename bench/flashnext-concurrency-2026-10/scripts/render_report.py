@@ -318,11 +318,14 @@ def read_tbench_status(path: Path) -> Optional[dict[str, Any]]:
     return data if isinstance(data, dict) and "done" in data else None
 
 
-def read_claude_summary(directory: Optional[Path], key: str) -> Optional[dict[str, Any]]:
-    """claude-summary-<key>.json (a campaign with several servers) or claude-summary.json in `directory`."""
+def read_claude_summary(directory: Optional[Path], key: str, generic: bool = True) -> Optional[dict[str, Any]]:
+    """claude-summary-<key>.json, or claude-summary.json when `generic` (a single-server campaign directory).
+    A directory that holds several servers must name the server in the file, so its summary is never
+    published under the wrong column."""
     if directory is None:
         return None
-    for name in (f"claude-summary-{key}.json", "claude-summary.json"):
+    names = [f"claude-summary-{key}.json"] + (["claude-summary.json"] if generic else [])
+    for name in names:
         p = Path(directory) / name
         if p.exists():
             return json.loads(p.read_text(encoding="utf-8"))
@@ -494,7 +497,9 @@ def collect(results_dir: Path, splash_dir: Optional[Path] = None, claude_dirs: O
         "splash": collect_splash(splash_dir) if splash_dir is not None else None,
         "servers": [dict(s) for s in SERVERS], "legacy": dict(LEGACY), "recommended": RECOMMENDED,
     }
-    claude = {k: read_claude_summary((claude_dirs or {}).get(k), k) for k in ("splash", "mlx", "legacy")}
+    dirs = claude_dirs or {}
+    claude = {k: read_claude_summary(dirs.get(k), k, generic=dirs.get(k) != CAMPAIGN_B_RESULTS)
+              for k in ("splash", "mlx", "legacy")}
     tbench = read_tbench_status(tbench_status) if tbench_status is not None else None
     data["tbench"] = tbench
     data["scenarios"] = collect_scenarios(data, claude, tbench)

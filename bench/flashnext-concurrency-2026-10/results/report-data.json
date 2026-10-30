@@ -1501,11 +1501,11 @@
     "two_sessions": {
       "splash": {
         "ttft_alone_p50": 0.8,
-        "ttft_pair_p50": 1.85,
+        "ttft_pair_p50": 1.8,
         "ttft_alone_p90": 1.2,
-        "ttft_pair_p90": 3.7,
+        "ttft_pair_p90": 3.4,
         "tps_alone_p50": 119.6,
-        "tps_pair_p50": 93.45,
+        "tps_pair_p50": 90.0,
         "tps_alone_min": 93.1,
         "tps_pair_min": 40.0,
         "tasks": {
@@ -1707,7 +1707,7 @@
       },
       "two": {
         "word": "Yes, at a cost",
-        "ttft_pair_p50": 1.85,
+        "ttft_pair_p50": 1.8,
         "time_saved": 0.2424800491098834
       },
       "many": {
