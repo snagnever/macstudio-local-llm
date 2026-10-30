@@ -5,7 +5,8 @@ Claude Code 2.1.292 em `claude -p`, `CLAUDE_CODE_EFFORT_LEVEL=xhigh`, mesmo mode
 `--max-turns 40` (a, b) e `60` (c, d), timeout 1800 s. Servidores a `--max-context 131072`: Splash 1.5.0 com
 ukisai Swift 1.5 GGUF IQ4_XS `0142554` (flags do `k2c1`) e mlx-serve 26.10.3 com Dankpaws Swift 1.5 MLX 4.7bpw
 `13839b7` (flags do `w1zc1`, o build do driver diário). Um boot por rep; 120 s entre reps. Medição por request
-pelo proxy `request_log.py` (um por sessão, relógio comum por rep); validação do proxy e calibração das tarefas em
+pelo proxy `request_log.py` (um por sessão, relógio comum por rep); "1º prompt" = TTFT do primeiro request de cada
+sessão; validação do proxy e calibração das tarefas em
 [`calibration.md`](calibration.md). Resumos: [`claude-summary-splash.json`](claude-summary-splash.json) e
 [`claude-summary-mlx.json`](claude-summary-mlx.json) (`summarize_claude.py --variants s=subagents,d=decode_share`).
 
@@ -87,16 +88,16 @@ com dois subagentes Explore em paralelo por sessão (3×, mais uma rep extra); `
 | braço | servidor | perfil | sessões | `max_concurrent` | 1º prompt TTFT | TTFT quente p50 / p90 | tok/s quente p50 / mín | requests | erros HTTP | swap Δ máx | mín livre |
 |---|---|---|---:|---:|---:|---|---|---:|---:|---:|---:|
 | `rc1` | Splash 1.5.0 | pequeno (a, b) | 1 | 1 | 23.7 s | 0.9 / 1.4 s (boa / boa) | 127.6 / 80.0 (boa / boa) | 23 | 0 | 0.00 GB | 0.06 GB |
-| `rc1` | Splash 1.5.0 | realista (c, d) | 1 | 1 | 6.8 s | 1.0 / 1.6 s (boa / boa) | 126.1 / 78.9 (boa / boa) | 81 | 0 | 0.00 GB | 0.06 GB |
+| `rc1` | Splash 1.5.0 | realista (c, d) | 1 | 1 | 23.9 s | 1.0 / 1.6 s (boa / boa) | 126.1 / 78.9 (boa / boa) | 81 | 0 | 0.00 GB | 0.06 GB |
 | `rc2` | Splash 1.5.0 | pequeno (a, b) | 2 | 2 | 27.7 s | 1.4 / 3.4 s (boa / aceitável) | 90.2 / 39.7 (boa / aceitável) | 44 | 0 | 0.00 GB | 0.06 GB |
-| `rc2` | Splash 1.5.0 | realista (c, d) | 2 | 2 | 19.9 s | 1.4 / 4.8 s (boa / aceitável) | 89.2 / 39.0 (boa / aceitável) | 127 | 0 | 0.00 GB | 0.06 GB |
-| `rc2s` | Splash 1.5.0 | realista (c, d) | 2 | 6 | 26.0 s | 2.5 / 8.4 s (aceitável / ruim) | 82.8 / 20.1 (boa / ruim) | 246 | 0 | 0.00 GB | 0.06 GB |
-| `rc2d` | Splash 1.5.0 | realista (c, d) | 2 | 2 | 22.7 s | 2.2 / 5.1 s (aceitável / ruim) | 80.8 / 42.5 (boa / aceitável) | 149 | 0 | 0.00 GB | 0.03 GB |
+| `rc2` | Splash 1.5.0 | realista (c, d) | 2 | 2 | 26.4 s | 1.4 / 4.8 s (boa / aceitável) | 89.2 / 39.0 (boa / aceitável) | 127 | 0 | 0.00 GB | 0.06 GB |
+| `rc2s` | Splash 1.5.0 | realista (c, d) | 2 | 6 | 29.4 s | 2.5 / 8.4 s (aceitável / ruim) | 82.8 / 20.1 (boa / ruim) | 246 | 0 | 0.00 GB | 0.06 GB |
+| `rc2d` | Splash 1.5.0 | realista (c, d) | 2 | 2 | 26.4 s | 2.2 / 5.1 s (aceitável / ruim) | 80.8 / 42.5 (boa / aceitável) | 149 | 0 | 0.00 GB | 0.03 GB |
 | `rm1` | mlx-serve 26.10.3 | pequeno (a, b) | 1 | 1 | 25.0 s | 0.3 / 0.8 s (boa / boa) | 88.0 / 66.9 (boa / boa) | 29 | 0 | 0.00 GB | 0.01 GB |
-| `rm1` | mlx-serve 26.10.3 | realista (c, d) | 1 | 1 | 8.9 s | 0.4 / 1.2 s (boa / boa) | 84.8 / 67.0 (boa / boa) | 97 | 0 | 0.00 GB | 0.01 GB |
+| `rm1` | mlx-serve 26.10.3 | realista (c, d) | 1 | 1 | 25.2 s | 0.4 / 1.2 s (boa / boa) | 84.8 / 67.0 (boa / boa) | 97 | 0 | 0.00 GB | 0.01 GB |
 | `rm2` | mlx-serve 26.10.3 | pequeno (a, b) | 2 | 2 | 38.2 s | 0.4 / 1.2 s (boa / boa) | 41.0 / 31.0 (aceitável / aceitável) | 37 | 0 | 0.00 GB | 0.01 GB |
-| `rm2` | mlx-serve 26.10.3 | realista (c, d) | 2 | 2 | 15.5 s | 0.4 / 1.0 s (boa / boa) | 39.9 / 19.6 (aceitável / ruim) | 167 | 0 | 0.00 GB | 0.01 GB |
-| `rm2s` | mlx-serve 26.10.3 | realista (c, d) | 2 | 5 | 14.8 s | 0.5 / 4.5 s (boa / aceitável) | 39.7 / 6.7 (aceitável / ruim) | 232 | 0 | 0.00 GB | 0.01 GB |
+| `rm2` | mlx-serve 26.10.3 | realista (c, d) | 2 | 2 | 38.2 s | 0.4 / 1.0 s (boa / boa) | 39.9 / 19.6 (aceitável / ruim) | 167 | 0 | 0.00 GB | 0.01 GB |
+| `rm2s` | mlx-serve 26.10.3 | realista (c, d) | 2 | 5 | 43.5 s | 0.5 / 4.5 s (boa / aceitável) | 39.7 / 6.7 (aceitável / ruim) | 232 | 0 | 0.00 GB | 0.01 GB |
 
 ## Tempo de tarefa e tempo poupado
 
@@ -142,7 +143,7 @@ Faixas da spec: resposta começa (TTFT quente) ≤ 2 s boa / 2–5 aceitável / 
 | 1 sessão: primeiro prompt (~19K) | **boa** (23.7 s) | **boa** (25.0 s) |
 | 2 sessões: resposta começa | **boa** na mediana (1.4 s), **aceitável** no p90 (4.8 s) | **boa** (0.4 s; p90 1.0 s) |
 | 2 sessões: geração | **boa** na mediana (89 tok/s), **aceitável** no pior caso (39) | **aceitável** (40 tok/s), **ruim** no pior caso (20) |
-| 2 sessões: primeiro prompt | **boa** (19.9 s c+d; 27.7 s a+b) | **boa** (15.5 s c+d); **aceitável** a+b (38.2 s) |
+| 2 sessões: primeiro prompt | **boa** (26.4 s c+d; 27.7 s a+b) | **aceitável** (38.2 s, c+d e a+b) |
 | 2 sessões + subagentes: resposta começa | **aceitável** (2.5 s), **ruim** no p90 (8.4 s) | **boa** (0.5 s), **aceitável** no p90 (4.5 s) |
 | 2 sessões + subagentes: geração | **boa** na mediana (83 tok/s), **ruim** no pior caso (20) | **aceitável** (40 tok/s), **ruim** no pior caso (6.7) |
 | 2 sessões + `--decode-share 1.0` | TTFT **aceitável** (2.2 s; p90 5.1 s), geração **boa** (81; mín 43) | — |

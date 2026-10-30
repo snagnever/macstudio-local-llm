@@ -129,8 +129,13 @@ def summarize_requests(reqs: list[dict[str, Any]]) -> dict[str, Any]:
                         "tps_p50": statistics.median(tps) if tps else None, "tps_min": min(tps) if tps else None,
                         "tps_max": max(tps) if tps else None}
     new_tokens = [n for n in (_new_tokens(r) for r in reqs) if n is not None]
+    # The first prompt of a session is the first request of its stream (proxy records). Records without a stream
+    # (the Splash-log records) fall back to the prefill turns, which in small tasks are the session starts.
+    streams = {r["stream"] for r in samples if r.get("stream") is not None}
+    firsts = [min((r for r in samples if r.get("stream") == st), key=lambda r: r["t_start_s"])["ttft_s"] for st in sorted(streams)]
+    first_prompt = statistics.median(firsts) if firsts else (statistics.median(cold) if cold else None)
     return {"n": len(reqs), "max_concurrent": max_concurrent(reqs), "prefill_turns": len(cold),
-            "first_prompt_ttft_s": statistics.median(cold) if cold else None,
+            "first_prompt_ttft_s": first_prompt,
             "new_tokens_p50": statistics.median(new_tokens) if new_tokens else None,
             "warm": warm_summary, "errors": sum(1 for r in reqs if r.get("status", 200) != 200)}
 

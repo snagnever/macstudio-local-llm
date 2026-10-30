@@ -53,7 +53,7 @@
       "n": 126,
       "max_concurrent": 1,
       "prefill_turns": 19,
-      "first_prompt_ttft_s": 24.495,
+      "first_prompt_ttft_s": 25.125,
       "new_tokens_p50": 137.0,
       "warm": {
         "n": 107,
@@ -69,7 +69,7 @@
       "n": 204,
       "max_concurrent": 2,
       "prefill_turns": 36,
-      "first_prompt_ttft_s": 24.622,
+      "first_prompt_ttft_s": 38.1515,
       "new_tokens_p50": 87.0,
       "warm": {
         "n": 168,
@@ -106,7 +106,7 @@
       "n": 232,
       "max_concurrent": 5,
       "prefill_turns": 76,
-      "first_prompt_ttft_s": 14.822,
+      "first_prompt_ttft_s": 43.4835,
       "new_tokens_p50": 634.0,
       "warm": {
         "n": 156,

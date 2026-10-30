@@ -88,35 +88,41 @@ Cap `max_tokens` above 4096 for hard prompts: with `xhigh` the reasoning can pas
 
 ### Concurrent sessions (measured 2026-10-17 to 2026-10-30)
 
-One Claude Code session works on both servers. A second session costs little on Splash 1.5.0. Three or more
-sessions, or two sessions with parallel subagents, are not advised. The table is in seconds a person waits, per
-server: Splash 1.5.0 with the ukisai Swift 1.5 GGUF `IQ4_XS` pack, and mlx-serve 26.10.3 with the Dankpaws Swift
-1.5 MLX 4.7bpw pack. `n/m` = not measured yet; the Claude Code campaign on mlx-serve 26.10.3 is pending, and
-the values marked (26.10.1) come from the older build.
+One Claude Code session works on both servers. A second session costs little on Splash 1.5.0 and halves the
+generation speed on mlx-serve 26.10.3. Three or more sessions, or two sessions with parallel subagents, are not
+advised. The table is in seconds a person waits, per server: Splash 1.5.0 with the ukisai Swift 1.5 GGUF `IQ4_XS`
+pack, and mlx-serve 26.10.3 with the Dankpaws Swift 1.5 MLX 4.7bpw pack, both at 131072 tokens. Claude Code
+values come from real `claude -p` sessions measured at a proxy (campaign of 2026-10-30, 62 sessions); the values
+marked (26.10.1) come from the older build.
 
 | what you wait for | Splash 1.5.0 | mlx-serve 26.10.3 |
 |---|---:|---:|
-| Reply starts, one session (warm turn, prompt cached) | 0.8 s (Claude Code) | 2.0 s (synthetic tool turn) |
-| Reply starts, two sessions (median / p90) | 1.8 s / 3.4 s | n/m |
-| Generation, one session (slowest–fastest turn) | 93–176 tok/s | 73–83 tok/s |
-| Generation, two sessions (median / slowest turn) | 90 / 40 tok/s | n/m |
-| First prompt of a session (~20K tokens) | 24 s | n/m |
+| Reply starts, one session (warm turn, prompt cached) | 0.9 s | 0.4 s |
+| Reply starts, two sessions (median / p90) | 1.4 s / 4.3 s | 0.4 s / 1.1 s |
+| Generation, one session (slowest–fastest turn) | 79–179 tok/s | 67–154 tok/s |
+| Generation, two sessions (median / slowest turn) | 89 / 39 tok/s | 40 / 20 tok/s |
+| First prompt of a session (~20K tokens) | 24 s | 25 s |
 | Resume a 128K session (cold read) | 168 s | 165 s |
-| Small task, alone → in a pair | 41 → 59 s | n/m (26.10.1: 62–75 → 127–151 s) |
-| Time saved by the pair over the two tasks in sequence | 24% | n/m (26.10.1: −7%) |
-| Side call p95 while the other session reads a big prompt (128K) | 5 s | 183 s, 7 calls over 60 s |
-| Worst turn, two sessions, synthetic 128K (alone → pair) | 6.1 → 15.4 s | 9.0 → 15.6 s |
+| Realistic task C (60–70K, 25 turns), alone → in a pair | 163 → 316 s | 162 → 364 s |
+| Realistic task D (45–75K, 28 turns), alone → in a pair | 253 → 391 s | 303 → 446 s |
+| Time saved by the pair over the two tasks in sequence (realistic) | 6% | 4% |
+| Two sessions with two Explore subagents each (measured streams) | 6 streams; reply starts 2.5 s / p90 8.4 s; slowest turn 20 tok/s; pair 828 s | 5 streams; reply starts 0.5 s / p90 4.5 s; slowest turn 6.7 tok/s; pair 1125 s |
+| `--decode-share 1.0` on the real pair | reply starts 2.2 s / p90 5.1 s; pair 7% later than in sequence | — |
+| Side call p95 while the other session reads a big prompt (128K, synthetic) | 5 s | 183 s, 7 calls over 60 s |
+| Worst turn, two sessions, synthetic 128K (alone → pair) | 6.2 → 15.4 s | 9.0 → 15.6 s |
 | Worst turn, 3 / 4 sessions, synthetic 128K | 14.6 / 28.0 s | 20.3 / 33.1 s (26.10.1) |
 | Two 256K sessions, worst turn | 12.1 s, no memory setting | 18.6 s with a 4 GB prompt cache (26.10.1) |
-| Agent quality (Terminal-Bench) | not measured | running |
+| Agent quality (Terminal-Bench) | not measured | not measured |
 
-What explains it: the prefill decides. Both servers batch decode, but Splash reads one prompt at a time, so a
-session waits while the other reads a big prompt (a session start of ~20K tokens, a large file, a compaction).
-Claude Code sends almost everything from the cache (median 575 new tokens per turn), so in real use the batch
-wins on Splash: the pair finishes 24% sooner than the two tasks in sequence. On mlx-serve a short call
-(permission check, title) waits minutes behind another session's long prefill; `--prefill-decode-share` does not
-remove the wait. With big prompts every turn (the synthetic battery) each turn runs about 2× slower with two
-sessions on both servers, and 2.4–4.5× slower with three or four.
+What explains it: the two servers pay for the second session in different places. Both batch decode; Splash
+reads one prompt at a time, so a session waits while the other reads a big prompt (a session start of ~20K tokens,
+a large file, a compaction) and the reply starts later (p90 4.3 s in a pair). mlx-serve keeps the reply start at
+0.4 s and splits the generation between the two sessions (40 tok/s each). Claude Code sends almost everything from
+the cache, so the pair finishes a little sooner than the two tasks in sequence on both servers (6% and 4%);
+the gain is small because the sessions share one GPU. Two sessions that each spawn two Explore subagents run as
+5–6 streams: the pair takes 2–3× longer and the slowest turns fall to 20 tok/s (Splash) and 6.7 tok/s (mlx-serve).
+`--decode-share 1.0` did not help the real pair on Splash. With big prompts every turn (the synthetic battery)
+each turn runs about 2× slower with two sessions on both servers, and 2.4–4.5× slower with three or four.
 
 Experience bands used on the public page: reply starts ≤ 2 s good, 2–5 s acceptable, > 5 s poor; generation
 ≥ 60 tok/s good, 30–60 acceptable, < 30 poor; first prompt ≤ 30 s good; side call ≤ 5 s good. The campaign gate
@@ -124,8 +130,10 @@ Experience bands used on the public page: reply starts ≤ 2 s good, 2–5 s acc
 
 The daily driver stays on mlx-serve until agent quality is measured on both packs. Public page:
 [`reports/qwen38-flashnext-concurrency.html`](../../reports/qwen38-flashnext-concurrency.html). Sources:
+[`bench/claude-code-concurrency-2026-11/results/summary.md`](../../bench/claude-code-concurrency-2026-11/results/summary.md)
+(real Claude Code sessions on both servers, 2026-10-30),
 [`bench/splash-concurrency-2026-10/results/summary.md`](../../bench/splash-concurrency-2026-10/results/summary.md)
-(Splash 1.5.0 and the mlx-serve 26.10.3 control, 2026-10-29) and
+(synthetic battery on Splash 1.5.0 and the mlx-serve 26.10.3 control, 2026-10-29) and
 [`bench/flashnext-concurrency-2026-10/results/summary.md`](../../bench/flashnext-concurrency-2026-10/results/summary.md)
 (mlx-serve 26.10.1, 2026-10-18).
 

@@ -105,3 +105,15 @@ def test_empty_404_is_not_an_error_but_an_empty_500_is():
     assert s["n"] == 1 and s["errors"] == 0
     s = summarize_requests([dict(WARM, t_start_s=0.0, t_end_s=3.0), dict(base, status=500)])
     assert s["n"] == 2 and s["errors"] == 1
+
+
+def test_first_prompt_is_the_first_request_of_each_stream_not_every_prefill_turn():
+    # With realistic tasks most prefill turns are big tool results mid-session (a 7K-token file read); the first
+    # prompt of a session is the first request of its stream. Records without a stream keep the prefill rule.
+    first = dict(WARM, t_start_s=0.0, ttft_s=24.0, t_end_s=25.0, cached_tokens=0, stream="s1")
+    big_read = dict(WARM, t_start_s=30.0, ttft_s=9.0, t_end_s=40.0, input_tokens=30000, cached_tokens=20000, stream="s1")
+    warm = dict(WARM, t_start_s=41.0, ttft_s=0.8, t_end_s=43.0, stream="s1")
+    s = summarize_requests([big_read, first, warm])
+    assert s["first_prompt_ttft_s"] == 24.0 and s["prefill_turns"] == 2 and s["warm"]["n"] == 1
+    s = summarize_requests([dict(first, stream=None), dict(big_read, stream=None)])
+    assert s["first_prompt_ttft_s"] == 16.5  # median of the two prefill turns, as before

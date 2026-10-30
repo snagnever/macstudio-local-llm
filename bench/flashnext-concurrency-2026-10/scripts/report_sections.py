@@ -170,17 +170,27 @@ def two_sessions(data: dict) -> str:
     extra = [('<span class="sw" style="background:var(--s1l)"></span>', "alone"),
              ('<span class="sw" style="background:var(--s1)"></span>', "in a pair")]
 
-    def dumb(title: str, metric: Optional[str], unit: str, vmax: float, keys: list[tuple[str, str, str]]) -> str:
+    def sub(key: str, field: str) -> Optional[float]:
+        v = two[key].get("subagents")
+        return v.get(field) if v else None
+
+    def dumb(title: str, metric: Optional[str], unit: str, vmax: float, keys: list[tuple[str, str, str]],
+             sub_field: Optional[str] = None, sub_alone: Optional[str] = None) -> str:
         rows = [{"label": f"{s['label']} · {lab}", "series": s["series"], "alone": two[s["key"]][ka], "pair": two[s["key"]][kp]}
                 for s in srvs for lab, ka, kp in keys]
+        if sub_field and any(sub(s["key"], sub_field) is not None for s in srvs):
+            rows += [{"label": f"{s['label']} · median, with subagents", "series": s["series"],
+                      "alone": two[s["key"]][sub_alone], "pair": sub(s["key"], sub_field)} for s in srvs]
         tbl = table_view(["row", "alone", "pair"], [[r["label"], _n(r["alone"]), _n(r["pair"])] for r in rows])
         return _panel(svg_dumbbell(title, rows, vmax, unit, metric, "s1"), tbl)
 
     charts = [
         dumb("Reply starts (s): alone → pair", "ttft", "s", 8,
-             [("median", "ttft_alone_p50", "ttft_pair_p50"), ("p90", "ttft_alone_p90", "ttft_pair_p90")]),
+             [("median", "ttft_alone_p50", "ttft_pair_p50"), ("p90", "ttft_alone_p90", "ttft_pair_p90")],
+             "ttft_p50", "ttft_alone_p50"),
         dumb("Generation (tok/s): alone → pair", "tps", "tok/s", 200,
-             [("median", "tps_alone_p50", "tps_pair_p50"), ("slowest turn", "tps_alone_min", "tps_pair_min")]),
+             [("median", "tps_alone_p50", "tps_pair_p50"), ("slowest turn", "tps_alone_min", "tps_pair_min")],
+             "tps_p50", "tps_alone_p50"),
     ]
     task_rows, task_tbl = [], []
     for s in srvs:
@@ -209,6 +219,11 @@ def two_sessions(data: dict) -> str:
         if t["max_concurrent"] is not None:
             notes.append(f"{_e(s['label'])}: measured with <code>claude -p</code>, {t['max_concurrent']} requests open at once "
                          f"at most, {_n(t['new_tokens_p50'], '{:.0f}')} new tokens per turn (median), no subagents.")
+            sa = t.get("subagents")
+            if sa:
+                notes.append(f"With two Explore subagents per session it ran as {sa['max_concurrent']} streams: reply starts "
+                             f"{_n(sa['ttft_p50'], unit='s')} (p90 {_n(sa['ttft_p90'], unit='s')}), slowest turn "
+                             f"{_n(sa['tps_min'], '{:.0f}', 'tok/s')}, the pair took {_n(sa['pair_wall_s'], '{:.0f}', 's')}.")
         else:
             notes.append(f"{_e(s['label'])}: the Claude Code pair is not measured yet on this build.")
     return _sec("two", "2. Two sessions, daily use", "What does the second session cost me?",
@@ -258,10 +273,21 @@ def many_sessions(data: dict) -> str:
                                   for s in srvs] for n in (3, 4)]
     trows.append(["Side call p95, 4 sessions"] + [_n(by_n[s["key"]][4]["side_p95_s"], "{:.0f}", "s")
                                                   + (" (26.10.1)" if by_n[s["key"]][4]["legacy"] else "") for s in srvs])
-    trows.append(["2 sessions + subagents (real Claude Code)"] + ["n/m"] * len(srvs))
+    two = sc["two_sessions"]
+    subs = {s["key"]: two[s["key"]].get("subagents") for s in srvs}
+    trows.append(["2 sessions + subagents (real Claude Code)"]
+                 + [(f"reply starts {_n(sa['ttft_p50'], unit='s')} (p90 {_n(sa['ttft_p90'], unit='s')}), "
+                     f"ran as {sa['max_concurrent']} streams") if (sa := subs[s["key"]]) else "n/m" for s in srvs])
     table = RR._table(["128K", *[s["label"] for s in srvs]], trows, "wide")
-    note = ("A subagent is one more session for the server: two Claude Code sessions with one Explore subagent each "
-            "are four. Not measured with real Claude Code yet.")
+    if any(subs.values()):
+        measured = "; ".join(f"{_e(s['label'])}: ran as {subs[s['key']]['max_concurrent']} streams (measured)"
+                             for s in srvs if subs[s["key"]])
+        note = ("A subagent is one more session for the server. Two Claude Code sessions, each asked for two Explore "
+                f"subagents in parallel, were measured at the proxy: {measured}. The page reports the measured count, "
+                "not a nominal four.")
+    else:
+        note = ("A subagent is one more session for the server: two Claude Code sessions with one Explore subagent each "
+                "are four. Not measured with real Claude Code yet.")
     return _sec("many", "4. Three and four sessions, and subagents",
                 "Can I open a third window, or let sessions spawn subagents?",
                 _legend(data, extra) + chart + table + f'<p class="s-note">{note}</p>')

@@ -384,6 +384,19 @@ def collect_scenarios(data: dict, claude: dict[str, Optional[dict]], tbench: Opt
                     "tasks": {p: {t: v["alone_s"].get(t) for t in v["tasks"]} for p, v in profiles(key).items()},
                     "tbench": tbench if tb_key == key else None}
 
+    def variant(key: str, name: str) -> Optional[dict]:
+        """The campaign-B variant block of a summary (subagents / decode_share), flattened for the page."""
+        v = (claude.get(key) or {}).get(name)
+        if not v:
+            return None
+        r = v.get("requests") or {}
+        w = r.get("warm") or {}
+        prof = v.get("profile") or {}
+        return {"max_concurrent": r.get("max_concurrent"), "ttft_p50": w.get("ttft_p50"), "ttft_p90": w.get("ttft_p90"),
+                "tps_p50": w.get("tps_p50"), "tps_min": w.get("tps_min"), "pair_wall_s": prof.get("pair_wall_s"),
+                "time_saved": prof.get("time_saved"), "task_done": prof.get("task_done"),
+                "parallel_agent_calls": v.get("parallel_agent_calls"), "subagents_spawned": v.get("subagents_spawned")}
+
     two: dict[str, Any] = {}
     for key in keys:
         wa, wp, rp = warm(key, "alone"), warm(key, "pair"), req(key, "pair")
@@ -398,13 +411,20 @@ def collect_scenarios(data: dict, claude: dict[str, Optional[dict]], tbench: Opt
                               for p, v in prof.items()},
                     "time_saved": saved.get(main_profile), "time_saved_by_profile": saved,
                     "side_p95_s": _g(pair[key], "aux_p95"), "max_concurrent": _g(rp, "max_concurrent"),
-                    "new_tokens_p50": _g(rp, "new_tokens_p50")}
+                    "new_tokens_p50": _g(rp, "new_tokens_p50"),
+                    "subagents": variant(key, "subagents"), "decode_share": variant(key, "decode_share")}
 
     ad1 = _find_in(sp, "k2c2ad1", 131072)
     worst: dict[str, Any] = {}
     for key in keys:
         best = None
-        if key == "splash" and ad1 and ad1.get("worst_turn_s") is not None:
+        ds = two[key].get("decode_share")
+        if ds and ds.get("ttft_p90") is not None:
+            # The real Claude Code pair with the flag wins over the synthetic probe when it exists.
+            ts = ds.get("time_saved")
+            saved = "" if ts is None else f"; the pair finishes {abs(ts) * 100:.0f}% {'sooner' if ts >= 0 else 'later'} than in sequence"
+            best = {"label": "--decode-share 1.0 (real pair)", "turn_s": ds["ttft_p90"], "note": f"reply starts, p90{saved}"}
+        elif key == "splash" and ad1 and ad1.get("worst_turn_s") is not None:
             best = {"label": "--decode-share 1.0", "turn_s": ad1["worst_turn_s"],
                     "note": f"recall {ad1['needles']}" if ad1.get("needles") else ""}
         worst[key] = {"turn_alone_s": _g(solo[key], "worst_turn_s"), "turn_pair_s": _g(pair[key], "worst_turn_s"),
