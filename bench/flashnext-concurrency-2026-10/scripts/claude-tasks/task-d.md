@@ -6,6 +6,6 @@ Users report two bugs:
 
 Fix the two bugs. Add one test for each bug to `tests/run_tests.sh`, next to the existing tests.
 
-The five scripts also carry an identical copy of the option-parsing block and of the `resolve_dir` helper. Move that shared code into a new `lib/common.sh` and source it from every script instead of repeating it; the scripts must keep accepting the same flags.
+The five scripts also carry an identical copy of the option-parsing block and of the `resolve_dir` helper. Move that shared code into a new `lib/common.sh` and source it from `rotate.sh` and `verify.sh` instead of repeating it there; both scripts must keep accepting the same flags. Leave the other three scripts as they are.
 
 Run `bash tests/run_tests.sh` from the repository root and make sure every test passes. When you are done, reply with one line that says which files you changed.

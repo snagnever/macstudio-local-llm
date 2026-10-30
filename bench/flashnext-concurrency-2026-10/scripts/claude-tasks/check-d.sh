@@ -5,7 +5,7 @@
 # the probed scripts print is discarded. All of the following must hold:
 #   (a) `bash tests/run_tests.sh` exits 0 from the repository root
 #   (b) tests/run_tests.sh has at least eight `check` calls
-#   (c) lib/common.sh exists and at least four top-level scripts source it
+#   (c) lib/common.sh exists and rotate.sh and verify.sh source it
 #   (d) bug 1: rotate.sh --keep 3 leaves exactly three archives untouched,
 #       and with four archives removes the oldest one only
 #   (e) bug 2: verify.sh reports "ok" and exits 0 for an archive whose name
@@ -39,11 +39,10 @@ check_all() {
   n=$(grep -c '^check ' "$repo/tests/run_tests.sh") || return 1
   [[ "$n" -ge 8 ]] || return 1
 
-  # (c) the shared library exists and is sourced by at least four scripts
+  # (c) the shared library exists and rotate.sh and verify.sh source it
   [[ -f "$repo/lib/common.sh" ]] || return 1
-  local sourced
-  sourced=$(cd "$repo" && grep -l 'source.*lib/common.sh' *.sh | wc -l | tr -d ' ')
-  [[ "$sourced" -ge 4 ]] || return 1
+  grep -q 'source.*lib/common.sh' "$repo/rotate.sh" || return 1
+  grep -q 'source.*lib/common.sh' "$repo/verify.sh" || return 1
 
   tmp=$(mktemp -d) || return 1
 
