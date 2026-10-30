@@ -1,0 +1,104 @@
+{
+  "duration_api_ms": 508823,
+  "stop_reason": "end_turn",
+  "session_id": "6da69ed5-1b56-457f-ad54-e75592b5ca00",
+  "total_cost_usd": 0.9130642000000001,
+  "usage": {
+    "input_tokens": 78574,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1736041,
+    "output_tokens": 12578,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0": {
+      "inputTokens": 78574,
+      "outputTokens": 12578,
+      "cacheReadInputTokens": 1736041,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.9130642000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 0,
+      "canonicalModel": "dankpaws-swift1.5-qwen3.8-flash-next-mlx-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793392833225_0",
+      "tool_input": {
+        "command": "cd /Users/vitor/.cache/flashnext-concurrency/claude-work/rm2r4-c 2>/dev/null; git diff -- ledger/",
+        "description": "Review the source diff"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 34,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `ledger/report.py`, `ledger/cli.py`, `tests/test_cli.py`, `tests/test_report.py` and `README.md` (full suite: 75 tests, OK).",
+  "ttft_ms": 29744,
+  "type": "result",
+  "duration_ms": 509859,
+  "uuid": "538569b3-76d3-4a18-89a0-7178cef37c6c",
+  "ttft_stream_ms": 60,
+  "time_to_request_ms": 39,
+  "first_content_frame_ms": 24703,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 510.4,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

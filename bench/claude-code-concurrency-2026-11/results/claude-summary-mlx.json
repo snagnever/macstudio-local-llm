@@ -1,0 +1,124 @@
+{
+  "prefix": "rm",
+  "profiles": {
+    "small": {
+      "tasks": [
+        "a",
+        "b"
+      ],
+      "alone_s": {
+        "a": 48.55,
+        "b": 49.1
+      },
+      "pair_s": {
+        "a": 91.66666666666667,
+        "b": 89.93333333333334
+      },
+      "pair_wall_s": 92.0,
+      "serial_sum_s": 97.65,
+      "time_saved": 0.057859703020993414,
+      "turns": {
+        "a": 10,
+        "b": 6
+      },
+      "task_done": true,
+      "errors": 0
+    },
+    "realistic": {
+      "tasks": [
+        "c",
+        "d"
+      ],
+      "alone_s": {
+        "c": 161.8,
+        "d": 303.35
+      },
+      "pair_s": {
+        "c": 364.325,
+        "d": 446.175
+      },
+      "pair_wall_s": 446.175,
+      "serial_sum_s": 465.15000000000003,
+      "time_saved": 0.04079329248629482,
+      "turns": {
+        "c": 22.0,
+        "d": 29.5
+      },
+      "task_done": false,
+      "errors": 0
+    }
+  },
+  "requests": {
+    "alone": {
+      "n": 126,
+      "max_concurrent": 1,
+      "prefill_turns": 19,
+      "first_prompt_ttft_s": 24.495,
+      "new_tokens_p50": 137.0,
+      "warm": {
+        "n": 107,
+        "ttft_p50": 0.353,
+        "ttft_p90": 1.146,
+        "tps_p50": 86.2,
+        "tps_min": 66.9,
+        "tps_max": 153.5
+      },
+      "errors": 0
+    },
+    "pair": {
+      "n": 204,
+      "max_concurrent": 2,
+      "prefill_turns": 36,
+      "first_prompt_ttft_s": 24.622,
+      "new_tokens_p50": 87.0,
+      "warm": {
+        "n": 168,
+        "ttft_p50": 0.372,
+        "ttft_p90": 1.143,
+        "tps_p50": 39.9,
+        "tps_min": 19.6,
+        "tps_max": 147.4
+      },
+      "errors": 0
+    }
+  },
+  "subagents": {
+    "profile": {
+      "tasks": [
+        "c",
+        "d"
+      ],
+      "pair_s": {
+        "c": 1083.2,
+        "d": 1108.7333333333333
+      },
+      "pair_wall_s": 1124.9666666666667,
+      "serial_sum_s": 465.15000000000003,
+      "time_saved": -1.418502991866423,
+      "turns": {
+        "c": 27,
+        "d": 24
+      },
+      "task_done": true,
+      "errors": 0
+    },
+    "requests": {
+      "n": 232,
+      "max_concurrent": 5,
+      "prefill_turns": 76,
+      "first_prompt_ttft_s": 14.822,
+      "new_tokens_p50": 634.0,
+      "warm": {
+        "n": 156,
+        "ttft_p50": 0.47450000000000003,
+        "ttft_p90": 4.51,
+        "tps_p50": 39.7,
+        "tps_min": 6.7,
+        "tps_max": 94.7
+      },
+      "errors": 0
+    },
+    "parallel_agent_calls": 6,
+    "subagents_spawned": 12
+  }
+}

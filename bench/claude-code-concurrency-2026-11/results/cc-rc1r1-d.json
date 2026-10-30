@@ -1,0 +1,152 @@
+{
+  "duration_api_ms": 210036,
+  "stop_reason": "end_turn",
+  "session_id": "78591e25-dc99-499f-96e0-a383533ee751",
+  "total_cost_usd": 0.6918736000000002,
+  "usage": {
+    "input_tokens": 47864,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 929888,
+    "output_tokens": 15722,
+    "output_tokens_details": {
+      "thinking_tokens": 7321
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 47864,
+      "outputTokens": 15722,
+      "cacheReadInputTokens": 929888,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6918736000000002,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 7321,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_43aec8776f01a0fdea6cbb20f1598a07_0",
+      "tool_input": {
+        "command": "set -u\nt=$(mktemp -d); t=$(cd \"$t\" && pwd -P)\nmkdir -p \"$t/src\"; echo x > \"$t/src/f\"\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/rc1r1-d\nfor s in 20260101-010000 20260102-010000 20260103-010000 20260104-010000 20260105-010000 20260106-010000; do\n  BACKUP_STAMP=$s bash \"$R/backup.sh\" --quiet --dest \"$t/dest\" --name app \"$t/src\" >/dev/null\ndone\necho \"--- rotate --keep 4 (delete 2 oldest) ---\"\nbash \"$R/rotate.sh\" --dest=\"$t/dest\" --name=app --keep=4\necho \"--- remaining ---\"; ls \"$t/dest\" | grep '\\.tar\\.gz$'\necho \"--- dry-run keeps newest 1 ---\"\nbash \"$R/rotate.sh\" -q -n --dest \"$t/dest\" --name app --keep 1\necho \"--- bad usage: -h, unknown flag, missing value, keep=0, missing dir ---\"\nbash \"$R/rotate.sh\" -h >/dev/null; echo \"h rc=$?\"\nbash \"$R/rotate.sh\" --bogus 2>/dev/null; echo \"bogus rc=$?\"\nbash \"$R/rotate.sh\" --dest 2>/dev/null; echo \"noval rc=$?\"\nbash \"$R/rotate.sh\" --dest \"$t/dest\" --name app --keep 0 2>/dev/null; echo \"keep0 rc=$?\"\nbash \"$R/rotate.sh\" --dest \"$t/nope\" --name app 2>/dev/null; echo \"nodir rc=$?\"\nbash \"$R/verify.sh\" -h >/dev/null; echo \"verify h rc=$?\"\nbash \"$R/verify.sh\" --dest \"$t/dest\" --name app --quiet; echo \"verify rc=$?\"\nbash \"$R/verify.sh\" --dest \"$t/dest\" --name app -q --keep abc 2>/dev/null; echo \"keepbad rc=$?\"\nrm -rf \"$t\"",
+        "description": "Manually exercise rotate.sh and verify.sh flags and exit codes"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_2e8194e52a0c2ef144b2a4f5eff01fa4_0",
+      "tool_input": {
+        "command": "set -u\nt=/tmp/bkt-check.$$\nmkdir -p \"$t/src\"; echo x > \"$t/src/f\"\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/rc1r1-d\nfor s in 20260101-010000 20260102-010000 20260103-010000 20260104-010000 20260105-010000 20260106-010000; do\n  BACKUP_STAMP=$s bash \"$R/backup.sh\" --quiet --dest \"$t/dest\" --name app \"$t/src\" >/dev/null\ndone\necho \"--- rotate --keep 4 (delete 2 oldest) ---\"\nbash \"$R/rotate.sh\" --dest=\"$t/dest\" --name=app --keep=4\necho \"--- remaining ---\"; ls \"$t/dest\" | grep '\\.tar\\.gz$'\necho \"--- dry-run keeps newest 1 ---\"\nbash \"$R/rotate.sh\" -q -n --dest \"$t/dest\" --name app --keep 1\necho \"--- usage/exit codes ---\"\nbash \"$R/rotate.sh\" -h >/dev/null; echo \"h rc=$?\"\nbash \"$R/rotate.sh\" --bogus 2>/dev/null; echo \"bogus rc=$?\"\nbash \"$R/rotate.sh\" --dest 2>/dev/null; echo \"noval rc=$?\"\nbash \"$R/rotate.sh\" --dest \"$t/dest\" --name app --keep 0 2>/dev/null; echo \"keep0 rc=$?\"\nbash \"$R/rotate.sh\" --dest \"$t/nope\" --name app 2>/dev/null; echo \"nodir rc=$?\"\nbash \"$R/verify.sh\" -h >/dev/null; echo \"verify h rc=$?\"\nbash \"$R/verify.sh\" --dest \"$t/dest\" --name app -q; echo \"verify rc=$?\"\nbash \"$R/verify.sh\" --dest \"$t/dest\" --name app -q --keep abc 2>/dev/null; echo \"keepbad rc=$?\"\nbash \"$R/verify.sh\" -q; echo \"verify nodest rc=$?\"\nrm -rf \"/tmp/bkt-check.$$\"",
+        "description": "Exercise rotate.sh and verify.sh flags and exit codes in a /tmp sandbox"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_5d1c775aec85933bf41a082b7cc0c35b_0",
+      "tool_input": {
+        "command": "set -u\nt=/tmp/bkt-check\nrm -rf /tmp/bkt-check\nmkdir -p \"$t/src\"; echo x > \"$t/src/f\"\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/rc1r1-d\nfor s in 20260101-010000 20260102-010000 20260103-010000 20260104-010000 20260105-010000 20260106-010000; do\n  BACKUP_STAMP=$s bash \"$R/backup.sh\" --quiet --dest \"$t/dest\" --name app \"$t/src\" >/dev/null\ndone\necho \"--- rotate --keep 4 (delete 2 oldest) ---\"\nbash \"$R/rotate.sh\" --dest=\"$t/dest\" --name=app --keep=4\necho \"--- remaining ---\"; ls \"$t/dest\" | grep '\\.tar\\.gz$'\necho \"--- dry-run keeps newest 1 ---\"\nbash \"$R/rotate.sh\" -q -n --dest \"$t/dest\" --name app --keep 1\necho \"--- usage/exit codes ---\"\nbash \"$R/rotate.sh\" -h >/dev/null; echo \"h rc=$?\"\nbash \"$R/rotate.sh\" --bogus 2>/dev/null; echo \"bogus rc=$?\"\nbash \"$R/rotate.sh\" --dest 2>/dev/null; echo \"noval rc=$?\"\nbash \"$R/rotate.sh\" --dest \"$t/dest\" --name app --keep 0 2>/dev/null; echo \"keep0 rc=$?\"\nbash \"$R/rotate.sh\" --dest \"$t/nope\" --name app 2>/dev/null; echo \"nodir rc=$?\"\nbash \"$R/verify.sh\" -h >/dev/null; echo \"verify h rc=$?\"\nbash \"$R/verify.sh\" --dest \"$t/dest\" --name app -q; echo \"verify rc=$?\"\nbash \"$R/verify.sh\" --dest \"$t/dest\" --name app -q --keep abc 2>/dev/null; echo \"keepbad rc=$?\"\nbash \"$R/verify.sh\" -q; echo \"verify nodest rc=$?\"",
+        "description": "Exercise rotate.sh and verify.sh flags and exit codes in /tmp/bkt-check"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a9b29f79be33e93a6497a79a4b0c51a3_0",
+      "tool_input": {
+        "command": "rm -f /tmp/bkt_check.sh\ncd /Users/vitor/.cache/flashnext-concurrency/claude-work/rc1r1-d\nfor f in backup.sh rotate.sh verify.sh restore.sh report.sh lib/log.sh lib/common.sh tests/run_tests.sh; do bash -n \"$f\" && echo \"syntax ok: $f\"; done\nbash tests/run_tests.sh",
+        "description": "Syntax-check all scripts and run full test suite"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_4fa70133fb2306b60e0a21b6934ab69e_0",
+      "tool_input": {
+        "command": "rm -f /tmp/bkt_check.sh\ncd /Users/vitor/.cache/flashnext-concurrency/claude-work/rc1r1-d\nbash -n backup.sh && bash -n rotate.sh && bash -n verify.sh && bash -n restore.sh && bash -n report.sh && bash -n lib/log.sh && bash -n lib/common.sh && bash -n tests/run_tests.sh && echo \"all syntax ok\"\nbash tests/run_tests.sh",
+        "description": "Syntax-check all scripts and run full test suite"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_2055ed463c706ebe5dc86ca6a668daab_0",
+      "tool_input": {
+        "command": "rm -f /tmp/bkt_check.sh",
+        "description": "Delete temporary check script from /tmp"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_83c93701ffd0b2e04983a8e9d38b27a9_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc1r1-d status --short && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc1r1-d diff --stat",
+        "description": "Show changed files and diff stats"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 28,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All done. Both bugs fixed, one regression test added per bug, the shared option-parsing block and `resolve_dir` moved into a new `lib/common.sh` sourced by `rotate.sh` and `verify.sh` (flag behavior verified unchanged by hand: `--dest=X`, `-n`, `-q`, `-h`, unknown-option/missing-value/exit-code 0-1-2 paths, log prefix attribution), and `bash tests/run_tests.sh` passes all 10 tests.\n\nChanged: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.",
+  "ttft_ms": 24197,
+  "type": "result",
+  "duration_ms": 211545,
+  "uuid": "f20766fb-175b-4794-b241-d193cc736822",
+  "ttft_stream_ms": 56,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 23900,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 1,
+  "exit": 0,
+  "wall_s": 212.3,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

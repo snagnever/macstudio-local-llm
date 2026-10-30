@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 418174,
+  "stop_reason": "end_turn",
+  "session_id": "ffb27e76-488b-4368-91fe-9014f747c228",
+  "total_cost_usd": 0.5732388000000002,
+  "usage": {
+    "input_tokens": 35290,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 725794,
+    "output_tokens": 14346,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0": {
+      "inputTokens": 35290,
+      "outputTokens": 14346,
+      "cacheReadInputTokens": 725794,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5732388000000002,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 0,
+      "canonicalModel": "dankpaws-swift1.5-qwen3.8-flash-next-mlx-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793387561816_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"\nprintf 'x' > \"$t/dest/demo-20260101-000000.tar.gz\"\n(cd \"$t/dest\" && shasum -a 256 demo-20260101-000000.tar.gz > demo-20260101-000000.tar.gz.sha256)\nprintf 'x' > \"$t/dest/other-20260101-000000.tar.gz\"\n(cd \"$t/dest\" && shasum -a 256 other-20260101-000000.tar.gz > other-20260101-000000.tar.gz.sha256)\necho \"-- verify --help:\"; bash verify.sh --help | head -1\necho \"-- verify --name filter:\"; bash verify.sh --quiet --dest \"$t/dest\" --name demo\necho \"-- verify --dest with no value:\"; bash verify.sh --dest 2>&1; echo \"rc=$?\"\necho \"-- verify unknown flag:\"; bash verify.sh --dest \"$t/dest\" --bogus 2>/dev/null; echo \"rc=$?\"\necho \"-- rotate -n (dry run, keep 1):\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 1 -n\necho \"-- rotate --keep=abc:\"; bash rotate.sh --dest \"$t/dest\" --name demo --keep=abc 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"-- rotate -q -h:\"; bash rotate.sh -q --help | head -1\necho \"-- rotate bad --keep value:\"; bash rotate.sh --dest \"$t/dest\" --name demo --keep 0 2>&1 | tail -1\necho \"-- positional args rejected:\"; bash rotate.sh --dest \"$t/dest\" --name demo extra 2>&1 | tail -1\nrm -rf \"$t\"",
+        "description": "Smoke-test shared parser flags in rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793387574582_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/vtest && mkdir -p /tmp/vtest/dest\nprintf 'x' > /tmp/vtest/dest/demo-20260101-000000.tar.gz\n(cd /tmp/vtest/dest && shasum -a 256 demo-20260101-000000.tar.gz > demo-20260101-000000.tar.gz.sha256)\nprintf 'x' > /tmp/vtest/dest/other-20260101-000000.tar.gz\n(cd /tmp/vtest/dest && shasum -a 256 other-20260101-000000.tar.gz > other-20260101-000000.tar.gz.sha256)\necho \"-- verify --help:\"; bash verify.sh --help | head -1\necho \"-- verify --name filter:\"; bash verify.sh --quiet --dest /tmp/vtest/dest --name demo\necho \"-- verify --dest with no value:\"; bash verify.sh --dest 2>&1; echo \"rc=$?\"\necho \"-- verify unknown flag:\"; bash verify.sh --dest /tmp/vtest/dest --bogus 2>/dev/null; echo \"rc=$?\"\necho \"-- rotate -n (dry run, keep 1):\"; bash rotate.sh --quiet --dest /tmp/vtest/dest --name demo --keep 1 -n\necho \"-- rotate --keep=abc:\"; bash rotate.sh --dest /tmp/vtest/dest --name demo --keep=abc 2>&1 | tail -1\necho \"-- rotate --keep 0:\"; bash rotate.sh --dest /tmp/vtest/dest --name demo --keep 0 2>&1 | tail -1\necho \"-- rotate -q --help:\"; bash rotate.sh -q --help | head -1\necho \"-- positional args rejected:\"; bash rotate.sh --dest /tmp/vtest/dest --name demo extra 2>&1 | tail -1\nrm -rf /tmp/vtest",
+        "description": "Smoke-test shared parser flags in rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793387592794_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/fn-smoke && cd /Users/vitor/.cache/flashnext-concurrency/claude-work/rm2r2-d && bash tests/run_tests.sh && git status --short",
+        "description": "Remove smoke test, rerun suite, show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 23,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.\n\nDetails:\n- **rotate.sh** \u2014 `surplus()` used `tail -n +N`, which returned the *newest* entries; now it's `head -n (total - keep)` on the oldest-first list, and the early exit is `-le` so exactly N archives deletes nothing.\n- **verify.sh** \u2014 the sidecar's file name was read with `awk '{print $2}'`, cutting at the first space; it's now parsed by stripping the digest and the blanks after it, and the digest comparison is quoted (`[[ \"$expected\" == \"$actual\" ]]`).\n- **lib/common.sh** \u2014 holds the option-parsing block (executed at source time, driven by the script's pre-defined `usage`/`parse_local_option` hooks, with a double-source guard like `lib/log.sh`) and `resolve_dir`; sourced by `rotate.sh` and `verify.sh`. `backup.sh`, `restore.sh`, `report.sh` untouched as instructed (their inline copies remain).\n- **tests/run_tests.sh** \u2014 added one test per bug (space-in-name verify; rotate with exactly N keeps all, plus a check that surplus deletion removes the oldest, not the newest). All 9 tests pass.\n\nOne note: a leftover scratch script sits at `/tmp/fn-smoke/smoke.sh` \u2014 removing it needs approval outside the repo, so I left it; feel free to `rm -rf /tmp/fn-smoke`.",
+  "ttft_ms": 52787,
+  "type": "result",
+  "duration_ms": 418848,
+  "uuid": "cd944a6f-2222-4ab7-b6f2-b967b3e7be0b",
+  "ttft_stream_ms": 53,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 51410,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 419.4,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

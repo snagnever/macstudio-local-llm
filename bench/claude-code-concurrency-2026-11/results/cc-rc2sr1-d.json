@@ -1,0 +1,127 @@
+{
+  "duration_api_ms": 990400,
+  "stop_reason": "end_turn",
+  "session_id": "81a0376c-8624-42d1-9580-6f0aaa152d60",
+  "total_cost_usd": 1.13534,
+  "usage": {
+    "input_tokens": 26985,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 824480,
+    "output_tokens": 13612,
+    "output_tokens_details": {
+      "thinking_tokens": 5795
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 98449,
+      "outputTokens": 26834,
+      "cacheReadInputTokens": 1024320,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 1.13534,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9404,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_bd6fa460d7f60beb54806e0fc11eab2b_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"\nfor s in 20260101-010000 20260102-010000 20260103-010000 20260104-010000; do printf 'a\\n' > \"$t/dest/demo-$s.tar.gz\"; done\necho \"--- rotate --help ---\"; bash rotate.sh --help >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- rotate --keep=2 dry-run ---\"; bash rotate.sh --quiet --dest=\"$t/dest\" --name=demo --keep=2 --dry-run\necho \"--- rotate bad --keep ---\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep x; echo \"rc=$?\"\necho \"--- rotate unknown flag ---\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --bogus 2>/dev/null; echo \"rc=$?\"\necho \"--- verify --name filter ---\"; (cd \"$t/dest\" && shasum -a 256 demo-20260104-010000.tar.gz > demo-20260104-010000.tar.gz.sha256)\nbash verify.sh --quiet --dest \"$t/dest\" --name demo; echo \"rc=$?\"\nbash verify.sh --quiet --dest \"$t/dest\" --name other; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Smoke-test refactored rotate/verify flag handling"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d4136d744f4bfcd4a89c8e5009c3b394_0",
+      "tool_input": {
+        "command": "set -u\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/rc2sr1-d\nd=$(mktemp -d); mkdir -p \"$d/lib\"; git -C \"$R\" show HEAD:rotate.sh > \"$d/rotate.sh\"; git -C \"$R\" show HEAD:verify.sh > \"$d/verify.sh\"; git -C \"$R\" show HEAD:lib/log.sh > \"$d/lib/log.sh\"; cp \"$R/backup.sh\" \"$d/\"\nmkdir -p \"$d/dest\" \"$d/src\"; printf 'spaced\\n' > \"$d/src/file.txt\"\nfor s in 20260101-010000 20260102-010000 20260103-010000; do printf 'a\\n' > \"$d/dest/demo-$s.tar.gz\"; done\nbash \"$d/rotate.sh\" --quiet --dest \"$d/dest\" --name demo --keep 3 >/dev/null\necho \"buggy rotate leaves: $(cd \"$d/dest\" && ls *.tar.gz | sort | paste -sd' ' -)\"\nBACKUP_STAMP=20260101-000000 bash \"$d/backup.sh\" --quiet --dest \"$d/dest\" --name \"my backup\" \"$d/src\" >/dev/null\nrc=0; out=$(bash \"$d/verify.sh\" --quiet --dest \"$d/dest\") || rc=$?\necho \"buggy verify says: $out / rc=$rc\"\nrm -rf \"$d\" /tmp/smoke_rotate_verify.sh",
+        "description": "Confirm new tests' scenarios fail on the pre-fix scripts from HEAD"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c45f54657d3f3b062dfbcbe5c2de7f37_0",
+      "tool_input": {
+        "command": "bash /tmp/test_buggy_head.sh && rm -f /tmp/test_buggy_head.sh /tmp/smoke_rotate_verify.sh",
+        "description": "Run both new test scenarios against the pre-fix scripts from HEAD"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "origin": {
+    "kind": "task-notification",
+    "producer": "session-task",
+    "runId": "0mvv7ntpz-45c51103"
+  },
+  "subagent_stats": {
+    "spawned": 2,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 2
+    },
+    "started_in_background": 2,
+    "max_depth": 1,
+    "spawned_by_subagents": 0,
+    "completed": 2,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {
+      "Explore": 2
+    }
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 24,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `rotate.sh`, `verify.sh`, `tests/run_tests.sh` and added `lib/common.sh`.\n\nDetails:\n- **rotate.sh** \u2014 `surplus()` used `tail -n +\"$keep\"`, which starts at the KEEP-th line (1-based), so with exactly N archives it deleted one, and it was the newest. Now `tail -n +\"$((keep + 1))\"`, keeping the newest N.\n- **verify.sh** \u2014 the archive name was split out of the sidecar content with `awk '{print $2}'`, so `my backup-\u2026.tar.gz` yielded `my` \u2192 \"archive missing\" \u2192 BAD/rc=2. The name is now the sidecar's own basename minus `.sha256` (only the digest is read from the content), and the digest comparison `[ $expected == $actual ]` is quoted (`[[ \"$expected\" == \"$actual\" ]]`).\n- **lib/common.sh** (new) \u2014 holds the shared option-parsing block (vars, `is_uint`, `need_value`, the `while`/`case` loop, `--keep` validation) and `resolve_dir`, sourced by `rotate.sh` and `verify.sh` after each defines its `usage`/`parse_local_option` hook. Both keep the same flags; `backup.sh`, `restore.sh`, `report.sh` untouched.\n- **tests/run_tests.sh** \u2014 two new tests (one per bug); both fail on the pre-fix scripts and pass now. `bash tests/run_tests.sh`: all 8 tests pass.\n\nTwo throwaway helper scripts (`/tmp/smoke_rotate_verify.sh`, `/tmp/test_buggy_head.sh`) remain in /tmp \u2014 deleting them needed a permission prompt; say the word if you want them removed.",
+  "ttft_ms": 29256,
+  "type": "result",
+  "duration_ms": 194277,
+  "uuid": "d952d044-86bc-4816-a77a-4a36864ba37e",
+  "ttft_stream_ms": 55,
+  "time_to_request_ms": 17,
+  "first_content_frame_ms": 14264,
+  "queued_turn_count": 0,
+  "result_index": 2,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 730.5,
+  "task_done": false,
+  "parallel_agent_calls": 1,
+  "subagents_spawned": 2,
+  "subagents": true
+}

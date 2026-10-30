@@ -1,0 +1,160 @@
+{
+  "duration_api_ms": 442293,
+  "stop_reason": "end_turn",
+  "session_id": "517444f1-6060-44a1-88ad-bbc81481cd15",
+  "total_cost_usd": 0.8693279999999998,
+  "usage": {
+    "input_tokens": 43156,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1361120,
+    "output_tokens": 21224,
+    "output_tokens_details": {
+      "thinking_tokens": 8572
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 43156,
+      "outputTokens": 21224,
+      "cacheReadInputTokens": 1361120,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.8693279999999998,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 8572,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_20dac8a43d2a07d9177c8b8871d4de95_0",
+      "tool_input": {
+        "command": "base=$(mktemp -d) && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r2-d archive HEAD | tar -x -C \"$base\"\ncd \"$base\"\nt=$(mktemp -d); mkdir -p \"$t/src\"\nfor stamp in 20260101-000000 20260101-010000 20260101-020000 20260101-030000; do\n  printf 'content %s\\n' \"$stamp\" > \"$t/src/f.txt\"\n  BACKUP_STAMP=$stamp bash \"$base/backup.sh\" --quiet --dest \"$t/dest\" --name demo \"$t/src\" > /dev/null\ndone\necho \"--- old rotate.sh, 4 archives, --keep 3:\"\nbash \"$base/rotate.sh\" --quiet --dest \"$t/dest\" --name demo --keep 3\necho \"--- old rotate.sh, 3 archives, --keep 3:\"\nrm -f \"$t/dest\"/*.tar.gz*\nfor stamp in 20260101-010000 20260101-020000 20260101-030000; do\n  printf 'content %s\\n' \"$stamp\" > \"$t/src/f.txt\"\n  BACKUP_STAMP=$stamp bash \"$base/backup.sh\" --quiet --dest \"$t/dest\" --name demo \"$t/src\" > /dev/null\ndone\nbash \"$base/rotate.sh\" --quiet --dest \"$t/dest\" --name demo --keep 3\necho \"remaining after exact-keep rotate: $(ls \"$t/dest\"/*.tar.gz | wc -l | tr -d ' ')\"\necho \"--- old verify.sh, name with space:\"\nt2=$(mktemp -d); mkdir -p \"$t2/src\"; printf 'hello\\n' > \"$t2/src/hello.txt\"\nBACKUP_STAMP=20260101-000000 bash \"$base/backup.sh\" --quiet --dest \"$t2/dest\" --name \"my backup\" \"$t2/src\" > /dev/null\nrc=0; out=$(bash \"$base/verify.sh\" --quiet --dest \"$t2/dest\") || rc=$?\necho \"out=[$out] rc=$rc\"\nrm -rf \"$t\" \"$t2\" \"$base\"",
+        "description": "Reproduce both bugs against the original code from HEAD"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_97753d6930e2453cd7626e000c140f46_0",
+      "tool_input": {
+        "command": "base=$(mktemp -d /tmp/bt-bugcheck/head.XXXX) && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r2-d archive HEAD | tar -x -C \"$base\" && bash /tmp/bt-bugcheck/check.sh \"$base\" && rm -rf \"$base\"",
+        "description": "Reproduce both bugs against original code from HEAD"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9ce9dcf04e8f05daf7abd972b2397635_0",
+      "tool_input": {
+        "command": "mktemp -d /tmp/bt-bugcheck/head.XXXXXX",
+        "description": "Create scratch dir for pristine HEAD checkout"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c3a67c09386cb5ee410e24a93da17d3c_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/bt-bugcheck/head",
+        "description": "Create scratch dir for pristine HEAD checkout"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a53133bb3838d6ae167c66e8dc6a0adc_0",
+      "tool_input": {
+        "command": "mkdir -p .bugcheck/head && git archive HEAD | tar -x -C .bugcheck/head && cp /tmp/bt-bugcheck/check.sh .bugcheck/check.sh",
+        "description": "Extract pristine HEAD tree into repo scratch dir"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ffed3b91ca1d8f136667752e718a2d79_0",
+      "tool_input": {
+        "command": "mkdir -p /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r2-d/.bugcheck/head",
+        "description": "Create scratch dir inside repo for HEAD checkout"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_8c1f9df746b8e772d22c4d7eed17c351_0",
+      "tool_input": {
+        "command": "cp backup.sh /tmp/bt-bugcheck/head/backup.sh && mkdir -p /tmp/bt-bugcheck/head/lib && cp lib/log.sh /tmp/bt-bugcheck/head/lib/log.sh",
+        "description": "Copy unchanged backup.sh and lib/log.sh into scratch HEAD tree"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_f1281e7d8dadac5d3a1e4769199b79b8_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/bt-bugcheck",
+        "description": "Remove temporary bug-check scratch directory"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 39,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 9 tests pass. Details of what was done:\n\n**Bug 1 \u2014 `rotate.sh`:** two defects in one. The early-exit used `-lt` so a directory with exactly N archives fell through to deletion, and `surplus()` used `tail -n +\"$keep\"` on an oldest-first sorted list \u2014 which selects the *newest* entries. Now the exit triggers at `-le` and surplus is `head -n $((total - keep))` (the oldest). Verified against the original code, which deleted the newest archive in the exact-keep case.\n\n**Bug 2 \u2014 `verify.sh`:** the sidecar's file name was extracted with `awk '{print $2}'`, truncating `my backup-\u2026tar.gz` to `my`, so the archive looked missing \u2192 `BAD \u2026 (archive missing)`, exit 2. The name is now taken as everything after the digest and the whitespace following it (the digest itself is split at the first space), and the digest comparison is quoted.\n\n**Refactor:** new `lib/common.sh` holds the shared option-parsing block (`--dest/--name/--keep/-q/-n/-h/--`, `is_uint`, `need_value`, `ARGS`) and `resolve_dir`; `rotate.sh` and `verify.sh` source it (with a double-source guard, bash 3.2 compatible). I diff-tested a 24-case flag matrix (`--dest=DIR`, `--keep N`, `-n`, `-q`, `--`, missing values, unknown flags, positional rejection, `--help`) for both scripts against the pristine HEAD code \u2014 all identical. `backup.sh`, `restore.sh`, `report.sh` untouched.\n\n**Tests:** three checks added to `tests/run_tests.sh` \u2014 rotate of 4\u2192keep 3 deletes only the oldest and keeps the newest; rotate with exactly 3\u2192keep 3 deletes nothing; verify of `my backup-20260101-000000.tar.gz` reports ok with exit 0. All three fail on the original code (confirmed by running them against a HEAD copy).\n\nOne note: the sandbox blocked removing my throwaway reproduction tree at `/tmp/bt-bugcheck/` (outside the session's working directories); it's only temp data and macOS clears `/tmp` on reboot.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.",
+  "ttft_ms": 24052,
+  "type": "result",
+  "duration_ms": 444628,
+  "uuid": "3578a334-845e-4891-a6a9-b58b295a527f",
+  "ttft_stream_ms": 19545,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 23871,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 445.7,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

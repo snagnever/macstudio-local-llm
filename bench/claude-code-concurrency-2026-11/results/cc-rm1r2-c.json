@@ -1,0 +1,95 @@
+{
+  "duration_api_ms": 142590,
+  "stop_reason": "end_turn",
+  "session_id": "282b7916-66a6-4c3e-b53b-d49be0a3f513",
+  "total_cost_usd": 0.437333,
+  "usage": {
+    "input_tokens": 51780,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 515465,
+    "output_tokens": 6356,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0": {
+      "inputTokens": 51780,
+      "outputTokens": 6356,
+      "cacheReadInputTokens": 515465,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.437333,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 0,
+      "canonicalModel": "dankpaws-swift1.5-qwen3.8-flash-next-mlx-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 21,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 70 tests pass, including 7 new `--group-by` tests covering text and JSON output for all three grouping keys, filter interaction, label ordering, unchanged default output, and argparse rejection of bad keys.\n\nChanged: `ledger/cli.py`, `ledger/report.py`, `ledger/store.py`, `tests/test_cli.py`, `README.md`.",
+  "ttft_ms": 25011,
+  "type": "result",
+  "duration_ms": 143172,
+  "uuid": "e5e710b1-8257-4b09-bb30-92c4066a9cbc",
+  "ttft_stream_ms": 49,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 24682,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 1,
+  "exit": 0,
+  "wall_s": 143.6,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

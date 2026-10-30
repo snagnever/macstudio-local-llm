@@ -1,0 +1,200 @@
+{
+  "duration_api_ms": 492548,
+  "stop_reason": "end_turn",
+  "session_id": "7f58de29-227e-408b-ad3f-34ce5690340f",
+  "total_cost_usd": 0.9532215999999998,
+  "usage": {
+    "input_tokens": 41866,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1367488,
+    "output_tokens": 25613,
+    "output_tokens_details": {
+      "thinking_tokens": 16038
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 41866,
+      "outputTokens": 25613,
+      "cacheReadInputTokens": 1367488,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.9532215999999998,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 16038,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_993db2950bb31eb30eb7a313381f869a_0",
+      "tool_input": {
+        "command": "cd /tmp && rm -rf bugrepro && mkdir -p bugrepro/dest && cd bugrepro/dest && for s in 20260101-010000 20260101-020000 20260101-030000; do : > \"demo-$s.tar.gz\"; done; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2dr1-d/rotate.sh --quiet --dest . --name demo --keep 3; echo \"rc=$?\"; ls",
+        "description": "Reproduce rotate.sh bug: 3 archives, --keep 3"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_993db2950bb31eb30eb7a313381f869a_1",
+      "tool_input": {
+        "command": "cd /tmp && rm -rf bugrepro2 && mkdir -p bugrepro2/dest && cd bugrepro2/dest && printf 'a\\n' > 'my backup-20260101-000000.tar.gz' && shasum -a 256 'my backup-20260101-000000.tar.gz' > 'my backup-20260101-000000.tar.gz.sha256' && cat 'my backup-20260101-000000.tar.gz.sha256' && bash /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2dr1-d/verify.sh --quiet --dest .; echo \"rc=$?\"",
+        "description": "Reproduce verify.sh bug: filename with a space"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_22c59615b6d956ee0e1378411eed94f9_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/bugrepro && mkdir -p /tmp/bugrepro/dest && for s in 20260101-010000 20260101-020000 20260101-030000; do : > \"/tmp/bugrepro/dest/demo-$s.tar.gz\"; done; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2dr1-d/rotate.sh --quiet --dest /tmp/bugrepro/dest --name demo --keep 3; echo \"rc=$?\"; ls /tmp/bugrepro/dest",
+        "description": "Reproduce rotate.sh bug: 3 archives, --keep 3"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_22c59615b6d956ee0e1378411eed94f9_1",
+      "tool_input": {
+        "command": "rm -rf /tmp/bugrepro2 && mkdir -p /tmp/bugrepro2/dest && printf 'a\\n' > '/tmp/bugrepro2/dest/my backup-20260101-000000.tar.gz' && shasum -a 256 '/tmp/bugrepro2/dest/my backup-20260101-000000.tar.gz' > '/tmp/bugrepro2/dest/my backup-20260101-000000.tar.gz.sha256' && cat '/tmp/bugrepro2/dest/my backup-20260101-000000.tar.gz.sha256' && bash /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2dr1-d/verify.sh --quiet --dest /tmp/bugrepro2/dest; echo \"rc=$?\"",
+        "description": "Reproduce verify.sh bug: filename with a space"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_937081252abd2b4c6d793706ebc7c214_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/bugrepro /tmp/bugrepro2",
+        "description": "Clean previous repro dirs"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b19de294b46edac4523d22ddf9753d52_0",
+      "tool_input": {
+        "command": "mkdir -p /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2dr1-d/.repro/dest",
+        "description": "Create scratch fixture directory in repo"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_126e5bf3d7c46e458d6eacbdbba497ed_0",
+      "tool_input": {
+        "command": "git stash push -m \"fixes\" -- rotate.sh verify.sh",
+        "description": "Temporarily stash the two bug fixes"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_329090478bde85da736abaee07e54ee1_0",
+      "tool_input": {
+        "command": "printf 'demo-01\\n' | tail -n +3; printf 'demo-01\\ndemo-02\\ndemo-03\\n' | tail -n +3; echo \"--- new logic:\"; printf 'demo-01\\ndemo-02\\ndemo-03\\n' | head -n \"$((3 - 3))\"; echo \"(empty = nothing deleted)\"",
+        "description": "Compare old tail-based vs new head-based surplus logic"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_329090478bde85da736abaee07e54ee1_1",
+      "tool_input": {
+        "command": "line='abcd1234  my backup-20260101-000000.tar.gz'; echo \"old awk parse: $(echo \"$line\" | awk '{print $2}')\"; e=\"\"; f=\"\"; read -r e f <<< \"$line\"; echo \"new read parse: expected=$e file=$f\"",
+        "description": "Compare old awk vs new read sidecar parsing"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d1f1000a642a9390ffdaf954f6977087_2",
+      "tool_input": {
+        "command": "echo 'abcd1234  my backup-x.tar.gz' | awk '{print $2}'",
+        "description": "Old awk parse of sidecar line with space"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_f897a8a91248089f23feaf7479ced74a_0",
+      "tool_input": {
+        "command": "printf 'abcd1234  my backup-x.tar.gz\\n' | awk '{$1=\"\"; sub(/^ /,\"\"); print}'",
+        "description": "Show remainder of sidecar line after digest"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d5fc83be3e035a82ebe499c0b600779e_0",
+      "tool_input": {
+        "command": "bash rotate.sh --dest . --name demo --keep 1 --quiet; echo \"rc=$?\"",
+        "description": "Smoke: rotate.sh with no archives present"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d5fc83be3e035a82ebe499c0b600779e_1",
+      "tool_input": {
+        "command": "bash rotate.sh --dest . --name demo --bogus 2>&1 | tail -n 1; echo \"rc=${PIPESTATUS[0]}\"",
+        "description": "Smoke: rotate.sh rejects unknown option"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 44,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh` \u2014 all 8 tests pass.\n\nDetails:\n- **rotate.sh** \u2014 the rotation counted from the wrong end: with 3 archives and `--keep 3`, `tail -n +3` on the oldest-first list selected the *newest* archive as \"surplus\". Fixed to `head -n \"$((total - keep))\"` (delete only archives older than the newest N), and the early-exit is now `total -le keep` so \"exactly N\" never reaches the delete path.\n- **verify.sh** \u2014 `awk '{print $2}'` truncated the sidecar's file name at the first space, so `my backup-\u2026tar.gz` became `backup-\u2026tar.gz` \u2192 \"archive missing\" \u2192 BAD/exit 2. Now `read -r expected file` puts the whole remainder of the line in `file`, preserving spaces; the digest comparison is also quoted.\n- **lib/common.sh** (new) \u2014 the shared option-parsing block (`--dest/--name/--keep/-q/-n/-h/--`, `is_uint`, `need_value`, the KEEP validation) and `resolve_dir`, with a double-sourcing guard matching `lib/log.sh`'s convention; sourced by `rotate.sh` and `verify.sh` (each defines its `usage`/`parse_local_option` first, and both accept the same flags \u2014 verified via smoke runs of `--help`, unknown option, `--keep 0`, and the normal paths). `backup.sh`, `restore.sh`, `report.sh` untouched.\n- **tests/run_tests.sh** \u2014 added `rotate --keep 3 with exactly 3 archives deletes none and keeps the newest` and `verify ok for an intact archive whose name contains a space`, each in its own fixture group.",
+  "ttft_ms": 24124,
+  "type": "result",
+  "duration_ms": 493861,
+  "uuid": "3fc7983c-dec5-46ac-8e22-b6e7c31a862e",
+  "ttft_stream_ms": 19537,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 23864,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 494.1,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}
