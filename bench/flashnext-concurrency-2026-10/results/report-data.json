@@ -33,6 +33,7 @@
       ],
       "cold_ttft_s": 34.50873879203573,
       "wired_peak": 96.0,
+      "worst_turn_s": 7.9,
       "result": "pass"
     },
     {
@@ -61,6 +62,7 @@
       ],
       "cold_ttft_s": 34.49978816602379,
       "wired_peak": 96.9,
+      "worst_turn_s": 8.2,
       "result": "pass"
     },
     {
@@ -94,6 +96,7 @@
       ],
       "cold_ttft_s": 35.85581652028486,
       "wired_peak": 100.7,
+      "worst_turn_s": 13.8,
       "result": "warning"
     },
     {
@@ -127,6 +130,7 @@
       ],
       "cold_ttft_s": 36.16780454199761,
       "wired_peak": 99.9,
+      "worst_turn_s": 13.9,
       "result": "warning"
     },
     {
@@ -160,6 +164,7 @@
       ],
       "cold_ttft_s": 36.10030235396698,
       "wired_peak": 100.1,
+      "worst_turn_s": 13.9,
       "result": "warning"
     },
     {
@@ -198,6 +203,7 @@
       ],
       "cold_ttft_s": 36.84081483306363,
       "wired_peak": 101.4,
+      "worst_turn_s": 18.7,
       "result": "fail"
     },
     {
@@ -241,6 +247,7 @@
       ],
       "cold_ttft_s": 36.95657393778674,
       "wired_peak": 103.6,
+      "worst_turn_s": 22.4,
       "result": "fail"
     },
     {
@@ -284,6 +291,7 @@
       ],
       "cold_ttft_s": 36.89962354209274,
       "wired_peak": 104.3,
+      "worst_turn_s": 26.6,
       "result": "fail"
     },
     {
@@ -312,6 +320,7 @@
       ],
       "cold_ttft_s": 165.58522641612217,
       "wired_peak": 110.5,
+      "worst_turn_s": 8.6,
       "result": "pass"
     },
     {
@@ -345,6 +354,7 @@
       ],
       "cold_ttft_s": 168.5606108752545,
       "wired_peak": 112.6,
+      "worst_turn_s": 15.3,
       "result": "warning"
     },
     {
@@ -378,6 +388,7 @@
       ],
       "cold_ttft_s": 168.27704739617184,
       "wired_peak": 113.5,
+      "worst_turn_s": 16.7,
       "result": "warning"
     },
     {
@@ -411,6 +422,7 @@
       ],
       "cold_ttft_s": 169.49097312474623,
       "wired_peak": 113.5,
+      "worst_turn_s": 15.7,
       "result": "warning"
     },
     {
@@ -449,6 +461,7 @@
       ],
       "cold_ttft_s": 241.5325491670519,
       "wired_peak": 114.7,
+      "worst_turn_s": 20.3,
       "result": "fail"
     },
     {
@@ -492,6 +505,7 @@
       ],
       "cold_ttft_s": 337.46599020808935,
       "wired_peak": 116.0,
+      "worst_turn_s": 31.5,
       "result": "fail"
     },
     {
@@ -535,6 +549,7 @@
       ],
       "cold_ttft_s": 392.69870808394626,
       "wired_peak": 115.9,
+      "worst_turn_s": 33.1,
       "result": "fail"
     },
     {
@@ -568,6 +583,7 @@
       ],
       "cold_ttft_s": 319.2108962922357,
       "wired_peak": null,
+      "worst_turn_s": 17.4,
       "result": "fail"
     },
     {
@@ -601,6 +617,7 @@
       ],
       "cold_ttft_s": 327.29471624991857,
       "wired_peak": null,
+      "worst_turn_s": 16.5,
       "result": "warning"
     },
     {
@@ -629,6 +646,7 @@
       ],
       "cold_ttft_s": 350.7678149170242,
       "wired_peak": 113.9,
+      "worst_turn_s": 10.3,
       "result": "pass"
     },
     {
@@ -662,6 +680,7 @@
       ],
       "cold_ttft_s": 344.7200825626496,
       "wired_peak": 115.0,
+      "worst_turn_s": 15.5,
       "result": "warning"
     },
     {
@@ -695,6 +714,7 @@
       ],
       "cold_ttft_s": 395.2568373545073,
       "wired_peak": 113.3,
+      "worst_turn_s": 18.6,
       "result": "warning"
     },
     {
@@ -728,6 +748,7 @@
       ],
       "cold_ttft_s": 355.37550974916667,
       "wired_peak": 113.7,
+      "worst_turn_s": 17.3,
       "result": "warning"
     },
     {
@@ -761,6 +782,7 @@
       ],
       "cold_ttft_s": 354.0224304795265,
       "wired_peak": 107.7,
+      "worst_turn_s": 16.7,
       "result": "warning"
     }
   ],
@@ -865,6 +887,9 @@
         "gain": null,
         "needles": "13/13",
         "aux_p95": null,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 1.4976496669999904,
+        "cold_ttft_s": 34.67308025,
         "gates": [],
         "result": "pass",
         "pending": null
@@ -881,6 +906,9 @@
         "gain": 0.8876526669636838,
         "needles": "13/13",
         "aux_p95": 2.644278049468994,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 1.494397125000006,
+        "cold_ttft_s": 35.742931000000006,
         "gates": [],
         "result": "pass",
         "pending": null
@@ -897,6 +925,9 @@
         "gain": 1.0154062658371183,
         "needles": "26/26",
         "aux_p95": null,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 2.8847949789999916,
+        "cold_ttft_s": 71.509857334,
         "gates": [
           "slowdown above 2.0×"
         ],
@@ -915,6 +946,9 @@
         "gain": 1.3409440606680243,
         "needles": "26/26",
         "aux_p95": 2.828326940536499,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 2.8918304999999975,
+        "cold_ttft_s": 73.14179016649999,
         "gates": [
           "slowdown above 2.0×"
         ],
@@ -933,6 +967,9 @@
         "gain": null,
         "needles": "25/26",
         "aux_p95": 80.48140287399292,
+        "aux_over_60": 3,
+        "warm_ttft_tool_s": 8.401585603598505,
+        "cold_ttft_s": 73.60238908347674,
         "gates": [
           "slowdown above 2.0×",
           "recall miss",
@@ -953,6 +990,9 @@
         "gain": 1.0708865742580223,
         "needles": "38/39",
         "aux_p95": 2.7994320392608643,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 3.2110243749999654,
+        "cold_ttft_s": 121.735989834,
         "gates": [
           "slowdown above 2.0×",
           "recall miss"
@@ -972,6 +1012,9 @@
         "gain": 1.052100891110093,
         "needles": "49/52",
         "aux_p95": null,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 3.6633928334999837,
+        "cold_ttft_s": 142.781752229,
         "gates": [
           "slowdown above 2.0×",
           "recall miss"
@@ -991,6 +1034,9 @@
         "gain": 1.1442015947124553,
         "needles": "50/52",
         "aux_p95": 15.885088205337524,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 4.045063750000054,
+        "cold_ttft_s": 159.8637979795,
         "gates": [
           "slowdown above 2.0×",
           "recall miss"
@@ -1010,6 +1056,9 @@
         "gain": null,
         "needles": "12/13",
         "aux_p95": null,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 1.7675164999999993,
+        "cold_ttft_s": 34.515346083,
         "gates": [],
         "result": "pass",
         "pending": null
@@ -1026,6 +1075,9 @@
         "gain": 1.4257330274509357,
         "needles": "26/26",
         "aux_p95": 51.89945602416992,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 1.7861108124999987,
+        "cold_ttft_s": 61.904521271,
         "gates": [],
         "result": "warning",
         "pending": null
@@ -1042,6 +1094,9 @@
         "gain": null,
         "needles": "13/13",
         "aux_p95": null,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 1.581470999999965,
+        "cold_ttft_s": 167.51088795799996,
         "gates": [],
         "result": "pass",
         "pending": null
@@ -1058,6 +1113,9 @@
         "gain": 0.965647732885288,
         "needles": "13/13",
         "aux_p95": 3.0627188682556152,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 1.5768331250000074,
+        "cold_ttft_s": 171.64065674999998,
         "gates": [],
         "result": "pass",
         "pending": null
@@ -1074,6 +1132,9 @@
         "gain": 0.7573990486385952,
         "needles": "25/26",
         "aux_p95": null,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 2.9021994375000304,
+        "cold_ttft_s": 338.6197115835,
         "gates": [
           "slowdown above 2.0×",
           "recall miss",
@@ -1094,6 +1155,9 @@
         "gain": 0.8097298387554512,
         "needles": "25/26",
         "aux_p95": 5.044651985168457,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 2.8568848749999916,
+        "cold_ttft_s": 341.891111563,
         "gates": [
           "slowdown above 2.0×",
           "recall miss",
@@ -1114,6 +1178,9 @@
         "gain": null,
         "needles": "26/26",
         "aux_p95": 343.9411311149597,
+        "aux_over_60": 5,
+        "warm_ttft_tool_s": 5.902567833000035,
+        "cold_ttft_s": 335.8249868125,
         "gates": [
           "slowdown above 2.0×",
           "a request waited over 60 s"
@@ -1133,6 +1200,9 @@
         "gain": 1.4691871021363185,
         "needles": "39/39",
         "aux_p95": 9.332360029220581,
+        "aux_over_60": 4,
+        "warm_ttft_tool_s": 4.130546584000058,
+        "cold_ttft_s": 498.95829245899995,
         "gates": [
           "slowdown above 2.0×",
           "a request waited over 60 s"
@@ -1152,6 +1222,9 @@
         "gain": 1.6947503212155706,
         "needles": "49/52",
         "aux_p95": null,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 4.430761937999932,
+        "cold_ttft_s": 647.7320921659999,
         "gates": [
           "slowdown above 2.0×",
           "recall miss",
@@ -1172,6 +1245,9 @@
         "gain": 2.1284824332182297,
         "needles": "50/52",
         "aux_p95": 158.9048149585724,
+        "aux_over_60": 15,
+        "warm_ttft_tool_s": 9.445653603999972,
+        "cold_ttft_s": 681.2554938965,
         "gates": [
           "slowdown above 2.0×",
           "recall miss",
@@ -1192,6 +1268,9 @@
         "gain": 1.2444650608401318,
         "needles": "25/26",
         "aux_p95": 4.778233289718628,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 2.927131771000063,
+        "cold_ttft_s": 342.7800214795,
         "gates": [
           "recall miss",
           "sessions did not overlap"
@@ -1211,6 +1290,9 @@
         "gain": 1.0014325283685992,
         "needles": "26/26",
         "aux_p95": 6.92256498336792,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 2.4435214995000933,
+        "cold_ttft_s": 360.895740521,
         "gates": [
           "slowdown above 2.0×"
         ],
@@ -1229,6 +1311,9 @@
         "gain": null,
         "needles": "13/13",
         "aux_p95": null,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 1.987078915999973,
+        "cold_ttft_s": 165.33880975,
         "gates": [],
         "result": "pass",
         "pending": null
@@ -1245,6 +1330,9 @@
         "gain": 1.4895909577463935,
         "needles": "26/26",
         "aux_p95": 183.04781818389893,
+        "aux_over_60": 7,
+        "warm_ttft_tool_s": 2.1460823754999865,
+        "cold_ttft_s": 324.170943333,
         "gates": [
           "a request waited over 60 s"
         ],
@@ -1263,6 +1351,9 @@
         "gain": null,
         "needles": "12/13",
         "aux_p95": null,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 1.6907191249999869,
+        "cold_ttft_s": 351.233607833,
         "gates": [],
         "result": "pass",
         "pending": null
@@ -1279,6 +1370,9 @@
         "gain": null,
         "needles": "26/26",
         "aux_p95": 5.008172035217285,
+        "aux_over_60": 0,
+        "warm_ttft_tool_s": 3.0070110624999695,
+        "cold_ttft_s": 206.12295381250004,
         "gates": [
           "slowdown above 2.0×",
           "sessions did not overlap"
@@ -1298,6 +1392,9 @@
         "gain": 1.8537299723556147,
         "needles": "26/26",
         "aux_p95": 8.255941152572632,
+        "aux_over_60": 4,
+        "warm_ttft_tool_s": 5.076087333000487,
+        "cold_ttft_s": 706.4792533125,
         "gates": [
           "a request waited over 60 s"
         ],
@@ -1316,6 +1413,9 @@
         "gain": 1.834853379027156,
         "needles": "25/26",
         "aux_p95": 6.445773124694824,
+        "aux_over_60": 4,
+        "warm_ttft_tool_s": 2.843897645999732,
+        "cold_ttft_s": 691.3142811245,
         "gates": [
           "a request waited over 60 s"
         ],
@@ -1346,6 +1446,273 @@
       },
       "serial_sum": 81.45,
       "pair_wall": 61.7
+    }
+  },
+  "servers": [
+    {
+      "key": "splash",
+      "label": "Splash 1.5.0",
+      "series": "s1",
+      "weights": "ukisai Swift 1.5 Qwen3.8 Flash-Next GGUF IQ4_XS + DFlash2 draft"
+    },
+    {
+      "key": "mlx",
+      "label": "mlx-serve 26.10.3",
+      "series": "s2",
+      "weights": "Dankpaws Swift 1.5 Qwen3.8 Flash-Next MLX 4.7 bpw"
+    }
+  ],
+  "legacy": {
+    "key": "legacy",
+    "label": "mlx-serve 26.10.1",
+    "series": "s2",
+    "weights": "Dankpaws Swift 1.5 Qwen3.8 Flash-Next MLX 4.7 bpw"
+  },
+  "recommended": "splash",
+  "tbench": null,
+  "scenarios": {
+    "one_session": {
+      "splash": {
+        "warm_ttft_s": 0.8,
+        "warm_ttft_source": "claude",
+        "tps_lo": 93.1,
+        "tps_hi": 175.8,
+        "first_prompt_s": 23.7,
+        "cold_128k_s": 167.51088795799996,
+        "tasks": {
+          "small": {
+            "a": 40.95,
+            "b": 40.5
+          }
+        },
+        "tbench": null
+      },
+      "mlx": {
+        "warm_ttft_s": 1.987078915999973,
+        "warm_ttft_source": "synthetic",
+        "tps_lo": 72.78501256309731,
+        "tps_hi": 83.15217087131471,
+        "first_prompt_s": null,
+        "cold_128k_s": 165.33880975,
+        "tasks": {},
+        "tbench": null
+      }
+    },
+    "two_sessions": {
+      "splash": {
+        "ttft_alone_p50": 0.8,
+        "ttft_pair_p50": 1.85,
+        "ttft_alone_p90": 1.2,
+        "ttft_pair_p90": 3.7,
+        "tps_alone_p50": 119.6,
+        "tps_pair_p50": 93.45,
+        "tps_pair_min": 40.0,
+        "tasks": {
+          "small": {
+            "a": {
+              "alone_s": 40.95,
+              "pair_s": 58.66666666666667
+            },
+            "b": {
+              "alone_s": 40.5,
+              "pair_s": 59.96666666666667
+            }
+          }
+        },
+        "time_saved": 0.2424800491098834,
+        "time_saved_by_profile": {
+          "small": 0.2424800491098834
+        },
+        "side_p95_s": 5.044651985168457,
+        "max_concurrent": 2,
+        "new_tokens_p50": 575
+      },
+      "mlx": {
+        "ttft_alone_p50": null,
+        "ttft_pair_p50": null,
+        "ttft_alone_p90": null,
+        "ttft_pair_p90": null,
+        "tps_alone_p50": null,
+        "tps_pair_p50": null,
+        "tps_pair_min": null,
+        "tasks": {},
+        "time_saved": null,
+        "time_saved_by_profile": {},
+        "side_p95_s": 183.04781818389893,
+        "max_concurrent": null,
+        "new_tokens_p50": null
+      }
+    },
+    "worst_case": {
+      "splash": {
+        "turn_alone_s": 6.1,
+        "turn_pair_s": 15.4,
+        "side_p95_s": 5.044651985168457,
+        "side_over_60": 0,
+        "gain": 0.8097298387554512,
+        "best_setting": {
+          "label": "--decode-share 1.0",
+          "turn_s": 10.8,
+          "note": "recall 25/26"
+        }
+      },
+      "mlx": {
+        "turn_alone_s": 9.0,
+        "turn_pair_s": 15.6,
+        "side_p95_s": 183.04781818389893,
+        "side_over_60": 7,
+        "gain": 1.4895909577463935,
+        "best_setting": null
+      }
+    },
+    "by_n": {
+      "splash": {
+        "1": {
+          "turn_s": 6.2,
+          "side_p95_s": 3.0627188682556152,
+          "legacy": false
+        },
+        "2": {
+          "turn_s": 15.4,
+          "side_p95_s": 5.044651985168457,
+          "legacy": false
+        },
+        "3": {
+          "turn_s": 14.6,
+          "side_p95_s": 9.332360029220581,
+          "legacy": false
+        },
+        "4": {
+          "turn_s": 28.0,
+          "side_p95_s": 158.9048149585724,
+          "legacy": false
+        }
+      },
+      "mlx": {
+        "1": {
+          "turn_s": 9.0,
+          "side_p95_s": null,
+          "legacy": false
+        },
+        "2": {
+          "turn_s": 15.6,
+          "side_p95_s": 183.04781818389893,
+          "legacy": false
+        },
+        "3": {
+          "turn_s": 20.3,
+          "side_p95_s": 168.12377905845642,
+          "legacy": true
+        },
+        "4": {
+          "turn_s": 33.1,
+          "side_p95_s": 351.34142327308655,
+          "legacy": true
+        }
+      }
+    },
+    "long_256k": {
+      "splash": {
+        "turn_s": 12.1,
+        "note": "no memory setting",
+        "legacy": false
+      },
+      "mlx": {
+        "turn_s": 18.6,
+        "note": "4 GB prompt cache",
+        "legacy": true
+      }
+    },
+    "coverage": [
+      {
+        "scenario": "One session, synthetic (32K / 128K / 256K)",
+        "cells": {
+          "splash": "measured",
+          "mlx": "measured",
+          "legacy": "measured"
+        }
+      },
+      {
+        "scenario": "One Claude Code session",
+        "cells": {
+          "splash": "measured",
+          "mlx": "missing",
+          "legacy": "measured"
+        }
+      },
+      {
+        "scenario": "Two Claude Code sessions",
+        "cells": {
+          "splash": "measured",
+          "mlx": "missing",
+          "legacy": "measured"
+        }
+      },
+      {
+        "scenario": "Two sessions, synthetic worst case",
+        "cells": {
+          "splash": "measured",
+          "mlx": "measured",
+          "legacy": "measured"
+        }
+      },
+      {
+        "scenario": "Three and four sessions",
+        "cells": {
+          "splash": "measured",
+          "mlx": "missing",
+          "legacy": "measured"
+        }
+      },
+      {
+        "scenario": "Two 256K sessions",
+        "cells": {
+          "splash": "measured",
+          "mlx": "missing",
+          "legacy": "measured"
+        }
+      },
+      {
+        "scenario": "Realistic Claude Code task (60–120K, 20–40 turns)",
+        "cells": {
+          "splash": "missing",
+          "mlx": "missing",
+          "legacy": "missing"
+        }
+      },
+      {
+        "scenario": "Claude Code with subagents",
+        "cells": {
+          "splash": "missing",
+          "mlx": "missing",
+          "legacy": "missing"
+        }
+      },
+      {
+        "scenario": "Agent quality (Terminal-Bench)",
+        "cells": {
+          "splash": "missing",
+          "mlx": "missing",
+          "legacy": "missing"
+        }
+      }
+    ],
+    "verdict": {
+      "one": {
+        "word": "Yes",
+        "ttft_s": 0.8,
+        "first_prompt_s": 23.7
+      },
+      "two": {
+        "word": "Yes",
+        "ttft_pair_p50": 1.85,
+        "time_saved": 0.2424800491098834
+      },
+      "many": {
+        "word": "No",
+        "slow_lo": 2.354838709677419,
+        "slow_hi": 4.516129032258064
+      }
     }
   },
   "text_facts": {

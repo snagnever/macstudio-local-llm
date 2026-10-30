@@ -680,8 +680,12 @@ ILLUSTRATION_BATCH = (
     + '</svg>')
 
 
-TITLE = "Flash-Next: how many agent sessions fit on one server?"
-H1 = "How many agent sessions fit on one local Flash-Next server?"
+TITLE = "Can one Mac Studio serve Claude Code?"
+H1 = "Can one Mac Studio serve Claude Code? And two sessions at once?"
+HATCH_DEFS = ('<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>'
+              '<pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'
+              '<line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>'
+              '</pattern></defs></svg>')
 GITHUB = "https://github.com/snagnever/macstudio-local-llm"
 RUNBOOK_URL = f"{GITHUB}/blob/main/bench/flashnext-concurrency-2026-10/plan.md"
 RESULTS_URL = f"{GITHUB}/tree/main/bench/flashnext-concurrency-2026-10/results"
@@ -1350,6 +1354,7 @@ CSS = """
   --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
   --accent:#2a78d6; --warn:#b06a00; --warn-bg:#fbf1dd;
   --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --s1l:#9ec5f4; --s2l:#f5b79a; --good:#0ca30c; --warn-s:#fab219; --crit:#d03b3b;
   --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -1361,6 +1366,7 @@ CSS = """
     --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
     --accent:#3987e5; --warn:#e0a63a; --warn-bg:#2a2312;
     --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    --s1l:#86b6ef; --s2l:#f0a07c; --good:#0ca30c; --warn-s:#fab219; --crit:#d03b3b;
   }
 }
 :root[data-theme="dark"]{
@@ -1370,6 +1376,7 @@ CSS = """
   --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
   --accent:#3987e5; --warn:#e0a63a; --warn-bg:#2a2312;
   --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --s1l:#86b6ef; --s2l:#f0a07c; --good:#0ca30c; --warn-s:#fab219; --crit:#d03b3b;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -1393,6 +1400,26 @@ section.block{margin-top:34px}
 .tile .t-lab{font-family:var(--mono); font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin:0}
 .tile .t-big{font-size:1.8rem; line-height:1.1; font-weight:700; margin:6px 0 4px; color:var(--ink); font-variant-numeric:tabular-nums}
 .tile .t-sub{font-size:0.84rem; color:var(--ink-2); margin:0; line-height:1.4}
+.tile .t-other{font-size:0.78rem; color:var(--muted); margin:8px 0 0; border-top:1px solid var(--border); padding-top:6px}
+.bands{display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; font-size:0.84rem; color:var(--ink-2); margin:18px 0 8px}
+.band-chip{padding:2px 9px; border-radius:5px; color:var(--ink); font-weight:600}
+.band-chip.good{background:color-mix(in srgb, var(--good) 18%, transparent)}
+.band-chip.ok{background:color-mix(in srgb, var(--warn-s) 24%, transparent)}
+.band-chip.poor{background:color-mix(in srgb, var(--crit) 18%, transparent)}
+.band-rule{font-size:0.8rem; color:var(--muted)}
+.s-note.q{font-style:italic}
+.chip .sw.hatch{background:repeating-linear-gradient(45deg, var(--muted) 0 2px, transparent 2px 5px); border:1px solid var(--muted)}
+.chip .sw.ring{background:var(--surface); border:2px solid var(--s2); border-radius:50%}
+.chart text.ttl{font-weight:600; fill:var(--ink)}
+.chart text.lbl,.chart text.tick{fill:var(--ink-2)}
+.chart text.value{fill:var(--ink)}
+details.tbl{margin:6px 0 0; font-size:0.84rem}
+details.tbl summary{font-weight:500; color:var(--ink-2); font-size:0.8rem; margin:0}
+details.tbl table{margin-top:6px}
+details.appx>summary{font-size:0.95rem}
+table.cov td{font-family:var(--sans); text-align:center; font-size:1rem}
+table.cov td:first-child{text-align:left; font-size:0.84rem}
+.cov.measured{color:var(--ink)} .cov.running{color:var(--warn)} .cov.missing{color:var(--muted)}
 .two-col{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr)); gap:16px; align-items:start}
 .illus:empty{display:none}
 .gloss{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:10px 18px; margin:0}
@@ -1452,9 +1479,13 @@ def _payload(data: dict) -> dict:
 def render(data: dict, generated: Optional[str] = None) -> str:
     generated = generated or datetime.date.today().isoformat()
     payload = json.dumps(_payload(data), ensure_ascii=False).replace("</", "<\\/")
-    eyebrow = " · ".join(["Qwen3.8 Flash-Next", data["server"], data["rig"], " to ".join(data["dates"])])
-    desc = ("Two agent sessions is the most one local Flash-Next server handles within the pass rule; each runs "
-            "about 2× slower and the pair saves no time.")
+    import report_sections as S  # imported here: report_sections imports this module
+    labels = " · ".join(s["label"] for s in data["servers"])
+    eyebrow = " · ".join(["Qwen3.8 Flash-Next", labels, data["rig"], "2026-10-17 to 2026-10-30"])
+    v = data["scenarios"]["verdict"]
+    desc = (f"One Claude Code session on a local Flash-Next server: {v['one']['word'] or 'n/m'}. Two at once: "
+            f"{v['two']['word'] or 'n/m'}. Three or more: {v['many']['word'] or 'n/m'}. Measured in seconds a "
+            "person waits, on Splash 1.5.0 and mlx-serve.")
     parts = [
         '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n',
         f"<title>{_e(TITLE)}</title>\n",
@@ -1466,10 +1497,9 @@ def render(data: dict, generated: Optional[str] = None) -> str:
         '&display=swap">\n',
         f"<style>{CSS}</style>\n</head>\n<body>\n<div class=\"wrap\">\n",
         f'<header><div><p class="eyebrow">{_e(eyebrow)}</p><h1>{_e(H1)}</h1></div>'
-        '<button class="theme" id="themeBtn" type="button">theme: auto</button></header>\n',
-        _hero(data), _splash(data), _how(data), _glossary(), _sessions(data), _throughput(data), _side_requests(data),
-        _max_concurrent(data), _long_context(data), _claude_code_section(data), _pds(data), _learned(data),
-        _upstream(), _refusals(data), _not_measured(), _reproduce(data), "\n", _footer(generated),
+        '<button class="theme" id="themeBtn" type="button">theme: auto</button></header>\n', HATCH_DEFS,
+        S.hero(data), S.one_session(data), S.two_sessions(data), S.worst_case(data), S.many_sessions(data),
+        S.long_context(data), S.recommendation(data), S.coverage(data), S.appendix(data), "\n", _footer(generated),
         "\n</div>\n",
         f'<script id="data" type="application/json">{payload}</script>\n',
         f"<script>{THEME_JS}</script>\n</body>\n</html>\n",

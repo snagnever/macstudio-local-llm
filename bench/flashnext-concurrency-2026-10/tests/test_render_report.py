@@ -247,11 +247,13 @@ def test_svg_contract_markers_in_all_builders():
 
 import re
 
-SECTION_IDS = ["hero", "how-it-works", "glossary", "sessions", "throughput", "side-requests", "max-concurrent",
+# The page body (new sections) and the appendix (the 26.10.1 campaign sections, kept as they were).
+SECTION_IDS = ["verdict", "one", "two", "worst", "many", "long", "recommend", "coverage", "appendix",
+               "hero", "how-it-works", "glossary", "sessions", "throughput", "side-requests", "max-concurrent",
                "long-context", "claude-code", "pds", "learned", "upstream", "refusals", "not-measured",
                "reproduce", "terms"]
-INSIDER = re.compile(r"\b(w1c\w*|T_turno|braço|aux|needle|needles|stream|streams|rig|daily driver|etapa)\b",
-                     re.IGNORECASE)
+INSIDER = re.compile(r"\b(w1c\w*|w1zc\w*|k2c\w*|kcc\w*|T_turno|braço|aux|needle|needles|stream|streams|rig|"
+                     r"daily driver|etapa)\b", re.IGNORECASE)
 
 
 @pytest.fixture(scope="module")
@@ -279,7 +281,7 @@ def test_render_sections_present(real_html):
         assert f'id="{sid}"' in real_html, sid
     assert real_html.lstrip().lower().startswith("<!doctype html>")
     assert '<html lang="en"' in real_html
-    assert "<title>Flash-Next: how many agent sessions fit on one server?</title>" in real_html
+    assert "<title>Can one Mac Studio serve Claude Code?</title>" in real_html
 
 
 def test_render_illustrations_replace_anchors(real_html):
@@ -603,3 +605,66 @@ def test_coverage_marks_running_tbench(tmp_path):
     row = next(r for r in data["scenarios"]["coverage"] if r["scenario"].startswith("Agent quality"))
     assert row["cells"] == {"splash": "missing", "mlx": "running", "legacy": "missing"}
     assert data["tbench"]["done"] == 51
+
+
+# ---- the page by use scenario (Task 5 of the 2026-10-30 plan) ----
+
+@pytest.fixture(scope="module")
+def full_html():
+    dirs = {"splash": SPLASH_RESULTS, "legacy": REAL_RESULTS} if HAS_SPLASH else {"legacy": REAL_RESULTS}
+    return R.render(R.collect(REAL_RESULTS, SPLASH_RESULTS if HAS_SPLASH else None, claude_dirs=dirs,
+                              tbench_status=Path("/none")))
+
+
+def _section_of(page, sid):
+    return re.search(rf'<section id="{sid}".*?</section>', page, re.S).group(0)
+
+
+def test_render_sections_in_order(full_html):
+    ids = re.findall(r'<section id="([a-z]+)"', full_html)
+    assert ids == ["verdict", "one", "two", "worst", "many", "long", "recommend", "coverage", "appendix"]
+
+
+@pytest.mark.skipif(not HAS_SPLASH, reason="no Splash results")
+def test_hero_words_and_numbers_from_payload(full_html):
+    sc = json.loads(_payload(full_html))["scenarios"]
+    hero = _section_of(full_html, "verdict")
+    assert sc["verdict"]["one"]["word"] in hero and sc["verdict"]["two"]["word"] in hero
+    assert f'{sc["two_sessions"]["splash"]["ttft_pair_p50"]:.1f} s' in hero
+    assert "finishes 24% sooner" in hero
+
+
+def test_every_chart_has_title_tooltips_and_table_view(full_html):
+    body = full_html.split('<section id="appendix"')[0]
+    n_svg = body.count('role="img"')
+    assert n_svg >= 10
+    assert body.count('class="tbl"') >= n_svg - 1  # the timeline schematic has no table
+    assert body.count("<title>") >= 20
+    assert body.count('class="legend"') >= 5
+
+
+@pytest.mark.skipif(not HAS_SPLASH, reason="no Splash results")
+def test_mlx_pair_cells_are_hatched_until_campaign_b(full_html):
+    two = _section_of(full_html, "two")
+    assert 'url(#hatch)' in two and ">n/m</text>" in two
+
+
+def test_render_without_splash_or_claude(tmp_path):
+    page = R.render(R.collect(REAL_RESULTS, None, claude_dirs={}, tbench_status=tmp_path / "none"))
+    assert '<section id="coverage"' in page and page.count("○") >= 8 and "Traceback" not in page
+    assert ">n/m<" in page
+
+
+def test_render_body_has_no_insider_terms(full_html):
+    body = full_html.split('<section id="appendix"')[0]
+    assert sorted({m.group(0) for m in INSIDER.finditer(_public_body(body))}) == []
+
+
+def test_legacy_only_in_appendix(full_html):
+    body = full_html.split('<section id="appendix"')[0]
+    body = re.sub(r"\([^)]*26\.10\.1[^)]*\)", "", body)  # a parenthesised marker beside a value is allowed
+    assert "26.10.1" not in body
+
+
+def test_hatch_pattern_defined_once(full_html):
+    assert full_html.count('<pattern id="hatch"') == 1 and "--good:" in full_html and "--s1l:" in full_html

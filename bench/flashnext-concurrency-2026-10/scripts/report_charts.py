@@ -121,8 +121,9 @@ def svg_band_bars(title: str, rows: Sequence[dict[str, Any]], vmax: float, unit:
         elif r.get("lo") is not None and r.get("hi") is not None:
             x0, x1 = LEFT + _scale(r["lo"], vmax, PLOT_W), LEFT + _scale(r["hi"], vmax, PLOT_W)
             label = f"{r['lo']:g}–{r['hi']:g} {unit}".strip()
+            tip = _tip(f"{r['label']}: {label}")
             body.append(f'<rect class="bar" x="{x0:.1f}" y="{y:.1f}" width="{max(x1 - x0, 2):.1f}" height="{BAR_H}" '
-                        f'rx="2" fill="{fill}">{_tip(f"{r['label']}: {label}")}</rect>')
+                        f'rx="2" fill="{fill}">{tip}</rect>')
             body.append(_text(x1 + 6, y + 11, label, "value", "start"))
         else:
             body += _nm(LEFT, y)
@@ -147,8 +148,9 @@ def svg_dumbbell(title: str, rows: Sequence[dict[str, Any]], vmax: float, unit: 
         for x, v, kind, fill in ((xa, alone, "alone", f"var(--{series}l)"), (xp, pair, "pair", f"var(--{series})")):
             if x is None:
                 continue
+            tip = _tip(f"{r['label']}, {kind}: {_fmt_unit(v, unit)}")
             body.append(f'<circle class="{kind}" cx="{x:.1f}" cy="{y:.1f}" r="5" fill="{fill}" '
-                        f'stroke="var(--surface)" stroke-width="2">{_tip(f"{r['label']}, {kind}: {_fmt_unit(v, unit)}")}</circle>')
+                        f'stroke="var(--surface)" stroke-width="2">{tip}</circle>')
             anchor = "end" if (kind == "alone") == (xa is not None and xp is not None and xa <= xp) else "start"
             body.append(_text(x + (-8 if anchor == "end" else 8), y - 8, _fmt(v), "value", anchor))
         if xa is None or xp is None:
@@ -174,8 +176,10 @@ def svg_diverging(title: str, rows: Sequence[dict[str, Any]], vmax_pct: float) -
         x = AXIS_X if pct >= 0 else AXIS_X - w
         sign = "+" if pct >= 0 else "−"
         label = f"{sign}{abs(pct) * 100:.0f}%"
+        tip = _tip(f"{r['label']}: {label}")
+        series = r["series"]
         body.append(f'<rect class="bar" x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{BAR_H}" rx="2" '
-                    f'fill="var(--{r["series"]})">{_tip(f"{r['label']}: {label}")}</rect>')
+                    f'fill="var(--{series})">{tip}</rect>')
         if pct >= 0:
             body.append(_text(AXIS_X + w + 6, y + 11, label, "value", "start"))
         else:
@@ -218,8 +222,9 @@ def svg_lines(title: str, series: Sequence[dict[str, Any]], xs: Sequence[int], y
                 continue
             cy = base - _scale(p["y"], ymax, plot_h)
             fill = "var(--surface)" if p.get("legacy") else color
+            tip = _tip(f"{s['label']}, {x}: {_fmt_unit(p['y'], unit)}")
             body.append(f'<circle cx="{xpos[x]:.1f}" cy="{cy:.1f}" r="4.5" fill="{fill}" stroke="{color}" '
-                        f'stroke-width="2">{_tip(f"{s['label']}, {x}: {_fmt_unit(p['y'], unit)}")}</circle>')
+                        f'stroke-width="2">{tip}</circle>')
             last_x = x
         if last_x is not None:
             p = s["points"][last_x]
@@ -227,7 +232,7 @@ def svg_lines(title: str, series: Sequence[dict[str, Any]], xs: Sequence[int], y
                               f"{s['label']} {_fmt(p['y'])}", "value", "start"))
     for x in xs:
         body.append(_text(xpos[x], base + 16, str(x), "tick"))
-    body.append(_text(left + plot_w / 2, base + 32, "sessions (a subagent is one more stream)", "tick"))
+    body.append(_text(left + plot_w / 2, base + 32, "sessions (a subagent counts as one more)", "tick"))
     return _svg(W, int(base + 40), title, body)
 
 
