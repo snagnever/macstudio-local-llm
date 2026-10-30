@@ -60,3 +60,28 @@ def test_prefill_turn_with_big_new_prompt_is_not_warm():
     s = summarize_requests(parse_splash_log(text))
     assert s["warm"]["n"] == 1 and s["warm"]["ttft_p90"] == 0.6
     assert s["first_prompt_ttft_s"] == 23.7 and s["prefill_turns"] == 2
+
+
+# ---- campaign B: proxy records (cached_tokens / ttft_s may be null, status may be an error) ----
+
+WARM = {"t_start_s": 25.0, "ttft_s": 0.6, "t_end_s": 27.0, "input_tokens": 19622, "cached_tokens": 19264,
+        "output_tokens": 204, "tps": 161.3, "status": 200, "stream": None}
+
+
+def test_null_cached_counts_as_prefill_only_when_ttft_is_long():
+    reqs = [dict(WARM, t_start_s=0.0, ttft_s=12.0, t_end_s=15.0, cached_tokens=None),
+            dict(WARM, t_start_s=20.0, ttft_s=1.5, t_end_s=22.0, cached_tokens=None)]
+    s = summarize_requests(reqs)
+    assert s["prefill_turns"] == 1 and s["warm"]["n"] == 1 and s["warm"]["ttft_p50"] == 1.5
+    assert s["first_prompt_ttft_s"] == 12.0 and s["new_tokens_p50"] is None
+
+
+def test_null_ttft_and_non_200_are_errors_not_samples():
+    reqs = [dict(WARM, t_start_s=0.0, ttft_s=None, tps=None, t_end_s=1.0, status=529),
+            dict(WARM, t_start_s=5.0, ttft_s=1.0, t_end_s=7.0)]
+    s = summarize_requests(reqs)
+    assert s["errors"] == 1 and s["warm"]["n"] == 1 and s["n"] == 2
+
+
+def test_summarize_requests_has_zero_errors_by_default():
+    assert summarize_requests(parse_splash_log(LOG))["errors"] == 0

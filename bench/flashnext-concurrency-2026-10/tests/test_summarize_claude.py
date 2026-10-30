@@ -10,8 +10,9 @@ WARM = {"t_start_s": 25.0, "ttft_s": 0.6, "t_end_s": 27.0, "input_tokens": 19622
         "output_tokens": 204, "tps": 161.3, "status": 200, "stream": None}
 
 
-def _cc(results, name, wall, task, turns):
+def _cc(results, name, wall, task, turns, **extra):
     data = {"wall_s": wall, "task": task, "num_turns": turns, "is_error": False, "task_done": True}
+    data.update(extra)
     (results / f"cc-{name}.json").write_text(json.dumps(data))
 
 
@@ -92,3 +93,52 @@ def test_timed_out_session_is_an_error_not_a_mean(tmp_path):
         {"parse_error": True, "wall_s": 1800.0, "task": "a", "sessions": 1, "exit": 143, "task_done": False}))
     p = summarize_claude(tmp_path, "kcc")["profiles"]["small"]
     assert p["alone_s"]["a"] == 40.0 and p["errors"] == 1 and p["task_done"] is False
+
+
+# ---- campaign B: variants (rc2s = subagents, rc2d = decode-share) ----
+
+def test_variant_files_are_not_counted_in_the_main_pair(tmp_path):
+    _cc(tmp_path, "rc2r1-c", 300, "c", 25)
+    _cc(tmp_path, "rc2r1-d", 280, "d", 22)
+    _cc(tmp_path, "rc2sr1-c", 400, "c", 25)
+    _cc(tmp_path, "rc2sr1-d", 390, "d", 22)
+    _req(tmp_path, "rc2r1-c", [COLD, WARM])
+    _req(tmp_path, "rc2sr1-c", [COLD, WARM, WARM])
+    s = summarize_claude(tmp_path, "rc")
+    assert s["profiles"]["realistic"]["pair_wall_s"] == 300 and "subagents" not in s
+    assert s["profiles"]["realistic"]["pair_s"] == {"c": 300, "d": 280}
+    assert s["requests"]["pair"]["n"] == 2
+
+
+def test_variants_get_their_own_key_with_serial_from_the_main_alone(tmp_path):
+    _cc(tmp_path, "rc1r1-c", 200, "c", 25)
+    _cc(tmp_path, "rc1r1-d", 200, "d", 22)
+    _cc(tmp_path, "rc2sr1-c", 300, "c", 25, parallel_agent_calls=3, subagents_spawned=6)
+    _cc(tmp_path, "rc2sr1-d", 380, "d", 22, parallel_agent_calls=3, subagents_spawned=6)
+    _req(tmp_path, "rc2sr1-c", [COLD, WARM, WARM, WARM])
+    _req(tmp_path, "rc2sr1-d", [COLD, WARM, WARM, WARM])
+    s = summarize_claude(tmp_path, "rc", variants={"s": "subagents", "d": "decode_share"})
+    sub = s["subagents"]
+    assert sub["profile"]["pair_wall_s"] == 380 and sub["profile"]["serial_sum_s"] == 400
+    assert abs(sub["profile"]["time_saved"] - (1 - 380 / 400)) < 1e-9
+    assert sub["profile"]["pair_s"] == {"c": 300, "d": 380} and sub["profile"]["errors"] == 0
+    assert sub["parallel_agent_calls"] == 6 and sub["subagents_spawned"] == 12 and sub["requests"]["n"] == 8
+    assert "decode_share" not in s  # no rc2d files in this dir
+
+
+def test_rep_regex_with_variant_letter():
+    from summarize_claude import _rep
+    assert _rep("cc-rc2sr3-c.json", "rc", "2", "s") == "3" and _rep("cc-rc2sr3-c.json", "rc", "2") is None
+    assert _rep("req-rc2sr3-d.jsonl", "rc", "2", "s") == "3" and _rep("cc-rc2r3-c.json", "rc", "2", "s") is None
+
+
+def test_main_variants_flag(tmp_path):
+    _cc(tmp_path, "rc1r1-c", 200, "c", 25)
+    _cc(tmp_path, "rc1r1-d", 200, "d", 22)
+    _cc(tmp_path, "rc2dr1-c", 300, "c", 25)
+    _cc(tmp_path, "rc2dr1-d", 380, "d", 22)
+    out = tmp_path / "claude-summary-splash.json"
+    assert main(["--results-dir", str(tmp_path), "--prefix", "rc", "--out", str(out),
+                 "--variants", "s=subagents,d=decode_share"]) == 0
+    data = json.loads(out.read_text())
+    assert data["decode_share"]["profile"]["pair_wall_s"] == 380 and "subagents" not in data

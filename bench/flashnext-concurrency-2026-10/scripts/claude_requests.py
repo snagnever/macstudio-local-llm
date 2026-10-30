@@ -89,26 +89,40 @@ def _p90(xs: list[float]) -> float:
 
 
 PREFILL_NEW_TOKENS = 2000  # above this many new tokens a request is a prefill turn (a session start), not a warm turn
+PREFILL_TTFT_S = 5.0  # without a cached_tokens field (mlx-serve) a request is a prefill turn when its TTFT is this long
+
+
+def _new_tokens(r: dict[str, Any]) -> Optional[int]:
+    return None if r.get("cached_tokens") is None else r["input_tokens"] - r["cached_tokens"]
+
+
+def is_prefill(r: dict[str, Any]) -> bool:
+    """A cold prompt or one with a big new block (the second session of a pair starts with the shared system
+    prompt cached but a new task prompt). Without a cached_tokens field, a long TTFT is the only sign."""
+    new = _new_tokens(r)
+    if new is None:
+        return r.get("ttft_s") is not None and r["ttft_s"] > PREFILL_TTFT_S
+    return r["cached_tokens"] == 0 or new > PREFILL_NEW_TOKENS
 
 
 def summarize_requests(reqs: list[dict[str, Any]]) -> dict[str, Any]:
-    """Warm = cached prompt and few new tokens; a prefill turn is a cold prompt or one with a big new block
-    (the second session of a pair starts with the shared system prompt cached but a new task prompt)."""
-    def prefill(r: dict[str, Any]) -> bool:
-        return r["cached_tokens"] == 0 or r["input_tokens"] - r["cached_tokens"] > PREFILL_NEW_TOKENS
-
-    warm = [r for r in reqs if not prefill(r)]
-    cold = [r["ttft_s"] for r in reqs if prefill(r)]
+    """Warm = cached prompt and few new tokens. Records without a ttft_s (no content delta: HTTP error, aborted
+    stream) are neither warm nor cold samples; errors counts the records whose status is not 200."""
+    samples = [r for r in reqs if r.get("ttft_s") is not None]
+    warm = [r for r in samples if not is_prefill(r)]
+    cold = [r["ttft_s"] for r in samples if is_prefill(r)]
     warm_summary = None
     if warm:
         ttfts = [r["ttft_s"] for r in warm]
-        tps = [r["tps"] for r in warm]
+        tps = [r["tps"] for r in warm if r.get("tps") is not None]
         warm_summary = {"n": len(warm), "ttft_p50": statistics.median(ttfts), "ttft_p90": _p90(ttfts),
-                        "tps_p50": statistics.median(tps), "tps_min": min(tps), "tps_max": max(tps)}
+                        "tps_p50": statistics.median(tps) if tps else None, "tps_min": min(tps) if tps else None,
+                        "tps_max": max(tps) if tps else None}
+    new_tokens = [n for n in (_new_tokens(r) for r in reqs) if n is not None]
     return {"n": len(reqs), "max_concurrent": max_concurrent(reqs), "prefill_turns": len(cold),
             "first_prompt_ttft_s": statistics.median(cold) if cold else None,
-            "new_tokens_p50": statistics.median([r["input_tokens"] - r["cached_tokens"] for r in reqs]) if reqs else None,
-            "warm": warm_summary}
+            "new_tokens_p50": statistics.median(new_tokens) if new_tokens else None,
+            "warm": warm_summary, "errors": sum(1 for r in reqs if r.get("status", 200) != 200)}
 
 
 def read_requests(path: Path) -> list[dict[str, Any]]:
