@@ -1,0 +1,56 @@
+{
+  "prefix": "kcc",
+  "profiles": {
+    "small": {
+      "tasks": [
+        "a",
+        "b"
+      ],
+      "alone_s": {
+        "a": 40.95,
+        "b": 40.5
+      },
+      "pair_s": {
+        "a": 58.66666666666667,
+        "b": 59.96666666666667
+      },
+      "pair_wall_s": 61.7,
+      "serial_sum_s": 81.45,
+      "time_saved": 0.2424800491098834,
+      "turns": {
+        "a": 10,
+        "b": 6
+      },
+      "task_done": true,
+      "errors": 0
+    }
+  },
+  "requests": {
+    "alone": {
+      "n": 23,
+      "max_concurrent": 1,
+      "first_prompt_ttft_s": 23.7,
+      "new_tokens_p50": 567,
+      "warm": {
+        "n": 19,
+        "ttft_p50": 0.8,
+        "ttft_p90": 1.2,
+        "tps_p50": 119.6,
+        "tps_min": 93.1
+      }
+    },
+    "pair": {
+      "n": 35,
+      "max_concurrent": 2,
+      "first_prompt_ttft_s": 31.8,
+      "new_tokens_p50": 575,
+      "warm": {
+        "n": 32,
+        "ttft_p50": 1.85,
+        "ttft_p90": 3.7,
+        "tps_p50": 93.45,
+        "tps_min": 40.0
+      }
+    }
+  }
+}
