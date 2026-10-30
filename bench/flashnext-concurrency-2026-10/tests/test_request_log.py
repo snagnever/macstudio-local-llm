@@ -32,6 +32,19 @@ def test_parse_sse_input_tokens_is_the_whole_prompt_like_the_splash_log():
     assert rec["input_tokens"] == 19723 and rec["cached_tokens"] == 19264
 
 
+def test_parse_sse_takes_cache_from_message_delta_when_message_start_has_none():
+    # mlx-serve 26.10.3: message_start carries only the whole-prompt input_tokens; the cache split comes in the
+    # final message_delta usage (input_tokens = uncached part there).
+    ev = [("message_start", {"type": "message_start", "message": {"usage": {"input_tokens": 19907, "output_tokens": 1}}}),
+          EVENTS[1], EVENTS[2], EVENTS[3],
+          ("message_delta", {"type": "message_delta", "delta": {"stop_reason": "tool_use"},
+                             "usage": {"input_tokens": 411, "output_tokens": 169, "cache_creation_input_tokens": 0,
+                                       "cache_read_input_tokens": 19496}}),
+          EVENTS[5]]
+    rec = RL.parse_sse(ev, 0.0, [0.0, 0.8, 0.8, 2.5, 2.51, 2.51], t0=0.0, stream="c", status=200)
+    assert rec["input_tokens"] == 19907 and rec["cached_tokens"] == 19496 and rec["output_tokens"] == 169
+
+
 def test_parse_sse_without_cache_field_writes_null_cached():
     ev = [("message_start", {"type": "message_start", "message": {"usage": {"input_tokens": 500}}})] + EVENTS[1:]
     rec = RL.parse_sse(ev, 0.0, [0.0, 0.1, 1.0, 1.1, 2.0, 2.0], t0=0.0, stream="c", status=200)

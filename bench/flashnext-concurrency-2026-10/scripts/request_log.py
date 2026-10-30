@@ -10,7 +10,9 @@ appends one JSON line to --out in the schema of claude_requests.py:
 ttft_s is the time to the first content_block_delta of any kind: text, thinking or tool-call json
 (message_start arrives before the prefill, so it is not the first token). t_start_s and t_end_s are relative to --t0, a clock shared
 by all the proxies of one rep. cached_tokens is null when the server does not report cache_read_input_tokens.
-A response without a content delta (HTTP error, aborted stream) is logged with ttft_s null and its real status.
+The cache split comes from message_start (Splash) or, when only the final message_delta carries it, from there
+(mlx-serve). A response without a content delta (HTTP error, aborted stream) is logged with ttft_s null and its
+real status.
 
 Python 3.9 stdlib only (the rig's python3).
 """
@@ -57,9 +59,13 @@ def parse_sse(events: list[tuple[str, dict[str, Any]]], t_start: float, times: l
         elif kind == "content_block_delta" and t_first is None:
             t_first = t  # text, thinking or tool-call json: the model started generating
         elif kind == "message_delta" and data.get("usage"):
-            out = data["usage"].get("output_tokens")
+            usage = data["usage"]
+            out = usage.get("output_tokens")
             if out is not None:
                 output_tokens = int(out)
+            # mlx-serve reports the cache split only here (message_start has just the whole-prompt input_tokens).
+            if usage.get("cache_read_input_tokens") is not None and usage.get("input_tokens") is not None:
+                input_tokens, cached = _usage_tokens(usage)
     t_end = times[-1] if times else t_start
     tps: Optional[float] = None
     if t_first is not None and t_end - t_first > 0:
