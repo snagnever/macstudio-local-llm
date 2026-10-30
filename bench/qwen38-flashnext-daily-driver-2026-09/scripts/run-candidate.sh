@@ -17,9 +17,11 @@
 #   w27d/w27m = the same two modes on the Swift 1.5 oQ4e pack (w27d borrows the ddalcu drafter);
 #   k27 = Splash 1.3.1 + mlx-community 8bit; l27/l27n = llama.cpp b11569 Q8_0 with/without MTP draft
 #   flashnext-concurrency-2026-10: w1c1..w1c2m4q8 = w1 with --max-concurrent N and N parallel probe streams
+#   splash-concurrency-2026-10: k2c* = k2a on Splash 1.5.0 with N parallel probe streams; w1zc1/w1zc2a = w1c1/w1c2a
+#   on mlx-serve 26.10.3
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1c1|w1c1a|w1c1x2|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8|w1c2ap3|w1c2ap5|w1c3a|w1z|n2z|t6z|k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|k3r|w1zq4|n2zq4|r1zy|r1|r1z> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1c1|w1c1a|w1c1x2|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8|w1c2ap3|w1c2ap5|w1c3a|w1zc1|w1zc2a|k2c1|k2c1a|k2c1x2|k2c2|k2c2a|k2c3a|k2c4|k2c4a|k2c2L|k2c2LL|k2c2Ls|k2c2ad1|k2c2ad0|k2c2v|w1z|n2z|t6z|k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|k3r|w1zq4|n2zq4|r1zy|r1|r1z> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
 # A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
@@ -81,6 +83,8 @@ OMLX_072="$OPT/omlx-v0.7.2"
 SPLASH_140="$OPT/splash-v1.4.0/bin/splash"
 SPLASH_MAIN="$OPT/splash-main-3135ab4/bin/splash"
 SPLASH_141="$OPT/splash-v1.4.1/bin/splash"
+# Campaign splash-concurrency-2026-10: Splash 1.5.0 (2026-10-28), installed side by side.
+SPLASH_150="$OPT/splash-v1.5.0/bin/splash"
 pack_dir() {
   local m=("$MODEL_ROOT/$1"*)
   if [[ -e "${m[0]}" ]]; then echo "${m[0]}"; else echo "$MODEL_ROOT/$1-MISSING"; fi
@@ -501,7 +505,7 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         export QWEN38_LLAMA_SERVER_BIN="$LLAMA_B11609"
         if [[ "$CAND" == g0 ]]; then ARM=GN; REV=b11609; else ARM=GM; REV=b11609-mtp; fi
       fi ;;
-  w1c1|w1c1a|w1c1x2|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8|w1c2ap3|w1c2ap5|w1c3a)
+  w1c1|w1c1a|w1c1x2|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8|w1c2ap3|w1c2ap5|w1c3a|w1zc1|w1zc2a)
       # flashnext-concurrency-2026-10: w1 (Swift 1.5 @ 26.10.1) with --max-concurrent N and N parallel
       # cache_probe streams (bench/flashnext-concurrency-2026-10/scripts/run-parallel-probes.sh).
       # "a" = auxiliary load generator on; m8/m4 = prefix cache 8/4 GB; q8 = 8-bit KV;
@@ -509,17 +513,21 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       # w1c1x2 = serialized control: 2 streams + generator on one slot (--max-concurrent 1 pinned).
       # w1c3a = 3 streams + generator (user request, 2026-10-18).
       # w1c2ap3/ap5 = w1c2a + --prefill-decode-share 0.3/0.5 (decode keeps that share while another prefills).
+      # splash-concurrency-2026-10: w1zc1/w1zc2a = w1c1/w1c2a on mlx-serve 26.10.3 (the daily driver's build).
       LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.1
       MODEL_DIR="$SWIFTDIR"; MODEL_REV=13839b7191e0973ff9fea58232267c395b76c6c0
       PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=mlx-serve; METRICS=""
       export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26101" MLX_SERVE_EXPECTED_VERSION=26.10.1
+      if [[ "$CAND" == w1zc* ]]; then
+        REV=v26.10.3; export QWEN38_MLX_SERVE_BIN="$MLXSERVE_26103" MLX_SERVE_EXPECTED_VERSION=26.10.3
+      fi
       export QWEN38_MLX_MODEL_DIR="$MODEL_DIR" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_MLX_SSM_CHECKPOINT_MAX="${QWEN38_MLX_SSM_CHECKPOINT_MAX:-16}"
       unset QWEN38_MLX_PLE_GPU QWEN38_MLX_PREFIX_CACHE_MEM QWEN38_MLX_KV_QUANT QWEN38_MLX_CONFIG_OVERRIDES QWEN38_MLX_EXTRA_ARGS
       PAR_N=1; PAR_AUX=""; PAR_CONTEXTS=""
-      case "$CAND" in w1c2*|w1c1x2) PAR_N=2 ;; w1c3*) PAR_N=3 ;; w1c4*) PAR_N=4 ;; esac
+      case "$CAND" in w1c2*|w1c1x2|w1zc2*) PAR_N=2 ;; w1c3*) PAR_N=3 ;; w1c4*) PAR_N=4 ;; esac
       MC="$PAR_N"; [[ "$CAND" == w1c1x2 ]] && MC=1
-      case "$CAND" in w1c1a|w1c1x2|w1c2a|w1c3a|w1c4a|w1c2m8|w1c2L|w1c2m4|w1c2q8|w1c2m4q8|w1c2ap*) PAR_AUX=1 ;; esac
+      case "$CAND" in w1c1a|w1c1x2|w1c2a|w1c3a|w1c4a|w1c2m8|w1c2L|w1c2m4|w1c2q8|w1c2m4q8|w1c2ap*|w1zc2a) PAR_AUX=1 ;; esac
       [[ "$CAND" == w1c2L ]] && PAR_CONTEXTS="262144,32768"
       case "$CAND" in
         w1c2m8) export QWEN38_MLX_PREFIX_CACHE_MEM=8GB; REV="${REV}-pc8" ;;
@@ -534,6 +542,39 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       ARM_EXEC="$ARM_EXEC --context $CTX${PAR_CONTEXTS:+ --contexts $PAR_CONTEXTS} --repeat $REPEAT --arm $CAND --tag ${TAG:-untagged}"
       ARM_EXEC="$ARM_EXEC --temperature $TEMP --reasoning-effort $EFFORT --runtime-revision $REV --model-revision $MODEL_REV"
       ARM_EXEC="$ARM_EXEC --out $RESULTS" ;;
+  k2c1|k2c1a|k2c1x2|k2c2|k2c2a|k2c3a|k2c4|k2c4a|k2c2L|k2c2LL|k2c2Ls|k2c2ad1|k2c2ad0|k2c2v)
+      # splash-concurrency-2026-10: k2a (UkisAI Swift 1.5 IQ4_XS 0142554, --verify-rows auto) on Splash 1.5.0 with
+      # N parallel cache_probe streams. Splash has no --max-concurrent: it batches every admitted request
+      # (--queue-size 32), so N is only the client's stream count. "a" = auxiliary load generator on;
+      # k2c1x2 = serialized control (2 streams + generator behind one client-side flock; Splash has no switch to
+      # turn batching off); L = asymmetric (262144 + 32768); LL = two 262144 streams; Ls = LL + --state-format bf16;
+      # ad1/ad0 = k2c2a + --decode-share 1.0/0 (default 0.5); v = k2c2a + --verify-rows all.
+      LAUNCHER="$HARNESS/run-splash.sh"; ARM=KF; PORT=8585; RUNTIME=splash
+      HUB=ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF; VARIANT=IQ4_XS; MODEL_REV=0142554c963a8653912c0c8283f05f13f63653f3
+      MODEL_DIR="$HOME/.cache/huggingface/hub/models--${HUB//\//--}"
+      PROBE_PY=python3; TOKENIZER=""; SERVER_NAME=splash; METRICS=""
+      MODEL_ID_PREF="$HUB:$VARIANT"
+      VR=auto; XARGS=""; REVX=""
+      case "$CAND" in
+        k2c2v) VR=all ;;
+        k2c2Ls) XARGS=" --state-format bf16"; REVX="-state-bf16" ;;
+        k2c2ad1) XARGS=" --decode-share 1.0"; REVX="-ds1.0" ;;
+        k2c2ad0) XARGS=" --decode-share 0"; REVX="-ds0" ;;
+      esac
+      REV="v1.5.0-verify-$VR$REVX"
+      export SPLASH_MODEL="$MODEL_ID_PREF" SPLASH_REVISION="$MODEL_REV" QWEN38_CTX_SIZE="$CTX"
+      export QWEN38_SPLASH_BIN="$SPLASH_150" QWEN38_SPLASH_EXPECTED_VERSION=1.5.0 QWEN38_SPLASH_PORT=8585
+      export QWEN38_SPLASH_EXTRA_ARGS="--verify-rows $VR$XARGS"
+      unset SPLASH_DRAFTER
+      PAR_N=1; PAR_AUX=1; PAR_CONTEXTS=""; PAR_SER=""
+      case "$CAND" in k2c2*|k2c1x2) PAR_N=2 ;; k2c3*) PAR_N=3 ;; k2c4*) PAR_N=4 ;; esac
+      case "$CAND" in k2c1|k2c2|k2c4) PAR_AUX="" ;; esac
+      [[ "$CAND" == k2c1x2 ]] && PAR_SER=1
+      [[ "$CAND" == k2c2L ]] && PAR_CONTEXTS="262144,32768"
+      ARM_EXEC="bash $REPO/bench/flashnext-concurrency-2026-10/scripts/run-parallel-probes.sh --streams $PAR_N${PAR_AUX:+ --aux}${PAR_SER:+ --serialize}"
+      ARM_EXEC="$ARM_EXEC --context $CTX${PAR_CONTEXTS:+ --contexts $PAR_CONTEXTS} --repeat $REPEAT --arm $CAND --tag ${TAG:-untagged}"
+      ARM_EXEC="$ARM_EXEC --temperature $TEMP --reasoning-effort $EFFORT --runtime splash --runtime-revision $REV --model-revision $MODEL_REV"
+      ARM_EXEC="$ARM_EXEC --status-url http://127.0.0.1:8585/status --out $RESULTS" ;;
   *) echo "candidato desconhecido: $CAND" >&2; exit 64 ;;
 esac
 # A concurrency arm brings its own probe command; an --exec on the command line still wins.

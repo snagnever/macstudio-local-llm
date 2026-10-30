@@ -493,3 +493,20 @@ def test_render_wording_fixes(real_html):
 def test_public_names_carry_context_for_all_arms():
     for code in ("w1c3a", "w1c4", "w1c4a"):
         assert R._public_name(code, 32768).endswith(", 32K")
+
+
+def test_splash_absent_renders_no_section(tmp_path):
+    assert R.collect_splash(tmp_path) is None
+    assert 'id="splash"' not in R.render(R.collect(tmp_path, tmp_path))
+
+
+@pytest.mark.skipif(not any(R.SPLASH_RESULTS.glob("k2c1-*-e1-s1.jsonl")), reason="no Splash results")
+def test_splash_section_real_data():
+    page = R.render(R.collect(REAL_RESULTS, R.SPLASH_RESULTS))
+    sec = re.search(r'<section class="block card" id="splash">.*?</section>', page, re.S).group(0)
+    assert "partial" not in sec and "pending" not in sec and "n/a" not in sec.split("<details")[0].split("<ol")[1]
+    assert "Two Claude Code sessions" in sec and "sooner than the two tasks" in sec
+    assert "Four sessions at 128K" in sec and "--state-format bf16" in sec and "not run" not in sec
+    assert '<a href="#splash">' in page
+    assert sorted({m.group(0) for m in INSIDER.finditer(_public_body(page))}) == []
+    assert not re.search(r"\bk2c\w*", _public_body(page))

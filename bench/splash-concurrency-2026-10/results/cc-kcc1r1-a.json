@@ -1,0 +1,101 @@
+{
+  "duration_api_ms": 41041,
+  "stop_reason": "end_turn",
+  "session_id": "0e6105c1-5ae5-4ce3-9725-ede9a34712b5",
+  "total_cost_usd": 0.15089280000000002,
+  "usage": {
+    "input_tokens": 22393,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 123904,
+    "output_tokens": 1827,
+    "output_tokens_details": {
+      "thinking_tokens": 285
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 22393,
+      "outputTokens": 1827,
+      "cacheReadInputTokens": 123904,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.15089280000000002,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 285,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_af5f6c316a9870870554e789ac324085_0",
+      "tool_input": {
+        "command": "cd /tmp && printf 'name,qty,price\\nbolt,4,0.25\\nnut,10,0.1\\n' > /tmp/inv_check.csv && PYTHONPATH=/Users/vitor/.cache/splash-concurrency/claude-work/kcc1r1-a python3 -m inventory.cli /tmp/inv_check.csv --format json && PYTHONPATH=/Users/vitor/.cache/splash-concurrency/claude-work/kcc1r1-a python3 -m inventory.cli /tmp/inv_check.csv && rm /tmp/inv_check.csv",
+        "description": "Check CLI text and json output against the example"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 10,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 5 tests pass, and the new test asserts the exact JSON line `{\"items\": 2, \"total\": 2.0}` (plus parsing it back) matching the example; the text-format test still passes unchanged, so the default output is untouched.\n\nChanged files: `inventory/cli.py` (added `--format {text,json}`, default `text`) and `tests/test_cli.py` (added `test_json_summary`).",
+  "ttft_ms": 23969,
+  "type": "result",
+  "duration_ms": 41251,
+  "uuid": "5cb55f3b-e0bc-470c-99a0-9227ed02eeef",
+  "ttft_stream_ms": 67,
+  "time_to_request_ms": 32,
+  "first_content_frame_ms": 23755,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "a",
+  "sessions": 1,
+  "exit": 0,
+  "wall_s": 41.4,
+  "task_done": true
+}

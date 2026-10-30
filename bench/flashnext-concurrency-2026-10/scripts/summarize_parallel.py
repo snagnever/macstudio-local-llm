@@ -178,14 +178,32 @@ def _vs(streams: list[dict[str, Any]], other: list[dict[str, Any]], other_arm: s
             "batch_beats_queue": worst <= 1.0 and mean <= 1.0}
 
 
+def _ref_from_arm(results_dir: Path, ref_arm: str, ctx: int, tag: str) -> tuple[Optional[float], Optional[float]]:
+    """T_turno and warm decode of a measured solo arm (e.g. k2c1) in one band: the reference of a runtime
+    without a fixed solo number."""
+    files = [f for f in _stream_files(results_dir, ref_arm, ctx, tag) if f[0] == 1]
+    if not files:
+        return None, None
+    row = _stream_row(1, ctx, _read_jsonl(files[0][2]), [], ref_arm, {})
+    return row["t_turno_s"], row["decode_tps"]
+
+
 def summarize(results_dir: Union[str, Path], arm: str, context: Union[int, str], tag: str,
               ref_32k: float = 7.9, ref_128k: float = 8.6, ref_256k: float = 11.1,
-              logs_dir: Optional[Union[str, Path]] = None, vs_arm: Optional[str] = None) -> dict[str, Any]:
+              logs_dir: Optional[Union[str, Path]] = None, vs_arm: Optional[str] = None,
+              ref_arm: Optional[str] = None, ref_tag: Optional[str] = None) -> dict[str, Any]:
     results_dir = Path(results_dir)
     logs_dir = Path(logs_dir) if logs_dir is not None else results_dir.parent / "logs"
     refs = {32768: ref_32k, 131072: ref_128k, 262144: ref_256k}
     files = _stream_files(results_dir, arm, context, tag)
     data = [(k, ctx, _read_jsonl(path)) for k, ctx, path in files]
+    ref_decode: dict[int, Optional[float]] = {}
+    if ref_arm:
+        # A measured solo arm replaces the fixed references in every band this arm has.
+        for ctx in sorted({c for _, c, _ in data}):
+            tt, dec = _ref_from_arm(results_dir, ref_arm, ctx, ref_tag or tag)
+            refs[ctx] = tt
+            ref_decode[ctx] = dec
     streams = []
     for k, ctx, recs in data:
         others = [r for k2, _, rs in data if k2 != k for r in rs]
@@ -232,8 +250,17 @@ def summarize(results_dir: Union[str, Path], arm: str, context: Union[int, str],
     if vs_arm:
         vs = _vs(streams, summarize(results_dir, vs_arm, context, tag, ref_32k, ref_128k, ref_256k,
                                     logs_dir)["streams"], vs_arm)
+    # Aggregate decode: the streams' warm decode summed (read only, no gate). gain = aggregate / solo decode,
+    # when the solo arm of the band is known and every stream shares one band.
+    decodes = [s["decode_tps"] for s in streams if s["decode_tps"] is not None]
+    aggregate = sum(decodes) if decodes and len(decodes) == len(streams) else None
+    bands = {s["context"] for s in streams}
+    solo = ref_decode.get(next(iter(bands))) if len(bands) == 1 else None
+    throughput = {"aggregate_decode_tps": aggregate,
+                  "ref_decode_tps": solo,
+                  "gain": (aggregate / solo) if aggregate is not None and solo else None}
     return {"arm": arm, "context": context, "tag": tag, "streams": streams, "aux": aux, "memory": memory,
-            "gates_failed": failed, "verdict": verdict, "vs": vs}
+            "gates_failed": failed, "verdict": verdict, "vs": vs, "ref_arm": ref_arm, "throughput": throughput}
 
 
 def _f(x: Optional[float], fmt: str = "{:.1f}") -> str:
@@ -254,6 +281,10 @@ def markdown(summary: dict[str, Any]) -> str:
         ]) + " |")
     lines.append("")
     lines.append(f"gates failed: {', '.join(summary['gates_failed']) or 'none'}")
+    tp = summary.get("throughput") or {}
+    if tp.get("aggregate_decode_tps") is not None:
+        gain = f", gain {tp['gain']:.2f}x vs {summary['ref_arm']}" if tp.get("gain") is not None else ""
+        lines.append(f"aggregate decode: {tp['aggregate_decode_tps']:.1f} tok/s{gain}")
     vs = summary.get("vs")
     if vs:
         lines.append(f"vs {vs['arm']}: worst stream {vs['worst_ratio']:.2f}x, mean {vs['mean_ratio']:.2f}x, "
@@ -273,10 +304,13 @@ def main(argv: Optional[list[str]] = None) -> int:
     p.add_argument("--ref-128k", type=float, default=8.6)
     p.add_argument("--ref-256k", type=float, default=11.1)
     p.add_argument("--vs", help="compare with another arm of the same band and tag (e.g. w1c1x2)")
+    p.add_argument("--ref-arm", help="measured solo arm (e.g. k2c1) whose stream s1 replaces --ref-* in each band")
+    p.add_argument("--ref-tag", help="tag of --ref-arm (default: --tag)")
     p.add_argument("--markdown", action="store_true")
     a = p.parse_args(argv)
     context: Union[int, str] = "all" if a.context == "all" else int(a.context)
-    s = summarize(a.results_dir, a.arm, context, a.tag, a.ref_32k, a.ref_128k, a.ref_256k, a.logs_dir, a.vs)
+    s = summarize(a.results_dir, a.arm, context, a.tag, a.ref_32k, a.ref_128k, a.ref_256k, a.logs_dir, a.vs,
+                  a.ref_arm, a.ref_tag)
     print(markdown(s) if a.markdown else json.dumps(s, indent=2))
     return 0
 
