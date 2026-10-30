@@ -676,3 +676,14 @@ def test_many_sessions_chart_draws_the_points(full_html):
     many = _section_of(full_html, "many")
     assert many.count("<circle") >= 6 and many.count("<polyline") >= 2
     assert many.count('fill="var(--surface)"') == 2  # the two older-build points are hollow
+
+
+@pytest.mark.skipif(not HAS_SPLASH, reason="no Splash results")
+def test_model_doc_numbers_match_payload():
+    doc = (REAL_RESULTS.parents[2] / "docs" / "models" / "qwen3.8-flash-next.md").read_text(encoding="utf-8")
+    sc = json.loads((REAL_RESULTS / "report-data.json").read_text(encoding="utf-8"))["scenarios"]
+    sec = doc[doc.index("### Concurrent sessions"):]
+    assert f'{sc["two_sessions"]["splash"]["ttft_pair_p50"]:.1f} s' in sec
+    assert f'{sc["two_sessions"]["splash"]["time_saved"] * 100:.0f}%' in sec
+    assert f'{sc["by_n"]["splash"]["4"]["turn_s"]:.1f} s' in sec
+    assert "qwen38-flashnext-concurrency.html" in sec
