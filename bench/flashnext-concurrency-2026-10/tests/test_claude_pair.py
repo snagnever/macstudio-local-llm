@@ -77,8 +77,15 @@ def _fake_claude(path, body):
 
 def test_stream_json_counts_parallel_agent_calls(tmp_path):
     fake = tmp_path / "claude"
-    _fake_claude(fake, 'echo \'{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Agent","id":"1"},{"type":"tool_use","name":"Agent","id":"2"}]}}\'\n'
-                       'echo \'{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Read","id":"3"}]}}\'\n'
+    # stream-json emits one assistant event per content block; blocks of one API message share message.id.
+    # Two Agent calls in message m1 = one parallel call; the lone Agent call in m2 and the subagent's own
+    # messages (parent_tool_use_id set) do not count.
+    _fake_claude(fake, 'echo \'{"type":"assistant","parent_tool_use_id":null,"message":{"id":"m1","content":[{"type":"tool_use","name":"Agent","id":"1"}]}}\'\n'
+                       'echo \'{"type":"assistant","parent_tool_use_id":null,"message":{"id":"m1","content":[{"type":"tool_use","name":"Agent","id":"2"}]}}\'\n'
+                       'echo \'{"type":"assistant","parent_tool_use_id":null,"message":{"id":"m2","content":[{"type":"tool_use","name":"Agent","id":"3"}]}}\'\n'
+                       'echo \'{"type":"assistant","parent_tool_use_id":"1","message":{"id":"m3","content":[{"type":"tool_use","name":"Agent","id":"4"}]}}\'\n'
+                       'echo \'{"type":"assistant","parent_tool_use_id":"1","message":{"id":"m3","content":[{"type":"tool_use","name":"Agent","id":"5"}]}}\'\n'
+                       'echo \'{"type":"assistant","parent_tool_use_id":null,"message":{"id":"m4","content":[{"type":"tool_use","name":"Read","id":"6"}]}}\'\n'
                        'echo \'{"type":"result","is_error":false,"num_turns":4,"subagent_stats":{"spawned":2}}\'\n')
     out = tmp_path / "results"
     env = clean_env({"CLAUDE_BIN": str(fake), "CLAUDE_PAIR_WORK": str(tmp_path / "work"), "MODEL_ID": "m",

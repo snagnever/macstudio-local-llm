@@ -165,9 +165,12 @@ for t in "${RUN_TASKS[@]}"; do
     python3 - "$repo.out.json" "$OUT/cc-$TAG-$t.json" "$t" "$SESSIONS" "$rc" "$t0" "$t1" "$done_flag" "${SUBAGENTS:-0}" <<'PY'
 import json, sys
 src, dst, task, sessions, rc, t0, t1, done, subagents = sys.argv[1:]
-data, parallel, spawned = None, 0, 0
+data, spawned = None, 0
+# stream-json emits one assistant event per content block; the blocks of one API message share message.id.
+# A parallel Agent call = one main-session message (parent_tool_use_id null) with >= 2 Agent tool_use blocks.
+agents_by_msg = {}
 try:
-    for line in open(src, encoding="utf-8"):
+    for i, line in enumerate(open(src, encoding="utf-8")):
         line = line.strip()
         if not line:
             continue
@@ -179,13 +182,16 @@ try:
             continue
         if msg.get("type") == "result":
             data = msg
-        elif msg.get("type") == "assistant":
-            content = (msg.get("message") or {}).get("content") or []
+        elif msg.get("type") == "assistant" and msg.get("parent_tool_use_id") is None:
+            message = msg.get("message") or {}
+            content = message.get("content") or []
             n = sum(1 for b in content if isinstance(b, dict) and b.get("type") == "tool_use" and b.get("name") == "Agent")
-            if n >= 2:
-                parallel += 1
+            if n:
+                key = message.get("id") or f"line-{i}"
+                agents_by_msg[key] = agents_by_msg.get(key, 0) + n
 except OSError:
     pass
+parallel = sum(1 for n in agents_by_msg.values() if n >= 2)
 if data is None:
     data = {"parse_error": True}
 stats = data.get("subagent_stats") or {}
