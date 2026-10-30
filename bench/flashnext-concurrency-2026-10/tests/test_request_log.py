@@ -50,10 +50,10 @@ class FakeUpstream(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream")
         self.end_headers()
-        for name, data in EVENTS:
+        for name, data in EVENTS:  # one event every 0.1 s: the first content delta is the third, at ~0.2 s
             self.wfile.write(f"event: {name}\ndata: {json.dumps(data)}\n\n".encode())
             self.wfile.flush()
-            time.sleep(0.05)
+            time.sleep(0.1)
 
     def log_message(self, *a):
         pass
@@ -73,7 +73,9 @@ def test_proxy_forwards_stream_and_writes_one_record(tmp_path):
     up.shutdown()
     recs = [json.loads(line) for line in out.read_text().splitlines()]
     assert len(recs) == 1 and recs[0]["stream"] == "d" and recs[0]["input_tokens"] == 19297
-    assert 0.05 < recs[0]["ttft_s"] < 1.0 and recs[0]["status"] == 200 and recs[0]["cached_tokens"] == 16032
+    assert recs[0]["status"] == 200 and recs[0]["cached_tokens"] == 16032
+    # The proxy must pass events on as they arrive, not after a buffer fills: TTFT is the third event's time.
+    assert 0.15 < recs[0]["ttft_s"] < 0.35 and recs[0]["t_end_s"] - recs[0]["t_start_s"] > 0.5
 
 
 def test_parse_sse_ttft_counts_a_tool_use_json_delta_as_the_first_token():

@@ -202,7 +202,9 @@ class _ProxyHandler(BaseHTTPRequestHandler):
             raw_fh.write(f"--- request t={t_start:.3f} status={status} content-type={ctype} ---\n".encode())
         try:
             while True:
-                chunk = resp.read(4096)
+                # read1 returns whatever has arrived (a chunk of the chunked body); read(n) would wait for n bytes
+                # and delay every event by a buffer's worth, inflating TTFT and the tok/s.
+                chunk = resp.read1(65536)
                 if not chunk:
                     break
                 now = time.time()
