@@ -1,0 +1,4 @@
+{"t_start_s": 0.0, "ttft_s": 23.7, "t_end_s": 25.0, "input_tokens": 19277, "cached_tokens": 0, "output_tokens": 106, "tps": 143.6, "status": 200, "stream": null}
+{"t_start_s": 25.0, "ttft_s": 0.8, "t_end_s": 35.0, "input_tokens": 19826, "cached_tokens": 19264, "output_tokens": 1221, "tps": 130.3, "status": 200, "stream": null}
+{"t_start_s": 35.0, "ttft_s": 1.8, "t_end_s": 38.0, "input_tokens": 21184, "cached_tokens": 19808, "output_tokens": 146, "tps": 98.3, "status": 200, "stream": null}
+{"t_start_s": 38.0, "ttft_s": 0.5, "t_end_s": 40.0, "input_tokens": 21395, "cached_tokens": 21152, "output_tokens": 93, "tps": 95.1, "status": 200, "stream": null}

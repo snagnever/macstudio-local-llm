@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any, Optional, Sequence, Union
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from report_charts import _baseline, _fmt, _scale, _svg, _text  # noqa: E402,F401
 from summarize_parallel import _is_served, _read_jsonl, _stream_files, _ttft_s, summarize  # noqa: E402
 
 CAMPAIGN = Path(__file__).resolve().parents[1]
@@ -118,7 +119,7 @@ def _config(results_dir: Path, code: str, ctx: int, tag: str, context: Union[int
         "tag": tag, "worst_ratio": None, "worst_stream": None, "decode_per_session": None,
         "decode_total": None, "aux_p50": None, "aux_p95": None, "aux_over_60": 0, "refused": 0,
         "needles": None, "needles_ok": None, "needles_per_stream": [], "cold_ttft_s": None,
-        "wired_peak": None, "result": "n/a",
+        "wired_peak": None, "worst_turn_s": None, "result": "n/a",
     }
     s = summarize(results_dir, code, context, tag)
     streams = s["streams"]
@@ -126,6 +127,8 @@ def _config(results_dir: Path, code: str, ctx: int, tag: str, context: Union[int
         return entry
     entry["n"] = len(streams)
     entry["wired_peak"] = WIRED_PEAK_GB.get((code, ctx, tag))
+    turns = [st["t_turno_s"] for st in streams if st["t_turno_s"] is not None]
+    entry["worst_turn_s"] = max(turns) if turns else None
     ratios = [(st["ratio"], st["stream"]) for st in streams if st["ratio"] is not None]
     if ratios:
         entry["worst_ratio"], entry["worst_stream"] = max(ratios)
@@ -230,18 +233,20 @@ def _splash_config(results_dir: Path, code: str, ctx: int) -> dict[str, Any]:
     name, n, ref = SPLASH_PUBLIC[code]
     entry: dict[str, Any] = {"code": code, "public_name": name, "n": n, "ctx": ctx, "ref": ref,
                              "worst_ratio": None, "worst_turn_s": None, "decode_per_session": None, "gain": None,
-                             "needles": None, "aux_p95": None, "gates": [], "result": "n/a",
+                             "needles": None, "aux_p95": None, "aux_over_60": 0, "warm_ttft_tool_s": None,
+                             "cold_ttft_s": None, "gates": [], "result": "n/a",
                              "pending": SPLASH_PENDING.get((code, ctx))}
     if entry["pending"]:
         return entry
-    s = summarize(results_dir, code, SPLASH_SUMMARY_CTX.get((code, ctx), ctx), "e1",
-                  ref_arm=None if code == ref else ref)
+    context = SPLASH_SUMMARY_CTX.get((code, ctx), ctx)
+    s = summarize(results_dir, code, context, "e1", ref_arm=None if code == ref else ref)
     streams = s["streams"]
     if not streams:
         return entry
     turns = [st["t_turno_s"] for st in streams if st["t_turno_s"] is not None]
     ratios = [st["ratio"] for st in streams if st["ratio"] is not None]
     decodes = [st["decode_tps"] for st in streams if st["decode_tps"] is not None]
+    warm = [st["warm_ttft_tool_s"] for st in streams if st.get("warm_ttft_tool_s") is not None]
     good = sum(int(st["needles"].split("/")[0]) for st in streams)
     total = sum(int(st["needles"].split("/")[1]) for st in streams)
     entry.update(
@@ -251,6 +256,9 @@ def _splash_config(results_dir: Path, code: str, ctx: int) -> dict[str, Any]:
         # A queue generates one session at a time, so a sum of per-session speeds would count the same time twice.
         gain=None if code == "k2c1x2" else (s.get("throughput") or {}).get("gain"),
         needles=f"{good}/{total}", aux_p95=(s["aux"] or {}).get("p95"),
+        aux_over_60=_aux_over_60(results_dir, code, "e1", context, ctx) if s["aux"] else 0,
+        warm_ttft_tool_s=statistics.median(warm) if warm else None,
+        cold_ttft_s=_cold_ttft(results_dir, code, context, "e1"),
         gates=[GATE_TEXT.get(g, g) for g in s["gates_failed"]],
     )
     v = s["verdict"]
@@ -268,7 +276,207 @@ def collect_splash(results_dir: Path) -> Optional[dict[str, Any]]:
             "claude_code": _claude_code(results_dir, "k")}
 
 
-def collect(results_dir: Path, splash_dir: Optional[Path] = None) -> dict[str, Any]:
+# ---- Use scenarios: the page is organized by what a person waits for, per server, in seconds ----
+
+# Experience bands (spec 2026-10-30): (good up to, acceptable up to); above the second value is poor.
+EXP_BANDS: dict[str, tuple[float, float]] = {"ttft": (2.0, 5.0), "first_prompt": (30.0, 60.0), "side": (5.0, 60.0)}
+# Higher is better: (good from, acceptable from); below the second value is poor.
+EXP_BANDS_HIGH: dict[str, tuple[float, float]] = {"tps": (60.0, 30.0)}
+SERVERS: list[dict[str, str]] = [
+    {"key": "splash", "label": "Splash 1.5.0", "series": "s1",
+     "weights": "ukisai Swift 1.5 Qwen3.8 Flash-Next GGUF IQ4_XS + DFlash2 draft"},
+    {"key": "mlx", "label": "mlx-serve 26.10.3", "series": "s2",
+     "weights": "Dankpaws Swift 1.5 Qwen3.8 Flash-Next MLX 4.7 bpw"},
+]
+LEGACY: dict[str, str] = {"key": "legacy", "label": "mlx-serve 26.10.1", "series": "s2",
+                          "weights": "Dankpaws Swift 1.5 Qwen3.8 Flash-Next MLX 4.7 bpw"}
+RECOMMENDED = "splash"
+TBENCH_STATUS = REPO / "bench" / "stack-updates-2026-10" / "results" / "tbench-status.json"
+CAMPAIGN_B_RESULTS = REPO / "bench" / "claude-code-concurrency-2026-11" / "results"
+COVERAGE_SCENARIOS = ["One session, synthetic (32K / 128K / 256K)", "One Claude Code session",
+                      "Two Claude Code sessions", "Two sessions, synthetic worst case", "Three and four sessions",
+                      "Two 256K sessions", "Realistic Claude Code task (60–120K, 20–40 turns)",
+                      "Claude Code with subagents", "Agent quality (Terminal-Bench)"]
+
+
+def band(metric: str, value: Optional[float]) -> Optional[str]:
+    """good / ok / poor for a value of one of the banded metrics; None without a value."""
+    if value is None:
+        return None
+    if metric in EXP_BANDS_HIGH:
+        good, ok = EXP_BANDS_HIGH[metric]
+        return "good" if value >= good else "ok" if value >= ok else "poor"
+    good, ok = EXP_BANDS[metric]
+    return "good" if value <= good else "ok" if value <= ok else "poor"
+
+
+def read_tbench_status(path: Path) -> Optional[dict[str, Any]]:
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return data if isinstance(data, dict) and "done" in data else None
+
+
+def read_claude_summary(directory: Optional[Path], key: str, generic: bool = True) -> Optional[dict[str, Any]]:
+    """claude-summary-<key>.json, or claude-summary.json when `generic` (a single-server campaign directory).
+    A directory that holds several servers must name the server in the file, so its summary is never
+    published under the wrong column."""
+    if directory is None:
+        return None
+    names = [f"claude-summary-{key}.json"] + (["claude-summary.json"] if generic else [])
+    for name in names:
+        p = Path(directory) / name
+        if p.exists():
+            return json.loads(p.read_text(encoding="utf-8"))
+    return None
+
+
+def _find_in(configs: Optional[list[dict]], code: str, ctx: int) -> Optional[dict]:
+    return next((c for c in configs or [] if c["code"] == code and c["ctx"] == ctx), None)
+
+
+def _g(c: Optional[dict], key: str) -> Any:
+    return c.get(key) if c else None
+
+
+def _tbench_key(tbench: Optional[dict]) -> Optional[str]:
+    if not tbench:
+        return None
+    return "splash" if "splash" in str(tbench.get("server", "")).lower() else "mlx"
+
+
+def collect_scenarios(data: dict, claude: dict[str, Optional[dict]], tbench: Optional[dict]) -> dict[str, Any]:
+    """Pure: the per-scenario, per-server payload the page sections read (see the spec's section list)."""
+    sp = (data.get("splash") or {}).get("configs")
+    lg = data["configs"]
+    keys = ("splash", "mlx")
+
+    def req(key: str, kind: str) -> Optional[dict]:
+        return ((claude.get(key) or {}).get("requests") or {}).get(kind)
+
+    def warm(key: str, kind: str) -> Optional[dict]:
+        r = req(key, kind)
+        return r.get("warm") if r else None
+
+    def profiles(key: str) -> dict[str, dict]:
+        return (claude.get(key) or {}).get("profiles") or {}
+
+    solo = {"splash": _find_in(sp, "k2c1", 131072), "mlx": _find_in(sp, "w1zc1", 131072)}
+    solo32 = {"splash": _find_in(sp, "k2c1", 32768), "mlx": _find_in(sp, "w1zc1", 32768)}
+    pair = {"splash": _find_in(sp, "k2c2a", 131072), "mlx": _find_in(sp, "w1zc2a", 131072)}
+    tb_key = _tbench_key(tbench)
+
+    one: dict[str, Any] = {}
+    for key in keys:
+        w = warm(key, "alone")
+        if w:
+            ttft, src, lo, hi = w["ttft_p50"], "claude", w["tps_min"], w["tps_max"]
+        else:
+            ttft = _g(solo[key], "warm_ttft_tool_s")
+            src = "synthetic" if ttft is not None else None
+            decodes = [c["decode_per_session"] for c in (solo32[key], solo[key]) if _g(c, "decode_per_session")]
+            lo, hi = (min(decodes), max(decodes)) if decodes else (None, None)
+        a = req(key, "alone")
+        one[key] = {"warm_ttft_s": ttft, "warm_ttft_source": src, "tps_lo": lo, "tps_hi": hi,
+                    "first_prompt_s": a["first_prompt_ttft_s"] if a else None,
+                    "cold_128k_s": _g(solo[key], "cold_ttft_s"),
+                    "tasks": {p: {t: v["alone_s"].get(t) for t in v["tasks"]} for p, v in profiles(key).items()},
+                    "tbench": tbench if tb_key == key else None}
+
+    two: dict[str, Any] = {}
+    for key in keys:
+        wa, wp, rp = warm(key, "alone"), warm(key, "pair"), req(key, "pair")
+        prof = profiles(key)
+        saved = {p: v.get("time_saved") for p, v in prof.items()}
+        main_profile = "realistic" if saved.get("realistic") is not None else "small"
+        two[key] = {"ttft_alone_p50": _g(wa, "ttft_p50"), "ttft_pair_p50": _g(wp, "ttft_p50"),
+                    "ttft_alone_p90": _g(wa, "ttft_p90"), "ttft_pair_p90": _g(wp, "ttft_p90"),
+                    "tps_alone_p50": _g(wa, "tps_p50"), "tps_pair_p50": _g(wp, "tps_p50"),
+                    "tps_alone_min": _g(wa, "tps_min"), "tps_pair_min": _g(wp, "tps_min"),
+                    "tasks": {p: {t: {"alone_s": v["alone_s"].get(t), "pair_s": v["pair_s"].get(t)} for t in v["tasks"]}
+                              for p, v in prof.items()},
+                    "time_saved": saved.get(main_profile), "time_saved_by_profile": saved,
+                    "side_p95_s": _g(pair[key], "aux_p95"), "max_concurrent": _g(rp, "max_concurrent"),
+                    "new_tokens_p50": _g(rp, "new_tokens_p50")}
+
+    ad1 = _find_in(sp, "k2c2ad1", 131072)
+    worst: dict[str, Any] = {}
+    for key in keys:
+        best = None
+        if key == "splash" and ad1 and ad1.get("worst_turn_s") is not None:
+            best = {"label": "--decode-share 1.0", "turn_s": ad1["worst_turn_s"],
+                    "note": f"recall {ad1['needles']}" if ad1.get("needles") else ""}
+        worst[key] = {"turn_alone_s": _g(solo[key], "worst_turn_s"), "turn_pair_s": _g(pair[key], "worst_turn_s"),
+                      "side_p95_s": _g(pair[key], "aux_p95"), "side_over_60": _g(pair[key], "aux_over_60"),
+                      "gain": _g(pair[key], "gain"), "best_setting": best}
+
+    def point(c: Optional[dict], legacy: bool) -> dict[str, Any]:
+        return {"turn_s": _g(c, "worst_turn_s"), "side_p95_s": _g(c, "aux_p95"), "legacy": legacy}
+
+    by_n = {"splash": {n: point(_find_in(sp, code, 131072), False) for n, code in SPLASH_CHART_ARMS.items()},
+            "mlx": {1: point(solo["mlx"], False), 2: point(pair["mlx"], False),
+                    3: point(_find_in(lg, "w1c3a", 131072), True), 4: point(_find_in(lg, "w1c4a", 131072), True)}}
+
+    long_256k = {"splash": {"turn_s": _g(_find_in(sp, "k2c2LL", 262144), "worst_turn_s"),
+                            "note": "no memory setting", "legacy": False},
+                 "mlx": {"turn_s": _g(_find_in(lg, "w1c2m4", 262144), "worst_turn_s"),
+                         "note": "4 GB prompt cache", "legacy": True}}
+
+    def has(c: Optional[dict]) -> str:
+        return "measured" if c and c.get("worst_turn_s") is not None else "missing"
+
+    def has_profile(key: str, pair_too: bool) -> str:
+        for v in profiles(key).values():
+            if any(x is not None for x in v["alone_s"].values()) and \
+               (not pair_too or any(x is not None for x in v["pair_s"].values())):
+                return "measured"
+        return "missing"
+
+    def tb(key: str) -> str:
+        if tb_key != key:
+            return "missing"
+        done, total = tbench.get("done"), tbench.get("total")
+        return "measured" if tbench.get("score") is not None or (done is not None and total and done >= total) \
+            else "running"
+
+    cover_cells = [
+        {"splash": has(solo["splash"]), "mlx": has(solo["mlx"]), "legacy": has(_find_in(lg, "w1c1", 131072))},
+        {k: has_profile(k, False) for k in ("splash", "mlx", "legacy")},
+        {k: has_profile(k, True) for k in ("splash", "mlx", "legacy")},
+        {"splash": has(pair["splash"]), "mlx": has(pair["mlx"]), "legacy": has(_find_in(lg, "w1c2a", 131072))},
+        {"splash": has(_find_in(sp, "k2c4a", 131072)), "mlx": "missing", "legacy": has(_find_in(lg, "w1c4a", 131072))},
+        {"splash": has(_find_in(sp, "k2c2LL", 262144)), "mlx": "missing", "legacy": has(_find_in(lg, "w1c2m4", 262144))},
+        {k: ("measured" if "realistic" in profiles(k) else "missing") for k in ("splash", "mlx", "legacy")},
+        {k: ("measured" if (claude.get(k) or {}).get("subagents") else "missing") for k in ("splash", "mlx", "legacy")},
+        {k: tb(k) for k in ("splash", "mlx", "legacy")},
+    ]
+    coverage = [{"scenario": s, "cells": c} for s, c in zip(COVERAGE_SCENARIOS, cover_cells)]
+
+    rec = RECOMMENDED
+    o, t = one[rec], two[rec]
+    b1, bf = band("ttft", o["warm_ttft_s"]), band("first_prompt", o["first_prompt_s"])
+    one_word = None if b1 is None else "Yes" if b1 == "good" and bf != "poor" else \
+        "Yes, with waits" if b1 != "poor" else "No"
+    b2 = band("ttft", t["ttft_pair_p50"])
+    # "Yes" only when the pair keeps the good band and costs under 1.5x the alone wait; a bigger cost in the good
+    # or acceptable band is "Yes, at a cost".
+    cheap = t["ttft_alone_p50"] is not None and t["ttft_pair_p50"] is not None \
+        and t["ttft_pair_p50"] <= 1.5 * t["ttft_alone_p50"]
+    two_word = None if b2 is None else "Yes" if b2 == "good" and cheap and (t["time_saved"] or 0) >= 0 else \
+        "Yes, at a cost" if b2 != "poor" else "No"
+    n1 = by_n[rec][1]["turn_s"]
+    slow = [by_n[rec][n]["turn_s"] / n1 for n in (3, 4) if n1 and by_n[rec][n]["turn_s"] is not None]
+    many_word = None if not slow else "No" if max(slow) >= 2.0 else "Maybe"
+    verdict = {"one": {"word": one_word, "ttft_s": o["warm_ttft_s"], "first_prompt_s": o["first_prompt_s"]},
+               "two": {"word": two_word, "ttft_pair_p50": t["ttft_pair_p50"], "time_saved": t["time_saved"]},
+               "many": {"word": many_word, "slow_lo": min(slow) if slow else None, "slow_hi": max(slow) if slow else None}}
+    return {"one_session": one, "two_sessions": two, "worst_case": worst, "by_n": by_n, "long_256k": long_256k,
+            "coverage": coverage, "verdict": verdict}
+
+
+def collect(results_dir: Path, splash_dir: Optional[Path] = None, claude_dirs: Optional[dict[str, Path]] = None,
+            tbench_status: Optional[Path] = None) -> dict[str, Any]:
     results_dir = Path(results_dir)
     configs = [_config(results_dir, code, ctx, tag, context) for code, ctx, tag, context in CONFIGS]
     by_code = {(c["code"], c["ctx"]): c for c in configs}
@@ -280,26 +488,25 @@ def collect(results_dir: Path, splash_dir: Optional[Path] = None) -> dict[str, A
                 by_n["ratio"].setdefault(ctx, {})[n] = c["worst_ratio"]
             if c["decode_per_session"] is not None:
                 by_n["decode"].setdefault(ctx, {})[n] = c["decode_per_session"]
-    return {
+    data = {
         "rig": RIG, "model": MODEL, "server": SERVER, "dates": list(DATES), "configs": configs, "by_n": by_n,
         "claude_code": _claude_code(results_dir),
         "verdicts": {"etapa1": _read_env(results_dir / "etapa1-verdict.env"),
                      "etapa1b": _read_env(results_dir / "etapa1b-verdict.env")},
         "refs": dict(REFS),
         "splash": collect_splash(splash_dir) if splash_dir is not None else None,
+        "servers": [dict(s) for s in SERVERS], "legacy": dict(LEGACY), "recommended": RECOMMENDED,
     }
+    dirs = claude_dirs or {}
+    claude = {k: read_claude_summary(dirs.get(k), k, generic=dirs.get(k) != CAMPAIGN_B_RESULTS)
+              for k in ("splash", "mlx", "legacy")}
+    tbench = read_tbench_status(tbench_status) if tbench_status is not None else None
+    data["tbench"] = tbench
+    data["scenarios"] = collect_scenarios(data, claude, tbench)
+    return data
 
 
 # ---- SVG chart builders (pure; colors via CSS variables --s1..--s4 so the page CSS themes them) ----
-
-def _fmt(v: float) -> str:
-    return f"{v:.1f}"
-
-
-def _scale(v: float, vmax: float, size: float) -> float:
-    """Map v in [0, vmax] to [0, size]; values above vmax or below 0 are clamped."""
-    return 0.0 if vmax <= 0 else max(0.0, min(v, vmax)) / vmax * size
-
 
 def _nice(v: float) -> float:
     """Round up to 1, 2, 2.5, 5 or 10 times a power of ten."""
@@ -310,22 +517,6 @@ def _nice(v: float) -> float:
         if v <= m * mag:
             return m * mag
     return 10 * mag
-
-
-def _svg(w: int, h: int, label: str, body: list[str]) -> str:
-    return (f'<svg viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" role="img" '
-            f'aria-label="{html.escape(label, quote=True)}" xmlns="http://www.w3.org/2000/svg">'
-            + "".join(body) + "</svg>")
-
-
-def _text(x: float, y: float, s: str, cls: str = "", anchor: str = "middle") -> str:
-    c = f' class="{cls}"' if cls else ""
-    return (f'<text{c} x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" font-size="13" '
-            f'fill="currentColor">{html.escape(s)}</text>')
-
-
-def _baseline(left: float, right: float, y: float) -> str:
-    return f'<line x1="{left}" y1="{y}" x2="{right}" y2="{y}" stroke="currentColor" opacity="0.4"/>'
 
 
 def _bar(x: float, bw: float, base_y: float, plot_h: float, value: Optional[float], vmax: float,
@@ -498,8 +689,12 @@ ILLUSTRATION_BATCH = (
     + '</svg>')
 
 
-TITLE = "Flash-Next: how many agent sessions fit on one server?"
-H1 = "How many agent sessions fit on one local Flash-Next server?"
+TITLE = "Can one Mac Studio serve Claude Code?"
+H1 = "Can one Mac Studio serve Claude Code? And two sessions at once?"
+HATCH_DEFS = ('<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>'
+              '<pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'
+              '<line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>'
+              '</pattern></defs></svg>')
 GITHUB = "https://github.com/snagnever/macstudio-local-llm"
 RUNBOOK_URL = f"{GITHUB}/blob/main/bench/flashnext-concurrency-2026-10/plan.md"
 RESULTS_URL = f"{GITHUB}/tree/main/bench/flashnext-concurrency-2026-10/results"
@@ -1168,6 +1363,7 @@ CSS = """
   --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
   --accent:#2a78d6; --warn:#b06a00; --warn-bg:#fbf1dd;
   --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --s1l:#9ec5f4; --s2l:#f5b79a; --good:#0ca30c; --warn-s:#fab219; --crit:#d03b3b;
   --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -1179,6 +1375,7 @@ CSS = """
     --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
     --accent:#3987e5; --warn:#e0a63a; --warn-bg:#2a2312;
     --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    --s1l:#86b6ef; --s2l:#f0a07c; --good:#0ca30c; --warn-s:#fab219; --crit:#d03b3b;
   }
 }
 :root[data-theme="dark"]{
@@ -1188,6 +1385,7 @@ CSS = """
   --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
   --accent:#3987e5; --warn:#e0a63a; --warn-bg:#2a2312;
   --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --s1l:#86b6ef; --s2l:#f0a07c; --good:#0ca30c; --warn-s:#fab219; --crit:#d03b3b;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -1211,6 +1409,26 @@ section.block{margin-top:34px}
 .tile .t-lab{font-family:var(--mono); font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin:0}
 .tile .t-big{font-size:1.8rem; line-height:1.1; font-weight:700; margin:6px 0 4px; color:var(--ink); font-variant-numeric:tabular-nums}
 .tile .t-sub{font-size:0.84rem; color:var(--ink-2); margin:0; line-height:1.4}
+.tile .t-other{font-size:0.78rem; color:var(--muted); margin:8px 0 0; border-top:1px solid var(--border); padding-top:6px}
+.bands{display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; font-size:0.84rem; color:var(--ink-2); margin:18px 0 8px}
+.band-chip{padding:2px 9px; border-radius:5px; color:var(--ink); font-weight:600}
+.band-chip.good{background:color-mix(in srgb, var(--good) 18%, transparent)}
+.band-chip.ok{background:color-mix(in srgb, var(--warn-s) 24%, transparent)}
+.band-chip.poor{background:color-mix(in srgb, var(--crit) 18%, transparent)}
+.band-rule{font-size:0.8rem; color:var(--muted)}
+.s-note.q{font-style:italic}
+.chip .sw.hatch{background:repeating-linear-gradient(45deg, var(--muted) 0 2px, transparent 2px 5px); border:1px solid var(--muted)}
+.chip .sw.ring{background:var(--surface); border:2px solid var(--s2); border-radius:50%}
+.chart text.ttl{font-weight:600; fill:var(--ink)}
+.chart text.lbl,.chart text.tick{fill:var(--ink-2)}
+.chart text.value{fill:var(--ink)}
+details.tbl{margin:6px 0 0; font-size:0.84rem}
+details.tbl summary{font-weight:500; color:var(--ink-2); font-size:0.8rem; margin:0}
+details.tbl table{margin-top:6px}
+details.appx>summary{font-size:0.95rem}
+table.cov td{font-family:var(--sans); text-align:center; font-size:1rem}
+table.cov td:first-child{text-align:left; font-size:0.84rem}
+.cov.measured{color:var(--ink)} .cov.running{color:var(--warn)} .cov.missing{color:var(--muted)}
 .two-col{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr)); gap:16px; align-items:start}
 .illus:empty{display:none}
 .gloss{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:10px 18px; margin:0}
@@ -1270,9 +1488,13 @@ def _payload(data: dict) -> dict:
 def render(data: dict, generated: Optional[str] = None) -> str:
     generated = generated or datetime.date.today().isoformat()
     payload = json.dumps(_payload(data), ensure_ascii=False).replace("</", "<\\/")
-    eyebrow = " · ".join(["Qwen3.8 Flash-Next", data["server"], data["rig"], " to ".join(data["dates"])])
-    desc = ("Two agent sessions is the most one local Flash-Next server handles within the pass rule; each runs "
-            "about 2× slower and the pair saves no time.")
+    import report_sections as S  # imported here: report_sections imports this module
+    labels = " · ".join(s["label"] for s in data["servers"])
+    eyebrow = " · ".join(["Qwen3.8 Flash-Next", labels, data["rig"], "2026-10-17 to 2026-10-30"])
+    v = data["scenarios"]["verdict"]
+    desc = (f"One Claude Code session on a local Flash-Next server: {v['one']['word'] or 'n/m'}. Two at once: "
+            f"{v['two']['word'] or 'n/m'}. Three or more: {v['many']['word'] or 'n/m'}. Measured in seconds a "
+            "person waits, on Splash 1.5.0 and mlx-serve.")
     parts = [
         '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n',
         f"<title>{_e(TITLE)}</title>\n",
@@ -1284,10 +1506,9 @@ def render(data: dict, generated: Optional[str] = None) -> str:
         '&display=swap">\n',
         f"<style>{CSS}</style>\n</head>\n<body>\n<div class=\"wrap\">\n",
         f'<header><div><p class="eyebrow">{_e(eyebrow)}</p><h1>{_e(H1)}</h1></div>'
-        '<button class="theme" id="themeBtn" type="button">theme: auto</button></header>\n',
-        _hero(data), _splash(data), _how(data), _glossary(), _sessions(data), _throughput(data), _side_requests(data),
-        _max_concurrent(data), _long_context(data), _claude_code_section(data), _pds(data), _learned(data),
-        _upstream(), _refusals(data), _not_measured(), _reproduce(data), "\n", _footer(generated),
+        '<button class="theme" id="themeBtn" type="button">theme: auto</button></header>\n', HATCH_DEFS,
+        S.hero(data), S.one_session(data), S.two_sessions(data), S.worst_case(data), S.many_sessions(data),
+        S.long_context(data), S.recommendation(data), S.coverage(data), S.appendix(data), "\n", _footer(generated),
         "\n</div>\n",
         f'<script id="data" type="application/json">{payload}</script>\n',
         f"<script>{THEME_JS}</script>\n</body>\n</html>\n",
@@ -1301,12 +1522,18 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument("--out-html", default=str(REPO / "reports" / "qwen38-flashnext-concurrency.html"))
     p.add_argument("--out-json", default=str(RESULTS / "report-data.json"))
     p.add_argument("--splash-results-dir", default=str(SPLASH_RESULTS))
+    p.add_argument("--campaign-b-dir", default=str(CAMPAIGN_B_RESULTS),
+                   help="results of the Claude Code campaign (claude-summary-splash.json, claude-summary-mlx.json)")
+    p.add_argument("--tbench-status", default=str(TBENCH_STATUS))
     return p
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     args = _parser().parse_args(argv)
-    data = collect(Path(args.results_dir), Path(args.splash_results_dir))
+    campaign_b, splash_dir = Path(args.campaign_b_dir), Path(args.splash_results_dir)
+    claude_dirs = {"splash": campaign_b if (campaign_b / "claude-summary-splash.json").exists() else splash_dir,
+                   "mlx": campaign_b, "legacy": Path(args.results_dir)}
+    data = collect(Path(args.results_dir), splash_dir, claude_dirs, Path(args.tbench_status))
     out_html, out_json = Path(args.out_html), Path(args.out_json)
     out_html.parent.mkdir(parents=True, exist_ok=True)
     out_json.parent.mkdir(parents=True, exist_ok=True)

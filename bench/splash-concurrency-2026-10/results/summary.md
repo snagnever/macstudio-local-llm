@@ -1,5 +1,7 @@
 # Flash-Next, concorrência no Splash 1.5.0 — resumo da campanha (2026-10-29)
 
+> **Nota (2026-10-30):** o report público foi reorganizado por cenário de uso, em segundos e faixas de experiência ([reports/qwen38-flashnext-concurrency.html](../../../reports/qwen38-flashnext-concurrency.html)). Os gates desta campanha ficam no apêndice da página.
+
 **No Claude Code real, duas sessões no Splash 1.5.0 ganham tempo. Na bateria sintética, não.** Cada tarefa de Claude Code sozinha leva ~41 s no Splash, contra 62–75 s no mlx-serve 26.10.1. Com duas sessões juntas, cada uma leva 1.36–1.60× o tempo dela sozinha, e o par termina 24% antes das duas tarefas em sequência. Na bateria sintética, que lê 32K–128K de prompt novo por turno, duas sessões ficam 2.4–2.6× mais lentas, e nenhum braço com N ≥ 2 passa. O driver diário (mlx-serve) não muda nesta campanha. O launcher do Splash passa para a 1.5.0.
 
 Página pública: [reports/qwen38-flashnext-concurrency.html](../../../reports/qwen38-flashnext-concurrency.html), seção "Update" (gerada por `bench/flashnext-concurrency-2026-10/scripts/render_report.py`).

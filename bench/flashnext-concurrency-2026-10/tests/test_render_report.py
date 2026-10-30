@@ -247,11 +247,13 @@ def test_svg_contract_markers_in_all_builders():
 
 import re
 
-SECTION_IDS = ["hero", "how-it-works", "glossary", "sessions", "throughput", "side-requests", "max-concurrent",
+# The page body (new sections) and the appendix (the 26.10.1 campaign sections, kept as they were).
+SECTION_IDS = ["verdict", "one", "two", "worst", "many", "long", "recommend", "coverage", "appendix",
+               "hero", "how-it-works", "glossary", "sessions", "throughput", "side-requests", "max-concurrent",
                "long-context", "claude-code", "pds", "learned", "upstream", "refusals", "not-measured",
                "reproduce", "terms"]
-INSIDER = re.compile(r"\b(w1c\w*|T_turno|braço|aux|needle|needles|stream|streams|rig|daily driver|etapa)\b",
-                     re.IGNORECASE)
+INSIDER = re.compile(r"\b(w1c\w*|w1zc\w*|k2c\w*|kcc\w*|T_turno|braço|aux|needle|needles|stream|streams|rig|"
+                     r"daily driver|etapa)\b", re.IGNORECASE)
 
 
 @pytest.fixture(scope="module")
@@ -279,7 +281,7 @@ def test_render_sections_present(real_html):
         assert f'id="{sid}"' in real_html, sid
     assert real_html.lstrip().lower().startswith("<!doctype html>")
     assert '<html lang="en"' in real_html
-    assert "<title>Flash-Next: how many agent sessions fit on one server?</title>" in real_html
+    assert "<title>Can one Mac Studio serve Claude Code?</title>" in real_html
 
 
 def test_render_illustrations_replace_anchors(real_html):
@@ -510,3 +512,186 @@ def test_splash_section_real_data():
     assert '<a href="#splash">' in page
     assert sorted({m.group(0) for m in INSIDER.finditer(_public_body(page))}) == []
     assert not re.search(r"\bk2c\w*", _public_body(page))
+
+
+# ---- scenario payload, experience bands and Terminal-Bench status (Task 3 of the 2026-10-30 plan) ----
+
+SPLASH_RESULTS = R.SPLASH_RESULTS
+HAS_SPLASH = any(SPLASH_RESULTS.glob("k2c1-*-e1-s1.jsonl"))
+FAKE_MLX_SUMMARY = {
+    "prefix": "rm", "profiles": {
+        "small": {"tasks": ["a", "b"], "alone_s": {"a": 50.0, "b": 48.0}, "pair_s": {"a": 70.0, "b": 72.0},
+                  "pair_wall_s": 73.0, "serial_sum_s": 98.0, "time_saved": 0.255, "turns": {"a": 10, "b": 6},
+                  "task_done": True, "errors": 0},
+        "realistic": {"tasks": ["c", "d"], "alone_s": {"c": 400.0, "d": 380.0}, "pair_s": {"c": 600.0, "d": 590.0},
+                      "pair_wall_s": 610.0, "serial_sum_s": 780.0, "time_saved": 0.218, "turns": {"c": 30, "d": 28},
+                      "task_done": True, "errors": 0}},
+    "requests": {
+        "alone": {"n": 40, "max_concurrent": 1, "first_prompt_ttft_s": 30.0, "new_tokens_p50": 600,
+                  "warm": {"n": 38, "ttft_p50": 1.5, "ttft_p90": 2.5, "tps_p50": 80.0, "tps_min": 60.0, "tps_max": 90.0}},
+        "pair": {"n": 80, "max_concurrent": 2, "first_prompt_ttft_s": 40.0, "new_tokens_p50": 600,
+                 "warm": {"n": 76, "ttft_p50": 3.1, "ttft_p90": 6.0, "tps_p50": 50.0, "tps_min": 30.0, "tps_max": 85.0}}}}
+
+
+@pytest.mark.parametrize("metric,value,expected", [
+    ("ttft", 2.0, "good"), ("ttft", 2.01, "ok"), ("ttft", 5.0, "ok"), ("ttft", 5.01, "poor"),
+    ("tps", 60.0, "good"), ("tps", 59.9, "ok"), ("tps", 29.9, "poor"), ("tps", 30.0, "ok"),
+    ("first_prompt", 30.0, "good"), ("side", 60.0, "ok"), ("side", 61.0, "poor"), ("ttft", None, None)])
+def test_band_boundaries(metric, value, expected):
+    assert R.band(metric, value) == expected
+
+
+def test_read_tbench_status_missing_and_bad(tmp_path):
+    assert R.read_tbench_status(tmp_path / "none.json") is None
+    (tmp_path / "bad.json").write_text("{")
+    assert R.read_tbench_status(tmp_path / "bad.json") is None
+    (tmp_path / "ok.json").write_text(json.dumps({"server": "mlx-serve 26.10.3", "done": 51, "total": 89}))
+    assert R.read_tbench_status(tmp_path / "ok.json")["done"] == 51
+
+
+def test_servers_and_recommended():
+    assert [s["key"] for s in R.SERVERS] == ["splash", "mlx"] and R.RECOMMENDED == "splash"
+    assert R.LEGACY["key"] == "legacy"
+
+
+@pytest.mark.skipif(not HAS_SPLASH, reason="no Splash results")
+def test_collect_scenarios_real_splash_and_legacy():
+    data = R.collect(REAL_RESULTS, SPLASH_RESULTS, claude_dirs={"splash": SPLASH_RESULTS, "legacy": REAL_RESULTS},
+                     tbench_status=Path("/none"))
+    sc = data["scenarios"]
+    two = sc["two_sessions"]["splash"]
+    assert two["ttft_pair_p50"] == pytest.approx(1.9, abs=0.1) and two["ttft_alone_p50"] == pytest.approx(0.8, abs=0.1)
+    assert two["max_concurrent"] == 2 and two["time_saved"] == pytest.approx(0.24, abs=0.01)
+    assert two["tps_alone_min"] == pytest.approx(93.1, abs=0.1) and two["tps_pair_min"] == pytest.approx(40.0, abs=0.1)
+    assert two["tasks"]["small"]["a"]["alone_s"] == pytest.approx(41.0, abs=0.1)
+    assert sc["one_session"]["splash"]["warm_ttft_source"] == "claude"
+    assert sc["one_session"]["mlx"]["warm_ttft_source"] == "synthetic"
+    assert sc["one_session"]["splash"]["first_prompt_s"] == pytest.approx(23.7, abs=0.1)
+    assert sc["one_session"]["mlx"]["first_prompt_s"] is None
+    assert sc["by_n"]["mlx"][4]["legacy"] is True and sc["by_n"]["splash"][4]["legacy"] is False
+    assert sc["by_n"]["splash"][4]["turn_s"] == pytest.approx(28.0, abs=0.1)
+    assert sc["by_n"]["mlx"][2]["turn_s"] == pytest.approx(15.6, abs=0.1)
+    assert sc["two_sessions"]["mlx"]["ttft_pair_p50"] is None
+    assert sc["worst_case"]["splash"]["best_setting"]["turn_s"] == pytest.approx(10.8, abs=0.1)
+    assert sc["worst_case"]["mlx"]["best_setting"] is None
+    assert sc["long_256k"]["splash"]["turn_s"] == pytest.approx(12.1, abs=0.1)
+    assert sc["long_256k"]["mlx"]["turn_s"] == pytest.approx(18.6, abs=0.3) and sc["long_256k"]["mlx"]["legacy"] is True
+    assert sc["verdict"]["one"]["word"] == "Yes" and sc["verdict"]["two"]["word"].startswith("Yes")
+    assert sc["verdict"]["many"]["word"] == "No"
+    assert data["servers"] == R.SERVERS and data["recommended"] == "splash" and data["tbench"] is None
+
+
+def test_collect_scenarios_without_splash_is_all_missing(tmp_path):
+    sc = R.collect(REAL_RESULTS, None, claude_dirs={"legacy": REAL_RESULTS}, tbench_status=tmp_path / "none")["scenarios"]
+    assert all(row["cells"]["splash"] == "missing" for row in sc["coverage"])
+    assert sc["verdict"]["one"]["word"] is None
+    assert sc["two_sessions"]["splash"]["ttft_pair_p50"] is None
+
+
+@pytest.mark.skipif(not HAS_SPLASH, reason="no Splash results")
+def test_collect_scenarios_with_campaign_b_fixture(tmp_path):
+    (tmp_path / "claude-summary.json").write_text(json.dumps(FAKE_MLX_SUMMARY))
+    sc = R.collect(REAL_RESULTS, SPLASH_RESULTS, claude_dirs={"splash": SPLASH_RESULTS, "mlx": tmp_path},
+                   tbench_status=Path("/none"))["scenarios"]
+    assert sc["two_sessions"]["mlx"]["ttft_pair_p50"] == 3.1
+    assert sc["one_session"]["mlx"]["warm_ttft_source"] == "claude" and sc["one_session"]["mlx"]["tps_hi"] == 90.0
+    assert "realistic" in sc["one_session"]["mlx"]["tasks"]
+    assert next(r for r in sc["coverage"] if r["scenario"] == "Two Claude Code sessions")["cells"]["mlx"] == "measured"
+
+
+@pytest.mark.skipif(not HAS_SPLASH, reason="no Splash results")
+def test_coverage_marks_running_tbench(tmp_path):
+    (tmp_path / "tb.json").write_text(json.dumps({"server": "mlx-serve 26.10.3", "done": 51, "total": 89}))
+    data = R.collect(REAL_RESULTS, SPLASH_RESULTS, claude_dirs={}, tbench_status=tmp_path / "tb.json")
+    row = next(r for r in data["scenarios"]["coverage"] if r["scenario"].startswith("Agent quality"))
+    assert row["cells"] == {"splash": "missing", "mlx": "running", "legacy": "missing"}
+    assert data["tbench"]["done"] == 51
+
+
+# ---- the page by use scenario (Task 5 of the 2026-10-30 plan) ----
+
+@pytest.fixture(scope="module")
+def full_html():
+    dirs = {"splash": SPLASH_RESULTS, "legacy": REAL_RESULTS} if HAS_SPLASH else {"legacy": REAL_RESULTS}
+    return R.render(R.collect(REAL_RESULTS, SPLASH_RESULTS if HAS_SPLASH else None, claude_dirs=dirs,
+                              tbench_status=Path("/none")))
+
+
+def _section_of(page, sid):
+    return re.search(rf'<section id="{sid}".*?</section>', page, re.S).group(0)
+
+
+def test_render_sections_in_order(full_html):
+    ids = re.findall(r'<section id="([a-z]+)"', full_html)
+    assert ids == ["verdict", "one", "two", "worst", "many", "long", "recommend", "coverage", "appendix"]
+
+
+@pytest.mark.skipif(not HAS_SPLASH, reason="no Splash results")
+def test_hero_words_and_numbers_from_payload(full_html):
+    sc = json.loads(_payload(full_html))["scenarios"]
+    hero = _section_of(full_html, "verdict")
+    assert sc["verdict"]["one"]["word"] in hero and sc["verdict"]["two"]["word"] in hero
+    assert f'{sc["two_sessions"]["splash"]["ttft_pair_p50"]:.1f} s' in hero
+    assert "finishes 24% sooner" in hero
+
+
+def test_every_chart_has_title_tooltips_and_table_view(full_html):
+    body = full_html.split('<section id="appendix"')[0]
+    n_svg = body.count('role="img"')
+    assert n_svg >= 10
+    assert body.count('class="tbl"') >= n_svg - 1  # the timeline schematic has no table
+    assert body.count("<title>") >= 20
+    assert body.count('class="legend"') >= 5
+
+
+@pytest.mark.skipif(not HAS_SPLASH, reason="no Splash results")
+def test_mlx_pair_cells_are_hatched_until_campaign_b(full_html):
+    two = _section_of(full_html, "two")
+    assert 'url(#hatch)' in two and ">n/m</text>" in two
+
+
+def test_render_without_splash_or_claude(tmp_path):
+    page = R.render(R.collect(REAL_RESULTS, None, claude_dirs={}, tbench_status=tmp_path / "none"))
+    assert '<section id="coverage"' in page and page.count("○") >= 8 and "Traceback" not in page
+    assert ">n/m<" in page
+
+
+def test_render_body_has_no_insider_terms(full_html):
+    body = full_html.split('<section id="appendix"')[0]
+    assert sorted({m.group(0) for m in INSIDER.finditer(_public_body(body))}) == []
+
+
+def test_legacy_only_in_appendix(full_html):
+    body = full_html.split('<section id="appendix"')[0]
+    body = re.sub(r"\([^)]*26\.10\.1[^)]*\)", "", body)  # a parenthesised marker beside a value is allowed
+    assert "26.10.1" not in body
+
+
+def test_hatch_pattern_defined_once(full_html):
+    assert full_html.count('<pattern id="hatch"') == 1 and "--good:" in full_html and "--s1l:" in full_html
+
+
+@pytest.mark.skipif(not HAS_SPLASH, reason="no Splash results")
+def test_many_sessions_chart_draws_the_points(full_html):
+    many = _section_of(full_html, "many")
+    assert many.count("<circle") >= 6 and many.count("<polyline") >= 2
+    assert many.count('fill="var(--surface)"') == 2  # the two older-build points are hollow
+
+
+@pytest.mark.skipif(not HAS_SPLASH, reason="no Splash results")
+def test_model_doc_numbers_match_payload():
+    doc = (REAL_RESULTS.parents[2] / "docs" / "models" / "qwen3.8-flash-next.md").read_text(encoding="utf-8")
+    sc = json.loads((REAL_RESULTS / "report-data.json").read_text(encoding="utf-8"))["scenarios"]
+    sec = doc[doc.index("### Concurrent sessions"):]
+    assert f'{sc["two_sessions"]["splash"]["ttft_pair_p50"]:.1f} s' in sec
+    assert f'{sc["two_sessions"]["splash"]["time_saved"] * 100:.0f}%' in sec
+    assert f'{sc["by_n"]["splash"]["4"]["turn_s"]:.1f} s' in sec
+    assert "qwen38-flashnext-concurrency.html" in sec
+
+
+def test_read_claude_summary_generic_name_only_when_allowed(tmp_path):
+    (tmp_path / "claude-summary.json").write_text(json.dumps({"prefix": "rc", "profiles": {}, "requests": {}}))
+    assert R.read_claude_summary(tmp_path, "mlx", generic=False) is None
+    assert R.read_claude_summary(tmp_path, "mlx")["prefix"] == "rc"
+    (tmp_path / "claude-summary-mlx.json").write_text(json.dumps({"prefix": "rm", "profiles": {}, "requests": {}}))
+    assert R.read_claude_summary(tmp_path, "mlx", generic=False)["prefix"] == "rm"

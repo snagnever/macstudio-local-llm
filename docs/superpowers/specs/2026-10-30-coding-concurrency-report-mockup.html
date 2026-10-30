@@ -1,0 +1,328 @@
+<h2>Mockup v2: com gráficos</h2>
+<p class="subtitle">Li os cliques: faixas em segundos no corpo (A), colunas Splash 1.5.0 + mlx-serve 26.10.3 (A+B), faixas como estão (A). O 26.10.1 vai para o apêndice. Abaixo, cada seção com o gráfico que a sustenta. Células hachuradas = ainda não medido.</p>
+
+<style>
+  .rp { font-size: 14px; line-height: 1.45; --s1:#2a78d6; --s1l:#9ec5f4; --s2:#eb6834; --good:#0ca30c; --warn:#fab219; --crit:#d03b3b; --ink:#0b0b0b; --ink2:#52514e; --grid:#e1e0d9; --mute:#898781; }
+  .rp h1 { font-size: 26px; margin: 0 0 4px; }
+  .rp .meta { color: var(--ink2); font-size: 12px; margin-bottom: 18px; }
+  .rp h3 { margin: 28px 0 4px; font-size: 17px; }
+  .rp .q { font-style: italic; color: var(--ink2); margin: 0 0 10px; }
+  .rp .cap { font-size: 12px; color: var(--ink2); margin: 4px 0 0; }
+  .rp .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0; }
+  .rp .tile { border: 1px solid var(--grid); border-radius: 8px; padding: 10px 12px; }
+  .rp .tile .big { font-size: 30px; font-weight: 700; line-height: 1.1; }
+  .rp .tile .sm { font-size: 12px; color: var(--ink2); }
+  .rp .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; }
+  .rp svg { font-family: system-ui, sans-serif; font-size: 11px; display: block; }
+  .rp svg text { fill: var(--ink); }
+  .rp svg .t2 { fill: var(--ink2); }
+  .rp svg .ttl { font-weight: 600; font-size: 12px; }
+  .rp svg .ax { stroke: var(--grid); stroke-width: 1; }
+  .rp svg .base { stroke: #383835; stroke-width: 1; }
+  .rp .legend { display: flex; gap: 14px; font-size: 12px; color: var(--ink2); margin: 2px 0 6px; }
+  .rp .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  .rp table { border-collapse: collapse; width: 100%; margin: 8px 0 6px; font-size: 13px; }
+  .rp th, .rp td { border: 1px solid var(--grid); padding: 5px 8px; text-align: left; vertical-align: top; }
+  .rp th { background: #f3f2ee; font-weight: 600; }
+  .rp .bands { display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; margin: 6px 0; align-items: center; }
+  .rp .bands span { padding: 2px 8px; border-radius: 4px; }
+  .rp .bands .g { background: rgba(12,163,12,.16); } .rp .bands .w { background: rgba(250,178,25,.22); } .rp .bands .c { background: rgba(208,59,59,.16); }
+  .rp details summary { cursor: pointer; color: var(--ink2); }
+</style>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="6" stroke="#898781" stroke-width="1.5"/>
+    </pattern>
+  </defs>
+</svg>
+
+<div class="mockup">
+  <div class="mockup-header">reports/qwen38-flashnext-concurrency.html — proposed page, with charts</div>
+  <div class="mockup-body rp">
+
+    <h1>Can one Mac Studio serve Claude Code? And two sessions at once?</h1>
+    <div class="meta">Qwen3.8 Flash-Next (Swift 1.5) · Mac Studio M4 Max 128 GB · <b style="color:var(--s1)">Splash 1.5.0</b> (GGUF IQ4_XS) · <b style="color:var(--s2)">mlx-serve 26.10.3</b> (MLX 4.7 bpw) · 2026-10-17 to 2026-10-30</div>
+
+    <div class="tiles">
+      <div class="tile"><div class="sm">One session</div><div class="big">Yes</div><div class="sm">Reply starts in 0.8 s. First prompt of a session: 24 s.</div></div>
+      <div class="tile"><div class="sm">Two sessions</div><div class="big">Yes, at a cost</div><div class="sm">Reply starts in 1.8 s instead of 0.8 s. The pair does 24% more work per hour.</div></div>
+      <div class="tile"><div class="sm">Three or more</div><div class="big">No</div><div class="sm">Turns 2.4×–4.6× slower. Two sessions with a subagent each count as four.</div></div>
+    </div>
+    <div class="bands"><b>Bands:</b> <span class="g">good</span> <span class="w">acceptable</span> <span class="c">poor</span> <span>reply starts ≤ 2 / 2–5 / &gt; 5 s · generation ≥ 60 / 30–60 / &lt; 30 tok/s · first prompt (20K) ≤ 30 s · side call ≤ 5 s</span></div>
+    <p class="cap">Agent quality is <b>not measured</b> on either server: Terminal-Bench on mlx-serve 26.10.3 is running (51 of 89 tasks); nothing on the Splash GGUF pack yet.</p>
+
+    <!-- ========== 1. One session ========== -->
+    <h3>1. One session</h3>
+    <p class="q">What does a normal coding turn feel like, alone on the server?</p>
+    <div class="legend"><span><i style="background:var(--s1)"></i>Splash 1.5.0</span><span><i style="background:var(--s2)"></i>mlx-serve 26.10.3</span><span><i style="background:url(#hatch);border:1px solid #898781"></i>not measured</span></div>
+    <div class="row">
+      <!-- panel: reply starts -->
+      <svg width="236" height="118" aria-label="Reply starts, warm turn, seconds">
+        <text x="0" y="12" class="ttl">Reply starts (warm turn)</text>
+        <rect x="60" y="22" width="56" height="60" fill="#0ca30c" opacity=".10"/>
+        <rect x="116" y="22" width="84" height="60" fill="#fab219" opacity=".14"/>
+        <rect x="200" y="22" width="28" height="60" fill="#d03b3b" opacity=".10"/>
+        <text x="0" y="40" class="t2">Splash</text>
+        <rect x="60" y="30" width="22" height="14" rx="2" fill="var(--s1)"/><text x="88" y="41">0.8 s</text>
+        <text x="0" y="66" class="t2">mlx-serve</text>
+        <rect x="60" y="56" width="53" height="14" rx="2" fill="var(--s2)"/><text x="119" y="67">1.9 s*</text>
+        <line x1="60" y1="84" x2="228" y2="84" class="base"/>
+        <text x="60" y="97" class="t2">0</text><text x="116" y="97" class="t2" text-anchor="middle">2</text><text x="200" y="97" class="t2" text-anchor="middle">5</text><text x="228" y="97" class="t2" text-anchor="end">6 s</text>
+        <text x="0" y="112" class="t2" font-size="10">* from the synthetic test; not yet from Claude Code</text>
+      </svg>
+      <!-- panel: first prompt 20K -->
+      <svg width="236" height="118" aria-label="First prompt of a session, 20K tokens, seconds">
+        <text x="0" y="12" class="ttl">First prompt of a session (20K)</text>
+        <rect x="60" y="22" width="126" height="60" fill="#0ca30c" opacity=".10"/>
+        <rect x="186" y="22" width="42" height="60" fill="#fab219" opacity=".14"/>
+        <text x="0" y="40" class="t2">Splash</text>
+        <rect x="60" y="30" width="101" height="14" rx="2" fill="var(--s1)"/><text x="167" y="41">24 s</text>
+        <text x="0" y="66" class="t2">mlx-serve</text>
+        <rect x="60" y="56" width="90" height="14" rx="2" fill="url(#hatch)" stroke="#898781"/><text x="156" y="67" class="t2">n/m</text>
+        <line x1="60" y1="84" x2="228" y2="84" class="base"/>
+        <text x="60" y="97" class="t2">0</text><text x="186" y="97" class="t2" text-anchor="middle">30</text><text x="228" y="97" class="t2" text-anchor="end">40 s</text>
+      </svg>
+      <!-- panel: cold 128K -->
+      <svg width="236" height="118" aria-label="Cold 128K prompt, seconds">
+        <text x="0" y="12" class="ttl">Resume a 128K session (cold read)</text>
+        <text x="0" y="40" class="t2">Splash</text>
+        <rect x="60" y="30" width="90" height="14" rx="2" fill="url(#hatch)" stroke="#898781"/><text x="156" y="41" class="t2">from k2c1 log</text>
+        <text x="0" y="66" class="t2">mlx-serve</text>
+        <rect x="60" y="56" width="139" height="14" rx="2" fill="var(--s2)"/><text x="205" y="67">166 s</text>
+        <line x1="60" y1="84" x2="228" y2="84" class="base"/>
+        <text x="60" y="97" class="t2">0</text><text x="144" y="97" class="t2" text-anchor="middle">100</text><text x="228" y="97" class="t2" text-anchor="end">200 s</text>
+        <text x="0" y="112" class="t2" font-size="10">no band: a cold read is a one-time cost</text>
+      </svg>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <!-- panel: generation speed, range bars -->
+      <svg width="360" height="100" aria-label="Generation speed, tokens per second">
+        <text x="0" y="12" class="ttl">Generation speed (tok/s), range over turns</text>
+        <rect x="60" y="22" width="56" height="48" fill="#d03b3b" opacity=".10"/>
+        <rect x="116" y="22" width="56" height="48" fill="#fab219" opacity=".14"/>
+        <rect x="172" y="22" width="178" height="48" fill="#0ca30c" opacity=".10"/>
+        <text x="0" y="38" class="t2">Splash</text>
+        <rect x="246" y="28" width="94" height="12" rx="2" fill="var(--s1)"/><text x="246" y="26" font-size="10">100 – 150</text>
+        <text x="0" y="62" class="t2">mlx-serve</text>
+        <rect x="203" y="52" width="14" height="12" rx="2" fill="var(--s2)"/><text x="222" y="62">77 – 84</text>
+        <line x1="60" y1="72" x2="350" y2="72" class="base"/>
+        <text x="60" y="85" class="t2">0</text><text x="116" y="85" class="t2" text-anchor="middle">30</text><text x="172" y="85" class="t2" text-anchor="middle">60</text><text x="350" y="85" class="t2" text-anchor="end">160</text>
+      </svg>
+      <table style="width:300px;margin:0">
+        <tr><th>Small task, 4–7 turns</th><th>Splash</th><th>mlx-serve</th></tr>
+        <tr><td>Task A: CLI flag + test</td><td>41 s</td><td style="color:var(--mute)">75 s (26.10.1)</td></tr>
+        <tr><td>Task B: two bash bugs + tests</td><td>41 s</td><td style="color:var(--mute)">62 s (26.10.1)</td></tr>
+        <tr><td>Terminal-Bench</td><td style="color:var(--mute)">n/m</td><td style="color:var(--mute)">running 51/89</td></tr>
+      </table>
+    </div>
+
+    <!-- ========== 2. Two sessions ========== -->
+    <h3>2. Two sessions, daily use</h3>
+    <p class="q">What does the second session cost me?</p>
+    <div class="legend"><span><i style="background:var(--s1l)"></i>alone</span><span><i style="background:var(--s1)"></i>in a pair</span><span>Splash 1.5.0, real Claude Code (<code>claude -p</code>), 3 runs</span></div>
+    <div class="row">
+      <!-- dumbbell: reply starts median & p90 -->
+      <svg width="300" height="118" aria-label="Reply starts, alone versus pair, seconds">
+        <text x="0" y="12" class="ttl">Reply starts (s)</text>
+        <rect x="70" y="22" width="56" height="60" fill="#0ca30c" opacity=".10"/>
+        <rect x="126" y="22" width="84" height="60" fill="#fab219" opacity=".14"/>
+        <rect x="210" y="22" width="80" height="60" fill="#d03b3b" opacity=".10"/>
+        <text x="0" y="42" class="t2">median</text>
+        <line x1="92" y1="38" x2="120" y2="38" stroke="var(--s1)" stroke-width="2"/>
+        <circle cx="92" cy="38" r="5" fill="var(--s1l)" stroke="#fff" stroke-width="2"/><circle cx="120" cy="38" r="5" fill="var(--s1)" stroke="#fff" stroke-width="2"/>
+        <text x="84" y="30" font-size="10" text-anchor="middle">0.8</text><text x="128" y="30" font-size="10" text-anchor="middle">1.8</text>
+        <text x="0" y="68" class="t2">p90</text>
+        <line x1="98" y1="64" x2="179" y2="64" stroke="var(--s1)" stroke-width="2"/>
+        <circle cx="98" cy="64" r="5" fill="var(--s1l)" stroke="#fff" stroke-width="2"/><circle cx="179" cy="64" r="5" fill="var(--s1)" stroke="#fff" stroke-width="2"/>
+        <text x="90" y="56" font-size="10" text-anchor="middle">1.0</text><text x="187" y="56" font-size="10" text-anchor="middle">3.9</text>
+        <line x1="70" y1="84" x2="290" y2="84" class="base"/>
+        <text x="70" y="97" class="t2">0</text><text x="126" y="97" class="t2" text-anchor="middle">2</text><text x="210" y="97" class="t2" text-anchor="middle">5</text><text x="290" y="97" class="t2" text-anchor="end">8 s</text>
+      </svg>
+      <!-- dumbbell: generation -->
+      <svg width="220" height="118" aria-label="Generation speed, alone versus pair">
+        <text x="0" y="12" class="ttl">Generation (tok/s)</text>
+        <rect x="50" y="22" width="30" height="60" fill="#d03b3b" opacity=".10"/>
+        <rect x="80" y="22" width="30" height="60" fill="#fab219" opacity=".14"/>
+        <rect x="110" y="22" width="100" height="60" fill="#0ca30c" opacity=".10"/>
+        <text x="0" y="42" class="t2">median</text>
+        <line x1="145" y1="38" x2="190" y2="38" stroke="var(--s1)" stroke-width="2"/>
+        <circle cx="190" cy="38" r="5" fill="var(--s1l)" stroke="#fff" stroke-width="2"/><circle cx="145" cy="38" r="5" fill="var(--s1)" stroke="#fff" stroke-width="2"/>
+        <text x="198" y="30" font-size="10" text-anchor="middle">140</text><text x="137" y="30" font-size="10" text-anchor="middle">95</text>
+        <text x="0" y="68" class="t2">slowest</text>
+        <line x1="90" y1="64" x2="145" y2="64" stroke="var(--s1)" stroke-width="2"/>
+        <circle cx="145" cy="64" r="5" fill="var(--s1l)" stroke="#fff" stroke-width="2"/><circle cx="90" cy="64" r="5" fill="var(--s1)" stroke="#fff" stroke-width="2"/>
+        <text x="153" y="56" font-size="10" text-anchor="middle">95</text><text x="82" y="56" font-size="10" text-anchor="middle">40</text>
+        <line x1="50" y1="84" x2="210" y2="84" class="base"/>
+        <text x="50" y="97" class="t2">0</text><text x="80" y="97" class="t2" text-anchor="middle">30</text><text x="110" y="97" class="t2" text-anchor="middle">60</text><text x="210" y="97" class="t2" text-anchor="end">160</text>
+      </svg>
+      <!-- dumbbell: task time -->
+      <svg width="200" height="118" aria-label="Task time, alone versus pair, seconds">
+        <text x="0" y="12" class="ttl">Task time (s)</text>
+        <text x="0" y="42" class="t2">Task A</text>
+        <line x1="112" y1="38" x2="151" y2="38" stroke="var(--s1)" stroke-width="2"/>
+        <circle cx="112" cy="38" r="5" fill="var(--s1l)" stroke="#fff" stroke-width="2"/><circle cx="151" cy="38" r="5" fill="var(--s1)" stroke="#fff" stroke-width="2"/>
+        <text x="104" y="30" font-size="10" text-anchor="middle">41</text><text x="159" y="30" font-size="10" text-anchor="middle">59</text>
+        <text x="0" y="68" class="t2">Task B</text>
+        <line x1="111" y1="64" x2="155" y2="64" stroke="var(--s1)" stroke-width="2"/>
+        <circle cx="111" cy="64" r="5" fill="var(--s1l)" stroke="#fff" stroke-width="2"/><circle cx="155" cy="64" r="5" fill="var(--s1)" stroke="#fff" stroke-width="2"/>
+        <text x="103" y="56" font-size="10" text-anchor="middle">41</text><text x="163" y="56" font-size="10" text-anchor="middle">60</text>
+        <line x1="50" y1="84" x2="190" y2="84" class="base"/>
+        <text x="50" y="97" class="t2">0</text><text x="120" y="97" class="t2" text-anchor="middle">50</text><text x="190" y="97" class="t2" text-anchor="end">100</text>
+      </svg>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <!-- diverging bar: work per hour -->
+      <svg width="360" height="112" aria-label="Work per hour, pair versus one after the other">
+        <text x="0" y="12" class="ttl">Work per hour: pair vs one task after the other</text>
+        <line x1="200" y1="20" x2="200" y2="90" class="base"/>
+        <text x="0" y="40" class="t2">Splash 1.5.0</text>
+        <rect x="200" y="30" width="96" height="14" rx="2" fill="var(--s1)"/><text x="302" y="41">+24%</text>
+        <text x="0" y="62" class="t2">mlx-serve 26.10.3</text>
+        <rect x="140" y="52" width="60" height="14" fill="url(#hatch)" stroke="#898781"/><text x="206" y="63" class="t2">n/m</text>
+        <text x="0" y="84" class="t2">mlx-serve 26.10.1</text>
+        <rect x="172" y="74" width="28" height="14" rx="2" fill="#898781"/><text x="166" y="85" text-anchor="end">−7%</text>
+        <text x="200" y="104" class="t2" text-anchor="middle">0 = same as one after the other</text>
+      </svg>
+      <!-- side calls -->
+      <svg width="340" height="112" aria-label="Side call wait while the other session works, p95 seconds">
+        <text x="0" y="12" class="ttl">Side call (permission check) while the other session works, p95</text>
+        <rect x="70" y="22" width="8" height="60" fill="#0ca30c" opacity=".10"/>
+        <text x="0" y="42" class="t2">Splash</text>
+        <rect x="70" y="32" width="6" height="14" rx="2" fill="var(--s1)"/><text x="82" y="43">5 s</text>
+        <text x="0" y="68" class="t2">mlx-serve</text>
+        <rect x="70" y="58" width="238" height="14" rx="2" fill="var(--s2)"/><text x="312" y="69">183 s</text>
+        <line x1="148" y1="24" x2="148" y2="82" stroke="#383835" stroke-dasharray="3 3"/><text x="152" y="30" font-size="10" class="t2">60 s</text>
+        <line x1="70" y1="84" x2="330" y2="84" class="base"/>
+        <text x="70" y="97" class="t2">0</text><text x="330" y="97" class="t2" text-anchor="end">200 s</text>
+      </svg>
+    </div>
+    <p class="cap">Measured with <code>claude -p</code>: one request at a time per session, no subagents, ~20K context, 570 new tokens per turn (median). The side-call bars come from the synthetic 128K test with 2 sessions.</p>
+
+    <!-- ========== 3. Worst case ========== -->
+    <h3>3. Worst case: both sessions read a big prompt at the same time</h3>
+    <p class="q">When does it happen, and how bad is it?</p>
+    <p>A session start (20K new tokens), a large file or grep result (5–30K), a compaction, a resumed conversation. Splash reads one prompt at a time, so the other session waits for the read. mlx-serve lets a short call wait minutes behind a long read.</p>
+    <svg width="720" height="150" aria-label="Timeline: two sessions, one reads a big prompt while the other waits">
+      <text x="0" y="12" class="ttl">Timeline (schematic, 128K): session B sends a big prompt while A is mid-turn</text>
+      <text x="0" y="40" class="t2">Session A</text>
+      <rect x="70" y="30" width="60" height="14" rx="2" fill="var(--s1)"/><text x="100" y="41" fill="#fff" text-anchor="middle" font-size="10">reply</text>
+      <rect x="130" y="30" width="130" height="14" rx="2" fill="#898781" opacity=".35"/><text x="195" y="41" text-anchor="middle" font-size="10">waits for B's read</text>
+      <rect x="260" y="30" width="60" height="14" rx="2" fill="var(--s1)"/><text x="290" y="41" fill="#fff" text-anchor="middle" font-size="10">reply</text>
+      <text x="0" y="68" class="t2">Session B</text>
+      <rect x="130" y="58" width="130" height="14" rx="2" fill="var(--s1l)"/><text x="195" y="69" text-anchor="middle" font-size="10">reads 128K (prefill)</text>
+      <rect x="260" y="58" width="60" height="14" rx="2" fill="var(--s1)"/><text x="290" y="69" fill="#fff" text-anchor="middle" font-size="10">reply</text>
+      <text x="0" y="96" class="t2">Side call</text>
+      <polygon points="180,86 176,80 184,80" fill="#383835"/>
+      <rect x="180" y="86" width="12" height="14" rx="2" fill="var(--s1)"/><text x="198" y="97" font-size="10">Splash: answered in seconds</text>
+      <rect x="180" y="106" width="80" height="14" rx="2" fill="url(#hatch)" stroke="var(--s2)"/><rect x="260" y="106" width="12" height="14" rx="2" fill="var(--s2)"/><text x="278" y="117" font-size="10">mlx-serve: waits for the whole read (minutes)</text>
+      <line x1="70" y1="132" x2="700" y2="132" class="base"/><text x="70" y="145" class="t2">time →</text>
+    </svg>
+    <div class="legend" style="margin-top:8px"><span><i style="background:var(--s1)"></i>Splash 1.5.0</span><span><i style="background:var(--s2)"></i>mlx-serve 26.10.3</span></div>
+    <div class="row">
+      <svg width="360" height="112" aria-label="Worst turn with two sessions, alone versus pair, synthetic 128K">
+        <text x="0" y="12" class="ttl">Turn time, 512-token reply (s): alone → 2 sessions</text>
+        <text x="0" y="42" class="t2">Splash</text>
+        <rect x="70" y="32" width="61" height="14" rx="2" fill="var(--s1)" opacity=".45"/><text x="135" y="43" font-size="10" class="t2">6.1</text>
+        <rect x="70" y="32" width="154" height="14" rx="2" fill="none" stroke="var(--s1)" stroke-width="2"/><text x="228" y="43">15.4</text>
+        <text x="0" y="68" class="t2">mlx-serve</text>
+        <rect x="70" y="58" width="90" height="14" rx="2" fill="var(--s2)" opacity=".45"/><text x="164" y="69" font-size="10" class="t2">9.0</text>
+        <rect x="70" y="58" width="156" height="14" rx="2" fill="none" stroke="var(--s2)" stroke-width="2"/><text x="230" y="69">15.6</text>
+        <line x1="70" y1="84" x2="350" y2="84" class="base"/>
+        <text x="70" y="97" class="t2">0</text><text x="170" y="97" class="t2" text-anchor="middle">10</text><text x="270" y="97" class="t2" text-anchor="middle">20</text><text x="350" y="97" class="t2" text-anchor="end">28 s</text>
+        <text x="0" y="110" class="t2" font-size="10">filled = alone; outline = worst of the two sessions</text>
+      </svg>
+      <table style="width:320px;margin:0">
+        <tr><th>2 sessions, 128K, big prompts</th><th>Splash</th><th>mlx-serve</th></tr>
+        <tr><td>Side calls over 60 s</td><td>0</td><td>6</td></tr>
+        <tr><td>Total generation, pair ÷ alone</td><td>0.8×</td><td>1.5×</td></tr>
+        <tr><td>Best Splash setting <code>--decode-share 1.0</code></td><td>10.8 s, 1 recall miss</td><td>—</td></tr>
+      </table>
+    </div>
+
+    <!-- ========== 4. Three and four ========== -->
+    <h3>4. Three and four sessions, and subagents</h3>
+    <p class="q">Can I open a third window, or let sessions spawn subagents?</p>
+    <div class="legend"><span><i style="background:var(--s1)"></i>Splash 1.5.0</span><span><i style="background:var(--s2)"></i>mlx-serve 26.10.3</span><span><i style="border:2px solid var(--s2);background:#fff;border-radius:50%"></i>mlx-serve 26.10.1 (older build)</span></div>
+    <div class="row">
+      <svg width="440" height="220" aria-label="Worst turn time by number of sessions, 128K with side calls">
+        <text x="0" y="12" class="ttl">Turn time of the slowest session (s), 128K with side calls</text>
+        <line x1="60" y1="180" x2="420" y2="180" class="base"/>
+        <line x1="60" y1="20" x2="60" y2="180" class="ax"/>
+        <line x1="60" y1="134" x2="420" y2="134" class="ax"/><text x="56" y="138" class="t2" text-anchor="end">10</text>
+        <line x1="60" y1="89" x2="420" y2="89" class="ax"/><text x="56" y="93" class="t2" text-anchor="end">20</text>
+        <line x1="60" y1="43" x2="420" y2="43" class="ax"/><text x="56" y="47" class="t2" text-anchor="end">30</text>
+        <polyline points="60,152 170,110 280,113 390,52" fill="none" stroke="var(--s1)" stroke-width="2"/>
+        <polyline points="60,139 170,109 280,87 390,29" fill="none" stroke="var(--s2)" stroke-width="2"/>
+        <circle cx="60" cy="152" r="4" fill="var(--s1)" stroke="#fff" stroke-width="2"/><circle cx="170" cy="110" r="4" fill="var(--s1)" stroke="#fff" stroke-width="2"/><circle cx="280" cy="113" r="4" fill="var(--s1)" stroke="#fff" stroke-width="2"/><circle cx="390" cy="52" r="4" fill="var(--s1)" stroke="#fff" stroke-width="2"/>
+        <circle cx="60" cy="139" r="4" fill="var(--s2)" stroke="#fff" stroke-width="2"/><circle cx="170" cy="109" r="4" fill="var(--s2)" stroke="#fff" stroke-width="2"/><circle cx="280" cy="87" r="4" fill="#fff" stroke="var(--s2)" stroke-width="2"/><circle cx="390" cy="29" r="4" fill="#fff" stroke="var(--s2)" stroke-width="2"/>
+        <text x="400" y="56" font-size="11">28.0</text><text x="400" y="26" font-size="11">33.1</text>
+        <text x="60" y="196" class="t2" text-anchor="middle">1</text><text x="170" y="196" class="t2" text-anchor="middle">2</text><text x="280" y="196" class="t2" text-anchor="middle">3</text><text x="390" y="196" class="t2" text-anchor="middle">4</text>
+        <text x="240" y="212" class="t2" text-anchor="middle">sessions (or streams: a subagent is one more)</text>
+      </svg>
+      <table style="width:260px;margin:0">
+        <tr><th>128K</th><th>Splash</th><th>mlx-serve</th></tr>
+        <tr><td>3 sessions</td><td>14.6 s</td><td style="color:var(--mute)">20.3 s (26.10.1)</td></tr>
+        <tr><td>4 sessions</td><td>28.0 s, recall misses</td><td style="color:var(--mute)">33.1 s, 3 refused (26.10.1)</td></tr>
+        <tr><td>Side call p95, 4 sessions</td><td>159 s</td><td style="color:var(--mute)">351 s (26.10.1)</td></tr>
+        <tr><td>2 sessions + 1 subagent each (real Claude Code)</td><td colspan="2" style="color:var(--mute)">not measured</td></tr>
+      </table>
+    </div>
+
+    <!-- ========== 5. 256K ========== -->
+    <h3>5. Long sessions: two at 256K</h3>
+    <div class="row">
+      <svg width="360" height="100" aria-label="Two 256K sessions, worst turn">
+        <text x="0" y="12" class="ttl">Two 256K sessions, slowest turn (s)</text>
+        <text x="0" y="40" class="t2">Splash</text>
+        <rect x="70" y="30" width="121" height="14" rx="2" fill="var(--s1)"/><text x="196" y="41">12.1 — no memory setting</text>
+        <text x="0" y="66" class="t2">mlx-serve</text>
+        <rect x="70" y="56" width="186" height="14" rx="2" fill="#898781"/><text x="260" y="67">18.6 — 4 GB cache (26.10.1)</text>
+        <line x1="70" y1="84" x2="350" y2="84" class="base"/><text x="70" y="97" class="t2">0</text><text x="350" y="97" class="t2" text-anchor="end">28 s</text>
+      </svg>
+      <p style="max-width:320px;margin:0">A cold 256K read takes ~12 min on both servers, and on Splash the other session waits for it. After the read, both sessions turn in ~12 s on Splash.</p>
+    </div>
+
+    <!-- ========== 6. Recommendation ========== -->
+    <h3>6. Recommendation</h3>
+    <table>
+      <tr><th>use</th><th>server</th><th>why</th></tr>
+      <tr><td>One or two Claude Code sessions</td><td style="color:var(--s1);font-weight:600">Splash 1.5.0</td><td>faster alone, cheaper second session, short calls do not stall</td></tr>
+      <tr><td>Quality-critical work</td><td style="color:var(--mute)">pending Terminal-Bench on both</td><td>GGUF IQ4_XS and MLX 4.7 bpw are different weights</td></tr>
+      <tr><td>Three sessions, or parallel subagents</td><td>neither</td><td>2.4× or slower per turn</td></tr>
+      <tr><td>Two long (256K) sessions</td><td style="color:var(--s1);font-weight:600">Splash 1.5.0</td><td>fits without settings; expect a long first read</td></tr>
+    </table>
+
+    <!-- ========== coverage ========== -->
+    <h3>What was measured</h3>
+    <div class="legend"><span>● measured</span><span>◐ running</span><span style="color:var(--mute)">○ not measured</span></div>
+    <table style="width:520px">
+      <tr><th>scenario</th><th>Splash 1.5.0</th><th>mlx-serve 26.10.3</th><th style="color:var(--mute)">26.10.1 (appendix)</th></tr>
+      <tr><td>One session, synthetic 32K / 128K / 256K</td><td>●</td><td>● (32K, 128K)</td><td style="color:var(--mute)">●</td></tr>
+      <tr><td>One Claude Code session</td><td>●</td><td style="color:var(--mute)">○</td><td style="color:var(--mute)">●</td></tr>
+      <tr><td>Two Claude Code sessions</td><td>●</td><td style="color:var(--mute)">○</td><td style="color:var(--mute)">●</td></tr>
+      <tr><td>Two sessions, synthetic worst case</td><td>●</td><td>●</td><td style="color:var(--mute)">●</td></tr>
+      <tr><td>Three and four sessions</td><td>●</td><td style="color:var(--mute)">○</td><td style="color:var(--mute)">●</td></tr>
+      <tr><td>Two 256K sessions</td><td>●</td><td style="color:var(--mute)">○</td><td style="color:var(--mute)">●</td></tr>
+      <tr><td>Realistic Claude Code task (60–120K, 20–40 turns)</td><td style="color:var(--mute)">○</td><td style="color:var(--mute)">○</td><td style="color:var(--mute)">○</td></tr>
+      <tr><td>Claude Code with subagents</td><td style="color:var(--mute)">○</td><td style="color:var(--mute)">○</td><td style="color:var(--mute)">○</td></tr>
+      <tr><td>Agent quality (Terminal-Bench)</td><td style="color:var(--mute)">○</td><td>◐ 51/89</td><td style="color:var(--mute)">○</td></tr>
+    </table>
+
+    <details><summary>Appendix: method, campaign gates, glossary, mlx-serve 26.10.1 results, all configurations</summary>
+      <p class="cap">Harness, the 1.5× / 2.0× ratio gate and its verdicts, recall checks, the full per-configuration table, runbooks. Every chart has hover tooltips and a table view in the real page.</p>
+    </details>
+  </div>
+</div>
+
+<h3>Perguntas</h3>
+<p class="subtitle">Marque os gráficos que <b>não</b> merecem o lugar (pode marcar vários). Depois diga no terminal o que está errado ou faltando.</p>
+<div class="options" data-multiselect>
+  <div class="option" data-choice="drop-1-panels" onclick="toggleSelect(this)"><div class="letter">1</div><div class="content"><h3>Uma sessão: painéis com faixas</h3><p>Barras por métrica com fundo verde / âmbar / vermelho.</p></div></div>
+  <div class="option" data-choice="drop-2-dumbbell" onclick="toggleSelect(this)"><div class="letter">2</div><div class="content"><h3>Duas sessões: halteres sozinho → par</h3><p>Dois pontos ligados por métrica.</p></div></div>
+  <div class="option" data-choice="drop-2-work" onclick="toggleSelect(this)"><div class="letter">3</div><div class="content"><h3>Trabalho por hora: barra divergente</h3><p>+24% / −7% em volta do zero.</p></div></div>
+  <div class="option" data-choice="drop-3-timeline" onclick="toggleSelect(this)"><div class="letter">4</div><div class="content"><h3>Pior caso: linha do tempo</h3><p>Esquema de A, B e a chamada curta.</p></div></div>
+  <div class="option" data-choice="drop-4-line" onclick="toggleSelect(this)"><div class="letter">5</div><div class="content"><h3>Três e quatro: gráfico de linha</h3><p>Tempo do turno por número de sessões.</p></div></div>
+  <div class="option" data-choice="drop-coverage" onclick="toggleSelect(this)"><div class="letter">6</div><div class="content"><h3>Matriz "o que foi medido"</h3><p>Cenário × servidor.</p></div></div>
+</div>

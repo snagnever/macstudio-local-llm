@@ -86,33 +86,48 @@ Cap `max_tokens` above 4096 for hard prompts: with `xhigh` the reasoning can pas
 - One model at a time. Parallel requests to the driver batch their decode (see "Concurrent sessions" below).
 - Keep ≥ 100 GB free on the boot volume for the prefix-cache disk tier.
 
-### Concurrent sessions (measured 2026-10-17/18)
+### Concurrent sessions (measured 2026-10-17 to 2026-10-30)
 
-mlx-serve 26.10.1 batches decode for this model at its default `--max-concurrent 1`: the boot log shows `batched decode on` and `gdn batched decode engaged (slots=2)`. A second session does not queue behind the first. It shares decode: each overlapped stream runs at ~38–42 tok/s against 77–84 tok/s alone, so total decode does not grow. `--max-concurrent 2` measured the same as the default.
+One Claude Code session works on both servers. A second session costs little on Splash 1.5.0. Three or more
+sessions, or two sessions with parallel subagents, are not advised. The table is in seconds a person waits, per
+server: Splash 1.5.0 with the ukisai Swift 1.5 GGUF `IQ4_XS` pack, and mlx-serve 26.10.3 with the Dankpaws Swift
+1.5 MLX 4.7bpw pack. `n/m` = not measured yet; the Claude Code campaign on mlx-serve 26.10.3 is pending, and
+the values marked (26.10.1) come from the older build.
 
-| Case | Worst stream ÷ solo T_turno | Notes |
-|---|---:|---|
-| 2 streams, 32K | 1.76× | no errors, swap 0 |
-| 2 streams, 128K | 1.94× | wired peak 113.5 GB, swap 0 |
-| 2 streams, 256K, `256k` profile (4 GB prefix cache) | 1.68× (1.81× against the campaign's 3-rep 256K control) | with the daily 16 GB cache, a 256K session beside a 32K one got `PrefillDoesNotFit` and missed a needle; 8-bit KV was refused with the 16 GB cache and missed a needle with the 4 GB cache |
-| 3 streams with aux load, 32K / 128K | 2.37× / 2.36× | fails; fits in memory (wired peak 114.7 GB at 128K), no refusal |
-| 4 streams, 32K / 128K | 2.84× / 3.85× | fails; 128K also refused 3 prefills |
-| 2 Claude Code sessions (`claude -p`), 128K | 1.84–2.36× per session | every task done, no errors; the pair ends ~7% later than the two tasks run one after the other |
-
-A short request from one session (permission check, title) waits behind another session's long prefill: p95 TTFT 170–356 s at 128K and 256K, during cold or mutated-prompt prefills. The same wait shows with `--max-concurrent 1`, and `--prefill-decode-share` 0.3 or 0.5 does not remove it (it doubles cold TTFT). Two sessions work on one driver, but they gain no time over running the tasks one after the other. Source: [`bench/flashnext-concurrency-2026-10/results/summary.md`](../../bench/flashnext-concurrency-2026-10/results/summary.md).
-
-Splash 1.5.0 (measured 2026-10-29, `tools/scripts/serve-flashnext-splash.sh`) batches decode too, but reads one prompt at a time. The result depends on how much new prompt each turn brings:
-
-| Test | mlx-serve | Splash 1.5.0 |
+| what you wait for | Splash 1.5.0 | mlx-serve 26.10.3 |
 |---|---:|---:|
-| One session, T_turno at 32K / 128K | 7.9 / 9.0 s (26.10.3) | 5.8 / 6.1 s |
-| Two sessions, worst turn at 32K / 128K | 13.8 / 15.6 s (1.75× / 1.73×) | 14.1 / 15.4 s (2.43× / 2.52×) |
-| Four sessions + side requests at 128K, worst slowdown | 3.85×, 3 refused prefills (26.10.1) | 4.59×, no refusal |
-| Two 256K sessions, worst turn | 18.6 s, only with a 4 GB prompt cache (26.10.1) | 12.1 s, no memory setting |
-| Short side request p95 at 128K | 183 s | 5 s |
-| Claude Code pair ÷ the two tasks in sequence | 1.07 (26.10.1) | 0.76 |
+| Reply starts, one session (warm turn, prompt cached) | 0.8 s (Claude Code) | 2.0 s (synthetic tool turn) |
+| Reply starts, two sessions (median / p90) | 1.8 s / 3.4 s | n/m |
+| Generation, one session (slowest–fastest turn) | 93–176 tok/s | 73–83 tok/s |
+| Generation, two sessions (median / slowest turn) | 90 / 40 tok/s | n/m |
+| First prompt of a session (~20K tokens) | 24 s | n/m |
+| Resume a 128K session (cold read) | 168 s | 165 s |
+| Small task, alone → in a pair | 41 → 59 s | n/m (26.10.1: 62–75 → 127–151 s) |
+| Time saved by the pair over the two tasks in sequence | 24% | n/m (26.10.1: −7%) |
+| Side call p95 while the other session reads a big prompt (128K) | 5 s | 183 s, 7 calls over 60 s |
+| Worst turn, two sessions, synthetic 128K (alone → pair) | 6.1 → 15.4 s | 9.0 → 15.6 s |
+| Worst turn, 3 / 4 sessions, synthetic 128K | 14.6 / 28.0 s | 20.3 / 33.1 s (26.10.1) |
+| Two 256K sessions, worst turn | 12.1 s, no memory setting | 18.6 s with a 4 GB prompt cache (26.10.1) |
+| Agent quality (Terminal-Bench) | not measured | running |
 
-With Claude Code (prompts almost all cached), two Splash sessions finish 24% sooner than the same tasks in sequence, and each task alone takes ~41 s against 62–75 s on mlx-serve. The daily driver stays on mlx-serve: Splash runs the GGUF pack, and agent quality on it is not measured. Source: [`bench/splash-concurrency-2026-10/results/summary.md`](../../bench/splash-concurrency-2026-10/results/summary.md).
+What explains it: the prefill decides. Both servers batch decode, but Splash reads one prompt at a time, so a
+session waits while the other reads a big prompt (a session start of ~20K tokens, a large file, a compaction).
+Claude Code sends almost everything from the cache (median 575 new tokens per turn), so in real use the batch
+wins on Splash: the pair finishes 24% sooner than the two tasks in sequence. On mlx-serve a short call
+(permission check, title) waits minutes behind another session's long prefill; `--prefill-decode-share` does not
+remove the wait. With big prompts every turn (the synthetic battery) each turn runs about 2× slower with two
+sessions on both servers, and 2.4–4.5× slower with three or four.
+
+Experience bands used on the public page: reply starts ≤ 2 s good, 2–5 s acceptable, > 5 s poor; generation
+≥ 60 tok/s good, 30–60 acceptable, < 30 poor; first prompt ≤ 30 s good; side call ≤ 5 s good. The campaign gate
+(worst slowdown ≤ 1.5× passes, ≤ 2.0× warns) stays in the page's appendix.
+
+The daily driver stays on mlx-serve until agent quality is measured on both packs. Public page:
+[`reports/qwen38-flashnext-concurrency.html`](../../reports/qwen38-flashnext-concurrency.html). Sources:
+[`bench/splash-concurrency-2026-10/results/summary.md`](../../bench/splash-concurrency-2026-10/results/summary.md)
+(Splash 1.5.0 and the mlx-serve 26.10.3 control, 2026-10-29) and
+[`bench/flashnext-concurrency-2026-10/results/summary.md`](../../bench/flashnext-concurrency-2026-10/results/summary.md)
+(mlx-serve 26.10.1, 2026-10-18).
 
 ```bash
 tools/scripts/serve-flashnext-daily-driver.sh 256k   # two long sessions: 262144 tokens, 4 GB RAM prefix cache
