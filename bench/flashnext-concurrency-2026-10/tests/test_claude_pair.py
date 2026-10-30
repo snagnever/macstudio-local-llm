@@ -107,3 +107,13 @@ def test_proxy_inside_the_pair_records_the_session_requests(tmp_path):
     recs = [json.loads(line) for line in (out / "req-t-a.jsonl").read_text().splitlines()]
     assert len(recs) == 1 and recs[0]["stream"] == "t-a" and recs[0]["status"] == 200 and recs[0]["input_tokens"] == 19297
     assert json.loads((out / "cc-t-a.json").read_text())["subagents"] is False
+
+
+def test_raw_dir_env_reaches_the_proxy_in_dry_run():
+    env = clean_env({"CLAUDE_PAIR_RAW_DIR": "/tmp/raw-x"})
+    out = run("bash", SCRIPTS / "run-claude-pair.sh", "--dry-run", "--sessions", "1", "--task", "a", "--proxy", "8686",
+              "--tag", "t", env=env).stdout
+    assert "--raw-dir /tmp/raw-x " in out
+    out = run("bash", SCRIPTS / "run-claude-pair.sh", "--dry-run", "--sessions", "1", "--task", "a", "--proxy", "8686",
+              "--tag", "t").stdout
+    assert "--raw-dir" not in out

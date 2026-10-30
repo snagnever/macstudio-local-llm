@@ -7,7 +7,8 @@
 # usage: run-claude-pair.sh --sessions 1|2 --tag TAG [--task a|b|c|d] [--pair a,b|c,d] [--subagents]
 #                           [--proxy BASEPORT] [--max-turns N] [--out DIR] [--dry-run]
 #        run-claude-pair.sh --interactive-env      (prints the exports for a manual interactive session)
-# Env: BASE_URL and MODEL_ID (from run-candidate.sh --exec), CLAUDE_BIN, CLAUDE_PAIR_WORK, CLAUDE_PAIR_TIMEOUT.
+# Env: BASE_URL and MODEL_ID (from run-candidate.sh --exec), CLAUDE_BIN, CLAUDE_PAIR_WORK, CLAUDE_PAIR_TIMEOUT,
+# CLAUDE_PAIR_RAW_DIR.
 # bash 3.2 (the rig's).
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -36,6 +37,7 @@ MODEL_ID="${MODEL_ID:-Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191
 CLAUDE_BIN="${CLAUDE_BIN:-claude}"
 WORK="${CLAUDE_PAIR_WORK:-$HOME/.cache/flashnext-concurrency/claude-work}"
 TIMEOUT="${CLAUDE_PAIR_TIMEOUT:-1800}"
+RAW_DIR="${CLAUDE_PAIR_RAW_DIR:-}"  # with --proxy: keep every response's raw SSE under this dir (debugging)
 
 ENV_LINES=(
   "ANTHROPIC_BASE_URL=$ANTHROPIC_URL" "ANTHROPIC_AUTH_TOKEN=local"
@@ -79,7 +81,7 @@ if [[ -n "$DRY" ]]; then
   for t in "${RUN_TASKS[@]}"; do
     if [[ -n "$PROXY" ]]; then
       port="$(proxy_port "$i")"
-      echo "python3 $HERE/request_log.py --listen $port --upstream $ANTHROPIC_URL --out $OUT/req-$TAG-$t.jsonl --stream $TAG-$t --t0 \$T0 &"
+      echo "python3 $HERE/request_log.py --listen $port --upstream $ANTHROPIC_URL --out $OUT/req-$TAG-$t.jsonl --stream $TAG-$t --t0 \$T0${RAW_DIR:+ --raw-dir $RAW_DIR} &"
       echo "ANTHROPIC_BASE_URL=http://127.0.0.1:$port"
     fi
     echo "cd $WORK/$TAG-$t && claude -p \"\$(cat $(prompt_files "$t"))\" ${CLAUDE_ARGS[*]}"
@@ -141,7 +143,7 @@ for t in "${RUN_TASKS[@]}"; do
     if [[ -n "$port" ]]; then
       rm -f "$OUT/req-$TAG-$t.jsonl"
       python3 "$HERE/request_log.py" --listen "$port" --upstream "$ANTHROPIC_URL" --out "$OUT/req-$TAG-$t.jsonl" \
-        --stream "$TAG-$t" --t0 "$T0" 2> "$repo.proxy.log" &
+        --stream "$TAG-$t" --t0 "$T0" ${RAW_DIR:+--raw-dir "$RAW_DIR"} 2> "$repo.proxy.log" &
       ppid=$!
       wait_port "$port" || echo "    task $t: proxy on $port did not come up" >&2
       export ANTHROPIC_BASE_URL="http://127.0.0.1:$port"

@@ -74,3 +74,30 @@ def test_proxy_forwards_stream_and_writes_one_record(tmp_path):
     recs = [json.loads(line) for line in out.read_text().splitlines()]
     assert len(recs) == 1 and recs[0]["stream"] == "d" and recs[0]["input_tokens"] == 19297
     assert 0.05 < recs[0]["ttft_s"] < 1.0 and recs[0]["status"] == 200 and recs[0]["cached_tokens"] == 16032
+
+
+def test_parse_sse_ttft_counts_a_tool_use_json_delta_as_the_first_token():
+    # A turn that is only a tool call has no text/thinking delta; the model still started generating.
+    ev = [EVENTS[0], ("content_block_start", {"type": "content_block_start", "index": 0,
+                                               "content_block": {"type": "tool_use", "name": "Read"}}),
+          ("content_block_delta", {"type": "content_block_delta", "index": 0,
+                                   "delta": {"type": "input_json_delta", "partial_json": "{"}}),
+          EVENTS[4], EVENTS[5]]
+    rec = RL.parse_sse(ev, 0.0, [0.1, 0.2, 2.5, 4.0, 4.0], t0=0.0, stream="c", status=200)
+    assert rec["ttft_s"] == 2.5 and abs(rec["tps"] - 110 / 1.5) < 0.1
+
+
+def test_proxy_raw_dir_keeps_the_whole_response(tmp_path):
+    up = ThreadingHTTPServer(("127.0.0.1", 0), FakeUpstream)
+    threading.Thread(target=up.serve_forever, daemon=True).start()
+    raw = tmp_path / "raw"
+    px = RL.make_server("127.0.0.1", 0, f"http://127.0.0.1:{up.server_port}", tmp_path / "req.jsonl", stream="d",
+                        t0=time.time(), raw_dir=raw)
+    threading.Thread(target=px.serve_forever, daemon=True).start()
+    req = urllib.request.Request(f"http://127.0.0.1:{px.server_port}/v1/messages", data=b'{"stream":true}',
+                                 headers={"Content-Type": "application/json"})
+    urllib.request.urlopen(req).read()
+    px.shutdown()
+    up.shutdown()
+    files = sorted(raw.glob("d-*.sse"))
+    assert len(files) == 1 and "event: message_stop" in files[0].read_text() and "input_tokens" in files[0].read_text()

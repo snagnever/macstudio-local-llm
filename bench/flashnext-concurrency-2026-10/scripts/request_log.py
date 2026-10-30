@@ -7,8 +7,8 @@ Every request is forwarded unchanged (method, path, headers, body) and the respo
 client chunk by chunk. For a text/event-stream response the proxy parses the SSE events as they pass and
 appends one JSON line to --out in the schema of claude_requests.py:
     {"t_start_s", "ttft_s", "t_end_s", "input_tokens", "cached_tokens", "output_tokens", "tps", "status", "stream"}
-ttft_s is the time to the first content_block_delta with text_delta or thinking_delta (message_start arrives
-before the prefill, so it is not the first token). t_start_s and t_end_s are relative to --t0, a clock shared
+ttft_s is the time to the first content_block_delta of any kind: text, thinking or tool-call json
+(message_start arrives before the prefill, so it is not the first token). t_start_s and t_end_s are relative to --t0, a clock shared
 by all the proxies of one rep. cached_tokens is null when the server does not report cache_read_input_tokens.
 A response without a content delta (HTTP error, aborted stream) is logged with ttft_s null and its real status.
 
@@ -27,7 +27,6 @@ from pathlib import Path
 from typing import Any, Optional, Sequence
 from urllib.parse import urlsplit
 
-CONTENT_DELTAS = ("text_delta", "thinking_delta")
 HOP_HEADERS = {"host", "content-length", "transfer-encoding", "connection", "keep-alive"}
 
 
@@ -56,8 +55,7 @@ def parse_sse(events: list[tuple[str, dict[str, Any]]], t_start: float, times: l
         if kind == "message_start":
             input_tokens, cached = _usage_tokens((data.get("message") or {}).get("usage") or {})
         elif kind == "content_block_delta" and t_first is None:
-            if (data.get("delta") or {}).get("type") in CONTENT_DELTAS:
-                t_first = t
+            t_first = t  # text, thinking or tool-call json: the model started generating
         elif kind == "message_delta" and data.get("usage"):
             out = data["usage"].get("output_tokens")
             if out is not None:
@@ -129,8 +127,10 @@ class _ProxyServer(ThreadingHTTPServer):
     allow_reuse_address = True
 
     def __init__(self, addr: tuple[str, int], handler: type, upstream: str, out: Path, stream: Optional[str],
-                 t0: float) -> None:
+                 t0: float, raw_dir: Optional[Path] = None) -> None:
         super().__init__(addr, handler)
+        self.raw_dir = Path(raw_dir) if raw_dir else None
+        self.raw_n = 0
         u = urlsplit(upstream)
         self.upstream_host = u.hostname or "127.0.0.1"
         self.upstream_port = u.port or 80
@@ -144,6 +144,16 @@ class _ProxyServer(ThreadingHTTPServer):
         with self.lock:
             with open(self.out, "a", encoding="utf-8") as fh:
                 fh.write(line)
+
+    def raw_path(self) -> Optional[Path]:
+        """One file per response under --raw-dir: <stream>-<n>.sse, each chunk preceded by '--- t=<epoch> ---'."""
+        if self.raw_dir is None:
+            return None
+        with self.lock:
+            self.raw_n += 1
+            n = self.raw_n
+        self.raw_dir.mkdir(parents=True, exist_ok=True)
+        return self.raw_dir / f"{self.stream or 'stream'}-{n:04d}.sse"
 
 
 class _ProxyHandler(BaseHTTPRequestHandler):
@@ -185,6 +195,11 @@ class _ProxyHandler(BaseHTTPRequestHandler):
         self.end_headers()
         parser = _SSEParser()
         raw = b""
+        raw_fh = None
+        raw_file = self.server.raw_path()
+        if raw_file is not None:
+            raw_fh = open(raw_file, "ab")
+            raw_fh.write(f"--- request t={t_start:.3f} status={status} content-type={ctype} ---\n".encode())
         try:
             while True:
                 chunk = resp.read(4096)
@@ -193,6 +208,9 @@ class _ProxyHandler(BaseHTTPRequestHandler):
                 now = time.time()
                 self.wfile.write(chunk)
                 self.wfile.flush()
+                if raw_fh is not None:
+                    raw_fh.write(f"--- t={now:.3f} ---\n".encode())
+                    raw_fh.write(chunk)
                 if is_sse:
                     parser.feed(chunk, now)
                 else:
@@ -201,6 +219,8 @@ class _ProxyHandler(BaseHTTPRequestHandler):
             pass
         finally:
             conn.close()
+            if raw_fh is not None:
+                raw_fh.close()
         t_end = time.time()
         if is_sse:
             rec = parse_sse(parser.events, t_start, parser.times, self.server.t0, self.server.stream, status)
@@ -216,8 +236,9 @@ class _ProxyHandler(BaseHTTPRequestHandler):
     do_DELETE = _forward
 
 
-def make_server(host: str, port: int, upstream: str, out: Path, stream: Optional[str], t0: float) -> ThreadingHTTPServer:
-    return _ProxyServer((host, port), _ProxyHandler, upstream, out, stream, t0)
+def make_server(host: str, port: int, upstream: str, out: Path, stream: Optional[str], t0: float,
+                raw_dir: Optional[Path] = None) -> ThreadingHTTPServer:
+    return _ProxyServer((host, port), _ProxyHandler, upstream, out, stream, t0, raw_dir)
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -227,9 +248,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     p.add_argument("--out", required=True, help="JSONL file, one record appended per request")
     p.add_argument("--stream", default=None, help="label written in every record (one per Claude Code session)")
     p.add_argument("--t0", type=float, default=None, help="epoch seconds of the common clock (default: now)")
+    p.add_argument("--raw-dir", default=None, help="also keep every response's raw bytes, one .sse file each")
     args = p.parse_args(argv)
     t0 = args.t0 if args.t0 is not None else time.time()
-    server = make_server("127.0.0.1", args.listen, args.upstream, Path(args.out), args.stream, t0)
+    server = make_server("127.0.0.1", args.listen, args.upstream, Path(args.out), args.stream, t0,
+                         Path(args.raw_dir) if args.raw_dir else None)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
