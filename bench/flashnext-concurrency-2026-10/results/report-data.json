@@ -1506,6 +1506,7 @@
         "ttft_pair_p90": 3.7,
         "tps_alone_p50": 119.6,
         "tps_pair_p50": 93.45,
+        "tps_alone_min": 93.1,
         "tps_pair_min": 40.0,
         "tasks": {
           "small": {
@@ -1534,6 +1535,7 @@
         "ttft_pair_p90": null,
         "tps_alone_p50": null,
         "tps_pair_p50": null,
+        "tps_alone_min": null,
         "tps_pair_min": null,
         "tasks": {},
         "time_saved": null,
@@ -1704,7 +1706,7 @@
         "first_prompt_s": 23.7
       },
       "two": {
-        "word": "Yes",
+        "word": "Yes, at a cost",
         "ttft_pair_p50": 1.85,
         "time_saved": 0.2424800491098834
       },

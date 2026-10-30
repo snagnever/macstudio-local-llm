@@ -562,6 +562,7 @@ def test_collect_scenarios_real_splash_and_legacy():
     two = sc["two_sessions"]["splash"]
     assert two["ttft_pair_p50"] == pytest.approx(1.9, abs=0.1) and two["ttft_alone_p50"] == pytest.approx(0.8, abs=0.1)
     assert two["max_concurrent"] == 2 and two["time_saved"] == pytest.approx(0.24, abs=0.01)
+    assert two["tps_alone_min"] == pytest.approx(93.1, abs=0.1) and two["tps_pair_min"] == pytest.approx(40.0, abs=0.1)
     assert two["tasks"]["small"]["a"]["alone_s"] == pytest.approx(41.0, abs=0.1)
     assert sc["one_session"]["splash"]["warm_ttft_source"] == "claude"
     assert sc["one_session"]["mlx"]["warm_ttft_source"] == "synthetic"
@@ -668,3 +669,10 @@ def test_legacy_only_in_appendix(full_html):
 
 def test_hatch_pattern_defined_once(full_html):
     assert full_html.count('<pattern id="hatch"') == 1 and "--good:" in full_html and "--s1l:" in full_html
+
+
+@pytest.mark.skipif(not HAS_SPLASH, reason="no Splash results")
+def test_many_sessions_chart_draws_the_points(full_html):
+    many = _section_of(full_html, "many")
+    assert many.count("<circle") >= 6 and many.count("<polyline") >= 2
+    assert many.count('fill="var(--surface)"') == 2  # the two older-build points are hollow

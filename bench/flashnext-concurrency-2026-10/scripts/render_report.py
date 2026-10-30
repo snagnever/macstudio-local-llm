@@ -390,7 +390,7 @@ def collect_scenarios(data: dict, claude: dict[str, Optional[dict]], tbench: Opt
         two[key] = {"ttft_alone_p50": _g(wa, "ttft_p50"), "ttft_pair_p50": _g(wp, "ttft_p50"),
                     "ttft_alone_p90": _g(wa, "ttft_p90"), "ttft_pair_p90": _g(wp, "ttft_p90"),
                     "tps_alone_p50": _g(wa, "tps_p50"), "tps_pair_p50": _g(wp, "tps_p50"),
-                    "tps_pair_min": _g(wp, "tps_min"),
+                    "tps_alone_min": _g(wa, "tps_min"), "tps_pair_min": _g(wp, "tps_min"),
                     "tasks": {p: {t: {"alone_s": v["alone_s"].get(t), "pair_s": v["pair_s"].get(t)} for t in v["tasks"]}
                               for p, v in prof.items()},
                     "time_saved": saved.get(main_profile), "time_saved_by_profile": saved,
@@ -456,7 +456,11 @@ def collect_scenarios(data: dict, claude: dict[str, Optional[dict]], tbench: Opt
     one_word = None if b1 is None else "Yes" if b1 == "good" and bf != "poor" else \
         "Yes, with waits" if b1 != "poor" else "No"
     b2 = band("ttft", t["ttft_pair_p50"])
-    two_word = None if b2 is None else "Yes" if b2 == "good" and (t["time_saved"] or 0) >= 0 else \
+    # "Yes" only when the pair keeps the good band and costs under 1.5x the alone wait; a bigger cost in the good
+    # or acceptable band is "Yes, at a cost".
+    cheap = t["ttft_alone_p50"] is not None and t["ttft_pair_p50"] is not None \
+        and t["ttft_pair_p50"] <= 1.5 * t["ttft_alone_p50"]
+    two_word = None if b2 is None else "Yes" if b2 == "good" and cheap and (t["time_saved"] or 0) >= 0 else \
         "Yes, at a cost" if b2 != "poor" else "No"
     n1 = by_n[rec][1]["turn_s"]
     slow = [by_n[rec][n]["turn_s"] / n1 for n in (3, 4) if n1 and by_n[rec][n]["turn_s"] is not None]

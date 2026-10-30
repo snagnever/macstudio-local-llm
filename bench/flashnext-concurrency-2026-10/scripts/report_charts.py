@@ -11,15 +11,15 @@ from __future__ import annotations
 import html
 from typing import Any, Optional, Sequence
 
-# Layout shared by the horizontal-bar forms: label column, plot width, row pitch.
+# Layout shared by the horizontal-bar forms: label column (grows with the longest label), plot width, row pitch.
 W = 560
 LEFT = 110.0
 RIGHT_PAD = 70.0
-PLOT_W = W - LEFT - RIGHT_PAD
 ROW_H = 26.0
 TOP = 26.0
 BAR_H = 14.0
-AXIS_X = LEFT + PLOT_W / 2  # zero axis of the diverging chart
+CHAR_W = 7.2  # about one 13-unit sans character
+AXIS_X = LEFT + (W - LEFT - RIGHT_PAD) / 2  # zero axis of the diverging chart
 # (good up to, acceptable up to) for lower-is-better metrics; (good from, acceptable from) for tps.
 EXP_BANDS = {"ttft": (2.0, 5.0), "first_prompt": (30.0, 60.0), "side": (5.0, 60.0)}
 EXP_BANDS_HIGH = {"tps": (60.0, 30.0)}
@@ -59,13 +59,18 @@ def _tip(s: str) -> str:
     return f"<title>{html.escape(s)}</title>"
 
 
+def _left(labels: Sequence[str]) -> float:
+    """The label column: wide enough for the longest label, never narrower than LEFT."""
+    return max(LEFT, max((len(s) for s in labels), default=0) * CHAR_W + 12)
+
+
 def _nm(x: float, y: float) -> list[str]:
     """The not-measured mark: a hatched bar and the text n/m."""
     return [f'<rect class="nm" x="{x:.1f}" y="{y:.1f}" width="60" height="{BAR_H}" rx="2" fill="url(#hatch)" '
             f'stroke="currentColor" opacity="0.6"/>', _text(x + 66, y + 11, "n/m", "na", "start")]
 
 
-def _band_fills(metric: Optional[str], vmax: float, top: float, height: float) -> list[str]:
+def _band_fills(metric: Optional[str], vmax: float, left: float, plot_w: float, top: float, height: float) -> list[str]:
     """Background strips for the experience bands, in left-to-right order."""
     if metric is None:
         return []
@@ -77,22 +82,27 @@ def _band_fills(metric: Optional[str], vmax: float, top: float, height: float) -
         edges = [(0.0, good, "good"), (good, ok, "ok"), (ok, vmax, "poor")]
     out = []
     for lo, hi, kind in edges:
-        x0, x1 = LEFT + _scale(lo, vmax, PLOT_W), LEFT + _scale(min(hi, vmax), vmax, PLOT_W)
+        x0, x1 = left + _scale(lo, vmax, plot_w), left + _scale(min(hi, vmax), vmax, plot_w)
         if x1 > x0:
             out.append(f'<rect class="band {kind}" x="{x0:.1f}" y="{top:.1f}" width="{x1 - x0:.1f}" '
                        f'height="{height:.1f}" fill="{BAND_FILL[kind]}" opacity="0.12"/>')
     return out
 
 
-def _axis(y: float, vmax: float, unit: str, metric: Optional[str]) -> list[str]:
+def _axis(y: float, vmax: float, unit: str, metric: Optional[str], left: float, plot_w: float) -> list[str]:
+    """Baseline with ticks at 0, the band limits and vmax; a tick too close to the previous one is skipped."""
     ticks = {0.0, vmax}
     if metric in EXP_BANDS:
         ticks |= set(EXP_BANDS[metric])
     elif metric in EXP_BANDS_HIGH:
         ticks |= set(EXP_BANDS_HIGH[metric])
-    out = [_baseline(LEFT, LEFT + PLOT_W, y)]
+    out = [_baseline(left, left + plot_w, y)]
+    last_x = -1e9
     for t in sorted(v for v in ticks if v <= vmax):
-        x = LEFT + _scale(t, vmax, PLOT_W)
+        x = left + _scale(t, vmax, plot_w)
+        if x - last_x < 22 and t != vmax:
+            continue
+        last_x = x
         label = f"{t:g}" + (f" {unit}" if t == vmax else "")
         out.append(_text(x, y + 14, label, "tick", "end" if t == vmax else "middle"))
     return out
@@ -105,64 +115,70 @@ def _fmt_unit(v: float, unit: str) -> str:
 def svg_band_bars(title: str, rows: Sequence[dict[str, Any]], vmax: float, unit: str,
                   metric: Optional[str]) -> str:
     """Horizontal bars, one per row, over the band strips of `metric`. A row with lo/hi draws a range bar."""
+    left = _left([r["label"] for r in rows])
+    plot_w = W - left - RIGHT_PAD
     h = TOP + len(rows) * ROW_H + 24
-    body = [_title(title)] + _band_fills(metric, vmax, TOP - 6, len(rows) * ROW_H)
+    body = [_title(title)] + _band_fills(metric, vmax, left, plot_w, TOP - 6, len(rows) * ROW_H)
     for i, r in enumerate(rows):
         y = TOP + i * ROW_H
-        body.append(_text(LEFT - 8, y + 11, r["label"], "lbl", "end"))
+        body.append(_text(left - 8, y + 11, r["label"], "lbl", "end"))
         fill = f"var(--{r['series']})"
         if r.get("value") is not None:
-            w = _scale(r["value"], vmax, PLOT_W)
-            tip = f"{r['label']}: {_fmt_unit(r['value'], unit)}"
-            body.append(f'<rect class="bar" x="{LEFT:.1f}" y="{y:.1f}" width="{w:.1f}" height="{BAR_H}" rx="2" '
-                        f'fill="{fill}">{_tip(tip)}</rect>')
-            body.append(_text(LEFT + w + 6, y + 11, _fmt_unit(r["value"], unit) + (f" {r['note']}" if r.get("note") else ""),
-                              "value", "start"))
+            w = _scale(r["value"], vmax, plot_w)
+            tip = _tip(f"{r['label']}: {_fmt_unit(r['value'], unit)}")
+            body.append(f'<rect class="bar" x="{left:.1f}" y="{y:.1f}" width="{w:.1f}" height="{BAR_H}" rx="2" '
+                        f'fill="{fill}">{tip}</rect>')
+            body.append(_text(left + w + 6, y + 11,
+                              _fmt_unit(r["value"], unit) + (f" {r['note']}" if r.get("note") else ""), "value", "start"))
         elif r.get("lo") is not None and r.get("hi") is not None:
-            x0, x1 = LEFT + _scale(r["lo"], vmax, PLOT_W), LEFT + _scale(r["hi"], vmax, PLOT_W)
-            label = f"{r['lo']:g}–{r['hi']:g} {unit}".strip()
+            x0, x1 = left + _scale(r["lo"], vmax, plot_w), left + _scale(r["hi"], vmax, plot_w)
+            label = f"{r['lo']:.0f}–{r['hi']:.0f} {unit}".strip()
             tip = _tip(f"{r['label']}: {label}")
             body.append(f'<rect class="bar" x="{x0:.1f}" y="{y:.1f}" width="{max(x1 - x0, 2):.1f}" height="{BAR_H}" '
                         f'rx="2" fill="{fill}">{tip}</rect>')
             body.append(_text(x1 + 6, y + 11, label, "value", "start"))
         else:
-            body += _nm(LEFT, y)
-    body += _axis(TOP + len(rows) * ROW_H - 4, vmax, unit, metric)
+            body += _nm(left, y)
+    body += _axis(TOP + len(rows) * ROW_H - 4, vmax, unit, metric, left, plot_w)
     return _svg(W, int(h), title, body)
 
 
 def svg_dumbbell(title: str, rows: Sequence[dict[str, Any]], vmax: float, unit: str, metric: Optional[str],
                  series: str) -> str:
     """Alone → pair per row: a light circle (alone) and a full circle (pair) joined by a line."""
+    left = _left([r["label"] for r in rows])
+    plot_w = W - left - RIGHT_PAD
     h = TOP + len(rows) * ROW_H + 24
-    body = [_title(title)] + _band_fills(metric, vmax, TOP - 6, len(rows) * ROW_H)
+    body = [_title(title)] + _band_fills(metric, vmax, left, plot_w, TOP - 6, len(rows) * ROW_H)
     for i, r in enumerate(rows):
         y = TOP + i * ROW_H + BAR_H / 2
-        body.append(_text(LEFT - 8, y + 4, r["label"], "lbl", "end"))
+        body.append(_text(left - 8, y + 4, r["label"], "lbl", "end"))
+        ser = r.get("series", series)
         alone, pair = r.get("alone"), r.get("pair")
-        xa = LEFT + _scale(alone, vmax, PLOT_W) if alone is not None else None
-        xp = LEFT + _scale(pair, vmax, PLOT_W) if pair is not None else None
+        xa = left + _scale(alone, vmax, plot_w) if alone is not None else None
+        xp = left + _scale(pair, vmax, plot_w) if pair is not None else None
         if xa is not None and xp is not None:
             body.append(f'<line class="dumbbell" x1="{min(xa, xp):.1f}" y1="{y:.1f}" x2="{max(xa, xp):.1f}" '
-                        f'y2="{y:.1f}" stroke="var(--{series})" stroke-width="2"/>')
-        for x, v, kind, fill in ((xa, alone, "alone", f"var(--{series}l)"), (xp, pair, "pair", f"var(--{series})")):
+                        f'y2="{y:.1f}" stroke="var(--{ser})" stroke-width="2"/>')
+        for x, v, kind, fill in ((xa, alone, "alone", f"var(--{ser}l)"), (xp, pair, "pair", f"var(--{ser})")):
             if x is None:
                 continue
             tip = _tip(f"{r['label']}, {kind}: {_fmt_unit(v, unit)}")
             body.append(f'<circle class="{kind}" cx="{x:.1f}" cy="{y:.1f}" r="5" fill="{fill}" '
                         f'stroke="var(--surface)" stroke-width="2">{tip}</circle>')
-            anchor = "end" if (kind == "alone") == (xa is not None and xp is not None and xa <= xp) else "start"
+            outer_left = xa is not None and xp is not None and ((kind == "alone") == (xa <= xp))
+            anchor = "end" if outer_left else "start"
             body.append(_text(x + (-8 if anchor == "end" else 8), y - 8, _fmt(v), "value", anchor))
         if xa is None or xp is None:
-            body += _nm((xa if xa is not None else xp if xp is not None else LEFT) + 10, y - BAR_H / 2)
-    body += _axis(TOP + len(rows) * ROW_H - 4, vmax, unit, metric)
+            body += _nm((xa if xa is not None else xp if xp is not None else left) + 10, y - BAR_H / 2)
+    body += _axis(TOP + len(rows) * ROW_H - 4, vmax, unit, metric, left, plot_w)
     return _svg(W, int(h), title, body)
 
 
 def svg_diverging(title: str, rows: Sequence[dict[str, Any]], vmax_pct: float) -> str:
     """Signed percentages around a central zero axis; positive to the right."""
     h = TOP + len(rows) * ROW_H + 30
-    half = PLOT_W / 2
+    half = (W - LEFT - RIGHT_PAD) / 2
     body = [_title(title), f'<line x1="{AXIS_X:.1f}" y1="{TOP - 6:.1f}" x2="{AXIS_X:.1f}" '
                            f'y2="{TOP + len(rows) * ROW_H - 4:.1f}" stroke="currentColor" opacity="0.4"/>']
     for i, r in enumerate(rows):
@@ -239,29 +255,33 @@ def svg_lines(title: str, series: Sequence[dict[str, Any]], xs: Sequence[int], y
 def svg_timeline(server_labels: tuple[str, str]) -> str:
     """Schematic: session B sends a big prompt while A is mid-turn; the side call on each server."""
     a, b = server_labels
+    left = _left([f"Side call, {b}"])
     body = [_title("Session B sends a big prompt while A is mid-turn (schematic)")]
 
     def box(x: float, y: float, w: float, label: str, fill: str, text_fill: str = "currentColor") -> list[str]:
-        return [f'<rect x="{x}" y="{y}" width="{w}" height="{BAR_H}" rx="2" fill="{fill}"/>',
-                f'<text x="{x + w / 2:.1f}" y="{y + 11}" text-anchor="middle" font-size="11" fill="{text_fill}">'
-                f'{html.escape(label)}</text>']
+        out = [f'<rect x="{x:.1f}" y="{y}" width="{w}" height="{BAR_H}" rx="2" fill="{fill}"/>']
+        if label:
+            out.append(f'<text x="{x + w / 2:.1f}" y="{y + 11}" text-anchor="middle" font-size="11" '
+                       f'fill="{text_fill}">{html.escape(label)}</text>')
+        return out
 
-    body.append(_text(LEFT - 8, 41, "Session A", "lbl", "end"))
-    body += box(LEFT, 30, 60, "reply", "var(--s1)", "var(--surface)")
-    body += box(LEFT + 60, 30, 130, "waits for B's read", "var(--grid)")
-    body += box(LEFT + 190, 30, 60, "reply", "var(--s1)", "var(--surface)")
-    body.append(_text(LEFT - 8, 69, "Session B", "lbl", "end"))
-    body += box(LEFT + 60, 58, 130, "reads the prompt (prefill)", "var(--s1l)")
-    body += box(LEFT + 190, 58, 60, "reply", "var(--s1)", "var(--surface)")
-    body.append(_text(LEFT - 8, 97, "Side call", "lbl", "end"))
-    body.append(f'<polygon points="{LEFT + 110},86 {LEFT + 106},80 {LEFT + 114},80" fill="currentColor"/>')
-    body += box(LEFT + 110, 86, 12, "", "var(--s1)")
-    body.append(_text(LEFT + 128, 97, f"{a}: answered in seconds", "tick", "start"))
-    body.append(f'<rect x="{LEFT + 110}" y="106" width="80" height="{BAR_H}" rx="2" fill="url(#hatch)" stroke="var(--s2)"/>')
-    body += box(LEFT + 190, 106, 12, "", "var(--s2)")
-    body.append(_text(LEFT + 208, 117, f"{b}: waits for the whole read (minutes)", "tick", "start"))
-    body.append(_baseline(LEFT, W - 10, 132))
-    body.append(_text(LEFT, 146, "time →", "tick", "start"))
+    body.append(_text(left - 8, 41, "Session A", "lbl", "end"))
+    body += box(left, 30, 60, "reply", "var(--s1)", "var(--surface)")
+    body += box(left + 60, 30, 160, "waits for B's read", "var(--grid)")
+    body += box(left + 220, 30, 60, "reply", "var(--s1)", "var(--surface)")
+    body.append(_text(left - 8, 69, "Session B", "lbl", "end"))
+    body += box(left + 60, 58, 160, "reads the prompt (prefill)", "var(--s1l)")
+    body += box(left + 220, 58, 60, "reply", "var(--s1)", "var(--surface)")
+    body.append(_text(left - 8, 97, f"Side call, {a}", "lbl", "end"))
+    body.append(f'<polygon points="{left + 120},86 {left + 116},80 {left + 124},80" fill="currentColor"/>')
+    body += box(left + 120, 86, 12, "", "var(--s1)")
+    body.append(_text(left + 138, 97, "answered in seconds", "tick", "start"))
+    body.append(_text(left - 8, 117, f"Side call, {b}", "lbl", "end"))
+    body.append(f'<rect x="{left + 120}" y="106" width="100" height="{BAR_H}" rx="2" fill="url(#hatch)" stroke="var(--s2)"/>')
+    body += box(left + 220, 106, 12, "", "var(--s2)")
+    body.append(_text(left + 238, 117, "waits minutes", "tick", "start"))
+    body.append(_baseline(left, W - 10, 132))
+    body.append(_text(left, 146, "time →", "tick", "start"))
     return _svg(W, 152, "Timeline of two sessions when one reads a big prompt", body)
 
 

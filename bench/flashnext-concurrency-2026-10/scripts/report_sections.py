@@ -100,12 +100,12 @@ def hero(data: dict) -> str:
     tiles = [
         tile("One session", v["one"]["word"],
              f"Reply starts in {_n(o['warm_ttft_s'], unit='s')}. First prompt of a session: {_n(o['first_prompt_s'], '{:.0f}', 's')}.",
-             f"{_e(other['label'])}: reply starts in {_n(ot['warm_ttft_s'], unit='s')}"),
+             f"{_e(other['label'])}: reply starts {_n(ot['warm_ttft_s'], unit='s')}"),
         tile("Two sessions", v["two"]["word"],
              f"Reply starts in {_n(t['ttft_pair_p50'], unit='s')} instead of {_n(t['ttft_alone_p50'], unit='s')}. "
              + (f"The pair finishes {abs(t['time_saved']) * 100:.0f}% {'sooner' if t['time_saved'] >= 0 else 'later'} "
                 f"than the two tasks one after the other." if t["time_saved"] is not None else "Time saved: n/m."),
-             f"{_e(other['label'])}: reply starts in {_n(tt['ttft_pair_p50'], unit='s')}, time saved {_pct(tt['time_saved'])}"),
+             f"{_e(other['label'])}: reply starts {_n(tt['ttft_pair_p50'], unit='s')}, time saved {_pct(tt['time_saved'])}"),
         tile("Three or more", many["word"],
              (f"Each turn runs {many['slow_lo']:.1f}×–{many['slow_hi']:.1f}× slower than alone at 128K."
               if many["slow_lo"] is not None else "Not measured."),
@@ -160,7 +160,7 @@ def one_session(data: dict) -> str:
     trows.append(["Agent quality (Terminal-Bench)"] + tb_cells)
     table = RR._table(["task alone", *[s["label"] for s in _servers(data)]], trows, "wide")
     return _sec("one", "1. One session", "What does a normal coding turn feel like, alone on the server?",
-                _legend(data) + '<div class="two-col">' + "".join(charts) + "</div>" + table)
+                _legend(data) + "".join(charts) + table)
 
 
 def two_sessions(data: dict) -> str:
@@ -180,7 +180,7 @@ def two_sessions(data: dict) -> str:
         dumb("Reply starts (s): alone → pair", "ttft", "s", 8,
              [("median", "ttft_alone_p50", "ttft_pair_p50"), ("p90", "ttft_alone_p90", "ttft_pair_p90")]),
         dumb("Generation (tok/s): alone → pair", "tps", "tok/s", 200,
-             [("median", "tps_alone_p50", "tps_pair_p50"), ("slowest turn", "tps_alone_p50", "tps_pair_min")]),
+             [("median", "tps_alone_p50", "tps_pair_p50"), ("slowest turn", "tps_alone_min", "tps_pair_min")]),
     ]
     task_rows, task_tbl = [], []
     for s in srvs:
@@ -212,8 +212,7 @@ def two_sessions(data: dict) -> str:
         else:
             notes.append(f"{_e(s['label'])}: the Claude Code pair is not measured yet on this build.")
     return _sec("two", "2. Two sessions, daily use", "What does the second session cost me?",
-                _legend(data, extra) + '<div class="two-col">' + "".join(charts) + "</div>"
-                + f'<p class="s-note">{" ".join(notes)}</p>')
+                _legend(data, extra) + "".join(charts) + f'<p class="s-note">{" ".join(notes)}</p>')
 
 
 def worst_case(data: dict) -> str:
@@ -246,7 +245,9 @@ def many_sessions(data: dict) -> str:
     by_n = sc["by_n"]
     srvs = _servers(data)
     xs = [1, 2, 3, 4]
-    series = [{"key": s["series"], "label": s["label"], "points": {n: by_n[s["key"]][n] for n in xs}} for s in srvs]
+    series = [{"key": s["series"], "label": s["label"],
+               "points": {n: {"y": by_n[s["key"]][n]["turn_s"], "legacy": by_n[s["key"]][n]["legacy"]} for n in xs}}
+              for s in srvs]
     ymax = _vmax([by_n[s["key"]][n]["turn_s"] for s in srvs for n in xs], 10)
     extra = [('<span class="sw ring"></span>', f"older build ({data['legacy']['label']}): hollow point")]
     tbl = table_view(["sessions", *[s["label"] for s in srvs]],
