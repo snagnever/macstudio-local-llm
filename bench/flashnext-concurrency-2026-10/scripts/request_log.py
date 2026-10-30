@@ -32,10 +32,16 @@ HOP_HEADERS = {"host", "content-length", "transfer-encoding", "connection", "kee
 
 
 def _usage_tokens(usage: dict[str, Any]) -> tuple[Optional[int], Optional[int]]:
-    """(input_tokens, cached_tokens) from a usage block; cached is None when the server does not report it."""
+    """(input_tokens, cached_tokens) from a usage block. The API's input_tokens is only the uncached part of the
+    prompt; the record wants the whole prompt (as the Splash log reports it), so the cached and cache-creation
+    parts are added back. cached is None when the server does not report cache_read_input_tokens."""
     inp = usage.get("input_tokens")
     cached = usage.get("cache_read_input_tokens")
-    return (int(inp) if inp is not None else None, int(cached) if cached is not None else None)
+    created = usage.get("cache_creation_input_tokens") or 0
+    if inp is None:
+        return (None, int(cached) if cached is not None else None)
+    total = int(inp) + int(created) + (int(cached) if cached is not None else 0)
+    return (total, int(cached) if cached is not None else None)
 
 
 def parse_sse(events: list[tuple[str, dict[str, Any]]], t_start: float, times: list[float], t0: float,

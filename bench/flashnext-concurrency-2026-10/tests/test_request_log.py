@@ -7,7 +7,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import request_log as RL
 
 EVENTS = [("message_start", {"type": "message_start",
-                             "message": {"usage": {"input_tokens": 19297, "cache_read_input_tokens": 16032}}}),
+                             "message": {"usage": {"input_tokens": 3265, "cache_read_input_tokens": 16032}}}),
           ("content_block_start", {"type": "content_block_start", "index": 0, "content_block": {"type": "thinking"}}),
           ("content_block_delta", {"type": "content_block_delta", "index": 0,
                                    "delta": {"type": "thinking_delta", "thinking": "x"}}),
@@ -22,6 +22,14 @@ def test_parse_sse_ttft_is_first_content_delta_not_message_start():
     assert rec["t_start_s"] == 10.0 and rec["ttft_s"] == 23.7 and rec["t_end_s"] == 35.0
     assert rec["input_tokens"] == 19297 and rec["cached_tokens"] == 16032 and rec["output_tokens"] == 110
     assert abs(rec["tps"] - 110 / (125.0 - 123.7)) < 0.1 and rec["status"] == 200 and rec["stream"] == "c"
+
+
+def test_parse_sse_input_tokens_is_the_whole_prompt_like_the_splash_log():
+    # The API's usage.input_tokens excludes the cached part; the schema (claude_requests.py) wants the total.
+    ev = [("message_start", {"type": "message_start", "message": {"usage": {
+        "input_tokens": 359, "cache_read_input_tokens": 19264, "cache_creation_input_tokens": 100}}})] + EVENTS[1:]
+    rec = RL.parse_sse(ev, 0.0, [0.0, 0.1, 1.0, 1.1, 2.0, 2.0], t0=0.0, stream="c", status=200)
+    assert rec["input_tokens"] == 19723 and rec["cached_tokens"] == 19264
 
 
 def test_parse_sse_without_cache_field_writes_null_cached():
