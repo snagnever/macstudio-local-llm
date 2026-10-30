@@ -54,6 +54,12 @@ def test_k3r_is_k3a_on_the_1_4_1_release():
     assert server(out).replace("splash-v1.4.1", "BIN") == server(show("k3a")).replace("splash-v1.4.0", "BIN")
 
 
+def test_k3f_is_k3a_on_the_1_5_0_release():
+    out = show("k3f")
+    assert "--runtime-revision v1.5.0-verify-auto " in out and "splash-v1.5.0/bin/splash" in out
+    assert server(out).replace("splash-v1.5.0", "BIN") == server(show("k3a")).replace("splash-v1.4.0", "BIN")
+
+
 def test_k2m_is_k2a_with_the_swift_mlx_pack():
     out = show("k2m")
     k2m = server(out)

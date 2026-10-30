@@ -117,6 +117,7 @@ As restrições de [bench/flashnext-next-steps-2026-10/plan.md](../flashnext-nex
 | `k2as` | igual ao `k2a` | + `--state-format bf16` | 8585 |
 | `k3`, `k3a`, `k3ab` | ISTA `Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF:IQ1_M` `bba8885` (58.4 GB, 256 de 512 experts) | como `k2`, `k2a`, `k2ab`; a 1.4.0 recusa (#527), então eles só rodam no Task 5b | 8585 |
 | `r1zy` | mbrown-uno GSQ-RCO-Coder-MLX `50fa68c` | o `r1z` + YaRN + KV 4-bit (só no Task 5) | 11234 |
+| `k3f` | igual ao `k3` | Splash 1.5.0, `--verify-rows auto` (o braço GSQ do Task 6, emenda de 30/10) | 8585 |
 
 O draft DFlash2 que o Splash escolhe é o `incoai/Qwen3.8-Flash-Next-DFlash2` `a22a174`, que já está no cache do rig. Com `--offline`, ele não muda durante a campanha.
 
@@ -261,6 +262,8 @@ Também por pedido do usuário, o braço `k2m` roda o Swift 1.5 MLX 4.7 bpw (os 
 ### Task 6: Terminal-Bench 2.1, do MacBook contra o rig
 
 Ordem: o Swift escolhido a 262144, depois o `w1z` (o driver diário), depois o `k3a` (ou o `r1z`). Cada run tem 89 tarefas, `-n 1` e timeout 1.0×, e leva ~12–24 h.
+
+**Emenda de 30/10 (pedido do usuário).** O `r1z` sai do Terminal-Bench. O braço GSQ passa a ser o `k3f`: o GSQ-RCO-Coder `IQ1_M` `bba8885` no Splash 1.5.0. O Splash 1.5.0 recusa o pack MLX do `r1z` (`model-check`: "Qwen3.8-Flash-Next loads from a GGUF only"), e a doc dele exige que um alvo MLX tenha os 512 experts da família. O pack MLX é uma conversão desse mesmo GGUF. Não existe GGUF GSQ do Flash-Next com 4 bpw ou mais: o maior é o `IQ3_S` de 3.50 bpw, sem a poda Coder. Antes do run, um boot do `k3f` a 262144 confere se a 1.5.0 carrega o GGUF. O `t5r` (`k3r` na 1.4.1) roda depois do `k3f`, disparado à mão, porque o `wait-t5r.sh` esperava o fim do `r1z`.
 
 - [ ] **Step 1: Rig.** Rodar `hold-arm.sh <arm> 262144 logs/tb21-<arm>.done` com `nohup`. Para o `w1z`, o driver diário serve na porta 11234 e não precisa do hold.
 - [ ] **Step 2: Laptop.**
