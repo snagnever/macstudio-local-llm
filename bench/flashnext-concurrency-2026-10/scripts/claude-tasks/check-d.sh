@@ -4,13 +4,14 @@
 # Prints exactly "true" or "false" on stdout and always exits 0. Everything
 # the probed scripts print is discarded. All of the following must hold:
 #   (a) `bash tests/run_tests.sh` exits 0 from the repository root
-#   (b) tests/run_tests.sh has at least nine `check` calls
+#   (b) tests/run_tests.sh has at least eight `check` calls
 #   (c) lib/common.sh exists and at least four top-level scripts source it
 #   (d) bug 1: rotate.sh --keep 3 leaves exactly three archives untouched,
 #       and with four archives removes the oldest one only
 #   (e) bug 2: verify.sh reports "ok" and exits 0 for an archive whose name
 #       contains a space and whose sidecar is correct
-#   (f) bug 3: report.sh lists a 10000-byte archive before a 9999-byte one
+# (The repository also sorts sizes as text in report.sh; that bug is not part
+# of task d since the 2026-10-30 calibration, which cut the task to 2 bugs.)
 # bash 3.2 compatible.
 set -uo pipefail
 
@@ -28,15 +29,15 @@ check_all() {
   [[ -n "$repo" && -d "$repo" ]] || return 1
   repo=$(cd "$repo" && pwd -P) || return 1
   [[ -f "$repo/tests/run_tests.sh" ]] || return 1
-  [[ -f "$repo/rotate.sh" && -f "$repo/verify.sh" && -f "$repo/report.sh" ]] || return 1
+  [[ -f "$repo/rotate.sh" && -f "$repo/verify.sh" ]] || return 1
 
   # (a) the suite passes
   (cd "$repo" && bash tests/run_tests.sh) || return 1
 
-  # (b) at least nine check calls
+  # (b) at least eight check calls
   local n
   n=$(grep -c '^check ' "$repo/tests/run_tests.sh") || return 1
-  [[ "$n" -ge 9 ]] || return 1
+  [[ "$n" -ge 8 ]] || return 1
 
   # (c) the shared library exists and is sourced by at least four scripts
   [[ -f "$repo/lib/common.sh" ]] || return 1
@@ -76,16 +77,6 @@ check_all() {
   if printf '%s\n' "$out" | grep -q '^BAD '; then
     return 1
   fi
-
-  # (f) bug 3: 10000 bytes ranks above 9999 bytes
-  local r="$tmp/report"
-  mkdir -p "$r" || return 1
-  head -c 10000 /dev/zero > "$r/big-20260101-000000.tar.gz" || return 1
-  head -c 9999 /dev/zero > "$r/small-20260102-000000.tar.gz" || return 1
-  out=$(cd "$tmp" && bash "$repo/report.sh" --dest "$r") || return 1
-  local first
-  first=$(printf '%s\n' "$out" | grep '\.tar\.gz$' | head -n 1)
-  [[ "$first" == *big-20260101-000000.tar.gz ]] || return 1
 
   return 0
 }
