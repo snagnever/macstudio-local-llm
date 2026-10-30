@@ -96,7 +96,7 @@ def summarize_requests(reqs: list[dict[str, Any]]) -> dict[str, Any]:
         ttfts = [r["ttft_s"] for r in warm]
         tps = [r["tps"] for r in warm]
         warm_summary = {"n": len(warm), "ttft_p50": statistics.median(ttfts), "ttft_p90": _p90(ttfts),
-                        "tps_p50": statistics.median(tps), "tps_min": min(tps)}
+                        "tps_p50": statistics.median(tps), "tps_min": min(tps), "tps_max": max(tps)}
     return {"n": len(reqs), "max_concurrent": max_concurrent(reqs),
             "first_prompt_ttft_s": statistics.median(cold) if cold else None,
             "new_tokens_p50": statistics.median([r["input_tokens"] - r["cached_tokens"] for r in reqs]) if reqs else None,

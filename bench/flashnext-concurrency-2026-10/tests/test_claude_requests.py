@@ -37,7 +37,7 @@ def test_summarize_requests_warm_and_cold():
     s = summarize_requests(parse_splash_log(LOG))
     assert s["n"] == 2 and s["max_concurrent"] == 1
     assert s["first_prompt_ttft_s"] == 23.7 and s["new_tokens_p50"] == pytest.approx(9827)
-    assert s["warm"] == {"n": 1, "ttft_p50": 0.6, "ttft_p90": 0.6, "tps_p50": 161.3, "tps_min": 161.3}
+    assert s["warm"] == {"n": 1, "ttft_p50": 0.6, "ttft_p90": 0.6, "tps_p50": 161.3, "tps_min": 161.3, "tps_max": 161.3}
 
 
 def test_summarize_requests_without_warm_is_none():
