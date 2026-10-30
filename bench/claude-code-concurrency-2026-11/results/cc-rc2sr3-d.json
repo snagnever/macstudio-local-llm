@@ -1,0 +1,159 @@
+{
+  "duration_api_ms": 1150912,
+  "stop_reason": "end_turn",
+  "session_id": "801c44df-52fe-427a-beb3-28d46aa53d10",
+  "total_cost_usd": 1.1965207999999996,
+  "usage": {
+    "input_tokens": 25976,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 907040,
+    "output_tokens": 13553,
+    "output_tokens_details": {
+      "thinking_tokens": 7848
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 98219,
+      "outputTokens": 28196,
+      "cacheReadInputTokens": 1198624,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 1.1965207999999996,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 13244,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_4e0baac094e885e9e120dff4b0bd99b5_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh 2>/dev/null; echo \"suite rc=$?\"",
+        "description": "Run test suite against buggy scripts (expect new tests to fail)"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_aeb98d4e9bae5d95af39d064a8d28f58_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/d\"; touch \"$t/d/a-20260101-000000.tar.gz\"\nbash rotate.sh --dest \"$t/d\" --name a --keep 1 --dry-run 2>/dev/null; echo \"rc=$?\"\nbash rotate.sh --dest \"$t/d\" --name a --keep x 2>&1 | tail -1; echo \"rc=$?\"\nbash rotate.sh --bogus 2>&1 | tail -1; echo \"rc=$?\"\nbash verify.sh --dest=\"$t/d\" --quiet 2>/dev/null | tail -1; echo \"rc=$?\"\nbash verify.sh --dest \"$t/d\" -h 2>/dev/null | head -1\nrm -rf \"$t\"",
+        "description": "Spot-check rotate/verify flags after refactor"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_05f6cdee88921c8d49cf3fe7fb339975_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/rc2sr3-spot/d && touch /tmp/rc2sr3-spot/d/a-20260101-000000.tar.gz /tmp/rc2sr3-spot/d/b-20260102-000000.tar.gz",
+        "description": "Create spot-check fixture directory"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_66b93fe1ca0a5d6dba87787162acbb6b_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/rc2sr3-spot/d",
+        "description": "Create spot-check fixture directory"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_dc75254173394cee0c51364a84283ac4_0",
+      "tool_input": {
+        "command": "mkdir -p .spot-check/d",
+        "description": "Create scratch dir for spot checks inside repo"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a76c1422e07c8fe879a117769205d12a_1",
+      "tool_input": {
+        "command": "bash rotate.sh --dest lib --name a --keep 1 --dry-run; echo rc=$?",
+        "description": "Check rotate.sh --dry-run and --keep parsing"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a76c1422e07c8fe879a117769205d12a_4",
+      "tool_input": {
+        "command": "bash verify.sh --dest=lib --quiet; echo rc=$?",
+        "description": "Check verify.sh --dest= form and no-sidecars path"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "origin": {
+    "kind": "task-notification",
+    "producer": "session-task",
+    "runId": "0mvv8q7jn-12ff738a"
+  },
+  "subagent_stats": {
+    "spawned": 2,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 2
+    },
+    "started_in_background": 2,
+    "max_depth": 1,
+    "spawned_by_subagents": 0,
+    "completed": 2,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {
+      "Explore": 2
+    }
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 28,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and the new `lib/common.sh` \u2014 all 10 tests pass (`bash tests/run_tests.sh`).",
+  "ttft_ms": 40842,
+  "type": "result",
+  "duration_ms": 256602,
+  "uuid": "cecfceab-eeea-4df6-93b1-73ce4019df00",
+  "ttft_stream_ms": 60,
+  "time_to_request_ms": 26,
+  "first_content_frame_ms": 10350,
+  "queued_turn_count": 0,
+  "result_index": 2,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 854.9,
+  "task_done": true,
+  "parallel_agent_calls": 1,
+  "subagents_spawned": 2,
+  "subagents": true
+}

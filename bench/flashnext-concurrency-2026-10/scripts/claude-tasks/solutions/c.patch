@@ -1,0 +1,168 @@
+diff --git a/README.md b/README.md
+index 8023ff4..05fd5ab 100644
+--- a/README.md
++++ b/README.md
+@@ -68,6 +68,25 @@ balances:
+ cents. The filters `--account`, `--category`, `--from` and `--to` restrict
+ the rows before the figures are computed.
+ 
++#### `--group-by month|category|account`
++
++Instead of the summary, print the total amount per group, ordered by label.
++A month label is `YYYY-MM`. In text format each group is one line,
++`<group> <total>`:
++
++```
++$ python3 -m ledger.cli report --group-by account fixtures/transactions.csv
++Cash Wallet -88.58
++Checking 7919.70
++Savings 4608.67
++Visa Card -17314.63
++```
++
++In JSON format the output is one object whose keys are the group labels and
++whose values are the totals as numbers rounded to cents, for example
++`{"2025-01": -812.4, "2025-02": 1203.55}`. The filters above apply before
++grouping.
++
+ ### `import`
+ 
+ ```
+diff --git a/ledger/cli.py b/ledger/cli.py
+index 971236c..e09c774 100644
+--- a/ledger/cli.py
++++ b/ledger/cli.py
+@@ -18,7 +18,7 @@ from pathlib import Path
+ from typing import List, Optional, TextIO
+ 
+ from ledger.parse import ParseError, read_any, write_csv, write_json
+-from ledger.report import build_report, render
++from ledger.report import GROUP_KEYS, build_report, group_totals, render, render_groups
+ from ledger.rules import categorize_all
+ from ledger.store import LedgerStore
+ 
+@@ -39,6 +39,8 @@ def build_parser() -> argparse.ArgumentParser:
+     p_report = sub.add_parser("report", help="summarise a CSV file")
+     p_report.add_argument("path", type=Path, help="CSV with date,account,payee,amount,category,memo columns")
+     p_report.add_argument("--format", choices=FORMATS, default="text", help="output format (default text)")
++    p_report.add_argument("--group-by", dest="group_by", choices=GROUP_KEYS, default=None,
++                          help="print one total per month, category or account instead of the summary")
+     p_report.add_argument("--account", default=None, help="only this account")
+     p_report.add_argument("--category", default=None, help="only this category (after categorisation)")
+     p_report.add_argument("--from", dest="start", default=None, metavar="DATE", help="first date, inclusive")
+@@ -78,6 +80,10 @@ def cmd_import(args: argparse.Namespace, out: TextIO) -> int:
+ 
+ def cmd_report(args: argparse.Namespace, out: TextIO) -> int:
+     store = _select(_load(args.path), args)
++    if args.group_by is not None:
++        out.write(render_groups(group_totals(store, args.group_by), args.format))
++        out.write("\n")
++        return 0
+     report = build_report(store)
+     out.write(render(report, args.format))
+     out.write("\n")
+diff --git a/ledger/report.py b/ledger/report.py
+index 5ea28dc..6fc41ab 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -10,6 +10,7 @@ from __future__ import annotations
+ 
+ import datetime as dt
+ import json
++from collections import OrderedDict
+ from dataclasses import dataclass, field
+ from decimal import Decimal
+ from typing import Dict, List, Optional
+@@ -107,3 +108,41 @@ def render(report: Report, fmt: str) -> str:
+     if fmt == "json":
+         return render_json(report)
+     raise ValueError(f"unknown format: {fmt!r}")
++
++
++GROUP_KEYS = ("month", "category", "account")
++
++
++def group_totals(store: LedgerStore, key: str) -> "OrderedDict[str, Decimal]":
++    """Total amount per group, ordered by group label.
++
++    ``key`` is one of :data:`GROUP_KEYS`; a month label is ``YYYY-MM``.
++    """
++    if key not in GROUP_KEYS:
++        raise ValueError(f"unknown group key: {key!r}")
++    totals: Dict[str, Decimal] = {}
++    for t in store:
++        label = getattr(t, key)
++        totals[label] = totals.get(label, Decimal("0")) + t.amount
++    out: "OrderedDict[str, Decimal]" = OrderedDict()
++    for label in sorted(totals):
++        out[label] = totals[label].quantize(Decimal("0.01"))
++    return out
++
++
++def render_groups_text(groups: "OrderedDict[str, Decimal]") -> str:
++    """One ``<group> <total>`` line per group."""
++    return "\n".join(f"{label} {money(value)}" for label, value in groups.items())
++
++
++def render_groups_json(groups: "OrderedDict[str, Decimal]") -> str:
++    """One JSON object: group label -> total as a number rounded to cents."""
++    return json.dumps({label: as_number(value) for label, value in groups.items()}, sort_keys=True)
++
++
++def render_groups(groups: "OrderedDict[str, Decimal]", fmt: str) -> str:
++    if fmt == "text":
++        return render_groups_text(groups)
++    if fmt == "json":
++        return render_groups_json(groups)
++    raise ValueError(f"unknown format: {fmt!r}")
+diff --git a/tests/test_cli.py b/tests/test_cli.py
+index 1f510ca..8bf8963 100644
+--- a/tests/test_cli.py
++++ b/tests/test_cli.py
+@@ -96,6 +96,46 @@ class ReportCommandTests(unittest.TestCase):
+         self.assertTrue(proc.stdout.startswith("transactions: "))
+ 
+ 
++class GroupByTests(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.TemporaryDirectory()
++        self.csv = Path(self.tmp.name) / "small.csv"
++        self.csv.write_text(SMALL_CSV, encoding="utf-8")
++
++    def tearDown(self):
++        self.tmp.cleanup()
++
++    def test_group_by_month_text(self):
++        code, out = run_main(["report", "--group-by", "month", str(self.csv)])
++        self.assertEqual(code, 0)
++        self.assertEqual(out.splitlines(), ["2025-01 2960.00", "2025-02 -15.99"])
++
++    def test_group_by_account_json(self):
++        code, out = run_main(["report", "--group-by", "account", "--format", "json", str(self.csv)])
++        self.assertEqual(code, 0)
++        self.assertEqual(json.loads(out), {"Checking": 2960.0, "Visa Card": -15.99})
++
++    def test_group_by_category_uses_categorised_rows(self):
++        code, out = run_main(["report", "--group-by", "category", "--format", "json", str(self.csv)])
++        self.assertEqual(code, 0)
++        self.assertEqual(json.loads(out), {"Groceries": -40.0, "Income": 3000.0, "Subscriptions": -15.99})
++
++    def test_group_by_month_sums_to_fixture_total(self):
++        code, out = run_main(["report", "--group-by", "month", "--format", "json", str(FIXTURE)])
++        self.assertEqual(code, 0)
++        groups = json.loads(out)
++        self.assertGreaterEqual(len(groups), 14)
++        self.assertTrue(all(len(k) == 7 and k[4] == "-" for k in groups))
++        code, summary = run_main(["report", "--format", "json", str(FIXTURE)])
++        self.assertAlmostEqual(sum(groups.values()), json.loads(summary)["total"], places=2)
++
++    def test_invalid_group_key_is_an_argparse_error(self):
++        with self.assertRaises(SystemExit) as ctx:
++            with contextlib.redirect_stderr(io.StringIO()):
++                main(["report", "--group-by", "payee", str(self.csv)])
++        self.assertEqual(ctx.exception.code, 2)
++
++
+ class ImportCommandTests(unittest.TestCase):
+     def test_import_categorises_and_writes_csv(self):
+         with tempfile.TemporaryDirectory() as d:

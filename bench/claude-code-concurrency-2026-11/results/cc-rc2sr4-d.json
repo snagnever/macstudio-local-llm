@@ -1,0 +1,135 @@
+{
+  "duration_api_ms": 1374739,
+  "stop_reason": "end_turn",
+  "session_id": "e98d31a9-0535-47a0-8fdb-ed571c23f484",
+  "total_cost_usd": 1.4125712000000001,
+  "usage": {
+    "input_tokens": 37879,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1032320,
+    "output_tokens": 17715,
+    "output_tokens_details": {
+      "thinking_tokens": 10445
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 99454,
+      "outputTokens": 36988,
+      "cacheReadInputTokens": 1374976,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 1.4125712000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 15323,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_bcf727928c527c2734711cc4db040a2d_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/src\"; printf 'x\\n' > \"$t/src/a.txt\"\nfor s in 20260101-120000 20260102-120000 20260103-120000; do BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/dest\" --name demo \"$t/src\" >/dev/null; done\necho \"--- dry-run keep=1:\"; bash rotate.sh --quiet --dry-run --dest=\"$t/dest\" --name=demo --keep=1\necho \"--- keep 1:\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 1\necho \"--- remaining:\"; ls \"$t/dest\"\necho \"--- help exit:\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- bad --keep:\"; bash rotate.sh --dest \"$t/dest\" --name demo --keep x 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\nrm -rf \"$t\"",
+        "description": "Smoke-test rotate deletion order, flags, and error paths"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_2e136bd17d19710d778492680f34cf9f_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh && echo === && bash /Users/vitor/.cache/flashnext-concurrency/claude-work/rotate_smoke.sh && rm /Users/vitor/.cache/flashnext-concurrency/claude-work/rotate_smoke.sh",
+        "description": "Run test suite and rotate smoke test, then remove smoke script"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9c42944f28436ed3cac9a74c7b47180c_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh; echo \"suite rc=$?\"; echo \"===\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/rotate_smoke.sh",
+        "description": "Run test suite and rotate smoke test"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_711b6075897a3b9e415944dbff85da2b_0",
+      "tool_input": {
+        "command": "rm /Users/vitor/.cache/flashnext-concurrency/claude-work/rotate_smoke.sh",
+        "description": "Delete temporary smoke-test script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "origin": {
+    "kind": "task-notification",
+    "producer": "session-task",
+    "runId": "0mvvfya0i-c1e15e51"
+  },
+  "subagent_stats": {
+    "spawned": 2,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 2
+    },
+    "started_in_background": 2,
+    "max_depth": 1,
+    "spawned_by_subagents": 0,
+    "completed": 2,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {
+      "Explore": 2
+    }
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh` \u2014 all 10 tests pass via `bash tests/run_tests.sh`.\n\nNotes on what the fix involved:\n- **rotate.sh**: `surplus()` used `tail -n +\"$keep\"`, which starts *at* the KEEP-th line of the oldest-first list \u2014 so with exactly N archives it deleted the newest. It now takes the first `total - keep` lines (`head -n`), guarded against BSD `head` rejecting `-n 0`. Verified live: `--keep 1` of 3 archives deletes the two oldest and keeps the newest with its sidecar.\n- **verify.sh**: the sidecar line was parsed with `awk '{print $2}'`, truncating names at the first space so the archive looked missing \u2192 `BAD`, exit 2. It now splits digest/name on the whitespace between them and keeps spaces in the name; digest-only sidecars are still reported `malformed sidecar`.\n- **lib/common.sh**: holds the option-parsing loop and `resolve_dir` (plus `is_uint`/`need_value`); sourced from `rotate.sh` and `verify.sh` after `lib/log.sh` and after each script defines `usage`/`parse_local_option`. All flags (`--dest`, `--dest=`, `--keep=N`, `-q`, `-n`, `-h`, `--`) work identically, confirmed by smoke tests. `backup.sh`, `restore.sh`, `report.sh` untouched.\n- The sandbox refused to delete my temporary smoke-test script (outside the repo); if you want it gone, it's at `/Users/vitor/.cache/flashnext-concurrency/claude-work/rotate_smoke.sh`.",
+  "ttft_ms": 157873,
+  "type": "result",
+  "duration_ms": 371039,
+  "uuid": "82f8bbcc-6f3e-4326-9d29-7c3fe946a5ec",
+  "ttft_stream_ms": 69,
+  "time_to_request_ms": 21,
+  "first_content_frame_ms": 32859,
+  "queued_turn_count": 0,
+  "result_index": 2,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 965.9,
+  "task_done": true,
+  "parallel_agent_calls": 1,
+  "subagents_spawned": 2,
+  "subagents": true
+}

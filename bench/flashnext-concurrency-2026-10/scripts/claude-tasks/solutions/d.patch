@@ -1,0 +1,674 @@
+diff --git a/backup.sh b/backup.sh
+index 34f1874..65092f0 100644
+--- a/backup.sh
++++ b/backup.sh
+@@ -11,7 +11,7 @@
+ # See docs/USAGE.md for the long version of this help.
+ set -euo pipefail
+ 
+-source "$(dirname "${BASH_SOURCE[0]}")/lib/log.sh"
++source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
+ 
+ usage() {
+   cat <<'EOF'
+@@ -39,81 +39,7 @@ exit codes:
+ EOF
+ }
+ 
+-# backup.sh has no private options; everything it needs is in the shared
+-# parser below.
+-parse_local_option() {
+-  return 1
+-}
+-
+-# ---------------------------------------------------------------------------
+-# Option parsing.
+-#
+-# NOTE: this block is identical in backup.sh, rotate.sh, verify.sh, restore.sh
+-# and report.sh. Not every script uses every option (--keep means nothing to
+-# backup.sh, for instance) but the parser is kept whole so that a flag behaves
+-# the same everywhere. When you change it here, change it in the others too.
+-#
+-# Script-specific flags are handled by parse_local_option, which every script
+-# defines before this block. It must set CONSUMED to the number of words it
+-# used (1 for a bare flag, 2 for "--flag VALUE") and return 0, or return 1 to
+-# report an unknown option.
+-# ---------------------------------------------------------------------------
+-DEST=""
+-NAME=""
+-KEEP=""
+-QUIET=0
+-DRY_RUN=0
+-ARGS=()          # positional arguments, in order
+-CONSUMED=0       # set by parse_local_option
+-
+-# is_uint STRING   true for a non-negative decimal integer
+-is_uint() {
+-  [[ "$1" =~ ^[0-9]+$ ]]
+-}
+-
+-# need_value OPTION [VALUE]   die unless the option received a value
+-need_value() {
+-  [[ $# -ge 2 && -n "$2" ]] || die 1 "option $1 requires a value (see --help)"
+-}
+-
+-while [[ $# -gt 0 ]]; do
+-  case "$1" in
+-    --dest)        need_value "$@"; DEST="$2"; shift 2 ;;
+-    --dest=*)      DEST="${1#*=}"; shift ;;
+-    --name)        need_value "$@"; NAME="$2"; shift 2 ;;
+-    --name=*)      NAME="${1#*=}"; shift ;;
+-    --keep)        need_value "$@"; KEEP="$2"; shift 2 ;;
+-    --keep=*)      KEEP="${1#*=}"; shift ;;
+-    -q|--quiet)    QUIET=1; VERBOSE=0; shift ;;
+-    -n|--dry-run)  DRY_RUN=1; shift ;;
+-    -h|--help)     usage; exit 0 ;;
+-    --)            shift; while [[ $# -gt 0 ]]; do ARGS[${#ARGS[@]}]="$1"; shift; done ;;
+-    -*)
+-      CONSUMED=0
+-      if ! parse_local_option "$@"; then
+-        usage >&2
+-        die 1 "unknown option: $1"
+-      fi
+-      [[ "$CONSUMED" -ge 1 ]] || die 1 "internal error: parse_local_option consumed nothing for $1"
+-      shift "$CONSUMED"
+-      ;;
+-    *)             ARGS[${#ARGS[@]}]="$1"; shift ;;
+-  esac
+-done
+-
+-if [[ -n "$KEEP" ]] && ! is_uint "$KEEP"; then
+-  die 1 "--keep expects a non-negative integer, got '$KEEP'"
+-fi
+-
+-# resolve_dir PATH
+-# Print the absolute, symlink-free path of an existing directory, or die.
+-# Relative paths are taken from the current working directory.
+-resolve_dir() {
+-  local p="$1"
+-  [[ -n "$p" ]] || die 1 "resolve_dir: empty path"
+-  [[ -d "$p" ]] || die 2 "not a directory: $p"
+-  (cd "$p" && pwd -P)
+-}
++parse_args "$@"
+ 
+ # ---------------------------------------------------------------------------
+ # Main
+diff --git a/lib/common.sh b/lib/common.sh
+new file mode 100644
+index 0000000..f16b502
+--- /dev/null
++++ b/lib/common.sh
+@@ -0,0 +1,100 @@
++#!/usr/bin/env bash
++# lib/common.sh - code shared by every script of the backup toolkit: the
++# logging helpers (through lib/log.sh), the option parser and resolve_dir.
++#
++# Usage, at the top of a script:
++#   source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
++#   usage() { ... }
++#   parse_local_option() { ... }     # optional, see below
++#   parse_args "$@"
++#
++# parse_args fills DEST, NAME, KEEP, QUIET, DRY_RUN and the positional array
++# ARGS. Not every script uses every option (--keep means nothing to backup.sh,
++# for instance) but every script accepts the whole set so that a flag behaves
++# the same everywhere.
++#
++# Script-specific flags are handled by parse_local_option, which a script may
++# define before calling parse_args. It must set CONSUMED to the number of
++# words it used (1 for a bare flag, 2 for "--flag VALUE") and return 0, or
++# return 1 to report an unknown option. The default accepts nothing.
++#
++# bash 3.2 compatible: no associative arrays, no ${var,,}, no mapfile.
++
++if [[ -n "${__BACKUP_COMMON_SH_LOADED:-}" ]]; then
++  return 0 2>/dev/null || true
++fi
++__BACKUP_COMMON_SH_LOADED=1
++
++# Name the log lines after the script, not after this library.
++: "${LOG_PREFIX:=$(basename "${BASH_SOURCE[1]:-$0}")}"
++
++source "$(dirname "${BASH_SOURCE[0]}")/log.sh"
++
++DEST=""
++NAME=""
++KEEP=""
++QUIET=0
++DRY_RUN=0
++ARGS=()          # positional arguments, in order
++CONSUMED=0       # set by parse_local_option
++
++# is_uint STRING   true for a non-negative decimal integer
++is_uint() {
++  [[ "$1" =~ ^[0-9]+$ ]]
++}
++
++# need_value OPTION [VALUE]   die unless the option received a value
++need_value() {
++  [[ $# -ge 2 && -n "$2" ]] || die 1 "option $1 requires a value (see --help)"
++}
++
++# Default hook: no private options. A script overrides this by defining its
++# own parse_local_option before calling parse_args.
++if ! declare -F parse_local_option > /dev/null; then
++  parse_local_option() {
++    return 1
++  }
++fi
++
++# parse_args ARG...
++# Parse the command line into the variables documented above.
++parse_args() {
++  while [[ $# -gt 0 ]]; do
++    case "$1" in
++      --dest)        need_value "$@"; DEST="$2"; shift 2 ;;
++      --dest=*)      DEST="${1#*=}"; shift ;;
++      --name)        need_value "$@"; NAME="$2"; shift 2 ;;
++      --name=*)      NAME="${1#*=}"; shift ;;
++      --keep)        need_value "$@"; KEEP="$2"; shift 2 ;;
++      --keep=*)      KEEP="${1#*=}"; shift ;;
++      -q|--quiet)    QUIET=1; VERBOSE=0; shift ;;
++      -n|--dry-run)  DRY_RUN=1; shift ;;
++      -h|--help)     usage; exit 0 ;;
++      --)            shift; while [[ $# -gt 0 ]]; do ARGS[${#ARGS[@]}]="$1"; shift; done ;;
++      -*)
++        CONSUMED=0
++        if ! parse_local_option "$@"; then
++          usage >&2
++          die 1 "unknown option: $1"
++        fi
++        [[ "$CONSUMED" -ge 1 ]] || die 1 "internal error: parse_local_option consumed nothing for $1"
++        shift "$CONSUMED"
++        ;;
++      *)             ARGS[${#ARGS[@]}]="$1"; shift ;;
++    esac
++  done
++
++  if [[ -n "$KEEP" ]] && ! is_uint "$KEEP"; then
++    die 1 "--keep expects a non-negative integer, got '$KEEP'"
++  fi
++}
++
++# resolve_dir PATH
++# Print the absolute, symlink-free path of an existing directory, or die.
++# Relative paths are taken from the current working directory.
++resolve_dir() {
++  local p="$1"
++  [[ -n "$p" ]] || die 1 "resolve_dir: empty path"
++  [[ -d "$p" ]] || die 2 "not a directory: $p"
++  (cd "$p" && pwd -P)
++}
+diff --git a/report.sh b/report.sh
+index 977e350..7cd7023 100644
+--- a/report.sh
++++ b/report.sh
+@@ -11,7 +11,7 @@
+ # See docs/USAGE.md for the long version of this help.
+ set -euo pipefail
+ 
+-source "$(dirname "${BASH_SOURCE[0]}")/lib/log.sh"
++source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
+ 
+ usage() {
+   cat <<'EOF'
+@@ -46,75 +46,7 @@ parse_local_option() {
+   esac
+ }
+ 
+-# ---------------------------------------------------------------------------
+-# Option parsing.
+-#
+-# NOTE: this block is identical in backup.sh, rotate.sh, verify.sh, restore.sh
+-# and report.sh. Not every script uses every option (--keep means nothing to
+-# backup.sh, for instance) but the parser is kept whole so that a flag behaves
+-# the same everywhere. When you change it here, change it in the others too.
+-#
+-# Script-specific flags are handled by parse_local_option, which every script
+-# defines before this block. It must set CONSUMED to the number of words it
+-# used (1 for a bare flag, 2 for "--flag VALUE") and return 0, or return 1 to
+-# report an unknown option.
+-# ---------------------------------------------------------------------------
+-DEST=""
+-NAME=""
+-KEEP=""
+-QUIET=0
+-DRY_RUN=0
+-ARGS=()          # positional arguments, in order
+-CONSUMED=0       # set by parse_local_option
+-
+-# is_uint STRING   true for a non-negative decimal integer
+-is_uint() {
+-  [[ "$1" =~ ^[0-9]+$ ]]
+-}
+-
+-# need_value OPTION [VALUE]   die unless the option received a value
+-need_value() {
+-  [[ $# -ge 2 && -n "$2" ]] || die 1 "option $1 requires a value (see --help)"
+-}
+-
+-while [[ $# -gt 0 ]]; do
+-  case "$1" in
+-    --dest)        need_value "$@"; DEST="$2"; shift 2 ;;
+-    --dest=*)      DEST="${1#*=}"; shift ;;
+-    --name)        need_value "$@"; NAME="$2"; shift 2 ;;
+-    --name=*)      NAME="${1#*=}"; shift ;;
+-    --keep)        need_value "$@"; KEEP="$2"; shift 2 ;;
+-    --keep=*)      KEEP="${1#*=}"; shift ;;
+-    -q|--quiet)    QUIET=1; VERBOSE=0; shift ;;
+-    -n|--dry-run)  DRY_RUN=1; shift ;;
+-    -h|--help)     usage; exit 0 ;;
+-    --)            shift; while [[ $# -gt 0 ]]; do ARGS[${#ARGS[@]}]="$1"; shift; done ;;
+-    -*)
+-      CONSUMED=0
+-      if ! parse_local_option "$@"; then
+-        usage >&2
+-        die 1 "unknown option: $1"
+-      fi
+-      [[ "$CONSUMED" -ge 1 ]] || die 1 "internal error: parse_local_option consumed nothing for $1"
+-      shift "$CONSUMED"
+-      ;;
+-    *)             ARGS[${#ARGS[@]}]="$1"; shift ;;
+-  esac
+-done
+-
+-if [[ -n "$KEEP" ]] && ! is_uint "$KEEP"; then
+-  die 1 "--keep expects a non-negative integer, got '$KEEP'"
+-fi
+-
+-# resolve_dir PATH
+-# Print the absolute, symlink-free path of an existing directory, or die.
+-# Relative paths are taken from the current working directory.
+-resolve_dir() {
+-  local p="$1"
+-  [[ -n "$p" ]] || die 1 "resolve_dir: empty path"
+-  [[ -d "$p" ]] || die 2 "not a directory: $p"
+-  (cd "$p" && pwd -P)
+-}
++parse_args "$@"
+ 
+ # ---------------------------------------------------------------------------
+ # Main
+@@ -162,12 +94,12 @@ raw_rows() {
+ }
+ 
+ # sorted_rows
+-# Largest first, optionally cut to --top N.
++# Largest first (numeric sort on the size column), optionally cut to --top N.
+ sorted_rows() {
+   if [[ -n "$TOP" ]]; then
+-    raw_rows | sort -r | head -n "$TOP"
++    raw_rows | sort -rn | head -n "$TOP"
+   else
+-    raw_rows | sort -r
++    raw_rows | sort -rn
+   fi
+ }
+ 
+diff --git a/restore.sh b/restore.sh
+index 7fa0f2f..a0f86bc 100644
+--- a/restore.sh
++++ b/restore.sh
+@@ -11,7 +11,7 @@
+ # See docs/USAGE.md for the long version of this help.
+ set -euo pipefail
+ 
+-source "$(dirname "${BASH_SOURCE[0]}")/lib/log.sh"
++source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
+ 
+ usage() {
+   cat <<'EOF'
+@@ -47,75 +47,7 @@ parse_local_option() {
+   esac
+ }
+ 
+-# ---------------------------------------------------------------------------
+-# Option parsing.
+-#
+-# NOTE: this block is identical in backup.sh, rotate.sh, verify.sh, restore.sh
+-# and report.sh. Not every script uses every option (--keep means nothing to
+-# backup.sh, for instance) but the parser is kept whole so that a flag behaves
+-# the same everywhere. When you change it here, change it in the others too.
+-#
+-# Script-specific flags are handled by parse_local_option, which every script
+-# defines before this block. It must set CONSUMED to the number of words it
+-# used (1 for a bare flag, 2 for "--flag VALUE") and return 0, or return 1 to
+-# report an unknown option.
+-# ---------------------------------------------------------------------------
+-DEST=""
+-NAME=""
+-KEEP=""
+-QUIET=0
+-DRY_RUN=0
+-ARGS=()          # positional arguments, in order
+-CONSUMED=0       # set by parse_local_option
+-
+-# is_uint STRING   true for a non-negative decimal integer
+-is_uint() {
+-  [[ "$1" =~ ^[0-9]+$ ]]
+-}
+-
+-# need_value OPTION [VALUE]   die unless the option received a value
+-need_value() {
+-  [[ $# -ge 2 && -n "$2" ]] || die 1 "option $1 requires a value (see --help)"
+-}
+-
+-while [[ $# -gt 0 ]]; do
+-  case "$1" in
+-    --dest)        need_value "$@"; DEST="$2"; shift 2 ;;
+-    --dest=*)      DEST="${1#*=}"; shift ;;
+-    --name)        need_value "$@"; NAME="$2"; shift 2 ;;
+-    --name=*)      NAME="${1#*=}"; shift ;;
+-    --keep)        need_value "$@"; KEEP="$2"; shift 2 ;;
+-    --keep=*)      KEEP="${1#*=}"; shift ;;
+-    -q|--quiet)    QUIET=1; VERBOSE=0; shift ;;
+-    -n|--dry-run)  DRY_RUN=1; shift ;;
+-    -h|--help)     usage; exit 0 ;;
+-    --)            shift; while [[ $# -gt 0 ]]; do ARGS[${#ARGS[@]}]="$1"; shift; done ;;
+-    -*)
+-      CONSUMED=0
+-      if ! parse_local_option "$@"; then
+-        usage >&2
+-        die 1 "unknown option: $1"
+-      fi
+-      [[ "$CONSUMED" -ge 1 ]] || die 1 "internal error: parse_local_option consumed nothing for $1"
+-      shift "$CONSUMED"
+-      ;;
+-    *)             ARGS[${#ARGS[@]}]="$1"; shift ;;
+-  esac
+-done
+-
+-if [[ -n "$KEEP" ]] && ! is_uint "$KEEP"; then
+-  die 1 "--keep expects a non-negative integer, got '$KEEP'"
+-fi
+-
+-# resolve_dir PATH
+-# Print the absolute, symlink-free path of an existing directory, or die.
+-# Relative paths are taken from the current working directory.
+-resolve_dir() {
+-  local p="$1"
+-  [[ -n "$p" ]] || die 1 "resolve_dir: empty path"
+-  [[ -d "$p" ]] || die 2 "not a directory: $p"
+-  (cd "$p" && pwd -P)
+-}
++parse_args "$@"
+ 
+ # ---------------------------------------------------------------------------
+ # Main
+diff --git a/rotate.sh b/rotate.sh
+index c038f88..3454c5f 100644
+--- a/rotate.sh
++++ b/rotate.sh
+@@ -12,7 +12,7 @@
+ # See docs/USAGE.md for the long version of this help.
+ set -euo pipefail
+ 
+-source "$(dirname "${BASH_SOURCE[0]}")/lib/log.sh"
++source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
+ 
+ usage() {
+   cat <<'EOF'
+@@ -36,80 +36,7 @@ exit codes:
+ EOF
+ }
+ 
+-# rotate.sh has no private options.
+-parse_local_option() {
+-  return 1
+-}
+-
+-# ---------------------------------------------------------------------------
+-# Option parsing.
+-#
+-# NOTE: this block is identical in backup.sh, rotate.sh, verify.sh, restore.sh
+-# and report.sh. Not every script uses every option (--keep means nothing to
+-# backup.sh, for instance) but the parser is kept whole so that a flag behaves
+-# the same everywhere. When you change it here, change it in the others too.
+-#
+-# Script-specific flags are handled by parse_local_option, which every script
+-# defines before this block. It must set CONSUMED to the number of words it
+-# used (1 for a bare flag, 2 for "--flag VALUE") and return 0, or return 1 to
+-# report an unknown option.
+-# ---------------------------------------------------------------------------
+-DEST=""
+-NAME=""
+-KEEP=""
+-QUIET=0
+-DRY_RUN=0
+-ARGS=()          # positional arguments, in order
+-CONSUMED=0       # set by parse_local_option
+-
+-# is_uint STRING   true for a non-negative decimal integer
+-is_uint() {
+-  [[ "$1" =~ ^[0-9]+$ ]]
+-}
+-
+-# need_value OPTION [VALUE]   die unless the option received a value
+-need_value() {
+-  [[ $# -ge 2 && -n "$2" ]] || die 1 "option $1 requires a value (see --help)"
+-}
+-
+-while [[ $# -gt 0 ]]; do
+-  case "$1" in
+-    --dest)        need_value "$@"; DEST="$2"; shift 2 ;;
+-    --dest=*)      DEST="${1#*=}"; shift ;;
+-    --name)        need_value "$@"; NAME="$2"; shift 2 ;;
+-    --name=*)      NAME="${1#*=}"; shift ;;
+-    --keep)        need_value "$@"; KEEP="$2"; shift 2 ;;
+-    --keep=*)      KEEP="${1#*=}"; shift ;;
+-    -q|--quiet)    QUIET=1; VERBOSE=0; shift ;;
+-    -n|--dry-run)  DRY_RUN=1; shift ;;
+-    -h|--help)     usage; exit 0 ;;
+-    --)            shift; while [[ $# -gt 0 ]]; do ARGS[${#ARGS[@]}]="$1"; shift; done ;;
+-    -*)
+-      CONSUMED=0
+-      if ! parse_local_option "$@"; then
+-        usage >&2
+-        die 1 "unknown option: $1"
+-      fi
+-      [[ "$CONSUMED" -ge 1 ]] || die 1 "internal error: parse_local_option consumed nothing for $1"
+-      shift "$CONSUMED"
+-      ;;
+-    *)             ARGS[${#ARGS[@]}]="$1"; shift ;;
+-  esac
+-done
+-
+-if [[ -n "$KEEP" ]] && ! is_uint "$KEEP"; then
+-  die 1 "--keep expects a non-negative integer, got '$KEEP'"
+-fi
+-
+-# resolve_dir PATH
+-# Print the absolute, symlink-free path of an existing directory, or die.
+-# Relative paths are taken from the current working directory.
+-resolve_dir() {
+-  local p="$1"
+-  [[ -n "$p" ]] || die 1 "resolve_dir: empty path"
+-  [[ -d "$p" ]] || die 2 "not a directory: $p"
+-  (cd "$p" && pwd -P)
+-}
++parse_args "$@"
+ 
+ # ---------------------------------------------------------------------------
+ # Main
+@@ -128,24 +55,24 @@ if [[ "$keep" -lt 1 ]]; then
+ fi
+ 
+ # list_archives
+-# One absolute path per line, sorted by the timestamp embedded in the name.
++# One absolute path per line, newest first (by the timestamp in the name).
+ # Only names following the backup.sh convention are considered, so a stray
+ # "notes.tar.gz" or "<name>.tar.gz" in the destination is never a candidate.
+ list_archives() {
+-  find "$dest" -maxdepth 1 -type f -name "$NAME-[0-9]*-[0-9]*.tar.gz" | sort
++  find "$dest" -maxdepth 1 -type f -name "$NAME-[0-9]*-[0-9]*.tar.gz" | sort -r
+ }
+ 
+ total=$(list_archives | wc -l | tr -d ' ')
+ log_info "$total archive(s) named '$NAME' in $dest, keeping $keep"
+ 
+-if [[ "$total" -lt "$keep" ]]; then
++if [[ "$total" -le "$keep" ]]; then
+   log_info "nothing to rotate"
+   exit 0
+ fi
+ 
+-# Everything past the KEEP-th entry of the sorted list is surplus.
++# Everything after the KEEP newest entries is surplus.
+ surplus() {
+-  list_archives | tail -n +"$keep"
++  list_archives | tail -n +"$((keep + 1))"
+ }
+ 
+ deleted=0
+diff --git a/tests/run_tests.sh b/tests/run_tests.sh
+index 063015d..13cc7b4 100644
+--- a/tests/run_tests.sh
++++ b/tests/run_tests.sh
+@@ -53,4 +53,27 @@ out=$(bash "$ROOT/verify.sh" --quiet --dest "$t/dest") || rc=$?
+ check "verify reports BAD and exits 2 for a corrupted archive" "BAD demo-20260101-120000.tar.gz / rc=2" "$out / rc=$rc"
+ rm -rf "$t"
+ 
++# --- rotate.sh ---------------------------------------------------------------
++t=$(tmpdir)
++for day in 01 02 03; do : > "$t/x-202601$day-000000.tar.gz"; done
++bash "$ROOT/rotate.sh" --quiet --dest "$t" --name x --keep 3 > /dev/null
++check "rotate keeps every archive when exactly KEEP exist" "x-20260101-000000.tar.gz x-20260102-000000.tar.gz x-20260103-000000.tar.gz" "$(cd "$t" && echo *.tar.gz)"
++rm -rf "$t"
++
++# --- verify.sh with a space in the archive name ------------------------------
++t=$(tmpdir)
++mkdir -p "$t/src"
++printf 'hello\n' > "$t/src/hello.txt"
++BACKUP_STAMP=20260101-120000 bash "$ROOT/backup.sh" --quiet --dest "$t/dest" --name "my backup" "$t/src" > /dev/null
++check "verify reports ok for an archive whose name contains a space" "ok my backup-20260101-120000.tar.gz" "$(bash "$ROOT/verify.sh" --quiet --dest "$t/dest")"
++rm -rf "$t"
++
++# --- report.sh ---------------------------------------------------------------
++t=$(tmpdir)
++head -c 10000 /dev/zero > "$t/big-20260101-000000.tar.gz"
++head -c 9999 /dev/zero > "$t/small-20260102-000000.tar.gz"
++check "report ranks sizes numerically, largest first" "big-20260101-000000.tar.gz
++small-20260102-000000.tar.gz" "$(bash "$ROOT/report.sh" --quiet --no-header --dest "$t" | awk '{print $NF}')"
++rm -rf "$t"
++
+ [[ $fails -eq 0 ]] && echo "all tests passed" || { echo "$fails test(s) failed"; exit 1; }
+diff --git a/verify.sh b/verify.sh
+index 667f31d..c21e7cd 100644
+--- a/verify.sh
++++ b/verify.sh
+@@ -13,7 +13,7 @@
+ # See docs/USAGE.md for the long version of this help.
+ set -euo pipefail
+ 
+-source "$(dirname "${BASH_SOURCE[0]}")/lib/log.sh"
++source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
+ 
+ usage() {
+   cat <<'EOF'
+@@ -34,80 +34,7 @@ exit codes:
+ EOF
+ }
+ 
+-# verify.sh has no private options.
+-parse_local_option() {
+-  return 1
+-}
+-
+-# ---------------------------------------------------------------------------
+-# Option parsing.
+-#
+-# NOTE: this block is identical in backup.sh, rotate.sh, verify.sh, restore.sh
+-# and report.sh. Not every script uses every option (--keep means nothing to
+-# backup.sh, for instance) but the parser is kept whole so that a flag behaves
+-# the same everywhere. When you change it here, change it in the others too.
+-#
+-# Script-specific flags are handled by parse_local_option, which every script
+-# defines before this block. It must set CONSUMED to the number of words it
+-# used (1 for a bare flag, 2 for "--flag VALUE") and return 0, or return 1 to
+-# report an unknown option.
+-# ---------------------------------------------------------------------------
+-DEST=""
+-NAME=""
+-KEEP=""
+-QUIET=0
+-DRY_RUN=0
+-ARGS=()          # positional arguments, in order
+-CONSUMED=0       # set by parse_local_option
+-
+-# is_uint STRING   true for a non-negative decimal integer
+-is_uint() {
+-  [[ "$1" =~ ^[0-9]+$ ]]
+-}
+-
+-# need_value OPTION [VALUE]   die unless the option received a value
+-need_value() {
+-  [[ $# -ge 2 && -n "$2" ]] || die 1 "option $1 requires a value (see --help)"
+-}
+-
+-while [[ $# -gt 0 ]]; do
+-  case "$1" in
+-    --dest)        need_value "$@"; DEST="$2"; shift 2 ;;
+-    --dest=*)      DEST="${1#*=}"; shift ;;
+-    --name)        need_value "$@"; NAME="$2"; shift 2 ;;
+-    --name=*)      NAME="${1#*=}"; shift ;;
+-    --keep)        need_value "$@"; KEEP="$2"; shift 2 ;;
+-    --keep=*)      KEEP="${1#*=}"; shift ;;
+-    -q|--quiet)    QUIET=1; VERBOSE=0; shift ;;
+-    -n|--dry-run)  DRY_RUN=1; shift ;;
+-    -h|--help)     usage; exit 0 ;;
+-    --)            shift; while [[ $# -gt 0 ]]; do ARGS[${#ARGS[@]}]="$1"; shift; done ;;
+-    -*)
+-      CONSUMED=0
+-      if ! parse_local_option "$@"; then
+-        usage >&2
+-        die 1 "unknown option: $1"
+-      fi
+-      [[ "$CONSUMED" -ge 1 ]] || die 1 "internal error: parse_local_option consumed nothing for $1"
+-      shift "$CONSUMED"
+-      ;;
+-    *)             ARGS[${#ARGS[@]}]="$1"; shift ;;
+-  esac
+-done
+-
+-if [[ -n "$KEEP" ]] && ! is_uint "$KEEP"; then
+-  die 1 "--keep expects a non-negative integer, got '$KEEP'"
+-fi
+-
+-# resolve_dir PATH
+-# Print the absolute, symlink-free path of an existing directory, or die.
+-# Relative paths are taken from the current working directory.
+-resolve_dir() {
+-  local p="$1"
+-  [[ -n "$p" ]] || die 1 "resolve_dir: empty path"
+-  [[ -d "$p" ]] || die 2 "not a directory: $p"
+-  (cd "$p" && pwd -P)
+-}
++parse_args "$@"
+ 
+ # ---------------------------------------------------------------------------
+ # Main
+@@ -146,10 +73,12 @@ for sidecar in "$dest"/*.sha256; do
+   fi
+   checked=$((checked + 1))
+ 
+-  # A sidecar holds one line in shasum format: "<digest>  <file name>".
++  # A sidecar holds one line in shasum format: "<digest>  <file name>". The
++  # archive name is taken from the sidecar's own name so that names with
++  # blanks survive; the name recorded inside the sidecar is informational.
+   line=$(head -n 1 "$sidecar")
+   expected=$(echo "$line" | awk '{print $1}')
+-  file=$(echo "$line" | awk '{print $2}')
++  file=$(basename "${sidecar%.sha256}")
+ 
+   if [[ -z "$expected" || -z "$file" ]]; then
+     report_bad "$(basename "$sidecar")" "malformed sidecar"
+@@ -163,7 +92,7 @@ for sidecar in "$dest"/*.sha256; do
+   actual=$(shasum -a 256 "$dest/$file" | awk '{print $1}')
+   log_debug "$file expected=$expected actual=$actual"
+ 
+-  if [ $expected == $actual ]; then
++  if [[ "$expected" == "$actual" ]]; then
+     echo "ok $file"
+     good=$((good + 1))
+   else

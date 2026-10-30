@@ -686,6 +686,10 @@ def test_model_doc_numbers_match_payload():
     assert f'{sc["two_sessions"]["splash"]["ttft_pair_p50"]:.1f} s' in sec
     assert f'{sc["two_sessions"]["splash"]["time_saved"] * 100:.0f}%' in sec
     assert f'{sc["by_n"]["splash"]["4"]["turn_s"]:.1f} s' in sec
+    assert f'{sc["worst_case"]["splash"]["turn_alone_s"]:.1f} → {sc["worst_case"]["splash"]["turn_pair_s"]:.1f} s' in sec
+    summ = json.loads((REAL_RESULTS.parents[1] / "claude-code-concurrency-2026-11" / "results" / "claude-summary-splash.json").read_text())
+    turns = summ["profiles"]["realistic"]["turns"]
+    assert f'{turns["c"]:.0f} turns' in sec and f'{turns["d"]:.0f} turns' in sec
     assert "qwen38-flashnext-concurrency.html" in sec
 
 
@@ -695,3 +699,65 @@ def test_read_claude_summary_generic_name_only_when_allowed(tmp_path):
     assert R.read_claude_summary(tmp_path, "mlx")["prefix"] == "rc"
     (tmp_path / "claude-summary-mlx.json").write_text(json.dumps({"prefix": "rm", "profiles": {}, "requests": {}}))
     assert R.read_claude_summary(tmp_path, "mlx", generic=False)["prefix"] == "rm"
+
+
+# ---- campaign B (claude-code-concurrency-2026-11): subagents and the real --decode-share pair ----
+
+def _variant(ttft_p50, max_concurrent, agents=True):
+    block = {"profile": {"tasks": ["c", "d"], "pair_s": {"c": 700.0, "d": 780.0}, "pair_wall_s": 780.0,
+                         "serial_sum_s": 780.0, "time_saved": 0.0, "turns": {"c": 20, "d": 25}, "task_done": True, "errors": 0},
+             "requests": {"n": 180, "max_concurrent": max_concurrent, "first_prompt_ttft_s": 25.0, "new_tokens_p50": 500,
+                          "errors": 0, "warm": {"n": 120, "ttft_p50": ttft_p50, "ttft_p90": 8.0, "tps_p50": 80.0,
+                                                "tps_min": 20.0, "tps_max": 150.0}}}
+    if agents:
+        block.update({"parallel_agent_calls": 6, "subagents_spawned": 12})
+    return block
+
+
+@pytest.fixture
+def campaign_b_dir(tmp_path):
+    splash = dict(FAKE_MLX_SUMMARY, prefix="rc", subagents=_variant(2.6, 3), decode_share=_variant(2.2, 2, agents=False))
+    mlx = dict(FAKE_MLX_SUMMARY, subagents=_variant(0.5, 5))
+    (tmp_path / "claude-summary-splash.json").write_text(json.dumps(splash))
+    (tmp_path / "claude-summary-mlx.json").write_text(json.dumps(mlx))
+    return tmp_path
+
+
+@pytest.fixture
+def campaign_b_data(campaign_b_dir):
+    return R.collect(REAL_RESULTS, SPLASH_RESULTS if HAS_SPLASH else None,
+                     claude_dirs={"splash": campaign_b_dir, "mlx": campaign_b_dir, "legacy": REAL_RESULTS},
+                     tbench_status=Path("/none"))
+
+
+def test_collect_scenarios_reads_subagents_and_decode_share(campaign_b_data):
+    sc = campaign_b_data["scenarios"]
+    s = sc["two_sessions"]["splash"]
+    assert s["subagents"]["max_concurrent"] == 3 and s["subagents"]["ttft_p50"] == 2.6
+    assert s["subagents"]["parallel_agent_calls"] == 6 and s["decode_share"]["ttft_p50"] == 2.2
+    assert sc["two_sessions"]["mlx"]["subagents"]["max_concurrent"] == 5 and sc["two_sessions"]["mlx"]["decode_share"] is None
+    # The synthetic worst-turn stays the "best setting" (same metric as the rest of the table); the real pair with
+    # the flag is its own row, with the plain pair's p90 beside it so the reader sees there was no gain.
+    best = sc["worst_case"]["splash"]["best_setting"]
+    assert best["label"] == "--decode-share 1.0" and best["turn_s"] != 8.0
+    real = sc["worst_case"]["splash"]["real_decode_share"]
+    assert real["ttft_p90"] == 8.0 and real["ttft_p90_plain"] == 6.0 and real["time_saved"] == 0.0
+    assert sc["worst_case"]["mlx"]["real_decode_share"] is None
+    assert sc["coverage"][7]["cells"]["splash"] == "measured" and sc["coverage"][7]["cells"]["mlx"] == "measured"
+
+
+def test_collect_scenarios_without_variants_has_none():
+    sc = R.collect_scenarios({"configs": [], "splash": None}, {"splash": FAKE_MLX_SUMMARY, "mlx": None}, None)
+    assert sc["two_sessions"]["splash"]["subagents"] is None and sc["two_sessions"]["splash"]["decode_share"] is None
+    assert sc["coverage"][7]["cells"]["splash"] == "missing"
+
+
+def test_many_sessions_row_shows_measured_streams(campaign_b_data):
+    page = R.render(campaign_b_data)
+    many = _section_of(page, "many")
+    assert "ran as 3 streams" in many and "ran as 5 streams" in many
+    assert "Not measured with real Claude Code yet" not in page
+    two = _section_of(page, "two")
+    assert "with subagents" in two and "2.6" in two
+    worst = _section_of(page, "worst")
+    assert "on the real pair" in worst and "8.0 s" in worst and "(real pair)" not in worst

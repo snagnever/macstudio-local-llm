@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 456881,
+  "stop_reason": "end_turn",
+  "session_id": "f0b331f6-d248-4812-b074-9beb3b1ab2d6",
+  "total_cost_usd": 0.8259464000000002,
+  "usage": {
+    "input_tokens": 69058,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1470272,
+    "output_tokens": 12783,
+    "output_tokens_details": {
+      "thinking_tokens": 6591
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 69058,
+      "outputTokens": 12783,
+      "cacheReadInputTokens": 1470272,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.8259464000000002,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 6591,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c166a50df5ed7576cbe9bcce4dd045bf_0",
+      "tool_input": {
+        "command": "cat > /tmp/gb_small.csv <<'EOF'\ndate,account,payee,amount,category,memo\n2025-01-05,Checking,Tesco Stores,-40.00,,\n2025-01-25,Checking,Acme Ltd Payroll,3000.00,Income,\n2025-02-03,Visa Card,Netflix.com,-15.99,,\nEOF\necho \"== month text ==\"; python3 -m ledger.cli report --group-by month /tmp/gb_small.csv\necho \"== month json ==\"; python3 -m ledger.cli report --group-by month --format json /tmp/gb_small.csv\necho \"== category text ==\"; python3 -m ledger.cli report --group-by category /tmp/gb_small.csv\necho \"== account json ==\"; python3 -m ledger.cli report --group-by account --format json /tmp/gb_small.csv\necho \"== fixture month json ==\"; python3 -m ledger.cli report --group-by month --format json fixtures/transactions.csv\necho \"== no group-by (unchanged) ==\"; python3 -m ledger.cli report /tmp/gb_small.csv\necho \"== group-by + filter ==\"; python3 -m ledger.cli report --group-by account --from 2025-02-01 /tmp/gb_small.csv\necho \"== bad choice ==\"; python3 -m ledger.cli report --group-by payee /tmp/gb_small.csv; echo \"exit=$?\"",
+        "description": "Exercise the new --group-by option end to end"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b1483aac415ef7ce8da70ee558064b26_1",
+      "tool_input": {
+        "command": "python3 -m ledger.cli report --group-by payee /tmp/gb_small.csv 2>&1; printf 'exit=%s\\n' \"$?\"",
+        "description": "Check invalid group-by value exits 2"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_0b138a0417ecf58e7d3afc04b2ad8791_1",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2dr3-c diff --stat",
+        "description": "Show changed files summary"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_efde7222cccbbde6be43b9105f48518c_0",
+      "tool_input": {
+        "command": "rm -f /tmp/gb_small.csv",
+        "description": "Remove scratch test CSV"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 40,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `ledger/cli.py`, `ledger/report.py`, `ledger/store.py`, `tests/test_cli.py`, `README.md` \u2014 5 new `--group-by` tests added, all 68 tests pass.",
+  "ttft_ms": 31695,
+  "type": "result",
+  "duration_ms": 457586,
+  "uuid": "5e7e41fa-e2e5-48ee-9b1e-09a145b826d9",
+  "ttft_stream_ms": 59,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 31506,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 458.7,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

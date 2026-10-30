@@ -1,0 +1,136 @@
+{
+  "duration_api_ms": 379341,
+  "stop_reason": "end_turn",
+  "session_id": "99af0648-b9fe-4499-ba4d-b44afdacfdc8",
+  "total_cost_usd": 0.6256375999999999,
+  "usage": {
+    "input_tokens": 36930,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 913888,
+    "output_tokens": 14757,
+    "output_tokens_details": {
+      "thinking_tokens": 7460
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 36930,
+      "outputTokens": 14757,
+      "cacheReadInputTokens": 913888,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6256375999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 7460,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b5c597b1644b612d590b117e4010fff4_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh; echo \"exit=$?\"",
+        "description": "Run the backup toolkit test suite"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_0f04cfd51f792d191f90960640240347_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); t=$(cd \"$t\" && pwd -P)\nmkdir -p \"$t/src\"; echo a > \"$t/src/a.txt\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000 20260105-000000 20260106-000000; do\n  BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/d\" --name demo \"$t/src\" >/dev/null\ndone\necho \"--- dry-run keep=4:\"\nbash rotate.sh --dry-run --keep=4 --dest \"$t/d\" --name demo\necho \"--- real keep=4:\"\nbash rotate.sh -q --dest \"$t/d\" --name demo --keep 4\necho \"--- sidecars left:\"; ls \"$t/d\"\necho \"--- help exits:\"; bash rotate.sh -h >/dev/null; echo \"rc=$?\"\necho \"--- unknown option:\"; bash rotate.sh --dest \"$t/d\" --name demo --bogus 2>/dev/null; echo \"rc=$?\"\necho \"--- missing value:\"; bash verify.sh --dest 2>/dev/null; echo \"rc=$?\"\necho \"--- missing dest dir:\"; bash verify.sh --dest \"$t/nope\" 2>/dev/null; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Exercise rotate.sh and verify.sh flags after refactor"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_1942dd4e43d4758ac787b074a3baf0e7_0",
+      "tool_input": {
+        "command": "t=/Users/vitor/.cache/flashnext-concurrency/claude-work/rc2dr2-d/.tmp-flagcheck\nmkdir -p \"$t/src\"; echo a > \"$t/src/a.txt\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000 20260105-000000 20260106-000000; do\n  BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/d\" --name demo \"$t/src\" >/dev/null\ndone\necho \"--- dry-run keep=4:\"\nbash rotate.sh --dry-run --keep=4 --dest \"$t/d\" --name demo\necho \"--- real keep=4:\"\nbash rotate.sh -q --dest \"$t/d\" --name demo --keep 4\necho \"--- files left:\"; ls \"$t/d\"\necho \"--- help exits:\"; bash rotate.sh -h >/dev/null; echo \"rc=$?\"\necho \"--- unknown option:\"; bash rotate.sh --dest \"$t/d\" --name demo --bogus 2>/dev/null; echo \"rc=$?\"\necho \"--- missing value:\"; bash verify.sh --dest 2>/dev/null; echo \"rc=$?\"\necho \"--- missing dest dir:\"; bash verify.sh --dest \"$t/nope\" 2>/dev/null; echo \"rc=$?\"\nrm -rf /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2dr2-d/.tmp-flagcheck",
+        "description": "Exercise rotate.sh and verify.sh flags after refactor in a scratch dir"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d97328a6ad81e2c4f35a4c1d4b7ee4c8_0",
+      "tool_input": {
+        "command": "t=/Users/vitor/.cache/flashnext-concurrency/claude-work/rc2dr2-d/.tmp-flagcheck\nmkdir -p \"$t/src\"; echo a > \"$t/src/a.txt\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000 20260105-000000 20260106-000000; do\n  BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/d\" --name demo \"$t/src\" >/dev/null\ndone\necho \"--- dry-run keep=4:\"\nbash rotate.sh --dry-run --keep=4 --dest \"$t/d\" --name demo\necho \"--- real keep=4:\"\nbash rotate.sh -q --dest \"$t/d\" --name demo --keep 4\necho \"--- files left:\"; ls \"$t/d\"\necho \"--- help exits:\"; bash rotate.sh -h >/dev/null; echo \"rc=$?\"\necho \"--- unknown option:\"; bash rotate.sh --dest \"$t/d\" --name demo --bogus 2>/dev/null; echo \"rc=$?\"\necho \"--- missing value:\"; bash verify.sh --dest 2>/dev/null; echo \"rc=$?\"\necho \"--- missing dest dir:\"; bash verify.sh --dest \"$t/nope\" 2>/dev/null; echo \"rc=$?\"",
+        "description": "Exercise rotate.sh and verify.sh flags after refactor in a scratch dir"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9773c12124507cd1f5248b63162e0fc1_0",
+      "tool_input": {
+        "command": "rm -f /tmp/flagcheck.sh",
+        "description": "Remove temporary flag-check script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "The scratch file lives in `/tmp` (outside this repo's sandbox) \u2014 the deletion needs interactive approval, so I left it there; it self-cleaned its fixtures. Nothing in the repository is affected.\n\nDone \u2014 I changed `lib/common.sh` (new: shared option parser + `resolve_dir`, now sourced by `rotate.sh` and `verify.sh`), `rotate.sh` (surplus is now the oldest `total-keep` archives via `head -n`, so `--keep N` keeps all N and rotation never touches the newest), `verify.sh` (sidecar name is taken as the whole rest of the line via `read`, so spaces in archive names verify `ok` with exit 0), and `tests/run_tests.sh` (added one test group for the rotate bug and one for the space-in-name verify bug; `bash tests/run_tests.sh` passes all 9 tests).",
+  "ttft_ms": 24035,
+  "type": "result",
+  "duration_ms": 380211,
+  "uuid": "2f55efed-efb2-41fd-9d72-7ebf35b62c42",
+  "ttft_stream_ms": 19564,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 23892,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 380.9,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

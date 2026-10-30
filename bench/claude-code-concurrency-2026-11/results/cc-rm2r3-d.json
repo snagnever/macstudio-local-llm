@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 436513,
+  "stop_reason": "end_turn",
+  "session_id": "792a44f1-70ac-4bd8-8ef5-94ff521faa72",
+  "total_cost_usd": 0.503653,
+  "usage": {
+    "input_tokens": 30980,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 619265,
+    "output_tokens": 12794,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0": {
+      "inputTokens": 30980,
+      "outputTokens": 12794,
+      "cacheReadInputTokens": 619265,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.503653,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 0,
+      "canonicalModel": "dankpaws-swift1.5-qwen3.8-flash-next-mlx-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793388135257_0",
+      "tool_input": {
+        "command": "cd /tmp && rm -rf rt && mkdir rt && cd rt && mkdir src && echo hi > src/a.txt\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/rm2r3-d\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do BACKUP_STAMP=$s bash \"$R/backup.sh\" --quiet --dest dest --name demo src >/dev/null; done\necho \"-- rotate 4 -> keep 2 (dry run):\"; bash \"$R/rotate.sh\" --dry-run --quiet --dest dest --name demo --keep=2\necho \"-- rotate for real:\"; bash \"$R/rotate.sh\" --quiet --dest dest --name demo --keep 2 2>/dev/null; ls dest\necho \"-- help exits 0:\"; bash \"$R/rotate.sh\" --help >/dev/null; echo rc=$?\necho \"-- unknown option:\"; bash \"$R/verify.sh\" --dest dest --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"-- verify --name filter with space:\"; BACKUP_STAMP=20260201-000000 bash \"$R/backup.sh\" --quiet --dest dest --name \"my backup\" src >/dev/null\nBACKUP_STAMP=20260201-000000 bash \"$R/backup.sh\" --quiet --dest dest --name other src >/dev/null\nbash \"$R/verify.sh\" --quiet --dest dest --name \"my backup\"\necho \"-- positional arg rejected:\"; bash \"$R/rotate.sh\" --dest dest --name demo extra 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"-- missing --dest rc:\"; bash \"$R/verify.sh\" --quiet 2>/dev/null; echo rc=$?",
+        "description": "Sanity-check refactored rotate.sh and verify.sh flags"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793388144205_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/rt && mkdir -p /tmp/rt/src && echo hi > /tmp/rt/src/a.txt && cd /tmp/rt && for s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do BACKUP_STAMP=$s bash /Users/vitor/.cache/flashnext-concurrency/claude-work/rm2r3-d/backup.sh --quiet --dest dest --name demo src >/dev/null; done; echo \"-- dry-run keep=2:\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/rm2r3-d/rotate.sh --dry-run --quiet --dest dest --name demo --keep=2; echo \"-- real keep 2:\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/rm2r3-d/rotate.sh --quiet --dest dest --name demo --keep 2 2>/dev/null; ls dest",
+        "description": "Check rotate deletes oldest when count exceeds N"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793388169641_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/rt /tmp/rt-check.sh && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rm2r3-d status --short",
+        "description": "Remove scratch files and show git status"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793388172094_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rm2r3-d status --short",
+        "description": "Show git status"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 22,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done \u2014 the sandbox blocked those cleanup/status commands, so I left the throwaway fixtures (`/tmp/rt`, `/tmp/rt-check.sh`) in place; they're plain temp files in `/tmp` and can be removed with `rm -rf /tmp/rt /tmp/rt-check.sh` if desired.\n\nSummary of the work:\n\n**Bug 1 \u2014 `rotate.sh` deleted the newest when exactly N archives existed.** `list_archives` sorts oldest-first, so the \"keep the newest N\" set is the *last* N lines; the old `tail -n +\"$keep\"` took everything *from* the keep-th line onward \u2014 with `total == keep` that's the newest file. Fixed `rotate.sh:99` to use `head -n $((total - keep))` (the oldest surplus) and changed the early-exit guard from `-lt` to `-le` so `total == keep` reports \"nothing to rotate\".\n\n**Bug 2 \u2014 `verify.sh` broke on names with spaces.** The sidecar line was split with `awk '{print $2}'`, truncating `my backup-\u2026.tar.gz` to `my` \u2192 \"archive missing\" \u2192 BAD/exit 2. `verify.sh:104-109` now takes the digest as the first whitespace-delimited field and everything after the separator verbatim as the file name; the digest comparison was also quoted.\n\n**Refactor** \u2014 new `lib/common.sh` holds the shared option-parsing block, `is_uint`, `need_value`, the `--keep` validation, and `resolve_dir`; `rotate.sh` and `verify.sh` now source it (with `\"$@\"`) after defining `usage`/`parse_local_option`, and accept exactly the same flags (verified: `--dest`, `--dest=`, `--name`, `--keep`/`--keep=`, `-q/--quiet`, `-n/--dry-run`, `-h/--help`, `--`, unknown-option/positional/exit-code behavior all unchanged). `backup.sh`, `restore.sh`, `report.sh` untouched.\n\n**Tests** \u2014 added to `tests/run_tests.sh`: one for a space-containing intact archive verifying `ok`/rc=0, and two assertions for rotate with exactly 3 archives and `--keep 3` (nothing printed, all three files remain). `bash tests/run_tests.sh` \u2014 all 9 tests pass.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, plus new `lib/common.sh`.",
+  "ttft_ms": 54434,
+  "type": "result",
+  "duration_ms": 437373,
+  "uuid": "48098c28-30a7-4957-8b32-2046a1016f0c",
+  "ttft_stream_ms": 49,
+  "time_to_request_ms": 32,
+  "first_content_frame_ms": 52692,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 438.4,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

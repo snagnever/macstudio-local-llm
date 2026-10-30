@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 366535,
+  "stop_reason": "end_turn",
+  "session_id": "0d017295-2865-4e8f-a6ea-e1cc23226255",
+  "total_cost_usd": 0.6224784000000001,
+  "usage": {
+    "input_tokens": 30431,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 771072,
+    "output_tokens": 17327,
+    "output_tokens_details": {
+      "thinking_tokens": 7400
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 30431,
+      "outputTokens": 17327,
+      "cacheReadInputTokens": 771072,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6224784000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 7400,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_963d8b2f24d949d0a2e8e7d7120d9ee4_0",
+      "tool_input": {
+        "command": "d=$(mktemp -d); mkdir \"$d/lib\"; git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r1-d show HEAD:rotate.sh > \"$d/rotate.sh\"; git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r1-d show HEAD:verify.sh > \"$d/verify.sh\"; cp /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r1-d/lib/log.sh \"$d/lib/\"\ndest=\"$d/dest\"; mkdir \"$dest\"\nfor s in 20260101-000000 20260102-000000 20260103-000000; do printf 'a\\n' > \"$dest/demo-$s.tar.gz\"; done\nbash \"$d/rotate.sh\" --quiet --dest \"$dest\" --name demo --keep 3\necho \"after old rotate --keep 3: $(cd \"$dest\" && ls | paste -sd' ' -); newest present: $([[ -f \"$dest/demo-20260103-000000.tar.gz\" ]] && echo yes || echo no)\"\nprintf 'spaced\\n' > \"$dest/my backup-20260101-000000.tar.gz\"\ndigest=$(shasum -a 256 \"$dest/my backup-20260101-000000.tar.gz\" | cut -d' ' -f1)\nprintf '%s  my backup-20260101-000000.tar.gz\\n' \"$digest\" > \"$dest/my backup-20260101-000000.tar.gz.sha256\"\nrm -f \"$dest\"/*.tar.gz; touch \"$dest/keep\"; mv \"$dest/keep\" /dev/null 2>/dev/null; rm -f \"$dest/keep\"\nprintf 'a\\n' > \"$dest/demo-20260101-120000.tar.gz\"; printf '%s  demo-20260101-120000.tar.gz\\n' \"$digest\" > \"$dest/demo-20260101-120000.tar.gz.sha256\"; rm \"$dest/demo-20260101-120000.tar.gz.sha256\"\nprintf 'spaced\\n' > \"$dest/my backup-20260101-000000.tar.gz\"\nrc=0; out=$(bash \"$d/verify.sh\" --quiet --dest \"$dest\") || rc=$?\necho \"old verify on spaced name: $out / rc=$rc\"\nrm -rf \"$d\"",
+        "description": "Reproduce both original bugs against pre-fix scripts"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_1138ca003acb8df37e4e17e17ff57910_0",
+      "tool_input": {
+        "command": "d=$(mktemp -d); mkdir \"$d/lib\"; git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r1-d show HEAD:rotate.sh > \"$d/rotate.sh\"; git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r1-d show HEAD:verify.sh > \"$d/verify.sh\"; cp /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r1-d/lib/log.sh \"$d/lib/\"\nr=\"$d/dest\"; mkdir \"$r\"\nfor s in 20260101-000000 20260102-000000 20260103-000000; do printf 'a\\n' > \"$r/demo-$s.tar.gz\"; done\nbash \"$d/rotate.sh\" --quiet --dest \"$r\" --name demo --keep 3\necho \"old rotate --keep 3 with 3 archives -> newest present: $([[ -f \"$r/demo-20260103-000000.tar.gz\" ]] && echo yes || echo no), files: $(cd \"${r:?}\" && ls | paste -sd' ' -)\"\nv=\"$d/vdest\"; mkdir \"$v\"\nprintf 'spaced\\n' > \"$v/my backup-20260101-000000.tar.gz\"\ndigest=$(shasum -a 256 \"$v/my backup-20260101-000000.tar.gz\" | cut -d' ' -f1)\nprintf '%s  my backup-20260101-000000.tar.gz\\n' \"$digest\" > \"$v/my backup-20260101-000000.tar.gz.sha256\"\nrc=0; out=$(bash \"$d/verify.sh\" --quiet --dest \"$v\") || rc=$?\necho \"old verify on spaced name -> $out / rc=$rc\"\nrm -rf \"$d\"",
+        "description": "Reproduce both original bugs against pre-fix scripts"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ce988b9e316a4167e4ad38477f953f3a_0",
+      "tool_input": {
+        "command": "d=/tmp/bugcheck-rc2r1d; rm -rf \"$d\"; mkdir -p \"$d/lib\"\ngit -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r1-d show HEAD:rotate.sh > \"$d/rotate.sh\"\ngit -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r1-d show HEAD:verify.sh > \"$d/verify.sh\"\ncp /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r1-d/lib/log.sh \"$d/lib/\"\nr=\"$d/dest\"; mkdir \"$r\"\nfor s in 20260101-000000 20260102-000000 20260103-000000; do printf 'a\\n' > \"$r/demo-$s.tar.gz\"; done\nbash \"$d/rotate.sh\" --quiet --dest \"$r\" --name demo --keep 3\necho \"old rotate --keep 3 with 3 archives -> newest present: $([[ -f \"$r/demo-20260103-000000.tar.gz\" ]] && echo yes || echo no)\"\nv=\"$d/vdest\"; mkdir \"$v\"\nprintf 'spaced\\n' > \"$v/my backup-20260101-000000.tar.gz\"\ndigest=$(shasum -a 256 \"$v/my backup-20260101-000000.tar.gz\" | cut -d' ' -f1)\nprintf '%s  my backup-20260101-000000.tar.gz\\n' \"$digest\" > \"$v/my backup-20260101-000000.tar.gz.sha256\"\nrc=0; out=$(bash \"$d/verify.sh\" --quiet --dest \"$v\") || rc=$?\necho \"old verify on spaced name -> $out / rc=$rc\"\nrm -rf \"$d\"",
+        "description": "Reproduce both original bugs against pre-fix scripts"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a40cde9efcfffe89e27d059178d384f9_0",
+      "tool_input": {
+        "command": "cd /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r1-d\nd=$(mktemp -d); mkdir \"$d/dest\"\nfor s in 20260101-000000 20260102-000000 20260103-000000; do printf 'a\\n' > \"$d/dest/demo-$s.tar.gz\"; done\nprintf 'x\\n' > \"$d/dest/demo-20260104-000000.tar.gz\"; printf 'a\\n' > \"$d/dest/demo-20260105-000000.tar.gz\"\nout=$(bash rotate.sh --dest=\"$d/dest\" --name=demo --keep=2 --dry-run); echo \"dry-run: $out\"\nbash rotate.sh --dest \"$d/dest\" --name demo --bogus >/dev/null 2>&1; echo \"unknown option exit: $?\"\nbash rotate.sh --dest \"$d/dest\" --name demo --keep 0 >/dev/null 2>&1; echo \"keep 0 exit: $?\"\nbash rotate.sh --name demo >/dev/null 2>&1; echo \"missing --dest exit: $?\"\nbash rotate.sh --dest \"$d/dest\" --name demo --help >/dev/null; echo \"help exit: $?\"\nbash verify.sh --dest \"$d/dest\" --name=demo -q; echo \"verify =form exit: $?\"\nbash verify.sh -q -- --dest /nonexistent >/dev/null 2>&1; echo \"after -- positional rejected exit: $?\"\nrm -rf \"$d\"",
+        "description": "Exercise all shared flags on refactored scripts"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 29,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All done \u2014 `bash tests/run_tests.sh` reports **all tests passed** (9 checks), and I verified the two new tests fail against the pre-fix code.\n\n- **rotate.sh**: the surplus cut was `tail -n +$keep` on an oldest-first list, which at `total == keep` deletes the newest entry; now it exits early when `total <= keep` and deletes `head -n $((total - keep))` (the oldest) otherwise.\n- **verify.sh**: the sidecar name was parsed with `awk '{print $2}'`, truncating names at the first space; now `IFS=' ' read -r expected file <<< \"$line\"` takes the digest as the first word and the whole remainder as the file name (comparison also quoted).\n- **Refactor**: the shared option-parsing block and `resolve_dir` moved to a new `lib/common.sh` (which also sources `lib/log.sh` and preserves the per-script log prefix); `rotate.sh` and `verify.sh` call `parse_common_options \"$@\"` and accept the same flags as before. `backup.sh`, `restore.sh`, `report.sh` untouched.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and the new `lib/common.sh`.",
+  "ttft_ms": 24019,
+  "type": "result",
+  "duration_ms": 367448,
+  "uuid": "aa348492-895b-4ef9-9eba-36100f601334",
+  "ttft_stream_ms": 19541,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 23870,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 367.8,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

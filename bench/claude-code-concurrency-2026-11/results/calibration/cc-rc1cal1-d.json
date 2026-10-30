@@ -1,0 +1,152 @@
+{
+  "duration_api_ms": 379897,
+  "stop_reason": "end_turn",
+  "session_id": "c1e3b273-1af6-4adf-a4e3-f5af74b7c1c1",
+  "total_cost_usd": 1.2582864,
+  "usage": {
+    "input_tokens": 84564,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1649952,
+    "output_tokens": 29502,
+    "output_tokens_details": {
+      "thinking_tokens": 16513
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 84564,
+      "outputTokens": 29502,
+      "cacheReadInputTokens": 1649952,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 1.2582864,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 16513,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_0b8ff28ffa0b3e8b73c9a20f89c68527_0",
+      "tool_input": {
+        "command": "git stash -u -q && bash tests/run_tests.sh; rc=$?; echo \"--- baseline rc=$rc (expect 1)\"; git stash pop -q && git status --short",
+        "description": "Run new tests against original buggy code, then restore changes"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_3d3dc90df86bd2e4e7699b8881892704_0",
+      "tool_input": {
+        "command": "base=$(mktemp -d) && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc1cal1-d archive HEAD | tar -x -C \"$base\" && cp /Users/vitor/.cache/flashnext-concurrency/claude-work/rc1cal1-d/tests/run_tests.sh \"$base/tests/run_tests.sh\" && bash \"$base/tests/run_tests.sh\"; echo \"--- baseline rc=$? (expect 1: new tests must fail on old code)\"; rm -rf \"$base\"",
+        "description": "Run new test file against pristine HEAD scripts in temp dir"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d1fc358df88835a7f3481f44f5789382_0",
+      "tool_input": {
+        "command": "base=$(mktemp -d); echo \"$base\"; git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc1cal1-d archive HEAD | tar -x -C \"$base\"; cp /Users/vitor/.cache/flashnext-concurrency/claude-work/rc1cal1-d/tests/run_tests.sh \"$base/tests/run_tests.sh\"; bash \"$base/tests/run_tests.sh\"; echo baseline_rc=$?",
+        "description": "Run new tests against pristine HEAD copy in temp dir"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ecb7dd2804d9a3373daaea441e7ac729_0",
+      "tool_input": {
+        "command": "mktemp -d /tmp/bkbase.XXXX",
+        "description": "Create temp directory for baseline copy"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_4b8e6efd9a6d40ce455c132eff20b741_0",
+      "tool_input": {
+        "command": "mkdir -p /Users/vitor/.cache/flashnext-concurrency/claude-work/rc1cal1-d/.baseline/lib /Users/vitor/.cache/flashnext-concurrency/claude-work/rc1cal1-d/.baseline/tests",
+        "description": "Create baseline directory for HEAD-code regression check"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_2aeb5def5bf02b7c980cef11fecaaa96_0",
+      "tool_input": {
+        "command": "bash -n lib/common.sh && bash -n lib/log.sh && for f in backup.sh rotate.sh verify.sh restore.sh report.sh tests/run_tests.sh; do bash -n \"$f\" || echo \"SYNTAX FAIL $f\"; done; echo \"syntax ok\"; grep -c 'resolve_dir()' lib/common.sh backup.sh rotate.sh verify.sh restore.sh report.sh; grep -c 'while \\[\\[ \\$# -gt 0 \\]\\]' backup.sh rotate.sh verify.sh restore.sh report.sh lib/common.sh",
+        "description": "Syntax-check all scripts and confirm parser lives only in lib/common.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_5c4b1a3f7763b2803da5dcc2b849eb79_0",
+      "tool_input": {
+        "command": "bash -n lib/common.sh lib/log.sh backup.sh rotate.sh verify.sh restore.sh report.sh tests/run_tests.sh; echo \"syntax rc=$?\"",
+        "description": "Syntax-check all shell files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 49,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 12 tests pass (the 6 original checks plus the new ones). Verified the new tests fail on the pre-fix code (rotate deleted the newest archive when `total == keep`; verify split `my backup\u2026` at the blank and reported `BAD my (archive missing)`; the text sort ranked 9999 above 10000), and smoke-tested that every flag (`--help`, `=`-forms, `--keep` validation, `-n`, `-l`, `--top`, `--no-header`, `--target`, `--`) still behaves as before the refactor.\n\nThe fixes:\n- **rotate.sh** \u2014 `--keep N` with exactly N archives proceeded past the guard (`-lt` \u2192 `-le`), and `surplus()` used `tail -n +N` on the oldest-first list, deleting the newest entries; it now deletes the oldest `total - keep` entries with `head -n`.\n- **verify.sh** \u2014 took the archive name from the sidecar's content by splitting on blanks, which broke on spaces; per DESIGN.md \u00a74.3 it now takes only the digest from the sidecar and identifies the archive by the sidecar's own name minus `.sha256`.\n- **report.sh** \u2014 `sort -r` compared sizes as text; now `sort -t $'\\t' -k1,1nr` sorts numerically on the size column.\n- **lib/common.sh** \u2014 new file owning the option parser (`parse_options`) and `resolve_dir`, sourced by all five scripts.\n\nChanged: `rotate.sh`, `verify.sh`, `report.sh` (bug fixes), all five scripts (source `lib/common.sh`), new `lib/common.sh`, `tests/run_tests.sh` (3 new tests), and `docs/DESIGN.md` + `README.md` (doc text describing the duplicated block that no longer exists).",
+  "ttft_ms": 24320,
+  "type": "result",
+  "duration_ms": 381495,
+  "uuid": "4b068986-c817-429b-8a72-d7d760d315a5",
+  "ttft_stream_ms": 24320,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 24320,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 1,
+  "exit": 0,
+  "wall_s": 382.1,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

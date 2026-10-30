@@ -60,3 +60,60 @@ def test_prefill_turn_with_big_new_prompt_is_not_warm():
     s = summarize_requests(parse_splash_log(text))
     assert s["warm"]["n"] == 1 and s["warm"]["ttft_p90"] == 0.6
     assert s["first_prompt_ttft_s"] == 23.7 and s["prefill_turns"] == 2
+
+
+# ---- campaign B: proxy records (cached_tokens / ttft_s may be null, status may be an error) ----
+
+WARM = {"t_start_s": 25.0, "ttft_s": 0.6, "t_end_s": 27.0, "input_tokens": 19622, "cached_tokens": 19264,
+        "output_tokens": 204, "tps": 161.3, "status": 200, "stream": None}
+
+
+def test_null_cached_counts_as_prefill_only_when_ttft_is_long():
+    reqs = [dict(WARM, t_start_s=0.0, ttft_s=12.0, t_end_s=15.0, cached_tokens=None),
+            dict(WARM, t_start_s=20.0, ttft_s=1.5, t_end_s=22.0, cached_tokens=None)]
+    s = summarize_requests(reqs)
+    assert s["prefill_turns"] == 1 and s["warm"]["n"] == 1 and s["warm"]["ttft_p50"] == 1.5
+    assert s["first_prompt_ttft_s"] == 12.0 and s["new_tokens_p50"] is None
+
+
+def test_null_ttft_and_non_200_are_errors_not_samples():
+    reqs = [dict(WARM, t_start_s=0.0, ttft_s=None, tps=None, t_end_s=1.0, status=529),
+            dict(WARM, t_start_s=5.0, ttft_s=1.0, t_end_s=7.0)]
+    s = summarize_requests(reqs)
+    assert s["errors"] == 1 and s["warm"]["n"] == 1 and s["n"] == 2
+
+
+def test_summarize_requests_has_zero_errors_by_default():
+    assert summarize_requests(parse_splash_log(LOG))["errors"] == 0
+
+
+def test_empty_200_responses_are_not_model_turns():
+    # A 200 with no content delta and no tokens (a non-message endpoint behind the proxy) is neither a sample,
+    # an error nor a request: it must not count in n or in max_concurrent.
+    empty = {"t_start_s": 1.0, "ttft_s": None, "t_end_s": 1.01, "input_tokens": 0, "cached_tokens": None,
+             "output_tokens": 0, "tps": None, "status": 200, "stream": None}
+    s = summarize_requests([dict(WARM, t_start_s=0.0, t_end_s=3.0), empty])
+    assert s["n"] == 1 and s["max_concurrent"] == 1 and s["errors"] == 0 and s["warm"]["n"] == 1
+
+
+def test_empty_404_is_not_an_error_but_an_empty_500_is():
+    # mlx-serve has no count_tokens endpoint: Claude Code's call gets a 1 ms 404 with no tokens. A server error
+    # with nothing else in it is still an error.
+    base = {"t_start_s": 1.0, "ttft_s": None, "t_end_s": 1.001, "input_tokens": 0, "cached_tokens": None,
+            "output_tokens": 0, "tps": None, "stream": None}
+    s = summarize_requests([dict(WARM, t_start_s=0.0, t_end_s=3.0), dict(base, status=404)])
+    assert s["n"] == 1 and s["errors"] == 0
+    s = summarize_requests([dict(WARM, t_start_s=0.0, t_end_s=3.0), dict(base, status=500)])
+    assert s["n"] == 2 and s["errors"] == 1
+
+
+def test_first_prompt_is_the_first_request_of_each_stream_not_every_prefill_turn():
+    # With realistic tasks most prefill turns are big tool results mid-session (a 7K-token file read); the first
+    # prompt of a session is the first request of its stream. Records without a stream keep the prefill rule.
+    first = dict(WARM, t_start_s=0.0, ttft_s=24.0, t_end_s=25.0, cached_tokens=0, stream="s1")
+    big_read = dict(WARM, t_start_s=30.0, ttft_s=9.0, t_end_s=40.0, input_tokens=30000, cached_tokens=20000, stream="s1")
+    warm = dict(WARM, t_start_s=41.0, ttft_s=0.8, t_end_s=43.0, stream="s1")
+    s = summarize_requests([big_read, first, warm])
+    assert s["first_prompt_ttft_s"] == 24.0 and s["prefill_turns"] == 2 and s["warm"]["n"] == 1
+    s = summarize_requests([dict(first, stream=None), dict(big_read, stream=None)])
+    assert s["first_prompt_ttft_s"] == 16.5  # median of the two prefill turns, as before

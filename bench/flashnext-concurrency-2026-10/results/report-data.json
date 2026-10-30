@@ -1473,76 +1473,161 @@
   "scenarios": {
     "one_session": {
       "splash": {
-        "warm_ttft_s": 0.8,
+        "warm_ttft_s": 0.892,
         "warm_ttft_source": "claude",
-        "tps_lo": 93.1,
-        "tps_hi": 175.8,
-        "first_prompt_s": 23.7,
+        "tps_lo": 78.9,
+        "tps_hi": 178.6,
+        "first_prompt_s": 23.802500000000002,
         "cold_128k_s": 167.51088795799996,
         "tasks": {
           "small": {
-            "a": 40.95,
-            "b": 40.5
+            "a": 88.5,
+            "b": 41.5
+          },
+          "realistic": {
+            "c": 162.8,
+            "d": 253.20000000000002
           }
         },
         "tbench": null
       },
       "mlx": {
-        "warm_ttft_s": 1.987078915999973,
-        "warm_ttft_source": "synthetic",
-        "tps_lo": 72.78501256309731,
-        "tps_hi": 83.15217087131471,
-        "first_prompt_s": null,
+        "warm_ttft_s": 0.353,
+        "warm_ttft_source": "claude",
+        "tps_lo": 66.9,
+        "tps_hi": 153.5,
+        "first_prompt_s": 25.125,
         "cold_128k_s": 165.33880975,
-        "tasks": {},
+        "tasks": {
+          "small": {
+            "a": 48.55,
+            "b": 49.1
+          },
+          "realistic": {
+            "c": 161.8,
+            "d": 303.35
+          }
+        },
         "tbench": null
       }
     },
     "two_sessions": {
       "splash": {
-        "ttft_alone_p50": 0.8,
-        "ttft_pair_p50": 1.8,
-        "ttft_alone_p90": 1.2,
-        "ttft_pair_p90": 3.4,
-        "tps_alone_p50": 119.6,
-        "tps_pair_p50": 90.0,
-        "tps_alone_min": 93.1,
-        "tps_pair_min": 40.0,
+        "ttft_alone_p50": 0.892,
+        "ttft_pair_p50": 1.438,
+        "ttft_alone_p90": 1.582,
+        "ttft_pair_p90": 4.337,
+        "tps_alone_p50": 126.1,
+        "tps_pair_p50": 89.15,
+        "tps_alone_min": 78.9,
+        "tps_pair_min": 39.0,
         "tasks": {
           "small": {
             "a": {
-              "alone_s": 40.95,
-              "pair_s": 58.66666666666667
+              "alone_s": 88.5,
+              "pair_s": 59.96666666666667
             },
             "b": {
-              "alone_s": 40.5,
-              "pair_s": 59.96666666666667
+              "alone_s": 41.5,
+              "pair_s": 78.5
+            }
+          },
+          "realistic": {
+            "c": {
+              "alone_s": 162.8,
+              "pair_s": 315.9666666666667
+            },
+            "d": {
+              "alone_s": 253.20000000000002,
+              "pair_s": 390.76666666666665
             }
           }
         },
-        "time_saved": 0.2424800491098834,
+        "time_saved": 0.060657051282051344,
         "time_saved_by_profile": {
-          "small": 0.2424800491098834
+          "small": 0.3961538461538462,
+          "realistic": 0.060657051282051344
         },
         "side_p95_s": 5.044651985168457,
         "max_concurrent": 2,
-        "new_tokens_p50": 575
+        "new_tokens_p50": 588,
+        "subagents": {
+          "max_concurrent": 6,
+          "ttft_p50": 2.535,
+          "ttft_p90": 8.439,
+          "tps_p50": 82.75,
+          "tps_min": 20.1,
+          "pair_wall_s": 860.8666666666667,
+          "time_saved": -1.0693910256410257,
+          "task_done": false,
+          "parallel_agent_calls": 8,
+          "subagents_spawned": 17
+        },
+        "decode_share": {
+          "max_concurrent": 2,
+          "ttft_p50": 2.232,
+          "ttft_p90": 5.1,
+          "tps_p50": 80.8,
+          "tps_min": 42.5,
+          "pair_wall_s": 444.56666666666666,
+          "time_saved": -0.06866987179487172,
+          "task_done": true,
+          "parallel_agent_calls": 0,
+          "subagents_spawned": 0
+        }
       },
       "mlx": {
-        "ttft_alone_p50": null,
-        "ttft_pair_p50": null,
-        "ttft_alone_p90": null,
-        "ttft_pair_p90": null,
-        "tps_alone_p50": null,
-        "tps_pair_p50": null,
-        "tps_alone_min": null,
-        "tps_pair_min": null,
-        "tasks": {},
-        "time_saved": null,
-        "time_saved_by_profile": {},
+        "ttft_alone_p50": 0.353,
+        "ttft_pair_p50": 0.372,
+        "ttft_alone_p90": 1.146,
+        "ttft_pair_p90": 1.143,
+        "tps_alone_p50": 86.2,
+        "tps_pair_p50": 39.9,
+        "tps_alone_min": 66.9,
+        "tps_pair_min": 19.6,
+        "tasks": {
+          "small": {
+            "a": {
+              "alone_s": 48.55,
+              "pair_s": 91.66666666666667
+            },
+            "b": {
+              "alone_s": 49.1,
+              "pair_s": 89.93333333333334
+            }
+          },
+          "realistic": {
+            "c": {
+              "alone_s": 161.8,
+              "pair_s": 422.06666666666666
+            },
+            "d": {
+              "alone_s": 303.35,
+              "pair_s": 446.175
+            }
+          }
+        },
+        "time_saved": -0.030420294528646696,
+        "time_saved_by_profile": {
+          "small": 0.057859703020993414,
+          "realistic": -0.030420294528646696
+        },
         "side_p95_s": 183.04781818389893,
-        "max_concurrent": null,
-        "new_tokens_p50": null
+        "max_concurrent": 2,
+        "new_tokens_p50": 87.0,
+        "subagents": {
+          "max_concurrent": 5,
+          "ttft_p50": 0.47450000000000003,
+          "ttft_p90": 4.51,
+          "tps_p50": 39.7,
+          "tps_min": 6.7,
+          "pair_wall_s": 1124.9666666666667,
+          "time_saved": -1.418502991866423,
+          "task_done": true,
+          "parallel_agent_calls": 6,
+          "subagents_spawned": 12
+        },
+        "decode_share": null
       }
     },
     "worst_case": {
@@ -1556,6 +1641,11 @@
           "label": "--decode-share 1.0",
           "turn_s": 10.8,
           "note": "recall 25/26"
+        },
+        "real_decode_share": {
+          "ttft_p90": 5.1,
+          "ttft_p90_plain": 4.337,
+          "time_saved": -0.06866987179487172
         }
       },
       "mlx": {
@@ -1564,7 +1654,8 @@
         "side_p95_s": 183.04781818389893,
         "side_over_60": 7,
         "gain": 1.4895909577463935,
-        "best_setting": null
+        "best_setting": null,
+        "real_decode_share": null
       }
     },
     "by_n": {
@@ -1638,7 +1729,7 @@
         "scenario": "One Claude Code session",
         "cells": {
           "splash": "measured",
-          "mlx": "missing",
+          "mlx": "measured",
           "legacy": "measured"
         }
       },
@@ -1646,7 +1737,7 @@
         "scenario": "Two Claude Code sessions",
         "cells": {
           "splash": "measured",
-          "mlx": "missing",
+          "mlx": "measured",
           "legacy": "measured"
         }
       },
@@ -1677,16 +1768,16 @@
       {
         "scenario": "Realistic Claude Code task (60–120K, 20–40 turns)",
         "cells": {
-          "splash": "missing",
-          "mlx": "missing",
+          "splash": "measured",
+          "mlx": "measured",
           "legacy": "missing"
         }
       },
       {
         "scenario": "Claude Code with subagents",
         "cells": {
-          "splash": "missing",
-          "mlx": "missing",
+          "splash": "measured",
+          "mlx": "measured",
           "legacy": "missing"
         }
       },
@@ -1702,13 +1793,13 @@
     "verdict": {
       "one": {
         "word": "Yes",
-        "ttft_s": 0.8,
-        "first_prompt_s": 23.7
+        "ttft_s": 0.892,
+        "first_prompt_s": 23.802500000000002
       },
       "two": {
         "word": "Yes, at a cost",
-        "ttft_pair_p50": 1.8,
-        "time_saved": 0.2424800491098834
+        "ttft_pair_p50": 1.438,
+        "time_saved": 0.060657051282051344
       },
       "many": {
         "word": "No",

@@ -1,0 +1,661 @@
+date,account,payee,amount,category,memo
+2025-01-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,split with Sam
+2025-01-02,Checking,Acme Ltd Payroll,3250.00,,standing order
+2025-01-02,Checking,PureGym,-24.99,Fitness,receipt kept
+2025-01-03,Checking,Council Tax,-148.00,,holiday
+2025-01-04,Checking,Nursery Fees,-420.00,,monthly
+2025-01-05,Checking,Credit Card Payment,-320.35,Transfers,holiday
+2025-01-05,Savings,Dividend Vanguard,44.31,Income,
+2025-01-05,Visa Card,Dunelm,-74.25,,standing order
+2025-01-06,Checking,Cancer Research UK,-33.84,Charity,direct debit
+2025-01-06,Visa Card,Lidl,-42.85,Groceries,
+2025-01-06,Visa Card,Superdrug,-28.70,,birthday
+2025-01-07,Visa Card,Spotify AB,-10.99,Subscriptions,
+2025-01-09,Checking,Wickes,-133.96,Home,monthly
+2025-01-12,Visa Card,Costco Wholesale,-97.09,Groceries,work trip
+2025-01-12,Visa Card,Netflix.com,-15.99,Subscriptions,direct debit
+2025-01-13,Checking,Credit Card Payment,-1314.92,Transfers,receipt kept
+2025-01-13,Checking,Transfer to Savings,-337.23,Transfers,
+2025-01-14,Cash Wallet,Greggs,-5.83,Dining,receipt kept
+2025-01-14,Checking,Zipcar,-90.00,,
+2025-01-15,Checking,Virgin Media,-52.00,Telecom,weekly shop
+2025-01-15,Visa Card,Ocado Retail,-42.81,Groceries,birthday
+2025-01-16,Checking,Zara,-25.40,,split with Sam
+2025-01-16,Visa Card,Toni & Guy,-42.27,Personal Care,monthly
+2025-01-18,Checking,Vodafone UK,-24.00,Telecom,birthday
+2025-01-19,Visa Card,Cashback Reward,3.87,Income,receipt kept
+2025-01-20,Visa Card,Netflix.com,-14.89,,receipt kept
+2025-01-22,Visa Card,Just Eat,-27.75,Dining,weekly shop
+2025-01-23,Checking,Credit Card Payment,-518.73,Transfers,birthday
+2025-01-24,Visa Card,Toni & Guy,-52.39,Personal Care,split with Sam
+2025-01-25,Checking,Acme Ltd Payroll,3250.00,Income,monthly
+2025-01-26,Checking,Transfer to Savings,-400.00,Transfers,birthday
+2025-01-26,Visa Card,Wagamama,-28.64,Dining,birthday
+2025-01-28,Checking,Acme Ltd Payroll,3250.00,Income,
+2025-01-28,Checking,Monthly Account Fee,-5.00,Fees,
+2025-01-28,Visa Card,Tesco Petrol Filling Station,-58.38,Fuel,birthday
+2025-01-30,Checking,Service Charge Q3,-240.00,Housing,contactless
+2025-01-30,Checking,Uber Trip,-31.71,Transport,birthday
+2025-01-30,Visa Card,Apple Store,-24.21,Shopping,split with Sam
+2025-01-30,Visa Card,Ticketmaster,-149.71,Entertainment,holiday
+2025-01-30,Visa Card,eBay,-67.88,Shopping,work trip
+2025-02-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,contactless
+2025-02-02,Checking,Council Tax,-148.00,Taxes,monthly
+2025-02-02,Visa Card,PureGym,-24.99,Fitness,
+2025-02-03,Checking,Council Tax,-148.00,Taxes,holiday
+2025-02-04,Checking,Dunelm,-60.42,Home,work trip
+2025-02-04,Checking,Nursery Fees,-420.00,Family,direct debit
+2025-02-04,Visa Card,Halfords,-12.06,,refill
+2025-02-04,Visa Card,Wickes,-98.45,Home,split with Sam
+2025-02-06,Checking,Apple Music,-10.99,Subscriptions,
+2025-02-06,Visa Card,Screwfix,-59.46,Home,weekly shop
+2025-02-07,Checking,Spotify AB,-10.99,Subscriptions,work trip
+2025-02-07,Visa Card,Apple Store,-77.69,Shopping,birthday
+2025-02-09,Visa Card,National Trust,-31.72,Entertainment,
+2025-02-10,Checking,Dishoom,-39.00,Dining,work trip
+2025-02-12,Checking,Netflix.com,-15.99,Subscriptions,contactless
+2025-02-12,Checking,Wagamama,-39.93,Dining,refill
+2025-02-13,Checking,Toni & Guy,-58.94,Personal Care,standing order
+2025-02-13,Visa Card,British Gas,-87.72,Utilities,
+2025-02-13,Visa Card,Smyths Toys,-44.42,Family,monthly
+2025-02-15,Checking,DVLA Vehicle Tax,-15.00,Taxes,contactless
+2025-02-15,Checking,Lidl,-7.69,,online order
+2025-02-15,Checking,Virgin Media,-52.00,Telecom,online order
+2025-02-15,Visa Card,Deliveroo,-43.24,Dining,work trip
+2025-02-15,Visa Card,Premier Inn,-100.10,Travel,monthly
+2025-02-16,Visa Card,Uniqlo,-34.61,Shopping,weekly shop
+2025-02-17,Checking,Starbucks,-3.95,,online order
+2025-02-17,Visa Card,Zipcar,-38.58,Transport,direct debit
+2025-02-18,Checking,Cancer Research UK,-26.81,,birthday
+2025-02-18,Visa Card,Dishoom,-91.35,Dining,holiday
+2025-02-18,Visa Card,Vodafone UK,-24.00,Telecom,holiday
+2025-02-20,Checking,Monthly Account Fee,-5.00,Fees,contactless
+2025-02-20,Visa Card,Pets at Home,-16.48,Pets,monthly
+2025-02-21,Checking,iCloud Storage,-4.11,Subscriptions,direct debit
+2025-02-22,Visa Card,Lidl,-30.93,Groceries,
+2025-02-22,Visa Card,eBay,-41.48,Shopping,
+2025-02-24,Checking,Pets at Home,-57.70,Pets,
+2025-02-25,Checking,Acme Ltd Payroll,3250.00,,refill
+2025-02-25,Checking,Ryanair,-121.31,Travel,birthday
+2025-02-26,Checking,Transfer to Savings,-400.00,Transfers,refill
+2025-02-26,Checking,Zipcar,-27.77,Transport,contactless
+2025-02-26,Visa Card,Tesco Stores,-78.39,Groceries,refill
+2025-02-27,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,split with Sam
+2025-02-28,Checking,Monthly Account Fee,-5.00,,standing order
+2025-03-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,weekly shop
+2025-03-02,Checking,Acme Ltd Payroll,3250.00,Income,holiday
+2025-03-02,Checking,PureGym,-24.99,Fitness,
+2025-03-02,Visa Card,National Trust,-67.06,Entertainment,holiday
+2025-03-02,Visa Card,Specsavers,-70.37,,
+2025-03-02,Visa Card,Udemy,-22.09,Education,work trip
+2025-03-03,Checking,Council Tax,-148.00,Taxes,direct debit
+2025-03-03,Checking,Waterstones,-8.46,Education,work trip
+2025-03-04,Checking,Nursery Fees,-420.00,Family,holiday
+2025-03-04,Visa Card,Cashback Reward,14.93,Income,holiday
+2025-03-05,Visa Card,Steam Games,-31.81,Entertainment,contactless
+2025-03-07,Checking,Spotify AB,-10.99,Subscriptions,
+2025-03-11,Visa Card,Screwfix,-26.04,Home,receipt kept
+2025-03-12,Checking,Netflix.com,-15.99,,
+2025-03-12,Checking,Transfer to Savings,-554.11,Transfers,refill
+2025-03-13,Checking,Screwfix,-33.33,Home,split with Sam
+2025-03-13,Checking,TfL Travel Charge,-5.14,Transport,direct debit
+2025-03-13,Savings,Transfer from Savings,408.11,Transfers,contactless
+2025-03-14,Checking,Acme Ltd Payroll,3250.00,Income,direct debit
+2025-03-14,Checking,Disney Plus,-10.75,,
+2025-03-14,Savings,Savings Interest,6.45,Income,weekly shop
+2025-03-15,Visa Card,Virgin Media,-52.00,Telecom,birthday
+2025-03-17,Visa Card,Netflix.com,-16.08,Subscriptions,
+2025-03-18,Checking,Udemy,-21.87,Education,holiday
+2025-03-18,Visa Card,Vodafone UK,-24.00,Telecom,
+2025-03-19,Visa Card,Mydentist,-52.44,,work trip
+2025-03-20,Checking,ATM Withdrawal,-98.10,Transfers,contactless
+2025-03-20,Visa Card,Zipcar,-89.42,,work trip
+2025-03-22,Checking,Toni & Guy,-50.67,Personal Care,
+2025-03-22,Visa Card,Ocado Retail,-80.12,Groceries,contactless
+2025-03-25,Checking,Acme Ltd Payroll,3250.00,Income,contactless
+2025-03-25,Visa Card,Tesco Stores,-88.95,Groceries,contactless
+2025-03-26,Checking,Transfer to Savings,-400.00,Transfers,refill
+2025-03-27,Checking,Disney Plus,-9.44,Subscriptions,
+2025-03-27,Checking,Ionity GmbH,-34.62,,holiday
+2025-03-27,Visa Card,Octopus Energy,-121.79,Utilities,
+2025-03-28,Checking,Monthly Account Fee,-5.00,Fees,split with Sam
+2025-03-28,Visa Card,Screwfix,-58.90,Home,monthly
+2025-03-29,Visa Card,Airbnb,-125.37,,standing order
+2025-03-30,Checking,HMRC Tax Rebate,477.70,Taxes,refill
+2025-03-30,Visa Card,Vodafone UK,-34.39,Telecom,
+2025-04-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,birthday
+2025-04-02,Visa Card,PureGym,-24.99,Fitness,birthday
+2025-04-03,Checking,Council Tax,-148.00,Taxes,split with Sam
+2025-04-03,Visa Card,Ticketmaster,-113.05,,contactless
+2025-04-03,Visa Card,eBay,-20.55,Shopping,monthly
+2025-04-04,Checking,Nursery Fees,-420.00,Family,monthly
+2025-04-05,Checking,Vitality Health,-45.00,Insurance,refill
+2025-04-05,Visa Card,Virgin Media,-50.23,Telecom,
+2025-04-06,Checking,B&Q,-45.52,Home,
+2025-04-06,Visa Card,Refund Amazon,97.37,Shopping,receipt kept
+2025-04-06,Visa Card,Refund Amazon,30.20,,holiday
+2025-04-07,Checking,Spotify AB,-10.99,Subscriptions,
+2025-04-07,Visa Card,Trainline,-15.82,Transport,holiday
+2025-04-08,Visa Card,Smyths Toys,-53.64,Family,weekly shop
+2025-04-09,Checking,British Airways,-253.20,Travel,monthly
+2025-04-09,Checking,Oxfam,-20.44,Charity,holiday
+2025-04-09,Checking,Zipcar,-59.06,Transport,split with Sam
+2025-04-11,Visa Card,British Airways,-175.80,Travel,monthly
+2025-04-12,Checking,Netflix.com,-15.99,Subscriptions,monthly
+2025-04-12,Visa Card,Booking.com,-137.97,Travel,standing order
+2025-04-12,Visa Card,Shell Petrol,-70.31,Fuel,standing order
+2025-04-13,Savings,Savings Interest,34.50,Income,
+2025-04-14,Visa Card,Cashback Reward,21.84,Income,split with Sam
+2025-04-15,Checking,Virgin Media,-52.00,,direct debit
+2025-04-18,Visa Card,Vodafone UK,-24.00,Telecom,monthly
+2025-04-19,Visa Card,John Lewis,-38.19,Shopping,weekly shop
+2025-04-19,Visa Card,Ocado Retail,-113.15,Groceries,contactless
+2025-04-20,Checking,PureGym,-24.99,,
+2025-04-22,Checking,Transfer to Savings,-234.59,Transfers,work trip
+2025-04-24,Checking,Deliveroo,-43.20,Dining,
+2025-04-24,Savings,Transfer from Savings,441.58,,receipt kept
+2025-04-24,Visa Card,Deliveroo,-44.59,Dining,
+2025-04-25,Checking,Acme Ltd Payroll,3250.00,Income,
+2025-04-25,Visa Card,Boots Pharmacy,-35.42,Health,birthday
+2025-04-25,Visa Card,Just Eat,-36.09,,
+2025-04-26,Checking,Transfer to Savings,-400.00,Transfers,birthday
+2025-04-28,Checking,Monthly Account Fee,-5.00,Fees,split with Sam
+2025-04-28,Checking,Pret A Manger,-11.81,Dining,holiday
+2025-04-28,Visa Card,B&Q,-151.27,Home,refill
+2025-04-29,Visa Card,British Airways,-422.96,Travel,monthly
+2025-04-30,Checking,Netflix.com,-14.24,Subscriptions,monthly
+2025-05-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,
+2025-05-01,Visa Card,Zipcar,-47.83,Transport,contactless
+2025-05-02,Visa Card,PureGym,-24.99,Fitness,weekly shop
+2025-05-03,Checking,Council Tax,-148.00,Taxes,birthday
+2025-05-03,Checking,Esso Hemel,-36.13,Fuel,direct debit
+2025-05-03,Visa Card,Esso Hemel,-64.05,Fuel,split with Sam
+2025-05-04,Checking,Dishoom,-75.89,Dining,standing order
+2025-05-04,Checking,Nursery Fees,-420.00,,standing order
+2025-05-04,Visa Card,Cashback Reward,20.73,,contactless
+2025-05-05,Checking,Cashback Reward,16.90,Income,work trip
+2025-05-06,Checking,Nursery Fees,-420.00,Family,refill
+2025-05-06,Checking,Uber Trip,-36.41,Transport,
+2025-05-07,Visa Card,Refund Amazon,29.51,Shopping,direct debit
+2025-05-07,Visa Card,Spotify AB,-10.99,Subscriptions,receipt kept
+2025-05-09,Checking,Transfer to Savings,-293.92,,online order
+2025-05-09,Visa Card,IKEA,-306.59,Home,
+2025-05-10,Visa Card,Sainsbury's,-48.79,Groceries,receipt kept
+2025-05-11,Checking,Council Tax,-148.00,Taxes,weekly shop
+2025-05-12,Visa Card,Netflix.com,-15.99,Subscriptions,work trip
+2025-05-14,Visa Card,Cancer Research UK,-13.67,Charity,receipt kept
+2025-05-14,Visa Card,PureGym,-24.99,Fitness,
+2025-05-14,Visa Card,Specsavers,-25.23,,monthly
+2025-05-15,Checking,ATM Withdrawal,-182.20,Transfers,refill
+2025-05-15,Visa Card,Deliveroo,-35.85,Dining,
+2025-05-15,Visa Card,Virgin Media,-52.00,Telecom,split with Sam
+2025-05-16,Visa Card,Costco Wholesale,-92.60,Groceries,
+2025-05-17,Checking,BP Garage,-57.37,Fuel,online order
+2025-05-17,Visa Card,Royal Mail,-12.07,Shopping,birthday
+2025-05-17,Visa Card,Spotify AB,-10.99,,monthly
+2025-05-18,Checking,Admiral Insurance,-39.48,Insurance,contactless
+2025-05-18,Visa Card,Vodafone UK,-24.00,Telecom,
+2025-05-20,Checking,Barber Shop,-20.03,Personal Care,receipt kept
+2025-05-20,Checking,Tesco Petrol Filling Station,-53.86,Fuel,online order
+2025-05-21,Visa Card,TfL Travel Charge,-9.51,Transport,weekly shop
+2025-05-22,Checking,Odeon Cinemas,-25.47,Entertainment,receipt kept
+2025-05-23,Savings,Transfer from Savings,453.16,Transfers,
+2025-05-23,Visa Card,Dishoom,-50.12,Dining,refill
+2025-05-23,Visa Card,RingGo Parking,-10.32,Transport,birthday
+2025-05-25,Checking,Acme Ltd Payroll,3250.00,Income,refill
+2025-05-25,Visa Card,Pizza Express,-32.91,Dining,
+2025-05-26,Checking,Transfer to Savings,-400.00,Transfers,monthly
+2025-05-28,Checking,Monthly Account Fee,-5.00,Fees,standing order
+2025-05-29,Checking,Steam Games,-17.13,Entertainment,holiday
+2025-05-30,Checking,Pizza Express,-52.25,Dining,split with Sam
+2025-06-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,holiday
+2025-06-02,Checking,HMRC Tax Rebate,123.92,Taxes,standing order
+2025-06-02,Visa Card,PureGym,-24.99,Fitness,receipt kept
+2025-06-03,Checking,Council Tax,-148.00,Taxes,online order
+2025-06-04,Checking,Nursery Fees,-420.00,Family,online order
+2025-06-04,Savings,Transfer from Savings,186.32,Transfers,
+2025-06-04,Visa Card,Greggs,-6.42,Dining,receipt kept
+2025-06-06,Savings,Transfer from Savings,436.60,Transfers,work trip
+2025-06-06,Visa Card,Pets at Home,-8.16,Pets,
+2025-06-07,Checking,Monthly Account Fee,-5.00,Fees,
+2025-06-07,Visa Card,Spotify AB,-10.99,Subscriptions,refill
+2025-06-08,Checking,Booking.com,-183.16,Travel,direct debit
+2025-06-08,Checking,National Trust,-44.17,Entertainment,
+2025-06-09,Checking,Duolingo,-6.99,Education,work trip
+2025-06-09,Checking,Oxfam,-5.67,,refill
+2025-06-11,Checking,Decathlon,-38.78,Shopping,holiday
+2025-06-11,Visa Card,LNER,-51.40,Transport,holiday
+2025-06-12,Visa Card,Deliveroo,-32.77,Dining,work trip
+2025-06-12,Visa Card,Netflix.com,-15.99,Subscriptions,monthly
+2025-06-13,Checking,Waterstones,-37.62,,refill
+2025-06-14,Checking,Interflora,-29.24,Shopping,split with Sam
+2025-06-14,Visa Card,Tesco Stores,-88.14,Groceries,monthly
+2025-06-15,Checking,Amazon Prime,-8.99,Subscriptions,monthly
+2025-06-15,Visa Card,Disney Plus,-8.89,Subscriptions,
+2025-06-15,Visa Card,Pets at Home,-41.58,Pets,online order
+2025-06-15,Visa Card,Virgin Media,-52.00,Telecom,
+2025-06-16,Checking,Steam Games,-56.60,Entertainment,direct debit
+2025-06-18,Checking,Vodafone UK,-24.00,,
+2025-06-18,Savings,Dividend Vanguard,86.05,Income,receipt kept
+2025-06-18,Visa Card,Smyths Toys,-62.89,Family,online order
+2025-06-19,Checking,Nursery Fees,-420.00,Family,contactless
+2025-06-20,Checking,iCloud Storage,-5.60,Subscriptions,direct debit
+2025-06-21,Visa Card,Oxfam,-15.49,Charity,receipt kept
+2025-06-21,Visa Card,Wickes,-110.59,Home,
+2025-06-22,Checking,Nintendo eShop,-57.73,Entertainment,receipt kept
+2025-06-23,Checking,British Gas,-117.68,Utilities,contactless
+2025-06-23,Checking,ClassPass,-35.00,,
+2025-06-24,Visa Card,Odeon Cinemas,-25.82,Entertainment,monthly
+2025-06-25,Checking,Acme Ltd Payroll,3250.00,Income,
+2025-06-26,Checking,Transfer to Savings,-400.00,Transfers,birthday
+2025-06-26,Visa Card,Wickes,-126.73,,refill
+2025-06-27,Checking,Apple Music,-10.99,,work trip
+2025-06-27,Checking,PureGym,-24.99,Fitness,
+2025-06-28,Checking,Monthly Account Fee,-5.00,,monthly
+2025-06-28,Visa Card,B&Q,-76.03,Home,
+2025-06-29,Visa Card,Pret A Manger,-13.42,Dining,standing order
+2025-06-29,Visa Card,Refund Amazon,62.31,Shopping,holiday
+2025-06-30,Visa Card,Dishoom,-61.86,Dining,birthday
+2025-07-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,work trip
+2025-07-01,Checking,Thames Water,-42.95,,receipt kept
+2025-07-01,Visa Card,Airbnb,-180.49,Travel,
+2025-07-02,Savings,Dividend Vanguard,47.58,Income,receipt kept
+2025-07-02,Visa Card,PureGym,-24.99,,
+2025-07-03,Checking,Council Tax,-148.00,Taxes,
+2025-07-04,Checking,Halfords,-38.07,,birthday
+2025-07-04,Checking,Nursery Fees,-420.00,Family,online order
+2025-07-04,Visa Card,Pets at Home,-29.50,Pets,contactless
+2025-07-06,Visa Card,Vets4Pets,-98.28,Pets,receipt kept
+2025-07-07,Visa Card,Spotify AB,-10.99,Subscriptions,weekly shop
+2025-07-08,Visa Card,Airbnb,-386.88,Travel,work trip
+2025-07-08,Visa Card,Waterstones,-11.31,Education,
+2025-07-10,Checking,Waitrose,-28.43,,
+2025-07-11,Visa Card,Netflix.com,-16.02,Subscriptions,
+2025-07-12,Checking,Netflix.com,-15.99,,standing order
+2025-07-15,Checking,Screwfix,-82.17,Home,
+2025-07-15,Checking,Zipcar,-78.28,Transport,
+2025-07-15,Visa Card,Virgin Media,-52.00,Telecom,receipt kept
+2025-07-16,Visa Card,Halfords,-10.74,Transport,online order
+2025-07-18,Checking,Vodafone UK,-24.00,Telecom,refill
+2025-07-19,Checking,Cashback Reward,13.50,Income,holiday
+2025-07-20,Visa Card,Currys,-344.95,Shopping,
+2025-07-20,Visa Card,Vets4Pets,-43.24,Pets,work trip
+2025-07-21,Visa Card,eBay,-84.84,Shopping,
+2025-07-22,Visa Card,Royal Mail,-5.76,Shopping,
+2025-07-22,Visa Card,Thames Water,-34.15,Utilities,holiday
+2025-07-23,Checking,TfL Travel Charge,-7.25,Transport,holiday
+2025-07-23,Visa Card,IKEA,-204.21,Home,standing order
+2025-07-23,Visa Card,PureGym,-24.99,Fitness,
+2025-07-25,Checking,Acme Ltd Payroll,3250.00,Income,online order
+2025-07-26,Checking,Marriott Hotels,-129.25,Travel,refill
+2025-07-26,Checking,PureGym,-24.99,Fitness,receipt kept
+2025-07-26,Checking,Transfer to Savings,-400.00,Transfers,
+2025-07-26,Visa Card,British Airways,-172.27,Travel,birthday
+2025-07-28,Checking,LNER,-98.77,Transport,contactless
+2025-07-28,Checking,Monthly Account Fee,-5.00,Fees,birthday
+2025-07-28,Visa Card,John Lewis,-191.40,Shopping,split with Sam
+2025-07-29,Visa Card,Steam Games,-22.58,Entertainment,holiday
+2025-07-30,Checking,Council Tax,-148.00,Taxes,standing order
+2025-07-31,Checking,Cashback Reward,13.05,Income,split with Sam
+2025-07-31,Visa Card,Interflora,-30.21,Shopping,online order
+2025-08-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,refill
+2025-08-01,Visa Card,Marriott Hotels,-197.35,,holiday
+2025-08-02,Checking,HMRC Tax Rebate,403.23,Taxes,monthly
+2025-08-02,Checking,PureGym,-24.99,Fitness,
+2025-08-02,Savings,Savings Interest,25.39,,
+2025-08-03,Checking,Council Tax,-148.00,,
+2025-08-04,Checking,Nursery Fees,-420.00,Family,online order
+2025-08-05,Checking,IKEA,-25.91,Home,receipt kept
+2025-08-07,Checking,Spotify AB,-10.99,Subscriptions,weekly shop
+2025-08-08,Checking,Udemy,-21.02,,standing order
+2025-08-10,Checking,Smyths Toys,-20.52,Family,receipt kept
+2025-08-10,Visa Card,Dishoom,-79.83,Dining,
+2025-08-12,Checking,Waitrose,-69.07,,standing order
+2025-08-12,Visa Card,Netflix.com,-15.99,Subscriptions,holiday
+2025-08-15,Visa Card,Virgin Media,-52.00,Telecom,standing order
+2025-08-17,Checking,Esso Hemel,-43.25,Fuel,split with Sam
+2025-08-17,Visa Card,Pizza Express,-28.66,Dining,work trip
+2025-08-17,Visa Card,Specsavers,-110.18,Health,refill
+2025-08-17,Visa Card,Vodafone UK,-27.80,Telecom,standing order
+2025-08-18,Cash Wallet,Greggs,-2.42,,birthday
+2025-08-18,Visa Card,Vodafone UK,-24.00,Telecom,
+2025-08-19,Visa Card,Pizza Express,-41.24,Dining,birthday
+2025-08-20,Visa Card,Amazon Prime,-8.99,Subscriptions,direct debit
+2025-08-20,Visa Card,Kwik Fit,-103.83,Transport,
+2025-08-21,Checking,Premier Inn,-127.48,Travel,monthly
+2025-08-21,Savings,Dividend Vanguard,57.55,Income,monthly
+2025-08-22,Visa Card,Hilton Hotels,-168.58,Travel,standing order
+2025-08-23,Checking,Zara,-38.37,Shopping,
+2025-08-23,Visa Card,Sainsbury's,-77.52,Groceries,split with Sam
+2025-08-23,Visa Card,Toni & Guy,-73.02,Personal Care,direct debit
+2025-08-25,Checking,Acme Ltd Payroll,3250.00,Income,receipt kept
+2025-08-26,Checking,Transfer to Savings,-400.00,Transfers,holiday
+2025-08-26,Visa Card,Waterstones,-29.78,Education,weekly shop
+2025-08-27,Checking,Council Tax,-148.00,,split with Sam
+2025-08-27,Visa Card,Trainline,-44.15,Transport,
+2025-08-28,Cash Wallet,McDonald's,-6.98,Dining,
+2025-08-28,Checking,B&Q,-159.05,Home,standing order
+2025-08-28,Checking,Monthly Account Fee,-5.00,Fees,
+2025-08-28,Visa Card,Halfords,-24.62,Transport,contactless
+2025-08-28,Visa Card,Refund Amazon,99.64,Shopping,
+2025-08-30,Savings,Transfer from Savings,204.19,,standing order
+2025-08-31,Visa Card,Freelance Invoice Paid,833.52,,holiday
+2025-09-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,holiday
+2025-09-01,Visa Card,H&M,-44.85,Shopping,split with Sam
+2025-09-02,Savings,Transfer from Savings,335.55,Transfers,online order
+2025-09-02,Visa Card,Hilton Hotels,-201.61,Travel,online order
+2025-09-02,Visa Card,PureGym,-24.99,Fitness,work trip
+2025-09-03,Checking,Council Tax,-148.00,Taxes,birthday
+2025-09-03,Visa Card,Odeon Cinemas,-17.00,Entertainment,direct debit
+2025-09-04,Checking,Nursery Fees,-420.00,Family,work trip
+2025-09-05,Checking,Lush Cosmetics,-27.82,,monthly
+2025-09-05,Checking,Nike,-126.99,Shopping,holiday
+2025-09-06,Visa Card,RingGo Parking,-4.59,Transport,receipt kept
+2025-09-07,Checking,Spotify AB,-10.99,Subscriptions,standing order
+2025-09-11,Visa Card,Aldi,-11.49,Groceries,online order
+2025-09-12,Checking,Netflix.com,-15.99,Subscriptions,split with Sam
+2025-09-12,Visa Card,Hilton Hotels,-255.19,Travel,online order
+2025-09-13,Visa Card,Dishoom,-92.93,Dining,receipt kept
+2025-09-15,Visa Card,Virgin Media,-52.00,Telecom,weekly shop
+2025-09-15,Visa Card,iCloud Storage,-7.30,,work trip
+2025-09-17,Visa Card,Aldi,-33.84,,
+2025-09-17,Visa Card,PureGym,-24.99,Fitness,refill
+2025-09-18,Visa Card,Vodafone UK,-24.00,Telecom,split with Sam
+2025-09-21,Checking,Service Charge Q3,-240.00,Housing,birthday
+2025-09-21,Visa Card,Airbnb,-234.09,Travel,refill
+2025-09-21,Visa Card,Netflix.com,-11.79,,split with Sam
+2025-09-22,Visa Card,BP Garage,-30.94,,weekly shop
+2025-09-22,Visa Card,Marriott Hotels,-184.89,Travel,online order
+2025-09-24,Visa Card,National Trust,-62.68,,refill
+2025-09-25,Checking,Acme Ltd Payroll,3250.00,Income,monthly
+2025-09-25,Checking,HMRC Tax Rebate,396.87,Taxes,work trip
+2025-09-25,Visa Card,Nando's,-20.83,,birthday
+2025-09-26,Checking,Thames Water,-41.99,Utilities,
+2025-09-26,Checking,Transfer to Savings,-400.00,Transfers,receipt kept
+2025-09-26,Visa Card,Interflora,-42.12,Shopping,weekly shop
+2025-09-27,Cash Wallet,Costa Coffee,-6.28,,split with Sam
+2025-09-28,Checking,Esso Hemel,-62.14,,direct debit
+2025-09-28,Checking,Monthly Account Fee,-5.00,Fees,birthday
+2025-09-28,Checking,Vets4Pets,-73.20,Pets,work trip
+2025-09-29,Checking,B&Q,-21.21,,contactless
+2025-09-29,Checking,Transfer to Savings,-488.30,Transfers,direct debit
+2025-10-01,Checking,Credit Card Payment,-1200.17,Transfers,
+2025-10-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,work trip
+2025-10-01,Visa Card,Admiral Insurance,-38.04,,direct debit
+2025-10-02,Visa Card,Argos,-46.73,Shopping,birthday
+2025-10-02,Visa Card,National Trust,-75.64,Entertainment,
+2025-10-02,Visa Card,PureGym,-24.99,Fitness,receipt kept
+2025-10-02,Visa Card,Vets4Pets,-71.56,Pets,receipt kept
+2025-10-03,Checking,Council Tax,-148.00,Taxes,monthly
+2025-10-03,Visa Card,iCloud Storage,-8.93,Subscriptions,refill
+2025-10-04,Checking,Nursery Fees,-420.00,Family,weekly shop
+2025-10-05,Visa Card,Hilton Hotels,-129.58,Travel,split with Sam
+2025-10-05,Visa Card,Sainsbury's,-39.88,Groceries,weekly shop
+2025-10-06,Checking,easyJet,-103.39,Travel,
+2025-10-06,Visa Card,Boots Pharmacy,-8.87,Health,weekly shop
+2025-10-07,Visa Card,Spotify AB,-10.99,Subscriptions,split with Sam
+2025-10-08,Cash Wallet,Barber Shop,-28.37,Personal Care,weekly shop
+2025-10-08,Checking,Spotify AB,-10.99,Subscriptions,split with Sam
+2025-10-09,Visa Card,Freelance Invoice Paid,825.17,Income,standing order
+2025-10-09,Visa Card,National Trust,-74.49,Entertainment,monthly
+2025-10-09,Visa Card,Steam Games,-42.25,Entertainment,online order
+2025-10-10,Checking,Service Charge Q3,-240.00,Housing,standing order
+2025-10-10,Visa Card,Esso Hemel,-76.24,,
+2025-10-10,Visa Card,Marriott Hotels,-291.13,Travel,
+2025-10-12,Checking,Aldi,-50.00,Groceries,work trip
+2025-10-12,Checking,Netflix.com,-15.99,Subscriptions,
+2025-10-13,Checking,Nursery Fees,-420.00,Family,monthly
+2025-10-13,Visa Card,Amazon Prime,-8.99,Subscriptions,contactless
+2025-10-15,Checking,Nursery Fees,-420.00,Family,standing order
+2025-10-15,Visa Card,Virgin Media,-52.00,Telecom,online order
+2025-10-17,Visa Card,Lidl,-30.02,Groceries,holiday
+2025-10-18,Checking,Credit Card Payment,-392.18,Transfers,weekly shop
+2025-10-18,Visa Card,Vodafone UK,-24.00,Telecom,contactless
+2025-10-19,Checking,Esso Hemel,-38.13,,online order
+2025-10-19,Visa Card,Esso Hemel,-41.79,,monthly
+2025-10-20,Visa Card,Marriott Hotels,-188.99,Travel,monthly
+2025-10-22,Visa Card,Aviva Insurance,-32.67,Insurance,monthly
+2025-10-25,Checking,Acme Ltd Payroll,3250.00,Income,receipt kept
+2025-10-25,Checking,PureGym,-24.99,Fitness,refill
+2025-10-26,Checking,Nursery Fees,-420.00,,
+2025-10-26,Checking,Transfer to Savings,-400.00,Transfers,birthday
+2025-10-26,Visa Card,Ryanair,-53.12,,
+2025-10-27,Checking,Transfer to Savings,-367.46,Transfers,birthday
+2025-10-28,Checking,Monthly Account Fee,-5.00,,
+2025-10-28,Visa Card,Interflora,-57.17,,receipt kept
+2025-10-28,Visa Card,Lidl,-29.71,Groceries,
+2025-10-29,Checking,Nursery Fees,-420.00,Family,
+2025-10-29,Visa Card,Dishoom,-66.20,Dining,online order
+2025-10-29,Visa Card,HelloFresh,-47.93,Groceries,birthday
+2025-10-29,Visa Card,IKEA,-341.65,Home,monthly
+2025-10-30,Visa Card,Aldi,-48.44,Groceries,refill
+2025-10-31,Visa Card,Argos,-126.66,,birthday
+2025-10-31,Visa Card,John Lewis,-217.06,Shopping,refill
+2025-11-01,Checking,Credit Card Payment,-580.39,Transfers,birthday
+2025-11-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,
+2025-11-02,Checking,easyJet,-177.15,Travel,direct debit
+2025-11-02,Visa Card,PureGym,-24.99,,
+2025-11-03,Checking,Council Tax,-148.00,Taxes,work trip
+2025-11-03,Visa Card,TV Licensing,-14.12,Taxes,monthly
+2025-11-04,Checking,Nursery Fees,-420.00,Family,receipt kept
+2025-11-04,Visa Card,Pets at Home,-56.84,Pets,contactless
+2025-11-05,Checking,Transfer to Savings,-287.45,,holiday
+2025-11-06,Visa Card,Uber Trip,-34.42,,refill
+2025-11-07,Visa Card,Spotify AB,-10.99,Subscriptions,
+2025-11-07,Visa Card,easyJet,-133.33,Travel,receipt kept
+2025-11-08,Visa Card,PureGym,-24.99,Fitness,direct debit
+2025-11-09,Visa Card,Interflora,-50.37,Shopping,contactless
+2025-11-11,Checking,Booking.com,-110.80,,work trip
+2025-11-11,Visa Card,Dishoom,-80.60,Dining,
+2025-11-12,Checking,Credit Card Payment,-483.32,Transfers,weekly shop
+2025-11-12,Visa Card,Netflix.com,-15.99,Subscriptions,weekly shop
+2025-11-13,Checking,Sainsbury's,-46.28,Groceries,receipt kept
+2025-11-13,Checking,Tesco Stores,-51.35,Groceries,weekly shop
+2025-11-14,Visa Card,Halfords,-26.59,Transport,refill
+2025-11-14,Visa Card,Odeon Cinemas,-13.85,Entertainment,contactless
+2025-11-15,Visa Card,BP Garage,-67.02,Fuel,
+2025-11-15,Visa Card,Just Eat,-22.67,Dining,online order
+2025-11-15,Visa Card,Virgin Media,-52.00,Telecom,split with Sam
+2025-11-16,Visa Card,John Lewis,-187.93,,standing order
+2025-11-18,Visa Card,Aldi,-53.42,Groceries,monthly
+2025-11-18,Visa Card,Apple Music,-10.99,Subscriptions,work trip
+2025-11-18,Visa Card,Vodafone UK,-24.00,Telecom,direct debit
+2025-11-19,Checking,ATM Withdrawal,-91.94,Transfers,birthday
+2025-11-19,Checking,Amazon Prime,-8.99,Subscriptions,
+2025-11-19,Checking,Kwik Fit,-51.76,Transport,holiday
+2025-11-19,Checking,Kwik Fit,-163.89,Transport,
+2025-11-19,Visa Card,Amazon Prime,-8.99,Subscriptions,refill
+2025-11-22,Visa Card,Hilton Hotels,-149.48,Travel,refill
+2025-11-24,Checking,Royal Mail,-5.78,Shopping,weekly shop
+2025-11-24,Checking,TfL Travel Charge,-4.84,Transport,contactless
+2025-11-24,Visa Card,Royal Mail,-8.34,Shopping,work trip
+2025-11-25,Checking,Acme Ltd Payroll,3250.00,Income,receipt kept
+2025-11-25,Visa Card,TV Licensing,-14.12,,refill
+2025-11-26,Checking,Transfer to Savings,-400.00,Transfers,birthday
+2025-11-27,Visa Card,LNER,-69.44,Transport,weekly shop
+2025-11-28,Checking,BP Garage,-59.20,Fuel,
+2025-11-28,Checking,Monthly Account Fee,-5.00,Fees,refill
+2025-11-28,Checking,Zara,-96.44,,monthly
+2025-11-29,Visa Card,Ryanair,-148.53,Travel,holiday
+2025-12-01,Checking,HMRC Tax Rebate,443.82,Taxes,standing order
+2025-12-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,
+2025-12-01,Visa Card,HelloFresh,-43.63,Groceries,birthday
+2025-12-02,Checking,PureGym,-24.99,Fitness,
+2025-12-02,Visa Card,Halfords,-46.71,Transport,refill
+2025-12-03,Checking,Council Tax,-148.00,Taxes,online order
+2025-12-04,Checking,Nursery Fees,-420.00,Family,contactless
+2025-12-05,Savings,Transfer from Savings,408.04,Transfers,work trip
+2025-12-05,Visa Card,Marriott Hotels,-310.21,Travel,contactless
+2025-12-05,Visa Card,Tesco Stores,-72.51,,standing order
+2025-12-06,Checking,Nike,-65.11,Shopping,online order
+2025-12-06,Visa Card,Pets at Home,-9.21,Pets,contactless
+2025-12-07,Checking,PureGym,-24.99,,standing order
+2025-12-07,Visa Card,B&Q,-27.64,Home,contactless
+2025-12-07,Visa Card,Spotify AB,-10.99,Subscriptions,receipt kept
+2025-12-09,Visa Card,Specsavers,-61.18,Health,
+2025-12-09,Visa Card,Tesco Stores,-75.20,Groceries,
+2025-12-10,Visa Card,iCloud Storage,-7.87,Subscriptions,receipt kept
+2025-12-11,Visa Card,Esso Hemel,-35.32,Fuel,contactless
+2025-12-11,Visa Card,Ryanair,-79.78,,contactless
+2025-12-12,Visa Card,Netflix.com,-15.99,Subscriptions,monthly
+2025-12-13,Visa Card,Ionity GmbH,-34.11,Fuel,split with Sam
+2025-12-15,Checking,Credit Card Payment,-1178.67,Transfers,
+2025-12-15,Visa Card,Virgin Media,-52.00,Telecom,standing order
+2025-12-16,Visa Card,Aldi,-23.17,Groceries,standing order
+2025-12-17,Checking,ATM Withdrawal,-118.79,Transfers,
+2025-12-18,Checking,Vodafone UK,-24.00,Telecom,refill
+2025-12-18,Visa Card,Airbnb,-167.40,Travel,weekly shop
+2025-12-19,Checking,Thames Water,-37.08,Utilities,monthly
+2025-12-19,Visa Card,Netflix.com,-17.87,,holiday
+2025-12-21,Checking,Ionity GmbH,-22.28,Fuel,refill
+2025-12-22,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,receipt kept
+2025-12-22,Checking,Ocado Retail,-42.72,Groceries,receipt kept
+2025-12-22,Checking,Vets4Pets,-147.59,Pets,receipt kept
+2025-12-24,Visa Card,Wagamama,-46.99,Dining,refill
+2025-12-25,Cash Wallet,Greggs,-4.71,Dining,contactless
+2025-12-25,Checking,Acme Ltd Payroll,3250.00,,
+2025-12-25,Visa Card,Admiral Insurance,-50.60,Insurance,work trip
+2025-12-26,Checking,Transfer to Savings,-400.00,Transfers,split with Sam
+2025-12-28,Checking,Monthly Account Fee,-5.00,Fees,
+2025-12-28,Visa Card,Tesco Stores,-43.15,Groceries,holiday
+2025-12-29,Visa Card,Amazon Marketplace,-26.69,Shopping,
+2025-12-30,Checking,RingGo Parking,-2.86,Transport,online order
+2025-12-30,Visa Card,Duolingo,-6.99,Education,receipt kept
+2025-12-31,Visa Card,Sainsbury's,-22.59,Groceries,weekly shop
+2026-01-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,holiday
+2026-01-02,Visa Card,Aldi,-56.19,,online order
+2026-01-02,Visa Card,Esso Hemel,-53.57,,split with Sam
+2026-01-02,Visa Card,PureGym,-24.99,Fitness,online order
+2026-01-03,Checking,Council Tax,-148.00,Taxes,receipt kept
+2026-01-03,Visa Card,Waitrose,-68.28,,split with Sam
+2026-01-04,Checking,Credit Card Payment,-1131.60,Transfers,
+2026-01-04,Checking,Kwik Fit,-44.50,Transport,refill
+2026-01-04,Checking,Nursery Fees,-420.00,,split with Sam
+2026-01-04,Visa Card,Lidl,-49.55,Groceries,work trip
+2026-01-05,Checking,Kwik Fit,-127.91,Transport,online order
+2026-01-05,Checking,Transfer to Savings,-243.59,Transfers,
+2026-01-05,Visa Card,Kwik Fit,-200.22,Transport,standing order
+2026-01-05,Visa Card,Pret A Manger,-13.98,Dining,weekly shop
+2026-01-06,Savings,Transfer from Savings,479.08,Transfers,holiday
+2026-01-06,Visa Card,Nike,-57.75,Shopping,direct debit
+2026-01-07,Visa Card,Duolingo,-6.99,,
+2026-01-07,Visa Card,Spotify AB,-10.99,,holiday
+2026-01-08,Checking,Acme Ltd Payroll,3250.00,Income,standing order
+2026-01-10,Checking,Smyths Toys,-47.48,Family,receipt kept
+2026-01-10,Visa Card,Cashback Reward,23.41,,birthday
+2026-01-11,Visa Card,Netflix.com,-12.15,Subscriptions,
+2026-01-12,Checking,Apple Store,-1142.01,Shopping,contactless
+2026-01-12,Checking,Netflix.com,-15.99,Subscriptions,weekly shop
+2026-01-12,Visa Card,Ocado Retail,-77.22,Groceries,
+2026-01-13,Savings,Savings Interest,34.71,Income,birthday
+2026-01-15,Checking,TV Licensing,-14.12,Taxes,birthday
+2026-01-15,Visa Card,Disney Plus,-9.25,,
+2026-01-15,Visa Card,Specsavers,-45.42,Health,direct debit
+2026-01-15,Visa Card,Tesco Petrol Filling Station,-50.85,Fuel,birthday
+2026-01-15,Visa Card,Virgin Media,-52.00,Telecom,work trip
+2026-01-16,Visa Card,Starbucks,-3.74,,weekly shop
+2026-01-18,Visa Card,Cancer Research UK,-13.04,Charity,contactless
+2026-01-18,Visa Card,Vodafone UK,-24.00,,weekly shop
+2026-01-20,Visa Card,Shell Petrol,-73.21,Fuel,monthly
+2026-01-22,Visa Card,Costco Wholesale,-138.53,Groceries,birthday
+2026-01-22,Visa Card,Sainsbury's,-22.70,Groceries,weekly shop
+2026-01-23,Visa Card,eBay,-26.09,Shopping,work trip
+2026-01-25,Checking,Acme Ltd Payroll,3250.00,Income,direct debit
+2026-01-25,Savings,Transfer from Savings,310.33,Transfers,
+2026-01-26,Checking,Transfer to Savings,-400.00,Transfers,weekly shop
+2026-01-26,Visa Card,Pizza Express,-48.87,Dining,
+2026-01-28,Checking,Monthly Account Fee,-5.00,Fees,online order
+2026-01-29,Visa Card,Starbucks,-3.52,,monthly
+2026-01-30,Checking,Refund Amazon,32.79,Shopping,direct debit
+2026-01-31,Checking,Cancer Research UK,-40.08,Charity,contactless
+2026-01-31,Checking,Dunelm,-90.15,Home,monthly
+2026-02-01,Checking,Cancer Research UK,-23.33,Charity,monthly
+2026-02-01,Checking,ClassPass,-35.00,Fitness,receipt kept
+2026-02-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,holiday
+2026-02-02,Checking,PureGym,-24.99,Fitness,monthly
+2026-02-02,Savings,Transfer from Savings,310.47,Transfers,split with Sam
+2026-02-02,Visa Card,Boots Pharmacy,-27.92,Health,online order
+2026-02-03,Checking,Council Tax,-148.00,Taxes,monthly
+2026-02-04,Checking,Nursery Fees,-420.00,Family,online order
+2026-02-05,Savings,Dividend Vanguard,79.04,Income,
+2026-02-06,Checking,Costco Wholesale,-160.37,Groceries,split with Sam
+2026-02-07,Checking,Pret A Manger,-9.02,Dining,monthly
+2026-02-07,Checking,Spotify AB,-10.99,Subscriptions,direct debit
+2026-02-08,Checking,Freelance Invoice Paid,1766.27,Income,online order
+2026-02-08,Visa Card,Waterstones,-29.97,Education,refill
+2026-02-09,Checking,Mydentist,-54.54,Health,
+2026-02-09,Visa Card,Vets4Pets,-98.39,Pets,
+2026-02-09,Visa Card,Virgin Media,-55.66,Telecom,
+2026-02-09,Visa Card,Wagamama,-22.79,Dining,online order
+2026-02-10,Checking,Credit Card Payment,-1357.08,Transfers,online order
+2026-02-12,Checking,Trainline,-21.51,Transport,monthly
+2026-02-12,Visa Card,Amazon Marketplace,-118.74,Shopping,contactless
+2026-02-12,Visa Card,Netflix.com,-15.99,,
+2026-02-13,Cash Wallet,Greggs,-5.69,,work trip
+2026-02-14,Visa Card,Argos,-140.10,Shopping,birthday
+2026-02-15,Visa Card,Lush Cosmetics,-24.58,Personal Care,weekly shop
+2026-02-15,Visa Card,Virgin Media,-52.00,Telecom,receipt kept
+2026-02-17,Visa Card,Airbnb,-394.03,,direct debit
+2026-02-17,Visa Card,Netflix.com,-16.81,Subscriptions,contactless
+2026-02-18,Checking,Steam Games,-56.30,Entertainment,monthly
+2026-02-18,Visa Card,Ryanair,-117.34,Travel,
+2026-02-18,Visa Card,Vodafone UK,-24.00,,online order
+2026-02-19,Visa Card,Costco Wholesale,-188.81,Groceries,
+2026-02-20,Checking,Nursery Fees,-420.00,Family,receipt kept
+2026-02-21,Cash Wallet,Barber Shop,-23.29,Personal Care,
+2026-02-21,Checking,Credit Card Payment,-472.31,Transfers,contactless
+2026-02-21,Savings,Transfer from Savings,189.86,Transfers,standing order
+2026-02-22,Checking,ATM Withdrawal,-107.73,Transfers,monthly
+2026-02-22,Visa Card,Apple Music,-10.99,,weekly shop
+2026-02-22,Visa Card,Booking.com,-150.65,Travel,split with Sam
+2026-02-24,Checking,Ryanair,-94.04,Travel,holiday
+2026-02-24,Visa Card,LNER,-71.77,Transport,birthday
+2026-02-25,Checking,Acme Ltd Payroll,3250.00,Income,holiday
+2026-02-26,Checking,Nando's,-17.05,Dining,contactless
+2026-02-26,Checking,Transfer to Savings,-400.00,Transfers,
+2026-02-26,Savings,Savings Interest,29.80,Income,
+2026-02-26,Visa Card,Dishoom,-79.31,Dining,receipt kept
+2026-02-27,Checking,Royal Mail,-12.41,Shopping,
+2026-02-28,Checking,Monthly Account Fee,-5.00,Fees,standing order
+2026-02-28,Checking,Nursery Fees,-420.00,,birthday
+2026-03-01,Checking,Mortgage Payment Nationwide BS,-1180.00,Housing,split with Sam
+2026-03-02,Visa Card,PureGym,-24.99,Fitness,
+2026-03-03,Checking,Council Tax,-148.00,Taxes,
+2026-03-03,Checking,Wickes,-98.46,Home,direct debit
+2026-03-03,Visa Card,IKEA,-295.97,Home,birthday
+2026-03-03,Visa Card,Toni & Guy,-49.29,Personal Care,
+2026-03-03,Visa Card,Udemy,-23.37,Education,monthly
+2026-03-04,Checking,Nursery Fees,-420.00,Family,receipt kept
+2026-03-05,Visa Card,Aviva Insurance,-38.54,Insurance,holiday
+2026-03-07,Visa Card,Spotify AB,-10.99,Subscriptions,direct debit
+2026-03-08,Checking,Royal Mail,-11.30,Shopping,birthday
+2026-03-08,Checking,Vets4Pets,-158.82,Pets,
+2026-03-10,Checking,Monthly Account Fee,-5.00,Fees,refill
+2026-03-11,Checking,Council Tax,-148.00,Taxes,
+2026-03-11,Checking,Nike,-77.68,,direct debit
+2026-03-12,Checking,B&Q,-35.91,Home,holiday
+2026-03-12,Visa Card,Netflix.com,-15.99,Subscriptions,
+2026-03-12,Visa Card,Steam Games,-44.63,,refill
+2026-03-13,Checking,IKEA,-196.30,Home,
+2026-03-13,Visa Card,Dishoom,-88.78,Dining,standing order
+2026-03-15,Visa Card,Currys,-161.00,Shopping,
+2026-03-15,Visa Card,Nintendo eShop,-51.40,Entertainment,
+2026-03-15,Visa Card,Virgin Media,-52.00,Telecom,monthly
+2026-03-18,Visa Card,Vodafone UK,-24.00,,split with Sam
+2026-03-19,Visa Card,Aviva Insurance,-43.47,Insurance,
+2026-03-19,Visa Card,Superdrug,-21.00,Health,split with Sam
+2026-03-20,Checking,Trainline,-27.00,Transport,monthly
+2026-03-21,Checking,Nintendo eShop,-16.73,Entertainment,standing order
+2026-03-21,Checking,Transfer to Savings,-291.81,Transfers,standing order
+2026-03-21,Checking,Waitrose,-61.03,Groceries,refill
+2026-03-21,Visa Card,Amazon Prime,-8.99,Subscriptions,
+2026-03-22,Checking,Boots Pharmacy,-20.07,Health,monthly
+2026-03-24,Visa Card,Marriott Hotels,-204.43,Travel,refill
+2026-03-24,Visa Card,Odeon Cinemas,-30.28,Entertainment,monthly
+2026-03-24,Visa Card,Sainsbury's,-76.96,Groceries,direct debit
+2026-03-25,Checking,Acme Ltd Payroll,3250.00,,online order
+2026-03-25,Visa Card,Pret A Manger,-10.13,Dining,monthly
+2026-03-26,Checking,Nike,-91.18,Shopping,refill
+2026-03-26,Checking,Transfer to Savings,-400.00,Transfers,split with Sam
+2026-03-27,Cash Wallet,Greggs,-5.01,Dining,contactless
+2026-03-28,Checking,Monthly Account Fee,-5.00,Fees,standing order

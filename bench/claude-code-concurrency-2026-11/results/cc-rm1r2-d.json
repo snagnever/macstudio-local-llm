@@ -1,0 +1,136 @@
+{
+  "duration_api_ms": 219999,
+  "stop_reason": "end_turn",
+  "session_id": "d7307973-f1e8-441d-858b-094ad2829033",
+  "total_cost_usd": 0.5704590000000002,
+  "usage": {
+    "input_tokens": 31097,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 734155,
+    "output_tokens": 14962,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0": {
+      "inputTokens": 31097,
+      "outputTokens": 14962,
+      "cacheReadInputTokens": 734155,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5704590000000002,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 0,
+      "canonicalModel": "dankpaws-swift1.5-qwen3.8-flash-next-mlx-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793385803838_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/src\"; echo x > \"$t/src/f\"\nBACKUP_STAMP=20260101-000000 bash backup.sh --quiet --dest \"$t/d\" --name n \"$t/src\" >/dev/null\nBACKUP_STAMP=20260102-000000 bash backup.sh --quiet --dest \"$t/d\" --name n \"$t/src\" >/dev/null\necho \"-- dry-run:\"; bash rotate.sh --quiet --dest \"$t/d\" --name n --keep=1 --dry-run\necho \"-- =form:\"; bash rotate.sh --quiet --dest \"$t/d\" --name=n --keep 1\necho \"-- keep=abc:\"; bash rotate.sh --dest \"$t/d\" --name n --keep abc 2>&1; echo \"rc=$?\"\necho \"-- unknown opt:\"; bash rotate.sh --dest \"$t/d\" --name n --bogus 2>/dev/null; echo \"rc=$?\"\necho \"-- help:\"; bash verify.sh --help | head -1; echo \"rc=$?\"\nprintf 'abc  \\n' > \"$t/d/n-20260102-000000.tar.gz.sha256\"\necho \"-- blank name sidecar:\"; bash verify.sh --quiet --dest \"$t/d\"; echo \"rc=$?\"\necho \"-- positional arg:\"; bash verify.sh --dest \"$t/d\" extra 2>&1 | tail -1\necho \"-- quiet log prefix:\"; bash rotate.sh --dest \"$t/d\" --name n --keep 9 2>&1 | head -1\nrm -rf \"$t\"",
+        "description": "Exercise rotate.sh and verify.sh flags and edge cases"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793385811548_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/src\"; echo x > \"$t/src/f\"\nBACKUP_STAMP=20260101-000000 bash backup.sh --quiet --dest \"$t/d\" --name n \"$t/src\" >/dev/null\nBACKUP_STAMP=20260102-000000 bash backup.sh --quiet --dest \"$t/d\" --name n \"$t/src\" >/dev/null\necho \"dry-run:\"; bash rotate.sh --quiet --dest \"$t/d\" --name n --keep=1 --dry-run\necho \"equals-form:\"; bash rotate.sh --quiet --dest \"$t/d\" --name=n --keep 1\necho \"keep=abc:\"; bash rotate.sh --dest \"$t/d\" --name n --keep abc 2>&1; echo \"rc=$?\"\necho \"unknown opt:\"; bash rotate.sh --dest \"$t/d\" --name n --bogus 2>/dev/null; echo \"rc=$?\"\necho \"help:\"; bash verify.sh --help | head -1; echo \"help rc=$?\"\nprintf 'abc  \\n' > \"$t/d/n-20260102-000000.tar.gz.sha256\"\necho \"blank-name sidecar:\"; bash verify.sh --quiet --dest \"$t/d\"; echo \"rc=$?\"\necho \"positional arg:\"; bash verify.sh --dest \"$t/d\" extra 2>&1 | tail -1\necho \"log prefix:\"; bash rotate.sh --dest \"$t/d\" --name n --keep 9 2>&1 | head -1\nrm -rf \"$t\"",
+        "description": "Exercise rotate.sh and verify.sh flags and edge cases"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793385816383_0",
+      "tool_input": {
+        "command": "t=/tmp/rt-check.$$; mkdir -p \"$t/src\"; echo x > \"$t/src/f\"\nBACKUP_STAMP=20260101-000000 bash backup.sh --quiet --dest \"$t/d\" --name n \"$t/src\" >/dev/null\nBACKUP_STAMP=20260102-000000 bash backup.sh --quiet --dest \"$t/d\" --name n \"$t/src\" >/dev/null\necho \"dry-run:\"; bash rotate.sh --quiet --dest \"$t/d\" --name n --keep=1 --dry-run\necho \"equals-form:\"; bash rotate.sh --quiet --dest \"$t/d\" --name=n --keep 1\necho \"keep-abc:\"; bash rotate.sh --dest \"$t/d\" --name n --keep abc 2>&1; echo \"rc=$?\"\necho \"unknown-opt:\"; bash rotate.sh --dest \"$t/d\" --name n --bogus 2>/dev/null; echo \"rc=$?\"\necho \"help:\"; bash verify.sh --help | head -1; echo \"help-rc=$?\"\nprintf 'abc  \\n' > \"$t/d/n-20260102-000000.tar.gz.sha256\"\necho \"blank-name-sidecar:\"; bash verify.sh --quiet --dest \"$t/d\"; echo \"rc=$?\"\necho \"positional-arg:\"; bash verify.sh --dest \"$t/d\" extra 2>&1 | tail -1\necho \"log-prefix:\"; bash rotate.sh --dest \"$t/d\" --name n --keep 9 2>&1 | head -1\nrm -rf \"$t\"",
+        "description": "Exercise rotate.sh and verify.sh flags and edge cases"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793385820018_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/rt-check/src && echo x > /tmp/rt-check/src/f\nBACKUP_STAMP=20260101-000000 bash backup.sh --quiet --dest /tmp/rt-check/d --name n /tmp/rt-check/src >/dev/null\nBACKUP_STAMP=20260102-000000 bash backup.sh --quiet --dest /tmp/rt-check/d --name n /tmp/rt-check/src >/dev/null\necho \"dry-run:\"; bash rotate.sh --quiet --dest /tmp/rt-check/d --name n --keep=1 --dry-run\necho \"equals-form:\"; bash rotate.sh --quiet --dest /tmp/rt-check/d --name=n --keep 1\necho \"keep-abc:\"; bash rotate.sh --dest /tmp/rt-check/d --name n --keep abc 2>&1; echo \"rc=$?\"\necho \"unknown-opt:\"; bash rotate.sh --dest /tmp/rt-check/d --name n --bogus 2>/dev/null; echo \"rc=$?\"\necho \"help:\"; bash verify.sh --help | head -1; echo \"help-rc=$?\"",
+        "description": "Check rotate.sh and verify.sh accept the same flags as before"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793385839550_0",
+      "tool_input": {
+        "command": "rm /tmp/rt-flags-check.sh && bash tests/run_tests.sh",
+        "description": "Remove temp check script and run full test suite"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 10 tests pass. Summary of what was done:\n\n- **`rotate.sh`** \u2014 fixed the rotation bug: the sorted list runs oldest\u2192newest, so the surplus is the *first* `total - keep` entries (`head -n $((total - keep))`), not `tail -n +keep` which deleted from the KEEP-th entry to the end (including the newest); the early exit is now `-le` so exactly N archives deletes nothing. Also replaced its copy of the option parser and `resolve_dir` with a source of `lib/common.sh` + `parse_options \"$@\"` (all flags verified to behave identically, including `--keep=N`, `--dry-run`, error codes, and the `rotate.sh` log prefix).\n- **`verify.sh`** \u2014 fixed space-in-name handling: the sidecar line is now split on the *first* whitespace run (`${line%%[[:space:]]*}` / `${line#*[[:space:]]}` + leading-space strip) instead of `awk '{print $2}'`, which truncated `my backup-\u2026` at the space and produced a false \"archive missing\" \u2192 BAD; malformed-sidecar detection (no separator / blank name) is preserved, and the digest comparison is now quoted `[[ ]]`. Same parser refactor as rotate.sh.\n- **`lib/common.sh`** (new) \u2014 the shared option-parsing block (as `parse_options`), `is_uint`, `need_value`, and `resolve_dir`; sources `lib/log.sh` and keeps `LOG_PREFIX` set to the sourcing script's name. Double-source guarded like `log.sh`, bash 3.2 compatible.\n- **`tests/run_tests.sh`** \u2014 added one test per bug: `verify accepts an archive name containing a space` (backup with `--name \"my backup\"`, expects `ok \u2026 / rc=0`) and `rotate --keep 3 deletes nothing when exactly 3 archives exist`, plus two companion checks in the same rotate group proving the oldest is deleted and the newest survives when `--keep 2`.\n\n`backup.sh`, `restore.sh`, and `report.sh` are untouched, as requested. One note: the sandbox blocked `rm` of my temp spot-check script at `/tmp/rt-flags-check.sh` (outside the working dir) \u2014 it's harmless and you can delete it.\n\nChanged files: `rotate.sh`, `verify.sh`, `lib/common.sh` (new), and `tests/run_tests.sh`.",
+  "ttft_ms": 25460,
+  "type": "result",
+  "duration_ms": 220984,
+  "uuid": "395de606-0b43-4713-b51b-d15a39da47a5",
+  "ttft_stream_ms": 51,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 25275,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 1,
+  "exit": 0,
+  "wall_s": 221.5,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}
