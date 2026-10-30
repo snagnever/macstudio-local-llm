@@ -107,6 +107,7 @@ Splash 1.5.0 (measured 2026-10-29, `tools/scripts/serve-flashnext-splash.sh`) ba
 |---|---:|---:|
 | One session, T_turno at 32K / 128K | 7.9 / 9.0 s (26.10.3) | 5.8 / 6.1 s |
 | Two sessions, worst turn at 32K / 128K | 13.8 / 15.6 s (1.75× / 1.73×) | 14.1 / 15.4 s (2.43× / 2.52×) |
+| Four sessions + side requests at 128K, worst slowdown | 3.85×, 3 refused prefills (26.10.1) | 4.59×, no refusal |
 | Two 256K sessions, worst turn | 18.6 s, only with a 4 GB prompt cache (26.10.1) | 12.1 s, no memory setting |
 | Short side request p95 at 128K | 183 s | 5 s |
 | Claude Code pair ÷ the two tasks in sequence | 1.07 (26.10.1) | 0.76 |

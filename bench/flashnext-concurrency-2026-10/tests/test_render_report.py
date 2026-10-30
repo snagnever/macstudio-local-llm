@@ -506,6 +506,7 @@ def test_splash_section_real_data():
     sec = re.search(r'<section class="block card" id="splash">.*?</section>', page, re.S).group(0)
     assert "partial" not in sec and "pending" not in sec and "n/a" not in sec.split("<details")[0].split("<ol")[1]
     assert "Two Claude Code sessions" in sec and "sooner than the two tasks" in sec
+    assert "Four sessions at 128K" in sec and "--state-format bf16" in sec and "not run" not in sec
     assert '<a href="#splash">' in page
     assert sorted({m.group(0) for m in INSIDER.finditer(_public_body(page))}) == []
     assert not re.search(r"\bk2c\w*", _public_body(page))

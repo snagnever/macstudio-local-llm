@@ -20,8 +20,8 @@ Rig: Mac Studio M4 Max 128 GB. Splash: Swift 1.5 GGUF `IQ4_XS` (`ukisai/Swift-1.
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | 2 streams a 32K e 128K | k2c2, k2c2a | pior stream ≤ 2.0× | 32K: 2.07–2.43×; 128K: 2.52–2.57×; 1 needle errada a 128K | N = 2 reprovado (`N_APPROVED=1`) | [etapa1-sintetica.md](etapa1-sintetica.md) |
 | 2 | controle serializado | k2c1x2 | `batch beats queue` | 32K: batch 0.61× a fila (ganha); 128K: 1.08× (perde) | sem default novo | [etapa1-sintetica.md](etapa1-sintetica.md) |
-| 3 | 3 e 4 streams | k2c3a, k2c4, k2c4a | igual ao 1 | 32K: 2.95× (N = 3), 4.19–4.40× (N = 4), needles erradas; 128K: 2.39× (N = 3) | reprovados; N = 4 não rodou a 128K | [etapa1-sintetica.md](etapa1-sintetica.md) |
-| 4 | 256K | k2c2L, k2c2LL | primeiro braço que passa | `LL`: 1.89×, 26/26 needles, sem ajuste de memória, stall do cold; `L`: sessão curta 2.48× | `MODE_256K=native`, reprovado só pelo stall; `k2c2Ls` não rodou | [etapa1b-256k.md](etapa1b-256k.md) |
+| 3 | 3 e 4 streams | k2c3a, k2c4, k2c4a | igual ao 1 | 32K: 2.95× (N = 3), 4.19–4.40× (N = 4), needles erradas; 128K: 2.39× (N = 3), 3.16–4.59× (N = 4), sem recusa | reprovados | [etapa1-sintetica.md](etapa1-sintetica.md) |
+| 4 | 256K | k2c2L, k2c2LL, k2c2Ls | primeiro braço que passa | `LL`: 1.89×, 26/26 needles, sem ajuste de memória, stall do cold; `L`: sessão curta 2.48×; `Ls` (`--state-format bf16`): 1.39×, 25/26 needles, mesmo wired peak | `MODE_256K=native`, reprovado só pelo stall | [etapa1b-256k.md](etapa1b-256k.md) |
 | 5 | `--decode-share` 1.0 e 0 | k2c2ad1, k2c2ad0 | passar de 2.0× para baixo sem perder needles | 1.0: 1.77×, vazão 1.24×, 1 needle errada; 0: 8.28× | não entra no launcher | [etapa1c-extras.md](etapa1c-extras.md) |
 | 6 | Claude Code em par | kcc1, kcc2 | `wall_s` ≤ 1.5× o controle | 1.36–1.60× por sessão; zero erros; tarefas feitas; par 24% mais rápido que a sequência | aprovado com aviso (5 de 6 sessões no gate) | [etapa2-claude-code.md](etapa2-claude-code.md) |
 
@@ -53,7 +53,7 @@ O pior turno do mlx-serve 26.10.1 é a razão vezes a referência daquela campan
 
 ## O que não foi medido
 
-- `k2c2v` (`--verify-rows all`) e 4 sessões a 128K.
+- `k2c2v` (`--verify-rows all`).
 - `--decode-share` na bateria de Claude Code.
 - 512K e 1M com duas sessões.
 - mlx-serve 26.10.3 com N = 3, 4 e 256K.

@@ -208,14 +208,15 @@ SPLASH_PUBLIC: dict[str, tuple[str, int, str]] = {
     "k2c2ad1": ("2 sessions + side requests, --decode-share 1.0", 2, "k2c1"),
     "k2c2ad0": ("2 sessions + side requests, --decode-share 0", 2, "k2c1"),
     "k2c2L": ("256K + 32K sessions", 2, "k2c1"), "k2c2LL": ("2 × 256K sessions", 2, "k2c1"),
+    "k2c2Ls": ("2 × 256K sessions, --state-format bf16", 2, "k2c1"),
     "w1zc1": (f"1 session, {SPLASH_MLX_SERVER}", 1, "w1zc1"),
     "w1zc2a": (f"2 sessions + side requests, {SPLASH_MLX_SERVER}", 2, "w1zc1"),
 }
 SPLASH_CONFIGS: list[tuple[str, int]] = (
     [(c, 32768) for c in ("k2c1", "k2c1a", "k2c2", "k2c2a", "k2c1x2", "k2c3a", "k2c4", "k2c4a", "w1zc1", "w1zc2a")]
-    + [(c, 131072) for c in ("k2c1", "k2c1a", "k2c2", "k2c2a", "k2c1x2", "k2c3a", "k2c2ad1", "k2c2ad0",
-                             "w1zc1", "w1zc2a")]
-    + [(c, 262144) for c in ("k2c1", "k2c2L", "k2c2LL")]
+    + [(c, 131072) for c in ("k2c1", "k2c1a", "k2c2", "k2c2a", "k2c1x2", "k2c3a", "k2c4", "k2c4a", "k2c2ad1",
+                             "k2c2ad0", "w1zc1", "w1zc2a")]
+    + [(c, 262144) for c in ("k2c1", "k2c2L", "k2c2LL", "k2c2Ls")]
 )
 # k2c2L mixes a 256K and a 32K session; each stream takes the solo reference of its own band.
 SPLASH_SUMMARY_CTX = {("k2c2L", 262144): "all"}
@@ -504,7 +505,7 @@ RUNBOOK_URL = f"{GITHUB}/blob/main/bench/flashnext-concurrency-2026-10/plan.md"
 RESULTS_URL = f"{GITHUB}/tree/main/bench/flashnext-concurrency-2026-10/results"
 SPLASH_RUNBOOK_URL = f"{GITHUB}/blob/main/bench/splash-concurrency-2026-10/plan.md"
 SPLASH_RESULTS_URL = f"{GITHUB}/tree/main/bench/splash-concurrency-2026-10/results"
-# Splash arms comparable with CHART_ARMS (n sessions with side requests); 4 sessions did not run at 128K.
+# Splash arms comparable with CHART_ARMS (n sessions with side requests).
 SPLASH_CHART_ARMS = {1: "k2c1a", 2: "k2c2a", 3: "k2c3a", 4: "k2c4a"}
 UPSTREAM = "https://github.com/ddalcu/mlx-serve"
 DROWZEYS_URL = ("https://github.com/drowzeys/"
@@ -798,7 +799,15 @@ def _splash(data: dict) -> str:
         "because a cold 256K prompt takes about 12 minutes to read and the other session waits. "
         f"{_e(data['server'])} needed the prompt cache cut to 4 GB, and its worst turn was {_sec(m4_turn)}. "
         f"With one 256K and one 32K session, the short session waits: {_sec(g('k2c2L', 262144, 'worst_turn_s'))} "
-        f"({_x(g('k2c2L', 262144, 'worst_ratio'))}).",
+        f"({_x(g('k2c2L', 262144, 'worst_ratio'))}). <code>--state-format bf16</code> stores each saved session "
+        "state at half size (59 MiB instead of 113 MiB). Peak memory does not change, and the run also fails "
+        f"only on the cold-prompt wait: worst turn {_sec(g('k2c2Ls', 262144, 'worst_turn_s'))} "
+        f"({_x(g('k2c2Ls', 262144, 'worst_ratio'))}), recall {_e(g('k2c2Ls', 262144, 'needles') or 'n/a')}.",
+        f"Four sessions at 128K work on Splash but are slow: worst turn {_sec(g('k2c4', 131072, 'worst_turn_s'))} "
+        f"({_x(g('k2c4', 131072, 'worst_ratio'))}), and {_sec(g('k2c4a', 131072, 'worst_turn_s'))} "
+        f"({_x(g('k2c4a', 131072, 'worst_ratio'))}) with side requests, with recall misses in both. Total generation "
+        f"is {_x(g('k2c4a', 131072, 'gain'))} one session alone. In the same test {_e(data['server'])} reached "
+        f"{_x(_get(_find(data, 'w1c4a', 131072), 'worst_ratio'))} and refused requests.",
     ]
     body = (
         f'<p class="callout">{_e(sp["status"])}</p>'
@@ -816,8 +825,7 @@ def _splash(data: dict) -> str:
         + '<details><summary>All Splash test configurations</summary>'
         '<p class="s-note">Total generation is the sum of the sessions’ generation speeds ÷ one session alone. '
         '“Sessions did not overlap” fails a run whose sessions never generated at the same time; Splash reads '
-        'one prompt at a time, so at 128K the two sessions alternate more than they overlap. 4 sessions did '
-        'not run at 128K because 3 sessions failed.</p>'
+        'one prompt at a time, so at 128K the two sessions alternate more than they overlap.</p>'
         + _table(["Configuration", "Context", "Worst turn", "Worst slowdown", "Generation per session, tokens/s",
                   "Total generation ÷ one", "Recall", "Side-request p95", "Result"], rows, "all")
         + f'<p class="s-note">Runbook: <a href="{SPLASH_RUNBOOK_URL}">plan.md</a>. Results: '

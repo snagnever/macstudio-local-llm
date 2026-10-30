@@ -1141,6 +1141,46 @@
         "pending": null
       },
       {
+        "code": "k2c4",
+        "public_name": "4 sessions",
+        "n": 4,
+        "ctx": 131072,
+        "ref": "k2c1",
+        "worst_ratio": 3.1639344262295084,
+        "worst_turn_s": 19.3,
+        "decode_per_session": 48.254527933855115,
+        "gain": 1.6947503212155706,
+        "needles": "49/52",
+        "aux_p95": null,
+        "gates": [
+          "slowdown above 2.0×",
+          "recall miss",
+          "a request waited over 60 s"
+        ],
+        "result": "fail",
+        "pending": null
+      },
+      {
+        "code": "k2c4a",
+        "public_name": "4 sessions + side requests",
+        "n": 4,
+        "ctx": 131072,
+        "ref": "k2c1",
+        "worst_ratio": 4.59016393442623,
+        "worst_turn_s": 28.0,
+        "decode_per_session": 60.604157287771066,
+        "gain": 2.1284824332182297,
+        "needles": "50/52",
+        "aux_p95": 158.9048149585724,
+        "gates": [
+          "slowdown above 2.0×",
+          "recall miss",
+          "a request waited over 60 s"
+        ],
+        "result": "fail",
+        "pending": null
+      },
+      {
         "code": "k2c2ad1",
         "public_name": "2 sessions + side requests, --decode-share 1.0",
         "n": 2,
@@ -1258,6 +1298,24 @@
         "gain": 1.8537299723556147,
         "needles": "26/26",
         "aux_p95": 8.255941152572632,
+        "gates": [
+          "a request waited over 60 s"
+        ],
+        "result": "fail",
+        "pending": null
+      },
+      {
+        "code": "k2c2Ls",
+        "public_name": "2 × 256K sessions, --state-format bf16",
+        "n": 2,
+        "ctx": 262144,
+        "ref": "k2c1",
+        "worst_ratio": 1.390625,
+        "worst_turn_s": 8.9,
+        "decode_per_session": 99.6410310485293,
+        "gain": 1.834853379027156,
+        "needles": "25/26",
+        "aux_p95": 6.445773124694824,
         "gates": [
           "a request waited over 60 s"
         ],
