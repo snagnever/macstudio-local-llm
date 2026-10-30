@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any, Optional, Sequence, Union
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from report_charts import _baseline, _fmt, _scale, _svg, _text  # noqa: E402,F401
 from summarize_parallel import _is_served, _read_jsonl, _stream_files, _ttft_s, summarize  # noqa: E402
 
 CAMPAIGN = Path(__file__).resolve().parents[1]
@@ -498,15 +499,6 @@ def collect(results_dir: Path, splash_dir: Optional[Path] = None, claude_dirs: O
 
 # ---- SVG chart builders (pure; colors via CSS variables --s1..--s4 so the page CSS themes them) ----
 
-def _fmt(v: float) -> str:
-    return f"{v:.1f}"
-
-
-def _scale(v: float, vmax: float, size: float) -> float:
-    """Map v in [0, vmax] to [0, size]; values above vmax or below 0 are clamped."""
-    return 0.0 if vmax <= 0 else max(0.0, min(v, vmax)) / vmax * size
-
-
 def _nice(v: float) -> float:
     """Round up to 1, 2, 2.5, 5 or 10 times a power of ten."""
     if v <= 0:
@@ -516,22 +508,6 @@ def _nice(v: float) -> float:
         if v <= m * mag:
             return m * mag
     return 10 * mag
-
-
-def _svg(w: int, h: int, label: str, body: list[str]) -> str:
-    return (f'<svg viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" role="img" '
-            f'aria-label="{html.escape(label, quote=True)}" xmlns="http://www.w3.org/2000/svg">'
-            + "".join(body) + "</svg>")
-
-
-def _text(x: float, y: float, s: str, cls: str = "", anchor: str = "middle") -> str:
-    c = f' class="{cls}"' if cls else ""
-    return (f'<text{c} x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" font-size="13" '
-            f'fill="currentColor">{html.escape(s)}</text>')
-
-
-def _baseline(left: float, right: float, y: float) -> str:
-    return f'<line x1="{left}" y1="{y}" x2="{right}" y2="{y}" stroke="currentColor" opacity="0.4"/>'
 
 
 def _bar(x: float, bw: float, base_y: float, plot_h: float, value: Optional[float], vmax: float,
