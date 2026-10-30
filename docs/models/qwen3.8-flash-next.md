@@ -89,7 +89,7 @@ Cap `max_tokens` above 4096 for hard prompts: with `xhigh` the reasoning can pas
 ### Concurrent sessions (measured 2026-10-17 to 2026-10-30)
 
 One Claude Code session works on both servers. A second session costs little on Splash 1.5.0 and halves the
-generation speed on mlx-serve 26.10.3. Three or more sessions, or two sessions with parallel subagents, are not
+generation speed on mlx-serve 26.10.3, where the pair no longer finishes sooner than the tasks in sequence. Three or more sessions, or two sessions with parallel subagents, are not
 advised. The table is in seconds a person waits, per server: Splash 1.5.0 with the ukisai Swift 1.5 GGUF `IQ4_XS`
 pack, and mlx-serve 26.10.3 with the Dankpaws Swift 1.5 MLX 4.7bpw pack, both at 131072 tokens. Claude Code
 values come from real `claude -p` sessions measured at a proxy (campaign of 2026-10-30, 62 sessions); the values
@@ -103,13 +103,13 @@ marked (26.10.1) come from the older build.
 | Generation, two sessions (median / slowest turn) | 89 / 39 tok/s | 40 / 20 tok/s |
 | First prompt of a session (~20K tokens) | 24 s | 25 s |
 | Resume a 128K session (cold read) | 168 s | 165 s |
-| Realistic task C (60–70K, 25 turns), alone → in a pair | 163 → 316 s | 162 → 364 s |
-| Realistic task D (45–75K, 28 turns), alone → in a pair | 253 → 391 s | 303 → 446 s |
-| Time saved by the pair over the two tasks in sequence (realistic) | 6% | 4% |
-| Two sessions with two Explore subagents each (measured streams) | 6 streams; reply starts 2.5 s / p90 8.4 s; slowest turn 20 tok/s; pair 828 s | 5 streams; reply starts 0.5 s / p90 4.5 s; slowest turn 6.7 tok/s; pair 1125 s |
+| Realistic task C (60–70K, 27 turns), alone → in a pair | 163 → 316 s | 162 → 422 s |
+| Realistic task D (45–75K, 29 turns), alone → in a pair | 253 → 391 s | 303 → 446 s |
+| Time saved by the pair over the two tasks in sequence (realistic) | 6% | −3% (the pair finishes later) |
+| Two sessions with two Explore subagents each (measured streams) | 6 streams; reply starts 2.5 s / p90 8.4 s; slowest turn 20 tok/s; pair 861 s | 5 streams; reply starts 0.5 s / p90 4.5 s; slowest turn 6.7 tok/s; pair 1125 s |
 | `--decode-share 1.0` on the real pair | reply starts 2.2 s / p90 5.1 s; pair 7% later than in sequence | — |
 | Side call p95 while the other session reads a big prompt (128K, synthetic) | 5 s | 183 s, 7 calls over 60 s |
-| Worst turn, two sessions, synthetic 128K (alone → pair) | 6.2 → 15.4 s | 9.0 → 15.6 s |
+| Worst turn, two sessions, synthetic 128K (alone → pair) | 6.1 → 15.4 s | 9.0 → 15.6 s |
 | Worst turn, 3 / 4 sessions, synthetic 128K | 14.6 / 28.0 s | 20.3 / 33.1 s (26.10.1) |
 | Two 256K sessions, worst turn | 12.1 s, no memory setting | 18.6 s with a 4 GB prompt cache (26.10.1) |
 | Agent quality (Terminal-Bench) | not measured | not measured |
@@ -118,8 +118,9 @@ What explains it: the two servers pay for the second session in different places
 reads one prompt at a time, so a session waits while the other reads a big prompt (a session start of ~20K tokens,
 a large file, a compaction) and the reply starts later (p90 4.3 s in a pair). mlx-serve keeps the reply start at
 0.4 s and splits the generation between the two sessions (40 tok/s each). Claude Code sends almost everything from
-the cache, so the pair finishes a little sooner than the two tasks in sequence on both servers (6% and 4%);
-the gain is small because the sessions share one GPU. Two sessions that each spawn two Explore subagents run as
+the cache, so on Splash the pair finishes a little sooner than the two tasks in sequence (6%); on mlx-serve it
+finishes 3% later. The gain is small because the sessions share one GPU. Task times count only sessions that
+finished the task; two sessions that did not (one per server) are reported in the campaign summary. Two sessions that each spawn two Explore subagents run as
 5–6 streams: the pair takes 2–3× longer and the slowest turns fall to 20 tok/s (Splash) and 6.7 tok/s (mlx-serve).
 `--decode-share 1.0` did not help the real pair on Splash. With big prompts every turn (the synthetic battery)
 each turn runs about 2× slower with two sessions on both servers, and 2.4–4.5× slower with three or four.

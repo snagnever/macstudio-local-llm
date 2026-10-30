@@ -154,3 +154,17 @@ def test_pair_reps_of_different_profiles_do_not_share_a_clock(tmp_path):
     _req(tmp_path, "rc2r1-d", a)
     r = summarize_claude(tmp_path, "rc")["requests"]["pair"]
     assert r["n"] == 4 and r["max_concurrent"] == 2
+
+
+def test_session_without_task_done_has_no_task_time(tmp_path):
+    # A session that exited 0 but did not finish the task (empty answer after 12 turns) is not a task time: it
+    # leaves pair_s and pair_wall_s, and stays visible through task_done and the per-run files.
+    _cc(tmp_path, "rc1r1-c", 200, "c", 25)
+    _cc(tmp_path, "rc1r1-d", 200, "d", 22)
+    _cc(tmp_path, "rc2r1-c", 190, "c", 12, task_done=False)
+    _cc(tmp_path, "rc2r1-d", 350, "d", 30)
+    _cc(tmp_path, "rc2r2-c", 420, "c", 28)
+    _cc(tmp_path, "rc2r2-d", 440, "d", 29)
+    p = summarize_claude(tmp_path, "rc")["profiles"]["realistic"]
+    assert p["pair_s"] == {"c": 420.0, "d": 395.0} and p["pair_wall_s"] == 440.0
+    assert p["task_done"] is False and p["errors"] == 0 and p["time_saved"] == pytest.approx(1 - 440 / 400)

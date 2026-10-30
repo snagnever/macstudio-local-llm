@@ -110,8 +110,8 @@ com dois subagentes Explore em paralelo por sessão (3×, mais uma rep extra); `
 | small | b | 41.5 | 78.5 | 78.5 | 130.0 | +40% | sim | 0 |
 | realistic | c | 162.8 | 316.0 | 390.8 | 416.0 | +6% | sim | 0 |
 | realistic | d | 253.2 | 390.8 | 390.8 | 416.0 | +6% | sim | 0 |
-| subagents | c | — | 739.0 | 828.3 | 416.0 | -99% | **não** | 0 |
-| subagents | d | — | 828.3 | 828.3 | 416.0 | -99% | **não** | 0 |
+| subagents | c | — | 739.0 | 860.9 | 416.0 | -107% | **não** | 0 |
+| subagents | d | — | 860.9 | 860.9 | 416.0 | -107% | **não** | 0 |
 | decode_share | c | — | 401.5 | 444.6 | 416.0 | -7% | sim | 0 |
 | decode_share | d | — | 444.6 | 444.6 | 416.0 | -7% | sim | 0 |
 
@@ -123,8 +123,8 @@ subagents: parallel_agent_calls=8, subagents_spawned=17, requests max_concurrent
 |---|---|---:|---:|---:|---:|---:|---|---:|
 | small | a | 48.5 | 91.7 | 92.0 | 97.7 | +6% | sim | 0 |
 | small | b | 49.1 | 89.9 | 92.0 | 97.7 | +6% | sim | 0 |
-| realistic | c | 161.8 | 364.3 | 446.2 | 465.2 | +4% | **não** | 0 |
-| realistic | d | 303.4 | 446.2 | 446.2 | 465.2 | +4% | **não** | 0 |
+| realistic | c | 161.8 | 422.1 | 479.3 | 465.2 | -3% | **não** | 0 |
+| realistic | d | 303.4 | 446.2 | 479.3 | 465.2 | -3% | **não** | 0 |
 | subagents | c | — | 1083.2 | 1125.0 | 465.2 | -142% | sim | 0 |
 | subagents | d | — | 1108.7 | 1125.0 | 465.2 | -142% | sim | 0 |
 
@@ -154,18 +154,18 @@ Faixas da spec: resposta começa (TTFT quente) ≤ 2 s boa / 2–5 aceitável / 
 1.4 s e o p90 de 1.6 s para 4.8 s; a geração cai de 126 para 89 tok/s na mediana e de 79 para 39 no pior caso.
 As tarefas c e d levam ~2× o tempo solo quando rodam juntas (316 e 391 s contra 163 e 253 s), e o par termina 6%
 antes do que as duas em sequência. No mlx-serve o TTFT quente não muda (0.4 s nas duas condições) mas a geração
-cai pela metade, de 85 para 40 tok/s na mediana (pior caso 20); as tarefas levam 1.5–2.2× (364 e 446 s contra
-162 e 303 s) e o par poupa 4% sobre a sequência. Nos dois servidores o par termina um pouco antes da sequência; a
-diferença é como a lentidão aparece: no Splash a resposta demora mais a começar, no mlx-serve ela começa igual e
-corre mais devagar.
+cai pela metade, de 85 para 40 tok/s na mediana (pior caso 20); as tarefas levam 1.5–2.6× (422 e 446 s contra
+162 e 303 s) e o par termina 3% depois da sequência. A diferença entre os servidores é como a lentidão aparece:
+no Splash a resposta demora mais a começar e o par ainda ganha um pouco; no mlx-serve ela começa igual, corre
+mais devagar e o par não ganha nada. Os tempos de tarefa contam só sessões que terminaram a tarefa.
 
 **2. Subagentes mudam o custo? Duas sessões com subagentes se comportam como N = 4?** O N real medido pelo proxy
 foi **6 streams no Splash e 5 no mlx-serve** (duas sessões, cada uma com dois Explore em paralelo; o
 `parallel_agent_calls` confirma uma chamada dupla de `Agent` por sessão em todas as reps). O custo muda muito: no
-Splash o par c+d levou 828 s de wall (contra 391 s sem subagentes), TTFT quente 2.5 s na mediana e 8.4 s no p90,
-tok/s mínimo 20; no mlx-serve 1 125 s (contra 446 s), tok/s 40 na mediana e 6.7 no mínimo. Os subagentes também
+Splash o par c+d levou 861 s de wall (contra 391 s sem subagentes), TTFT quente 2.5 s na mediana e 8.4 s no p90,
+tok/s mínimo 20; no mlx-serve 1 125 s (contra 479 s), tok/s 40 na mediana e 6.7 no mínimo. Os subagentes também
 criam turnos de prefill (85 no Splash, 76 no mlx-serve, cada subagente começa frio). Em relação às duas tarefas em
-sequência, o par com subagentes fica 99% (Splash) e 142% (mlx-serve) mais lento. A resposta é não: não se
+sequência, o par com subagentes fica 107% (Splash) e 142% (mlx-serve) mais lento. A resposta é não: não se
 comportam como N = 4, mas como 5–6 streams, e o pior caso cai para a faixa ruim nos dois servidores.
 
 **3. `--decode-share 1.0` ajuda o par real no Splash?** Não. Com a flag o par c+d levou 445 s de wall contra 391 s
@@ -177,16 +177,17 @@ sequência, em vez de 6% antes. A vantagem dos probes sintéticos (`k2c2ad1`) n�
 
 Uma sessão de Claude Code fica na faixa boa nos dois servidores, em todas as métricas. Duas sessões continuam na
 faixa boa na mediana no Splash e perdem metade da geração no mlx-serve (faixa aceitável, pior caso ruim). O par
-termina antes da sequência nos dois (6% e 4%), então rodar duas sessões vale a pena se a lentidão da mediana for
-aceitável para quem usa. Subagentes em paralelo custam caro nos dois servidores: 5–6 streams, wall 2–3× o do par
+termina 6% antes da sequência no Splash e 3% depois no mlx-serve, então rodar duas sessões vale a pena no Splash
+se a lentidão da mediana for aceitável para quem usa, e no mlx-serve só pela conveniência de duas janelas. Subagentes em paralelo custam caro nos dois servidores: 5–6 streams, wall 2–3× o do par
 simples, pior caso na faixa ruim. `--decode-share 1.0` não ajuda o par real.
 
 Funcional: 62 sessões (58 nas filas mais 4 nas reps extra), zero erros HTTP, 60 com `task_done`. As duas sem `task_done` foram falhas do
 modelo, não do harness: `rc2s r1` d corrigiu o off-by-one do `rotate.sh` mas continuou apagando o arquivo mais
 novo quando há KEEP+1; `rm2 r1` c parou em 12 turnos com resposta vazia e só tocou em `report.py`. Uma rep extra
-(`r4`) de cada um desses braços rodou depois das filas para haver três pares completos (as duas com `task_done`);
-as reps falhas ficam nos dados, e por isso `task_done` é `false` nos blocos `subagents` (Splash) e `realistic`
-(mlx-serve) dos resumos. Swap Δ 0.00 GB em todos os braços; mínimo de memória livre 0.01–0.06 GB, o
+(`r4`) de cada um desses braços rodou depois das filas para haver três pares completos (as duas com `task_done`).
+As reps falhas ficam nos arquivos e nas tabelas por rep, mas não entram nos tempos de tarefa (`pair_s`,
+`pair_wall_s`, tempo poupado): uma sessão que saiu com 0 sem fazer a tarefa não tem tempo de tarefa. Por isso
+`task_done` é `false` nos blocos `subagents` (Splash) e `realistic` (mlx-serve) dos resumos. Swap Δ 0.00 GB em todos os braços; mínimo de memória livre 0.01–0.06 GB, o
 padrão da máquina com estes servidores.
 
 ## Leitura
@@ -195,8 +196,8 @@ padrão da máquina com estes servidores.
   TTFT (fila na admissão: o p90 vai a 4.8 s); o mlx-serve mantém o TTFT e divide a geração entre as duas sessões
   (batch de decode, 40 tok/s). Para quem digita e espera a primeira palavra, o mlx-serve parece mais vivo; para
   quem espera a resposta inteira, o Splash termina antes.
-- **O tempo poupado pelo par é pequeno (4–6%)** porque as duas sessões disputam a mesma GPU; o ganho vem só dos
-  intervalos em que uma sessão espera ferramenta enquanto a outra decodifica.
+- **O tempo poupado pelo par é pequeno (+6% no Splash, −3% no mlx-serve)** porque as duas sessões disputam a
+  mesma GPU; o ganho vem só dos intervalos em que uma sessão espera ferramenta enquanto a outra decodifica.
 - **O solo também varia.** Na tarefa a do Splash uma rep levou 137 s por um turno de 7 037 tokens (88 s a 80 tok/s);
   a média do solo do perfil pequeno (88.5 s) e o "tempo poupado" de 40% do par a+b carregam esse outlier. O par
   c+d é a leitura confiável.

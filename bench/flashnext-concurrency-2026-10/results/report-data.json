@@ -1557,8 +1557,8 @@
           "ttft_p90": 8.439,
           "tps_p50": 82.75,
           "tps_min": 20.1,
-          "pair_wall_s": 828.275,
-          "time_saved": -0.991045673076923,
+          "pair_wall_s": 860.8666666666667,
+          "time_saved": -1.0693910256410257,
           "task_done": false,
           "parallel_agent_calls": 8,
           "subagents_spawned": 17
@@ -1599,7 +1599,7 @@
           "realistic": {
             "c": {
               "alone_s": 161.8,
-              "pair_s": 364.325
+              "pair_s": 422.06666666666666
             },
             "d": {
               "alone_s": 303.35,
@@ -1607,10 +1607,10 @@
             }
           }
         },
-        "time_saved": 0.04079329248629482,
+        "time_saved": -0.030420294528646696,
         "time_saved_by_profile": {
           "small": 0.057859703020993414,
-          "realistic": 0.04079329248629482
+          "realistic": -0.030420294528646696
         },
         "side_p95_s": 183.04781818389893,
         "max_concurrent": 2,
@@ -1638,9 +1638,14 @@
         "side_over_60": 0,
         "gain": 0.8097298387554512,
         "best_setting": {
-          "label": "--decode-share 1.0 (real pair)",
-          "turn_s": 5.1,
-          "note": "reply starts, p90; the pair finishes 7% later than in sequence"
+          "label": "--decode-share 1.0",
+          "turn_s": 10.8,
+          "note": "recall 25/26"
+        },
+        "real_decode_share": {
+          "ttft_p90": 5.1,
+          "ttft_p90_plain": 4.337,
+          "time_saved": -0.06866987179487172
         }
       },
       "mlx": {
@@ -1649,7 +1654,8 @@
         "side_p95_s": 183.04781818389893,
         "side_over_60": 7,
         "gain": 1.4895909577463935,
-        "best_setting": null
+        "best_setting": null,
+        "real_decode_share": null
       }
     },
     "by_n": {

@@ -249,6 +249,18 @@ def worst_case(data: dict) -> str:
              ["Total generation, pair ÷ alone"] + [_n(w[s["key"]]["gain"], "{:.2f}×") for s in srvs],
              ["Best setting"] + [(f"<code>{_e(b['label'])}</code>: {_n(b['turn_s'], unit='s')}, {_e(b['note'])}"
                                   if (b := w[s["key"]]["best_setting"]) else "—") for s in srvs]]
+
+    def real_ds(rd: Optional[dict]) -> str:
+        if not rd:
+            return "—"
+        ts = rd["time_saved"]
+        saved = "" if ts is None else f"; the pair finishes {abs(ts) * 100:.0f}% {'sooner' if ts >= 0 else 'later'} than in sequence"
+        gain = ("no gain" if rd["ttft_p90_plain"] is not None and rd["ttft_p90"] >= rd["ttft_p90_plain"] else "a gain")
+        return (f"reply starts p90 {_n(rd['ttft_p90'], unit='s')} vs {_n(rd['ttft_p90_plain'], unit='s')} without the flag"
+                f"{saved}: {gain}")
+
+    trows.append(["<code>--decode-share 1.0</code> on the real pair (Claude Code, realistic tasks)"]
+                 + [real_ds(w[s["key"]].get("real_decode_share")) for s in srvs])
     table = RR._table(["two sessions, 128K, big prompts", *[s["label"] for s in srvs]], trows, "wide")
     return _sec("worst", "3. Worst case: both sessions read a big prompt at the same time",
                 "When does it happen, and how bad is it?",

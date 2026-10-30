@@ -418,18 +418,18 @@ def collect_scenarios(data: dict, claude: dict[str, Optional[dict]], tbench: Opt
     worst: dict[str, Any] = {}
     for key in keys:
         best = None
-        ds = two[key].get("decode_share")
-        if ds and ds.get("ttft_p90") is not None:
-            # The real Claude Code pair with the flag wins over the synthetic probe when it exists.
-            ts = ds.get("time_saved")
-            saved = "" if ts is None else f"; the pair finishes {abs(ts) * 100:.0f}% {'sooner' if ts >= 0 else 'later'} than in sequence"
-            best = {"label": "--decode-share 1.0 (real pair)", "turn_s": ds["ttft_p90"], "note": f"reply starts, p90{saved}"}
-        elif key == "splash" and ad1 and ad1.get("worst_turn_s") is not None:
+        if key == "splash" and ad1 and ad1.get("worst_turn_s") is not None:
             best = {"label": "--decode-share 1.0", "turn_s": ad1["worst_turn_s"],
                     "note": f"recall {ad1['needles']}" if ad1.get("needles") else ""}
+        # The real Claude Code pair with the flag is a different metric (warm reply start of a realistic pair), so
+        # it gets its own row next to the plain pair's p90 instead of replacing the synthetic worst turn.
+        ds = two[key].get("decode_share")
+        real = None
+        if ds and ds.get("ttft_p90") is not None:
+            real = {"ttft_p90": ds["ttft_p90"], "ttft_p90_plain": two[key]["ttft_pair_p90"], "time_saved": ds.get("time_saved")}
         worst[key] = {"turn_alone_s": _g(solo[key], "worst_turn_s"), "turn_pair_s": _g(pair[key], "worst_turn_s"),
                       "side_p95_s": _g(pair[key], "aux_p95"), "side_over_60": _g(pair[key], "aux_over_60"),
-                      "gain": _g(pair[key], "gain"), "best_setting": best}
+                      "gain": _g(pair[key], "gain"), "best_setting": best, "real_decode_share": real}
 
     def point(c: Optional[dict], legacy: bool) -> dict[str, Any]:
         return {"turn_s": _g(c, "worst_turn_s"), "side_p95_s": _g(c, "aux_p95"), "legacy": legacy}

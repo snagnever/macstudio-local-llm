@@ -50,18 +50,24 @@ def _failed(r: dict[str, Any]) -> bool:
     return bool(r.get("is_error") or r.get("parse_error") or r.get("exit", 0) != 0)
 
 
+def _timed(r: dict[str, Any]) -> bool:
+    """A session has a task time only when it ran to the end and did the task: a session that exited 0 with the
+    work undone (an empty answer after 12 turns) is reported through task_done, not as a shorter task."""
+    return not _failed(r) and bool(r.get("task_done"))
+
+
 def _mean_wall(runs: list[dict[str, Any]]) -> Optional[float]:
-    good = [r["wall_s"] for r in runs if not _failed(r)]
+    good = [r["wall_s"] for r in runs if _timed(r)]
     return statistics.mean(good) if good else None
 
 
 def _pair_walls(results_dir: Path, prefix: str, tasks: tuple[str, ...], variant: str = "") -> Optional[float]:
-    """One pair wall per rep: the later of the two sessions; a rep with a failed session has no pair wall."""
+    """One pair wall per rep: the later of the two sessions; a rep with a failed or unfinished session has no pair wall."""
     by_rep: dict[str, list[Optional[float]]] = {}
     for t in tasks:
         for p in _reps(results_dir, f"{prefix}2{variant}", t):
             r = _load(p)
-            by_rep.setdefault(_rep(p.name, prefix, "2", variant) or p.name, []).append(None if _failed(r) else r["wall_s"])
+            by_rep.setdefault(_rep(p.name, prefix, "2", variant) or p.name, []).append(r["wall_s"] if _timed(r) else None)
     walls = [max(ws) for ws in by_rep.values() if len(ws) == len(tasks) and None not in ws]
     return statistics.mean(walls) if walls else None
 
