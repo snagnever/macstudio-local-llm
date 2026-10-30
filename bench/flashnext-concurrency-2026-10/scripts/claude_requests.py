@@ -105,9 +105,17 @@ def is_prefill(r: dict[str, Any]) -> bool:
     return r["cached_tokens"] == 0 or new > PREFILL_NEW_TOKENS
 
 
+def is_model_turn(r: dict[str, Any]) -> bool:
+    """A 200 with no content delta and no output tokens is another endpoint behind the proxy (Claude Code's
+    count_tokens call answers {"input_tokens": N}), not a request to the model."""
+    return not (r.get("status", 200) == 200 and r.get("ttft_s") is None and not r.get("output_tokens"))
+
+
 def summarize_requests(reqs: list[dict[str, Any]]) -> dict[str, Any]:
     """Warm = cached prompt and few new tokens. Records without a ttft_s (no content delta: HTTP error, aborted
-    stream) are neither warm nor cold samples; errors counts the records whose status is not 200."""
+    stream) are neither warm nor cold samples; errors counts the records whose status is not 200. Records that
+    are not model turns (see is_model_turn) are dropped first."""
+    reqs = [r for r in reqs if is_model_turn(r)]
     samples = [r for r in reqs if r.get("ttft_s") is not None]
     warm = [r for r in samples if not is_prefill(r)]
     cold = [r["ttft_s"] for r in samples if is_prefill(r)]

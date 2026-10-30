@@ -85,3 +85,12 @@ def test_null_ttft_and_non_200_are_errors_not_samples():
 
 def test_summarize_requests_has_zero_errors_by_default():
     assert summarize_requests(parse_splash_log(LOG))["errors"] == 0
+
+
+def test_empty_200_responses_are_not_model_turns():
+    # A 200 with no content delta and no tokens (a non-message endpoint behind the proxy) is neither a sample,
+    # an error nor a request: it must not count in n or in max_concurrent.
+    empty = {"t_start_s": 1.0, "ttft_s": None, "t_end_s": 1.01, "input_tokens": 0, "cached_tokens": None,
+             "output_tokens": 0, "tps": None, "status": 200, "stream": None}
+    s = summarize_requests([dict(WARM, t_start_s=0.0, t_end_s=3.0), empty])
+    assert s["n"] == 1 and s["max_concurrent"] == 1 and s["errors"] == 0 and s["warm"]["n"] == 1
