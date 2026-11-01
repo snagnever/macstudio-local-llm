@@ -16,6 +16,7 @@ O `k3f` é o GSQ-RCO-Coder GGUF IQ1_M (`ISTA-DASLab` `bba8885`) no Splash 1.5.0,
 
 - Os 40 erros do harbor são todos `AgentTimeoutError`. Nenhuma tarefa da tabela falhou por causa do ambiente.
 - Uma tarefa com timeout ainda passa quando o agente já deixou a solução pronta antes do corte: `cobol-modernization`, `financial-document-processor`, `headless-terminal`, `llm-inference-batching-scheduler`, `mailman`, `path-tracing` e `torch-tensor-parallelism`.
+- Em `adaptive-rejection-sampler` e `polyglot-rust-c`, nenhuma chamada terminou. A primeira chamada raciocinou sem parar: 53,302 e 49,728 tokens de saída em 10 min, a 83–89 tok/s, segundo o log do Splash. O cliente cancelou a chamada e a enviou de novo, e o timeout do agente cortou a segunda. O servidor não travou.
 - Reward 0 sem timeout: `bn-fit-modify`, `filter-js-from-html`, `nginx-request-logging` e `query-optimize`.
 
 ## Comparação pareada
@@ -44,7 +45,7 @@ Contra o `w1z`, são 10 tarefas só do `w1z` e 4 só do `k3f` (`caffe-cifar-10`,
 
 - Tempo ativo, somado por tarefa: 31.2 h (`k2a`: 30.0 h, `w1z`: 30.8 h). Mediana de 15.7 min por tarefa, máximo de 79 min.
 - O agente ocupa ~93% do tempo. As tarefas com timeout ocupam 62% do tempo do agente.
-- A mediana da latência das chamadas, por tarefa, é 11.9 s (`k2a`: 9.8 s, `w1z`: 11.8 s).
+- A mediana da latência das chamadas, por tarefa, é 12.2 s nas 87 tarefas com chamadas completas (`k2a`: 9.8 s, `w1z`: 11.8 s).
 - De ponta a ponta, o job rodou de 30/10 13:51 a 01/11 04:00 (CET), com uma parada:
   - **Pausa**, de 30/10 15:10 a 22:06, para a janela de rig da campanha `claude-code-concurrency` de outra sessão, a pedido do usuário. O harbor parou logo depois que a `schemelike-metacircular-eval` terminou. A `kv-store-grpc` tinha começado 14 s antes do corte e gravou um `result.json` com `CancelledError`. Ela foi movida para `logs/tb21-k3f-partial/` e rodou de novo com `harbor job resume`, numa nova hold do `k3f`.
 

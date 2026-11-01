@@ -72,13 +72,13 @@ Nenhum par tem diferença significante no McNemar exato (p ≥ 0.18). Fonte: [et
 
 ## GSQ-RCO-Coder
 
-| braço | runtime | T_turno 256K | wired 256K | GPQA | código (HE / LCB) |
+| braço | runtime | T_turno 256K | wired 256K | GPQA | HumanEval estrito / LCB |
 |---|---|---:|---:|---:|---|
 | `r1z` (pack MLX) | mlx-serve 26.10.3 | 11.0 s | 89.3 GB | 31/50 | 152 / 46 |
 | `k3ma` (GGUF IQ1_M) | Splash do `main` `3135ab4` | 6.3 s | 79.9 GB | — | — |
 | `k3r` (GGUF IQ1_M) | Splash 1.4.1 | 6.1 s | 79.8 GB | 25/50 | 149 / 48 |
 
-O GSQ é o braço mais rápido e o de menor memória da campanha, mas falha no G1 do GPQA (43/50 no `w1z`). No Terminal-Bench 2.1, ele fica 5–6 tarefas abaixo dos braços Swift. Fonte: [etapa5](etapa5-gsq-mlx-serve.md).
+O HumanEval desta tabela usa a nota estrita, em que o `w1z` faz 142/164 (158 com os imports do prompt). O GSQ é o braço mais rápido e o de menor memória da campanha, mas falha no G1 do GPQA (43/50 no `w1z`). No Terminal-Bench 2.1, ele fica 5–6 tarefas abaixo dos braços Swift. Fonte: [etapa5](etapa5-gsq-mlx-serve.md).
 
 ## Recomendações
 
@@ -98,5 +98,7 @@ O GSQ é o braço mais rápido e o de menor memória da campanha, mas falha no G
 | — | `k2m`: o Splash recusa o Swift 1.5 MLX | pedido do usuário; Flash-Next só carrega de GGUF |
 | — | `t6`, `t7`: iQ no mlx-serve 26.10.3 e 1M no mlx-serve | pedidos do usuário (27/10) |
 | G1 do HumanEval a 1M | aceito como ruído | decisão do usuário |
+| pico de memória do rig em cada braço do Terminal-Bench | o `w1z` não tem amostrador | o `w1z` rodou no driver diário, fora de um hold |
+| `results/etapa5b-gsq-splash.md` | o `k3ma` e o `k3r` ficam no [etapa5](etapa5-gsq-mlx-serve.md) | os dois só repetem as bandas e a bateria do Task 5 |
 
 As pausas do Terminal-Bench para outras campanhas estão nos reports de cada braço.

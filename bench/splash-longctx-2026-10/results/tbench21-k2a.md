@@ -20,7 +20,7 @@ O `k2a` é o Swift 1.5 GGUF IQ4_XS (`ukisai` `0142554`) no Splash 1.4.0, com `--
 
 ## Tempo
 
-- Tempo ativo, somado por tarefa: 30.0 h. Mediana de 15.5 min por tarefa, máximo de 102 min.
+- Tempo ativo, somado por tarefa: 30.0 h. Mediana de 15.4 min por tarefa, máximo de 102 min.
 - O agente ocupa ~90% do tempo. As tarefas com timeout ocupam metade do tempo do agente.
 - De ponta a ponta, o job rodou de 26/10 14:11 a 28/10 13:15 (CET), com duas paradas:
   - **Queda da rede**, de ~21:20Z em 26/10 até 08:49 em 27/10. A VPN NordVPN ligada no MacBook derrubou o Tailscale, e 28 tarefas falharam sem chegar ao modelo. Essas tarefas foram movidas para `logs/tb21-k2a-outage/` e rodaram de novo com `harbor job resume`. O rig não caiu.
