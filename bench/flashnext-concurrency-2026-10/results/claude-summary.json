@@ -1,0 +1,32 @@
+{
+  "prefix": "cc",
+  "profiles": {
+    "small": {
+      "tasks": [
+        "a",
+        "b"
+      ],
+      "alone_s": {
+        "a": 75.4,
+        "b": 62.2
+      },
+      "pair_s": {
+        "a": 144.93333333333334,
+        "b": 137.8
+      },
+      "pair_wall_s": 147.63333333333333,
+      "serial_sum_s": 137.60000000000002,
+      "time_saved": -0.07291666666666652,
+      "turns": {
+        "a": 9,
+        "b": 6
+      },
+      "task_done": true,
+      "errors": 0
+    }
+  },
+  "requests": {
+    "alone": null,
+    "pair": null
+  }
+}

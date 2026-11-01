@@ -1,5 +1,7 @@
 # Flash-Next, concorrência no driver de 2026-10 — resumo da campanha (2026-10-18)
 
+> **Nota (2026-10-30):** o report público foi reorganizado por cenário de uso, em segundos e faixas de experiência ([reports/qwen38-flashnext-concurrency.html](../../../reports/qwen38-flashnext-concurrency.html)). Os gates desta campanha ficam no apêndice da página.
+
 **Duas sessões funcionam num driver só, mas não ganham tempo.** O mlx-serve 26.10.1 já faz batched decode para o Swift 1.5 com o default `--max-concurrent 1`. A segunda sessão divide o decode com a primeira: cada uma fica ~2× mais lenta, e a vazão total não cresce. O perfil `daily` do launcher não muda. O launcher ganha o perfil `256k` (duas sessões longas, prefix cache de 4 GB) e a variável opcional `FLASHNEXT_MAX_CONCURRENT`.
 
 Página pública: [reports/qwen38-flashnext-concurrency.html](../../../reports/qwen38-flashnext-concurrency.html) (gerada por `scripts/render_report.py`).
@@ -39,4 +41,5 @@ Rig: Mac Studio M4 Max 128 GB. Driver: Swift 1.5 (`Dankpaws/Swift1.5-Qwen3.8-Fla
 - mlx-serve 26.10.2 (o batch em contexto longo e o cache só no SSD são novidades dele) e o PR #884 numa release futura.
 - Mais de 4 streams. O N = 3 rodou só com o gerador de aux (`w1c3a`), sem o braço sem gerador.
 - Fila real no cliente (lock que serializa os requests): o 26.10.1 não tem chave para desligar o batch.
+- Splash com duas sessões: medido em 2026-10-29, ver [splash-concurrency-2026-10](../../splash-concurrency-2026-10/results/summary.md).
 - A sessão interativa da Etapa 2 (Step 6), com permissões e títulos reais: fica para o usuário (`scripts/run-claude-pair.sh --interactive-env`).

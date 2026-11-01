@@ -11,6 +11,7 @@ Python 3.9 stdlib only (the rig's python3).
 from __future__ import annotations
 
 import argparse
+import fcntl
 import json
 import sys
 import time
@@ -86,14 +87,21 @@ def record(kind: str, t_start: float, ttft_s: Optional[float], total_s: float,
             "status": status, "error": error}
 
 
-def send(base_url: str, request: dict[str, Any], timeout: float = 300.0):
-    """POST one streaming chat request. Returns (ttft_s, total_s, status, error)."""
+def send(base_url: str, request: dict[str, Any], timeout: float = 300.0, lock_path: Optional[Path] = None):
+    """POST one streaming chat request. Returns (ttft_s, total_s, status, error).
+
+    lock_path: hold an exclusive flock on this file during the request (the client-side queue of the
+    serialized control arm); the wait counts in ttft_s and total_s, as a server queue would.
+    """
     url = base_url.rstrip("/") + "/chat/completions"
     data = json.dumps(request).encode()
     req = urllib.request.Request(url, data=data, headers={"content-type": "application/json"})
     t0 = time.time()
     ttft = None
+    lock = lock_path.open("a") if lock_path is not None else None
     try:
+        if lock is not None:
+            fcntl.flock(lock, fcntl.LOCK_EX)
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             status = resp.status
             for raw in resp:
@@ -119,6 +127,9 @@ def send(base_url: str, request: dict[str, Any], timeout: float = 300.0):
         return ttft, time.time() - t0, exc.code, f"http_{exc.code}"
     except (urllib.error.URLError, OSError) as exc:
         return ttft, time.time() - t0, 0, f"connection:{exc}"
+    finally:
+        if lock is not None:
+            lock.close()
 
 
 def main(argv: Optional[list[str]] = None) -> int:
@@ -128,13 +139,15 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser.add_argument("--period", type=float, default=20.0)
     parser.add_argument("--duration-file", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--request-lock", type=Path, default=None,
+                        help="hold an exclusive flock on this file around each request")
     args = parser.parse_args(argv)
 
     index = 0
     while args.duration_file.exists():
         kind = KINDS[index % len(KINDS)]
         t_start = time.time()
-        ttft, total, status, error = send(args.base_url, build_request(kind, args.model, index))
+        ttft, total, status, error = send(args.base_url, build_request(kind, args.model, index), lock_path=args.request_lock)
         with args.output.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(record(kind, t_start, ttft, total, status, error)) + "\n")
         index += 1

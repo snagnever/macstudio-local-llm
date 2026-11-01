@@ -1,0 +1,135 @@
+{
+  "duration_api_ms": 1716655,
+  "stop_reason": "end_turn",
+  "session_id": "20184324-f483-41f1-a3af-3809564340b8",
+  "total_cost_usd": 1.7810999999999995,
+  "usage": {
+    "input_tokens": 19064,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1670397,
+    "output_tokens": 15612,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "Dankpaws-Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0": {
+      "inputTokens": 159460,
+      "outputTokens": 34348,
+      "cacheReadInputTokens": 2281500,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 1.7810999999999995,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 0,
+      "canonicalModel": "dankpaws-swift1.5-qwen3.8-flash-next-mlx-4.7bpw-13839b7191e0973ff9fea58232267c395b76c6c0",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793391843225_0",
+      "tool_input": {
+        "command": "python3 -I -m ledger.cli report --group-by month fixtures/transactions.csv | head -4 && echo \"--- json month ---\" && python3 -I -m ledger.cli report --group-by month --format json fixtures/transactions.csv | head -c 200 && echo && echo \"--- account text ---\" && python3 -I -m ledger.cli report --group-by account fixtures/transactions.csv && echo \"--- category json ---\" && python3 -I -m ledger.cli report --group-by category --format json fixtures/transactions.csv | head -c 220 && echo && echo \"--- summary unchanged ---\" && python3 -I -m ledger.cli report fixtures/transactions.csv && awk 'length > 120 {print FILENAME\": \"FNR\": \"length}' ledger/*.py",
+        "description": "Smoke test group-by output and check line lengths"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793391930937_0",
+      "tool_input": {
+        "command": "python3 -E -s -m ledger.cli report --group-by account --format json fixtures/transactions.csv && python3 -E -s -m ledger.cli report --group-by month fixtures/transactions.csv | head -3 && awk 'length > 120 {print FILENAME\": \"FNR\": \"length}' ledger/cli.py ledger/report.py ledger/store.py tests/test_cli.py",
+        "description": "Capture README example output and check line lengths"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793391935138_1",
+      "tool_input": {
+        "command": "awk 'length > 120 {print FILENAME\": \"FNR\": \"length}' ledger/cli.py ledger/report.py ledger/store.py tests/test_cli.py",
+        "description": "Check for over-long lines"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_1793391975356_0",
+      "tool_input": {
+        "command": "printf 'date,account,payee,amount,category,memo\\n' > /tmp/ledger_empty_check.csv; python3 -E -s -c \"\nimport io, ledger\nfrom ledger.cli import main\nfrom ledger.report import group_totals, render_groups\nprint('package import ok, version', ledger.__version__)\nout = io.StringIO()\nprint('empty text:', repr(main(['report', '--group-by', 'category', '--format', 'text', '/tmp/ledger_empty_check.csv'], out=out)), repr(out.getvalue()))\nout = io.StringIO()\nprint('empty json:', repr(main(['report', '--group-by', 'month', '--format', 'json', '/tmp/ledger_empty_check.csv'], out=out)), repr(out.getvalue()))\nout = io.StringIO()\nprint('empty summary:', repr(main(['report', '/tmp/ledger_empty_check.csv'], out=out)), repr(out.getvalue()))\n\"",
+        "description": "Check package import and empty-input edge cases"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "origin": {
+    "kind": "task-notification",
+    "producer": "session-task",
+    "runId": "0mvveo1l8-1d144cac"
+  },
+  "subagent_stats": {
+    "spawned": 2,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 2
+    },
+    "started_in_background": 2,
+    "max_depth": 1,
+    "spawned_by_subagents": 0,
+    "completed": 2,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {
+      "Explore": 2
+    }
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 36,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `README.md`, `ledger/cli.py`, `ledger/report.py`, `ledger/store.py`, and `tests/test_cli.py` (8 new tests; full suite passes: 71 tests, OK).",
+  "ttft_ms": 62604,
+  "type": "result",
+  "duration_ms": 396447,
+  "uuid": "0e5b66d8-826c-4c3f-995f-b725670c523f",
+  "ttft_stream_ms": 48,
+  "time_to_request_ms": 22,
+  "first_content_frame_ms": 15575,
+  "queued_turn_count": 0,
+  "result_index": 2,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 1161.0,
+  "task_done": true,
+  "parallel_agent_calls": 1,
+  "subagents_spawned": 2,
+  "subagents": true
+}

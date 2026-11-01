@@ -1,0 +1,11 @@
+{"t_start_s": 19.0, "ttft_s": 23.7, "t_end_s": 24.0, "input_tokens": 19278, "cached_tokens": 16032, "output_tokens": 110, "tps": 150.0, "status": 200, "stream": null}
+{"t_start_s": 0.0, "ttft_s": 31.8, "t_end_s": 33.0, "input_tokens": 19296, "cached_tokens": 0, "output_tokens": 112, "tps": 96.6, "status": 200, "stream": null}
+{"t_start_s": 33.0, "ttft_s": 1.1, "t_end_s": 36.0, "input_tokens": 19620, "cached_tokens": 19264, "output_tokens": 221, "tps": 106.7, "status": 200, "stream": null}
+{"t_start_s": 27.0, "ttft_s": 3.4, "t_end_s": 41.0, "input_tokens": 19831, "cached_tokens": 19264, "output_tokens": 604, "tps": 47.5, "status": 200, "stream": null}
+{"t_start_s": 36.0, "ttft_s": 3.7, "t_end_s": 46.0, "input_tokens": 20514, "cached_tokens": 19584, "output_tokens": 488, "tps": 77.9, "status": 200, "stream": null}
+{"t_start_s": 41.0, "ttft_s": 2.8, "t_end_s": 48.0, "input_tokens": 20520, "cached_tokens": 19808, "output_tokens": 357, "tps": 74.7, "status": 200, "stream": null}
+{"t_start_s": 48.0, "ttft_s": 2.4, "t_end_s": 53.0, "input_tokens": 20962, "cached_tokens": 20512, "output_tokens": 144, "tps": 57.8, "status": 200, "stream": null}
+{"t_start_s": 46.0, "ttft_s": 2.4, "t_end_s": 54.0, "input_tokens": 21139, "cached_tokens": 20480, "output_tokens": 455, "tps": 90.0, "status": 200, "stream": null}
+{"t_start_s": 53.0, "ttft_s": 0.8, "t_end_s": 57.0, "input_tokens": 21171, "cached_tokens": 20928, "output_tokens": 121, "tps": 40.0, "status": 200, "stream": null}
+{"t_start_s": 54.0, "ttft_s": 2.8, "t_end_s": 57.0, "input_tokens": 21731, "cached_tokens": 21120, "output_tokens": 120, "tps": 118.7, "status": 200, "stream": null}
+{"t_start_s": 57.0, "ttft_s": 0.5, "t_end_s": 59.0, "input_tokens": 21908, "cached_tokens": 21696, "output_tokens": 73, "tps": 104.6, "status": 200, "stream": null}

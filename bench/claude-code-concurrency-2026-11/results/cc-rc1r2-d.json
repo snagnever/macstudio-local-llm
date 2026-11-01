@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 292545,
+  "stop_reason": "end_turn",
+  "session_id": "c70c5d77-26ff-44e1-8e09-9ed5099edebb",
+  "total_cost_usd": 0.9562703999999999,
+  "usage": {
+    "input_tokens": 75591,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1172832,
+    "output_tokens": 20967,
+    "output_tokens_details": {
+      "thinking_tokens": 12293
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 75591,
+      "outputTokens": 20967,
+      "cacheReadInputTokens": 1172832,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.9562703999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 12293,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_26c38319b94c1db8e50982eccfbea1ee_0",
+      "tool_input": {
+        "command": "cd /Users/vitor/.cache/flashnext-concurrency/claude-work/rc1r2-d\nt=$(mktemp -d); t=$(cd \"$t\" && pwd -P)\n\necho \"--- rotate --help exit code:\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- rotate unknown flag:\"; bash rotate.sh --dest /tmp --name x --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\nbash rotate.sh --dest /tmp --name x --bogus >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- rotate --keep 0:\"; bash rotate.sh --dest /tmp --name x --keep 0 2>&1 | tail -1\necho \"--- rotate --keep abc:\"; bash rotate.sh --dest /tmp --name x --keep abc 2>&1 | tail -1\necho \"--- rotate positional rejected:\"; bash rotate.sh --dest /tmp --name x extra 2>&1 | tail -1\necho \"--- missing dest:\"; bash rotate.sh --name x 2>&1 | tail -1\n\nmkdir -p \"$t/src\" \"$t/dest\"; printf 'a\\n' > \"$t/src/a.txt\"\nfor s in 20260101-010000 20260102-010000 20260103-010000 20260104-010000 20260105-010000; do\n  BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/dest\" --name app \"$t/src\" >/dev/null\ndone\necho \"--- dry-run keep=2 (expect oldest 3 'would delete'):\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name app --keep=2 --dry-run\necho \"--- real run --keep 2 --name=app (separate values):\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name app --keep 2\necho \"--- remaining files:\"; ls \"$t/dest\"\nrm -rf \"$t\"",
+        "description": "Exercise rotate.sh flags, errors, dry-run, and real rotation"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_44dfda47848fd1d55e0d2ceb43314792_0",
+      "tool_input": {
+        "command": "cd /Users/vitor/.cache/flashnext-concurrency/claude-work/rc1r2-d\nt=/tmp/bk-rotate-check.$$\nmkdir -p \"$t\"\n\necho \"--- rotate --help exit code:\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- rotate unknown flag (stderr last line):\"; bash rotate.sh --dest /tmp --name x --bogus 2>&1 | tail -1\nbash rotate.sh --dest /tmp --name x --bogus >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- rotate --keep 0:\"; bash rotate.sh --dest \"$t\" --name x --keep 0 2>&1 | tail -1\necho \"--- rotate --keep abc:\"; bash rotate.sh --dest \"$t\" --name x --keep abc 2>&1 | tail -1\necho \"--- rotate positional rejected:\"; bash rotate.sh --dest \"$t\" --name x extra 2>&1 | tail -1\necho \"--- missing dest:\"; bash rotate.sh --name x 2>&1 | tail -1\n\nmkdir -p \"$t/src\" \"$t/dest\"; printf 'a\\n' > \"$t/src/a.txt\"\nfor s in 20260101-010000 20260102-010000 20260103-010000 20260104-010000 20260105-010000; do\n  BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/dest\" --name app \"$t/src\" >/dev/null\ndone\necho \"--- dry-run --keep=2 (expect oldest 3 'would delete'):\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name app --keep=2 --dry-run\necho \"--- real run --keep 2 (expect oldest 3 deleted):\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name app --keep 2\necho \"--- remaining files (expect newest 2 archives + sidecars, sidecars deleted with archives):\"\nls \"$t/dest\"\nrm -rf \"/tmp/bk-rotate-check.$$\"",
+        "description": "Exercise rotate.sh flags, errors, dry-run, and real rotation"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_3b3e06e9cd461372e7659e4a1fc081c9_0",
+      "tool_input": {
+        "command": "cd /Users/vitor/.cache/flashnext-concurrency/claude-work/rc1r2-d\nmkdir -p /tmp/bk-check-rotate-9182\nt=/tmp/bk-check-rotate-9182\n\necho \"--- rotate --help exit code:\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- rotate unknown flag (stderr last line):\"; bash rotate.sh --dest /tmp --name x --bogus 2>&1 | tail -1\nbash rotate.sh --dest /tmp --name x --bogus >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- rotate --keep 0:\"; bash rotate.sh --dest \"$t\" --name x --keep 0 2>&1 | tail -1\necho \"--- rotate --keep abc:\"; bash rotate.sh --dest \"$t\" --name x --keep abc 2>&1 | tail -1\necho \"--- rotate positional rejected:\"; bash rotate.sh --dest \"$t\" --name x extra 2>&1 | tail -1\necho \"--- missing dest:\"; bash rotate.sh --name x 2>&1 | tail -1\n\nmkdir -p \"$t/src\" \"$t/dest\"; printf 'a\\n' > \"$t/src/a.txt\"\nfor s in 20260101-010000 20260102-010000 20260103-010000 20260104-010000 20260105-010000; do\n  BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/dest\" --name app \"$t/src\" >/dev/null\ndone\necho \"--- dry-run --keep=2 (expect oldest 3 'would delete'):\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name app --keep=2 --dry-run\necho \"--- real run --keep 2 (expect oldest 3 deleted):\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name app --keep 2\necho \"--- remaining files (expect newest 2 archives + sidecars):\"\nls \"$t/dest\"",
+        "description": "Exercise rotate.sh flags, errors, dry-run, and real rotation"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a0b7592ae627a4dc7b3642b93ac97a30_0",
+      "tool_input": {
+        "command": "rm /tmp/bk-check-rotate.sh && bash tests/run_tests.sh && git status --short",
+        "description": "Remove scratch script, rerun tests, show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 8 tests pass. Changed files: **rotate.sh, verify.sh, tests/run_tests.sh**, and new **lib/common.sh** (backup.sh, restore.sh, report.sh untouched).\n\nDetails: `rotate.sh` now exits early when `total <= keep` and deletes the oldest `total - keep` archives via `head -n` (the old `tail -n +keep` deleted the newest when exactly N existed); `verify.sh` derives the archive name from the sidecar's own name (`%.sha256`) and reads only the digest from the sidecar content, so names with spaces verify `ok` with exit 0; the shared option-parsing block and `resolve_dir` moved into `lib/common.sh`, sourced by both scripts after they define `usage`/`parse_local_option`, keeping all existing flags (verified: `--help`, unknown-flag, `--keep 0`/`abc`, `--keep=N`, `--dry-run`, `--name` filter, malformed/missing-sidecar paths all behave as before).",
+  "ttft_ms": 24119,
+  "type": "result",
+  "duration_ms": 293615,
+  "uuid": "7caa3592-c61f-4f42-865d-a860a7514f07",
+  "ttft_stream_ms": 57,
+  "time_to_request_ms": 32,
+  "first_content_frame_ms": 23905,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 1,
+  "exit": 0,
+  "wall_s": 294.1,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}
