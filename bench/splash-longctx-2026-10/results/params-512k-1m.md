@@ -7,8 +7,8 @@ A regra "aceitável" pede os gates do `decide.py`, folga ≥ 2 GB, `T_turno` ≤
 | k2a (Splash 1.4.0) | 524288 | `--max-context 524288 --verify-rows auto` (KV int8) | 6.7 s | 10.1 GB | passa | passa nas 6 | 100% | **sim** |
 | k2a (Splash 1.4.0) | 1000000 | `--max-context 1000000 --verify-rows auto` (KV int8) | 9.3–9.4 s | 16.9 GB | passa | 5 de 6; HumanEval 1 abaixo da margem (ruído, decisão do usuário) | 100% a 1M | **sim** |
 | k2ab (KV bf16) | 524288 | `k2a` + `--kv-format bf16` | 7.8 s | 16.7 GB | passa | — | — | não: 1.16 × o `T_turno` do `k2a` (regra ≤ 1.05 ×) |
-| k1a (Flash Next base, Splash) | 524288 | `--verify-rows auto` | 7.4 s | 9.2 GB | passa | não medido | não medido | velocidade e folga sim; qualidade não medida |
-| k1a | 1000000 | `--verify-rows auto` | 10.5 s | 14.8 GB | passa (1 rep) | não medido | não medido | velocidade e folga sim; qualidade não medida |
+| k1a (Flash Next base, Splash) | 524288 | `--verify-rows auto` | 7.4 s | 9.2 GB | passa | k1a 262144 contra k2a 262144: falha no jdhodges (−3, margem 2), passa nas outras 5 ([etapa7](etapa7-k1a-quality.md)) | 100% a 256K; acima não medido | **não**: G1 falha |
+| k1a | 1000000 | `--verify-rows auto` | 10.5 s | 14.8 GB | passa (1 rep) | k1a 262144 contra k2a 262144: falha no jdhodges (−3, margem 2), passa nas outras 5 ([etapa7](etapa7-k1a-quality.md)) | 100% a 256K; acima não medido | **não**: G1 falha |
 | w1zq4 (mlx-serve 26.10.3) | 524288 | `--kv-quant 4`, YaRN 2.0 | 12.7 s | 3.8 GB | passa | — | 100% | sim, perto do limite (perfil `512k` do driver diário) |
 | w1zq4 / n2zq4 (mlx-serve 26.10.3) | 1000000 | `--kv-quant 4`, YaRN 3.815 | — | — | falha: 2 e 3 de 5 requisições com `PrefillDoesNotFit` | — | — | não ([etapa6](etapa6-n2z-1m.md)) |
 | r1z / k3ma (GSQ) | > 262144 | — | — | — | — | — | — | fora do escopo (o usuário limitou o GSQ a 256K) |

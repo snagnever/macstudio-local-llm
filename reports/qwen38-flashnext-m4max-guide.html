@@ -508,10 +508,12 @@ dl.method dd{margin:0; color:var(--ink-2)}
   LiveCodeBench bar comes from a 2026-10-15 run of the same pack on oMLX 0.7.1.dev1; MTPLX was not measured. Swift 1.5
   stacks: 2026-10-25 runs.</p>
   <h3>Swift 1.5 on Splash, up to 1M</h3>
-  <div class="tbl-scroll"><table class="txt sq"><thead><tr><th>Test</th><th>Swift 1.5 · mlx-serve · 262K</th><th>Splash · 262K</th><th>Splash · 512K</th><th>Splash · 1M</th></tr></thead><tbody><tr><td>HumanEval (164)</td><td>158/164</td><td>158/164 · 159/164</td><td>156/164</td><td>155/164 · 158/164</td></tr><tr><td>GPQA-Diamond (50)</td><td>43/50</td><td>41/50</td><td>43/50</td><td>43/50</td></tr><tr><td>LiveCodeBench v6 (50)</td><td>47/50</td><td>47/50</td><td>47/50</td><td>47/50</td></tr><tr><td>Instruction following (20)</td><td>19/20</td><td>19/20</td><td>18/20</td><td>19/20</td></tr><tr><td>Tool calls A (40)</td><td>34/40</td><td>37/40</td><td>37/40</td><td>36/40</td></tr><tr><td>Tool calls B (12)</td><td>10/12</td><td>10/12</td><td>10/12</td><td>9/12</td></tr><tr><td>Long-context recall at the server's size (8)</td><td>8/8</td><td>8/8</td><td>8/8</td><td>8/8</td></tr></tbody></table></div>
+  <div class="tbl-scroll"><table class="txt sq"><thead><tr><th>Test</th><th>Swift 1.5 · mlx-serve · 262K</th><th>Splash · 262K</th><th>Splash · 512K</th><th>Splash · 1M</th></tr></thead><tbody><tr><td>HumanEval (164)</td><td>158/164</td><td>158/164 · 159/164</td><td>156/164</td><td>155/164 · 158/164</td></tr><tr><td>GPQA-Diamond (50)</td><td>43/50</td><td>41/50</td><td>43/50</td><td>43/50</td></tr><tr><td>LiveCodeBench v6 (50)</td><td>47/50</td><td>47/50</td><td>47/50</td><td>47/50</td></tr><tr><td>Instruction following (20)</td><td>19/20</td><td>19/20</td><td>18/20</td><td>19/20</td></tr><tr><td>Tool calls A (40)</td><td>34/40</td><td>37/40</td><td>37/40</td><td>36/40</td></tr><tr><td>Tool calls B (12)</td><td>10/12</td><td>10/12</td><td>10/12</td><td>9/12</td></tr><tr><td>Long-context recall at the server's size (8)</td><td>8/8</td><td>8/8</td><td>8/8</td><td>8/8</td></tr><tr><td>Terminal-Bench 2.1 (89)</td><td>58/89</td><td>57/89</td><td>—</td><td>—</td></tr></tbody></table></div>
   <p class="foot-note">One run per cell, vendor sampling, reasoning effort xhigh; each column starts the server at that
   context size. HumanEval with the prompt's import lines, as in the chart; it ran twice at 262K and 1M on Splash, and the
-  1M result is within the run-to-run noise. Long-context recall: 8 questions about a document filled to the server's size.</p>
+  1M result is within the run-to-run noise. Long-context recall: 8 questions about a document filled to the server's size.
+  Terminal-Bench 2.1: the 89 tasks with the terminus-2 agent, one attempt per task, each task's own agent timeout; it ran only at
+  262K. The one-task gap is within the noise of a single attempt.</p>
 </section>
 
 <section class="block" id="method">

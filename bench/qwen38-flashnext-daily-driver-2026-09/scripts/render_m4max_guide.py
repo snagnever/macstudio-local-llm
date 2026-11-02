@@ -147,6 +147,8 @@ SPLASH_QUALITY = [
     ("Tool calls A (40)", "34/40", "37/40", "37/40", "36/40"),
     ("Tool calls B (12)", "10/12", "10/12", "10/12", "9/12"),
     ("Long-context recall at the server's size (8)", "8/8", "8/8", "8/8", "8/8"),
+    # bench/splash-longctx-2026-10/results/etapa6-tbench21.md: w1z and k2a, 262K only.
+    ("Terminal-Bench 2.1 (89)", "58/89", "57/89", "—", "—"),
 ]
 BASE_SPLASH_COMMAND = (SPLASH_COMMAND
                        .replace("ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS", "unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ4_XS")
@@ -718,7 +720,9 @@ BODY = r"""
   <div class="tbl-scroll">__SPLASH_QUALITY__</div>
   <p class="foot-note">One run per cell, vendor sampling, reasoning effort xhigh; each column starts the server at that
   context size. HumanEval with the prompt's import lines, as in the chart; it ran twice at 262K and 1M on Splash, and the
-  1M result is within the run-to-run noise. Long-context recall: 8 questions about a document filled to the server's size.</p>
+  1M result is within the run-to-run noise. Long-context recall: 8 questions about a document filled to the server's size.
+  Terminal-Bench 2.1: the 89 tasks with the terminus-2 agent, one attempt per task, each task's own agent timeout; it ran only at
+  262K. The one-task gap is within the noise of a single attempt.</p>
 </section>
 
 <section class="block" id="method">

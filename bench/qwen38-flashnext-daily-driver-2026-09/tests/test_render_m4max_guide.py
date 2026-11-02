@@ -86,8 +86,10 @@ def test_splash_facts_and_quality():
     assert f["splash_cold_1m_min"] == "25.5"
     html = guide.render(data, swift)
     assert 'id="splash"' in html and "incoai/splash/issues/387" in html
-    # Terminal-Bench 2.1 is not ready: the page carries no number or placeholder for it.
-    assert "Terminal-Bench" not in html and "TB2" not in html
+    # Terminal-Bench 2.1 (bench/splash-longctx-2026-10/results/etapa6-tbench21.md) ran only at 262K: w1z 58/89, k2a 57/89.
+    tb = {r[0]: r for r in guide.SPLASH_QUALITY}["Terminal-Bench 2.1 (89)"]
+    assert tb[1:] == ("58/89", "57/89", "—", "—")
+    assert "Terminal-Bench 2.1 (89)" in html and "terminus-2" in html
     # HumanEval with the prompt's import lines (bench/splash-longctx-2026-10/results/humaneval-regrade.json), like the
     # October round; strict grading gave 142, 147 · 151, 147 and 142 · 148.
     rows = {r[0]: r for r in guide.SPLASH_QUALITY}

@@ -41,6 +41,18 @@ O prefill não acelera. A Neural Engine só ajuda alvos densos, e o Flash-Next �
   - repetir com `--kv-format bf16`, para separar o efeito do KV int8.
 - Um teste de driver precisa de `--idle-release off`.
 
+## Resultado no rig (campanha splash-longctx, 24/10 a 01/11)
+
+A campanha [splash-longctx-2026-10](../bench/splash-longctx-2026-10/results/summary.md) mediu os custos acima de 8K a 1M.
+
+- **Ganho no decode, não no prefill.** O `k2a` decodifica 106–113 tok/s até 512K, contra 57–84 do `w1z`. O cold TTFT empata: 351 s a 256K, 25.5 min a 1M. A previsão desta nota se confirmou.
+- **1M funciona.** O `k2a` a 1000000 passa nos gates, com 16.9 GB de folga e `T_turno` de 9.3–9.4 s. Parte do KV vai para o cache em SSD, e o decode cai para 76 tok/s. O mlx-serve 26.10.3 sobe a 1M, mas recusa 2 a 3 das 5 requisições seguintes (`PrefillDoesNotFit`).
+- **YaRN acima de 256K.** A qualidade a 512K e a 1M fica dentro do ruído de uma rodada da qualidade a 262144. O longctx acerta 8/8 nas bandas de 512K e 1M.
+- **Custo novo: o cache do estado GDN.** O Splash refaz o prefill inteiro quando um pedido diverge antes do último estado recorrente salvo: uma mutação no meio do histórico ou uma ramificação. A 1M, isso custa 25 min. O mlx-serve reaproveita o prefixo nesse caso. Esta nota não previa esse custo.
+- **Tool calls.** Com `frequency_penalty` 0, o `k2a` passa 20/20 sessões. A falha de 1 em 5 sessões da etapa8 não se repetiu.
+- **Terminal-Bench 2.1.** O `k2a` faz 57/89 e o `w1z` 58/89. A diferença não é significante (McNemar p = 1.0). O run não separa os efeitos do KV, do formato e do runtime.
+- **Formatos.** O Splash recusa o Swift 1.5 MLX (`Qwen3.8-Flash-Next loads from a GGUF only`). Ele carrega o GSQ-RCO-Coder GGUF (256 experts) a partir da 1.4.1.
+
 ## Fontes
 
 - https://github.com/incoai/splash (README)
