@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marginalia — think in the margins</title>
+<meta name="description" content="Marginalia is a second-brain notebook that feels like paper and thinks like you. Sketch, jot, connect.">
+<style>
+  :root{
+    --paper:#fdfbf3;
+    --card:#fffdf7;
+    --ink:#2b2620;
+    --pencil:#6e675c;
+    --red:#d0533c;
+    --hl:#ffe97a;
+    --hl2:#bde8d8;
+    --line:#e6dfcf;
+    --hand:"Segoe Print","Bradley Hand","Comic Sans MS","Chalkboard SE",cursive;
+    --body:Georgia,"Times New Roman",serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    background-image:repeating-linear-gradient(transparent,transparent 31px,var(--line) 32px);
+    color:var(--ink);font-family:var(--body);line-height:1.7;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 24px}
+  a{color:inherit}
+
+  /* wobbly hand-drawn border trick */
+  .sketch{border:2px solid var(--ink);border-radius:255px 15px 225px 15px/15px 225px 15px 255px}
+  .sketch2{border:2px solid var(--ink);border-radius:15px 225px 15px 255px/255px 15px 225px 15px}
+
+  header{padding:22px 0 8px}
+  .bar{display:flex;justify-content:space-between;align-items:center}
+  .logo{font-family:var(--hand);font-size:26px;letter-spacing:.5px}
+  .logo::after{content:"✎";margin-left:8px;color:var(--red)}
+  nav{font-family:var(--hand);font-size:15px}
+  nav a{text-decoration:none;color:var(--pencil);margin-left:22px;border-bottom:2px dashed transparent}
+  nav a:hover{color:var(--ink);border-bottom-color:var(--red)}
+
+  .hero{padding:60px 0 40px;display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
+  .scribble{font-family:var(--hand);color:var(--red);font-size:15px;transform:rotate(-2deg);display:inline-block;margin-bottom:14px}
+  h1{font-family:var(--hand);font-size:clamp(34px,5.6vw,52px);line-height:1.2;font-weight:400;letter-spacing:-.5px}
+  h1 .hl{background:linear-gradient(transparent 60%,var(--hl) 60%,var(--hl) 94%,transparent 94%);padding:0 3px}
+  .lede{font-size:18px;color:var(--pencil);margin-top:18px;max-width:44ch}
+  .cta-row{margin-top:30px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+  .btn{font-family:var(--hand);font-size:17px;padding:13px 28px;text-decoration:none;background:var(--ink);color:var(--paper);box-shadow:3px 3px 0 rgba(43,38,32,.25);transform:rotate(-.6deg);display:inline-block}
+  .btn:hover{background:var(--red);transform:rotate(.6deg)}
+  .btn-x{background:var(--card);color:var(--ink);box-shadow:3px 3px 0 rgba(43,38,32,.15)}
+  .btn-x:hover{background:var(--hl);color:var(--ink)}
+  .fine{font-family:var(--hand);font-size:13px;color:var(--pencil);margin-top:14px}
+  .fine::before{content:"↳ "}
+
+  .stack{position:relative;min-height:340px}
+  .idx{background:var(--card);width:100%;max-width:330px;padding:20px 22px;font-family:var(--hand);font-size:15px;position:absolute;box-shadow:4px 6px 0 rgba(43,38,32,.12)}
+  .idx::before{content:"";position:absolute;top:-12px;left:50%;transform:translateX(-50%) rotate(-3deg);width:86px;height:26px;background:rgba(189,232,216,.75);border:1px solid rgba(43,38,32,.15)}
+  .idx b{display:block;font-size:13px;color:var(--red);letter-spacing:1px;margin-bottom:6px}
+  .i1{top:0;left:0;transform:rotate(-4deg)}
+  .i2{top:90px;right:0;transform:rotate(3deg)}
+  .i3{bottom:0;left:40px;transform:rotate(-1.5deg)}
+  .i2::before{background:rgba(255,233,122,.8)}
+  .arrow{position:absolute;font-family:var(--hand);color:var(--red);font-size:22px}
+
+  .marq{border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);background:var(--card);padding:14px 0;text-align:center;font-family:var(--hand);font-size:15px;color:var(--pencil)}
+  .marq b{color:var(--ink)}
+
+  section{padding:72px 0}
+  h2{font-family:var(--hand);font-weight:400;font-size:clamp(26px,4vw,36px);text-align:center}
+  h2 .hl2{background:linear-gradient(transparent 62%,var(--hl2) 62%,var(--hl2) 95%,transparent 95%);padding:0 3px}
+  .sub{text-align:center;font-family:var(--hand);color:var(--pencil);margin:10px auto 52px;font-size:16px}
+
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:30px}
+  .pc{background:var(--card);padding:28px;box-shadow:4px 6px 0 rgba(43,38,32,.1)}
+  .pc:nth-child(odd){transform:rotate(-.8deg)}
+  .pc:nth-child(even){transform:rotate(.8deg)}
+  .pc .doodle{font-size:30px;margin-bottom:12px;display:inline-block;transform:rotate(-6deg)}
+  .pc h3{font-family:var(--hand);font-weight:400;font-size:21px;margin-bottom:8px}
+  .pc h3::after{content:"";display:block;width:64px;border-bottom:2px solid var(--red);transform:rotate(-1deg);margin-top:4px}
+  .pc p{font-size:15.5px;color:var(--pencil)}
+
+  .margin-note{position:relative;padding-left:34px;font-family:var(--hand);color:var(--red);font-size:14.5px;max-width:26ch;transform:rotate(-1deg)}
+  .margin-note::before{content:"|";position:absolute;left:10px;top:-4px;bottom:-4px;border-left:2px solid var(--red)}
+
+  .check{max-width:560px;margin:0 auto;list-style:none;font-family:var(--hand);font-size:19px}
+  .check li{padding:10px 0 10px 44px;position:relative;border-bottom:1px dashed var(--line)}
+  .check li::before{content:"✓";position:absolute;left:6px;top:8px;width:28px;height:28px;border:2px solid var(--ink);border-radius:60% 40% 55% 45%/45% 55% 40% 60%;display:grid;place-items:center;font-size:16px;background:var(--hl)}
+  .check li:last-child{border-bottom:none}
+  .check small{display:block;font-family:var(--body);font-size:14px;color:var(--pencil)}
+
+  .letter{background:var(--card);padding:38px;font-size:17px;font-style:italic;position:relative;box-shadow:4px 6px 0 rgba(43,38,32,.1);max-width:640px;margin:0 auto}
+  .letter::before{content:"";position:absolute;top:-14px;right:60px;width:110px;height:30px;background:rgba(255,233,122,.7);border:1px solid rgba(43,38,32,.15);transform:rotate(4deg)}
+  .letter .sig{display:block;text-align:right;font-family:var(--hand);font-style:normal;margin-top:18px;font-size:20px}
+
+  .end{background:var(--ink);color:var(--paper);text-align:center;padding:80px 24px;border-radius:255px 25px 225px 25px/25px 225px 25px 255px}
+  .end h2{color:var(--paper)}
+  .end .sub{color:#c9c2b4}
+  .end .btn{background:var(--hl);color:var(--ink)}
+  .end .btn:hover{background:var(--red);color:var(--paper)}
+
+  footer{padding:40px 0 110px;text-align:center;font-family:var(--hand);font-size:13px;color:var(--pencil)}
+
+  /* iteration switcher */
+  .iter-switcher{position:fixed;right:20px;bottom:20px;z-index:99;display:flex;align-items:center;gap:4px;
+    background:var(--ink);padding:8px 12px;transform:rotate(-1.5deg);box-shadow:4px 5px 0 rgba(43,38,32,.25);
+    border-radius:255px 25px 225px 25px/25px 225px 25px 255px}
+  .iter-switcher .lbl{font-family:var(--hand);font-size:11px;letter-spacing:.1em;color:#c9c2b4;padding-right:6px}
+  .iter-switcher a{font-family:var(--hand);font-size:14px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;color:#f4efe2;text-decoration:none;border-radius:50%}
+  .iter-switcher a:hover{background:rgba(255,255,255,.12)}
+  .iter-switcher a[aria-current="page"]{background:var(--hl);color:var(--ink)}
+
+  @media(max-width:880px){
+    .hero{grid-template-columns:1fr}
+    .stack{min-height:420px;max-width:420px}
+    .cards{grid-template-columns:1fr}
+    nav a{margin-left:12px}
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <div class="bar">
+    <div class="logo">Marginalia</div>
+    <nav>
+      <a href="#why">why</a>
+      <a href="#in">what's inside</a>
+      <a href="#get">get the book</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <p class="scribble">~ a second brain, hand-bound ~</p>
+      <h1>Write it down before it <span class="hl">wanders off.</span> Find it again in the margins.</h1>
+      <p class="lede">Marginalia is the notebook that remembers like you do — sideways. Jot, sketch, clip, and scribble; it quietly ties every thought to the thoughts beside it.</p>
+      <div class="cta-row">
+        <a class="btn" href="#get">Get Marginalia — free</a>
+        <a class="btn btn-x" href="#in">Peek inside</a>
+      </div>
+      <p class="fine">works on paper-adjacent devices: Mac, iPad, phone, web</p>
+    </div>
+    <div class="stack" aria-hidden="true">
+      <div class="idx i1 sketch"><b>14 March — ideas</b>What if the notes app asked ME questions in the morning? ↯ write essay on "memory as gardening"</div>
+      <div class="idx i2 sketch2"><b>groceries / gift</b>olive oil · fava beans · Mo's birthday → she mentioned that blue ceramic shop twice!</div>
+      <div class="idx i3 sketch"><b>overheard</b>"we don't have too many ideas, we have too many unread ones" — some podcast, 8am</div>
+      <span class="arrow" style="top:70px;left:46%">↘</span>
+      <span class="arrow" style="bottom:90px;right:20%">✳</span>
+    </div>
+  </section>
+</main>
+
+<div class="marq"><b>capture</b> ✎ <b>connect</b> ✎ <b>recall</b> ✎ <b>daydream</b> ✎ est. 2026 ✎ <b>capture</b> ✎ <b>connect</b> ✎ <b>recall</b></div>
+
+<main class="wrap">
+  <section id="why">
+    <h2>Your memory isn't a <span class="hl2">filing cabinet.</span></h2>
+    <p class="sub">— it's a wanderer. So we built a notebook that wanders with you.</p>
+    <div class="cards">
+      <div class="pc sketch">
+        <span class="doodle">✎</span>
+        <h3>Everything's a margin</h3>
+        <p>One keystroke opens a scratch page anywhere. Voice scribbles, screenshots, half-dreams — all welcome, all searchable later.</p>
+      </div>
+      <div class="pc sketch2">
+        <span class="doodle">🧵</span>
+        <h3>Ideas find their thread</h3>
+        <p>As you write, yesterday's notes appear in the margins — the related ones you'd forgotten, stitched in automatically.</p>
+      </div>
+      <div class="pc sketch2">
+        <span class="doodle">🔦</span>
+        <h3>Ask the archive</h3>
+        <p>"What did the book club say about tolerance?" Marginalia flips to the exact page and reads it aloud in your voice notes.</p>
+      </div>
+      <div class="pc sketch">
+        <span class="doodle">🌱</span>
+        <h3>Notes that resurface</h3>
+        <p>A gentle daily page of forgotten thoughts, like finding a shopping list from 2019 in a coat pocket — except useful.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="in" style="display:grid;grid-template-columns:1fr 300px;gap:40px;align-items:start">
+    <div>
+      <h2>What's inside the book</h2>
+      <p class="sub" style="margin-bottom:32px">honest contents, no surprises</p>
+      <ul class="check">
+        <li>A single capture bar for text, voice, and clippings<small>one inbox, zero "where did I save that"</small></li>
+        <li>Automatic margin notes linking new ideas to old ones<small>backlinks without the nerdy setup</small></li>
+        <li>Plain-text export whenever you want to leave<small>it's your writing, obviously</small></li>
+        <li>Offline by default, syncs when it can<small>works beautifully on trains</small></li>
+        <li>Encrypted, ad-free, and priced like a nice pen<small>free forever for one notebook</small></li>
+      </ul>
+    </div>
+    <div class="margin-note" style="margin-top:60px">psst — founders say the resurfacing alone "paid for itself in one week". we measured. they're right.</div>
+  </section>
+
+  <section>
+    <h2>A kind letter</h2>
+    <p class="sub">from a reader in Reykjavík</p>
+    <div class="letter sketch2">
+      "I've kept notebooks my whole life and lost the thread of every one of them. Marginalia is the first that acted like a <em>collaborator</em> instead of a warehouse. Last month it handed me a footnote I'd written four years earlier — it won me an argument I'd already lost twice."
+      <span class="sig">— Sigrún, translator</span>
+    </div>
+  </section>
+
+  <section id="get">
+    <div class="end">
+      <h2>Start your first page.</h2>
+      <p class="sub">free for one notebook · $4/mo for the whole bookshelf</p>
+      <a class="btn" href="#">Download &amp; start scribbling</a>
+    </div>
+  </section>
+</main>
+
+<footer>bound by hand in the margins · Marginalia 2026 · ✎</footer>
+
+<nav class="iter-switcher" aria-label="Design iterations">
+  <span class="lbl">style</span>
+  <a href="../1/" title="1 · Editorial">1</a>
+  <a href="../2/" title="2 · Terminal">2</a>
+  <a href="../3/" title="3 · Playground">3</a>
+  <a href="../4/" title="4 · Bento">4</a>
+  <a href="../5/" aria-current="page" title="5 · Atelier">5</a>
+</nav>
+
+</body>
+</html>

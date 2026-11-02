@@ -1,0 +1,20 @@
+{
+  "artifact": "logs/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v1.svg",
+  "question_index": 7,
+  "render": "logs/renders/opencode/gpt-5.6-terra/dolphin-hula-hoop-fish-v1.png",
+  "judge": {
+    "kind": "claude-vision",
+    "model": "claude-opus-5",
+    "date": "2026-09-07",
+    "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {"text": "Create a recognizable grey dolphin with a streamlined body, dorsal fin, and tail fluke.", "met": false, "note": "The dolphin is a saturated teal blue (about RGB 124,196,215 on the flank, an 90-point red-to-blue spread), not grey."},
+    {"text": "Show a water surface below the dolphin with a large splash effect at the point where the dolphin has exited the water.", "met": false, "note": "A water surface is drawn, but there is no splash at all - only flat wave arcs elsewhere in the sea."},
+    {"text": "Position the dolphin in a dynamic jumping arc, with its entire body in mid-air.", "met": false, "note": "The tail stock and both fluke lobes are drawn deep inside the blue water below the surface line, so the body is not entirely in mid-air."},
+    {"text": "Draw a circular, multi-colored hula hoop, and position the dolphin so its mid-section is passing through the center of the hoop.", "met": true, "note": ""},
+    {"text": "Include a human trainer's arm and hand extending into the frame.", "met": true, "note": ""},
+    {"text": "The trainer's hand must be holding a small fish by the tail.", "met": false, "note": "The forked orange tail fin is at the far left of the fish and the head (eye and mouth line) is at the right, where the trainer's hand grips it; the fish is held by the head, not the tail."},
+    {"text": "The dolphin's mouth must be depicted as wide open, just about to bite the body of the fish being held by the trainer.", "met": false, "note": "The dolphin's jaw is drawn closed, and the fish is held roughly 200px below and left of the snout rather than at the mouth."}
+  ]
+}

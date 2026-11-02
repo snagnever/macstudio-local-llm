@@ -1,0 +1,307 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="800" height="600" viewBox="0 0 800 600">
+  <title>Half-buried barrel of treasure</title>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1f5f88"/>
+      <stop offset="0.5" stop-color="#7fc0dc"/>
+      <stop offset="1" stop-color="#ffe0b0"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#175f80"/>
+      <stop offset="1" stop-color="#54abc9"/>
+    </linearGradient>
+    <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f0d9a6"/>
+      <stop offset="0.35" stop-color="#e3c286"/>
+      <stop offset="1" stop-color="#c99a58"/>
+    </linearGradient>
+    <linearGradient id="dune" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7e3b6"/>
+      <stop offset="0.45" stop-color="#e5c489"/>
+      <stop offset="1" stop-color="#c1904f"/>
+    </linearGradient>
+    <radialGradient id="gold" cx="0.34" cy="0.28" r="0.85">
+      <stop offset="0" stop-color="#fff6c8"/>
+      <stop offset="0.45" stop-color="#f2c519"/>
+      <stop offset="1" stop-color="#a97906"/>
+    </radialGradient>
+    <radialGradient id="goldpile" cx="0.45" cy="0.15" r="0.95">
+      <stop offset="0" stop-color="#f4cf3f"/>
+      <stop offset="0.6" stop-color="#c9970f"/>
+      <stop offset="1" stop-color="#7d5c05"/>
+    </radialGradient>
+    <radialGradient id="inside" cx="0.5" cy="0.15" r="0.9">
+      <stop offset="0" stop-color="#2b1809"/>
+      <stop offset="1" stop-color="#120a04"/>
+    </radialGradient>
+    <linearGradient id="hoop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9a9aa6"/>
+      <stop offset="0.4" stop-color="#5b5b66"/>
+      <stop offset="1" stop-color="#2f2f37"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5b3617"/>
+      <stop offset="0.35" stop-color="#9a6634"/>
+      <stop offset="0.7" stop-color="#7d4d24"/>
+      <stop offset="1" stop-color="#4e2e13"/>
+    </linearGradient>
+    <radialGradient id="sunglow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff8d8" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#fff8d8" stop-opacity="0"/>
+    </radialGradient>
+
+    <g id="coin">
+      <ellipse cx="0" cy="0" rx="15" ry="12.5" fill="url(#gold)" stroke="#6d4d05" stroke-width="1.8"/>
+      <ellipse cx="0" cy="-0.5" rx="9" ry="7" fill="none" stroke="#8a6508" stroke-width="1.4"/>
+      <circle cx="0" cy="0" r="2.2" fill="#8a6508"/>
+      <ellipse cx="-4.5" cy="-4.5" rx="4" ry="2.6" fill="#fff8d0" opacity="0.85"/>
+    </g>
+    <g id="coinedge">
+      <rect x="-14" y="-4" width="28" height="8" rx="4" fill="url(#gold)" stroke="#6d4d05" stroke-width="1.6"/>
+      <rect x="-10" y="-2.4" width="16" height="2" fill="#fff8d0" opacity="0.8"/>
+    </g>
+    <g id="sparkle" fill="#fffbe6">
+      <path d="M0 -12 L2.6 -2.6 L12 0 L2.6 2.6 L0 12 L-2.6 2.6 L-12 0 L-2.6 -2.6 Z"/>
+    </g>
+  </defs>
+
+  <!-- ================= SKY ================= -->
+  <rect x="0" y="0" width="800" height="212" fill="url(#sky)"/>
+  <circle cx="152" cy="76" r="96" fill="url(#sunglow)"/>
+  <circle cx="152" cy="76" r="32" fill="#fff8d0"/>
+  <g fill="#ffffff" opacity="0.7">
+    <ellipse cx="430" cy="52" rx="66" ry="17"/>
+    <ellipse cx="476" cy="42" rx="44" ry="20"/>
+    <ellipse cx="392" cy="46" rx="34" ry="14"/>
+    <ellipse cx="690" cy="88" rx="56" ry="14"/>
+    <ellipse cx="722" cy="80" rx="34" ry="15"/>
+  </g>
+  <g fill="none" stroke="#3b4a52" stroke-width="2.4" stroke-linecap="round">
+    <path d="M604 44 q11 -10 22 0 q11 -10 22 0"/>
+    <path d="M556 74 q8 -7 16 0 q8 -7 16 0"/>
+  </g>
+
+  <!-- ================= SEA ================= -->
+  <rect x="0" y="212" width="800" height="54" fill="url(#sea)"/>
+  <g stroke="#e2f6ff" stroke-width="2.6" stroke-linecap="round" opacity="0.65" fill="none">
+    <path d="M44 228 q14 -6 28 0"/><path d="M190 238 q14 -6 28 0"/>
+    <path d="M340 224 q14 -6 28 0"/><path d="M520 242 q14 -6 28 0"/>
+    <path d="M676 230 q14 -6 28 0"/><path d="M600 252 q16 -6 32 0"/>
+    <path d="M118 254 q16 -6 32 0"/><path d="M420 250 q16 -6 32 0"/>
+  </g>
+  <!-- foam / wet sand -->
+  <path d="M0 262 q60 12 122 3 q72 -10 142 5 q82 13 162 0 q82 -13 162 3 q72 12 142 -3 q36 -7 70 1 v16 H0 Z" fill="#ffffff" opacity="0.9"/>
+  <path d="M0 272 q80 10 162 1 q80 -9 160 6 q80 12 162 -3 q80 -11 160 4 q78 10 156 -5 v18 H0 Z" fill="#f4e6c8" opacity="0.85"/>
+
+  <!-- ================= BEACH ================= -->
+  <rect x="0" y="284" width="800" height="316" fill="url(#sand)"/>
+  <g fill="none" stroke="#cba36a" stroke-width="2" opacity="0.35">
+    <path d="M-10 320 q140 -12 280 -2 q150 10 300 -6 q120 -12 240 2"/>
+    <path d="M-10 348 q160 12 320 0 q160 -12 320 6 q100 10 180 -4"/>
+    <path d="M-10 384 q180 -14 360 2 q170 14 300 -6"/>
+  </g>
+
+  <!-- barrel contact shadow on the sand (sun is upper-left, so shadow falls right) -->
+  <ellipse cx="470" cy="452" rx="250" ry="46" fill="#b48549" opacity="0.35"/>
+  <ellipse cx="430" cy="446" rx="185" ry="34" fill="#a3743c" opacity="0.35"/>
+
+  <!-- ================= BARREL (tilted; lower half sunk in sand) ================= -->
+  <g transform="rotate(-12 390 400)">
+    <!-- body -->
+    <path d="M254 260 L288 289 L322 298 L356 303 L390 304 L424 303 L458 298 L492 289 L526 260
+             Q555 420 520 570 L260 570 Q225 420 254 260 Z" fill="url(#wood)"/>
+    <!-- staves -->
+    <g stroke="#3f2410" stroke-width="1.6">
+      <path d="M254 260 Q225 420 260 570 L292 570 Q266 420 288 289 Z" fill="#5d3818"/>
+      <path d="M288 289 Q266 420 292 570 L325 570 Q307 420 322 298 Z" fill="#774922"/>
+      <path d="M322 298 Q307 420 325 570 L357 570 Q348 420 356 303 Z" fill="#8d5a2b"/>
+      <path d="M356 303 Q348 420 357 570 L390 570 Q390 420 390 304 Z" fill="#9c6733"/>
+      <path d="M390 304 Q390 420 390 570 L422 570 Q431 420 424 303 Z" fill="#93602f"/>
+      <path d="M424 303 Q431 420 422 570 L455 570 Q472 420 458 298 Z" fill="#83532a"/>
+      <path d="M458 298 Q472 420 455 570 L487 570 Q513 420 492 289 Z" fill="#6e4420"/>
+      <path d="M492 289 Q513 420 487 570 L520 570 Q555 420 526 260 Z" fill="#563317"/>
+    </g>
+    <!-- wood grain -->
+    <g stroke="#3f2410" stroke-width="1.1" opacity="0.35" fill="none">
+      <path d="M300 320 Q282 430 296 530"/>
+      <path d="M340 316 Q330 430 338 530"/>
+      <path d="M404 316 Q404 430 404 530"/>
+      <path d="M444 318 Q452 430 442 530"/>
+      <path d="M500 322 Q520 430 500 530"/>
+    </g>
+    <!-- iron hoops -->
+    <g>
+      <path d="M248 320 Q390 352 532 320" fill="none" stroke="url(#hoop)" stroke-width="19"/>
+      <path d="M248 320 Q390 352 532 320" fill="none" stroke="#c3c3ce" stroke-width="3.2" opacity="0.65"/>
+      <path d="M239 400 Q390 436 541 400" fill="none" stroke="url(#hoop)" stroke-width="21"/>
+      <path d="M239 400 Q390 436 541 400" fill="none" stroke="#c3c3ce" stroke-width="3.2" opacity="0.65"/>
+      <path d="M248 490 Q390 524 532 490" fill="none" stroke="url(#hoop)" stroke-width="19"/>
+    </g>
+    <!-- rivets on the middle hoop -->
+    <g fill="#8f8f9c">
+      <circle cx="270" cy="410" r="3"/><circle cx="330" cy="424" r="3"/>
+      <circle cx="390" cy="428" r="3"/><circle cx="450" cy="424" r="3"/>
+      <circle cx="512" cy="410" r="3"/>
+    </g>
+
+    <!-- open mouth: wooden rim, then dark interior -->
+    <ellipse cx="390" cy="260" rx="136" ry="44" fill="#8a5729" stroke="#3f2410" stroke-width="2.4"/>
+    <ellipse cx="390" cy="258" rx="127" ry="39" fill="#6d4220"/>
+    <ellipse cx="390" cy="260" rx="119" ry="34" fill="url(#inside)"/>
+    <!-- iron band around the lip -->
+    <path d="M254 260 a136 44 0 0 0 272 0" fill="none" stroke="url(#hoop)" stroke-width="10"/>
+    <path d="M254 260 a136 44 0 0 1 272 0" fill="none" stroke="#4c4c56" stroke-width="7" opacity="0.85"/>
+
+    <!-- heaped treasure, filling the front of the mouth and leaving the back interior dark -->
+    <path d="M272 256
+             C 290 228 318 240 342 232
+             C 366 224 388 240 412 230
+             C 438 220 466 244 488 238
+             C 500 235 505 246 508 256
+             Q 390 326 272 256 Z" fill="url(#goldpile)"/>
+    <!-- coins in the heap -->
+    <g>
+      <use xlink:href="#coin" href="#coin" transform="translate(306 262) rotate(-14) scale(1.05)"/>
+      <use xlink:href="#coin" href="#coin" transform="translate(346 268) rotate(8)"/>
+      <use xlink:href="#coin" href="#coin" transform="translate(388 272) rotate(-6) scale(1.1)"/>
+      <use xlink:href="#coin" href="#coin" transform="translate(430 270) rotate(16)"/>
+      <use xlink:href="#coin" href="#coin" transform="translate(470 262) rotate(-10) scale(1.05)"/>
+      <use xlink:href="#coin" href="#coin" transform="translate(326 240) rotate(20) scale(0.9)"/>
+      <use xlink:href="#coin" href="#coin" transform="translate(366 246) rotate(-18) scale(0.95)"/>
+      <use xlink:href="#coin" href="#coin" transform="translate(408 244) rotate(10) scale(0.92)"/>
+      <use xlink:href="#coin" href="#coin" transform="translate(452 242) rotate(-22) scale(0.88)"/>
+      <use xlink:href="#coinedge" href="#coinedge" transform="translate(348 228) rotate(-26)"/>
+      <use xlink:href="#coinedge" href="#coinedge" transform="translate(432 224) rotate(20)"/>
+      <use xlink:href="#coin" href="#coin" transform="translate(388 224) rotate(4) scale(0.8)"/>
+    </g>
+    <!-- gems nested among the coins -->
+    <g stroke="#ffffff" stroke-width="1" stroke-opacity="0.7">
+      <g transform="translate(316 226)">
+        <path d="M-13 -4 L0 -14 L13 -4 L0 16 Z" fill="#e0245e"/>
+        <path d="M-13 -4 L13 -4 M0 -14 L-5 -4 L0 16 L5 -4 Z" fill="#ff7aa2" fill-opacity="0.55"/>
+      </g>
+      <g transform="translate(470 222)">
+        <path d="M-12 -4 L0 -13 L12 -4 L0 15 Z" fill="#2472d8"/>
+        <path d="M-12 -4 L12 -4 M0 -13 L-5 -4 L0 15 L5 -4 Z" fill="#7fb4ff" fill-opacity="0.55"/>
+      </g>
+      <g transform="translate(408 210)">
+        <path d="M-11 -4 L0 -12 L11 -4 L0 13 Z" fill="#1fa85c"/>
+        <path d="M-11 -4 L11 -4 M0 -12 L-4 -4 L0 13 L4 -4 Z" fill="#7ff0b0" fill-opacity="0.55"/>
+      </g>
+    </g>
+    <!-- pearl strand looped over the front lip -->
+    <path d="M296 268 q-22 30 -6 62" fill="none" stroke="#4a3418" stroke-width="9" stroke-linecap="round" opacity="0.35"/>
+    <g fill="#fffaf0" stroke="#d9cdb6" stroke-width="0.8">
+      <circle cx="296" cy="268" r="5"/><circle cx="288" cy="280" r="5"/>
+      <circle cx="283" cy="293" r="5"/><circle cx="282" cy="306" r="5"/>
+      <circle cx="285" cy="319" r="5"/><circle cx="290" cy="330" r="5"/>
+    </g>
+    <!-- coins tumbling over the lip and down the barrel face -->
+    <g>
+      <use xlink:href="#coin" href="#coin" transform="translate(340 292) rotate(-24) scale(0.98)"/>
+      <use xlink:href="#coin" href="#coin" transform="translate(318 330) rotate(30) scale(0.94)"/>
+      <use xlink:href="#coin" href="#coin" transform="translate(346 356) rotate(-12) scale(0.9)"/>
+      <use xlink:href="#coinedge" href="#coinedge" transform="translate(300 366) rotate(58)"/>
+      <use xlink:href="#coin" href="#coin" transform="translate(322 392) rotate(18) scale(0.92)"/>
+    </g>
+  </g>
+
+  <!-- ================= SAND BURYING THE BARREL ================= -->
+  <path d="M-10 486 q80 -34 158 -26 q66 8 108 -16 q52 -30 118 -44 q96 -20 186 8 q76 24 132 44 q56 20 118 6 V600 H-10 Z" fill="url(#dune)"/>
+  <path d="M-10 486 q80 -34 158 -26 q66 8 108 -16 q52 -30 118 -44 q96 -20 186 8 q76 24 132 44 q56 20 118 6" fill="none" stroke="#fbeecb" stroke-width="3.5" opacity="0.85"/>
+  <!-- sand collar heaped against the barrel -->
+  <path d="M150 470 q60 -46 132 -74 q92 -36 190 -10 q86 22 150 66 q-70 26 -180 30 q-150 6 -292 -12 Z" fill="#eed7a4"/>
+  <path d="M150 470 q60 -46 132 -74 q92 -36 190 -10 q86 22 150 66" fill="none" stroke="#fbf0d2" stroke-width="3" opacity="0.9"/>
+  <!-- dark crease where wood meets sand -->
+  <path d="M196 452 q66 -42 132 -66 q92 -34 186 -6 q76 22 128 58" fill="none" stroke="#a67a41" stroke-width="7" opacity="0.4"/>
+
+  <!-- ================= SPILLED TREASURE ON THE SAND ================= -->
+  <g>
+    <use xlink:href="#coin" href="#coin" transform="translate(212 470) rotate(14)"/>
+    <use xlink:href="#coin" href="#coin" transform="translate(258 492) rotate(-22)"/>
+    <use xlink:href="#coin" href="#coin" transform="translate(180 512) rotate(30)"/>
+    <use xlink:href="#coin" href="#coin" transform="translate(300 512) rotate(-8)"/>
+    <use xlink:href="#coin" href="#coin" transform="translate(230 536) rotate(18)"/>
+    <use xlink:href="#coin" href="#coin" transform="translate(120 486) rotate(-16)"/>
+    <use xlink:href="#coin" href="#coin" transform="translate(348 542) rotate(24)"/>
+    <use xlink:href="#coin" href="#coin" transform="translate(150 560) rotate(-30)"/>
+    <use xlink:href="#coin" href="#coin" transform="translate(276 566) rotate(10)"/>
+    <use xlink:href="#coinedge" href="#coinedge" transform="translate(324 480) rotate(-10)"/>
+    <use xlink:href="#coinedge" href="#coinedge" transform="translate(196 546) rotate(8)"/>
+    <use xlink:href="#coin" href="#coin" transform="translate(586 498) rotate(-12)"/>
+    <use xlink:href="#coin" href="#coin" transform="translate(630 524) rotate(20)"/>
+    <use xlink:href="#coin" href="#coin" transform="translate(556 550) rotate(-26)"/>
+    <use xlink:href="#coinedge" href="#coinedge" transform="translate(612 566) rotate(12)"/>
+  </g>
+
+  <!-- gold goblet toppled in the sand -->
+  <g transform="translate(700 520) rotate(-28) scale(1.5)">
+    <path d="M-16 -8 q16 30 32 0 Z" fill="url(#gold)" stroke="#6d4d05" stroke-width="1.4"/>
+    <ellipse cx="0" cy="-8" rx="16" ry="5" fill="#ffeea0" stroke="#6d4d05" stroke-width="1.4"/>
+    <rect x="-2.6" y="12" width="5.2" height="12" fill="#dfae21" stroke="#6d4d05" stroke-width="1.1"/>
+    <ellipse cx="0" cy="25" rx="12" ry="4" fill="url(#gold)" stroke="#6d4d05" stroke-width="1.4"/>
+  </g>
+
+  <!-- gold crown resting in the sand at the left -->
+  <g transform="translate(88 540) rotate(-8) scale(1.05)">
+    <path d="M-34 8 L-34 -12 L-20 2 L-10 -18 L0 2 L10 -18 L20 2 L34 -12 L34 8 Z"
+          fill="url(#gold)" stroke="#6d4d05" stroke-width="1.8"/>
+    <rect x="-34" y="6" width="68" height="9" rx="3" fill="#e5b71f" stroke="#6d4d05" stroke-width="1.6"/>
+    <circle cx="-20" cy="10" r="2.6" fill="#e0245e"/>
+    <circle cx="0" cy="10" r="2.6" fill="#2472d8"/>
+    <circle cx="20" cy="10" r="2.6" fill="#1fa85c"/>
+  </g>
+
+  <!-- loose gems in the sand -->
+  <g stroke="#ffffff" stroke-width="1" stroke-opacity="0.7">
+    <g transform="translate(404 528) rotate(6)">
+      <path d="M-14 -5 L0 -16 L14 -5 L0 18 Z" fill="#e0245e"/>
+      <path d="M-14 -5 L14 -5 M0 -16 L-6 -5 L0 18 L6 -5 Z" fill="#ff7aa2" fill-opacity="0.55"/>
+    </g>
+    <g transform="translate(490 566) rotate(-10)">
+      <path d="M-13 -5 L0 -15 L13 -5 L0 17 Z" fill="#2472d8"/>
+      <path d="M-13 -5 L13 -5 M0 -15 L-5 -5 L0 17 L5 -5 Z" fill="#7fb4ff" fill-opacity="0.55"/>
+    </g>
+    <g transform="translate(676 470) rotate(14)">
+      <path d="M-12 -4 L0 -14 L12 -4 L0 16 Z" fill="#1fa85c"/>
+      <path d="M-12 -4 L12 -4 M0 -14 L-5 -4 L0 16 L5 -4 Z" fill="#7ff0b0" fill-opacity="0.55"/>
+    </g>
+  </g>
+
+  <!-- barrel lid, half sunk in the sand at the right -->
+  <g transform="translate(700 428) rotate(20)">
+    <ellipse cx="0" cy="7" rx="66" ry="21" fill="#4a2c13"/>
+    <ellipse cx="0" cy="0" rx="66" ry="21" fill="#7d4d24" stroke="#3f2410" stroke-width="2"/>
+    <g stroke="#5b3517" stroke-width="1.6" fill="none">
+      <path d="M-64 -6 L64 -6"/><path d="M-66 2 L66 2"/><path d="M-60 10 L60 10"/>
+    </g>
+    <ellipse cx="0" cy="0" rx="34" ry="10" fill="none" stroke="#5b3517" stroke-width="2"/>
+  </g>
+  <!-- sand over the lower edge of the lid -->
+  <path d="M624 434 q60 34 156 12 q22 -6 30 -14 V600 H620 Z" fill="url(#dune)" opacity="0.98"/>
+
+  <!-- shells and starfish -->
+  <g transform="translate(66 470) scale(1.2)">
+    <path d="M0 0 q-18 -24 0 -28 q18 4 0 28 Z" fill="#fdece0" stroke="#d8b49a" stroke-width="1.1"/>
+    <path d="M0 0 L-7 -24 M0 0 L0 -27 M0 0 L7 -24" stroke="#d8b49a" stroke-width="1.1" fill="none"/>
+  </g>
+  <g transform="translate(430 468) rotate(16) scale(0.9)" fill="#f0857b" stroke="#c96257" stroke-width="1.4">
+    <path d="M0 -20 L6 -6 L20 -6 L9 4 L13 19 L0 10 L-13 19 L-9 4 L-20 -6 L-6 -6 Z"/>
+  </g>
+
+  <!-- sparkles on the gold -->
+  <g opacity="0.9">
+    <use xlink:href="#sparkle" href="#sparkle" transform="translate(354 214) scale(0.75)"/>
+    <use xlink:href="#sparkle" href="#sparkle" transform="translate(452 232) scale(0.55)"/>
+    <use xlink:href="#sparkle" href="#sparkle" transform="translate(258 492) scale(0.5)"/>
+    <use xlink:href="#sparkle" href="#sparkle" transform="translate(630 524) scale(0.45)"/>
+  </g>
+
+  <!-- sand speckles -->
+  <g fill="#b98f52" opacity="0.3">
+    <circle cx="60" cy="420" r="2"/><circle cx="140" cy="440" r="1.6"/><circle cx="240" cy="412" r="2.2"/>
+    <circle cx="470" cy="586" r="2"/><circle cx="540" cy="470" r="1.8"/><circle cx="740" cy="560" r="2.4"/>
+    <circle cx="700" cy="596" r="2"/><circle cx="770" cy="486" r="1.7"/><circle cx="36" cy="576" r="2.1"/>
+    <circle cx="360" cy="408" r="1.7"/><circle cx="600" cy="410" r="2"/><circle cx="100" cy="596" r="2"/>
+  </g>
+</svg>

@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-label="A stunt car jumping through a ring of fire">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b1026"/>
+      <stop offset="55%" stop-color="#1a1330"/>
+      <stop offset="100%" stop-color="#2a1522"/>
+    </linearGradient>
+    <radialGradient id="fireGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffc257" stop-opacity="0.95"/>
+      <stop offset="45%" stop-color="#ff5a1f" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#ff3d00" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe259"/>
+      <stop offset="45%" stop-color="#ff8a00"/>
+      <stop offset="100%" stop-color="#d61f00"/>
+    </linearGradient>
+    <linearGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#ffe27a"/>
+      <stop offset="42%" stop-color="#ff8c00"/>
+      <stop offset="100%" stop-color="#ff2200" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="carBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff6b6b"/>
+      <stop offset="42%" stop-color="#d21c1c"/>
+      <stop offset="100%" stop-color="#6f0b0b"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#cdeeff"/>
+      <stop offset="100%" stop-color="#2f5f8c"/>
+    </linearGradient>
+    <radialGradient id="ground" cx="50%" cy="0%" r="85%">
+      <stop offset="0%" stop-color="#432435"/>
+      <stop offset="100%" stop-color="#080810"/>
+    </radialGradient>
+    <radialGradient id="floorGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff7a1f" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#ff7a1f" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-70%" y="-70%" width="240%" height="240%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+    <filter id="softer" x="-90%" y="-90%" width="280%" height="280%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+    <path id="flameTongue" d="M -11 12 C -16 -8 -7 -26 -2 -44 C 1 -56 3 -66 0 -82 C 8 -62 15 -46 17 -28 C 19 -14 15 0 11 12 Z"/>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="600" fill="url(#sky)"/>
+
+  <g fill="#ffffff" opacity="0.75">
+    <circle cx="70" cy="70" r="1.6"/>
+    <circle cx="150" cy="140" r="1.1"/>
+    <circle cx="230" cy="60" r="1.4"/>
+    <circle cx="320" cy="110" r="1.0"/>
+    <circle cx="470" cy="70" r="1.5"/>
+    <circle cx="560" cy="150" r="1.1"/>
+    <circle cx="640" cy="60" r="1.6"/>
+    <circle cx="720" cy="120" r="1.2"/>
+    <circle cx="760" cy="210" r="1.0"/>
+    <circle cx="100" cy="230" r="1.2"/>
+    <circle cx="40" cy="330" r="1.0"/>
+    <circle cx="690" cy="300" r="1.1"/>
+    <circle cx="400" cy="40" r="1.3"/>
+    <circle cx="520" cy="230" r="1.0"/>
+    <circle cx="280" cy="210" r="1.1"/>
+  </g>
+
+  <path d="M0 470 Q200 428 400 452 Q600 476 800 436 L800 600 L0 600 Z" fill="url(#ground)"/>
+
+  <ellipse cx="400" cy="470" rx="280" ry="55" fill="url(#floorGlow)" filter="url(#soft)"/>
+
+  <polygon points="40,470 210,470 210,404 96,404" fill="#241726" stroke="#4a2b3a" stroke-width="3"/>
+  <polygon points="96,404 210,404 210,392 118,392" fill="#33202f"/>
+  <polygon points="760,468 610,468 610,406 706,406" fill="#241726" stroke="#4a2b3a" stroke-width="3"/>
+
+  <circle cx="400" cy="300" r="270" fill="url(#fireGlow)" filter="url(#softer)"/>
+
+  <circle cx="400" cy="300" r="150" fill="none" stroke="#ff5a1f" stroke-width="64" opacity="0.35" filter="url(#soft)"/>
+  <circle cx="400" cy="300" r="150" fill="none" stroke="url(#ring)" stroke-width="26"/>
+  <circle cx="400" cy="300" r="138" fill="none" stroke="#ffe9a8" stroke-width="3" opacity="0.85"/>
+  <circle cx="400" cy="300" r="163" fill="none" stroke="#7a1400" stroke-width="2" opacity="0.7"/>
+
+  <g>
+    <use href="#flameTongue" transform="rotate(0 400 300) translate(400 158) scale(1.05)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(20 400 300) translate(400 158) scale(0.85)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(40 400 300) translate(400 158) scale(1.1)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(60 400 300) translate(400 158) scale(0.8)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(80 400 300) translate(400 158) scale(1.0)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(100 400 300) translate(400 158) scale(0.9)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(120 400 300) translate(400 158) scale(1.15)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(140 400 300) translate(400 158) scale(0.85)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(160 400 300) translate(400 158) scale(1.0)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(180 400 300) translate(400 158) scale(1.1)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(200 400 300) translate(400 158) scale(0.8)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(220 400 300) translate(400 158) scale(1.05)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(240 400 300) translate(400 158) scale(0.9)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(260 400 300) translate(400 158) scale(1.1)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(280 400 300) translate(400 158) scale(0.85)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(300 400 300) translate(400 158) scale(1.0)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(320 400 300) translate(400 158) scale(0.8)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(340 400 300) translate(400 158) scale(1.05)" fill="url(#flameGrad)"/>
+  </g>
+
+  <g opacity="0.75">
+    <use href="#flameTongue" transform="rotate(10 400 300) translate(400 142) rotate(180) scale(0.55)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(90 400 300) translate(400 142) rotate(180) scale(0.5)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(170 400 300) translate(400 142) rotate(180) scale(0.6)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(250 400 300) translate(400 142) rotate(180) scale(0.5)" fill="url(#flameGrad)"/>
+    <use href="#flameTongue" transform="rotate(330 400 300) translate(400 142) rotate(180) scale(0.55)" fill="url(#flameGrad)"/>
+  </g>
+
+  <g fill="#ffd166">
+    <circle cx="300" cy="150" r="3" opacity="0.9"/>
+    <circle cx="520" cy="180" r="2.2" opacity="0.8"/>
+    <circle cx="250" cy="340" r="2.6" opacity="0.85"/>
+    <circle cx="560" cy="380" r="2.4" opacity="0.8"/>
+    <circle cx="330" cy="460" r="2.8" opacity="0.75"/>
+    <circle cx="490" cy="120" r="2" opacity="0.7"/>
+    <circle cx="620" cy="270" r="2.2" opacity="0.7"/>
+    <circle cx="180" cy="250" r="2" opacity="0.7"/>
+  </g>
+
+  <g stroke="#ffd27a" stroke-width="3" stroke-linecap="round" opacity="0.45">
+    <path d="M170 400 L250 372"/>
+    <path d="M140 430 L235 400"/>
+    <path d="M190 458 L268 432"/>
+  </g>
+
+  <g transform="translate(400 300) rotate(-18)">
+    <path d="M -132 10 C -168 6 -196 2 -214 -6 C -198 -2 -172 -2 -140 4 Z" fill="#ff8c1a" opacity="0.85"/>
+    <path d="M -132 8 C -160 2 -180 -6 -190 -16 C -174 -8 -152 -4 -132 -2 Z" fill="#ffd34d" opacity="0.9" filter="url(#soft)"/>
+
+    <path d="M -120 26 L -120 2 Q -118 -14 -96 -17 L -48 -19 L -22 -50 Q -16 -57 -4 -57 L 34 -57 Q 54 -57 66 -44 L 88 -19 L 112 -15 Q 130 -10 132 12 L 132 26 Z" fill="url(#carBody)" stroke="#4d0808" stroke-width="2.5"/>
+    <path d="M -120 26 L 132 26 L 132 20 L -120 20 Z" fill="#5c0a0a" opacity="0.8"/>
+    <path d="M -20 -24 L -18 -48 Q -14 -53 -4 -53 L 30 -53 Q 44 -53 52 -41 L 60 -24 Z" fill="url(#glass)" stroke="#241819" stroke-width="2"/>
+    <path d="M -14 -24 L -12 -44 Q -10 -48 -3 -48 L 12 -48 L 12 -24 Z" fill="#eaf7ff" opacity="0.35"/>
+    <path d="M -118 6 L -96 -6 L -48 -8 L -22 -40 L 34 -40 L 66 -12 L 110 -8 L 130 6 Z" fill="#ffffff" opacity="0.10"/>
+    <ellipse cx="122" cy="4" rx="12" ry="8" fill="#ffe9a0" stroke="#c9a24a" stroke-width="1.5"/>
+    <path d="M -108 12 L -122 4 L -122 14 L -108 16 Z" fill="#ffd34d"/>
+
+    <path d="M 52 -57 L 66 -57 L 78 -78 L 52 -78 Z" fill="#7a0d0d" stroke="#4d0808" stroke-width="2"/>
+
+    <circle cx="-66" cy="30" r="24" fill="#111114"/>
+    <circle cx="-66" cy="30" r="13" fill="#4a4a55"/>
+    <circle cx="-66" cy="30" r="5" fill="#c9c9d4"/>
+    <circle cx="78" cy="30" r="24" fill="#111114"/>
+    <circle cx="78" cy="30" r="13" fill="#4a4a55"/>
+    <circle cx="78" cy="30" r="5" fill="#c9c9d4"/>
+  </g>
+</svg>

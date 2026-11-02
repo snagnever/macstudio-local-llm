@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 650" role="img" aria-labelledby="title desc">
+  <title id="title">Half-buried barrel of treasure</title>
+  <desc id="desc">A broken wooden treasure barrel rests diagonally on a beach. A high mound of sand buries its lower half, while the open end reveals gold coins, gems, and pearls spilling onto the sand.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#238cb7"/>
+      <stop offset=".58" stop-color="#8ed4dc"/>
+      <stop offset="1" stop-color="#f4d29b"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2c9eb1"/>
+      <stop offset="1" stop-color="#17627a"/>
+    </linearGradient>
+    <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6d681"/>
+      <stop offset=".55" stop-color="#dda94c"/>
+      <stop offset="1" stop-color="#b9782e"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d08a43"/>
+      <stop offset=".42" stop-color="#9a5428"/>
+      <stop offset="1" stop-color="#512617"/>
+    </linearGradient>
+    <radialGradient id="gold" cx="32%" cy="25%" r="78%">
+      <stop offset="0" stop-color="#fffbd0"/>
+      <stop offset=".28" stop-color="#ffe268"/>
+      <stop offset=".7" stop-color="#dda00d"/>
+      <stop offset="1" stop-color="#8f4f06"/>
+    </radialGradient>
+    <radialGradient id="rim" cx="35%" cy="32%" r="78%">
+      <stop offset="0" stop-color="#59646a"/>
+      <stop offset=".7" stop-color="#283035"/>
+      <stop offset="1" stop-color="#111619"/>
+    </radialGradient>
+    <filter id="softShadow" x="-30%" y="-50%" width="170%" height="220%">
+      <feGaussianBlur stdDeviation="13"/>
+    </filter>
+    <clipPath id="bodyClip">
+      <path d="M349 205 C435 178 592 211 670 287 L621 492 C523 522 376 482 306 408 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- Quiet coastal setting keeps the silhouette clear -->
+  <rect width="900" height="650" fill="url(#sky)"/>
+  <circle cx="755" cy="104" r="51" fill="#fff2bc" opacity=".88"/>
+  <path d="M0 275 Q130 257 258 274 T524 272 T900 254 V357 H0Z" fill="url(#sea)"/>
+  <path d="M0 291 Q98 280 191 294 T386 290 T589 286 T900 274" fill="none" stroke="#c9f1e7" stroke-width="8" opacity=".72"/>
+  <path d="M0 347 Q128 310 263 349 T532 340 T900 328 V650 H0Z" fill="url(#sand)"/>
+
+  <!-- Contact shadow anchors the buried barrel -->
+  <ellipse cx="461" cy="506" rx="281" ry="55" fill="#61361d" opacity=".28" filter="url(#softShadow)"/>
+
+  <!-- Barrel body is diagonal and clearly enters the sand mound -->
+  <g transform="rotate(10 480 350)">
+    <path d="M349 205 C435 178 592 211 670 287 L621 492 C523 522 376 482 306 408 Z" fill="url(#wood)" stroke="#36180e" stroke-width="10"/>
+    <g clip-path="url(#bodyClip)">
+      <path d="M382 190 Q405 337 350 462" fill="none" stroke="#e5a15b" stroke-width="10" opacity=".6"/>
+      <path d="M456 190 Q479 347 433 497" fill="none" stroke="#e5a15b" stroke-width="9" opacity=".5"/>
+      <path d="M535 204 Q565 366 523 510" fill="none" stroke="#e5a15b" stroke-width="9" opacity=".48"/>
+      <path d="M610 236 Q640 364 606 493" fill="none" stroke="#e5a15b" stroke-width="9" opacity=".42"/>
+      <path d="M336 274 Q486 244 654 326" fill="none" stroke="#242b2e" stroke-width="26"/>
+      <path d="M314 397 Q469 372 636 449" fill="none" stroke="#242b2e" stroke-width="27"/>
+      <path d="M338 268 Q487 241 650 320" fill="none" stroke="#6f7a7e" stroke-width="5" opacity=".72"/>
+      <path d="M318 391 Q469 368 632 443" fill="none" stroke="#6f7a7e" stroke-width="5" opacity=".72"/>
+      <path d="M424 221 l15 32 -21 28 26 34 -20 36" fill="none" stroke="#562916" stroke-width="5" opacity=".72"/>
+      <path d="M575 267 l-19 26 21 25 -25 31" fill="none" stroke="#562916" stroke-width="5" opacity=".72"/>
+    </g>
+    <path d="M670 287 C714 327 696 432 621 492" fill="#482519" stroke="#30150d" stroke-width="10"/>
+    <path d="M674 309 C697 345 679 420 631 469" fill="none" stroke="#b66d35" stroke-width="9" opacity=".5"/>
+  </g>
+
+  <!-- Large open mouth makes the barrel and treasure readable -->
+  <g transform="rotate(10 322 332)">
+    <ellipse cx="322" cy="332" rx="105" ry="135" fill="url(#rim)" stroke="#151515" stroke-width="12"/>
+    <ellipse cx="327" cy="331" rx="78" ry="106" fill="#120c09" stroke="#79502d" stroke-width="8"/>
+    <path d="M259 263 Q328 207 390 268" fill="none" stroke="#d18442" stroke-width="12" opacity=".8"/>
+    <path d="M248 382 Q322 449 394 383" fill="none" stroke="#6c351e" stroke-width="10" opacity=".8"/>
+  </g>
+
+  <!-- Dense treasure inside the barrel opening -->
+  <g stroke="#784503" stroke-width="3.5">
+    <ellipse cx="282" cy="271" rx="37" ry="14" fill="url(#gold)" transform="rotate(-18 282 271)"/>
+    <ellipse cx="332" cy="250" rx="35" ry="13" fill="url(#gold)" transform="rotate(13 332 250)"/>
+    <ellipse cx="373" cy="280" rx="36" ry="14" fill="url(#gold)" transform="rotate(22 373 280)"/>
+    <ellipse cx="269" cy="315" rx="37" ry="14" fill="url(#gold)" transform="rotate(8 269 315)"/>
+    <ellipse cx="326" cy="304" rx="39" ry="15" fill="url(#gold)" transform="rotate(-8 326 304)"/>
+    <ellipse cx="378" cy="327" rx="37" ry="14" fill="url(#gold)" transform="rotate(14 378 327)"/>
+    <ellipse cx="272" cy="362" rx="38" ry="15" fill="url(#gold)" transform="rotate(-12 272 362)"/>
+    <ellipse cx="334" cy="355" rx="40" ry="15" fill="url(#gold)" transform="rotate(7 334 355)"/>
+    <ellipse cx="373" cy="391" rx="34" ry="13" fill="url(#gold)" transform="rotate(18 373 391)"/>
+  </g>
+  <g fill="none" stroke="#fff3a0" stroke-width="3" stroke-linecap="round" opacity=".88">
+    <path d="M305 247 Q331 238 355 251"/><path d="M246 311 Q270 302 293 313"/>
+    <path d="M305 301 Q328 293 350 304"/><path d="M311 351 Q336 342 359 354"/>
+  </g>
+  <g stroke-width="5">
+    <path d="M286 344 l24-34 26 35 -25 36Z" fill="#ed405c" stroke="#861d35"/>
+    <path d="M348 293 l20-29 23 30 -22 31Z" fill="#46d7e6" stroke="#176b82"/>
+    <path d="M248 383 l18-27 21 27 -20 28Z" fill="#66d264" stroke="#27713b"/>
+    <path d="M350 376 l20-28 22 29 -21 31Z" fill="#9b65e7" stroke="#593184"/>
+  </g>
+
+  <!-- Treasure stream connects barrel mouth to beach -->
+  <g stroke="#784503" stroke-width="3.5">
+    <ellipse cx="245" cy="421" rx="38" ry="14" fill="url(#gold)" transform="rotate(-12 245 421)"/>
+    <ellipse cx="292" cy="439" rx="39" ry="15" fill="url(#gold)" transform="rotate(10 292 439)"/>
+    <ellipse cx="342" cy="452" rx="38" ry="14" fill="url(#gold)" transform="rotate(-7 342 452)"/>
+    <ellipse cx="395" cy="465" rx="37" ry="14" fill="url(#gold)" transform="rotate(13 395 465)"/>
+    <ellipse cx="451" cy="478" rx="38" ry="14" fill="url(#gold)" transform="rotate(-9 451 478)"/>
+    <ellipse cx="510" cy="486" rx="36" ry="13" fill="url(#gold)" transform="rotate(8 510 486)"/>
+  </g>
+  <path d="M403 449 l21-29 23 30 -22 32Z" fill="#39cadb" stroke="#176b82" stroke-width="5"/>
+  <path d="M472 467 l20-28 22 29 -21 30Z" fill="#e84564" stroke="#861d35" stroke-width="5"/>
+  <path d="M337 434 l16-24 19 25 -18 26Z" fill="#6ed56b" stroke="#27713b" stroke-width="5"/>
+  <path d="M264 382 Q285 403 317 413 Q352 425 383 417" fill="none" stroke="#d7c7a3" stroke-width="4"/>
+  <g fill="#fff9e7" stroke="#a89772" stroke-width="2.5">
+    <circle cx="266" cy="383" r="9"/><circle cx="278" cy="395" r="9"/><circle cx="293" cy="405" r="9"/>
+    <circle cx="310" cy="412" r="9"/><circle cx="328" cy="418" r="9"/><circle cx="347" cy="421" r="9"/>
+    <circle cx="366" cy="420" r="9"/><circle cx="383" cy="416" r="9"/>
+  </g>
+
+  <!-- Foreground mound hides approximately the lower half of the barrel -->
+  <path d="M0 485 Q112 439 207 466 Q281 487 351 493 Q431 501 512 490 Q602 478 669 445 Q776 397 900 451 V650 H0Z" fill="#c88937"/>
+  <path d="M0 505 Q109 466 207 488 Q304 515 404 510 Q529 505 627 466 Q764 411 900 471 V650 H0Z" fill="url(#sand)"/>
+  <path d="M126 485 Q214 454 300 493" fill="none" stroke="#f8dc8b" stroke-width="9" stroke-linecap="round"/>
+  <path d="M542 493 Q639 448 731 456" fill="none" stroke="#f8dc8b" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- A few uncovered coins identify the spill above the burial line -->
+  <g stroke="#784503" stroke-width="3.5">
+    <ellipse cx="326" cy="490" rx="37" ry="14" fill="url(#gold)" transform="rotate(6 326 490)"/>
+    <ellipse cx="397" cy="496" rx="38" ry="14" fill="url(#gold)" transform="rotate(-6 397 496)"/>
+    <ellipse cx="468" cy="492" rx="37" ry="14" fill="url(#gold)" transform="rotate(11 468 492)"/>
+    <ellipse cx="533" cy="486" rx="35" ry="13" fill="url(#gold)" transform="rotate(-10 533 486)"/>
+  </g>
+  <path d="M433 482 l18-26 21 27 -20 29Z" fill="#a36be8" stroke="#593184" stroke-width="5"/>
+
+  <g fill="#81511f" opacity=".66">
+    <ellipse cx="91" cy="544" rx="8" ry="3"/><ellipse cx="175" cy="578" rx="5" ry="2"/>
+    <ellipse cx="611" cy="548" rx="9" ry="3"/><ellipse cx="704" cy="512" rx="6" ry="2"/>
+    <ellipse cx="792" cy="580" rx="8" ry="3"/><ellipse cx="565" cy="606" rx="6" ry="2"/>
+  </g>
+</svg>

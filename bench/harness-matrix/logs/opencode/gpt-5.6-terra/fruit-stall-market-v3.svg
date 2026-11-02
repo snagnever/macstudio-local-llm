@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Fruit stall at a morning market</title>
+  <desc id="desc">A sunlit wooden fruit stall with a striped awning, hand-painted Fresh Fruit sign, crates of oranges, apples, pears, bananas, grapes, and watermelon, set in a busy market square.</desc>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d8edf0"/><stop offset=".58" stop-color="#f4d6a1"/><stop offset="1" stop-color="#c77b4d"/></linearGradient>
+    <linearGradient id="pave" x2="0" y2="1"><stop stop-color="#b76d47"/><stop offset="1" stop-color="#704037"/></linearGradient>
+    <linearGradient id="wood" x2=".15" y2="1"><stop stop-color="#d78a44"/><stop offset=".5" stop-color="#974a27"/><stop offset="1" stop-color="#5a2b1e"/></linearGradient>
+    <linearGradient id="crate" x2="0" y2="1"><stop stop-color="#e3a251"/><stop offset="1" stop-color="#a9552b"/></linearGradient>
+    <linearGradient id="cream" x2="0" y2="1"><stop stop-color="#fff5d5"/><stop offset="1" stop-color="#e9c881"/></linearGradient>
+    <radialGradient id="orange" cx="30%" cy="23%"><stop stop-color="#fff0a9"/><stop offset=".24" stop-color="#ffcc52"/><stop offset=".75" stop-color="#ed781e"/><stop offset="1" stop-color="#bd461b"/></radialGradient>
+    <radialGradient id="apple" cx="30%" cy="22%"><stop stop-color="#ffd0a5"/><stop offset=".33" stop-color="#ef6950"/><stop offset=".82" stop-color="#b22e36"/><stop offset="1" stop-color="#762436"/></radialGradient>
+    <radialGradient id="pear" cx="32%" cy="23%"><stop stop-color="#fff5a9"/><stop offset=".4" stop-color="#d0d754"/><stop offset="1" stop-color="#778b2e"/></radialGradient>
+    <radialGradient id="grape" cx="30%" cy="22%"><stop stop-color="#c78db7"/><stop offset=".38" stop-color="#89528a"/><stop offset="1" stop-color="#4c2b62"/></radialGradient>
+    <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#34221f" flood-opacity=".31"/></filter>
+    <filter id="blur"><feGaussianBlur stdDeviation="12"/></filter>
+    <pattern id="grain" width="34" height="18" patternUnits="userSpaceOnUse"><path d="M3 6c8-4 17 3 27-1M1 15c11-3 21 3 32-1" fill="none" stroke="#5c2c20" stroke-opacity=".24" stroke-width="1.5"/></pattern>
+  </defs>
+
+  <!-- Warm market square behind the stall -->
+  <rect width="1200" height="900" fill="url(#sky)"/>
+  <circle cx="893" cy="149" r="56" fill="#fff4c5" opacity=".7"/>
+  <path d="M0 255c118-56 221-58 320-11 96 46 188 42 295-12 147-74 278-56 379 9 69 44 135 55 206 42v273H0z" fill="#89a688" opacity=".58"/>
+  <path d="M0 356c105-44 203-28 292 16 104 51 213 39 327-13 112-51 231-38 334 11 90 43 162 43 247 12v236H0z" fill="#567962" opacity=".6"/>
+  <g opacity=".78">
+    <path d="M57 249h178v247H57z" fill="#e9bf7d"/><path d="M37 249h217l-19-35H59z" fill="#a64d39"/>
+    <path d="M82 286h45v149H82zm71 0h48v149h-48z" fill="#487f7c"/><path d="M79 276h128" stroke="#f6dfac" stroke-width="5"/>
+    <path d="M968 244h171v252H968z" fill="#efc887"/><path d="M947 244h211l-18-35H968z" fill="#a64d39"/>
+    <path d="M992 281h45v155h-45zm69 0h48v155h-48z" fill="#4e827d"/><path d="M988 271h126" stroke="#f8e4b5" stroke-width="5"/>
+  </g>
+  <g opacity=".36" fill="#4b4234">
+    <circle cx="283" cy="420" r="23"/><path d="M257 485c2-35 48-35 52 0z"/><circle cx="896" cy="409" r="20"/><path d="M873 466c3-32 43-32 47 0z"/>
+  </g>
+  <rect y="572" width="1200" height="328" fill="url(#pave)"/>
+  <path d="M0 668c119-22 243 31 365 6 149-31 257 33 393 3 145-32 298 25 442-2v225H0z" fill="#542f30" opacity=".24"/>
+  <g fill="none" stroke="#e3a66e" stroke-opacity=".22" stroke-width="4"><path d="M26 740l238-83m32 220 220-172m49 180 177-189m101 184 193-189m39 175 169-169"/><path d="M0 804c185-34 348 31 539-4 202-37 395 32 661-12"/></g>
+  <ellipse cx="605" cy="834" rx="493" ry="48" fill="#392223" opacity=".38" filter="url(#blur)"/>
+
+  <!-- Stall timber and canopy -->
+  <g filter="url(#shadow)">
+    <path d="M142 278h910l-68 166H209z" fill="url(#cream)" stroke="#593126" stroke-width="8"/>
+    <path d="M142 278h114l-47 166H91z" fill="#c7463d" stroke="#593126" stroke-width="8"/>
+    <path d="M256 278h114l-47 166H209z" fill="url(#cream)"/><path d="M370 278h114l-47 166H323z" fill="#c7463d"/>
+    <path d="M484 278h114l-47 166H437z" fill="url(#cream)"/><path d="M598 278h114l-47 166H551z" fill="#c7463d"/>
+    <path d="M712 278h114l-47 166H665z" fill="url(#cream)"/><path d="M826 278h114l-47 166H779z" fill="#c7463d"/>
+    <path d="M940 278h112l-68 166H893z" fill="url(#cream)"/>
+    <path d="M93 442h901l17 34H75z" fill="#603025"/><path d="M101 442h885" stroke="#fff0bf" stroke-width="9"/>
+    <path d="M169 453h46v350h-46zm804 0h46v350h-46z" fill="url(#wood)" stroke="#4f281e" stroke-width="6"/>
+    <path d="M207 475h773l-35 330H244z" fill="url(#wood)" stroke="#582b20" stroke-width="6"/>
+    <path d="M225 492h737l-32 282H257z" fill="#ba6a35"/><path d="M225 492h737v282H225z" fill="url(#grain)" opacity=".7"/>
+    <path d="M211 760h757l-24 101H236z" fill="url(#wood)" stroke="#51291f" stroke-width="7"/>
+    <path d="M257 794h652m-658 34h650" stroke="#efaa61" stroke-width="4" opacity=".65"/>
+  </g>
+
+  <!-- Hand-painted stall sign -->
+  <g filter="url(#shadow)">
+    <path d="M430 361h341l-15 99H445z" fill="#f9e3a2" stroke="#5e3024" stroke-width="7"/>
+    <path d="M449 383h303" stroke="#c5743d" stroke-opacity=".65" stroke-width="3"/>
+    <text x="600" y="424" text-anchor="middle" fill="#69321f" font-family="Georgia, serif" font-size="43" font-weight="bold" letter-spacing="2">FRESH FRUIT</text>
+    <text x="600" y="446" text-anchor="middle" fill="#a34f2d" font-family="Arial, sans-serif" font-size="12" font-weight="bold" letter-spacing="4">MARKET MORNING</text>
+  </g>
+  <g fill="#ffe9ad" opacity=".9"><circle cx="251" cy="460" r="5"/><circle cx="291" cy="460" r="5"/><circle cx="331" cy="460" r="5"/><circle cx="868" cy="460" r="5"/><circle cx="908" cy="460" r="5"/><circle cx="948" cy="460" r="5"/></g>
+
+  <!-- Raised crates -->
+  <g filter="url(#shadow)" stroke="#64331f" stroke-width="5">
+    <path d="M245 511h226l-22 139H267z" fill="url(#crate)"/><path d="M487 511h244l-23 139H509z" fill="url(#crate)"/><path d="M748 511h166l-21 139H769z" fill="url(#crate)"/>
+    <path d="M247 645h235l-23 126H270z" fill="url(#crate)"/><path d="M493 645h237l-23 126H516z" fill="url(#crate)"/><path d="M743 645h169l-21 126H763z" fill="url(#crate)"/>
+  </g>
+  <g fill="none" stroke="#f4bb69" stroke-width="4" opacity=".7"><path d="M269 532h182m-176 99h158m97-99h179m-173 99h157m88-99h121m-116 99h102M273 666h186m-180 88h158m85-88h190m-184 88h163m81-88h122m-117 88h103"/></g>
+
+  <!-- Oranges, piled above their crate -->
+  <g fill="url(#orange)"><circle cx="290" cy="585" r="31"/><circle cx="332" cy="555" r="35"/><circle cx="376" cy="579" r="38"/><circle cx="420" cy="552" r="31"/><circle cx="429" cy="604" r="30"/><circle cx="326" cy="607" r="34"/><circle cx="375" cy="616" r="29"/></g>
+  <g fill="#4e7538"><path d="M315 527c9-18 24-18 32-10-13 2-20 10-32 10z"/><path d="M364 544c8-17 23-17 31-9-12 2-18 9-31 9z"/><path d="M406 533c9-17 23-16 30-9-12 2-18 9-30 9z"/></g>
+  <g fill="#fff0b0" opacity=".55"><circle cx="279" cy="574" r="7"/><circle cx="321" cy="544" r="8"/><circle cx="364" cy="568" r="8"/><circle cx="411" cy="545" r="6"/></g>
+
+  <!-- Apples -->
+  <g fill="url(#apple)"><path d="M531 603c-29-31-8-75 24-72 12 1 19 9 23 16 5-7 15-15 28-12 30 6 39 47 12 71-19 18-71 19-87-3z"/><path d="M605 603c-29-31-8-75 24-72 12 1 19 9 23 16 5-7 15-15 28-12 30 6 39 47 12 71-19 18-71 19-87-3z"/><path d="M667 566c-25-27-7-64 20-62 11 1 17 8 21 14 5-6 13-13 25-10 27 5 35 41 11 62-16 16-61 17-77-4z"/></g>
+  <g fill="#456b35"><path d="M554 536c5-19 20-25 32-23-6 10-16 17-32 23z"/><path d="M628 536c5-19 20-25 32-23-6 10-16 17-32 23z"/><path d="M686 510c5-17 19-23 30-20-5 9-15 15-30 20z"/></g>
+  <g fill="#ffd3ad" opacity=".4"><ellipse cx="550" cy="559" rx="8" ry="12"/><ellipse cx="624" cy="559" rx="8" ry="12"/><ellipse cx="683" cy="530" rx="7" ry="10"/></g>
+
+  <!-- Pears -->
+  <g fill="url(#pear)"><path d="M773 609c-32-18-25-51-10-65 11-11 10-27 3-39 23-8 40 9 32 39 17 15 21 41 2 60-9 10-19 14-27 5z"/><path d="M828 609c-32-18-25-51-10-65 11-11 10-27 3-39 23-8 40 9 32 39 17 15 21 41 2 60-9 10-19 14-27 5z"/><path d="M866 570c-27-16-21-45-8-58 9-9 9-23 3-34 20-7 35 8 27 34 14 13 18 37 2 54-8 8-17 11-24 4z"/></g>
+  <g fill="#476b35"><path d="M763 506c9-17 22-20 33-17-9 10-18 15-33 17z"/><path d="M818 506c9-17 22-20 33-17-9 10-18 15-33 17z"/></g>
+
+  <!-- Front fruit display: bananas, grapes, and watermelon -->
+  <g fill="none" stroke-linecap="round"><path d="M276 687c28 49 88 51 123 5" stroke="#795223" stroke-width="26"/><path d="M276 684c28 46 88 48 123 2" stroke="#ffe066" stroke-width="19"/><path d="M302 718c24 38 72 38 101 2" stroke="#795223" stroke-width="24"/><path d="M302 715c24 35 72 35 101-1" stroke="#f7c63d" stroke-width="17"/><path d="M275 722c18 29 54 38 83 11" stroke="#795223" stroke-width="22"/><path d="M275 719c18 26 54 35 83 8" stroke="#ffdd5c" stroke-width="15"/></g>
+  <g fill="url(#grape)"><circle cx="548" cy="686" r="17"/><circle cx="579" cy="678" r="18"/><circle cx="611" cy="682" r="18"/><circle cx="643" cy="683" r="17"/><circle cx="671" cy="699" r="16"/><circle cx="561" cy="713" r="18"/><circle cx="594" cy="709" r="18"/><circle cx="627" cy="713" r="18"/><circle cx="655" cy="717" r="16"/><circle cx="579" cy="738" r="16"/><circle cx="613" cy="738" r="16"/></g>
+  <path d="M607 661c-5-20 8-32 25-36-2 15-11 25-25 36z" fill="#50733a"/>
+  <path d="M769 724c9-57 102-82 125-11 6 18 4 31-2 44H758c-2-12 1-23 11-33z" fill="#2d6b45"/>
+  <path d="M766 731c35-27 92-27 127 1v25H758z" fill="#ee604d"/>
+  <path d="M789 687c-4 24-2 48 1 70m28-79c-4 27-2 53 1 79m29-66c-4 22-2 44 1 66" fill="none" stroke="#f2ed9c" stroke-width="5" opacity=".82"/>
+  <g fill="#452a28"><ellipse cx="787" cy="740" rx="3" ry="5"/><ellipse cx="815" cy="744" rx="3" ry="5"/><ellipse cx="844" cy="736" rx="3" ry="5"/><ellipse cx="870" cy="746" rx="3" ry="5"/></g>
+
+  <!-- Market price cards -->
+  <g filter="url(#shadow)"><path d="M131 568h91l-9 63h-72z" fill="#fff0be" stroke="#653725" stroke-width="4"/><path d="M940 567h91l-9 63h-72z" fill="#fff0be" stroke="#653725" stroke-width="4"/></g>
+  <g fill="#713921" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold"><text x="176" y="606" font-size="25">$3</text><text x="985" y="605" font-size="25">$4</text><text x="176" y="622" font-size="10" letter-spacing="1">ORANGES</text><text x="985" y="621" font-size="10" letter-spacing="1">APPLES</text></g>
+  <text x="600" y="849" text-anchor="middle" fill="#f6c982" font-family="Georgia, serif" font-size="15" letter-spacing="3" opacity=".82">LOCAL GROWERS • EVERY DAY</text>
+</svg>

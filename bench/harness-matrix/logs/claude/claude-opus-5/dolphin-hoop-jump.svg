@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-labelledby="title desc">
+  <title id="title">Dolphin jumping through a hoop to take a fish</title>
+  <desc id="desc">A dolphin leaps out of a pool, passes through a suspended orange hoop, and bites a fish held by a trainer on the deck.</desc>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fd2f0"/>
+      <stop offset="1" stop-color="#e6f6fd"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a92bd"/>
+      <stop offset="1" stop-color="#0c4f6e"/>
+    </linearGradient>
+    <linearGradient id="dolphin" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#93aabd"/>
+      <stop offset="0.6" stop-color="#5c748a"/>
+      <stop offset="1" stop-color="#3d5164"/>
+    </linearGradient>
+    <linearGradient id="hoopfill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffb340"/>
+      <stop offset="1" stop-color="#e8791d"/>
+    </linearGradient>
+    <linearGradient id="deck" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d9d2c4"/>
+      <stop offset="1" stop-color="#a89e8c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- sky and water -->
+  <rect x="0" y="0" width="800" height="500" fill="url(#sky)"/>
+  <g fill="#ffffff" opacity="0.75">
+    <ellipse cx="120" cy="70" rx="52" ry="20"/>
+    <ellipse cx="160" cy="60" rx="38" ry="22"/>
+    <ellipse cx="640" cy="48" rx="46" ry="17"/>
+    <ellipse cx="676" cy="42" rx="30" ry="18"/>
+  </g>
+  <rect x="0" y="340" width="800" height="160" fill="url(#water)"/>
+  <g stroke="#9fe0f2" stroke-width="3" fill="none" opacity="0.55" stroke-linecap="round">
+    <path d="M 20,362 q 26,-10 52,0 t 52,0"/>
+    <path d="M 180,392 q 26,-10 52,0 t 52,0"/>
+    <path d="M 60,424 q 26,-10 52,0 t 52,0"/>
+    <path d="M 300,438 q 26,-10 52,0 t 52,0"/>
+    <path d="M 470,376 q 26,-10 52,0 t 52,0"/>
+  </g>
+  <rect x="0" y="336" width="800" height="8" fill="#bdeaf7" opacity="0.8"/>
+
+  <!-- hoop suspension line -->
+  <line x1="439" y1="154" x2="439" y2="0" stroke="#5b6b76" stroke-width="3"/>
+
+  <!-- hoop, far half -->
+  <ellipse cx="505" cy="240" rx="115" ry="42" transform="rotate(45 505 240)"
+           fill="none" stroke="url(#hoopfill)" stroke-width="14"/>
+  <ellipse cx="505" cy="240" rx="115" ry="42" transform="rotate(45 505 240)"
+           fill="none" stroke="#ffffff" stroke-width="3" opacity="0.35"/>
+
+  <!-- dolphin -->
+  <g transform="translate(558,99) rotate(-45) scale(-1,1)">
+    <path d="M 8,62 C 12,54 20,48 32,44 C 42,32 64,26 86,28 C 120,30 152,46 182,62
+             C 206,74 228,78 246,80 C 250,81 250,86 246,88 C 224,92 198,96 172,100
+             C 140,105 104,104 74,96 C 46,88 22,80 12,70 Z" fill="url(#dolphin)"/>
+    <path d="M 12,70 C 22,82 46,90 74,96 C 104,104 140,105 172,100 C 198,96 224,92 246,88
+             C 220,86 194,86 168,88 C 136,90 100,86 70,78 C 44,71 22,68 12,70 Z"
+          fill="#eef4f7" opacity="0.92"/>
+    <path d="M 120,42 C 132,20 150,8 168,4 C 160,24 152,42 150,52 Z" fill="#486074"/>
+    <path d="M 74,90 C 64,104 54,114 42,120 C 48,106 56,94 68,86 Z" fill="#3f5568"/>
+    <path d="M 244,82 C 262,64 284,58 296,60 C 286,72 276,82 268,88
+             C 278,92 288,100 294,112 C 280,112 258,102 244,90 Z" fill="#445b6e"/>
+    <path d="M 8,62 C 14,66 20,68 27,70 C 20,71 13,70 9,66 Z" fill="#2c3d4c"/>
+    <path d="M 12,68 C 22,72 34,75 47,77" stroke="#2c3d4c" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <circle cx="50" cy="57" r="4" fill="#1e2b36"/>
+    <circle cx="51.5" cy="55.5" r="1.3" fill="#ffffff"/>
+  </g>
+
+  <!-- hoop, near half drawn over the dolphin -->
+  <path d="M 423.7,158.7 C 407.3,175.1 430.3,224.7 475.3,269.7 C 520.3,314.7 602.7,304.9 586.3,321.3"
+        fill="none" stroke="url(#hoopfill)" stroke-width="14" stroke-linecap="round"/>
+  <path d="M 423.7,158.7 C 407.3,175.1 430.3,224.7 475.3,269.7 C 520.3,314.7 602.7,304.9 586.3,321.3"
+        fill="none" stroke="#ffffff" stroke-width="3" opacity="0.35" stroke-linecap="round"/>
+
+  <!-- splash where the dolphin left the water -->
+  <g fill="#ffffff" opacity="0.85">
+    <ellipse cx="404" cy="340" rx="52" ry="13"/>
+    <path d="M 372,340 C 366,316 352,300 338,292 C 350,306 356,324 358,340 Z"/>
+    <path d="M 438,340 C 448,318 464,306 478,300 C 464,314 456,326 452,340 Z"/>
+    <path d="M 404,338 C 400,312 404,292 412,278 C 416,296 414,320 412,338 Z"/>
+    <circle cx="330" cy="278" r="6"/>
+    <circle cx="486" cy="288" r="5"/>
+    <circle cx="358" cy="252" r="4"/>
+  </g>
+  <g fill="#dff2fa">
+    <circle cx="470" cy="196" r="4"/>
+    <circle cx="512" cy="168" r="3"/>
+    <circle cx="446" cy="232" r="3.5"/>
+  </g>
+
+  <!-- deck -->
+  <rect x="650" y="300" width="150" height="200" fill="url(#deck)"/>
+  <rect x="650" y="300" width="150" height="10" fill="#efe9dd"/>
+
+  <!-- bucket of fish -->
+  <path d="M 742,262 L 786,262 L 780,300 L 748,300 Z" fill="#3f7fae"/>
+  <rect x="738" y="256" width="52" height="9" rx="4" fill="#5aa0cf"/>
+  <g fill="#c9d6de">
+    <ellipse cx="756" cy="254" rx="10" ry="4" transform="rotate(-18 756 254)"/>
+    <ellipse cx="772" cy="252" rx="9" ry="4" transform="rotate(12 772 252)"/>
+  </g>
+
+  <!-- trainer -->
+  <g>
+    <path d="M 690,300 L 690,236 L 712,236 L 712,300" fill="none" stroke="#26384a" stroke-width="16" stroke-linecap="round"/>
+    <path d="M 682,152 L 718,152 L 722,232 L 678,232 Z" fill="#2f6fb2"/>
+    <path d="M 678,232 L 722,232 L 722,246 L 678,246 Z" fill="#26384a"/>
+    <!-- arm holding the fish -->
+    <path d="M 686,160 C 668,150 652,142 640,138" fill="none" stroke="#2f6fb2" stroke-width="14" stroke-linecap="round"/>
+    <path d="M 652,143 C 646,140 642,139 636,138" fill="none" stroke="#e0a882" stroke-width="13" stroke-linecap="round"/>
+    <!-- free arm -->
+    <path d="M 716,162 C 726,186 728,204 726,216" fill="none" stroke="#2f6fb2" stroke-width="14" stroke-linecap="round"/>
+    <path d="M 726,212 L 727,226" fill="none" stroke="#e0a882" stroke-width="13" stroke-linecap="round"/>
+    <!-- head -->
+    <rect x="694" y="146" width="12" height="12" fill="#e0a882"/>
+    <circle cx="700" cy="130" r="20" fill="#e0a882"/>
+    <path d="M 680,128 C 682,110 698,104 712,110 C 719,113 721,121 720,128 C 714,120 704,116 694,119 C 688,121 683,124 680,128 Z" fill="#4a3527"/>
+    <circle cx="692" cy="130" r="2.4" fill="#2b2118"/>
+    <path d="M 686,140 C 690,144 696,145 700,143" fill="none" stroke="#2b2118" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- fish in the trainer's hand, at the dolphin's mouth -->
+  <g transform="translate(613,143) rotate(-16)" stroke="#6d8391" stroke-width="1.6">
+    <path d="M 17,0 C 24,-9 31,-11 34,-10 C 31,-4 30,-1 30,0 C 30,1 31,4 34,10 C 31,11 24,9 17,0 Z" fill="#a9bcc7"/>
+    <ellipse cx="0" cy="0" rx="19" ry="8" fill="#cfdce4"/>
+    <path d="M -13,4 C -6,8 6,8 14,3" fill="none"/>
+    <circle cx="-11" cy="-2" r="2.2" fill="#2b3a44" stroke="none"/>
+  </g>
+</svg>

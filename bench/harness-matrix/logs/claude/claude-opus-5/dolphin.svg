@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <title>Dolphin jumping through a hula hoop to take a fish from its trainer's hand</title>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6fc4f2"/>
+      <stop offset="0.6" stop-color="#bfe6fb"/>
+      <stop offset="1" stop-color="#e8f6fe"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f9fd4"/>
+      <stop offset="0.5" stop-color="#1b6fae"/>
+      <stop offset="1" stop-color="#114f83"/>
+    </linearGradient>
+    <linearGradient id="dolphinSkin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5f748a"/>
+      <stop offset="0.45" stop-color="#7d93a8"/>
+      <stop offset="1" stop-color="#9fb3c4"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff6c8" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#fff6c8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="deck" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d9d2c4"/>
+      <stop offset="1" stop-color="#a89f8d"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ============ BACKGROUND ============ -->
+  <rect x="0" y="0" width="800" height="430" fill="url(#sky)"/>
+  <circle cx="120" cy="80" r="110" fill="url(#sunGlow)"/>
+  <circle cx="120" cy="80" r="34" fill="#fff3b0"/>
+
+  <!-- clouds -->
+  <g fill="#ffffff" opacity="0.85">
+    <ellipse cx="300" cy="70" rx="46" ry="20"/>
+    <ellipse cx="336" cy="62" rx="34" ry="24"/>
+    <ellipse cx="266" cy="78" rx="30" ry="16"/>
+    <ellipse cx="620" cy="110" rx="40" ry="17"/>
+    <ellipse cx="650" cy="102" rx="30" ry="21"/>
+  </g>
+
+  <!-- stadium stands -->
+  <path d="M0,300 L0,250 L800,250 L800,300 Z" fill="#8fa7b8" opacity="0.55"/>
+  <path d="M0,300 L800,300 L800,330 L0,330 Z" fill="#7d95a8" opacity="0.55"/>
+  <g opacity="0.5">
+    <rect x="0" y="252" width="800" height="8" fill="#6d8598"/>
+    <rect x="0" y="272" width="800" height="8" fill="#6d8598"/>
+    <rect x="0" y="292" width="800" height="8" fill="#6d8598"/>
+  </g>
+  <!-- crowd dots -->
+  <g fill="#5b6f80" opacity="0.45">
+    <circle cx="40" cy="266" r="5"/><circle cx="72" cy="262" r="5"/><circle cx="104" cy="268" r="5"/>
+    <circle cx="150" cy="264" r="5"/><circle cx="188" cy="270" r="5"/><circle cx="226" cy="262" r="5"/>
+    <circle cx="272" cy="268" r="5"/><circle cx="318" cy="264" r="5"/><circle cx="360" cy="270" r="5"/>
+    <circle cx="404" cy="262" r="5"/><circle cx="450" cy="268" r="5"/><circle cx="496" cy="264" r="5"/>
+    <circle cx="540" cy="270" r="5"/><circle cx="586" cy="262" r="5"/><circle cx="632" cy="268" r="5"/>
+    <circle cx="678" cy="264" r="5"/><circle cx="724" cy="270" r="5"/><circle cx="768" cy="262" r="5"/>
+    <circle cx="56" cy="288" r="5"/><circle cx="120" cy="290" r="5"/><circle cx="200" cy="286" r="5"/>
+    <circle cx="290" cy="290" r="5"/><circle cx="380" cy="286" r="5"/><circle cx="470" cy="290" r="5"/>
+    <circle cx="560" cy="286" r="5"/><circle cx="650" cy="290" r="5"/><circle cx="740" cy="286" r="5"/>
+  </g>
+
+  <!-- ============ WATER ============ -->
+  <rect x="0" y="430" width="800" height="170" fill="url(#water)"/>
+  <g stroke="#bfe6fb" stroke-opacity="0.55" fill="none" stroke-width="3" stroke-linecap="round">
+    <path d="M20,452 q22,-8 44,0 t44,0"/>
+    <path d="M150,478 q22,-8 44,0 t44,0"/>
+    <path d="M420,462 q22,-8 44,0 t44,0"/>
+    <path d="M80,528 q26,-9 52,0 t52,0"/>
+    <path d="M330,548 q26,-9 52,0 t52,0"/>
+    <path d="M520,506 q22,-8 44,0 t44,0"/>
+  </g>
+  <rect x="0" y="428" width="800" height="6" fill="#d8f1ff" opacity="0.8"/>
+
+  <!-- ============ HULA HOOP : BACK RING ============ -->
+  <g transform="translate(473,292)">
+    <ellipse rx="110" ry="45" transform="rotate(55)" fill="none" stroke="#c8352c" stroke-width="11"/>
+    <ellipse rx="110" ry="45" transform="rotate(55)" fill="none" stroke="#fdfdfd" stroke-width="11" stroke-dasharray="28 28"/>
+  </g>
+
+  <!-- ============ SPLASH at water exit ============ -->
+  <g fill="#eaf8ff" opacity="0.92">
+    <ellipse cx="308" cy="428" rx="70" ry="14"/>
+    <path d="M250,430 C258,392 268,372 282,352 C276,382 274,406 276,430 Z"/>
+    <path d="M338,430 C346,398 360,378 378,360 C366,388 358,410 356,430 Z"/>
+    <path d="M290,430 C292,396 296,376 302,356 C310,380 312,404 312,430 Z"/>
+    <circle cx="240" cy="352" r="7"/><circle cx="222" cy="386" r="5"/>
+    <circle cx="392" cy="342" r="6"/><circle cx="410" cy="376" r="4.5"/>
+    <circle cx="330" cy="330" r="5"/><circle cx="268" cy="322" r="4"/>
+  </g>
+
+  <!-- ============ DOLPHIN ============ -->
+  <g transform="translate(596,206) rotate(-35)">
+    <!-- tail flukes -->
+    <path d="M-292,0 C-310,-16 -336,-27 -354,-31 C-345,-15 -341,-6 -339,0 C-341,6 -345,15 -354,31 C-336,27 -310,16 -292,0 Z" fill="#5f748a"/>
+    <!-- dorsal fin -->
+    <path d="M-140,-34 C-152,-58 -170,-72 -190,-78 C-179,-59 -173,-45 -172,-31 Z" fill="#57697d"/>
+    <!-- far pectoral fin -->
+    <path d="M-108,10 C-126,22 -140,32 -150,40 C-138,26 -128,14 -120,4 Z" fill="#4e5f72"/>
+    <!-- body -->
+    <path d="M0,0
+             C-14,-16 -38,-30 -70,-33
+             C-112,-37 -170,-34 -216,-26
+             C-252,-20 -276,-13 -294,-8
+             C-300,-6 -303,-3 -304,0
+             C-303,3 -300,6 -294,8
+             C-274,16 -244,24 -202,30
+             C-152,37 -100,33 -60,20
+             C-34,12 -12,6 0,0 Z" fill="url(#dolphinSkin)"/>
+    <!-- belly -->
+    <path d="M-4,2 C-30,12 -60,22 -100,31 C-150,37 -200,32 -250,20 C-230,26 -200,31 -160,34 C-110,36 -60,26 -20,10 Z" fill="#eef3f7" opacity="0.95"/>
+    <path d="M-6,3 C-40,16 -90,30 -150,34 C-210,36 -260,26 -296,9 C-262,32 -200,42 -140,40 C-80,37 -34,20 -6,3 Z" fill="#f4f8fb" opacity="0.9"/>
+    <!-- near pectoral fin -->
+    <path d="M-96,22 C-114,38 -132,48 -146,52 C-134,34 -122,22 -110,13 Z" fill="#6d8296"/>
+    <!-- mouth line -->
+    <path d="M2,1 C-14,6 -30,10 -46,11" fill="none" stroke="#3d4c5c" stroke-width="2.2" stroke-linecap="round"/>
+    <!-- eye -->
+    <circle cx="-54" cy="-15" r="4.6" fill="#1d2733"/>
+    <circle cx="-52.6" cy="-16.4" r="1.6" fill="#ffffff"/>
+    <!-- blowhole -->
+    <ellipse cx="-92" cy="-33" rx="5" ry="2.6" fill="#4a5a6b"/>
+    <!-- water droplets trailing -->
+    <g fill="#eaf8ff" opacity="0.8">
+      <circle cx="-320" cy="-24" r="4"/><circle cx="-344" cy="14" r="3"/>
+      <circle cx="-300" cy="26" r="3.4"/><circle cx="-268" cy="-34" r="3"/>
+    </g>
+  </g>
+
+  <!-- ============ HULA HOOP : FRONT ARC ============ -->
+  <g transform="translate(473,292)">
+    <path d="M63.1,90.1 A110,45 55 0 1 -63.1,-90.1" fill="none" stroke="#c8352c" stroke-width="11"/>
+    <path d="M63.1,90.1 A110,45 55 0 1 -63.1,-90.1" fill="none" stroke="#fdfdfd" stroke-width="11" stroke-dasharray="28 28"/>
+  </g>
+
+  <!-- ============ POOL DECK ============ -->
+  <rect x="645" y="400" width="155" height="200" fill="url(#deck)"/>
+  <rect x="645" y="400" width="155" height="10" fill="#efe9dc"/>
+
+  <!-- ============ TRAINER ============ -->
+  <g>
+    <!-- legs -->
+    <path d="M700,330 L686,368 L680,402" fill="none" stroke="#1f4f78" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M704,330 L716,368 L722,402" fill="none" stroke="#26608f" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- shoes -->
+    <ellipse cx="676" cy="404" rx="14" ry="7" fill="#20303d"/>
+    <ellipse cx="726" cy="404" rx="14" ry="7" fill="#20303d"/>
+    <!-- torso -->
+    <path d="M678,278 L722,278 L716,340 L686,340 Z" fill="#e8483c"/>
+    <path d="M678,278 L722,278 L720,294 L680,294 Z" fill="#f3f3f3"/>
+    <!-- back arm hanging -->
+    <path d="M716,284 L730,318 L728,346" fill="none" stroke="#e0a877" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- head -->
+    <circle cx="700" cy="252" r="19" fill="#f0b98a"/>
+    <path d="M681,248 a19,19 0 0 1 38,0 z" fill="#3a2a1c"/>
+    <!-- raised arm to the fish -->
+    <path d="M686,282 L658,242 L630,208" fill="none" stroke="#e0a877" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="627" cy="205" r="8" fill="#f0b98a"/>
+  </g>
+
+  <!-- ============ FISH IN HAND ============ -->
+  <g transform="translate(608,198) rotate(-16)">
+    <ellipse rx="18" ry="8" fill="#c7d3dc"/>
+    <ellipse rx="18" ry="8" fill="#9fb0bd" opacity="0.5" transform="translate(0,2.5) scale(1,0.55)"/>
+    <path d="M16,0 L31,-9 L31,9 Z" fill="#a9bac7"/>
+    <path d="M-2,-7 L6,-14 L12,-6 Z" fill="#b6c5d1"/>
+    <circle cx="-11" cy="-2" r="2.4" fill="#2b3a47"/>
+  </g>
+
+  <!-- ============ FOREGROUND WATER RIPPLE ============ -->
+  <g stroke="#eaf8ff" stroke-opacity="0.5" fill="none" stroke-width="4" stroke-linecap="round">
+    <path d="M180,436 q40,-10 80,0 t80,0 t80,0"/>
+    <path d="M120,446 q46,-11 92,0 t92,0"/>
+  </g>
+</svg>
