@@ -132,3 +132,10 @@ def test_page_is_self_contained(html):
     assert "<script src=" not in html
     assert "<!doctype html>" in html.lower()
     assert "/*__CSS__*/" not in html and ".tiles4{" in html  # the stylesheet is inlined, not left as the placeholder
+
+
+def test_bar_rows_share_one_track_width(html):
+    # a fixed value column: equal values draw equal bars whatever the label text beside them
+    assert ".bline{display:grid; grid-template-columns:var(--lw,150px) 1fr var(--vw,230px);" in html
+    assert "minmax(110px,auto)" not in html
+    assert 'style="--lw:215px;--vw:72px"' in html  # the accuracy panels: the run label moves to the row label

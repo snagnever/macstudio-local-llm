@@ -508,12 +508,15 @@ def dot_plot(suite: str, runs: list[tuple[str, str, dict]], w: int = 640) -> str
     return "".join(out)
 
 
-def hbars(rows: list[tuple[str, float, float, str]], label_w: int = 150, w: int = 560) -> str:
-    """Horizontal bars (cell id, value, max, text)."""
-    out = ['<div class="bars">']
-    for cid, v, mx, text in rows:
+def hbars(rows: list[tuple], label_w: int = 150, value_w: int = 230) -> str:
+    """Horizontal bars: (cell id, value, max, value text[, label suffix]). The label and value columns have fixed widths,
+    so every row's track is the same width and equal values draw equal bars."""
+    out = [f'<div class="bars" style="--lw:{label_w}px;--vw:{value_w}px">']
+    for row in rows:
+        cid, v, mx, text = row[:4]
+        sub = row[4] if len(row) > 4 else ""
         pct = 0 if not mx else max(0.0, min(100.0, 100 * v / mx))
-        out.append(f'<div class="bline">{cell_label(cid)}<span class="btrack"><span class="bfill" '
+        out.append(f'<div class="bline">{cell_label(cid, sub)}<span class="btrack"><span class="bfill" '
                    f'style="width:{pct:.1f}%;background:var({CELL[cid]["color"]})"></span></span><span class="bv">{text}</span></div>')
     out.append("</div>")
     return "".join(out)
@@ -595,10 +598,10 @@ def accuracy_section(p: dict) -> str:
             if st and suite in st:
                 s = st[suite]
                 v = s.get("with_imports") if suite == "humaneval" and s.get("with_imports") else s["passed"]
-                rows.append((cid, v, s["n"], f'{v}/{s["n"]} <span class="u">{lab}</span>'))
+                rows.append((cid, v, s["n"], f'{v}/{s["n"]}', lab))
             else:
-                rows.append((cid, 0, 1, f'<span class="na">not measured · {E(lab)}</span>'))
-        panels.append(f'<figure class="card-chart"><p class="c-head">{E(SUITE_LABEL[suite])}</p>{hbars(rows)}</figure>')
+                rows.append((cid, 0, 1, '<span class="na">not measured</span>', lab))
+        panels.append(f'<figure class="card-chart"><p class="c-head">{E(SUITE_LABEL[suite])}</p>{hbars(rows, 215, 72)}</figure>')
     g1 = []
     for a, b, lab in (("bm", "sm", "Swift vs base, mlx-serve t1"), ("sm", "ss", "Splash vs mlx-serve, Swift 262K")):
         pa = q["mlx"]["t1"] if a == "bm" else q["swift262"]
@@ -684,19 +687,23 @@ def effort_section(p: dict) -> str:
                 else:
                     rows += f'<td>{fmt(v[key] / 1000, 0, "K")}</td>'
             rows += "</tr>"
-    bars = []
+    # one chart, one group per effort level, the same token scale in every group
+    mx = max(e[c][eff]["total_tokens"] for c in ("bm", "sm") if e.get(c) for eff in EFFORTS)
+    groups = ""
     for eff in EFFORTS:
-        rws = [(cid, e[cid][eff]["total_tokens"], max(e[c][eff]["total_tokens"] for c in ("bm", "sm") if e.get(c)),
-                f'{e[cid][eff]["total_tokens"] / 1000:,.0f}K tokens · {e[cid][eff]["gpqa"]["passed"]:g}+{e[cid][eff]["livecodebench"]["passed"]:g} correct')
+        rws = [(cid, e[cid][eff]["total_tokens"], mx,
+                f'{e[cid][eff]["total_tokens"] / 1000:,.0f}K · {e[cid][eff]["gpqa"]["passed"]:g}+{e[cid][eff]["livecodebench"]["passed"]:g}')
                for cid in ("bm", "sm") if e.get(cid)]
-        bars.append(f'<figure class="card-chart"><p class="c-head">{eff}</p><p class="c-note">tokens for GPQA 50 + LCB 50</p>{hbars(rws)}</figure>')
+        groups += f'<div class="bgroup"><p class="b-lab">{eff}</p>{hbars(rws, 150, 130)}</div>'
+    bars = [f'<figure class="card-chart"><p class="c-head">Tokens for GPQA 50 + LCB 50 by effort level, lower is cheaper</p>'
+            f'<p class="c-note">value: thousands of completion tokens · GPQA + LCB correct answers</p>{groups}</figure>']
     return ('<section class="block" id="effort"><h2 class="sec">4 · Reasoning effort</h2>'
             '<p class="s-note">GPQA-Diamond 50 and LiveCodeBench 50 at three effort levels, mlx-serve 26.10.1. The base at xhigh is the '
             'swift15 A/B run; its medium and low come from the effort-tail task; Swift has two rounds per level (means shown). At xhigh the '
             'base spends 1.7× the tokens of Swift; at medium and low the two are close, so the gap at xhigh is the base thinking longer, not '
             'the engine. Not measured on Splash.</p>'
-            f'<div class="cgrid">{"".join(bars)}</div>'
-            f'<div class="tbl-scroll"><table class="timet"><thead><tr><th class="nm">effort · metric</th>{head}</tr></thead><tbody>{rows}</tbody></table></div>'
+            f'{"".join(bars)}'
+            f'<div class="tbl-scroll mt"><table class="timet"><thead><tr><th class="nm">effort · metric</th>{head}</tr></thead><tbody>{rows}</tbody></table></div>'
             '</section>')
 
 
@@ -816,7 +823,7 @@ def agent_section(p: dict) -> str:
         groups = ""
         for t, lab in tasks:
             rws = [(cid, cc[cid]["alone_s"][t], mx, f'{cc[cid]["alone_s"][t]:.0f} s') for cid in ("sm", "ss")]
-            groups += f'<div class="bgroup"><p class="b-lab">{E(lab)}</p>{hbars(rws)}</div>'
+            groups += f'<div class="bgroup"><p class="b-lab">{E(lab)}</p>{hbars(rws, 150, 64)}</div>'
         cc_fig = ('<figure class="card-chart"><p class="c-head">Claude Code, one session: wall time per task (mean of 2 reps), lower is better</p>'
                   f'<p class="c-note">Claude Code 2.1.292, effort xhigh, 128K servers: Splash 1.5.0 and mlx-serve 26.10.3. Warm TTFT p50 '
                   f'{cc["sm"]["warm_ttft_p50"]:.2f} s / {cc["ss"]["warm_ttft_p50"]:.2f} s, decode p50 {cc["sm"]["warm_tps_p50"]:.0f} / '
@@ -970,11 +977,14 @@ svg.chart{width:100%; height:auto; display:block; margin-top:6px; overflow:visib
 .legend .lg{margin-right:14px}
 .bars{margin-top:8px} .bgroup{margin-top:10px}
 .b-lab{margin:0 0 4px; font-size:0.82rem; color:var(--ink-2)}
-.bline{display:grid; grid-template-columns:150px 1fr minmax(110px,auto); gap:8px; align-items:center; margin:3px 0}
+/* Fixed label and value columns (set per chart by hbars), so the track (1fr) is the same width in every row of a chart. */
+.bline{display:grid; grid-template-columns:var(--lw,150px) 1fr var(--vw,230px); gap:8px; align-items:center; margin:3px 0}
+.bline .arm-lab{flex-wrap:wrap; white-space:normal; line-height:1.25}
+.bline .arm-lab .u{white-space:nowrap}
 .bline .arm-lab{font-size:0.78rem; font-weight:500}
 .btrack{display:flex; height:12px; background:var(--surface-2); border-radius:0 4px 4px 0}
 .bfill{display:block; height:100%; border-radius:0 4px 4px 0; min-width:2px}
-.bv{font-family:var(--mono); font-size:0.78rem; text-align:right; color:var(--ink); white-space:nowrap}
+.bv{font-family:var(--mono); font-size:0.78rem; text-align:right; color:var(--ink); line-height:1.3}
 .empty{color:var(--muted); font-size:0.84rem}
 td.heat{background:rgba(var(--accent-rgb),var(--a)); color:var(--ink)}
 td.cov{font-family:var(--sans); font-size:0.82rem}
@@ -987,7 +997,7 @@ details > summary::-webkit-details-marker{display:none}
 details > summary h2.sec{display:inline}
 details > summary h2.sec::after{content:" ▸"; color:var(--muted)}
 details[open] > summary h2.sec::after{content:" ▾"}
-@media (max-width:560px){.bline{grid-template-columns:110px 1fr minmax(80px,auto)} .t-row b{font-size:1.1rem}}
+@media (max-width:560px){.bline{grid-template-columns:min(var(--lw,150px),130px) 1fr min(var(--vw,230px),110px)} .t-row b{font-size:1.1rem}}
 """
 
 TEMPLATE = r"""<!doctype html>
