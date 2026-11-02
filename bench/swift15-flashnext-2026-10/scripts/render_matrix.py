@@ -357,7 +357,7 @@ def collect_coverage(p: dict) -> dict:
         cov[cid] = {
             "battery": {"measured": battery is not None,
                         "note": "t1 and t0 on 26.10.1; 262K on 26.10.3" if cid == "sm" else "t1 and t0, 26.10.1" if cid == "bm"
-                        else "262K, 512K, 1M" if cid == "ss" else "planned: battery k1a at 262144"},
+                        else "262K, 512K, 1M" if cid == "ss" else "262K, one run"},
             "speed": {"measured": any(not s["absent"] for s in p["speed"][cid]),
                       "note": "8K–512K; 1M fails" if CELL[cid]["engine"] == "mlx-serve" else "8K–1M"},
             "effort": {"measured": p["effort"][cid] is not None, "note": "low, medium, xhigh" if p["effort"][cid] else ""},
@@ -612,8 +612,14 @@ def accuracy_section(p: dict) -> str:
         fails = [s for s in SUITES if s in sa and s in sb and sb[s]["passed"] < sa[s]["passed"] - G1_MARGIN[s]]
         g1.append(f'<li><b>{E(lab)}:</b> G1 {"passes in all six suites" if not fails else "fails in " + ", ".join(fails)}.</li>')
     sa, sb = q["splash262"]["ss"], q["splash262"]["bs"]
+    fails = [s for s in SUITES if sb and sb[s]["passed"] < sa[s]["passed"] - G1_MARGIN[s]] if sb else []
     g1.append('<li><b>base vs Swift, Splash 262K:</b> ' + ("not measured: the base battery on Splash has not run." if not sb else
-              "G1 " + ("passes" if not [s for s in SUITES if sb[s]["passed"] < sa[s]["passed"] - G1_MARGIN[s]] else "fails")) + "</li>")
+              "G1 " + ("passes in all six suites" if not fails else "fails in " + ", ".join(fails))) + ".")
+    if sb and "humaneval" in fails and sb["humaneval"].get("with_imports") and sa["humaneval"].get("with_imports") \
+            and sb["humaneval"]["with_imports"] >= sa["humaneval"]["with_imports"] - G1_MARGIN["humaneval"]:
+        g1[-1] += (f' HumanEval fails on the strict grade only; with the prompt\'s imports it scores '
+                   f'{sb["humaneval"]["with_imports"]}/164 against {sa["humaneval"]["with_imports"]}/164.')
+    g1[-1] += "</li>"
     return ('<section class="block" id="accuracy"><h2 class="sec">2 · Accuracy</h2>'
             '<p class="s-note">Six suites, vendor sampling (temperature 1.0, top-p 0.95, top-k 20), reasoning effort xhigh, one run per column. '
             'HumanEval counts a solution with the prompt\'s import lines in front (bold) and the strict grade beside it. '
@@ -1075,7 +1081,21 @@ def lead(p: dict) -> str:
             f"writes {r_tok:.1f}× the tokens and takes {r_gpqa:.1f}× the time per question for the same accuracy, on the same server. "
             f"<b>The engine moves the agent turn more than the model does:</b> at 256K Splash takes {ratio:.2f}× the mlx-serve turn with Swift, "
             f"and only Splash serves 1M. On Terminal-Bench 2.1, Swift passes {tb['sm']['passed']}/89 on mlx-serve and {tb['ss']['passed']}/89 on Splash. "
-            "The base model on Splash has speed and memory numbers in every band; its quality battery has not run yet, so those cells say so.")
+            + splash_base_lead(q["splash262"]))
+
+
+def splash_base_lead(sp: dict) -> str:
+    sa, sb = sp["ss"], sp["bs"]
+    if not sb:
+        return "The base model on Splash has speed and memory numbers in every band; its quality battery has not run yet, so those cells say so."
+    fails = [s for s in SUITES if sb[s]["passed"] < sa[s]["passed"] - G1_MARGIN[s] and
+             not (s == "humaneval" and sb[s].get("with_imports") and sa[s].get("with_imports")
+                  and sb[s]["with_imports"] >= sa[s]["with_imports"] - G1_MARGIN[s])]
+    t = sum(sb[s]["total_s"] for s in SUITES) / sum(sa[s]["total_s"] for s in SUITES)
+    verdict = ("passes G1 against Swift in all six suites" if not fails else
+               "fails G1 against Swift in " + ", ".join(f"{SUITE_LABEL[s].split(' (')[0]} ({sb[s]['passed']}/{sb[s]['n']} vs {sa[s]['passed']}/{sa[s]['n']})"
+                         for s in fails))
+    return (f"On Splash at 262K, in one run, the base model {verdict}, and its battery takes {t:.1f}× Swift's time.")
 
 
 def render(p: dict) -> str:
