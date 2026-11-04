@@ -2,7 +2,7 @@
 
 Três runtimes têm release nova que o rig ainda não instalou: **mlx-serve 26.11.1** (01/11), **oMLX 0.7.3** (31/10) e **llama.cpp v0.8.0** (28/10, primeira estável desde a v0.7.0). O Splash 1.4.1 e o 1.5.0 saíram na janela, e o rig já roda o 1.5.0. A Qwen não mudou nenhum peso. O Qwen4 pode sair nos próximos dias, mas não tem pesos nem data oficial. O Claude Code do rig (2.1.292) está 25 versões atrás, e cinco dessas versões mudam o comportamento contra um `ANTHROPIC_BASE_URL` local.
 
-**Procedência.** A nota junta buscas de 03/11 pela API do GitHub, pela API do Hugging Face, pelo PyPI, pelo changelog do LM Studio, pelo Reddit e pela busca na web. A linha de base é [`rig-stack-updates-20261022.md`](rig-stack-updates-20261022.md), mais o que as campanhas de 23/10 a 02/11 instalaram. As versões instaladas no rig vêm de `ls ~/.local/opt/qwen38/` por SSH em 03/11. As marcas seguem as notas anteriores: **fabricante** é a Qwen, **terceiro** cobre release, issue, PR, card no HF e Reddit, e **medido-no-rig** vem das campanhas deste repo. Nenhum teste rodou para esta nota. Nenhuma fonte da janela traz número de Flash-Next medido num M4 Max. A nota não leu o card de cada pack novo do HF.
+**Procedência.** A nota junta buscas de 03/11 pela API do GitHub, pela API do Hugging Face, pelo PyPI, pelo changelog do LM Studio, pelo Reddit e pela busca na web. A linha de base é [`rig-stack-updates-20261022.md`](rig-stack-updates-20261022.md), mais o que as campanhas de 23/10 a 02/11 instalaram. As versões instaladas no rig vêm de `ls ~/.local/opt/qwen38/` por SSH em 03/11. As marcas seguem as notas anteriores: **fabricante** é a Qwen, **terceiro** cobre release, issue, PR, card no HF e Reddit, e **medido-no-rig** vem das campanhas deste repo. Nenhum teste rodou para esta nota. Nenhuma fonte da janela traz número de Flash-Next medido num M4 Max. A nota não leu o card de cada pack novo do HF. A seção [Adendo de 04/11](#adendo-de-0411) registra o que saiu no dia seguinte.
 
 ## Resumo por stack
 
@@ -126,6 +126,55 @@ Outros harnesses:
 
 O rig roda macOS 26.6.2. A última versão é a 26.7.2, que só traz correções de segurança e não cita Metal ([ithinkdiff](https://www.ithinkdiff.com/macos-tahoe-26-7-2-macos-sequoia-15-8-2-security-updates/)). O app do Splash 1.5.0 pede macOS 26.4 ou superior e M3 ou superior, e o rig atende os dois. [`docs/machine-configuration.md`](../docs/machine-configuration.md) ainda diz 26.3.
 
+## Adendo de 04/11
+
+Buscas de 04/11 pela API do GitHub, pela API do Hugging Face, pelo PyPI e pelo r/LocalLLaMA. Nenhum teste rodou. Todos os números abaixo são **terceiro**, e nenhum vem de M4 Max no Flash-Next, exceto onde a linha diz.
+
+| Stack | Novo em 04/11 | Impacto no rig |
+|---|---|---|
+| mlx-serve | sem release; `main` com #1075, #1081 e MLX 0.32.5 pré-release | Checkpoint de fim de decode no `qwen4_exp` corrigido (teste 6) |
+| oMLX | **0.7.4.dev1** (dev) | Prefill sob pressão de memória em 128 GB; ordem de tool results paralelos |
+| llama.cpp | **v0.9.0** estável; build b12114 | Estado de conv do qwen4exp e hidden state do MTP nos checkpoints |
+| Pack Unsloth do Flash-Next | **Dynamic V3.1** (17:43 UTC) | UD-IQ4_XS refeito: números antigos não valem para o arquivo novo (teste 7) |
+| Claude Code | **2.1.318** | Nada novo contra `ANTHROPIC_BASE_URL` local |
+| Outros | Hermes **0.22.7**, Ollama **0.40.15-rc0**, Codex 0.168 só alphas | Nenhum direto |
+
+Sem mudança em 04/11: Splash, MLX e mlx-lm no PyPI (0.32.4 e 0.32.2), MTPLX, OpenCode, Cline e os pesos da Qwen no HF.
+
+**mlx-serve, `main`.** Nenhum dos três itens está numa release.
+
+- **#1075** (bug sweep): no `qwen4_exp`, um stop serial pulava o checkpoint de fim de decode (#1004). O turno seguinte restaurava em prompt−31 e refazia o prefill da resposta. Agora restaura em prompt+resposta+2 em 3 de 3 probes. O autor rodou o probe e as trocas de modelo num M4 Max 128 GB. A mesma PR faz uma carga recusada por memória descarregar modelos ociosos e tentar de novo, e corrige o histórico de agente que mandava tool call sem resultado após truncar.
+- **#1081**: cada conversa de plugin guarda até 3 checkpoints abaixo do último (`MODULE_RUNGS_KEPT`). Um request que ramifica abaixo do último checkpoint (recap, título, compactação, regenerate) passa a usar o cache. Medido em DeepSeek V4.1 num Studio de 256 GB: tokens em cache no fork 0 → 28,596, TTFT 8.72 → 0.13 s. O custo é ~1 MB de memória por 1K tokens de checkpoint em DeepSeek V4.1. A PR não mede o Flash-Next.
+- A `main` passou para um pré-release do MLX 0.32.5 e refez as provas de Metal no M5.
+
+**oMLX 0.7.4.dev1** ([release](https://github.com/jundot/omlx/releases/tag/v0.7.4.dev1)). É release de desenvolvimento.
+
+| Mudança | Resultado publicado | Chip |
+|---|---|---|
+| Chunks largos de prefill sob pressão de memória em Macs de 128 GB (#4902) | Flash-Next oQ4e, prompts de 34.5K em sequência: prompt mais lento 90.7 → 13.1 s | M5 Max 128GB |
+| Checkpoints FP16 do Flash-Next com os kernels fundidos de hyper-connection e GDN (#5028) | oQ2.5e fp16, MTP off, 32K: decode 38.9 → 63.0 tok/s | M3 Ultra |
+| Decode após prompt longo (#4901) | +3 a 5% | M5 Max |
+| Batch de 6 linhas em camadas 8-bit lê cada peso uma vez | Qwen3.8-27B oQ8e, 6 requests: 62.2 → 72.4 tok/s | M5 Max |
+
+- **#5012**: os resultados de tool calls paralelas chegam ao chat template na ordem das calls, em `/v1/messages` e `/v1/chat/completions`. Antes, o Qwen podia ligar um resultado à call errada.
+- `/v1/messages` passa a continuar uma mensagem final de assistant como prefill (#4995). Isso muda o comportamento para um cliente que manda assistant no fim.
+- O Prefill Accelerator (#5065) usa um segundo Mac para o prefill. O rig tem um Mac só.
+- A **#4561** segue aberta.
+
+**llama.cpp v0.9.0** ([release](https://github.com/ggml-org/llama.cpp/releases/tag/v0.9.0)). Leva o ggml para a v0.29.0. Itens que tocam o Flash-Next:
+
+- **#31443**: o qwen4exp grava a cauda do estado de conv sem `cont` intermediário.
+- **#30141**: o speculative decoding salva e restaura o hidden state do MTP nos checkpoints de contexto. **#31350**: o servidor restaura o checkpoint especulativo para drafts maiores que `n_rs_seq`.
+- **#29510**: a op `flash_attn_ext_rows` torna eficiente o KV unificado com várias sequências.
+- **#30881**: API de cópia de tensores em lote, com implementação Metal.
+- **#30726**, **#30680** e **#30982** seguem abertas.
+
+**Unsloth Dynamic V3.1.** O `unsloth/Qwen3.8-Flash-Next-GGUF` foi atualizado em 04/11 ([card](https://huggingface.co/unsloth/Qwen3.8-Flash-Next-GGUF), [Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1xnvbxn/new_qwen38flashnext_unsloth_dynamic_v31_ggufs/)). Segundo o autor no Reddit, os quants de UD-IQ4_XS para baixo usam o método novo. O UD-Q4_K_XL mudou só para o engram switching funcionar, sem mudar os pesos. As campanhas `qwen38-flashnext-daily-driver-2026-09`, `splash-longctx-2026-10` e `stack-updates-2026-10` usaram o `UD-IQ4_XS` desse repo. Os resultados dessas campanhas valem para o arquivo antigo.
+
+**Claude Code 2.1.318** ([release](https://github.com/anthropics/claude-code/releases/tag/v2.1.318)). Corrige sessões no macOS que travavam com muitos comandos Bash rodando. Subagentes em background mandam um comando shell para background depois de 3 min em todos os providers. Nenhum item cita `ANTHROPIC_BASE_URL` custom.
+
+**Outros.** O Hermes **0.22.7** (03/11) junta ~174 PRs, e as notas detalhadas ficam para a 0.23.0. O Ollama **0.40.15-rc0** adiciona o MiMo V2.6. No r/LocalLLaMA, o Kimi-K3.1-Pro virou open-weights em 04/11. A nota não conferiu o tamanho dele contra os 128 GB do rig.
+
 ## Testes sugeridos
 
 1. **mlx-serve 26.11.1 contra a 26.10.3** no Swift 1.5 (`w1z`): probe de tool calls com `frequency_penalty` 0 e `T_turno` a 32K e 128K. Conferir antes se o boot avisa sobre variáveis removidas.
@@ -133,6 +182,8 @@ O rig roda macOS 26.6.2. A última versão é a 26.7.2, que só traz correções
 3. **llama.cpp v0.8.0** com o GGUF do Flash-Next e o draft DFlash2 Q8_0, contra draft-mtp. É o teste 3 da nota de 22/10, que não rodou, agora numa estável.
 4. **Claude Code 2.1.317 contra a 2.1.292** numa tarefa da `claude-code-concurrency-2026-11` no Splash 1.5.0: contar os requests com tool search e os retries 400/422 no proxy `request_log.py`.
 5. **Task 5b da `splash-longctx-2026-10`**: o GSQ-RCO-Coder GGUF no Splash 1.4.1 ou posterior, se a campanha ainda não cobriu esse braço.
+6. **mlx-serve: próxima release com a #1075** contra a 26.10.3 no Flash-Next: contar os tokens em cache no turno seguinte a uma resposta encerrada por stop. Pelo PR, o turno deve restaurar em prompt+resposta+2.
+7. **Unsloth `UD-IQ4_XS` V3.1 contra o arquivo antigo** no llama.cpp ou no Splash: tamanho, decode e uma tarefa de tool call. Registrar o commit do HF de cada arquivo.
 
 ## Fontes
 
@@ -153,3 +204,15 @@ Linha de base: [`rig-stack-updates-20261022.md`](rig-stack-updates-20261022.md).
 - https://github.com/charmbracelet/crush/releases/tag/v0.99.0
 - https://www.reddit.com/r/LocalLLaMA/comments/1xif6lf/apsara_conference_qwen4_next_week/
 - https://www.ithinkdiff.com/macos-tahoe-26-7-2-macos-sequoia-15-8-2-security-updates/
+
+Adendo de 04/11:
+
+- https://github.com/ddalcu/mlx-serve/pull/1075, /pull/1081, /issues/1004
+- https://github.com/jundot/omlx/releases/tag/v0.7.4.dev1, /pull/4902, /pull/5012
+- https://github.com/ggml-org/llama.cpp/releases/tag/v0.9.0, /pull/31443, /pull/30141, /pull/29510
+- https://huggingface.co/unsloth/Qwen3.8-Flash-Next-GGUF
+- https://github.com/anthropics/claude-code/releases/tag/v2.1.318
+- https://github.com/NousResearch/hermes-agent/releases/tag/v0.22.7
+- https://github.com/ollama/ollama/releases/tag/v0.40.15-rc0
+- https://www.reddit.com/r/LocalLLaMA/comments/1xnvbxn/new_qwen38flashnext_unsloth_dynamic_v31_ggufs/
+- https://www.reddit.com/r/LocalLLaMA/comments/1xnrhvb/kimik31pro_is_now_openweights/
