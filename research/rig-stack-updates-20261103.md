@@ -2,7 +2,7 @@
 
 Três runtimes têm release nova que o rig ainda não instalou: **mlx-serve 26.11.1** (01/11), **oMLX 0.7.3** (31/10) e **llama.cpp v0.8.0** (28/10, primeira estável desde a v0.7.0). O Splash 1.4.1 e o 1.5.0 saíram na janela, e o rig já roda o 1.5.0. A Qwen não mudou nenhum peso. O Qwen4 pode sair nos próximos dias, mas não tem pesos nem data oficial. O Claude Code do rig (2.1.292) está 25 versões atrás, e cinco dessas versões mudam o comportamento contra um `ANTHROPIC_BASE_URL` local.
 
-**Procedência.** A nota junta buscas de 03/11 pela API do GitHub, pela API do Hugging Face, pelo PyPI, pelo changelog do LM Studio, pelo Reddit e pela busca na web. A linha de base é [`rig-stack-updates-20261022.md`](rig-stack-updates-20261022.md), mais o que as campanhas de 23/10 a 02/11 instalaram. As versões instaladas no rig vêm de `ls ~/.local/opt/qwen38/` por SSH em 03/11. As marcas seguem as notas anteriores: **fabricante** é a Qwen, **terceiro** cobre release, issue, PR, card no HF e Reddit, e **medido-no-rig** vem das campanhas deste repo. Nenhum teste rodou para esta nota. Nenhuma fonte da janela traz número de Flash-Next medido num M4 Max. A nota não leu o card de cada pack novo do HF. A seção [Adendo de 04/11](#adendo-de-0411) registra o que saiu no dia seguinte.
+**Procedência.** A nota junta buscas de 03/11 pela API do GitHub, pela API do Hugging Face, pelo PyPI, pelo changelog do LM Studio, pelo Reddit e pela busca na web. A linha de base é [`rig-stack-updates-20261022.md`](rig-stack-updates-20261022.md), mais o que as campanhas de 23/10 a 02/11 instalaram. As versões instaladas no rig vêm de `ls ~/.local/opt/qwen38/` por SSH em 03/11. As marcas seguem as notas anteriores: **fabricante** é a Qwen, **terceiro** cobre release, issue, PR, card no HF e Reddit, e **medido-no-rig** vem das campanhas deste repo. Nenhum teste rodou para esta nota. Nenhuma fonte da janela traz número de Flash-Next medido num M4 Max. A nota não leu o card de cada pack novo do HF. As seções [Adendo de 04/11](#adendo-de-0411) e [Adendo de 05/11](#adendo-de-0511) registram o que saiu nos dois dias seguintes.
 
 ## Resumo por stack
 
@@ -175,6 +175,50 @@ Sem mudança em 04/11: Splash, MLX e mlx-lm no PyPI (0.32.4 e 0.32.2), MTPLX, Op
 
 **Outros.** O Hermes **0.22.7** (03/11) junta ~174 PRs, e as notas detalhadas ficam para a 0.23.0. O Ollama **0.40.15-rc0** adiciona o MiMo V2.6. No r/LocalLLaMA, o Kimi-K3.1-Pro virou open-weights em 04/11. A nota não conferiu o tamanho dele contra os 128 GB do rig.
 
+## Adendo de 05/11
+
+Buscas de 05/11 até 16:40 UTC pela API do GitHub, pela API do Hugging Face, pelo PyPI e pelo r/LocalLLaMA. Nenhum teste rodou. Todos os números abaixo são **terceiro**.
+
+| Stack | Novo em 05/11 | Impacto no rig |
+|---|---|---|
+| mlx-serve | **26.11.2** no CHANGELOG da `main`, sem tag nem release | Primeiro número de Flash-Next iQ-MLX 4.7bpw num M4 Max na tabela do projeto; residência Metal entre requests (teste 8) |
+| llama.cpp | builds até b12128; **#30982** com merge | `mul_mm` para 32 ≤ K < 64 no Metal, acompanhada desde 22/10 |
+| oMLX | só commits na `main` | Nenhum direto |
+| Modelos Qwen | Flash-Next `7ecef55`, 27B `8c0b3d3` | Só o model card mudou (cores da tabela em dark mode); pesos e config iguais |
+| Outros | Codex 0.168 só alphas; Crush nightly | Nenhum |
+
+Sem mudança em 05/11: Splash, MLX e mlx-lm no PyPI (0.32.4 e 0.32.2), MTPLX, Claude Code (2.1.318), OpenCode, Hermes, Ollama e Cline.
+
+**mlx-serve 26.11.2** ([CHANGELOG](https://github.com/ddalcu/mlx-serve/blob/main/CHANGELOG.md), [benchmarks.md](https://github.com/ddalcu/mlx-serve/blob/main/benchmarks.md)). O commit `ac064dd` escreve a entrada da versão e as colunas de M5 Ultra e de M4 Max, mas a última release no GitHub ainda é a 26.11.1. A entrada junta a #1075, a #1081 e o MLX 0.32.5. Para o rig:
+
+- A tabela de decode do projeto num **M4 Max 128 GB** ganha a coluna 26.11.2. O **Flash-Next iQ-MLX 4.7bpw** (a mesma família de pack da campanha, de commit não informado) aparece a **83 tok/s com MTP**, sem coluna anterior para comparar. O Qwen3.8-27B iQ-MLX 3.8bpw vai de 62 para 59 tok/s (−5%). A tabela usa o `llmprobe` e não diz o tamanho do prompt.
+- O Flash-Next passa a reusar a resposta em cache no turno seguinte de agente (#1075, já no adendo de 04/11).
+- Plugins externos compilados para a 26.11.1 precisam de rebuild.
+- **#1094** (com merge em 05/11): o macOS tira a residência Metal ~2 s depois que a GPU fica ociosa, e o MLX só pede residência uma vez por conjunto. Entre requests, um modelo perto do tamanho da RAM é comprimido, e o Mac pode entrar em panic (#1090). O mlx-serve agora exporta `MLX_METAL_RESIDENCY_REFRESH_INTERVAL_MS=1000` no macOS, a menos que o usuário defina a variável. Medido num M4 Max com o Qwen3.8-27B iQ 3.8bpw, memória wired depois de um request:
+
+| | t+0 | t+5 s | t+20 s |
+|---|---:|---:|---:|
+| refresh desligado (padrão antigo) | 18.8 GB | 5.2 GB | 5.1 GB |
+| #1094 | 18.8 GB | 18.5 GB | 18.2 GB |
+
+O Flash-Next do driver diário ocupa a maior parte dos 128 GB, então ele é o caso que a #1090 descreve. A nota não conferiu se o MLX da 26.10.3 já lê essa variável.
+
+- A **#844** (prefix cache só em disco) fechou em 04/11 como resolvida. Segundo o mantenedor, o warm turn não teria mais margem que o cold turn, então adiar para o SSD não mudaria a admissão.
+- A **#853** segue aberta.
+
+**llama.cpp, builds b12115 a b12128.** Não saiu estável nova. Itens que tocam o Metal ou o Flash-Next:
+
+- **#30982** (merge em 05/11): o Metal usa `mul_mm` para 32 ≤ K < 64.
+- **#31688**: o Metal mantém grupos de nós fusíveis dentro de um command buffer.
+- **#31660**: os snapshots de conv do MTP de todo modelo recorrente vão num único `set_rows`.
+- **#30137**: o `llama-server` usa checkpoints com contagem de referência em vez de cópias profundas.
+- **#30541**: corrige o tamanho da cópia de estado no device para KV quantizado.
+- A **#30726** e a **#30680** seguem abertas, sem atividade desde 17/10 e 16/10.
+
+**oMLX, `main`.** A #4866 mantém janelas largas de verificação MTP no kernel fundido do TurboQuant. A #5082 desliga o cache SSD do Splash quando o cache do oMLX está desligado. Nenhuma release nova. A **#4561** segue aberta.
+
+**Packs.** No HF, os 12 repos de Flash-Next mais novos de 05/11 são quase todos uncensored, abliterated ou NVFP4. Um deles, `austindixson/Qwen3.8-Flash-Next-Unsloth-V3.1-MLX`, converte o pack V3.1 para MLX, e a nota não leu o card. No r/LocalLLaMA, um guia com RTX 5080 mede a perplexidade do novo Unsloth `UD-IQ3_XXS` em wikitext: 3.247, contra 3.382 do GSQ-RCO IQ3_S e 3.273 do BF16, com 1 a 3,5% menos decode ([Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1xomy0i/guide_qwen38_flashnext_on_a_single_rtx_5080_64gb/)). O número é de uma pessoa, em NVIDIA.
+
 ## Testes sugeridos
 
 1. **mlx-serve 26.11.1 contra a 26.10.3** no Swift 1.5 (`w1z`): probe de tool calls com `frequency_penalty` 0 e `T_turno` a 32K e 128K. Conferir antes se o boot avisa sobre variáveis removidas.
@@ -182,8 +226,9 @@ Sem mudança em 04/11: Splash, MLX e mlx-lm no PyPI (0.32.4 e 0.32.2), MTPLX, Op
 3. **llama.cpp v0.8.0** com o GGUF do Flash-Next e o draft DFlash2 Q8_0, contra draft-mtp. É o teste 3 da nota de 22/10, que não rodou, agora numa estável.
 4. **Claude Code 2.1.317 contra a 2.1.292** numa tarefa da `claude-code-concurrency-2026-11` no Splash 1.5.0: contar os requests com tool search e os retries 400/422 no proxy `request_log.py`.
 5. **Task 5b da `splash-longctx-2026-10`**: o GSQ-RCO-Coder GGUF no Splash 1.4.1 ou posterior, se a campanha ainda não cobriu esse braço.
-6. **mlx-serve: próxima release com a #1075** contra a 26.10.3 no Flash-Next: contar os tokens em cache no turno seguinte a uma resposta encerrada por stop. Pelo PR, o turno deve restaurar em prompt+resposta+2.
+6. **mlx-serve 26.11.2 (ou a release que levar a #1075)** contra a 26.10.3 no Flash-Next: contar os tokens em cache no turno seguinte a uma resposta encerrada por stop. Pelo PR, o turno deve restaurar em prompt+resposta+2.
 7. **Unsloth `UD-IQ4_XS` V3.1 contra o arquivo antigo** no llama.cpp ou no Splash: tamanho, decode e uma tarefa de tool call. Registrar o commit do HF de cada arquivo.
+8. **Residência Metal no driver diário**: medir a memória wired do Flash-Next no mlx-serve a t+0, t+5 s e t+20 s depois de um request, com e sem `MLX_METAL_RESIDENCY_REFRESH_INTERVAL_MS=1000`. Medir também o TTFT do request seguinte depois de 20 s ocioso.
 
 ## Fontes
 
@@ -216,3 +261,12 @@ Adendo de 04/11:
 - https://github.com/ollama/ollama/releases/tag/v0.40.15-rc0
 - https://www.reddit.com/r/LocalLLaMA/comments/1xnvbxn/new_qwen38flashnext_unsloth_dynamic_v31_ggufs/
 - https://www.reddit.com/r/LocalLLaMA/comments/1xnrhvb/kimik31pro_is_now_openweights/
+
+Adendo de 05/11:
+
+- https://github.com/ddalcu/mlx-serve/blob/main/CHANGELOG.md, /blob/main/benchmarks.md, /commit/ac064dd133369e146931039e12dbc3489462c9a7, /pull/1094, /issues/1090, /issues/844
+- https://github.com/ggml-org/llama.cpp/pull/30982, /pull/31688, /pull/31660, /pull/30137, /pull/30541, /releases/tag/b12128
+- https://github.com/jundot/omlx/pull/4866, /pull/5082
+- https://huggingface.co/Qwen/Qwen3.8-Flash-Next/commit/7ecef55, https://huggingface.co/Qwen/Qwen3.8-27B/commit/8c0b3d3
+- https://huggingface.co/austindixson/Qwen3.8-Flash-Next-Unsloth-V3.1-MLX
+- https://www.reddit.com/r/LocalLLaMA/comments/1xomy0i/guide_qwen38_flashnext_on_a_single_rtx_5080_64gb/
