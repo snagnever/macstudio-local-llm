@@ -297,7 +297,7 @@ Rodar o `k2g` a 262144.
 
 ### Task 8: Decisão, launcher e fechamento
 
-> **Ordem (07/11):** o usuário adicionou a [flashnext-weights-2026-11](../flashnext-weights-2026-11/plan.md) à fila. Os Steps 1 a 3 rodam ao fim da Task 7. O Step 4, o reinício do servidor do usuário e o Step 5 rodam ao fim da Task W4.
+> **Ordem (07/11):** o usuário adicionou a [flashnext-weights-2026-11](../flashnext-weights-2026-11/plan.md) à fila, com a ordem definida lá. Os Steps 1 a 3 rodam ao fim da Task 7, e a decisão do launcher define a release dos pesos. O Step 4, o reinício do servidor do usuário e o Step 5 rodam ao fim da Task W3.
 
 - [ ] **Step 1: `results/summary.md`.** Uma tabela por pergunta do topo, com veredito e fonte; o que não rodou; os desvios do plano.
 - [ ] **Step 2: Launcher, se "Trocar o launcher" passar.**

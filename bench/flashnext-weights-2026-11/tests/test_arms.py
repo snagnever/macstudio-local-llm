@@ -8,6 +8,8 @@ ARMS = {
     "k4": ("ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF:Q2_0", "ed59f92082b1e93c0e96d60a8b11aab089b52f09"),
     "k5": ("unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ3_XXS", UNSLOTH_V31),
     "k6": ("unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ4_XS", UNSLOTH_V31),
+    "k7": ("bottlecapai/ThinkingCap-Qwen3.8-Flash-Next-GGUF:IQ4_XS", "2a053f7e8a1416775cc60a6b9a8da8bb7d33498a"),
+    "k8": ("ukisai/Swift-1.5-Qwen3.8-Flash-Next-GSQ-RCO-GGUF:Q2_0", "99bb8f7f95c7aa7b24a36a7786a4f657b30f5d3d"),
 }
 
 
@@ -21,7 +23,7 @@ def test_arm_pins_pack_revision_and_release(stem, suffix):
     assert "--verify-rows auto" in out and f"--runtime-revision {tag}-verify-auto" in out
 
 
-@pytest.mark.parametrize("arm", ["k1f", "k1g", "k4f", "k4g", "k5f", "k5g", "k6f", "k6g"])
+@pytest.mark.parametrize("arm", [stem + suffix for stem in ARMS for suffix in BIN])
 def test_xargs_reach_the_new_arms(arm):
     assert "--max-memory 96G" in show_arm(arm, {"FLASHNEXT_SPLASH_XARGS": "--max-memory 96G"})
 

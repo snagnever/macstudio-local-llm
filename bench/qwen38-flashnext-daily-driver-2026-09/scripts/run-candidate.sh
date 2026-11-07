@@ -453,9 +453,10 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         export QWEN38_MLX_CONFIG_OVERRIDES="{\"text_config\":{\"rope_parameters\":{\"rope_type\":\"yarn\",\"factor\":${YARN},\"original_max_position_embeddings\":262144},\"max_position_embeddings\":${CTX}}}"
         REV="${REV}-yarn${YARN}-kv4"
       fi ;;
-  k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|k3r|k3f|k2f|k2g|k3g|k1f|k1g|k4f|k4g|k5f|k5g|k6f|k6g)
+  k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|k3r|k3f|k2f|k2g|k3g|k1f|k1g|k4f|k4g|k5f|k5g|k6f|k6g|k7f|k7g|k8f|k8g)
       # flashnext-weights-2026-11: k1f/k1g = k1a on Splash 1.5.0/1.6.0; k4* = ISTA-DASLab GSQ-RCO Q2_0 at ed59f92;
       # k5* = unsloth UD-IQ3_XXS and k6* = unsloth UD-IQ4_XS, both Dynamic V3.1 at 084c631. Suffix f/g = release.
+      # k7* = BottleCap ThinkingCap IQ4_XS at 2a053f7; k8* = UkisAI Swift 1.5 GSQ-RCO Q2_0 at 99bb8f7. Both split at the repo root.
       # splash16-2026-11: k2f/k2g = k2a on Splash 1.5.0/1.6.0; k3g = k3a on 1.6.0 (k3f is its 1.5.0 pair). These four
       # also take FLASHNEXT_SPLASH_XARGS, the flags of a campaign profile.
       # stack-updates-2026-10: Splash 1.4.0 serving a Flash-Next GGUF with the DFlash2 draft Splash selects.
@@ -479,6 +480,8 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         k4*) HUB=ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF; VARIANT=Q2_0; MODEL_REV=ed59f92082b1e93c0e96d60a8b11aab089b52f09 ;;
         k5*) HUB=unsloth/Qwen3.8-Flash-Next-GGUF; VARIANT=UD-IQ3_XXS; MODEL_REV=084c631ac221016019d6e0a863afe92d90edd3b0 ;;
         k6*) HUB=unsloth/Qwen3.8-Flash-Next-GGUF; VARIANT=UD-IQ4_XS; MODEL_REV=084c631ac221016019d6e0a863afe92d90edd3b0 ;;
+        k7*) HUB=bottlecapai/ThinkingCap-Qwen3.8-Flash-Next-GGUF; VARIANT=IQ4_XS; MODEL_REV=2a053f7e8a1416775cc60a6b9a8da8bb7d33498a ;;
+        k8*) HUB=ukisai/Swift-1.5-Qwen3.8-Flash-Next-GSQ-RCO-GGUF; VARIANT=Q2_0; MODEL_REV=99bb8f7f95c7aa7b24a36a7786a4f657b30f5d3d ;;
         k2m) HUB=Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw; VARIANT=""; MODEL_REV=13839b7191e0973ff9fea58232267c395b76c6c0 ;;
         k2*) HUB=ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF; VARIANT=IQ4_XS; MODEL_REV=0142554c963a8653912c0c8283f05f13f63653f3 ;;
         k3*) HUB=ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF; VARIANT=IQ1_M; MODEL_REV=bba88856f8c3c0c9e40e45f82d05e228b814ac43 ;;
@@ -493,9 +496,9 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       SBIN="$SPLASH_140"; SREV=v1.4.0; SVER=1.4.0
       [[ "$CAND" == k3ma ]] && { SBIN="$SPLASH_MAIN"; SREV=v1.4.0-main-3135ab4; }
       [[ "$CAND" == k3r ]] && { SBIN="$SPLASH_141"; SREV=v1.4.1; SVER=1.4.1; }
-      [[ "$CAND" == k[1-6]f ]] && { SBIN="$SPLASH_150"; SREV=v1.5.0; SVER=1.5.0; }
-      [[ "$CAND" == k[1-6]g ]] && { SBIN="$SPLASH_160"; SREV=v1.6.0; SVER=1.6.0; }
-      case "$CAND" in k[1-6][fg]) [[ -n "${FLASHNEXT_SPLASH_XARGS:-}" ]] && KVF="$KVF $FLASHNEXT_SPLASH_XARGS" ;; esac
+      [[ "$CAND" == k[1-8]f ]] && { SBIN="$SPLASH_150"; SREV=v1.5.0; SVER=1.5.0; }
+      [[ "$CAND" == k[1-8]g ]] && { SBIN="$SPLASH_160"; SREV=v1.6.0; SVER=1.6.0; }
+      case "$CAND" in k[1-8][fg]) [[ -n "${FLASHNEXT_SPLASH_XARGS:-}" ]] && KVF="$KVF $FLASHNEXT_SPLASH_XARGS" ;; esac
       REV="$SREV-verify-$VR$REVX"
       export SPLASH_MODEL="$MODEL_ID_PREF" SPLASH_REVISION="$MODEL_REV" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_SPLASH_BIN="$SBIN" QWEN38_SPLASH_EXPECTED_VERSION="$SVER" QWEN38_SPLASH_PORT=8585
