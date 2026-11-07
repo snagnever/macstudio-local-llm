@@ -245,7 +245,7 @@ Ordem: `k2f`, `k2g`, `k3g`, `k3f`. Cada run usa `--exec` e tem esta sequência:
   - `denied_reservations`, `pages_moved` e bytes de state e de disco;
   - mediana e última lane de decode;
   - sonda curta e TTFT, com a parte de `metrics.ttft_parts_ms` na 1.6.0.
-- [ ] **Step 3: Escada.** Se `k2f` e `k3f` ficarem estáveis, baixar o `Q2_0`, fixar a revisão, adicionar `k4f` e `k4g` e rodar o perfil `q`. Conferir antes o disco, e testar `k4*` com `test_k4_arms_use_the_issue_pack`.
+- [ ] **Step 3: Escada.** Se `k2f` e `k3f` ficarem estáveis, baixar o `Q2_0` na revisão `ed59f92` e rodar o perfil `q`. Conferir antes o disco. Os braços `k4f` e `k4g` e o teste deles estão em [flashnext-weights-2026-11](../flashnext-weights-2026-11/tests/test_arms.py).
 - [ ] **Step 4: Repetição.** Repetir o par `f`/`g` do perfil com a maior diferença, em ordem invertida. Um resultado sem repetição não vira veredito.
 - [ ] **Step 5: Veredito por perfil,** com as regras do início. Em caso de regressão, escrever o rascunho do relato em `results/etapa3-relato-upstream.md` e não publicar.
 - [ ] **Step 6: Commit.**
@@ -296,6 +296,8 @@ Rodar o `k2g` a 262144.
 - [ ] **Step 4: Commit.**
 
 ### Task 8: Decisão, launcher e fechamento
+
+> **Ordem (07/11):** o usuário adicionou a [flashnext-weights-2026-11](../flashnext-weights-2026-11/plan.md) à fila. Os Steps 1 a 3 rodam ao fim da Task 7. O Step 4, o reinício do servidor do usuário e o Step 5 rodam ao fim da Task W4.
 
 - [ ] **Step 1: `results/summary.md`.** Uma tabela por pergunta do topo, com veredito e fonte; o que não rodou; os desvios do plano.
 - [ ] **Step 2: Launcher, se "Trocar o launcher" passar.**
