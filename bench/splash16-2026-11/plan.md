@@ -224,6 +224,8 @@ Rodar `api_contract.py --base-url U --model M --out results/contract-<ver>.jsonl
 
 ### Task 3: Envelhecimento (#644)
 
+> **Pulada pelo usuário em 07/11.** O perfil `a` e o `k3g` do perfil `p` rodaram completos. O `k3f` parou na rodada 5. Os Steps 3 e 4 não rodaram. Para a regra "Trocar o launcher", a Task 3 conta como sem regressão observada. Resultado: [results/etapa3-envelhecimento.md](results/etapa3-envelhecimento.md).
+
 A carga repete a do comentário de 31/10 da #644: 6 rodadas de 3 sessões novas e simultâneas de ~190960 tokens, `max_tokens` 300, contexto 262144. O pool enche com prefixos de sessões mortas, a ~2.5 GB por sessão (cálculo do autor). Um boot por run.
 
 | perfil | braços | flags somadas | por quê |
