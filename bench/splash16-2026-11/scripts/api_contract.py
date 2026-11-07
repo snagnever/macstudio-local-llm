@@ -17,6 +17,7 @@ PUZZLE = ("Find every positive integer n below 2000 such that n, n+2 and n+6 are
 TOOLS = [{"type": "function", "function": {"name": "record", "description": "Record the result.",
                                            "parameters": {"type": "object", "properties": {}}}}]
 THINKING_BUDGET = 1024
+TOOL_CALL_ATTEMPTS = 3
 REMOVED = (("kv_spill", "history_stream", "contended_commands"), ("memory_plan", "budget", "resident_kv_bytes"))
 
 
@@ -91,47 +92,68 @@ def _c6(call, model, v):
     return "schema 8, new fields present, removed fields absent", ok, seen
 
 
-def _c7(call, model, v):
+def _reuse_after_tool_call(call, model, effort, **first_extra):
+    """Runs a first turn until the model calls the tool, then continues by tool. Returns (status, seen)."""
     first = [{"role": "user", "content": PUZZLE}]
-    code, body = call("POST", "/v1/chat/completions", _chat(
-        model, max_tokens=4096, messages=first, reasoning_effort="xhigh", thinking_token_budget=THINKING_BUDGET,
-        tools=TOOLS))
-    if code != 200:
-        return "second turn reuses the reply past the cut", v == "1.5.0", [code, body]
-    message = body["choices"][0]["message"]
+    for attempt in range(1, TOOL_CALL_ATTEMPTS + 1):
+        code, body = call("POST", "/v1/chat/completions", _chat(
+            model, max_tokens=4096, messages=first, reasoning_effort=effort, tools=TOOLS, **first_extra))
+        if code != 200:
+            return code, {"status": code, "body": body, "attempts": attempt}
+        message = body["choices"][0]["message"]
+        if message.get("tool_calls"):
+            break
     prompt = body["usage"]["prompt_tokens"]
     # Qwen's templates keep a reasoning only after the last user message, as in a tool loop. Only the model's own call
     # keeps every token of the reply: Splash restores KV from the state where the reply ended, not from before it.
     if not message.get("tool_calls"):
-        return "second turn reuses the reply past the cut", True, {"inconclusive": "no tool call in the reply",
-                                                                    "first_prompt": prompt}
+        return 200, {"inconclusive": "no tool call in the reply", "first_prompt": prompt, "attempts": attempt}
     reply = {"role": "assistant", "content": message.get("content") or "", "tool_calls": message["tool_calls"]}
     for key in ("reasoning_content", "reasoning"):
         if message.get(key):
             reply[key] = message[key]
     code2, body2 = call("POST", "/v1/chat/completions", _chat(
-        model, max_tokens=64, reasoning_effort="xhigh", tools=TOOLS,
+        model, max_tokens=64, reasoning_effort=effort, tools=TOOLS,
         messages=first + [reply, {"role": "tool", "tool_call_id": message["tool_calls"][0]["id"], "content": "recorded"}]))
-    cached = ((body2.get("usage") or {}).get("prompt_tokens_details") or {}).get("cached_tokens")
-    seen = {"status": code2, "first_prompt": prompt, "first_output": body["usage"].get("completion_tokens"), "cached": cached,
-            "second_prompt": (body2.get("usage") or {}).get("prompt_tokens")}
+    usage2 = body2.get("usage") or {}
+    return 200, {"status": code2, "first_prompt": prompt, "first_output": body["usage"].get("completion_tokens"),
+                 "cached": (usage2.get("prompt_tokens_details") or {}).get("cached_tokens"),
+                 "second_prompt": usage2.get("prompt_tokens"), "attempts": attempt}
+
+
+def _c7(call, model, v):
+    expected = "cached > prompt + budget"
+    code, seen = _reuse_after_tool_call(call, model, "xhigh", thinking_token_budget=THINKING_BUDGET)
+    if code != 200:
+        return "second turn reuses the reply past the cut", v == "1.5.0", seen
+    if "inconclusive" in seen:
+        return "second turn reuses the reply past the cut", True, seen
     if v == "1.5.0":
         return None, True, seen
     # KV moves in blocks of 32 tokens; a reply's own close and call lie past prompt + budget.
-    return "cached > prompt + budget", cached is not None and cached > prompt + THINKING_BUDGET, seen
+    return expected, seen["cached"] is not None and seen["cached"] > seen["first_prompt"] + THINKING_BUDGET, seen
+
+
+def _c7b(call, model, v):
+    """Control of C7: the same tool loop without a budget, so no cut. It separates the cut from KV reuse in general."""
+    return None, True, _reuse_after_tool_call(call, model, "low")[1]
 
 
 CHECKS = (("C1", _c1), ("C2", _c2), ("C3", _c3), ("C4", _c4), ("C5", _c5), ("C6", _c6), ("C7", _c7))
+EXTRA_CHECKS = (("C7b", _c7b),)
 
 
-def run_checks(call, model: str, version: str) -> list[dict]:
+def run_checks(call, model: str, version: str, only: list[str] | None = None, reps: int = 1) -> list[dict]:
+    chosen = [(n, dict(CHECKS + EXTRA_CHECKS)[n]) for n in only] if only else CHECKS
     rows = []
-    for name, check in CHECKS:
-        try:
-            expected, ok, seen = check(call, model, version)
-        except Exception as exc:  # noqa: BLE001 - a dead check is a result; the others still run
-            expected, ok, seen = "no exception", False, f"{type(exc).__name__}: {exc}"
-        rows.append({"check": name, "expected": expected, "observed": seen, "pass": bool(ok)})
+    for rep in range(1, reps + 1):
+        for name, check in chosen:
+            try:
+                expected, ok, seen = check(call, model, version)
+            except Exception as exc:  # noqa: BLE001 - a dead check is a result; the others still run
+                expected, ok, seen = "no exception", False, f"{type(exc).__name__}: {exc}"
+            row = {"check": name, "expected": expected, "observed": seen, "pass": bool(ok)}
+            rows.append(dict(row, rep=rep) if reps > 1 else row)
     return rows
 
 
@@ -158,8 +180,11 @@ def main() -> int:
     ap.add_argument("--version", required=True, choices=("1.5.0", "1.6.0"))
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--timeout", type=float, default=900)
+    ap.add_argument("--only", help="comma list of checks; C7b runs only when named")
+    ap.add_argument("--reps", type=int, default=1)
     args = ap.parse_args()
-    rows = run_checks(http_call(args.base_url.rstrip("/"), args.timeout), args.model, args.version)
+    rows = run_checks(http_call(args.base_url.rstrip("/"), args.timeout), args.model, args.version,
+                      args.only.split(",") if args.only else None, args.reps)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with args.out.open("w", encoding="utf-8") as fh:
         for row in rows:

@@ -1,6 +1,6 @@
 # Etapa 1 — contrato da atualização (2026-11-07)
 
-**A 1.6.0 passa em C1 a C6, no teste do proxy e no restart do engine. C7 fica pendente.** O servidor do `k2` a 32768 respondeu a todos os checks nas duas versões.
+**A 1.6.0 passa em C1 a C6, no teste do proxy e no restart do engine. C7 falhou na quarta sonda e aguarda o controle.** O servidor do `k2` a 32768 respondeu a todos os checks nas duas versões.
 
 ## API
 
@@ -26,7 +26,17 @@ Medida intermediária, com `thinking_token_budget` 1024 e tool definida:
   1. mudou o effort entre os turnos;
   2. mandou uma mensagem de usuário, e os templates da Qwen removem o raciocínio de turnos anteriores;
   3. acrescentou uma tool call à resposta, e o Splash só restaura o KV do estado onde a resposta terminou.
-- A quarta versão usa a tool call do próprio modelo. Ela roda no início da fila da Task 3.
+- A quarta versão usa a tool call do próprio modelo:
+
+  | | 1.5.0 | 1.6.0 |
+  |---|---:|---:|
+  | tool call no primeiro turno | não; inconclusivo | sim |
+  | `first_prompt` / saída | 332 / – | 332 / 1099 |
+  | `cached` no segundo turno | – | 320 |
+  | `second_prompt` | – | 1448 |
+
+  O valor 320 é o prompt do primeiro turno arredondado para o bloco de 32 tokens. A 1.6.0 não reaproveitou nenhum token da resposta. Sem a medida da 1.5.0 e sem um controle sem corte, este resultado não separa o corte de um limite geral de reuso.
+- O controle `C7b` repete o fluxo sem budget, e C7 agora tenta até 3 vezes obter a tool call. Os dois rodam com 3 reps por release depois da Etapa 3 (`chain-t2b`).
 
 ## Proxy
 

@@ -147,3 +147,42 @@ def test_restart_verdict_accepts_the_two_documented_503_codes(er):
 def test_c7_without_a_tool_call_is_inconclusive_not_a_failure(ac):
     expected, ok, seen = ac._c7(Server(), "m", "1.6.0")
     assert ok is True and seen["inconclusive"] == "no tool call in the reply"
+
+
+def _replies_with_tool_call_on_attempt(n, calls):
+    server = Server()
+
+    def call(method, path, body=None):
+        code, out = server(method, path, body)
+        calls.append(body)
+        first_turns = [c for c in calls if len(c["messages"]) == 1]
+        if len(body["messages"]) == 1 and len(first_turns) >= n:
+            out["choices"][0]["message"]["tool_calls"] = [TOOL_CALL]
+        return code, out
+    return call
+
+
+def test_c7_retries_the_first_turn_until_the_model_calls_the_tool(ac):
+    calls = []
+    _, _, seen = ac._c7(_replies_with_tool_call_on_attempt(3, calls), "m", "1.6.0")
+    assert "inconclusive" not in seen and seen["attempts"] == 3
+
+
+def test_c7_stays_inconclusive_after_the_last_attempt(ac):
+    calls = []
+    _, ok, seen = ac._c7(_replies_with_tool_call_on_attempt(99, calls), "m", "1.5.0")
+    assert ok is True and seen["attempts"] == ac.TOOL_CALL_ATTEMPTS and "inconclusive" in seen
+
+
+def test_c7b_control_has_no_thinking_budget_and_only_records(ac):
+    calls = []
+    expected, ok, seen = ac._c7b(_replies_with_tool_call_on_attempt(1, calls), "m", "1.6.0")
+    assert expected is None and ok is True and "cached" in seen
+    assert all("thinking_token_budget" not in c for c in calls)
+    assert calls[0]["reasoning_effort"] == calls[1]["reasoning_effort"]
+
+
+def test_main_runs_only_the_named_checks_for_each_rep(ac, tmp_path):
+    rows = ac.run_checks(_replies_with_tool_call_on_attempt(1, []), "m", "1.6.0", only=["C7", "C7b"], reps=2)
+    assert [r["check"] for r in rows] == ["C7", "C7b", "C7", "C7b"]
+    assert [r["rep"] for r in rows] == [1, 1, 2, 2]
