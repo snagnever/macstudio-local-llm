@@ -1,6 +1,6 @@
 # Etapa 1 — contrato da atualização (2026-11-07)
 
-**A 1.6.0 passa em C1 a C6, no teste do proxy e no restart do engine. C7 falhou na quarta sonda e aguarda o controle.** O servidor do `k2` a 32768 respondeu a todos os checks nas duas versões.
+**A 1.6.0 passa em C1 a C6, no teste do proxy e no restart do engine. Na C7, as duas releases se comportam igual: o reuso da resposta depois do corte, anunciado na 1.6.0, não aparece. Isso não é regressão, e a Task 1 passa para a regra do launcher.** O servidor do `k2` a 32768 respondeu a todos os checks nas duas versões.
 
 ## API
 
@@ -36,7 +36,19 @@ Medida intermediária, com `thinking_token_budget` 1024 e tool definida:
   | `second_prompt` | – | 1448 |
 
   O valor 320 é o prompt do primeiro turno arredondado para o bloco de 32 tokens. A 1.6.0 não reaproveitou nenhum token da resposta. Sem a medida da 1.5.0 e sem um controle sem corte, este resultado não separa o corte de um limite geral de reuso.
-- O controle `C7b` repete o fluxo sem budget, e C7 agora tenta até 3 vezes obter a tool call. Os dois rodam com 3 reps por release depois da Etapa 3 (`chain-t2b`).
+- O controle `C7b` repete o fluxo sem budget, e C7 tenta até 3 vezes obter a tool call. Resultado com 3 reps por release (`results/contract-c7-1.5.0.jsonl`, `results/contract-c7-1.6.0.jsonl`):
+
+  | rep | 1.5.0 saída / `cached` / `second_prompt` | 1.6.0 saída / `cached` / `second_prompt` |
+  |---:|---|---|
+  | 1 | sem tool call; inconclusivo | 1313 / 320 / 1662 |
+  | 2 | 1129 / 320 / 1479 | 1213 / 320 / 1562 |
+  | 3 | 4096 / 320 / 4547 | 1129 / 320 / 1478 |
+
+  - Nas duas releases, o segundo turno reaproveita só o prompt do primeiro turno (320 de 332 tokens). Nenhum token da resposta entra no cache.
+  - A 1.6.0 marca FAIL porque o check espera o reuso anunciado. A 1.5.0 marca pass porque o check não tem essa expectativa nela.
+  - A 1.5.0 chegou ao `max_tokens` em 1 de 2 reps válidas. A 1.6.0 cortou nas 3 reps. Isso confirma a diferença do corte com tools.
+  - O `C7b` ficou inconclusivo nas 6 tentativas: sem budget, o modelo não fez tool call. Por isso, o resultado não separa o corte de um limite geral de reuso da resposta.
+- **Conclusão da C7:** o corte com tools funciona melhor na 1.6.0. O reuso do KV depois do corte não aparece em nenhuma release. A 1.6.0 não fica pior que a 1.5.0.
 
 ## Proxy
 

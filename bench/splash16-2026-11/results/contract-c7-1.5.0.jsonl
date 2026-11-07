@@ -1,0 +1,6 @@
+{"check": "C7", "expected": "second turn reuses the reply past the cut", "observed": {"inconclusive": "no tool call in the reply", "first_prompt": 332, "attempts": 3}, "pass": true, "rep": 1}
+{"check": "C7b", "expected": null, "observed": {"inconclusive": "no tool call in the reply", "first_prompt": 320, "attempts": 3}, "pass": true, "rep": 1}
+{"check": "C7", "expected": null, "observed": {"status": 200, "first_prompt": 332, "first_output": 1129, "cached": 320, "second_prompt": 1479, "attempts": 1}, "pass": true, "rep": 2}
+{"check": "C7b", "expected": null, "observed": {"inconclusive": "no tool call in the reply", "first_prompt": 320, "attempts": 3}, "pass": true, "rep": 2}
+{"check": "C7", "expected": null, "observed": {"status": 200, "first_prompt": 332, "first_output": 4096, "cached": 320, "second_prompt": 4547, "attempts": 1}, "pass": true, "rep": 3}
+{"check": "C7b", "expected": null, "observed": {"inconclusive": "no tool call in the reply", "first_prompt": 320, "attempts": 3}, "pass": true, "rep": 3}

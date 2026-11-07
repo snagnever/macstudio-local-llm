@@ -34,7 +34,14 @@ VERDICT: pass
 
 - **512K:** as releases empatam. A diferença de decode vem de 1 rep contra 3 e não entra na regra.
 - **1M:** o `T_turno` do `k2g` fica 7–9% acima da referência `k2a` da 1.4.0 (9.3–9.4 s), fora da faixa de ±5%. O decode está igual (75–77 tok/s). A diferença vem do warm TTFT: 3.5 s contra 2.6 s, em uma amostra. O cold TTFT também subiu: 1624 s contra 1532 s.
-- **Pendência:** o plano manda rodar `k2f` a 1M neste caso. O run está na fila, depois do primeiro passe da Task 3 (`chain-t2b`). A 1.4.0 foi medida em outro dia, então a comparação com a 1.5.0 do mesmo dia decide se a diferença vem da release.
+- **1.5.0 a 1M, no mesmo dia:**
+
+  | braço | `T_turno` | cold TTFT | warm TTFT | decode | wired peak | needles |
+  |---|---:|---:|---:|---:|---:|---|
+  | `k2f` | 9.8 s | 1534.1 s | 2.60 s | 71.4 | 110.1 GB | 5/5 |
+  | `k2g` | 10.1 s | 1624.2 s | 3.50 s | 76.9 | 109.8 GB | 4/5 |
+
+  A razão `k2g`/`k2f` é 1.031, com 1 rep por release. O warm TTFT sobe 0.9 s e o cold TTFT sobe 5.9% na 1.6.0. O decode fica 7.7% mais rápido na 1.6.0. A regra de paridade só vale para 32K, 128K e 256K, então este valor é uma observação e não muda o veredito. O `k2f` também fica 4–5% acima do `k2a` da 1.4.0 (9.3–9.4 s), então a maior parte da diferença contra a referência antiga vem do dia ou da 1.5.0, e cerca de 3% vem da 1.6.0. Uma rep por release não separa 3% do ruído.
 - **Needle errado a 1M:** o `tool_turn` terminou com `finish_reason=stop`, 3753 tokens e 3 needles na resposta, com pelo menos um errado. O `k2a` também errou esse cenário em um dos seus runs a 1M, mas por truncamento em 4096. Uma amostra não indica regressão.
 
 ## 1M: capacidade e SSD

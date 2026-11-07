@@ -1,0 +1,6 @@
+{"check": "C7", "expected": "cached > prompt + budget", "observed": {"status": 200, "first_prompt": 332, "first_output": 1313, "cached": 320, "second_prompt": 1662, "attempts": 1}, "pass": false, "rep": 1}
+{"check": "C7b", "expected": null, "observed": {"inconclusive": "no tool call in the reply", "first_prompt": 320, "attempts": 3}, "pass": true, "rep": 1}
+{"check": "C7", "expected": "cached > prompt + budget", "observed": {"status": 200, "first_prompt": 332, "first_output": 1213, "cached": 320, "second_prompt": 1562, "attempts": 1}, "pass": false, "rep": 2}
+{"check": "C7b", "expected": null, "observed": {"inconclusive": "no tool call in the reply", "first_prompt": 320, "attempts": 3}, "pass": true, "rep": 2}
+{"check": "C7", "expected": "cached > prompt + budget", "observed": {"status": 200, "first_prompt": 332, "first_output": 1129, "cached": 320, "second_prompt": 1478, "attempts": 1}, "pass": false, "rep": 3}
+{"check": "C7b", "expected": null, "observed": {"inconclusive": "no tool call in the reply", "first_prompt": 320, "attempts": 3}, "pass": true, "rep": 3}
