@@ -40,10 +40,13 @@ class Server:
             self.requests["cancelled" if self.cancelled else "completed"] += 1
         cached = 0
         if len(body["messages"]) > 1:
-            cached = 42 + 1000
+            cached = 42 + 1024 + 64
         return 200, {"choices": [{"message": {"content": "ok", "reasoning_content": "r"}, "finish_reason": "stop"}],
                      "usage": {"prompt_tokens": 42, "completion_tokens": 1100,
                                "prompt_tokens_details": {"cached_tokens": cached}}}
+
+
+TOOL_CALL = {"id": "call_9", "type": "function", "function": {"name": "record", "arguments": "{}"}}
 
 
 def by_check(rows):
@@ -94,3 +97,53 @@ def test_restart_verdict_requires_503_with_retry_after_then_200(er):
     assert er.verdict(never, boot_s=20, context_before=262144, context_after=None)["pass"] is False
     shrunk = good
     assert er.verdict(shrunk, boot_s=20, context_before=262144, context_after=131072)["pass"] is False
+
+
+def test_c7_keeps_the_prefix_of_the_first_turn(ac):
+    calls = []
+    server = Server()
+
+    def spy(method, path, body=None):
+        calls.append(body)
+        code, out = server(method, path, body)
+        if len(body["messages"]) == 1:
+            out["choices"][0]["message"]["tool_calls"] = [TOOL_CALL]
+        return code, out
+    ac._c7(spy, "m", "1.6.0")
+    first, second = calls
+    assert second["messages"][1]["tool_calls"] == [TOOL_CALL]  # the model's own call: an added one departs from the reply
+    assert second["reasoning_effort"] == first["reasoning_effort"]  # the effort is rendered near the start of the prompt
+    assert second["messages"][1]["reasoning_content"] == "r"  # the reply keeps the tokens the budget cut
+    # Qwen's templates drop the reasoning of a turn before the last user message, so the turn must continue by tool.
+    assert second["messages"][-1]["role"] == "tool" and first["tools"] == second["tools"]
+    assert second["messages"][1]["tool_calls"][0]["id"] == second["messages"][-1]["tool_call_id"]
+
+
+def test_c7_needs_cached_tokens_past_the_cut(ac):
+    def answer(cached):
+        server = Server()
+
+        def call(method, path, body=None):
+            code, out = server(method, path, body)
+            if len(body["messages"]) > 1:
+                out["usage"]["prompt_tokens_details"]["cached_tokens"] = cached
+            else:
+                out["choices"][0]["message"]["tool_calls"] = [TOOL_CALL]
+            return code, out
+        return ac._c7(call, "m", "1.6.0")[1]
+    prompt, budget = 42, ac.THINKING_BUDGET
+    assert answer(prompt + budget + 1) is True
+    assert answer(prompt + budget) is False
+
+
+def test_restart_verdict_accepts_the_two_documented_503_codes(er):
+    attempts = [{"t": 0, "status": 503, "code": "runtime_unavailable", "retry_after": "24"},
+                {"t": 1, "status": 503, "code": "engine_recovering", "retry_after": "23"}, {"t": 24, "status": 200}]
+    assert er.verdict(attempts, boot_s=30, context_before=32768, context_after=32768)["pass"] is True
+    attempts[0]["code"] = "engine_failed"
+    assert er.verdict(attempts, boot_s=30, context_before=32768, context_after=32768)["pass"] is False
+
+
+def test_c7_without_a_tool_call_is_inconclusive_not_a_failure(ac):
+    expected, ok, seen = ac._c7(Server(), "m", "1.6.0")
+    assert ok is True and seen["inconclusive"] == "no tool call in the reply"

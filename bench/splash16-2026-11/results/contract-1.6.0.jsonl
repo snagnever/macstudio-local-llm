@@ -1,0 +1,7 @@
+{"check": "C1", "expected": "400 naming stop_sequences", "observed": [400, {"type": "error", "error": {"type": "invalid_request_error", "message": "stop_sequences must be an array of strings"}}], "pass": true}
+{"check": "C2", "expected": "200", "observed": 200, "pass": true}
+{"check": "C3", "expected": "400", "observed": 400, "pass": true}
+{"check": "C4", "expected": "input_tokens == usage.prompt_tokens", "observed": [55, 55, 200], "pass": true}
+{"check": "C5", "expected": "requests.completed +1, cancelled +0", "observed": {"status": 200, "completed": 1, "cancelled": 0}, "pass": true}
+{"check": "C6", "expected": "schema 8, new fields present, removed fields absent", "observed": {"schema": 8, "governor": true, "ttft_parts": true, "gap_causes": true, "removed_present": []}, "pass": true}
+{"check": "C7", "expected": "cached > prompt + budget + 32", "observed": {"status": 200, "first_prompt": 345, "first_output": 1470, "cached": 320, "second_prompt": 1846}, "pass": false}

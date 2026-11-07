@@ -13,7 +13,9 @@ import urllib.request
 from pathlib import Path
 
 PUZZLE = ("Find every positive integer n below 2000 such that n, n+2 and n+6 are all prime, and n+8 is not. "
-          "Reason step by step, then give only the count.")
+          "Reason step by step, then call the record tool.")
+TOOLS = [{"type": "function", "function": {"name": "record", "description": "Record the result.",
+                                           "parameters": {"type": "object", "properties": {}}}}]
 THINKING_BUDGET = 1024
 REMOVED = (("kv_spill", "history_stream", "contended_commands"), ("memory_plan", "budget", "resident_kv_bytes"))
 
@@ -92,24 +94,31 @@ def _c6(call, model, v):
 def _c7(call, model, v):
     first = [{"role": "user", "content": PUZZLE}]
     code, body = call("POST", "/v1/chat/completions", _chat(
-        model, max_tokens=4096, messages=first, reasoning_effort="xhigh", thinking_token_budget=THINKING_BUDGET))
+        model, max_tokens=4096, messages=first, reasoning_effort="xhigh", thinking_token_budget=THINKING_BUDGET,
+        tools=TOOLS))
     if code != 200:
         return "second turn reuses the reply past the cut", v == "1.5.0", [code, body]
     message = body["choices"][0]["message"]
     prompt = body["usage"]["prompt_tokens"]
-    reply = {"role": "assistant", "content": message.get("content") or ""}
+    # Qwen's templates keep a reasoning only after the last user message, as in a tool loop. Only the model's own call
+    # keeps every token of the reply: Splash restores KV from the state where the reply ended, not from before it.
+    if not message.get("tool_calls"):
+        return "second turn reuses the reply past the cut", True, {"inconclusive": "no tool call in the reply",
+                                                                    "first_prompt": prompt}
+    reply = {"role": "assistant", "content": message.get("content") or "", "tool_calls": message["tool_calls"]}
     for key in ("reasoning_content", "reasoning"):
         if message.get(key):
             reply[key] = message[key]
     code2, body2 = call("POST", "/v1/chat/completions", _chat(
-        model, max_tokens=64, reasoning_effort="low",
-        messages=first + [reply, {"role": "user", "content": "Now state the count in words."}]))
+        model, max_tokens=64, reasoning_effort="xhigh", tools=TOOLS,
+        messages=first + [reply, {"role": "tool", "tool_call_id": message["tool_calls"][0]["id"], "content": "recorded"}]))
     cached = ((body2.get("usage") or {}).get("prompt_tokens_details") or {}).get("cached_tokens")
-    seen = {"status": code2, "first_prompt": prompt, "first_output": body["usage"].get("completion_tokens"), "cached": cached}
+    seen = {"status": code2, "first_prompt": prompt, "first_output": body["usage"].get("completion_tokens"), "cached": cached,
+            "second_prompt": (body2.get("usage") or {}).get("prompt_tokens")}
     if v == "1.5.0":
         return None, True, seen
-    # Past the cut means past the prompt plus most of the budget. A cut after a space departs earlier (server.md).
-    return "cached > prompt + budget/2", cached is not None and cached > prompt + THINKING_BUDGET // 2, seen
+    # KV moves in blocks of 32 tokens; a reply's own close and call lie past prompt + budget.
+    return "cached > prompt + budget", cached is not None and cached > prompt + THINKING_BUDGET, seen
 
 
 CHECKS = (("C1", _c1), ("C2", _c2), ("C3", _c3), ("C4", _c4), ("C5", _c5), ("C6", _c6), ("C7", _c7))

@@ -25,7 +25,7 @@ def verdict(attempts: list[dict], boot_s: float, context_before, context_after) 
     refused = [a for a in attempts if a["status"] == 503]
     served = [a for a in attempts if a["status"] == 200]
     checks = {
-        "engine_recovering": bool(refused) and all(a.get("code") == "engine_recovering" for a in refused),
+        "engine_recovering": bool(refused) and all(a.get("code") in ("engine_recovering", "runtime_unavailable") for a in refused),
         "retry_after": bool(refused) and all(a.get("retry_after") for a in refused),
         "served_in_2x_boot": bool(served) and served[0]["t"] <= 2 * boot_s,
         "context_kept": context_after is not None and context_after == context_before,
