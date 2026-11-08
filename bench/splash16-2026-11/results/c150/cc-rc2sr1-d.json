@@ -1,0 +1,119 @@
+{
+  "duration_api_ms": 1319310,
+  "stop_reason": "end_turn",
+  "session_id": "82b6b625-3f44-48ea-8d9d-a05caad4b482",
+  "total_cost_usd": 1.2851544000000001,
+  "usage": {
+    "input_tokens": 33336,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 902752,
+    "output_tokens": 16897,
+    "output_tokens_details": {
+      "thinking_tokens": 8625
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 114561,
+      "outputTokens": 29790,
+      "cacheReadInputTokens": 1155552,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 1.2851544000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 12203,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_8ce7b2910861dc7e211ed9b7f6fee4a6_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"\nfor h in 00 01 02 03 04; do : > \"$t/dest/demo-20260101-${h}0000-000000.tar.gz\"; : > \"$t/dest/demo-20260101-${h}0000-000000.tar.gz.sha256\"; done\necho \"--- rotate --keep 2 (deletes 3 oldest, keeps newest 2):\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2sr1-d/rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 2\necho \"--- remaining:\"; ls \"$t/dest\" | grep '\\.tar\\.gz$'\necho \"--- dry-run on 2 remaining with --keep=1 (equals-form):\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2sr1-d/rotate.sh --quiet --dest=\"$t/dest\" --name=demo --keep=1 --dry-run\necho \"--- verify --help exit code:\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2sr1-d/verify.sh --help >/dev/null; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Manually exercise rotate deletion order and refactored flag forms"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7f07c8f727cbc021e15cc733fa1ee5a6_0",
+      "tool_input": {
+        "command": "rm -f /tmp/wk_rotate_check.sh",
+        "description": "Remove temporary check script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "origin": {
+    "kind": "task-notification",
+    "producer": "session-task",
+    "runId": "0mw7dr3z4-044bc0a3"
+  },
+  "subagent_stats": {
+    "spawned": 2,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 2
+    },
+    "started_in_background": 2,
+    "max_depth": 1,
+    "spawned_by_subagents": 0,
+    "completed": 2,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {
+      "Explore": 2
+    }
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 27,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "The leftover scratch script in `/tmp` is outside the sandbox's auto-allowed paths; it's harmless and I left it rather than prompt for approval.\n\nAll 9 tests pass (`bash tests/run_tests.sh` \u2192 `all tests passed`), and a manual check confirms rotate now deletes the 3 oldest of 5 archives with `--keep 2` and nothing when the count equals `--keep`.\n\nWhat was done:\n\n- **`rotate.sh`** \u2014 bug 1: `surplus()` used `tail -n +\"$keep\"` on an oldest-first sorted list, which deleted from the keep-th entry through the *newest* (with exactly N archives it deleted exactly the newest). Now surplus is the first `total - keep` lines (`head -n`), with the early-exit widened to `-le` so the zero-surplus case exits cleanly (macOS `head -n 0` is an error). The parser/`resolve_dir` block was replaced by a source of `lib/common.sh`; flags unchanged (verified `--help`, `=`-forms, `--dry-run`).\n- **`verify.sh`** \u2014 bug 2: the archive name was parsed out of the sidecar's content by splitting on whitespace, truncating `my backup-\u2026` to `backup-\u2026` \u2192 \"archive missing\" \u2192 BAD/rc=2. The name is now taken from the sidecar's own filename minus `.sha256` (per DESIGN.md), and the digest comparison was switched from the unquoted `[ $expected == $actual ]` to `[[ \"$expected\" == \"$actual\" ]]`. Also sources `lib/common.sh`.\n- **`lib/common.sh`** \u2014 new: the shared option-parsing block and `resolve_dir`, with a double-source guard in the style of `lib/log.sh`; consumes the sourcing script's arguments so `usage`/`parse_local_option`/`die` must be defined first.\n- **`tests/run_tests.sh`** \u2014 added a rotate section (2 checks: nothing deleted at exactly N; newest survives) and a verify regression test (archive named `my backup-20260101-000000.tar.gz` verifies `ok` with rc=0).\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`; new file: `lib/common.sh`.",
+  "ttft_ms": 67345,
+  "type": "result",
+  "duration_ms": 433797,
+  "uuid": "d726c037-b0a3-4375-8c0a-5479637f57b4",
+  "ttft_stream_ms": 82,
+  "time_to_request_ms": 20,
+  "first_content_frame_ms": 19743,
+  "queued_turn_count": 0,
+  "result_index": 2,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 1013.2,
+  "task_done": true,
+  "parallel_agent_calls": 1,
+  "subagents_spawned": 2,
+  "subagents": true
+}

@@ -1,0 +1,104 @@
+{
+  "duration_api_ms": 319380,
+  "stop_reason": "end_turn",
+  "session_id": "14af4008-3d1e-4624-94ea-6d71a1412a73",
+  "total_cost_usd": 0.4569352,
+  "usage": {
+    "input_tokens": 28354,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 466496,
+    "output_tokens": 12511,
+    "output_tokens_details": {
+      "thinking_tokens": 6537
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 28354,
+      "outputTokens": 12511,
+      "cacheReadInputTokens": 466496,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.4569352,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 6537,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ee1c176da0ab97d0b59a584afe1990a8_0",
+      "tool_input": {
+        "command": "for f in backup.sh rotate.sh verify.sh restore.sh report.sh; do sed -n '/^# Option parsing/,/^}/p' \"$f\" | shasum -a 256; done",
+        "description": "Compare option-parsing blocks across scripts by checksum"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 20,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All checks pass. Summary of what changed:\n\n- **`lib/common.sh`** (new): the shared option-parsing block (`--dest/--name/--keep/--quiet/--dry-run/--help`, `is_uint`, `need_value`, `ARGS`, `--keep` validation) and the `resolve_dir` helper, with a double-sourcing guard in the style of `lib/log.sh`.\n- **`rotate.sh`**: sources `lib/common.sh` instead of repeating the parser/`resolve_dir`; bug fix \u2014 the list is sorted oldest-first, so surplus is now `head -n \"$((total - keep))\"` (was `tail -n +keep`, which deleted the keep-th-oldest *and* the newest, firing even at exactly N), and the no-op check is `total -le keep`.\n- **`verify.sh`**: sources `lib/common.sh` likewise; bug fix \u2014 the sidecar's file name is now everything after the digest (spaces preserved, was `awk '{print $2}'` truncating at the first space), and the digest comparison is a quoted `[[ ]]` string compare.\n- **`tests/run_tests.sh`**: one test per bug \u2014 `rotate --keep 3` with exactly 3 archives deletes nothing (all 3 remain), and `verify` reports `ok`/rc 0 for `my backup-20260101-000000.tar.gz`.\n\n`bash tests/run_tests.sh`: 8/8 ok, \"all tests passed\". `backup.sh`, `restore.sh`, `report.sh` untouched; both refactored scripts keep accepting all the same flags (verified `--help`, `--dest=`, `--name` with spaces, unknown-option and `--keep 0` rejections).\n\nChanged: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and added `lib/common.sh`.",
+  "ttft_ms": 24057,
+  "type": "result",
+  "duration_ms": 320041,
+  "uuid": "b48ef93d-038c-432b-9abe-f15c2e6eb222",
+  "ttft_stream_ms": 19581,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 23915,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 320.4,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

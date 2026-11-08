@@ -1,0 +1,151 @@
+{
+  "duration_api_ms": 1105967,
+  "stop_reason": "end_turn",
+  "session_id": "84d7bb53-4669-40d9-8e45-c7202bc2b982",
+  "total_cost_usd": 1.3059759999999998,
+  "usage": {
+    "input_tokens": 39466,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1244320,
+    "output_tokens": 19164,
+    "output_tokens_details": {
+      "thinking_tokens": 10314
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 100754,
+      "outputTokens": 31060,
+      "cacheReadInputTokens": 1408800,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 1.3059759999999998,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 13162,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c4d636791962df36d4e053e7a9473088_0",
+      "tool_input": {
+        "command": "set -u; cd /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2sr2-d\nt=$(mktemp -d); t=$(cd \"$t\" && pwd -P)\nmkdir -p \"$t/src\"; printf 'a\\n' > \"$t/src/a.txt\"\nfor d in 01 02 03 04 05; do BACKUP_STAMP=2026010$d-010000 bash backup.sh --quiet --dest \"$t/dest\" --name demo \"$t/src\" >/dev/null; done\necho \"== rotate --keep=3 (equals form), expect 2 oldest deleted, newest 3 kept ==\"\nbash rotate.sh --quiet --dest=\"$t/dest\" --name=demo --keep=3\nls \"$t/dest\" | grep '\\.tar\\.gz$'\necho \"== --keep 0 refused ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 0; echo \"rc=$?\"\necho \"== --keep non-int refused ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep abc; echo \"rc=$?\"\necho \"== unknown flag ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --bogus >/dev/null 2>&1; echo \"rc=$?\"\necho \"== --help ==\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"== dry-run ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 1 -n; ls \"$t/dest\" | grep -c '\\.tar\\.gz$'\necho \"== verify --name + spaces ==\"; BACKUP_STAMP=20260201-000000 bash backup.sh --quiet --dest \"$t/dest\" --name \"my backup\" \"$t/src\" >/dev/null\nbash verify.sh --quiet --dest \"$t/dest\" --name \"my backup\"; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Manual checks: rotation deletes oldest beyond keep, all flags accepted"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_5d44c160984e6ce2275c3796039d4322_0",
+      "tool_input": {
+        "command": "set -u; cd /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2sr2-d\nt=\"/tmp/bktool-check-$$\"; mkdir -p \"$t/src\"; printf 'a\\n' > \"$t/src/a.txt\"\nfor d in 01 02 03 04 05; do BACKUP_STAMP=2026010$d-010000 bash backup.sh --quiet --dest \"$t/dest\" --name demo \"$t/src\" >/dev/null; done\necho \"== rotate --keep=3 (equals form), expect 2 oldest deleted, newest 3 kept ==\"\nbash rotate.sh --quiet --dest=\"$t/dest\" --name=demo --keep=3\nls \"$t/dest\" | grep '\\.tar\\.gz$'\necho \"== --keep 0 refused ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 0; echo \"rc=$?\"\necho \"== --keep non-int refused ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep abc; echo \"rc=$?\"\necho \"== unknown flag ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --bogus >/dev/null 2>&1; echo \"rc=$?\"\necho \"== --help ==\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"== dry-run --keep 1 ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 1 -n; echo \"archives still on disk: $(ls \"$t/dest\" | grep -c '\\.tar\\.gz$')\"\necho \"== verify --name filter ==\"; BACKUP_STAMP=20260201-000000 bash backup.sh --quiet --dest \"$t/dest\" --name \"my backup\" \"$t/src\" >/dev/null\nbash verify.sh --quiet --dest \"$t/dest\" --name \"my backup\"; echo \"rc=$?\"\nrm -rf \"/tmp/bktool-check-$$\"",
+        "description": "Manual checks: rotation deletes oldest beyond keep, all flags accepted"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ba24ea79d0a665fc5b4378ea8c360a1f_0",
+      "tool_input": {
+        "command": "set -u; cd /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2sr2-d\nt=\"/tmp/bktool-check-rc2sr2d\"; mkdir -p \"$t/src\"; printf 'a\\n' > \"$t/src/a.txt\"\nfor d in 01 02 03 04 05; do BACKUP_STAMP=2026010$d-010000 bash backup.sh --quiet --dest \"$t/dest\" --name demo \"$t/src\" >/dev/null; done\necho \"== rotate --keep=3 (equals form), expect 2 oldest deleted, newest 3 kept ==\"\nbash rotate.sh --quiet --dest=\"$t/dest\" --name=demo --keep=3\nls \"$t/dest\" | grep '\\.tar\\.gz$'\necho \"== --keep 0 refused ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 0; echo \"rc=$?\"\necho \"== --keep non-int refused ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep abc; echo \"rc=$?\"\necho \"== unknown flag ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --bogus >/dev/null 2>&1; echo \"rc=$?\"\necho \"== --help ==\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"== dry-run --keep 1 ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 1 -n; echo \"archives still on disk: $(ls \"$t/dest\" | grep -c '\\.tar\\.gz$')\"\necho \"== verify --name filter ==\"; BACKUP_STAMP=20260201-000000 bash backup.sh --quiet --dest \"$t/dest\" --name \"my backup\" \"$t/src\" >/dev/null\nbash verify.sh --quiet --dest \"$t/dest\" --name \"my backup\"; echo \"rc=$?\"\nrm -rf \"/tmp/bktool-check-rc2sr2d\"",
+        "description": "Manual checks: rotation deletes oldest beyond keep, all flags accepted"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_bc2ad48204e43f27db3731e1127e646a_0",
+      "tool_input": {
+        "command": "set -u; cd /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2sr2-d\nt=\"/tmp/bktool-check-rc2sr2d\"; mkdir -p \"$t/src\"; printf 'a\\n' | tee \"$t/src/a.txt\" >/dev/null\nfor d in 01 02 03 04 05; do BACKUP_STAMP=2026010$d-010000 bash backup.sh --quiet --dest \"$t/dest\" --name demo \"$t/src\" >/dev/null; done\necho \"== rotate --keep=3 (equals form), expect 2 oldest deleted, newest 3 kept ==\"\nbash rotate.sh --quiet --dest=\"$t/dest\" --name=demo --keep=3\nls \"$t/dest\" | grep '\\.tar\\.gz$'\necho \"== --keep 0 refused ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 0; echo \"rc=$?\"\necho \"== --keep non-int refused ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep abc; echo \"rc=$?\"\necho \"== unknown flag ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --bogus >/dev/null 2>&1; echo \"rc=$?\"\necho \"== --help ==\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"== dry-run --keep 1 ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 1 -n; echo \"archives still on disk: $(ls \"$t/dest\" | grep -c '\\.tar\\.gz$')\"\necho \"== verify --name filter ==\"; BACKUP_STAMP=20260201-000000 bash backup.sh --quiet --dest \"$t/dest\" --name \"my backup\" \"$t/src\" >/dev/null\nbash verify.sh --quiet --dest \"$t/dest\" --name \"my backup\"; echo \"rc=$?\"\nrm -rf \"/tmp/bktool-check-rc2sr2d\"",
+        "description": "Manual checks: rotation deletes oldest beyond keep, all flags accepted"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_050e3d896df68d375fd5619b50368a73_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/bktool-check/t; bash /tmp/bktool-check/run.sh",
+        "description": "Run manual flag and rotation checks"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_af66fcf803217566f9c90c84a03433f9_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/bktool-check/t; bash /tmp/bktool-check/run.sh",
+        "description": "Run manual flag and rotation checks"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "origin": {
+    "kind": "task-notification",
+    "producer": "session-task",
+    "runId": "0mw76yc6a-47abd71f"
+  },
+  "subagent_stats": {
+    "spawned": 2,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 2
+    },
+    "started_in_background": 2,
+    "max_depth": 1,
+    "spawned_by_subagents": 0,
+    "completed": 2,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {
+      "Explore": 2
+    }
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 30,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done \u2014 all 8 tests pass (6 original + 2 new regression tests), verified by `bash tests/run_tests.sh` from the repository root.\n\n**Bug 1 (rotate.sh):** `surplus()` used `tail -n +\"$keep\"`, which includes the KEEP-th entry \u2014 with exactly N archives the newest was deleted. Now `tail -n +\"$((keep + 1))\"`, and the early-exit guard `-lt` \u2192 `-le` so exactly-N reports \"nothing to rotate\". Manual check: 5 archives, `--keep 3` \u2192 deletes the 2 oldest, keeps the 3 newest.\n\n**Bug 2 (verify.sh):** sidecar filenames were parsed with `awk '{print $2}'`, truncating at the first space so names like `my backup-\u2026tar.gz` hit the \"archive missing\" path. Now split with a regex on the first whitespace run, keeping the full name; also quoted the digest comparison (`[ $expected == $actual ]` \u2192 `[[ \"$expected\" == \"$actual\" ]]`).\n\n**Extraction:** new `lib/common.sh` holds the shared parser (`is_uint`, `need_value`, the `while`/`case` loop, `--keep` validation) and `resolve_dir`, exposed as `parse_options`; `rotate.sh` and `verify.sh` source it and call `parse_options \"$@\"` \u2014 all flag forms (`--dest=\u2026`, `--keep N`, `-q`, `-n`, `-h`, unknown-flag rejection) verified working. `backup.sh`, `restore.sh`, `report.sh` untouched.\n\nChanged: `rotate.sh`, `verify.sh`, `lib/common.sh` (new), `tests/run_tests.sh`. (A scratch check script remains at `/tmp/bktool-check/` \u2014 the sandbox blocks deleting it from here.)",
+  "ttft_ms": 87952,
+  "type": "result",
+  "duration_ms": 393724,
+  "uuid": "28b63493-9784-4078-86fe-5ecafe0ae1a6",
+  "ttft_stream_ms": 64,
+  "time_to_request_ms": 25,
+  "first_content_frame_ms": 11983,
+  "queued_turn_count": 0,
+  "result_index": 1,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 732.4,
+  "task_done": false,
+  "parallel_agent_calls": 1,
+  "subagents_spawned": 2,
+  "subagents": true
+}

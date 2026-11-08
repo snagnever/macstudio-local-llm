@@ -1,0 +1,136 @@
+{
+  "duration_api_ms": 341525,
+  "stop_reason": "end_turn",
+  "session_id": "fcca30fc-ed0b-4aaf-a618-1c34063327ae",
+  "total_cost_usd": 0.7465992,
+  "usage": {
+    "input_tokens": 35604,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1107616,
+    "output_tokens": 19133,
+    "output_tokens_details": {
+      "thinking_tokens": 9003
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 35604,
+      "outputTokens": 19133,
+      "cacheReadInputTokens": 1107616,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7465992,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9003,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_88c4f1c90d6b75caff21a3cca308fa06_0",
+      "tool_input": {
+        "command": "cat >> tests/run_tests.sh <<'TESTS_EOF'\n\nt=$(tmpdir)\nmkdir -p \"$t/src\"\nprintf 'hello\\n' > \"$t/src/hello.txt\"\nBACKUP_STAMP=20260101-000000 bash \"$ROOT/backup.sh\" --quiet --dest \"$t/dest\" --name \"my backup\" \"$t/src\" > /dev/null\nrc=0\nout=$(bash \"$ROOT/verify.sh\" --quiet --dest \"$t/dest\") || rc=$?\ncheck \"verify accepts spaces in the archive name\" \"ok my backup-20260101-000000.tar.gz / rc=0\" \"$out / rc=$rc\"\nrm -rf \"$t\"\n\n# --- rotate.sh ---------------------------------------------------------------\nt=$(tmpdir)\nmkdir -p \"$t/dest\"\nfor stamp in 20260101-000000 20260102-000000 20260103-000000; do\n  : > \"$t/dest/demo-$stamp.tar.gz\"\ndone\nrc=0\nout=$(bash \"$ROOT/rotate.sh\" --quiet --dest \"$t/dest\" --name demo --keep 3) || rc=$?\nleft=$(ls \"$t/dest\" | sort | tr '\\n' '|')\ncheck \"rotate --keep 3 deletes nothing when exactly 3 archives exist\" \"demo-20260101-000000.tar.gz|demo-20260102-000000.tar.gz|demo-20260103-000000.tar.gz| / rc=0\" \"$left / rc=$rc\"\n\n: > \"$t/dest/demo-20251231-000000.tar.gz\"   # a 4th, older, archive\nout=$(bash \"$ROOT/rotate.sh\" --quiet --dest \"$t/dest\" --name demo --keep 3)\nleft=$(ls \"$t/dest\" | sort | tr '\\n' '|')\ncheck \"rotate deletes the oldest surplus and keeps the 3 newest\" \"deleted demo-20251231-000000.tar.gz / demo-20260101-000000.tar.gz|demo-20260102-000000.tar.gz|demo-20260103-000000.tar.gz|\" \"$out / $left\"\nrm -rf \"$t\"\nTESTS_EOF\ntail -c 400 tests/run_tests.sh",
+        "description": "Append rotate and verify-space tests"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9cd5d55fad8385fc63cdec73c201734b_0",
+      "tool_input": {
+        "command": "d=$(mktemp -d); mkdir \"$d/dest\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do : > \"$d/dest/demo-$s.tar.gz\"; done\necho \"--- dry-run keep=2:\"; bash rotate.sh --dest=\"$d/dest\" --name=demo --keep=2 --dry-run\necho \"--- exit after delete keep 2:\"; bash rotate.sh --quiet --dest \"$d/dest\" --name demo --keep 2 >/dev/null; ls \"$d/dest\"\necho \"--- help exit:\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- unknown opt:\"; bash rotate.sh --dest \"$d/dest\" --name demo --bogus 2>&1; echo \"rc=$?\"\necho \"--- keep bad value:\"; bash rotate.sh --dest \"$d/dest\" --name demo --keep x 2>&1; echo \"rc=$?\"\necho \"--- verify no sidecars:\"; bash verify.sh --dest \"$d/dest\"; echo \"rc=$?\"\necho \"--- verify help:\"; bash verify.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- verify bad flag:\"; bash verify.sh 2>/dev/null; echo \"rc=$?\"\nrm -rf \"$d\"; git status --short",
+        "description": "Exercise flags of refactored scripts and show git status"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_3b4f2e4c1992eb48db952b2c2d9bfc05_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/rc2r1-check/dest\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do : > \"/tmp/rc2r1-check/dest/demo-$s.tar.gz\"; done\necho \"--- dry-run keep=2:\"; bash rotate.sh --dest=/tmp/rc2r1-check/dest --name=demo --keep=2 --dry-run\necho \"--- delete, keep 2:\"; bash rotate.sh --quiet --dest /tmp/rc2r1-check/dest --name demo --keep 2; ls /tmp/rc2r1-check/dest\necho \"--- help exit:\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- unknown opt:\"; bash rotate.sh --dest /tmp/rc2r1-check/dest --name demo --bogus 2>&1; echo \"rc=$?\"\necho \"--- keep bad value:\"; bash rotate.sh --dest /tmp/rc2r1-check/dest --name demo --keep x 2>&1; echo \"rc=$?\"\necho \"--- verify no sidecars:\"; bash verify.sh --dest /tmp/rc2r1-check/dest; echo \"rc=$?\"\necho \"--- verify help:\"; bash verify.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- verify missing dest:\"; bash verify.sh 2>/dev/null; echo \"rc=$?\"",
+        "description": "Exercise flags of refactored scripts"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7db6b61a22b8ae8fd931f79819254a74_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/rc2r1-check/dest && touch /tmp/rc2r1-check/dest/demo-20260101-000000.tar.gz /tmp/rc2r1-check/dest/demo-20260102-000000.tar.gz /tmp/rc2r1-check/dest/demo-20260103-000000.tar.gz /tmp/rc2r1-check/dest/demo-20260104-000000.tar.gz && bash rotate.sh --dest=/tmp/rc2r1-check/dest --name=demo --keep=2 --dry-run",
+        "description": "Dry-run rotate with =-style flags"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ad00984e5d8c9be27b8edc8bf87f4f2f_0",
+      "tool_input": {
+        "command": "mkdir -p .check/dest && touch .check/dest/demo-20260101-000000.tar.gz .check/dest/demo-20260102-000000.tar.gz .check/dest/demo-20260103-000000.tar.gz .check/dest/demo-20260104-000000.tar.gz && bash rotate.sh --dest=.check/dest --name=demo --keep=2 --dry-run",
+        "description": "Dry-run rotate with =-style flags"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 30,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 9 tests pass (`bash tests/run_tests.sh` \u2192 \"all tests passed\").\n\nChanged files: fixed the rotation window in `rotate.sh` (`-le` early exit + `head -n total-keep`, so the oldest surplus are deleted and the newest keep survive), fixed space-containing names in `verify.sh` (read the sidecar's first line with `read` so the file name is the whole remainder, not `awk $2`), added a new `lib/common.sh` holding the shared option parser and `resolve_dir` (sourced by `rotate.sh` and `verify.sh`, other scripts untouched), and added tests to `tests/run_tests.sh` \u2014 plus corrected one pre-existing expected-string typo in the old \"verify reports BAD\" test whose stamp (`000000`) didn't match its fixture (`120000`) and which failed before my changes too.",
+  "ttft_ms": 24106,
+  "type": "result",
+  "duration_ms": 342303,
+  "uuid": "6dcc9879-b82a-4548-b59e-4d34f9b7d892",
+  "ttft_stream_ms": 19580,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 23921,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 342.6,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}
