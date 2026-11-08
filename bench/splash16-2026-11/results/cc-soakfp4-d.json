@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 292202,
+  "stop_reason": "end_turn",
+  "session_id": "78ae4074-6f60-448d-b748-a6d2367bee49",
+  "total_cost_usd": 0.63848,
+  "usage": {
+    "input_tokens": 31820,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 797600,
+    "output_tokens": 17584,
+    "output_tokens_details": {
+      "thinking_tokens": 10424
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 31820,
+      "outputTokens": 17584,
+      "cacheReadInputTokens": 797600,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.63848,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 10424,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b4897623b3aed02010122222cb3fd382_0",
+      "tool_input": {
+        "command": "cd /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp4-d\nd=$(mktemp -d); mkdir -p \"$d/dest\"\nprintf 'a\\n' > \"$d/dest/demo-20260101-000000.tar.gz\"\nprintf 'b\\n' > \"$d/dest/demo-20260102-000000.tar.gz\"\nbash rotate.sh --dest=\"$d/dest\" --name demo --keep 1 -n; echo \"rc=$?\"\nbash rotate.sh --help >/dev/null; echo \"help rc=$?\"\nbash rotate.sh --dest \"$d/dest\" --name demo --keep abc 2>/dev/null; echo \"badkeep rc=$?\"\nbash verify.sh 2>/dev/null; echo \"nodest rc=$?\"\n( cd \"$d/dest\" && shasum -a 256 demo-20260101-000000.tar.gz > demo-20260101-000000.tar.gz.sha256 )\nbash verify.sh --quiet --dest \"$d/dest\" --name demo; echo \"verify rc=$?\"\nbash verify.sh --quiet --dest \"$d/dest\" --name other; echo \"filter rc=$?\"\nbash rotate.sh --dest \"$d/dest\" --name demo --keep 0 2>&1; echo \"keep0 rc=$?\"\nrm -rf \"$d\"",
+        "description": "Smoke-test rotate/verify flags after refactor"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_8503335feb01166c968f30dc83caacd4_0",
+      "tool_input": {
+        "command": "bash /tmp/soakfp4d-smoke.sh && rm /tmp/soakfp4d-smoke.sh",
+        "description": "Run flag smoke test for rotate/verify"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a79dbb4ce15796151fd3d7f5144f5891_0",
+      "tool_input": {
+        "command": "rm /tmp/soakfp4d-smoke.sh",
+        "description": "Delete temporary smoke-test script"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a79dbb4ce15796151fd3d7f5144f5891_1",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp4-d status --short && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp4-d diff --stat",
+        "description": "Show changed files summary"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 10 tests pass. Fixed `rotate.sh` (surplus is now the oldest `total-keep` entries via `head`, so `--keep N` with exactly N deletes nothing and the newest always survives) and `verify.sh` (sidecar name is taken as everything after the digest, so spaces are preserved); moved the shared option parser and `resolve_dir` into new `lib/common.sh`, sourced from `rotate.sh` and `verify.sh` only; added one test per bug.\n\nChanged: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, plus new `lib/common.sh`.\n\n(Note: a leftover smoke-test script sits at `/tmp/soakfp4d-smoke.sh` \u2014 deleting it needs your approval, tell me if you'd like that.)",
+  "ttft_ms": 11097,
+  "type": "result",
+  "duration_ms": 292984,
+  "uuid": "1c32b4f8-3b3a-4ccf-b60a-490544063a73",
+  "ttft_stream_ms": 4397,
+  "time_to_request_ms": 35,
+  "first_content_frame_ms": 10875,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 294.0,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

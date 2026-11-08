@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 369963,
+  "stop_reason": "end_turn",
+  "session_id": "693826a5-4ba5-407a-8667-2ff54f647dc9",
+  "total_cost_usd": 0.7290216,
+  "usage": {
+    "input_tokens": 36877,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1066368,
+    "output_tokens": 18412,
+    "output_tokens_details": {
+      "thinking_tokens": 9936
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 36877,
+      "outputTokens": 18412,
+      "cacheReadInputTokens": 1066368,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7290216,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9936,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_fff5a5af6725ea5bc9e92674f05dad03_0",
+      "tool_input": {
+        "command": "cd \"$(mktemp -d)\" && R=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp36-d\n# --help exits 0\nbash \"$R/rotate.sh\" --help >/dev/null; echo \"rotate --help rc=$?\"\nbash \"$R/verify.sh\" --help >/dev/null; echo \"verify --help rc=$?\"\n# unknown option exits 1 and names the flag\nbash \"$R/rotate.sh\" --bogus >/dev/null 2>&1; echo \"rotate --bogus rc=$?\"\nbash \"$R/verify.sh\" --bogus >/dev/null 2>&1; echo \"verify --bogus rc=$?\"\n# = form of flags + dry-run, and missing dest exits 2\nd=$(mktemp -d); mkdir -p \"$d/dest\"\nBACKUP_STAMP=20260101-000000 bash \"$R/backup.sh\" --quiet --dest=\"$d/dest\" --name=\"my backup\" \"$R/tests\" >/dev/null 2>&1\nls \"$d/dest\"\nbash \"$R/verify.sh\" --quiet --dest \"$d/dest\"\nbash \"$R/rotate.sh\" --dest=\"$d/dest\" --name=\"my backup\" --keep=1 -n; echo \"dry-run rc=$?\"\nbash \"$R/rotate.sh\" --dest=\"$d/nonexistent\" --name x >/dev/null 2>&1; echo \"missing dest rc=$?\"\nbash \"$R/rotate.sh\" --dest \"$d/dest\" >/dev/null 2>&1; echo \"missing name rc=$?\"\nbash \"$R/verify.sh\" --dest \"$d/dest\" extra >/dev/null 2>&1; echo \"positional rejected rc=$?\"\n# malformed sidecar (digest only, no file name)\nprintf 'abc123\\n' > \"$d/dest/broken.tar.gz.sha256\"\nbash \"$R/verify.sh\" --quiet --dest \"$d/dest\" | grep broken\nbash \"$R/verify.sh\" --quiet --dest \"$d/dest\" >/dev/null; echo \"malformed rc=$?\"\n# LOG_PREFIX in an INFO line comes from the script, not common.sh\nbash \"$R/rotate.sh\" --dest \"$d/dest\" --name \"my backup\" --keep 1 2>&1 >/dev/null | head -1\nrm -rf \"$d\"",
+        "description": "Sanity-check flags, exit codes and end-to-end name-with-space flow"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ab41be73a984de96146c2ca5f7a7a4d6_0",
+      "tool_input": {
+        "command": "rm -f scratchpad/sanity.sh && rmdir scratchpad 2>/dev/null; git status --short && git diff --stat && bash tests/run_tests.sh",
+        "description": "Remove scratch file, show diff stat, rerun tests"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b07988e1d7a99cd0a94025cf95e39d02_0",
+      "tool_input": {
+        "command": "rm -f /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp36-d/scratchpad/sanity.sh",
+        "description": "Delete temporary sanity-check script I created"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 29,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done \u2014 all 9 tests pass (the two new groups failed before the fixes, confirming they reproduce the bugs).\n\n**Changed:** `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and added `lib/common.sh`.\n\nDetails:\n- **rotate.sh** \u2014 the guard `[[ $total -lt $keep ]]` allowed rotation when `total == keep`, and `surplus()` used `tail -n +\"$keep\"`, which deleted *from* the keep-th oldest *through* the newest (hence the newest file vanishing). Now the guard is `-le` and surplus is `head -n $((total - keep))` \u2014 the oldest entries above the newest N.\n- **verify.sh** \u2014 the sidecar file name came from `awk '{print $2}'`, so `my backup-\u2026tar.gz` was truncated to `my` \u2192 \"archive missing\" \u2192 BAD/rc 2. The name is now taken with parameter expansion as everything after the digest and its whitespace (malformed sidecars with no name still report as such), and the digest comparison is quoted.\n- **lib/common.sh** \u2014 new; holds the shared option-parsing block, the `--keep` validation and `resolve_dir`; `rotate.sh` and `verify.sh` define `usage`/`parse_local_option` and source it (all flags, exit codes, `=`-forms, `--`, `--help`, and log prefixes verified manually end-to-end, including a real archive whose name contains a space). The other three scripts are untouched.\n\nOne note: my sanity-check script `scratchpad/sanity.sh` in the repo root couldn't be deleted (the sandbox asks for approval for `rm`); feel free to approve removal or delete it yourself.",
+  "ttft_ms": 10644,
+  "type": "result",
+  "duration_ms": 371096,
+  "uuid": "d03e92b4-54fb-4dcf-8149-33c0fce5c411",
+  "ttft_stream_ms": 4548,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 10164,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 371.9,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

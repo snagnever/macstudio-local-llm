@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 301252,
+  "stop_reason": "end_turn",
+  "session_id": "4036a5b0-40fe-475b-96e8-911019e01489",
+  "total_cost_usd": 0.5776256,
+  "usage": {
+    "input_tokens": 31357,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 804288,
+    "output_tokens": 14567,
+    "output_tokens_details": {
+      "thinking_tokens": 8078
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 31357,
+      "outputTokens": 14567,
+      "cacheReadInputTokens": 804288,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5776256,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 8078,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_dda2d4363ac6bdd78b02d06dca500fe9_0",
+      "tool_input": {
+        "command": "grep -n \"resolve_dir\\|tail -n\\|awk\\|== \\$\" restore.sh report.sh | head -30",
+        "description": "Check shared-block markers in restore.sh and report.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_177739714e70d803381b13b3827bd17a_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir \"$t/d\"; for s in 20260101-000000 20260102-000000 20260103-000000; do : > \"$t/d/app-$s.tar.gz\"; done; bash rotate.sh --quiet --dest \"$t/d\" --name app --keep 1 --dry-run; ls \"$t/d\" | wc -l | tr -d ' '; rm -rf \"$t\"",
+        "description": "Dry-run rotate with keep=1, verify nothing deleted"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_662c7e284383a5b5f4a2f52c84a44922_0",
+      "tool_input": {
+        "command": "rm -f /tmp/rotate_dryrun_check.sh",
+        "description": "Delete temporary check script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 25,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All done \u2014 the suite passes end to end (11 checks, \"all tests passed\"). Details of what changed:\n\n- **rotate.sh** \u2014 fixed the rotation math: `surplus()` now lists the oldest `total - keep` archives (`head -n \"$((total - keep))\"`, guarded for BSD `head` rejecting 0) instead of `tail -n +keep`, which kept the *oldest* N\u22121 and deleted the newest. Replaced the inline option-parsing block and `resolve_dir` with `source lib/common.sh`.\n- **verify.sh** \u2014 the sidecar file name is now parsed as everything after the digest (`${line#*\"$expected\"}` with leading whitespace stripped) instead of `awk '{print $2}'`, which truncated names at the first space; also quoted the digest comparison. Same shared-library source swap.\n- **lib/common.sh** (new) \u2014 the shared option parser (fills `DEST/NAME/KEEP/QUIET/DRY_RUN/ARGS`), `is_uint`, `need_value`, `--keep` validation, and `resolve_dir`, with a double-sourcing guard in the same style as `lib/log.sh`. Sourcing it runs the parser against the caller's positional parameters, so both scripts accept the exact same flags as before (verified `--help`, `-q`, `-n/--dry-run`, `--dest/--name/--keep`, unknown-option and `--keep` validation).\n- **tests/run_tests.sh** \u2014 added a verify test (space in archive name \u2192 `ok`, rc=0) and a rotate group (exactly `--keep 5` deletes nothing; `--keep 3` removes the two oldest with their sidecars and keeps the newest three).\n\nNote: a scratch verification script remains at `/tmp/rotate_dryrun_check.sh` \u2014 removing it needs a permission approval, so I left it; `backup.sh`, `restore.sh`, `report.sh` were left untouched as requested.\n\nChanged: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.",
+  "ttft_ms": 10458,
+  "type": "result",
+  "duration_ms": 301772,
+  "uuid": "60de6bd3-a1f2-4b21-a318-875536cc19b8",
+  "ttft_stream_ms": 4586,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 10250,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 302.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

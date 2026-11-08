@@ -1,0 +1,112 @@
+{
+  "duration_api_ms": 459252,
+  "stop_reason": "end_turn",
+  "session_id": "785d40a3-50b1-4b54-a3a7-7a564314f787",
+  "total_cost_usd": 0.6973176000000001,
+  "usage": {
+    "input_tokens": 35945,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 873888,
+    "output_tokens": 18938,
+    "output_tokens_details": {
+      "thinking_tokens": 9919
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 35945,
+      "outputTokens": 18938,
+      "cacheReadInputTokens": 873888,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6973176000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9919,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_acfb34729bfb63501bb7c6d85da87d9a_1",
+      "tool_input": {
+        "command": "cd \"$(mktemp -d)\" && mkdir -p src dest && for s in 20260101-010000 20260101-020000 20260101-030000; do BACKUP_STAMP=$s bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp10-d/backup.sh --quiet --dest dest --name demo src >/dev/null; done; echo \"--- rotate --keep 3 with exactly 3 archives:\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp10-d/rotate.sh --quiet --dest dest --name demo --keep 3; echo \"--- remaining:\"; ls dest",
+        "description": "Reproduce rotate.sh bug with exactly N backups"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_581623902fe75e1d60058e66ff0c1383_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/claude-1000/-Users-nikhil-projects-workspace-mono/02211576-76cd6ebfe744510a0e9c2e24d7697219/scratchpad/repro1 && cd /tmp/claude-1000/-Users-nikhil-projects-workspace-mono/02211576-76cd6ebfe744510a0e9c2e24d7697219/scratchpad/repro1 && mkdir -p src dest && for s in 20260101-010000 20260101-020000 20260101-030000; do BACKUP_STAMP=$s bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp10-d/backup.sh --quiet --dest dest --name demo src >/dev/null; done && echo \"--- rotate --keep 3 with exactly 3 archives:\" && bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp10-d/rotate.sh --quiet --dest dest --name demo --keep 3; echo \"--- remaining:\"; ls dest",
+        "description": "Reproduce rotate bug: keep 3 with exactly 3 archives"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All tests pass. I changed `rotate.sh` (surplus is now the oldest `total - keep` archives via `head -n`, early-exit on `total <= keep` \u2014 previously `tail -n +keep` deleted from the newest end), `verify.sh` (the sidecar line is split with `read -r expected file` so file names may contain spaces; digest comparison quoted), added `lib/common.sh` (the shared option-parsing block as `parse_common_options` plus `resolve_dir`, sourced by both scripts, keeping all their flags), and added one test per bug to `tests/run_tests.sh` \u2014 the other three scripts are untouched.",
+  "ttft_ms": 12952,
+  "type": "result",
+  "duration_ms": 461053,
+  "uuid": "d20c919c-2d82-4a8a-8db5-19f474ffa7f9",
+  "ttft_stream_ms": 4373,
+  "time_to_request_ms": 35,
+  "first_content_frame_ms": 12226,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 461.8,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

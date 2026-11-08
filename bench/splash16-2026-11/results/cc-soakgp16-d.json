@@ -1,0 +1,192 @@
+{
+  "duration_api_ms": 348712,
+  "stop_reason": "end_turn",
+  "session_id": "f7ebfdec-7d88-48f4-8bc1-ed90698ba3fc",
+  "total_cost_usd": 0.735208,
+  "usage": {
+    "input_tokens": 35546,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 989120,
+    "output_tokens": 19760,
+    "output_tokens_details": {
+      "thinking_tokens": 11558
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 35546,
+      "outputTokens": 19760,
+      "cacheReadInputTokens": 989120,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.735208,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 11558,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b82d739b342959a2b5ed09fadecca36d_0",
+      "tool_input": {
+        "command": "bash --version | head -1; ls /bin/bash && /bin/bash --version | head -1",
+        "description": "Check available bash versions"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_e957bb9b22feec17786692e9b8ecc2d9_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp16-d worktree add /tmp/base-bt-check 61f0557",
+        "description": "Create worktree at base commit for regression check"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_37db385cdf56c42ac83d3eddcb521fcc_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/base-bt",
+        "description": "Create directory for base-code regression check"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_655162b2abb51d545fba8c549da6e035_0",
+      "tool_input": {
+        "command": "mkdir -p /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp16-d/.base-check",
+        "description": "Create temp directory inside repo for base-code check"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_79d1bf41146dbc65102772ed7e2263ca_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp16-d show 61f0557:rotate.sh",
+        "description": "Print base version of rotate.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_79d1bf41146dbc65102772ed7e2263ca_1",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp16-d show 61f0557:verify.sh",
+        "description": "Print base version of verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_79d1bf41146dbc65102772ed7e2263ca_2",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp16-d show 61f0557:backup.sh",
+        "description": "Print base version of backup.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_79d1bf41146dbc65102772ed7e2263ca_3",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp16-d show 61f0557:restore.sh",
+        "description": "Print base version of restore.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_79d1bf41146dbc65102772ed7e2263ca_4",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp16-d show 61f0557:lib/log.sh",
+        "description": "Print base version of lib/log.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_827320ae1651f0ba8b35277fdd68ef51_1",
+      "tool_input": {
+        "command": "printf 'oldest\\nmiddle\\nnewest\\n' | head -n \"$((3 - 3))\"",
+        "description": "Show what the new head -n TOTAL-KEEP selects with exactly N archives"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_827320ae1651f0ba8b35277fdd68ef51_2",
+      "tool_input": {
+        "command": "echo 'deadbeef  my backup-20260101-000000.tar.gz' | awk '{print $2}'",
+        "description": "Show old awk field extraction truncating a spaced file name"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d0ba7615c3b1f27b0efe805833e3a54f_2",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp16-d status --porcelain",
+        "description": "List changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 44,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All checks pass: `--help` exits 0, unknown options and bad `--keep` exit 1 with the same messages, missing directory exits 2, and the full suite reports **all tests passed** (10 checks, including the three new ones for the two bugs).\n\nFixed `rotate.sh --keep` (surplus is now the oldest `total-keep` via `head`, guard is `-le`) and `verify.sh` sidecar parsing (regex captures the full file name including spaces; digest comparison quoted); moved the shared option parser and `resolve_dir` into new `lib/common.sh`, sourced from `rotate.sh` and `verify.sh` only.\n\nChanged files: `lib/common.sh` (new), `rotate.sh`, `verify.sh`, `tests/run_tests.sh`.",
+  "ttft_ms": 10633,
+  "type": "result",
+  "duration_ms": 349421,
+  "uuid": "47c62b8c-e74e-445e-890d-6df519a18a7b",
+  "ttft_stream_ms": 4475,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 10422,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 349.7,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

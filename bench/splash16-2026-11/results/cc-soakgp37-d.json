@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 341292,
+  "stop_reason": "end_turn",
+  "session_id": "1880245a-d58a-478d-bd60-e815c8b7ef61",
+  "total_cost_usd": 0.6726888,
+  "usage": {
+    "input_tokens": 37743,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 986784,
+    "output_tokens": 16218,
+    "output_tokens_details": {
+      "thinking_tokens": 8512
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 37743,
+      "outputTokens": 16218,
+      "cacheReadInputTokens": 986784,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6726888,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 8512,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_fdc621d0d7ac223ea5749d00db66bfe0_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d) && mkdir -p \"$t/src\" \"$t/dest\" && echo a > \"$t/src/f\" \\\n&& for s in 20260101-010000 20260102-010000 20260103-010000; do BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/dest\" --name \"my backup\" \"$t/src\" >/dev/null; done \\\n&& echo \"--- rotate dry-run, keep 1:\" && bash rotate.sh --quiet --dest=\"$t/dest\" --name=\"my backup\" --keep=1 --dry-run \\\n&& echo \"--- verify --name filter:\" && bash verify.sh --quiet --dest \"$t/dest\" --name \"my backup\" \\\n&& echo \"--- help exits 0:\" && bash rotate.sh --help >/dev/null && bash verify.sh -h >/dev/null && echo yes \\\n&& echo \"--- unknown option exits 1:\" && rc=0; bash verify.sh --dest \"$t/dest\" --bogus >/dev/null 2>&1 || rc=$?; echo \"rc=$rc\" \\\n&& rc=0; bash rotate.sh --dest \"$t/dest\" --name x --keep 0 >/dev/null 2>&1 || rc=$?; echo \"keep0 rc=$rc\" \\\n&& rc=0; bash verify.sh --dest \"$t/dest\" --name \"nosuch\" >/dev/null 2>&1 || rc=$?; echo \"no-match rc=$rc\" \\\n; rm -rf \"$t\"",
+        "description": "Smoke-test refactored rotate/verify flags"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_2d926a1decb16fa4f777a22544cf5ab8_0",
+      "tool_input": {
+        "command": "t=/tmp/bkt-smoke.$$; mkdir -p \"$t/src\" \"$t/dest\" && echo a > \"$t/src/f\" \\\n&& for s in 20260101-010000 20260102-010000 20260103-010000; do BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/dest\" --name \"my backup\" \"$t/src\" >/dev/null; done \\\n&& echo \"--- rotate dry-run, keep 1:\" && bash rotate.sh --quiet --dest=\"$t/dest\" --name=\"my backup\" --keep=1 --dry-run \\\n&& echo \"--- verify --name filter:\" && bash verify.sh --quiet --dest \"$t/dest\" --name \"my backup\" \\\n&& echo \"--- help exits 0:\" && bash rotate.sh --help >/dev/null && bash verify.sh -h >/dev/null && echo yes \\\n&& rc=0; bash verify.sh --dest \"$t/dest\" --bogus >/dev/null 2>&1 || rc=$?; echo \"unknown-opt rc=$rc\" \\\n&& rc=0; bash rotate.sh --dest \"$t/dest\" --name x --keep 0 >/dev/null 2>&1 || rc=$?; echo \"keep0 rc=$rc\" \\\n&& rc=0; bash verify.sh --dest \"$t/dest\" --name \"nosuch\" >/dev/null 2>&1 || rc=$?; echo \"no-match rc=$rc\" \\\n; rm -rf \"$t\"",
+        "description": "Smoke-test refactored rotate/verify flags in /tmp"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_167dd8fb1a910192801097e4b5e1b2cc_0",
+      "tool_input": {
+        "command": "t=/tmp/bkt-smoke; mkdir -p \"$t/src\" \"$t/dest\" && echo a > \"$t/src/f\" \\\n&& for s in 20260101-010000 20260102-010000 20260103-010000; do BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/dest\" --name \"my backup\" \"$t/src\" >/dev/null; done \\\n&& echo \"--- rotate dry-run, keep 1:\" && bash rotate.sh --quiet --dest=\"$t/dest\" --name=\"my backup\" --keep=1 --dry-run \\\n&& echo \"--- verify --name filter:\" && bash verify.sh --quiet --dest \"$t/dest\" --name \"my backup\" \\\n&& echo \"--- help exits 0:\" && bash rotate.sh --help >/dev/null && bash verify.sh -h >/dev/null && echo yes \\\n; rc=0; bash verify.sh --dest \"$t/dest\" --bogus >/dev/null 2>&1 || rc=$?; echo \"unknown-opt rc=$rc\" \\\n; rc=0; bash rotate.sh --dest \"$t/dest\" --name x --keep 0 >/dev/null 2>&1 || rc=$?; echo \"keep0 rc=$rc\" \\\n; rc=0; bash verify.sh --dest \"$t/dest\" --name \"nosuch\" >/dev/null 2>&1 || rc=$?; echo \"no-match rc=$rc\" \\\n; rm -rf \"$t\"",
+        "description": "Smoke-test refactored rotate/verify flags in /tmp/bkt-smoke"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b1c846e3badf7f020269ffbce50219fe_0",
+      "tool_input": {
+        "command": "rm -f /tmp/bkt-smoke.sh; git status --short && git diff --stat",
+        "description": "Show changed files summary"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 29,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed: `rotate.sh` (keep-newest off-by-one fix), `verify.sh` (space-in-name sidecar parsing fix), `lib/common.sh` (new shared parser + `resolve_dir`, sourced by both), and `tests/run_tests.sh` (regression tests for both bugs) \u2014 `bash tests/run_tests.sh` passes all 10 tests.",
+  "ttft_ms": 11002,
+  "type": "result",
+  "duration_ms": 342679,
+  "uuid": "ad84a907-aebd-4d2b-81c7-e30725bcbb7c",
+  "ttft_stream_ms": 4537,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 10494,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 343.6,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

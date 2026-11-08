@@ -1,0 +1,95 @@
+{
+  "duration_api_ms": 310882,
+  "stop_reason": "end_turn",
+  "session_id": "770acf81-38cb-4826-b5bf-f41dea8ca97c",
+  "total_cost_usd": 0.7142896000000001,
+  "usage": {
+    "input_tokens": 69676,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1200128,
+    "output_tokens": 9778,
+    "output_tokens_details": {
+      "thinking_tokens": 5407
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 69676,
+      "outputTokens": 9778,
+      "cacheReadInputTokens": 1200128,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7142896000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 5407,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed files: `ledger/report.py` (group totals + text/json group renderers), `ledger/cli.py` (`--group-by month|category|account` option, wired into `cmd_report`; default output untouched), `tests/test_cli.py` (6 new tests covering text and json output, month/category/account keys, filter interaction, invalid key, and a fixture cross-check), and `README.md` (documented the option with a verified example) \u2014 full suite passes: 69 tests, OK.",
+  "ttft_ms": 5346,
+  "type": "result",
+  "duration_ms": 311524,
+  "uuid": "9d2fa0c0-63f8-481b-a2be-019861d8d1b2",
+  "ttft_stream_ms": 59,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 4436,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 312.3,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

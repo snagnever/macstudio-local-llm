@@ -1,0 +1,121 @@
+{
+  "duration_api_ms": 307509,
+  "stop_reason": "end_turn",
+  "session_id": "d9130e73-9b02-4478-85a6-b8ff60aeb63a",
+  "total_cost_usd": 0.7489319999999998,
+  "usage": {
+    "input_tokens": 40885,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 985760,
+    "output_tokens": 19412,
+    "output_tokens_details": {
+      "thinking_tokens": 11041
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 40885,
+      "outputTokens": 19412,
+      "cacheReadInputTokens": 985760,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7489319999999998,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 11041,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_1e4d0ff0807c141e33b68f0ad355e44c_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d) && mkdir -p \"$t/dest\"\n# rotate: --keep=N form, dry-run, sidecar removal, exactly-1-keep\nfor d in 01 02 03; do echo x > \"$t/dest/demo-2026${d}01-000000.tar.gz\"; echo y > \"$t/dest/demo-2026${d}01-000000.tar.gz.sha256\"; done\necho \"--- dry-run keep=2:\"; bash rotate.sh --quiet --dest=\"$t/dest\" --name=demo --keep=2 --dry-run\necho \"--- real keep=2 stdout:\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 2\necho \"--- remaining:\"; (cd \"$t/dest\" && ls)\necho \"--- keep=1, count=1:\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 1; (cd \"$t/dest\" && ls | wc -l | tr -d ' ')\necho \"--- keep=0 rejected:\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 0; echo \"rc=$?\"\necho \"--- --help exit:\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- unknown option:\"; bash rotate.sh --dest \"$t/dest\" --name demo --bogus 2>/dev/null; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Exercise rotate.sh flag forms and edge cases"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d25e74cc9ff767cc2035a27275fe58ea_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"\necho x > \"$t/dest/demo-20260101-000000.tar.gz\"; echo y > \"$t/dest/demo-20260101-000000.tar.gz.sha256\"\necho x > \"$t/dest/demo-20260102-000000.tar.gz\"; echo y > \"$t/dest/demo-20260102-000000.tar.gz.sha256\"\necho x > \"$t/dest/demo-20260103-000000.tar.gz\"; echo y > \"$t/dest/demo-20260103-000000.tar.gz.sha256\"\necho \"--- dry-run keep=2:\"; bash rotate.sh --quiet --dest=\"$t/dest\" --name=demo --keep=2 --dry-run\necho \"--- real keep=2 stdout:\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 2\necho \"--- remaining (sidecars removed with archives):\"; (cd \"$t/dest\" && ls)\necho \"--- keep=0 rejected:\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 0; echo \"rc=$?\"\necho \"--- help:\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- unknown option:\"; bash rotate.sh --dest \"$t/dest\" --name demo --bogus 2>/dev/null; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Exercise rotate.sh flag forms and edge cases"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_78747f04bcd85abf3d31ebb30aaac831_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"\nprintf 'deadbeef\\n' > \"$t/dest/onlydigest.sha256\"\nprintf 'deadbeef  my backup.tar.gz\\n' > \"$t/dest/spaces.sha256\"   # archive absent\n: > \"$t/dest/empty.sha256\"\nprintf 'a  b c  \\n' > \"$t/dest/trail.sha256\"\nbash \"/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp31-d/verify.sh\" --quiet --dest \"$t/dest\"; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Check malformed and spaced sidecar handling in verify.sh",
+        "dangerouslyDisableSandbox": true
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 27,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and added `lib/common.sh`.\n\nAll 9 tests pass (6 pre-existing + 2 for the rotate bug, 1 for the spaces bug). Summary of the fixes:\n\n- **rotate.sh**: the early-exit guard now uses `-le` (nothing to do when exactly N archives exist), and `surplus()` now selects the *oldest* `total-keep` entries (`head -n`) from the oldest-first list instead of `tail -n +keep`, which was deleting from the KEEP-th newest entry downward.\n- **verify.sh**: the sidecar's file name is now taken as everything after the digest and its spaces (spaces included) instead of `awk '{print $2}'`, which truncated `my backup-\u2026.tar.gz` to `my` and reported \"archive missing\"; digest comparison was also quoted.\n- **lib/common.sh**: carries the shared option parser (`parse_args`, keeping the `parse_local_option` hook contract), `is_uint`, `need_value`, KEEP validation, and `resolve_dir`; `rotate.sh` and `verify.sh` source it and accept the same flags (verified: `--key=value` forms, `--dry-run`, `-h`, unknown-option/exit-code behavior all unchanged). `backup.sh`, `restore.sh`, `report.sh` are untouched.",
+  "ttft_ms": 10546,
+  "type": "result",
+  "duration_ms": 308426,
+  "uuid": "ab18cea9-1971-466d-8dbb-d2c96089c2f0",
+  "ttft_stream_ms": 4483,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 10290,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 309.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

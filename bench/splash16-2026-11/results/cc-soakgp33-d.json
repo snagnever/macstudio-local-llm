@@ -1,0 +1,144 @@
+{
+  "duration_api_ms": 274695,
+  "stop_reason": "end_turn",
+  "session_id": "6a9148fd-6f46-4f57-b3cc-7abd2438d171",
+  "total_cost_usd": 0.690376,
+  "usage": {
+    "input_tokens": 32797,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1094240,
+    "output_tokens": 17017,
+    "output_tokens_details": {
+      "thinking_tokens": 9268
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 32797,
+      "outputTokens": 17017,
+      "cacheReadInputTokens": 1094240,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.690376,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9268,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_081950e6d459527b4438163d79eb2a9e_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh; echo \"exit=$?\"",
+        "description": "Run existing test suite as baseline"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_28fec324c92ebb0473c6534cd97a539c_0",
+      "tool_input": {
+        "command": "for f in rotate.sh verify.sh lib/common.sh tests/run_tests.sh; do bash -n \"$f\" && echo \"syntax ok: $f\"; done",
+        "description": "Syntax-check changed shell files"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_f16c979ba5b92ce4ac7e6bc91df18ad8_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d) && mkdir -p \"$t/src\" && printf 'hello\\n' > \"$t/src/hello.txt\" && BACKUP_STAMP=20260101-000000 bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp33-d/backup.sh --quiet --dest \"$t/dest\" --name \"my backup\" \"$t/src\" >/dev/null && printf 'x' >> \"$t/dest/my backup-20260101-000000.tar.gz\" && bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp33-d/verify.sh --quiet --dest \"$t/dest\"; echo \"rc=$?\"; rm -rf \"$t\" /tmp/rotate-verify-smoke.sh",
+        "description": "Check BAD reporting for corrupted space-named archive"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_fd610b98b34722a3b8767937313bd58d_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/vspace/src /tmp/vspace/dest && printf 'hello\\n' > /tmp/vspace/src/hello.txt && BACKUP_STAMP=20260101-000000 bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp33-d/backup.sh --quiet --dest /tmp/vspace/dest --name \"my backup\" /tmp/vspace/src >/dev/null && printf 'x' >> \"/tmp/vspace/dest/my backup-20260101-000000.tar.gz\" && bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp33-d/verify.sh --quiet --dest /tmp/vspace/dest",
+        "description": "Check BAD report for corrupted space-named archive"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_13837609f16c77b794f7591eae5bd171_0",
+      "tool_input": {
+        "command": "rm /tmp/vspace-check.sh",
+        "description": "Remove temporary check script"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_13837609f16c77b794f7591eae5bd171_1",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp33-d status --short",
+        "description": "Show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 31,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 9 tests pass (6 original + 3 new). Summary of the fixes:\n\n- **rotate.sh** \u2014 `list_archives` sorts oldest-first, so `tail -n +\"$keep\"` was selecting the *newest* entries as surplus (and deleted one even when `total == keep`). Now the guard is `total -le keep` and `surplus()` uses `head -n \"$((total - keep))\"`, deleting the oldest archives and keeping the newest N.\n- **verify.sh** \u2014 the sidecar's filename was extracted with `awk '{print $2}'`, which truncates at the first space, so `my backup-\u2026tar.gz` became `my` and was reported BAD (\"archive missing\"). It now splits the line with `read -r expected file` (which keeps spaces in the last variable), and the digest comparison uses quoted `[[ \u2026 ]]`.\n- **lib/common.sh** (new) \u2014 holds the shared option-parsing block (`--dest/--name/--keep/-q/-n/-h/--/parse_local_option`, `is_uint`, `need_value`) and the `resolve_dir` helper, with a double-source guard; sourced from `rotate.sh` and `verify.sh` only. `backup.sh`, `restore.sh`, `report.sh` are untouched. I smoke-tested that the refactored scripts accept the same flags as before (`--help`, `=`-value forms, unknown-flag/missing-value/positional rejections, exit codes 1/2).\n- **tests/run_tests.sh** \u2014 one test for the rotate bug (exactly N \u2192 nothing deleted; N+1 \u2192 the oldest, never the newest, goes) and one for the verify bug (intact archive with a space in its name \u2192 `ok`, rc 0).\n\nFiles changed: rotate.sh, verify.sh, tests/run_tests.sh, and new lib/common.sh.",
+  "ttft_ms": 12611,
+  "type": "result",
+  "duration_ms": 276035,
+  "uuid": "f7ef46be-970e-46db-b503-ad3920f05c74",
+  "ttft_stream_ms": 4537,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 11636,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 277.0,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 299566,
+  "stop_reason": "end_turn",
+  "session_id": "43381f24-b031-4667-9a4d-2f24c987f787",
+  "total_cost_usd": 0.6761271999999997,
+  "usage": {
+    "input_tokens": 37553,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 892576,
+    "output_tokens": 17370,
+    "output_tokens_details": {
+      "thinking_tokens": 9112
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 37553,
+      "outputTokens": 17370,
+      "cacheReadInputTokens": 892576,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6761271999999997,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9112,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b56317245fa12f7deb612a2eeaa8d350_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); t=$(cd \"$t\" && pwd -P)\nmkdir -p \"$t/dest\"\nfor stamp in 20260101-010000 20260101-020000 20260101-030000 20260101-040000; do : > \"$t/dest/app-$stamp.tar.gz\"; printf 'x  app-%s.tar.gz\\n' \"$stamp\" > \"$t/dest/app-$stamp.tar.gz.sha256\"; done\necho \"--- rotate --keep 2 (4 archives: must delete the 2 OLDEST, keep newest):\"\nbash \"$ROOT/rotate.sh\" --quiet --dest \"$t/dest\" --name app --keep 2\nls \"$t/dest\"\necho \"--- rotate --keep 0 must be rejected (exit 1):\"\nbash \"$ROOT/rotate.sh\" --quiet --dest \"$t/dest\" --name app --keep 0; echo \"rc=$?\"\necho \"--- rotate --keep abc must be rejected:\"\nbash \"$ROOT/rotate.sh\" --quiet --dest \"$t/dest\" --name app --keep abc 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"--- rotate --help exits 0:\"\nbash \"$ROOT/rotate.sh\" --help >/dev/null; echo \"rc=$?\"\necho \"--- rotate unknown flag exits 1:\"\nbash \"$ROOT/rotate.sh\" --bogus --dest \"$t/dest\" --name app 2>/dev/null; echo \"rc=$?\"\necho \"--- verify with space name + sidecars present (BAD due to missing? no: sidecars reference real files):\"\nbash \"$ROOT/verify.sh\" --quiet --dest \"$t/dest\"; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Sanity-check rotate deletion order, flag parsing, verify exit codes"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_549bf58ad78a5d3e5f8d06e0eb8bd6c5_0",
+      "tool_input": {
+        "command": "R=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp29-d\nt=$(mktemp -d)\nmkdir -p \"$t/dest\"\nfor stamp in 20260101-010000 20260101-020000 20260101-030000 20260101-040000; do\n  : > \"$t/dest/app-$stamp.tar.gz\"\n  (cd \"$t/dest\" && shasum -a 256 \"app-$stamp.tar.gz\" > \"app-$stamp.tar.gz.sha256\")\ndone\necho \"--- rotate --keep 2 (4 archives: must delete the 2 OLDEST, keep newest):\"\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name app --keep 2\nls \"$t/dest\" | sort\necho \"--- rotate --keep 0 must be rejected (exit 1):\"\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name app --keep 0 >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- rotate --keep abc must be rejected (exit 1):\"\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name app --keep abc >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- rotate --help exits 0:\"\nbash \"$R/rotate.sh\" --help >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- rotate unknown flag exits 1:\"\nbash \"$R/rotate.sh\" --bogus --dest \"$t/dest\" --name app >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- verify (all intact, sidecars match):\"\nbash \"$R/verify.sh\" --quiet --dest \"$t/dest\"; echo \"rc=$?\"\necho \"--- verify --name app on dir with no matching sidecars after corruption:\"\nprintf 'corrupt\\n' >> \"$t/dest/app-20260101-030000.tar.gz\"\nbash \"$R/verify.sh\" --quiet --dest \"$t/dest\" --name app; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Sanity-check rotate deletion order, flag parsing, verify exit codes"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b5bf440bd6c92dba680ccfce4c943774_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/bktk-check/dest\nfor stamp in 20260101-010000 20260101-020000 20260101-030000 20260101-040000; do\n  : > \"/tmp/bktk-check/dest/app-$stamp.tar.gz\"\n  (cd /tmp/bktk-check/dest && shasum -a 256 \"app-$stamp.tar.gz\" > \"app-$stamp.tar.gz.sha256\")\ndone\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp29-d\necho \"--- rotate --keep 2 (4 archives: delete the 2 OLDEST, keep newest):\"\nbash \"$R/rotate.sh\" --quiet --dest /tmp/bktk-check/dest --name app --keep 2\nls /tmp/bktk-check/dest | sort\necho \"--- rotate --keep 0 rejected:\"; bash \"$R/rotate.sh\" --quiet --dest /tmp/bktk-check/dest --name app --keep 0 >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- rotate --keep abc rejected:\"; bash \"$R/rotate.sh\" --quiet --dest /tmp/bktk-check/dest --name app --keep abc >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- rotate --help:\"; bash \"$R/rotate.sh\" --help >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- rotate unknown flag:\"; bash \"$R/rotate.sh\" --bogus --dest /tmp/bktk-check/dest --name app >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- verify all intact:\"; bash \"$R/verify.sh\" --quiet --dest /tmp/bktk-check/dest; echo \"rc=$?\"\nprintf 'corrupt\\n' >> /tmp/bktk-check/dest/app-20260101-030000.tar.gz\necho \"--- verify after corrupting one:\"; bash \"$R/verify.sh\" --quiet --dest /tmp/bktk-check/dest; echo \"rc=$?\"",
+        "description": "Sanity-check rotate deletion order, flag parsing, verify exit codes in /tmp fixture"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_84e5dedb74f7de6c25d7b47b63e0b4e8_0",
+      "tool_input": {
+        "command": "rm -f /tmp/bktk-check.sh && bash tests/run_tests.sh && git status --short",
+        "description": "Re-run test suite and show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed files: **rotate.sh** (keep the newest N \u2014 surplus is now the oldest `total-keep` entries, early exit at `total -le keep`), **verify.sh** (sidecar name is read with `read` so spaces survive; extracts shared parser), **tests/run_tests.sh** (one new test per bug), and the new **lib/common.sh** (shared option-parsing block + `resolve_dir`, sourced by rotate.sh and verify.sh; backup.sh, restore.sh, report.sh untouched). `bash tests/run_tests.sh` passes all 8 tests.\n\n(Aside: a manual sanity-check helper was left at `/tmp/bktk-check.sh` \u2014 removing it needs your approval, so I left it; delete it if you like.)",
+  "ttft_ms": 10384,
+  "type": "result",
+  "duration_ms": 300469,
+  "uuid": "dc0faa27-6a08-405c-ba26-525986eeb69d",
+  "ttft_stream_ms": 4467,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 9988,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 301.1,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

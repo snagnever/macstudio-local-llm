@@ -1,0 +1,95 @@
+{
+  "duration_api_ms": 140555,
+  "stop_reason": "end_turn",
+  "session_id": "4e5d8b9b-2794-4374-a21e-a3e731c30c6a",
+  "total_cost_usd": 0.3314688,
+  "usage": {
+    "input_tokens": 21594,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 520864,
+    "output_tokens": 7046,
+    "output_tokens_details": {
+      "thinking_tokens": 2858
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 21594,
+      "outputTokens": 7046,
+      "cacheReadInputTokens": 520864,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.3314688,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 2858,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 21,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 70 tests pass (`python3 -m unittest discover -s tests -t .`), including the 7 new ones covering text and JSON output for `month`, `category`, and `account`, filters combined with grouping, and argparse rejection of invalid keys; ungrouped output is unchanged.\n\nChanged files: `ledger/cli.py`, `ledger/report.py`, `tests/test_cli.py`, `README.md`.",
+  "ttft_ms": 4703,
+  "type": "result",
+  "duration_ms": 141025,
+  "uuid": "747e2cd5-622f-4f28-a4ee-c72af6522c78",
+  "ttft_stream_ms": 98,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 4480,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 141.5,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

@@ -1,0 +1,136 @@
+{
+  "duration_api_ms": 332291,
+  "stop_reason": "end_turn",
+  "session_id": "47a27503-576f-456b-8ce9-566dcc5c4807",
+  "total_cost_usd": 0.5465,
+  "usage": {
+    "input_tokens": 29828,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 662240,
+    "output_tokens": 14737,
+    "output_tokens_details": {
+      "thinking_tokens": 9000
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 29828,
+      "outputTokens": 14737,
+      "cacheReadInputTokens": 662240,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5465,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9000,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ba96de859d5bc8d70a176d6215836721_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh; echo \"exit=$?\"",
+        "description": "Run the backup toolkit test suite"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_e8517942580704125d5bdc33b66b8191_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/bugcheck && mkdir -p /tmp/bugcheck && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp35-d archive HEAD | tar -x -C /tmp/bugcheck && cp /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp35-d/tests/run_tests.sh /tmp/bugcheck/tests/run_tests.sh && bash /tmp/bugcheck/tests/run_tests.sh",
+        "description": "Run new tests against original HEAD scripts in temp copy"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_68de8484ab24c8369a51b349526f5273_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/bugcheck",
+        "description": "Create temp directory for baseline check"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_90716ab755989a2e4a4e87a07d44ec2f_0",
+      "tool_input": {
+        "command": "mkdir -p /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp35-d/.baseline-check",
+        "description": "Create temp directory inside repo for baseline check"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_dbcd331341e3c37dc1fdb6a7dca8f1ca_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp35-d status --short",
+        "description": "Show modified and new files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 21,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All done. The full suite passes (9/9 checks), and the state of the tree confirms exactly the intended edits.\n\n**Bug fixes**\n- `rotate.sh`: the list is sorted oldest-first, so the old `tail -n +\"$keep\"` deleted *from* the KEEP-th line \u2014 i.e. the newest archives \u2014 and the `-lt` guard let the `total == keep` case fall through (deleting exactly the newest one with `--keep N` and N archives). Now the guard is `-le` and surplus is `head -n \"$((total - keep))\"` \u2014 the oldest surplus entries, newest never touched.\n- `verify.sh`: the sidecar filename was extracted with `awk '{print $2}'`, which truncates at the first space (`my backup-\u2026` \u2192 `my` \u2192 \"archive missing\" \u2192 BAD/exit 2). Now split with `read -r expected file`, which keeps the remainder of the line intact; also quoted the digest comparison (`[ $expected == $actual ]` \u2192 `[[ \"$expected\" == \"$actual\" ]]`).\n\n**Tests added** (`tests/run_tests.sh`): one group for each bug \u2014 `--keep 3` with exactly 3 archives deletes nothing and `--keep 2` deletes only the oldest (both fail on the old code: `tail -n +3` of 3 lines is the newest, `tail -n +2` deletes the newest of the survivors); and a `backup.sh --name \"my backup\"` archive verifies `ok` with rc=0 (fails on the old code as BAD/rc=2).\n\n**Refactor**: the identical option-parsing block and `resolve_dir` now live in a new `lib/common.sh` (with a double-source guard matching `lib/log.sh`'s convention); `rotate.sh` and `verify.sh` source it and keep their own `usage`/`parse_local_option`, accepting the same flags. `backup.sh`, `restore.sh`, `report.sh` are untouched as requested.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.",
+  "ttft_ms": 10248,
+  "type": "result",
+  "duration_ms": 332728,
+  "uuid": "ae1d023b-3e37-485b-806f-cac5fe7fce15",
+  "ttft_stream_ms": 4425,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 9992,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 333.5,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

@@ -1,0 +1,112 @@
+{
+  "duration_api_ms": 337191,
+  "stop_reason": "end_turn",
+  "session_id": "75b884dc-b799-475a-9f8a-38f0326f51b0",
+  "total_cost_usd": 0.5380879999999999,
+  "usage": {
+    "input_tokens": 34924,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 529760,
+    "output_tokens": 14622,
+    "output_tokens_details": {
+      "thinking_tokens": 7876
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 34924,
+      "outputTokens": 14622,
+      "cacheReadInputTokens": 529760,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5380879999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 7876,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_22a280bae093f87caa7cc3ce91bb2b62_0",
+      "tool_input": {
+        "command": "cd /tmp && d=$(mktemp -d) && mkdir -p \"$d/src\" && echo hi > \"$d/src/a.txt\"\nBACKUP_STAMP=20260101-000000 bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp34-d/backup.sh -q --dest \"$d/dest\" --name demo \"$d/src\" >/dev/null\n# --help exits 0 and prints usage\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp34-d/rotate.sh --help >/dev/null; echo \"rotate --help rc=$?\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp34-d/verify.sh --help >/dev/null; echo \"verify --help rc=$?\"\n# --keep=N, --dest=DIR forms; -q short flag\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp34-d/rotate.sh -q --dest=\"$d/dest\" --name=demo --keep=5; echo \"rotate --keep=5 rc=$?\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp34-d/verify.sh -q --dest=\"$d/dest\"; echo \"verify rc=$?\"\n# unknown option must die 1\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp34-d/rotate.sh -q --dest \"$d/dest\" --name demo --bogus 2>/dev/null; echo \"rotate --bogus rc=$?\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp34-d/verify.sh -q --dest \"$d/dest\" --bogus 2>/dev/null; echo \"verify --bogus rc=$?\"\n# missing dir must die 2\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp34-d/verify.sh -q --dest \"$d/nope\" 2>/dev/null; echo \"verify missing-dest rc=$?\"\n# non-integer --keep must die 1\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp34-d/rotate.sh -q --dest \"$d/dest\" --name demo --keep x 2>/dev/null; echo \"rotate --keep x rc=$?\"\nrm -rf \"$d\"",
+        "description": "Smoke-test sourced option parsing of rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d1ed248a6f32b6649aa9b8e263a6c4d8_0",
+      "tool_input": {
+        "command": "rm -f /tmp/smoke_common.sh",
+        "description": "Remove temporary smoke-test script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 22,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `rotate.sh` and `verify.sh` (bugs + source the new `lib/common.sh`), added `lib/common.sh`, and added the two tests to `tests/run_tests.sh` \u2014 all 9 tests pass.\n\nDetails:\n- **rotate.sh**: `--keep N` with exactly N archives now exits without deleting (`-lt` \u2192 `-le`), and surplus is now the oldest `total-keep` files (`tail -n +N`, which deleted the newest) \u2192 `head -n $((total - keep))`.\n- **verify.sh**: sidecar lines are split with `read -r expected file` so a file name containing spaces stays whole (the old `awk '{print $2}'` truncated `my backup-\u2026` to `my`, then reported \"archive missing\"). Also quoted the digest comparison.\n- **lib/common.sh**: the shared option-parsing block (all five flags, `--opt=VAL` forms, `--`, positional collection, `--keep` validation) plus `resolve_dir`, with a double-source guard like `lib/log.sh`; `rotate.sh`/`verify.sh` define `usage` and `parse_local_option` first, then source it. `backup.sh`, `restore.sh`, `report.sh` untouched.\n- A leftover helper script remains at `/tmp/smoke_common.sh` (my flag/exit-code smoke test; deletion needs approval).",
+  "ttft_ms": 10225,
+  "type": "result",
+  "duration_ms": 337841,
+  "uuid": "2ff69541-bf89-4973-9467-3ac8230e568c",
+  "ttft_stream_ms": 4459,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 9971,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 338.6,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

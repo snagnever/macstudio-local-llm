@@ -1,0 +1,95 @@
+{
+  "duration_api_ms": 327120,
+  "stop_reason": "end_turn",
+  "session_id": "74c0eb09-1d6d-46ba-b5f5-4ee481fdcc52",
+  "total_cost_usd": 0.5431224,
+  "usage": {
+    "input_tokens": 48726,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 813792,
+    "output_tokens": 9273,
+    "output_tokens_details": {
+      "thinking_tokens": 5289
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 48726,
+      "outputTokens": 9273,
+      "cacheReadInputTokens": 813792,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5431224,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 5289,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 24,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed files: `ledger/cli.py` (added `--group-by` option and dispatch), `ledger/report.py` (`group_totals`/`render_grouped`), `tests/test_cli.py` (six new tests covering text and JSON output for month, category and account, plus filter and invalid-key cases), and `README.md` (documented the option) \u2014 full suite passes: 69 tests, OK.",
+  "ttft_ms": 5217,
+  "type": "result",
+  "duration_ms": 327805,
+  "uuid": "845bbc55-aaad-4e54-975c-806dc987eac7",
+  "ttft_stream_ms": 98,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 4520,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 327.8,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 233617,
+  "stop_reason": "end_turn",
+  "session_id": "28dd5cf9-8e91-4956-b605-cc7f70897966",
+  "total_cost_usd": 0.5745768,
+  "usage": {
+    "input_tokens": 45803,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 999424,
+    "output_tokens": 9574,
+    "output_tokens_details": {
+      "thinking_tokens": 4231
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 45803,
+      "outputTokens": 9574,
+      "cacheReadInputTokens": 999424,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5745768,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 4231,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_6d09e14d1afba4d6bba1c771de8bbfc8_1",
+      "tool_input": {
+        "command": "python3 - <<'EOF'\nimport csv, json, subprocess, sys\nfrom collections import defaultdict\nfrom decimal import Decimal\n\nrows = list(csv.DictReader(open(\"fixtures/transactions.csv\", encoding=\"utf-8\", newline=\"\")))\nmonths = defaultdict(Decimal); accounts = defaultdict(Decimal)\nfor r in rows:\n    months[r[\"date\"][:7]] += Decimal(r[\"amount\"])\n    accounts[r[\"account\"]] += Decimal(r[\"amount\"])\n\nout = subprocess.run([sys.executable, \"-m\", \"ledger.cli\", \"report\", \"--group-by\", \"month\", \"--format\", \"json\", \"fixtures/transactions.csv\"], capture_output=True, text=True, cwd=\".\").stdout\ndata = json.loads(out)\nassert {k: Decimal(str(v)) for k, v in data.items()} == {k: v.quantize(Decimal(\"0.01\")) for k, v in months.items()}, \"month mismatch\"\nassert list(data) == sorted(data), \"month json not ordered\"\n\nout = subprocess.run([sys.executable, \"-m\", \"ledger.cli\", \"report\", \"--group-by\", \"account\", \"fixtures/transactions.csv\"], capture_output=True, text=True, cwd=\".\").stdout\nlines = out.splitlines()\nassert lines == [f\"{k} {accounts[k].quantize(Decimal('0.01'))}\" for k in sorted(accounts)], \"account text mismatch\"\n\n# no --group-by keeps the old summary output\nold = subprocess.run([sys.executable, \"-m\", \"ledger.cli\", \"report\", \"fixtures/transactions.csv\"], capture_output=True, text=True, cwd=\".\").stdout\nassert old.startswith(\"transactions: 660\") and \"balances:\" in old\nprint(\"cross-checks OK\")\nEOF",
+        "description": "Cross-check group totals against CSV sums"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9d0d916722e16e833fac1f501d9620ed_0",
+      "tool_input": {
+        "command": "python3 .crosscheck.py && rm .crosscheck.py",
+        "description": "Run cross-check script, then remove it"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_e48b72e366737444c385285a3fe1c30f_0",
+      "tool_input": {
+        "command": "rm .crosscheck.py",
+        "description": "Delete the temporary cross-check script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 27,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. All 69 tests pass (`python3 -m unittest discover -s tests -t .`), and I cross-checked the fixture output independently: month/account group totals match CSV sums, month labels are `YYYY-MM`, groups are ordered by label, filters apply before grouping, and the no-`--group-by` summary output is unchanged.\n\nChanged files: `ledger/report.py` (added `GROUP_KEYS`, `group_totals()`, `render_groups()`), `ledger/cli.py` (added `--group-by` to the `report` subcommand), `tests/test_cli.py` (6 new tests covering text and JSON output across all three grouping keys, label ordering, filter interaction, and an invalid-group argparse error), and `README.md` (documented the option). One leftover: the temporary verification script `.crosscheck.py` in the repo root \u2014 deleting it needs your approval, so feel free to `rm .crosscheck.py`.",
+  "ttft_ms": 4635,
+  "type": "result",
+  "duration_ms": 234149,
+  "uuid": "13aa8290-da13-4d2d-8bac-9c8599910e34",
+  "ttft_stream_ms": 60,
+  "time_to_request_ms": 35,
+  "first_content_frame_ms": 4441,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 234.5,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

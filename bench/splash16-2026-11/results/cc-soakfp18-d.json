@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 435272,
+  "stop_reason": "end_turn",
+  "session_id": "e49aadee-767c-4a4b-94a9-618a43ea513b",
+  "total_cost_usd": 0.7016368,
+  "usage": {
+    "input_tokens": 38208,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 908224,
+    "output_tokens": 18358,
+    "output_tokens_details": {
+      "thinking_tokens": 9766
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 38208,
+      "outputTokens": 18358,
+      "cacheReadInputTokens": 908224,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7016368,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9766,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_8e4f9a3f24b0a06f933ff085e5446c26_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"\n# help exits 0\nbash rotate.sh --help >/dev/null; echo \"rotate --help rc=$?\"\nbash verify.sh --help >/dev/null; echo \"verify --help rc=$?\"\n# --keep validation\nbash rotate.sh --quiet --dest \"$t/dest\" --name d --keep abc 2>&1 | tail -1; \n# dry run + sidecar removal with 3 archives, keep 2\nfor s in 20260101-000000 20260102-000000 20260103-000000; do : > \"$t/dest/d-$s.tar.gz\"; : > \"$t/dest/d-$s.tar.gz.sha256\"; done\nbash rotate.sh --quiet --dry-run --dest \"$t/dest\" --name d --keep 2\nbash rotate.sh --quiet -n --dest \"$t/dest\" --name d -k 2 2>&1 | tail -1\nbash rotate.sh --quiet --dest \"$t/dest\" --name d --keep=2\necho \"remaining:\"; ls \"$t/dest\"\n# verify: name filter, missing dir exit 2, unknown option exit 1\nbash verify.sh --quiet --dest \"$t/dest\" --name d; echo \"verify rc=$?\"\nbash rotate.sh --quiet --dest \"$t/nodir\" --name d; echo \"missing dest rc=$?\"\nbash verify.sh --quiet --dest \"$t/dest\" --bogus 2>&1 | tail -1\n# verify: empty sidecar is malformed, name with spaces + BAD\nprintf '' > \"$t/dest/empty.tar.gz.sha256\"\nbash verify.sh --quiet --dest \"$t/dest\" --name empty; echo \"empty sidecar rc=$?\"\nrm -rf \"$t\"",
+        "description": "Exercise flags and exit codes of refactored scripts"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9c0ab811dc91c108c4630121f6009cec_0",
+      "tool_input": {
+        "command": "for f in backup.sh rotate.sh verify.sh restore.sh report.sh lib/log.sh lib/common.sh tests/run_tests.sh; do bash -n \"$f\" && echo \"syntax ok: $f\"; done; rm /tmp/flagcheck.sh; git status --short; git diff --stat",
+        "description": "Syntax-check scripts and show change set"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7e66229da6630779b7ee2d2db62f37f2_0",
+      "tool_input": {
+        "command": "bash -n backup.sh && bash -n rotate.sh && bash -n verify.sh && bash -n restore.sh && bash -n report.sh && bash -n lib/log.sh && bash -n lib/common.sh && bash -n tests/run_tests.sh && echo \"all syntax ok\" && rm -f /tmp/flagcheck.sh && git status --short",
+        "description": "Syntax-check all scripts and show git status"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 30,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All checks pass. Summary of the work:\n\n**Bug 1 \u2014 `rotate.sh --keep N`** (`rotate.sh:141-149`): the guard used `-lt` (so exactly N backups fell through to deletion) and `surplus()` used `tail -n +\"$keep\"` on a list sorted oldest-first, which selected from the KEEP-th line to the *end* \u2014 i.e. the newest entries. Now the guard is `-le` and surplus is the oldest `total - keep` entries via `head -n`.\n\n**Bug 2 \u2014 `verify.sh` and spaces** (`verify.sh:149-153`): the sidecar line was split with `awk '{print $2}'`, which truncated `my backup-\u2026.tar.gz` at the first space, so the name looked missing \u2192 BAD. It now uses `read -r expected file <<< \"$line\"`, which puts the whole remainder (spaces included) into the filename; the digest comparison also switched from unquoted `[ $expected == $actual ]` to quoted `[[ ]]`.\n\n**Refactor**: added `lib/common.sh` containing the shared option-parsing block (`DEST/NAME/KEEP/QUIET/DRY_RUN/ARGS`, `is_uint`, `need_value`, the flag loop wrapped as `parse_common_options`, the `--keep` validation) and the `resolve_dir` helper, with a double-source guard like `lib/log.sh`. `rotate.sh` and `verify.sh` source it and call `parse_common_options \"$@\"` after defining `usage`/`parse_local_option`, so all flags (`--dest`, `--name`, `--keep`, `--dry-run`, `--quiet`, `--help`, `--`, unknown-option handling) behave identically \u2014 verified by hand for help, `--keep=2`, dry-run, sidecar removal, name filter, missing-dest rc=2, and malformed sidecars. `backup.sh`, `restore.sh`, `report.sh`, `lib/log.sh` are untouched.\n\nTest suite (`bash tests/run_tests.sh`): 10/10 ok, including the new regression tests \u2014 \"verify accepts spaces in an archive name\", \"rotate deletes nothing when exactly --keep archives exist\", \"rotate --keep 2 of three deletes the oldest\", \"rotate keeps the newest --keep archives\".\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh` modified; `lib/common.sh` added.",
+  "ttft_ms": 10301,
+  "type": "result",
+  "duration_ms": 435884,
+  "uuid": "0827b2db-594f-497b-8c1b-b6c71569edd5",
+  "ttft_stream_ms": 4454,
+  "time_to_request_ms": 35,
+  "first_content_frame_ms": 10043,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 436.7,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

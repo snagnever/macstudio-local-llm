@@ -1,0 +1,104 @@
+{
+  "duration_api_ms": 248120,
+  "stop_reason": "end_turn",
+  "session_id": "f590d1b7-e1c4-4a13-92f2-dbb05e4c6ece",
+  "total_cost_usd": 0.6099351999999999,
+  "usage": {
+    "input_tokens": 34735,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 851776,
+    "output_tokens": 15032,
+    "output_tokens_details": {
+      "thinking_tokens": 7073
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 34735,
+      "outputTokens": 15032,
+      "cacheReadInputTokens": 851776,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6099351999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 7073,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_0f19dc5e42fd55c30f6ece908f818a67_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/orig-toolkit && mkdir -p /tmp/orig-toolkit && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp7-d archive HEAD | tar -x -C /tmp/orig-toolkit && t=$(mktemp -d) && mkdir -p \"$t/src\" && printf 'hello\\n' > \"$t/src/hello.txt\" && for s in 20260101-120000 20260102-120000 20260103-120000; do BACKUP_STAMP=$s bash /tmp/orig-toolkit/backup.sh --quiet --dest \"$t/dest\" --name demo \"$t/src\" >/dev/null; done && echo \"rotate (orig, 3 archives, --keep 3) stdout: [$(bash /tmp/orig-toolkit/rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 3)]\" && ls \"$t/dest\" | grep tar.gz && B=$(mktemp -d) && mkdir -p \"$t/my src\" && printf 'hi\\n' > \"$t/my src/a.txt\" && BACKUP_STAMP=20260101-000000 bash /tmp/orig-toolkit/backup.sh --quiet --dest \"$t/vdest\" --name \"my backup\" \"$t/my src\" >/dev/null && rc=0; out=$(bash /tmp/orig-toolkit/verify.sh --quiet --dest \"$t/vdest\") || rc=$?; echo \"verify (orig, spaced name): [$out] rc=$rc\"; rm -rf \"$t\" /tmp/orig-toolkit",
+        "description": "Reproduce both bugs against original code from HEAD"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All green. `--dry-run` deletes nothing and targets only the oldest archives, `--name` filtering, `--help`, unknown-option and bad-value exits all behave as before.\n\n**What I did:**\n\n- **`rotate.sh`** \u2014 fixed the rotation arithmetic: the early exit is now `total -le keep` (nothing to delete at exactly N), and `surplus` is `head -n \"$((total - keep))\"` so the *oldest* archives past the newest N get removed, not the newest. Also replaced its duplicated parser/`resolve_dir` block with `source lib/common.sh`.\n- **`verify.sh`** \u2014 fixed sidecar parsing: the line is now split with a bash regex (`^([^[:space:]]+)[[:space:]]+(.+)$`) so a file name containing spaces is taken whole instead of being truncated by `awk '{print $2}'` (which made every spaced name look like a missing archive). Also quoted the digest comparison. Replaced its duplicated parser/`resolve_dir` block with `source lib/common.sh`.\n- **`lib/common.sh`** (new) \u2014 the shared option-parsing block and `resolve_dir` helper, sourced by both scripts (scripts still define `usage`/`parse_local_option` first, all flags unchanged). `backup.sh`, `restore.sh`, `report.sh` untouched.\n- **`tests/run_tests.sh`** \u2014 added a test that `--keep 3` deletes nothing when exactly 3 archives exist and the newest survives (plus a 4-archives case deleting only the oldest), and a test that verify reports `ok`/rc=0 for `my backup-20260101-000000.tar.gz`. Both new tests reproduce the reported bugs on the original code (verified against HEAD); `bash tests/run_tests.sh` now passes all 9 checks.\n\nChanged files: `rotate.sh`, `verify.sh`, `lib/common.sh` (new), `tests/run_tests.sh`.",
+  "ttft_ms": 11070,
+  "type": "result",
+  "duration_ms": 249408,
+  "uuid": "9e938e90-b406-4c8a-a277-bc7d997b5f5c",
+  "ttft_stream_ms": 4413,
+  "time_to_request_ms": 35,
+  "first_content_frame_ms": 10766,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 249.6,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

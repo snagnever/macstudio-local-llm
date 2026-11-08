@@ -1,0 +1,104 @@
+{
+  "duration_api_ms": 328330,
+  "stop_reason": "end_turn",
+  "session_id": "83fe4f9b-c74a-49c0-b860-dbd18c2c666b",
+  "total_cost_usd": 0.5729040000000001,
+  "usage": {
+    "input_tokens": 33975,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 692320,
+    "output_tokens": 14927,
+    "output_tokens_details": {
+      "thinking_tokens": 7894
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 33975,
+      "outputTokens": 14927,
+      "cacheReadInputTokens": 692320,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5729040000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 7894,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_efab47fd8005a9f00a459907b8e1c505_0",
+      "tool_input": {
+        "command": "cd \"$(mktemp -d)\" && ROOT=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp12-d\n# normal rotation: 4 archives, keep 2 -> oldest two deleted with sidecars\nmkdir -p dest\nfor s in 010000 020000 030000 040000; do printf 'a\\n' > \"dest/demo-20260101-$s.tar.gz\"; printf 'x  demo\\n' > \"dest/demo-20260101-$s.tar.gz.sha256\"; done\necho \"--- rotate --keep 2 output:\"; bash \"$ROOT/rotate.sh\" --quiet --dest dest --name demo --keep 2\necho \"--- remaining:\"; ls dest\necho \"--- --help exit:\"; bash \"$ROOT/rotate.sh\" --help >/dev/null; echo $?\necho \"--- unknown option exit:\"; bash \"$ROOT/verify.sh\" --dest dest --bogus 2>/dev/null; echo $?\necho \"--- keep= form, missing dest exit:\"; bash \"$ROOT/rotate.sh\" --name demo --keep=abc 2>/dev/null; echo $?\necho \"--- verify space+corrupt:\"\nmkdir -p \"src/my backup\"; printf 'hello\\n' > \"src/my backup/h.txt\"\nBACKUP_STAMP=20260101-000000 bash \"$ROOT/backup.sh\" --quiet --dest vdest --name \"my backup\" \"src/my backup\" >/dev/null\nprintf 'x' >> \"vdest/my backup-20260101-000000.tar.gz\"\nbash \"$ROOT/verify.sh\" --quiet --dest vdest; echo \"rc=$?\"\necho \"--- verify --name filter with space:\"\nbash \"$ROOT/verify.sh\" --quiet --dest vdest --name \"my backup\"\nbash \"$ROOT/verify.sh\" --quiet --dest vdest --name other; echo \"rc(no match)=$?\"",
+        "description": "Sanity-check rotate deletion, sidecars, flags, and verify edge cases"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 22,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 8 tests pass. Fixes:\n\n- **rotate.sh** \u2014 `surplus()` used `tail -n +\"$keep\"`, which started deleting *at* the KEEP-th (1-based) entry, so with exactly N backups the newest was removed; it now starts at `keep + 1` and the \"nothing to rotate\" guard triggers at `total <= keep`.\n- **verify.sh** \u2014 the sidecar file name was extracted with `awk '{print $2}'`, truncating names at the first space; it now reads the digest as the first word and the name as the line's remainder, and the digest comparison is quoted.\n- **lib/common.sh** (new) \u2014 holds the shared option-parsing block, `is_uint`, `need_value`, the `--keep` validation, and `resolve_dir`; sourced by rotate.sh and verify.sh, which keep all their previous flags (verified: `--dest`, `--name`, `--keep`, `=`-forms, `-q`, `-n`, `-h`, unknown-option/missing-value exit codes all unchanged).\n- **tests/run_tests.sh** \u2014 added one test per bug next to the existing groups.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.",
+  "ttft_ms": 10175,
+  "type": "result",
+  "duration_ms": 329189,
+  "uuid": "d311311f-b8df-42ad-877a-57c0e7df985c",
+  "ttft_stream_ms": 4472,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 10027,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 329.4,
+  "task_done": false,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

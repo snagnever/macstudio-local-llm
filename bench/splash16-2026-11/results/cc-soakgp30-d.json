@@ -1,0 +1,136 @@
+{
+  "duration_api_ms": 303126,
+  "stop_reason": "end_turn",
+  "session_id": "e99880a1-02de-4e3e-81ae-79642995a747",
+  "total_cost_usd": 0.6281568,
+  "usage": {
+    "input_tokens": 33476,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 780064,
+    "output_tokens": 16912,
+    "output_tokens_details": {
+      "thinking_tokens": 9573
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 33476,
+      "outputTokens": 16912,
+      "cacheReadInputTokens": 780064,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6281568,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9573,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ccfcdb6616f0bf9336873664e0e4f4e9_0",
+      "tool_input": {
+        "command": "bash -n rotate.sh && bash -n verify.sh && bash -n lib/common.sh && echo \"syntax ok\" && /bin/bash --version | head -1",
+        "description": "Syntax-check scripts and show /bin/bash version"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ccfcdb6616f0bf9336873664e0e4f4e9_1",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"\nprintf 'a\\n' > \"$t/dest/space name-20260101-000000.tar.gz\"\n(cd \"$t/dest\" && shasum -a 256 \"space name-20260101-000000.tar.gz\" > \"space name-20260101-000000.tar.gz.sha256\")\nprintf 'onlydigest\\n' > \"$t/dest/broken.tar.gz.sha256\"\necho \"--- /bin/bash 3.2, space name + malformed sidecar ---\"\nVERBOSE=0 /bin/bash verify.sh --dest \"$t/dest\"; rc=$?; echo \"rc=$rc (expect 2, BAD only for broken)\"\necho \"--- --name filter ---\"\nout=$(bash verify.sh --quiet --dest \"$t/dest\" --name space); echo \"rc=$? out=$out\"\necho \"--- rotate: --keep=N, dry-run, --dest, unknown flag ---\"\nbash rotate.sh --quiet --dest=\"$t/dest\" --name \"space name\" --keep=1 --dry-run; echo \"rc=$?\"\nbash rotate.sh -h | head -1\nbash rotate.sh --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\nbash verify.sh --dest 2>&1 | tail -1\nrm -rf \"$t\"",
+        "description": "Exercise flags, sidecar edge cases, and bash 3.2 on rotate/verify"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_aa025971e228b923c4dd53ae8e65dc95_0",
+      "tool_input": {
+        "command": "bash -n rotate.sh; bash -n verify.sh; bash -n lib/common.sh; bash -n tests/run_tests.sh; echo \"syntax ok\"; /bin/bash --version | head -1",
+        "description": "Syntax-check changed scripts and show /bin/bash version"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a8138acfa9347fcc9434ba16ba92d299_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/soakgp30-check",
+        "description": "Remove temporary probe directory"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a8138acfa9347fcc9434ba16ba92d299_1",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp30-d status --short",
+        "description": "Show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 29,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `rotate.sh` (keep newest N: `total -le keep` early exit, surplus = oldest `total - keep` via `head`), `verify.sh` (sidecar split keeps whole file name with spaces), added `lib/common.sh` (shared option parser + `resolve_dir`, now sourced by `rotate.sh` and `verify.sh`), and added one test per bug to `tests/run_tests.sh` \u2014 all 11 tests pass.",
+  "ttft_ms": 12649,
+  "type": "result",
+  "duration_ms": 304274,
+  "uuid": "c489d83d-8f18-460f-8ce2-28af62e0f663",
+  "ttft_stream_ms": 4542,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 11575,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 303.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

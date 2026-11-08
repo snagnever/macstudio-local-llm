@@ -1,0 +1,112 @@
+{
+  "duration_api_ms": 334244,
+  "stop_reason": "end_turn",
+  "session_id": "f212d0ae-0e3a-4e16-9f7f-b9eaf5eea356",
+  "total_cost_usd": 0.5115928,
+  "usage": {
+    "input_tokens": 29324,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 606784,
+    "output_tokens": 13647,
+    "output_tokens_details": {
+      "thinking_tokens": 7071
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 29324,
+      "outputTokens": 13647,
+      "cacheReadInputTokens": 606784,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5115928,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 7071,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_10f393374357206a1c9fcd63a3aa1a31_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"\ncd \"$t/dest\"\nfor s in 20260101-000000 20260102-000000 20260103-000000; do : > \"app-$s.tar.gz\"; done\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp28-d\necho \"--- rotate --help exit:\"; bash \"$R/rotate.sh\" --help >/dev/null; echo $?\necho \"--- rotate --keep=2 --dry-run:\"; bash \"$R/rotate.sh\" --dest \"$t/dest\" --name app --keep=2 --dry-run -q\necho \"--- rotate unknown flag:\"; bash \"$R/rotate.sh\" --dest x --name y --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"--- rotate --keep abc:\"; bash \"$R/rotate.sh\" --dest \"$t/dest\" --name app --keep abc 2>&1 | tail -1\necho \"--- rotate --keep 0:\"; bash \"$R/rotate.sh\" --dest \"$t/dest\" --name app --keep 0 2>&1 | tail -1\necho \"--- rotate missing dir:\"; bash \"$R/rotate.sh\" --dest \"$t/nope\" --name app 2>&1 | tail -1; bash \"$R/rotate.sh\" --dest \"$t/nope\" --name app >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- verify --name filter:\"; for f in app-*.tar.gz; do (cd \"$t/dest\" && shasum -a 256 \"$f\" > \"$f.sha256\"); done; echo data > \"$t/dest/other-20260101-000000.tar.gz\"; (cd \"$t/dest\" && shasum -a 256 \"other-20260101-000000.tar.gz\" > \"other-20260101-000000.tar.gz.sha256\")\nbash \"$R/verify.sh\" --dest \"$t/dest\" --name app -q\necho \"--- verify --dest=... form:\"; bash \"$R/verify.sh\" --dest=\"$t/dest\" --quiet | head -1\nrm -rf \"$t\"",
+        "description": "Smoke-test flags on refactored rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_02d8095f9f780a582b0a510d096f0c93_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp28-d status --short; git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp28-d diff --stat; rm -rf /tmp/smk_rotate_verify",
+        "description": "Show changed files and clean up smoke script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 20,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All done \u2014 the suite passes (9/9), only the intended files are modified, and `backup.sh`, `restore.sh`, `report.sh` are untouched.\n\nWhat I changed:\n\n1. **`rotate.sh` bug** \u2014 the archive list is sorted oldest-first, but `surplus()` used `tail -n +\"$keep\"`, which kept the oldest and deleted from the newest end, and the early exit `total -lt keep` let the exactly-N case through (deleting the newest archive). Fixed to `head -n \"$((total - keep))\"` and `total -le keep`, so `--keep N` keeps the newest N and deletes nothing when N remain.\n2. **`verify.sh` bug** \u2014 the sidecar's file name was extracted with `awk '{print $2}'`, truncating at the first space, so `my backup-\u2026.tar.gz` became `my` \u2192 \"archive missing\" \u2192 BAD. It now takes everything after the digest and separator whitespace, preserving spaces in names.\n3. **Refactor** \u2014 new `lib/common.sh` holds the option-parsing block (`--dest/--name/--keep/-q/-n/-h/--`, `is_uint`, `need_value`, KEEP validation) and `resolve_dir`; `rotate.sh` and `verify.sh` source it (after `lib/log.sh` and their `usage`/`parse_local_option` definitions, so all flags work identically \u2014 verified with smoke tests on `--keep=N`, `--dest=DIR`, `--dry-run`, unknown-flag, missing-dir exit codes, and `--name` filtering).\n4. **Tests** \u2014 added a rotate group (4 archives, `--keep 3` keeps the newest 3 and deletes the oldest; a second run with exactly 3 deletes nothing) and a verify fixture with `my backup-20260101-000000.tar.gz` expecting `ok` and rc=0.\n\nChanged files: `rotate.sh`, `verify.sh`, `lib/common.sh` (new), `tests/run_tests.sh`.",
+  "ttft_ms": 10128,
+  "type": "result",
+  "duration_ms": 334988,
+  "uuid": "60b70666-6cf0-4461-adc8-cefd02f15875",
+  "ttft_stream_ms": 4461,
+  "time_to_request_ms": 32,
+  "first_content_frame_ms": 9941,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 335.5,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

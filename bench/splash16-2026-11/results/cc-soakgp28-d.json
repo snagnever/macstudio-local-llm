@@ -1,0 +1,112 @@
+{
+  "duration_api_ms": 308084,
+  "stop_reason": "end_turn",
+  "session_id": "ab9c0e87-ec91-4532-a6ce-11740479a7c4",
+  "total_cost_usd": 0.6359648000000001,
+  "usage": {
+    "input_tokens": 34702,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 821184,
+    "output_tokens": 16646,
+    "output_tokens_details": {
+      "thinking_tokens": 9096
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 34702,
+      "outputTokens": 16646,
+      "cacheReadInputTokens": 821184,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6359648000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9096,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d92b8d90e99e765a38cd5c66937b94da_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir \"$t/dest\"\nfor d in 01 02 03 04; do touch \"$t/dest/demo-2026$d-000000.tar.gz\"; done\nout=$(bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep=2)\necho \"$out\"\necho \"remaining: $(ls \"$t/dest\" | tr '\\n' ' ')\"\nbash rotate.sh --help >/dev/null 2>&1; echo \"help rc=$?\"\nbash rotate.sh --dry-run -q --dest \"$t/dest\" --name=demo --keep 1 | head -1\nbash rotate.sh --bogus --dest \"$t/dest\" --name demo >/dev/null 2>&1; echo \"bogus rc=$?\"\nbash rotate.sh --dest \"$t/dest\" --name demo --keep abc >/dev/null 2>&1; echo \"badkeep rc=$?\"\nbash rotate.sh --dest \"$t/missing\" --name demo >/dev/null 2>&1; echo \"missingdir rc=$?\"\nbash verify.sh --dest \"$t/dest\" --name demo; echo \"verify nosidecar rc=$?\"\nbash verify.sh -q --dest \"$t/dest\" -x >/dev/null 2>&1; echo \"verify bogus rc=$?\"\nrm -rf \"$t\"",
+        "description": "Sanity-check rotate keeps newest and flag handling unchanged"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_8dec48086150bb0c8e0a8ae090d4daae_0",
+      "tool_input": {
+        "command": "rm /tmp/sanity-rotate-verify.sh && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp28-d diff --stat && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp28-d status --short",
+        "description": "Remove sanity script and show change summary"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Permissions blocked those follow-up commands, so I left the scratch script at `/tmp/sanity-rotate-verify.sh` (harmless, outside the repo) \u2014 the work itself is verified by the passing suite above.\n\nSummary of what was done:\n\n- **`rotate.sh`** \u2014 fixed the rotation bug: `surplus()` used `tail -n +\"$keep\"` on a list sorted *oldest-first*, so it deleted starting *at* entry keep \u2014 with exactly N archives, that was the newest one. It now deletes the first `total - keep` (oldest) entries, touching nothing when `total == keep`. Replaced its inline option-parsing block and `resolve_dir` with `source lib/common.sh` + `parse_common_options \"$@\"`.\n- **`verify.sh`** \u2014 fixed the space-in-name bug: sidecar parsing used `awk '{print $2}'`, which cut the file name at the first space (`my backup-\u2026` \u2192 `my` \u2192 false \"archive missing\"). It now uses `read -r expected file`, which keeps the whole remainder of the line. Same refactor to `lib/common.sh`; also quoted the digest comparison. Both scripts still accept every flag (`--dest`, `--dest=`, `--name`, `--keep`, `-q`, `-n`, `-h`, `--`, unknown-option/exit-code behavior verified).\n- **`lib/common.sh`** (new) \u2014 the shared parser, `is_uint`, `need_value`, and `resolve_dir`, with a double-source guard like `lib/log.sh` and bash-3.2-compatible syntax; `backup.sh`, `restore.sh`, `report.sh` were left untouched.\n- **`tests/run_tests.sh`** \u2014 added one test per bug: rotate with exactly 3 archives and `--keep 3` must keep all 3, and verify must report `ok` for `my backup-20260101-000000.tar.gz` (created through `backup.sh` so the sidecar is realistic). `bash tests/run_tests.sh` \u2192 all 8 tests pass.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and the new `lib/common.sh`.",
+  "ttft_ms": 10575,
+  "type": "result",
+  "duration_ms": 308875,
+  "uuid": "7a56366d-4607-4823-a168-373ed31442ca",
+  "ttft_stream_ms": 4507,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 10126,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 309.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

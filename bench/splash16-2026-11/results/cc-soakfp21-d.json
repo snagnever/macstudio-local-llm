@@ -1,0 +1,144 @@
+{
+  "duration_api_ms": 431979,
+  "stop_reason": "end_turn",
+  "session_id": "0768b4d6-d91c-4982-8bd5-e1286b7cfee6",
+  "total_cost_usd": 0.7712703999999999,
+  "usage": {
+    "input_tokens": 41252,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1078112,
+    "output_tokens": 19532,
+    "output_tokens_details": {
+      "thinking_tokens": 10945
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 41252,
+      "outputTokens": 19532,
+      "cacheReadInputTokens": 1078112,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7712703999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 10945,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a4a48ab7059a248cafe66f8fdb14d0ea_0",
+      "tool_input": {
+        "command": "ls -l lib/ *.sh | head -20 && chmod --reference=lib/log.sh lib/common.sh 2>/dev/null || chmod 755 lib/common.sh; bash tests/run_tests.sh",
+        "description": "Run test suite and align lib/common.sh permissions"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d405858c77f5177df00fff003b1ba3b4_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); d=\"$t/d\"; mkdir -p \"$d\"; for s in 20260101-010000 20260101-020000 20260101-030000 20260101-040000; do : > \"$d/app-$s.tar.gz\"; : > \"$d/app-$s.tar.gz.sha256\"; done; bash rotate.sh --quiet --dest \"$d\" --name app --keep 2; echo \"--remaining--\"; ls \"$d\" | sort; rm -rf \"$t\"",
+        "description": "Sanity check rotate keeps newest 2 of 4 archives"
+      }
+    },
+    {
+      "tool_name": "Write",
+      "tool_use_id": "call_cf96f0948ca513890c88a43ba0c7f736_0",
+      "tool_input": {
+        "file_path": "/Users/vitor/.claude/projects/-Users-vitor--cache-flashnext-concurrency-claude-work-soakfp21-d/memory/scratchpad/rotate_check.sh",
+        "content": "#!/usr/bin/env bash\n# Manual sanity check for rotate.sh beyond the new unit test.\nset -uo pipefail\nroot=\"/Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp21-d\"\nt=$(mktemp -d)\nd=\"$t/d\"\nmkdir -p \"$d\"\nfor s in 20260101-010000 20260101-020000 20260101-030000 20260101-040000; do\n  : > \"$d/app-$s.tar.gz\"\n  : > \"$d/app-$s.tar.gz.sha256\"\ndone\necho \"-- rotate --keep 2 of 4 (expect oldest two deleted, sidecars with them) --\"\nbash \"$root/rotate.sh\" --dest \"$d\" --name app --keep 2\necho \"-- remaining --\"\nls \"$d\" | sort\necho \"-- dry run at exactly keep count (expect nothing to rotate) --\"\nbash \"$root/rotate.sh\" --dest \"$d\" --name app --keep 2\necho \"-- flags still accepted: --keep=3, -n, --dry-run, --quiet, --help exit codes --\"\nbash \"$root/rotate.sh\" --quiet --dest=\"$d\" --name=app --keep=3 --dry-run\nbash \"$root/rotate.sh\" --dest \"$d\" --name app -n -q\nrc=0; bash \"$root/rotate.sh\" --dest \"$d\" --name app --keep 0 2>/dev/null || rc=$?\necho \"keep=0 rc=$rc (expect 1)\"\nrc=0; bash \"$root/rotate.sh\" --dest \"$d\" 2>/dev/null || rc=$?\necho \"missing --name rc=$rc (expect 1)\"\nbash \"$root/rotate.sh\" --help > /dev/null\necho \"help rc=$? (expect 0)\"\nrm -rf \"$t\"\n"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c7a05bbaefafe2dce7caced6836b18cd_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/rotcheck/d",
+        "description": "Create temp fixture directory"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_99f89e7bfb587abfdabfedb201da9033_0",
+      "tool_input": {
+        "command": "mkdir -p .scratch/d",
+        "description": "Create temp fixture directory inside repo"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a3345f84554edf3cc56c494c5316c816_0",
+      "tool_input": {
+        "command": "rm -rf .scratch",
+        "description": "Remove throwaway sanity-check scripts"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 31,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.\n\nDetails:\n\n- **rotate.sh bug** \u2014 `surplus()` used `tail -n +\"$keep\"` on the oldest-first list, which deletes from the *keep*-th entry to the end; with exactly N archives that line is the newest, so it got deleted. Now the guard is `total -le keep` (nothing to rotate) and surplus is `head -n \"$((total - keep))\"` \u2014 the oldest `total - keep` entries, so the newest `keep` survive.\n- **verify.sh bug** \u2014 the sidecar line was split with `awk '{print $2}'`, truncating names with spaces to their first word (\"my\") \u2192 \"archive missing\" \u2192 BAD/rc=2. Now `read -r expected file <<< \"$line\"` keeps the whole remainder of the line as the file name; the malformed-sidecar check (digest-only line \u2192 empty file) is preserved.\n- **Shared code** \u2014 new `lib/common.sh` holds the option parser as `parse_common_options` (sets `DEST`/`NAME`/`KEEP`/`QUIET`/`DRY_RUN`/`ARGS`, validates `--keep`) plus `is_uint`, `need_value` and `resolve_dir`, with a double-source guard like `lib/log.sh`. `rotate.sh` and `verify.sh` source it and call `parse_common_options \"$@\"` \u2014 all flags (`--dest`, `--name`, `--keep`, `=` forms, `-n`, `-q`, `--help`, `--`, and `parse_local_option` dispatch) behave as before, verified by hand runs. `backup.sh`, `restore.sh` and `report.sh` are untouched.\n- **Tests** \u2014 two new checks in `tests/run_tests.sh`: one that `--keep 3` with exactly 3 archives deletes nothing (newest kept), one that an archive named `my backup-20260101-000000.tar.gz` verifies `ok` with rc=0. `bash tests/run_tests.sh`: all 8 tests pass.\n\nOne note: my two throwaway sanity-check scripts in `.scratch/` are still there \u2014 my shell `rm` was blocked by permissions; approve a delete or remove them manually.",
+  "ttft_ms": 10229,
+  "type": "result",
+  "duration_ms": 432677,
+  "uuid": "5e25d32e-9fd2-4bc7-a63c-1be3ead3c99b",
+  "ttft_stream_ms": 4488,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 10045,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 433.6,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

@@ -1,0 +1,104 @@
+{
+  "duration_api_ms": 197813,
+  "stop_reason": "end_turn",
+  "session_id": "63f87f55-e1bc-4a86-870f-8dbb66f76166",
+  "total_cost_usd": 0.37233359999999993,
+  "usage": {
+    "input_tokens": 22857,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 597728,
+    "output_tokens": 8068,
+    "output_tokens_details": {
+      "thinking_tokens": 3689
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 22857,
+      "outputTokens": 8068,
+      "cacheReadInputTokens": 597728,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.37233359999999993,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 3689,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_fa75ebd04bd2d726a4f4baba8798a62a_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp38-c diff --stat",
+        "description": "Show summary of changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 22,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All done. The full suite (70 tests, including 7 new ones) passes, and I verified the new option end-to-end for all three keys in both formats; the default (ungrouped) output is unchanged, as proven by the pre-existing tests.\n\nChanged files: `ledger/cli.py`, `ledger/report.py`, `ledger/store.py`, `tests/test_cli.py`, `README.md`.",
+  "ttft_ms": 5107,
+  "type": "result",
+  "duration_ms": 198407,
+  "uuid": "5a9e8116-a686-4098-8df5-7d6f2c0a56b4",
+  "ttft_stream_ms": 98,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 4513,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 199.1,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

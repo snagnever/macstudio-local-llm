@@ -1,0 +1,104 @@
+{
+  "duration_api_ms": 266953,
+  "stop_reason": "end_turn",
+  "session_id": "afe7880c-c99c-4c79-9603-ffd6d27dc53e",
+  "total_cost_usd": 0.445364,
+  "usage": {
+    "input_tokens": 44259,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 647840,
+    "output_tokens": 6938,
+    "output_tokens_details": {
+      "thinking_tokens": 2350
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 44259,
+      "outputTokens": 6938,
+      "cacheReadInputTokens": 647840,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.445364,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 2350,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_57fcf555d7696f82a3129ac7bd0bdf92_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp6-c diff --stat",
+        "description": "Show summary of changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. `--group-by month|category|account` was added to `report`: `group_totals()` and the grouped text/JSON renderers live in `ledger/report.py:104-141` (groups ordered by label, month labels `YYYY-MM`, JSON amounts rounded to cents), wired into `cmd_report` and the parser in `ledger/cli.py`. Filters (`--account`, `--category`, `--from`, `--to`) apply before grouping; output with no `--group-by` is unchanged. Six new tests in `tests/test_cli.py` cover text and JSON for all three keys, filter combination, and an invalid key. Full suite: 69 tests, all passing (`python3 -m unittest discover -s tests -t .`).\n\nChanged files: `ledger/report.py`, `ledger/cli.py`, `tests/test_cli.py`, `README.md`.",
+  "ttft_ms": 5081,
+  "type": "result",
+  "duration_ms": 267303,
+  "uuid": "cbae043b-27a4-4c0a-942d-3fd6e323cc53",
+  "ttft_stream_ms": 59,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 4461,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 267.8,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}
