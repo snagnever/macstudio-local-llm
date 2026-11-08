@@ -280,6 +280,8 @@ Churn de 15 min, sob `--max-memory 64G`, contexto 131072, na ordem `k2f`, `k2g`,
 
 ### Task 6: Qualidade
 
+**Pulada pelo usuário em 08/11.** A bateria completou 5 de 6 suítes, e o G1 passa em todas. O veerman, o longctx e as tool calls não rodaram. Resultado: results/etapa6-qualidade.md.
+
 Rodar o `k2g` a 262144.
 
 - [ ] **Step 1: Bateria.** `run-battery.sh k2g v16 --suites "humaneval gpqa livecodebench if jdhodges veerman" --ctx 262144`. Commitar os JSONL por questão.
