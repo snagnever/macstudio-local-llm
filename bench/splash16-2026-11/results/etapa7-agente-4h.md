@@ -67,7 +67,7 @@ A 1.5.0 não grava `ttft_parts_ms` nem `decode_gap_causes`, então a coluna `cla
 
 ## Conclusão
 
-- **Queda de decode:** estável nas duas releases, com razão fim / antes de 0.91 na 1.6.0 e 0.96 na 1.5.0. Pelas regras de queda, o resultado não confirma o fix, porque a 1.5.0 também fica estável, e não mostra regressão.
+- **Queda de decode:** estável nas duas releases, com razão fim / antes de 0.91 na 1.6.0 e 0.96 na 1.5.0. Pelas regras do plano, o resultado é **fix sem prova**: a 1.5.0 também fica estável. Ele não mostra regressão.
 - **Trabalho feito:** a 1.6.0 conclui 13% mais pares e 15% mais requests em 4 h. O warm TTFT p50 cai de cerca de 2.0 s para 1.1 s, e o p90 cai de cerca de 12.5 s para 10.4 s. Isso repete o resultado das sessões do Claude Code na Task 4.
 - Para a regra "Trocar o launcher", a Task 7 conta como **sem regressão**.
 
