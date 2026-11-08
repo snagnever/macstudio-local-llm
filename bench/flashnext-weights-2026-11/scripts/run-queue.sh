@@ -9,7 +9,8 @@ RELEASE="${1:-}"; DRY=""
 [[ "${2:-}" == --dry-run ]] && DRY=1
 case "$RELEASE" in f|g) ;; *) echo "usage: $0 <f|g> [--dry-run]" >&2; exit 64 ;; esac
 SUITES="humaneval gpqa livecodebench if jdhodges veerman"
-ORDER=(k6 k1 k7 k5 k8 k4 k3)
+# k7 (ThinkingCap IQ4_XS) left the queue in W0: Splash 1.5.0 and 1.6.0 refuse its hc_*_inject IQ4_XS tensors.
+ORDER=(k6 k1 k5 k8 k4 k3)
 # Splash 1.6.0 reuses the k2g results of splash16 Tasks 2 and 6; those tasks do not measure k2f with this battery.
 [[ "$RELEASE" == f ]] && ORDER=(k2 "${ORDER[@]}")
 step() {

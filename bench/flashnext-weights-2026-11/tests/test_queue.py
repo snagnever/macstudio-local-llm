@@ -17,14 +17,14 @@ def arms_of(out, tool):
 
 def test_queue_keeps_the_user_order_on_160():
     out = run("g", "--dry-run").stdout
-    assert arms_of(out, "run-arm.sh") == ["k6g", "k1g", "k7g", "k5g", "k8g", "k4g", "k3g"]
-    assert arms_of(out, "run-battery.sh") == ["k6g", "k1g", "k7g", "k5g", "k8g", "k4g", "k3g"]
-    assert arms_of(out, "toolcall-probe.sh") == ["k6g", "k1g", "k7g", "k5g", "k8g", "k4g", "k3g"]
+    assert arms_of(out, "run-arm.sh") == ["k6g", "k1g", "k5g", "k8g", "k4g", "k3g"]
+    assert arms_of(out, "run-battery.sh") == ["k6g", "k1g", "k5g", "k8g", "k4g", "k3g"]
+    assert arms_of(out, "toolcall-probe.sh") == ["k6g", "k1g", "k5g", "k8g", "k4g", "k3g"]
 
 
 def test_queue_on_150_runs_the_swift_reference_first():
     out = run("f", "--dry-run").stdout
-    assert arms_of(out, "run-arm.sh") == ["k2f", "k6f", "k1f", "k7f", "k5f", "k8f", "k4f", "k3f"]
+    assert arms_of(out, "run-arm.sh") == ["k2f", "k6f", "k1f", "k5f", "k8f", "k4f", "k3f"]
 
 
 def test_each_arm_finishes_before_the_next_starts():
