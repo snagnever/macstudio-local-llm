@@ -1,6 +1,6 @@
 # Splash 1.6.0 contra 1.5.0 — resumo da campanha (2026-11-06 a 08)
 
-**O launcher do rig fica na 1.5.0.** A regra "Trocar o launcher" falha na Task 4: duas sessões de 256K ficam até 65% mais lentas na 1.6.0 pela espera por memória. Em todos os outros testes, a 1.6.0 fica igual ou melhor que a 1.5.0. Sob limite de memória e em sessões reais do Claude Code, ela fica claramente melhor. A queda de decode da #644 não aconteceu no rig em nenhuma release.
+**O launcher do rig fica na 1.5.0.** A regra "Trocar o launcher" falha na Task 4: duas sessões de 256K ficam até 65% mais lentas na 1.6.0 pela espera por memória. Sob limite de memória, a 1.6.0 fica claramente melhor. Nas sessões do Claude Code, o tempo total e o TTFT ficam melhores, mas o tok/s mínimo fica pior, e o `k2c2a` a 128K teve um stall de mais de 60 s. A queda de decode da #644 não aconteceu no rig em nenhuma release.
 
 Pesos: `k2` = Swift 1.5 `IQ4_XS` `0142554`. Sufixo `f` = 1.5.0, `g` = 1.6.0. Regras de decisão: [plan.md](../plan.md#regras-de-decisão).
 
@@ -24,7 +24,9 @@ Pesos: `k2` = Swift 1.5 `IQ4_XS` `0142554`. Sufixo `f` = 1.5.0, `g` = 1.6.0. Reg
 | Tasks 3 e 7 sem regressão | sim |
 | **Decisão** | **o launcher fica na 1.5.0** |
 
-O driver diário não muda nesta campanha. Se o usuário aceitar a regressão de duas sessões de 256K, a 1.6.0 traz ganhos em pressão de memória, em sessões de agente a 131072 e na proteção da API key.
+O driver diário não muda nesta campanha. Se o usuário aceitar a regressão de duas sessões de 256K, a 1.6.0 traz ganhos em pressão de memória, em sessões de agente a 131072 e na proteção da API key. Antes de trocar, faltam medir na 1.6.0: o probe de tool calls, o `longctx_probe.py` e o veerman (Task 6), e os perfis `p` e `q` da Task 3. A campanha de pesos rodou só na 1.5.0.
+
+A Task 4 também mostra uma queda de 2 vezes no decode somado do `k2c2LL` entre dias, sem causa encontrada. Por isso, os números absolutos comparados entre dias têm pouca força. A Task 7 rodou a 1.6.0 primeiro e a 1.5.0 depois, com um boot cada, então os 43 contra 38 pares podem ter efeito de ordem e de hora.
 
 ## Queda de decode (#644)
 

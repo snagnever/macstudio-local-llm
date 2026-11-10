@@ -47,7 +47,8 @@ Medida intermediária, com `thinking_token_budget` 1024 e tool definida:
   - Nas duas releases, o segundo turno reaproveita só o prompt do primeiro turno (320 de 332 tokens). Nenhum token da resposta entra no cache.
   - A 1.6.0 marca FAIL porque o check espera o reuso anunciado. A 1.5.0 marca pass porque o check não tem essa expectativa nela.
   - A 1.5.0 chegou ao `max_tokens` em 1 de 2 reps válidas. A 1.6.0 cortou nas 3 reps. Isso confirma a diferença do corte com tools.
-  - O `C7b` ficou inconclusivo nas 6 tentativas: sem budget, o modelo não fez tool call. Por isso, o resultado não separa o corte de um limite geral de reuso da resposta.
+  - O `C7b` ficou inconclusivo nas 6 tentativas: sem budget, o modelo não fez tool call. A rep 3 da 1.5.0 serve de controle: ela não cortou, gerou 4096 tokens, e o segundo turno reaproveitou só 320. Então nenhuma release reaproveita os tokens da resposta, com ou sem corte.
+  - Os JSONL da C7 rep 1 e do `C7b` gravam `pass: true` com `observed.inconclusive`. Desde a revisão final, o `api_contract.py` grava `pass: null` para um resultado inconclusivo e para um check só de registro.
 - **Conclusão da C7:** o corte com tools funciona melhor na 1.6.0. O reuso do KV depois do corte não aparece em nenhuma release. A 1.6.0 não fica pior que a 1.5.0.
 
 ## Proxy

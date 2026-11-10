@@ -69,6 +69,7 @@ A 1.5.0 não grava `ttft_parts_ms` nem `decode_gap_causes`, então a coluna `cla
 
 - **Queda de decode:** estável nas duas releases, com razão fim / antes de 0.91 na 1.6.0 e 0.96 na 1.5.0. Pelas regras do plano, o resultado é **fix sem prova**: a 1.5.0 também fica estável. Ele não mostra regressão.
 - **Trabalho feito:** a 1.6.0 conclui 13% mais pares e 15% mais requests em 4 h. O warm TTFT p50 cai de cerca de 2.0 s para 1.1 s, e o p90 cai de cerca de 12.5 s para 10.4 s. Isso repete o resultado das sessões do Claude Code na Task 4.
+- **Limite:** cada release rodou uma vez, em sequência (`k2g` e depois `k2f`), sem ordem invertida. O ganho de trabalho e de TTFT pode ter efeito de ordem e de hora. A Task 4 mostrou uma variação entre dias sem causa encontrada.
 - Para a regra "Trocar o launcher", a Task 7 conta como **sem regressão**.
 
 Fonte: `results/soak-g.jsonl`, `results/soak-f.jsonl`, `results/cc-soak<tag>p<N>-*.json` e `results/req-soak<tag>p<N>-*.jsonl`. A hora de cada par vem do horário de gravação do `cc-*.json`. O cálculo foi feito ad hoc a partir desses arquivos e não está em `scripts/`.

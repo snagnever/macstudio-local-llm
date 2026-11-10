@@ -1,6 +1,6 @@
 # Pesos do Flash-Next — resumo da campanha (2026-11-08 a 10)
 
-**O Swift 1.5 `IQ4_XS` (`k2f`) continua o peso do rig.** Nenhum outro peso cumpre a regra de candidato. Todos gastam mais tokens medianos que o `k2f` no gpqa e no livecodebench, de 1.09 a 7.75 vezes, com qualidade dentro do ruído entre passadas. O ThinkingCap não carrega no Splash 1.5.0 nem no 1.6.0.
+**O Swift 1.5 `IQ4_XS` (`k2f`) continua o peso do rig.** Nenhum outro peso cumpre a regra de candidato. Todos gastam mais tokens medianos que o `k2f` no gpqa e no livecodebench, de 1.09 a 7.75 vezes, com qualidade dentro do ruído entre passadas. As exceções são o `k8f` e o `k3f`, que falham no G1. O ThinkingCap não carrega no Splash 1.5.0 nem no 1.6.0.
 
 Release: Splash 1.5.0 (sufixo `f`), porque a regra "Trocar o launcher" da [splash16](../../splash16-2026-11/results/summary.md) falha. Regra de candidato: [plan.md](../plan.md).
 
@@ -65,4 +65,4 @@ O usuário não pediu estes testes para esta execução. Eles ficam como sugest�
 | 12 | Claude Code 2.1.317 contra 2.1.292 (teste 4 da nota) | Mede requests com tool search e retries | – |
 | 13 | oMLX 0.7.3 e llama.cpp v0.8.0 (testes 2 e 3 da nota) | Não são os servidores do uso diário | – |
 | 14 | Exit 2 do `toolcall-probe.sh` | O código de saída não segue as sessões com falha | Antes da próxima campanha que use o probe |
-| 15 | Segunda passada do `k8f` contra o `k4f` | O G1 do `k8f` falha numa passada só, dentro do ruído medido na W2 | Só se o `Q2_0` voltar a interessar pelo tamanho |
+| 15 | Segunda passada do `k8f` contra o `k4f` | O G1 do `k8f` falha numa passada só. No livecodebench, a diferença de 5 questões contra o `k4f` fica acima do ruído de até 1 questão medido na W2, mas o gpqa (4 questões) fica perto do ruído | Só se o `Q2_0` voltar a interessar pelo tamanho |

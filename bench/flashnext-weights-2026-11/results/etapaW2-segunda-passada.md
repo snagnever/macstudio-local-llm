@@ -42,7 +42,7 @@ Comparações: `summarize_ab.py`, em [`results/w2/ab/`](w2/ab/).
 - **`k6f`:** com duas passadas, o resultado vira veredito. O V3.1 `UD-IQ4_XS` **não é candidato**: a qualidade empata com o `k2f`, e o gasto de tokens fica de 1.3 a 2.2 vezes maior.
 - **`k2f`:** continua o peso do rig.
 - **Diferenças de qualidade entre braços na W1:** de 291 a 301 em 336. A W2 mostra até 10 questões de diferença no mesmo braço, então essas diferenças não separam os braços. A exceção é o gpqa do `k3f`, com 17 questões a menos.
-- **Tokens no livecodebench na W1:** os outros braços gastam de 1.83 a 3.05 vezes o `k2f`. A razão do `k2f` entre as passadas fica entre 0.88 e 1.13, então a margem fica acima do ruído medido. Os outros braços rodaram uma passada só, então isso não é veredito para eles.
+- **Tokens no livecodebench na W1:** os outros braços gastam de 1.83 a 3.05 vezes o `k2f`. Entre as passadas, a mediana do `k2f` muda de 0.62 a 1.13 vezes, contando o gpqa e o livecodebench. Uma razão de 1.83 fica acima de 1/0.62 = 1.61, então a margem fica acima do ruído medido. Os outros braços rodaram uma passada só, então isso não é veredito para eles.
 - **Afirmação da Unsloth de até 50% menos tokens no V3.1:** nas duas passadas, o `k6f` gasta mais tokens medianos que o `k1f` W1 no gpqa (3147 e 2642, contra 2503) e no livecodebench (2961 e 2795, contra 2512). O `k1f` rodou uma passada só, então isso não é veredito, mas a W2 não mostra a redução.
 
 ## Desvios
