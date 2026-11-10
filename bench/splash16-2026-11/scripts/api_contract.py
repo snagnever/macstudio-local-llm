@@ -124,19 +124,20 @@ def _reuse_after_tool_call(call, model, effort, **first_extra):
 def _c7(call, model, v):
     expected = "cached > prompt + budget"
     code, seen = _reuse_after_tool_call(call, model, "xhigh", thinking_token_budget=THINKING_BUDGET)
+    # pass None = no verdict: inconclusive, or record-only on 1.5.0, which has no cut.
     if code != 200:
-        return "second turn reuses the reply past the cut", v == "1.5.0", seen
+        return "second turn reuses the reply past the cut", None if v == "1.5.0" else False, seen
     if "inconclusive" in seen:
-        return "second turn reuses the reply past the cut", True, seen
+        return "second turn reuses the reply past the cut", None, seen
     if v == "1.5.0":
-        return None, True, seen
+        return None, None, seen
     # KV moves in blocks of 32 tokens; a reply's own close and call lie past prompt + budget.
     return expected, seen["cached"] is not None and seen["cached"] > seen["first_prompt"] + THINKING_BUDGET, seen
 
 
 def _c7b(call, model, v):
     """Control of C7: the same tool loop without a budget, so no cut. It separates the cut from KV reuse in general."""
-    return None, True, _reuse_after_tool_call(call, model, "low")[1]
+    return None, None, _reuse_after_tool_call(call, model, "low")[1]
 
 
 CHECKS = (("C1", _c1), ("C2", _c2), ("C3", _c3), ("C4", _c4), ("C5", _c5), ("C6", _c6), ("C7", _c7))
@@ -152,7 +153,7 @@ def run_checks(call, model: str, version: str, only: list[str] | None = None, re
                 expected, ok, seen = check(call, model, version)
             except Exception as exc:  # noqa: BLE001 - a dead check is a result; the others still run
                 expected, ok, seen = "no exception", False, f"{type(exc).__name__}: {exc}"
-            row = {"check": name, "expected": expected, "observed": seen, "pass": bool(ok)}
+            row = {"check": name, "expected": expected, "observed": seen, "pass": None if ok is None else bool(ok)}
             rows.append(dict(row, rep=rep) if reps > 1 else row)
     return rows
 
@@ -189,7 +190,7 @@ def main() -> int:
     with args.out.open("w", encoding="utf-8") as fh:
         for row in rows:
             fh.write(json.dumps(row) + "\n")
-            print(row["check"], "pass" if row["pass"] else "FAIL", json.dumps(row["observed"])[:200])
+            print(row["check"], {True: "pass", False: "FAIL", None: "no verdict"}[row["pass"]], json.dumps(row["observed"])[:200])
     return 0
 
 

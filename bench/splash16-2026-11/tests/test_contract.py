@@ -61,7 +61,9 @@ def test_contract_writes_one_line_per_check(ac):
 
 
 def test_contract_passes_on_the_16_behavior(ac):
-    assert all(r["pass"] for r in ac.run_checks(Server(), "m", "1.6.0"))
+    rows = by_check(ac.run_checks(Server(), "m", "1.6.0"))
+    assert all(r["pass"] is True for n, r in rows.items() if n != "C7")
+    assert rows["C7"]["pass"] is None
 
 
 def test_contract_marks_unexpected_status_as_fail(ac):
@@ -146,7 +148,7 @@ def test_restart_verdict_accepts_the_two_documented_503_codes(er):
 
 def test_c7_without_a_tool_call_is_inconclusive_not_a_failure(ac):
     expected, ok, seen = ac._c7(Server(), "m", "1.6.0")
-    assert ok is True and seen["inconclusive"] == "no tool call in the reply"
+    assert ok is None and seen["inconclusive"] == "no tool call in the reply"
 
 
 def _replies_with_tool_call_on_attempt(n, calls):
@@ -171,13 +173,13 @@ def test_c7_retries_the_first_turn_until_the_model_calls_the_tool(ac):
 def test_c7_stays_inconclusive_after_the_last_attempt(ac):
     calls = []
     _, ok, seen = ac._c7(_replies_with_tool_call_on_attempt(99, calls), "m", "1.5.0")
-    assert ok is True and seen["attempts"] == ac.TOOL_CALL_ATTEMPTS and "inconclusive" in seen
+    assert ok is None and seen["attempts"] == ac.TOOL_CALL_ATTEMPTS and "inconclusive" in seen
 
 
 def test_c7b_control_has_no_thinking_budget_and_only_records(ac):
     calls = []
     expected, ok, seen = ac._c7b(_replies_with_tool_call_on_attempt(1, calls), "m", "1.6.0")
-    assert expected is None and ok is True and "cached" in seen
+    assert expected is None and ok is None and "cached" in seen
     assert all("thinking_token_budget" not in c for c in calls)
     assert calls[0]["reasoning_effort"] == calls[1]["reasoning_effort"]
 
@@ -186,3 +188,9 @@ def test_main_runs_only_the_named_checks_for_each_rep(ac, tmp_path):
     rows = ac.run_checks(_replies_with_tool_call_on_attempt(1, []), "m", "1.6.0", only=["C7", "C7b"], reps=2)
     assert [r["check"] for r in rows] == ["C7", "C7b", "C7", "C7b"]
     assert [r["rep"] for r in rows] == [1, 1, 2, 2]
+
+
+def test_c7_record_only_on_150_writes_pass_null(ac):
+    calls = []
+    _, ok, seen = ac._c7(_replies_with_tool_call_on_attempt(1, calls), "m", "1.5.0")
+    assert ok is None and "cached" in seen
