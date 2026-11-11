@@ -180,7 +180,7 @@ As horas vêm das Tasks equivalentes da splash16 e da W1 da campanha de pesos.
 
 O braço `k2hp` é o `k2h` com `FLASHNEXT_SPLASH_XARGS="--ple-memory off"` e `FLASHNEXT_SPLASH_REVX=-ple-off`.
 
-- [ ] **Step 1: Fila ABBA de `cache_probe`, 3 reps** por braço e banda. Cada posição é um boot com 1 rep:
+- [x] **Step 1: Fila ABBA de `cache_probe`, 3 reps** por braço e banda. Cada posição é um boot com 1 rep:
 
   | banda | ordem |
   |---|---|
@@ -188,9 +188,9 @@ O braço `k2hp` é o `k2h` com `FLASHNEXT_SPLASH_XARGS="--ple-memory off"` e `FL
   | 131072 | `k2hp`, `k2h`, `k2f`, `k2f`, `k2h`, `k2hp`, `k2hp`, `k2h`, `k2f` |
   | 262144 | `k2f`, `k2h`, `k2hp`, `k2hp`, `k2h`, `k2f`, `k2f`, `k2h`, `k2hp` |
 
-- [ ] **Step 2: 1M.** `k2h` a 1000000 com 1 rep. A referência é o `k2g` da splash16. Verificar zero `capacity_exhausted`.
-- [ ] **Step 3: Resumo.** `decide.py --base k2f --cand k2h --ctx 32768,131072,262144 --mode le --threshold 1.03`, e o mesmo com `--cand k2hp`. Gravar `results/etapa2-um-stream.md` com: cold TTFT, warm TTFT, hit, `middle_mutation`, decode, wired peak, livre mínimo e swap Δ de cada braço.
-- [ ] **Step 4: Commit.**
+- [x] **Step 2: 1M.** `k2h` a 1000000 com 1 rep. A referência é o `k2g` da splash16. Verificar zero `capacity_exhausted`.
+- [x] **Step 3: Resumo.** `decide.py --base k2f --cand k2h --ctx 32768,131072,262144 --mode le --threshold 1.03`, e o mesmo com `--cand k2hp`. Gravar `results/etapa2-um-stream.md` com: cold TTFT, warm TTFT, hit, `middle_mutation`, decode, wired peak, livre mínimo e swap Δ de cada braço.
+- [x] **Step 4: Commit.**
 
 ### Task 3: Concorrência de requests paralelos
 
