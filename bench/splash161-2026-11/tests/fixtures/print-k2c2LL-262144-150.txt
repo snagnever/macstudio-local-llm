@@ -1,0 +1,7 @@
+model_select: ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS
+launcher: /Users/vitor/LocalProjects/macstudio-local-llm/bench/qwen3.8-prefix-cache/scripts/run-splash.sh KF
+/Users/vitor/.local/opt/qwen38/splash-v1.5.0/bin/splash serve --model ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS --host 0.0.0.0 --port 8585 --max-context 262144 --revision 0142554c963a8653912c0c8283f05f13f63653f3 --idle-release off --language-only --no-webui --offline --verify-rows auto
+
+exec: bash /Users/vitor/LocalProjects/macstudio-local-llm/bench/flashnext-concurrency-2026-10/scripts/run-parallel-probes.sh --streams 2 --aux --context 262144 --repeat 1 --arm k2c2LL --tag f1 --temperature 1.0 --reasoning-effort xhigh --runtime splash --runtime-revision v1.5.0-verify-auto --model-revision 0142554c963a8653912c0c8283f05f13f63653f3 --status-url http://127.0.0.1:8585/status --out /Users/vitor/LocalProjects/macstudio-local-llm/bench/splash161-2026-11/results
+effort: xhigh
+saida: /Users/vitor/LocalProjects/macstudio-local-llm/bench/splash161-2026-11/results/k2c2LL-262144-t1.0-f1.jsonl

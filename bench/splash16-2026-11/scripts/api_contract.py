@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Checks C1 to C7 of the campaign plan against a running Splash server; one JSON line per check.
 
-usage: api_contract.py --base-url http://127.0.0.1:8585 --model ID --version 1.5.0|1.6.0 --out results/contract-X.jsonl
+usage: api_contract.py --base-url http://127.0.0.1:8585 --model ID --version 1.5.0|1.6.0|1.6.1 --out results/contract-X.jsonl
 A check whose expectation is None only records what the server does on that release.
 """
 from __future__ import annotations
@@ -178,7 +178,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--base-url", required=True, help="server root, without /v1")
     ap.add_argument("--model", required=True)
-    ap.add_argument("--version", required=True, choices=("1.5.0", "1.6.0"))
+    ap.add_argument("--version", required=True, choices=("1.5.0", "1.6.0", "1.6.1"))  # 1.6.1 expects the 1.6.0 behavior
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--timeout", type=float, default=900)
     ap.add_argument("--only", help="comma list of checks; C7b runs only when named")

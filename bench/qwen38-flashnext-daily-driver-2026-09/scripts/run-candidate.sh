@@ -22,7 +22,7 @@
 #   claude-code-concurrency-2026-11: rc*/rm* = real Claude Code sessions (run-claude-pair.sh) on k2c1 / w1zc1 servers
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1c1|w1c1a|w1c1x2|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8|w1c2ap3|w1c2ap5|w1c3a|w1zc1|w1zc2a|k2c1|k2c1a|k2c1x2|k2c2|k2c2a|k2c3a|k2c4|k2c4a|k2c2L|k2c2LL|k2c2Ls|k2c2ad1|k2c2ad0|k2c2v|rc1|rc2|rc2s|rc2d|rm1|rm2|rm2s|w1z|n2z|t6z|k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|k3r|k3f|k2f|k2g|k3g|w1zq4|n2zq4|r1zy|r1|r1z> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1c1|w1c1a|w1c1x2|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8|w1c2ap3|w1c2ap5|w1c3a|w1zc1|w1zc2a|k2c1|k2c1a|k2c1x2|k2c2|k2c2a|k2c3a|k2c4|k2c4a|k2c2L|k2c2LL|k2c2Ls|k2c2ad1|k2c2ad0|k2c2v|rc1|rc2|rc2s|rc2d|rm1|rm2|rm2s|w1z|n2z|t6z|k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|k3r|k3f|k2f|k2g|k3g|k2h|w1zq4|n2zq4|r1zy|r1|r1z> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
 # A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
@@ -89,8 +89,14 @@ SPLASH_150="$OPT/splash-v1.5.0/bin/splash"
 # Campaign splash16-2026-11: Splash 1.6.0 (2026-11-06), installed side by side. FLASHNEXT_SPLASH_TAG moves the k2c*
 # and rc* arms to that release (default 1.5.0, the release of their published baselines).
 SPLASH_160="$OPT/splash-v1.6.0/bin/splash"
+# Campaign splash161-2026-11: Splash 1.6.1 (2026-11-11), installed side by side. Arms k[1-8]h and tag 1.6.1.
+# FLASHNEXT_SPLASH_XARGS adds flags and FLASHNEXT_SPLASH_REVX a runtime-revision suffix (e.g. "--ple-memory off" and
+# "-ple-off") to the k[1-8][fgh], k2c* and rc* arms; without them every command stays as before.
+SPLASH_161="$OPT/splash-v1.6.1/bin/splash"
 SPLASH_CONC_TAG="${FLASHNEXT_SPLASH_TAG:-1.5.0}"
-case "$SPLASH_CONC_TAG" in 1.5.0|1.6.0) ;; *) echo "FLASHNEXT_SPLASH_TAG must be 1.5.0 or 1.6.0" >&2; exit 64 ;; esac
+case "$SPLASH_CONC_TAG" in 1.5.0|1.6.0|1.6.1) ;; *) echo "FLASHNEXT_SPLASH_TAG must be 1.5.0, 1.6.0 or 1.6.1" >&2; exit 64 ;; esac
+SPLASH_XARGS="${FLASHNEXT_SPLASH_XARGS:+ $FLASHNEXT_SPLASH_XARGS}"
+SPLASH_REVX="${FLASHNEXT_SPLASH_REVX:-}"
 SPLASH_CONC_BIN="$OPT/splash-v$SPLASH_CONC_TAG/bin/splash"
 pack_dir() {
   local m=("$MODEL_ROOT/$1"*)
@@ -453,7 +459,7 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         export QWEN38_MLX_CONFIG_OVERRIDES="{\"text_config\":{\"rope_parameters\":{\"rope_type\":\"yarn\",\"factor\":${YARN},\"original_max_position_embeddings\":262144},\"max_position_embeddings\":${CTX}}}"
         REV="${REV}-yarn${YARN}-kv4"
       fi ;;
-  k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|k3r|k3f|k2f|k2g|k3g|k1f|k1g|k4f|k4g|k5f|k5g|k6f|k6g|k7f|k7g|k8f|k8g)
+  k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|k3r|k3f|k2f|k2g|k3g|k1f|k1g|k4f|k4g|k5f|k5g|k6f|k6g|k7f|k7g|k8f|k8g|k1h|k2h|k3h|k4h|k5h|k6h|k7h|k8h)
       # flashnext-weights-2026-11: k1f/k1g = k1a on Splash 1.5.0/1.6.0; k4* = ISTA-DASLab GSQ-RCO Q2_0 at ed59f92;
       # k5* = unsloth UD-IQ3_XXS and k6* = unsloth UD-IQ4_XS, both Dynamic V3.1 at 084c631. Suffix f/g = release.
       # k7* = BottleCap ThinkingCap IQ4_XS at 2a053f7; k8* = UkisAI Swift 1.5 GSQ-RCO Q2_0 at 99bb8f7. Both split at the repo root.
@@ -498,7 +504,8 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       [[ "$CAND" == k3r ]] && { SBIN="$SPLASH_141"; SREV=v1.4.1; SVER=1.4.1; }
       [[ "$CAND" == k[1-8]f ]] && { SBIN="$SPLASH_150"; SREV=v1.5.0; SVER=1.5.0; }
       [[ "$CAND" == k[1-8]g ]] && { SBIN="$SPLASH_160"; SREV=v1.6.0; SVER=1.6.0; }
-      case "$CAND" in k[1-8][fg]) [[ -n "${FLASHNEXT_SPLASH_XARGS:-}" ]] && KVF="$KVF $FLASHNEXT_SPLASH_XARGS" ;; esac
+      [[ "$CAND" == k[1-8]h ]] && { SBIN="$SPLASH_161"; SREV=v1.6.1; SVER=1.6.1; }
+      case "$CAND" in k[1-8][fgh]) KVF="$KVF$SPLASH_XARGS"; REVX="$REVX$SPLASH_REVX" ;; esac
       REV="$SREV-verify-$VR$REVX"
       export SPLASH_MODEL="$MODEL_ID_PREF" SPLASH_REVISION="$MODEL_REV" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_SPLASH_BIN="$SBIN" QWEN38_SPLASH_EXPECTED_VERSION="$SVER" QWEN38_SPLASH_PORT=8585
@@ -583,10 +590,10 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         k2c2ad1) XARGS=" --decode-share 1.0"; REVX="-ds1.0" ;;
         k2c2ad0) XARGS=" --decode-share 0"; REVX="-ds0" ;;
       esac
-      REV="v$SPLASH_CONC_TAG-verify-$VR$REVX"
+      REV="v$SPLASH_CONC_TAG-verify-$VR$REVX$SPLASH_REVX"
       export SPLASH_MODEL="$MODEL_ID_PREF" SPLASH_REVISION="$MODEL_REV" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_SPLASH_BIN="$SPLASH_CONC_BIN" QWEN38_SPLASH_EXPECTED_VERSION="$SPLASH_CONC_TAG" QWEN38_SPLASH_PORT=8585
-      export QWEN38_SPLASH_EXTRA_ARGS="--verify-rows $VR$XARGS"
+      export QWEN38_SPLASH_EXTRA_ARGS="--verify-rows $VR$XARGS$SPLASH_XARGS"
       unset SPLASH_DRAFTER
       PAR_N=1; PAR_AUX=1; PAR_CONTEXTS=""; PAR_SER=""
       case "$CAND" in k2c2*|k2c1x2) PAR_N=2 ;; k2c3*) PAR_N=3 ;; k2c4*) PAR_N=4 ;; esac
@@ -613,10 +620,10 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         MODEL_ID_PREF="$HUB:$VARIANT"
         XARGS=""; REVX=""
         [[ "$CAND" == rc2d ]] && { XARGS=" --decode-share 1.0"; REVX="-ds1.0"; }
-        REV="v$SPLASH_CONC_TAG-verify-auto$REVX"
+        REV="v$SPLASH_CONC_TAG-verify-auto$REVX$SPLASH_REVX"
         export SPLASH_MODEL="$MODEL_ID_PREF" SPLASH_REVISION="$MODEL_REV" QWEN38_CTX_SIZE="$CTX"
         export QWEN38_SPLASH_BIN="$SPLASH_CONC_BIN" QWEN38_SPLASH_EXPECTED_VERSION="$SPLASH_CONC_TAG" QWEN38_SPLASH_PORT=8585
-        export QWEN38_SPLASH_EXTRA_ARGS="--verify-rows auto$XARGS"
+        export QWEN38_SPLASH_EXTRA_ARGS="--verify-rows auto$XARGS$SPLASH_XARGS"
         unset SPLASH_DRAFTER
       else
         LAUNCHER="$HARNESS/run-mlx-serve.sh"; ARM=FS; PORT=11234; RUNTIME=mlx-serve; REV=v26.10.3
