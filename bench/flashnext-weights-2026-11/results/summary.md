@@ -61,8 +61,7 @@ O usuário não pediu estes testes para esta execução. Eles ficam como sugest�
 | 8 | Thinking na 26.11.2 (teste 10 da nota) | A release remove os cortes de thinking, e o gasto de tokens pode subir | Junto com o 7 |
 | 9 | Residência Metal na 26.11.2 (teste 8 da nota) | O teste é curto e usa a mesma instalação | Junto com o 7 |
 | 10 | Terminal-Bench 2.1 do melhor peso, 12–24 h | Mede o candidato numa carga de agente | **Condição não cumprida:** nenhum peso cumpre a regra |
-| 11 | ThinkingCap com os tensores `hc_*_inject` em `Q8_0`, ou Swift GSQ-RCO `IQ3_XXS` | O Splash recusa só o tipo `IQ4_XS` nesses tensores, e um GGUF refeito pode carregar. O `k8f` gasta menos que o `k4f` | Só se um GGUF com tipo suportado sair, ou se o tamanho importar |
+| 11 | ThinkingCap com os tensores `hc_*_inject` em `Q8_0`, ou Swift GSQ-RCO `IQ3_S` (83.7 GB) | O Splash recusa só o tipo `IQ4_XS` nesses tensores, e um GGUF refeito pode carregar. O `IQ3_S` tem KLD de 0.145 no README do vendor, contra 0.424 do `Q2_0`, com 14 GB a menos que o `k2` | Só se um GGUF com tipo suportado sair, ou se o tamanho importar. O `Q2_0` não volta: a W1 já mostrou o custo dele |
 | 12 | Claude Code 2.1.317 contra 2.1.292 (teste 4 da nota) | Mede requests com tool search e retries | – |
 | 13 | oMLX 0.7.3 e llama.cpp v0.8.0 (testes 2 e 3 da nota) | Não são os servidores do uso diário | – |
 | 14 | Exit 2 do `toolcall-probe.sh` | O código de saída não segue as sessões com falha | Antes da próxima campanha que use o probe |
-| 15 | Segunda passada do `k8f` contra o `k4f` | O G1 do `k8f` falha numa passada só. No livecodebench, a diferença de 5 questões contra o `k4f` fica acima do ruído de até 1 questão medido na W2, mas o gpqa (4 questões) fica perto do ruído | Só se o `Q2_0` voltar a interessar pelo tamanho |
