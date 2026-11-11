@@ -111,8 +111,9 @@ footer a{color:var(--accent)}
         <p class="c-desc">Public summary for readers outside this repo: five servers from 8K to 1M, agent turn time,
         prompt cache reuse, memory, a quality check and the commands. <b>mlx-serve: 8.8 s per agent turn at 128K and
         13.0 s at 512K. Splash 1.4.0 with Swift 1.5: 6.7 s at 512K and 9.3 s at 1M, but a change halfway re-prefills
-        the whole prompt.</b></p>
-        <span class="c-meta"><span>2026-10-26</span><span class="path">qwen38-flashnext-m4max-guide.html</span></span>
+        the whole prompt.</b> November update: on Splash, use Swift 1.5 IQ4_XS; the unsloth base gives the same
+        quality and spends more tokens.</p>
+        <span class="c-meta"><span>2026-11-10</span><span class="path">qwen38-flashnext-m4max-guide.html</span></span>
       </a>
       <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-concurrency.html">
         <span class="c-title">Can one Mac Studio serve Claude Code?</span>
@@ -120,8 +121,24 @@ footer a{color:var(--accent)}
         session, two at once, two with subagents, three or more, on Splash 1.5.0 and mlx-serve 26.10.3, from real
         Claude Code sessions. <b>One session: yes, the reply starts in 0.9 s. Two: yes, at a cost (1.4 s), and the
         pair finishes 6% sooner than one task after the other. Subagents: 5–6 streams, 2–3× longer. Three or more:
-        no, 2.4×–4.5× slower per turn.</b></p>
-        <span class="c-meta"><span>2026-10-30</span><span class="path">qwen38-flashnext-concurrency.html</span></span>
+        no, 2.4×–4.5× slower per turn.</b> Terminal-Bench 2.1: 57 and 58 of 89 tasks. Stay on Splash 1.5.0.</p>
+        <span class="c-meta"><span>2026-11-10</span><span class="path">qwen38-flashnext-concurrency.html</span></span>
+      </a>
+      <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-gguf-weights.html">
+        <span class="c-title">Flash-Next GGUF weights</span>
+        <p class="c-desc">Seven GGUF packs on Splash 1.5.0: Swift 1.5, Unsloth UD (base and Dynamic V3.1) and GSQ-RCO
+        quants. Speed, a six-suite battery, tool calls, a second pass for noise, and the vendor claims. <b>The Swift 1.5
+        IQ4_XS stays the best pack: the others spend 1.09–7.75× its median tokens on GPQA and LiveCodeBench, with quality
+        within the noise. ThinkingCap does not load.</b></p>
+        <span class="c-meta"><span>2026-11-10</span><span class="path">qwen38-flashnext-gguf-weights.html</span></span>
+      </a>
+      <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-splash160.html">
+        <span class="c-title">Splash 1.6.0 vs 1.5.0</span>
+        <p class="c-desc">The new Splash release on the Swift 1.5 GGUF: API contract, one stream, two sessions, a memory
+        limit, KV pool aging and a 4-hour agent load. <b>Stay on 1.5.0 for two long sessions: two 256K sessions are up
+        to 65% slower on 1.6.0. One stream is the same, and under a 64 GB limit 1.6.0 cuts the largest gap from 48.8 s
+        to 2.5 s.</b></p>
+        <span class="c-meta"><span>2026-11-08</span><span class="path">qwen38-flashnext-splash160.html</span></span>
       </a>
       <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-overview.html">
         <span class="c-title">Campaign dashboard, October 2026</span>
