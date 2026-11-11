@@ -14,7 +14,7 @@ Pesos: `k2` = Swift 1.5 `IQ4_XS` `0142554`. Sufixo `f` = 1.5.0, `g` = 1.6.0. Reg
 | 4 | O scheduler novo muda o custo da segunda sessão? | **falha** | `k2c2LL` a 256K: pior stream de 14.8 s na 1.5.0 e 24.4 s na 1.6.0, com `claim_wait` de até 30 s. As sessões do Claude Code a 131072 ficam mais rápidas na 1.6.0. | [etapa4](etapa4-concorrencia.md) |
 | 5 | O ledger de memória tira os stalls sob limite? | **passa** | Com `--max-memory 64G`, o maior gap cai de 48.8 s para 2.5 s, e a 1.6.0 faz cerca de 30% mais requests. | [etapa5](etapa5-pressao.md) |
 | 6 | A qualidade continua igual? | **sem regressão observada** | Pulada pelo usuário. G1 passa nas 5 suítes completas. | [etapa6](etapa6-qualidade.md) |
-| 7 | Uma carga de agente de 4 h continua estável? | **sem regressão; fix sem prova** | Estável nas duas releases, com o pool no teto. A 1.6.0 conclui 43 pares contra 38, com warm TTFT p50 de 1.1 s contra cerca de 2.0 s. | [etapa7](etapa7-agente-4h.md) |
+| 7 | Uma carga de agente de 4 h continua estável? | **sem regressão; fix sem prova** | Estável nas duas releases, com o pool no teto. A 1.6.0 conclui 43 pares contra 38, com warm TTFT p50 de 1.1 s contra cerca de 2.0 s (0.90 contra 1.54 s pela definição de warm da Task 4). | [etapa7](etapa7-agente-4h.md) |
 
 ## Regra "Trocar o launcher"
 
