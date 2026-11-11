@@ -1,0 +1,14 @@
+{"t_start_s": 0.474, "ttft_s": 23.879, "t_end_s": 24.943, "input_tokens": 19397, "cached_tokens": 16032, "output_tokens": 79, "tps": 133.9, "status": 200, "stream": "rc2r3-d"}
+{"t_start_s": 25.02, "ttft_s": 7.96, "t_end_s": 33.7, "input_tokens": 21281, "cached_tokens": 19392, "output_tokens": 104, "tps": 144.4, "status": 200, "stream": "rc2r3-d"}
+{"t_start_s": 33.722, "ttft_s": 10.384, "t_end_s": 84.944, "input_tokens": 25756, "cached_tokens": 21248, "output_tokens": 1332, "tps": 32.6, "status": 200, "stream": "rc2r3-d"}
+{"t_start_s": 84.969, "ttft_s": 10.354, "t_end_s": 190.838, "input_tokens": 31752, "cached_tokens": 25728, "output_tokens": 3177, "tps": 33.3, "status": 200, "stream": "rc2r3-d"}
+{"t_start_s": 190.876, "ttft_s": 9.034, "t_end_s": 201.487, "input_tokens": 35368, "cached_tokens": 31744, "output_tokens": 129, "tps": 81.8, "status": 200, "stream": "rc2r3-d"}
+{"t_start_s": 201.559, "ttft_s": 0.835, "t_end_s": 227.917, "input_tokens": 35839, "cached_tokens": 35360, "output_tokens": 1746, "tps": 68.4, "status": 200, "stream": "rc2r3-d"}
+{"t_start_s": 227.942, "ttft_s": 3.605, "t_end_s": 239.605, "input_tokens": 37667, "cached_tokens": 35808, "output_tokens": 915, "tps": 113.6, "status": 200, "stream": "rc2r3-d"}
+{"t_start_s": 239.619, "ttft_s": 2.137, "t_end_s": 245.92, "input_tokens": 38666, "cached_tokens": 37632, "output_tokens": 304, "tps": 73.0, "status": 200, "stream": "rc2r3-d"}
+{"t_start_s": 245.931, "ttft_s": 0.746, "t_end_s": 259.688, "input_tokens": 39054, "cached_tokens": 38656, "output_tokens": 932, "tps": 71.6, "status": 200, "stream": "rc2r3-d"}
+{"t_start_s": 259.712, "ttft_s": 2.146, "t_end_s": 266.346, "input_tokens": 40070, "cached_tokens": 39040, "output_tokens": 400, "tps": 89.1, "status": 200, "stream": "rc2r3-d"}
+{"t_start_s": 266.356, "ttft_s": 0.878, "t_end_s": 297.397, "input_tokens": 40605, "cached_tokens": 40064, "output_tokens": 1815, "tps": 60.2, "status": 200, "stream": "rc2r3-d"}
+{"t_start_s": 297.422, "ttft_s": 3.783, "t_end_s": 303.284, "input_tokens": 42505, "cached_tokens": 40576, "output_tokens": 105, "tps": 50.5, "status": 200, "stream": "rc2r3-d"}
+{"t_start_s": 303.552, "ttft_s": 0.552, "t_end_s": 311.928, "input_tokens": 42751, "cached_tokens": 42496, "output_tokens": 879, "tps": 112.4, "status": 200, "stream": "rc2r3-d"}
+{"t_start_s": 312.086, "ttft_s": 1.958, "t_end_s": 320.476, "input_tokens": 44139, "cached_tokens": 42720, "output_tokens": 594, "tps": 92.4, "status": 200, "stream": "rc2r3-d"}

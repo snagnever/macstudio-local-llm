@@ -578,7 +578,8 @@ def test_collect_scenarios_real_splash_and_legacy():
     assert sc["long_256k"]["mlx"]["turn_s"] == pytest.approx(18.6, abs=0.3) and sc["long_256k"]["mlx"]["legacy"] is True
     assert sc["verdict"]["one"]["word"] == "Yes" and sc["verdict"]["two"]["word"].startswith("Yes")
     assert sc["verdict"]["many"]["word"] == "No"
-    assert data["servers"] == R.SERVERS and data["recommended"] == "splash" and data["tbench"] is None
+    assert data["servers"] == R.SERVERS and data["recommended"] == "splash"
+    assert data["tbench"] == {"splash": None, "mlx": None}
 
 
 def test_collect_scenarios_without_splash_is_all_missing(tmp_path):
@@ -605,7 +606,52 @@ def test_coverage_marks_running_tbench(tmp_path):
     data = R.collect(REAL_RESULTS, SPLASH_RESULTS, claude_dirs={}, tbench_status=tmp_path / "tb.json")
     row = next(r for r in data["scenarios"]["coverage"] if r["scenario"].startswith("Agent quality"))
     assert row["cells"] == {"splash": "missing", "mlx": "running", "legacy": "missing"}
-    assert data["tbench"]["done"] == 51
+    assert data["tbench"]["mlx"]["done"] == 51
+
+
+TB_K3F = {"server": "Splash 1.5.0", "weights": "ISTA GSQ-RCO-Coder GGUF IQ1_M bba8885", "done": 89, "total": 89,
+          "score": 58.4}
+TB_K2A = {"server": "Splash 1.4.0", "weights": "ukisai Swift 1.5 GGUF IQ4_XS 0142554", "done": 89, "total": 89,
+          "score": 64.0}
+TB_W1Z = {"server": "mlx-serve 26.10.3", "weights": "Dankpaws Swift 1.5 MLX 4.7bpw 13839b7", "done": 89, "total": 89,
+          "score": 65.2}
+
+
+def _tb_files(tmp_path, *statuses):
+    paths = []
+    for i, st in enumerate(statuses):
+        paths.append(tmp_path / f"tb{i}.json")
+        paths[-1].write_text(json.dumps(st))
+    return paths
+
+
+@pytest.mark.skipif(not HAS_SPLASH, reason="no Splash results")
+def test_tbench_status_for_other_weights_is_not_published(tmp_path):
+    data = R.collect(REAL_RESULTS, SPLASH_RESULTS, claude_dirs={}, tbench_status=_tb_files(tmp_path, TB_K3F))
+    assert data["tbench"] == {"splash": None, "mlx": None}
+    row = next(r for r in data["scenarios"]["coverage"] if r["scenario"].startswith("Agent quality"))
+    assert row["cells"]["splash"] == "missing"
+    assert "58.4" not in R.render(data)
+
+
+@pytest.mark.skipif(not HAS_SPLASH, reason="no Splash results")
+def test_tbench_statuses_fill_both_servers_with_the_page_weights(tmp_path):
+    files = _tb_files(tmp_path, TB_K3F, TB_W1Z, TB_K2A)
+    data = R.collect(REAL_RESULTS, SPLASH_RESULTS, claude_dirs={}, tbench_status=files)
+    assert data["tbench"]["splash"]["score"] == 64.0 and data["tbench"]["mlx"]["score"] == 65.2
+    row = next(r for r in data["scenarios"]["coverage"] if r["scenario"].startswith("Agent quality"))
+    assert row["cells"]["splash"] == "measured" and row["cells"]["mlx"] == "measured"
+    text = " ".join(html.unescape(R.render(data)).split())
+    assert "Splash 1.4.0 solved 57 of 89 tasks (64.0%)" in text
+    assert "mlx-serve 26.10.3 solved 58 of 89 tasks (65.2%)" in text
+    assert "not measured</b> on either server" not in text
+
+
+def test_default_tbench_sources_are_the_swift_runs():
+    names = [p.name for p in R.TBENCH_STATUS]
+    assert names == ["tbench-status-k2a.json", "tbench-status-mlx.json"]
+    for p in R.TBENCH_STATUS:
+        assert "Swift 1.5" in R.read_tbench_status(p)["weights"]
 
 
 # ---- the page by use scenario (Task 5 of the 2026-10-30 plan) ----
@@ -761,3 +807,15 @@ def test_many_sessions_row_shows_measured_streams(campaign_b_data):
     assert "with subagents" in two and "2.6" in two
     worst = _section_of(page, "worst")
     assert "on the real pair" in worst and "8.0 s" in worst and "(real pair)" not in worst
+
+
+@pytest.mark.skipif(not HAS_SPLASH, reason="no Splash results")
+def test_recommendation_reads_tbench_and_names_the_splash_release(tmp_path):
+    files = _tb_files(tmp_path, TB_W1Z, TB_K2A)
+    page = R.render(R.collect(REAL_RESULTS, SPLASH_RESULTS, claude_dirs={}, tbench_status=files))
+    rec = " ".join(html.unescape(_section_of(page, "recommend")).split())
+    assert "pending Terminal-Bench" not in rec and "57 and 58 of 89" in rec
+    assert "Splash 1.5.0" in rec and "up to 65% slower" in rec
+    assert 'href="qwen38-flashnext-splash160.html"' in rec
+    pending = R.render(R.collect(REAL_RESULTS, SPLASH_RESULTS, claude_dirs={}, tbench_status=[]))
+    assert "pending Terminal-Bench on both" in _section_of(pending, "recommend")

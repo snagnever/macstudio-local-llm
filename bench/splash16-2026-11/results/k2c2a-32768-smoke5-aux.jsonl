@@ -1,0 +1,12 @@
+{"kind": "permission", "t_start": 1794041988.774768, "ttft_s": 0.4985849857330322, "total_s": 0.7182180881500244, "status": 200, "error": null}
+{"kind": "title", "t_start": 1794042008.784811, "ttft_s": 2.250396966934204, "total_s": 2.3492789268493652, "status": 200, "error": null}
+{"kind": "permission", "t_start": 1794042028.794841, "ttft_s": 3.3665273189544678, "total_s": 3.5552871227264404, "status": 200, "error": null}
+{"kind": "title", "t_start": 1794042048.804878, "ttft_s": 2.329841136932373, "total_s": 2.487938165664673, "status": 200, "error": null}
+{"kind": "permission", "t_start": 1794042068.8149052, "ttft_s": 2.226161003112793, "total_s": 2.5547590255737305, "status": 200, "error": null}
+{"kind": "title", "t_start": 1794042088.824929, "ttft_s": 0.7369709014892578, "total_s": 0.9911599159240723, "status": 200, "error": null}
+{"kind": "permission", "t_start": 1794042108.831839, "ttft_s": 0.31562185287475586, "total_s": 1.5934698581695557, "status": 200, "error": null}
+{"kind": "title", "t_start": 1794042128.841866, "ttft_s": 1.3903570175170898, "total_s": 1.5392541885375977, "status": 200, "error": null}
+{"kind": "permission", "t_start": 1794042148.847784, "ttft_s": 0.7886652946472168, "total_s": 1.823240041732788, "status": 200, "error": null}
+{"kind": "title", "t_start": 1794042168.85376, "ttft_s": 0.5965120792388916, "total_s": 0.7501969337463379, "status": 200, "error": null}
+{"kind": "permission", "t_start": 1794042188.863789, "ttft_s": 0.2340548038482666, "total_s": 0.6106948852539062, "status": 200, "error": null}
+{"kind": "title", "t_start": 1794042208.873824, "ttft_s": 0.4503350257873535, "total_s": 0.6169490814208984, "status": 200, "error": null}

@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 439111,
+  "stop_reason": "end_turn",
+  "session_id": "5837b9ca-e4f9-4307-85ff-1a54b160ddb3",
+  "total_cost_usd": 0.6946471999999999,
+  "usage": {
+    "input_tokens": 33846,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 980416,
+    "output_tokens": 18159,
+    "output_tokens_details": {
+      "thinking_tokens": 9610
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 33846,
+      "outputTokens": 18159,
+      "cacheReadInputTokens": 980416,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6946471999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9610,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_93a375d06fee061da9b15c0614716049_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d)\nmkdir -p \"$t/dest\"\nfor s in 20260101-010000 20260101-020000 20260101-030000 20260101-040000; do printf 'a\\n' > \"$t/dest/demo-$s.tar.gz\"; done\necho \"--- rotate 4 archives keep 2 (expect oldest two deleted):\"\nbash rotate.sh --dest \"$t/dest\" --name demo --keep=2\necho \"--- remaining:\"; ls \"$t/dest\"\necho \"--- rotate --dry-run on 2 kept, keep 2 (expect nothing to rotate):\"\nbash rotate.sh --quiet --dry-run --dest \"$t/dest\" --name demo --keep 2; echo \"rc=$?\"\necho \"--- rotate unknown flag (expect rc=1):\"\nbash rotate.sh --dest \"$t/dest\" --name demo --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\nrm \"$t/dest\"/*\nprintf 'a\\n' > \"$t/dest/my backup-20260101-000000.tar.gz\"\n(cd \"$t/dest\" && shasum -a 256 \"my backup-20260101-000000.tar.gz\" > \"my backup-20260101-000000.tar.gz.sha256\")\nprintf 'corrupt\\n' >> \"$t/dest/my backup-20260101-000000.tar.gz\"\necho \"--- verify corrupted spaced-name (expect BAD, rc=2):\"\nout=$(bash verify.sh --quiet --dest \"$t/dest\"); rc=$?; echo \"$out\"; echo \"rc=$rc\"\necho \"--- verify missing archive (expect rc=2):\"\nrm \"$t/dest/my backup-20260101-000000.tar.gz\"\nbash verify.sh --quiet --dest \"$t/dest\"; echo \"rc=$?\"\necho \"--- verify --name filter + --help exit:\"\nbash verify.sh --dest \"$t/dest\" --name nomatch 2>&1 | tail -1\nbash verify.sh --help >/dev/null; echo \"help rc=$?\"\nrm -rf \"$t\"",
+        "description": "Manual checks of rotate deletion order, verify BAD path, and shared option parsing"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_12632a9e269b14071c999e463bf14478_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"; for s in 20260101-010000 20260101-020000 20260101-030000 20260101-040000; do printf 'a\\n' > \"$t/dest/demo-$s.tar.gz\"; done; bash rotate.sh --dest \"$t/dest\" --name demo --keep=2; echo \"--- remaining:\"; ls \"$t/dest\"; bash rotate.sh --quiet --dry-run --dest \"$t/dest\" --name demo --keep 2; echo \"rc=$?\"; bash rotate.sh --dest \"$t/dest\" --name demo --bogus >/dev/null 2>&1; echo \"bogus rc=$?\"; bash rotate.sh --help >/dev/null; echo \"help rc=$?\"; echo \"$t\" > /tmp/rotate_test_dir",
+        "description": "Check rotate keeps newest archives and flag handling via shared parser"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_bcebc207552018fa3990a1d02d951f2a_0",
+      "tool_input": {
+        "command": "rm /tmp/toolkit_manual_check.sh; git status --short && git diff --stat",
+        "description": "Show final changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 28,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Both bugs fixed, shared code extracted, and `bash tests/run_tests.sh` passes all 8 tests (6 existing + 2 new):\n\n- **rotate.sh** \u2014 `--keep N` with exactly N archives now exits \"nothing to rotate\" (`-lt` \u2192 `-le`), and surplus is now the oldest `total - keep` entries (`tail -n +N`, which deleted from the newest, \u2192 `head -n total-keep`).\n- **verify.sh** \u2014 the sidecar line is parsed with a regex capturing the digest plus the whole remainder of the line (spaces preserved), and the digest comparison uses quoted `[[ ]]` instead of word-splitting `[ ]`.\n- **lib/common.sh** (new) \u2014 holds the option-parsing block, `is_uint`, `need_value`, `--keep` validation, and `resolve_dir`; it sources `lib/log.sh` and restores `LOG_PREFIX` to the sourcing script's name. `rotate.sh` and `verify.sh` define `usage`/`parse_local_option` and then source it; `backup.sh`, `restore.sh`, `report.sh` are untouched. Manual checks confirmed all flags (`--dest`, `--name`, `--keep`, `--keep=N`, `-n/--dry-run`, `-q/--quiet`, `-h/--help`, unknown-flag exit 1) behave as before.\n\nI changed `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and added `lib/common.sh`.\n\n(One stray file, `/tmp/toolkit_manual_check.sh`, was left behind \u2014 removing it needed an approval prompt I skipped; delete it whenever convenient.)",
+  "ttft_ms": 11942,
+  "type": "result",
+  "duration_ms": 439951,
+  "uuid": "eaa44cbf-7b59-4f04-85f5-733dabd3d602",
+  "ttft_stream_ms": 4466,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 11755,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 440.6,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

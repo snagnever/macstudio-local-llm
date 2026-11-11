@@ -218,19 +218,37 @@ dl.method dd{margin:0; color:var(--ink-2)}
 
 <header class="top">
   <div>
-    <p class="eyebrow">Benchmark · Apple M4 Max 128 GB · October 2026</p>
+    <p class="eyebrow">Benchmark · Apple M4 Max 128 GB · October 2026, updated November 2026</p>
     <h1>The best way to run Qwen3.8-Flash-Next on an M4 Max 128 GB</h1>
     <p class="sub">Five local inference servers, the same model and its Swift 1.5 fine-tune, contexts from 8K to 1M
     tokens. I measured what you wait for in a real agent session, not only tokens per second.</p>
-    <div class="chips"><span class="chip"><span class="lab">Chip</span> Apple M4 Max</span><span class="chip"><span class="lab">GPU</span> 40 cores · Metal 4</span><span class="chip"><span class="lab">Unified memory</span> 128 GB</span><span class="chip"><span class="lab">macOS</span> 26.6.2</span><span class="chip"><span class="lab">Measured</span> 2026-10-07 to 2026-10-25</span></div>
-    <p class="tldr"><b>Result:</b> Splash 1.4.0 with the unsloth UD-IQ4_XS GGUF has the shortest agent turn at every
-    context size: 6.8 s at 128K, 7.3 s at 512K, 10.5 s at 1M. It
+    <div class="chips"><span class="chip"><span class="lab">Chip</span> Apple M4 Max</span><span class="chip"><span class="lab">GPU</span> 40 cores · Metal 4</span><span class="chip"><span class="lab">Unified memory</span> 128 GB</span><span class="chip"><span class="lab">macOS</span> 26.6.2</span><span class="chip"><span class="lab">Measured</span> 2026-10-07 to 2026-10-25</span><span class="chip"><span class="lab">Updated</span> 2026-11-10</span></div>
+    <p class="tldr"><b>Result:</b> Splash with the Swift 1.5 IQ4_XS GGUF has the shortest agent turn at every
+    context size: 6.3 s at 128K, 6.7 s at 512K, 9.3 s at 1M. With the base model
+    (unsloth UD-IQ4_XS) Splash is second: 6.8, 7.3 and 10.5 s. Splash
     is the only server that reached 1M. Its cost: a change halfway in the history prefills the whole prompt again. If your
     agent edits, compacts or forks the history often, use mlx-serve 26.10.3 with the ddalcu iQ-MLX 4.7 bpw quant
     (8.9 s at 128K, 14.5 s at 512K). <a href="#conclusion">Conclusion</a> · <a href="#run">commands</a>.</p>
   </div>
   <button class="theme" id="themeBtn" type="button">theme: auto</button>
 </header>
+
+<section class="block update" id="update" aria-labelledby="u-title">
+  <p class="kicker">November update · 2026-11-10</p>
+  <h2 id="u-title">Use the Swift 1.5 IQ4_XS GGUF on Splash. The base model gives the same quality and spends more tokens.</h2>
+  <ul class="tips">
+    <li><b>Same quality, fewer tokens.</b> On Splash 1.5.0 at 262K, Swift 1.5 IQ4_XS scored 293 and 302 of 336 in two
+    passes. The unsloth base UD-IQ4_XS scored 297 of 336 in one pass. The base spends 1.09× and 1.83× the Swift median
+    tokens on GPQA and LiveCodeBench, and it decodes at 95.5 tok/s against 110.9 tok/s. Six other GGUF packs spend more
+    tokens too (<a href="qwen38-flashnext-gguf-weights.html">GGUF weights page</a>).</li>
+    <li><b>The unsloth repository changed.</b> It now serves Dynamic V3.1 (revision 084c631). The commands below pin the
+    file I measured (revision 766911a). V3.1 decodes 11% faster than the old file with the same quality, but it spends more
+    tokens, not fewer: 1.26× on GPQA and 1.18× on LiveCodeBench.</li>
+    <li><b>Splash release.</b> This guide measured Splash 1.4.0, and my rig now runs 1.5.0. Splash 1.6.0 matches 1.5.0 on
+    one stream, but two 256K sessions are up to 65% slower because of memory claim waits
+    (<a href="qwen38-flashnext-splash160.html">Splash 1.6.0 page</a>).</li>
+  </ul>
+</section>
 
 <section class="premises" aria-label="Assumptions">
   <div class="pm"><p class="kicker">Goal</p><p>The best stack for Qwen3.8-Flash-Next as a daily driver on one Mac Studio
@@ -417,18 +435,19 @@ dl.method dd{margin:0; color:var(--ink-2)}
 <section class="verdict" id="conclusion" aria-labelledby="v-title">
   <div class="v-main">
     <p class="kicker">Conclusion</p>
-    <h2 id="v-title">Use <b>Splash 1.4.0</b> with the <b>unsloth UD-IQ4_XS</b> GGUF for the shortest agent turn.
+    <h2 id="v-title">Use <b>Splash</b> with the <b>Swift 1.5 IQ4_XS</b> GGUF for the shortest agent turn.
     Use <b>mlx-serve 26.10.3</b> with the <b>ddalcu iQ-MLX 4.7 bpw</b> quant when the history changes often.</h2>
     <p>Splash had the shortest agent turn at every context size, from 8K to 1M, and it is the only server that served 1M.
     The cost is the cache: a change halfway in the history prefills the whole prompt again, 13 min
-    at 512K against 8 min on mlx-serve. I did not check the quality of the base model on Splash. Among
+    at 512K against 8 min on mlx-serve. In November the base model on Splash 1.5.0 scored the same as
+    Swift 1.5 and spent more tokens per answer (<a href="#update">update</a>). Among
     the MLX servers the runner-up is <b>oMLX 0.7.0</b> (12.1 s at 128K), but it stops at 256K. With Swift 1.5,
     Splash is faster again (6.7 s at 512K, 9.3 s at 1M), and on mlx-serve 26.10.3 Swift 1.5 is
     the faster quant past 128K (<a href="#samebuild">same-build table</a>).</p>
   </div>
   <div class="tiles">
-    <div class="tile"><span class="t-val">6.8<small> s</small></span><span class="t-lab">per agent turn at 128K on Splash, against 8.9 s on mlx-serve</span></div>
-    <div class="tile"><span class="t-val">7.3<small> s</small></span><span class="t-lab">per agent turn at 512K on Splash, against 14.5 s on mlx-serve</span></div>
+    <div class="tile"><span class="t-val">6.8<small> s</small></span><span class="t-lab">per agent turn at 128K on Splash with the base model, against 8.9 s on mlx-serve</span></div>
+    <div class="tile"><span class="t-val">7.3<small> s</small></span><span class="t-lab">per agent turn at 512K on Splash with the base model, against 14.5 s on mlx-serve</span></div>
     <div class="tile"><span class="t-val">1.9<small> s</small></span><span class="t-lab">to start the next reply at 512K on Splash, from cache (first message: 13 min)</span></div>
     <div class="tile"><span class="t-val">13<small> min</small></span><span class="t-lab">after a change halfway at 512K on Splash, against 8 min on mlx-serve</span></div>
   </div>
@@ -442,7 +461,8 @@ dl.method dd{margin:0; color:var(--ink-2)}
   <p class="s-note">Download <a href="https://huggingface.co/unsloth/Qwen3.8-Flash-Next-GGUF" target="_blank" rel="noopener">unsloth/Qwen3.8-Flash-Next-GGUF</a>
   (UD-IQ4_XS, 94 GB) or <a href="https://huggingface.co/ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF" target="_blank" rel="noopener">ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF</a>
   (IQ4_XS, 98 GB). This is the 1M setting; for 256K or 512K, set <code>--max-context</code> to 262144 or 524288.
-  Splash picks the DFlash2 draft model and the 8-bit KV cache by itself.</p>
+  Splash picks the DFlash2 draft model and the 8-bit KV cache by itself. I measured these commands on Splash 1.4.0; my
+  rig runs them on 1.5.0. The base-model command pins revision 766911a, the file I measured, not the V3.1 file.</p>
   <div class="cmds"><div class="cmd">
       <p class="cmd-lab">Splash 1.4.0, base model UD-IQ4_XS, 1M</p>
 <pre><code>splash serve --model unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ4_XS \
@@ -497,7 +517,8 @@ dl.method dd{margin:0; color:var(--ink-2)}
   <h2 class="sec">7 · Quality sanity check</h2>
   <p class="s-note">Does a server or quant break the model? Not in these runs: the five stacks I checked are within a few
   cases of each other. One run per cell, on different dates, with a small sample. Read it as a sanity check, not as a
-  ranking. ds4 and Splash with the base model were not checked.</p>
+  ranking. ds4 was not checked. Splash with the base model was checked in November on Splash 1.5.0
+  (<a href="#update">update</a>).</p>
   <div class="panel big"><div id="chQuality"></div></div>
   <p class="foot-note">Context sizes differ: the three base-model stacks ran at 128K, the two Swift 1.5 stacks at 262K
   (the 262K columns of the table below). HumanEval with the prompt's import lines added before the answer; on Splash it ran

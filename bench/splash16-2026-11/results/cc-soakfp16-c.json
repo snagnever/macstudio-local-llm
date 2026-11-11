@@ -1,0 +1,104 @@
+{
+  "duration_api_ms": 413644,
+  "stop_reason": "end_turn",
+  "session_id": "0b0a3ea9-f4e8-4801-94b1-ad7213cc5c81",
+  "total_cost_usd": 0.7046831999999998,
+  "usage": {
+    "input_tokens": 68314,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1179936,
+    "output_tokens": 9772,
+    "output_tokens_details": {
+      "thinking_tokens": 5285
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 68314,
+      "outputTokens": 9772,
+      "cacheReadInputTokens": 1179936,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7046831999999998,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 5285,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_51a90a12b0c543aa8c0bd960950cd9a4_0",
+      "tool_input": {
+        "command": "python3 -m unittest discover -s tests -t . 2>&1 | tail -3 && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp16-c diff --stat",
+        "description": "Re-run suite and show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 25,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done \u2014 72 tests pass (`python3 -m unittest discover -s tests -t .`). The new `--group-by` option computes per-group Decimal totals in `report.py` (`group_totals`, `render_grouped_text`, `render_grouped_json`), the `report` subcommand dispatches to them when the flag is present, and output is unchanged when it's absent.\n\nChanged files: `ledger/cli.py`, `ledger/report.py`, `tests/test_cli.py`, `README.md`.",
+  "ttft_ms": 4636,
+  "type": "result",
+  "duration_ms": 414283,
+  "uuid": "9cb53d5c-4903-4436-8fb2-3127c87e46e1",
+  "ttft_stream_ms": 102,
+  "time_to_request_ms": 35,
+  "first_content_frame_ms": 4480,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 415.3,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

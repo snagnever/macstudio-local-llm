@@ -1,0 +1,7 @@
+{"check": "C1", "expected": "200", "observed": 200, "pass": true}
+{"check": "C2", "expected": "200", "observed": 200, "pass": true}
+{"check": "C3", "expected": null, "observed": 200, "pass": true}
+{"check": "C4", "expected": "404", "observed": 404, "pass": true}
+{"check": "C5", "expected": "requests.cancelled +1", "observed": {"status": 200, "completed": 0, "cancelled": 1}, "pass": true}
+{"check": "C6", "expected": "schema 6", "observed": 6, "pass": true}
+{"check": "C7", "expected": "second turn reuses the reply past the cut", "observed": {"inconclusive": "no tool call in the reply", "first_prompt": 332}, "pass": true}

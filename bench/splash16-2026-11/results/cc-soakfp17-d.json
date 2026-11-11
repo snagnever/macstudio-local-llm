@@ -1,0 +1,112 @@
+{
+  "duration_api_ms": 358771,
+  "stop_reason": "end_turn",
+  "session_id": "666c502e-2685-4978-a919-9345beaac840",
+  "total_cost_usd": 0.6738823999999999,
+  "usage": {
+    "input_tokens": 38892,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 855872,
+    "output_tokens": 17357,
+    "output_tokens_details": {
+      "thinking_tokens": 8901
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 38892,
+      "outputTokens": 17357,
+      "cacheReadInputTokens": 855872,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6738823999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 8901,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b9309eb56316102164b1dd1995ea16dd_0",
+      "tool_input": {
+        "command": "cd /tmp && rm -rf smoke-rotate && d=$(mktemp -d) && cd \"$d\" && mkdir dest && for s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do echo \"$s\" > \"dest/app-$s.tar.gz\"; (cd dest && shasum -a 256 \"app-$s.tar.gz\" > \"app-$s.tar.gz.sha256\"); done\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp17-d\necho '--- dry-run with = syntax (keep 1, newest survives) ---'\nbash \"$R/rotate.sh\" -n --dest=\"$d/dest\" --name=app --keep=1\necho \"rc=$? remaining=$(ls \"$d/dest\" | grep -c 'app.*tar.gz$')\"\necho '--- positional-after--- and -q ---'\nbash \"$R/rotate.sh\" --keep 2 -q --dest \"$d/dest\" --name app; echo \"rc=$? remaining=$(ls \"$d/dest\" | grep -c 'app.*tar.gz$')\"\necho '--- help exits 0 ---'\nbash \"$R/rotate.sh\" --help >/dev/null; echo \"rotate rc=$?\"; bash \"$R/verify.sh\" -h >/dev/null; echo \"verify rc=$?\"\necho '--- bad usage paths ---'\nbash \"$R/rotate.sh\" --dest \"$d/dest\" --name app --keep x 2>&1; echo \"rc=$?\"\nbash \"$R/rotate.sh\" --dest \"$d/dest\" 2>&1 | tail -1; \nbash \"$R/verify.sh\" --dest 2>&1; echo \"rc=$?\"\nbash \"$R/verify.sh\" --bogus --dest \"$d/dest\" 2>&1 | tail -1\nbash \"$R/verify.sh\" --dest \"$d/nosuch\" 2>&1; echo \"rc=$?\"\nbash \"$R/rotate.sh\" --dest \"$d/dest\" --name app extra 2>&1 | tail -1\necho '--- binary-mode sidecar (shasum -b) with spaces in name ---'\nrm -rf b && mkdir b && echo hi > \"b/my data-20260101-000000.tar.gz\" && (cd b && shasum -ba 256 \"my data-20260101-000000.tar.gz\" > \"my data-20260101-000000.tar.gz.sha256\") && cat \"b/my data-20260101-000000.tar.gz.sha256\"\nbash \"$R/verify.sh\" --dest \"$d/b\"; echo \"rc=$?\"\necho '--- no sidecars ---'\nrm -rf e && mkdir e && bash \"$R/verify.sh\" --dest \"$d/e\"; echo \"rc=$?\"",
+        "description": "Smoke-test rotate.sh and verify.sh flags, error paths, binary-mode sidecar"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_fabe68edfe5d383b6f5b59bfc596966b_0",
+      "tool_input": {
+        "command": "ls -la /tmp/smoke_rotate_verify.sh && head -5 /tmp/smoke_rotate_verify.sh",
+        "description": "Check existing smoke script file in /tmp"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 25,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. Summary of the work:\n\n**Bug 1 \u2014 `rotate.sh`**: `surplus()` used `tail -n +\"$keep\"`, which returns the *newest* lines of the oldest-first sorted list \u2014 so it deleted the wrong (newest) archives, including one when exactly N existed. Fixed to delete the oldest `total - keep` entries (`head -n`, guarded for the zero case since BSD `head` rejects `-n 0`).\n\n**Bug 2 \u2014 `verify.sh`**: the sidecar's file name was extracted with `awk '{print $2}'`, truncating at the first space (`my backup-\u2026` \u2192 `my` \u2192 \"archive missing\" \u2192 BAD). Now split with `read -r expected file` so the remainder keeps its spaces, and the `*` binary-mode marker from `shasum -b` is stripped.\n\n**Refactor**: new `lib/common.sh` holds the shared option-parsing block (with its double-sourcing guard, like `lib/log.sh`) and `resolve_dir`; `rotate.sh` and `verify.sh` define `usage`/`parse_local_option` and source it. `backup.sh`, `restore.sh`, `report.sh` untouched.\n\n**Tests**: added a space-in-name verify test and a rotate group (exactly-N keeps everything; `--keep 2` deletes only the oldest plus its sidecar). `bash tests/run_tests.sh` \u2014 all 12 tests pass.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, new `lib/common.sh`.",
+  "ttft_ms": 10356,
+  "type": "result",
+  "duration_ms": 359796,
+  "uuid": "ce2e553a-ea7e-4ce3-869b-8d8e344cff9b",
+  "ttft_stream_ms": 4452,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 10007,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 360.7,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

@@ -1,0 +1,112 @@
+{
+  "duration_api_ms": 247026,
+  "stop_reason": "end_turn",
+  "session_id": "97288e89-83c9-41a1-af7f-4af52d37f91f",
+  "total_cost_usd": 0.6371848000000001,
+  "usage": {
+    "input_tokens": 48671,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1269504,
+    "output_tokens": 9430,
+    "output_tokens_details": {
+      "thinking_tokens": 3813
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 48671,
+      "outputTokens": 9430,
+      "cacheReadInputTokens": 1269504,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6371848000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 3813,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b505604ce3813132b87d0137fd454a83_0",
+      "tool_input": {
+        "command": "printf 'date,account,payee,amount,category,memo\\n2025-01-05,Checking,Tesco Stores,-40.00,,\\n2025-01-25,Checking,Acme Ltd Payroll,3000.00,Income,\\n2025-02-03,Visa Card,Netflix.com,-15.99,,\\n' > /tmp/ledger-groupby/small.csv 2>/dev/null || (mkdir -p /tmp/ledger-groupby && printf 'date,account,payee,amount,category,memo\\n2025-01-05,Checking,Tesco Stores,-40.00,,\\n2025-01-25,Checking,Acme Ltd Payroll,3000.00,Income,\\n2025-02-03,Visa Card,Netflix.com,-15.99,,\\n' > /tmp/ledger-groupby/small.csv); python3 -m ledger.cli report /tmp/ledger-groupby/small.csv --group-by month; echo ---; python3 -m ledger.cli report /tmp/ledger-groupby/small.csv --group-by category; echo ---; python3 -m ledger.cli report --format json /tmp/ledger-groupby/small.csv --group-by account; echo ---; python3 -m ledger.cli report --format json /tmp/ledger-groupby/small.csv --group-by month; echo ---; python3 -m ledger.cli report /tmp/ledger-groupby/small.csv",
+        "description": "Run report with new --group-by option on sample CSV"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d3de2008470f00a663e251460dceb849_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/ledger-groupby",
+        "description": "Create temp directory for manual checks"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 33,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. All 70 tests pass, grouped totals reconcile with the existing balances/grand total, and the no-`--group-by` output is unchanged (existing tests cover it).\n\nImplementation notes:\n- `ledger/report.py`: added `GROUP_KEYS`, `group_totals()` (exact Decimal sums), `render_groups_text()`, `render_groups_json()`, `render_groups()` \u2014 groups ordered by label, text as `<group> <total>` with 2 decimals, JSON as one object with values rounded to cents.\n- `ledger/cli.py`: added `--group-by {month,category,account}` to `report`; `cmd_report` renders grouped totals when present, otherwise the original report path is untouched. Filters (`--account/--category/--from/--to`) apply before grouping.\n- `tests/test_cli.py`: added `ReportGroupByTests` \u2014 7 tests covering text output for `month`/`category`, JSON for `account`/`month` (incl. label ordering), filter interaction, an invalid-key argparse error, and a fixture check that month totals sum to the grand total.\n- `README.md`: documented `--group-by` in the `report` usage block with verified real-output examples.\n\nChanged files: `ledger/cli.py`, `ledger/report.py`, `tests/test_cli.py`, `README.md`.",
+  "ttft_ms": 4718,
+  "type": "result",
+  "duration_ms": 247563,
+  "uuid": "a2b4d9e4-058c-4a25-bfa3-1264acb69ac1",
+  "ttft_stream_ms": 109,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 4489,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 248.6,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

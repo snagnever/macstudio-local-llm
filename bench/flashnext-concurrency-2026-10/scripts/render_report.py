@@ -291,7 +291,11 @@ SERVERS: list[dict[str, str]] = [
 LEGACY: dict[str, str] = {"key": "legacy", "label": "mlx-serve 26.10.1", "series": "s2",
                           "weights": "Dankpaws Swift 1.5 Qwen3.8 Flash-Next MLX 4.7 bpw"}
 RECOMMENDED = "splash"
-TBENCH_STATUS = REPO / "bench" / "stack-updates-2026-10" / "results" / "tbench-status.json"
+# Terminal-Bench 2.1 of the page weights: Swift 1.5 IQ4_XS on Splash (k2a, run on Splash 1.4.0) and Swift 1.5 MLX on
+# mlx-serve 26.10.3 (w1z). stack-updates-2026-10/results/tbench-status.json holds the k3f (IQ1_M) run, other weights.
+TBENCH_STATUS = [REPO / "bench" / "splash-longctx-2026-10" / "results" / "tbench-status-k2a.json",
+                 REPO / "bench" / "stack-updates-2026-10" / "results" / "tbench-status-mlx.json"]
+TBENCH_WEIGHTS = "swift 1.5"
 CAMPAIGN_B_RESULTS = REPO / "bench" / "claude-code-concurrency-2026-11" / "results"
 COVERAGE_SCENARIOS = ["One session, synthetic (32K / 128K / 256K)", "One Claude Code session",
                       "Two Claude Code sessions", "Two sessions, synthetic worst case", "Three and four sessions",
@@ -346,8 +350,28 @@ def _tbench_key(tbench: Optional[dict]) -> Optional[str]:
     return "splash" if "splash" in str(tbench.get("server", "")).lower() else "mlx"
 
 
-def collect_scenarios(data: dict, claude: dict[str, Optional[dict]], tbench: Optional[dict]) -> dict[str, Any]:
+def read_tbench_statuses(paths: Union[Path, Sequence[Path], None]) -> dict[str, Optional[dict]]:
+    """One Terminal-Bench status per server column. A status counts only when its weights are the page weights
+    (Swift 1.5); a status without a weights field is accepted. The first matching status per server wins."""
+    if paths is None:
+        paths = []
+    elif isinstance(paths, (str, Path)):
+        paths = [paths]
+    out: dict[str, Optional[dict]] = {"splash": None, "mlx": None}
+    for path in paths:
+        st = read_tbench_status(Path(path))
+        if not st or (st.get("weights") is not None and TBENCH_WEIGHTS not in str(st["weights"]).lower()):
+            continue
+        key = _tbench_key(st)
+        if out[key] is None:
+            out[key] = st
+    return out
+
+
+def collect_scenarios(data: dict, claude: dict[str, Optional[dict]],
+                      tbench: Optional[dict[str, Optional[dict]]]) -> dict[str, Any]:
     """Pure: the per-scenario, per-server payload the page sections read (see the spec's section list)."""
+    tbench = tbench or {}
     sp = (data.get("splash") or {}).get("configs")
     lg = data["configs"]
     keys = ("splash", "mlx")
@@ -365,7 +389,6 @@ def collect_scenarios(data: dict, claude: dict[str, Optional[dict]], tbench: Opt
     solo = {"splash": _find_in(sp, "k2c1", 131072), "mlx": _find_in(sp, "w1zc1", 131072)}
     solo32 = {"splash": _find_in(sp, "k2c1", 32768), "mlx": _find_in(sp, "w1zc1", 32768)}
     pair = {"splash": _find_in(sp, "k2c2a", 131072), "mlx": _find_in(sp, "w1zc2a", 131072)}
-    tb_key = _tbench_key(tbench)
 
     one: dict[str, Any] = {}
     for key in keys:
@@ -382,7 +405,7 @@ def collect_scenarios(data: dict, claude: dict[str, Optional[dict]], tbench: Opt
                     "first_prompt_s": a["first_prompt_ttft_s"] if a else None,
                     "cold_128k_s": _g(solo[key], "cold_ttft_s"),
                     "tasks": {p: {t: v["alone_s"].get(t) for t in v["tasks"]} for p, v in profiles(key).items()},
-                    "tbench": tbench if tb_key == key else None}
+                    "tbench": tbench.get(key)}
 
     def variant(key: str, name: str) -> Optional[dict]:
         """The campaign-B variant block of a summary (subagents / decode_share), flattened for the page."""
@@ -454,10 +477,11 @@ def collect_scenarios(data: dict, claude: dict[str, Optional[dict]], tbench: Opt
         return "missing"
 
     def tb(key: str) -> str:
-        if tb_key != key:
+        st = tbench.get(key)
+        if not st:
             return "missing"
-        done, total = tbench.get("done"), tbench.get("total")
-        return "measured" if tbench.get("score") is not None or (done is not None and total and done >= total) \
+        done, total = st.get("done"), st.get("total")
+        return "measured" if st.get("score") is not None or (done is not None and total and done >= total) \
             else "running"
 
     cover_cells = [
@@ -496,7 +520,7 @@ def collect_scenarios(data: dict, claude: dict[str, Optional[dict]], tbench: Opt
 
 
 def collect(results_dir: Path, splash_dir: Optional[Path] = None, claude_dirs: Optional[dict[str, Path]] = None,
-            tbench_status: Optional[Path] = None) -> dict[str, Any]:
+            tbench_status: Union[Path, Sequence[Path], None] = None) -> dict[str, Any]:
     results_dir = Path(results_dir)
     configs = [_config(results_dir, code, ctx, tag, context) for code, ctx, tag, context in CONFIGS]
     by_code = {(c["code"], c["ctx"]): c for c in configs}
@@ -520,7 +544,7 @@ def collect(results_dir: Path, splash_dir: Optional[Path] = None, claude_dirs: O
     dirs = claude_dirs or {}
     claude = {k: read_claude_summary(dirs.get(k), k, generic=dirs.get(k) != CAMPAIGN_B_RESULTS)
               for k in ("splash", "mlx", "legacy")}
-    tbench = read_tbench_status(tbench_status) if tbench_status is not None else None
+    tbench = read_tbench_statuses(tbench_status)
     data["tbench"] = tbench
     data["scenarios"] = collect_scenarios(data, claude, tbench)
     return data
@@ -1544,7 +1568,7 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument("--splash-results-dir", default=str(SPLASH_RESULTS))
     p.add_argument("--campaign-b-dir", default=str(CAMPAIGN_B_RESULTS),
                    help="results of the Claude Code campaign (claude-summary-splash.json, claude-summary-mlx.json)")
-    p.add_argument("--tbench-status", default=str(TBENCH_STATUS))
+    p.add_argument("--tbench-status", nargs="*", default=[str(x) for x in TBENCH_STATUS])
     return p
 
 
@@ -1553,7 +1577,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     campaign_b, splash_dir = Path(args.campaign_b_dir), Path(args.splash_results_dir)
     claude_dirs = {"splash": campaign_b if (campaign_b / "claude-summary-splash.json").exists() else splash_dir,
                    "mlx": campaign_b, "legacy": Path(args.results_dir)}
-    data = collect(Path(args.results_dir), splash_dir, claude_dirs, Path(args.tbench_status))
+    data = collect(Path(args.results_dir), splash_dir, claude_dirs, [Path(x) for x in args.tbench_status])
     out_html, out_json = Path(args.out_html), Path(args.out_json)
     out_html.parent.mkdir(parents=True, exist_ok=True)
     out_json.parent.mkdir(parents=True, exist_ok=True)

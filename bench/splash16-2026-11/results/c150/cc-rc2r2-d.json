@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 378970,
+  "stop_reason": "end_turn",
+  "session_id": "b65b84b5-95e5-4aac-b488-8ed2a6e837af",
+  "total_cost_usd": 0.7069128000000001,
+  "usage": {
+    "input_tokens": 35627,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 933824,
+    "output_tokens": 18882,
+    "output_tokens_details": {
+      "thinking_tokens": 10472
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 35627,
+      "outputTokens": 18882,
+      "cacheReadInputTokens": 933824,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7069128000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 10472,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a5210dc7e7e593bee391d8e166cafb00_0",
+      "tool_input": {
+        "command": "tmp=$(mktemp -d)\ncd \"$tmp\"\ngit -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r2-d show b06f627:rotate.sh > rotate.sh\ngit -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r2-d show b06f627:verify.sh > verify.sh\ngit -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r2-d show b06f627:lib/log.sh > log.sh\nmkdir -p lib && mv log.sh lib/\nmkdir dest\nfor stamp in 20260101-000000 20260102-000000 20260103-000000; do\n  echo \"old $stamp\" > \"dest/demo-$stamp.tar.gz\"\n  (cd dest && shasum -a 256 \"demo-$stamp.tar.gz\" > \"demo-$stamp.tar.gz.sha256\")\ndone\necho \"--- old rotate.sh --keep 3 with exactly 3 archives:\"\nbash rotate.sh --quiet --dest dest --name demo --keep 3; echo \"rc=$?\"\nls dest | grep 'tar.gz$'\nprintf 'payload\\n' > \"dest/my backup-20260101-000000.tar.gz\"\n(cd dest && shasum -a 256 \"my backup-20260101-000000.tar.gz\" > \"my backup-20260101-000000.tar.gz.sha256\")\necho \"--- old verify.sh with a space in the name:\"\nrc=0; out=$(bash verify.sh --quiet --dest dest) || rc=$?\necho \"$out\"; echo \"rc=$rc\"\ncd - >/dev/null; rm -rf \"$tmp\"",
+        "description": "Reproduce both reported bugs against the original scripts"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ea0fc731ca3b689b1a2a69ece3d8e3c7_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/bugcheck && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r2-d status --short",
+        "description": "Remove scratch scripts and show changed files"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9d5262acaf115b0d11119c9ee5d74e25_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r2-d status --short",
+        "description": "Show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 25,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. Both bugs are fixed, one test added for each, and the shared parser + `resolve_dir` now live in `lib/common.sh` sourced by both scripts (all 12 tests pass; the new tests were verified to fail against the original code \u2014 `--keep 3` deleted the newest archive, and the space-named archive reported `BAD my (archive missing)`):\n\n- **rotate.sh** \u2014 early exit now triggers at `total -le keep`, and surplus is the oldest `total - keep` entries (`head -n`) instead of `tail -n +\"$keep\"` which deleted the newest.\n- **verify.sh** \u2014 sidecar line is split with `read -r expected file`, keeping spaces in the file name (the old `awk '{print $2}'` truncated it); digest comparison also quoted.\n- **lib/common.sh** \u2014 new file with the shared option-parsing block and `resolve_dir`; `rotate.sh` and `verify.sh` source it, the other three scripts are untouched.\n- **tests/run_tests.sh** \u2014 added the rotate rotation group and the verify space-in-name group.",
+  "ttft_ms": 24146,
+  "type": "result",
+  "duration_ms": 380116,
+  "uuid": "30f0c7fb-41a9-461d-bcf6-44a9e852b5a7",
+  "ttft_stream_ms": 19558,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 23886,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 381.0,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

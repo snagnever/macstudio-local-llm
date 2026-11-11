@@ -1,0 +1,170 @@
+{
+ "killed_pid": 52596,
+ "stream": {
+  "chunks": 3,
+  "error": "data: {\"error\":{\"message\":\"the inference engine stopped unexpectedly and is restarting; retry the request\",\"type\":\"server_error\",\"code\":\"runtime_unavailable\"}}\n",
+  "done": true
+ },
+ "attempts": [
+  {
+   "t": 0.0,
+   "status": 503,
+   "retry_after": "24",
+   "code": "runtime_unavailable"
+  },
+  {
+   "t": 1.1,
+   "status": 503,
+   "retry_after": "23",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 2.1,
+   "status": 503,
+   "retry_after": "22",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 3.1,
+   "status": 503,
+   "retry_after": "21",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 4.1,
+   "status": 503,
+   "retry_after": "20",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 5.1,
+   "status": 503,
+   "retry_after": "19",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 6.1,
+   "status": 503,
+   "retry_after": "18",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 7.1,
+   "status": 503,
+   "retry_after": "17",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 8.1,
+   "status": 503,
+   "retry_after": "16",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 9.1,
+   "status": 503,
+   "retry_after": "15",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 10.1,
+   "status": 503,
+   "retry_after": "14",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 11.2,
+   "status": 503,
+   "retry_after": "13",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 12.2,
+   "status": 503,
+   "retry_after": "12",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 13.2,
+   "status": 503,
+   "retry_after": "11",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 14.2,
+   "status": 503,
+   "retry_after": "10",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 15.2,
+   "status": 503,
+   "retry_after": "9",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 16.2,
+   "status": 503,
+   "retry_after": "8",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 17.2,
+   "status": 503,
+   "retry_after": "7",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 18.2,
+   "status": 503,
+   "retry_after": "6",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 19.2,
+   "status": 503,
+   "retry_after": "5",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 20.2,
+   "status": 503,
+   "retry_after": "3",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 21.2,
+   "status": 503,
+   "retry_after": "2",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 22.2,
+   "status": 503,
+   "retry_after": "1",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 23.2,
+   "status": 503,
+   "retry_after": "30",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 24.3,
+   "status": 200
+  }
+ ],
+ "context_before": 32768,
+ "context_after": 32768,
+ "boot_seconds": 30.0,
+ "verdict": {
+  "pass": false,
+  "checks": {
+   "engine_recovering": false,
+   "retry_after": true,
+   "served_in_2x_boot": true,
+   "context_kept": true
+  }
+ }
+}

@@ -1,0 +1,136 @@
+{
+  "duration_api_ms": 299445,
+  "stop_reason": "end_turn",
+  "session_id": "51bc5c58-c760-4eb4-a742-c1c67728cbbe",
+  "total_cost_usd": 0.6717407999999998,
+  "usage": {
+    "input_tokens": 38075,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 847104,
+    "output_tokens": 17501,
+    "output_tokens_details": {
+      "thinking_tokens": 9946
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 38075,
+      "outputTokens": 17501,
+      "cacheReadInputTokens": 847104,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6717407999999998,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9946,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d92538ff415143c42eaf8ae0f7dc5a35_0",
+      "tool_input": {
+        "command": "cd \"$(mktemp -d)\" && mkdir -p d && for s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do echo a > \"d/x-$s.tar.gz\"; done\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r2-d\necho \"--- dry-run keeps newest 3, prints would-delete:\"; bash \"$R/rotate.sh\" -q -n --dest=d --name=x --keep 3; echo \"rc=$?  files=$(ls d | wc -l | tr -d ' ')\"\necho \"--- quiet+help:\"; bash \"$R/rotate.sh\" --quiet --help | head -1; echo \"rc=$?\"\necho \"--- unknown flag:\"; bash \"$R/rotate.sh\" -q --dest d --name x --bogus; echo \"rc=$?\"\necho \"--- bad keep:\"; bash \"$R/rotate.sh\" -q --dest d --name x --keep abc; echo \"rc=$?\"\necho \"--- positional rejected:\"; bash \"$R/rotate.sh\" -q --dest d --name x extra; echo \"rc=$?\"\necho \"--- missing dest (exit 2):\"; bash \"$R/rotate.sh\" -q --dest=nope --name x; echo \"rc=$?\"\necho \"--- relative dest:\"; mkdir -p rel && cp d/x-20260101-000000.tar.gz rel/ && bash \"$R/rotate.sh\" -q --dest rel --name x --keep 1; echo \"rc=$?\"\necho \"--- verify --name filter, --, -q:\"; bash \"$R/verify.sh\" -q --dest d --name x; echo \"rc=$? (no sidecars -> warn+0)\"; bash \"$R/verify.sh\" --quiet --dest=d -- --name x >/dev/null; echo \"rc=$?\"\necho \"--- verify unknown flag:\"; bash \"$R/verify.sh\" -q --dest d --bogus; echo \"rc=$?\"",
+        "description": "Spot-check flag handling of refactored rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_53224e9d0bcd798fecf6c4e358f1c9eb_0",
+      "tool_input": {
+        "command": "rm /Users/vitor/.cache/flashnext-concurrency/claude-work/spotcheck.sh && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r2-d status --short && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r2-d diff --stat && bash /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r2-d/tests/run_tests.sh 2>&1 | tail -1",
+        "description": "Show changed files and rerun test suite"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_6394e6acf167bdf13c775f37e8daa9f0_0",
+      "tool_input": {
+        "command": "rm /Users/vitor/.cache/flashnext-concurrency/claude-work/spotcheck.sh",
+        "description": "Delete the temporary spot-check script I created"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_6394e6acf167bdf13c775f37e8daa9f0_1",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r2-d status --short && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2r2-d diff --stat",
+        "description": "Show changed files in repository"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a9c6540169f9579c178227e1932eb6ae_0",
+      "tool_input": {
+        "command": "rm /Users/vitor/.cache/flashnext-concurrency/claude-work/spotcheck.sh",
+        "description": "Delete temporary spot-check script created next to the repo"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 25,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All tests pass (`11 ok, all tests passed`). One note: a temporary spot-check script I created at `/Users/vitor/.cache/flashnext-concurrency/claude-work/spotcheck.sh` (outside the repo) couldn't be deleted because the sandbox denied `rm` outside the working directory \u2014 feel free to remove it.\n\nSummary of the changes:\n\n- **`rotate.sh`** \u2014 fixed the rotation: the guard is now `total -le keep` (nothing to do at exactly N), and surplus is the first `total - keep` lines of the ascending list (`head -n`), so the **oldest** archives are deleted and the newest N survive. Its option-parsing block and `resolve_dir` now come from `lib/common.sh`.\n- **`verify.sh`** \u2014 fixed sidecar parsing: `read -r expected file <<< \"$line\"` takes the whole remainder of the shasum line as the file name, so names with spaces verify correctly; the digest comparison is now a quoted `[[ ]]`. Same switch to `lib/common.sh`; all flags (`--dest`, `--name`, `-q`, `-h`, `=forms`, `--`) behave as before, verified by spot-check.\n- **`lib/common.sh`** (new) \u2014 the shared option parser, `--keep` validation, and `resolve_dir`, sourced as `source .../lib/common.sh \"$@\"` after `usage`/`parse_local_option` are defined (double-source guard like `lib/log.sh`).\n- **`tests/run_tests.sh`** \u2014 added a verify test for `my backup-\u2026.tar.gz` (ok, rc=0), and a rotate group covering `--keep 3` with 4 archives (oldest deleted, newest 3 kept, sidecars removed) and with exactly 3 (nothing deleted).\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, plus new `lib/common.sh`.",
+  "ttft_ms": 24095,
+  "type": "result",
+  "duration_ms": 300113,
+  "uuid": "04f8e21f-15b2-4c8d-ae74-b0e6c9302a2e",
+  "ttft_stream_ms": 19575,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 23912,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 301.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

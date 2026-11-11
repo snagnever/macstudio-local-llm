@@ -1,0 +1,216 @@
+{
+  "duration_api_ms": 303930,
+  "stop_reason": "end_turn",
+  "session_id": "78e490ff-a722-4fc8-b91d-853ea06654c0",
+  "total_cost_usd": 0.8296744,
+  "usage": {
+    "input_tokens": 39019,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1448992,
+    "output_tokens": 19190,
+    "output_tokens_details": {
+      "thinking_tokens": 10242
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 39019,
+      "outputTokens": 19190,
+      "cacheReadInputTokens": 1448992,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.8296744,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 10242,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c53d3c48fb629ee33fa6ed039ce2a6a8_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/src\"; echo a > \"$t/src/a.txt\"\nfor s in 010000 020000 030000; do BACKUP_STAMP=20260101-$s bash backup.sh --quiet --dest \"$t/dest\" --name demo \"$t/src\" >/dev/null; echo b >> \"$t/src/a.txt\"; done\necho \"--- rotate --keep 2 (expect: deletes only the oldest) ---\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 2\nls \"$t/dest\"/demo-*.tar.gz | xargs -n1 basename\nrm -rf \"$t\"",
+        "description": "Check rotate keeps the newest N when keep is below total"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_2043b786f981c4ab63d1a872e2dc5691_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d) && mkdir -p \"$t/src\" \"$t/dest\" && printf 'a\\n' | tee \"$t/src/a.txt\" >/dev/null\nfor s in 010000 020000 030000; do BACKUP_STAMP=20260101-$s bash backup.sh --quiet --dest \"$t/dest\" --name demo \"$t/src\" >/dev/null && printf 'b\\n' | tee -a \"$t/src/a.txt\" >/dev/null; done\necho \"--- rotate --keep 2 (expect: deletes only the oldest 010000) ---\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 2\nls \"$t/dest\" | grep 'demo-.*tar.gz$'\nrm -rf \"$t\"",
+        "description": "Check rotate keeps newest N when keep is below total"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b6744d9e99d87990e8200cc6c3b7f8eb_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/rotate-check && mkdir -p /tmp/rotate-check/src /tmp/rotate-check/dest && printf 'a\\n' > /tmp/rotate-check/src/a.txt\nfor s in 010000 020000 030000; do BACKUP_STAMP=20260101-$s bash backup.sh --quiet --dest /tmp/rotate-check/dest --name demo /tmp/rotate-check/src >/dev/null; printf 'b\\n' >> /tmp/rotate-check/src/a.txt; done\necho \"--- rotate --keep 2 (expect: deletes only the oldest 010000) ---\"\nbash rotate.sh --quiet --dest /tmp/rotate-check/dest --name demo --keep 2\nls /tmp/rotate-check/dest | grep 'tar.gz$'\nrm -rf /tmp/rotate-check",
+        "description": "Check rotate keeps newest N when keep is below total"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_f15ad0307f3d93a03d96803bf5716836_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/rotate-check && mkdir -p /tmp/rotate-check/src /tmp/rotate-check/dest && printf 'a\\n' > /tmp/rotate-check/src/a.txt && BACKUP_STAMP=20260101-010000 bash backup.sh --quiet --dest /tmp/rotate-check/dest --name demo /tmp/rotate-check/src >/dev/null && printf 'b\\n' >> /tmp/rotate-check/src/a.txt && BACKUP_STAMP=20260101-020000 bash backup.sh --quiet --dest /tmp/rotate-check/dest --name demo /tmp/rotate-check/src >/dev/null && printf 'c\\n' >> /tmp/rotate-check/src/a.txt && BACKUP_STAMP=20260101-030000 bash backup.sh --quiet --dest /tmp/rotate-check/dest --name demo /tmp/rotate-check/src >/dev/null && echo '--- rotate --keep 2 (expect: delete oldest only) ---' && bash rotate.sh --quiet --dest /tmp/rotate-check/dest --name demo --keep 2 && ls /tmp/rotate-check/dest && rm -rf /tmp/rotate-check",
+        "description": "Check rotate keeps newest 2 of 3 archives"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_6af7537cf7dd9137433b9ef3fc67bfd9_0",
+      "tool_input": {
+        "command": "git stash push -m \"old scripts\" rotate.sh verify.sh && bash tests/run_tests.sh; echo \"exit=$?\"; git stash pop",
+        "description": "Run new tests against original buggy scripts, then restore fixes"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_70c072578f79e1d0cd792a76af8c59c3_0",
+      "tool_input": {
+        "command": "git stash push -m \"old scripts\" rotate.sh verify.sh",
+        "description": "Temporarily restore original buggy scripts"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9d4146e4b02b146142ae5e7ca6befd89_0",
+      "tool_input": {
+        "command": "git show HEAD:rotate.sh > /tmp/rotate.old.sh",
+        "description": "Extract original rotate.sh to /tmp"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9d4146e4b02b146142ae5e7ca6befd89_1",
+      "tool_input": {
+        "command": "git show HEAD:verify.sh > /tmp/verify.old.sh",
+        "description": "Extract original verify.sh to /tmp"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_3801b3bd77e05a5bbfdea609e49e29e2_0",
+      "tool_input": {
+        "command": "git show HEAD:rotate.sh > .rotate.old.sh",
+        "description": "Extract original rotate.sh into repo temp file"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_3801b3bd77e05a5bbfdea609e49e29e2_1",
+      "tool_input": {
+        "command": "git show HEAD:verify.sh > .verify.old.sh",
+        "description": "Extract original verify.sh into repo temp file"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d683e888f5d06855ba2f77958ebcf9bd_0",
+      "tool_input": {
+        "command": "rm /tmp/rotate-check.sh",
+        "description": "Remove temporary check script"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_f6d132dbdc5802f523df63aa60006b27_0",
+      "tool_input": {
+        "command": "bash rotate.sh --help | head -1; bash verify.sh --dest=/nonexistent-dir --name=x --keep=abc --quiet 2>&1 | tail -1; bash rotate.sh --bogus 2>&1 | tail -1; bash verify.sh --dest /nonexistent-dir; echo \"rc=$?\"",
+        "description": "Smoke-test shared option parsing in refactored scripts"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_08b788b4745d160d8feaea9aa41b1d88_0",
+      "tool_input": {
+        "command": "bash rotate.sh --help | head -1 && bash verify.sh --dest=/nonexistent-dir --name=x --keep=abc --quiet 2>&1 | tail -1 && bash rotate.sh --bogus 2>&1 | tail -1 && bash verify.sh --dest /nonexistent-dir 2>&1; echo \"rc=$?\"",
+        "description": "Smoke-test shared option parsing in refactored scripts"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9c6daa24d607bf5bea83bc5932ad2fcc_0",
+      "tool_input": {
+        "command": "bash verify.sh --dest /nonexistent; echo \"rc=$?\"",
+        "description": "Check resolve_dir exit code 2 through shared parser"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_571700e67ebff0d64c636236ad46f211_0",
+      "tool_input": {
+        "command": "bash verify.sh --dest /nonexistent || echo \"rc=$?\"",
+        "description": "Check resolve_dir exit code 2 through shared parser"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 41,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 8 tests pass, including the two new ones. Details of what changed:\n\n- **rotate.sh** \u2014 off-by-one fix: `surplus()` now uses `tail -n +\"$((keep + 1))\"` (the sorted list is oldest-first, so keeping the newest N means deleting lines before N+1) and the early exit uses `-le`; option parsing and `resolve_dir` now sourced from `lib/common.sh`.\n- **verify.sh** \u2014 sidecar line is split with `read -r expected file` so file names containing spaces survive (the old `awk '{print $2}'` truncated them); digest comparison quoted; option parsing and `resolve_dir` sourced from `lib/common.sh`.\n- **lib/common.sh** \u2014 new file holding the shared option-parsing block and `resolve_dir` (identical code, same flags, same behavior).\n- **tests/run_tests.sh** \u2014 two new tests: rotate with exactly N archives and `--keep N` deletes nothing; verify reports `ok`/rc=0 for `my backup-20260101-000000.tar.gz`.\n\nI verified the fixes behave correctly with keep below total (deletes only the oldest, keeps the newest N) and that all flags (`--dest=`, `--name=`, `--keep`, `-q`, `-n`, `-h`, unknown-option rejection, exit codes 1/2) still work through the shared parser. `backup.sh`, `restore.sh`, `report.sh` untouched. One leftover: `/tmp/rotate-check.sh` (my scratch verification script) \u2014 removing it needs interactive approval, so it's still there, harmless.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.",
+  "ttft_ms": 11054,
+  "type": "result",
+  "duration_ms": 305151,
+  "uuid": "44d3a6dc-06cb-4509-9655-5461cfcf9748",
+  "ttft_stream_ms": 4434,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 10746,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 306.2,
+  "task_done": false,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

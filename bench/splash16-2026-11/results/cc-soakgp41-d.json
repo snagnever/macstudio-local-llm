@@ -1,0 +1,112 @@
+{
+  "duration_api_ms": 323639,
+  "stop_reason": "end_turn",
+  "session_id": "7c55e3f7-a5a9-458d-b1e9-5e1f9c6ee749",
+  "total_cost_usd": 0.5875704,
+  "usage": {
+    "input_tokens": 30806,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 892832,
+    "output_tokens": 14289,
+    "output_tokens_details": {
+      "thinking_tokens": 6552
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 30806,
+      "outputTokens": 14289,
+      "cacheReadInputTokens": 892832,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5875704,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 6552,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d8a32707563dd1cd74588f4545c39c04_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); cd \"$t\"\n: > demo-20260101-000001.tar.gz; : > demo-20260101-000002.tar.gz; : > demo-20260101-000003.tar.gz\nr=$(bash \"$OLDPWD/rotate.sh\" --dest=\"$t\" --name demo --keep=1 --dry-run; echo \"rc=$?\")\nprintf '%s\\n---\\n' \"$r\"\nbash \"$OLDPWD/rotate.sh\" --dest \"$t\" --name demo --bogus 2>&1 | tail -1; echo \"unknown-opt rc=${PIPESTATUS[0]}\"\nbash \"$OLDPWD/verify.sh\" --help >/dev/null; echo \"verify --help rc=$?\"\nbash \"$OLDPWD/rotate.sh\" --dest \"$t\" --name demo --keep abc 2>&1 | tail -1\nrm -rf \"$t\"",
+        "description": "Smoke-test rotate/verify flag handling"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_5b0fc68465f3c9183ce85a79743dbacd_0",
+      "tool_input": {
+        "command": "rm -f /tmp/smoke_rotate_verify_2.sh; git status --porcelain",
+        "description": "Remove smoke script and show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 27,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 10 tests pass (`bash tests/run_tests.sh` \u2192 \"all tests passed\").\n\nChanged: added `lib/common.sh` (shared `parse_common_options` + `resolve_dir`); `rotate.sh` and `verify.sh` now source it (bug fixes: rotate deletes the oldest `total-keep` via `head -n`, verify parses sidecar names with spaces); `tests/run_tests.sh` gained a rotate `--keep` group and a spaces-in-name verify test.\n\nDetails:\n- **rotate.sh** \u2014 `surplus()` used `tail -n +\"$keep\"` on an oldest-first list, which marked the *newest* entries for deletion, and the `total -lt keep` guard let `total == keep` through (deleting the newest archive). Now the surplus is the oldest `total - keep` lines (`head -n`) with a `-le` early exit.\n- **verify.sh** \u2014 the sidecar's file name came from `awk '{print $2}'`, truncating at the first space; it's now parsed with parameter expansion, taking everything after the digest's separator whitespace.\n- Stray note: a leftover smoke-test script sits at `/tmp/smoke_rotate_verify_2.sh` (its `rm` needed approval outside the repo, so I left it).",
+  "ttft_ms": 10528,
+  "type": "result",
+  "duration_ms": 324449,
+  "uuid": "6527e02b-eded-4a45-b634-6493b6a27f37",
+  "ttft_stream_ms": 4548,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 10206,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 325.4,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

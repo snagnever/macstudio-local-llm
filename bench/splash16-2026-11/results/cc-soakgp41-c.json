@@ -1,0 +1,95 @@
+{
+  "duration_api_ms": 302714,
+  "stop_reason": "end_turn",
+  "session_id": "5977f7db-a6ed-45ab-97d6-7aebd5375fb7",
+  "total_cost_usd": 0.6429896000000002,
+  "usage": {
+    "input_tokens": 67278,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 926688,
+    "output_tokens": 9427,
+    "output_tokens_details": {
+      "thinking_tokens": 4761
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 67278,
+      "outputTokens": 9427,
+      "cacheReadInputTokens": 926688,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6429896000000002,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 4761,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 24,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. The `--group-by` option computes exact Decimal totals per group in `report.py` (`group_totals` / `render_groups`), the CLI dispatches to it only when the flag is present (unchanged output otherwise), and the full suite passes \u2014 68 tests, including the 5 new ones covering text and JSON output across all three keys, with the fixture month totals cross-checked against an independent CSV sum.\n\nChanged files: `ledger/cli.py`, `ledger/report.py`, `tests/test_cli.py`, `README.md`.",
+  "ttft_ms": 4718,
+  "type": "result",
+  "duration_ms": 303348,
+  "uuid": "b6c15a0b-26d7-475a-9307-e4ae9a68569d",
+  "ttft_stream_ms": 99,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 4481,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 304.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

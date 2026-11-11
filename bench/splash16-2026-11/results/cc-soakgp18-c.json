@@ -1,0 +1,95 @@
+{
+  "duration_api_ms": 216131,
+  "stop_reason": "end_turn",
+  "session_id": "92d32a60-c331-4a90-bf7a-a26f0e5d07e1",
+  "total_cost_usd": 0.457716,
+  "usage": {
+    "input_tokens": 43734,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 639200,
+    "output_tokens": 7747,
+    "output_tokens_details": {
+      "thinking_tokens": 3200
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 43734,
+      "outputTokens": 7747,
+      "cacheReadInputTokens": 639200,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.457716,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 3200,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 23,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. Implementation, tests, and docs are in place: the option reuses the codebase's existing patterns (a `totals_by` aggregate on `LedgerStore` alongside `count_by`, compute/render separation in `report.py`, argparse `choices` for validation, groups ordered by label, text totals via the existing `money()` and JSON totals via `as_number()` for cent rounding). The whole suite passes: 69 tests, 0 failures \u2014 all 63 pre-existing tests plus 6 new ones covering month/category text output, account/month JSON output, filters combined with grouping, group sums matching the grand total, and an invalid key exiting with code 2.\n\nChanged files: `ledger/cli.py`, `ledger/report.py`, `ledger/store.py`, `tests/test_cli.py`, `README.md`.",
+  "ttft_ms": 4809,
+  "type": "result",
+  "duration_ms": 216774,
+  "uuid": "dea66821-0222-46ea-ae06-06a60d17cce9",
+  "ttft_stream_ms": 101,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 4485,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 217.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

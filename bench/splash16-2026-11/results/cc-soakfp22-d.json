@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 298206,
+  "stop_reason": "end_turn",
+  "session_id": "91c15884-c6e6-4c48-b64a-3e5cd81d34cb",
+  "total_cost_usd": 0.6345272,
+  "usage": {
+    "input_tokens": 34052,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 705696,
+    "output_tokens": 17859,
+    "output_tokens_details": {
+      "thinking_tokens": 10561
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 34052,
+      "outputTokens": 17859,
+      "cacheReadInputTokens": 705696,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6345272,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 10561,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_45cdb8c44f8e87abdf4e33424bbfdb0c_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/src\"; echo hi > \"$t/src/a.txt\"\ncd /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp22-d\nfor s in 20260101-010000 20260102-010000 20260103-010000 20260104-010000; do BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/d\" --name app \"$t/src\" >/dev/null; done\necho \"== --dest=/--keep= forms, dry-run ==\"\nbash rotate.sh --dest=\"$t/d\" --name=app --keep=2 --dry-run\necho \"== real rotate, keep 2 ==\"\nbash rotate.sh --quiet --dest \"$t/d\" --name app --keep 2 2>/dev/null\nls \"$t/d\" | grep -v sha256\necho \"== -h exit code ==\"; bash rotate.sh -h >/dev/null; echo \"rc=$?\"\necho \"== unknown option ==\"; bash rotate.sh --dest \"$t/d\" --name app --bogus >/dev/null 2>&1; echo \"rc=$?\"\necho \"== --keep non-integer ==\"; bash rotate.sh --dest \"$t/d\" --name app --keep x >/dev/null 2>&1; echo \"rc=$?\"\necho \"== --keep 0 refused ==\"; bash rotate.sh --dest \"$t/d\" --name app --keep 0 >/dev/null 2>&1; echo \"rc=$?\"\necho \"== missing dest ==\"; bash rotate.sh --name app >/dev/null 2>&1; echo \"rc=$?\"\necho \"== positional refused ==\"; bash rotate.sh --dest \"$t/d\" --name app extra >/dev/null 2>&1; echo \"rc=$?\"\necho \"== missing dir exit 2 ==\"; bash rotate.sh --dest \"$t/nope\" --name app >/dev/null 2>&1; echo \"rc=$?\"\necho \"== verify --name filter ==\"; bash verify.sh --quiet --dest=\"$t/d\" --name app; echo \"rc=$?\"\necho \"== verify no sidecars, empty dir ==\"; mkdir -p \"$t/e\"; bash verify.sh --quiet --dest \"$t/e\"; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Smoke-test all flags of rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_8fb36a96666a71106bd36501631703b1_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/bkt-smoke/src && echo hi > /tmp/bkt-smoke/src/a.txt && cd /tmp/bkt-smoke && for s in 20260101-010000 20260102-010000 20260103-010000 20260104-010000; do BACKUP_STAMP=$s bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp22-d/backup.sh --quiet --dest /tmp/bkt-smoke/d --name app /tmp/bkt-smoke/src; done",
+        "description": "Create four demo backups in a fixed temp dir"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_209c0b2cafacdb787da965c73829daa2_0",
+      "tool_input": {
+        "command": "bash -n lib/common.sh && bash -n rotate.sh && bash -n verify.sh && bash -n tests/run_tests.sh && echo \"syntax ok\" && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp22-d status --short && bash tests/run_tests.sh",
+        "description": "Syntax-check changed files, show git status, rerun tests"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 24,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 10 tests pass (`bash tests/run_tests.sh` from the repo root).\n\nWhat was fixed:\n- **rotate.sh** \u2014 `surplus()` used `tail -n +\"$keep\"` on an oldest-first list, so it deleted from the *newest* end; at the boundary (`total == keep`) that was exactly one file: the newest. Now the early-exit triggers at `-le` and the surplus is `head -n \"$((total - keep))\"` \u2014 the oldest entries, newest kept.\n- **verify.sh** \u2014 the sidecar line was parsed with `awk '{print $2}'`, keeping only the first word of a name containing a space (\"my backup-\u2026\" \u2192 \"my\" \u2192 \"archive missing\" \u2192 BAD), and `[ $expected == $actual ]` compared unquoted words. The name is now taken as everything after the digest, and the digest comparison is quoted.\n- **Shared code** \u2014 the option-parsing block and `resolve_dir` (plus `is_uint`/`need_value`) moved to a new `lib/common.sh` (guarded against double sourcing, bash 3.2-safe, sources `lib/log.sh` for `die`), sourced by `rotate.sh` and `verify.sh` after their `usage`/`parse_local_option` definitions. Smoke-tested every flag form (`--dest=`, `--keep`, `-n`, `-q`, `-h`, unknown options, positional rejection) and all exit codes are unchanged. The other three scripts are untouched.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.",
+  "ttft_ms": 11773,
+  "type": "result",
+  "duration_ms": 299309,
+  "uuid": "80e7609d-3cc7-42e7-9d71-61df7919fab7",
+  "ttft_stream_ms": 4467,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 11548,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 300.1,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

@@ -1,0 +1,112 @@
+{
+  "duration_api_ms": 330233,
+  "stop_reason": "end_turn",
+  "session_id": "e5757611-0230-44e0-a606-37d6f5992ddb",
+  "total_cost_usd": 0.6788888000000001,
+  "usage": {
+    "input_tokens": 34757,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 742304,
+    "output_tokens": 19570,
+    "output_tokens_details": {
+      "thinking_tokens": 11666
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 34757,
+      "outputTokens": 19570,
+      "cacheReadInputTokens": 742304,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6788888000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 11666,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a3094ed1ab2cc7e8c3db4b73658a99d4_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); cd \"$t\"\n# rotate: 5 archives, keep 3 -> delete the 2 oldest, keep newest 3\nmkdir -p dest\nfor d in 01 02 03 04 05; do : > \"dest/app-202601$d-000000.tar.gz\"; done\necho \"--- rotate keep=3 (expect delete 01,02; keep 03,04,05)\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp13-d/rotate.sh --quiet --dest dest --name app --keep 3\necho \"--- remaining:\"; ls dest\n# dry-run keeps count\nmkdir -p dest2\nfor d in 01 02 03 04; do : > \"dest2/app-202601$d-000000.tar.gz\"; done\necho \"--- dry-run keep=2 (expect would-delete 01,02)\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp13-d/rotate.sh -q -n --dest=dest2 --name=app --keep=2\necho \"--- dest2 untouched:\"; ls dest2\n# sidecars removed with archive\nmkdir -p dest3; : > dest3/app-20260101-000000.tar.gz; : > dest3/app-20260101-000000.tar.gz.sha256; : > dest3/app-20260102-000000.tar.gz; echo x > dest3/app-20260102-000000.tar.gz.sha256\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp13-d/rotate.sh -q --dest dest3 --name app --keep 1 >/dev/null\necho \"--- dest3 (expect only newest archive+sidecar):\"; ls dest3\n# keep=0 rejected, keep non-int rejected\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp13-d/rotate.sh -q --dest dest --name app --keep 0; echo \"keep0 rc=$?\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp13-d/rotate.sh -q --dest dest --name app --keep x 2>/dev/null; echo \"keepX rc=$?\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp13-d/rotate.sh -q --dest dest 2>/dev/null; echo \"noName rc=$?\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp13-d/rotate.sh --bogus 2>/dev/null; echo \"bogus rc=$?\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp13-d/rotate.sh --help >/dev/null; echo \"help rc=$?\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp13-d/rotate.sh -q --dest /nonexistent-xyz --name app 2>/dev/null; echo \"missing dest rc=$?\"\n# verify: name with space + --name filter + malformed sidecar + missing archive\nmkdir -p v\nprintf ' DigestOnlyNoFile\\n' > v/solo.sha256\nprintf 'deadbeef  nothere.tar.gz\\n' > v/missing.sha256; : > v/nothere.tar.gz  # exists but digest differs\necho \"--- verify (expect 2 BAD lines, rc=2)\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp13-d/verify.sh -q --dest v; echo \"rc=$?\"\n# empty dir -> nothing to verify, rc 0\nmkdir -p empty; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp13-d/verify.sh -q --dest empty 2>/dev/null; echo \"empty rc=$?\"\n# verify --name with a spaced prefix\nmkdir -p w\nprintf 'data\\n' > w/f.txt\nBACKUP_STAMP=20260101-000000 bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp13-d/backup.sh -q --dest w --name \"my backup\" w >/dev/null\nprintf 'x\\n' > w/other-20260101-000000.tar.gz; (cd w && shasum -a 256 other-20260101-000000.tar.gz > other-20260101-000000.tar.gz.sha256)\necho \"--- verify --name 'my backup' (expect only the my-backup line ok)\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp13-d/verify.sh -q --dest w --name \"my backup\"; echo \"rc=$?\"\ncd /; rm -rf \"$t\"",
+        "description": "Sanity-check rotate/verify edge cases in a temp dir"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_18fdcdd8c496b6a414ef264912aa2bd1_0",
+      "tool_input": {
+        "command": "rm -f /tmp/sanity_check.sh; git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp13-d status --short",
+        "description": "Remove temp script and show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 22,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 8 tests pass (`bash tests/run_tests.sh` \u2192 \"all tests passed\"), and my extra edge-case checks confirmed rotate now deletes the *oldest* `total - keep` archives (keeping the newest N, deleting nothing at exactly N), sidecars still go with their archives, dry-run is inert, and every flag/exit code of both refactored scripts behaves as before.\n\nWhat changed:\n- **`rotate.sh`** \u2014 bug fix: `surplus()` used `tail -n +\"$keep\"` on an oldest-first sorted list, so with exactly N archives it emitted one line \u2014 the newest. Now it keeps the newest N (`head -n \"$((total - keep))\"`, early exit when `total <= keep`). Also replaced its duplicated option-parsing/`resolve_dir` block with `source lib/common.sh`.\n- **`verify.sh`** \u2014 bug fix: `awk '{print $2}'` truncated the sidecar's file name at the first space, so `my backup-\u2026tar.gz` looked \"archive missing\" \u2192 BAD. Now split with `read -r expected file` so the last field keeps spaces (digest comparison quoted too). Same `source lib/common.sh` refactor.\n- **`lib/common.sh`** \u2014 new: the shared option parser (`--dest/--name/--keep/-q/-n/-h/--`, `parse_local_option` hook, `is_uint`, `need_value`, KEEP validation) and `resolve_dir`, with a double-source guard; sources `lib/log.sh`.\n- **`tests/run_tests.sh`** \u2014 one regression test per bug, in the existing `check` style.\n\n`backup.sh`, `restore.sh`, `report.sh`, and `lib/log.sh` are untouched (a leftover scratch file at `/tmp/sanity_check.sh` was left behind \u2014 deleting it needed approval, feel free to `rm` it).\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and the new `lib/common.sh`.",
+  "ttft_ms": 10718,
+  "type": "result",
+  "duration_ms": 331120,
+  "uuid": "31fbec6b-086d-4c16-837b-939a108bb9fc",
+  "ttft_stream_ms": 4544,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 10406,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 331.5,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

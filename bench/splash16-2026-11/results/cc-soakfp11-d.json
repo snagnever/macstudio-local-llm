@@ -1,0 +1,152 @@
+{
+  "duration_api_ms": 438617,
+  "stop_reason": "end_turn",
+  "session_id": "86b9a966-ea7e-4e6a-89c1-9e0ab1de18d2",
+  "total_cost_usd": 0.8811144000000001,
+  "usage": {
+    "input_tokens": 44236,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1401152,
+    "output_tokens": 21197,
+    "output_tokens_details": {
+      "thinking_tokens": 10763
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 44236,
+      "outputTokens": 21197,
+      "cacheReadInputTokens": 1401152,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.8811144000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 10763,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_047cd574c46b8ad2c07238b0c9c855af_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d) && t=$(cd \"$t\" && pwd -P)\nmkdir -p \"$t/dest\"\nfor d in 01 02 03 04 05; do : > \"$t/dest/demo-202601$d-000000.tar.gz\"; done\necho \"--- rotate keep=2 of 5 (expect oldest 3 deleted, newest 2 stay):\"\nbash rotate.sh --dest=\"$t/dest\" --name demo --keep=2\nls \"$t/dest\"\necho \"--- rotate dry-run on 2, keep 1 (expect 2 'would delete', nothing removed):\"\nbash rotate.sh -n --dest \"$t/dest\" -q --name demo -k 2>/dev/null; echo \"rc(-k unknown)=$? (expect 1)\"\nbash rotate.sh --help >/dev/null; echo \"help rc=$? (expect 0)\"\nbash rotate.sh --dest \"$t/dest\" --name demo --keep 0 2>&1 | tail -1; echo \"keep0 rc=${PIPESTATUS[0]}\"\necho \"--- verify --name filter and exit codes:\"\nprintf 'data\\n' > \"$t/dest/other-20260101-000000.tar.gz\"\n( cd \"$t/dest\" && shasum -a 256 \"demo-20260104-000000.tar.gz\" \"other-20260101-000000.tar.gz\" > /dev/null\n  shasum -a 256 \"demo-20260104-000000.tar.gz\" > \"demo-20260104-000000.tar.gz.sha256\" )\nbash verify.sh -q --dest \"$t/dest\" --name demo; echo \"rc=$? (expect 0, only demo checked)\"\nbash verify.sh 2>&1 | tail -1\nrm -rf \"$t\"",
+        "description": "Smoke-test rotate deletion order, flags, and verify name filter"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c95d9ff3bb37bd3013733bcc84372707_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d)\nmkdir -p \"$t/dest\"\nfor d in 01 02 03 04 05; do : > \"$t/dest/demo-202601$d-000000.tar.gz\"; done\necho \"--- rotate keep=2 of 5 (expect oldest 3 deleted, newest 2 stay):\"\nbash rotate.sh --dest=\"$t/dest\" --name demo --keep=2\nls \"$t/dest\"\necho \"--- flag behaviour:\"\nbash rotate.sh -q --dest \"$t/dest\" --name demo -k 2>/dev/null; echo \"unknown -k rc=$? (expect 1)\"\nbash rotate.sh --help >/dev/null; echo \"help rc=$? (expect 0)\"\nout=$(bash rotate.sh -q --dest \"$t/dest\" --name demo --keep 0 2>&1); echo \"keep=0 rc=$? msg=$out\"\necho \"--- verify --name filter and exit codes:\"\nprintf 'data\\n' > \"$t/dest/other-20260101-000000.tar.gz\"\n( cd \"$t/dest\" && shasum -a 256 \"demo-20260104-000000.tar.gz\" > \"demo-20260104-000000.tar.gz.sha256\" )\nbash verify.sh -q --dest \"$t/dest\" --name demo; echo \"name filter rc=$? (expect 0, only demo line above)\"\nbash verify.sh 2>&1 >/dev/null | tail -1\nrm -rf \"$t\"",
+        "description": "Smoke-test rotate deletion order, flags, and verify name filter"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_07b90104dbc2d521f418455e0f756405_0",
+      "tool_input": {
+        "command": "t=/tmp/rotate-smoke-$$\nmkdir -p \"$t/dest\"\nfor d in 01 02 03 04 05; do : > \"$t/dest/demo-202601$d-000000.tar.gz\"; done\necho \"--- rotate keep=2 of 5 (expect oldest 3 deleted, newest 2 stay):\"\nbash rotate.sh --dest=\"$t/dest\" --name demo --keep=2\nls \"$t/dest\"\necho \"--- flag behaviour:\"\nbash rotate.sh -q --dest \"$t/dest\" --name demo -k 2>/dev/null; echo \"unknown -k rc=$? (expect 1)\"\nbash rotate.sh --help >/dev/null; echo \"help rc=$? (expect 0)\"\nout=$(bash rotate.sh -q --dest \"$t/dest\" --name demo --keep 0 2>&1); echo \"keep=0 rc=$?\"\necho \"--- verify --name filter and exit codes:\"\nprintf 'data\\n' > \"$t/dest/other-20260101-000000.tar.gz\"\n( cd \"$t/dest\" && shasum -a 256 \"demo-20260104-000000.tar.gz\" > \"demo-20260104-000000.tar.gz.sha256\" )\nbash verify.sh -q --dest \"$t/dest\" --name demo; echo \"name filter rc=$? (expect 0, only demo checked)\"\nbash verify.sh 2>&1 >/dev/null | tail -1\nrm -rf /tmp/rotate-smoke-$$",
+        "description": "Smoke-test rotate deletion order, flags, and verify name filter"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_0c871db0d59b7ea58b59cc951c985f88_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/rotate-smoke; mkdir -p /tmp/rotate-smoke/dest\nfor d in 01 02 03 04 05; do : > \"/tmp/rotate-smoke/dest/demo-202601$d-000000.tar.gz\"; done\necho \"--- rotate keep=2 of 5 (expect oldest 3 deleted, newest 2 stay):\"\nbash rotate.sh --dest=/tmp/rotate-smoke/dest --name demo --keep=2\nls /tmp/rotate-smoke/dest\necho \"--- flag behaviour:\"\nbash rotate.sh -q --dest /tmp/rotate-smoke/dest --name demo -k 2>/dev/null; echo \"unknown -k rc=$? (expect 1)\"\nbash rotate.sh --help >/dev/null; echo \"help rc=$? (expect 0)\"\nbash rotate.sh -q --dest /tmp/rotate-smoke/dest --name demo --keep 0 >/dev/null 2>&1; echo \"keep=0 rc=$? (expect 1)\"",
+        "description": "Smoke-test rotate: deletion order and flags"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_efd6aaebe7b27cb2919896be79683e9c_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/rotate-smoke; mkdir -p /tmp/rotate-smoke/dest\ntouch /tmp/rotate-smoke/dest/demo-20260101-000000.tar.gz /tmp/rotate-smoke/dest/demo-20260102-000000.tar.gz /tmp/rotate-smoke/dest/demo-20260103-000000.tar.gz /tmp/rotate-smoke/dest/demo-20260104-000000.tar.gz /tmp/rotate-smoke/dest/demo-20260105-000000.tar.gz\necho \"--- rotate keep=2 of 5 (expect oldest 3 deleted, newest 2 stay):\"\nbash rotate.sh --dest=/tmp/rotate-smoke/dest --name demo --keep=2\nls /tmp/rotate-smoke/dest\necho \"--- flag behaviour:\"\nbash rotate.sh -q --dest /tmp/rotate-smoke/dest --name demo -k 2>/dev/null; echo \"unknown -k rc=$? (expect 1)\"\nbash rotate.sh --help >/dev/null; echo \"help rc=$? (expect 0)\"\nbash rotate.sh -q --dest /tmp/rotate-smoke/dest --name demo --keep 0 >/dev/null 2>&1; echo \"keep=0 rc=$? (expect 1)\"",
+        "description": "Smoke-test rotate: deletion order and flags"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d8ad25f2df0d5126aa0421840590d671_0",
+      "tool_input": {
+        "command": "rm -f /tmp/rotate-verify-smoke.sh /tmp/rotate-verify-smoke2.sh\ngit -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp11-d diff --stat\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp11-d/tests/run_tests.sh",
+        "description": "Clean up smoke scripts, show diff stat, run final test suite"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_49c80f7a4ecd731411d7103cc564b2b4_0",
+      "tool_input": {
+        "command": "rm -f /tmp/rotate-verify-smoke.sh /tmp/rotate-verify-smoke2.sh",
+        "description": "Remove temporary smoke-test scripts"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 35,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. Both bugs are fixed and verified:\n\n- **rotate.sh** \u2014 the surplus was computed with `tail -n +\"$keep\"` on an oldest-first list, which deletes from the newest end; it now deletes the oldest `total - keep` archives (`head -n \"$((total - keep))\"`), and the early-out uses `-le` so exactly N archives means \"nothing to rotate\".\n- **verify.sh** \u2014 the sidecar's file name was extracted with `awk '{print $2}'`, truncating names at spaces; the digest is now split off with parameter expansion and the rest of the line kept verbatim (the digest comparison was also quoted).\n- **lib/common.sh** (new) \u2014 holds the shared option-parsing block and `resolve_dir`, sourced by `rotate.sh` and `verify.sh` via `source .../lib/common.sh \"$@\"`; both keep accepting `--dest --name --keep -q -n -h` and their local hooks, with the double-source guard matching `lib/log.sh`'s style. `backup.sh`, `restore.sh`, `report.sh` are untouched.\n- **tests/run_tests.sh** \u2014 one test per bug: rotate with exactly N archives deletes nothing, and verify reports `ok` for `my backup-20260101-000000.tar.gz` with a correct checksum.\n\n`bash tests/run_tests.sh` passes all 8 tests, and extra smoke runs confirmed deletion order (oldest 3 of 5 removed, newest 2 kept), flag/exit-code behavior, and multi-space names. Two disposable helper scripts remain in `/tmp` (removal there needs approval \u2014 say the word and I'll delete them).\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.",
+  "ttft_ms": 10372,
+  "type": "result",
+  "duration_ms": 439554,
+  "uuid": "68599451-5b1b-4dbb-b3ac-f9ade1a4c82e",
+  "ttft_stream_ms": 4468,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 10053,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 440.0,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

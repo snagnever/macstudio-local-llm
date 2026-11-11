@@ -1,0 +1,112 @@
+{
+  "duration_api_ms": 251907,
+  "stop_reason": "end_turn",
+  "session_id": "4532743c-bb15-43db-aeb2-b67ac4c109d9",
+  "total_cost_usd": 0.8199519999999999,
+  "usage": {
+    "input_tokens": 57354,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1046080,
+    "output_tokens": 19066,
+    "output_tokens_details": {
+      "thinking_tokens": 9906
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 57354,
+      "outputTokens": 19066,
+      "cacheReadInputTokens": 1046080,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.8199519999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9906,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_5fc71835074e631ee517e87902a7602a_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); t=$(cd \"$t\" && pwd -P)\nmkdir -p \"$t/src\"; echo hi > \"$t/src/f.txt\"\nfor s in 20260101-010000 20260102-020000 20260103-030000 20260104-040000; do\n  BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/dest\" --name demo \"$t/src\" >/dev/null\ndone\n\necho \"--- rotate --keep=2 --dry-run (equals form) ---\"\nbash rotate.sh --dest=\"$t/dest\" --name=demo --keep=2 --dry-run 2>/dev/null\necho \"--- rotate --keep 2 (sidecars follow archives) ---\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 2 2>/dev/null\nls \"$t/dest\" | sort\necho \"--- rotate --keep 0 rejected ---\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 0; echo \"rc=$?\"\necho \"--- rotate unknown option ---\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"--- rotate --help exits 0 ---\"\nbash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- rotate positional arg rejected ---\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo extra 2>/dev/null; echo \"rc=$?\"\necho \"--- verify --name filter ---\"\nbash verify.sh --quiet --dest \"$t/dest\" --name demo; echo \"rc=$?\"\necho \"--- verify missing dest dir -> rc=2 ---\"\nbash verify.sh --quiet --dest \"$t/nodir\" 2>/dev/null; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Exercise rotate.sh and verify.sh flags end to end"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_107cbd200edd6d9467dc9bac979dea4e_0",
+      "tool_input": {
+        "command": "t=\"/Users/vitor/.cache/flashnext-concurrency/claude-work/rc1r2-d/.tmp-flagcheck\"\nmkdir -p \"$t/src\"; echo hi > \"$t/src/f.txt\"\nfor s in 20260101-010000 20260102-020000 20260103-030000 20260104-040000; do\n  BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/dest\" --name demo \"$t/src\" >/dev/null\ndone\n\necho \"--- rotate --keep=2 --dry-run (equals form) ---\"\nbash rotate.sh --dest=\"$t/dest\" --name=demo --keep=2 --dry-run 2>/dev/null\necho \"--- rotate --keep 2 (sidecars follow archives) ---\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 2 2>/dev/null\nls \"$t/dest\" | sort\necho \"--- rotate --keep 0 rejected ---\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 0 2>/dev/null; echo \"rc=$?\"\necho \"--- rotate unknown option ---\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo --bogus >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- rotate --help exits 0 ---\"\nbash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- rotate positional arg rejected ---\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo extra >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- verify --name demo, --name nomatch, bad --keep ---\"\nbash verify.sh --quiet --dest \"$t/dest\" --name demo; echo \"rc=$?\"\nbash verify.sh --quiet --dest \"$t/dest\" --name nomatch 2>/dev/null; echo \"rc=$?\"\nbash verify.sh --quiet --dest \"$t/dest\" --keep x >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- verify missing dest dir -> rc=2 ---\"\nbash verify.sh --quiet --dest \"$t/nodir\" >/dev/null 2>&1; echo \"rc=$?\"",
+        "description": "Exercise rotate.sh and verify.sh flags end to end"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 29,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 11 tests pass (`bash tests/run_tests.sh`). What I did:\n\n- **rotate.sh**: the surplus list was taken with `tail -n +\"$keep\"`, which started *at* the KEEP-th line of the oldest-first list \u2014 so exactly N backups with `--keep N` deleted the newest. Surplus is now `head -n \"$((total - keep))\"` (the oldest entries) and the \"nothing to rotate\" early exit fires at `total <= keep`.\n- **verify.sh**: the sidecar line was split with `awk '{print $2}'`, truncating names with spaces at the first space. It now uses `read -r expected file <<< \"$line\"`, so the whole rest of the line is the file name; also quoted the digest comparison.\n- **lib/common.sh** (new): the shared option-parsing block (`--dest/--name/--keep/-q/-n/-h/--`/`parse_local_option` hook + `--keep` validation) and `resolve_dir`, with the same double-sourcing guard style as `lib/log.sh`; sourced by rotate.sh and verify.sh, all flags unchanged (verified `--dest=`/`--keep=` equals forms, `--dry-run`, `--help`, unknown-option/missing-value/positional rejections, exit codes 1/2). backup.sh, restore.sh, report.sh untouched.\n- **tests/run_tests.sh**: new rotate group (nothing deleted at exactly `--keep`; only oldest deleted past `--keep`) and a verify check for an intact archive named `my backup-20260101-000000.tar.gz`.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.",
+  "ttft_ms": 24305,
+  "type": "result",
+  "duration_ms": 253557,
+  "uuid": "e102ff31-d53e-4644-b3e2-d7541b7d1665",
+  "ttft_stream_ms": 56,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 23946,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 1,
+  "exit": 0,
+  "wall_s": 254.7,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

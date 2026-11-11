@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 414920,
+  "stop_reason": "end_turn",
+  "session_id": "4da642ac-caac-48ae-8dc7-f256431d01ec",
+  "total_cost_usd": 0.7552624000000002,
+  "usage": {
+    "input_tokens": 37063,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 925952,
+    "output_tokens": 21091,
+    "output_tokens_details": {
+      "thinking_tokens": 12632
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 37063,
+      "outputTokens": 21091,
+      "cacheReadInputTokens": 925952,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7552624000000002,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 12632,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_bd4378f4dd50578a64e58c61e8ccd512_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d) && mkdir -p \"$t/d\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do : > \"$t/d/app-$s.tar.gz\"; done\necho \"--- rotate --dry-run --keep=2 (equals form, all flags) ---\"\nbash rotate.sh --dry-run --keep=2 --name app --dest \"$t/d\" --quiet\necho \"rc=$?\"\necho \"--- rotate --help ---\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- rotate unknown flag ---\"; bash rotate.sh --dest \"$t/d\" --name app --bogus 2>/dev/null; echo \"rc=$?\"\necho \"--- rotate keep 2, real run (oldest 2 go) ---\"\nbash rotate.sh --name app --dest \"$t/d\" -q | sort; ls \"$t/d\" | sort\necho \"--- verify --name filter, name with spaces ---\"\nmkdir -p \"$t/v\" && printf 'a\\n' > \"$t/v/my backup-20260101-000000.tar.gz\" && printf 'b\\n' > \"$t/v/plain.tar.gz\"\n(cd \"$t/v\" && shasum -a 256 *.tar.gz > all.sha256 && while read -r h n; do echo \"$h  $n\" > \"$n.sha256\"; done < all.sha256)\nbash verify.sh --dest \"$t/v\" --name \"my backup\" --quiet; echo \"rc=$?\"\nbash verify.sh --dest \"$t/v\" --quiet; echo \"rc=$?\"\necho \"--- verify --help ---\"; bash verify.sh --help >/dev/null; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Smoke-test refactored rotate/verify flags and behavior"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_5c9b3c911548c9d558e17c289209ca79_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/d\"; for s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do : > \"$t/d/app-$s.tar.gz\"; done; bash -x rotate.sh --name app --dest \"$t/d\" --keep 2 --quiet 2>&1 | tail -30; echo \"rc=${PIPESTATUS[0]}\"; ls \"$t/d\"; rm -rf \"$t\"",
+        "description": "Trace rotate.sh real-run to see why nothing was deleted"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_de87aba01ab00645f2acf6341d4b2e62_0",
+      "tool_input": {
+        "command": "rm -f /Users/vitor/.cache/flashnext-concurrency/claude-work/smoke-rotate-verify.sh /Users/vitor/.cache/flashnext-concurrency/claude-work/debug-rotate.sh",
+        "description": "Remove scratch smoke/debug scripts"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "The sandbox won't delete outside the repo dir, so the two throwaway smoke scripts remain in `/Users/vitor/.cache/flashnext-concurrency/claude-work/` (outside the repo, untracked) \u2014 say the word and I'll remove them with approval.\n\nThe repo itself is clean. What changed:\n\n- **Bug 1, `rotate.sh`** \u2014 `surplus()` used `tail -n +\"$keep\"`, which selects from the keep-th *oldest* entry *through* the newest, so the newest archive was always a delete candidate and it acted even at `total == keep` (early exit used `-lt`). Now it exits at `total -le keep` and surplus is the oldest `total - keep` entries (`head -n \"$((total - keep))\"`).\n- **Bug 2, `verify.sh`** \u2014 the sidecar filename came from `awk '{print $2}'`, truncating at the first space so `my backup-\u2026tar.gz` looked \"missing\". The digest is the first word and the filename is now taken as the rest of the line (`read -r expected file`).\n- **Refactor** \u2014 new `lib/common.sh` holds the shared option parser (`--dest/--name/--keep/--quiet/--dry-run/--help/parse_local_option` hook, identical to before, with double-source guard like `lib/log.sh`) and `resolve_dir`; `rotate.sh` and `verify.sh` source it. `backup.sh`, `restore.sh`, `report.sh` untouched.\n- **Tests** \u2014 a rotate group (exactly N \u2192 nothing deleted, rc 0; over N \u2192 only the oldest deleted with its sidecar, newest kept) and a verify group for a name containing a space. All 11 checks pass: `bash tests/run_tests.sh` \u2192 `all tests passed`.\n\nChanged: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, plus new `lib/common.sh`.",
+  "ttft_ms": 24097,
+  "type": "result",
+  "duration_ms": 415831,
+  "uuid": "01f3d402-becb-43fb-ab9f-6a8e4f0a5544",
+  "ttft_stream_ms": 19548,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 23875,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 416.3,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

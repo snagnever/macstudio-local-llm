@@ -1,0 +1,152 @@
+{
+  "duration_api_ms": 317031,
+  "stop_reason": "end_turn",
+  "session_id": "6306a209-9532-4d21-8e8a-df5b6fef7c96",
+  "total_cost_usd": 0.6970400000000001,
+  "usage": {
+    "input_tokens": 41931,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 984480,
+    "output_tokens": 16621,
+    "output_tokens_details": {
+      "thinking_tokens": 8081
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 41931,
+      "outputTokens": 16621,
+      "cacheReadInputTokens": 984480,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6970400000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 8081,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_2b68cdab0edd4d03728054ee32347a4a_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh; echo \"exit=$?\"",
+        "description": "Run existing test suite for baseline"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c0bec460a4098580ae52e3b901a30544_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); t=$(cd \"$t\" && pwd -P)\nmkdir -p \"$t/dest\"\nfor s in 20260101-000000 20260102-000000 20260103-000000; do : > \"$t/dest/demo-$s.tar.gz\"; : > \"$t/dest/demo-$s.tar.gz.sha256\"; done\n\nbash rotate.sh --help >/dev/null 2>&1; echo \"rotate --help rc=$?\"\nbash rotate.sh --dest \"$t/dest\" --name demo --keep abc >/dev/null 2>&1; echo \"rotate --keep abc rc=$?\"\nbash rotate.sh --dest \"$t/dest\" --name demo --keep 0 >/dev/null 2>&1; echo \"rotate --keep 0 rc=$?\"\nbash rotate.sh --dest \"$t/dest\" --name demo --bogus >/dev/null 2>&1; echo \"rotate unknown flag rc=$?\"\nbash rotate.sh --dest \"$t/dest\" >/dev/null 2>&1; echo \"rotate missing --name rc=$?\"\nout=$(bash rotate.sh -n --dest \"$t/dest\" --name demo --keep=1 --quiet); echo \"rotate dry-run: $out\"\nbash rotate.sh -q --dest=\"$t/dest\" --name=demo -n >/dev/null; echo \"rotate =form + short flags rc=$?\"\nls \"$t/dest\" | wc -l | tr -d ' ' | sed 's/^/files after dry-run: /'\nrm -rf \"$t\"",
+        "description": "Spot-check rotate.sh flags after refactor"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c0bec460a4098580ae52e3b901a30544_1",
+      "tool_input": {
+        "command": "t=$(mktemp -d); t=$(cd \"$t\" && pwd -P)\nmkdir -p \"$t/dest\"\n# spaced archive with good sidecar + a malformed sidecar + a name-filter check\nprintf 'data\\n' > \"$t/dest/my backup-20260101-000000.tar.gz\"\n(cd \"$t/dest\" && shasum -a 256 \"my backup-20260101-000000.tar.gz\" > \"my backup-20260101-000000.tar.gz.sha256\")\nprintf 'deadbeef\\n' > \"$t/dest/broken-20260101-000000.tar.gz.sha256\"\nbash verify.sh --quiet --dest \"$t/dest\"; echo \"verify rc=$?\"\nbash verify.sh --quiet --dest \"$t/dest\" --name \"my backup\"; echo \"verify --name with space rc=$?\"\nrm -rf \"$t\"",
+        "description": "Spot-check verify.sh spaced names, malformed sidecar, name filter"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_4150787114eb0a2eaed3bdc0a9a26d00_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/rotate-spot/dest\nfor s in 20260101-000000 20260102-000000 20260103-000000; do : > \"/tmp/rotate-spot/dest/demo-$s.tar.gz\"; : > \"/tmp/rotate-spot/dest/demo-$s.tar.gz.sha256\"; done\n\nbash rotate.sh --help >/dev/null 2>&1; echo \"rotate --help rc=$?\"\nbash rotate.sh --dest /tmp/rotate-spot/dest --name demo --keep abc >/dev/null 2>&1; echo \"rotate --keep abc rc=$?\"\nbash rotate.sh --dest /tmp/rotate-spot/dest --name demo --keep 0 >/dev/null 2>&1; echo \"rotate --keep 0 rc=$?\"\nbash rotate.sh --dest /tmp/rotate-spot/dest --name demo --bogus >/dev/null 2>&1; echo \"rotate unknown flag rc=$?\"\nbash rotate.sh --dest /tmp/rotate-spot/dest >/dev/null 2>&1; echo \"rotate missing --name rc=$?\"\nout=$(bash rotate.sh -n --dest /tmp/rotate-spot/dest --name demo --keep=1 --quiet); echo \"rotate dry-run: $out\"\nbash rotate.sh -q --dest=/tmp/rotate-spot/dest --name=demo -n >/dev/null; echo \"rotate =form + short flags rc=$?\"\nls /tmp/rotate-spot/dest | wc -l | tr -d ' ' | sed 's/^/files after dry-run: /'\nout=$(bash rotate.sh -q --dest /tmp/rotate-spot/dest --name demo --keep 2); echo \"rotate keep2: $out\"\nls /tmp/rotate-spot/dest | sed 's/^/kept: /'",
+        "description": "Spot-check rotate.sh flags and deletion order in /tmp/rotate-spot"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_4150787114eb0a2eaed3bdc0a9a26d00_1",
+      "tool_input": {
+        "command": "mkdir -p /tmp/verify-spot/dest\nprintf 'data\\n' > \"/tmp/verify-spot/dest/my backup-20260101-000000.tar.gz\"\n(cd /tmp/verify-spot/dest && shasum -a 256 \"my backup-20260101-000000.tar.gz\" > \"my backup-20260101-000000.tar.gz.sha256\")\nprintf 'deadbeef\\n' > \"/tmp/verify-spot/dest/broken-20260101-000000.tar.gz.sha256\"\nbash verify.sh --quiet --dest /tmp/verify-spot/dest; echo \"verify rc=$?\"\nbash verify.sh --quiet --dest /tmp/verify-spot/dest --name \"my backup\"; echo \"verify --name with space rc=$?\"\nprintf 'corrupt\\n' > \"/tmp/verify-spot/dest/my backup-20260101-000000.tar.gz\"\nbash verify.sh --quiet --dest /tmp/verify-spot/dest --name \"my backup\"; echo \"verify corrupted spaced archive rc=$?\"",
+        "description": "Spot-check verify.sh spaced names, malformed sidecar, name filter in /tmp/verify-spot"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_dd711580d9207b85a398534086722471_1",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp18-d status --short && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp18-d diff --stat",
+        "description": "Show changed files summary"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_665cdc80bf98b3d0da2481a0d129f101_0",
+      "tool_input": {
+        "command": "rm /tmp/spot-check.sh",
+        "description": "Remove temporary spot-check script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 29,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `rotate.sh`, `verify.sh`, and `tests/run_tests.sh`, and added `lib/common.sh`; `bash tests/run_tests.sh` passes all 9 tests (6 original + 3 new).\n\nDetails, briefly:\n- **rotate.sh**: the list is sorted oldest-first, so `surplus()` used `tail -n +\"$keep\"` \u2014 which kept the oldest *keep-1* entries and deleted the newest, and the `-lt` early-exit let `total == keep` fall through to it. Now it exits on `total <= keep` and the surplus is `head -n $((total - keep))` \u2014 the oldest extras only (no `head -n -N`, which BSD head lacks).\n- **verify.sh**: `awk '{print $2}'` truncated the sidecar's file name at the first space. It now splits on shasum's two-space separator (`expected=${line%% *}`, `file=${line#*  }`), treating a line with no two-space separator as a malformed sidecar; the digest comparison is also quoted.\n- **lib/common.sh**: holds the shared option-parsing block, `is_uint`, `need_value`, the `--keep` validation, and `resolve_dir`; `rotate.sh` and `verify.sh` define `usage`/`parse_local_option` then source it. `backup.sh`, `restore.sh`, `report.sh` are untouched. I verified both scripts keep accepting all the same flags (`--dest`, `--name`, `--keep`, `-q`, `-n`, `-h`, `=value` forms, unknown-flag exits) via manual spot-checks.\n\nOne leftover: my temporary `/tmp/spot-check.sh` couldn't be auto-deleted (path outside the working directory) \u2014 safe to `rm` manually.",
+  "ttft_ms": 10657,
+  "type": "result",
+  "duration_ms": 317864,
+  "uuid": "cccba998-0059-4967-ad39-3b65f61fd51a",
+  "ttft_stream_ms": 4536,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 10254,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 318.3,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 251342,
+  "stop_reason": "end_turn",
+  "session_id": "a68f5179-d669-4473-a031-0e17c5eb171a",
+  "total_cost_usd": 0.6308120000000002,
+  "usage": {
+    "input_tokens": 31745,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 951360,
+    "output_tokens": 15678,
+    "output_tokens_details": {
+      "thinking_tokens": 7209
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 31745,
+      "outputTokens": 15678,
+      "cacheReadInputTokens": 951360,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6308120000000002,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 7209,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_de6a27ef8cddc822d47d47e460b0563b_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"\nfor d in 01 02 03 04 05; do : > \"$t/dest/demo-202601$d-000000.tar.gz\"; done\necho \"--- keep 2 of 5 (deletes the 3 oldest):\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 2\necho \"--- remaining:\"; ls \"$t/dest\"\necho \"--- dry-run keep 1:\"; bash rotate.sh --quiet --dry-run --dest \"$t/dest\" --name demo --keep=1\necho \"--- keep 0 rejected:\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 0; echo \"rc=$?\"\necho \"--- unknown option:\"; bash rotate.sh --dest \"$t/dest\" --name demo --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"--- missing dest dir:\"; bash rotate.sh --quiet --dest \"$t/nope\" --name demo; echo \"rc=$?\"\necho \"--- help exits 0:\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- log prefix check:\"; bash rotate.sh --dest \"$t/dest\" --name demo --keep 99 2>&1 | head -1\nrm -rf \"$t\"",
+        "description": "Sanity-check rotate.sh behavior after refactor"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_af2d418ea530d56c97c7eee16f9709c8_0",
+      "tool_input": {
+        "command": "w=$(mktemp -d); mkdir -p \"$w/dest\"; : > \"$w/dest/empty.sha256\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp15-d/verify.sh --quiet --dest \"$w/dest\"; echo \"rc=$?\"; rm -rf \"$w\"; rm /tmp/rotate_checks.sh",
+        "description": "Verify malformed sidecar path and clean up"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b139193eeac0c4b3c911a0e04ed1495a_0",
+      "tool_input": {
+        "command": "bash /tmp/verify_malformed_check.sh && rm /tmp/verify_malformed_check.sh",
+        "description": "Verify malformed sidecar path and clean up"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 29,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 8 tests pass. Summary of what was done:\n\n- **rotate.sh bug**: `surplus()` used `tail -n +\"$keep\"` on a oldest-first sorted list, selecting the **newest** entries past the keep-th line \u2014 so with exactly N archives it deleted the newest. Now surplus is the oldest `total - keep` entries (`head -n`), and the \"nothing to rotate\" early exit fires at `total <= keep`.\n- **verify.sh bug**: `awk '{print $2}'` truncated sidecar names at the first space, so `my backup-\u2026tar.gz` became `my` \u2192 \"archive missing\" \u2192 BAD. Now the line is split by parameter expansion (`${line%% *}` / `${line#*  }`), keeping the full name, with a proper \"malformed sidecar\" check for degenerate lines.\n- **Refactor**: new `lib/common.sh` (double-source guard and bash 3.2 compatibility matching `lib/log.sh`'s style) holds `is_uint`, `need_value`, `resolve_dir`, and the full option parser as `parse_common_options \"$@\"`; `rotate.sh` and `verify.sh` source it and call it after defining `usage`/`parse_local_option`, so all flags, exit codes, and log prefixes behave identically (verified manually: `--keep N`, `--keep=N`, `--dry-run`, `--quiet`, `--help`, unknown option, `--`/positionals, missing dir). The other three scripts are untouched.\n- **Tests**: added `verify accepts an archive name containing a space` and `rotate --keep 3 with exactly 3 archives deletes none and keeps the newest` next to the existing groups.\n\nChanged files: `lib/common.sh` (new), `rotate.sh`, `verify.sh`, `tests/run_tests.sh`.",
+  "ttft_ms": 10908,
+  "type": "result",
+  "duration_ms": 252336,
+  "uuid": "c3cedd3c-900e-41db-8088-20efdcb3be74",
+  "ttft_stream_ms": 4563,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 10387,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 252.6,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

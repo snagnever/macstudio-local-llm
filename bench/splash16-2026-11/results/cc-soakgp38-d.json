@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 248340,
+  "stop_reason": "end_turn",
+  "session_id": "ed2de35c-c5e1-4fee-895d-6827259edf43",
+  "total_cost_usd": 0.5556232000000001,
+  "usage": {
+    "input_tokens": 30376,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 692896,
+    "output_tokens": 14777,
+    "output_tokens_details": {
+      "thinking_tokens": 7549
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 30376,
+      "outputTokens": 14777,
+      "cacheReadInputTokens": 692896,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5556232000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 7549,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c2d2ed9656096d5892b5bd83617128a8_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh; echo \"exit=$?\"",
+        "description": "Run the test suite"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b81e041f34578131e20c61d731b56b88_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); cd \"$t\"\nmkdir dest\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000 20260105-000000; do\n  printf 'x\\n' > \"dest/demo-$s.tar.gz\"\ndone\n( cd dest && for f in *.tar.gz; do shasum -a 256 \"$f\" > \"$f.sha256\"; done )\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp38-d\necho '--- rotate 5 -> keep 2 ---'\nbash \"$R/rotate.sh\" --quiet --dest dest --name demo --keep=2\nls dest | grep '\\.tar\\.gz$'\necho '--- dry-run + space name verify (corrupt) ---'\nmkdir -p src && printf 'hello\\n' > src/hello.txt\nBACKUP_STAMP=20260101-000000 bash \"$R/backup.sh\" --quiet --dest sdest --name \"my backup\" src > /dev/null\nprintf 'x' >> \"sdest/my backup-20260101-000000.tar.gz\"\nrc=0; out=$(bash \"$R/verify.sh\" --quiet --dest sdest) || rc=$?\necho \"out=$out rc=$rc\"\necho '--- flags: -n, -h exit, unknown option ---'\nbash \"$R/rotate.sh\" --dest dest --name demo -n --keep 1\nbash \"$R/rotate.sh\" --help > /dev/null; echo \"help rc=$?\"\nbash \"$R/verify.sh\" --dest sdest --bogus 2>/dev/null; echo \"bogus rc=$?\"\nbash \"$R/verify.sh\" --dest sdest --name \"my backup\" --quiet; echo \"name-filter rc=$?\"\nrm -rf \"$t\"",
+        "description": "Exercise rotate and verify behavior manually"
+      }
+    },
+    {
+      "tool_name": "Write",
+      "tool_use_id": "call_dab5a3aed5e033ce4c0af4b8170d811f_0",
+      "tool_input": {
+        "file_path": "/Users/vitor/.claude/projects/-Users-vitor--cache-flashnext-concurrency-claude-work-soakgp38-d/scratchpad/manual_check.sh",
+        "content": "#!/usr/bin/env bash\nset -u\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp38-d\nt=$(mktemp -d)\ncd \"$t\"\nmkdir dest\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000 20260105-000000; do\n  printf 'x\\n' > \"dest/demo-$s.tar.gz\"\ndone\n( cd dest && for f in *.tar.gz; do shasum -a 256 \"$f\" > \"$f.sha256\"; done )\necho '--- rotate 5 -> keep 2 (deletes oldest 3, keeps newest 2) ---'\nbash \"$R/rotate.sh\" --quiet --dest dest --name demo --keep=2\necho '--- remaining sidecars (sidecar must go with each archive) ---'\nls dest\necho '--- space-name archive, corrupted: expect BAD + rc=2 ---'\nmkdir -p src && printf 'hello\\n' > src/hello.txt\nBACKUP_STAMP=20260101-000000 bash \"$R/backup.sh\" --quiet --dest sdest --name \"my backup\" src > /dev/null\nprintf 'x' >> \"$t/sdest/my backup-20260101-000000.tar.gz\"\nrc=0; out=$(bash \"$R/verify.sh\" --quiet --dest sdest) || rc=$?\necho \"out=$out rc=$rc\"\necho '--- flags: -n dry-run, -h, unknown option, --name filter ---'\nbash \"$R/rotate.sh\" --dest dest --name demo -n --keep 1\nbash \"$R/rotate.sh\" --help > /dev/null; echo \"help rc=$?\"\nbash \"$R/verify.sh\" --dest sdest --bogus 2>/dev/null; echo \"bogus rc=$?\"\nbash \"$R/verify.sh\" --dest sdest --name \"my backup\" --quiet; echo \"name-filter rc=$?\"\ncd /\nrm -rf \"$t\"\n"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_6f21a8eb1d3e503b406d601d46a4e586_0",
+      "tool_input": {
+        "command": "rm /tmp/manual_check_rotate_verify.sh; bash tests/run_tests.sh && git status --short && git diff --stat",
+        "description": "Remove scratch script, rerun tests, show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `rotate.sh` (keep the N newest: surplus is now the oldest `total-keep` entries, early exit at `-le`), `verify.sh` (sidecar parsing keeps spaces in file names, quoted digest comparison), added `lib/common.sh` (shared `parse_options` + `resolve_dir`, sourced by both), and added one test for each bug to `tests/run_tests.sh` \u2014 all 8 tests pass with `bash tests/run_tests.sh`.\n\n(One note: a throwaway verification script remains at `/tmp/manual_check_rotate_verify.sh` \u2014 deleting it needed approval, so I left it; it touches nothing.)",
+  "ttft_ms": 11013,
+  "type": "result",
+  "duration_ms": 249023,
+  "uuid": "6c0212ae-6b17-4da6-984e-ba834aaba231",
+  "ttft_stream_ms": 4478,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 10648,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 249.6,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

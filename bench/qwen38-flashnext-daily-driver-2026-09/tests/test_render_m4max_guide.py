@@ -230,7 +230,23 @@ def test_splash_with_the_base_model_leads_the_base_model_stacks():
     assert f["base_splash_turn_512"] == f'{canon[("k1", 524288)]["t_turno_s"]:.1f}'
     assert float(f["splash_swift_gain_lo"]) > 0
     text = re.sub(r"\s+", " ", visible_text(guide.render(data, swift)))
-    assert "Use Splash 1.4.0 with the unsloth UD-IQ4_XS GGUF for the shortest agent turn" in text
-    assert "I did not check the quality of the base model on Splash" in text
+    assert "Use Splash with the Swift 1.5 IQ4_XS GGUF for the shortest agent turn" in text
+    assert "I did not check the quality of the base model on Splash" not in text
     assert "unsloth/Qwen3.8-Flash-Next-GGUF:UD-IQ4_XS" in guide.render(data, swift)
     assert "seven local stacks" in guide.render_card(data, swift)
+
+
+def test_november_update_names_the_swift_pack_the_v31_file_and_the_splash_release():
+    data, swift = load()
+    html = guide.render(data, swift)
+    text = re.sub(r"\s+", " ", visible_text(html))
+    assert 'id="update"' in html
+    # Weights campaign (bench/flashnext-weights-2026-11/results/summary.md), Splash 1.5.0 at 262K.
+    assert "293 and 302 of 336" in text and "297 of 336" in text
+    assert "1.09× and 1.83×" in text and "95.5" in text and "110.9" in text
+    # The unsloth repository now serves Dynamic V3.1; the commands keep the measured revision.
+    assert "084c631" in text and "766911a" in text and "spends more tokens, not fewer" in text
+    # Splash release: 1.4.0 measured here, 1.5.0 on the rig, 1.6.0 slower with two 256K sessions.
+    assert "up to 65% slower" in text
+    assert 'href="qwen38-flashnext-gguf-weights.html"' in html and 'href="qwen38-flashnext-splash160.html"' in html
+    assert "Splash with the base model were not checked" not in text

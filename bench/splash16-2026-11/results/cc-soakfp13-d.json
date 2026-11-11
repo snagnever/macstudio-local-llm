@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 436749,
+  "stop_reason": "end_turn",
+  "session_id": "de4bf309-de54-41d2-a0f7-366cc302cf0a",
+  "total_cost_usd": 0.7260072,
+  "usage": {
+    "input_tokens": 41143,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 986176,
+    "output_tokens": 18210,
+    "output_tokens_details": {
+      "thinking_tokens": 9254
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 41143,
+      "outputTokens": 18210,
+      "cacheReadInputTokens": 986176,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7260072,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9254,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_e7a0e6c79c032d08910426d4ce5f79a9_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); cd \"$t\"\nmkdir src dest\nprintf 'x\\n' > src/x.txt\n# help exits 0\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/rotate.sh --help >/dev/null; echo \"rotate --help rc=$?\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/verify.sh --help >/dev/null; echo \"verify --help rc=$?\"\n# unknown option -> 1\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/rotate.sh --bogus 2>/dev/null; echo \"rotate --bogus rc=$?\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/verify.sh --bogus 2>/dev/null; echo \"verify --bogus rc=$?\"\n# --keep validation\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/rotate.sh --dest dest --name app --keep=abc 2>/dev/null; echo \"rotate --keep=abc rc=$?\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/rotate.sh --dest dest --name app --keep 0 2>/dev/null; echo \"rotate --keep 0 rc=$?\"\n# --dest missing -> 1\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/verify.sh 2>/dev/null; echo \"verify no --dest rc=$?\"\n# dest missing dir -> 2\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/rotate.sh --dest /nope --name app 2>/dev/null; echo \"rotate missing dest rc=$?\"\n# positional args rejected\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/rotate.sh --dest dest --name app extra 2>/dev/null; echo \"rotate positional rc=$?\"\n# dry-run + log prefix + --keep=3= style flag on 4 archives\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do\n  BACKUP_STAMP=$s bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/backup.sh --quiet --dest dest --name app src >/dev/null\ndone\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/rotate.sh --dest=dest --name=app --keep=2 --dry-run\necho \"---\"; ls dest/app-*.tar.gz | cat\necho \"---\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/verify.sh --dest dest\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/verify.sh --dest dest --name app -q; echo \"verify --name rc=$?\"\nbash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/verify.sh --dest dest --name other -q; echo \"verify --name other rc=$?\"\ncd /; rm -rf \"$t\"",
+        "description": "Smoke-test flags, exit codes, dry-run and log prefix of refactored scripts"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_871da001d8eed3beb1692a52c59571f3_0",
+      "tool_input": {
+        "command": "rm -f /tmp/smoke_soakfp13_d.sh; git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d status --short && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d diff --stat && bash -n /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/rotate.sh /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/verify.sh /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/lib/common.sh /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp13-d/tests/run_tests.sh && echo \"syntax ok\"; bash --version | head -1",
+        "description": "Clean up temp script, show git diff stat, syntax-check changed scripts"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ba19649379cfc9e3454ce99ea2db1787_0",
+      "tool_input": {
+        "command": "rm -f /tmp/smoke_soakfp13_d.sh",
+        "description": "Remove temporary smoke-test script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 32,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 9 tests pass under bash 3.2 (the macOS system bash, confirming the 3.2-compatibility convention holds).\n\nWhat was done:\n- **rotate.sh** \u2014 fixed the rotation: guard is now `total <= keep` \u2192 \"nothing to rotate\" (was `< `, so exactly N archives triggered a deletion), and surplus is now the oldest `total - keep` lines (`head -n`, was `tail -n +keep` which deleted the *newest*).\n- **verify.sh** \u2014 sidecar lines are parsed with `read -r expected file`, so the name keeps everything after the digest (spaces included; `awk '{print $2}'` truncated it), and the digest comparison is quoted `[[ ]]`.\n- **lib/common.sh** \u2014 new: the shared option parser (`parse_args`, with `is_uint`/`need_value`) and `resolve_dir`, sourcing `lib/log.sh` itself and preserving the calling script's `LOG_PREFIX`; `rotate.sh` and `verify.sh` source it and keep all flags (`--dest`, `--name`, `--keep`, `-q`, `-n`, `-h`, `--opt=value` forms) \u2014 exit codes verified unchanged by smoke tests. `backup.sh`, `restore.sh`, `report.sh` untouched.\n- **tests/run_tests.sh** \u2014 added a rotate group (keep-3-of-3 deletes nothing; keep-1 keeps the newest) and a verify check for `my backup-\u2026tar.gz` with spaces.\n\nChanged files: `rotate.sh`, `verify.sh`, `lib/common.sh` (new), `tests/run_tests.sh`.",
+  "ttft_ms": 10290,
+  "type": "result",
+  "duration_ms": 438317,
+  "uuid": "637bfb14-4f4d-4762-9cfd-09cb8f6d51f7",
+  "ttft_stream_ms": 4466,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 10109,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 438.5,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

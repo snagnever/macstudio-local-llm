@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 346725,
+  "stop_reason": "end_turn",
+  "session_id": "53d6583f-8bb4-4572-a80c-1c840659aefc",
+  "total_cost_usd": 0.6734255999999998,
+  "usage": {
+    "input_tokens": 38147,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 975488,
+    "output_tokens": 16287,
+    "output_tokens_details": {
+      "thinking_tokens": 7911
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 38147,
+      "outputTokens": 16287,
+      "cacheReadInputTokens": 975488,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6734255999999998,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 7911,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_83e353b407db8e882d4abd942c1d2b13_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d) && t=$(cd \"$t\" && pwd -P)\nmkdir -p \"$t/dest\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do : > \"$t/dest/demo-$s.tar.gz\"; echo \"x  demo-$s.tar.gz\" > \"$t/dest/demo-$s.tar.gz.sha256\"; done\necho \"== rotate keep 2 (should delete the 2 oldest) ==\"\nbash rotate.sh --dest=\"$t/dest\" --name=demo --keep=2\necho \"== remaining ==\"; ls \"$t/dest\"\necho \"== dry-run keep 1 ==\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 1 -n\necho \"== help exits 0 ==\"\nbash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"== unknown flag exits 1 ==\"\nbash rotate.sh --dest \"$t/dest\" --name demo --bogus 2>/dev/null; echo \"rc=$?\"\necho \"== keep 0 rejected ==\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 0 2>/dev/null; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Smoke-test rotate.sh keep-newest logic and parser flags"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_4923d0a4cb637685cf3bf6aa925157d8_0",
+      "tool_input": {
+        "command": "t=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp40-d/.smoke\nmkdir -p \"$t/dest\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do : > \"$t/dest/demo-$s.tar.gz\"; echo \"x  demo-$s.tar.gz\" > \"$t/dest/demo-$s.tar.gz.sha256\"; done\necho \"== rotate keep 2 (deletes the 2 oldest, sidecars with them) ==\"\nbash rotate.sh --dest=\"$t/dest\" --name=demo --keep=2\necho \"== remaining ==\"; ls \"$t/dest\"\necho \"== dry-run keep 1 (deletes nothing) ==\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 1 -n\nls \"$t/dest\" | grep -c tar.gz\necho \"== help rc ==\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"== unknown flag rc ==\"; bash rotate.sh --dest \"$t/dest\" --name demo --bogus 2>/dev/null; echo \"rc=$?\"\necho \"== keep 0 rc ==\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 0 2>/dev/null; echo \"rc=$?\"",
+        "description": "Smoke-test rotate.sh keep-newest logic and parser flags"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_1ddaec172d4a8e817205cb9850e87ce4_0",
+      "tool_input": {
+        "command": "mkdir -p /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp40-d/.smoke/dest\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do : > \"/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp40-d/.smoke/dest/demo-$s.tar.gz\"; echo \"x  demo-$s.tar.gz\" > \"/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp40-d/.smoke/dest/demo-$s.tar.gz.sha256\"; done\necho \"== rotate keep 2 (deletes the 2 oldest, sidecars with them) ==\"\nbash rotate.sh --dest=\"/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp40-d/.smoke/dest\" --name=demo --keep=2\necho \"== remaining ==\"; ls \"/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp40-d/.smoke/dest\"\necho \"== dry-run keep 1 (deletes nothing) ==\"\nbash rotate.sh --quiet --dest \"/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp40-d/.smoke/dest\" --name demo --keep 1 -n\necho \"== help rc ==\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"== unknown flag rc ==\"; bash rotate.sh --dest \"/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp40-d/.smoke/dest\" --name demo --bogus 2>/dev/null; echo \"rc=$?\"\necho \"== keep 0 rc ==\"; bash rotate.sh --quiet --dest \"/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp40-d/.smoke/dest\" --name demo --keep 0 2>/dev/null; echo \"rc=$?\"",
+        "description": "Smoke-test rotate.sh keep-newest logic and parser flags"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 28,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 8 tests pass (6 original + 2 new), and smoke checks confirmed the fixed behavior: `rotate --keep 2` with 4 archives now deletes the 2 oldest (keeping the newest 2 with their sidecars) and `--keep N` with exactly N deletes nothing; `verify` reports `ok` for `my backup-20260101-000000.tar.gz` with rc=0; all flags (`--dest=`, `--keep N`, `-n`, `-q`, `-h`, unknown-option/exit-code paths) behave as before via the shared parser.\n\nFixes: `rotate.sh`'s `surplus()` used `tail -n +\"$keep\"` on an oldest-first list (deleting the newest entries); it now keeps the newest `keep` and deletes only the oldest `total - keep`, with the early-exit changed to `-le`. `verify.sh`'s `awk '{print $2}'` truncated space-containing names at the first space; the file name is now everything after the digest's whitespace run, and the digest comparison is quoted.\n\nChanged files: added `lib/common.sh` (shared option parser + `resolve_dir`, sourced by `rotate.sh` and `verify.sh`, which keep the same flags), fixed `rotate.sh` and `verify.sh`, added the two tests to `tests/run_tests.sh`.",
+  "ttft_ms": 10437,
+  "type": "result",
+  "duration_ms": 347832,
+  "uuid": "d223bc59-0d36-4bd6-9a7e-9be14ab00c29",
+  "ttft_stream_ms": 4507,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 10169,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 348.7,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

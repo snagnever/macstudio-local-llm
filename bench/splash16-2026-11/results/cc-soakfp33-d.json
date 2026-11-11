@@ -1,0 +1,144 @@
+{
+  "duration_api_ms": 298003,
+  "stop_reason": "end_turn",
+  "session_id": "bda4436d-acbe-4ae7-885e-9bb7cbfea308",
+  "total_cost_usd": 0.7243712,
+  "usage": {
+    "input_tokens": 36251,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1293536,
+    "output_tokens": 16033,
+    "output_tokens_details": {
+      "thinking_tokens": 8425
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 36251,
+      "outputTokens": 16033,
+      "cacheReadInputTokens": 1293536,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7243712,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 8425,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_8d129e6f25b0197a9b6cf1ed3f081472_0",
+      "tool_input": {
+        "command": "set -e\nbase=$(mktemp -d)/base\nmkdir -p \"$base\"\ngit -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp33-d archive fdf649c | tar -x -C \"$base\"\ncp /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp33-d/tests/run_tests.sh \"$base/tests/run_tests.sh\"\ncd \"$base\" && bash tests/run_tests.sh; echo \"exit=$?\"",
+        "description": "Run new tests against base code"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_cb90831f5d23d9aaaee91b25eb2fc2e1_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/basecheck && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp33-d archive fdf649c | tar -x -C /tmp/basecheck",
+        "description": "Extract base commit to /tmp/basecheck"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_3a64a7a19c1db0929773842c768891ef_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/basecheck",
+        "description": "Create temp dir"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_96e4673bad08224fe51305f9b0545dd4_0",
+      "tool_input": {
+        "command": "mkdir -p .basecheck && git archive fdf649c -o .basecheck/base.tar",
+        "description": "Export base commit archive inside repo"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7066f5a6792e3cf4b0b62e6e240a2a70_0",
+      "tool_input": {
+        "command": "mkdir -p .basecheck",
+        "description": "Create temp dir inside repo"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_96f0bd316ff3d45ea237dc619cd1d3f5_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakfp33-d status --short",
+        "description": "Show working tree changes"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 38,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed files: `rotate.sh`, `verify.sh`, `lib/common.sh` (new), `tests/run_tests.sh`.",
+  "ttft_ms": 12446,
+  "type": "result",
+  "duration_ms": 299949,
+  "uuid": "7dff7bd6-28eb-4a73-9a6d-6c0e87ba9723",
+  "ttft_stream_ms": 4455,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 12271,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 300.1,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

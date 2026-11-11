@@ -1,0 +1,144 @@
+{
+  "duration_api_ms": 322052,
+  "stop_reason": "end_turn",
+  "session_id": "c52876c6-0ad0-46b2-90cc-68324e504cb8",
+  "total_cost_usd": 0.6454167999999999,
+  "usage": {
+    "input_tokens": 36111,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 887264,
+    "output_tokens": 16176,
+    "output_tokens_details": {
+      "thinking_tokens": 9111
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 36111,
+      "outputTokens": 16176,
+      "cacheReadInputTokens": 887264,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6454167999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9111,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7820bc6bf392c41dce80917137ea3471_0",
+      "tool_input": {
+        "command": "for f in rotate.sh verify.sh lib/common.sh tests/run_tests.sh; do bash -n \"$f\" && echo \"syntax ok: $f\"; done && bash tests/run_tests.sh",
+        "description": "Syntax-check scripts and run test suite"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_43953cb8145f035efe92059918a8dcda_0",
+      "tool_input": {
+        "command": "bash rotate.sh --help >/dev/null && echo \"rotate --help ok\"; bash verify.sh --help >/dev/null && echo \"verify --help ok\"; d=$(mktemp -d); touch \"$d/demo-20260101-000000.tar.gz\" \"$d/demo-20260102-000000.tar.gz\"; bash rotate.sh --quiet --dest=\"$d\" --name=demo --keep=1 -n; bash rotate.sh --dest \"$d\" --name demo --keep 1 2>/dev/null; bash verify.sh --dest \"$d\" --name=demo -q; echo \"rc=$?\"",
+        "description": "Smoke-test flags of refactored rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_8789599ef50393cdba8d14f3bd18dfd8_0",
+      "tool_input": {
+        "command": "d=$(mktemp -d); touch \"$d/demo-20260101-000000.tar.gz\" \"$d/demo-20260102-000000.tar.gz\"; bash rotate.sh --quiet --dest=\"$d\" --name=demo --keep=1 -n",
+        "description": "Test rotate.sh = forms and --dry-run"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a0af28e972c7370ba528e6f15790d383_0",
+      "tool_input": {
+        "command": "rm /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp2-d/.smoke_tmp.sh && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp2-d status --short && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp2-d diff --stat",
+        "description": "Remove smoke file, show git status and diff stat"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ce28e2436c3e685f3b09eee9886fc70d_0",
+      "tool_input": {
+        "command": "rm /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp2-d/.smoke_tmp.sh",
+        "description": "Remove temporary smoke-test script created earlier"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_d2e501fc4ff166e6a52fdf4d1444c554_0",
+      "tool_input": {
+        "command": "rm -f /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp2-d/.smoke_tmp.sh",
+        "description": "Delete the temporary smoke-test helper file created in this session"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 28,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed files: `rotate.sh` (surplus = oldest `total-keep` via `head -n`, sources `lib/common.sh`), `verify.sh` (sidecar filename kept whole so spaces survive, sources `lib/common.sh`), new `lib/common.sh` (shared option parser + `resolve_dir`, with double-source guard), and `tests/run_tests.sh` (one regression test per bug) \u2014 all 8 tests pass with `bash tests/run_tests.sh`.\n\n(Note: shell `rm` needs interactive approval in this sandbox, so the one-line stub `.smoke_tmp.sh` I created for flag smoke-testing is left in the repo root \u2014 delete it with `rm .smoke_tmp.sh`; it's inert.)",
+  "ttft_ms": 10606,
+  "type": "result",
+  "duration_ms": 323010,
+  "uuid": "5024e4c5-8388-45f6-8e0c-d6817b92d4f0",
+  "ttft_stream_ms": 4395,
+  "time_to_request_ms": 36,
+  "first_content_frame_ms": 10093,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 323.5,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

@@ -1469,7 +1469,25 @@
     "weights": "Dankpaws Swift 1.5 Qwen3.8 Flash-Next MLX 4.7 bpw"
   },
   "recommended": "splash",
-  "tbench": null,
+  "tbench": {
+    "splash": {
+      "server": "Splash 1.4.0",
+      "weights": "ukisai Swift 1.5 GGUF IQ4_XS 0142554",
+      "done": 89,
+      "total": 89,
+      "score": 64.0,
+      "updated": "2026-10-28",
+      "source": "bench/splash-longctx-2026-10/results/tbench21-k2a.md"
+    },
+    "mlx": {
+      "server": "mlx-serve 26.10.3",
+      "weights": "Dankpaws Swift 1.5 MLX 4.7bpw 13839b7",
+      "done": 89,
+      "total": 89,
+      "score": 65.2,
+      "updated": "2026-10-30T13:49:59+01:00"
+    }
+  },
   "scenarios": {
     "one_session": {
       "splash": {
@@ -1489,7 +1507,15 @@
             "d": 253.20000000000002
           }
         },
-        "tbench": null
+        "tbench": {
+          "server": "Splash 1.4.0",
+          "weights": "ukisai Swift 1.5 GGUF IQ4_XS 0142554",
+          "done": 89,
+          "total": 89,
+          "score": 64.0,
+          "updated": "2026-10-28",
+          "source": "bench/splash-longctx-2026-10/results/tbench21-k2a.md"
+        }
       },
       "mlx": {
         "warm_ttft_s": 0.353,
@@ -1508,7 +1534,14 @@
             "d": 303.35
           }
         },
-        "tbench": null
+        "tbench": {
+          "server": "mlx-serve 26.10.3",
+          "weights": "Dankpaws Swift 1.5 MLX 4.7bpw 13839b7",
+          "done": 89,
+          "total": 89,
+          "score": 65.2,
+          "updated": "2026-10-30T13:49:59+01:00"
+        }
       }
     },
     "two_sessions": {
@@ -1784,8 +1817,8 @@
       {
         "scenario": "Agent quality (Terminal-Bench)",
         "cells": {
-          "splash": "missing",
-          "mlx": "missing",
+          "splash": "measured",
+          "mlx": "measured",
           "legacy": "missing"
         }
       }

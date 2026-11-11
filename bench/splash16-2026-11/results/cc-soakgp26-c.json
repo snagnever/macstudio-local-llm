@@ -1,0 +1,136 @@
+{
+  "duration_api_ms": 294547,
+  "stop_reason": "end_turn",
+  "session_id": "ee950386-20ca-472b-83df-d82e5294b2aa",
+  "total_cost_usd": 0.7621095999999999,
+  "usage": {
+    "input_tokens": 34964,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1638368,
+    "output_tokens": 14729,
+    "output_tokens_details": {
+      "thinking_tokens": 7215
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 34964,
+      "outputTokens": 14729,
+      "cacheReadInputTokens": 1638368,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7621095999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 7215,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_141b9854e35b6390d09628400dcfe043_0",
+      "tool_input": {
+        "command": "cd /tmp && rm -rf gbcheck && mkdir gbcheck && printf 'date,account,payee,amount,category,memo\\n2025-01-05,Checking,Tesco Stores,-40.00,,\\n2025-01-25,Checking,Acme Ltd Payroll,3000.00,Income,\\n2025-02-03,Visa Card,Netflix.com,-15.99,,\\n' > gbcheck/small.csv && echo \"== month text ==\" && python3 -m ledger.cli report --group-by month /tmp/gbcheck/small.csv && echo \"== month json ==\" && python3 -m ledger.cli report --group-by month --format json /tmp/gbcheck/small.csv && echo \"== category text ==\" && python3 -m ledger.cli report --group-by category /tmp/gbcheck/small.csv && echo \"== account json ==\" && python3 -m ledger.cli report --group-by account --format json /tmp/gbcheck/small.csv && echo \"== fixture month text (head/tail) ==\" && python3 -m ledger.cli report --group-by month fixtures/transactions.csv | head -3 && python3 -m ledger.cli report --group-by month fixtures/transactions.csv | tail -2 && echo \"== fixture category text ==\" && python3 -m ledger.cli report --group-by category fixtures/transactions.csv && echo \"== bad key ==\" ; python3 -m ledger.cli report --group-by payee /tmp/gbcheck/small.csv; echo \"exit=$?\"",
+        "description": "Try new group-by option manually"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_8981a2c8c8b114f75a50def2b59bab47_0",
+      "tool_input": {
+        "command": "for g in month category account; do for f in text json; do echo \"== $g / $f ==\"; python3 -m ledger.cli report --group-by $g --format $f /tmp/gbcheck/small.csv; done; done",
+        "description": "Run group-by report on the small CSV"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_80c6270bbb1a5636b3d098a0d2c13995_2",
+      "tool_input": {
+        "command": "python3 -m ledger.cli report --group-by payee /tmp/gbcheck/small.csv; echo \"exit=$?\"",
+        "description": "Check invalid group-by key is rejected"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_948210bfca1dbce628695eb99d03417c_0",
+      "tool_input": {
+        "command": "git --no-pager diff --stat",
+        "description": "Show diff stat"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_83981987878cef197c8a76a658d161cd_1",
+      "tool_input": {
+        "command": "python3 -m ledger.cli report --group-by category --format json /tmp/gbcheck/zzz.csv 2>&1; printf 'date,account,payee,amount,category,memo\\n2025-05-05,Zzz Card,Weird Vendor,-7.50,,\\n' > /tmp/gbcheck/zzz.csv",
+        "description": "Prepare a file with an uncategorised row"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 52,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Ran the full suite (`python3 -m unittest discover -s tests -t .`): 75 tests, all OK \u2014 and `report` without `--group-by` still prints the base summary byte-for-byte.\n\nChanged files: `ledger/report.py`, `ledger/cli.py`, `tests/test_cli.py`, `tests/test_report.py`, `README.md`.",
+  "ttft_ms": 4593,
+  "type": "result",
+  "duration_ms": 295464,
+  "uuid": "efde3678-6009-4d0e-ac68-afcfea7250cf",
+  "ttft_stream_ms": 100,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 4474,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 296.1,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

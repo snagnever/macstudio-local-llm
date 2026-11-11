@@ -1,0 +1,127 @@
+{
+  "duration_api_ms": 1000557,
+  "stop_reason": "end_turn",
+  "session_id": "26952d2e-bb5b-4849-bfc9-ee9082d1db48",
+  "total_cost_usd": 1.2017607999999997,
+  "usage": {
+    "input_tokens": 31864,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1063296,
+    "output_tokens": 16326,
+    "output_tokens_details": {
+      "thinking_tokens": 8912
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 82500,
+      "outputTokens": 30869,
+      "cacheReadInputTokens": 1271904,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 1.2017607999999997,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 12435,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_2d9805d511fd70f405c14d7d5dac74cc_0",
+      "tool_input": {
+        "command": "set -u\nT=$(mktemp -d)\nmkdir -p \"$T/src\"; printf 'a\\n' > \"$T/src/a.txt\"\nfor s in 20260101-120000 20260102-120000 20260103-120000 20260104-120000; do\n  BACKUP_STAMP=$s bash rotate.sh >/dev/null 2>&1 # noop, just ensure rotate.sh/verify.sh parse\n  BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$T/dest\" --name demo \"$T/src\" >/dev/null\ndone\necho \"--- rotate --keep 2 (4 archives): expect oldest two deleted, newest two kept\"\nbash rotate.sh --quiet --dest \"$T/dest\" --name demo --keep 2\nls \"$T/dest\" | sort\necho \"--- rotate --dry-run --keep 1 on remaining 2: expect 'would delete' oldest\"\nbash rotate.sh --quiet --dry-run --dest \"$T/dest\" --name demo --keep 1\necho \"--- verify --name demo: expect 2 ok lines\"\nbash verify.sh --quiet --dest \"$T/dest\" --name demo; echo \"rc=$?\"\necho \"--- malformed sidecar (single space): expect BAD ... (malformed sidecar)\"\nprintf '%s  my backup.tar.gz\\n' deadbeef > \"$T/dest/loose.sha256\"\nbash verify.sh --quiet --dest \"$T/dest\" --name loose; echo \"rc=$?\"\necho \"--- unknown flag: expect usage + rc=1\"\nbash rotate.sh --bogus 2>/dev/null; echo \"rc=$?\"\nbash verify.sh --bogus 2>/dev/null; echo \"rc=$?\"\necho \"--- --help: expect rc=0\"\nbash rotate.sh --help >/dev/null; echo \"rc=$?\"\nbash verify.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- --keep=abc: expect rc=1\"\nbash rotate.sh --dest \"$T/dest\" --name demo --keep=abc 2>/dev/null; echo \"rc=$?\"\nrm -rf \"$T\"\nfor f in rotate.sh verify.sh lib/common.sh tests/run_tests.sh; do bash -n \"$f\" && echo \"syntax ok: $f\"; done",
+        "description": "Smoke-test refactored rotate.sh and verify.sh flags and behaviors"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_67a5c82a12e17446fd8d6c8a2c5dfe7d_0",
+      "tool_input": {
+        "command": "T=$(mktemp -d); mkdir -p \"$T/dest\"; printf 'payload\\n' > \"$T/dest/my good.tar.gz\"; (cd \"$T/dest\" && shasum -a 256 \"my good.tar.gz\" > \"my good.tar.gz.sha256\"); bash verify.sh --quiet --dest \"$T/dest\"; echo \"rc=$?\"; rm -rf \"$T\"",
+        "description": "Verify intact space-named archive with matching sidecar reports ok"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_24e656ea7df1425473bc001e7c7c66f7_0",
+      "tool_input": {
+        "command": "bash /tmp/smoke_verify_spaced_ok.sh && rm -f /tmp/smoke_backup_toolkit.sh /tmp/smoke_verify_sidecars.sh /tmp/smoke_verify_spaced_ok.sh",
+        "description": "Run spaced-name ok check and remove scratch scripts"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "origin": {
+    "kind": "task-notification",
+    "producer": "session-task",
+    "runId": "0mw77hby6-26eb0c76"
+  },
+  "subagent_stats": {
+    "spawned": 2,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 2
+    },
+    "started_in_background": 2,
+    "max_depth": 1,
+    "spawned_by_subagents": 0,
+    "completed": 2,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {
+      "Explore": 2
+    }
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 25,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and added `lib/common.sh` \u2014 all 8 tests pass (the two bug fixes verified: `rotate --keep 2` keeps both archives when exactly two exist and deletes the oldest first when rotation is needed; `verify` accepts `my backup-20260101-000000.tar.gz` with a correct checksum), and `backup.sh`/`restore.sh`/`report.sh` were left untouched.",
+  "ttft_ms": 68493,
+  "type": "result",
+  "duration_ms": 277551,
+  "uuid": "bf5a80c3-7343-4de5-a269-d8f30e16e37e",
+  "ttft_stream_ms": 45,
+  "time_to_request_ms": 23,
+  "first_content_frame_ms": 12554,
+  "queued_turn_count": 0,
+  "result_index": 2,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 719.4,
+  "task_done": true,
+  "parallel_agent_calls": 1,
+  "subagents_spawned": 2,
+  "subagents": true
+}

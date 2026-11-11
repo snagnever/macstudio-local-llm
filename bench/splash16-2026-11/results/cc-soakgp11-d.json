@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 375527,
+  "stop_reason": "end_turn",
+  "session_id": "730d2332-f5c6-4a6c-9a49-206b02c4f7a3",
+  "total_cost_usd": 0.6992176,
+  "usage": {
+    "input_tokens": 38981,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 991168,
+    "output_tokens": 17253,
+    "output_tokens_details": {
+      "thinking_tokens": 9282
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 38981,
+      "outputTokens": 17253,
+      "cacheReadInputTokens": 991168,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6992176,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9282,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_1d41966bf78e794a164a427092436037_0",
+      "tool_input": {
+        "command": "bash -n lib/common.sh && bash -n rotate.sh && bash -n verify.sh && bash -n tests/run_tests.sh && echo \"syntax ok\"\nt=$(mktemp -d); t=$(cd \"$t\" && pwd -P)\nmkdir -p \"$t/src\"; echo hi > \"$t/src/a.txt\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do BACKUP_STAMP=$s bash rotate.sh 2>/dev/null; BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/dest\" --name app \"$t/src\" >/dev/null; done\nrm -f \"$t/dest\"/*.tar.gz; for s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/dest\" --name app \"$t/src\" >/dev/null; done\necho \"--- rotate keep 2 (expect oldest 2 deleted, sidecars gone) ---\"\nbash rotate.sh --dest \"$t/dest\" --name app --keep 2 2>/dev/null\nls \"$t/dest\"\necho \"--- rotate keep=1 equals-sign form, dry run ---\"\nbash rotate.sh --dest=\"$t/dest\" --name=app --keep=1 --dry-run 2>/dev/null\necho \"--- help exits 0 ---\"; bash rotate.sh --help >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- unknown option ---\"; bash rotate.sh --dest \"$t/dest\" --name app --bogus >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- bad keep ---\"; bash rotate.sh --dest \"$t/dest\" --name app --keep abc >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- keep 0 refused ---\"; bash rotate.sh --dest \"$t/dest\" --name app --keep 0 >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- missing dest ---\"; bash rotate.sh --dest \"$t/nope\" --name app >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- positional rejected (rotate) ---\"; bash rotate.sh --dest \"$t/dest\" --name app extra >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- positional rejected (verify) ---\"; bash verify.sh --dest \"$t/dest\" extra >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- verify --name filter + quiet ---\"; bash verify.sh --dest \"$t/dest\" --name app 2>/dev/null; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Sanity-check flags, exit codes and sidecar cleanup of refactored scripts"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_873a9dd7f96e6e479b1c5ab16f534650_0",
+      "tool_input": {
+        "command": "bash -n lib/common.sh && bash -n rotate.sh && bash -n verify.sh && bash -n tests/run_tests.sh && echo \"syntax ok\"\nt=/tmp/soakgp11-d-check\nrm -rf \"$t\"; mkdir -p \"$t/src\"; echo hi > \"$t/src/a.txt\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/dest\" --name app \"$t/src\" >/dev/null; done\necho \"--- rotate keep 2 (expect oldest 2 deleted with sidecars) ---\"\nbash rotate.sh --dest \"$t/dest\" --name app --keep 2 2>/dev/null\nls \"$t/dest\"\necho \"--- equals-sign forms + dry run (keep=1) ---\"\nbash rotate.sh --dest=\"$t/dest\" --name=app --keep=1 -n 2>/dev/null\necho \"--- help rc ---\"; bash rotate.sh --help >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- unknown option rc ---\"; bash rotate.sh --dest \"$t/dest\" --name app --bogus >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- non-numeric keep rc ---\"; bash rotate.sh --dest \"$t/dest\" --name app --keep abc >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- keep 0 refused rc ---\"; bash rotate.sh --dest \"$t/dest\" --name app --keep 0 >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- missing dest rc ---\"; bash rotate.sh --dest \"$t/nope\" --name app >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- rotate positional rejected rc ---\"; bash rotate.sh --dest \"$t/dest\" --name app extra >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- verify positional rejected rc ---\"; bash verify.sh --dest \"$t/dest\" extra >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- verify --name filter ---\"; bash verify.sh --dest \"$t/dest\" --name app 2>/dev/null; echo \"rc=$?\"\necho \"--- verify --dest= form, quiet ---\"; bash verify.sh --dest=\"$t/dest\" -q; echo \"rc=$?\"\nrm -rf /tmp/soakgp11-d-check",
+        "description": "Sanity-check flags, exit codes and sidecar cleanup of refactored scripts"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_3107a0f82c57bca919e7bb8d94a4e211_0",
+      "tool_input": {
+        "command": "t=/tmp/soakgp11-d-check2; rm -rf $t; mkdir -p $t/src; echo hi > $t/src/a.txt\nBACKUP_STAMP=20260101-000000 bash backup.sh --quiet --dest \"$t/dest\" --name \"my backup\" \"$t/src\" >/dev/null\nprintf 'x' >> \"$t/dest/my backup-20260101-000000.tar.gz\"\nbash verify.sh --quiet --dest \"$t/dest\"; echo \"rc=$?\"; rm -rf /tmp/soakgp11-d-check2",
+        "description": "Verify corrupt archive with space in name reports BAD with full name"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_5e06aea4361238f69e376c1e49b908b2_0",
+      "tool_input": {
+        "command": "rm -f /tmp/soakgp11-d-manual-check.sh /tmp/soakgp11-d-manual-check2.sh",
+        "description": "Remove temporary sanity-check scripts"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 27,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `rotate.sh` (keep newest N: surplus is now the first `total - keep` oldest entries, with a `--keep` early exit at `-le`), `verify.sh` (sidecar name parsed with a regex so spaces survive; quoted digest compare) and `tests/run_tests.sh` (one test per bug), plus new `lib/common.sh` holding the shared option parser + `resolve_dir`, sourced by both scripts \u2014 all 9 tests pass.",
+  "ttft_ms": 12052,
+  "type": "result",
+  "duration_ms": 377014,
+  "uuid": "a2688af4-d0ad-4965-864a-bcd3403812fd",
+  "ttft_stream_ms": 4426,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 10741,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 377.9,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 261853,
+  "stop_reason": "end_turn",
+  "session_id": "461fbc2a-206a-4929-b32d-37eeb3f87668",
+  "total_cost_usd": 0.6008664000000001,
+  "usage": {
+    "input_tokens": 31017,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 823392,
+    "output_tokens": 15606,
+    "output_tokens_details": {
+      "thinking_tokens": 7651
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 31017,
+      "outputTokens": 15606,
+      "cacheReadInputTokens": 823392,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6008664000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 7651,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_dac0439a488d686fbcc6cb5d22939cbe_0",
+      "tool_input": {
+        "command": "R=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp35-d\nT=$(mktemp -d)\nmkdir -p \"$T/dest\"\nfor d in 01 02 03 04 05; do touch \"$T/dest/demo-202601$d-000000.tar.gz\"; done\necho \"--- rotate --keep 2 (expect oldest 3 deleted, newest 2 kept):\"\nbash \"$R/rotate.sh\" --quiet --dest \"$T/dest\" --name demo --keep 2\necho \"--- remaining:\"; ls \"$T/dest\"\necho \"--- dry-run keep 1:\"\nbash \"$R/rotate.sh\" --quiet --dry-run --dest \"$T/dest\" --name demo --keep=1\necho \"--- help exit code:\"; bash \"$R/rotate.sh\" --help >/dev/null; echo \"rc=$?\"\necho \"--- unknown option:\"; bash \"$R/rotate.sh\" --dest \"$T/dest\" --name demo --bogus 2>&1; echo \"rc=$?\"\necho \"--- keep 0 rejected:\"; bash \"$R/rotate.sh\" --quiet --dest \"$T/dest\" --name demo --keep 0 2>&1; echo \"rc=$?\"\nrm -rf \"$T\"",
+        "description": "Exercise rotate.sh flag handling and rotation behavior"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_46bf5b5d0f7e3dbe7497d1c5386654b8_0",
+      "tool_input": {
+        "command": "R=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp35-d\nT=/tmp/rotate_check_$$\nmkdir -p \"$T/dest\"\nfor d in 01 02 03 04 05; do touch \"$T/dest/demo-202601$d-000000.tar.gz\"; done\necho \"--- rotate --keep 2 (expect oldest 3 deleted, newest 2 kept):\"\nbash \"$R/rotate.sh\" --quiet --dest \"$T/dest\" --name demo --keep 2\necho \"--- remaining:\"; ls \"$T/dest\"\necho \"--- dry-run keep=1 (expect 1 line, newest-1 would be kept):\"\nbash \"$R/rotate.sh\" --quiet --dry-run --dest \"$T/dest\" --name demo --keep=1\necho \"--- remaining after dry run:\"; ls \"$T/dest\"\necho \"--- help:\"; bash \"$R/rotate.sh\" --help >/dev/null; echo \"rc=$?\"\necho \"--- unknown option:\"; bash \"$R/rotate.sh\" --dest \"$T/dest\" --name demo --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"--- keep 0:\"; bash \"$R/rotate.sh\" --quiet --dest \"$T/dest\" --name demo --keep 0 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\nrm -rf \"/tmp/rotate_check_$$\"",
+        "description": "Exercise rotate.sh flags, rotation counts, dry-run, error paths"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7d3e2424d54cccd36b4fee709a3a4bcd_0",
+      "tool_input": {
+        "command": "rm -f /tmp/rotate_verify_check.sh /tmp/rotate_verify_check2.sh /tmp/rotate_verify_check3.sh && rm -rf /tmp/rotate_verify_check.d /tmp/rotate_verify_check2.d /tmp/rotate_verify_check3.d /tmp/orig_tree.d && bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp35-d/tests/run_tests.sh",
+        "description": "Remove scratch files and run test suite"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 27,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 8 tests pass (`bash tests/run_tests.sh`).\n\nChanged: `lib/common.sh` (new \u2014 shared `parse_options`/`resolve_dir`/`is_uint`/`need_value`), `rotate.sh` (sources the shared lib; fixed `--keep N` to delete the oldest `total-N` archives via `head -n` instead of `tail -n +N`, which deleted the newest), `verify.sh` (sources the shared lib; parses the sidecar name after the first whitespace run so names with spaces survive, and compares digests with quoted `[ \"$expected\" = \"$actual\" ]`), and `tests/run_tests.sh` (one regression test per bug; both verified to fail against the pre-fix code). `backup.sh`, `restore.sh`, and `report.sh` are untouched.\n\nNote: three scratch check scripts I created under `/tmp` (`rotate_verify_check*.sh` and their dirs) couldn't be auto-deleted by the sandbox \u2014 safe to remove manually.",
+  "ttft_ms": 10949,
+  "type": "result",
+  "duration_ms": 262735,
+  "uuid": "cb7f5c57-3eed-4788-b71d-d8a7e4c948bf",
+  "ttft_stream_ms": 4542,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 10545,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 263.7,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

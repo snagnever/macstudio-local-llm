@@ -1,0 +1,160 @@
+{
+  "duration_api_ms": 301326,
+  "stop_reason": "end_turn",
+  "session_id": "c493672b-4456-4a46-9ebf-d27c72a6fe9c",
+  "total_cost_usd": 0.7270624000000001,
+  "usage": {
+    "input_tokens": 40390,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1270912,
+    "output_tokens": 15566,
+    "output_tokens_details": {
+      "thinking_tokens": 8035
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 40390,
+      "outputTokens": 15566,
+      "cacheReadInputTokens": 1270912,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7270624000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 8035,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_498ff203de4b12b57d1a2882e7177fb9_0",
+      "tool_input": {
+        "command": "cd /tmp && rm -rf bugcheck && git clone -q /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp14-d bugcheck && cd /tmp/bugcheck && cp /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp14-d/tests/run_tests.sh tests/run_tests.sh && bash tests/run_tests.sh; echo \"exit=$?\"",
+        "description": "Verify new tests fail against original buggy code"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_1dafb00b059fcbd29e9d1e37e5ea6bcf_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/bugcheck && git clone -q /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp14-d /tmp/bugcheck && cp /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp14-d/tests/run_tests.sh /tmp/bugcheck/tests/run_tests.sh && bash /tmp/bugcheck/tests/run_tests.sh; echo \"exit=$?\"",
+        "description": "Run new tests against original buggy code"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a38e74d50f8b3103105fc2b6bfdcedae_0",
+      "tool_input": {
+        "command": "git clone -q /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp14-d /tmp/bugcheck",
+        "description": "Clone repo to temp dir for regression check"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_6c512a550c73b3c6ed559e2e1d5fecf1_1",
+      "tool_input": {
+        "command": "echo 'deadbeef  my backup-20260101-000000.tar.gz' | awk '{print $2}'",
+        "description": "Show old sidecar name split result"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a60eee9ee272e4a47f3d5d604fb3f3a6_0",
+      "tool_input": {
+        "command": "/bin/bash --version | head -n 1; bash -n /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp14-d/lib/common.sh && bash -n /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp14-d/rotate.sh && bash -n /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp14-d/verify.sh && echo \"syntax ok\"",
+        "description": "Check bash version and script syntax"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a2a26f7d7fc736ca8165526152f3d7d4_0",
+      "tool_input": {
+        "command": "/bin/bash --version",
+        "description": "Show system bash version"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_622e26ec7b50ad136d21ee4a57b0dc92_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp14-d status --short",
+        "description": "Show git status"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_2bbd13ff2d7c0ef92cf7fb8c1bc3e0d4_0",
+      "tool_input": {
+        "command": "rm -f /tmp/scratch_checks.sh",
+        "description": "Remove scratch check script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 36,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 8 tests pass (`bash tests/run_tests.sh`).\n\nChanged: `rotate.sh` (keep the newest N \u2014 `head -n $((total - keep))` instead of `tail -n +\"$keep\"`, plus `total -le keep` for the no-op case), `verify.sh` (archive name now taken from the sidecar's own name minus `.sha256` and only the digest split off the line, per docs/DESIGN.md \u00a74.3; comparison quoted), `tests/run_tests.sh` (one new check per bug), and new `lib/common.sh` (shared option parser + `resolve_dir`, sourced by `rotate.sh` and `verify.sh`). `backup.sh`, `restore.sh`, `report.sh` untouched \u2014 they still carry their inline copies, which `lib/common.sh` notes must be kept in step.",
+  "ttft_ms": 11640,
+  "type": "result",
+  "duration_ms": 302556,
+  "uuid": "71b46bd7-1726-4cdb-80c2-fc05fa322ad0",
+  "ttft_stream_ms": 2654,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 11334,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 303.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

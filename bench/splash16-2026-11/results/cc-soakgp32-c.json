@@ -1,0 +1,104 @@
+{
+  "duration_api_ms": 298489,
+  "stop_reason": "end_turn",
+  "session_id": "f94c3680-2228-4717-9c6e-9d0dcfd8d024",
+  "total_cost_usd": 0.6998536,
+  "usage": {
+    "input_tokens": 68717,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1196128,
+    "output_tokens": 9288,
+    "output_tokens_details": {
+      "thinking_tokens": 4526
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 68717,
+      "outputTokens": 9288,
+      "cacheReadInputTokens": 1196128,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6998536,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 4526,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_5fa9787e6be2fbf26b0513ef044060ee_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp32-c diff --stat",
+        "description": "Show summary of changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 25,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. The suite runs 72 tests (9 of them new for `--group-by`) and all pass.\n\nWhat was added:\n- `--group-by month|category|account` on `report`, printing totals per group ordered by label \u2014 text as `<group> <total>` lines with two decimals, json as one object of label \u2192 cent-rounded numbers; absent, the summary output is byte-identical.\n- New tests cover text and json output, all three grouping keys, month-label format and month-totals-on-fixture matching the grand total, combination with filters, the no-option default, and argparse rejection of an unknown group.\n\nChanged files: `ledger/cli.py`, `ledger/report.py`, `ledger/store.py`, `tests/test_cli.py`, `README.md`.",
+  "ttft_ms": 4661,
+  "type": "result",
+  "duration_ms": 299029,
+  "uuid": "6f59ff27-1e5d-410c-b36e-d12a281a657d",
+  "ttft_stream_ms": 99,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 4477,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 300.1,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

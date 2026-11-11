@@ -1,0 +1,95 @@
+{
+  "duration_api_ms": 365407,
+  "stop_reason": "end_turn",
+  "session_id": "1ea686cf-a8aa-4915-9af5-3323a80219eb",
+  "total_cost_usd": 0.6672392,
+  "usage": {
+    "input_tokens": 67640,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1168896,
+    "output_tokens": 8145,
+    "output_tokens_details": {
+      "thinking_tokens": 3268
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 67640,
+      "outputTokens": 8145,
+      "cacheReadInputTokens": 1168896,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6672392,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 3268,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 27,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. All 68 tests pass (`python3 -m unittest discover -s tests -t .`), and the ungrouped report output is byte-identical to before (covered by the existing exact-match tests).\n\nImplementation notes:\n- `ledger/report.py:113` \u2014 new `group_totals()` (exact Decimal sums per label, ordered by label) plus `render_groups_text()`, `render_groups_json()`, and a `render_groups()` dispatcher mirroring the existing renderers.\n- `ledger/cli.py:81` \u2014 `--group-by {month,category,account}` on the `report` subcommand; `cmd_report` dispatches to the grouped path only when the flag is present, and filters (`--account/--category/--from/--to`) apply before grouping. Categories are always filled by the rules engine, so the `Uncategorized` fallback keeps group labels non-empty.\n- `tests/test_cli.py` \u2014 5 new tests: month text, category JSON (including key order), account text, filter interaction, and an invalid-key argparse error.\n- `README.md` \u2014 documents the option in the `report` section with a real fixture example.\n\nChanged files: `ledger/cli.py`, `ledger/report.py`, `tests/test_cli.py`, `README.md`.",
+  "ttft_ms": 4622,
+  "type": "result",
+  "duration_ms": 365781,
+  "uuid": "9948c6b2-20e7-4f1b-adee-2bcb2d631885",
+  "ttft_stream_ms": 58,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 4434,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 366.8,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

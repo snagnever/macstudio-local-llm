@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 332348,
+  "stop_reason": "end_turn",
+  "session_id": "6f7151f0-c08b-4762-83fd-e5aff4b58a5c",
+  "total_cost_usd": 0.6136344,
+  "usage": {
+    "input_tokens": 35304,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 769792,
+    "output_tokens": 15923,
+    "output_tokens_details": {
+      "thinking_tokens": 9073
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 35304,
+      "outputTokens": 15923,
+      "cacheReadInputTokens": 769792,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6136344,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9073,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_23a87e5462bfc25759e8f7c22ceee006_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"\nfor d in 01 02 03 04 05; do touch \"$t/dest/demo-2026${d}01-000000.tar.gz\"; done\necho \"--- dry run, keep 2:\"; bash rotate.sh --quiet --dest=\"$t/dest\" --name demo --keep=2 --dry-run\necho \"--- real, keep 2:\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo -n --keep 2; ls \"$t/dest\"\necho \"--- help exits 0:\"; bash rotate.sh --help >/dev/null; echo $?\necho \"--- unknown option:\"; bash rotate.sh --dest \"$t/dest\" --name demo --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"--- verify: bad --keep value:\"; bash verify.sh --dest \"$t/dest\" --keep x 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\nrm -rf \"$t\"",
+        "description": "Manually exercise rotate/verify flags and rotation order"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_2de00707aec5129f16c4ae068d886af3_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"\nfor d in 01 02 03 04 05; do touch \"$t/dest/demo-2026${d}01-000000.tar.gz\"; done\necho \"--- dry run, keep 2:\"; bash rotate.sh --quiet --dest=\"$t/dest\" --name demo --keep=2 --dry-run\necho \"--- real, keep 2:\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 2; ls \"$t/dest\"\necho \"--- help:\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- unknown option:\"; bash rotate.sh --dest \"$t/dest\" --name demo --bogus >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- verify bad --keep:\"; bash verify.sh --dest \"$t/dest\" --keep x >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- verify missing dest:\"; bash verify.sh >/dev/null 2>&1; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Manually exercise rotate/verify flags and rotation order"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_efe338e2d9bc31cea3241fbf23785047_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d) && mkdir -p \"$t/dest\"\nfor d in 01 02 03 04 05; do touch \"$t/dest/demo-$d-000000.tar.gz\"; done\necho \"--- dry run, keep 2:\"; bash rotate.sh --quiet --dest=\"$t/dest\" --name demo --keep=2 --dry-run\necho \"--- real, keep 2:\"; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 2\necho \"--- remaining:\"; ls \"$t/dest\"\necho \"--- help:\"; bash rotate.sh --help >/dev/null; echo rc=$?\necho \"--- unknown option:\"; bash rotate.sh --dest \"$t/dest\" --name demo --bogus >/dev/null 2>&1; echo rc=$?\necho \"--- verify bad keep:\"; bash verify.sh --dest \"$t/dest\" --keep x >/dev/null 2>&1; echo rc=$?\necho \"--- verify missing dest:\"; bash verify.sh >/dev/null 2>&1; echo rc=$?\nrm -rf \"$t\"",
+        "description": "Manually exercise rotate/verify flags and rotation order"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b722674877063f286931f184b83ad79f_0",
+      "tool_input": {
+        "command": "rm /tmp/ck_rotate_verify.sh; git status --short && git diff --stat",
+        "description": "Show changed files summary"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All done \u2014 every test passes (10/10), and the refactored `rotate.sh`/`verify.sh` accept the exact same flags (`--dest`, `--dest=`, `--name`, `--keep=`, `-q/--quiet`, `-n/--dry-run`, `-h/--help`, `--`) with identical exit codes.\n\nWhat changed:\n- **rotate.sh** \u2014 `surplus()` used `tail -n +\"$keep\"` on an oldest-first list, which kept the oldest keep\u22121 archives and deleted the newest (so with exactly N archives, the newest was removed). It now deletes the oldest `total \u2212 keep` entries via `head -n` (guarded for the `total == keep` case, which BSD `head` rejects at 0).\n- **verify.sh** \u2014 the sidecar file name was extracted with `awk '{print $2}'`, truncating at the first space, so names with spaces looked \"archive missing\". It now splits the shasum line on the whitespace after the digest, keeping spaces in the name; the digest comparison is quoted too.\n- **lib/common.sh** (new) \u2014 the shared option-parsing block, `--keep` validation, and `resolve_dir`, sourced by rotate.sh and verify.sh (`source .../lib/common.sh \"$@\"`); backup.sh, restore.sh and report.sh untouched.\n- **tests/run_tests.sh** \u2014 added a rotate group (exactly N archives with `--keep N` \u2192 nothing deleted, all 3 remain) and a verify group (real archive named `my backup-20260101-000000.tar.gz` \u2192 `ok`, rc=0).\n\nFiles changed: rotate.sh, verify.sh, tests/run_tests.sh, and new lib/common.sh.",
+  "ttft_ms": 10316,
+  "type": "result",
+  "duration_ms": 333140,
+  "uuid": "417b9229-40ac-4979-be31-177b9ba78148",
+  "ttft_stream_ms": 4457,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 10023,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 333.4,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

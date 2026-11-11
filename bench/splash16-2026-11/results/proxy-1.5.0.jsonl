@@ -1,0 +1,2 @@
+{"request": "GET http://127.0.0.1:8585/ready HTTP/1.1", "has_key": false}
+{"request": "GET http://127.0.0.1:8585/v1/models HTTP/1.1", "has_key": true}

@@ -1,0 +1,119 @@
+{
+  "duration_api_ms": 1210677,
+  "stop_reason": "end_turn",
+  "session_id": "33643d44-1de8-4b1e-93e4-9428fceeaca7",
+  "total_cost_usd": 1.3708792,
+  "usage": {
+    "input_tokens": 38213,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 966912,
+    "output_tokens": 19742,
+    "output_tokens_details": {
+      "thinking_tokens": 11932
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 100129,
+      "outputTokens": 36914,
+      "cacheReadInputTokens": 1160416,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 1.3708792,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 15744,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_893926bef3c5f3972e5d4aef999e4e6e_0",
+      "tool_input": {
+        "command": "set -u\nt=$(mktemp -d); d=\"$t/dest\"; mkdir -p \"$d\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000 20260105-000000; do\n  printf 'a\\n' > \"$d/demo-$s.tar.gz\"; : > \"$d/demo-$s.tar.gz.sha256\"\ndone\nprintf 'a\\n' > \"$d/notes.tar.gz\"; : > \"$d/notes.tar.gz.sha256\"\n\necho \"--- surplus: 5 archives, keep 3 (expect oldest 2 deleted, newest 3 + stray kept)\"\nbash rotate.sh --quiet --dest=\"$d\" --name demo --keep 3\necho \"rc=$?\"\nls \"$d\" | sort | tr '\\n' ' '; echo\n\necho \"--- dry-run: would delete oldest surplus\"\nprintf 'a\\n' > \"$d/demo-20251231-235959.tar.gz\"; : > \"$d/demo-20251231-235959.tar.gz.sha256\"\nbash rotate.sh --quiet -n --dest \"$d\" --name demo --keep 3\necho \"rc=$?\"\n\necho \"--- keep=0 rejected (rc=1)\"; bash rotate.sh --quiet --dest \"$d\" --name demo --keep 0 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"--- unknown flag rejected (rc=1)\"; bash rotate.sh --quiet --dest \"$d\" --name demo --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"--- missing --name rejected (rc=1)\"; bash rotate.sh --quiet --dest \"$d\" --keep 2 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"--- --help exits 0\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- verify flags: --dest=, -q, -h; unknown flag rc=1\"\nbash verify.sh -q --dest=\"$d\"; echo \"rc=$?\"\nbash verify.sh -h >/dev/null; echo \"rc=$?\"\nbash verify.sh --dest \"$d\" --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"--- positional args rejected by both\"\nbash rotate.sh --quiet --dest \"$d\" --name demo extra 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\nbash verify.sh --quiet --dest \"$d\" extra 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\n\necho \"--- log prefix on verbose rotate names rotate.sh (not common.sh)\"\nbash rotate.sh --dest \"$d\" --name demo --keep 99 2>&1 >/dev/null | head -1\nrm -rf \"$t\"",
+        "description": "Smoke-test refactored rotate.sh and verify.sh flags and surplus logic"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_3c8e3b0cd4f9a12ced2656cbae73063e_0",
+      "tool_input": {
+        "command": "rm -f /tmp/smoke_rotate_verify.sh && ls -l lib/ && git status --short && git diff --stat",
+        "description": "Clean up smoke script, show file permissions and diff summary"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "origin": {
+    "kind": "task-notification",
+    "producer": "session-task",
+    "runId": "0mw7eg2l6-46475ab6"
+  },
+  "subagent_stats": {
+    "spawned": 2,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 2
+    },
+    "started_in_background": 2,
+    "max_depth": 1,
+    "spawned_by_subagents": 0,
+    "completed": 2,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {
+      "Explore": 2
+    }
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 21,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. Summary of what changed:\n\n**Bug fixes**\n- `rotate.sh`: `surplus()` used `tail -n +N` on an oldest-first sorted list, which selected the *newest* entries \u2014 so with exactly N backups it deleted the newest one. Now it deletes the oldest `total - keep` entries (`head -n`), exits \"nothing to rotate\" when `total <= keep`, and leaves the newest N (plus non-conforming files) untouched.\n- `verify.sh`: sidecar lines were split with `awk '{print $2}'`, truncating `my backup-\u2026.tar.gz` to `my` \u2192 \"archive missing\" \u2192 BAD/exit 2. Now `read -r expected file <<< \"$line\"` keeps the name after the digest whole, and the digest comparison is properly quoted (`[[ \"$expected\" == \"$actual\" ]]`).\n\n**Refactor**\n- New `lib/common.sh` holds the one true copy of the option-parsing block (`--dest/--name/--keep/-q/-n/-h/--`, `is_uint`, `need_value`, KEEP validation) and `resolve_dir`, with a double-source guard; it requires the sourcing script to define `usage` and `parse_local_option` first, as before. `rotate.sh` and `verify.sh` source it (after `lib/log.sh`, so `LOG_PREFIX` stays correct \u2014 verified in the smoke test); `backup.sh`, `restore.sh`, `report.sh` are untouched.\n\n**Tests** \u2014 added a \"names with spaces\" check to the verify section and a new rotate section (exactly-3/keep-3 deletes nothing, newest archive kept). Per the repo's DESIGN.md rule, I confirmed all three new checks **fail on the buggy code** (reproducing the exact reported symptoms) before applying the fixes. `bash tests/run_tests.sh`: 9/9 ok, `all tests passed`. (Left behind a throwaway `/tmp/smoke_rotate_verify.sh`; deleting it needed approval I didn't push for.)\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, new `lib/common.sh`.",
+  "ttft_ms": 198938,
+  "type": "result",
+  "duration_ms": 386746,
+  "uuid": "469ec8ba-149f-4e70-abee-64e324687131",
+  "ttft_stream_ms": 5751,
+  "time_to_request_ms": 17,
+  "first_content_frame_ms": 39288,
+  "queued_turn_count": 0,
+  "result_index": 2,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 926.5,
+  "task_done": true,
+  "parallel_agent_calls": 1,
+  "subagents_spawned": 2,
+  "subagents": true
+}

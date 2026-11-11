@@ -1,0 +1,112 @@
+{
+  "duration_api_ms": 354274,
+  "stop_reason": "end_turn",
+  "session_id": "697814f9-1093-4b30-a77f-873d611d18d0",
+  "total_cost_usd": 0.6707352,
+  "usage": {
+    "input_tokens": 34395,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 861376,
+    "output_tokens": 18044,
+    "output_tokens_details": {
+      "thinking_tokens": 9401
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 34395,
+      "outputTokens": 18044,
+      "cacheReadInputTokens": 861376,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6707352,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9401,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_f0cd8fa4d9804e4c8c67369dc33db1a5_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp19-d stash -q && t=$(mktemp -d) && mkdir -p \"$t/dest\" && touch \"$t/dest/demo-20260101-000000.tar.gz\" \"$t/dest/demo-20260101-010000.tar.gz\" \"$t/dest/demo-20260101-020000.tar.gz\" && echo \"--- OLD rotate, keep 3 of 3:\" && bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp19-d/rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 3; echo \"remaining=$(ls \"$t/dest\" | wc -l | tr -d ' ')\"; printf 'p\\n' > \"$t/dest/my backup-20260101-000000.tar.gz\"; (cd \"$t/dest\" && shasum -a 256 \"my backup-20260101-000000.tar.gz\" > \"my backup-20260101-000000.tar.gz.sha256\"); echo \"--- OLD verify, spaced name:\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp19-d/verify.sh --quiet --dest \"$t/dest\"; echo \"rc=$?\"; rm -rf \"$t\"; git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp19-d stash pop -q",
+        "description": "Run new test scenarios against pre-fix code, then restore changes"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_73cd69daabbeb5c39657470dc13ffdb1_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh && bash -n lib/common.sh && bash -n rotate.sh && bash -n verify.sh && echo \"syntax ok\" && rm -f /tmp/soakgp19_check_old.sh /tmp/soakgp19_check_new.sh && git status --short",
+        "description": "Re-run test suite, syntax-check scripts, clean up"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 30,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `rotate.sh` (fixed `--keep`: `-lt`\u2192`-le` guard, oldest-first `head -n $((total-keep))` surplus), `verify.sh` (space-safe sidecar parsing, quoted `[[ ]]` digest compare), `tests/run_tests.sh` (one test per bug, both verified to fail pre-fix), and added `lib/common.sh` (shared option parser + `resolve_dir`) sourced by `rotate.sh` and `verify.sh` \u2014 all 8 tests pass. (Two throwaway check scripts remain in `/tmp/soakgp19_check_*.sh`; deletion outside the repo needed approval, so I left them.)",
+  "ttft_ms": 10593,
+  "type": "result",
+  "duration_ms": 355183,
+  "uuid": "a4fa7f31-0321-41e2-830f-1a340b602153",
+  "ttft_stream_ms": 4554,
+  "time_to_request_ms": 32,
+  "first_content_frame_ms": 10223,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 355.7,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

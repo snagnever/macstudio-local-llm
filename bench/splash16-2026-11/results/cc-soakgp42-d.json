@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 326208,
+  "stop_reason": "end_turn",
+  "session_id": "4a89f555-c27f-40ea-a916-0a453c126a45",
+  "total_cost_usd": 0.6718384,
+  "usage": {
+    "input_tokens": 37287,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 921952,
+    "output_tokens": 16915,
+    "output_tokens_details": {
+      "thinking_tokens": 6963
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 37287,
+      "outputTokens": 16915,
+      "cacheReadInputTokens": 921952,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6718384,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 6963,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_909828056b87b6f5aa1221ebcf86e1a9_0",
+      "tool_input": {
+        "command": "set -u\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp42-d\nt=$(mktemp -d); t=$(cd \"$t\" && pwd -P)\nmkdir -p \"$t/dest\"\n\n# 5 archives + sidecars; rotate --keep=3 (equals form) must delete the 2 oldest\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000 20260105-000000; do\n  printf 'a\\n' > \"$t/dest/demo-$s.tar.gz\"\n  (cd \"$t/dest\" && shasum -a 256 \"demo-$s.tar.gz\" > \"demo-$s.tar.gz.sha256\")\ndone\nout=$(bash \"$R/rotate.sh\" --quiet --dest=\"$t/dest\" --name=demo --keep=3)\necho \"rotate output: $out\"\necho \"remaining: $(cd \"$t/dest\" && ls | sort | paste -sd, -)\"\n\n# dry-run deletes nothing\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name demo --keep 1 -n\n# unknown option -> usage + exit 1\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name demo --bogus >/dev/null 2>&1; echo \"unknown option rc=$?\"\n# --help exits 0\nbash \"$R/rotate.sh\" --help >/dev/null; echo \"help rc=$?\"\nbash \"$R/verify.sh\" --help >/dev/null; echo \"verify help rc=$?\"\n# --keep 0 rejected\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name demo --keep 0 >/dev/null 2>&1; echo \"keep0 rc=$?\"\n# missing value\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name >/dev/null 2>&1; echo \"missing-value rc=$?\"\n# verify --name filter + positional rejection\necho \"verify filtered: $(bash \"$R/verify.sh\" --quiet --dest \"$t/dest\" --name demo | paste -sd, -)\"\nbash \"$R/verify.sh\" --quiet --dest \"$t/dest\" stray-arg >/dev/null 2>&1; echo \"verify positional rc=$?\"\nrm -rf \"$t\"",
+        "description": "Exercise rotate.sh and verify.sh flags manually"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7c25aaeeef7be76eed637bec65ee2c7f_0",
+      "tool_input": {
+        "command": "set -u\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp42-d\nt=$(mktemp -d)\nmkdir -p \"$t/dest\"\n\n# 5 archives + sidecars; rotate --keep=3 (equals form) must delete the 2 oldest\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000 20260105-000000; do\n  printf 'a\\n' > \"$t/dest/demo-$s.tar.gz\"\n  (cd \"$t/dest\" && shasum -a 256 \"demo-$s.tar.gz\" > \"demo-$s.tar.gz.sha256\")\ndone\nout=$(bash \"$R/rotate.sh\" --quiet --dest=\"$t/dest\" --name=demo --keep=3)\necho \"rotate output: $out\"\necho \"remaining: $(cd \"$t/dest\" && ls | sort | paste -sd, -)\"\n\n# dry-run deletes nothing\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name demo --keep 1 -n\n# unknown option -> usage + exit 1\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name demo --bogus >/dev/null 2>&1; echo \"unknown option rc=$?\"\n# --help exits 0\nbash \"$R/rotate.sh\" --help >/dev/null; echo \"help rc=$?\"\nbash \"$R/verify.sh\" --help >/dev/null; echo \"verify help rc=$?\"\n# --keep 0 rejected\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name demo --keep 0 >/dev/null 2>&1; echo \"keep0 rc=$?\"\n# missing value\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name >/dev/null 2>&1; echo \"missing-value rc=$?\"\n# verify --name filter + positional rejection\necho \"verify filtered: $(bash \"$R/verify.sh\" --quiet --dest \"$t/dest\" --name demo | paste -sd, -)\"\nbash \"$R/verify.sh\" --quiet --dest \"$t/dest\" stray-arg >/dev/null 2>&1; echo \"verify positional rc=$?\"\nrm -rf \"$t\"",
+        "description": "Exercise rotate.sh and verify.sh flags manually"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_04557834e3c4ea6de4ca8c44b445a83a_0",
+      "tool_input": {
+        "command": "set -u\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakgp42-d\nt=/tmp/rotate-verify-check-$$\nmkdir -p \"$t/dest\"\n\n# 5 archives + sidecars; rotate --keep=3 (equals form) must delete the 2 oldest\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000 20260105-000000; do\n  printf 'a\\n' > \"$t/dest/demo-$s.tar.gz\"\n  (cd \"$t/dest\" && shasum -a 256 \"demo-$s.tar.gz\" > \"demo-$s.tar.gz.sha256\")\ndone\nout=$(bash \"$R/rotate.sh\" --quiet --dest=\"$t/dest\" --name=demo --keep=3)\necho \"rotate output: $out\"\necho \"remaining: $(cd \"$t/dest\" && ls | sort | paste -sd, -)\"\n\n# dry-run deletes nothing\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name demo --keep 1 -n\n# unknown option -> usage + exit 1\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name demo --bogus >/dev/null 2>&1; echo \"unknown option rc=$?\"\n# --help exits 0\nbash \"$R/rotate.sh\" --help >/dev/null; echo \"help rc=$?\"\nbash \"$R/verify.sh\" --help >/dev/null; echo \"verify help rc=$?\"\n# --keep 0 rejected\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name demo --keep 0 >/dev/null 2>&1; echo \"keep0 rc=$?\"\n# missing value\nbash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name >/dev/null 2>&1; echo \"missing-value rc=$?\"\n# verify --name filter + positional rejection\necho \"verify filtered: $(bash \"$R/verify.sh\" --quiet --dest \"$t/dest\" --name demo | paste -sd, -)\"\nbash \"$R/verify.sh\" --quiet --dest \"$t/dest\" stray-arg >/dev/null 2>&1; echo \"verify positional rc=$?\"\nrm -rf \"/tmp/rotate-verify-check-$$\"",
+        "description": "Exercise rotate.sh and verify.sh flags manually"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_dfd289ac0d83218f38377f3a040f45e2_0",
+      "tool_input": {
+        "command": "rm /tmp/rotate-verify-check.sh && bash tests/run_tests.sh && git status --short",
+        "description": "Remove scratch script, rerun tests, show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 32,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 8 tests pass (`bash tests/run_tests.sh`).\n\n**I changed rotate.sh, verify.sh and tests/run_tests.sh, and added lib/common.sh.**\n\nDetails:\n- **rotate.sh** \u2014 `--keep N` bug: the surplus list used `tail -n +\"$keep\"` on the oldest-first list, which deleted one archive too many (and deleted the newest when exactly N existed). It's now `head -n $((total - keep))`, keeping exactly the N newest.\n- **verify.sh** \u2014 space bug: the sidecar line was split with `awk '{print $2}'`, truncating `my backup-\u2026tar.gz` to `my` and reporting BAD/archive-missing. The digest and name are now split with `read -r expected file`, which keeps spaces in the name; the digest comparison is also quoted (`[[ \"$expected\" == \"$actual\" ]]`).\n- **lib/common.sh** \u2014 new shared library holding the identical option-parsing block (now a `parse_options` function), `is_uint`, `need_value`, and `resolve_dir`. `rotate.sh` and `verify.sh` source it and call `parse_options \"$@\"`; all flags behave identically (`--dest=\u2026`/`--dest \u2026`, `--keep`, `-n`, `-q`, `-h`, `--`, unknown-option/missing-value/`--keep 0` rejections all verified manually). `backup.sh`, `restore.sh`, `report.sh` are untouched.\n- **tests/run_tests.sh** \u2014 added a rotate test (3 archives, `--keep 3` \u2192 nothing deleted, newest survives) and a verify test (intact `my backup-20260101-000000.tar.gz` with spaces \u2192 `ok`, exit 0).\n\nNote: my scratch check script at `/tmp/rotate-verify-check.sh` couldn't be deleted (sandbox permission), harmless; you can remove it.",
+  "ttft_ms": 11663,
+  "type": "result",
+  "duration_ms": 327284,
+  "uuid": "add6f378-9d86-44ce-911e-966a67b45190",
+  "ttft_stream_ms": 4537,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 11433,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 328.5,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}
