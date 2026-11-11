@@ -136,10 +136,10 @@ As horas vêm das Tasks equivalentes da splash16 e da W1 da campanha de pesos.
 
 **Steps:**
 
-- [ ] **Step 1: Acesso e estado do rig.** Confirmar `ssh -o BatchMode=yes vitor@mac-studio hostname`. Gravar em `results/etapa0-preflight.md`: macOS, disco, versão do Claude Code, binários em `~/.local/opt/qwen38`, tamanho do snapshot `0142554` no cache do HF e `env | grep -i proxy` num shell interativo (`zsh -ilc`).
-- [ ] **Step 2: Proxy.** Se o shell interativo do rig define `http_proxy` e o servidor usou `--api-key` com a 1.5.0, avisar o usuário para trocar a chave.
-- [ ] **Step 3: Instalar.** `SPLASH_TAG=1.6.1 bash bench/flashnext-next-steps-2026-10/scripts/install-runtime.sh splash`. O asset é `splash-1.6.1-arm64-macos26.tar.gz`, com digest `sha256:0ed408a781f951a13ff58bed95c9e8c1d1dc67ab9d649fcaf365972b6720ce6c`. Gravar `splash --version` e o help em `results/splash-161-help.txt`. Comparar com o `splash-160-help.txt` da splash16 e registrar os flags novos e os removidos. Confirmar que `--ple-memory off` existe.
-- [ ] **Step 4: Testes que falham** em `tests/test_arms.py` e `tests/test_tools.py`:
+- [x] **Step 1: Acesso e estado do rig.** Confirmar `ssh -o BatchMode=yes vitor@mac-studio hostname`. Gravar em `results/etapa0-preflight.md`: macOS, disco, versão do Claude Code, binários em `~/.local/opt/qwen38`, tamanho do snapshot `0142554` no cache do HF e `env | grep -i proxy` num shell interativo (`zsh -ilc`).
+- [x] **Step 2: Proxy.** Se o shell interativo do rig define `http_proxy` e o servidor usou `--api-key` com a 1.5.0, avisar o usuário para trocar a chave.
+- [x] **Step 3: Instalar.** `SPLASH_TAG=1.6.1 bash bench/flashnext-next-steps-2026-10/scripts/install-runtime.sh splash`. O asset é `splash-1.6.1-arm64-macos26.tar.gz`, com digest `sha256:0ed408a781f951a13ff58bed95c9e8c1d1dc67ab9d649fcaf365972b6720ce6c`. Gravar `splash --version` e o help em `results/splash-161-help.txt`. Comparar com o `splash-160-help.txt` da splash16 e registrar os flags novos e os removidos. Confirmar que `--ple-memory off` existe.
+- [x] **Step 4: Testes que falham** em `tests/test_arms.py` e `tests/test_tools.py`:
 
   ```python
   def test_k2h_runs_splash_161():             # --print: splash-v1.6.1/bin/splash, ukisai ...:IQ4_XS, --revision 0142554..., --runtime-revision v1.6.1-verify-auto
@@ -154,17 +154,17 @@ As horas vêm das Tasks equivalentes da splash16 e da W1 da campanha de pesos.
   def test_contract_accepts_161_as_16x():     # api_contract --version 1.6.1 com o servidor falso da 1.6.0: todas as linhas pass true
   ```
 
-- [ ] **Step 5: Rodar e ver que falham.** `uv run --no-project --with pytest python -m pytest bench/splash161-2026-11/tests -q`.
-- [ ] **Step 6: Implementar.** Gravar a fixture de `test_old_k2c_commands_stay_the_same` antes de mudar o `run-candidate.sh`.
-- [ ] **Step 7: Rodar e ver que passam.** As suítes de `bench/splash16-2026-11/tests`, `bench/flashnext-concurrency-2026-10/tests` e `bench/flashnext-weights-2026-11/tests` também passam.
-- [ ] **Step 8: Smoke no rig**, com o tempo até `/health` de cada start e o tamanho do snapshot `0142554` em `results/etapa0-smoke.md`:
+- [x] **Step 5: Rodar e ver que falham.** `uv run --no-project --with pytest python -m pytest bench/splash161-2026-11/tests -q`.
+- [x] **Step 6: Implementar.** Gravar a fixture de `test_old_k2c_commands_stay_the_same` antes de mudar o `run-candidate.sh`.
+- [x] **Step 7: Rodar e ver que passam.** As suítes de `bench/splash16-2026-11/tests`, `bench/flashnext-concurrency-2026-10/tests` e `bench/flashnext-weights-2026-11/tests` também passam.
+- [x] **Step 8: Smoke no rig**, com o tempo até `/health` de cada start e o tamanho do snapshot `0142554` em `results/etapa0-smoke.md`:
   1. `k2h` a 32768, só o cold. É o primeiro start: registrar o warm-up (`Warming up · N of M steps`).
   2. `k2f` a 32768, só o cold. Ele precisa subir com `--offline`.
   3. `k2h` a 32768 com `FLASHNEXT_SPLASH_XARGS="--ple-memory off"`, só o cold.
   4. `FLASHNEXT_SPLASH_TAG=1.6.1 k2c2a` a 32768, 1 rep. O `/status` precisa mostrar dois requests em decode.
   5. `FLASHNEXT_SPLASH_TAG=1.6.1 rc1` com a tarefa `a`, 1 rep. Copiar 3 linhas `Started` e 3 linhas `Done` do log do servidor para `tests/fixtures/splash-161-log.txt`.
-- [ ] **Step 9: Parser do log.** Escrever `test_parse_splash_log_reads_161_lines` com a fixture do Step 8: 3 requests, com `input_tokens`, `cached_tokens`, `output_tokens`, `ttft_s` e `tps` iguais aos das linhas. Ver que falha. Mudar as regex `STARTED` e `DONE` do `claude_requests.py` para aceitar `request N · ` opcional depois de `Started · ` e de `Done · `. Ver que passa, com os testes antigos do `test_claude_requests.py`.
-- [ ] **Step 10: Commit.** `bench(splash161): Task 0 — 1.6.1 arms, log parser, claim summary`.
+- [x] **Step 9: Parser do log.** Escrever `test_parse_splash_log_reads_161_lines` com a fixture do Step 8: 3 requests, com `input_tokens`, `cached_tokens`, `output_tokens`, `ttft_s` e `tps` iguais aos das linhas. Ver que falha. Mudar as regex `STARTED` e `DONE` do `claude_requests.py` para aceitar `request N · ` opcional depois de `Started · ` e de `Done · `. Ver que passa, com os testes antigos do `test_claude_requests.py`.
+- [x] **Step 10: Commit.** `bench(splash161): Task 0 — 1.6.1 arms, log parser, claim summary`.
 
 ### Task 1: Contrato da atualização
 
