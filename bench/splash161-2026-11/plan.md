@@ -170,11 +170,11 @@ As horas vêm das Tasks equivalentes da splash16 e da W1 da campanha de pesos.
 
 **Files:** `results/etapa1-contrato.md`, `results/contract-161.jsonl`, `results/engine-restart-161.json`.
 
-- [ ] **Step 1: C1 a C7** com `api_contract.py --version 1.6.1` no `k2h` a 32768. A splash16 tem o resultado da 1.5.0 e da 1.6.0. Uma linha `pass: false` vira item em `etapa1-contrato.md`.
-- [ ] **Step 2: Proxy.** Repetir o Step 3 da Task 1 da splash16 só na 1.6.1, com a chave de teste gerada na hora. Esperado: zero hits e `NO_PROXY` com os hosts de loopback. Não gravar o valor da chave em nenhum arquivo.
-- [ ] **Step 3: Restart do engine.** `engine_restart.py` no `k2h`. Esperado, como na 1.6.0: 503 `engine_recovering` com `Retry-After`, primeiro 200 antes de 2 × o tempo de boot, e `capabilities.max_context_tokens` igual. Registrar se o servidor sai com exit 69 em vez de voltar.
-- [ ] **Step 4: `/status` novo.** Registrar a presença de `console.dropped_lines`, `memory_governor.count_checks`, `metal.pipelines_created_while_serving`, `kv_spill.releases` e `tokenizer_cache.misses`. Registrar `metal.pipelines_created_while_serving` no fim de cada braço das Tasks 2 e 3.
-- [ ] **Step 5: Gravar `results/etapa1-contrato.md` e commitar.**
+- [x] **Step 1: C1 a C7** com `api_contract.py --version 1.6.1` no `k2h` a 32768. A splash16 tem o resultado da 1.5.0 e da 1.6.0. Uma linha `pass: false` vira item em `etapa1-contrato.md`.
+- [x] **Step 2: Proxy.** Repetir o Step 3 da Task 1 da splash16 só na 1.6.1, com a chave de teste gerada na hora. Esperado: zero hits e `NO_PROXY` com os hosts de loopback. Não gravar o valor da chave em nenhum arquivo.
+- [x] **Step 3: Restart do engine.** `engine_restart.py` no `k2h`. Esperado, como na 1.6.0: 503 `engine_recovering` com `Retry-After`, primeiro 200 antes de 2 × o tempo de boot, e `capabilities.max_context_tokens` igual. Registrar se o servidor sai com exit 69 em vez de voltar.
+- [x] **Step 4: `/status` novo.** Registrar a presença de `console.dropped_lines`, `memory_governor.count_checks`, `metal.pipelines_created_while_serving`, `kv_spill.releases` e `tokenizer_cache.misses`. Registrar `metal.pipelines_created_while_serving` no fim de cada braço das Tasks 2 e 3.
+- [x] **Step 5: Gravar `results/etapa1-contrato.md` e commitar.**
 
 ### Task 2: Velocidade e cache de um stream
 
