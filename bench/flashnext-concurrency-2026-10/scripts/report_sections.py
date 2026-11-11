@@ -70,15 +70,23 @@ def _band_chips() -> str:
 
 
 def _tbench_text(data: dict) -> str:
-    tb = data.get("tbench")
-    if not tb:
+    tbs = data.get("tbench") or {}
+    done = []
+    for key in ("splash", "mlx"):
+        tb = tbs.get(key)
+        if not tb:
+            continue
+        srv, total = _e(tb.get("server", "")), tb.get("total")
+        if tb.get("score") is not None and total:
+            solved = round(tb["score"] * total / 100)
+            done.append(f"{srv} solved {solved} of {_e(total)} tasks ({tb['score']:.1f}%)")
+        else:
+            done.append(f"{srv} is running ({_e(tb.get('done'))} of {_e(total)} tasks)")
+    if not done:
         return ("Agent quality (does the agent finish real tasks?) is <b>not measured</b> on either server yet: no "
                 "Terminal-Bench run has finished on these weights.")
-    srv = _e(tb.get("server", ""))
-    if tb.get("score") is not None:
-        return f"Agent quality: Terminal-Bench on {srv} scored {_e(tb['score'])} ({_e(tb.get('done'))} of {_e(tb.get('total'))} tasks)."
-    return (f"Agent quality (does the agent finish real tasks?) is <b>not measured</b> yet: Terminal-Bench on {srv} is "
-            f"running ({_e(tb.get('done'))} of {_e(tb.get('total'))} tasks); nothing on the other server.")
+    return ("Agent quality, Terminal-Bench 2.1 with the same weights, one attempt per task: " + "; ".join(done)
+            + ". A gap of one or two tasks is within the noise of a single attempt.")
 
 
 # ---- sections ----
@@ -155,8 +163,9 @@ def one_session(data: dict) -> str:
     tb_cells = []
     for s in _servers(data):
         tb = one[s["key"]]["tbench"]
-        tb_cells.append("n/m" if not tb else (f"score {tb['score']}" if tb.get("score") is not None
-                                              else f"running, {tb.get('done')} of {tb.get('total')} tasks"))
+        tb_cells.append("n/m" if not tb else (
+            f"{round(tb['score'] * tb['total'] / 100)} of {tb['total']} ({tb['score']:.1f}%), {tb.get('server', '')}"
+            if tb.get("score") is not None and tb.get("total") else f"running, {tb.get('done')} of {tb.get('total')} tasks"))
     trows.append(["Agent quality (Terminal-Bench)"] + tb_cells)
     table = RR._table(["task alone", *[s["label"] for s in _servers(data)]], trows, "wide")
     return _sec("one", "1. One session", "What does a normal coding turn feel like, alone on the server?",
@@ -327,11 +336,22 @@ def long_context(data: dict) -> str:
 def recommendation(data: dict) -> str:
     srv = {s["key"]: s for s in _servers(data)}
     rec = srv[data["recommended"]]["label"]
+    tbs = data.get("tbench") or {}
+    if all(tbs.get(k) and tbs[k].get("score") is not None for k in ("splash", "mlx")):
+        solved = sorted(round(tbs[k]["score"] * tbs[k]["total"] / 100) for k in ("splash", "mlx"))
+        quality = ["Quality-critical work", "either",
+                   f"Terminal-Bench 2.1 solved {solved[0]} and {solved[1]} of 89 tasks, within the noise of one attempt"]
+    else:
+        quality = ["Quality-critical work", "pending Terminal-Bench on both",
+                   "the two servers run different weights (GGUF IQ4_XS vs MLX 4.7 bpw)"]
     rows = [["One or two Claude Code sessions", rec, "faster alone, cheaper second session, short calls do not stall"],
-            ["Quality-critical work", "pending Terminal-Bench on both", "the two servers run different weights (GGUF IQ4_XS vs MLX 4.7 bpw)"],
+            quality,
             ["Three sessions, or parallel subagents", "neither", "2.4× or slower per turn"],
             ["Two long (256K) sessions", rec, "fits without settings; expect a long first read"]]
-    return _sec("recommend", "6. Recommendation", "", RR._table(["use", "server", "why"], rows, "wide"))
+    note = ('<p class="s-note">Splash release (November 2026): stay on Splash 1.5.0. On Splash 1.6.0 two 256K sessions '
+            'are up to 65% slower because of memory claim waits, and Claude Code sessions at 128K finish sooner but '
+            'with a lower minimum generation speed (<a href="qwen38-flashnext-splash160.html">Splash 1.6.0 page</a>).</p>')
+    return _sec("recommend", "6. Recommendation", "", RR._table(["use", "server", "why"], rows, "wide") + note)
 
 
 def coverage(data: dict) -> str:
