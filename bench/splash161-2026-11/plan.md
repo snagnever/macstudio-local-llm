@@ -227,9 +227,9 @@ Tarefas c e d, contexto 131072, `CLAUDE_BIN` na 2.1.292. A tag da 1.6.1 é `h1` 
 
 Churn de 15 min sob `--max-memory 64G`, contexto 131072, na ordem `k2f`, `k2h`, `k2h`, `k2f`, no modo de PLE escolhido. A splash16 mediu um maior gap de 48.8 s na 1.5.0 e de 2.5 s na 1.6.0.
 
-- [ ] **Step 1: Fila.** `serving_load.py churn` nas quatro posições.
-- [ ] **Step 2: Resumo.** `summarize_load.py` aplica o gate de stall. Gravar `results/etapa5-pressao.md`: maior gap, p99, requests sem resposta, requests feitos e `metrics.decode_gap_causes` na 1.6.1.
-- [ ] **Step 3: Commit.**
+- [x] **Step 1: Fila.** `serving_load.py churn` nas quatro posições.
+- [x] **Step 2: Resumo.** `summarize_load.py` aplica o gate de stall. Gravar `results/etapa5-pressao.md`: maior gap, p99, requests sem resposta, requests feitos e `metrics.decode_gap_causes` na 1.6.1.
+- [x] **Step 3: Commit.**
 
 ### Task 6: Qualidade
 
