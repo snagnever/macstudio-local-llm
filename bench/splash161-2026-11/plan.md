@@ -235,11 +235,11 @@ Churn de 15 min sob `--max-memory 64G`, contexto 131072, na ordem `k2f`, `k2h`, 
 
 Só roda se as Tasks 1 a 5 passam no modo de PLE escolhido. Braço `k2h` no modo escolhido, a 262144.
 
-- [ ] **Step 1: Bateria.** `run-battery.sh k2h v161 --suites "humaneval gpqa livecodebench if jdhodges veerman" --ctx 262144`, com effort `xhigh`, como a W1 da campanha de pesos. Commitar os JSONL por questão.
-- [ ] **Step 2: Tool calls.** `toolcall-probe.sh k2h --sessions 20 --suffix v161 --max-tokens 2048`, com `TOOLCALL_CAMPAIGN_DIR` nesta campanha. O script roda os perfis `fp0` e `fp1`. A nota conta sessões com todos os turnos certos, como a W1.
-- [ ] **Step 3: Longctx.** `longctx_probe.py --context 262144` e `--context 131072`.
-- [ ] **Step 4: Resumo.** `summarize_ab.py`, G1 e G2, do `k2h` contra o `k2f` W1 (293 de 336) e contra o `k2f` W2 (302 de 336). O G1 passa se passa nas duas comparações. Se uma suíte falhar no G1, repetir a suíte uma vez no `k2h` e no `k2f`, antes do veredito. Gravar `results/etapa6-qualidade.md`, com a mediana de tokens em gpqa e livecodebench.
-- [ ] **Step 5: Commit.**
+- [x] **Step 1: Bateria.** `run-battery.sh k2h v161 --suites "humaneval gpqa livecodebench if jdhodges veerman" --ctx 262144`, com effort `xhigh`, como a W1 da campanha de pesos. Commitar os JSONL por questão.
+- [x] **Step 2: Tool calls.** `toolcall-probe.sh k2h --sessions 20 --suffix v161 --max-tokens 2048`, com `TOOLCALL_CAMPAIGN_DIR` nesta campanha. O script roda os perfis `fp0` e `fp1`. A nota conta sessões com todos os turnos certos, como a W1.
+- [x] **Step 3: Longctx.** `longctx_probe.py --context 262144` e `--context 131072`.
+- [x] **Step 4: Resumo.** `summarize_ab.py`, G1 e G2, do `k2h` contra o `k2f` W1 (293 de 336) e contra o `k2f` W2 (302 de 336). O G1 passa se passa nas duas comparações. Se uma suíte falhar no G1, repetir a suíte uma vez no `k2h` e no `k2f`, antes do veredito. Gravar `results/etapa6-qualidade.md`, com a mediana de tokens em gpqa e livecodebench.
+- [x] **Step 5: Commit.**
 
 ### Task 7: Carga de agente de 4 h
 
