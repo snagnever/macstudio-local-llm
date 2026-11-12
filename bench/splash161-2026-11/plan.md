@@ -261,7 +261,7 @@ Só roda se a Task 6 passa. `agent_soak.sh --hours 4 --tag h161` no `k2h`, no mo
   - Na nota de stack de 11/11, trocar o teste 1 por um link para o resultado.
   - Atualizar `reports/qwen38-flashnext-splash160.html` pelo `render_page.py` da splash16, com uma seção da 1.6.1, ou criar uma página nova se a seção não couber. O texto do report fica em inglês. Atualizar o card em `reports/index.html`.
   - Se o launcher mudar, atualizar a recomendação de `reports/qwen38-flashnext-concurrency.html` pelo `render_report.py` e a seção "November update" de `reports/qwen38-flashnext-m4max-guide.html`.
-- [ ] **Step 5: Push e PR.** Base: a `main`, se o PR #84 já tiver merge; senão, a `bench/splash16-2026-11`. O corpo termina em `🤖 Generated with [Claude Code](https://claude.com/claude-code)`. Não fazer merge.
+- [x] **Step 5: Push e PR.** Base: a `main`, se o PR #84 já tiver merge; senão, a `bench/splash16-2026-11`. O corpo termina em `🤖 Generated with [Claude Code](https://claude.com/claude-code)`. Não fazer merge.
 
 ### Fora da fila, só com pedido do usuário
 
