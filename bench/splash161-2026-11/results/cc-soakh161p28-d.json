@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 327472,
+  "stop_reason": "end_turn",
+  "session_id": "5bcaa022-d3b8-4fc5-b5fd-b3f7d9240a05",
+  "total_cost_usd": 0.6910831999999999,
+  "usage": {
+    "input_tokens": 35533,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 907456,
+    "output_tokens": 18373,
+    "output_tokens_details": {
+      "thinking_tokens": 9834
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 35533,
+      "outputTokens": 18373,
+      "cacheReadInputTokens": 907456,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6910831999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9834,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_64269f929fe7cb5b54335f7193b44642_0",
+      "tool_input": {
+        "command": "d=$(mktemp -d) && mkdir -p \"$d/src\" && echo x > \"$d/src/f\"\nfor s in 20260101-000000 20260101-010000 20260101-020000 20260101-030000; do\n  BACKUP_STAMP=$s bash rotate.sh --quiet --dest \"$d/dest\" --name demo \"$d/src\" >/dev/null\ndone\necho \"--- dry-run, keep=2:\"; bash rotate.sh --quiet --dry-run --keep=2 --dest \"$d/dest\" --name demo\necho \"--- real run, --keep 2:\"; bash rotate.sh --quiet --keep 2 --dest \"$d/dest\" --name demo\necho \"--- remaining:\"; ls \"$d/dest\" | sort\necho \"--- sidecars of deleted archives gone?\"; ls \"$d/dest\"/*.sha256\necho \"--- unknown option rc:\"; bash rotate.sh --dest \"$d/dest\" --name demo --bogus 2>/dev/null; echo \"rc=$?\"\necho \"--- missing value rc:\"; bash verify.sh --dest 2>/dev/null; echo \"rc=$?\"\necho \"--- help rc:\"; bash verify.sh --help >/dev/null; echo \"rc=$?\"\nrm -rf \"$d\"",
+        "description": "Sanity-check rotate surplus, dry-run, and flag handling"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_f0b560b428beb463bef3364acafd81a7_0",
+      "tool_input": {
+        "command": "d=$(mktemp -d) && mkdir -p \"$d/src\" && printf 'x\\n' | tee \"$d/src/f\" >/dev/null\nfor s in 20260101-000000 20260101-010000 20260101-020000 20260101-030000; do\n  BACKUP_STAMP=$s bash rotate.sh --quiet --dest \"$d/dest\" --name demo \"$d/src\" >/dev/null\ndone\necho \"--- dry-run, keep=2:\"; bash rotate.sh --quiet --dry-run --keep=2 --dest \"$d/dest\" --name demo\necho \"--- real run, --keep 2:\"; bash rotate.sh --quiet --keep 2 --dest \"$d/dest\" --name demo\necho \"--- remaining:\"; ls \"$d/dest\" | sort\necho \"--- unknown option:\"; bash rotate.sh --dest \"$d/dest\" --name demo --bogus 2>/dev/null; echo \"rc=$?\"\necho \"--- missing value:\"; bash verify.sh --dest 2>/dev/null; echo \"rc=$?\"\necho \"--- help:\"; bash verify.sh --help >/dev/null; echo \"rc=$?\"\nrm -rf \"$d\"",
+        "description": "Sanity-check rotate surplus, dry-run, and flag handling"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_fb11648d6babc2f98b920db0d86c555b_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/rotate-check; mkdir -p /tmp/rotate-check/src; echo x | tee /tmp/rotate-check/src/f >/dev/null; BACKUP_STAMP=20260101-000000 bash rotate.sh --quiet --dest /tmp/rotate-check/dest --name demo /tmp/rotate-check/src; BACKUP_STAMP=20260101-010000 bash rotate.sh --quiet --dest /tmp/rotate-check/dest --name demo /tmp/rotate-check/src; BACKUP_STAMP=20260101-020000 bash rotate.sh --quiet --dest /tmp/rotate-check/dest --name demo /tmp/rotate-check/src; BACKUP_STAMP=20260101-030000 bash rotate.sh --quiet --dest /tmp/rotate-check/dest --name demo /tmp/rotate-check/src",
+        "description": "Create four demo archives in /tmp/rotate-check/dest"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_bc25ebbc0fee763bfe1bf93f51ea66b4_0",
+      "tool_input": {
+        "command": "rm -f /tmp/rotate-sanity.sh",
+        "description": "Delete temporary sanity-check script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 31,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All done \u2014 the suite (`bash tests/run_tests.sh`) reports **all tests passed** (8 checks, including the two new regression tests).\n\nNotes on the fixes:\n- **rotate.sh** \u2014 `surplus()` used `tail -n +\"$keep\"`, which starts *at* line N of the oldest-first list, so with exactly N archives it deleted the newest. It now uses `head -n \"$((total - keep))\"`, i.e. delete all but the KEEP newest.\n- **verify.sh** \u2014 the sidecar's filename was extracted with `awk '{print $2}'`, cutting at the first space. It now takes the digest as the first field and the filename as the rest of the line verbatim (spaces preserved).\n- **lib/common.sh** (new) \u2014 holds the shared option-parsing loop, `is_uint`, `need_value`, and `resolve_dir`, sourced by rotate.sh and verify.sh; `backup.sh`, `restore.sh`, `report.sh` untouched.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and the new `lib/common.sh`.",
+  "ttft_ms": 11336,
+  "type": "result",
+  "duration_ms": 328984,
+  "uuid": "55a3d593-c960-432a-b4f6-25196934e2d4",
+  "ttft_stream_ms": 4154,
+  "time_to_request_ms": 35,
+  "first_content_frame_ms": 10996,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 329.4,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

@@ -1,0 +1,144 @@
+{
+  "duration_api_ms": 300736,
+  "stop_reason": "end_turn",
+  "session_id": "56e4d49e-5924-4da8-aa2a-3cd8767e7a71",
+  "total_cost_usd": 0.8157759999999998,
+  "usage": {
+    "input_tokens": 36621,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1328160,
+    "output_tokens": 20183,
+    "output_tokens_details": {
+      "thinking_tokens": 9981
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 36621,
+      "outputTokens": 20183,
+      "cacheReadInputTokens": 1328160,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.8157759999999998,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9981,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_bc4e4572650dd642fbb2938b1247ee40_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/bugcheck && cp -R /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p11-d /tmp/bugcheck && git -C /tmp/bugcheck checkout -- rotate.sh verify.sh && bash /tmp/bugcheck/tests/run_tests.sh; echo \"exit=$?\"",
+        "description": "Run new tests against original buggy scripts in a copy"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_77675a093ef06091fdd1a79491bacf78_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/bugcheck; cp -R /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p11-d /tmp/bugcheck",
+        "description": "Copy repo to /tmp/bugcheck for a regression check"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c8d162813f342255293aefd441cb2c2e_0",
+      "tool_input": {
+        "command": "cp -R /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p11-d /tmp/bugcheck-a1",
+        "description": "Copy repo to /tmp/bugcheck-a1 for a regression check"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_3ea280012327d765e78e07b7a605fd2b_0",
+      "tool_input": {
+        "command": "git stash push -- rotate.sh verify.sh",
+        "description": "Temporarily restore original buggy rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_801cbd49b40358ebb5dce991e458dcd4_1",
+      "tool_input": {
+        "command": "line='e3b0c442  my backup-20260101-000000.tar.gz'; read -r expected file <<< \"$line\"; printf 'expected=[%s] file=[%s]\\n' \"$expected\" \"$file\"",
+        "description": "New sidecar parsing preserves space in file name"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_4cd05741d2dad9d788b67d41ab6e1fcc_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p11-d diff --stat && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p11-d status --short",
+        "description": "Show diff stat and status"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 37,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All checks pass. Summary of what was done:\n\n**Bug 1 \u2014 rotate.sh** (`rotate.sh:100-108`): the old `surplus()` used `tail -n +\"$keep\"`, which selects from the *keep*-th line of a list sorted oldest-first \u2014 so with exactly N archives it deleted one (the newest), and in general it deleted the newest archives instead of the oldest. Now `surplus()` emits the oldest `total-keep` lines (`head -n \"$((total - keep))\"`), and the early exit uses `-le` so nothing is deleted (and `head -n 0` never runs on BSD head) when `total <= keep`.\n\n**Bug 2 \u2014 verify.sh** (`verify.sh:96-100,112`): `awk '{print $2}'` split the sidecar line on every space, truncating `my backup-20260101-000000.tar.gz` to `my` \u2192 \"archive missing\"/BAD. The line is now split with `read -r expected file <<< \"$line\"` (digest + full remainder), and the digest comparison is properly quoted.\n\n**Refactor**: new `lib/common.sh` holds the shared option-parsing block (`--dest/--name/--keep/-q/-n/-h/--` + positionals, `is_uint`, `need_value`, KEEP validation) and `resolve_dir`, with the same double-sourcing guard style as `lib/log.sh`. `rotate.sh` and `verify.sh` source it (after defining `usage`/`parse_local_option`, as the parser runs at source time) and accept exactly the same flags/exit codes \u2014 verified against 11 flag/error cases. `backup.sh`, `restore.sh`, `report.sh` untouched.\n\n**Tests** (`tests/run_tests.sh`): one test per bug \u2014 rotate with 3 archives and `--keep 3` deletes nothing (fails on the old code, which deleted the newest); verify of `my backup-20260101-000000.tar.gz` reports ok / rc=0. `bash tests/run_tests.sh`: 8/8 ok.\n\nChanged files: rotate.sh, verify.sh, tests/run_tests.sh, and new lib/common.sh.",
+  "ttft_ms": 10366,
+  "type": "result",
+  "duration_ms": 302234,
+  "uuid": "48d829ae-f88c-44cf-a095-c3be56021122",
+  "ttft_stream_ms": 4337,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 10057,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 303.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

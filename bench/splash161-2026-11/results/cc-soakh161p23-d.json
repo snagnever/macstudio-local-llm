@@ -1,0 +1,129 @@
+{
+  "duration_api_ms": 308332,
+  "stop_reason": "end_turn",
+  "session_id": "1a32c259-1f26-45e7-b852-230c56f71064",
+  "total_cost_usd": 0.629712,
+  "usage": {
+    "input_tokens": 32635,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 798560,
+    "output_tokens": 16973,
+    "output_tokens_details": {
+      "thinking_tokens": 9732
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 32635,
+      "outputTokens": 16973,
+      "cacheReadInputTokens": 798560,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.629712,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9732,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_6a4e6290692589db0b2347ea782aa032_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); cd \"$t\"\nrun() { desc=\"$1\"; shift; rc=0; out=$(\"$@\" 2>&1) || rc=$?; echo \"[$rc] $desc :: $(echo \"$out\" | head -1)\"; }\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p23-d\n\nmkdir -p dest; printf 'a\\n' > dest/demo-20260101-000000.tar.gz; printf 'b\\n' > dest/demo-20260102-000000.tar.gz\nrun \"rotate --help\"                bash \"$R/rotate.sh\" --help\nrun \"rotate --dest= form\"          bash \"$R/rotate.sh\" --quiet --dest=\"$t/dest\" --name=demo --keep=1\nrun \"rotate keep=1 deletes 1 (2->1)\" bash \"$R/rotate.sh\" --quiet --dest \"$t/dest\" --name demo --keep 1\nrun \"rotate unknown flag\"          bash \"$R/rotate.sh\" --dest \"$t/dest\" --name demo --bogus\nrun \"rotate bad --keep value\"      bash \"$R/rotate.sh\" --dest \"$t/dest\" --name demo --keep x\nrun \"rotate keep 0 refused\"        bash \"$R/rotate.sh\" --dest \"$t/dest\" --name demo --keep 0\nrun \"rotate positional refused\"    bash \"$R/rotate.sh\" --dest \"$t/dest\" --name demo extra\nrun \"rotate missing dest\"          bash \"$R/rotate.sh\" --dest \"$t/nodir\" --name demo\nrun \"rotate missing --dest\"        bash \"$R/rotate.sh\" --name demo\nrun \"rotate missing value\"         bash \"$R/rotate.sh\" --dest\nrun \"rotate -n dry-run\"            bash \"$R/rotate.sh\" -q -n --dest \"$t/dest\" --name demo --keep 1\nrun \"verify --help\"                bash \"$R/verify.sh\" -h\nrun \"verify missing dest\"          bash \"$R/verify.sh\" --dest \"$t/nodir\"\nrun \"verify --name filter\"         bash \"$R/verify.sh\" --quiet --dest \"$t/dest\" --name other\nrun \"verify no sidecars\"           bash \"$R/verify.sh\" -q --dest \"$t/dest\"\nls \"$t/dest\"\nrm -rf \"$t\"",
+        "description": "Exercise every flag path of rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_96e454110bed9055ef3501617da7842f_0",
+      "tool_input": {
+        "command": "rm tests/.flag_check_tmp.sh && bash tests/run_tests.sh && git status --short && git diff --stat",
+        "description": "Remove temp checker, run tests, show changed files"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_24b50eb7643a9ad6757cb0cbe2158bc8_0",
+      "tool_input": {
+        "command": "rm tests/.flag_check_tmp.sh",
+        "description": "Remove temporary flag-check script"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_751068fc4c8391b9c39099cd0e15bc79_0",
+      "tool_input": {
+        "command": "rm tests/.flag_check_tmp.sh",
+        "description": "Remove temporary flag-check script I created (needs approval)",
+        "dangerouslyDisableSandbox": true
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 24,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 10 tests pass. One note: the sandbox auto-denied shell deletes, so my throwaway flag-checker `tests/.flag_check_tmp.sh` is still on disk \u2014 please delete it (or tell me and I'll retry with your approval); `git status` lists everything else as intended.\n\n**Changed files:** `rotate.sh` (surplus = oldest `total-keep` via `head -n`, not newest via `tail -n +keep`; sources shared lib), `verify.sh` (sidecar name split on first whitespace only, so names with spaces verify ok; sources shared lib), `lib/common.sh` (new \u2014 shared option parser + `resolve_dir`), `tests/run_tests.sh` (new tests: rotate keeps all at exactly N and deletes the oldest first; verify ok on `my backup-20260101-000000.tar.gz`). `backup.sh`, `restore.sh`, `report.sh` untouched.",
+  "ttft_ms": 4485,
+  "type": "result",
+  "duration_ms": 309495,
+  "uuid": "1ad332fe-65d4-468e-bd8e-f7d7e1885da6",
+  "ttft_stream_ms": 74,
+  "time_to_request_ms": 45,
+  "first_content_frame_ms": 4273,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 310.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

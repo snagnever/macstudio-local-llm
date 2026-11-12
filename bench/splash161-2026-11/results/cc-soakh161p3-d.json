@@ -1,0 +1,112 @@
+{
+  "duration_api_ms": 313446,
+  "stop_reason": "end_turn",
+  "session_id": "2a9ba8f8-bbd6-4022-9128-198d13db517e",
+  "total_cost_usd": 0.733664,
+  "usage": {
+    "input_tokens": 36853,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1192160,
+    "output_tokens": 17391,
+    "output_tokens_details": {
+      "thinking_tokens": 8040
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 36853,
+      "outputTokens": 17391,
+      "cacheReadInputTokens": 1192160,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.733664,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 8040,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_f16ce1546f5cc5ae2f94ea2e4b9ab87f_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d) && mkdir -p \"$t/d\" && cd \"$t\" &&\necho \"-- rotate -h:\" && bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p3-d/rotate.sh -h >/dev/null && echo rc=0 &&\necho \"-- rotate =form + dry-run:\" && touch \"$t/d/demo-20260101-010000.tar.gz\" \"$t/d/demo-20260102-020000.tar.gz\" && bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p3-d/rotate.sh -q --dest=\"$t/d\" --name=demo --keep=1 -n &&\necho \"-- rotate bad keep:\" ; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p3-d/rotate.sh -q --dest \"$t/d\" --name demo --keep x 2>&1; echo \"rc=$?\" ;\necho \"-- rotate unknown flag:\" ; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p3-d/rotate.sh --bogus 2>&1 | tail -1; \necho \"-- verify missing value:\" ; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p3-d/verify.sh --dest 2>&1; echo \"rc=$?\";\necho \"-- verify missing dir:\" ; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p3-d/verify.sh --dest /nope 2>&1; echo \"rc=$?\";\necho \"-- verify -q with spaces name --name filter:\" ; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p3-d/verify.sh --quiet --dest=\"$t/d\" --name demo; echo \"rc=$?\";\nrm -rf \"$t\"",
+        "description": "Spot-check flag handling of refactored rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_57a4107669de36de49dd7d16532b9385_0",
+      "tool_input": {
+        "command": "rm /tmp/check_flags_soakh161p3d.sh",
+        "description": "Remove temporary check script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 33,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done \u2014 all 9 tests pass from the repository root. (The /tmp scratch script couldn't be deleted due to sandbox permissions; it's harmless.)\n\nWhat was done:\n- **rotate.sh** \u2014 `surplus()` used `tail -n +\"$keep\"` on an oldest-first list, which deletes from the KEEP-th entry *forward*, i.e. the newest archives (with exactly N archives it deleted the newest). Now it selects the oldest `total - keep` entries (`head -n $((total - keep))`), and the \"nothing to rotate\" early exit fires at `total <= keep`.\n- **verify.sh** \u2014 the sidecar file name was extracted with `awk '{print $2}'`, which grabs only the first word, so `my backup-\u2026.tar.gz` was truncated to `my` and reported BAD. Now the name is everything after the digest and its trailing whitespace, and the digest comparison uses a quoted `[[ ]]`.\n- **lib/common.sh** \u2014 new file holding the identical option-parsing block and `resolve_dir` helper, sourced by rotate.sh and verify.sh (backup/restore/report left untouched); all flags (`--dest`, `--dest=`, `--name`, `--keep`, `-q`, `-n`, `-h`, `--`, unknown-option handling) verified to behave the same.\n- **tests/run_tests.sh** \u2014 added tests: verify ok for an intact archive whose name contains spaces; rotate deletes nothing when exactly N archives exist, and deletes only the oldest when asked to keep 2 of 3.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, plus new `lib/common.sh`.",
+  "ttft_ms": 10270,
+  "type": "result",
+  "duration_ms": 314612,
+  "uuid": "8b162fbe-b2c2-4a54-a238-b38e8ea5ff76",
+  "ttft_stream_ms": 4301,
+  "time_to_request_ms": 35,
+  "first_content_frame_ms": 9895,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 315.3,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

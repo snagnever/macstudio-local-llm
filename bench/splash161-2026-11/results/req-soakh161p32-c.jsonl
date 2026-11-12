@@ -1,0 +1,14 @@
+{"t_start_s": 35.487, "ttft_s": 9.27, "t_end_s": 45.402, "input_tokens": 19444, "cached_tokens": 16032, "output_tokens": 94, "tps": 145.7, "status": 200, "stream": "soakh161p32-c"}
+{"t_start_s": 45.468, "ttft_s": 4.485, "t_end_s": 52.5, "input_tokens": 20042, "cached_tokens": 19424, "output_tokens": 194, "tps": 76.2, "status": 200, "stream": "soakh161p32-c"}
+{"t_start_s": 52.513, "ttft_s": 15.523, "t_end_s": 71.222, "input_tokens": 24957, "cached_tokens": 20032, "output_tokens": 233, "tps": 73.1, "status": 200, "stream": "soakh161p32-c"}
+{"t_start_s": 71.239, "ttft_s": null, "t_end_s": 71.24, "input_tokens": 0, "cached_tokens": null, "output_tokens": 0, "tps": null, "status": 200, "stream": "soakh161p32-c"}
+{"t_start_s": 71.25, "ttft_s": 66.44, "t_end_s": 163.642, "input_tokens": 51280, "cached_tokens": 24928, "output_tokens": 1599, "tps": 61.6, "status": 200, "stream": "soakh161p32-c"}
+{"t_start_s": 163.666, "ttft_s": 3.372, "t_end_s": 172.585, "input_tokens": 52969, "cached_tokens": 51264, "output_tokens": 532, "tps": 95.9, "status": 200, "stream": "soakh161p32-c"}
+{"t_start_s": 172.597, "ttft_s": 0.954, "t_end_s": 179.762, "input_tokens": 53591, "cached_tokens": 52960, "output_tokens": 613, "tps": 98.7, "status": 200, "stream": "soakh161p32-c"}
+{"t_start_s": 179.774, "ttft_s": 1.22, "t_end_s": 188.1, "input_tokens": 54408, "cached_tokens": 53568, "output_tokens": 682, "tps": 96.0, "status": 200, "stream": "soakh161p32-c"}
+{"t_start_s": 188.112, "ttft_s": 1.154, "t_end_s": 192.787, "input_tokens": 55180, "cached_tokens": 54400, "output_tokens": 195, "tps": 55.4, "status": 200, "stream": "soakh161p32-c"}
+{"t_start_s": 192.951, "ttft_s": 0.557, "t_end_s": 199.733, "input_tokens": 55434, "cached_tokens": 55168, "output_tokens": 581, "tps": 93.3, "status": 200, "stream": "soakh161p32-c"}
+{"t_start_s": 199.755, "ttft_s": 1.084, "t_end_s": 203.612, "input_tokens": 56160, "cached_tokens": 55424, "output_tokens": 205, "tps": 73.9, "status": 200, "stream": "soakh161p32-c"}
+{"t_start_s": 203.778, "ttft_s": 0.675, "t_end_s": 207.212, "input_tokens": 56497, "cached_tokens": 56128, "output_tokens": 247, "tps": 89.6, "status": 200, "stream": "soakh161p32-c"}
+{"t_start_s": 207.222, "ttft_s": 0.679, "t_end_s": 211.661, "input_tokens": 56833, "cached_tokens": 56480, "output_tokens": 290, "tps": 77.1, "status": 200, "stream": "soakh161p32-c"}
+{"t_start_s": 211.805, "ttft_s": 0.754, "t_end_s": 214.643, "input_tokens": 57233, "cached_tokens": 56800, "output_tokens": 130, "tps": 62.4, "status": 200, "stream": "soakh161p32-c"}

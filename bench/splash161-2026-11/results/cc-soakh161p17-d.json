@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 244121,
+  "stop_reason": "end_turn",
+  "session_id": "4c2eb24c-6839-40fb-879f-25f9ae6c619e",
+  "total_cost_usd": 0.4646791999999999,
+  "usage": {
+    "input_tokens": 26162,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 654656,
+    "output_tokens": 11455,
+    "output_tokens_details": {
+      "thinking_tokens": 5132
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 26162,
+      "outputTokens": 11455,
+      "cacheReadInputTokens": 654656,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.4646791999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 5132,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_74d5657dd3213da260703e9e06d03e58_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/d\"; printf 'a\\n' > \"$t/d/x-20260101-000000.tar.gz\"; bash rotate.sh --dest \"$t/d\" --name x --keep 1 --dry-run; bash rotate.sh --name x 2>&1 | tail -1; bash rotate.sh --bogus 2>&1 | tail -1; bash verify.sh --dest=\"$t/d\" --quiet; bash verify.sh --dest \"$t/d\" --name nosuch --quiet; echo \"rc=$?\"; rm -rf \"$t\"",
+        "description": "Smoke-test rotate/verify flags after refactor"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9039f88653c117793ab352dfbdde7c68_0",
+      "tool_input": {
+        "command": "t=/tmp/bkt-smoke; rm -rf $t; mkdir -p $t/d; printf 'a\\n' > $t/d/x-20260101-000000.tar.gz; bash rotate.sh --dest $t/d --name x --keep 1 --dry-run; bash rotate.sh --name x 2>&1 | tail -1; bash rotate.sh --bogus 2>&1 | tail -1; bash verify.sh --dest=$t/d --quiet; echo \"rc-nosidecars=$?\"; rm -rf $t",
+        "description": "Smoke-test rotate/verify flags after refactor"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_40a1365dd14c3cc8da9ad322ed87d88c_0",
+      "tool_input": {
+        "command": "rm -f /tmp/bkt_smoke.sh && bash tests/run_tests.sh",
+        "description": "Remove smoke script and run full test suite"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 23,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All done \u2014 full suite passes (`all tests passed`, 9/9).\n\nWhat changed:\n- **`rotate.sh`** \u2014 bug 1: `surplus()` used `tail -n +\"$keep\"` on a list sorted oldest-first, so with exactly N archives it deleted the newest. It now deletes the first `total - keep` entries (`head -n`), with an early exit when `total <= keep`.\n- **`verify.sh`** \u2014 bug 2: the sidecar line was split with `awk '{print $2}'`, which truncated names at the first space, and the digest comparison used an unquoted `[ $expected == $actual ]` that choked on spaces. It now splits on the `shasum` double-space with parameter expansion and compares quoted strings in `[[ ]]`.\n- **`lib/common.sh`** \u2014 new: the shared option-parsing block (`--dest/--name/--keep/-q/-n/-h/--` plus `is_uint`/`need_value` and `--keep` validation) and `resolve_dir`; sourced by `rotate.sh` and `verify.sh` (each defines `parse_local_option` first, as the parser contract requires), so both keep accepting the same flags.\n- **`tests/run_tests.sh`** \u2014 added a verify test for `my backup-<stamp>.tar.gz` (space in name \u2192 `ok`) and rotate tests (`--keep 3` with exactly 3 archives deletes nothing; `--keep 1` keeps the newest, deletes the oldest).\n\n`backup.sh`, `restore.sh`, and `report.sh` are untouched.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, plus new `lib/common.sh`. (Note: a leftover smoke-test script sits at `/tmp/bkt_smoke.sh` \u2014 deleting it was declined, so I left it.)",
+  "ttft_ms": 9716,
+  "type": "result",
+  "duration_ms": 244886,
+  "uuid": "ca2faa9a-6752-4dea-865f-a2144db4df06",
+  "ttft_stream_ms": 4280,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 9539,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 245.5,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

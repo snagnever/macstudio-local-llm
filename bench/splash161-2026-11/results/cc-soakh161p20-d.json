@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 330352,
+  "stop_reason": "end_turn",
+  "session_id": "982f2bbd-3dea-4ca1-9f82-7ddb97d35c9b",
+  "total_cost_usd": 0.6328639999999999,
+  "usage": {
+    "input_tokens": 33795,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 973120,
+    "output_tokens": 15153,
+    "output_tokens_details": {
+      "thinking_tokens": 6470
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 33795,
+      "outputTokens": 15153,
+      "cacheReadInputTokens": 973120,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6328639999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 6470,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a23af66b98318979de775d7a6634d2b1_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh; echo \"exit=$?\"",
+        "description": "Run the test suite"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_83d4a05fef64f46e6e3ac2ab646b76cb_0",
+      "tool_input": {
+        "command": "d=$(mktemp -d); mkdir -p \"$d/dest\"; : > \"$d/dest/a-20260101-000000.tar.gz\"; : > \"$d/dest/a-20260101-000000.tar.gz.sha256\"; printf 'deadbeef\\n' > \"$d/dest/b-20260101-000000.tar.gz.sha256\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p20-d/verify.sh --quiet --dest \"$d/dest\"; echo \"rc=$?\"",
+        "description": "Check malformed sidecar handling in verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ab3d4d2fa053902757c2427d28e57e04_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/vfycheck/dest && : > /tmp/vfycheck/dest/a-20260101-000000.tar.gz && : > /tmp/vfycheck/dest/a-20260101-000000.tar.gz.sha256 && printf 'deadbeef\\n' > /tmp/vfycheck/dest/b-20260101-000000.tar.gz.sha256 && bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p20-d/verify.sh --quiet --dest /tmp/vfycheck/dest; echo \"rc=$?\"",
+        "description": "Check malformed sidecar handling in verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_efab816c156337c10e664365c4ca73dc_0",
+      "tool_input": {
+        "command": "rm -f /tmp/scratch_check.sh /tmp/scratch_malformed.sh",
+        "description": "Remove scratch scripts"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 32,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 8 tests pass (`bash tests/run_tests.sh`).\n\nChanged files: **`lib/common.sh`** (new \u2014 shared `parse_options`/`resolve_dir`/`is_uint`/`need_value`), **`rotate.sh`** (sources `lib/common.sh`; rotation now exits early when `total <= keep` and deletes the first `total-keep` oldest archives instead of `tail -n +keep`), **`verify.sh`** (sources `lib/common.sh`; sidecar line split with `read -r expected file` so names with spaces survive, plus quoted `[[ ... ]]` digest compare), and **`tests/run_tests.sh`** (one regression test per bug).\n\nNotes: flags are unchanged for both scripts \u2014 I checked `--dest=`/`--name=`/`--keep=` equals forms, `--dry-run`, `--quiet`, `--help`, `--`, unknown-option/missing-value/`--keep 0`/positional/missing-dir exit codes, and `verify.sh --name` filtering; sidecars are still removed with their archives. Two throwaway check scripts are left at `/tmp/scratch_check.sh` and `/tmp/scratch_malformed.sh` (their removal needs approval, and they're outside the repo).",
+  "ttft_ms": 11354,
+  "type": "result",
+  "duration_ms": 331365,
+  "uuid": "47968594-2db5-4b70-a384-9802e2a7057a",
+  "ttft_stream_ms": 4341,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 11131,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 332.4,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

@@ -1,0 +1,13 @@
+{"t_start_s": 35.392, "ttft_s": 4.249, "t_end_s": 40.372, "input_tokens": 19444, "cached_tokens": 16032, "output_tokens": 93, "tps": 127.2, "status": 200, "stream": "soakh161p35-c"}
+{"t_start_s": 40.444, "ttft_s": 3.289, "t_end_s": 46.622, "input_tokens": 20041, "cached_tokens": 19424, "output_tokens": 170, "tps": 58.8, "status": 200, "stream": "soakh161p35-c"}
+{"t_start_s": 59.768, "ttft_s": null, "t_end_s": 59.769, "input_tokens": 0, "cached_tokens": null, "output_tokens": 0, "tps": null, "status": 200, "stream": "soakh161p35-c"}
+{"t_start_s": 46.637, "ttft_s": 9.018, "t_end_s": 60.793, "input_tokens": 24932, "cached_tokens": 20032, "output_tokens": 233, "tps": 45.3, "status": 200, "stream": "soakh161p35-c"}
+{"t_start_s": 60.807, "ttft_s": 63.104, "t_end_s": 151.419, "input_tokens": 51255, "cached_tokens": 24896, "output_tokens": 1707, "tps": 62.1, "status": 200, "stream": "soakh161p35-c"}
+{"t_start_s": 151.444, "ttft_s": 3.462, "t_end_s": 160.004, "input_tokens": 53052, "cached_tokens": 51232, "output_tokens": 551, "tps": 108.1, "status": 200, "stream": "soakh161p35-c"}
+{"t_start_s": 160.016, "ttft_s": 1.043, "t_end_s": 167.774, "input_tokens": 53693, "cached_tokens": 53024, "output_tokens": 625, "tps": 93.1, "status": 200, "stream": "soakh161p35-c"}
+{"t_start_s": 167.785, "ttft_s": 1.95, "t_end_s": 177.341, "input_tokens": 54522, "cached_tokens": 53664, "output_tokens": 764, "tps": 100.5, "status": 200, "stream": "soakh161p35-c"}
+{"t_start_s": 177.353, "ttft_s": 1.349, "t_end_s": 189.235, "input_tokens": 55433, "cached_tokens": 54496, "output_tokens": 627, "tps": 59.5, "status": 200, "stream": "soakh161p35-c"}
+{"t_start_s": 189.258, "ttft_s": 1.14, "t_end_s": 192.577, "input_tokens": 56205, "cached_tokens": 55424, "output_tokens": 177, "tps": 81.3, "status": 200, "stream": "soakh161p35-c"}
+{"t_start_s": 192.702, "ttft_s": 0.619, "t_end_s": 195.592, "input_tokens": 56505, "cached_tokens": 56192, "output_tokens": 194, "tps": 85.4, "status": 200, "stream": "soakh161p35-c"}
+{"t_start_s": 195.603, "ttft_s": 0.634, "t_end_s": 197.294, "input_tokens": 56788, "cached_tokens": 56480, "output_tokens": 81, "tps": 76.7, "status": 200, "stream": "soakh161p35-c"}
+{"t_start_s": 197.443, "ttft_s": 0.454, "t_end_s": 199.595, "input_tokens": 56928, "cached_tokens": 56768, "output_tokens": 96, "tps": 56.6, "status": 200, "stream": "soakh161p35-c"}

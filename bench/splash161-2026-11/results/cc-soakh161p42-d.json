@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 308322,
+  "stop_reason": "end_turn",
+  "session_id": "086f5ca9-7fb4-4281-aa03-c585984bfb48",
+  "total_cost_usd": 0.4755480000000001,
+  "usage": {
+    "input_tokens": 28139,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 520160,
+    "output_tokens": 12948,
+    "output_tokens_details": {
+      "thinking_tokens": 6335
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 28139,
+      "outputTokens": 12948,
+      "cacheReadInputTokens": 520160,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.4755480000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 6335,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c58eeeea3f5b2bfa40d1883039893282_0",
+      "tool_input": {
+        "command": "set -e\nt=$(mktemp -d); cd \"$t\"\nmkdir -p src; printf 'x\\n' > src/f.txt\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p42-d\nfor s in 20260101-000000 20260102-000000 20260103-000000; do BACKUP_STAMP=$s bash \"$R/backup.sh\" --quiet --dest dest --name demo src >/dev/null; done\nbash \"$R/rotate.sh\" --dest=dest --name=demo --keep=2            # --opt=value form, verbose\nls dest\nbash \"$R/rotate.sh\" --quiet --dest dest --name demo --keep 0; echo \"rc=$?\" || true",
+        "description": "Smoke-test rotate.sh flags, value form, and keep-0 rejection"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c58eeeea3f5b2bfa40d1883039893282_1",
+      "tool_input": {
+        "command": "R=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p42-d\nbash \"$R/rotate.sh\" --help >/dev/null && echo \"rotate --help ok\"\nbash \"$R/verify.sh\" --help >/dev/null && echo \"verify --help ok\"\nbash \"$R/verify.sh\" --dest /nonexistent-xyz 2>/dev/null; echo \"missing dest rc=$?\"\nbash \"$R/rotate.sh\" --dest . 2>/dev/null; echo \"missing name rc=$?\"\nbash \"$R/verify.sh\" --dest . --bogus 2>/dev/null; echo \"unknown opt rc=$?\"",
+        "description": "Smoke-test help, missing args, and unknown option exits"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_13e50454c636737d289238b9b50dd86d_0",
+      "tool_input": {
+        "command": "rm /tmp/smoke_rotate_verify_20261112.sh",
+        "description": "Remove temporary smoke-test script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 24,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 9 tests pass.\n\n- **rotate.sh**: the early-exit used `-lt` (so `total == keep` fell through) and `surplus()` used `tail -n +$keep`, which selects from the *oldest* side of the ascending-sorted list \u2014 i.e. the newest archives. Now it exits at `total -le keep` and surplus is `head -n $((total - keep))` (the oldest entries).\n- **verify.sh**: the sidecar line was split with `awk '{print $2}'`, truncating names at the first space. Now split with `read -r expected file`, and the digest comparison is quoted (`[[ \"$expected\" == \"$actual\" ]]`).\n- **lib/common.sh** (new): holds the shared option-parsing block (incl. `is_uint`, `need_value`, `--keep` validation) and `resolve_dir`; sources `lib/log.sh` and sets a double-sourcing guard. `rotate.sh` and `verify.sh` source it after defining `usage`/`parse_local_option`; the other three scripts are untouched.\n- **tests/run_tests.sh**: added a rotate group (nothing deleted at exactly `--keep`; oldest deleted, newest kept at `--keep 2`) and a verify test for `my backup-20260101-000000.tar.gz`.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.",
+  "ttft_ms": 4409,
+  "type": "result",
+  "duration_ms": 309367,
+  "uuid": "1f7c0aea-9684-447e-a019-5e4c2cfd1a3e",
+  "ttft_stream_ms": 59,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 4247,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 310.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

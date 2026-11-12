@@ -1,0 +1,112 @@
+{
+  "duration_api_ms": 269037,
+  "stop_reason": "end_turn",
+  "session_id": "6b7dd057-0ce7-4c1c-8bb7-06c560e85999",
+  "total_cost_usd": 0.6547040000000001,
+  "usage": {
+    "input_tokens": 37462,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 963680,
+    "output_tokens": 15606,
+    "output_tokens_details": {
+      "thinking_tokens": 8509
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 37462,
+      "outputTokens": 15606,
+      "cacheReadInputTokens": 963680,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6547040000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 8509,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_1d796f4537013006d6c1d8181b2b9f10_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d)\ncd \"$t\"\nmkdir -p dest\n# 6 archives, keep 5: oldest must go, newest must stay (with sidecar)\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000 20260105-000000 20260106-000000; do\n  printf 'a\\n' > \"dest/demo-$s.tar.gz\"; printf 'x  demo\\n' > \"dest/demo-$s.tar.gz.sha256\"\ndone\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p13-d\necho \"--- dry-run (= form, --keep=5) ---\"\nbash \"$R/rotate.sh\" --dest=dest --name=demo --keep=5 -n\necho \"--- real run ---\"\nbash \"$R/rotate.sh\" --quiet --dest dest --name demo --keep 5\nls dest | sort\necho \"--- rc for unknown option ---\"\nbash \"$R/rotate.sh\" --dest dest --name demo --bogus 2>/dev/null; echo \"rc=$?\"\necho \"--- rc for bad --keep ---\"\nbash \"$R/rotate.sh\" --dest dest --name demo --keep abc 2>/dev/null; echo \"rc=$?\"\necho \"--- rc for missing --dest ---\"\nbash \"$R/verify.sh\" --name demo 2>/dev/null; echo \"rc=$?\"\necho \"--- rc for missing dir (resolve_dir die 2) ---\"\nbash \"$R/verify.sh\" --dest /nope 2>/dev/null; echo \"rc=$?\"\necho \"--- rotate --help exits 0 ---\"\nbash \"$R/rotate.sh\" --help >/dev/null; echo \"rc=$?\"\necho \"--- verify --name filter + dry-run flag accepted ---\"\nbash \"$R/verify.sh\" --quiet --dest dest --name demo -n; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Sanity-check refactored rotate.sh and verify.sh flags and behavior"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c790fe05c275f7993260f3601a78bb9c_0",
+      "tool_input": {
+        "command": "rm /tmp/check_rotate_verify.sh && git status --short",
+        "description": "Remove temp check script and show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 27,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `rotate.sh`, `verify.sh` and `tests/run_tests.sh`, and added `lib/common.sh` (all 8 tests pass).\n\nDetails:\n- **rotate.sh**: `--keep N` now exits \"nothing to rotate\" when there are exactly N (`-lt` \u2192 `-le`), and surplus is computed as the first `total - keep` entries of the oldest-first list (`head -n \"$((total - keep))\"`) \u2014 previously `tail -n +\"$keep\"` cut from the newest end, which is why the newest archive was deleted.\n- **verify.sh**: the sidecar line is now split on the first run of whitespace with a bash regex (`^([^[:space:]]+)[[:space:]]+(.+)$`), so a file name like `my backup-\u2026.tar.gz` survives intact \u2014 the old `awk '{print $2}'` truncated it to `my`, producing a false BAD; digest comparison is also quoted now.\n- **lib/common.sh** (new): the identical option-parsing block (same flags: `--dest`, `--name`, `--keep`, `-q/--quiet`, `-n/--dry-run`, `-h/--help`, `--`, `parse_local_option` hook) and `resolve_dir`, with a double-sourcing guard; sourced by `rotate.sh` and `verify.sh` only \u2014 `backup.sh`, `restore.sh` and `report.sh` are untouched.\n- **tests/run_tests.sh**: added \"verify reports ok for an intact archive whose name contains a space\" and \"rotate --keep N with exactly N archives deletes none (keeps the newest)\", placed next to the existing verify/rotate coverage; both fail on the original code and pass now.\n\nNote: a scratch check script remains at `/tmp/check_rotate_verify.sh`; deleting it was blocked as it's outside the working directory \u2014 feel free to remove it.",
+  "ttft_ms": 11511,
+  "type": "result",
+  "duration_ms": 270115,
+  "uuid": "0adab669-4df4-4ced-b969-caaeeb6e2b1a",
+  "ttft_stream_ms": 4150,
+  "time_to_request_ms": 35,
+  "first_content_frame_ms": 11227,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 270.8,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

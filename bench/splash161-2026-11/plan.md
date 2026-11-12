@@ -245,9 +245,9 @@ Só roda se as Tasks 1 a 5 passam no modo de PLE escolhido. Braço `k2h` no modo
 
 Só roda se a Task 6 passa. `agent_soak.sh --hours 4 --tag h161` no `k2h`, no modo escolhido, a 131072, com um boot só. As referências são o `k2f` e o `k2g` da Task 7 da splash16, de outro dia. Por isso, só a regra de queda, que compara a sonda do fim com a sonda do início do mesmo run, dá veredito.
 
-- [ ] **Step 1: Fila.** Um `task_done` falso não para a fila. Se o pool não chegar ao teto, registrar que o teste não exercitou a queda.
-- [ ] **Step 2: Resumo.** `results/etapa7-agente-4h.md`, por hora: tok/s p50, TTFT quente p50 e p90, sonda curta, `pages_cache`, `denied_reservations`, requests, erros e `task_done`.
-- [ ] **Step 3: Commit.**
+- [x] **Step 1: Fila.** Um `task_done` falso não para a fila. Se o pool não chegar ao teto, registrar que o teste não exercitou a queda.
+- [x] **Step 2: Resumo.** `results/etapa7-agente-4h.md`, por hora: tok/s p50, TTFT quente p50 e p90, sonda curta, `pages_cache`, `denied_reservations`, requests, erros e `task_done`.
+- [x] **Step 3: Commit.**
 
 ### Task 8: Decisão, launcher e fechamento
 

@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 358353,
+  "stop_reason": "end_turn",
+  "session_id": "9a6d3f55-89c0-46d8-b60b-9fbac3a92c4f",
+  "total_cost_usd": 0.7941656,
+  "usage": {
+    "input_tokens": 42987,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 801888,
+    "output_tokens": 23092,
+    "output_tokens_details": {
+      "thinking_tokens": 15763
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 42987,
+      "outputTokens": 23092,
+      "cacheReadInputTokens": 801888,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7941656,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 15763,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_37200964d656e6c71a0ac4d4223f9ed1_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/src\" \"$t/dest\"; echo hi > \"$t/src/a.txt\"\nBACKUP_STAMP=20260101-120000 bash backup.sh --quiet --dest \"$t/dest\" --name demo \"$t/src\" >/dev/null\nfor s in 20260102-000000 20260103-000000; do echo x > \"$t/dest/demo-$s.tar.gz\"; echo \"y  demo-$s.tar.gz\" > \"$t/dest/demo-$s.tar.gz.sha256\"; done\necho \"--- rotate --dry-run --keep=2 (equals form) ---\"\nbash rotate.sh --dry-run --keep=2 --dest \"$t/dest\" --name demo\necho \"--- rotate unknown option ---\"\nbash rotate.sh --bogus --dest \"$t/dest\" --name demo; echo \"rc=$?\"\necho \"--- rotate --keep abc ---\"\nbash rotate.sh --keep abc --dest \"$t/dest\" --name demo 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"--- rotate missing --name ---\"\nbash rotate.sh --dest \"$t/dest\" 2>&1 | tail -1\necho \"--- rotate --help (first line) ---\"\nbash rotate.sh --help | head -1\necho \"--- verify --name filter ---\"\nbash verify.sh --dest \"$t/dest\" --name demo\necho \"--- verify binary-mode sidecar (*) ---\"\nd=$(shasum -a 256 \"$t/dest/demo-20260101-120000.tar.gz\" | cut -d' ' -f1); printf '%s *demo-20260101-120000.tar.gz\\n' \"$d\" > \"$t/dest/demo-20260101-120000.tar.gz.sha256\"\nbash verify.sh --quiet --dest \"$t/dest\" --name demo | head -1\necho \"--- verify malformed (digest only) ---\"\necho \"deadbeef\" > \"$t/dest/demo-20260101-120000.tar.gz.sha256\"\nbash verify.sh --quiet --dest \"$t/dest\" --name demo; echo \"rc=$?\"\necho \"--- verify --quiet exit 0 when intact, missing dir rc=2 ---\"\nbash verify.sh --dest \"$t/nonexistent\"; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Smoke-test flag handling of refactored rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_4e6fedb221d72931b0d14357c302372b_0",
+      "tool_input": {
+        "command": "rm .smoke.sh && bash tests/run_tests.sh && git status --short && git diff --stat",
+        "description": "Clean up, run final test suite, show changed files"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_e665681ae3a5b64f8e196d432fce6914_0",
+      "tool_input": {
+        "command": "rm .smoke.sh",
+        "description": "Delete temporary smoke-test script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 25,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 10 tests pass. Files changed: **rotate.sh** (fixed keep/sort logic, sources lib/common.sh), **verify.sh** (fixed space-in-name parsing, sources lib/common.sh), **tests/run_tests.sh** (added one test per bug), plus the new **lib/common.sh** holding the shared option parser and `resolve_dir`.\n\n(Note: `.smoke.sh` is a leftover smoke-test script I ran for flag verification \u2014 the sandbox blocked `rm`, so please delete it or approve the removal.)",
+  "ttft_ms": 9742,
+  "type": "result",
+  "duration_ms": 359473,
+  "uuid": "94ed144d-288e-40b2-aea3-f33982067da8",
+  "ttft_stream_ms": 4352,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 9567,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 359.7,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}
