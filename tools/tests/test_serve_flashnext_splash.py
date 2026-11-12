@@ -16,12 +16,20 @@ def _print(*args, extra=None):
 
 
 def test_default_is_k2a_at_256k():
-    # bench/splash-longctx-2026-10: k2a = Swift 1.5 GGUF IQ4_XS on Splash 1.4.0, --verify-rows auto, KV int8.
+    # bench/splash-longctx-2026-10: k2a = Swift 1.5 GGUF IQ4_XS, --verify-rows auto, KV int8.
     out = _print()
     assert f"serve --model {SWIFT} --host 0.0.0.0 --port 8585 --max-context 262144 --revision {SWIFT_REV} " in out
-    assert "splash-v1.4.0/bin/splash" in out
     assert out.rstrip().endswith("--idle-release off --language-only --no-webui --offline --verify-rows auto")
     assert "--kv-format" not in out
+
+
+def test_launcher_defaults_to_161():
+    # bench/splash161-2026-11: Tasks 1-6 pass with PLE auto and Task 7 shows no regression.
+    # auto is the 1.6.1 default, so the launcher passes no --ple-memory flag.
+    for profile in ("256k", "512k", "1m"):
+        out = _print(profile)
+        assert "splash-v1.6.1/bin/splash serve " in out
+        assert "--ple-memory" not in out
 
 
 def test_512k_and_1m_profiles_use_the_measured_contexts():
