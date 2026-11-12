@@ -4,7 +4,7 @@
 # bench/splash-longctx-2026-10; it does not replace the daily driver (serve-flashnext-daily-driver.sh).
 # Release 1.6.1 since 2026-11-12 (bench/splash161-2026-11): T_turno 1.000-1.017 x 1.5.0 at 32K-256K, two 256K
 #   sessions 1.035 x 1.5.0, Claude Code pair wall 0.97 x, no stall under --max-memory 64G, same quality, 4 h soak
-#   stable. PLE table mode is auto (the 1.6.1 default, no flag): the 27 GB table stays on the SSD with a 237 MiB
+#   stable. PLE table mode is auto (the 1.6.1 default, no flag): the 28.8 GB table stays on the SSD with a 237 MiB
 #   row cache, so the wired peak drops 22-29 GB. Rollback: FLASHNEXT_SPLASH_BIN=$HOME/.local/opt/qwen38/splash-v1.5.0/bin/splash
 # Profiles (every one passed speed, memory and quality on Splash 1.4.0 in
 #   bench/splash-longctx-2026-10/results/params-512k-1m.md):
@@ -19,6 +19,8 @@
 #   last saved point (a compaction, a retried turn) re-prefills the whole prompt (incoai/splash#387, #361).
 # Concurrency (1.6.1): decode runs in one batch, prefill one request at a time, so a second session's prefill
 #   stalls the first one's decode. Two 256K sessions: worst stream 16.6 s vs 16.1 s on 1.5.0; no memory wait.
+#   A second session still makes each turn about 2.5x slower than one session alone (16.6 s vs 6.3 s), as on 1.5.0,
+#   where no N >= 2 arm passed the gate (bench/splash-concurrency-2026-10).
 # Clients must send frequency_penalty 0, as with the daily driver.
 # Overrides: FLASHNEXT_SPLASH_BIN, FLASHNEXT_SPLASH_PORT (default 8585), FLASHNEXT_SPLASH_HOST (default 0.0.0.0).
 #            Add --print to show the command without starting.

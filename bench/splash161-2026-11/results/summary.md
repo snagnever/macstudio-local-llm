@@ -45,11 +45,11 @@ Os dois modos passam, e a diferença no `k2c2LL` fica dentro do empate de 5%. Pe
 |---|---:|---:|---:|
 | pior stream `k2c2LL` 256K, razão contra a 1.5.0 do dia | 1.00 | 1.65 | 1.035 |
 | `claim_wait` máximo no `k2c2LL` | – | 30.1 s | 0 s |
-| maior gap sob 64G | 36–88 s | 1.1–2.5 s | 4.5–4.9 s |
+| maior gap sob 64G | 60.8–87.8 s | 1.1–2.5 s | 4.5–4.9 s |
 | pares no soak de 4 h | 38 | 43 | 43 |
 | wired peak a 256K, um stream | 111.0 GB | 111.0 GB | 82.2 GB |
 
-As colunas da 1.5.0 e da 1.6.0 vêm de outro dia, menos a razão do `k2c2LL`, que sempre compara com a 1.5.0 da mesma fila.
+A coluna da 1.6.0 vem da splash16, de outro dia. Na coluna da 1.5.0, os pares do soak vêm da splash16, e os outros valores vêm desta campanha. A razão do `k2c2LL` sempre compara com a 1.5.0 da mesma fila.
 
 ## O que não rodou
 

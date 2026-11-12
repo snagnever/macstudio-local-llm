@@ -73,3 +73,13 @@ def test_index_has_a_card_for_the_page():
     index = (REPO / "reports" / "index.html").read_text(encoding="utf-8")
     assert 'href="qwen38-flashnext-splash161.html"' in index
     assert '<span class="path">qwen38-flashnext-splash161.html</span>' in index
+
+
+def test_public_text_matches_the_stage_reports(page):
+    t = text_of(page)
+    # etapa6: HumanEval 145 is above both 1.5.0 passes (144, 144), so "between the passes" is wrong there.
+    assert "sits between two 1.5.0 passes on every suite" not in t
+    assert "within one question of the better 1.5.0 pass" in t
+    # etapa5: 841 and 842 GB on 1.5.0. etapa2: the PLE table is 27465 MiB (28.8 GB).
+    assert "841 GB and 842 GB" in t
+    assert "28.8 GB PLE table" in t and "27 GB" not in t

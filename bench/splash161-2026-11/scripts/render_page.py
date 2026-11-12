@@ -91,7 +91,7 @@ TASK4 = [  # profile, metric, 1.5.0, 1.6.1, ratio
 ]
 
 # Task 5. Source: results/etapa5-pressao.md (requests and SSD reads per run). Gaps come from the JSONL.
-TASK5 = {"old_requests": [168, 165], "new_requests": [225, 225], "old_ssd_gb": 841, "new_ssd_gb": [258, 246],
+TASK5 = {"old_requests": [168, 165], "new_requests": [225, 225], "old_ssd_gb": [841, 842], "new_ssd_gb": [258, 246],
          "old_over5": [4, 7], "new_over5": [0, 0]}
 CHURN = {"old": ["150-r1", "150-r2"], "new": ["161-r1", "161-r2"]}
 
@@ -116,7 +116,7 @@ TERMS = [("k2f", "the weights on Splash 1.5.0, the control"),
          ("rc2 / rc2s", "a pair of real Claude Code sessions / the same with subagents"),
          ("T_turno", "turn time: warm TTFT of a tool turn plus 512 tokens of decode"),
          ("claim_wait", "the part of TTFT a request spends waiting for memory"),
-         ("PLE", "the per-layer embedding table of Flash-Next, 27 GB")]
+         ("PLE", "the per-layer embedding table of Flash-Next, 27465 MiB")]
 
 
 def _rows(path: Path) -> list[dict[str, Any]]:
@@ -179,7 +179,7 @@ def _hero(d: dict[str, Any]) -> str:
         ("64 GB memory limit", f"{t5['old_max_gap_s']:.1f} s → {t5['new_max_gap_s']:.1f} s",
          "Largest decode gap. 1.6.1 serves 34 to 36% more requests in the same 15 minutes."),
         ("RAM", f"−{max(freed):.0f} GB",
-         "Wired peak of one stream at 32K to 256K. The 27 GB PLE table stays on the SSD with a 237 MiB row cache."),
+         "Wired peak of one stream at 32K to 256K. The 28.8 GB PLE table stays on the SSD with a 237 MiB row cache."),
         ("4-hour agent load", f"{t7['ratio']:.2f}", "Short-probe ratio end ÷ start, with the KV pool full: stable."),
     ]
     tiles_html = "".join(f'<div class="tile"><p class="t-lab">{_e(a)}</p><p class="t-big">{_e(b)}</p>'
@@ -255,7 +255,8 @@ def _task5_html(d: dict[str, Any]) -> str:
             ["gaps over 5 s", " and ".join(map(str, t5["old_over5"])), " and ".join(map(str, t5["new_over5"]))],
             ["requests per run", " and ".join(map(str, t5["old_requests"])),
              " and ".join(map(str, t5["new_requests"]))],
-            ["SSD reads per run", f"{t5['old_ssd_gb']} GB", " and ".join(f"{g} GB" for g in t5["new_ssd_gb"])]]
+            ["SSD reads per run", " and ".join(f"{g} GB" for g in t5["old_ssd_gb"]),
+             " and ".join(f"{g} GB" for g in t5["new_ssd_gb"])]]
     answer = ("Fifteen minutes of three sessions at 131072 with <code>--max-memory 64G</code>, order 1.5.0, 1.6.1, "
               "1.6.1, 1.5.0. 1.5.0 stalls the decode for up to "
               f"{t5['old_max_gap_s']:.1f} s. 1.6.1 stays under 5 s. Its 3 HTTP 400 per run come from the load "
@@ -270,8 +271,9 @@ def _task6_html(d: dict[str, Any]) -> str:
                  f"<b>{sum(x['new'] for x in s)}</b>"])
     rows += [[f"tool calls, {t['profile']} (sessions /20)", str(t["old"]), "", str(t["new"])]
              for t in d["task6"]["tools"]]
-    answer = ("The same weights on both releases. 1.6.1 sits between two 1.5.0 passes on every suite, and the "
-              "margin check passes on all six against both. Long context: " + d["task6"]["longctx"] + ".")
+    answer = ("The same weights on both releases. On every suite 1.6.1 sits between two 1.5.0 passes or within "
+              "one question of the better 1.5.0 pass, and the margin check passes on all six against both. Long "
+              "context: " + d["task6"]["longctx"] + ".")
     return _q(6, d, answer, _table(["check", "1.5.0 pass 1", "1.5.0 pass 2", "1.6.1"], rows, "wide"))
 
 

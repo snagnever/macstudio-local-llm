@@ -39,6 +39,19 @@ def test_claims_summary_reads_last_status_per_boot(sc, tmp_path):
     assert boots[1]["pages_cache"] == 3
 
 
+def test_claims_summary_splits_boots_by_file_field(sc, tmp_path):
+    # results/status-t3-last.jsonl: one record per boot, each with the per-boot file name. Consecutive boots can
+    # have equal or rising sample counts, so the counter alone merges them.
+    p = tmp_path / "last.jsonl"
+    rows = [{"t": 1, "file": "h2-status.jsonl", "status": _status(0, 0, 56)},
+            {"t": 2, "file": "h5-status.jsonl", "status": _status(0, 0, 56)},
+            {"t": 3, "file": "q4-status.jsonl", "status": _status(2000, 3300, 60)}]
+    p.write_text("".join(json.dumps(r) + "\n" for r in rows))
+    boots = sc.summarize([p])
+    assert [b["file"] for b in boots] == ["h2-status.jsonl", "h5-status.jsonl", "q4-status.jsonl"]
+    assert [b["claim_wait_max_s"] for b in boots] == [0.0, 0.0, 2.0]
+
+
 def test_claims_summary_accepts_status_without_metrics(sc, tmp_path):
     p = tmp_path / "s.jsonl"
     p.write_text(json.dumps({"kind": "status", "t": 1, "schema_version": 6, "kv": {"pages_cache": 2},

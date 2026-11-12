@@ -24,7 +24,7 @@ Fonte: `summarize_ab.py --ab-dir <links> --base k2f-w1|k2f-w2 --cand k2h`, em [a
 | veerman /12 | 7 | 10 | 9 | 1 | passa / passa |
 | **total /336** | 293 | 302 | **300** | | |
 
-O `k2h` fica entre as duas passadas da 1.5.0 em todas as suítes, ou empata com uma delas. A diferença entre W1 e W2 do mesmo braço (9 questões) é maior que a diferença entre o `k2h` e qualquer passada.
+Em todas as suítes, o `k2h` fica entre as duas passadas da 1.5.0 ou a no máximo uma questão da melhor delas. No humaneval, ele fica uma questão acima das duas. A diferença entre W1 e W2 do mesmo braço (9 questões) é maior que a diferença entre o `k2h` e qualquer passada.
 
 ### Tokens e tempo
 

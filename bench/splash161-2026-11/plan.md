@@ -1,6 +1,6 @@
 # Splash 1.6.1 contra 1.5.0 — runbook da campanha (2026-11-11)
 
-> **Status (2026-11-11): proposto, aguarda aprovação do usuário.** Nada rodou. Branch: `bench/splash161-2026-11`, a partir da `bench/splash16-2026-11` (PR #84, sem merge).
+> **Status (2026-11-12): executado.** As Tasks 0 a 8 rodaram, e o launcher passou para a 1.6.1. Resumo em [results/summary.md](results/summary.md). Branch: `bench/splash161-2026-11`, a partir da `bench/splash16-2026-11` (PR #84, com merge na `main` em 11/11).
 >
 > **Para agentes:** use superpowers:executing-plans. Execute as tasks em ordem. Marque cada step (`- [ ]` → `- [x]`). Pare só nas condições de "Execução".
 

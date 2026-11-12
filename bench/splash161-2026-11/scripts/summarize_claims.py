@@ -2,8 +2,10 @@
 """Memory-claim wait per server boot, from JSONL files of Splash /status samples.
 
 A record is {"t", "status": {...}} (the queue's curl loop and run-parallel-probes.sh), {"kind": "status", ...}
-(serving_load.py) or a bare /status object. A boot ends where the claim_wait sample counter drops; the last
-record of each boot gives its totals, because the /status counters grow over the life of a server.
+(serving_load.py) or a bare /status object. A record with a "file" field names its boot (status-t3-last.jsonl
+keeps one record per boot file), and a boot ends where that name changes. Without the field, a boot ends where
+the claim_wait sample counter drops. The last record of each boot gives its totals, because the /status counters
+grow over the life of a server.
 
     python3 summarize_claims.py STATUS.jsonl [...] [--out-md P]
 
@@ -28,11 +30,11 @@ def _claim(st: dict[str, Any]) -> Optional[dict[str, Any]]:
     return ((st.get("metrics") or {}).get("ttft_parts_ms") or {}).get("claim_wait")
 
 
-def _row(path: Path, boot: int, st: dict[str, Any]) -> dict[str, Any]:
+def _row(name: str, boot: int, st: dict[str, Any]) -> dict[str, Any]:
     cw = _claim(st)
     gap = ((st.get("metrics") or {}).get("decode_gap_causes") or {}).get("prefill_unit") or {}
     return {
-        "file": path.name, "boot": boot,
+        "file": name, "boot": boot,
         "claim_wait_max_s": None if cw is None else round(cw.get("max", 0) / 1000, 1),
         "claim_wait_total_s": None if cw is None else round(cw.get("total", 0) / 1000, 1),
         "prefill_unit_gaps": gap.get("gaps") if gap else None,
@@ -44,19 +46,26 @@ def _row(path: Path, boot: int, st: dict[str, Any]) -> dict[str, Any]:
 def summarize(paths: Sequence[Path]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for path in paths:
-        boot, last, prev_samples = 1, None, None
+        boot, last, prev_samples, prev_name = 1, None, None, None
         for line in path.read_text(encoding="utf-8").splitlines():
             if not line.strip():
                 continue
-            st = _status(json.loads(line))
+            rec = json.loads(line)
+            st = _status(rec)
+            name = rec.get("file") if isinstance(rec.get("file"), str) else None
             cw = _claim(st)
             samples = None if cw is None else cw.get("samples", 0)
-            if last is not None and samples is not None and prev_samples is not None and samples < prev_samples:
-                rows.append(_row(path, boot, last))
-                boot += 1
-            last, prev_samples = st, samples
+            if last is not None:
+                if name is not None or prev_name is not None:
+                    new_boot = name != prev_name
+                else:
+                    new_boot = samples is not None and prev_samples is not None and samples < prev_samples
+                if new_boot:
+                    rows.append(_row(prev_name or path.name, boot, last))
+                    boot += 1
+            last, prev_samples, prev_name = st, samples, name
         if last is not None:
-            rows.append(_row(path, boot, last))
+            rows.append(_row(prev_name or path.name, boot, last))
     return rows
 
 
