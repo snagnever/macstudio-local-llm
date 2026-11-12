@@ -244,3 +244,10 @@ def test_main_data_reuses_json(tmp_path, data):
     js.write_text(json.dumps(data), encoding="utf-8")
     assert R.main(["--data", str(js), "--out", str(out), "--json-out", ""]) == 0
     assert 'id="accuracy"' in out.read_text(encoding="utf-8")
+
+
+def test_method_notes_the_161_quality_recheck(html):
+    # bench/splash161-2026-11 Task 6: the Swift 1.5 IQ4_XS scored 300 of 336 on Splash 1.6.1.
+    method = _section(html, "method")
+    assert "Splash 1.6.1" in method and "300 of 336" in method
+    assert 'href="qwen38-flashnext-splash161.html"' in method

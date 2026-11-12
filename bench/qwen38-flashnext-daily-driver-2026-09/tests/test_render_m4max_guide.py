@@ -251,3 +251,15 @@ def test_november_update_names_the_swift_pack_the_v31_file_and_the_splash_releas
     assert "now runs 1.6.1" in text and "up to 65% slower" in text and "3.5%" in text
     assert 'href="qwen38-flashnext-gguf-weights.html"' in html and 'href="qwen38-flashnext-splash161.html"' in html
     assert "Splash with the base model were not checked" not in text
+
+
+def test_daily_driver_is_splash_161_since_november_12():
+    # bench/splash161-2026-11: the user moved the daily driver to Splash 1.6.1 with Swift 1.5 IQ4_XS on 2026-11-12.
+    # T_turno there: 6.1 s at 128K and 6.3 s at 256K (results/etapa2-um-stream.md, PLE auto).
+    data, swift = load()
+    html = guide.render(data, swift)
+    text = re.sub(r"\s+", " ", visible_text(html))
+    assert "my daily driver until 2026-11-12" in text
+    assert "my daily driver since 2026-11-12" in text
+    conclusion = text[text.index("for the shortest agent turn. Use mlx-serve"):][:2000]
+    assert "Splash 1.6.1" in conclusion and "6.1 s" in conclusion and "6.3 s" in conclusion

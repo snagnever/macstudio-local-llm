@@ -84,8 +84,8 @@ Não saiu release desde a v26.11.2 de 06/11. Itens da `main` que tocam o driver 
 ## Testes sugeridos
 
 1. **Splash 1.6.1 contra a 1.5.0:** feito em 11 e 12/11 na [splash161](../bench/splash161-2026-11/results/summary.md). As Tasks 1 a 6 passam com PLE `auto`, e a Task 7 não mostra regressão. O launcher da porta 8585 passou para a 1.6.1.
-2. **mlx-serve 26.11.2 contra a 26.10.3:** é a campanha dos testes 7, 8 e 9 da [campanha de pesos](../bench/flashnext-weights-2026-11/results/summary.md). Ela continua válida. Se a `main` sair numa release antes da campanha, usar a release nova, porque o `usage` com tokens de thinking simplifica o teste de thinking.
-3. **Shell interativo do rig:** conferir se algum proxy fica definido nele enquanto o Splash 1.5.0 roda. Se ficar, trocar a API key do servidor.
+2. **mlx-serve 26.11.2 contra a 26.10.3:** é a campanha dos testes 7, 8 e 9 da [campanha de pesos](../bench/flashnext-weights-2026-11/results/summary.md). Ela continua válida. Se a `main` sair numa release antes da campanha, usar a release nova, porque o `usage` com tokens de thinking simplifica o teste de thinking. Desde 12/11 o mlx-serve é o driver de rollback, então esta campanha perde prioridade para o Terminal-Bench 2.1 do Splash 1.6.1.
+3. **Shell interativo do rig:** resolvido em 12/11 pela troca. A porta 8585 roda a 1.6.1, que não envia a API key ao proxy. O teste só volta se o rollback para a 1.5.0 for usado.
 
 ## Fontes
 

@@ -79,13 +79,13 @@ STACKS = [
      "cache": "RAM (8-bit KV cache) + SSD (32 GiB)", "spec": "DFlash2 draft model",
      "max": "1M (YaRN, the KV past ~860K tokens on SSD)", "max_ctx": 1000000},
     {"id": "k2", "name": "Splash 1.4.0 / Swift 1.5", "short": "Splash/Swift", "cv": "--s6", "marker": "hexagon",
-     "about": "Inco AI's native Metal engine, GGUF weights only",
+     "about": "Inco AI's native Metal engine, GGUF weights only; my daily driver since 2026-11-12, on Splash 1.6.1",
      "quant": "ukisai Swift 1.5 IQ4_XS GGUF", "model": "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF",
      "repo": "https://github.com/incoai/splash", "disk": "98 GB",
      "cache": "RAM (8-bit KV cache) + SSD (32 GiB)", "spec": "DFlash2 draft model",
      "max": "1M (YaRN, the KV past ~860K tokens on SSD)", "max_ctx": 1000000},
     {"id": "w1", "name": "mlx-serve 26.10.3 / Swift 1.5", "short": "mlx-serve/Swift", "cv": "--s5", "marker": "invtriangle",
-     "about": "my daily driver: the Swift 1.5 fine-tune in MLX",
+     "about": "the Swift 1.5 fine-tune in MLX; my daily driver until 2026-11-12",
      "quant": "Dankpaws Swift 1.5 MLX 4.7 bpw", "model": "Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw",
      "repo": "https://github.com/ddalcu/mlx-serve", "disk": "99 GB",
      "cache": "RAM (16 GB) + disk (100 GB)", "spec": "MTP + n-gram lookup",
@@ -676,7 +676,9 @@ BODY = r"""
     Swift 1.5 and spent more tokens per answer (<a href="#update">update</a>). Among
     the MLX servers the runner-up is <b>oMLX 0.7.0</b> ({omlx_turn_128} s at 128K), but it stops at 256K. With Swift 1.5,
     Splash is faster again ({splash_turn_512} s at 512K, {splash_turn_1m} s at 1M), and on mlx-serve 26.10.3 Swift 1.5 is
-    the faster quant past 128K (<a href="#samebuild">same-build table</a>).</p>
+    the faster quant past 128K (<a href="#samebuild">same-build table</a>). Since 2026-11-12 my daily driver is
+    Splash 1.6.1 with Swift 1.5 IQ4_XS: 6.1 s per agent turn at 128K and 6.3 s at 256K
+    (<a href="qwen38-flashnext-splash161.html">Splash 1.6.1 page</a>).</p>
   </div>
   <div class="tiles">
     <div class="tile"><span class="t-val">{base_splash_turn_128}<small> s</small></span><span class="t-lab">per agent turn at 128K on Splash with the base model, against {mlx_turn_128} s on mlx-serve</span></div>

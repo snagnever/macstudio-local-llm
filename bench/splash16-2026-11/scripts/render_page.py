@@ -570,7 +570,10 @@ def _hero(d: dict[str, Any]) -> str:
             f'<a href="{ISSUE_644}">#644</a> decode drop did not appear on either release.')
     meta = (f"Rig: {_e(d['rig'])}. Weights: {_e(d['weights'])}. Measured {_e(d['dates'][0])} to "
             f"{_e(d['dates'][1])}. Releases: Splash 1.5.0 and 1.6.0 (<a href=\"{NOTES_160}\">release notes</a>).")
-    return (f'<section class="hero" id="verdict"><p class="hero-lead">{lead}</p><p class="s-note">{meta}</p>'
+    follow_up = ('<p class="s-note"><b>Update, 2026-11-12:</b> Splash 1.6.1 removes this slowdown. Two 256K sessions '
+                 'run 3.5% slower than on 1.5.0, with no memory wait, and my launcher now runs 1.6.1 '
+                 '(<a href="qwen38-flashnext-splash161.html">Splash 1.6.1 page</a>).</p>')
+    return (f'<section class="hero" id="verdict"><p class="hero-lead">{lead}</p>{follow_up}<p class="s-note">{meta}</p>'
             f'<div class="tiles">{tiles_html}</div></section>')
 
 

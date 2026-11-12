@@ -513,7 +513,9 @@ def _html_method(d: dict) -> str:
     nl = d["not_loaded"]
     items = [
         "One rig: Mac Studio, Apple M4 Max, 128 GB. Every pack ran on Splash 1.5.0 with a 262,144-token context and "
-        "the default flags. Splash 1.6.0 did not pass the switch rule of the Splash 1.6 campaign.",
+        "the default flags. Splash 1.6.0 did not pass the switch rule of the Splash 1.6 campaign. On Splash 1.6.1 the "
+        "Swift 1.5 IQ4_XS scored 300 of 336 on the same battery, between its two passes here, and my launcher now runs "
+        '1.6.1 (<a href="qwen38-flashnext-splash161.html">Splash 1.6.1 page</a>).',
         "Every request sends <code>reasoning_effort: xhigh</code>, temperature 1.0, top_p 0.95, top_k 20, min_p 0. "
         "Questions run one at a time.",
         f"Battery: {E(sizes)}, 336 in all. GPQA-Diamond and LiveCodeBench are 50-question samples (seed 42).",
