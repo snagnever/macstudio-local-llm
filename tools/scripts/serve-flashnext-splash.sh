@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Start Qwen3.8-Flash-Next on Splash 1.6.1 (Inco AI): Swift 1.5 GGUF IQ4_XS (ukisai 0142554) with the DFlash2 draft
 # Splash selects, --verify-rows auto, KV int8 (the Splash default). This is the k2a arm of
-# bench/splash-longctx-2026-10; it does not replace the daily driver (serve-flashnext-daily-driver.sh).
+# bench/splash-longctx-2026-10 and the daily driver since 2026-11-12. The rollback driver is
+# serve-flashnext-daily-driver.sh (mlx-serve, port 11234).
 # Release 1.6.1 since 2026-11-12 (bench/splash161-2026-11): T_turno 1.000-1.017 x 1.5.0 at 32K-256K, two 256K
 #   sessions 1.035 x 1.5.0, Claude Code pair wall 0.97 x, no stall under --max-memory 64G, same quality, 4 h soak
 #   stable. PLE table mode is auto (the 1.6.1 default, no flag): the 28.8 GB table stays on the SSD with a 237 MiB
@@ -21,7 +22,8 @@
 #   stalls the first one's decode. Two 256K sessions: worst stream 16.6 s vs 16.1 s on 1.5.0; no memory wait.
 #   A second session still makes each turn about 2.5x slower than one session alone (16.6 s vs 6.3 s), as on 1.5.0,
 #   where no N >= 2 arm passed the gate (bench/splash-concurrency-2026-10).
-# Clients must send frequency_penalty 0, as with the daily driver.
+# Sampling: Splash defaults equal the model card (temperature 1.0, top_p 0.95, top_k 20, min_p 0) and the
+#   default effort is xhigh. Clients must send frequency_penalty 0 (or omit it) and pin the effort per session.
 # Overrides: FLASHNEXT_SPLASH_BIN, FLASHNEXT_SPLASH_PORT (default 8585), FLASHNEXT_SPLASH_HOST (default 0.0.0.0).
 #            Add --print to show the command without starting.
 set -euo pipefail

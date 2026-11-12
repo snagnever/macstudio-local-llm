@@ -10,7 +10,7 @@ Per-model deep dives for every model with local experience on this rig (Mac Stud
 | Model | Status | Role | HumanEval | LCB v6 | T-Bench | eff t/s | Disk | Runtime |
 |---|---|---|---|---|---|---|---|---|
 | [qwen3-coder-next](qwen3-coder-next.md) | 🟢 DAILY DRIVER | **Agent** (T-Bench #1) | 89% | 84% | **32.6%** | 55.8 | 64.76 GB (6-bit) | MLX |
-| [qwen3.8-flash-next](qwen3.8-flash-next.md) | 🟢 DAILY DRIVER | **Responsiveness default** — Swift 1.5 fine-tune (Dankpaws MLX-4.7bpw) since 2026-10-11: fastest turn on the rig (T_turno 7.9 s @32K / 8.6 s @128K) and 2–3× less thinking time than the base pack at equal quality; mlx-serve 26.10.1, 131K ctx, MTP + 16 GB prefix cache. Agent quality (T-Bench) not measured | — | 94% (Swift 1.5, t1) | pending | ~56 decode @32K / ~50 @128K | 75 GB (MLX-Serve mixed-4/8) | mlx-serve |
+| [qwen3.8-flash-next](qwen3.8-flash-next.md) | 🟢 DAILY DRIVER | **Responsiveness default** — Swift 1.5 GGUF `IQ4_XS` (ukisai) on Splash 1.6.1 since 2026-11-12, port 8585: T_turno 6.1 s @32K / 6.1 s @128K / 6.3 s @256K, two 256K sessions without memory wait, 4-hour agent load stable. Rollback: Swift 1.5 MLX on mlx-serve 26.10.1, port 11234. Terminal-Bench 2.1 not measured on this stack. |
 | [qwen3.6-27b](qwen3.6-27b.md) | 🟢 DAILY DRIVER | **Planning / knowledge** (85.8% avg, top of rig) | 93% | 88% | 31.5% | 16.2 | 22.80 GB | MLX |
 | [gemma-4-26b-a4b](gemma-4-26b-a4b/README.md) | 🟢 DAILY DRIVER | **Code** (@6bit LCB 88%, ties 27b; @4bit fastest on rig) | 97–98% | **88%** @6bit / 76% @4bit | 21.3 / 20.2% | 66.6 / **80.7** | 21.81 / 15.64 GB | MLX |
 | [qwen3.6-35b-a3b](qwen3.6-35b-a3b.md) | 🟢 DAILY DRIVER | Fast generalist (@8bit quant A/B pending) | 87% | 82% | 28.1% | 71.4 | 29.09 GB (6-bit) | MLX |
