@@ -466,7 +466,7 @@ BODY = r"""
 </header>
 
 <section class="block update" id="update" aria-labelledby="u-title">
-  <p class="kicker">November update · 2026-11-10</p>
+  <p class="kicker">November update · 2026-11-12</p>
   <h2 id="u-title">Use the Swift 1.5 IQ4_XS GGUF on Splash. The base model gives the same quality and spends more tokens.</h2>
   <ul class="tips">
     <li><b>Same quality, fewer tokens.</b> On Splash 1.5.0 at 262K, Swift 1.5 IQ4_XS scored 293 and 302 of 336 in two
@@ -476,9 +476,10 @@ BODY = r"""
     <li><b>The unsloth repository changed.</b> It now serves Dynamic V3.1 (revision 084c631). The commands below pin the
     file I measured (revision 766911a). V3.1 decodes 11% faster than the old file with the same quality, but it spends more
     tokens, not fewer: 1.26× on GPQA and 1.18× on LiveCodeBench.</li>
-    <li><b>Splash release.</b> This guide measured Splash 1.4.0, and my rig now runs 1.5.0. Splash 1.6.0 matches 1.5.0 on
-    one stream, but two 256K sessions are up to 65% slower because of memory claim waits
-    (<a href="qwen38-flashnext-splash160.html">Splash 1.6.0 page</a>).</li>
+    <li><b>Splash release.</b> This guide measured Splash 1.4.0, and my rig now runs 1.6.1. On Splash 1.6.0 two 256K
+    sessions were up to 65% slower than on 1.5.0 because of memory claim waits. On 1.6.1 they are 3.5% slower, one stream
+    is the same, quality is the same, and the PLE table stays on the SSD, which frees 22–29 GB of RAM
+    (<a href="qwen38-flashnext-splash161.html">Splash 1.6.1 page</a>).</li>
   </ul>
 </section>
 

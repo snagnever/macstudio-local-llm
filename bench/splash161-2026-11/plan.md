@@ -251,13 +251,13 @@ Só roda se a Task 6 passa. `agent_soak.sh --hours 4 --tag h161` no `k2h`, no mo
 
 ### Task 8: Decisão, launcher e fechamento
 
-- [ ] **Step 1: `results/summary.md`.** Uma tabela por pergunta do topo, com veredito e fonte; o modo de PLE escolhido; o que não rodou; os desvios do plano.
-- [ ] **Step 2: Launcher, se "Trocar o launcher" passar.**
+- [x] **Step 1: `results/summary.md`.** Uma tabela por pergunta do topo, com veredito e fonte; o modo de PLE escolhido; o que não rodou; os desvios do plano.
+- [x] **Step 2: Launcher, se "Trocar o launcher" passar.**
   - Teste antes: `test_launcher_defaults_to_161`, com o `--print` do `serve-flashnext-splash.sh` mostrando `splash-v1.6.1` e, no modo `off`, `--ple-memory off`.
   - Trocar o `BIN` padrão, os flags e os comentários do script.
   - Não mudar o `serve-flashnext-daily-driver.sh`.
-- [ ] **Step 3: Servidor do usuário.** Religar a porta 8585 com o launcher do Step 2, ou com a 1.5.0 se a regra falhar. Conferir `/health` e `/v1/models`.
-- [ ] **Step 4: Documentos.**
+- [x] **Step 3: Servidor do usuário.** Religar a porta 8585 com o launcher do Step 2, ou com a 1.5.0 se a regra falhar. Conferir `/health` e `/v1/models`.
+- [x] **Step 4: Documentos.**
   - Na nota de stack de 11/11, trocar o teste 1 por um link para o resultado.
   - Atualizar `reports/qwen38-flashnext-splash160.html` pelo `render_page.py` da splash16, com uma seção da 1.6.1, ou criar uma página nova se a seção não couber. O texto do report fica em inglês. Atualizar o card em `reports/index.html`.
   - Se o launcher mudar, atualizar a recomendação de `reports/qwen38-flashnext-concurrency.html` pelo `render_report.py` e a seção "November update" de `reports/qwen38-flashnext-m4max-guide.html`.

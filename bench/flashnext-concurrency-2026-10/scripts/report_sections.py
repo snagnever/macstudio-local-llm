@@ -348,9 +348,10 @@ def recommendation(data: dict) -> str:
             quality,
             ["Three sessions, or parallel subagents", "neither", "2.4× or slower per turn"],
             ["Two long (256K) sessions", rec, "fits without settings; expect a long first read"]]
-    note = ('<p class="s-note">Splash release (November 2026): stay on Splash 1.5.0. On Splash 1.6.0 two 256K sessions '
-            'are up to 65% slower because of memory claim waits, and Claude Code sessions at 128K finish sooner but '
-            'with a lower minimum generation speed (<a href="qwen38-flashnext-splash160.html">Splash 1.6.0 page</a>).</p>')
+    note = ('<p class="s-note">Splash release (November 2026): the measurements above ran on Splash 1.5.0, and '
+            'my Mac Studio now runs Splash 1.6.1. On Splash 1.6.0 two 256K sessions were up to 65% slower because of '
+            'memory claim waits. On 1.6.1 the worst of two 256K sessions is 3.5% slower than on 1.5.0, with no claim wait, and a '
+            'Claude Code pair at 128K finishes 3% sooner (<a href="qwen38-flashnext-splash161.html">Splash 1.6.1 page</a>).</p>')
     return _sec("recommend", "6. Recommendation", "", RR._table(["use", "server", "why"], rows, "wide") + note)
 
 

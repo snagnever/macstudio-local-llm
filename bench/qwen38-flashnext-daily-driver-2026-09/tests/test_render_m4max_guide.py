@@ -246,7 +246,8 @@ def test_november_update_names_the_swift_pack_the_v31_file_and_the_splash_releas
     assert "1.09× and 1.83×" in text and "95.5" in text and "110.9" in text
     # The unsloth repository now serves Dynamic V3.1; the commands keep the measured revision.
     assert "084c631" in text and "766911a" in text and "spends more tokens, not fewer" in text
-    # Splash release: 1.4.0 measured here, 1.5.0 on the rig, 1.6.0 slower with two 256K sessions.
-    assert "up to 65% slower" in text
-    assert 'href="qwen38-flashnext-gguf-weights.html"' in html and 'href="qwen38-flashnext-splash160.html"' in html
+    # Splash release: 1.4.0 measured here; the rig moved to 1.6.1 (bench/splash161-2026-11), which fixes the
+    # 1.6.0 slowdown of two 256K sessions.
+    assert "now runs 1.6.1" in text and "up to 65% slower" in text and "3.5%" in text
+    assert 'href="qwen38-flashnext-gguf-weights.html"' in html and 'href="qwen38-flashnext-splash161.html"' in html
     assert "Splash with the base model were not checked" not in text
