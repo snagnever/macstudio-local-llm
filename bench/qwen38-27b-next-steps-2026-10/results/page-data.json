@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-14T07:19:46+00:00",
+ "generated_at": "2026-11-12T21:09:37+00:00",
  "arms": [
   {
    "id": "s27r",
@@ -441,7 +441,7 @@
   },
   "livecodebench": {
    "n": 50,
-   "passed": 42,
+   "passed": 47,
    "truncated": 1,
    "total_s": 4853.7,
    "median_s": 19.1,
@@ -497,7 +497,7 @@
   },
   "livecodebench": {
    "n": 50,
-   "passed": 41,
+   "passed": 45,
    "truncated": 3,
    "total_s": 8648.8,
    "median_s": 39.1,

@@ -592,7 +592,7 @@ def mark_canonical_2026_10(groups: list[dict]) -> None:
 
 TAKEAWAYS_2026_10 = [
     ["Splash 1.4.0 has the lowest T_turn in every band", "k2 (Swift 1.5 IQ4_XS GGUF on Splash) takes 6.6 s at 256K and "
-     "6.7 s at 512K, against 9.2 and 12.7 s for w1, the same fine-tune in MLX on mlx-serve 26.10.3 (the daily driver). "
+     "6.7 s at 512K, against 9.2 and 12.7 s for w1, the same fine-tune in MLX on mlx-serve 26.10.3 (the daily driver until 2026-11-12). "
      "The gain comes from decode, ~106 tok/s up to 512K against 57–74; the cold prefill is the same (731 and 732 tok/s "
      "at 256K). The comparison mixes runtime and weight format: Splash loads Flash-Next from a GGUF only."],
     ["Only Splash reaches 1M", "k2 serves 1,000,000 tokens with KV int8 and the KV past ~860K tokens on its SSD cache: "
