@@ -201,13 +201,13 @@ Esta é a task que decide a campanha. Tudo com tag `h1` (1.6.1, PLE `auto`), `h1
 | `k2c2LL` | 262144 | `f1`, `h1`, `h1p`, `h1p`, `h1`, `f1`, `f1`, `h1`, `h1p` |
 | `k2c2a` | 131072 | `h1p`, `h1`, `f1`, `f1`, `h1`, `h1p`, `h1p`, `h1`, `f1` |
 
-- [ ] **Step 1: Fila.** Para `h1` e `h1p`, usar `FLASHNEXT_SPLASH_TAG=1.6.1`. Para `h1p`, somar `FLASHNEXT_SPLASH_XARGS="--ple-memory off"` e `FLASHNEXT_SPLASH_REVX=-ple-off`.
-- [ ] **Step 2: Resumo.** `summarize_parallel.py` por tag, e `summarize_claims.py` nos JSONL de `/status`. Gravar `results/etapa3-concorrencia.md` com:
+- [x] **Step 1: Fila.** Para `h1` e `h1p`, usar `FLASHNEXT_SPLASH_TAG=1.6.1`. Para `h1p`, somar `FLASHNEXT_SPLASH_XARGS="--ple-memory off"` e `FLASHNEXT_SPLASH_REVX=-ple-off`.
+- [x] **Step 2: Resumo.** `summarize_parallel.py` por tag, e `summarize_claims.py` nos JSONL de `/status`. Gravar `results/etapa3-concorrencia.md` com:
   - pior stream, s1 e s2, decode somado e warm TTFT da tool, por tag, com a média das 3 reps;
   - `claim_wait` máximo e total, gaps `prefill_unit` e linhas `pending` no log de boot;
   - a razão de cada tag da 1.6.1 contra o `f1`, e o veredito da regra "Concorrência" por modo de PLE.
-- [ ] **Step 3: Escolher o modo de PLE** pela regra do início, com as Tasks 2 e 3. As Tasks 4 a 7 rodam só nesse modo. Se nenhum modo passa, pular para a Task 8.
-- [ ] **Step 4: Commit.**
+- [x] **Step 3: Escolher o modo de PLE** pela regra do início, com as Tasks 2 e 3. As Tasks 4 a 7 rodam só nesse modo. Se nenhum modo passa, pular para a Task 8.
+- [x] **Step 4: Commit.**
 
 ### Task 4: Sessões do Claude Code
 
