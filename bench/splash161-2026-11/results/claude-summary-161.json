@@ -1,0 +1,86 @@
+{
+  "prefix": "rc",
+  "profiles": {
+    "realistic": {
+      "tasks": [
+        "c",
+        "d"
+      ],
+      "alone_s": {
+        "c": null,
+        "d": null
+      },
+      "pair_s": {
+        "c": 269.1,
+        "d": 336.1333333333333
+      },
+      "pair_wall_s": 336.1333333333333,
+      "serial_sum_s": null,
+      "time_saved": null,
+      "turns": {
+        "c": 27,
+        "d": 26
+      },
+      "task_done": true,
+      "errors": 0
+    }
+  },
+  "requests": {
+    "alone": null,
+    "pair": {
+      "n": 135,
+      "max_concurrent": 2,
+      "prefill_turns": 25,
+      "first_prompt_ttft_s": 25.4745,
+      "new_tokens_p50": 583,
+      "warm": {
+        "n": 110,
+        "ttft_p50": 0.858,
+        "ttft_p90": 2.336,
+        "tps_p50": 92.25,
+        "tps_min": 39.9,
+        "tps_max": 179.5
+      },
+      "errors": 0
+    }
+  },
+  "subagents": {
+    "profile": {
+      "tasks": [
+        "c",
+        "d"
+      ],
+      "pair_s": {
+        "c": 465.06666666666666,
+        "d": 568.4
+      },
+      "pair_wall_s": 568.4,
+      "serial_sum_s": null,
+      "time_saved": null,
+      "turns": {
+        "c": 21,
+        "d": 22
+      },
+      "task_done": true,
+      "errors": 0
+    },
+    "requests": {
+      "n": 158,
+      "max_concurrent": 6,
+      "prefill_turns": 62,
+      "first_prompt_ttft_s": 27.067,
+      "new_tokens_p50": 1366.0,
+      "warm": {
+        "n": 96,
+        "ttft_p50": 1.6075,
+        "ttft_p90": 9.145,
+        "tps_p50": 86.3,
+        "tps_min": 21.1,
+        "tps_max": 185.6
+      },
+      "errors": 0
+    },
+    "parallel_agent_calls": 6,
+    "subagents_spawned": 12
+  }
+}

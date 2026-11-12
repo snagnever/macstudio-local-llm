@@ -22,3 +22,15 @@ def test_parse_splash_log_reads_161_lines():
     assert [r["output_tokens"] for r in reqs] == [140, 224, 534]
     assert [r["ttft_s"] for r in reqs] == [22.8, 0.9, 1.4]
     assert [r["tps"] for r in reqs] == [138.1, 173.0, 159.9]
+
+
+def test_parse_splash_log_counts_match_proxy():
+    # First rep of rc2 on 1.6.1 (tag h2): the server log against the request_log.py JSONL of the same pair.
+    # The proxy also records one request with no input tokens (not a model turn), which the server does not log.
+    fx = HERE / "tests" / "fixtures"
+    cr = _cr()
+    reqs = cr.parse_splash_log((fx / "rc2h2-splash-log.txt").read_text())
+    proxy = [r for r in cr.read_requests(fx / "rc2h2-proxy.jsonl") if r["input_tokens"]]
+    assert len(proxy) == 44
+    assert len(reqs) == len(proxy)
+    assert sorted(r["input_tokens"] for r in reqs) == sorted(r["input_tokens"] for r in proxy)

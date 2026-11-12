@@ -1,0 +1,102 @@
+{
+  "duration_api_ms": 1107621,
+  "stop_reason": "end_turn",
+  "session_id": "3f6fb406-a857-4ba0-b4ad-45eb45eb9322",
+  "total_cost_usd": 0.97734,
+  "usage": {
+    "input_tokens": 19223,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 363840,
+    "output_tokens": 6509,
+    "output_tokens_details": {
+      "thinking_tokens": 2510
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 136763,
+      "outputTokens": 15948,
+      "cacheReadInputTokens": 556640,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.97734,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 3188,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "origin": {
+    "kind": "task-notification",
+    "producer": "session-task",
+    "runId": "0mwddgcbn-d5b3c9f4"
+  },
+  "subagent_stats": {
+    "spawned": 2,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 2
+    },
+    "started_in_background": 2,
+    "max_depth": 1,
+    "spawned_by_subagents": 0,
+    "completed": 2,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {
+      "Explore": 2
+    }
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 19,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done \u2014 suite passes (69 tests, OK), and grouped output verified end-to-end; report output without `--group-by` is unchanged.\n\nChanged files: `ledger/cli.py`, `ledger/report.py`, `ledger/store.py`, `tests/test_cli.py`, `README.md`.",
+  "ttft_ms": 25494,
+  "type": "result",
+  "duration_ms": 167372,
+  "uuid": "a97c27ab-e0c9-4edc-9afa-bef6f97fa06e",
+  "ttft_stream_ms": 39,
+  "time_to_request_ms": 18,
+  "first_content_frame_ms": 16522,
+  "queued_turn_count": 0,
+  "result_index": 2,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 770.8,
+  "task_done": true,
+  "parallel_agent_calls": 1,
+  "subagents_spawned": 2,
+  "subagents": true
+}

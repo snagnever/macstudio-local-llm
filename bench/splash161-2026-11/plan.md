@@ -218,10 +218,10 @@ Tarefas c e d, contexto 131072, `CLAUDE_BIN` na 2.1.292. A tag da 1.6.1 é `h1` 
 | `rc2` | 2 reps | 3 reps |
 | `rc2s` | 2 reps | 3 reps |
 
-- [ ] **Step 1: Teste.** `test_parse_splash_log_counts_match_proxy`: com um log da 1.6.1 e o JSONL do `request_log.py` do mesmo par, o número de requests lidos do log fica igual ao do proxy. Ver que falha sem a correção do Task 0 e passa com ela. Usar os arquivos da primeira rep.
-- [ ] **Step 2: Fila,** alternando as releases: `f1`, `h`, `h`, `f1`, `h` para cada perfil.
-- [ ] **Step 3: Resumo.** `summarize_claude.py`. Gravar `results/etapa4-claude-code.md` com o wall, o warm TTFT p50 e p90, o warm tok/s p50 e mínimo, as tarefas cumpridas e o veredito da regra "Claude Code".
-- [ ] **Step 4: Commit.**
+- [x] **Step 1: Teste.** `test_parse_splash_log_counts_match_proxy`: com um log da 1.6.1 e o JSONL do `request_log.py` do mesmo par, o número de requests lidos do log fica igual ao do proxy. Ver que falha sem a correção do Task 0 e passa com ela. Usar os arquivos da primeira rep.
+- [x] **Step 2: Fila,** alternando as releases: `f1`, `h`, `h`, `f1`, `h` para cada perfil.
+- [x] **Step 3: Resumo.** `summarize_claude.py`. Gravar `results/etapa4-claude-code.md` com o wall, o warm TTFT p50 e p90, o warm tok/s p50 e mínimo, as tarefas cumpridas e o veredito da regra "Claude Code".
+- [x] **Step 4: Commit.**
 
 ### Task 5: Pressão de memória
 

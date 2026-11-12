@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 387364,
+  "stop_reason": "end_turn",
+  "session_id": "fd0d2191-32b4-4911-ac1f-ef5a93b54523",
+  "total_cost_usd": 0.7902079999999998,
+  "usage": {
+    "input_tokens": 40002,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1066400,
+    "output_tokens": 20846,
+    "output_tokens_details": {
+      "thinking_tokens": 11768
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 40002,
+      "outputTokens": 20846,
+      "cacheReadInputTokens": 1066400,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7902079999999998,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 11768,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_83330e12cb06c8356b9007fee36bf452_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); cd \"$t\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do\n  printf 'a\\n' > \"demo-$s.tar.gz\"; printf 'x  demo-%s.tar.gz\\n' \"$s\" > \"demo-$s.tar.gz.sha256\"\ndone\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/rc2f4-d\necho \"--- rotate keep=2 (should delete the 2 oldest, sidecars too) ---\"\nbash \"$R/rotate.sh\" --quiet --dest \"$t\" --name demo --keep 2\necho \"--- remaining ---\"; ls \"$t\"\necho \"--- dry-run on 2 archives, keep 1 ---\"\nbash \"$R/rotate.sh\" --quiet --dry-run --dest \"$t\" --name demo --keep 1\necho \"--- keep=0 rejected ---\"; bash \"$R/rotate.sh\" --quiet --dest \"$t\" --name demo --keep 0; echo \"rc=$?\"\necho \"--- --keep=abc rejected ---\"; bash \"$R/rotate.sh\" --quiet --dest \"$t\" --name demo --keep=abc; echo \"rc=$?\"\necho \"--- unknown option rejected ---\"; bash \"$R/rotate.sh\" --bogus >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- help exit 0 ---\"; bash \"$R/rotate.sh\" --help >/dev/null; echo \"rc=$?\"\necho \"--- positional arg rejected ---\"; bash \"$R/rotate.sh\" --dest \"$t\" --name demo stray >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- missing dir exit 2 ---\"; bash \"$R/rotate.sh\" --quiet --dest \"$t/nope\" --name demo >/dev/null 2>&1; echo \"rc=$?\"\ncd /; rm -rf \"$t\"",
+        "description": "Sanity-check rotate.sh behavior after refactor and fix"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9ecbdf1b738730c76ec0027ec96d0001_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2f4-d status --short && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2f4-d diff --stat && rm -f /tmp/rotate_check.sh",
+        "description": "Show changed files and diff stat"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_6374085d20656d582199eef63cd023bd_0",
+      "tool_input": {
+        "command": "rm -f /tmp/rotate_check.sh",
+        "description": "Remove scratch check script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 31,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "The scratch script in `/tmp` needs an approval I won't push for \u2014 it's a harmless temp file. All work is verified: the suite passes, rotation keeps the newest N (deleting oldest, sidecars included, stray files untouched), verify accepts spaced names, and all flags behave identically.\n\n**Done \u2014 final test run: all 8 tests pass.**\n\nFiles changed: `rotate.sh` (keep-newest rotation fix + sources shared lib), `verify.sh` (space-safe sidecar parsing + sources shared lib), `tests/run_tests.sh` (one test per bug), and new `lib/common.sh` (shared option parser + `resolve_dir`). `backup.sh`, `restore.sh`, `report.sh` left as-is.",
+  "ttft_ms": 24011,
+  "type": "result",
+  "duration_ms": 388601,
+  "uuid": "bec55d11-ef92-4e97-8df0-5826264d2927",
+  "ttft_stream_ms": 19526,
+  "time_to_request_ms": 35,
+  "first_content_frame_ms": 23856,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 389.0,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

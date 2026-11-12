@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 307060,
+  "stop_reason": "end_turn",
+  "session_id": "9da2ef4b-f76a-4a7e-aec3-7c054e1957a3",
+  "total_cost_usd": 0.5434584,
+  "usage": {
+    "input_tokens": 30355,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 685792,
+    "output_tokens": 14244,
+    "output_tokens_details": {
+      "thinking_tokens": 7781
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 30355,
+      "outputTokens": 14244,
+      "cacheReadInputTokens": 685792,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5434584,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 7781,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_5f0b89770b1e04cd4624603e3430ae48_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh; echo \"exit=$?\"",
+        "description": "Run the test suite"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_e2cc36eee387889c855d5f954c6e7655_0",
+      "tool_input": {
+        "command": "cd /tmp && rm -rf rt && mkdir rt && cd rt && R=/Users/vitor/.cache/flashnext-concurrency/claude-work/rc2h2-d\nbash \"$R/rotate.sh\" --help > /dev/null; echo \"help rc=$?\"\nmkdir dest && for s in 20260101-000000 20260102-000000 20260103-000000; do touch \"dest/my backup-$s.tar.gz\"; done\nbash \"$R/rotate.sh\" -q --dest=dest --name=\"my backup\" --keep=2 -n\nbash \"$R/rotate.sh\" -q --dest dest --name \"my backup\" --keep 2\nls dest\nbash \"$R/rotate.sh\" --dest dest --name \"my backup\" --bogus 2>/dev/null; echo \"bogus rc=$?\"\nbash \"$R/rotate.sh\" --dest dest --name \"my backup\" --keep 0 2>&1 | tail -1\nbash \"$R/verify.sh\" --dest=dest --name=\"my backup\" -q; echo \"verify rc=$?\"\nbash \"$R/verify.sh\" --dest dest 2>/dev/null | head -1; bash \"$R/verify.sh\" --dest dest --name nope -q | wc -l",
+        "description": "Manually exercise rotate/verify flags after refactor"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_f45ffd79757c8a750bffac3fb61aef22_0",
+      "tool_input": {
+        "command": "rm -f /tmp/rt_check.sh",
+        "description": "Remove scratch script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Leaving the scratch file in `/tmp` (removing it would need extra approval; it's harmless).\n\nDone \u2014 all 9 tests pass (`all tests passed`).\n\n**What changed and why:**\n- `rotate.sh`: the surplus set was `tail -n +KEEP` on an oldest-first list, which selected the newest entries and fired even at exactly N archives. Now the early exit is `total <= keep` (\"nothing to rotate\") and surplus is `head -n (total-keep)` \u2014 the oldest entries beyond the newest N (rotate.sh:79-86).\n- `verify.sh`: `awk '{print $2}'` truncated a sidecar name at the first space, so `my backup-\u2026tar.gz` became `my` \u2192 \"archive missing\" \u2192 BAD. Now `read -r expected file` splits off only the digest and keeps the rest of the name (verify.sh:87-92); the digest comparison is also quoted.\n- `lib/common.sh` (new): holds the shared option parser as `parse_common_options` plus `is_uint`, `need_value` and `resolve_dir`; `rotate.sh` and `verify.sh` source it and call it after defining their `usage`/`parse_local_option`, keeping all flags (`--dest`, `--name`, `--keep`, `-q`, `-n`, `-h`, `--`, and `--flag=value` forms) working. `backup.sh`, `restore.sh`, `report.sh` untouched.\n- `tests/run_tests.sh`: added a verify test for a space in the archive name and a rotate group covering \"exactly KEEP archives deletes nothing\" and \"keep 2 removes the oldest, not the newest\".\n\nChanged files: `rotate.sh`, `verify.sh`, `lib/common.sh` (new), `tests/run_tests.sh`.",
+  "ttft_ms": 23235,
+  "type": "result",
+  "duration_ms": 307896,
+  "uuid": "851e5f5c-3737-4183-a074-1560e49faef7",
+  "ttft_stream_ms": 18894,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 23079,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 308.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}
