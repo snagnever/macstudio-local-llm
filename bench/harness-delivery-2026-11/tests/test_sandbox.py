@@ -110,3 +110,15 @@ def test_launchd_refuses_job_submission_from_any_sandboxed_process(area):
 def test_profile_denies_job_creation(area):
     cmd = sandboxed(Cmd(["true"], {"HOME": str(area / "home")}, area / "work"))
     assert "(deny job-creation)" in cmd.argv[2]
+
+
+def test_read_allowlist_names_runtime_directories_only(area):
+    import harness
+    assert ".local" not in harness.TOOLCHAIN_DIRS
+    profile = sandboxed(Cmd(["true"], {"HOME": str(area / "home")}, area / "work")).argv[2]
+    assert str(Path.home() / ".local/share/opencode") not in profile
+    assert str(Path.home() / ".local/bin") in profile
+
+
+def test_harness_credentials_under_dot_local_are_unreadable(area):
+    assert run_in(area, ["/bin/ls", str(Path.home() / ".local/share")]).returncode != 0

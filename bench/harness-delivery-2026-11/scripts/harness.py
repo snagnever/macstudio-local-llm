@@ -111,7 +111,8 @@ def command(name: str, prompt: str, repo: Path, home: Path, target: Target) -> C
 
 SANDBOX_EXEC = "/usr/bin/sandbox-exec"
 WRITE_ROOTS = ("/dev", "/private/tmp", "/private/var/folders", "/private/var/tmp")
-TOOLCHAIN_DIRS = (".local", ".cache/uv", ".cache/mise", ".config/mise", ".npm")   # under the real home: runtimes only
+TOOLCHAIN_DIRS = (".local/bin", ".local/lib", ".local/share/uv", ".local/share/mise", ".cache/uv", ".cache/mise",
+                  ".config/mise")   # under the real home: runtimes only, never application data
 NO_EXEC = ("/bin/launchctl", "/usr/bin/open", "/usr/bin/osascript", "/usr/bin/crontab", "/usr/bin/at",
            "/usr/bin/ssh", "/usr/bin/scp", "/usr/bin/sftp", "/usr/bin/security")
 
