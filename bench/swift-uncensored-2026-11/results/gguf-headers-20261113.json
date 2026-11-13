@@ -1,0 +1,2435 @@
+{
+ "k2": {
+  "files": [
+   "IQ4_XS/Swift-1.5-Qwen3.8-Flash-Next-IQ4_XS-00001-of-00003.gguf",
+   "IQ4_XS/Swift-1.5-Qwen3.8-Flash-Next-IQ4_XS-00002-of-00003.gguf",
+   "IQ4_XS/Swift-1.5-Qwen3.8-Flash-Next-IQ4_XS-00003-of-00003.gguf"
+  ],
+  "n": 1224,
+  "kv": {
+   "general.architecture": "qwen4exp",
+   "general.sampling.top_k": 20,
+   "general.sampling.top_p": 0.949999988079071,
+   "general.sampling.temp": 1.0,
+   "general.name": "Swift 1.5 Flash Miroslav2.0",
+   "general.quantization_version": 2,
+   "general.file_type": 30,
+   "split.no": 0,
+   "split.tensors.count": 1224,
+   "split.count": 3
+  },
+  "fam": {
+   "output.weight": {
+    "Q6_K": 1
+   },
+   "output_hc_down.weight": {
+    "BF16": 1
+   },
+   "output_hc_norm.weight": {
+    "F32": 1
+   },
+   "output_hc_up.weight": {
+    "BF16": 1
+   },
+   "per_layer_token_embd.weight": {
+    "IQ4_NL": 1
+   },
+   "token_embd.weight": {
+    "IQ4_XS": 1
+   },
+   "blk.N.attn_gate.weight": {
+    "IQ4_XS": 36
+   },
+   "blk.N.attn_qkv.weight": {
+    "IQ4_XS": 36
+   },
+   "blk.N.ffn_down_exps.weight": {
+    "IQ4_NL": 48
+   },
+   "blk.N.ffn_down_shexp.weight": {
+    "Q8_0": 24,
+    "IQ4_NL": 24
+   },
+   "blk.N.ffn_gate_exps.weight": {
+    "IQ4_XS": 48
+   },
+   "blk.N.ffn_gate_inp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_gate_inp_shexp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_gate_shexp.weight": {
+    "Q8_0": 24,
+    "IQ4_XS": 24
+   },
+   "blk.N.ffn_up_exps.weight": {
+    "IQ4_XS": 48
+   },
+   "blk.N.ffn_up_shexp.weight": {
+    "Q8_0": 24,
+    "IQ4_XS": 24
+   },
+   "blk.N.hc_attn_down.weight": {
+    "IQ4_XS": 48
+   },
+   "blk.N.hc_attn_inject.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_attn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_attn_up.weight": {
+    "IQ4_NL": 48
+   },
+   "blk.N.hc_ffn_down.weight": {
+    "IQ4_XS": 48
+   },
+   "blk.N.hc_ffn_inject.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_ffn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_ffn_up.weight": {
+    "IQ4_NL": 48
+   },
+   "blk.N.ssm_a": {
+    "F32": 36
+   },
+   "blk.N.ssm_alpha.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_beta.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_conv1d.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_dt.bias": {
+    "F32": 36
+   },
+   "blk.N.ssm_norm.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_out.weight": {
+    "Q8_0": 18,
+    "IQ4_XS": 18
+   },
+   "blk.N.ple_conv1d.weight": {
+    "F16": 1
+   },
+   "blk.N.ple_key.weight": {
+    "IQ4_XS": 1
+   },
+   "blk.N.ple_norm_conv.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_key.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_query.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_value.weight": {
+    "IQ4_XS": 1
+   },
+   "blk.N.attn_k.weight": {
+    "Q8_0": 12
+   },
+   "blk.N.attn_k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_output.weight": {
+    "Q5_K": 12
+   },
+   "blk.N.attn_q.weight": {
+    "Q6_K": 6,
+    "IQ4_XS": 6
+   },
+   "blk.N.attn_q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_v.weight": {
+    "Q8_0": 12
+   },
+   "blk.N.indexer.k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.k_proj.weight": {
+    "BF16": 12
+   },
+   "blk.N.indexer.q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.q_proj.weight": {
+    "BF16": 12
+   }
+  }
+ },
+ "k8": {
+  "files": [
+   "Swift-Qwen3.8-Flash-Next-GSQ-RCO-Q2_0-00001-of-00002.gguf",
+   "Swift-Qwen3.8-Flash-Next-GSQ-RCO-Q2_0-00002-of-00002.gguf"
+  ],
+  "n": 1224,
+  "kv": {
+   "general.architecture": "qwen4exp",
+   "general.sampling.top_k": 20,
+   "general.sampling.top_p": 0.949999988079071,
+   "general.sampling.temp": 1.0,
+   "general.name": "Swift Flash Next",
+   "general.base_model.count": 1,
+   "general.dataset.count": 1,
+   "general.quantization_version": 2,
+   "general.file_type": 41,
+   "split.no": 0,
+   "split.tensors.count": 1224,
+   "split.count": 2
+  },
+  "fam": {
+   "output.weight": {
+    "Q5_K": 1
+   },
+   "output_hc_down.weight": {
+    "BF16": 1
+   },
+   "output_hc_norm.weight": {
+    "F32": 1
+   },
+   "output_hc_up.weight": {
+    "BF16": 1
+   },
+   "per_layer_token_embd.weight": {
+    "IQ4_NL": 1
+   },
+   "token_embd.weight": {
+    "Q3_K": 1
+   },
+   "blk.N.attn_gate.weight": {
+    "Q4_K": 3,
+    "IQ4_XS": 4,
+    "Q3_K": 25,
+    "T42": 4
+   },
+   "blk.N.attn_qkv.weight": {
+    "IQ4_XS": 13,
+    "Q3_K": 18,
+    "T42": 1,
+    "Q4_K": 4
+   },
+   "blk.N.ffn_down_exps.weight": {
+    "T42": 48
+   },
+   "blk.N.ffn_down_shexp.weight": {
+    "Q5_0": 7,
+    "T42": 16,
+    "Q4_0": 16,
+    "IQ4_NL": 7,
+    "Q8_0": 2
+   },
+   "blk.N.ffn_gate_exps.weight": {
+    "T42": 48
+   },
+   "blk.N.ffn_gate_inp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_gate_inp_shexp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_gate_shexp.weight": {
+    "IQ4_XS": 6,
+    "T42": 21,
+    "Q3_K": 13,
+    "Q4_K": 6,
+    "Q6_K": 1,
+    "Q5_K": 1
+   },
+   "blk.N.ffn_up_exps.weight": {
+    "T42": 48
+   },
+   "blk.N.ffn_up_shexp.weight": {
+    "Q3_K": 21,
+    "T42": 13,
+    "Q6_K": 1,
+    "Q4_K": 6,
+    "IQ4_XS": 5,
+    "Q5_K": 2
+   },
+   "blk.N.hc_attn_down.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_attn_inject.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_attn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_attn_up.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_ffn_down.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_ffn_inject.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_ffn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_ffn_up.weight": {
+    "BF16": 48
+   },
+   "blk.N.ssm_a": {
+    "F32": 36
+   },
+   "blk.N.ssm_alpha.weight": {
+    "BF16": 36
+   },
+   "blk.N.ssm_beta.weight": {
+    "BF16": 36
+   },
+   "blk.N.ssm_conv1d.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_dt.bias": {
+    "F32": 36
+   },
+   "blk.N.ssm_norm.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_out.weight": {
+    "Q5_K": 3,
+    "Q4_K": 11,
+    "IQ4_XS": 17,
+    "Q3_K": 3,
+    "Q6_K": 2
+   },
+   "blk.N.ple_conv1d.weight": {
+    "F16": 1
+   },
+   "blk.N.ple_key.weight": {
+    "T42": 1
+   },
+   "blk.N.ple_norm_conv.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_key.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_query.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_value.weight": {
+    "BF16": 1
+   },
+   "blk.N.attn_k.weight": {
+    "Q3_K": 3,
+    "Q4_K": 2,
+    "IQ4_XS": 4,
+    "Q5_K": 2,
+    "Q6_K": 1
+   },
+   "blk.N.attn_k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_output.weight": {
+    "Q4_K": 4,
+    "Q6_K": 4,
+    "Q5_K": 4
+   },
+   "blk.N.attn_q.weight": {
+    "T42": 2,
+    "Q3_K": 6,
+    "IQ4_XS": 4
+   },
+   "blk.N.attn_q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_v.weight": {
+    "Q5_K": 3,
+    "Q3_K": 1,
+    "IQ4_XS": 3,
+    "Q4_K": 2,
+    "Q6_K": 3
+   },
+   "blk.N.indexer.k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.k_proj.weight": {
+    "BF16": 12
+   },
+   "blk.N.indexer.q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.q_proj.weight": {
+    "BF16": 12
+   }
+  }
+ },
+ "jj-iq4xs": {
+  "files": [
+   "IQ4_XS/Swift-1.5-Qwen3.8-Flash-Next-Heretic-V2-IQ4_XS-plus-00001-of-00006.gguf",
+   "IQ4_XS/Swift-1.5-Qwen3.8-Flash-Next-Heretic-V2-IQ4_XS-plus-00002-of-00006.gguf",
+   "IQ4_XS/Swift-1.5-Qwen3.8-Flash-Next-Heretic-V2-IQ4_XS-plus-00003-of-00006.gguf",
+   "IQ4_XS/Swift-1.5-Qwen3.8-Flash-Next-Heretic-V2-IQ4_XS-plus-00004-of-00006.gguf",
+   "IQ4_XS/Swift-1.5-Qwen3.8-Flash-Next-Heretic-V2-IQ4_XS-plus-00005-of-00006.gguf",
+   "IQ4_XS/Swift-1.5-Qwen3.8-Flash-Next-Heretic-V2-IQ4_XS-plus-00006-of-00006.gguf"
+  ],
+  "n": 1224,
+  "kv": {
+   "general.architecture": "qwen4exp",
+   "general.sampling.top_k": 20,
+   "general.sampling.top_p": 0.949999988079071,
+   "general.sampling.temp": 1.0,
+   "general.name": "Swift 1.5 Qwen3.8 Flash Next Heretic",
+   "general.base_model.count": 1,
+   "general.quantization_version": 2,
+   "general.file_type": 30,
+   "split.no": 0,
+   "split.tensors.count": 1224,
+   "split.count": 6
+  },
+  "fam": {
+   "output.weight": {
+    "Q6_K": 1
+   },
+   "output_hc_down.weight": {
+    "Q8_0": 1
+   },
+   "output_hc_norm.weight": {
+    "F32": 1
+   },
+   "output_hc_up.weight": {
+    "Q8_0": 1
+   },
+   "per_layer_token_embd.weight": {
+    "IQ4_NL": 1
+   },
+   "token_embd.weight": {
+    "Q8_0": 1
+   },
+   "blk.N.attn_gate.weight": {
+    "Q8_0": 36
+   },
+   "blk.N.attn_qkv.weight": {
+    "Q8_0": 36
+   },
+   "blk.N.ffn_down_exps.weight": {
+    "IQ4_NL": 43,
+    "Q8_0": 5
+   },
+   "blk.N.ffn_down_shexp.weight": {
+    "Q8_0": 48
+   },
+   "blk.N.ffn_gate_exps.weight": {
+    "IQ3_S": 41,
+    "IQ4_XS": 7
+   },
+   "blk.N.ffn_gate_inp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_gate_inp_shexp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_gate_shexp.weight": {
+    "Q8_0": 48
+   },
+   "blk.N.ffn_up_exps.weight": {
+    "IQ3_S": 41,
+    "IQ4_XS": 7
+   },
+   "blk.N.ffn_up_shexp.weight": {
+    "Q8_0": 48
+   },
+   "blk.N.hc_attn_down.weight": {
+    "Q8_0": 48
+   },
+   "blk.N.hc_attn_inject.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_attn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_attn_up.weight": {
+    "Q8_0": 48
+   },
+   "blk.N.hc_ffn_down.weight": {
+    "Q8_0": 48
+   },
+   "blk.N.hc_ffn_inject.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_ffn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_ffn_up.weight": {
+    "Q8_0": 48
+   },
+   "blk.N.ssm_a": {
+    "F32": 36
+   },
+   "blk.N.ssm_alpha.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_beta.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_conv1d.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_dt.bias": {
+    "F32": 36
+   },
+   "blk.N.ssm_norm.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_out.weight": {
+    "Q8_0": 36
+   },
+   "blk.N.ple_conv1d.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_key.weight": {
+    "Q8_0": 1
+   },
+   "blk.N.ple_norm_conv.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_key.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_query.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_value.weight": {
+    "Q8_0": 1
+   },
+   "blk.N.attn_k.weight": {
+    "Q8_0": 12
+   },
+   "blk.N.attn_k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_output.weight": {
+    "Q8_0": 12
+   },
+   "blk.N.attn_q.weight": {
+    "Q8_0": 12
+   },
+   "blk.N.attn_q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_v.weight": {
+    "Q8_0": 12
+   },
+   "blk.N.indexer.k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.k_proj.weight": {
+    "F16": 12
+   },
+   "blk.N.indexer.q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.q_proj.weight": {
+    "F16": 12
+   }
+  }
+ },
+ "jj-iq3s": {
+  "files": [
+   "IQ3_S-85G/Swift-1.5-Qwen3.8-Flash-Next-Heretic-V2-IQ3_S-85G.gguf-00001-of-00008.gguf",
+   "IQ3_S-85G/Swift-1.5-Qwen3.8-Flash-Next-Heretic-V2-IQ3_S-85G.gguf-00002-of-00008.gguf",
+   "IQ3_S-85G/Swift-1.5-Qwen3.8-Flash-Next-Heretic-V2-IQ3_S-85G.gguf-00003-of-00008.gguf",
+   "IQ3_S-85G/Swift-1.5-Qwen3.8-Flash-Next-Heretic-V2-IQ3_S-85G.gguf-00004-of-00008.gguf",
+   "IQ3_S-85G/Swift-1.5-Qwen3.8-Flash-Next-Heretic-V2-IQ3_S-85G.gguf-00005-of-00008.gguf",
+   "IQ3_S-85G/Swift-1.5-Qwen3.8-Flash-Next-Heretic-V2-IQ3_S-85G.gguf-00006-of-00008.gguf",
+   "IQ3_S-85G/Swift-1.5-Qwen3.8-Flash-Next-Heretic-V2-IQ3_S-85G.gguf-00007-of-00008.gguf",
+   "IQ3_S-85G/Swift-1.5-Qwen3.8-Flash-Next-Heretic-V2-IQ3_S-85G.gguf-00008-of-00008.gguf"
+  ],
+  "n": 1224,
+  "kv": {
+   "general.architecture": "qwen4exp",
+   "general.sampling.top_k": 20,
+   "general.sampling.top_p": 0.949999988079071,
+   "general.sampling.temp": 1.0,
+   "general.name": "Swift 1.5 Qwen3.8 Flash Next Heretic",
+   "general.base_model.count": 1,
+   "general.quantization_version": 2,
+   "general.file_type": 26,
+   "split.no": 0,
+   "split.tensors.count": 1224,
+   "split.count": 8
+  },
+  "fam": {
+   "output.weight": {
+    "Q8_0": 1
+   },
+   "output_hc_down.weight": {
+    "Q8_0": 1
+   },
+   "output_hc_norm.weight": {
+    "F32": 1
+   },
+   "output_hc_up.weight": {
+    "Q8_0": 1
+   },
+   "per_layer_token_embd.weight": {
+    "IQ4_NL": 1
+   },
+   "token_embd.weight": {
+    "Q8_0": 1
+   },
+   "blk.N.attn_gate.weight": {
+    "BF16": 1,
+    "Q8_0": 35
+   },
+   "blk.N.attn_qkv.weight": {
+    "Q8_0": 36
+   },
+   "blk.N.ffn_down_exps.weight": {
+    "T42": 36,
+    "Q5_1": 10,
+    "IQ4_NL": 1,
+    "Q8_0": 1
+   },
+   "blk.N.ffn_down_shexp.weight": {
+    "Q8_0": 48
+   },
+   "blk.N.ffn_gate_exps.weight": {
+    "IQ2_XXS": 28,
+    "Q5_K": 18,
+    "IQ3_XXS": 2
+   },
+   "blk.N.ffn_gate_inp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_gate_inp_shexp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_gate_shexp.weight": {
+    "Q8_0": 48
+   },
+   "blk.N.ffn_up_exps.weight": {
+    "IQ2_XXS": 28,
+    "Q5_K": 18,
+    "IQ3_XXS": 2
+   },
+   "blk.N.ffn_up_shexp.weight": {
+    "Q8_0": 48
+   },
+   "blk.N.hc_attn_down.weight": {
+    "Q8_0": 48
+   },
+   "blk.N.hc_attn_inject.weight": {
+    "IQ3_S": 48
+   },
+   "blk.N.hc_attn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_attn_up.weight": {
+    "Q8_0": 48
+   },
+   "blk.N.hc_ffn_down.weight": {
+    "Q8_0": 48
+   },
+   "blk.N.hc_ffn_inject.weight": {
+    "IQ3_S": 48
+   },
+   "blk.N.hc_ffn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_ffn_up.weight": {
+    "Q8_0": 48
+   },
+   "blk.N.ssm_a": {
+    "F32": 36
+   },
+   "blk.N.ssm_alpha.weight": {
+    "IQ3_S": 36
+   },
+   "blk.N.ssm_beta.weight": {
+    "IQ3_S": 36
+   },
+   "blk.N.ssm_conv1d.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_dt.bias": {
+    "F32": 36
+   },
+   "blk.N.ssm_norm.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_out.weight": {
+    "Q8_0": 36
+   },
+   "blk.N.ple_conv1d.weight": {
+    "F16": 1
+   },
+   "blk.N.ple_key.weight": {
+    "Q8_0": 1
+   },
+   "blk.N.ple_norm_conv.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_key.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_query.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_value.weight": {
+    "Q8_0": 1
+   },
+   "blk.N.attn_k.weight": {
+    "Q8_0": 12
+   },
+   "blk.N.attn_k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_output.weight": {
+    "Q8_0": 12
+   },
+   "blk.N.attn_q.weight": {
+    "Q8_0": 12
+   },
+   "blk.N.attn_q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_v.weight": {
+    "Q8_0": 12
+   },
+   "blk.N.indexer.k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.k_proj.weight": {
+    "F16": 12
+   },
+   "blk.N.indexer.q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.q_proj.weight": {
+    "F16": 12
+   }
+  }
+ },
+ "fz-iq4xs": {
+  "files": [
+   "iq4_xs/Qwen3.8-Flash-Next-IQ4_XS-00001-of-00004.gguf",
+   "iq4_xs/Qwen3.8-Flash-Next-IQ4_XS-00002-of-00004.gguf",
+   "iq4_xs/Qwen3.8-Flash-Next-IQ4_XS-00003-of-00004.gguf",
+   "iq4_xs/Qwen3.8-Flash-Next-IQ4_XS-00004-of-00004.gguf"
+  ],
+  "n": 1224,
+  "kv": {
+   "general.architecture": "qwen4exp",
+   "general.sampling.top_k": 20,
+   "general.sampling.top_p": 0.949999988079071,
+   "general.sampling.temp": 1.0,
+   "general.name": "Model Bf16",
+   "general.base_model.count": 1,
+   "general.quantization_version": 2,
+   "general.file_type": 30,
+   "split.no": 0,
+   "split.tensors.count": 1224,
+   "split.count": 4
+  },
+  "fam": {
+   "output.weight": {
+    "Q6_K": 1
+   },
+   "output_hc_down.weight": {
+    "IQ4_XS": 1
+   },
+   "output_hc_norm.weight": {
+    "F32": 1
+   },
+   "output_hc_up.weight": {
+    "IQ4_NL": 1
+   },
+   "per_layer_token_embd.weight": {
+    "IQ4_NL": 1
+   },
+   "token_embd.weight": {
+    "IQ4_XS": 1
+   },
+   "blk.N.attn_gate.weight": {
+    "IQ4_XS": 36
+   },
+   "blk.N.attn_qkv.weight": {
+    "Q5_K": 36
+   },
+   "blk.N.ffn_down_exps.weight": {
+    "Q5_1": 6,
+    "IQ4_NL": 42
+   },
+   "blk.N.ffn_down_shexp.weight": {
+    "Q5_1": 6,
+    "IQ4_NL": 42
+   },
+   "blk.N.ffn_gate_exps.weight": {
+    "IQ4_XS": 48
+   },
+   "blk.N.ffn_gate_inp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_gate_inp_shexp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_gate_shexp.weight": {
+    "IQ4_XS": 48
+   },
+   "blk.N.ffn_up_exps.weight": {
+    "IQ4_XS": 48
+   },
+   "blk.N.ffn_up_shexp.weight": {
+    "IQ4_XS": 48
+   },
+   "blk.N.hc_attn_down.weight": {
+    "IQ4_XS": 48
+   },
+   "blk.N.hc_attn_inject.weight": {
+    "IQ4_XS": 48
+   },
+   "blk.N.hc_attn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_attn_up.weight": {
+    "IQ4_NL": 48
+   },
+   "blk.N.hc_ffn_down.weight": {
+    "Q5_K": 6,
+    "IQ4_XS": 42
+   },
+   "blk.N.hc_ffn_inject.weight": {
+    "IQ4_XS": 48
+   },
+   "blk.N.hc_ffn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_ffn_up.weight": {
+    "IQ4_NL": 48
+   },
+   "blk.N.ssm_a": {
+    "F32": 36
+   },
+   "blk.N.ssm_alpha.weight": {
+    "IQ4_XS": 36
+   },
+   "blk.N.ssm_beta.weight": {
+    "IQ4_XS": 36
+   },
+   "blk.N.ssm_conv1d.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_dt.bias": {
+    "F32": 36
+   },
+   "blk.N.ssm_norm.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_out.weight": {
+    "IQ4_XS": 36
+   },
+   "blk.N.ple_conv1d.weight": {
+    "F16": 1
+   },
+   "blk.N.ple_key.weight": {
+    "IQ4_XS": 1
+   },
+   "blk.N.ple_norm_conv.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_key.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_query.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_value.weight": {
+    "IQ4_XS": 1
+   },
+   "blk.N.attn_k.weight": {
+    "IQ4_XS": 12
+   },
+   "blk.N.attn_k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_output.weight": {
+    "IQ4_XS": 12
+   },
+   "blk.N.attn_q.weight": {
+    "IQ4_XS": 12
+   },
+   "blk.N.attn_q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_v.weight": {
+    "Q5_K": 12
+   },
+   "blk.N.indexer.k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.k_proj.weight": {
+    "BF16": 12
+   },
+   "blk.N.indexer.q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.q_proj.weight": {
+    "BF16": 12
+   }
+  }
+ },
+ "hh-swift-iq3s": {
+  "files": [
+   "swift-IQ3_S/Swift-Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf",
+   "swift-IQ3_S/Swift-Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf"
+  ],
+  "n": 1224,
+  "kv": {
+   "general.architecture": "qwen4exp",
+   "general.sampling.top_k": 20,
+   "general.sampling.top_p": 0.949999988079071,
+   "general.sampling.temp": 1.0,
+   "general.name": "Swift Flash Next",
+   "general.base_model.count": 1,
+   "general.dataset.count": 1,
+   "general.quantization_version": 2,
+   "general.file_type": 26,
+   "split.no": 0,
+   "split.tensors.count": 1224,
+   "split.count": 2
+  },
+  "fam": {
+   "output.weight": {
+    "Q6_K": 1
+   },
+   "output_hc_down.weight": {
+    "BF16": 1
+   },
+   "output_hc_norm.weight": {
+    "F32": 1
+   },
+   "output_hc_up.weight": {
+    "BF16": 1
+   },
+   "per_layer_token_embd.weight": {
+    "IQ4_NL": 1
+   },
+   "token_embd.weight": {
+    "IQ4_XS": 1
+   },
+   "blk.N.attn_gate.weight": {
+    "Q4_K": 10,
+    "Q6_K": 14,
+    "IQ4_XS": 8,
+    "Q5_K": 4
+   },
+   "blk.N.attn_qkv.weight": {
+    "Q6_K": 22,
+    "Q5_K": 10,
+    "Q4_K": 2,
+    "IQ4_XS": 2
+   },
+   "blk.N.ffn_down_exps.weight": {
+    "IQ4_NL": 39,
+    "T42": 9
+   },
+   "blk.N.ffn_down_shexp.weight": {
+    "IQ4_NL": 47,
+    "Q8_0": 1
+   },
+   "blk.N.ffn_gate_exps.weight": {
+    "IQ3_XXS": 17,
+    "IQ2_S": 20,
+    "IQ3_S": 10,
+    "IQ4_XS": 1
+   },
+   "blk.N.ffn_gate_inp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_gate_inp_shexp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_gate_shexp.weight": {
+    "Q4_K": 16,
+    "IQ4_XS": 15,
+    "Q6_K": 13,
+    "Q5_K": 4
+   },
+   "blk.N.ffn_up_exps.weight": {
+    "IQ3_XXS": 17,
+    "IQ2_S": 20,
+    "IQ3_S": 10,
+    "IQ4_XS": 1
+   },
+   "blk.N.ffn_up_shexp.weight": {
+    "IQ4_XS": 13,
+    "Q4_K": 14,
+    "Q6_K": 13,
+    "Q5_K": 8
+   },
+   "blk.N.hc_attn_down.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_attn_inject.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_attn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_attn_up.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_ffn_down.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_ffn_inject.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_ffn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_ffn_up.weight": {
+    "BF16": 48
+   },
+   "blk.N.ssm_a": {
+    "F32": 36
+   },
+   "blk.N.ssm_alpha.weight": {
+    "BF16": 36
+   },
+   "blk.N.ssm_beta.weight": {
+    "BF16": 36
+   },
+   "blk.N.ssm_conv1d.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_dt.bias": {
+    "F32": 36
+   },
+   "blk.N.ssm_norm.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_out.weight": {
+    "Q6_K": 29,
+    "Q4_K": 3,
+    "Q5_K": 4
+   },
+   "blk.N.ple_conv1d.weight": {
+    "F16": 1
+   },
+   "blk.N.ple_key.weight": {
+    "BF16": 1
+   },
+   "blk.N.ple_norm_conv.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_key.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_query.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_value.weight": {
+    "BF16": 1
+   },
+   "blk.N.attn_k.weight": {
+    "Q6_K": 11,
+    "IQ4_XS": 1
+   },
+   "blk.N.attn_k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_output.weight": {
+    "Q4_K": 1,
+    "Q6_K": 11
+   },
+   "blk.N.attn_q.weight": {
+    "IQ4_XS": 3,
+    "Q4_K": 1,
+    "Q5_K": 3,
+    "Q6_K": 5
+   },
+   "blk.N.attn_q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_v.weight": {
+    "Q6_K": 10,
+    "Q5_K": 2
+   },
+   "blk.N.indexer.k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.k_proj.weight": {
+    "BF16": 12
+   },
+   "blk.N.indexer.q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.q_proj.weight": {
+    "BF16": 12
+   }
+  }
+ },
+ "sc-iq3s": {
+  "files": [
+   "Swift-Qwen3.8-Flash-Next-GSQ-RCO-abliterated-IQ3_S-00001-of-00002.gguf",
+   "Swift-Qwen3.8-Flash-Next-GSQ-RCO-abliterated-IQ3_S-00002-of-00002.gguf"
+  ],
+  "n": 1224,
+  "kv": {
+   "general.architecture": "qwen4exp",
+   "general.sampling.top_k": 20,
+   "general.sampling.top_p": 0.949999988079071,
+   "general.sampling.temp": 1.0,
+   "general.name": "Swift Flash Next",
+   "general.base_model.count": 1,
+   "general.dataset.count": 1,
+   "general.quantization_version": 2,
+   "general.file_type": 26,
+   "split.no": 0,
+   "split.tensors.count": 1224,
+   "split.count": 2
+  },
+  "fam": {
+   "output.weight": {
+    "Q6_K": 1
+   },
+   "output_hc_down.weight": {
+    "BF16": 1
+   },
+   "output_hc_norm.weight": {
+    "F32": 1
+   },
+   "output_hc_up.weight": {
+    "BF16": 1
+   },
+   "per_layer_token_embd.weight": {
+    "IQ4_NL": 1
+   },
+   "token_embd.weight": {
+    "IQ4_XS": 1
+   },
+   "blk.N.attn_gate.weight": {
+    "Q4_K": 10,
+    "Q6_K": 14,
+    "IQ4_XS": 8,
+    "Q5_K": 4
+   },
+   "blk.N.attn_qkv.weight": {
+    "Q6_K": 22,
+    "Q5_K": 10,
+    "Q4_K": 2,
+    "IQ4_XS": 2
+   },
+   "blk.N.ffn_down_exps.weight": {
+    "IQ4_NL": 39,
+    "T42": 9
+   },
+   "blk.N.ffn_down_shexp.weight": {
+    "IQ4_NL": 48
+   },
+   "blk.N.ffn_gate_exps.weight": {
+    "IQ3_XXS": 17,
+    "IQ2_S": 20,
+    "IQ3_S": 10,
+    "IQ4_XS": 1
+   },
+   "blk.N.ffn_gate_inp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_gate_inp_shexp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_gate_shexp.weight": {
+    "Q4_K": 16,
+    "IQ4_XS": 15,
+    "Q6_K": 13,
+    "Q5_K": 4
+   },
+   "blk.N.ffn_up_exps.weight": {
+    "IQ3_XXS": 17,
+    "IQ2_S": 20,
+    "IQ3_S": 10,
+    "IQ4_XS": 1
+   },
+   "blk.N.ffn_up_shexp.weight": {
+    "IQ4_XS": 13,
+    "Q4_K": 14,
+    "Q6_K": 13,
+    "Q5_K": 8
+   },
+   "blk.N.hc_attn_down.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_attn_inject.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_attn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_attn_up.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_ffn_down.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_ffn_inject.weight": {
+    "BF16": 48
+   },
+   "blk.N.hc_ffn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_ffn_up.weight": {
+    "BF16": 48
+   },
+   "blk.N.ssm_a": {
+    "F32": 36
+   },
+   "blk.N.ssm_alpha.weight": {
+    "BF16": 36
+   },
+   "blk.N.ssm_beta.weight": {
+    "BF16": 36
+   },
+   "blk.N.ssm_conv1d.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_dt.bias": {
+    "F32": 36
+   },
+   "blk.N.ssm_norm.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_out.weight": {
+    "IQ4_XS": 36
+   },
+   "blk.N.ple_conv1d.weight": {
+    "F16": 1
+   },
+   "blk.N.ple_key.weight": {
+    "BF16": 1
+   },
+   "blk.N.ple_norm_conv.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_key.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_query.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_value.weight": {
+    "BF16": 1
+   },
+   "blk.N.attn_k.weight": {
+    "Q6_K": 11,
+    "IQ4_XS": 1
+   },
+   "blk.N.attn_k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_output.weight": {
+    "IQ4_XS": 12
+   },
+   "blk.N.attn_q.weight": {
+    "IQ4_XS": 3,
+    "Q4_K": 1,
+    "Q5_K": 3,
+    "Q6_K": 5
+   },
+   "blk.N.attn_q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_v.weight": {
+    "Q6_K": 10,
+    "Q5_K": 2
+   },
+   "blk.N.indexer.k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.k_proj.weight": {
+    "BF16": 12
+   },
+   "blk.N.indexer.q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.q_proj.weight": {
+    "BF16": 12
+   }
+  }
+ },
+ "xop-q4km": {
+  "files": [
+   "Q4_K_M/Swift1.5-Flash-Next-Gentle-Heretic-Q4_K_M.gguf",
+   "Q4_K_M/mmproj-Swift1.5-BF16.gguf"
+  ],
+  "n": 1558,
+  "kv": {
+   "general.architecture": "qwen4exp",
+   "general.sampling.top_k": 20,
+   "general.sampling.top_p": 0.949999988079071,
+   "general.sampling.temp": 1.0,
+   "general.name": "Swift1.5-own-gentle-ARA-Q4_K_M",
+   "general.base_model.count": 1,
+   "general.dataset.count": 1,
+   "general.file_type": 15,
+   "general.quantization_version": 2
+  },
+  "fam": {
+   "output_hc_norm.weight": {
+    "F32": 1
+   },
+   "output_hc_down.weight": {
+    "Q4_K": 1
+   },
+   "output_hc_up.weight": {
+    "Q5_0": 1
+   },
+   "blk.N.hc_attn_inject.weight": {
+    "Q4_K": 48
+   },
+   "blk.N.hc_attn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_attn_down.weight": {
+    "Q4_K": 48
+   },
+   "blk.N.hc_attn_up.weight": {
+    "Q5_0": 48
+   },
+   "blk.N.ssm_a": {
+    "F32": 36
+   },
+   "blk.N.ssm_conv1d.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_dt.bias": {
+    "F32": 36
+   },
+   "blk.N.ssm_alpha.weight": {
+    "Q4_K": 36
+   },
+   "blk.N.ssm_beta.weight": {
+    "Q4_K": 36
+   },
+   "blk.N.attn_qkv.weight": {
+    "Q6_K": 18,
+    "Q4_K": 18
+   },
+   "blk.N.attn_gate.weight": {
+    "Q4_K": 36
+   },
+   "blk.N.ssm_norm.weight": {
+    "F32": 36
+   },
+   "blk.N.ssm_out.weight": {
+    "Q4_K": 28,
+    "BF16": 8
+   },
+   "blk.N.ffn_gate_exps.weight": {
+    "Q4_K": 48
+   },
+   "blk.N.ffn_up_exps.weight": {
+    "Q4_K": 48
+   },
+   "blk.N.ffn_down_exps.weight": {
+    "Q8_0": 24,
+    "Q5_0": 24
+   },
+   "blk.N.ffn_gate_inp.weight": {
+    "F32": 48
+   },
+   "blk.N.ffn_down_shexp.weight": {
+    "Q8_0": 22,
+    "Q5_0": 18,
+    "BF16": 8
+   },
+   "blk.N.ffn_gate_shexp.weight": {
+    "Q4_K": 48
+   },
+   "blk.N.ffn_up_shexp.weight": {
+    "Q4_K": 48
+   },
+   "blk.N.ffn_gate_inp_shexp.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_ffn_inject.weight": {
+    "Q4_K": 48
+   },
+   "blk.N.hc_ffn_norm.weight": {
+    "F32": 48
+   },
+   "blk.N.hc_ffn_down.weight": {
+    "Q6_K": 24,
+    "Q4_K": 24
+   },
+   "blk.N.hc_ffn_up.weight": {
+    "Q5_0": 48
+   },
+   "blk.N.ple_key.weight": {
+    "Q4_K": 1
+   },
+   "blk.N.ple_norm_conv.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_key.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_norm_query.weight": {
+    "F32": 1
+   },
+   "blk.N.ple_conv1d.weight": {
+    "F16": 1
+   },
+   "per_layer_token_embd.weight": {
+    "Q5_0": 1
+   },
+   "blk.N.ple_value.weight": {
+    "Q4_K": 1
+   },
+   "blk.N.indexer.q_proj.weight": {
+    "BF16": 12
+   },
+   "blk.N.indexer.k_proj.weight": {
+    "BF16": 12
+   },
+   "blk.N.indexer.k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.indexer.q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_k_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_k.weight": {
+    "Q4_K": 12
+   },
+   "blk.N.attn_output.weight": {
+    "Q4_K": 12
+   },
+   "blk.N.attn_q_norm.weight": {
+    "F32": 12
+   },
+   "blk.N.attn_q.weight": {
+    "Q4_K": 12
+   },
+   "blk.N.attn_v.weight": {
+    "Q6_K": 6,
+    "Q4_K": 6
+   },
+   "token_embd.weight": {
+    "Q4_K": 1
+   },
+   "output.weight": {
+    "Q6_K": 1
+   },
+   "v.blk.0.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.0.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.0.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.0.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.0.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.0.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.0.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.0.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.0.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.0.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.0.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.0.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.1.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.1.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.1.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.1.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.1.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.1.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.1.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.1.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.1.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.1.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.1.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.1.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.10.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.10.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.10.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.10.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.10.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.10.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.10.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.10.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.10.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.10.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.10.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.10.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.11.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.11.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.11.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.11.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.11.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.11.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.11.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.11.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.11.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.11.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.11.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.11.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.12.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.12.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.12.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.12.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.12.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.12.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.12.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.12.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.12.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.12.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.12.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.12.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.13.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.13.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.13.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.13.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.13.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.13.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.13.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.13.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.13.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.13.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.13.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.13.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.14.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.14.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.14.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.14.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.14.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.14.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.14.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.14.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.14.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.14.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.14.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.14.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.15.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.15.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.15.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.15.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.15.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.15.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.15.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.15.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.15.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.15.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.15.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.15.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.16.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.16.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.16.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.16.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.16.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.16.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.16.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.16.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.16.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.16.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.16.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.16.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.17.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.17.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.17.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.17.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.17.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.17.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.17.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.17.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.17.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.17.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.17.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.17.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.18.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.18.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.18.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.18.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.18.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.18.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.18.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.18.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.18.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.18.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.18.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.18.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.19.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.19.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.19.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.19.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.19.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.19.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.19.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.19.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.19.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.19.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.19.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.19.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.2.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.2.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.2.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.2.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.2.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.2.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.2.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.2.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.2.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.2.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.2.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.2.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.20.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.20.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.20.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.20.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.20.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.20.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.20.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.20.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.20.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.20.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.20.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.20.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.21.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.21.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.21.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.21.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.21.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.21.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.21.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.21.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.21.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.21.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.21.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.21.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.22.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.22.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.22.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.22.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.22.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.22.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.22.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.22.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.22.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.22.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.22.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.22.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.23.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.23.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.23.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.23.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.23.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.23.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.23.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.23.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.23.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.23.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.23.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.23.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.24.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.24.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.24.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.24.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.24.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.24.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.24.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.24.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.24.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.24.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.24.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.24.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.25.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.25.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.25.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.25.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.25.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.25.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.25.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.25.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.25.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.25.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.25.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.25.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.26.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.26.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.26.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.26.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.26.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.26.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.26.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.26.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.26.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.26.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.26.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.26.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.3.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.3.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.3.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.3.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.3.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.3.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.3.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.3.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.3.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.3.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.3.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.3.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.4.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.4.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.4.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.4.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.4.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.4.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.4.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.4.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.4.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.4.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.4.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.4.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.5.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.5.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.5.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.5.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.5.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.5.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.5.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.5.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.5.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.5.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.5.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.5.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.6.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.6.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.6.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.6.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.6.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.6.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.6.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.6.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.6.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.6.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.6.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.6.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.7.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.7.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.7.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.7.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.7.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.7.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.7.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.7.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.7.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.7.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.7.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.7.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.8.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.8.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.8.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.8.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.8.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.8.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.8.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.8.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.8.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.8.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.8.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.8.ln2.weight": {
+    "F32": 1
+   },
+   "v.blk.9.attn_out.bias": {
+    "F32": 1
+   },
+   "v.blk.9.attn_out.weight": {
+    "BF16": 1
+   },
+   "v.blk.9.attn_qkv.bias": {
+    "F32": 1
+   },
+   "v.blk.9.attn_qkv.weight": {
+    "BF16": 1
+   },
+   "v.blk.9.ffn_up.bias": {
+    "F32": 1
+   },
+   "v.blk.9.ffn_up.weight": {
+    "BF16": 1
+   },
+   "v.blk.9.ffn_down.bias": {
+    "F32": 1
+   },
+   "v.blk.9.ffn_down.weight": {
+    "BF16": 1
+   },
+   "v.blk.9.ln1.bias": {
+    "F32": 1
+   },
+   "v.blk.9.ln1.weight": {
+    "F32": 1
+   },
+   "v.blk.9.ln2.bias": {
+    "F32": 1
+   },
+   "v.blk.9.ln2.weight": {
+    "F32": 1
+   },
+   "mm.0.bias": {
+    "F32": 1
+   },
+   "mm.0.weight": {
+    "BF16": 1
+   },
+   "mm.2.bias": {
+    "F32": 1
+   },
+   "mm.2.weight": {
+    "BF16": 1
+   },
+   "v.post_ln.bias": {
+    "F32": 1
+   },
+   "v.post_ln.weight": {
+    "F32": 1
+   },
+   "v.patch_embd.bias": {
+    "F32": 1
+   },
+   "v.patch_embd.weight": {
+    "F32": 1
+   },
+   "v.patch_embd.weight.1": {
+    "F32": 1
+   },
+   "v.position_embd.weight": {
+    "F32": 1
+   }
+  }
+ }
+}
