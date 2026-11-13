@@ -59,3 +59,22 @@ def test_run_matrix_stops_the_server_when_a_session_raises(tmp_path):
     except RuntimeError:
         pass
     assert calls == ["stop"]
+
+
+def test_server_script_runs_locally_by_default(monkeypatch):
+    import matrix
+    monkeypatch.delenv("RIG_SSH", raising=False)
+    argv = matrix.rig_argv("start", "k2")
+    assert argv[0] == "bash" and argv[1].endswith("harness-delivery-2026-11/scripts/rig-server.sh")
+    assert argv[2:] == ["start", "k2"]
+    assert matrix.rig_host() == "127.0.0.1"
+
+
+def test_server_script_runs_over_ssh_when_asked(monkeypatch):
+    import matrix
+    monkeypatch.setenv("RIG_SSH", "vitor@mac-studio")
+    monkeypatch.setenv("RIG_REPO", "LocalProjects/x")
+    argv = matrix.rig_argv("stop")
+    assert argv[:4] == ["ssh", "-o", "BatchMode=yes", "vitor@mac-studio"]
+    assert argv[-2:] == ["LocalProjects/x/bench/harness-delivery-2026-11/scripts/rig-server.sh", "stop"]
+    assert matrix.rig_host() == "mac-studio"

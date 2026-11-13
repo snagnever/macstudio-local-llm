@@ -52,3 +52,45 @@ def test_read_of_user_secrets_is_denied(area):
 def test_sandbox_can_be_turned_off(area, monkeypatch):
     monkeypatch.setenv("HARNESS_SANDBOX", "0")
     assert sandboxed(Cmd(["true"], {}, area / "work")).argv == ["true"]
+
+
+def run_in(area, argv, **kw):
+    cmd = sandboxed(Cmd(argv, {"HOME": str(area / "home"), "PATH": "/usr/bin:/bin"}, area / "work"), **kw)
+    return subprocess.run(cmd.argv, cwd=cmd.cwd, env=cmd.env, capture_output=True, text=True)
+
+
+def test_session_cannot_read_the_reference_solutions(area):
+    assert run_in(area, ["/bin/cat", str(HERE / "tests" / "solutions.py")]).returncode != 0
+
+
+def test_session_cannot_list_the_real_home(area):
+    assert run_in(area, ["/bin/ls", str(Path.home())]).returncode != 0
+
+
+def test_extra_read_paths_open_one_directory(area):
+    assert run_in(area, ["/bin/cat", str(HERE / "scripts" / "tasks.py")], read=[HERE / "scripts"]).returncode == 0
+    assert run_in(area, ["/bin/cat", str(HERE / "tests" / "solutions.py")], read=[HERE / "scripts"]).returncode != 0
+
+
+def test_write_outside_the_user_tree_is_denied(area):
+    target = "/private/etc/harness-delivery-probe"
+    assert run_in(area, [sys.executable, "-c", f"open({target!r}, 'w')"]).returncode != 0
+
+
+def test_tmpdir_points_inside_the_session_home(area):
+    cmd = sandboxed(Cmd(["true"], {"HOME": str(area / "home")}, area / "work"))
+    assert cmd.env["TMPDIR"] == str(area / "home" / "tmp") and (area / "home" / "tmp").is_dir()
+    r = run_in(area, [sys.executable, "-c", "import tempfile; tempfile.NamedTemporaryFile().write(b'x')"])
+    assert r.returncode == 0, r.stderr
+
+
+def test_launch_helpers_cannot_run(area):
+    assert run_in(area, ["/bin/launchctl", "version"]).returncode != 0
+    assert run_in(area, ["/usr/bin/osascript", "-e", "1"]).returncode != 0
+
+
+def test_missing_sandbox_fails_closed(area, monkeypatch):
+    import harness
+    monkeypatch.setattr(harness, "SANDBOX_EXEC", "/nonexistent/sandbox-exec")
+    with pytest.raises(RuntimeError):
+        sandboxed(Cmd(["true"], {"HOME": str(area / "home")}, area / "work"))

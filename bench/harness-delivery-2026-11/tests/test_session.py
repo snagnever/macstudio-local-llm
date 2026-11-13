@@ -25,6 +25,7 @@ def fake(monkeypatch):
         monkeypatch.setenv("FAKE_TASK", task)
     monkeypatch.setenv("HARNESS_BIN_PI", str(HERE / "tests/fake_harness.py"))
     monkeypatch.setenv("HARNESS_PASS_ENV", "FAKE_MODE,FAKE_TASK")
+    monkeypatch.setenv("HARNESS_SANDBOX_READ", str(HERE / "tests"))  # the fake harness lives there
     set_mode("solve")
     return set_mode
 
@@ -91,3 +92,13 @@ def test_cli_writes_the_record(fake, tmp_path, capsys):
                "--model", "m", "--out", str(tmp_path / "r"), "--logs", str(tmp_path / "l")])
     assert rc == 0 and record_path(tmp_path / "r", "k2", "pi", "b", 2).is_file()
     assert json.loads(capsys.readouterr().out)["task_done"] is True
+
+
+def test_check_runs_inside_the_sandbox(fake, tmp_path, monkeypatch):
+    """A repository that tries to write outside its copy during the check does not succeed."""
+    import run_session
+    seen = []
+    real = run_session.harness.sandboxed
+    monkeypatch.setattr(run_session.harness, "sandboxed", lambda cmd, **kw: seen.append(cmd.argv) or real(cmd, **kw))
+    run("pi", "b", "k2", 1, T, tmp_path / "r", tmp_path / "l")
+    assert len(seen) == 2 and any("checks.py" in a for a in seen[1])

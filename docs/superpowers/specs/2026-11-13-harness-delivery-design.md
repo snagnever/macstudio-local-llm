@@ -72,9 +72,23 @@ Uma campanha nova, `bench/harness-delivery-2026-11/`, com `plan.md`, `scripts/`,
 
 ### Onde os harnesses rodam
 
-Os 4 harnesses rodam no MacBook e falam com o rig pelo Tailscale. O `pi` e o `dsh` só existem no MacBook, e assim os 4 têm a mesma condição de rede. Os tempos desta campanha não se comparam com os tempos do Claude Code medidos dentro do rig.
+**Decisão do usuário (13/11, depois do plano):** os 4 harnesses rodam no rig, ao lado do servidor, e falam com ele em `127.0.0.1`. A primeira versão deste desenho rodava os harnesses no MacBook.
 
-Os launchers de `bench/qwen3.8-harness-eval/macbook/` (`run-cc.sh`, `run-oc.sh`, `run-dsh.sh`, `run-pi.sh`, `lib.sh`) já configuram cada harness para o rig. A campanha reusa a configuração deles e troca a porta e o id do modelo.
+- O `pi` e o `dsh` não estavam no rig; a campanha instala as mesmas versões do MacBook (`pi` 0.85.1, `dsh` 0.1.0-rc.6).
+- O Claude Code e o OpenCode usam a versão que o rig já tem. O preflight grava as versões.
+- O harness e o servidor dividem a CPU e a memória do rig. Os tempos valem para comparar harnesses e pesos entre si nesta campanha.
+
+Os launchers de `bench/qwen3.8-harness-eval/macbook/` servem de referência para os campos de configuração de cada harness.
+
+### Sandbox
+
+Cada harness roda com os pedidos de permissão desligados. Por isso cada sessão, e também o check, rodam dentro do `sandbox-exec` do macOS:
+
+- Escrita: só na cópia do repositório, no `HOME` da sessão e nos diretórios temporários do sistema.
+- Leitura em `/Users`: só a cópia, o `HOME` da sessão e os runtimes (`~/.local`, caches do `uv`). Os testes e as soluções de referência da campanha ficam ilegíveis para a sessão.
+- `launchctl`, `open`, `osascript`, `ssh` e Apple Events: negados.
+- A rede fica aberta: a T5 instala pacotes e todo harness chama o servidor.
+- Sem `sandbox-exec`, o runner para com erro, a menos que o operador defina `HARNESS_SANDBOX=0`.
 
 ### Sessão
 
@@ -138,7 +152,7 @@ Com 2 repetições, uma diferença de 1 tarefa entre dois harnesses não dá ver
 
 ## Preflight obrigatório antes da fila
 
-1. O Splash do rig responde no endereço do Tailscale, nas APIs `/v1/chat/completions` e `/v1/messages`.
+1. O Splash do rig responde em `127.0.0.1`, nas APIs `/v1/chat/completions` e `/v1/messages`.
 2. Cada harness fecha a tarefa b em modo não interativo contra o `k2`, uma vez. Esse smoke não conta na matriz.
 3. Cada harness sai com código de erro quando o servidor está fora, em vez de esperar para sempre.
 4. O check de T1, T5 e T7 passa com a solução de referência e falha com o fixture intacto e com cada trapaça listada.
@@ -156,6 +170,6 @@ Se um harness falhar no item 2 ou 3 e a causa não tiver correção em 1 h de tr
 ## Não verificado
 
 - O `dsh` e o `pi` em modo não interativo contra o Splash 1.6.1.
-- Se o Splash do rig escuta na interface do Tailscale ou só em `127.0.0.1`.
+- Uma sessão real de cada harness dentro do sandbox.
 - Se os 4 harnesses aceitam o mesmo esforço de raciocínio.
 - A duração real de uma sessão por harness.

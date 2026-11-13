@@ -4,9 +4,10 @@ usage: matrix.py --packs k2,z4 [--harnesses claude,opencode,dsh,pi] [--dry-run] 
 
 Repetition 1 runs the first pack and then the second; repetition 2 runs them in the reverse order. Inside a
 pack block the tasks go a b c d T1 T5 T7, and task i starts with harness i mod n. A session that already has
-a record does not run again. The rig serves one pack at a time: the loop asks rig-server.sh (over ssh) to
-switch packs between blocks and to stop at the end, which restarts the user's own server.
-Env: RIG_SSH (default vitor@mac-studio), RIG_HOST (default mac-studio), RIG_REPO (the rig checkout).
+a record does not run again. The rig serves one pack at a time: the loop asks rig-server.sh to switch packs
+between blocks and to stop at the end, which restarts the user's own server.
+The matrix runs on the rig, next to the server. Set RIG_SSH (user@host) to drive the rig from another machine;
+then RIG_HOST (default mac-studio) and RIG_REPO (the rig checkout) apply.
 """
 from __future__ import annotations
 
@@ -25,9 +26,20 @@ import tasks
 from harness import Target
 
 HERE = Path(__file__).resolve().parents[1]
-RIG_SSH = os.environ.get("RIG_SSH", "vitor@mac-studio")
-RIG_HOST = os.environ.get("RIG_HOST", "mac-studio")
-RIG_REPO = os.environ.get("RIG_REPO", "LocalProjects/macstudio-local-llm-swiftunc")
+
+def rig_argv(*args: str) -> list[str]:
+    """How to call rig-server.sh: directly (the matrix runs on the rig), or over ssh when RIG_SSH is set."""
+    ssh = os.environ.get("RIG_SSH")
+    if not ssh:
+        return ["bash", str(HERE / "scripts" / "rig-server.sh"), *args]
+    repo = os.environ.get("RIG_REPO", "LocalProjects/macstudio-local-llm-swiftunc")
+    return ["ssh", "-o", "BatchMode=yes", ssh, "bash",
+            f"{repo}/bench/harness-delivery-2026-11/scripts/rig-server.sh", *args]
+
+
+def rig_host() -> str:
+    """Host the harnesses use to reach the server."""
+    return os.environ.get("RIG_HOST") or ("mac-studio" if os.environ.get("RIG_SSH") else "127.0.0.1")
 
 
 @dataclass(frozen=True)
@@ -50,9 +62,7 @@ def order(packs: tuple[str, str], harnesses: tuple[str, ...], out: Path) -> list
 
 
 def _rig(*args: str, timeout: int = 900) -> str:
-    script = f"{RIG_REPO}/bench/harness-delivery-2026-11/scripts/rig-server.sh"
-    r = subprocess.run(["ssh", "-o", "BatchMode=yes", RIG_SSH, "bash", script, *args], capture_output=True,
-                       text=True, timeout=timeout)
+    r = subprocess.run(rig_argv(*args), capture_output=True, text=True, timeout=timeout)
     if r.returncode != 0:
         raise RuntimeError(f"rig-server.sh {' '.join(args)} failed: {r.stdout[-400:]}{r.stderr[-400:]}")
     return r.stdout
@@ -62,7 +72,7 @@ def switch_server(pack: str) -> Target:
     """Serve pack on the rig and return where it listens."""
     env = dict(line.split("=", 1) for line in _rig("start", pack).splitlines() if "=" in line)
     port = int(env["BASE_URL"].rstrip("/").removesuffix("/v1").rsplit(":", 1)[1])
-    return Target(RIG_HOST, port, env["MODEL_ID"])
+    return Target(rig_host(), port, env["MODEL_ID"])
 
 
 def stop_server() -> None:

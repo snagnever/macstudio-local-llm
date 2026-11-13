@@ -2,11 +2,11 @@
 
 > **Para agentes:** REQUIRED SUB-SKILL: use superpowers:subagent-driven-development (recomendado) ou superpowers:executing-plans para executar este plano task a task. Os steps usam checkbox (`- [ ]`).
 
-> **Status (2026-11-13):** plano escrito, nada rodou. Espera a aprovação do usuário e o veredito de velocidade da [swift-uncensored-2026-11](../swift-uncensored-2026-11/plan.md) (Task 2).
+> **Status (2026-11-13):** código das Tasks 1, 2, 3 e 5 pronto, com sandbox; nada rodou no rig. Espera a aprovação do usuário e o veredito de velocidade da [swift-uncensored-2026-11](../swift-uncensored-2026-11/plan.md) (Task 2).
 
 **Objetivo:** medir, em 7 tarefas de código com check automático, quantas tarefas cada par (harness, peso) entrega e em quanto tempo.
 
-**Arquitetura:** o MacBook roda os 4 harnesses, um por vez, em modo não interativo e com `HOME` temporário. O rig serve um peso por vez no Splash 1.6.1 (braço `rc2`, 131072). Um runner em Python copia o repositório da tarefa, dispara o harness com limite de tempo, roda o check fora da sessão e grava um registro JSON por sessão. Um resumo aplica as 3 regras de decisão.
+**Arquitetura:** o rig roda os 4 harnesses, um por vez, em modo não interativo, com `HOME` temporário e dentro do `sandbox-exec`. O mesmo rig serve um peso por vez no Splash 1.6.1 (braço `rc2`, 131072). O usuário mudou a execução do MacBook para o rig em 13/11; os steps abaixo que citam o MacBook valem para o rig. Um runner em Python copia o repositório da tarefa, dispara o harness com limite de tempo, roda o check fora da sessão e grava um registro JSON por sessão. Um resumo aplica as 3 regras de decisão.
 
 **Stack:** Python 3 (stdlib), `pytest` via `uv run --no-project --with pytest`, bash 3.2 no rig, `ssh vitor@mac-studio`.
 

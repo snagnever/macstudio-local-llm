@@ -89,6 +89,20 @@ def _usage(name: str, log: Path) -> dict:
     return usage
 
 
+def _check(task: str, repo: Path, home: Path) -> checks.CheckResult:
+    """Run the hidden check in the same sandbox as the session: it executes code the session wrote."""
+    spec = tasks.TASKS[task]
+    env = {"HOME": str(home), "PATH": os.environ.get("PATH", "/usr/bin:/bin")}
+    cmd = harness.sandboxed(
+        harness.Cmd([sys.executable, str(HERE / "scripts" / "checks.py"), task, str(repo)], env, repo),
+        read=(HERE / "scripts", spec.repo_src, tasks.CLAUDE_TASKS, Path(sys.prefix), Path(sys.base_prefix)))
+    try:
+        out = subprocess.run(cmd.argv, cwd=cmd.cwd, env=cmd.env, capture_output=True, text=True, timeout=1800)
+        return checks.CheckResult(**json.loads(out.stdout.strip().splitlines()[-1]))
+    except (OSError, subprocess.TimeoutExpired, ValueError, IndexError, TypeError):
+        return checks.CheckResult(task_done=False, cheat=["check_failed"])
+
+
 def run(name: str, task: str, pack: str, rep: int, target: Target, out: Path, logs: Path,
         limit_s: int | None = None) -> dict:
     """Run one session and write its record. Returns the record."""
@@ -104,7 +118,7 @@ def run(name: str, task: str, pack: str, rep: int, target: Target, out: Path, lo
     harness.prepare(name, home, target)
     cmd = harness.sandboxed(harness.command(name, tasks.prompt(task), repo, home, target))
     code, timed_out, wall = _execute(cmd, log, spec.limit_s if limit_s is None else limit_s)
-    result = checks.check(task, repo)
+    result = _check(task, repo, home)
     record = {"harness": name, "harness_version": harness.version(name), "pack": pack, "task": task, "rep": rep,
               "model_id": target.model_id, "task_done": result.task_done, "steps_passed": result.steps_passed,
               "cheat": result.cheat, "wall_s": round(wall, 1), "exit": code, "timeout": timed_out,

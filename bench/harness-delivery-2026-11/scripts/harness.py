@@ -3,7 +3,7 @@
 Every harness runs non-interactive, with a temporary HOME that holds its whole configuration, reasoning effort
 xhigh and a 131072-token context. Nothing here reads or writes the user's global configuration.
 HARNESS_BIN_<NAME> replaces the executable (tests use it). HARNESS_TOOLS_BIN, when set, goes first on PATH.
-HARNESS_SANDBOX=0 turns the macOS sandbox off (see sandboxed).
+HARNESS_SANDBOX=0 turns the macOS sandbox off (see sandboxed). HARNESS_SANDBOX_READ adds readable paths (a:b).
 HARNESS_PASS_ENV is a comma-separated list of extra parent variables to pass through (tests use it).
 """
 from __future__ import annotations
@@ -110,31 +110,49 @@ def command(name: str, prompt: str, repo: Path, home: Path, target: Target) -> C
 
 
 SANDBOX_EXEC = "/usr/bin/sandbox-exec"
-SECRET_DIRS = (".ssh", ".gnupg", ".aws", ".kube", ".docker", ".netrc", ".claude", ".claude-instances", ".claude.json",
-               ".config", ".dsh", ".pi", ".codex", "Library/Keychains", "Library/Cookies",
-               "Library/Application Support/Claude", "Library/Application Support/Google")
+WRITE_ROOTS = ("/dev", "/private/tmp", "/private/var/folders", "/private/var/tmp")
+TOOLCHAIN_DIRS = (".local", ".cache/uv", ".cache/mise", ".config/mise", ".npm")   # under the real home: runtimes only
+NO_EXEC = ("/bin/launchctl", "/usr/bin/open", "/usr/bin/osascript", "/usr/bin/crontab", "/usr/bin/at",
+           "/usr/bin/ssh", "/usr/bin/scp", "/usr/bin/sftp", "/usr/bin/security")
 
 
-def _sandbox_profile(repo: Path, home: Path) -> str:
-    """Allow by default; deny writes under /Users except the repository copy and the session HOME; deny reads
-    of the user's credentials and harness configuration."""
-    real = Path.home()
-    q = lambda p: '"' + str(Path(p).resolve()).replace('"', '\\"') + '"'  # noqa: E731
-    secrets = " ".join(f"(subpath {q(real / d)})" for d in SECRET_DIRS)
+def _q(path) -> str:
+    return '"' + str(Path(path).resolve()).replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def _sandbox_profile(write: list[Path], read: list[Path]) -> str:
+    """Writes: denied everywhere except `write` and the system temp roots. Reads under /Users: denied except
+    `read` (path lookups stay allowed). Launch helpers and Apple Events: denied. Network: open."""
+    subpaths = lambda paths: " ".join(f"(subpath {_q(p)})" for p in paths)  # noqa: E731
     return ("(version 1)(allow default)"
-            '(deny file-write* (subpath "/Users"))'
-            f"(allow file-write* (subpath {q(repo)}) (subpath {q(home)}))"
-            f"(deny file-read* {secrets})")
+            "(deny file-write*)"
+            f"(allow file-write* {subpaths([*WRITE_ROOTS, *write])})"
+            '(deny file-read* (subpath "/Users"))'
+            '(allow file-read-metadata (subpath "/Users"))'
+            f"(allow file-read* {subpaths([*write, *read])})"
+            "(deny appleevent-send)"
+            f"(deny process-exec {' '.join(f'(literal {_q(p)})' for p in NO_EXEC)})")
 
 
-def sandboxed(cmd: Cmd) -> Cmd:
-    """Wrap a session in sandbox-exec. The harness runs with its permission prompts off, so the OS keeps its
-    writes inside the repository copy and the session HOME and keeps the user's credentials unreadable.
-    The network stays open: T5 installs packages and every harness calls the rig."""
-    if os.environ.get("HARNESS_SANDBOX") == "0" or not Path(SANDBOX_EXEC).exists():
+def sandboxed(cmd: Cmd, read: tuple = ()) -> Cmd:
+    """Wrap a process in sandbox-exec. The harness runs with its permission prompts off, so the OS confines it:
+    it writes only in the repository copy and the session HOME (TMPDIR moves there too), and under /Users it
+    reads only those two, the runtimes (TOOLCHAIN_DIRS, HARNESS_TOOLS_BIN), `read` and HARNESS_SANDBOX_READ.
+    The campaign's own tests and reference solutions stay unreadable. The network stays open: T5 installs
+    packages and every harness calls the server. Fails closed: without sandbox-exec it raises, unless the
+    operator sets HARNESS_SANDBOX=0."""
+    if os.environ.get("HARNESS_SANDBOX") == "0":
         return cmd
-    profile = _sandbox_profile(cmd.cwd, Path(cmd.env.get("HOME", cmd.cwd)))
-    return Cmd([SANDBOX_EXEC, "-p", profile, *cmd.argv], cmd.env, cmd.cwd)
+    if not Path(SANDBOX_EXEC).exists():
+        raise RuntimeError(f"{SANDBOX_EXEC} is missing; set HARNESS_SANDBOX=0 to run without a sandbox")
+    home = Path(cmd.env.get("HOME", cmd.cwd))
+    (home / "tmp").mkdir(parents=True, exist_ok=True)
+    reads = [Path.home() / d for d in TOOLCHAIN_DIRS] + [Path(p) for p in read]
+    tools = os.environ.get("HARNESS_TOOLS_BIN")
+    reads += [Path(tools).parent] if tools else []
+    reads += [Path(p) for p in os.environ.get("HARNESS_SANDBOX_READ", "").split(":") if p]
+    profile = _sandbox_profile([cmd.cwd, home], reads)
+    return Cmd([SANDBOX_EXEC, "-p", profile, *cmd.argv], {**cmd.env, "TMPDIR": str(home / "tmp")}, cmd.cwd)
 
 
 def prepare(name: str, home: Path, target: Target) -> None:
