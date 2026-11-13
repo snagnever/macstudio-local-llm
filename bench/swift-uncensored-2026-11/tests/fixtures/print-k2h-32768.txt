@@ -1,7 +1,7 @@
 model_select: ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS
-launcher: /Users/vitor/LocalProjects/macstudio-local-llm/bench/qwen3.8-prefix-cache/scripts/run-splash.sh KF
+launcher: <REPO>/bench/qwen3.8-prefix-cache/scripts/run-splash.sh KF
 /Users/vitor/.local/opt/qwen38/splash-v1.6.1/bin/splash serve --model ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS --host 0.0.0.0 --port 8585 --max-context 32768 --revision 0142554c963a8653912c0c8283f05f13f63653f3 --idle-release off --language-only --no-webui --offline --verify-rows auto
 
 probe: python3 cache_probe.py --base-url http://127.0.0.1:8585/v1 --runtime splash --runtime-revision v1.6.1-verify-auto --context 32768 --repeat 1 --temperature 1.0       
 effort: xhigh
-saida: /Users/vitor/LocalProjects/macstudio-local-llm/bench/swift-uncensored-2026-11/results/k2h-32768-t1.0.jsonl
+saida: <REPO>/bench/swift-uncensored-2026-11/results/k2h-32768-t1.0.jsonl

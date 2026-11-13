@@ -71,3 +71,13 @@ def test_queue_stops_on_low_disk(tmp_path):
     env = clean_env({"QUEUE_GAP_S": "0", "QUEUE_IDLE_GATE": "0", "QUEUE_MIN_FREE_GB": "99999999"})
     r = subprocess.run(["bash", str(fake / "run-queue.sh"), "speed", "z1h"], capture_output=True, text=True, env=env)
     assert r.returncode == 3 and "ran" not in r.stdout
+
+
+def test_refusal_arm_runs_the_public_sets_and_the_etapa_u_probe():
+    r = subprocess.run(["bash", str(SCRIPTS / "refusal-arm.sh"), "z1h", "--print"], capture_output=True, text=True,
+                       env=clean_env())
+    assert r.returncode == 0, r.stderr
+    out = r.stdout
+    assert "swift-uncensored-2026-11/scripts/refusal_probe.py" in out and "for s in advbench jbb" in out
+    assert "qwen38-flashnext-daily-driver-2026-09/scripts/refusal_probe.py" in out and "for s in legit harmful" in out
+    assert "results'/etapa-u-$s-z1h.jsonl" in out

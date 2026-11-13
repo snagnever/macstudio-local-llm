@@ -1,7 +1,13 @@
 import pytest
-from conftest import FIXTURES, run_arm, show_arm
+from conftest import FIXTURES, HERE, run_arm, show_arm
 
 TAG = {"FLASHNEXT_SPLASH_TAG": "1.6.1"}
+REPO = str(HERE.parents[1])
+
+
+def fixture(name):
+    """A recorded --print output; <REPO> stands for the checkout, which differs between the MacBook and the rig."""
+    return (FIXTURES / name).read_text().replace("<REPO>", REPO)
 PACKS = {
     "z0": ("ukisai/Swift-1.5-Qwen3.8-Flash-Next-GSQ-RCO-GGUF:IQ3_S", "99bb8f7f95c7aa7b24a36a7786a4f657b30f5d3d"),
     "z1": ("jackjusko/Swift-1.5-Flash-Next-Heretic-ReverseEngineer:IQ4_XS", "bd3bca068a544d459cf42902bf21a0fac00ec853"),
@@ -28,11 +34,11 @@ def test_z_arms_take_xargs():
 
 @pytest.mark.parametrize("arm", ["k2h", "k8h"])
 def test_k_arms_stay_the_same(arm):
-    assert show_arm(arm) == (FIXTURES / f"print-{arm}-32768.txt").read_text()
+    assert show_arm(arm) == fixture(f"print-{arm}-32768.txt")
 
 
 def test_rc_arms_default_to_k2_weights():
-    assert show_arm("rc2", "131072", extra_env=TAG) == (FIXTURES / "print-rc2-131072-161.txt").read_text()
+    assert show_arm("rc2", "131072", extra_env=TAG) == fixture("print-rc2-131072-161.txt")
 
 
 @pytest.mark.parametrize("pack", ["z1", "z3"])
@@ -45,7 +51,7 @@ def test_rc_arms_take_pack(pack):
 
 def test_rc_pack_k2_is_the_default():
     assert show_arm("rc2", "131072", extra_env=dict(TAG, FLASHNEXT_SPLASH_PACK="k2")) == \
-        (FIXTURES / "print-rc2-131072-161.txt").read_text()
+        fixture("print-rc2-131072-161.txt")
 
 
 def test_bad_pack_is_refused():
