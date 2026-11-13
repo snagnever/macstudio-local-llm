@@ -3,6 +3,7 @@
 Every harness runs non-interactive, with a temporary HOME that holds its whole configuration, reasoning effort
 xhigh and a 131072-token context. Nothing here reads or writes the user's global configuration.
 HARNESS_BIN_<NAME> replaces the executable (tests use it). HARNESS_TOOLS_BIN, when set, goes first on PATH.
+HARNESS_PASS_ENV is a comma-separated list of extra parent variables to pass through (tests use it).
 """
 from __future__ import annotations
 
@@ -48,7 +49,8 @@ def _base_env(home: Path) -> dict[str, str]:
     env = {"HOME": str(home), "XDG_CONFIG_HOME": str(home / ".config"),
            "XDG_DATA_HOME": str(home / ".local/share"), "XDG_CACHE_HOME": str(home / ".cache"),
            "XDG_STATE_HOME": str(home / ".local/state"), "PATH": f"{tools}:{path}" if tools else path}
-    env.update({k: os.environ[k] for k in PASSTHROUGH if k in os.environ})
+    extra = [k for k in os.environ.get("HARNESS_PASS_ENV", "").split(",") if k]
+    env.update({k: os.environ[k] for k in (*PASSTHROUGH, *extra) if k in os.environ})
     return env
 
 
