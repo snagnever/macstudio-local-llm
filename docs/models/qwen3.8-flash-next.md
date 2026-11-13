@@ -177,6 +177,27 @@ finished the task; two sessions that did not (one per server) are reported in th
 `--decode-share 1.0` did not help the real pair on Splash. With big prompts every turn (the synthetic battery)
 each turn runs about 2× slower with two sessions on both servers, and 2.4–4.5× slower with three or four.
 
+#### Splash 1.6.1, the daily driver since 2026-11-12
+
+The 2026-11-12 campaign measured real Claude Code pairs (tasks C and D, 131072 tokens, Claude Code 2.1.292) on
+Splash 1.6.1 with PLE `auto`, with a Splash 1.5.0 control in the same queue. 1.5.0 ran 2 reps per profile and
+1.6.1 ran 3 ([`etapa4-claude-code.md`](../../bench/splash161-2026-11/results/etapa4-claude-code.md)).
+
+| what you wait for | Splash 1.5.0 (same day) | Splash 1.6.1 |
+|---|---:|---:|
+| Reply starts, two sessions (median / p90) | 1.4 s / 4.0 s | 0.9 s / 2.3 s |
+| Generation, two sessions (median / slowest turn) | 100.5 / 56.2 tok/s | 92.2 / 39.9 tok/s |
+| Pair of realistic tasks, wall | 348 s | 336 s |
+| Two sessions with Explore subagents: reply starts (median / p90) | 3.2 s / 10.1 s | 1.6 s / 9.1 s |
+| Two sessions with Explore subagents: slowest turn, pair wall | 19.0 tok/s, 848 s | 21.1 tok/s, 568 s |
+| Two 256K sessions, worst stream (synthetic, mean of 3 reps) | 16.1 s | 16.6 s, no memory wait |
+
+On 1.6.1 the reply starts sooner and the pair finishes sooner. The slowest generation turn of the plain pair is 29%
+lower, from a single request. Splash 1.6.0 had made two 256K sessions 65% slower, with requests waiting up to 30 s
+for memory; 1.6.1 removes that wait ([`etapa3-concorrencia.md`](../../bench/splash161-2026-11/results/etapa3-concorrencia.md)).
+Three and four sessions were not measured on 1.6.1, so the advice above for three or more sessions still rests on
+1.5.0.
+
 Experience bands used on the public page: reply starts ≤ 2 s good, 2–5 s acceptable, > 5 s poor; generation
 ≥ 60 tok/s good, 30–60 acceptable, < 30 poor; first prompt ≤ 30 s good; side call ≤ 5 s good. The campaign gate
 (worst slowdown ≤ 1.5× passes, ≤ 2.0× warns) stays in the page's appendix.
