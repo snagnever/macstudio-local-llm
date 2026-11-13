@@ -1,6 +1,6 @@
 # Swift 1.5 uncensored no Splash 1.6.1 — runbook da campanha (2026-11-13)
 
-> **Status (2026-11-13): Tasks 0 e 1 feitas; Task 2 em curso; Task 3 suspensa.** O usuário suspendeu a Task 3 em 13/11. Um teste de entrega em vários harnesses vai ocupar o lugar dela; o desenho ainda não existe. `z2h`, `z3h` e `z4h` passam no smoke e na regra "Recusa". O Splash recusa o `z1h` (indexer em `F16`); o braço `z4h` é o `z1` com esses 24 tensores em `BF16`. Resultados: [etapa0-preflight.md](results/etapa0-preflight.md), [etapa0-smoke.md](results/etapa0-smoke.md), [etapa1-recusa.md](results/etapa1-recusa.md). Branch: `bench/swift-uncensored-2026-11`, a partir da `main`.
+> **Status (2026-11-13): Tasks 0 e 1 feitas; Task 2 em curso; Task 3 suspensa.** O usuário suspendeu a Task 3 em 13/11. A campanha [harness-delivery-2026-11](../harness-delivery-2026-11/plan.md) ocupa o lugar dela. `z2h`, `z3h` e `z4h` passam no smoke e na regra "Recusa". O Splash recusa o `z1h` (indexer em `F16`); o braço `z4h` é o `z1` com esses 24 tensores em `BF16`. Resultados: [etapa0-preflight.md](results/etapa0-preflight.md), [etapa0-smoke.md](results/etapa0-smoke.md), [etapa1-recusa.md](results/etapa1-recusa.md). Branch: `bench/swift-uncensored-2026-11`, a partir da `main`.
 >
 > **Para agentes:** use superpowers:executing-plans. Execute as tasks em ordem. Marque cada step (`- [ ]` → `- [x]`). Pare só nas condições de "Execução".
 
