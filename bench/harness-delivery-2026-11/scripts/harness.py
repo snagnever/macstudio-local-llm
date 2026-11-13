@@ -122,7 +122,9 @@ def _q(path) -> str:
 
 def _sandbox_profile(write: list[Path], read: list[Path]) -> str:
     """Writes: denied everywhere except `write` and the system temp roots. Reads under /Users: denied except
-    `read` (path lookups stay allowed). Launch helpers and Apple Events: denied. Network: open."""
+    `read` (path lookups stay allowed). Launch helpers and Apple Events: denied. Network: open.
+    The exec denylist is a convenience, not the barrier: launchd refuses job submission from a sandboxed
+    client, and macOS kills a copy of a platform binary such as launchctl (tests pin the first)."""
     subpaths = lambda paths: " ".join(f"(subpath {_q(p)})" for p in paths)  # noqa: E731
     return ("(version 1)(allow default)"
             "(deny file-write*)"
@@ -130,7 +132,7 @@ def _sandbox_profile(write: list[Path], read: list[Path]) -> str:
             '(deny file-read* (subpath "/Users"))'
             '(allow file-read-metadata (subpath "/Users"))'
             f"(allow file-read* {subpaths([*write, *read])})"
-            "(deny appleevent-send)"
+            "(deny appleevent-send)(deny job-creation)"
             f"(deny process-exec {' '.join(f'(literal {_q(p)})' for p in NO_EXEC)})")
 
 

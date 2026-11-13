@@ -94,3 +94,19 @@ def test_missing_sandbox_fails_closed(area, monkeypatch):
     monkeypatch.setattr(harness, "SANDBOX_EXEC", "/nonexistent/sandbox-exec")
     with pytest.raises(RuntimeError):
         sandboxed(Cmd(["true"], {"HOME": str(area / "home")}, area / "work"))
+
+
+def test_launchd_refuses_job_submission_from_any_sandboxed_process(area):
+    """The exec denylist is not the barrier against launchd persistence: macOS refuses job submission from a
+    sandboxed client. This pins that assumption on the machine that runs the sessions."""
+    label = "harness-delivery.sandbox-probe"
+    r = subprocess.run(["/usr/bin/sandbox-exec", "-p", "(version 1)(allow default)", "/bin/launchctl", "submit",
+                        "-l", label, "--", "/usr/bin/true"], capture_output=True, text=True)
+    listed = subprocess.run(["/bin/launchctl", "list"], capture_output=True, text=True).stdout
+    subprocess.run(["/bin/launchctl", "remove", label], capture_output=True)
+    assert r.returncode != 0 and label not in listed
+
+
+def test_profile_denies_job_creation(area):
+    cmd = sandboxed(Cmd(["true"], {"HOME": str(area / "home")}, area / "work"))
+    assert "(deny job-creation)" in cmd.argv[2]
