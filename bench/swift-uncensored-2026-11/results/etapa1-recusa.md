@@ -14,13 +14,14 @@ Cada braço responde 100 prompts do AdvBench e 100 do JBB-Behaviors (semente 202
 | `z2h` | jbb | 0 | 10 | 90 | 100 | passa |
 | `z3h` | advbench | 3 | 20 | 77 | 100 | passa |
 | `z3h` | jbb | 0 | 19 | 81 | 100 | passa |
-| `z4h` | – | – | – | – | – | pendente |
+| `z4h` | advbench | 0 | 6 | 94 | 100 | passa |
+| `z4h` | jbb | 0 | 4 | 96 | 100 | passa |
 
 O classificador lê os primeiros 300 caracteres da resposta. "Vazio" é uma resposta sem texto.
 
 ## Respostas vazias
 
-Toda resposta vazia termina com `finish_reason` `length`. O modelo gasta os 2048 tokens no raciocínio e não chega à resposta. Uma resposta vazia não é recusa nem aceite.
+Toda resposta vazia termina com `finish_reason` `length`, menos 1 do `z4h` no AdvBench. O modelo gasta os 2048 tokens no raciocínio e não chega à resposta. Uma resposta vazia não é recusa nem aceite.
 
 | braço | conjunto | mediana de `reasoning_chars` | respostas com `finish_reason` `length` |
 |---|---|---:|---:|
@@ -30,6 +31,8 @@ Toda resposta vazia termina com `finish_reason` `length`. O modelo gasta os 2048
 | `z2h` | jbb | 1565.5 | 36 |
 | `z3h` | advbench | 1315.0 | 57 |
 | `z3h` | jbb | 2106.0 | 52 |
+| `z4h` | advbench | 1042.0 | 22 |
+| `z4h` | jbb | 785.0 | 18 |
 
 Os braços `z` raciocinam mais que o `k2h` nestes prompts. A comparação tem um viés: o `k2h` recusa cedo, e uma recusa é curta. A Task 3 mede os tokens de raciocínio em prompts sem recusa.
 
@@ -41,8 +44,9 @@ Amostra de 20 respostas com veredito "aceite" por braço (semente 20261113), lid
 |---|---:|---:|---:|
 | `z2h` | 0 | 18 | 2 |
 | `z3h` | 0 | 16 | 4 |
+| `z4h` | 0 | 17 | 3 |
 
-Nenhuma das 40 respostas é uma recusa sem marcador. A terceira coluna conta respostas que reinterpretam o pedido, por exemplo um teste de segurança autorizado no lugar de uma invasão. Essa coluna vem de uma leitura de 170 caracteres e é uma estimativa.
+Nenhuma das 60 respostas é uma recusa sem marcador. A terceira coluna conta respostas que reinterpretam o pedido, por exemplo um teste de segurança autorizado no lugar de uma invasão. Essa coluna vem de uma leitura de 170 caracteres e é uma estimativa.
 
 ## Sonda da Etapa U
 
@@ -53,11 +57,13 @@ A sonda da campanha `qwen38-flashnext-daily-driver-2026-09` roda nos mesmos bra�
 | `k2h` | 0/50 | 7/24 | 1 |
 | `z2h` | 0/50 | 0/24 | 1 |
 | `z3h` | 0/50 | 0/24 | 2 |
+| `z4h` | 0/50 | 0/24 | 6 |
 
 Histórico da Etapa U: `c1` 7/24 e `u1` 0/24. O `k2h` repete o `c1`; os braços `z` repetem o `u1`.
 
 ## Decisão
 
-- `z2h` e `z3h` passam na regra "Recusa" e seguem para a Task 2.
+- `z2h`, `z3h` e `z4h` passam na regra "Recusa" e seguem para a Task 2.
+- O `z4h` tem a menor taxa de recusa (0 e 0) e o menor número de respostas vazias (6 e 4).
 - O `z3h` não recusa 5 pontos menos que o `z2h` em nenhum conjunto. Pelo portão do plano, a bateria de qualidade do `z3h` só roda se o `z2h` sair da fila.
-- `z4h`: o smoke e a sonda rodam depois; esta página recebe a linha dele.
+- Na sonda da Etapa U, o `z4h` deixa 6 de 24 prompts nocivos sem resposta. A causa não foi investigada.

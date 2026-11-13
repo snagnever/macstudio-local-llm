@@ -25,6 +25,7 @@ Disco livre: 859 GB antes e 615 GB depois.
 | `z1h` | **recusado** | – | – | – | – | – | – | – |
 | `z2h` | passa | 30 s | 5/5 | 0.963 / 0.962 | 106.6 a 113.8 | 33.5 s | 1.48 s | 0.0 GB |
 | `z3h` | passa | 17 s | 5/5 | 0.963 / 0.962 | 108.6 a 112.1 | 33.5 s | 1.47 s | 0.0 GB |
+| `z4h` | passa | não lido | 5/5 | 0.963 / 0.962 | 112.5 a 130.9 | 33.4 s | 1.45 s | 0.0 GB |
 
 - O `z2h` resolve a variante `swift-IQ3_S` pela pasta. O `z3h` resolve `IQ3_S` pelos arquivos da raiz. O Step 10 do
   plano (snapshot de symlinks) não foi preciso.
@@ -61,3 +62,7 @@ recusa `indexer.q_proj` e `indexer.k_proj` em `F16`, com teste.
 | `z4` (recast) | 1224 | 24 em `BF16` |
 
 O `z4h` ainda não subiu no Splash. O smoke dele roda depois da fila da Task 1.
+
+## `z4h` (13/11, 15:44)
+
+O Splash carrega o pack recast. O smoke rodou em `logs/chain-t1b.sh`, depois da fila da Task 1. O pico de RAM é 80.0 GB.
