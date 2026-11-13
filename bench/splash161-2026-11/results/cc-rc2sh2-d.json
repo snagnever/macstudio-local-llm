@@ -1,0 +1,159 @@
+{
+  "duration_api_ms": 1011368,
+  "stop_reason": "end_turn",
+  "session_id": "0bb42db0-0174-4341-8c5d-56113413cdf4",
+  "total_cost_usd": 1.3804311999999999,
+  "usage": {
+    "input_tokens": 34678,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 878720,
+    "output_tokens": 13410,
+    "output_tokens_details": {
+      "thinking_tokens": 6143
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 107048,
+      "outputTokens": 35723,
+      "cacheReadInputTokens": 1188896,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 1.3804311999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 8674,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_79c408fbdd0271cfced1e3fb43421c4a_0",
+      "tool_input": {
+        "command": "cd /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2sh2-d\nd=$(mktemp -d); mkdir -p \"$d/src\"; echo hi > \"$d/src/a.txt\"\nbash rotate.sh --help >/dev/null 2>&1; echo \"rotate --help rc=$?\"\nbash verify.sh --help >/dev/null 2>&1; echo \"verify --help rc=$?\"\nbash rotate.sh --bogus >/dev/null 2>&1; echo \"rotate unknown opt rc=$?\"\nbash rotate.sh --dest \"$d\" --name demo --keep 0 >/dev/null 2>&1; echo \"rotate keep=0 rc=$?\"\nbash verify.sh --dest \"$d/nope\" >/dev/null 2>&1; echo \"verify missing dest rc=$?\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$d/dest\" --name demo \"$d/src\" >/dev/null; done\nbash rotate.sh --quiet --dest \"$d/dest\" --name demo --keep 2 --dry-run\nbash rotate.sh --quiet --dest \"$d/dest\" --name demo --keep 2\nls \"$d/dest\"\nbash verify.sh --quiet --dest \"$d/dest\"; echo \"verify rc=$?\"\nbash verify.sh --quiet --dest \"$d/dest\" --name other; echo \"verify --name filter rc=$?\"\nrm -rf \"$d\"; git status --short",
+        "description": "Spot-check rotate/verify flags, rotation order, and git status"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_3a3ced9ebab30304e60afd4cd3c0ba3a_0",
+      "tool_input": {
+        "command": "cd /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2sh2-d\nd=$(mktemp -d); mkdir -p \"$d/src\"; touch \"$d/src/a.txt\"\nbash rotate.sh --help >/dev/null 2>&1; echo \"rotate --help rc=$?\"\nbash verify.sh --help >/dev/null 2>&1; echo \"verify --help rc=$?\"\nbash rotate.sh --bogus >/dev/null 2>&1; echo \"rotate unknown opt rc=$?\"\nbash rotate.sh --dest \"$d\" --name demo --keep 0 >/dev/null 2>&1; echo \"rotate keep=0 rc=$?\"\nbash verify.sh --dest \"$d/nope\" >/dev/null 2>&1; echo \"verify missing dest rc=$?\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$d/dest\" --name demo \"$d/src\" >/dev/null; done\nbash rotate.sh --quiet --dest \"$d/dest\" --name demo --keep 2 --dry-run\nbash rotate.sh --quiet --dest \"$d/dest\" --name demo --keep 2\nls \"$d/dest\"\nbash verify.sh --quiet --dest \"$d/dest\"; echo \"verify rc=$?\"\nbash verify.sh --quiet --dest \"$d/dest\" --name other; echo \"verify --name filter rc=$?\"\nrm -rf \"$d\"; git status --short",
+        "description": "Spot-check rotate/verify flags, rotation order, and git status"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9929f22df7a3c1f3cd34e085e9b9f4e2_0",
+      "tool_input": {
+        "command": "bash rotate.sh --help >/dev/null; echo help-rotate=$?; bash verify.sh --help >/dev/null; echo help-verify=$?",
+        "description": "Check --help exit codes for rotate and verify"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9929f22df7a3c1f3cd34e085e9b9f4e2_1",
+      "tool_input": {
+        "command": "d=$(mktemp -d) && mkdir -p \"$d/src\" && touch \"$d/src/a.txt\" && for s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$d/dest\" --name demo \"$d/src\" >/dev/null; done && bash rotate.sh --quiet --dest \"$d/dest\" --name demo --keep 2 --dry-run && bash rotate.sh --quiet --dest \"$d/dest\" --name demo --keep 2 && ls \"$d/dest\" && bash verify.sh --quiet --dest \"$d/dest\"; echo verify_rc=$?; echo D=\"$d\"",
+        "description": "Create 4 archives, dry-run then real rotate --keep 2, list survivors, verify"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_63aa91173836a0812c4fdaf87482d994_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/bk-check/src /tmp/bk-check/dest && touch /tmp/bk-check/src/a.txt && echo setup-ok",
+        "description": "Create fixed scratch dirs for manual checks"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_e62c4b13f0a375ed16b723d82a188127_0",
+      "tool_input": {
+        "command": "rm /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2sh2-d/.scratch_check.sh && bash tests/run_tests.sh && git status --short",
+        "description": "Delete scratch script, run tests, show changed files"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_793fd9a21b87181278ccbbf3e9621f72_1",
+      "tool_input": {
+        "command": "rm /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2sh2-d/.scratch_check.sh",
+        "description": "Delete the temporary spot-check script I created"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "origin": {
+    "kind": "task-notification",
+    "producer": "session-task",
+    "runId": "0mwdclghm-46eae8a4"
+  },
+  "subagent_stats": {
+    "spawned": 2,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 2
+    },
+    "started_in_background": 2,
+    "max_depth": 1,
+    "spawned_by_subagents": 0,
+    "completed": 2,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {
+      "Explore": 2
+    }
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 22,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All tests pass. The sandbox denied removing my temporary spot-check script, so I'm leaving that cleanup to you (one line below).\n\n**What was done**\n\n- **rotate.sh bug**: archives sort oldest-first, but `surplus()` used `tail -n +\"$keep\"` (which deletes from the keep-th line *up* \u2014 the newest ones), and the early-exit used `-lt` so it ran even at exactly N. Now `total -le keep` exits early, and surplus is `head -n \"$((total - keep))\"` \u2014 the oldest, never the newest. Verified: 4 archives, `--keep 2` deletes the two oldest and keeps the newest with their sidecars; `--keep 3` with 3 archives deletes nothing.\n- **verify.sh bug**: it extracted the archive name with `awk '{print $2}'`, so a sidecar line `\u2026  my backup-20260101-000000.tar.gz` yielded just `my` \u2192 \"BAD (archive missing)\". It now uses `read -r expected file <<< \"$line\"` (the last variable keeps the whole remainder, spaces included), and the digest comparison uses quoted `[[ \"$expected\" == \"$actual\" ]]`. Verified: `ok my backup-20260101-000000.tar.gz` with rc=0.\n- **Refactor**: the identical option-parsing block + `resolve_dir` moved into new `lib/common.sh` (sourced from the same directory convention as `lib/log.sh`, with a `__BACKUP_COMMON_SH_LOADED` double-source guard, bash-3.2 compatible), sourced by `rotate.sh` and `verify.sh` after their `usage`/`parse_local_option` definitions. `backup.sh`, `restore.sh`, `report.sh` untouched. Spot-checked that `--dest/--dest=`, `--name`, `--keep`, `-n/--dry-run`, `-q/--quiet`, `-h/--help`, unknown-option rc=1, and `--keep 0` rejection all behave identically.\n- **Tests**: added `verify accepts archive names containing spaces` (next to the verify group) and `rotate --keep N with exactly N archives deletes nothing (keeps the newest)` (new rotate group), in the existing `check` style. `bash tests/run_tests.sh`: 8/8 ok, \"all tests passed\".\n\nChanged files: `lib/common.sh` (new), `rotate.sh`, `verify.sh`, `tests/run_tests.sh` \u2014 plus a leftover `.scratch_check.sh` I used for manual verification that the sandbox wouldn't let me delete; feel free to `rm` it.",
+  "ttft_ms": 69041,
+  "type": "result",
+  "duration_ms": 172058,
+  "uuid": "e7212c1f-56a7-4e53-abc3-a5cacfd07992",
+  "ttft_stream_ms": 43,
+  "time_to_request_ms": 19,
+  "first_content_frame_ms": 18116,
+  "queued_turn_count": 0,
+  "result_index": 2,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 651.5,
+  "task_done": true,
+  "parallel_agent_calls": 1,
+  "subagents_spawned": 2,
+  "subagents": true
+}

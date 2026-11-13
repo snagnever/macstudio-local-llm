@@ -1,0 +1,102 @@
+{
+  "duration_api_ms": 608217,
+  "stop_reason": "end_turn",
+  "session_id": "34e2cb87-14c3-42a9-956c-b9de5f421aa5",
+  "total_cost_usd": 0.7101352,
+  "usage": {
+    "input_tokens": 21299,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 402880,
+    "output_tokens": 11675,
+    "output_tokens_details": {
+      "thinking_tokens": 6753
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 60543,
+      "outputTokens": 17826,
+      "cacheReadInputTokens": 557216,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7101352,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 7508,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "origin": {
+    "kind": "task-notification",
+    "producer": "session-task",
+    "runId": "0mwde0ez0-56ff308a"
+  },
+  "subagent_stats": {
+    "spawned": 2,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 2
+    },
+    "started_in_background": 2,
+    "max_depth": 1,
+    "spawned_by_subagents": 0,
+    "completed": 2,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {
+      "Explore": 2
+    }
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 13,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 10 tests pass (6 original + 4 new).\n\n- **rotate.sh** \u2014 `rotate.sh --keep N` used `tail -n +\"$keep\"` on the oldest-first archive list, which deleted from the KEEP-th entry onward (the newest); now it deletes the first `total - keep` entries (the oldest) and exits early when `total <= keep`.\n- **verify.sh** \u2014 the sidecar's file name was taken as awk's second field, truncating `my backup-\u2026.tar.gz` at the space and reporting \"archive missing\"; it now splits off only the digest, keeping the full name.\n- **lib/common.sh** (new) \u2014 holds the shared option parser (`parse_options`, with `is_uint`/`need_value`) and `resolve_dir`, with a double-sourcing guard like `lib/log.sh`; sourced by rotate.sh and verify.sh, which accept the same flags as before.\n- **tests/run_tests.sh** \u2014 added a rotate group (exactly-N keeps everything, newest survives, keep-2-of-3 deletes only the oldest) and a verify group for an archive name containing a space.\n\nI changed rotate.sh, verify.sh, and tests/run_tests.sh, and added lib/common.sh.",
+  "ttft_ms": 9457,
+  "type": "result",
+  "duration_ms": 208864,
+  "uuid": "41564b98-3b8c-4ca3-bfaf-5f3f81229e8f",
+  "ttft_stream_ms": 55,
+  "time_to_request_ms": 22,
+  "first_content_frame_ms": 5567,
+  "queued_turn_count": 0,
+  "result_index": 2,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 457.7,
+  "task_done": true,
+  "parallel_agent_calls": 1,
+  "subagents_spawned": 2,
+  "subagents": true
+}

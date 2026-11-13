@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 299024,
+  "stop_reason": "end_turn",
+  "session_id": "66728ecd-9170-436d-bc46-3efbdba5cac5",
+  "total_cost_usd": 0.6783887999999998,
+  "usage": {
+    "input_tokens": 37931,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1041824,
+    "output_tokens": 15915,
+    "output_tokens_details": {
+      "thinking_tokens": 8095
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 37931,
+      "outputTokens": 15915,
+      "cacheReadInputTokens": 1041824,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6783887999999998,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 8095,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c4923011ed47c5b7d238bb296529e3ae_0",
+      "tool_input": {
+        "command": "set -u\nt=$(mktemp -d); cd \"$t\"\n# rotation with 4 archives, keep 3: oldest goes, newest three survive, sidecar follows\nmkdir -p dest\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do\n  echo a > \"dest/demo-$s.tar.gz\"; echo x > \"dest/demo-$s.tar.gz.sha256\"\ndone\necho \"--- rotate 4->3:\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p27-d/rotate.sh --quiet --dest dest --name demo --keep 3\nls dest\n# flags preserved\necho \"--- help:\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p27-d/rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- bad option:\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p27-d/rotate.sh --dest dest --name demo --bogus 2>/dev/null; echo \"rc=$?\"\necho \"--- missing dest:\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p27-d/verify.sh 2>/dev/null; echo \"rc=$?\"\necho \"--- missing dir:\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p27-d/verify.sh --dest /nope 2>/dev/null; echo \"rc=$?\"\n# corrupted space-named archive still BAD\nmkdir -p src; echo hi > src/a.txt\nBACKUP_STAMP=20260101-000000 bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p27-d/backup.sh --quiet --dest d2 --name \"my backup\" src >/dev/null\necho x >> \"d2/my backup-20260101-000000.tar.gz\"\necho \"--- verify corrupted w/ space:\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p27-d/verify.sh --quiet --dest d2; echo \"rc=$?\"\n# empty dest -> nothing verified, rc=0\nmkdir -p empty\necho \"--- verify empty:\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p27-d/verify.sh --quiet --dest empty; echo \"rc=$?\"\ncd /; rm -rf \"$t\"",
+        "description": "Sanity-check rotate and verify edge cases after refactor"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b5b790b7611ecfdffec47a66cc2e2cd1_0",
+      "tool_input": {
+        "command": "rm /tmp/rotate_verify_sanity.sh; git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p27-d status --short && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p27-d diff --stat",
+        "description": "Show changed files and diff stat"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_202bff3a4060d70222d241f9aeaf2725_0",
+      "tool_input": {
+        "command": "rm /tmp/rotate_verify_sanity.sh",
+        "description": "Remove temporary sanity-check script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 29,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "The `/tmp` sanity script is harmless and outside the sandbox's auto-approved scope, so I left it (it's a throwaway 20-line script in the system temp dir).\n\nAll 8 tests pass with `bash tests/run_tests.sh`. Details of what changed:\n\n- **rotate.sh** \u2014 rotation now deletes the *oldest* archives past the newest N (`head -n total-keep` of the ascending-sorted list instead of `tail -n +keep`, which was deleting the newest), and treats `total == keep` as \"nothing to rotate\" (`-le` instead of `-lt`). Its inline option parser and `resolve_dir` now come from `lib/common.sh`.\n- **verify.sh** \u2014 the sidecar's file name is taken as everything after the digest and its whitespace separator (spaces preserved), and the digest comparison uses a quoted `[[ \u2026 ]]` test. Its parser and `resolve_dir` also come from `lib/common.sh`.\n- **lib/common.sh** (new) \u2014 the shared option-parsing block (`is_uint`, `need_value`, the flag loop, the `--keep` validation) plus `resolve_dir`, with a double-source guard; sources `lib/log.sh` so it stays self-contained.\n- **tests/run_tests.sh** \u2014 added one test per bug: rotate with exactly N archives and `--keep N` deletes nothing (newest survives), and verify reports `ok` with rc=0 for `my backup-20260101-000000.tar.gz`.\n\nChanged: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.",
+  "ttft_ms": 11357,
+  "type": "result",
+  "duration_ms": 299835,
+  "uuid": "c30c7778-7771-436f-b50c-1530047831d2",
+  "ttft_stream_ms": 4151,
+  "time_to_request_ms": 35,
+  "first_content_frame_ms": 10955,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 300.1,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

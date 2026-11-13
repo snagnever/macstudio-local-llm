@@ -243,3 +243,10 @@ def test_main_writes_page_and_payload(rp, tmp_path):
     assert rp.main(["--out-html", str(html_path), "--out-json", str(json_path)]) == 0
     assert html_path.read_text(encoding="utf-8").startswith("<!doctype html>")
     assert json.loads(json_path.read_text(encoding="utf-8"))["task7"]["new"]["pairs"] == 43
+
+
+def test_hero_points_to_the_161_follow_up(page):
+    # bench/splash161-2026-11: 1.6.1 removes the two-session slowdown; the launcher moved to 1.6.1 on 2026-11-12.
+    hero = page[page.index('id="verdict"'):page.index('id="questions"')]
+    assert 'href="qwen38-flashnext-splash161.html"' in hero
+    assert "Splash 1.6.1" in hero and "3.5%" in hero

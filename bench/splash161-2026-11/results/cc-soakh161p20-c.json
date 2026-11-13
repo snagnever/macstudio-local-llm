@@ -1,0 +1,95 @@
+{
+  "duration_api_ms": 287486,
+  "stop_reason": "end_turn",
+  "session_id": "29d2b026-31e0-47a5-b2b8-0baceedc0986",
+  "total_cost_usd": 0.767672,
+  "usage": {
+    "input_tokens": 70144,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1530880,
+    "output_tokens": 9046,
+    "output_tokens_details": {
+      "thinking_tokens": 4094
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 70144,
+      "outputTokens": 9046,
+      "cacheReadInputTokens": 1530880,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.767672,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 4094,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 32,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 67 tests pass (including the 4 new ones). The new option works end-to-end on the fixture, and the no-`--group-by` path is untouched (covered by the existing summary tests).\n\nChanged files: `ledger/cli.py` (new `--group-by month|category|account` option on `report`, dispatching to the group renderers), `ledger/report.py` (`group_totals`, `render_groups_text/json/groups`), `tests/test_cli.py` (4 new tests: month-text, category-json, account-text ordering, fixture month-json), `README.md` (documented the option with examples).",
+  "ttft_ms": 4524,
+  "type": "result",
+  "duration_ms": 288226,
+  "uuid": "8c184bc3-5d50-45d2-8b07-77cdd91af786",
+  "ttft_stream_ms": 62,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 4291,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 288.9,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

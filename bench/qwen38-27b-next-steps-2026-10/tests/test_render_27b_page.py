@@ -198,6 +198,9 @@ def test_tldr_numbers_from_real_data(real):
     assert "<b>0.69×</b> the baseline" in tl
     assert "<b>~2×</b> Qwen3.8-Flash-Next" in tl and "2.06× at xhigh, 1.85× at medium" in tl
     assert "for agent loops, Flash-Next is still faster" in tl
+    # bench/splash161-2026-11: the daily driver moved to Splash 1.6.1 on 2026-11-12, 6.1 s at 128K.
+    assert "the model we used daily then" in tl and "Splash 1.6.1" in tl
+    assert "<b>2.6×</b> at medium and <b>2.9×</b> at xhigh" in tl
     assert "What we did not measure" in tl
     assert "Quality of the 27B" in tl and "Time per real task" in tl and "8 of the 11 candidate setups" in tl
     assert "(5 never ran; 3 ran only the 8K smoke)" in tl

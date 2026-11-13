@@ -1,0 +1,127 @@
+{
+  "duration_api_ms": 1061348,
+  "stop_reason": "end_turn",
+  "session_id": "372832b0-d61c-442c-a535-b8fdf7aa83bf",
+  "total_cost_usd": 1.1208480000000003,
+  "usage": {
+    "input_tokens": 29923,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 682176,
+    "output_tokens": 15981,
+    "output_tokens_details": {
+      "thinking_tokens": 8714
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 91202,
+      "outputTokens": 29386,
+      "cacheReadInputTokens": 841600,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 1.1208480000000003,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 11378,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_776fdab2c7ac5f8111354f80ac276027_0",
+      "tool_input": {
+        "command": "d=$(mktemp -d); mkdir -p \"$d/dest\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do\n  : > \"$d/dest/demo-$s.tar.gz\"; : > \"$d/dest/demo-$s.tar.gz.sha256\"\ndone\necho \"--- keep=2 of 4 (expect oldest 2 deleted, sidecars gone):\"\nbash rotate.sh --quiet --dest=\"$d/dest\" --name=demo --keep=2\nls \"$d/dest\"\necho \"--- dry-run keep=1 (expect oldest remaining 1 = newest? no: deletes 3 oldest):\"\nbash rotate.sh --quiet --dest \"$d/dest\" --name demo -n\necho \"--- bad usage (expect exit 1):\"\nbash rotate.sh --quiet --dest \"$d/dest\" --name demo --keep x; echo \"rc=$?\"\necho \"--- help exits 0:\"\nbash verify.sh --help >/dev/null; echo \"rc=$?\"\nrm -rf \"$d\"",
+        "description": "Manual checks of rotate keep-newest, dry-run, usage errors"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b0e62cd5207d7e986c86ac7236a966f1_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/bkt-check && mkdir -p /tmp/bkt-check/dest\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do\n  : > \"/tmp/bkt-check/dest/demo-$s.tar.gz\"; : > \"/tmp/bkt-check/dest/demo-$s.tar.gz.sha256\"\ndone\necho \"--- keep=2 of 4 (expect oldest 2 deleted):\"\nbash rotate.sh --quiet --dest=/tmp/bkt-check/dest --name=demo --keep=2\necho \"--- remaining:\"; ls /tmp/bkt-check/dest\necho \"--- dry-run --keep 1 (expect 2 'would delete' lines):\"\nbash rotate.sh --quiet --dest /tmp/bkt-check/dest --name demo -n\necho \"--- bad --keep value (expect rc=1):\"\nbash rotate.sh --quiet --dest /tmp/bkt-check/dest --name demo --keep x 2>/dev/null; echo \"rc=$?\"\necho \"--- verify --help (expect rc=0):\"\nbash verify.sh --help >/dev/null; echo \"rc=$?\"\nrm -rf /tmp/bkt-check",
+        "description": "Manual checks of rotate keep-newest, dry-run, usage errors"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b38ced40964c541ba6c18b5aeefab44c_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/bkt-check && mkdir -p /tmp/bkt-check/dest\n: > /tmp/bkt-check/dest/demo-20260101-000000.tar.gz\n: > /tmp/bkt-check/dest/demo-20260102-000000.tar.gz\n: > /tmp/bkt-check/dest/demo-20260103-000000.tar.gz\n: > /tmp/bkt-check/dest/demo-20260104-000000.tar.gz\necho \"--- keep=2 of 4 (expect oldest 2 deleted):\"\nbash rotate.sh --quiet --dest=/tmp/bkt-check/dest --name=demo --keep=2\necho \"--- remaining:\"; ls /tmp/bkt-check/dest\necho \"--- dry-run --keep 1 (expect 1 'would delete' line):\"\nbash rotate.sh --quiet --dest /tmp/bkt-check/dest --name demo -n\necho \"--- bad --keep value (expect rc=1):\"\nbash rotate.sh --quiet --dest /tmp/bkt-check/dest --name demo --keep x 2>/dev/null; echo \"rc=$?\"\necho \"--- verify --help (expect rc=0):\"\nbash verify.sh --help >/dev/null; echo \"rc=$?\"",
+        "description": "Manual checks of rotate keep-newest, dry-run, usage errors"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "origin": {
+    "kind": "task-notification",
+    "producer": "session-task",
+    "runId": "0mwdc1oh8-5f7e1a33"
+  },
+  "subagent_stats": {
+    "spawned": 2,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 2
+    },
+    "started_in_background": 2,
+    "max_depth": 1,
+    "spawned_by_subagents": 0,
+    "completed": 2,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {
+      "Explore": 2
+    }
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 22,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Dry-run is fine \u2014 the earlier empty output was my check omitting `--keep`, so the default keep=5 correctly found \"nothing to rotate\" with 2 archives. Everything is verified.\n\n**Bug 1 (rotate.sh):** the surplus selection used `tail -n +\"$keep\"` on an oldest-first list, which deleted the *newest* `total-keep+1` archives \u2014 so with exactly N archives and `--keep N` it deleted the newest. Now the early exit triggers at `total -le keep` and surplus is `head -n $((total - keep))` \u2014 delete oldest, keep the newest N, sidecars removed with their archives.\n\n**Bug 2 (verify.sh):** the archive name was extracted from the sidecar's *contents* with `awk '{print $2}'`, which truncated `my backup-\u2026.tar.gz` to `my` \u2192 \"archive missing\" \u2192 BAD/exit 2. The name is now taken from the sidecar's own filename (`basename \"$sidecar\" .sha256`), matching the design docs; the digest is still read from the content. Also tightened `[ $expected == $actual ]` to a quoted `[[ ]]`.\n\n**Refactor:** the identical option-parsing block (`--dest/--name/--keep/-q/-n/-h/--`, `is_uint`, `need_value`, the `parse_local_option` hook) and `resolve_dir` moved to new `lib/common.sh` (`parse_common_options` + `resolve_dir`), sourced and used by `rotate.sh` and `verify.sh`; both accept the same flags (verified `--dest=`/`--name=`/`--keep=`, `-n`, `--help`, bad-value usage exits). `backup.sh`, `restore.sh`, `report.sh` untouched.\n\n**Tests:** added one test per bug next to the existing groups \u2014 `rotate --keep N` with exactly N archives deletes nothing, and `verify` reports `ok` (rc=0) for `my backup-20260101-000000.tar.gz`. Full suite: 8/8 pass.\n\nChanged files: lib/common.sh (new), rotate.sh, verify.sh, tests/run_tests.sh",
+  "ttft_ms": 87575,
+  "type": "result",
+  "duration_ms": 300072,
+  "uuid": "ef550dea-3a5e-431a-b0fd-6705e6a36b3b",
+  "ttft_stream_ms": 50,
+  "time_to_request_ms": 17,
+  "first_content_frame_ms": 27173,
+  "queued_turn_count": 0,
+  "result_index": 2,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 833.5,
+  "task_done": true,
+  "parallel_agent_calls": 1,
+  "subagents_spawned": 2,
+  "subagents": true
+}

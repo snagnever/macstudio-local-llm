@@ -1,0 +1,112 @@
+{
+  "duration_api_ms": 204450,
+  "stop_reason": "end_turn",
+  "session_id": "8966efa2-7f41-450c-aa66-a02810bef6f7",
+  "total_cost_usd": 0.4243784,
+  "usage": {
+    "input_tokens": 42566,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 582272,
+    "output_tokens": 6883,
+    "output_tokens_details": {
+      "thinking_tokens": 3076
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 42566,
+      "outputTokens": 6883,
+      "cacheReadInputTokens": 582272,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.4243784,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 3076,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b69d9d08cd19b3c62f396c09400ea461_0",
+      "tool_input": {
+        "command": "python3 -m unittest discover -s tests -t . 2>&1 | tail -3 && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p4-c status --short",
+        "description": "Re-run suite and list changed files"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_3ad86cad6c3ea397c4f06803739ba2d0_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p4-c status --short",
+        "description": "List changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 22,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "The suite already passed after all code changes (68 tests, OK \u2014 including the 5 new ones); the README change doesn't affect it. (`git status` needed interactive approval so I skipped it \u2014 the files below are the complete set of edits.)\n\nChanged files: `ledger/report.py` (added `GROUP_KEYS`, `group_totals()`, `render_groups()`), `ledger/cli.py` (added the `--group-by` flag and grouped output path in `cmd_report`), `tests/test_cli.py` (5 new tests: month/text, account/json, category/text, filter interaction, invalid-key rejection), `README.md` (documented `--group-by` with examples).",
+  "ttft_ms": 11908,
+  "type": "result",
+  "duration_ms": 204887,
+  "uuid": "467cc68f-b572-42dc-95fd-afd65808fab6",
+  "ttft_stream_ms": 4260,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 11628,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 205.1,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

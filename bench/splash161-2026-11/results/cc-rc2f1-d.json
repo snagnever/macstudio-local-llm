@@ -1,0 +1,154 @@
+{
+  "duration_api_ms": 305021,
+  "stop_reason": "end_turn",
+  "session_id": "25babee4-4efb-431f-b67d-cf7134d718ba",
+  "total_cost_usd": 0.5752295999999998,
+  "usage": {
+    "input_tokens": 34562,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 733408,
+    "output_tokens": 14515,
+    "output_tokens_details": {
+      "thinking_tokens": 8155
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 34562,
+      "outputTokens": 14515,
+      "cacheReadInputTokens": 733408,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5752295999999998,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 8155,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_0dc39ecbb42cf612816504acd26f6c51_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2f1-d stash push -- rotate.sh verify.sh && bash tests/run_tests.sh; rc=$?; git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2f1-d stash pop; exit $rc",
+        "description": "Run new tests against original buggy scripts, then restore fixes"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ba0a859c725864b8872db81e4cd7e43f_0",
+      "tool_input": {
+        "command": "git stash push -- rotate.sh verify.sh",
+        "description": "Temporarily stash the two script fixes"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_3f1377f77a1a84902be020b829c496ce_0",
+      "tool_input": {
+        "command": "S=$(mktemp -d); git show HEAD:rotate.sh > \"$S/rotate.sh\"; git show HEAD:verify.sh > \"$S/verify.sh\"\nmkdir -p \"$S/dest\"\nfor stamp in 20260101-000000 20260102-000000 20260103-000000; do : > \"$S/dest/demo-$stamp.tar.gz\"; done\nrc=0; out=$(bash \"$S/rotate.sh\" --quiet --dest \"$S/dest\" --name demo --keep 3) || rc=$?\necho \"rotate(original): rc=$rc out='$out' remain=$(cd \"$S/dest\" && ls | sort | tr '\\n' ' ')\"\nmkdir -p \"$S/vdest\"; printf 'payload\\n' > \"$S/payload.txt\"\ntar -czf \"$S/vdest/my backup-20260101-000000.tar.gz\" -C \"$S\" payload.txt\n(cd \"$S/vdest\" && shasum -a 256 \"my backup-20260101-000000.tar.gz\" > \"my backup-20260101-000000.tar.gz.sha256\")\nrc=0; out=$(bash \"$S/verify.sh\" --quiet --dest \"$S/vdest\") || rc=$?\necho \"verify(original): rc=$rc out='$out'\"\nrm -rf \"$S\"",
+        "description": "Reproduce both bugs using the original scripts from git"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_ffb89aebae50b6262cd44055cbf0286b_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/rc2f1-d-orig && git show HEAD:rotate.sh > /tmp/rc2f1-d-orig/rotate.sh && git show HEAD:verify.sh > /tmp/rc2f1-d-orig/verify.sh && echo ok",
+        "description": "Extract original scripts from git into a scratch dir"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_86561e1f89965cfc818d82de8d278c2f_0",
+      "tool_input": {
+        "command": "mkdir -p .scratch-orig",
+        "description": "Create scratch directory in repo"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7e515884a6cafc3e679b168c528c22de_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/rc2f1-d-orig && git show HEAD:rotate.sh > /tmp/rc2f1-d-orig/rotate.sh && git show HEAD:verify.sh > /tmp/rc2f1-d-orig/verify.sh && echo ok",
+        "description": "Extract original scripts from git into /tmp scratch dir",
+        "dangerouslyDisableSandbox": true
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7a4248a29495fbec69964999dba619f3_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/rc2f1-d-orig",
+        "description": "Create /tmp scratch directory",
+        "dangerouslyDisableSandbox": true
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 25,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All done \u2014 `bash tests/run_tests.sh` passes all 8 tests (6 original + 2 new).\n\n**What was changed:**\n\n- **`rotate.sh`** \u2014 bug 1: `surplus()` used `tail -n +\"$keep\"`, which keeps only the *oldest* keep\u22121 entries and always deletes the newest (and with `total -lt keep` as the only early exit, `total == keep` fell through and deleted exactly one archive \u2014 the newest). Now it exits early when `total -le keep` and deletes the oldest `total - keep` entries via `head -n \"$((total - keep))\"`. Option parsing and `resolve_dir` now come from `lib/common.sh`.\n- **`verify.sh`** \u2014 bug 2: `awk '{print $2}'` truncated sidecar file names at the first space, so `my backup-\u2026.tar.gz` looked \"archive missing\" \u2192 BAD/exit 2. Now `read -r expected file <<< \"$line\"` keeps the whole name (the digest is still field 1, so space-containing names work). Also quoted the digest comparison. Option parsing and `resolve_dir` now come from `lib/common.sh`.\n- **`lib/common.sh`** (new) \u2014 the shared option-parsing block (verbatim from the scripts) plus `resolve_dir`, with a double-sourcing guard like `lib/log.sh`; scripts must define `usage` and `parse_local_option` before sourcing it, which both do. All flags (`--dest`, `--name`, `--keep`, `-q`, `-n`, `-h`, local-option dispatch) behave unchanged.\n- **`tests/run_tests.sh`** \u2014 added one test per bug: `rotate --keep 3` with exactly 3 archives deletes nothing (all 3 remain, rc=0), and `verify` reports `ok`/rc=0 for an intact archive whose name contains a space.\n\n`backup.sh`, `restore.sh` and `report.sh` were left untouched as requested.",
+  "ttft_ms": 24159,
+  "type": "result",
+  "duration_ms": 305500,
+  "uuid": "f701cff6-1293-4634-b931-8511f66b12f5",
+  "ttft_stream_ms": 19604,
+  "time_to_request_ms": 44,
+  "first_content_frame_ms": 23935,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 306.3,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

@@ -1,0 +1,95 @@
+{
+  "duration_api_ms": 141773,
+  "stop_reason": "end_turn",
+  "session_id": "f6bfddec-0d1a-49eb-99a2-381bbbfd454e",
+  "total_cost_usd": 0.2971456,
+  "usage": {
+    "input_tokens": 21037,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 417088,
+    "output_tokens": 6479,
+    "output_tokens_details": {
+      "thinking_tokens": 2495
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 21037,
+      "outputTokens": 6479,
+      "cacheReadInputTokens": 417088,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.2971456,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 2495,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 21,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All done \u2014 full suite passes (69 tests, including 6 new ones covering text and json output across all three grouping keys), and the report output without `--group-by` is byte-identical to before (existing tests confirm it).\n\nImplementation summary:\n- `ledger/report.py`: added `GROUP_KEYS`, `group_totals()` (exact Decimal sums per `month`/`category`/`account`, ordered by label), `render_groups_text()`, `render_groups_json()`, and `render_groups()` dispatch.\n- `ledger/cli.py`: added `--group-by {month,category,account}` to the `report` subparser; `cmd_report` prints group totals when it's given, otherwise the unchanged report.\n- `tests/test_cli.py`: 6 new tests \u2014 month/account text, category/month json (key order and cent-rounded values), group-by combined with filters, and invalid-choice argparse error.\n- `README.md`: documented the option in the usage line and `report` section, with examples taken from real fixture output.\n\nChanged files: `ledger/cli.py`, `ledger/report.py`, `tests/test_cli.py`, `README.md`.",
+  "ttft_ms": 11319,
+  "type": "result",
+  "duration_ms": 142251,
+  "uuid": "3c41e5c3-d16c-4500-bcf4-53525f71b04d",
+  "ttft_stream_ms": 4280,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 11036,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 142.5,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

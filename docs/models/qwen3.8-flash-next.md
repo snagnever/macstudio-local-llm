@@ -1,18 +1,17 @@
 # Qwen3.8-Flash-Next (125B-A6B MoE)
 
-> **Status: 🟢 DAILY DRIVER — responsiveness default.** The most responsive daily setup on this rig:
-> **Swift 1.5** (`Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw`, a reasoning-efficiency fine-tune of
-> Flash-Next) on **mlx-serve 26.10.1**. Same quality as the previous iQ-MLX-4.7bpw pack and 2–3× less time to
-> the final answer on reasoning tasks (GPQA median 22 s vs 64 s). T_turno (time for one tool turn with a
-> 512-token reply) **7.9 s at 32K** and **8.6 s at 128K**. Agent quality (Terminal-Bench) is **not measured**
-> for this model yet. License: Swift Open License v1.0 on top of the Qwen Community License.
-> **Secondary driver** (2026-10-12): ddalcu iQ-MLX-4.7bpw `dafff5c` on the same runtime and flags. It is the
-> rollback and the reference arm for runtime tests, because it has the longest measurement series on this rig
-> (26.9.2, 26.10.1, 256K, 512K, HumanEval, tool-calling). Start it with `FLASHNEXT_MODEL=<its cache path>`.
-> The 2026-10 next-steps campaign kept both drivers and the runtime: mlx-serve 26.10.2 was not adopted, and no
-> other pack or runtime beat Swift 1.5. Summary: [`bench/flashnext-next-steps-2026-10/results/summary.md`](../../bench/flashnext-next-steps-2026-10/results/summary.md).
-> Dense 27B next steps: [`bench/qwen38-27b-next-steps-2026-10/results/summary.md`](../../bench/qwen38-27b-next-steps-2026-10/results/summary.md) (Splash 1.3.1 is the fastest 27B stack, still about 2x this driver).
-> Last updated: 2026-10-18 (daily profile context raised to 262144)
+> **Status: 🟢 DAILY DRIVER — Splash 1.6.1 since 2026-11-12.** The daily driver is the ukisai **Swift 1.5 GGUF
+> `IQ4_XS`** (revision `0142554`) on **Splash 1.6.1** with PLE `auto`, port 8585. T_turno (one tool turn with a
+> 512-token reply) **6.1 s at 32K, 6.1 s at 128K and 6.3 s at 256K**, decode 109–112 tok/s, wired peak 78–82 GB.
+> Two 256K sessions run 3.5% slower than on Splash 1.5.0, with no memory wait; Claude Code sessions finish sooner
+> than on 1.5.0; quality equals two 1.5.0 passes; a 4-hour agent load stays stable. Summary:
+> [`bench/splash161-2026-11/results/summary.md`](../../bench/splash161-2026-11/results/summary.md).
+> Agent quality (Terminal-Bench 2.1) is **not measured** on this stack; the last measure is 57/89 for the same
+> weights on Splash 1.4.0 (`k2a`). License: Swift Open License v1.0 on top of the Qwen Community License.
+> **Rollback driver:** Swift 1.5 MLX-4.7bpw on mlx-serve 26.10.1, port 11234
+> (`tools/scripts/serve-flashnext-daily-driver.sh`), the daily driver from 2026-10-11 to 2026-11-12. The
+> configuration below the Splash section documents it.
+> Last updated: 2026-11-12 (daily driver moved to Splash 1.6.1)
 
 Campaign that kept the drivers and tested 26.10.2, 512K, the agent battery, oMLX packs, GGUF and `--ple-gpu`: [`bench/flashnext-next-steps-2026-10/results/summary.md`](../../bench/flashnext-next-steps-2026-10/results/summary.md) (2026-10-16).
 Campaign that selected these weights: [`bench/swift15-flashnext-2026-10/results/summary.md`](../../bench/swift15-flashnext-2026-10/results/summary.md) (2026-10-11: iQ-MLX-4.7bpw → Swift 1.5 MLX-4.7bpw, same runtime and flags).
@@ -21,7 +20,60 @@ Campaign that selected the stack: [`bench/qwen38-flashnext-daily-driver-2026-09/
 Model research, builds and older measurements: [`bench/qwen38-flash-next/references.md`](../../bench/qwen38-flash-next/references.md).
 Dashboard: [`reports/qwen38-flashnext-driver.html`](../../reports/qwen38-flashnext-driver.html).
 
-## Daily driver configuration
+## Daily driver configuration (Splash 1.6.1)
+
+| Item | Value |
+|---|---|
+| Runtime | Splash **1.6.1** — `~/.local/opt/qwen38/splash-v1.6.1/bin/splash`. Rollback: 1.5.0 with `FLASHNEXT_SPLASH_BIN=$HOME/.local/opt/qwen38/splash-v1.5.0/bin/splash` |
+| Weights | [`ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF`](https://huggingface.co/ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF) `IQ4_XS`, revision `0142554c963a8653912c0c8283f05f13f63653f3` (97.7 GB with the PLE table), with the DFlash2 draft that Splash selects |
+| Endpoint | `http://<rig>:8585/v1` (OpenAI-compatible) and `http://<rig>:8585/v1/messages` (Anthropic) |
+| API model id | `ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS` |
+| Launcher | [`tools/scripts/serve-flashnext-splash.sh`](../../tools/scripts/serve-flashnext-splash.sh) (profiles `256k` default, `512k`, `1m`; `--print` shows the command) |
+
+```bash
+tools/scripts/serve-flashnext-splash.sh          # 262144 tokens, the native window
+```
+
+Server flags and why:
+
+| Flag | Value | Reason |
+|---|---|---|
+| `--max-context` | 262144 | The native window, and the context of the model card benchmarks. 512K and 1M turn YaRN on, which changes answers at every length. |
+| `--ple-memory` | not set (`auto`) | The 1.6.1 default: the 27465 MiB PLE table stays on the SSD with a 237 MiB row cache. Frees 22–29 GB of RAM against `off`, with the same speed and quality ([splash161 Task 3](../../bench/splash161-2026-11/results/etapa3-concorrencia.md)). |
+| `--verify-rows` | `auto` | The measured setting since Splash 1.4.0 (`k2a`). |
+| `--idle-release` | `off` | Keeps the weights wired between sessions; a reload costs minutes. |
+| `--language-only --no-webui --offline` | on | Text only, no chat page, no Hub contact at start. |
+| KV format | `int8` (default) | The measured setting. |
+
+**Weights choice.** The model card names `IQ4_XS` for everyday use on 128 GB of unified memory. It names `Q6_K`
+or higher for long agentic runs with strict tool-call formatting, but `Q6_K` is 168 GB and `Q5_K_M` 135 GB, more
+than the machine holds. With `IQ4_XS`, the tool-call probe passes 20/20 sessions at `frequency_penalty` 0 on
+1.6.1. No other GGUF pack beat it: the others spend 1.09–7.75× its median tokens with the same quality
+([weights campaign](../../bench/flashnext-weights-2026-11/results/summary.md)).
+
+**Sampling.** The model card benchmarks use `temperature=1.0`, `top_p=0.95`, `top_k=20`, `min_p=0`,
+`presence_penalty=0`, `repetition_penalty=1` and thinking effort `xhigh`. Splash uses the same values when a
+request omits them, and `/v1/models` reports the efforts `low`, `medium` and `xhigh` with `xhigh` as the default.
+Clients do not need to send sampling. Rules for clients:
+
+- Send `frequency_penalty` 0 or omit it. Splash applies it, and at 1 the tool-call probe completes 16/20
+  sessions instead of 20/20.
+- Pin the effort per session: switching it rewrites the start of the system prompt and drops the prefix cache.
+- OpenAI clients (opencode): `reasoningEffort` `xhigh`. Splash uses `xhigh` when a Chat request sets none.
+- Claude Code (Anthropic Messages): a request thinks only when the client sends `thinking`, at
+  `output_config.effort`. The measured sessions used:
+
+```bash
+ANTHROPIC_BASE_URL=http://<rig>:8585 ANTHROPIC_AUTH_TOKEN=local \
+ANTHROPIC_MODEL=ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS \
+ANTHROPIC_DEFAULT_HAIKU_MODEL=ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS \
+CLAUDE_CODE_EFFORT_LEVEL=xhigh claude
+```
+
+- Terminal-Bench 2.1 in the model card uses `temperature=1` and `top_p=1`. That is a benchmark setting, not the
+  daily one.
+
+## Rollback driver configuration (mlx-serve 26.10.1)
 
 | Item | Value |
 |---|---|
@@ -129,7 +181,8 @@ Experience bands used on the public page: reply starts ≤ 2 s good, 2–5 s acc
 ≥ 60 tok/s good, 30–60 acceptable, < 30 poor; first prompt ≤ 30 s good; side call ≤ 5 s good. The campaign gate
 (worst slowdown ≤ 1.5× passes, ≤ 2.0× warns) stays in the page's appendix.
 
-The daily driver stays on mlx-serve until agent quality is measured on both packs. Public page:
+Since 2026-11-12 the daily driver runs on Splash 1.6.1, which removes the 1.6.0 memory wait of two long sessions
+([splash161](../../bench/splash161-2026-11/results/summary.md)). The numbers above are from Splash 1.5.0. Public page:
 [`reports/qwen38-flashnext-concurrency.html`](../../reports/qwen38-flashnext-concurrency.html). Sources:
 [`bench/claude-code-concurrency-2026-11/results/summary.md`](../../bench/claude-code-concurrency-2026-11/results/summary.md)
 (real Claude Code sessions on both servers, 2026-10-30),

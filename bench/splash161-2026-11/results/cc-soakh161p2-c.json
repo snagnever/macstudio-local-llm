@@ -1,0 +1,95 @@
+{
+  "duration_api_ms": 184232,
+  "stop_reason": "end_turn",
+  "session_id": "d2e2e208-1ba7-4064-a433-ec8bb1bf9313",
+  "total_cost_usd": 0.4307000000000001,
+  "usage": {
+    "input_tokens": 44878,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 598240,
+    "output_tokens": 6577,
+    "output_tokens_details": {
+      "thinking_tokens": 2179
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 44878,
+      "outputTokens": 6577,
+      "cacheReadInputTokens": 598240,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.4307000000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 2179,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 24,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. Full suite: 69 tests, all passing (`python3 -m unittest discover -s tests -t .`), and `--group-by` works for all three keys in both formats, groups ordered by label, and the ungrouped output is unchanged (existing tests still pass).\n\nChanged files: `ledger/report.py` (grouping + renderers), `ledger/cli.py` (`--group-by` option), `tests/test_cli.py` (6 new tests covering month/category/account, text and json), `README.md` (documented the option).",
+  "ttft_ms": 4480,
+  "type": "result",
+  "duration_ms": 184530,
+  "uuid": "8057bfab-f134-4a8c-b17c-da8e42a1fb41",
+  "ttft_stream_ms": 59,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 4288,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 184.9,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

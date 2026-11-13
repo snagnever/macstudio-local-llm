@@ -815,7 +815,10 @@ def test_recommendation_reads_tbench_and_names_the_splash_release(tmp_path):
     page = R.render(R.collect(REAL_RESULTS, SPLASH_RESULTS, claude_dirs={}, tbench_status=files))
     rec = " ".join(html.unescape(_section_of(page, "recommend")).split())
     assert "pending Terminal-Bench" not in rec and "57 and 58 of 89" in rec
-    assert "Splash 1.5.0" in rec and "up to 65% slower" in rec
-    assert 'href="qwen38-flashnext-splash160.html"' in rec
+    # bench/splash161-2026-11: the launcher moved to Splash 1.6.1; two 256K sessions 1.035x 1.5.0.
+    assert "Splash 1.6.1" in rec and "3.5%" in rec and "up to 65% slower" in rec
+    # etapa4 of splash161: the pair's minimum tok/s still falls 29% on 1.6.1 (56.2 -> 39.9).
+    assert "minimum generation speed" in rec and "29%" in rec
+    assert 'href="qwen38-flashnext-splash161.html"' in rec
     pending = R.render(R.collect(REAL_RESULTS, SPLASH_RESULTS, claude_dirs={}, tbench_status=[]))
     assert "pending Terminal-Bench on both" in _section_of(pending, "recommend")

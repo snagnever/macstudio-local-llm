@@ -1,19 +1,29 @@
 #!/usr/bin/env bash
-# Start Qwen3.8-Flash-Next on Splash 1.5.0 (Inco AI): Swift 1.5 GGUF IQ4_XS (ukisai 0142554) with the DFlash2 draft
+# Start Qwen3.8-Flash-Next on Splash 1.6.1 (Inco AI): Swift 1.5 GGUF IQ4_XS (ukisai 0142554) with the DFlash2 draft
 # Splash selects, --verify-rows auto, KV int8 (the Splash default). This is the k2a arm of
-# bench/splash-longctx-2026-10; it does not replace the daily driver (serve-flashnext-daily-driver.sh).
+# bench/splash-longctx-2026-10 and the daily driver since 2026-11-12. The rollback driver is
+# serve-flashnext-daily-driver.sh (mlx-serve, port 11234).
+# Release 1.6.1 since 2026-11-12 (bench/splash161-2026-11): T_turno 1.000-1.017 x 1.5.0 at 32K-256K, two 256K
+#   sessions 1.035 x 1.5.0, Claude Code pair wall 0.97 x, no stall under --max-memory 64G, same quality, 4 h soak
+#   stable. PLE table mode is auto (the 1.6.1 default, no flag): the 28.8 GB table stays on the SSD with a 237 MiB
+#   row cache, so the wired peak drops 22-29 GB. Rollback: FLASHNEXT_SPLASH_BIN=$HOME/.local/opt/qwen38/splash-v1.5.0/bin/splash
 # Profiles (every one passed speed, memory and quality on Splash 1.4.0 in
 #   bench/splash-longctx-2026-10/results/params-512k-1m.md):
-#   256k (default) 262144 tokens, native context. T_turno 6.3 s at 256K, decode ~105 tok/s.
-#   512k           524288 tokens; Splash turns YaRN on by itself. T_turno 6.7 s, folga 10.1 GB, longctx 100%.
-#   1m             1000000 tokens; KV past ~860K tokens goes to the SSD cache. T_turno 9.3 s, folga 16.9 GB,
-#                  a cold 1M prompt takes ~25 min. HumanEval sits 1 question under the G1 margin (run noise).
+#   256k (default) 262144 tokens, native context. T_turno 6.3 s at 256K on 1.6.1, decode ~109 tok/s.
+#   512k           524288 tokens; Splash turns YaRN on by itself. T_turno 6.7 s, folga 10.1 GB, longctx 100% (1.4.0;
+#                  not measured on 1.6.1).
+#   1m             1000000 tokens. On 1.6.1 the whole window stays resident: T_turno 7.0 s, decode 102 tok/s,
+#                  needles 5/5 (1 rep); a cold 1M prompt takes ~25 min. HumanEval sat 1 question under the G1
+#                  margin on 1.4.0 (run noise).
 # YaRN above 262144 changes answers to short prompts too: use 512k or 1m only when the context needs it.
 # Cache: Splash keeps the hybrid state only where a request ends. Editing or branching a long history before its
 #   last saved point (a compaction, a retried turn) re-prefills the whole prompt (incoai/splash#387, #361).
-# Concurrency (1.5.0, bench/splash-concurrency-2026-10): decode runs in one batch, prefill one request at a time.
-#   A second session makes each turn 2.4-2.6x slower than one session alone; no N >= 2 arm passed the gate.
-# Clients must send frequency_penalty 0, as with the daily driver.
+# Concurrency (1.6.1): decode runs in one batch, prefill one request at a time, so a second session's prefill
+#   stalls the first one's decode. Two 256K sessions: worst stream 16.6 s vs 16.1 s on 1.5.0; no memory wait.
+#   A second session still makes each turn about 2.5x slower than one session alone (16.6 s vs 6.3 s), as on 1.5.0,
+#   where no N >= 2 arm passed the gate (bench/splash-concurrency-2026-10).
+# Sampling: Splash defaults equal the model card (temperature 1.0, top_p 0.95, top_k 20, min_p 0) and the
+#   default effort is xhigh. Clients must send frequency_penalty 0 (or omit it) and pin the effort per session.
 # Overrides: FLASHNEXT_SPLASH_BIN, FLASHNEXT_SPLASH_PORT (default 8585), FLASHNEXT_SPLASH_HOST (default 0.0.0.0).
 #            Add --print to show the command without starting.
 set -euo pipefail
@@ -28,7 +38,7 @@ for arg in "$@"; do
   esac
 done
 
-BIN="${FLASHNEXT_SPLASH_BIN:-$HOME/.local/opt/qwen38/splash-v1.5.0/bin/splash}"
+BIN="${FLASHNEXT_SPLASH_BIN:-$HOME/.local/opt/qwen38/splash-v1.6.1/bin/splash}"
 HOST="${FLASHNEXT_SPLASH_HOST:-0.0.0.0}"
 PORT="${FLASHNEXT_SPLASH_PORT:-8585}"
 case "$PROFILE" in

@@ -1,0 +1,112 @@
+{
+  "duration_api_ms": 274968,
+  "stop_reason": "end_turn",
+  "session_id": "c88ee5eb-f778-4048-8045-ba239f612ac8",
+  "total_cost_usd": 0.5749672000000001,
+  "usage": {
+    "input_tokens": 30579,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 729056,
+    "output_tokens": 15342,
+    "output_tokens_details": {
+      "thinking_tokens": 8940
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 30579,
+      "outputTokens": 15342,
+      "cacheReadInputTokens": 729056,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5749672000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 8940,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_2265fe15d76c8327d9ade6957951f7df_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/d\"\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do : > \"$t/d/demo-$s.tar.gz\"; echo \"x  demo-$s.tar.gz\" > \"$t/d/demo-$s.tar.gz.sha256\"; done\nbash rotate.sh --quiet --dest=\"$t/d\" --name=demo --keep=2; echo \"rc=$?\"; ls \"$t/d\"\nbash rotate.sh --help >/dev/null && echo \"help-ok\"\nbash rotate.sh --bogus 2>&1 | tail -1\nbash verify.sh --dest \"$t/d\" --quiet; echo \"verify-rc=$?\"\nrm -rf \"$t\"",
+        "description": "Smoke-test rotate keep=2, =form flags, help and unknown option"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_669f147284e29743dc969aa7e938ff21_0",
+      "tool_input": {
+        "command": "rm /tmp/rotate_smoke.sh && git status --short",
+        "description": "Remove smoke script and show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 24,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and added `lib/common.sh` \u2014 all 9 tests pass (the rotate fix sorts newest-first and deletes past line keep+1, verify.sh now splits sidecar lines only at the first whitespace, and rotate/verify source the shared parser + `resolve_dir` from `lib/common.sh`).",
+  "ttft_ms": 10119,
+  "type": "result",
+  "duration_ms": 275772,
+  "uuid": "cd8d08a1-9c45-4cd9-ab37-6eba202deee7",
+  "ttft_stream_ms": 4315,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 9863,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 276.9,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

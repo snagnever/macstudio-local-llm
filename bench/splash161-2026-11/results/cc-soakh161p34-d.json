@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 255418,
+  "stop_reason": "end_turn",
+  "session_id": "ede9ab04-ef33-4300-9839-d5e5dd19e0d5",
+  "total_cost_usd": 0.4906407999999999,
+  "usage": {
+    "input_tokens": 27093,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 691744,
+    "output_tokens": 12196,
+    "output_tokens_details": {
+      "thinking_tokens": 5391
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 27093,
+      "outputTokens": 12196,
+      "cacheReadInputTokens": 691744,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.4906407999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 5391,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_79d9b7feee0d56915cf20029304434cc_1",
+      "tool_input": {
+        "command": "diff <(sed -n '40,110p' /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p34-d/backup.sh) <(sed -n '40,110p' /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p34-d/rotate.sh); echo \"rc=$?\"",
+        "description": "Compare shared blocks between backup.sh and rotate.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_5b5c1cc5d95ba04222ae95583b1be931_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh; echo \"rc=$?\"",
+        "description": "Run the test suite"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_498ed557774208f8a73ebc6aca08ef28_0",
+      "tool_input": {
+        "command": "rm tests/sanity-checks.sh",
+        "description": "Remove scratch sanity-check script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 24,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. All 8 tests pass via `bash tests/run_tests.sh`, and I verified end-to-end that `rotate --keep=2` on 3 archives deletes only the oldest, dry runs delete nothing, spaces pass through `backup.sh \u2192 verify.sh`, and `--help`/`-q`/`-n`/`--keep N`/`--keep=N`/missing-dest exit codes behave as before.\n\n- `rotate.sh` \u2014 bug fix: the sorted list is oldest-first, so surplus is now the first `total - keep` lines (`head -n`) instead of `tail -n +\"$keep\"` (which deleted the newest), and `total == keep` now exits with \"nothing to rotate\" (`-le` instead of `-lt`). Also now sources `lib/common.sh` and calls `parse_common_options \"$@\"`.\n- `verify.sh` \u2014 bug fix: the sidecar file name is now taken as everything after the digest's separator whitespace (was `awk '{print $2}'`, which truncated `my backup-\u2026` to `my`), and the digest comparison is quoted (`[[ \"$expected\" == \"$actual\" ]]`). Same shared-lib sourcing.\n- `lib/common.sh` \u2014 new file holding the shared option-parsing block (`parse_common_options`, `is_uint`, `need_value`, `DEST/NAME/KEEP/QUIET/DRY_RUN/ARGS` init, `--keep` validation) and `resolve_dir`, with a double-sourcing guard like `lib/log.sh`. `backup.sh`, `restore.sh`, `report.sh` left untouched (noted in the header comment that their inline copies must stay in sync).\n- `tests/run_tests.sh` \u2014 two new tests: verify reports `ok` for an intact archive whose name contains a space (rc 0), and `rotate --keep 2` with exactly 2 archives deletes nothing.\n\nOne note: my scratch file `tests/sanity-checks.sh` is still in the repo \u2014 `rm` needed a permission approval \u2014 delete it if you don't want it.",
+  "ttft_ms": 4402,
+  "type": "result",
+  "duration_ms": 256281,
+  "uuid": "6b926f8b-e583-466c-8879-6c9093ebd7d1",
+  "ttft_stream_ms": 57,
+  "time_to_request_ms": 33,
+  "first_content_frame_ms": 4243,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 256.7,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

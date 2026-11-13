@@ -1,0 +1,143 @@
+{
+  "duration_api_ms": 1171258,
+  "stop_reason": "end_turn",
+  "session_id": "8762a41b-c053-4ab3-ac63-e057f35e333c",
+  "total_cost_usd": 1.267388,
+  "usage": {
+    "input_tokens": 29488,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1031232,
+    "output_tokens": 15581,
+    "output_tokens_details": {
+      "thinking_tokens": 8308
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 96122,
+      "outputTokens": 31425,
+      "cacheReadInputTokens": 1272000,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 1.267388,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 13011,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_4d081fd66e91da57af4284908a471fce_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"; : > \"$t/dest/a-20260101-010000.tar.gz\"\nbash rotate.sh --quiet --dest=\"$t/dest\" --name=a --keep=1 --dry-run\nbash rotate.sh --dest \"$t/dest\" --name a --keep x 2>&1; echo \"rc=$?\"\nbash rotate.sh --dest \"$t/dest\" --name a --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\nbash verify.sh --quiet --dest=\"$t/dest\" --name=a -n -h | head -1\nrm -rf \"$t\"",
+        "description": "Spot-check option forms of rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_fb1777d10356876c245b539404920920_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"; touch \"$t/dest/a-20260101-010000.tar.gz\"\nbash rotate.sh --quiet --dest=\"$t/dest\" --name=a --keep=1 --dry-run\nbash rotate.sh --dest \"$t/dest\" --name a --keep x 2>&1; echo \"rc=$?\"\nbash rotate.sh --dest \"$t/dest\" --name a --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\nbash verify.sh --quiet --dest=\"$t/dest\" --name=a -n -h | head -1\nrm -rf \"$t\"",
+        "description": "Spot-check option forms of rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_16d4f18ca449177d43dd3a0a1fb035fe_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"; touch \"$t/dest/a-20260101-010000.tar.gz\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name=a --keep=1 --dry-run\nbash rotate.sh --dest \"$t/dest\" --name a --keep x 2>&1; echo \"rc=$?\"\nbash rotate.sh --dest \"$t/dest\" --name a --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\nbash verify.sh --quiet --dest \"$t/dest\" --name=a -n -h | head -1\nrm -rf \"$t\"",
+        "description": "Spot-check option forms of rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_543fb9d1f975702733736a7a2779054c_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); mkdir -p \"$t/dest\"; touch \"$t/dest/a-20260101-010000.tar.gz\"; bash rotate.sh --quiet --dest \"$t/dest\" --name=a --keep=1 --dry-run; bash rotate.sh --dest \"$t/dest\" --name a --keep x; echo \"keep-x rc=$?\"; bash verify.sh --quiet --dest \"$t/dest\" --name=a -n -h | head -1; rm -rf \"$t\"",
+        "description": "Spot-check option forms of rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_2b18005df5171d642b439705d97517fc_0",
+      "tool_input": {
+        "command": "rm -f /tmp/rotate-verify-flagcheck-rc2sf4.sh && git status --short",
+        "description": "Remove temp check script, show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "origin": {
+    "kind": "task-notification",
+    "producer": "session-task",
+    "runId": "0mwddfylp-dbb98321"
+  },
+  "subagent_stats": {
+    "spawned": 2,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 2
+    },
+    "started_in_background": 2,
+    "max_depth": 1,
+    "spawned_by_subagents": 0,
+    "completed": 2,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {
+      "Explore": 2
+    }
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed files: `rotate.sh` (fixed `--keep`: exits when `total <= keep`, deletes the oldest `total-keep` via `head`), `verify.sh` (archive name now taken from the sidecar's own filename, so names with spaces verify `ok`), `lib/common.sh` (new: shared option-parsing block + `resolve_dir`, sourced by rotate/verify; other scripts untouched), and `tests/run_tests.sh` (new tests: `rotate --keep N` with exactly N archives, rotate keep-2-of-3 deletes oldest, verify with a space in the archive name) \u2014 `bash tests/run_tests.sh` passes all 9 checks.",
+  "ttft_ms": 70731,
+  "type": "result",
+  "duration_ms": 297836,
+  "uuid": "37884b21-1eb7-4af5-93fc-c897ee26dc40",
+  "ttft_stream_ms": 62,
+  "time_to_request_ms": 17,
+  "first_content_frame_ms": 20434,
+  "queued_turn_count": 0,
+  "result_index": 2,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 862.7,
+  "task_done": true,
+  "parallel_agent_calls": 1,
+  "subagents_spawned": 2,
+  "subagents": true
+}

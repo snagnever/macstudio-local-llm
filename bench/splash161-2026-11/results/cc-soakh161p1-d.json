@@ -1,0 +1,136 @@
+{
+  "duration_api_ms": 271517,
+  "stop_reason": "end_turn",
+  "session_id": "cb75793d-5778-44f7-bc83-fa40a6587243",
+  "total_cost_usd": 0.5093799999999999,
+  "usage": {
+    "input_tokens": 28318,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 667040,
+    "output_tokens": 13135,
+    "output_tokens_details": {
+      "thinking_tokens": 5826
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 28318,
+      "outputTokens": 13135,
+      "cacheReadInputTokens": 667040,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5093799999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 5826,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_71b1358226e04e8859a16d14e0d26ad7_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh; echo \"rc=$?\"; bash --version | head -1",
+        "description": "Run existing test suite and show bash version"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c126accd4f59ec274c3324c9dae72a37_0",
+      "tool_input": {
+        "command": "bash rotate.sh --help >/dev/null 2>&1; echo \"help rc=$?\"",
+        "description": "Check rotate.sh --help exits 0"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c126accd4f59ec274c3324c9dae72a37_1",
+      "tool_input": {
+        "command": "bash rotate.sh --dest /tmp --name r --keep x 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"",
+        "description": "Check rotate.sh rejects non-numeric --keep"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c126accd4f59ec274c3324c9dae72a37_2",
+      "tool_input": {
+        "command": "bash verify.sh --dest /nonexistent-dir-xyz 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"",
+        "description": "Check verify.sh exits 2 for missing dir"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7adbf3d933c7db5f1a644019459c8120_0",
+      "tool_input": {
+        "command": "rm /tmp/bktk_sanity.sh",
+        "description": "Remove temporary sanity-check script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 30,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 9 tests pass. Both bugs are fixed and the shared code is extracted:\n\n- **rotate.sh** \u2014 the \"nothing to rotate\" guard now uses `-le` (so exactly N archives are left alone), and the surplus set is now the *oldest* `total - keep` entries (`head -n`), not the newest ones (`tail -n +`).\n- **verify.sh** \u2014 the sidecar line is now split with `read -r expected file` (first field = digest, rest = file name), so names containing spaces verify correctly instead of being truncated at the first space.\n- **lib/common.sh** (new) \u2014 holds the shared option-parsing loop (`parse_common_options`), `is_uint`, `need_value`, KEEP validation, and `resolve_dir`; it sources `lib/log.sh` and preserves the per-script `LOG_PREFIX`. `rotate.sh` and `verify.sh` source it and call `parse_common_options \"$@\"`; both keep accepting the same flags (verified: `--help`, `--keep=`, `--dry-run`, unknown-option/missing-value/positional exit codes, sidecar removal). `backup.sh`, `restore.sh`, `report.sh` untouched.\n- **tests/run_tests.sh** \u2014 added three tests: rotate with exactly N (keeps all), rotate N of N+2 (deletes oldest, keeps newest), and verify of `my backup-\u2026tar.gz` with a space in the name.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`. (A temp sanity-check script remains at `/tmp/bktk_sanity.sh` \u2014 deletion there needs approval; say the word and I'll remove it.)",
+  "ttft_ms": 23212,
+  "type": "result",
+  "duration_ms": 272572,
+  "uuid": "2cec91b5-406b-4a18-82dc-53c0c87c30e2",
+  "ttft_stream_ms": 18859,
+  "time_to_request_ms": 48,
+  "first_content_frame_ms": 23058,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 272.7,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 294330,
+  "stop_reason": "end_turn",
+  "session_id": "c7921864-4991-486e-8424-3a5016018481",
+  "total_cost_usd": 0.7708503999999999,
+  "usage": {
+    "input_tokens": 39677,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1154912,
+    "output_tokens": 19058,
+    "output_tokens_details": {
+      "thinking_tokens": 9295
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 39677,
+      "outputTokens": 19058,
+      "cacheReadInputTokens": 1154912,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7708503999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9295,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_6710adf7512bc3da511dc851efe5e5a3_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh; echo \"exit=$?\"",
+        "description": "Run backup toolkit test suite"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7edbd235ff2b8f0ac416fc012bb62e07_0",
+      "tool_input": {
+        "command": "cd /tmp && rm -rf rotate-check && mkdir -p rotate-check/src && cd rotate-check && printf 'd\\n' > src/f.txt && for s in 20260101-010000 20260101-020000 20260101-030000; do BACKUP_STAMP=$s bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p22-d/backup.sh --quiet --dest dest --name demo /tmp/rotate-check/src >/dev/null; done; echo \"--- keep=2 (deletes oldest only):\"; bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p22-d/rotate.sh --quiet --dest dest --name demo --keep 2; echo \"--- remaining archives:\"; ls dest; echo \"--- sidecars:\"; ls dest/*.sha256",
+        "description": "Check rotate deletes oldest and its sidecar with keep=2"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_4139c1a32f419925ce564060ae7f466a_0",
+      "tool_input": {
+        "command": "rm /tmp/bktk-spotcheck.sh",
+        "description": "Remove temporary spot-check script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 31,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 9 tests pass. (Left `/tmp/bktk-spotcheck.sh` in place \u2014 removing it outside the repo needed a permission prompt; the mktemp fixtures were cleaned up by the scripts themselves.)\n\n**What was done**\n\n- **rotate.sh bug**: `surplus()` used `tail -n +$keep`, which starts *at* the keep-th line of an oldest-first list, so with exactly N archives and `--keep N` it deleted the newest, and in general it deleted from the wrong end. Now the surplus is the first `total - keep` lines (`head -n`, guarded against BSD `head`'s rejection of `-n 0`), so only the oldest are removed.\n- **verify.sh bug**: the sidecar's file name was extracted with `awk '{print $2}'`, truncating at the first space, and the digest was compared with unquoted `[ $expected == $actual ]`. Now the sidecar line is split with a regex (`^([^[:space:]]+)[[:space:]]+(.+)$`) that keeps the full name and still flags malformed sidecars, and the comparison uses quoted `[[ ]]`.\n- **Refactor**: new `lib/common.sh` holds the shared option parser (`--dest`, `--name`, `--keep`, `-q/--quiet`, `-n/--dry-run`, `-h/--help`, `--`, positionals \u2192 `ARGS`, `--keep` validation) plus `resolve_dir`; `rotate.sh` and `verify.sh` source it (each defines `usage` and `parse_local_option` first, as the library requires). `backup.sh`, `restore.sh`, `report.sh` untouched.\n- **Tests**: added a `verify.sh` check that an intact `my backup-20260101-000000.tar.gz` verifies `ok` with exit 0, and a `rotate.sh` group checking that `--keep 3` with exactly 3 archives deletes nothing and `--keep 2` deletes only the oldest.\n\nChanged files: `rotate.sh`, `verify.sh`, `lib/common.sh` (new), `tests/run_tests.sh`.",
+  "ttft_ms": 4638,
+  "type": "result",
+  "duration_ms": 295950,
+  "uuid": "5d3bf463-e9de-4809-8af6-298b4f07f8e0",
+  "ttft_stream_ms": 63,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 4255,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 297.1,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

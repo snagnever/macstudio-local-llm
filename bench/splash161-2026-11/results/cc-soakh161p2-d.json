@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 312767,
+  "stop_reason": "end_turn",
+  "session_id": "161e321b-fa41-4c27-8fb5-0d3b27bc4725",
+  "total_cost_usd": 0.7222152,
+  "usage": {
+    "input_tokens": 36166,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 969856,
+    "output_tokens": 19179,
+    "output_tokens_details": {
+      "thinking_tokens": 9539
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 36166,
+      "outputTokens": 19179,
+      "cacheReadInputTokens": 969856,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7222152,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9539,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_22e246ecacf45c8cdc3bad1d507e9d61_0",
+      "tool_input": {
+        "command": "bash tests/run_tests.sh && echo === && \\\nt=$(mktemp -d) && mkdir -p \"$t/dest\" && \\\nfor s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do : > \"$t/dest/demo-$s.tar.gz\"; done && \\\nbash rotate.sh --dry-run --dest \"$t/dest\" --name demo --keep 2 && echo \"--- rc=$? dry-run ok\" && \\\nbash rotate.sh --dest \"$t/dest\" --name demo --keep 1 && ls \"$t/dest\" && \\\nbash rotate.sh --help >/dev/null; echo \"help rc=$?\" && \\\nbash rotate.sh --dest \"$t/dest\" --name demo --keep=abc; echo \"keep=abc rc=$? (expect 1)\" && \\\nbash rotate.sh --dest \"$t/dest\" --name; echo \"missing value rc=$? (expect 1)\" && \\\nbash rotate.sh --dest /nonexistent --name demo; echo \"missing dir rc=$? (expect 2)\" && \\\nprintf 'deadbeef  ghost.tar.gz\\n' > \"$t/dest/demo-20260104-000000.tar.gz.sha256\" && \\\nbash verify.sh --quiet --dest \"$t/dest\"; echo \"verify rc=$? (expect 2)\" && \\\nrm -rf \"$t\"",
+        "description": "Re-run tests and probe rotate/verify edge cases"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_5a6ce662b341980953e4fc2b3bf0ac04_1",
+      "tool_input": {
+        "command": "t=/tmp/rotate-probe-$$; mkdir -p \"$t/dest\"; for s in 20260101-000000 20260102-000000 20260103-000000 20260104-000000; do : > \"$t/dest/demo-$s.tar.gz\"; : > \"$t/dest/demo-$s.tar.gz.sha256\"; done; echo '--- dry-run (keep 2):'; bash rotate.sh --dry-run --dest \"$t/dest\" --name demo --keep 2; echo '--- rotate keep 1:'; bash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep 1; ls \"$t/dest\"; bash rotate.sh --help >/dev/null 2>&1; echo \"help rc=$?\"; bash rotate.sh --dest \"$t/dest\" --name demo --keep=abc 2>/dev/null; echo \"keep=abc rc=$? (expect 1)\"; bash rotate.sh --dest \"$t/dest\" --name 2>/dev/null; echo \"missing value rc=$? (expect 1)\"; bash rotate.sh --dest /nonexistent-xyz --name demo 2>/dev/null; echo \"missing dir rc=$? (expect 2)\"; printf 'deadbeef  ghost.tar.gz\\n' > \"$t/dest/demo-20260104-000000.tar.gz.sha256\"; bash verify.sh --quiet --dest \"$t/dest\"; echo \"verify rc=$? (expect 2)\"; bash verify.sh --quiet --dest \"$t/dest\" --name demo | grep -c BAD",
+        "description": "Probe rotate/verify edge cases in /tmp"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a67c414701ba2e81f6185e7169327493_0",
+      "tool_input": {
+        "command": "rm -f /tmp/rotate-verify-probe.sh && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p2-d diff --stat && git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p2-d status --short",
+        "description": "Remove probe script and show diff summary"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_3323febb2368a5365c34f4a1046bb891_0",
+      "tool_input": {
+        "command": "rm -f /tmp/rotate-verify-probe.sh",
+        "description": "Delete temporary probe script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 33,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 9 tests pass.\n\n**Files changed:** `rotate.sh` (fixed surplus to delete the oldest `total \u2212 keep` archives so exactly N archives are never touched and the newest N are kept), `verify.sh` (sidecar name is now everything after the digest, so spaces and shasum's binary-mode `*` marker work), `lib/common.sh` (new \u2014 shared option parser, `is_uint`, `need_value`, `resolve_dir`, sourced by both scripts), and `tests/run_tests.sh` (added rotate tests: keep-newest-N and exactly-N-deletes-nothing; and a verify test for a space in the archive name). `backup.sh`, `restore.sh`, and `report.sh` are untouched.\n\nOne note: my edge-case probe left `/tmp/rotate-verify-probe.sh` behind (its fixture dir cleaned itself up) \u2014 deleting it needed a permission prompt outside the working directory, so I left it; it's harmless and macOS clears `/tmp` periodically.",
+  "ttft_ms": 10041,
+  "type": "result",
+  "duration_ms": 314043,
+  "uuid": "dadc842d-ae1a-40ee-b821-3521d8e67c5a",
+  "ttft_stream_ms": 4247,
+  "time_to_request_ms": 39,
+  "first_content_frame_ms": 9836,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 315.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

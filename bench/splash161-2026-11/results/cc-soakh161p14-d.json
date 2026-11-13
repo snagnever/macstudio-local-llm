@@ -1,0 +1,144 @@
+{
+  "duration_api_ms": 237235,
+  "stop_reason": "end_turn",
+  "session_id": "e67c1b2b-2b3d-4d74-9b85-8afe6b92e508",
+  "total_cost_usd": 0.5876536000000001,
+  "usage": {
+    "input_tokens": 32286,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 781248,
+    "output_tokens": 15113,
+    "output_tokens_details": {
+      "thinking_tokens": 5876
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 32286,
+      "outputTokens": 15113,
+      "cacheReadInputTokens": 781248,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5876536000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 5876,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c8cea1f9331757ff5601a22a7464a82d_0",
+      "tool_input": {
+        "command": "cd /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p14-d\nset +e\nt=$(mktemp -d)\nmkdir -p \"$t/src\"; echo a > \"$t/src/f\"\nfor s in 20260101-000000 20260101-010000 20260101-020000; do BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/d\" --name demo \"$t/src\" >/dev/null; done\necho \"--- dry-run keep=1:\"; bash rotate.sh -q --dest=\"$t/d\" --name=demo --keep=1 --dry-run; echo \"rc=$?\"\necho \"--- files after dry-run:\"; ls \"$t/d\"\necho \"--- real keep=1:\"; bash rotate.sh -q --dest \"$t/d\" --name demo --keep 1; echo \"rc=$?\"\necho \"--- sidecar of oldest gone?\"; ls \"$t/d\"\necho \"--- unknown option:\"; bash rotate.sh --dest \"$t/d\" --name demo --bogus 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"--- bad keep:\"; bash rotate.sh -q --dest \"$t/d\" --name demo --keep x 2>&1 | tail -1; echo \"rc=${PIPESTATUS[0]}\"\necho \"--- missing dest dir:\"; bash verify.sh -q --dest \"$t/nope\" >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- verify --name filter with space in name:\"\nmkdir -p \"$t/s\"; echo b > \"$t/s/g\"\nBACKUP_STAMP=20260101-000000 bash backup.sh -q --dest \"$t/s\" --name \"my backup\" \"$t/s\" >/dev/null 2>&1\nbash verify.sh -q --dest \"$t/s\" --name \"my backup\"; echo \"rc=$?\"\nbash verify.sh -q --dest \"$t/s\" --name other; echo \"rc(nomatch)=$?\"\necho \"--- help exits 0:\"; bash rotate.sh -h >/dev/null; echo \"rc=$?\"; bash verify.sh --help >/dev/null; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Smoke-test refactored rotate.sh and verify.sh flag handling"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_c3a01423584550ca200392758915a98e_0",
+      "tool_input": {
+        "command": "set +e\nt=/tmp/ftsmoke.$$\nmkdir -p \"$t/src\"; echo a > \"$t/src/f\"\nfor s in 20260101-000000 20260101-010000 20260101-020000; do BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/d\" --name demo \"$t/src\" >/dev/null; done\necho \"--- dry-run keep=1:\"; bash rotate.sh -q --dest=\"$t/d\" --name=demo --keep=1 --dry-run; echo \"rc=$?\"\necho \"--- real keep=1:\"; bash rotate.sh -q --dest \"$t/d\" --name demo --keep 1; echo \"rc=$?\"\necho \"--- remaining:\"; ls \"$t/d\"\necho \"--- unknown option:\"; bash rotate.sh --dest \"$t/d\" --name demo --bogus 2>&1 | tail -1\necho \"--- bad keep:\"; bash rotate.sh -q --dest \"$t/d\" --name demo --keep x 2>&1 | tail -1\necho \"--- missing dest dir rc:\"; bash verify.sh -q --dest \"$t/nope\" >/dev/null 2>&1; echo \"rc=$?\"\nmkdir -p \"$t/s\"; echo b > \"$t/s/g\"\nBACKUP_STAMP=20260101-000000 bash backup.sh -q --dest \"$t/s\" --name \"my backup\" \"$t/s\" >/dev/null\necho \"--- verify --name with space:\"; bash verify.sh -q --dest \"$t/s\" --name \"my backup\"; echo \"rc=$?\"\necho \"--- verify --name nomatch rc:\"; bash verify.sh -q --dest \"$t/s\" --name other >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- help rc:\"; bash rotate.sh -h >/dev/null; echo \"rc=$?\"; bash verify.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- positional rejected rc:\"; bash verify.sh -q --dest \"$t/s\" extra >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- shasum -c compatible:\"; (cd \"$t/s\" && shasum -c \"my backup-20260101-000000.tar.gz.sha256\")\necho \"T=$t\"",
+        "description": "Smoke-test refactored rotate.sh and verify.sh flag handling"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_e73eba86ccb4f1177e3f6e143a3fff18_0",
+      "tool_input": {
+        "command": "set +e\nmkdir -p /tmp/ftsmoke/src; echo a > /tmp/ftsmoke/src/f\nfor s in 20260101-000000 20260101-010000 20260101-020000; do BACKUP_STAMP=$s bash backup.sh --quiet --dest /tmp/ftsmoke/d --name demo /tmp/ftsmoke/src >/dev/null; done\necho \"--- dry-run keep=1:\"; bash rotate.sh -q --dest=/tmp/ftsmoke/d --name=demo --keep=1 --dry-run; echo \"rc=$?\"\necho \"--- real keep=1:\"; bash rotate.sh -q --dest /tmp/ftsmoke/d --name demo --keep 1; echo \"rc=$?\"\necho \"--- remaining:\"; ls /tmp/ftsmoke/d\necho \"--- unknown option:\"; bash rotate.sh --dest /tmp/ftsmoke/d --name demo --bogus 2>&1 | tail -1\necho \"--- bad keep:\"; bash rotate.sh -q --dest /tmp/ftsmoke/d --name demo --keep x 2>&1 | tail -1\necho \"--- missing dest dir rc:\"; bash verify.sh -q --dest /tmp/ftsmoke/nope >/dev/null 2>&1; echo \"rc=$?\"\nmkdir -p /tmp/ftsmoke/s; echo b > /tmp/ftsmoke/s/g\nBACKUP_STAMP=20260101-000000 bash backup.sh -q --dest /tmp/ftsmoke/s --name \"my backup\" /tmp/ftsmoke/s >/dev/null\necho \"--- verify --name with space:\"; bash verify.sh -q --dest /tmp/ftsmoke/s --name \"my backup\"; echo \"rc=$?\"\necho \"--- verify --name nomatch rc:\"; bash verify.sh -q --dest /tmp/ftsmoke/s --name other >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- help rc:\"; bash rotate.sh -h >/dev/null; echo \"rc=$?\"; bash verify.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- positional rejected rc:\"; bash verify.sh -q --dest /tmp/ftsmoke/s extra >/dev/null 2>&1; echo \"rc=$?\"\necho \"--- stock shasum -c on space-named sidecar:\"; (cd /tmp/ftsmoke/s && shasum -c \"my backup-20260101-000000.tar.gz.sha256\")",
+        "description": "Smoke-test refactored rotate.sh and verify.sh flag handling"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_1f2b01f7fad9b23a26cd4b7bbd1e7f64_0",
+      "tool_input": {
+        "command": "set +e\nmkdir -p /tmp/ftsmoke/src /tmp/ftsmoke/d /tmp/ftsmoke/s\necho a > /tmp/ftsmoke/src/f\nBACKUP_STAMP=20260101-000000 bash backup.sh --quiet --dest /tmp/ftsmoke/d --name demo /tmp/ftsmoke/src >/dev/null\nBACKUP_STAMP=20260101-010000 bash backup.sh --quiet --dest /tmp/ftsmoke/d --name demo /tmp/ftsmoke/src >/dev/null\nBACKUP_STAMP=20260101-020000 bash backup.sh --quiet --dest /tmp/ftsmoke/d --name demo /tmp/ftsmoke/src >/dev/null\necho \"--- dry-run keep=1:\"\nbash rotate.sh -q --dest=/tmp/ftsmoke/d --name=demo --keep=1 --dry-run\necho \"rc=$?\"\necho \"--- real keep=1:\"\nbash rotate.sh -q --dest /tmp/ftsmoke/d --name demo --keep 1\necho \"rc=$?\"\necho \"--- remaining (newest + sidecar only):\"\nls /tmp/ftsmoke/d\necho \"--- unknown option:\"\nbash rotate.sh --dest /tmp/ftsmoke/d --name demo --bogus 2>&1 | tail -n 1\necho \"--- bad keep:\"\nbash rotate.sh -q --dest /tmp/ftsmoke/d --name demo --keep x 2>&1 | tail -n 1\necho \"--- missing dest dir rc:\"\nbash verify.sh -q --dest /tmp/ftsmoke/nope >/dev/null 2>&1\necho \"rc=$?\"",
+        "description": "Smoke-test rotate.sh flag handling and rotation selection"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a1224638cc79212133c264672a6d868f_0",
+      "tool_input": {
+        "command": "mkdir -p /tmp/ftsmoke/src /tmp/ftsmoke/d /tmp/ftsmoke/s && echo a > /tmp/ftsmoke/src/f && BACKUP_STAMP=20260101-000000 bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p14-d/backup.sh -q --dest /tmp/ftsmoke/d --name demo /tmp/ftsmoke/src && BACKUP_STAMP=20260101-010000 bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p14-d/backup.sh -q --dest /tmp/ftsmoke/d --name demo /tmp/ftsmoke/src && BACKUP_STAMP=20260101-020000 bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p14-d/backup.sh -q --dest /tmp/ftsmoke/d --name demo /tmp/ftsmoke/src && BACKUP_STAMP=20260101-000000 bash /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p14-d/backup.sh -q --dest /tmp/ftsmoke/s --name \"my backup\" /tmp/ftsmoke/s",
+        "description": "Create smoke-test fixtures (3 demo archives + 1 space-named archive)"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7587b66f1ea76ec0f4f93bc20739c650_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/ftsmoke /tmp/ftsmoke_smoke.sh",
+        "description": "Remove temporary smoke-test fixtures"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 26,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. All 9 tests pass (`all tests passed`), and a manual smoke test confirmed flag parity (`--dest=`/`--keep=`/`-n`/`-q`/`-h`, unknown-option and bad-value exits, rc=2 for missing dir) plus that rotation now removes the oldest archives and their sidecars, and `shasum -c` agrees with `verify.sh` on a space-named archive.\n\nDetails:\n- `rotate.sh`: surplus was `tail -n +KEEP` (kept lines *from* the KEEP-th, deleting the newest when total==keep); now `head -n TOTAL-KEEP`, with the early exit widened to `-le`. Also sources `lib/common.sh`.\n- `verify.sh`: sidecar parsing now splits the digest off the first blank run and keeps the rest of the line as the file name (spaces intact), and the digest comparison is quoted `[[ ]]`. Also sources `lib/common.sh`.\n- `lib/common.sh`: new \u2014 the shared option-parsing block, `is_uint`, `need_value`, `KEEP` validation, and `resolve_dir`, with the existing per-script `usage`/`parse_local_option` contract.\n- `tests/run_tests.sh`: added a test for exactly-N archives with `--keep N` (deletes nothing) plus oldest-goes-newest-stays, and a test for a `my backup-\u2026tar.gz` archive verifying `ok` with rc=0.\n- `backup.sh`, `restore.sh`, `report.sh`: untouched (their inline parser copies remain).\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.\n\nOne note: my smoke-test fixtures under `/tmp/ftsmoke` couldn't be auto-deleted (sandbox approval prompt), so they remain at `/tmp/ftsmoke` and `/tmp/ftsmoke_smoke.sh` if you want to remove them.",
+  "ttft_ms": 9705,
+  "type": "result",
+  "duration_ms": 238590,
+  "uuid": "4266c201-77c3-4548-b870-7b1d7615bd6b",
+  "ttft_stream_ms": 4278,
+  "time_to_request_ms": 35,
+  "first_content_frame_ms": 9562,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 239.5,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

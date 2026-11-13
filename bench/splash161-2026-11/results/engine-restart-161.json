@@ -1,0 +1,104 @@
+{
+ "killed_pid": 7637,
+ "stream": {
+  "chunks": 3,
+  "error": "data: {\"error\":{\"message\":\"the inference engine stopped unexpectedly and is restarting; retry the request\",\"type\":\"server_error\",\"code\":\"runtime_unavailable\"}}\n",
+  "done": true
+ },
+ "attempts": [
+  {
+   "t": 0.0,
+   "status": 503,
+   "retry_after": "12",
+   "code": "runtime_unavailable"
+  },
+  {
+   "t": 1.0,
+   "status": 503,
+   "retry_after": "11",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 2.0,
+   "status": 503,
+   "retry_after": "10",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 3.0,
+   "status": 503,
+   "retry_after": "9",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 4.1,
+   "status": 503,
+   "retry_after": "8",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 5.1,
+   "status": 503,
+   "retry_after": "7",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 6.1,
+   "status": 503,
+   "retry_after": "6",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 7.1,
+   "status": 503,
+   "retry_after": "5",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 8.1,
+   "status": 503,
+   "retry_after": "4",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 9.1,
+   "status": 503,
+   "retry_after": "3",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 10.1,
+   "status": 503,
+   "retry_after": "2",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 11.1,
+   "status": 503,
+   "retry_after": "1",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 12.1,
+   "status": 503,
+   "retry_after": "30",
+   "code": "engine_recovering"
+  },
+  {
+   "t": 13.1,
+   "status": 200
+  }
+ ],
+ "context_before": 32768,
+ "context_after": 32768,
+ "boot_seconds": 30.0,
+ "verdict": {
+  "pass": true,
+  "checks": {
+   "engine_recovering": true,
+   "retry_after": true,
+   "served_in_2x_boot": true,
+   "context_kept": true
+  }
+ }
+}

@@ -3,8 +3,9 @@
 > **Status: 🟡 ALTERNATIVE MODEL — not the agentic driver.** The fastest stack measured for the dense 27B on this
 > rig is **Splash 1.3.1** with `mlx-community/Qwen3.8-27B-8bit` and the DFlash2 draft, at `reasoning_effort`
 > **medium**: T_turno (time for one tool turn with a 512-token reply) **10.4 s at 32K** and **15.9 s at 128K**.
-> That is 0.69× the previous best 27B stack at 128K (`xhigh`), and still **1.85×** the Flash-Next daily driver
-> (8.6 s at 128K). The NO-GO as agentic driver stands (`P5_GO=0`). Use the 27B in place of Flash-Next when you need
+> That is 0.69× the previous best 27B stack at 128K (`xhigh`), and still **1.85×** the Flash-Next daily driver of
+> that time (mlx-serve, 8.6 s at 128K). Since 2026-11-12 the daily driver is Flash-Next on Splash 1.6.1 at 6.1 s
+> at 128K, so the gap is **2.6×** (`medium`). The NO-GO as agentic driver stands (`P5_GO=0`). Use the 27B in place of Flash-Next when you need
 > image input or ~60 GB of free RAM. Quality is **not measured** on this stack.
 > Last updated: 2026-10-14
 
@@ -104,7 +105,8 @@ verdict is ≤ 1.25 on both bands.
 
 ## Role on this rig
 
-- **Not the agentic driver.** Flash-Next (Swift 1.5) stays the daily driver: 1.85× faster per tool turn at 128K
+- **Not the agentic driver.** Flash-Next (Swift 1.5) stays the daily driver: 1.85× faster per tool turn at 128K on
+  mlx-serve, and 2.6× on Splash 1.6.1, the daily driver since 2026-11-12,
   and ahead on the one careful third-party agentic benchmark found (OpenCode, 98% vs 77%; see the research note). The bottleneck is the 27B warm TTFT on `tool_turn` (7.4 s at 128K
   on Splash). Reopening the verdict needs ≤ ~3 s warm TTFT and ≥ ~65 tok/s decode at 128K at the same time.
 - **Alternative model, loaded instead of Flash-Next.** The rig serves one model at a time. The 27B on Splash peaks

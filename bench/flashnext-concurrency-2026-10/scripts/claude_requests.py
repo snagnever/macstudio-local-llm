@@ -22,8 +22,9 @@ import sys
 from pathlib import Path
 from typing import Any, Optional, Sequence
 
-STARTED = re.compile(r"^(\d\d:\d\d:\d\d) Started · input ([\d,]+) · cached ([\d,]+)")
-DONE = re.compile(r"^(\d\d:\d\d:\d\d) Done · input ([\d,]+) · cached ([\d,]+)(?: · deduplicated [\d,]+)?"
+# Splash 1.6.1 puts "request N · " after the verb; 1.5.0 and 1.6.0 do not.
+STARTED = re.compile(r"^(\d\d:\d\d:\d\d) Started · (?:request \d+ · )?input ([\d,]+) · cached ([\d,]+)")
+DONE = re.compile(r"^(\d\d:\d\d:\d\d) Done · (?:request \d+ · )?input ([\d,]+) · cached ([\d,]+)(?: · deduplicated [\d,]+)?"
                   r" · output ([\d,]+) .*? TTFT ([\d.]+)s · ([\d.]+) tok/s")
 
 

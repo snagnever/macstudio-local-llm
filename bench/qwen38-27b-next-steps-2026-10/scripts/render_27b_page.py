@@ -454,12 +454,21 @@ def _html_tldr(p: dict) -> str:
             f'<b>{f["k_m"]:.1f} s</b> at thinking effort medium.</p>'
             f'<p class="tl-line">That is <b>{f["vs_base"]:.2f}×</b> the baseline, {E(PUBLIC[BASELINE].replace(" (baseline)", ""))} '
             f'with the same weights and draft ({f["base"]:.1f} s at xhigh; same effort on both sides).</p>'
-            f'<p class="tl-line">It is still <b>~{f["vs_w1_round"]}×</b> Qwen3.8-Flash-Next, the model we use daily '
+            f'<p class="tl-line">It is still <b>~{f["vs_w1_round"]}×</b> Qwen3.8-Flash-Next, the model we used daily then '
             f'({f["w1"]:.1f} s at 128K; {f["vs_w1_x"]:.2f}× at xhigh, {f["vs_w1_m"]:.2f}× at medium): '
-            '<b>for agent loops, Flash-Next is still faster.</b></p>')
+            '<b>for agent loops, Flash-Next is still faster.</b></p>'
+            f'<p class="tl-line">Since 2026-11-12 the daily driver is Flash-Next on Splash 1.6.1, at {DRIVER_161_T128:.1f} s '
+            f'at 128K. Against it the 27B is <b>{f["k_m"] / DRIVER_161_T128:.1f}×</b> at medium and '
+            f'<b>{f["k_x"] / DRIVER_161_T128:.1f}×</b> at xhigh '
+            '(<a href="qwen38-flashnext-splash161.html">Splash 1.6.1 page</a>).</p>')
     return (f'<section class="block tldr-wrap" id="tldr"><div class="tldr"><p class="tl-h">TL;DR</p>{body}</div>'
             f'{not_measured}</section>')
 
+
+
+# Agent turn time of the Flash-Next daily driver since 2026-11-12: Swift 1.5 IQ4_XS on Splash 1.6.1, PLE auto, 128K.
+# Source: bench/splash161-2026-11/results/etapa2-um-stream.md (k2h, 3 boots).
+DRIVER_161_T128 = 6.1
 
 GLOSSARY = [
     ("TTFT", "time to first token: seconds from sending a request until the first token comes back."),

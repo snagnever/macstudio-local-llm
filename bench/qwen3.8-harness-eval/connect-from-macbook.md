@@ -1,5 +1,11 @@
 # Conectar o MacBook ao Mac Studio para os testes de harness
 
+> **Desatualizado desde 2026-11-12.** Este guia descreve a campanha de setembro (Flash-Next mixed-4/8 no
+> mlx-serve, porta 11234). O driver diário agora é o Swift 1.5 GGUF `IQ4_XS` no Splash 1.6.1, porta 8585. A
+> configuração dos clientes (OpenCode, Claude Code) fica em
+> [docs/models/qwen3.8-flash-next.md](../../docs/models/qwen3.8-flash-next.md#daily-driver-configuration-splash-161).
+> A topologia e o Tailscale abaixo continuam valendo.
+
 Este documento explica como o MacBook M4 (cliente) conecta no Mac Studio (rig) para
 rodar os harnesses da campanha [plan.md](plan.md). O rig serve os modelos. O MacBook
 roda o OpenCode, o Claude Code e o Qwen Code, e aponta cada um para um endpoint do rig.

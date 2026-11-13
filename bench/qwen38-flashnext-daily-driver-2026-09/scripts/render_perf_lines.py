@@ -138,6 +138,18 @@ def point(g: dict) -> dict:
     }
 
 
+# Status labels that changed after the October data: the daily driver moved from n2 to w1 on 2026-10-11 and to the
+# k2 weights on Splash 1.6.1 on 2026-11-12 (bench/splash161-2026-11). The table keeps the October measurements.
+STATUS_NOW = {"n2": "daily driver until 2026-10-11", "w1": "daily driver until 2026-11-12",
+              "k2": "daily driver since 2026-11-12, on Splash 1.6.1"}
+
+
+def _dated_takeaways(takeaways):
+    """The October takeaways call w1 "the daily driver"; it was until 2026-11-12 (see STATUS_NOW)."""
+    text = json.dumps(takeaways, ensure_ascii=False).replace("(the daily driver)", "(the daily driver until 2026-11-12)")
+    return json.loads(text)
+
+
 def build_payload(data: dict) -> dict:
     oct_ = data.get("profile") == "2026-10"
     absent = ABSENT_2026_10 if oct_ else ABSENT
@@ -168,10 +180,10 @@ def build_payload(data: dict) -> dict:
                      "quant": " · ".join([c["quant"]] + ([f'{c["bpw"]} bpw'] if c.get("bpw") else [])
                                          + ([f'{c["disk_gb"]:.0f} GB'] if c.get("disk_gb") else [])),
                      "cache": c["cache"], "spec": c["spec"], "ceiling": c["ceiling"],
-                     "status": c["status"], "state": c["state"]}
+                     "status": STATUS_NOW.get(c["id"], c["status"]), "state": c["state"]}
            for c in chart_cands}
     return {"points": points, "hitmap": hitmap, "series": series, "cfg": cfg,
-            "rig": data["rig"], "takeaways": data["takeaways"],
+            "rig": data["rig"], "takeaways": _dated_takeaways(data["takeaways"]),
             "tech": TECH_2026_10 if oct_ else TECH, "tech_src": TECH_SRC_2026_10 if oct_ else TECH_SRC, "line_ctx": line_ctx, "table_ctx": table_ctx,
             "generated_at": data["generated_at"]}
 
@@ -203,7 +215,7 @@ ABSENT_2026_10 = {
 }
 TECH_2026_10 = [
     {"name": "mlx-serve 26.10.1 and 26.10.3", "repo": "ddalcu/mlx-serve",
-     "what": "MLX server with <b>native MTP for Flash-Next</b> and a two-tier prefix cache. n2 runs the ddalcu iQ-MLX pack on 26.10.1 and n3 runs it on 26.10.3; the daily driver is Swift 1.5 on 26.10.3 (w1).",
+     "what": "MLX server with <b>native MTP for Flash-Next</b> and a two-tier prefix cache. n2 runs the ddalcu iQ-MLX pack on 26.10.1 and n3 runs it on 26.10.3; Swift 1.5 on 26.10.3 (w1) was the daily driver until 2026-11-12.",
      "cache": "Hot cache in RAM (<b>16 GB, 64 entries</b>) and a disk cache (100 GB). <code>--ssm-checkpoint-max 16</code> keeps checkpoints of the DeltaNet state.",
      "spec": "MTP with PLD (prompt lookup through the pack's n-gram table). The acceptance comes from the <code>[spec-stats]</code> log.",
      "configs": "n2 iQ-MLX-4.7bpw; 512K with YaRN 2.0 + KV 4-bit (n2q4). w1 Swift 1.5 MLX 4.7 bpw and g1 GSQ-RCO-Coder MLX on 26.10.3; "

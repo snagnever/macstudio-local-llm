@@ -1,0 +1,136 @@
+{
+  "duration_api_ms": 306517,
+  "stop_reason": "end_turn",
+  "session_id": "8bb05eb6-9453-44a6-9d1f-664227f653b3",
+  "total_cost_usd": 0.7818984,
+  "usage": {
+    "input_tokens": 41043,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1121632,
+    "output_tokens": 19670,
+    "output_tokens_details": {
+      "thinking_tokens": 9862
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 41043,
+      "outputTokens": 19670,
+      "cacheReadInputTokens": 1121632,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.7818984,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 9862,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7ac43af4cca13790bd97b26a9188f1c2_0",
+      "tool_input": {
+        "command": "bash -n lib/common.sh && bash -n rotate.sh && bash -n verify.sh && echo \"syntax ok\"\nt=$(mktemp -d); t=$(cd \"$t\" && pwd -P)\nmkdir -p \"$t/src\"; echo hi > \"$t/src/a.txt\"\nfor s in 20260101-000000 20260101-000001 20260101-000002 20260101-000003; do\n  BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/dest\" --name demo \"$t/src\" >/dev/null\ndone\necho \"--- rotate --keep 2 (expect: two oldest deleted, two newest kept)\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep=2\nls \"$t/dest\" | grep -v sha256\necho \"--- rotate --dry-run --keep 1\"\nbash rotate.sh --quiet --dry-run --dest \"$t/dest\" --name demo --keep 1\nls \"$t/dest\" | grep -v sha256 | wc -l\necho \"--- rotate --help exits 0\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- rotate unknown flag exits 1\"; bash rotate.sh --dest \"$t/dest\" --name demo --bogus 2>/dev/null; echo \"rc=$?\"\necho \"--- rotate missing dest exits 2\"; bash rotate.sh --quiet --dest \"$t/nosuch\" --name demo 2>/dev/null; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Sanity-check rotate.sh behavior after refactor"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_b4d223b958bff7ef5158bf5e531d5dcf_0",
+      "tool_input": {
+        "command": "bash -n lib/common.sh && bash -n rotate.sh && bash -n verify.sh && echo \"syntax ok\"\nt=/tmp/rotate-sanity-$$; mkdir -p \"$t\"\nmkdir -p \"$t/src\"; echo hi > \"$t/src/a.txt\"\nfor s in 20260101-000000 20260101-000001 20260101-000002 20260101-000003; do\n  BACKUP_STAMP=$s bash backup.sh --quiet --dest \"$t/dest\" --name demo \"$t/src\" >/dev/null\ndone\necho \"--- rotate --keep=2 (expect: two oldest deleted, newest two kept)\"\nbash rotate.sh --quiet --dest \"$t/dest\" --name demo --keep=2\nls \"$t/dest\" | grep -v sha256\necho \"--- rotate --dry-run --keep 1 (expect: 3 would-delete lines, nothing removed)\"\nbash rotate.sh --quiet --dry-run --dest \"$t/dest\" --name demo --keep 1\nls \"$t/dest\" | grep -vc sha256\necho \"--- rotate --help\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- rotate unknown flag\"; bash rotate.sh --dest \"$t/dest\" --name demo --bogus 2>/dev/null; echo \"rc=$?\"\necho \"--- rotate missing dest\"; bash rotate.sh --quiet --dest \"$t/nosuch\" --name demo 2>/dev/null; echo \"rc=$?\"\nrm -rf \"/tmp/rotate-sanity-$$\"",
+        "description": "Sanity-check rotate.sh behavior after refactor"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_5aa4138412bf9abd23c8d71a68ac0077_0",
+      "tool_input": {
+        "command": "bash -n lib/common.sh && bash -n rotate.sh && bash -n verify.sh && echo \"syntax ok\"\nmkdir -p /tmp/rotate-sanity-check/src && echo hi > /tmp/rotate-sanity-check/src/a.txt\nfor s in 20260101-000000 20260101-000001 20260101-000002 20260101-000003; do\n  BACKUP_STAMP=$s bash backup.sh --quiet --dest /tmp/rotate-sanity-check/dest --name demo /tmp/rotate-sanity-check/src >/dev/null\ndone\necho \"--- rotate --keep=2 (expect: two oldest deleted, newest two kept)\"\nbash rotate.sh --quiet --dest /tmp/rotate-sanity-check/dest --name demo --keep=2\nls /tmp/rotate-sanity-check/dest | grep -v sha256\necho \"--- rotate --dry-run --keep 1 (expect 3 would-delete lines, nothing removed)\"\nbash rotate.sh --quiet --dry-run --dest /tmp/rotate-sanity-check/dest --name demo --keep 1\nls /tmp/rotate-sanity-check/dest | grep -v sha256 | wc -l\necho \"--- rotate --help\"; bash rotate.sh --help >/dev/null; echo \"rc=$?\"\necho \"--- rotate unknown flag\"; bash rotate.sh --dest /tmp/rotate-sanity-check/dest --name demo --bogus 2>/dev/null; echo \"rc=$?\"\necho \"--- rotate missing dest\"; bash rotate.sh --quiet --dest /tmp/rotate-sanity-check/nosuch --name demo 2>/dev/null; echo \"rc=$?\"",
+        "description": "Sanity-check rotate.sh behavior after refactor"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_161d26809c21a99b7cf4b0b3bc6030ec_1",
+      "tool_input": {
+        "command": "mkdir -p /tmp/rotate-sanity-check/src && echo hi > /tmp/rotate-sanity-check/src/a.txt && BACKUP_STAMP=20260101-000000 bash backup.sh --quiet --dest /tmp/rotate-sanity-check/dest --name demo /tmp/rotate-sanity-check/src >/dev/null && BACKUP_STAMP=20260101-000001 bash backup.sh --quiet --dest /tmp/rotate-sanity-check/dest --name demo /tmp/rotate-sanity-check/src >/dev/null && BACKUP_STAMP=20260101-000002 bash backup.sh --quiet --dest /tmp/rotate-sanity-check/dest --name demo /tmp/rotate-sanity-check/src >/dev/null && BACKUP_STAMP=20260101-000003 bash backup.sh --quiet --dest /tmp/rotate-sanity-check/dest --name demo /tmp/rotate-sanity-check/src >/dev/null && ls /tmp/rotate-sanity-check/dest",
+        "description": "Build four demo archives in /tmp for rotate checks"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_8fdfaed6b381f096a0c17554c2aefb4a_0",
+      "tool_input": {
+        "command": "rm /tmp/toolkit-sanity.sh",
+        "description": "Remove temporary sanity-check script"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 32,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "The leftover `/tmp/toolkit-sanity.sh` scratch file needs interactive approval to delete, so I'm leaving it in place; the test temp dirs were cleaned up by the scripts themselves. Everything checks out.\n\n**What I did:**\n\n- **`rotate.sh`** \u2014 Fixed the rotation logic: the guard now bails out when `total -le keep` (was `-lt`, which let the `total == keep` case fall through), and `surplus()` now takes the *first* `total - keep` entries of the oldest-first sorted list (`head -n`) instead of `tail -n +\"$keep\"`, which kept the oldest and deleted the newest. Also replaced its inlined option-parsing block and `resolve_dir` with a source of the new library.\n- **`verify.sh`** \u2014 Fixed sidecar parsing: the file name is now the entire rest of the sidecar line after the digest (via parameter expansion) instead of `awk '{print $2}'`, which truncated `my backup-\u2026.tar.gz` to `my`; the digest comparison is also quoted now. Same library refactor as rotate.sh.\n- **`lib/common.sh`** (new) \u2014 Contains the shared option-parsing block (`DEST`/`NAME`/`KEEP`/`QUIET`/`DRY_RUN`/`ARGS`, `is_uint`, `need_value`, the `while` loop, `--keep` validation) and `resolve_dir`, sourced with `\"$@\"`; it honors the script's `usage`/`parse_local_option` hooks and preserves the log prefix by relying on `lib/log.sh`'s double-source guard.\n- **`tests/run_tests.sh`** \u2014 Added \"verify accepts spaces in the archive name\" (next to the verify tests) and \"rotate --keep 3 deletes nothing when exactly 3 archives exist\" (new rotate section).\n\n`bash tests/run_tests.sh` passes all 8 tests, and I manually verified that `--keep=2` on 4 archives deletes exactly the 2 oldest (sidecars included), dry-run deletes nothing, and the shared parser keeps `--help`, unknown-flag, `--name`, and exit-code behavior intact.\n\nChanged files: `rotate.sh`, `verify.sh`, `tests/run_tests.sh`, and new `lib/common.sh`.",
+  "ttft_ms": 11327,
+  "type": "result",
+  "duration_ms": 307400,
+  "uuid": "0d6f7549-2400-4f50-a93a-202d4c4807c2",
+  "ttft_stream_ms": 4329,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 11084,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 308.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

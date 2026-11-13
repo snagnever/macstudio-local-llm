@@ -1,0 +1,144 @@
+{
+  "duration_api_ms": 267094,
+  "stop_reason": "end_turn",
+  "session_id": "541411d1-7a5a-4a2c-9947-c42c690a102b",
+  "total_cost_usd": 0.6971208000000001,
+  "usage": {
+    "input_tokens": 62445,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1273504,
+    "output_tokens": 9632,
+    "output_tokens_details": {
+      "thinking_tokens": 4179
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 62445,
+      "outputTokens": 9632,
+      "cacheReadInputTokens": 1273504,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6971208000000001,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 4179,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_82aefb74dd18081027f31b70793c32a6_0",
+      "tool_input": {
+        "command": "python3 -m ledger.cli report --group-by category --format json fixtures/transactions.csv | python3 -c \"import sys,json; d=json.load(sys.stdin); print(list(d)==sorted(d), len(d))\" && printf 'date,account,payee,amount\\n2025-01-01,Checking,Foo,-1.00\\n' > /tmp/one.csv && python3 -m ledger.cli report --group-by month --from 2026-01-01 --format json /tmp/one.csv && python3 -m ledger.cli report --group-by month /tmp/one.csv | od -c | head -2",
+        "description": "Check group ordering and empty-group edge cases"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7525e0230582cfc1025869d64f9d263a_0",
+      "tool_input": {
+        "command": "python3 -m ledger.cli report --group-by category --format json fixtures/transactions.csv | python3 -c \"import sys,json; d=json.load(sys.stdin); print(list(d)==sorted(d), len(d))\" && printf 'date,account,payee,amount\\n2025-01-01,Checking,Foo,-1.00\\n' > .tmp_one.csv && python3 -m ledger.cli report --group-by month --from 2026-01-01 --format json .tmp_one.csv && python3 -m ledger.cli report --group-by month .tmp_one.csv | od -c | head -2; rm .tmp_one.csv",
+        "description": "Check group ordering and empty-group edge cases"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_7b045fcb466c7db58b021b4032fc6b76_1",
+      "tool_input": {
+        "command": "printf 'date,account,payee,amount\\n2025-01-01,Checking,Foo,-1.00\\n' > .tmp_one.csv && python3 -m ledger.cli report --group-by month --from 2026-01-01 --format json .tmp_one.csv && python3 -m ledger.cli report --group-by month .tmp_one.csv | od -c",
+        "description": "Check empty-group output for text and json"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_f57c0f367d1ba4a046257f5acc9ca906_0",
+      "tool_input": {
+        "command": "rm /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2h2-c/.tmp_one.csv",
+        "description": "Delete temporary test CSV"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_0894e5320031ac487b4fa28c36febc6d_0",
+      "tool_input": {
+        "command": "rm /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2h2-c/.tmp_one.csv",
+        "description": "Delete temporary test CSV I created"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_4639bb902521ce34e742f32bfd80e833_0",
+      "tool_input": {
+        "command": "git -C /Users/vitor/.cache/flashnext-concurrency/claude-work/rc2h2-c status --short",
+        "description": "Show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 33,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Done. `--group-by` is implemented in `ledger/report.py` (`group_totals` + `render_groups_text/json`, sorted by label, month labels via the existing `Transaction.month`), wired into the `report` subcommand in `ledger/cli.py` (filters apply before grouping; output is unchanged when the flag is absent), covered by 6 new tests in `tests/test_cli.py` (text and JSON output across month/category/account, filter interaction, invalid-key argparse error), and documented in `README.md`. The full suite passes: 69 tests, OK.\n\nChanged files: `ledger/cli.py`, `ledger/report.py`, `tests/test_cli.py`, `README.md`.",
+  "ttft_ms": 30206,
+  "type": "result",
+  "duration_ms": 267883,
+  "uuid": "01de3290-7424-4cbe-ae08-430fdc8810e6",
+  "ttft_stream_ms": 69,
+  "time_to_request_ms": 35,
+  "first_content_frame_ms": 30046,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "c",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 268.8,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

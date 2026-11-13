@@ -1,0 +1,6 @@
+15:03:23 Started · request 1 · input 19,300 · cached 0 · effort xhigh · thinking on
+15:03:46 Done · request 1 · input 19,300 · cached 0 · output 140 · tools 23·d2a9ad50 · TTFT 22.8s · 138.1 tok/s · 5.0 tok/cycle
+15:03:46 Started · request 2 · input 19,844 · cached 19,264 · effort xhigh · thinking on
+15:03:49 Done · request 2 · input 19,844 · cached 19,264 · deduplicated 160 · output 224 · tools 23·d2a9ad50 · TTFT 0.9s · 173.0 tok/s · 6.4 tok/cycle
+15:03:49 Started · request 3 · input 20,818 · cached 19,808 · effort xhigh · thinking on
+15:03:53 Done · request 3 · input 20,818 · cached 19,808 · deduplicated 256 · output 534 · tools 23·d2a9ad50 · TTFT 1.4s · 159.9 tok/s · 5.8 tok/cycle

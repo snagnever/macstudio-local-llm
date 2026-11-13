@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Start the Qwen3.8-Flash-Next daily driver: Swift 1.5 (Dankpaws MLX-4.7bpw) on mlx-serve 26.10.3.
+# Start the Qwen3.8-Flash-Next rollback driver: Swift 1.5 (Dankpaws MLX-4.7bpw) on mlx-serve 26.10.3.
+# Since 2026-11-12 the daily driver is serve-flashnext-splash.sh (Splash 1.6.1, port 8585,
+# bench/splash161-2026-11); this script was the daily driver from 2026-10-11 to 2026-11-12.
 # Promoted by bench/swift15-flashnext-2026-10 (2026-10-11): same quality as the iQ-MLX-4.7bpw pack, 2-3x less
 # thinking time. Rollback: FLASHNEXT_MODEL=<cache>/ddalcu-Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw-dafff5c...
 # Runtime 26.10.3 since 2026-10-24 (bench/stack-updates-2026-10, Task 1): T_turno 1.00/1.02/0.93 x 26.10.1 at

@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 271027,
+  "stop_reason": "end_turn",
+  "session_id": "a1c21289-e97c-4283-a69d-9809da8f4126",
+  "total_cost_usd": 0.5504503999999999,
+  "usage": {
+    "input_tokens": 34439,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 727072,
+    "output_tokens": 13364,
+    "output_tokens_details": {
+      "thinking_tokens": 6676
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 34439,
+      "outputTokens": 13364,
+      "cacheReadInputTokens": 727072,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.5504503999999999,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 6676,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_e7eabe8758583d87958ec6f832fce38e_0",
+      "tool_input": {
+        "command": "t=$(mktemp -d); cd \"$t\"\nfor s in 20260101-010000 20260101-020000 20260101-030000 20260101-040000; do : > \"demo-$s.tar.gz\"; : > \"demo-$s.tar.gz.sha256\"; done\nR=/Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p12-d\necho \"--- dry-run keep 2 (expect oldest two):\"; bash \"$R/rotate.sh\" -q -n --dest=\"$t\" --name demo --keep 2\necho \"--- real run keep 2 (expect oldest two deleted):\"; bash \"$R/rotate.sh\" -q --dest \"$t\" --name demo --keep 2; ls \"$t\"\necho \"--- help rc:\"; bash \"$R/rotate.sh\" -h >/dev/null; echo $?\necho \"--- unknown flag rc:\"; bash \"$R/rotate.sh\" --dest \"$t\" --name demo --bogus >/dev/null 2>&1; echo $?\necho \"--- bad keep rc:\"; bash \"$R/rotate.sh\" --dest \"$t\" --name demo --keep x >/dev/null 2>&1; echo $?\necho \"--- missing dest rc:\"; bash \"$R/verify.sh\" >/dev/null 2>&1; echo $?\necho \"--- verify --name filter:\"; : > \"$t/other-20260101-010000.tar.gz\"; (cd \"$t\" && shasum -a 256 \"other-20260101-010000.tar.gz\" > \"other-20260101-010000.tar.gz.sha256\")\nbash \"$R/verify.sh\" -q --dest \"$t\" --name demo; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Sanity-check flags on refactored rotate.sh and verify.sh"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_a893726f71590a28aa85b5e089ac8932_0",
+      "tool_input": {
+        "command": "rm /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p12-d/.tmp_checks.sh && bash tests/run_tests.sh",
+        "description": "Remove temp check script and rerun test suite"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_896ccc59a2fa14a82f0cf443250c51f4_0",
+      "tool_input": {
+        "command": "rm /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p12-d/.tmp_checks.sh",
+        "description": "Delete the temporary sanity-check script I created"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 23,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "All 8 tests pass. Changed files: **rotate.sh** (rotation now keeps the KEEP newest \u2014 `head -n total-keep` of the oldest-first list, early exit at `-le`), **verify.sh** (digest split off as a word, file name taken as everything after it so spaces survive), **tests/run_tests.sh** (one new test per bug), and new **lib/common.sh** (shared option parser + `resolve_dir`, sourced by rotate.sh and verify.sh); the other three scripts are untouched.\n\nOne note: my scratch script `.tmp_checks.sh` (used for flag sanity checks) is still in the repo root \u2014 `rm` needs interactive approval in this session, so please approve the deletion or remove it yourself.",
+  "ttft_ms": 4397,
+  "type": "result",
+  "duration_ms": 271765,
+  "uuid": "3597c5fd-e550-4bb5-97b4-548ad39502c6",
+  "ttft_stream_ms": 63,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 4250,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 272.8,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}

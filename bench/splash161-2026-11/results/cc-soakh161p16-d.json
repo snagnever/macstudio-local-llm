@@ -1,0 +1,128 @@
+{
+  "duration_api_ms": 309636,
+  "stop_reason": "end_turn",
+  "session_id": "77af1cbe-cd55-4080-b9ac-c3217522d477",
+  "total_cost_usd": 0.6987928000000002,
+  "usage": {
+    "input_tokens": 37841,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 1022144,
+    "output_tokens": 17150,
+    "output_tokens_details": {
+      "thinking_tokens": 8924
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "modelUsage": {
+    "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS": {
+      "inputTokens": 37841,
+      "outputTokens": 17150,
+      "cacheReadInputTokens": 1022144,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.6987928000000002,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 8924,
+      "canonicalModel": "ukisai/swift-1.5-qwen3.8-flash-next-gguf:iq4_xs",
+      "provider": "firstParty",
+      "costBasis": "unknown"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_9105d23adfcbcb56cd61fa5d4bd413b9_0",
+      "tool_input": {
+        "command": "cd /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p16-d\nbash -n lib/common.sh && echo \"syntax ok\"\nt=$(mktemp -d); t=$(cd \"$t\" && pwd -P); mkdir -p \"$t/d\"\nprintf 'a\\n' > \"$t/d/x-20260101-010000.tar.gz\"; printf 'b\\n' > \"$t/d/x-20260102-020000.tar.gz\"\necho \"--- rotate --help exit:\"; bash rotate.sh --help >/dev/null; echo $?\necho \"--- rotate dry-run --keep=1:\"; bash rotate.sh --quiet --dest=\"$t/d\" --name x --keep=1 -n\necho \"--- rotate unknown flag exit:\"; bash rotate.sh --bogus 2>/dev/null; echo $?\necho \"--- rotate keep=0 exit:\"; bash rotate.sh --quiet --dest \"$t/d\" --name x --keep 0 2>/dev/null; echo $?\necho \"--- rotate missing dest dir exit:\"; bash rotate.sh --quiet --dest \"$t/nope\" --name x 2>/dev/null; echo $?\necho \"--- rotate positional rejected exit:\"; bash rotate.sh --quiet --dest \"$t/d\" --name x foo 2>/dev/null; echo $?\necho \"--- verify --help exit:\"; bash verify.sh --help >/dev/null; echo $?\necho \"--- verify name filter:\"; printf 'c\\n' > \"$t/d/x-20260101-010000.tar.gz.sha256\"\nbash verify.sh --quiet --dest \"$t/d\" --name x; echo \"rc=$?\"\nrm -rf \"$t\"",
+        "description": "Smoke-test refactored rotate.sh and verify.sh flags and exit codes"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_5a5a543a85961b8d5c691ae738cf77ff_0",
+      "tool_input": {
+        "command": "cd /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p16-d\nbash -n lib/common.sh && echo \"syntax ok\"\nt=/tmp/backup-smoke-$$; mkdir -p \"$t/d\"\nprintf 'a\\n' > \"$t/d/x-20260101-010000.tar.gz\"; printf 'b\\n' > \"$t/d/x-20260102-020000.tar.gz\"\necho \"--- rotate --help exit:\"; bash rotate.sh --help >/dev/null; echo $?\necho \"--- rotate dry-run --keep=1:\"; bash rotate.sh --quiet --dest=\"$t/d\" --name x --keep=1 -n\necho \"--- rotate unknown flag exit:\"; bash rotate.sh --bogus 2>/dev/null; echo $?\necho \"--- rotate keep=0 exit:\"; bash rotate.sh --quiet --dest \"$t/d\" --name x --keep 0 2>/dev/null; echo $?\necho \"--- rotate missing dest dir exit:\"; bash rotate.sh --quiet --dest \"$t/nope\" --name x 2>/dev/null; echo $?\necho \"--- rotate positional rejected exit:\"; bash rotate.sh --quiet --dest \"$t/d\" --name x foo 2>/dev/null; echo $?\necho \"--- verify --help exit:\"; bash verify.sh --help >/dev/null; echo $?\necho \"--- verify name filter (malformed sidecar -> BAD, rc=2):\"; printf 'c\\n' > \"$t/d/x-20260101-010000.tar.gz.sha256\"\nbash verify.sh --quiet --dest \"$t/d\" --name x; echo \"rc=$?\"\nrm -rf \"/tmp/backup-smoke-$$\"",
+        "description": "Smoke-test refactored rotate.sh and verify.sh flags and exit codes"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_f4b127043181086ee4efc891400dab22_0",
+      "tool_input": {
+        "command": "cd /Users/vitor/.cache/flashnext-concurrency/claude-work/soakh161p16-d\nbash -n lib/common.sh && echo \"syntax ok\"\nmkdir -p /tmp/backup-smoke-check/d\nprintf 'a\\n' > /tmp/backup-smoke-check/d/x-20260101-010000.tar.gz\nprintf 'b\\n' > /tmp/backup-smoke-check/d/x-20260102-020000.tar.gz\necho \"--- rotate --help exit:\"; bash rotate.sh --help >/dev/null; echo $?\necho \"--- rotate dry-run --keep=1:\"; bash rotate.sh --quiet --dest=/tmp/backup-smoke-check/d --name x --keep=1 -n\necho \"--- rotate unknown flag exit:\"; bash rotate.sh --bogus 2>/dev/null; echo $?\necho \"--- rotate keep=0 exit:\"; bash rotate.sh --quiet --dest /tmp/backup-smoke-check/d --name x --keep 0 2>/dev/null; echo $?\necho \"--- rotate missing dest dir exit:\"; bash rotate.sh --quiet --dest /tmp/backup-smoke-check/nope --name x 2>/dev/null; echo $?\necho \"--- rotate positional rejected exit:\"; bash rotate.sh --quiet --dest /tmp/backup-smoke-check/d --name x foo 2>/dev/null; echo $?\necho \"--- verify --help exit:\"; bash verify.sh --help >/dev/null; echo $?\necho \"--- verify name filter (malformed sidecar -> BAD, rc=2):\"; printf 'c\\n' > /tmp/backup-smoke-check/d/x-20260101-010000.tar.gz.sha256\nbash verify.sh --quiet --dest /tmp/backup-smoke-check/d --name x; echo \"rc=$?\"\nrm -rf /tmp/backup-smoke-check",
+        "description": "Smoke-test refactored rotate.sh and verify.sh flags and exit codes"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "call_5536ad8ff606e5699b3acb43f6796302_0",
+      "tool_input": {
+        "command": "rm -rf /tmp/backup-smoke; git status --short && git diff --stat",
+        "description": "Remove scratch smoke-test files and show changed files"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "safety_stops": 0,
+  "is_error": false,
+  "num_turns": 29,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "Changed `lib/common.sh` (new), `rotate.sh`, `verify.sh`, and `tests/run_tests.sh` \u2014 both bugs fixed, one test added per bug, and all 10 tests pass.\n\nDetails:\n- **rotate.sh** \u2014 `surplus()` used `tail -n +\"$keep\"`, which deleted everything *after* the oldest keep\u22121 entries (including the newest, and deleting one when exactly N existed). It now deletes the oldest `total - keep` entries via `head`, and exits early on `total <= keep`.\n- **verify.sh** \u2014 the sidecar's file name was parsed with `awk '{print $2}'`, truncating names at the first space. It now takes the digest as the first word and the file name as the whole remainder of the line; digest-only sidecars still report \"malformed sidecar\".\n- **lib/common.sh** \u2014 holds the shared option-parsing block, `is_uint`, `need_value`, the `--keep` validation, and `resolve_dir` (with a double-sourcing guard, in `lib/log.sh` style); sourced from `rotate.sh` and `verify.sh`, which keep accepting all the same flags (verified: `--dest`/`--dest=`, `--name`, `--keep`, `-n/--dry-run`, `-q`, `-h`, `--`, unknown-flag/keep=0/missing-dir/positional exit codes 1/1/2/1). `backup.sh`, `restore.sh`, `report.sh` are untouched.\n\nNote: my scratch smoke-test dir `/tmp/backup-smoke` couldn't be auto-deleted (sandbox policy on `/tmp` paths); say the word if you want it removed.",
+  "ttft_ms": 11017,
+  "type": "result",
+  "duration_ms": 310843,
+  "uuid": "6566d06a-166b-47cb-9b73-39eeaa64ee5a",
+  "ttft_stream_ms": 4350,
+  "time_to_request_ms": 34,
+  "first_content_frame_ms": 10792,
+  "queued_turn_count": 0,
+  "result_index": 0,
+  "task": "d",
+  "sessions": 2,
+  "exit": 0,
+  "wall_s": 311.2,
+  "task_done": true,
+  "parallel_agent_calls": 0,
+  "subagents_spawned": 0,
+  "subagents": false
+}
