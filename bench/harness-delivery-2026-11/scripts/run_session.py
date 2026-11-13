@@ -102,7 +102,7 @@ def run(name: str, task: str, pack: str, rep: int, target: Target, out: Path, lo
         d.mkdir(parents=True, exist_ok=True)
     tasks.fresh_copy(task, repo)
     harness.prepare(name, home, target)
-    cmd = harness.command(name, tasks.prompt(task), repo, home, target)
+    cmd = harness.sandboxed(harness.command(name, tasks.prompt(task), repo, home, target))
     code, timed_out, wall = _execute(cmd, log, spec.limit_s if limit_s is None else limit_s)
     result = checks.check(task, repo)
     record = {"harness": name, "harness_version": harness.version(name), "pack": pack, "task": task, "rep": rep,

@@ -3,6 +3,7 @@
 Every harness runs non-interactive, with a temporary HOME that holds its whole configuration, reasoning effort
 xhigh and a 131072-token context. Nothing here reads or writes the user's global configuration.
 HARNESS_BIN_<NAME> replaces the executable (tests use it). HARNESS_TOOLS_BIN, when set, goes first on PATH.
+HARNESS_SANDBOX=0 turns the macOS sandbox off (see sandboxed).
 HARNESS_PASS_ENV is a comma-separated list of extra parent variables to pass through (tests use it).
 """
 from __future__ import annotations
@@ -106,6 +107,34 @@ def command(name: str, prompt: str, repo: Path, home: Path, target: Target) -> C
     """The process to start for one session. The prompt is one argv item."""
     argv, extra = _BUILD[name](prompt, Path(home), target)
     return Cmd(argv=argv, env={**_base_env(Path(home)), **extra}, cwd=Path(repo))
+
+
+SANDBOX_EXEC = "/usr/bin/sandbox-exec"
+SECRET_DIRS = (".ssh", ".gnupg", ".aws", ".kube", ".docker", ".netrc", ".claude", ".claude-instances", ".claude.json",
+               ".config", ".dsh", ".pi", ".codex", "Library/Keychains", "Library/Cookies",
+               "Library/Application Support/Claude", "Library/Application Support/Google")
+
+
+def _sandbox_profile(repo: Path, home: Path) -> str:
+    """Allow by default; deny writes under /Users except the repository copy and the session HOME; deny reads
+    of the user's credentials and harness configuration."""
+    real = Path.home()
+    q = lambda p: '"' + str(Path(p).resolve()).replace('"', '\\"') + '"'  # noqa: E731
+    secrets = " ".join(f"(subpath {q(real / d)})" for d in SECRET_DIRS)
+    return ("(version 1)(allow default)"
+            '(deny file-write* (subpath "/Users"))'
+            f"(allow file-write* (subpath {q(repo)}) (subpath {q(home)}))"
+            f"(deny file-read* {secrets})")
+
+
+def sandboxed(cmd: Cmd) -> Cmd:
+    """Wrap a session in sandbox-exec. The harness runs with its permission prompts off, so the OS keeps its
+    writes inside the repository copy and the session HOME and keeps the user's credentials unreadable.
+    The network stays open: T5 installs packages and every harness calls the rig."""
+    if os.environ.get("HARNESS_SANDBOX") == "0" or not Path(SANDBOX_EXEC).exists():
+        return cmd
+    profile = _sandbox_profile(cmd.cwd, Path(cmd.env.get("HOME", cmd.cwd)))
+    return Cmd([SANDBOX_EXEC, "-p", profile, *cmd.argv], cmd.env, cmd.cwd)
 
 
 def prepare(name: str, home: Path, target: Target) -> None:
