@@ -17,7 +17,7 @@ DRY=""; ARMS=()
 for a in "$@"; do
   if [[ "$a" == --dry-run ]]; then DRY=1; continue; fi
   case "$STAGE:$a" in
-    refusal:k2h|quality:k2h|*:z[0-3]h) ARMS+=("$a") ;;
+    refusal:k2h|quality:k2h|*:z[0-4]h) ARMS+=("$a") ;;
     *) usage ;;
   esac
 done

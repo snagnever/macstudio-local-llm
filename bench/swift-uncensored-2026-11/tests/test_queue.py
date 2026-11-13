@@ -81,3 +81,8 @@ def test_refusal_arm_runs_the_public_sets_and_the_etapa_u_probe():
     assert "swift-uncensored-2026-11/scripts/refusal_probe.py" in out and "for s in advbench jbb" in out
     assert "qwen38-flashnext-daily-driver-2026-09/scripts/refusal_probe.py" in out and "for s in legit harmful" in out
     assert "results'/etapa-u-$s-z1h.jsonl" in out
+
+
+def test_queue_takes_the_recast_arm():
+    assert arms_at(dry("speed", "z4h"), "32768") == ["k2h", "z4h", "z4h", "k2h"]
+    assert dry("claude", "z4h")[1].startswith("FLASHNEXT_SPLASH_PACK=z4 ")

@@ -15,6 +15,9 @@ PACKS = {
            "cbc7fba13f1939ac3fa42b18d77ccf43847d74ef"),
     "z3": ("SC117/Swift-1.5-Qwen3.8-Flash-Next-GSQ-RCO-abliterated-GGUF:IQ3_S",
            "3db919a964b1f0ae0d1000ba7be90b3e38b1f7a3"),
+    # z4 = the z1 files with the F16 indexer projections recast to BF16 (gguf_recast.py), in a rig-local cache entry.
+    "z4": ("rig-local/Swift-1.5-Flash-Next-Heretic-V2-IQ4_XS-plus-bf16idx:IQ4_XS",
+           "bd3bca068a544d459cf42902bf21a0fac00ec853"),
 }
 
 
@@ -41,7 +44,7 @@ def test_rc_arms_default_to_k2_weights():
     assert show_arm("rc2", "131072", extra_env=TAG) == fixture("print-rc2-131072-161.txt")
 
 
-@pytest.mark.parametrize("pack", ["z1", "z3"])
+@pytest.mark.parametrize("pack", ["z1", "z3", "z4"])
 def test_rc_arms_take_pack(pack):
     model, rev = PACKS[pack]
     out = show_arm("rc2", "131072", extra_env=dict(TAG, FLASHNEXT_SPLASH_PACK=pack))

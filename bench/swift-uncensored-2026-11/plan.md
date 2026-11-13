@@ -1,6 +1,6 @@
 # Swift 1.5 uncensored no Splash 1.6.1 — runbook da campanha (2026-11-13)
 
-> **Status (2026-11-13): aprovado pelo usuário; Task 0 em curso.** Os Steps 2 a 7 da Task 0 rodaram no MacBook. Os Steps 1, 8 e 9 esperam o acesso ao rig: a chave do `mac-studio` no Tailscale expirou. Nada foi baixado. Branch: `bench/swift-uncensored-2026-11`, a partir da `main`.
+> **Status (2026-11-13): Task 0 feita; Task 1 em curso.** `z2h` e `z3h` passam no smoke. O Splash recusa o `z1h` (indexer em `F16`); o braço `z4h` é o `z1` com esses 24 tensores em `BF16`. Resultados: [etapa0-preflight.md](results/etapa0-preflight.md), [etapa0-smoke.md](results/etapa0-smoke.md). Branch: `bench/swift-uncensored-2026-11`, a partir da `main`.
 >
 > **Para agentes:** use superpowers:executing-plans. Execute as tasks em ordem. Marque cada step (`- [ ]` → `- [x]`). Pare só nas condições de "Execução".
 
@@ -28,7 +28,8 @@ Todos no Splash 1.6.1, PLE `auto`, com as flags do launcher.
 | braço | peso | revisão | GB | papel | local dos arquivos |
 |---|---|---|---:|---|---|
 | `k2h` | ukisai Swift 1.5 `IQ4_XS` | `0142554c963a8653912c0c8283f05f13f63653f3` | no rig | referência sem edição | pasta `IQ4_XS/` |
-| `z1h` | jackjusko Swift 1.5 Heretic v2 `IQ4_XS-plus` | `bd3bca068a544d459cf42902bf21a0fac00ec853` | 95.9 | candidato principal | pasta `IQ4_XS/` |
+| `z1h` | jackjusko Swift 1.5 Heretic v2 `IQ4_XS-plus` | `bd3bca068a544d459cf42902bf21a0fac00ec853` | 95.9 | **recusado pelo Splash no smoke** | pasta `IQ4_XS/` |
+| `z4h` | o `z1` com `indexer.q_proj` e `indexer.k_proj` em `BF16` (`gguf_recast.py`), só no rig | `bd3bca068a544d459cf42902bf21a0fac00ec853` | clone do `z1` | candidato principal | pasta `IQ4_XS/` |
 | `z2h` | huihui-ai v2, Swift GSQ-RCO `IQ3_S` | `cbc7fba13f1939ac3fa42b18d77ccf43847d74ef` | 83.7 | candidato | pasta `swift-IQ3_S/` |
 | `z3h` | SC117 Swift GSQ-RCO abliterated `IQ3_S` | `3db919a964b1f0ae0d1000ba7be90b3e38b1f7a3` | 83.5 | candidato | raiz |
 | `z0h` | ukisai Swift 1.5 GSQ-RCO `IQ3_S` | `99bb8f7f95c7aa7b24a36a7786a4f657b30f5d3d` | 83.7 | controle condicional | raiz |
@@ -37,7 +38,7 @@ Repos: `jackjusko/Swift-1.5-Flash-Next-Heretic-ReverseEngineer`, `huihui-ai/Huih
 
 | comparação | o que muda |
 |---|---|
-| `z1h` contra `k2h` | a edição Heretic v2, a receita e a imatrix; o nível de quantização é o mesmo |
+| `z4h` contra `k2h` | a edição Heretic v2, a receita e a imatrix; o nível de quantização é o mesmo |
 | `z2h` contra `z3h` | só a fonte da abliteração |
 | `z2h` ou `z3h` contra `z0h` | só a abliteração |
 | `z2h` ou `z3h` contra `k2h` | a abliteração e a quantização |
@@ -114,6 +115,8 @@ As horas de 2 a 4 vêm das Tasks equivalentes da splash161: 15 min por boot do `
 | `bench/swift-uncensored-2026-11/scripts/gguf_header.py` | Modify | já lê o cabeçalho por HTTP range; ganha a função `check` e o subcomando `check` |
 | `bench/swift-uncensored-2026-11/scripts/refusal_probe.py` | Create | envia os prompts e grava o veredito por prompt |
 | `bench/swift-uncensored-2026-11/scripts/summarize_refusal.py` | Create | tabela braço × conjunto |
+| `bench/swift-uncensored-2026-11/scripts/gguf_recast.py` | Create | copia os shards e regrava o indexer `F16` como `BF16`, sem perda |
+| `bench/swift-uncensored-2026-11/scripts/download-packs.sh` | Create | baixa os arquivos exatos de cada braço |
 | `bench/swift-uncensored-2026-11/scripts/run-arm.sh`, `run-queue.sh` | Create | cópia do `run-arm.sh` da splash161 com `HERE` aqui; fila com os portões |
 | `bench/qwen38-flashnext-daily-driver-2026-09/scripts/run-candidate.sh` | Modify | braços `z[0-3]h`; `FLASHNEXT_SPLASH_PACK` nos braços `rc*` |
 | `bench/swift-uncensored-2026-11/tests/` | Create | testes da regra de carga, da sonda, dos braços e da fila |
@@ -146,7 +149,7 @@ As horas de 2 a 4 vêm das Tasks equivalentes da splash161: 15 min por boot do `
 
 **Steps:**
 
-- [ ] **Step 1: Acesso ao rig.** Em 13/11, `tailscale ping mac-studio` no MacBook respondeu `peer's node key has expired`, e o SSH deu timeout. O usuário precisa reautenticar o Tailscale no rig. Confirmar `ssh -o BatchMode=yes vitor@mac-studio hostname`. Gravar em `results/etapa0-preflight.md`: macOS, disco livre, `splash --version` da 1.6.1, e o tamanho do snapshot `0142554`.
+- [x] **Step 1: Acesso ao rig.** Em 13/11, `tailscale ping mac-studio` no MacBook respondeu `peer's node key has expired`, e o SSH deu timeout. O usuário precisa reautenticar o Tailscale no rig. Confirmar `ssh -o BatchMode=yes vitor@mac-studio hostname`. Gravar em `results/etapa0-preflight.md`: macOS, disco livre, `splash --version` da 1.6.1, e o tamanho do snapshot `0142554`.
 - [x] **Step 2: Branch.** Criar `bench/swift-uncensored-2026-11` a partir da `main`, se o PR da splash161 já tiver merge; senão, a partir de `bench/splash161-2026-11`.
 - [x] **Step 3: Testes que falham**, em `tests/test_header.py`, `tests/test_refusal.py`, `tests/test_arms.py` e `tests/test_queue.py`:
 
@@ -172,17 +175,18 @@ As horas de 2 a 4 vêm das Tasks equivalentes da splash161: 15 min por boot do `
 - [x] **Step 5: Implementar.** Gravar as fixtures de `test_k_arms_stay_the_same` e de `test_rc_arms_default_to_k2_weights` antes de mudar o `run-candidate.sh`.
 - [x] **Step 6: Rodar e ver que passam.** As suítes de `bench/splash161-2026-11/tests` e de `bench/flashnext-weights-2026-11/tests` também passam.
 - [x] **Step 7: Conferir o cabeçalho de cada pack** com `gguf_header.py check`, na revisão da tabela. Conferir que o `IQ3_S` existe na revisão `99bb8f7` do repo da UkisAI. Um pack com violação sai da fila sem download.
-- [ ] **Step 8: Baixar** `z1`, `z2` e `z3` no rig com `hf download <repo> --revision <rev> --include '<glob>'`. Conferir o disco antes (263.1 GB) e o tamanho depois. O `z0` só baixa se a Task 3 pedir.
-- [ ] **Step 9: Smoke.** `run-arm.sh <braço> 32768 --repeat 1 --tag smoke` em `z1h`, `z2h` e `z3h`. Gravar em `results/etapa0-smoke.md`: tempo até `/health`, wired peak, needles e o erro de cada braço que não subir.
-- [ ] **Step 10: Variante não resolvida.** Se o Splash não achar a variante do `z2h` ou do `z3h`, montar no cache do Hugging Face um snapshot com uma pasta `IQ3_S/` de symlinks e usar `--offline`, como no `k2m`. Escrever antes o teste do `--print` do braço. Se ele ainda recusar, o braço sai da fila.
-- [ ] **Step 11: Commit.** `bench(swift-uncensored): Task 0 — arms, header check, refusal probe, queue`.
+- [x] **Step 8: Baixar** `z1`, `z2` e `z3` no rig com `hf download <repo> --revision <rev> --include '<glob>'`. Conferir o disco antes (263.1 GB) e o tamanho depois. O `z0` só baixa se a Task 3 pedir.
+- [x] **Step 9: Smoke.** `run-arm.sh <braço> 32768 --repeat 1 --tag smoke` em `z1h`, `z2h` e `z3h`. Gravar em `results/etapa0-smoke.md`: tempo até `/health`, wired peak, needles e o erro de cada braço que não subir.
+- [x] **Step 10: Variante não resolvida.** Se o Splash não achar a variante do `z2h` ou do `z3h`, montar no cache do Hugging Face um snapshot com uma pasta `IQ3_S/` de symlinks e usar `--offline`, como no `k2m`. Escrever antes o teste do `--print` do braço. Se ele ainda recusar, o braço sai da fila.
+- [x] **Step 10b: Recast do `z1`.** Emenda de 13/11: o Splash recusa o `z1h` por `indexer.*_proj` em `F16`. `gguf_recast.py <snapshot do z1>/IQ4_XS <cache rig-local>/snapshots/<rev>/IQ4_XS` gera o `z4`. O smoke do `z4h` roda depois da fila da Task 1; se o Splash o recusar, o braço sai da fila.
+- [x] **Step 11: Commit.** `bench(swift-uncensored): Task 0 — arms, header check, refusal probe, queue`.
 
 ### Task 1: Sonda de recusa
 
 **Files:** `results/refusal-<braço>-<conjunto>.jsonl`, `results/etapa1-recusa.md`; textos em `logs/`.
 
 - [ ] **Step 1: Conjuntos.** Baixar para `logs/datasets/` o `harmful_behaviors.csv` do AdvBench (repo `llm-attacks/llm-attacks`, `data/advbench/`) e os comportamentos nocivos do JBB-Behaviors (dataset `JailbreakBench/JBB-Behaviors` no Hugging Face). Gravar o SHA-256 e o commit de cada arquivo em `results/etapa1-recusa.md`. Os arquivos não entram no git.
-- [ ] **Step 2: Fila.** Gravar os dois conjuntos como `logs/datasets/advbench.csv` (coluna `goal`) e `logs/datasets/jbb.csv` (coluna `Goal`). `run-queue.sh refusal k2h z1h z2h z3h`, a 32768. Cada braço roda os dois conjuntos, com 100 prompts cada.
+- [ ] **Step 2: Fila.** Gravar os dois conjuntos como `logs/datasets/advbench.csv` (coluna `goal`) e `logs/datasets/jbb.csv` (coluna `Goal`). `run-queue.sh refusal k2h z2h z3h`, e depois `z4h` se ele passar no smoke, a 32768. Cada braço roda os dois conjuntos, com 100 prompts cada.
 - [ ] **Step 3: Auditoria.** De cada braço `z`, ler 20 respostas `complied` de `logs/`, escolhidas com `random.Random(20261113).sample`. Contar quantas respondem ao pedido de fato. Gravar só a contagem.
 - [ ] **Step 4: Resumo.** `summarize_refusal.py`. Gravar `results/etapa1-recusa.md` com a tabela, a contagem da auditoria, a mediana de `reasoning_chars` e o veredito da regra "Recusa" por braço.
 - [ ] **Step 5: Commit.**
@@ -193,16 +197,16 @@ As horas de 2 a 4 vêm das Tasks equivalentes da splash161: 15 min por boot do `
 
   | banda | ordem |
   |---|---|
-  | 32768 | `k2h`, `z1h`, `z2h`, `z3h`, `z3h`, `z2h`, `z1h`, `k2h` |
-  | 131072 | `z3h`, `z2h`, `z1h`, `k2h`, `k2h`, `z1h`, `z2h`, `z3h` |
-  | 262144 | `k2h`, `z1h`, `z2h`, `z3h`, `z3h`, `z2h`, `z1h`, `k2h` |
+  | 32768 | `k2h`, `z4h`, `z2h`, `z3h`, `z3h`, `z2h`, `z4h`, `k2h` |
+  | 131072 | `z3h`, `z2h`, `z4h`, `k2h`, `k2h`, `z4h`, `z2h`, `z3h` |
+  | 262144 | `k2h`, `z4h`, `z2h`, `z3h`, `z3h`, `z2h`, `z4h`, `k2h` |
 
 - [ ] **Step 2: Resumo.** `decide.py --base k2h --cand <braço> --ctx 32768,131072,262144 --mode le --threshold 1.05` para cada braço. Gravar `results/etapa2-um-stream.md` com: cold TTFT, warm TTFT, hit, decode, prefill, wired peak, livre mínimo e swap Δ.
 - [ ] **Step 3: Commit.**
 
 ### Task 3: Qualidade e thinking tokens
 
-Ordem dos braços: `z1h`, `z2h`, e o `z3h` só pelo portão de "Execução". Contexto 262144.
+Ordem dos braços: `z4h`, `z2h`, e o `z3h` só pelo portão de "Execução". Contexto 262144.
 
 - [ ] **Step 0: Fila.** `run-queue.sh quality <braço>...` roda os Steps 1 a 3 de cada braço.
 - [ ] **Step 1: Bateria.** `run-battery.sh <braço> su1 --suites "humaneval gpqa livecodebench if jdhodges veerman" --ctx 262144`, com `BATTERY_CAMPAIGN_DIR` nesta campanha e effort `xhigh`. Commitar os JSONL por questão.

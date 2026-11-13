@@ -57,8 +57,18 @@ def test_check_refuses_a_mixed_family(gh):
 def test_check_matches_recorded_headers(gh):
     rec = json.loads(RECORDED.read_text())
     passed = {label for label, v in rec.items() if gh.check(v["fam"]) == []}
-    assert passed == {"k2", "k8", "jj-iq4xs", "hh-swift-iq3s", "sc-iq3s"}
-    assert set(rec) - passed == {"jj-iq3s", "fz-iq4xs", "xop-q4km"}
+    assert passed == {"k2", "k8", "hh-swift-iq3s", "sc-iq3s"}
+    assert set(rec) - passed == {"jj-iq4xs", "jj-iq3s", "fz-iq4xs", "xop-q4km"}
+
+
+def test_check_refuses_f16_indexer(gh):
+    # Splash 1.6.1 on the rig, 2026-11-13: "GGUF tensors this build cannot load: indexer.q_proj.weight (F16) in 12
+    # layers, indexer.k_proj.weight (F16) in 12 layers" for the jackjusko IQ4_XS-plus pack. Every pack that loads has BF16.
+    ok = {"blk.N.indexer.q_proj.weight": {"BF16": 12}, "blk.N.indexer.k_proj.weight": {"BF16": 12},
+          "blk.N.ple_conv1d.weight": {"F16": 1}}
+    assert gh.check(ok) == []
+    bad = gh.check({"blk.N.indexer.q_proj.weight": {"F16": 12}, "blk.N.indexer.k_proj.weight": {"F16": 12}})
+    assert len(bad) == 2 and all("F16 x12" in line for line in bad)
 
 
 def test_check_cli_exits_1_on_a_violation(gh, capsys):

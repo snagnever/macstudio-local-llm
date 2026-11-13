@@ -6,7 +6,8 @@ usage: gguf_header.py scan --out FILE '<label>|<repo>|<revision>|<glob>' [...]
 
 scan writes, per label, the files, the tensor count, the general.* and split.* metadata and the tensor types of
 each tensor family (the tensor name with the block number replaced by N). check prints the tensors that Splash
-refuses and exits 1 if there is one: Splash loads hc_attn_inject and hc_ffn_inject only as F32, BF16 or Q8_0.
+refuses and exits 1 if there is one: Splash loads hc_attn_inject and hc_ffn_inject only as F32, BF16 or Q8_0, and
+it refuses indexer.q_proj and indexer.k_proj in F16.
 """
 import json,struct,sys,urllib.request,re,collections,fnmatch
 T={0:'F32',1:'F16',2:'Q4_0',3:'Q4_1',6:'Q5_0',7:'Q5_1',8:'Q8_0',9:'Q8_1',10:'Q2_K',11:'Q3_K',12:'Q4_K',13:'Q5_K',14:'Q6_K',15:'Q8_K',16:'IQ2_XXS',17:'IQ2_XS',18:'IQ3_XXS',19:'IQ1_S',20:'IQ4_NL',21:'IQ3_S',22:'IQ2_S',23:'IQ4_XS',24:'I8',25:'I16',26:'I32',27:'I64',28:'F64',29:'IQ1_M',30:'BF16'}
@@ -64,6 +65,8 @@ def scan(repo,rev,pat):
 
 FLOAT_ROW_TYPES = ("F32", "BF16", "Q8_0")
 INJECT = ("hc_attn_inject.weight", "hc_ffn_inject.weight")
+# Splash 1.6.1 refuses the QSA indexer projections in F16 (seen on the rig, 2026-11-13); every pack that loads has BF16.
+INDEXER = ("indexer.q_proj.weight", "indexer.k_proj.weight")
 
 
 def check(fam):
@@ -72,6 +75,8 @@ def check(fam):
     for name in sorted(fam):
         if name.endswith(INJECT):
             bad += [f"{name}: {ty} x{n}" for ty, n in sorted(fam[name].items()) if ty not in FLOAT_ROW_TYPES]
+        if name.endswith(INDEXER) and "F16" in fam[name]:
+            bad.append(f"{name}: F16 x{fam[name]['F16']}")
     return bad
 
 

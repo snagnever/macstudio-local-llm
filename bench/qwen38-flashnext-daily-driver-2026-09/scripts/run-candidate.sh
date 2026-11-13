@@ -22,7 +22,7 @@
 #   claude-code-concurrency-2026-11: rc*/rm* = real Claude Code sessions (run-claude-pair.sh) on k2c1 / w1zc1 servers
 set -euo pipefail
 
-CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1c1|w1c1a|w1c1x2|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8|w1c2ap3|w1c2ap5|w1c3a|w1zc1|w1zc2a|k2c1|k2c1a|k2c1x2|k2c2|k2c2a|k2c3a|k2c4|k2c4a|k2c2L|k2c2LL|k2c2Ls|k2c2ad1|k2c2ad0|k2c2v|rc1|rc2|rc2s|rc2d|rm1|rm2|rm2s|w1z|n2z|t6z|k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|k3r|k3f|k2f|k2g|k3g|k2h|z0h|z1h|z2h|z3h|w1zq4|n2zq4|r1zy|r1|r1z> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
+CAND="${1:?uso: $0 <c1|c2|c3|c4|u1|u2|n1|n2|n2p|n2o|n2o2|n2q4|w1|m1|m1b|m1t|m1h|m1th|m1p|m1hp|m1v|m1x|m1q|m1xq|m1s|o1|d1|r27|r27b|m27|m27f|o27|s27|s27g|s27r|n2x|n2xd|w1x|w1q4|w1xq4|w1c8|w1xc8|w1p8|w1xp8|o1rm|s1m|w1t|n2t|o1x|o1r|x1|g0|g1|g1m|o27q8|o27q4|o27sw|r27d|r27m|w27d|w27m|k27|l27|l27n|w1c1|w1c1a|w1c1x2|w1c2|w1c2a|w1c2m8|w1c4|w1c4a|w1c2L|w1c2m4|w1c2q8|w1c2m4q8|w1c2ap3|w1c2ap5|w1c3a|w1zc1|w1zc2a|k2c1|k2c1a|k2c1x2|k2c2|k2c2a|k2c3a|k2c4|k2c4a|k2c2L|k2c2LL|k2c2Ls|k2c2ad1|k2c2ad0|k2c2v|rc1|rc2|rc2s|rc2d|rm1|rm2|rm2s|w1z|n2z|t6z|k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|k3r|k3f|k2f|k2g|k3g|k2h|z0h|z1h|z2h|z3h|z4h|w1zq4|n2zq4|r1zy|r1|r1z> <ctx> [--scenarios a,b] [--repeat N] [--temperature T] [--tag X] [--yarn F] [--generation-mode M] [--exec CMD] [--print]}"
 CTX="${2:?ctx obrigatorio}"; shift 2
 SCENARIOS=""; REPEAT=1; TEMP=1.0; TAG=""; YARN=""; GENMODE=""; PRINT=""; EXEC_CMD=""
 # A bateria troca o probe só quando o chamador passa --exec. Um FLASHNEXT_EXEC herdado do shell é ignorado.
@@ -98,10 +98,13 @@ case "$SPLASH_CONC_TAG" in 1.5.0|1.6.0|1.6.1) ;; *) echo "FLASHNEXT_SPLASH_TAG m
 SPLASH_XARGS="${FLASHNEXT_SPLASH_XARGS:+ $FLASHNEXT_SPLASH_XARGS}"
 SPLASH_REVX="${FLASHNEXT_SPLASH_REVX:-}"
 SPLASH_CONC_BIN="$OPT/splash-v$SPLASH_CONC_TAG/bin/splash"
-# Campaign swift-uncensored-2026-11: Swift 1.5 GGUFs with the refusal direction removed, on Splash 1.6.1 (arms z[0-3]h).
+# Campaign swift-uncensored-2026-11: Swift 1.5 GGUFs with the refusal direction removed, on Splash 1.6.1 (arms z[0-4]h).
 # z0 = UkisAI Swift 1.5 GSQ-RCO IQ3_S (the unedited control), z1 = jackjusko Heretic v2 IQ4_XS-plus, z2 = huihui-ai
 # abliterated v2 on the Swift GSQ-RCO IQ3_S, z3 = SC117 abliterated Swift GSQ-RCO IQ3_S. FLASHNEXT_SPLASH_PACK moves
 # the rc* arms to one of these packs; k2 (the default) keeps the UkisAI Swift 1.5 IQ4_XS.
+# Splash 1.6.1 refuses z1: its indexer.q_proj and indexer.k_proj tensors are F16. z4 = the z1 files with those 24
+# tensors recast to BF16 without loss (swift-uncensored-2026-11/scripts/gguf_recast.py), in an HF cache entry that
+# exists only on the rig and keeps the revision of z1.
 splash_pack() {
   case "$1" in
     k2) HUB=ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF; VARIANT=IQ4_XS; MODEL_REV=0142554c963a8653912c0c8283f05f13f63653f3 ;;
@@ -109,7 +112,8 @@ splash_pack() {
     z1) HUB=jackjusko/Swift-1.5-Flash-Next-Heretic-ReverseEngineer; VARIANT=IQ4_XS; MODEL_REV=bd3bca068a544d459cf42902bf21a0fac00ec853 ;;
     z2) HUB=huihui-ai/Huihui-Qwen3.8-Flash-Next-abliterated-v2-GGUF; VARIANT=swift-IQ3_S; MODEL_REV=cbc7fba13f1939ac3fa42b18d77ccf43847d74ef ;;
     z3) HUB=SC117/Swift-1.5-Qwen3.8-Flash-Next-GSQ-RCO-abliterated-GGUF; VARIANT=IQ3_S; MODEL_REV=3db919a964b1f0ae0d1000ba7be90b3e38b1f7a3 ;;
-    *) echo "FLASHNEXT_SPLASH_PACK must be k2, z0, z1, z2 or z3" >&2; exit 64 ;;
+    z4) HUB=rig-local/Swift-1.5-Flash-Next-Heretic-V2-IQ4_XS-plus-bf16idx; VARIANT=IQ4_XS; MODEL_REV=bd3bca068a544d459cf42902bf21a0fac00ec853 ;;
+    *) echo "FLASHNEXT_SPLASH_PACK must be k2, z0, z1, z2, z3 or z4" >&2; exit 64 ;;
   esac
 }
 SPLASH_PACK="${FLASHNEXT_SPLASH_PACK:-k2}"
@@ -474,7 +478,7 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         export QWEN38_MLX_CONFIG_OVERRIDES="{\"text_config\":{\"rope_parameters\":{\"rope_type\":\"yarn\",\"factor\":${YARN},\"original_max_position_embeddings\":262144},\"max_position_embeddings\":${CTX}}}"
         REV="${REV}-yarn${YARN}-kv4"
       fi ;;
-  k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|k3r|k3f|k2f|k2g|k3g|k1f|k1g|k4f|k4g|k5f|k5g|k6f|k6g|k7f|k7g|k8f|k8g|k1h|k2h|k3h|k4h|k5h|k6h|k7h|k8h|z0h|z1h|z2h|z3h)
+  k1|k1a|k2|k2a|k2ab|k2as|k2m|k3|k3a|k3ab|k3ma|k3r|k3f|k2f|k2g|k3g|k1f|k1g|k4f|k4g|k5f|k5g|k6f|k6g|k7f|k7g|k8f|k8g|k1h|k2h|k3h|k4h|k5h|k6h|k7h|k8h|z0h|z1h|z2h|z3h|z4h)
       # flashnext-weights-2026-11: k1f/k1g = k1a on Splash 1.5.0/1.6.0; k4* = ISTA-DASLab GSQ-RCO Q2_0 at ed59f92;
       # k5* = unsloth UD-IQ3_XXS and k6* = unsloth UD-IQ4_XS, both Dynamic V3.1 at 084c631. Suffix f/g = release.
       # k7* = BottleCap ThinkingCap IQ4_XS at 2a053f7; k8* = UkisAI Swift 1.5 GSQ-RCO Q2_0 at 99bb8f7. Both split at the repo root.
@@ -505,7 +509,7 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
         k8*) HUB=ukisai/Swift-1.5-Qwen3.8-Flash-Next-GSQ-RCO-GGUF; VARIANT=Q2_0; MODEL_REV=99bb8f7f95c7aa7b24a36a7786a4f657b30f5d3d ;;
         k2m) HUB=Dankpaws/Swift1.5-Qwen3.8-Flash-Next-MLX-4.7bpw; VARIANT=""; MODEL_REV=13839b7191e0973ff9fea58232267c395b76c6c0 ;;
         k2*) HUB=ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF; VARIANT=IQ4_XS; MODEL_REV=0142554c963a8653912c0c8283f05f13f63653f3 ;;
-        z[0-3]h) splash_pack "${CAND%h}" ;;
+        z[0-4]h) splash_pack "${CAND%h}" ;;
         k3*) HUB=ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF; VARIANT=IQ1_M; MODEL_REV=bba88856f8c3c0c9e40e45f82d05e228b814ac43 ;;
       esac
       MODEL_DIR="$HOME/.cache/huggingface/hub/models--${HUB//\//--}"
@@ -520,8 +524,8 @@ print(f"{int(ok)} {found_factor} {found_ctx}")
       [[ "$CAND" == k3r ]] && { SBIN="$SPLASH_141"; SREV=v1.4.1; SVER=1.4.1; }
       [[ "$CAND" == k[1-8]f ]] && { SBIN="$SPLASH_150"; SREV=v1.5.0; SVER=1.5.0; }
       [[ "$CAND" == k[1-8]g ]] && { SBIN="$SPLASH_160"; SREV=v1.6.0; SVER=1.6.0; }
-      [[ "$CAND" == k[1-8]h || "$CAND" == z[0-3]h ]] && { SBIN="$SPLASH_161"; SREV=v1.6.1; SVER=1.6.1; }
-      case "$CAND" in k[1-8][fgh]|z[0-3]h) KVF="$KVF$SPLASH_XARGS"; REVX="$REVX$SPLASH_REVX" ;; esac
+      [[ "$CAND" == k[1-8]h || "$CAND" == z[0-4]h ]] && { SBIN="$SPLASH_161"; SREV=v1.6.1; SVER=1.6.1; }
+      case "$CAND" in k[1-8][fgh]|z[0-4]h) KVF="$KVF$SPLASH_XARGS"; REVX="$REVX$SPLASH_REVX" ;; esac
       REV="$SREV-verify-$VR$REVX"
       export SPLASH_MODEL="$MODEL_ID_PREF" SPLASH_REVISION="$MODEL_REV" QWEN38_CTX_SIZE="$CTX"
       export QWEN38_SPLASH_BIN="$SBIN" QWEN38_SPLASH_EXPECTED_VERSION="$SVER" QWEN38_SPLASH_PORT=8585
