@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-label="A rubber ducky floating on a soapy bathtub">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cfe9f7"/>
+      <stop offset="1" stop-color="#a9d4ec"/>
+    </linearGradient>
+    <linearGradient id="tub" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#eef4f8"/>
+      <stop offset="1" stop-color="#c9d6de"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bfe6f5"/>
+      <stop offset="1" stop-color="#7fc4e6"/>
+    </linearGradient>
+    <linearGradient id="foam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8f4fb"/>
+    </linearGradient>
+    <radialGradient id="duckbody" cx="0.4" cy="0.35" r="0.8">
+      <stop offset="0" stop-color="#ffe977"/>
+      <stop offset="1" stop-color="#f5b21c"/>
+    </radialGradient>
+    <radialGradient id="duckhead" cx="0.4" cy="0.3" r="0.85">
+      <stop offset="0" stop-color="#fff08a"/>
+      <stop offset="1" stop-color="#f7bd2a"/>
+    </radialGradient>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="600" fill="url(#wall)"/>
+  <g fill="#ffffff" opacity="0.35">
+    <circle cx="130" cy="110" r="34"/>
+    <circle cx="670" cy="150" r="46"/>
+    <circle cx="420" cy="70" r="24"/>
+  </g>
+
+  <!-- tub body -->
+  <g>
+    <path d="M120 250 q0 -40 40 -40 h480 q40 0 40 40 v70 q0 150 -160 150 h-240 q-160 0 -160 -150 z" fill="url(#tub)" stroke="#aebcc6" stroke-width="4"/>
+    <ellipse cx="400" cy="250" rx="280" ry="42" fill="#f7fbfd" stroke="#aebcc6" stroke-width="4"/>
+    <ellipse cx="400" cy="250" rx="250" ry="28" fill="#dcebf3"/>
+
+    <!-- feet -->
+    <path d="M175 452 q-26 40 6 52 q26 8 34 -18 q6 -22 -14 -34 z" fill="#b98a4e" stroke="#8a6435" stroke-width="3"/>
+    <path d="M625 452 q26 40 -6 52 q-26 8 -34 -18 q-6 -22 14 -34 z" fill="#b98a4e" stroke="#8a6435" stroke-width="3"/>
+  </g>
+
+  <!-- water -->
+  <path d="M150 292 h500 v30 q0 120 -150 120 h-200 q-150 0 -150 -120 z" fill="url(#water)"/>
+
+  <!-- ducky -->
+  <g>
+    <ellipse cx="400" cy="340" rx="96" ry="60" fill="url(#duckbody)"/>
+    <path d="M470 300 q52 -18 44 12 q-8 30 -56 26 z" fill="#f9c530"/>
+    <circle cx="392" cy="252" r="60" fill="url(#duckhead)"/>
+    <path d="M344 238 q-42 8 -46 32 q-2 14 16 24 q14 6 28 -6 z" fill="#f39b12"/>
+    <path d="M300 262 q-14 10 2 22 q18 12 42 2 q-30 -4 -44 -24 z" fill="#e07d0c"/>
+    <circle cx="410" cy="234" r="11" fill="#3a2a1a"/>
+    <circle cx="414" cy="230" r="3.5" fill="#ffffff"/>
+    <path d="M356 210 q34 -34 76 -12 q-38 -6 -76 12 z" fill="#fff3a8" opacity="0.7"/>
+  </g>
+
+  <!-- foam and bubbles -->
+  <path d="M150 292 q40 -26 84 -4 q40 22 82 -6 q42 -26 84 2 q42 26 84 -4 q40 -26 82 6 q38 22 84 6 v30 q-40 18 -84 -2 q-42 -20 -84 2 q-42 22 -84 -2 q-40 -22 -84 4 q-40 24 -84 -2 q-38 -22 -84 6 z" fill="url(#foam)" opacity="0.95"/>
+  <g fill="#ffffff" opacity="0.9">
+    <circle cx="200" cy="300" r="18"/>
+    <circle cx="232" cy="288" r="13"/>
+    <circle cx="258" cy="302" r="16"/>
+    <circle cx="540" cy="296" r="19"/>
+    <circle cx="574" cy="308" r="14"/>
+    <circle cx="608" cy="294" r="12"/>
+    <circle cx="360" cy="316" r="11"/>
+    <circle cx="466" cy="318" r="13"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="2" opacity="0.85">
+    <circle cx="300" cy="180" r="14"/>
+    <circle cx="330" cy="150" r="9"/>
+    <circle cx="500" cy="170" r="16"/>
+    <circle cx="530" cy="140" r="10"/>
+    <circle cx="260" cy="210" r="7"/>
+    <circle cx="560" cy="205" r="8"/>
+    <circle cx="640" cy="180" r="12"/>
+    <circle cx="170" cy="160" r="9"/>
+  </g>
+
+  <!-- faucet -->
+  <g fill="#c3ccd3" stroke="#8f9aa3" stroke-width="3">
+    <path d="M660 250 v-96 q0 -18 20 -18 h20 q18 0 18 18 v18" fill="none"/>
+    <rect x="690" y="86" width="54" height="16" rx="6"/>
+    <rect x="646" y="238" width="52" height="16" rx="6"/>
+  </g>
+
+  <!-- highlights -->
+  <ellipse cx="255" cy="420" rx="120" ry="26" fill="#ffffff" opacity="0.18"/>
+</svg>

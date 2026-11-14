@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>09-conclusion</title><style>
+html,body{margin:0; width:1200px; height:1200px; background:#fbfaf7; color:#0b0b0b;
+  font-family:-apple-system,"SF Pro Text","Inter",Helvetica,Arial,sans-serif}
+.s{width:1200px; height:1200px; padding:64px 68px; box-sizing:border-box; display:flex; flex-direction:column; position:relative}
+.main{flex:1; display:flex; flex-direction:column; justify-content:center; gap:24px}
+.eyebrow{font-family:"SF Mono",Menlo,monospace; font-size:17px; letter-spacing:0.14em; text-transform:uppercase; color:#898781; margin:0}
+h1{font-size:54px; line-height:1.08; letter-spacing:-0.025em; margin:0}
+h2{font-size:42px; line-height:1.12; letter-spacing:-0.02em; margin:0; max-width:1000px}
+.lead{font-size:25px; color:#52514e; line-height:1.4; margin:0; max-width:1020px}
+.lead b{color:#0b0b0b}
+.tiles{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+.tile{background:#f0eee8; border-radius:16px; padding:22px 26px}
+.t-val{font-size:64px; font-weight:700; letter-spacing:-0.025em; display:block; line-height:1.05}
+.t-val small{font-size:28px; font-weight:600; color:#52514e}
+.t-lab{font-size:21px; color:#52514e; line-height:1.3; margin-top:6px; display:block}
+.panel{background:#fcfcfb; border:1px solid rgba(11,11,11,0.10); border-radius:16px; padding:22px 24px 14px}
+.panel svg{display:block}
+.legend{display:flex; flex-wrap:wrap; gap:14px 30px; font-size:22px; color:#52514e}
+.lg{display:inline-flex; align-items:center; gap:10px}
+.read{font-size:24px; line-height:1.4; color:#52514e; margin:0}
+.read b{color:#0b0b0b}
+.foot{margin-top:auto; display:flex; justify-content:space-between; font-size:18px; color:#898781}
+table{border-collapse:collapse; width:100%; font-size:22px}
+th{text-align:left; font-weight:500; color:#898781; font-size:18px; padding:0 12px 12px 0; border-bottom:1px solid #c3c2b7}
+td{padding:16px 12px 16px 0; border-bottom:1px solid #e1e0d9; vertical-align:top; line-height:1.3}
+td.n{font-weight:700; white-space:nowrap}
+td small{display:block; color:#898781; font-size:17px; font-weight:400}
+.sw{display:inline-block; width:16px; height:16px; border-radius:4px; margin-right:12px; vertical-align:-1px}
+.callout{display:flex; gap:28px; align-items:center; background:#f0eee8; border-radius:16px; padding:22px 26px}
+.c-big{font-size:56px; font-weight:700; letter-spacing:-0.025em; white-space:nowrap}
+.c-txt{font-size:22px; color:#52514e; line-height:1.4}
+pre{margin:0; font-family:"SF Mono",Menlo,monospace; font-size:19px; line-height:1.5; white-space:pre-wrap; word-break:break-all; background:#f0eee8; border-radius:14px; padding:20px 24px}
+ul.tips{margin:0; padding-left:28px; font-size:23px; line-height:1.45; color:#52514e}
+ul.tips b{color:#0b0b0b}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+.hbars text{font-family:-apple-system,Helvetica,Arial,sans-serif}
+</style></head><body><div class="s"><div class="main">
+<p class="eyebrow">Conclusion</p>
+<h2>Use mlx-serve 26.10.1 with the ddalcu iQ-MLX 4.7 bpw quant</h2>
+<p class="lead">Shortest agent turn at every size from 8K to 512K, and the only server under 15 s at 512K. Runner-up:
+oMLX 0.7.0 (12.1 s at 128K), but it stops at 256K.</p>
+<pre>mlx-serve --model ~/models/Qwen3.8-Flash-Next-MLX-Serve-iQ-MLX-4.7bpw \
+  --serve --port 11234 --ctx-size 262144 --mtp --ssm-checkpoint-max 16 \
+  --prefix-cache-mem 16GB --prefix-cache-disk 100GB --prefix-cache-entries 64</pre>
+<ul class="tips">
+  <li><b>Keep the start of the prompt stable.</b> A change there invalidates the cache for everything after it.</li>
+  <li><b>Add to the end.</b> A fork, a compaction or an edit halfway costs 9 min at 512K; a new message at the end costs seconds.</li>
+  <li><b>Plan for the first load:</b> about 3 min at 128K, 13 min at 512K. Then stay in the session.</li>
+  <li><b>512K</b> needs YaRN 2.0 and the 4-bit KV cache; flags and all values on the page.</li>
+</ul>
+<p class="read"><b>snagnever.github.io/macstudio-local-llm/qwen38-flashnext-m4max-guide.html</b></p></div><p class="foot"><span>Qwen3.8-Flash-Next · Apple M4 Max 128 GB · October 2026</span><span>9 / 9</span></p></div></body></html>

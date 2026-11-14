@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8ec9ef"/>
+      <stop offset="1" stop-color="#d9eefb"/>
+    </linearGradient>
+    <linearGradient id="soil" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a5a33"/>
+      <stop offset="1" stop-color="#6b4423"/>
+    </linearGradient>
+  </defs>
+
+  <!-- sky -->
+  <rect x="0" y="0" width="960" height="330" fill="url(#sky)"/>
+  <circle cx="850" cy="80" r="46" fill="#ffd94d"/>
+  <circle cx="850" cy="80" r="60" fill="#ffd94d" opacity="0.25"/>
+
+  <!-- clouds -->
+  <g fill="#ffffff" opacity="0.9">
+    <ellipse cx="180" cy="80" rx="60" ry="22"/>
+    <ellipse cx="230" cy="70" rx="45" ry="18"/>
+    <ellipse cx="140" cy="70" rx="35" ry="15"/>
+    <ellipse cx="520" cy="120" rx="55" ry="18"/>
+    <ellipse cx="565" cy="110" rx="38" ry="14"/>
+  </g>
+
+  <!-- distant hills -->
+  <path d="M0,330 Q160,240 340,320 Q480,260 640,315 Q800,250 960,320 L960,340 L0,340 Z" fill="#7fb069"/>
+
+  <!-- barn on the hill -->
+  <g>
+    <rect x="70" y="270" width="90" height="55" fill="#b5432e"/>
+    <polygon points="60,270 115,235 170,270" fill="#7c2d1c"/>
+    <rect x="103" y="295" width="24" height="30" fill="#5a1f12"/>
+    <rect x="82" y="282" width="16" height="14" fill="#e8d8b0"/>
+    <rect x="132" y="282" width="16" height="14" fill="#e8d8b0"/>
+  </g>
+
+  <!-- tree -->
+  <g>
+    <rect x="640" y="270" width="14" height="55" fill="#6b4a2b"/>
+    <circle cx="647" cy="250" r="38" fill="#4e8c3f"/>
+    <circle cx="620" cy="265" r="26" fill="#5da24c"/>
+    <circle cx="675" cy="265" r="26" fill="#5da24c"/>
+  </g>
+
+  <!-- grass field (unplowed ground the cow walks on) -->
+  <rect x="0" y="330" width="960" height="270" fill="#7cae5a"/>
+
+  <!-- plowed soil: only behind the plow blade -->
+  <path d="M700,600 L660,510 L648,420 L672,340 L960,340 L960,600 Z" fill="url(#soil)"/>
+
+  <!-- furrow lines starting at the plow, fanning right -->
+  <g stroke="#4a2e14" stroke-width="6" fill="none" stroke-linecap="round">
+    <path d="M685,372 L960,372"/>
+    <path d="M672,415 L960,422"/>
+    <path d="M668,468 L960,482"/>
+    <path d="M678,535 L960,552"/>
+  </g>
+  <g stroke="#a4744a" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8">
+    <path d="M678,393 L960,396"/>
+    <path d="M668,440 L960,450"/>
+    <path d="M670,500 L960,515"/>
+  </g>
+
+  <!-- grass tufts on unplowed side -->
+  <g stroke="#4e7a34" stroke-width="3" fill="none" stroke-linecap="round">
+    <path d="M60,420 l-6,-18 M60,420 l0,-20 M60,420 l6,-18"/>
+    <path d="M150,500 l-6,-20 M150,500 l0,-24 M150,500 l6,-20"/>
+    <path d="M90,560 l-7,-22 M90,560 l0,-26 M90,560 l7,-22"/>
+    <path d="M230,440 l-6,-18 M230,440 l0,-22 M230,440 l6,-18"/>
+    <path d="M40,470 l-6,-18 M40,470 l0,-20 M40,470 l6,-18"/>
+    <path d="M180,560 l-6,-20 M180,560 l0,-24 M180,560 l6,-20"/>
+    <path d="M300,555 l-6,-20 M300,555 l0,-24 M300,555 l6,-20"/>
+  </g>
+
+  <!-- ground shadows -->
+  <ellipse cx="400" cy="510" rx="150" ry="16" fill="#000000" opacity="0.12"/>
+  <ellipse cx="790" cy="548" rx="55" ry="10" fill="#000000" opacity="0.12"/>
+  <ellipse cx="665" cy="522" rx="45" ry="9" fill="#000000" opacity="0.12"/>
+
+  <!-- ==================== COW (facing left) ==================== -->
+  <g>
+    <!-- tail -->
+    <path d="M508,352 Q548,380 536,450" stroke="#c8935f" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <ellipse cx="537" cy="458" rx="9" ry="14" fill="#6b4423"/>
+
+    <!-- far legs (darker) -->
+    <rect x="330" y="430" width="20" height="72" rx="8" fill="#b07d4a"/>
+    <rect x="455" y="430" width="20" height="72" rx="8" fill="#b07d4a"/>
+    <rect x="330" y="492" width="20" height="14" rx="4" fill="#4a3320"/>
+    <rect x="455" y="492" width="20" height="14" rx="4" fill="#4a3320"/>
+
+    <!-- body -->
+    <ellipse cx="400" cy="388" rx="118" ry="64" fill="#d9a066"/>
+    <!-- patches -->
+    <ellipse cx="445" cy="365" rx="42" ry="27" fill="#ffffff" opacity="0.85"/>
+    <ellipse cx="355" cy="412" rx="34" ry="24" fill="#ffffff" opacity="0.85"/>
+
+    <!-- udder tucked between hind legs -->
+    <ellipse cx="448" cy="440" rx="22" ry="15" fill="#f2b8c0"/>
+
+    <!-- near legs -->
+    <rect x="300" y="432" width="22" height="76" rx="8" fill="#d9a066"/>
+    <rect x="485" y="432" width="22" height="76" rx="8" fill="#d9a066"/>
+    <rect x="300" y="496" width="22" height="14" rx="4" fill="#3a2814"/>
+    <rect x="485" y="496" width="22" height="14" rx="4" fill="#3a2814"/>
+
+    <!-- neck -->
+    <path d="M310,338 Q276,322 258,336 L268,392 Q300,408 322,392 Z" fill="#d9a066"/>
+    <!-- head -->
+    <ellipse cx="252" cy="352" rx="40" ry="33" fill="#d9a066"/>
+    <!-- muzzle -->
+    <ellipse cx="226" cy="370" rx="27" ry="20" fill="#e8b98e"/>
+    <ellipse cx="218" cy="368" rx="4" ry="5" fill="#7a4a2a"/>
+    <ellipse cx="232" cy="372" rx="4" ry="5" fill="#7a4a2a"/>
+    <!-- eye -->
+    <circle cx="260" cy="342" r="6" fill="#2b1b10"/>
+    <circle cx="262" cy="340" r="2" fill="#ffffff"/>
+    <!-- ear, big and visible -->
+    <ellipse cx="292" cy="326" rx="20" ry="11" fill="#c8935f" transform="rotate(-30 292 326)"/>
+    <ellipse cx="294" cy="325" rx="12" ry="6" fill="#e8b98e" transform="rotate(-30 294 325)"/>
+    <!-- horns -->
+    <path d="M248,324 Q240,302 252,292" stroke="#e8dcc0" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <path d="M272,322 Q282,302 272,290" stroke="#e8dcc0" stroke-width="8" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- harness: neck strap + traces running LOW along the belly to the plow -->
+  <path d="M282,330 Q302,338 306,364 Q306,388 288,396" stroke="#5a3a1e" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <path d="M296,392 Q420,462 612,470" stroke="#5a3a1e" stroke-width="6" fill="none"/>
+  <path d="M300,376 Q430,440 612,458" stroke="#5a3a1e" stroke-width="6" fill="none" opacity="0.65"/>
+
+  <!-- ==================== PLOW ==================== -->
+  <g>
+    <!-- wooden beam from traces up to the handles -->
+    <path d="M608,462 L664,486" stroke="#8a5a2e" stroke-width="13" fill="none" stroke-linecap="round"/>
+    <!-- moldboard: curved steel blade digging in -->
+    <path d="M646,470 Q676,468 692,498 Q698,514 682,522 L650,522 Q636,500 646,470 Z" fill="#a8adb2"/>
+    <path d="M650,522 L682,522 Q696,516 692,502 L706,522 L662,534 Z" fill="#7c8187"/>
+    <!-- share tip in the soil -->
+    <polygon points="640,516 668,528 636,532" fill="#5f6468"/>
+    <!-- handles -->
+    <path d="M662,486 L738,410" stroke="#8a5a2e" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M676,498 L752,426" stroke="#8a5a2e" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <!-- turned earth curling off the blade -->
+    <path d="M636,530 Q668,504 706,524 Q690,544 650,542 Q634,540 636,530 Z" fill="#5a3a1c"/>
+    <ellipse cx="655" cy="537" rx="6" ry="4" fill="#4a2e14"/>
+    <ellipse cx="688" cy="534" rx="7" ry="4" fill="#4a2e14"/>
+    <ellipse cx="712" cy="530" rx="5" ry="3" fill="#4a2e14"/>
+  </g>
+
+  <!-- ==================== FARMER ==================== -->
+  <g>
+    <!-- legs -->
+    <path d="M792,478 L772,545" stroke="#3f5d8a" stroke-width="14" fill="none" stroke-linecap="round"/>
+    <path d="M792,478 L812,545" stroke="#3f5d8a" stroke-width="14" fill="none" stroke-linecap="round"/>
+    <rect x="758" y="541" width="26" height="12" rx="4" fill="#3a2814"/>
+    <rect x="804" y="541" width="26" height="12" rx="4" fill="#3a2814"/>
+    <!-- torso leaning into the plow -->
+    <path d="M792,482 L786,418" stroke="#b5432e" stroke-width="22" fill="none" stroke-linecap="round"/>
+    <!-- arms reaching the handle grips -->
+    <path d="M786,428 L742,412" stroke="#b5432e" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M788,446 L756,428" stroke="#b5432e" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <circle cx="740" cy="411" r="6" fill="#e8b98e"/>
+    <circle cx="754" cy="427" r="6" fill="#e8b98e"/>
+    <!-- head + hat -->
+    <circle cx="788" cy="396" r="16" fill="#e8b98e"/>
+    <path d="M766,388 L810,388 L806,380 Q788,368 772,380 Z" fill="#d8a832"/>
+    <ellipse cx="788" cy="388" rx="24" ry="5" fill="#c09428"/>
+  </g>
+
+  <!-- birds -->
+  <g stroke="#3c4c5a" stroke-width="3" fill="none" stroke-linecap="round">
+    <path d="M380,90 q10,-10 20,0 q10,-10 20,0"/>
+    <path d="M450,60 q8,-8 16,0 q8,-8 16,0"/>
+  </g>
+</svg>

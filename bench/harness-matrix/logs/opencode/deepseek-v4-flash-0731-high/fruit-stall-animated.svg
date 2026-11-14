@@ -1,0 +1,333 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7fb2dc"/>
+      <stop offset="1" stop-color="#dff0f8"/>
+    </linearGradient>
+    <linearGradient id="awning" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd23e"/>
+      <stop offset="1" stop-color="#f5b51a"/>
+    </linearGradient>
+    <pattern id="stripe" width="64" height="12" patternUnits="userSpaceOnUse">
+      <rect width="64" height="12" fill="#ffffff"/>
+      <rect x="32" width="32" height="12" fill="#ff7350"/>
+    </pattern>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff7cc" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#fff7cc" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="600" fill="url(#sky)"/>
+
+  <!-- Sun with rotating rays -->
+  <g>
+    <circle cx="680" cy="84" r="42" fill="#ffdf70"/>
+    <g stroke="#ffd866" stroke-width="5" stroke-linecap="round">
+      <line x1="680" y1="28" x2="680" y2="14"/>
+      <line x1="680" y1="140" x2="680" y2="154"/>
+      <line x1="624" y1="84" x2="610" y2="84"/>
+      <line x1="736" y1="84" x2="750" y2="84"/>
+      <line x1="640" y1="44" x2="631" y2="35"/>
+      <line x1="720" y1="44" x2="729" y2="35"/>
+      <line x1="640" y1="124" x2="631" y2="133"/>
+      <line x1="720" y1="124" x2="729" y2="133"/>
+      <animateTransform attributeName="transform" type="rotate" from="0 680 84" to="360 680 84" dur="40s" repeatCount="indefinite"/>
+    </g>
+  </g>
+
+  <!-- Drifting clouds -->
+  <g fill="#ffffff" opacity="0.88">
+    <g>
+      <ellipse cx="0" cy="104" rx="52" ry="22"/>
+      <ellipse cx="54" cy="96" rx="36" ry="18"/>
+      <ellipse cx="-40" cy="98" rx="30" ry="15"/>
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="900 0" dur="60s" repeatCount="indefinite"/>
+    </g>
+    <g opacity="0.8">
+      <ellipse cx="0" cy="56" rx="44" ry="16"/>
+      <ellipse cx="44" cy="50" rx="30" ry="13"/>
+      <animateTransform attributeName="transform" type="translate" from="-200 0" to="1000 0" dur="80s" repeatCount="indefinite"/>
+    </g>
+  </g>
+
+  <!-- Flying bird -->
+  <g>
+    <ellipse cx="0" cy="0" rx="9" ry="5" fill="#4a5058"/>
+    <g fill="#4a5058">
+      <path d="M -6 -2 L -13 -10 L -7 -4"/> 
+      <path d="M -2 -3 L -6 -13 L 2 -5"> <animate attributeName="d" values="M -2 -3 L -6 -13 L 2 -5;M -2 -3 L -2 -15 L 2 -5;M -2 -3 L -6 -13 L 2 -5" dur="0.5s" repeatCount="indefinite"/></path>
+    </g>
+    <animateTransform attributeName="transform" type="translate" from="-100 120" to="900 90" dur="14s" repeatCount="indefinite"/>
+  </g>
+
+  <!-- Distant market tents -->
+  <g fill="#5a7a99" opacity="0.4">
+    <rect x="30" y="188" width="90" height="52"/>
+    <polygon points="75,160 30,188 120,188"/>
+    <rect x="690" y="196" width="80" height="44"/>
+    <polygon points="730,168 690,196 770,196"/>
+  </g>
+
+  <!-- Ground -->
+  <rect x="0" y="420" width="800" height="180" fill="#c2a068"/>
+  <line x1="0" y1="420" x2="800" y2="420" stroke="#9a7c48" stroke-width="3"/>
+
+  <!-- Stall counter -->
+  <rect x="120" y="356" width="560" height="26" rx="4" fill="#c9915c"/>
+  <rect x="130" y="382" width="540" height="40" fill="#96683a"/>
+  <rect x="148" y="392" width="504" height="8" rx="4" fill="#7d5530"/>
+  <rect x="150" y="422" width="16" height="104" fill="#7d5530"/>
+  <rect x="634" y="422" width="16" height="104" fill="#7d5530"/>
+
+  <!-- Back rack with shelves -->
+  <rect x="150" y="180" width="500" height="14" rx="3" fill="#8a6230"/>
+  <rect x="160" y="266" width="480" height="14" rx="3" fill="#8a6230"/>
+  <g stroke="#6a4450" stroke-width="2" opacity="0.5">
+    <line x1="220" y1="180" x2="220" y2="194"/>
+    <line x1="340" y1="180" x2="340" y2="194"/>
+    <line x1="460" y1="180" x2="460" y2="194"/>
+    <line x1="580" y1="180" x2="580" y2="194"/>
+    <line x1="240" y1="266" x2="240" y2="280"/>
+    <line x1="360" y1="266" x2="360" y2="280"/>
+    <line x1="480" y1="266" x2="480" y2="280"/>
+    <line x1="600" y1="266" x2="600" y2="280"/>
+  </g>
+
+  <!-- Produce on back shelf (top) -->
+  <g fill="#6f8c2e">
+    <circle cx="220" cy="176" r="9"/>
+    <circle cx="242" cy="174" r="9"/>
+    <circle cx="266" cy="177" r="9"/>
+    <circle cx="340" cy="175" r="9"/>
+    <circle cx="364" cy="173" r="9"/>
+    <circle cx="388" cy="177" r="9"/>
+    <circle cx="460" cy="176" r="9"/>
+    <circle cx="482" cy="174" r="9"/>
+    <circle cx="504" cy="177" r="9"/>
+    <circle cx="580" cy="175" r="9"/>
+    <circle cx="602" cy="173" r="9"/>
+  </g>
+  <!-- Produce on middle shelf -->
+  <g fill="#e88924">
+    <circle cx="560" cy="262" r="10"/>
+    <circle cx="584" cy="259" r="10"/>
+    <circle cx="608" cy="263" r="10"/>
+    <circle cx="628" cy="260" r="10"/>
+    <circle cx="360" cy="262" r="10"/>
+    <circle cx="384" cy="259" r="10"/>
+  </g>
+
+  <!-- Awning -->
+  <g>
+    <path d="M 90 128 L 710 128 L 680 210 L 120 210 Z" fill="url(#awning)"/>
+    <path d="M 90 128 L 710 128 L 680 210 L 120 210 Z" fill="url(#stripe)"/>
+    <rect x="90" y="128" width="620" height="9" fill="#d99a1c"/>
+    <g fill="#ff7350">
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 4;0 0" dur="3s" repeatCount="indefinite" keyTimes="0;0.85;0.92;1"/>
+      <ellipse cx="175" cy="210" rx="32" ry="15"/>
+      <ellipse cx="245" cy="210" rx="32" ry="15"/>
+      <ellipse cx="315" cy="210" rx="32" ry="15"/>
+      <ellipse cx="385" cy="210" rx="32" ry="15"/>
+      <ellipse cx="455" cy="210" rx="32" ry="15"/>
+      <ellipse cx="525" cy="210" rx="32" ry="15"/>
+      <ellipse cx="590" cy="210" rx="28" ry="15"/>
+      <ellipse cx="648" cy="210" rx="20" ry="12"/>
+    </g>
+  </g>
+
+  <!-- Awning poles -->
+  <rect x="84" y="128" width="12" height="280" fill="#7d5530"/>
+  <rect x="704" y="128" width="12" height="280" fill="#7d5530"/>
+
+  <!-- Bunting with swaying flags -->
+  <path d="M 100 214 Q 400 300 700 214" fill="none" stroke="#6a4a28" stroke-width="2"/>
+  <g>
+    <g>
+      <polygon points="190,242 206,250 190,268 174,250" fill="#ffd23e"/>
+      <polygon points="190,250 206,250 190,268" fill="#f5b51a"/>
+      <animateTransform attributeName="transform" type="rotate" values="-6 190 250;6 190 250;-6 190 250" dur="2.2s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <polygon points="280,259 296,267 280,285 264,267" fill="#ff7350"/>
+      <polygon points="280,267 296,267 280,285" fill="#e05a3a"/>
+      <animateTransform attributeName="transform" type="rotate" values="6 280 267;-6 280 267;6 280 267" dur="2.6s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <polygon points="370,270 386,278 370,296 354,278" fill="#7fb2dc"/>
+      <animateTransform attributeName="transform" type="rotate" values="-5 370 278;5 370 278;-5 370 278" dur="2.4s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <polygon points="460,270 476,278 460,296 444,278" fill="#ffd23e"/>
+      <polygon points="460,278 476,278 460,296" fill="#f5b51a"/>
+      <animateTransform attributeName="transform" type="rotate" values="5 460 278;-5 460 278;5 460 278" dur="3s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <polygon points="550,259 566,267 550,285 534,267" fill="#6f8c2e"/>
+      <animateTransform attributeName="transform" type="rotate" values="-6 550 267;6 550 267;-6 550 267" dur="2.7s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <polygon points="635,242 651,250 635,268 619,250" fill="#e88924"/>
+      <animateTransform attributeName="transform" type="rotate" values="6 635 250;-6 635 250;6 635 250" dur="2.9s" repeatCount="indefinite"/>
+    </g>
+  </g>
+
+  <!-- Hanging swinging sign -->
+  <g>
+    <line x1="400" y1="216" x2="400" y2="236" stroke="#3a2c1c" stroke-width="3"/>
+    <g>
+      <rect x="324" y="236" width="152" height="40" rx="7" fill="#fffdf2" stroke="#3a2c1c" stroke-width="3"/>
+      <text x="400" y="262" font-family="Georgia, serif" font-size="17" font-weight="bold" fill="#c43a2e" text-anchor="middle">PICK YOUR FRUIT</text>
+      <animateTransform attributeName="transform" type="rotate" values="-3 400 216;3 400 216;-3 400 216" dur="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+    </g>
+  </g>
+
+  <!-- Crates on counter -->
+  <g>
+    <rect x="150" y="322" width="108" height="34" rx="3" fill="#b08550" stroke="#8a6230" stroke-width="2"/>
+    <line x1="150" y1="339" x2="258" y2="339" stroke="#8a6230" stroke-width="2"/>
+    <line x1="204" y1="322" x2="204" y2="356" stroke="#8a6230" stroke-width="2"/>
+  </g>
+  <g>
+    <rect x="290" y="320" width="112" height="36" rx="3" fill="#b08550" stroke="#8a6230" stroke-width="2"/>
+    <line x1="290" y1="338" x2="402" y2="338" stroke="#8a6230" stroke-width="2"/>
+    <line x1="346" y1="320" x2="346" y2="356" stroke="#8a6230" stroke-width="2"/>
+  </g>
+  <g>
+    <rect x="430" y="322" width="112" height="34" rx="3" fill="#b08550" stroke="#8a6230" stroke-width="2"/>
+    <line x1="430" y1="339" x2="542" y2="339" stroke="#8a6230" stroke-width="2"/>
+    <line x1="486" y1="322" x2="486" y2="356" stroke="#8a6230" stroke-width="2"/>
+  </g>
+
+  <!-- Apples on left crate -->
+  <g>
+    <circle cx="176" cy="314" r="11" fill="#e0553a"/>
+    <circle cx="200" cy="310" r="11" fill="#c43a2e"/>
+    <circle cx="226" cy="315" r="11" fill="#e55a3e"/>
+    <circle cx="188" cy="298" r="11" fill="#d9483c"/>
+    <circle cx="214" cy="296" r="11" fill="#b8332a"/>
+    <circle cx="200" cy="283" r="10" fill="#e0553a"/>
+    <animateTransform attributeName="transform" type="rotate" values="-2 200 300;2 200 300;-2 200 300" dur="1.3s" repeatCount="indefinite"/>
+  </g>
+
+  <!-- Oranges on middle crate -->
+  <g fill="#f78e22">
+    <circle cx="318" cy="312" r="11"/>
+    <circle cx="344" cy="308" r="11"/>
+    <circle cx="372" cy="313" r="11"/>
+    <circle cx="332" cy="294" r="11"/>
+    <circle cx="360" cy="292" r="11"/>
+    <circle cx="346" cy="276" r="10"/>
+  </g>
+  <circle cx="318" cy="312" r="2" fill="#ffd0a0"/>
+  <circle cx="344" cy="308" r="2" fill="#ffd0a0"/>
+
+  <!-- Melon on right crate (slight bounce) -->
+  <g>
+    <ellipse cx="486" cy="312" rx="16" ry="12" fill="#5a8a4a"/>
+    <path d="M 486 296 Q 484 292 490 292 Q 494 293 494 296 Z" fill="#4a6a38"/>
+    <path d="M 470 316 Q 474 326 486 326 Q 498 326 502 316" fill="none" stroke="#4a6a38" stroke-width="2" opacity="0.6"/>
+    <animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 -4;0 0" dur="2.4s" repeatCount="indefinite" keyTimes="0;0.7;0.8;1"/>
+  </g>
+  <g fill="#8fbf4e">
+    <circle cx="520" cy="316" r="11"/>
+    <circle cx="544" cy="312" r="11"/>
+  </g>
+
+  <!-- Hanging bananas (left pole) swaying -->
+  <g style="transform-box: fill-box; transform-origin: center top;">
+    <path d="M 124 262 Q 138 300 114 316" fill="#f2d73d" stroke="#c99a20" stroke-width="1.5"/>
+    <path d="M 132 262 Q 146 302 124 318" fill="#e8c830" stroke="#c99a20" stroke-width="1.5"/>
+    <animateTransform attributeName="transform" type="rotate" values="-8 128 262;8 128 262;-8 128 262" dur="3.4s" repeatCount="indefinite"/>
+  </g>
+  <path d="M 118 290 Q 126 298 126 306" stroke="#6a4a28" stroke-width="2" fill="none"/>
+
+  <!-- Balance scale swinging gently (right pole) -->
+  <g>
+    <g stroke="#3a2c1c" stroke-width="3" stroke-linecap="round">
+      <line x1="714" y1="210" x2="714" y2="240"/>
+      <line x1="714" y1="240" x2="672" y2="246"/>
+      <line x1="714" y1="240" x2="756" y2="246"/>
+      <line x1="672" y1="246" x2="672" y2="260"/>
+      <line x1="756" y1="246" x2="756" y2="260"/>
+    </g>
+    <g fill="#c9b97a" stroke="#8a7a44" stroke-width="2">
+      <path d="M 658 260 Q 672 266 686 260 Q 686 272 672 276 Q 658 272 658 260 Z"/>
+      <path d="M 742 260 Q 756 266 770 260 Q 770 272 756 276 Q 742 272 742 260 Z"/>
+    </g>
+    <g fill="#e84a3a">
+      <circle cx="672" cy="274" r="7"/>
+      <circle cx="672" cy="248" r="7"/>
+    </g>
+    <g fill="#f7c04a">
+      <circle cx="756" cy="274" r="7"/>
+      <circle cx="756" cy="248" r="7"/>
+    </g>
+    <animateTransform attributeName="transform" type="rotate" values="-2 714 210;2 714 210;-2 714 210" dur="5s" repeatCount="indefinite"/>
+  </g>
+
+  <!-- Vendor waving -->
+  <g>
+    <ellipse cx="300" cy="500" rx="19" ry="46" fill="#e88924"/>
+    <ellipse cx="300" cy="528" rx="15" ry="26" fill="#fff4d6" opacity="0.9"/>
+    <circle cx="300" cy="398" r="19" fill="#e8b08a"/>
+    <path d="M 284 394 Q 288 380 300 376 Q 314 380 316 394 Q 310 400 300 396 Q 290 400 284 394 Z" fill="#3a2c1c"/>
+    <circle cx="292" cy="400" r="2.2" fill="#2e2a26"/>
+    <circle cx="308" cy="400" r="2.2" fill="#2e2a26"/>
+    <path d="M 296 407 Q 300 410 304 407" fill="none" stroke="#a0563c" stroke-width="1.8" stroke-linecap="round"/>
+    <rect x="299" y="410" width="3" height="5" rx="1.5" fill="#a0563c"/>
+
+    <!-- Waving arm -->
+    <g>
+      <path d="M 318 410 Q 336 400 342 384 Q 346 372 356 374" fill="none" stroke="#e88924" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="356" cy="374" r="7" fill="#e8b08a"/>
+      <animateTransform attributeName="transform" type="rotate" values="0;0;-14 318 410;0" dur="3s" repeatCount="indefinite" keyTimes="0;0.2;0.5;0.8"/>
+    </g>
+
+    <path d="M 283 414 Q 270 420 267 432 L 280 436" fill="none" stroke="#e88924" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="267" cy="438" r="7" fill="#e8b08a"/>
+    <rect x="286" y="466" width="9" height="30" rx="4" fill="#3a2c1c"/>
+    <rect x="304" y="466" width="9" height="30" rx="4" fill="#3a2c1c"/>
+    <ellipse cx="300" cy="504" rx="24" ry="8" fill="#c97a1a"/>
+  </g>
+
+  <!-- Cat chasing the fruit-bounce (playing) -->
+  <g>
+    <ellipse cx="600" cy="470" rx="16" ry="10" fill="#6a624a"/>
+    <path d="M 586 470 Q 584 448 592 442 Q 598 446 598 464 Z" fill="#6a624a"/>
+    <path d="M 614 470 Q 616 448 608 442 Q 602 446 602 464 Z" fill="#6a624a"/>
+    <circle cx="586" cy="470" r="9" fill="#6a624a"/>
+    <circle cx="614" cy="470" r="9" fill="#6a624a"/>
+    <circle cx="596" cy="467" r="1.8" fill="#fff"/>
+    <circle cx="607" cy="467" r="1.8" fill="#fff"/>
+
+    <!-- Tail swish -->
+    <path d="M 616 466 Q 630 460 626 452" fill="none" stroke="#6a624a" stroke-width="5" stroke-linecap="round">
+      <animate attributeName="d" values="M 616 466 Q 630 460 626 452;M 616 466 Q 640 458 636 448;M 616 466 Q 630 460 626 452" dur="1.2s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- Butterly hovering -->
+  <g>
+    <g fill="none" stroke="#c06a9e" stroke-width="2">
+      <path d="M 0 0 Q 6 -6 0 -12 Q -6 -6 0 0">
+        <animate attributeName="d" values="M 0 0 Q 6 -6 0 -12 Q -6 -6 0 0;M 0 0 Q 10 -2 0 -8 Q -10 -2 0 0;M 0 0 Q 6 -6 0 -12 Q -6 -6 0 0" dur="0.4s" repeatCount="indefinite"/>
+      </path>
+      <path d="M 0 0 Q 6 6 0 12 Q -6 6 0 0" fill="#c06a9e">
+        <animate attributeName="d" values="M 0 0 Q 6 6 0 12 Q -6 6 0 0;M 0 0 Q 10 2 0 8 Q -10 2 0 0;M 0 0 Q 6 6 0 12 Q -6 6 0 0" dur="0.4s" repeatCount="indefinite"/>
+      </path>
+    </g>
+    <animateTransform attributeName="transform" type="translate" values="480 130;520 110;500 150;540 120;480 130" dur="10s" repeatCount="indefinite"/>
+  </g>
+
+  <!-- Ground shadow and ambient glow -->
+  <ellipse cx="400" cy="586" rx="340" ry="14" fill="#000000" opacity="0.14"/>
+
+  <!-- Pulsing lanterns above -->
+  <circle cx="120" cy="120" r="22" fill="url(#glow)">
+    <animate attributeName="r" values="14;24;14" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="680" cy="120" r="22" fill="url(#glow)">
+    <animate attributeName="r" values="24;14;24" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>

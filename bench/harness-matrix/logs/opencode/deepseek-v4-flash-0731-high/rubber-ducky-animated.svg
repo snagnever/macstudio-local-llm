@@ -1,0 +1,246 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#221b3a"/>
+      <stop offset="1" stop-color="#3d2f5e"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe9a8"/>
+      <stop offset="0.6" stop-color="#ffcf78"/>
+      <stop offset="1" stop-color="#f5a94a"/>
+    </linearGradient>
+    <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5f9fc7"/>
+      <stop offset="1" stop-color="#2f5f86"/>
+    </linearGradient>
+    <linearGradient id="tubGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdf3e2"/>
+      <stop offset="1" stop-color="#e7d3b6"/>
+    </linearGradient>
+    <radialGradient id="lamp" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffdf9e" stop-opacity="0.85"/>
+      <stop offset="0.55" stop-color="#ffdf9e" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#ffdf9e" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bubbleGrad" cx="0.32" cy="0.3" r="0.9">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.5" stop-color="#f2fbff" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#bfe2f2" stop-opacity="0.25"/>
+    </radialGradient>
+    <radialGradient id="duckGrad" cx="0.42" cy="0.3" r="0.9">
+      <stop offset="0" stop-color="#ffe074"/>
+      <stop offset="0.6" stop-color="#f2af17"/>
+      <stop offset="1" stop-color="#dc8f08"/>
+    </radialGradient>
+    <filter id="soft">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+  </defs>
+
+  <style>
+    @keyframes bob { 0%,100% { transform: translate(0,0) } 50% { transform: translate(0,-10px) } }
+    @keyframes wobble { 0%,100% { transform: translate(0,0) rotate(-3deg) } 50% { transform: translate(0,-9px) rotate(3deg) } }
+    @keyframes ripple { 0% { transform: scale(0.6); opacity: 0.8 } 100% { transform: scale(1.6); opacity: 0 } }
+    @keyframes shimmer { 0% { opacity: 0.35 } 50% { opacity: 0.8 } 100% { opacity: 0.35 } }
+    @keyframes steam { 0% { transform: translateY(30px); opacity: 0 } 30% { opacity: 0.6 } 100% { transform: translateY(-46px); opacity: 0 } }
+    @keyframes rise { 0% { transform: translateY(0); opacity: 0 } 12% { opacity: 1 } 100% { transform: translateY(-320px); opacity: 0.2 } }
+    @keyframes sway { 0%,100% { transform: translate(0,0) } 50% { transform: translate(6px,0) } }
+  </style>
+
+  <!-- Night background -->
+  <rect width="800" height="600" fill="url(#night)"/>
+
+  <!-- Moon -->
+  <circle cx="700" cy="90" r="46" fill="#fdf3d8" opacity="0.9"/>
+  <circle cx="718" cy="80" r="10" fill="#221b3a" opacity="0.25"/>
+  <circle cx="686" cy="104" r="6" fill="#221b3a" opacity="0.2"/>
+  <circle cx="712" cy="108" r="4" fill="#221b3a" opacity="0.18"/>
+
+  <!-- Twinkling stars -->
+  <g fill="#ffffff">
+    <circle cx="120" cy="70" r="2.5"><animate attributeName="opacity" values="0.3;1;0.3" dur="2.4s" repeatCount="indefinite"/></circle>
+    <circle cx="260" cy="120" r="2"><animate attributeName="opacity" values="0.2;0.9;0.2" dur="3.1s" repeatCount="indefinite"/></circle>
+    <circle cx="570" cy="52" r="2.5"><animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/></circle>
+    <circle cx="640" cy="140" r="2"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="2.8s" repeatCount="indefinite"/></circle>
+    <circle cx="90" cy="180" r="1.8"><animate attributeName="opacity" values="0.3;0.9;0.3" dur="3.6s" repeatCount="indefinite"/></circle>
+  </g>
+
+  <!-- Warm lamp halo behind duck -->
+  <circle cx="400" cy="300" r="240" fill="url(#lamp)"/>
+
+  <!-- Floating bubbles with rise animation -->
+  <g>
+    <g fill="url(#bubbleGrad)" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" style="animation: rise 7s linear infinite">
+      <circle cx="180" cy="380" r="14"><animate attributeName="r" values="14;18;14" dur="7s" repeatCount="indefinite"/></circle>
+      <circle cx="300" cy="400" r="10"/>
+      <circle cx="520" cy="390" r="12"/>
+      <circle cx="620" cy="380" r="16"/>
+      <circle cx="230" cy="380" r="8"/>
+    </g>
+  </g>
+
+  <!-- Bathtub -->
+  <g>
+    <!-- side wall -->
+    <path d="M90 250 L130 520 Q140 545 170 548 L630 548 Q660 545 670 520 L710 250" fill="url(#tubGrad)" stroke="#c3a67f" stroke-width="6" stroke-linejoin="round"/>
+    <!-- rim -->
+    <path d="M72 234 Q72 216 94 212 L706 212 Q728 216 728 234 Q728 252 706 256 L94 256 Q72 252 72 234 Z" fill="#ffffff" stroke="#c3a67f" stroke-width="6" stroke-linejoin="round"/>
+    <!-- feet -->
+    <circle cx="170" cy="552" r="12" fill="#c3a67f"/>
+    <circle cx="630" cy="552" r="12" fill="#c3a67f"/>
+  </g>
+
+  <!-- Water -->
+  <ellipse cx="400" cy="350" rx="285" ry="95" fill="url(#waterGrad)"/>
+
+  <!-- Water surface shimmer -->
+  <g fill="none" stroke="#9fd8ef" stroke-width="3" stroke-linecap="round" opacity="0.6">
+    <path d="M130 320 Q200 305 270 322" style="animation: shimmer 4s ease-in-out infinite"/>
+    <path d="M300 306 Q370 294 440 308" style="animation: shimmer 5s ease-in-out infinite"/>
+    <path d="M500 318 Q580 305 660 322" style="animation: shimmer 4.6s ease-in-out infinite"/>
+    <path d="M160 375 Q240 364 320 376" style="animation: shimmer 5.4s ease-in-out infinite" opacity="0.5"/>
+    <path d="M480 372 Q560 362 650 374" style="animation: shimmer 4.2s ease-in-out infinite" opacity="0.5"/>
+  </g>
+
+  <!-- Ripples expanding across water -->
+  <g fill="none" stroke="#cfeaf7" stroke-width="2.5" style="animation: ripple 4s linear infinite">
+    <circle cx="400" cy="350" r="20">
+      <animate attributeName="r" values="20;140" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.7;0" dur="4s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <g fill="none" stroke="#cfeaf7" stroke-width="2" style="animation: ripple 4.8s linear infinite 1.6s">
+    <circle cx="400" cy="350" r="20">
+      <animate attributeName="r" values="20;160" dur="4.8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;0" dur="4.8s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Rubber ducky (bobbing group) -->
+  <g style="transform-origin: 400px 380px; animation: bob 3s ease-in-out infinite">
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -9; 0 0" dur="3s" repeatCount="indefinite"/>
+
+    <!-- Duck shadow -->
+    <ellipse cx="400" cy="430" rx="130" ry="26" fill="#1d3a52" opacity="0.4">
+      <animate attributeName="rx" values="130;128;130" dur="3s" repeatCount="indefinite"/>
+    </ellipse>
+
+    <!-- Body -->
+    <path d="M290 425 C280 355 350 325 425 325 C510 325 560 372 550 432 C540 488 465 505 395 505 C320 505 302 470 290 425 Z" fill="url(#duckGrad)" stroke="#c07f08" stroke-width="5" stroke-linejoin="round"/>
+
+    <!-- Wing -->
+    <path d="M440 395 C485 380 520 408 495 438 C470 464 438 450 420 435 Z" fill="#efa910" stroke="#c07f08" stroke-width="4" stroke-linejoin="round"/>
+
+    <!-- Tail -->
+    <path d="M545 415 C575 398 572 425 560 435 C550 442 542 434 545 415 Z" fill="#efa910" stroke="#c07f08" stroke-width="4" stroke-linejoin="round"/>
+
+    <!-- Head (slight wobble included) -->
+    <circle cx="360" cy="250" r="70" fill="url(#duckGrad)" stroke="#c07f08" stroke-width="5"/>
+    <ellipse cx="325" cy="218" rx="21" ry="14" fill="#ffffff" opacity="0.5" transform="rotate(-20 325 218)"/>
+
+    <!-- Beak, open in a happy quack (animated) -->
+    <g>
+      <path d="M430 240 C472 228 500 252 489 272 C476 292 440 293 424 276 Z" fill="#f07e1c" stroke="#c75e08" stroke-width="4" stroke-linejoin="round">
+        <animateTransform attributeName="transform" type="rotate" values="0 424 270; -14 424 270; 0 424 270" dur="1.2s" repeatCount="indefinite"/>
+      </path>
+      <path d="M424 292 C450 296 478 294 492 280 Z" fill="#d86208" stroke="#b34e06" stroke-width="4" stroke-linejoin="round">
+        <animateTransform attributeName="transform" type="rotate" values="0 424 270; 10 424 270; 0 424 270" dur="1.2s" repeatCount="indefinite" additive="sum"/>
+      </path>
+      <circle cx="476" cy="244" r="2.6" fill="#a84a06"/>
+      <circle cx="487" cy="249" r="2.6" fill="#a84a06"/>
+    </g>
+
+    <!-- Eye (blinking) -->
+    <circle cx="395" cy="228" r="14" fill="#ffffff"/>
+    <circle cx="400" cy="228" r="8.5" fill="#1c2b33"/>
+    <circle cx="403" cy="224" r="3.2" fill="#ffffff">
+      <animate attributeName="ry" values="3.2;3.2;3.2;0.4;3.2;3.2" dur="4s" keyTimes="0;0.45;0.5;0.53;0.56;1" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Cheek + head band -->
+    <ellipse cx="366" cy="270" rx="13" ry="9" fill="#f28592" opacity="0.6"/>
+    <ellipse cx="290" cy="250" rx="6" ry="3" fill="#ffffff" opacity="0.7"/>
+  </g>
+
+  <!-- Foam around duck base (gentle sway) -->
+  <g style="animation: sway 3.4s ease-in-out infinite">
+    <g fill="#f6efe2" stroke="#dcc3a0" stroke-width="3" stroke-linejoin="round" opacity="0.95">
+      <circle cx="280" cy="462" r="34"/>
+      <circle cx="330" cy="478" r="38"/>
+      <circle cx="390" cy="482" r="36"/>
+      <circle cx="450" cy="474" r="36"/>
+      <circle cx="500" cy="460" r="30"/>
+      <circle cx="545" cy="452" r="22"/>
+      <circle cx="260" cy="470" r="22"/>
+    </g>
+    <g fill="#ffffff">
+      <circle cx="285" cy="450" r="11"/>
+      <circle cx="335" cy="466" r="12"/>
+      <circle cx="392" cy="470" r="11"/>
+      <circle cx="450" cy="462" r="11"/>
+      <circle cx="498" cy="448" r="9"/>
+    </g>
+  </g>
+
+  <!-- Small rushing soap bubbles rising (animated) -->
+  <g fill="url(#bubbleGrad)" stroke="#eaf6fd" stroke-width="1">
+    <circle cx="230" cy="470" r="9" style="animation: rise 5s linear infinite">
+      <animate attributeName="cy" values="470;120" dur="5s" repeatCount="indefinite" begin="0s"/>
+      <animate attributeName="opacity" values="0;1;1;0" dur="5s" repeatCount="indefinite" begin="0s"/>
+    </circle>
+    <circle cx="330" cy="470" r="7" style="animation: rise 6s linear infinite">
+      <animate attributeName="cy" values="470;120" dur="6s" repeatCount="indefinite" begin="1.2s"/>
+      <animate attributeName="opacity" values="0;1;1;0" dur="6s" repeatCount="indefinite" begin="1.2s"/>
+    </circle>
+    <circle cx="470" cy="470" r="8" style="animation: rise 5.6s linear infinite">
+      <animate attributeName="cy" values="470;120" dur="5.6s" repeatCount="indefinite" begin="2.4s"/>
+      <animate attributeName="opacity" values="0;1;1;0" dur="5.6s" repeatCount="indefinite" begin="2.4s"/>
+    </circle>
+    <circle cx="560" cy="470" r="6" style="animation: rise 6.4s linear infinite">
+      <animate attributeName="cy" values="470;120" dur="6.4s" repeatCount="indefinite" begin="3.1s"/>
+      <animate attributeName="opacity" values="0;1;1;0" dur="6.4s" repeatCount="indefinite" begin="3.1s"/>
+    </circle>
+    <circle cx="150" cy="470" r="7" style="animation: rise 7s linear infinite">
+      <animate attributeName="cy" values="470;120" dur="7s" repeatCount="indefinite" begin="4s"/>
+      <animate attributeName="opacity" values="0;1;1;0" dur="7s" repeatCount="indefinite" begin="4s"/>
+    </circle>
+  </g>
+
+  <!-- Steam wisps rising -->
+  <g fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" filter="url(#soft)">
+    <path d="M160 260 C175 238 160 218 175 200" style="animation: steam 5s ease-out infinite">
+      <animate attributeName="opacity" values="0;0.5;0" dur="5s" repeatCount="indefinite"/>
+    </path>
+    <path d="M630 250 C645 228 630 208 645 190" style="animation: steam 6s ease-out infinite 1.5s">
+      <animate attributeName="opacity" values="0;0.5;0" dur="6s" repeatCount="indefinite" begin="1.5s"/>
+    </path>
+    <path d="M700 270 C714 250 700 232 714 214" style="animation: steam 5.5s ease-out infinite 3s" opacity="0">
+      <animate attributeName="opacity" values="0;0.4;0" dur="5.5s" repeatCount="indefinite" begin="3s"/>
+    </path>
+  </g>
+
+  <!-- Faucet -->
+  <g>
+    <path d="M150 190 C150 235 180 248 220 248" fill="none" stroke="#a8b7c2" stroke-width="22" stroke-linecap="round"/>
+    <path d="M150 190 C150 235 180 248 220 248" fill="none" stroke="#e9f0f4" stroke-width="15" stroke-linecap="round"/>
+    <rect x="152" y="140" width="32" height="60" rx="9" fill="#cfdae2" stroke="#93a4b1" stroke-width="4"/>
+    <ellipse cx="168" cy="142" rx="24" ry="12" fill="#eef3f6" stroke="#93a4b1" stroke-width="4"/>
+  </g>
+
+  <!-- Dripping water drop -->
+  <ellipse cx="214" cy="278" rx="6" ry="9" fill="#9fd8ef" opacity="0.85">
+    <animate attributeName="cy" values="278;330" keyTimes="0;0.5" dur="2.2s" repeatCount="indefinite" begin="1.1s"/>
+    <animate attributeName="ry" values="9;7" dur="2.2s" repeatCount="indefinite" begin="1.1s"/>
+    <animate attributeName="opacity" values="0.85;0.85;0" keyTimes="0;0.85;1" dur="2.2s" repeatCount="indefinite" begin="1.1s"/>
+  </ellipse>
+  <circle cx="214" cy="300" r="0" fill="#9fd8ef">
+    <animate attributeName="r" values="0;9" dur="2.2s" repeatCount="indefinite" begin="1.1s"/>
+    <animate attributeName="opacity" values="0.5;0" dur="2.2s" repeatCount="indefinite" begin="1.1s"/>
+  </circle>
+
+  <!-- Soap bar on rim -->
+  <g transition="transform 0.2s">
+    <rect x="560" y="222" width="80" height="44" rx="12" fill="#f4f8ee" stroke="#b9c9b2" stroke-width="4" transform="rotate(-12 600 244)"/>
+    <text x="600" y="250" font-family="Georgia, serif" font-size="16" font-style="italic" fill="#94a88c" text-anchor="middle" transform="rotate(-12 600 244)">soap</text>
+  </g>
+</svg>

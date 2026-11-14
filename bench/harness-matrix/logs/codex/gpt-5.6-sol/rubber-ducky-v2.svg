@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title description">
+  <title id="title">Rubber ducky floating on a soapy bathtub</title>
+  <desc id="description">A bright yellow rubber duck floats clearly above blue bathwater and white soap foam inside a freestanding bathtub.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e9faf8"/>
+      <stop offset="0.72" stop-color="#cceae6"/>
+      <stop offset="1" stop-color="#b8d8d4"/>
+    </linearGradient>
+    <linearGradient id="tubShell" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#f4f8f9"/>
+      <stop offset="1" stop-color="#bfd0d6"/>
+    </linearGradient>
+    <linearGradient id="bathwater" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8ce7f5"/>
+      <stop offset="0.48" stop-color="#48c8e5"/>
+      <stop offset="1" stop-color="#1697c0"/>
+    </linearGradient>
+    <radialGradient id="yellowRubber" cx="32%" cy="23%" r="85%">
+      <stop offset="0" stop-color="#fff98a"/>
+      <stop offset="0.48" stop-color="#ffe13c"/>
+      <stop offset="1" stop-color="#e7a907"/>
+    </radialGradient>
+    <linearGradient id="orangeRubber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffad3e"/>
+      <stop offset="1" stop-color="#ef641a"/>
+    </linearGradient>
+    <radialGradient id="soapBubble" cx="31%" cy="27%" r="72%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.96"/>
+      <stop offset="0.34" stop-color="#f6feff" stop-opacity="0.62"/>
+      <stop offset="0.75" stop-color="#bdeaf1" stop-opacity="0.27"/>
+      <stop offset="1" stop-color="#66b9cc" stop-opacity="0.16"/>
+    </radialGradient>
+    <filter id="objectShadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="9" stdDeviation="9" flood-color="#164b59" flood-opacity="0.28"/>
+    </filter>
+    <filter id="floorShadow" x="-30%" y="-100%" width="160%" height="300%">
+      <feGaussianBlur stdDeviation="15"/>
+    </filter>
+    <clipPath id="basinClip">
+      <path d="M174 409 Q600 360 1026 409 L986 586 Q600 637 214 586 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- Bathroom background -->
+  <rect width="1200" height="800" fill="url(#background)"/>
+  <g fill="none" stroke="#afd8d4" stroke-width="4" opacity="0.85">
+    <path d="M0 175 H1200 M0 350 H1200"/>
+    <path d="M200 0 V350 M400 0 V350 M600 0 V350 M800 0 V350 M1000 0 V350"/>
+  </g>
+  <path d="M0 350 H1200" stroke="#779f9d" stroke-width="8"/>
+  <rect y="652" width="1200" height="148" fill="#d4c3ae"/>
+  <g fill="none" stroke="#b5a18b" stroke-width="4" opacity="0.72">
+    <path d="M0 702 H1200 M0 755 H1200"/>
+    <path d="M158 652 V800 M450 652 V800 M748 652 V800 M1043 652 V800"/>
+  </g>
+  <ellipse cx="600" cy="707" rx="472" ry="48" fill="#37565e" opacity="0.24" filter="url(#floorShadow)"/>
+
+  <!-- Chrome faucet establishes a bathtub setting -->
+  <g stroke="#607984" stroke-linejoin="round">
+    <path d="M908 390 V279 Q908 214 843 214 H794" fill="none" stroke-width="33" stroke-linecap="round"/>
+    <path d="M908 390 V279 Q908 214 843 214 H794" fill="none" stroke="#d8e3e6" stroke-width="20" stroke-linecap="round"/>
+    <path d="M768 193 h61 q16 0 16 16 v18 q0 16-16 16 h-61 z" fill="#c8d6da" stroke-width="6"/>
+    <circle cx="737" cy="337" r="25" fill="#dce6e8" stroke-width="6"/>
+    <path d="M737 312 v-46 M710 277 h54" fill="none" stroke-width="13" stroke-linecap="round"/>
+    <circle cx="1020" cy="337" r="25" fill="#dce6e8" stroke-width="6"/>
+    <path d="M1020 312 v-46 M993 277 h54" fill="none" stroke-width="13" stroke-linecap="round"/>
+  </g>
+
+  <!-- Freestanding bathtub -->
+  <path d="M139 399 Q146 361 191 358 H1009 Q1054 361 1061 399 L1011 603 Q999 650 936 663 H264 Q201 650 189 603 Z" fill="url(#tubShell)" stroke="#75919b" stroke-width="10" filter="url(#objectShadow)"/>
+  <path d="M178 407 Q600 358 1022 407 L988 568 Q981 600 936 608 H264 Q219 600 212 568 Z" fill="url(#bathwater)"/>
+  <g clip-path="url(#basinClip)" fill="none" stroke-linecap="round">
+    <path d="M209 486 Q297 453 393 484 T583 484" stroke="#c7f7ff" stroke-width="11" opacity="0.73"/>
+    <path d="M666 505 Q764 469 873 502 T1034 496" stroke="#c7f7ff" stroke-width="10" opacity="0.68"/>
+    <path d="M244 557 Q341 525 447 554" stroke="#077ba5" stroke-width="7" opacity="0.43"/>
+    <path d="M744 567 Q835 535 953 558" stroke="#077ba5" stroke-width="7" opacity="0.4"/>
+  </g>
+  <path d="M166 380 Q600 326 1034 380 Q1069 384 1064 414 Q1059 444 1022 438 Q600 391 178 438 Q141 444 136 414 Q131 384 166 380 Z" fill="#fcffff" stroke="#75919b" stroke-width="10"/>
+  <path d="M176 398 Q600 350 1024 398" fill="none" stroke="#bdcbd0" stroke-width="5"/>
+
+  <!-- Dense soap foam inside the tub -->
+  <g fill="url(#soapBubble)" stroke="#91cedd" stroke-width="5">
+    <circle cx="188" cy="419" r="34"/><circle cx="225" cy="397" r="47"/><circle cx="275" cy="418" r="41"/>
+    <circle cx="317" cy="390" r="34"/><circle cx="356" cy="414" r="45"/><circle cx="401" cy="391" r="29"/>
+    <circle cx="438" cy="416" r="39"/><circle cx="472" cy="396" r="27"/>
+    <circle cx="748" cy="406" r="34"/><circle cx="786" cy="383" r="45"/><circle cx="832" cy="408" r="40"/>
+    <circle cx="873" cy="382" r="35"/><circle cx="914" cy="407" r="47"/><circle cx="961" cy="388" r="31"/>
+    <circle cx="997" cy="416" r="40"/><circle cx="1030" cy="394" r="27"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.88">
+    <path d="M211 377 q14-14 30-8"/><path d="M343 392 q14-14 29-8"/><path d="M773 366 q15-15 31-8"/>
+    <path d="M900 385 q14-15 30-8"/><path d="M985 399 q11-12 24-7"/>
+  </g>
+
+  <!-- Duck shadow and water contact line -->
+  <ellipse cx="602" cy="557" rx="205" ry="43" fill="#08769d" opacity="0.37"/>
+  <path d="M405 543 Q482 517 558 540 M650 542 Q737 511 816 539" fill="none" stroke="#d5faff" stroke-width="13" stroke-linecap="round" opacity="0.86"/>
+
+  <!-- Large yellow rubber ducky -->
+  <g filter="url(#objectShadow)">
+    <path d="M443 492 Q416 455 450 423 Q481 394 520 418 Q550 386 603 380 Q668 373 711 408 Q736 429 742 462 Q798 469 825 510 Q847 545 818 573 Q781 606 674 600 H526 Q429 597 400 557 Q378 526 443 492 Z" fill="url(#yellowRubber)" stroke="#c98900" stroke-width="10"/>
+    <path d="M729 478 Q771 442 812 458 Q790 490 747 502" fill="#ffd82e" stroke="#c98900" stroke-width="9" stroke-linejoin="round"/>
+
+    <!-- Neck and round head -->
+    <path d="M493 469 Q476 426 486 358 Q495 294 549 258 Q607 220 667 246 Q726 272 739 332 Q751 390 711 430 Q674 467 626 464 Z" fill="url(#yellowRubber)" stroke="#c98900" stroke-width="10"/>
+    <path d="M514 302 Q541 265 584 253" fill="none" stroke="#fff8a8" stroke-width="13" stroke-linecap="round" opacity="0.78"/>
+
+    <!-- Friendly face and orange beak -->
+    <ellipse cx="622" cy="296" rx="16" ry="20" fill="#17201e"/>
+    <circle cx="617" cy="289" r="5" fill="#ffffff"/>
+    <path d="M700 326 Q761 310 808 345 Q774 390 694 379 Q667 374 665 354 Q667 335 700 326 Z" fill="url(#orangeRubber)" stroke="#c84f12" stroke-width="9" stroke-linejoin="round"/>
+    <path d="M674 357 Q738 358 791 350" fill="none" stroke="#c84f12" stroke-width="5" stroke-linecap="round"/>
+
+    <!-- Raised wing molded into the rubber body -->
+    <path d="M454 500 Q510 451 582 481 Q544 541 464 551 Q429 542 454 500 Z" fill="#f3bb10" stroke="#c98900" stroke-width="9"/>
+    <path d="M473 505 Q518 481 555 489" fill="none" stroke="#ffe979" stroke-width="9" stroke-linecap="round"/>
+  </g>
+
+  <!-- Foreground foam overlaps the duck at the waterline -->
+  <g fill="url(#soapBubble)" stroke="#91cedd" stroke-width="5">
+    <circle cx="397" cy="550" r="34"/><circle cx="431" cy="569" r="44"/><circle cx="476" cy="558" r="32"/>
+    <circle cx="511" cy="577" r="27"/><circle cx="704" cy="574" r="29"/><circle cx="740" cy="558" r="36"/>
+    <circle cx="779" cy="574" r="45"/><circle cx="821" cy="550" r="31"/><circle cx="851" cy="571" r="36"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.9">
+    <path d="M414 548 q12-13 25-7"/><path d="M757 545 q12-14 26-8"/><path d="M807 540 q10-11 21-6"/>
+  </g>
+
+  <!-- Floating soap bubbles above the bath -->
+  <g fill="url(#soapBubble)" stroke="#7fc1d1" stroke-width="5">
+    <circle cx="242" cy="272" r="43"/><circle cx="336" cy="205" r="27"/><circle cx="413" cy="287" r="22"/>
+    <circle cx="776" cy="191" r="34"/><circle cx="872" cy="140" r="23"/><circle cx="951" cy="200" r="49"/>
+    <circle cx="1066" cy="137" r="31"/><circle cx="1090" cy="285" r="38"/><circle cx="129" cy="177" r="27"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.92">
+    <path d="M220 253 q14-17 31-13"/><path d="M934 178 q16-18 34-11"/><path d="M1053 121 q10-11 21-7"/>
+  </g>
+
+  <!-- Tub feet and drain -->
+  <path d="M251 644 q-8 49-51 65 q-29 10-37-12 q-7-20 24-36 l33-28" fill="#abbec4" stroke="#637f89" stroke-width="8"/>
+  <path d="M949 644 q8 49 51 65 q29 10 37-12 q7-20-24-36 l-33-28" fill="#abbec4" stroke="#637f89" stroke-width="8"/>
+  <ellipse cx="600" cy="621" rx="40" ry="15" fill="#8ba1aa" stroke="#587580" stroke-width="6"/>
+  <path d="M574 621 H626 M586 612 L614 630 M614 612 L586 630" fill="none" stroke="#dce8eb" stroke-width="4"/>
+</svg>

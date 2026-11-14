@@ -1,0 +1,63 @@
+{
+  "artifact": "logs/claude/claude-opus-5/treasure-barrel-v3.svg",
+  "question_index": 13,
+  "render": "logs/renders/claude/claude-opus-5/treasure-barrel-v3.png",
+  "judge": {
+    "kind": "claude-vision",
+    "model": "claude-opus-5",
+    "date": "2026-09-07",
+    "method": "viewed the Chrome render plus 2x crops of detail regions; strict per-requirement pass/fail"
+  },
+  "requirements": [
+    {
+      "text": "Create a wooden barrel with visible vertical planks and two horizontal metal hoops.",
+      "met": false,
+      "note": "Three grey metal hoops are drawn on the barrel body - one just under the rim and two lower down - not two."
+    },
+    {
+      "text": "The barrel must be buried in a mound of sand, so only the top half is visible.",
+      "met": false,
+      "note": "More than the top half shows: the barrel's silhouette reaches its maximum width of 306 px at y=376 and has tapered back to 166 px (54% of maximum) where the sand cuts it at y=456, so the whole bulge and most of the lower taper are above the sand."
+    },
+    {
+      "text": "Show the sand mounded up slightly around the visible base of the barrel.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "The barrel must be open at the top and filled with treasure items.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Show treasure overflowing from the top and spilling down one side of the barrel onto the sand.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "The treasure must include a large pile of shiny gold coins, both inside and outside the barrel.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "Add a variety of colorful gemstones (red rubies, green emeralds, blue sapphires) mixed in with the coins.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "A string of white pearls must be draped over the edge of the barrel, trailing down into the spilled coins.",
+      "met": true,
+      "note": ""
+    },
+    {
+      "text": "A golden goblet must be visible, partially buried in the coins inside the barrel.",
+      "met": false,
+      "note": "The goblet lies on the open sand to the right of the barrel, outside it; no goblet sits in the coins inside the barrel."
+    },
+    {
+      "text": "Use bright highlights and glint effects on the coins, gems, and goblet to make them look shiny.",
+      "met": true,
+      "note": ""
+    }
+  ]
+}

@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#FDFBF7">
+<title>Marginalia — the second brain kept slowly</title>
+<meta name="description" content="A note-taking studio for readers and writers. Underline boldly, review gently, and let essays grow out of your margins.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --e:cubic-bezier(.32,.72,0,1);
+  --paper:#FDFBF7;--paper2:#F4EEE2;--ink:#1D1915;--dim:#776E62;--clay:#B15A33;--sage:#8C9A7B;--esp:#241D16;
+  --disp:'Fraunces',Georgia,'Times New Roman',serif;
+  --body:'Plus Jakarta Sans','Avenir Next',ui-sans-serif,system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:rgba(177,90,51,.22)}
+a{color:inherit;text-decoration:none}
+svg{display:block}
+.container{max-width:1180px;margin:0 auto;padding:0 clamp(20px,4vw,40px)}
+.section{padding:clamp(84px,11vw,140px) 0;position:relative}
+section[id]{scroll-margin-top:130px}
+h1,h2,h3{font-family:var(--disp);font-weight:400;letter-spacing:-.015em;line-height:1.05}
+h1{font-size:clamp(3rem,7.4vw,6rem)}
+h1 i{font-style:italic;font-weight:300;color:var(--clay)}
+h2{font-size:clamp(2.1rem,4.6vw,3.7rem)}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:#8A7C6B;border-radius:999px;padding:7px 16px;background:rgba(29,25,21,.05);box-shadow:inset 0 0 0 1px rgba(29,25,21,.1)}
+.eyebrow::before{content:"❧";color:var(--clay);font-size:11px;letter-spacing:0}
+.lead{color:var(--dim);font-size:clamp(1.02rem,1.5vw,1.2rem);max-width:54ch}
+.meta{font-size:13px;color:rgba(29,25,21,.45)}
+.btn{display:inline-flex;align-items:center;padding:9px 9px 9px 26px;border-radius:999px;background:var(--clay);color:#FBF6EE;font-weight:700;font-size:15px;letter-spacing:-.01em;box-shadow:0 18px 30px -16px rgba(177,90,51,.55);transition:transform .55s var(--e),background .55s var(--e)}
+.btn .ic{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;margin-left:18px;font-size:15px;transition:transform .55s var(--e),background .55s var(--e)}
+.btn:hover{background:#9E4C29}.btn:hover .ic{transform:translate(3px,-2px) scale(1.07);background:rgba(255,255,255,.24)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:rgba(29,25,21,.05);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(29,25,21,.14);font-weight:600}
+.btn.ghost .ic{background:rgba(29,25,21,.07)}
+.btn.ghost:hover{background:rgba(29,25,21,.09)}.btn.ghost:hover .ic{background:rgba(29,25,21,.12)}
+.cta-row{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.shell{border-radius:28px;padding:8px;background:linear-gradient(180deg,#EFE7D8,#E7DDC9);box-shadow:0 0 0 1px rgba(29,25,21,.06),0 30px 50px -28px rgba(88,60,35,.35);transition:transform .8s var(--e)}
+.core{border-radius:calc(28px - 8px);background:#FFFDF8;box-shadow:inset 0 1px 1px rgba(255,255,255,.9),inset 0 0 0 1px rgba(29,25,21,.05);height:100%}
+.reveal{opacity:0;transform:translateY(52px);filter:blur(8px);transition:opacity .95s var(--e),transform .95s var(--e),filter .95s var(--e)}
+.reveal.visible{opacity:1;transform:none;filter:none}
+.grain{position:fixed;inset:0;z-index:70;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.navwrap{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;justify-content:center;pointer-events:none}
+.nav{pointer-events:auto;margin-top:22px;width:max-content;max-width:calc(100% - 32px);display:flex;align-items:center;gap:10px;border-radius:999px;padding:7px 7px 7px 22px;background:rgba(253,251,247,.72);backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);box-shadow:inset 0 0 0 1px rgba(29,25,21,.1),inset 0 1px 1px rgba(255,255,255,.9),0 18px 36px -18px rgba(88,60,35,.3)}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-size:19px;letter-spacing:-.01em}
+.brand i{font-style:italic;color:var(--clay)}
+.links{display:flex;align-items:center;gap:2px}
+.links a{font-size:13.5px;font-weight:500;color:#6B6154;border-radius:999px;padding:8px 14px;transition:color .45s var(--e),background .45s var(--e)}
+.links a:hover{color:var(--ink);background:rgba(29,25,21,.06)}
+.ncta{background:var(--esp)!important;color:#F3EBDD!important;font-weight:700!important;padding:9px 18px!important;transition:transform .55s var(--e)}
+.ncta:hover{transform:scale(1.03);background:#000!important}
+.burger{display:none;position:relative;width:42px;height:42px;border-radius:50%;background:rgba(29,25,21,.06);box-shadow:inset 0 0 0 1px rgba(29,25,21,.14);border:0;cursor:pointer}
+.burger span{position:absolute;left:12px;width:18px;height:1.6px;background:var(--ink);border-radius:2px;transition:transform .65s var(--e)}
+.burger span:nth-child(1){top:18px}.burger span:nth-child(2){top:23px}
+.menu-open .burger span:nth-child(1){transform:translateY(2.8px) rotate(45deg)}
+.menu-open .burger span:nth-child(2){transform:translateY(-2.8px) rotate(-45deg)}
+.menu{position:fixed;inset:0;z-index:55;background:rgba(253,251,247,.9);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);opacity:0;visibility:hidden;transition:opacity .6s var(--e),visibility .6s}
+body.menu-open .menu{opacity:1;visibility:visible}
+.menu-inner{height:100%;display:flex;flex-direction:column;justify-content:center;gap:2px}
+.mlink{font-family:var(--disp);font-size:clamp(2.1rem,7vw,4.2rem);line-height:1.15;color:var(--ink);padding:8px 0;opacity:0;transform:translateY(48px);transition:opacity .7s var(--e),transform .7s var(--e),color .4s}
+.mlink:hover{color:var(--clay)}
+.mlink .mnum{display:inline-block;width:56px;font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.2em;color:rgba(29,25,21,.4);vertical-align:middle}
+body.menu-open .mlink{opacity:1;transform:none}
+.menu .mlink:nth-child(1){transition-delay:.10s}.menu .mlink:nth-child(2){transition-delay:.16s}.menu .mlink:nth-child(3){transition-delay:.22s}.menu .mlink:nth-child(4){transition-delay:.28s}
+.menu-cta{margin-top:34px;opacity:0;transform:translateY(48px);transition:opacity .7s var(--e) .36s,transform .7s var(--e) .36s}
+body.menu-open .menu-cta{opacity:1;transform:none}
+.hero{position:relative;min-height:100dvh;display:flex;align-items:center;padding:170px 0 90px;overflow:hidden}
+.hero::before{content:"";position:absolute;width:720px;height:720px;top:-320px;right:-260px;border-radius:50%;background:radial-gradient(circle,rgba(140,154,123,.24),transparent 65%);pointer-events:none}
+.hero::after{content:"";position:absolute;width:560px;height:560px;bottom:-300px;left:-240px;border-radius:50%;background:radial-gradient(circle,rgba(210,160,90,.16),transparent 65%);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(40px,6vw,80px);align-items:center;position:relative;z-index:1}
+.hero h1{margin:28px 0 30px;max-width:12ch}
+.hero .lead{margin-bottom:36px}
+.hero .meta{margin-top:30px}
+.slips{position:relative;min-height:580px}
+.slip{position:absolute;width:min(400px,88%);transition:transform 1s var(--e);will-change:transform}
+.s1{top:0;left:0;transform:rotate(-3.5deg);z-index:3}
+.s2{top:64px;left:56px;transform:rotate(1.8deg);z-index:2}
+.s3{top:132px;left:112px;transform:rotate(-.8deg);z-index:1}
+.slips:hover .s1{transform:rotate(-5deg) translate(-22px,-18px)}
+.slips:hover .s2{transform:rotate(2.6deg) translate(46px,10px)}
+.slips:hover .s3{transform:rotate(-1.6deg) translate(112px,44px)}
+.tape{position:absolute;top:-13px;left:26px;width:98px;height:27px;background:rgba(212,186,128,.75);transform:rotate(-6deg);box-shadow:0 2px 6px rgba(88,60,35,.2);z-index:4}
+.slip-inner{padding:32px 30px 26px;position:relative}
+.slip h3{font-size:24px;font-style:italic;font-weight:500;margin-bottom:12px}
+.slip p{font-family:var(--disp);font-size:16.5px;font-weight:300;line-height:1.6;color:#3E362C}
+.slip footer{margin-top:20px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9A8E7C;font-weight:600}
+.slip footer b{color:var(--clay);font-weight:600}
+.rule{height:1px;background:linear-gradient(90deg,rgba(29,25,21,.2),transparent);margin-bottom:22px}
+.method-grid{display:grid;grid-template-columns:5fr 7fr;gap:clamp(40px,7vw,100px);align-items:start}
+.method-l{position:sticky;top:130px}
+.method-l h2{margin:22px 0 20px}
+.method-note{margin-top:26px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#9A8E7C;font-weight:600}
+.method-r{list-style:none}
+.mstep{padding:38px 0;border-top:1px solid rgba(29,25,21,.14);display:grid;grid-template-columns:96px 1fr;gap:24px;transition:padding-left .6s var(--e)}
+.mstep:hover{padding-left:10px}
+.mstep:last-child{border-bottom:1px solid rgba(29,25,21,.14)}
+.mnumeral{font-family:var(--disp);font-size:44px;font-weight:300;color:rgba(29,25,21,.28);line-height:1}
+.mstep h3{font-size:clamp(1.4rem,2.2vw,1.9rem);margin-bottom:12px}
+.mstep p{color:var(--dim);font-size:15px;max-width:46ch}
+.mstep .tagline{margin-top:14px;display:inline-flex;gap:8px;flex-wrap:wrap}
+.tag{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:#7C6F4F;background:rgba(212,186,128,.35);border-radius:999px;padding:5px 12px}
+.shelves-sec{text-align:center}
+.shelves{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:34px 4px 26px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.shelves::-webkit-scrollbar{display:none}
+.shelf{flex:0 0 auto;scroll-snap-align:start;font-family:var(--disp);font-size:19px;padding:16px 30px;border-radius:999px;background:#FFFDF8;box-shadow:0 0 0 1px rgba(29,25,21,.09),0 14px 24px -16px rgba(88,60,35,.35);transition:transform .55s var(--e),box-shadow .55s var(--e)}
+.shelf:hover{transform:translateY(-4px) rotate(-1.2deg);box-shadow:0 0 0 1px rgba(29,25,21,.12),0 22px 34px -16px rgba(88,60,35,.45)}
+.shelf small{font-family:var(--body);font-size:11px;color:#B0A490;margin-left:8px}
+.pull{font-family:var(--disp);font-size:clamp(1.7rem,3.6vw,2.9rem);font-weight:300;font-style:italic;line-height:1.32;max-width:24ch;margin:26px auto 34px;text-align:center}
+.pull b{font-style:normal;font-weight:600;color:var(--clay)}
+.author{display:flex;align-items:center;justify-content:center;gap:14px}
+.avatar{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#B15A33,#6E3A1F);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#FBF3E6}
+.author-txt{text-align:left;font-size:13px;color:var(--dim)}
+.author-txt b{display:block;color:var(--ink);font-size:14px}
+.tiers{display:flex;flex-direction:column;gap:20px}
+.tier{display:grid;grid-template-columns:1.1fr 1.4fr auto;gap:clamp(20px,4vw,60px);align-items:center;padding:34px 38px}
+.tier .core{background:#FFFDF8}
+.tier h3{font-size:26px;margin-bottom:6px}
+.price{font-family:var(--disp);font-size:34px;font-weight:400;color:var(--clay)}
+.price small{font-family:var(--body);font-size:12px;color:#9A8E7C;letter-spacing:.1em}
+.tfeat{display:flex;flex-wrap:wrap;gap:8px 22px;list-style:none}
+.tfeat li{font-size:14px;color:var(--dim);display:flex;align-items:center;gap:8px}
+.tfeat svg{width:14px;height:14px;color:var(--sage)}
+.tier.dark h3,.tier.dark .price{color:#F3EBDD}
+.tier.dark .price small{color:rgba(243,235,221,.5)}
+.tier.dark{background:linear-gradient(180deg,#3A2E22,#241D16)}
+.tier.dark .core{background:#241D16;box-shadow:inset 0 1px 1px rgba(255,255,255,.14)}
+.tier.dark .tfeat li{color:rgba(243,235,221,.75)}
+.tier.dark .tfeat svg{color:#D4BA80}
+.pop{display:inline-block;font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;color:#241D16;background:#D4BA80;border-radius:999px;padding:5px 12px;margin-bottom:14px}
+.btn.cream{background:#F3EBDD;color:#241D16;box-shadow:none}
+.btn.cream .ic{background:rgba(36,29,22,.08)}
+.btn.cream:hover{background:#fff}
+.closing .shell{background:linear-gradient(180deg,rgba(243,235,221,.16),rgba(243,235,221,.05))}
+.closing{background:#1B150F;color:#F3EBDD;border-radius:44px;padding:clamp(70px,10vw,130px) clamp(24px,6vw,80px);text-align:center;overflow:hidden}
+.closing h2{color:#F6EFE2;margin:26px 0 20px}
+.closing .eyebrow{color:#CDBFA6;background:rgba(243,235,221,.08);box-shadow:inset 0 0 0 1px rgba(243,235,221,.18)}
+.closing .lead{color:rgba(243,235,221,.65);margin:0 auto 40px}
+.signup{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.signup .field{display:flex;align-items:center;border-radius:999px;padding:7px 7px 7px 24px;background:rgba(243,235,221,.07);box-shadow:inset 0 0 0 1px rgba(243,235,221,.18),inset 0 1px 1px rgba(255,255,255,.1);min-width:min(340px,86vw)}
+.signup input{border:0;background:transparent;outline:none;color:#F3EBDD;font-family:var(--body);font-size:15px;flex:1;min-width:0}
+.signup input::placeholder{color:rgba(243,235,221,.4)}
+.foot{padding:60px 0 46px}
+.foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:56px}
+.foot h4{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#A99C88;margin-bottom:16px;font-weight:700}
+.foot a.fl{display:block;font-size:14px;color:#5F564A;padding:5px 0;transition:color .4s var(--e),transform .4s var(--e)}
+.foot a.fl:hover{color:var(--clay);transform:translateX(4px)}
+.foot-bottom{display:flex;justify-content:space-between;gap:20px;padding-top:26px;border-top:1px solid rgba(29,25,21,.12);font-size:12.5px;color:#9A8E7C}
+.iter{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:6px;border-radius:999px;padding:6px;background:rgba(253,251,247,.78);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:inset 0 0 0 1px rgba(29,25,21,.14),inset 0 1px 1px rgba(255,255,255,.9),0 16px 36px -12px rgba(88,60,35,.4);transition:opacity .5s var(--e)}
+body.menu-open .iter{opacity:0;pointer-events:none}
+.ia{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#6B6154;transition:background .45s var(--e),color .45s var(--e),transform .45s var(--e)}
+.ia:hover{background:rgba(29,25,21,.07);color:var(--ink);transform:scale(1.06)}
+.icap{font-size:9px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:rgba(29,25,21,.4);padding:0 10px 0 8px}
+.dots{display:flex;gap:4px}
+.dt{min-width:28px;height:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;color:rgba(29,25,21,.5);transition:all .55s var(--e)}
+.dt:hover{background:rgba(29,25,21,.07);color:var(--ink)}
+.dt.on{min-width:34px;background:var(--esp);color:#F3EBDD;box-shadow:0 6px 14px -4px rgba(36,29,22,.5)}
+@media (max-width:1020px){
+  .hero-grid{grid-template-columns:1fr;gap:70px}
+  .slips{min-height:0;display:flex;flex-direction:column;gap:18px}
+  .slip{position:static;width:100%;transform:none!important}
+  .method-grid{grid-template-columns:1fr;gap:50px}.method-l{position:static}
+  .tier{grid-template-columns:1fr;gap:20px}
+  .foot-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:880px){
+  .links{display:none}.burger{display:block}
+  .nav{padding:7px 7px 7px 18px}
+}
+@media (max-width:640px){
+  .mstep{grid-template-columns:1fr;gap:12px}
+  .hero{padding-top:140px}
+  .cta-row .btn{width:100%;justify-content:space-between}
+  .foot-grid{grid-template-columns:1fr}
+  .foot-bottom{flex-direction:column}
+}
+</style>
+</head>
+<body data-iter="2">
+<div class="grain" aria-hidden="true"></div>
+
+<header class="navwrap">
+  <nav class="nav" aria-label="Primary">
+    <a class="brand" href="2.html">Margin<i>alia</i></a>
+    <div class="links">
+      <a href="#method">Method</a><a href="#shelves">Shelves</a><a href="#voices">Voices</a><a href="#join">Pricing</a>
+      <a class="ncta" href="#join">Begin</a>
+    </div>
+    <button class="burger" aria-expanded="false" aria-label="Open menu"><span></span><span></span></button>
+  </nav>
+</header>
+
+<div class="menu" role="dialog" aria-modal="true" aria-label="Navigation">
+  <div class="container menu-inner">
+    <a class="mlink" href="#method"><span class="mnum">01</span>The Method</a>
+    <a class="mlink" href="#shelves"><span class="mnum">02</span>Shelves</a>
+    <a class="mlink" href="#voices"><span class="mnum">03</span>Voices</a>
+    <a class="mlink" href="#join"><span class="mnum">04</span>Pricing</a>
+    <div class="menu-cta"><a class="btn" href="#join">Begin your book <span class="ic">↗</span></a></div>
+  </div>
+</div>
+
+<section class="hero" id="top">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow reveal">A commonplace book, digitized</span>
+      <h1 class="reveal" data-d="1">A second brain, kept <i>slowly</i>.</h1>
+      <p class="lead reveal" data-d="2">Marginalia is a note-taking studio for readers, writers, and slow thinkers. Underline boldly, review gently every Sunday, and let essays grow out of your own margins.</p>
+      <div class="cta-row reveal" data-d="3">
+        <a class="btn" href="#join">Begin your book <span class="ic">↗</span></a>
+        <a class="btn ghost" href="#method">Read the manifesto <span class="ic">→</span></a>
+      </div>
+      <p class="meta reveal" data-d="4">Free for readers · Atelier, $6 a month</p>
+    </div>
+    <div class="slips reveal" data-d="2">
+      <article class="slip s2">
+        <div class="shell"><span class="tape"></span>
+          <div class="core slip-inner">
+            <h3>Shopping lists as poetics</h3>
+            <p>Borges built a whole encyclopedia out of an entry that described nothing. Your grocery list can hardly do worse.</p>
+            <footer><b>notebooks</b> · Feb 27</footer>
+          </div>
+        </div>
+      </article>
+      <article class="slip s1">
+        <div class="shell"><span class="tape" style="left:auto;right:30px;transform:rotate(5deg)"></span>
+          <div class="core slip-inner">
+            <div class="rule"></div>
+            <h3>On re-reading</h3>
+            <p>A second read isn't repetition — it's a conversation with the reader you used to be.</p>
+            <footer><b>re-reading</b> · Mar 04</footer>
+          </div>
+        </div>
+      </article>
+      <article class="slip s3">
+        <div class="shell"><span class="tape" style="left:50%;transform:rotate(-2deg)"></span>
+          <div class="core slip-inner">
+            <h3>Attention residue</h3>
+            <p>Every tab you leave open leaves a thin film on the next task. Cleaning it is a writing practice.</p>
+            <footer><b>attention</b> · Feb 19</footer>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="method">
+  <div class="container method-grid">
+    <div class="method-l reveal">
+      <span class="eyebrow">The Method</span>
+      <h2>Capture.<br>Compost.<br>Bloom.</h2>
+      <p class="lead">Three quiet habits, one notebook. No systems to maintain, no plugin garage — just the oldest writing technology there is: notes on notes.</p>
+      <p class="method-note">One review, every Sunday · Twelve minutes</p>
+    </div>
+    <ol class="method-r">
+      <li class="mstep reveal"><span class="mnumeral">I</span>
+        <div>
+          <h3>Capture in the margins</h3>
+          <p>Clip passages from articles, books, and podcasts as you meet them. They arrive already wearing their citations like bookmarks.</p>
+          <span class="tagline"><span class="tag">clippings</span><span class="tag">auto-citations</span></span>
+        </div>
+      </li>
+      <li class="mstep reveal" data-d="1"><span class="mnumeral">II</span>
+        <div>
+          <h3>Compost every Sunday</h3>
+          <p>A twelve-minute walk through what you saved. Most of it gets discarded, deliberately. What survives is actually yours.</p>
+          <span class="tagline"><span class="tag">weekly review</span><span class="tag">deliberate forgetting</span></span>
+        </div>
+      </li>
+      <li class="mstep reveal" data-d="2"><span class="mnumeral">III</span>
+        <div>
+          <h3>Bloom into essays</h3>
+          <p>Clusters of notes surface as drafts. The index writes itself; you write the part only you can write.</p>
+          <span class="tagline"><span class="tag">drafts</span><span class="tag">self-writing index</span></span>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="section shelves-sec" id="shelves" style="padding-top:0">
+  <div class="container">
+    <span class="eyebrow reveal">Shelves people keep</span>
+    <div class="shelves reveal" data-d="1">
+      <span class="shelf">Typography <small>214</small></span><span class="shelf">Coffee <small>96</small></span><span class="shelf">Attention <small>188</small></span><span class="shelf">Slowness <small>57</small></span><span class="shelf">Architecture <small>73</small></span><span class="shelf">Bees <small>41</small></span><span class="shelf">Nouns <small>129</small></span><span class="shelf">Weather <small>203</small></span><span class="shelf">Forgetting <small>64</small></span><span class="shelf">Letters <small>88</small></span><span class="shelf">Maps <small>52</small></span><span class="shelf">Silence <small>37</small></span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="voices" style="text-align:center;padding-top:0">
+  <div class="container">
+    <p class="pull reveal">“I stopped storing thoughts in shoeboxes. Marginalia is the first app that <b>reads back to me</b>.”</p>
+    <div class="author reveal" data-d="1">
+      <span class="avatar">AB</span>
+      <span class="author-txt"><b>Ana Belmonte</b>Essayist · 340 margins this year</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="join" style="padding-top:0">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:clamp(44px,6vw,64px)" class="reveal">
+      <span class="eyebrow">Admission</span>
+      <h2 style="margin-top:22px">Three doors, one notebook.</h2>
+    </div>
+    <div class="tiers">
+      <div class="tier reveal">
+        <div class="core" style="background:transparent;box-shadow:none">
+          <h3>The Reading Room</h3>
+          <span class="price">Free</span>
+        </div>
+        <ul class="tfeat">
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m3.5 8.5 3 3 6-7"/></svg>Unlimited reading</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m3.5 8.5 3 3 6-7"/></svg>100 passages</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m3.5 8.5 3 3 6-7"/></svg>One bookshelf</li>
+        </ul>
+        <a class="btn ghost" href="#top">Open the door <span class="ic">↗</span></a>
+      </div>
+      <div class="tier dark reveal" data-d="1">
+        <div class="core" style="background:transparent;box-shadow:none">
+          <span class="pop">Most kept</span>
+          <h3>Atelier</h3>
+          <span class="price">$6 <small>/ MONTH</small></span>
+        </div>
+        <ul class="tfeat">
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m3.5 8.5 3 3 6-7"/></svg>Unlimited passages</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m3.5 8.5 3 3 6-7"/></svg>Sunday compost</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m3.5 8.5 3 3 6-7"/></svg>Auto-citations</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m3.5 8.5 3 3 6-7"/></svg>Three desks</li>
+        </ul>
+        <a class="btn cream" href="#top">Take a desk <span class="ic">↗</span></a>
+      </div>
+      <div class="tier reveal" data-d="2">
+        <div class="core" style="background:transparent;box-shadow:none">
+          <h3>The Library</h3>
+          <span class="price">$12 <small>/ MONTH</small></span>
+        </div>
+        <ul class="tfeat">
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m3.5 8.5 3 3 6-7"/></svg>Everything in Atelier</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m3.5 8.5 3 3 6-7"/></svg>Shared stacks</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m3.5 8.5 3 3 6-7"/></svg>Publish as a journal</li>
+        </ul>
+        <a class="btn ghost" href="#top">Build the shelves <span class="ic">↗</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section closing">
+  <div class="container" style="position:relative;z-index:1">
+    <span class="eyebrow reveal">A quieter inbox</span>
+    <h2 class="reveal" data-d="1">Keep what you read.</h2>
+    <p class="lead reveal" data-d="2">Two letters a season — one on a method, one on a book. Nothing else, ever.</p>
+    <div class="signup reveal" data-d="3">
+      <div class="field">
+        <input type="email" placeholder="you@yourdesk.com" aria-label="Email address">
+        <button class="btn" type="button">Request invite <span class="ic">↗</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="2.html" style="margin-bottom:14px">Margin<i>alia</i></a>
+        <p style="font-size:13.5px;color:#8A7E6D;max-width:30ch;margin-top:12px">A commonplace book for people who read like it matters — because it does.</p>
+      </div>
+      <div><h4>Practice</h4><a class="fl" href="#method">The Method</a><a class="fl" href="#method">Manifesto</a><a class="fl" href="#join">Changelog</a></div>
+      <div><h4>Studio</h4><a class="fl" href="#voices">About</a><a class="fl" href="#voices">Letters</a><a class="fl" href="#join">Contact</a></div>
+      <div><h4>Shelves</h4><a class="fl" href="#shelves">All shelves</a><a class="fl" href="#shelves">Import</a><a class="fl" href="#shelves">Export, kindly</a></div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Marginalia Editions</span>
+      <span>Set in Fraunces &amp; Plus Jakarta · Composted weekly</span>
+    </div>
+  </div>
+</footer>
+
+<nav class="iter" aria-label="Design iterations">
+  <a class="ia" href="1.html" rel="prev" aria-label="Previous iteration">←</a>
+  <span class="icap">Iter</span>
+  <div class="dots">
+    <a class="dt" href="1.html">1</a><a class="dt on" href="2.html" aria-current="true">2</a><a class="dt" href="3.html">3</a><a class="dt" href="4.html">4</a><a class="dt" href="5.html">5</a>
+  </div>
+  <a class="ia" href="3.html" rel="next" aria-label="Next iteration">→</a>
+</nav>
+
+<script>
+const body=document.body,burger=document.querySelector('.burger'),menu=document.querySelector('.menu');
+const setMenu=o=>{body.classList.toggle('menu-open',o);burger.setAttribute('aria-expanded',String(o))};
+burger.addEventListener('click',()=>setMenu(!body.classList.contains('menu-open')));
+document.querySelectorAll('.mlink').forEach(l=>l.addEventListener('click',()=>setMenu(false)));
+const cur=+body.dataset.iter;
+addEventListener('keydown',e=>{
+  if(e.key==='Escape')setMenu(false);
+  if(e.key==='ArrowRight'){e.preventDefault();location.href=(cur%5)+1}
+  if(e.key==='ArrowLeft'){e.preventDefault();location.href=((cur-1+5)%5)+1}
+});
+document.querySelectorAll('.reveal').forEach(el=>{
+  const d=parseInt(el.dataset.d||'0',10);if(d)el.style.transitionDelay=(d*95)+'ms';
+});
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}})},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

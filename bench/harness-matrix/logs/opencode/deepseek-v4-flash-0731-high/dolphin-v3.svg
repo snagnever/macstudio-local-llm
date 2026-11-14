@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7f1d1d"/>
+      <stop offset="0.35" stop-color="#f59e0b"/>
+      <stop offset="0.7" stop-color="#fdba74"/>
+      <stop offset="1" stop-color="#a5f3fc"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff7ed"/>
+      <stop offset="0.35" stop-color="#fde68a"/>
+      <stop offset="0.7" stop-color="#f59e0b" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ocean3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fb923c"/>
+      <stop offset="0.18" stop-color="#ea580c"/>
+      <stop offset="1" stop-color="#431407"/>
+    </linearGradient>
+    <linearGradient id="dolphin3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#334155"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Dusk sky -->
+  <rect x="0" y="0" width="800" height="600" fill="url(#dusk)"/>
+
+  <!-- Setting sun with strong horizon glow -->
+  <circle cx="400" cy="330" r="120" fill="url(#sunGlow)"/>
+  <circle cx="400" cy="320" r="46" fill="#fff7ed"/>
+  <circle cx="400" cy="320" r="54" fill="#fde047" opacity="0.5"/>
+
+  <!-- Wispy dusk clouds -->
+  <g fill="#ffedd5" opacity="0.35">
+    <ellipse cx="120" cy="180" rx="90" ry="16"/>
+    <ellipse cx="260" cy="240" rx="110" ry="18"/>
+    <ellipse cx="560" cy="210" rx="80" ry="14"/>
+    <ellipse cx="680" cy="160" rx="70" ry="12"/>
+  </g>
+
+  <!-- Trainer on a small pedal-boat, centered at stage left -->
+  <g>
+    <!-- boat hull -->
+    <path d="M 120 420 C 175 460 300 462 360 430 C 320 452 150 450 120 420 Z" fill="#b45309"/>
+    <path d="M 130 420 Q 240 445 345 425 Q 250 452 130 420 Z" fill="#d97706"/>
+    <rect x="150" y="405" width="180" height="14" rx="5" fill="#a16207"/>
+
+    <!-- trainer body: seated, torso toward dolphin (right) -->
+    <g>
+      <rect x="212" y="330" width="14" height="70" rx="7" fill="#f7c08a"/>
+      <rect x="230" y="332" width="14" height="68" rx="7" fill="#f7c08a"/>
+      <path d="M 206 330 C 202 300 212 284 224 282 C 236 280 244 292 244 318 Z" fill="#e11d48"/>
+      <circle cx="226" cy="268" r="15" fill="#f7c08a"/>
+      <path d="M 208 268 a 18 18 0 0 1 36 0 Z" fill="#1c1917"/>
+      <path d="M 210 268 a 16 16 0 0 1 30 0 Z" fill="#f7c08a" opacity="0.35"/>
+      <circle cx="236" cy="266" r="2.2" fill="#1e293b"/>
+      <path d="M 219 298 L 380 264 L 380 278 L 219 312 Z" fill="#f7c08a"/>
+      <circle cx="382" cy="271" r="9" fill="#fca5a5"/>
+    </g>
+
+    <!-- Fish, dangling inches from hand -->
+    <g>
+      <line x1="390" y1="266" x2="398" y2="276" stroke="#fca5a5" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="388" y1="282" x2="398" y2="280" stroke="#fca5a5" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M 398 278 C 415 276 420 288 405 292 L 398 292 L 398 278 Z" fill="#fbbf24"/>
+      <path d="M 405 292 L 416 302 L 416 282 Z" fill="#f59e0b"/>
+      <circle cx="408" cy="285" r="2" fill="#1f2937"/>
+    </g>
+  </g>
+
+  <!-- Hula hoop: large, teller in front -->
+  <g transform="translate(460,300) rotate(12)">
+    <circle r="80" fill="none" stroke="#0f766e" stroke-width="10"/>
+    <circle r="80" fill="none" stroke="#14b8a6" stroke-width="4" stroke-dasharray="6 6"/>
+    <circle r="66" fill="none" stroke="#0f766e" stroke-width="2" opacity="0.7"/>
+  </g>
+
+  <!-- Dolphin bursting through hoop, backlit silhouette -->
+  <g transform="translate(470,300) rotate(-30)">
+    <!-- tail + body in a high S-curve -->
+    <path d="M -120 4 C -108 -14 -70 -30 -30 -34 C 20 -40 90 -28 130 -10 C 150 -1 168 14 178 26 C 184 33 190 30 186 22 C 178 6 158 -6 138 -14 C 92 -34 20 -46 -40 -38 C -88 -32 -118 -16 -128 0 C -134 12 -130 20 -122 20 Z" fill="url(#dolphin3)"/>
+    <path d="M -128 6 L -165 -10 L -144 6 L -165 22 Z" fill="#0f172a"/>
+    <path d="M -150 6 L -138 8 L -148 16 Z" fill="#0f172a" opacity="0.55"/>
+    <!-- dorsal fin cutting silhouette -->
+    <path d="M 10 -34 C 22 -62 40 -66 46 -58 C 50 -40 44 -30 40 -32 Z" fill="#1e293b"/>
+    <!-- belly rim-light -->
+    <path d="M -60 -12 C -20 -4 40 2 80 10 C 60 22 0 28 -70 4 Z" fill="#e2e8f0" opacity="0.85"/>
+    <!-- flipper reaching -->
+    <path d="M 90 2 C 96 22 84 32 76 28 C 72 20 80 8 90 2 Z" fill="#1e293b"/>
+    <!-- mouth diving right into the fish -->
+    <path d="M 178 26 C 190 34 202 32 206 26 C 204 18 192 16 184 18 Z" fill="#e2e8f0"/>
+    <path d="M 178 26 L 204 28 L 198 20 Z" fill="#fda4af"/>
+    <g fill="#fff">
+      <path d="M 186 22 l 4 3 l 2 -3 Z"/>
+      <path d="M 196 24 l 4 3 l 2 -4 Z"/>
+    </g>
+    <!-- eye -->
+    <circle cx="128" cy="-18" r="5" fill="#e2e8f0"/>
+    <circle cx="129" cy="-19" r="2" fill="#0f172a"/>
+    <!-- rim highlight on top of head -->
+    <path d="M 60 -36 C 90 -32 120 -24 140 -16" stroke="#fdba74" stroke-width="3" fill="none" opacity="0.7" stroke-linecap="round"/>
+  </g>
+
+  <!-- Water splash at the launch point behind hoop -->
+  <g>
+    <ellipse cx="300" cy="402" rx="120" ry="30" fill="#fb923c" opacity="0.8"/>
+    <path d="M 210 396 q -24 -44 -40 -30 q 12 14 40 30" fill="none" stroke="#ffedd5" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 255 390 q 4 -38 20 -34 q -6 16 -20 26" fill="none" stroke="#fff7ed" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 372 396 q 16 -30 28 -22 q -10 10 -28 22" fill="none" stroke="#ffedd5" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="236" cy="360" r="7" fill="#fff7ed"/>
+    <circle cx="310" cy="352" r="8" fill="#fff7ed"/>
+    <circle cx="366" cy="366" r="6" fill="#fff7ed"/>
+    <circle cx="282" cy="368" r="5" fill="#fff7ed"/>
+    <circle cx="238" cy="386" r="6" fill="#ffedd5"/>
+  </g>
+
+  <!-- Sun path shimmer on water -->
+  <g stroke="#ffe4a1" fill="none" opacity="0.85">
+    <path d="M 380 412 Q 400 406 420 412" stroke-width="3"/>
+    <path d="M 360 432 Q 400 424 440 432" stroke-width="3.5"/>
+    <path d="M 340 454 Q 400 444 460 454" stroke-width="4"/>
+    <path d="M 330 478 Q 400 466 470 478" stroke-width="4.5"/>
+    <path d="M 340 504 Q 400 490 460 504" stroke-width="5"/>
+  </g>
+
+  <!-- Ocean at dusk -->
+  <rect x="0" y="402" width="800" height="198" fill="url(#ocean3)"/>
+  <path d="M 0 402 L 800 402 L 800 412 Q 600 402 400 410 Q 200 418 0 410 Z" fill="#fda4af" opacity="0.6"/>
+  <path d="M 0 418 Q 100 408 200 418 T 400 418 T 600 418 T 800 418 L 800 428 L 0 428 Z" fill="#ed8936" opacity="0.5"/>
+  <path d="M 0 430 Q 120 420 240 430 T 500 430 T 800 430 L 800 442 L 0 442 Z" fill="#c2410c" opacity="0.45"/>
+  <ellipse cx="400" cy="610" rx="500" ry="70" fill="#431407" opacity="0.6"/>
+</svg>

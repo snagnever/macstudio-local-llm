@@ -1,0 +1,333 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700" viewBox="0 0 1000 700">
+  <title>Picnic on top of the clouds</title>
+  <desc>A family of two parents and two children set up a picnic tarp with food on a cloud plateau beside the hot air balloon they landed in.</desc>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2E6FC4"/>
+      <stop offset="0.45" stop-color="#68AEE4"/>
+      <stop offset="0.8" stop-color="#B7E1F5"/>
+      <stop offset="1" stop-color="#E4F3FC"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFF7C9" stop-opacity="0.95"/>
+      <stop offset="0.45" stop-color="#FFE9A0" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#FFE9A0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cloudFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.35" stop-color="#F4F8FC"/>
+      <stop offset="1" stop-color="#C7D8E8"/>
+    </linearGradient>
+    <linearGradient id="envA" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#B7302A"/>
+      <stop offset="0.5" stop-color="#E2564A"/>
+      <stop offset="1" stop-color="#9E241F"/>
+    </linearGradient>
+    <linearGradient id="envB" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#D8B23A"/>
+      <stop offset="0.5" stop-color="#FBDE7C"/>
+      <stop offset="1" stop-color="#C89A28"/>
+    </linearGradient>
+    <linearGradient id="envC" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1E5FA0"/>
+      <stop offset="0.5" stop-color="#3B8BD0"/>
+      <stop offset="1" stop-color="#174C82"/>
+    </linearGradient>
+
+    <pattern id="check" width="44" height="44" patternUnits="userSpaceOnUse"
+             patternTransform="skewX(-20) scale(1,0.55)">
+      <rect width="44" height="44" fill="#E24B3F"/>
+      <rect width="22" height="22" fill="#FDF4E7"/>
+      <rect x="22" y="22" width="22" height="22" fill="#FDF4E7"/>
+    </pattern>
+
+    <clipPath id="tarpClip">
+      <path d="M470 485 L800 485 L890 610 L375 610 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- ===== SKY ===== -->
+  <rect x="0" y="0" width="1000" height="700" fill="url(#sky)"/>
+  <circle cx="852" cy="98" r="150" fill="url(#sunGlow)"/>
+  <circle cx="852" cy="98" r="50" fill="#FFEFA8"/>
+  <circle cx="852" cy="98" r="40" fill="#FFF9DC"/>
+
+  <!-- distant clouds -->
+  <g fill="#FFFFFF" opacity="0.85">
+    <ellipse cx="120" cy="120" rx="52" ry="18"/>
+    <ellipse cx="150" cy="108" rx="34" ry="20"/>
+    <ellipse cx="96" cy="112" rx="26" ry="15"/>
+    <ellipse cx="640" cy="80" rx="46" ry="15"/>
+    <ellipse cx="662" cy="70" rx="30" ry="17"/>
+    <ellipse cx="430" cy="180" rx="40" ry="13"/>
+    <ellipse cx="452" cy="172" rx="26" ry="14"/>
+    <ellipse cx="900" cy="230" rx="58" ry="17"/>
+    <ellipse cx="928" cy="219" rx="34" ry="18"/>
+  </g>
+  <!-- birds -->
+  <g stroke="#2A4A6B" stroke-width="2.4" fill="none" stroke-linecap="round">
+    <path d="M556 148 q9 -8 17 0 q8 -8 17 0"/>
+    <path d="M610 190 q7 -6 13 0 q6 -6 13 0"/>
+    <path d="M700 130 q6 -5 11 0 q5 -5 11 0"/>
+  </g>
+
+  <!-- ===== CLOUD PLATEAU ===== -->
+  <path fill="url(#cloudFill)" d="M-30 730 L-30 505
+      C 0 462 48 442 84 470
+      C 108 434 156 446 178 474
+      C 208 444 252 452 272 478
+      C 302 446 342 456 364 480
+      C 396 448 436 456 458 480
+      C 496 448 536 456 558 480
+      C 594 450 634 456 658 480
+      C 692 448 734 456 756 480
+      C 792 450 834 454 856 480
+      C 892 448 934 446 962 468
+      C 992 480 1012 492 1030 506
+      L 1030 730 Z"/>
+  <!-- extra billows on the cloud rim -->
+  <g fill="#FFFFFF" opacity="0.9">
+    <ellipse cx="84" cy="474" rx="58" ry="26"/>
+    <ellipse cx="272" cy="482" rx="52" ry="22"/>
+    <ellipse cx="558" cy="484" rx="56" ry="22"/>
+    <ellipse cx="856" cy="484" rx="54" ry="22"/>
+    <ellipse cx="960" cy="474" rx="48" ry="24"/>
+  </g>
+  <!-- soft dips in the cloud surface -->
+  <g fill="#DCE8F2" opacity="0.55">
+    <ellipse cx="180" cy="530" rx="150" ry="30"/>
+    <ellipse cx="640" cy="560" rx="220" ry="36"/>
+    <ellipse cx="930" cy="540" rx="120" ry="28"/>
+  </g>
+  <!-- foreground cloud puffs -->
+  <g fill="#FFFFFF" opacity="0.95">
+    <ellipse cx="60" cy="655" rx="140" ry="52"/>
+    <ellipse cx="300" cy="678" rx="150" ry="46"/>
+    <ellipse cx="620" cy="690" rx="180" ry="44"/>
+    <ellipse cx="930" cy="668" rx="150" ry="50"/>
+  </g>
+
+  <!-- ===== HOT AIR BALLOON (landed) ===== -->
+  <g id="balloon">
+    <!-- envelope -->
+    <g>
+      <path d="M215 60 C 300 92 325 190 288 268 C 274 296 250 316 215 320 C 180 316 156 296 142 268 C 105 190 130 92 215 60 Z" fill="url(#envB)"/>
+      <path d="M215 60 C 258 92 272 190 254 268 C 246 296 234 314 215 320 C 196 314 184 296 176 268 C 158 190 172 92 215 60 Z" fill="url(#envA)"/>
+      <path d="M215 60 C 232 92 238 190 230 268 C 226 296 222 314 215 320 C 208 314 204 296 200 268 C 192 190 198 92 215 60 Z" fill="url(#envC)"/>
+      <path d="M142 268 C 105 190 130 92 215 60" fill="none" stroke="#8E5F1C" stroke-width="2" opacity="0.5"/>
+      <path d="M288 268 C 325 190 300 92 215 60" fill="none" stroke="#8E5F1C" stroke-width="2" opacity="0.5"/>
+      <!-- horizontal bands -->
+      <path d="M141 178 Q215 200 289 178" fill="none" stroke="#FFFFFF" stroke-width="4" opacity="0.35"/>
+      <path d="M154 244 Q215 262 276 244" fill="none" stroke="#FFFFFF" stroke-width="4" opacity="0.3"/>
+      <!-- crown ring -->
+      <ellipse cx="215" cy="62" rx="16" ry="6" fill="#8C5A20"/>
+      <!-- mouth -->
+      <ellipse cx="215" cy="320" rx="42" ry="10" fill="#7A4A16"/>
+      <ellipse cx="215" cy="318" rx="42" ry="10" fill="#3C2A16"/>
+    </g>
+    <!-- burner -->
+    <rect x="205" y="326" width="20" height="16" rx="3" fill="#9AA3AC"/>
+    <path d="M215 344 q-7 12 0 22 q7 -10 0 -22 Z" fill="#FFB43D"/>
+    <!-- ropes -->
+    <g stroke="#5C4326" stroke-width="2.6" fill="none">
+      <path d="M180 322 L176 400"/>
+      <path d="M198 324 L192 400"/>
+      <path d="M232 324 L238 400"/>
+      <path d="M250 322 L254 400"/>
+    </g>
+    <!-- basket -->
+    <g>
+      <ellipse cx="215" cy="462" rx="48" ry="9" fill="#B4C6D6" opacity="0.55"/>
+      <path d="M172 400 L258 400 L250 458 L180 458 Z" fill="#C79552"/>
+      <path d="M172 400 L258 400 L256 412 L174 412 Z" fill="#A87838"/>
+      <path d="M180 458 L250 458 L248 464 L182 464 Z" fill="#8E6428"/>
+      <g stroke="#9A7133" stroke-width="2" opacity="0.85">
+        <path d="M176 420 L254 420"/><path d="M178 432 L252 432"/><path d="M179 444 L251 444"/>
+        <path d="M190 412 L188 458"/><path d="M205 412 L204 458"/><path d="M220 412 L221 458"/>
+        <path d="M235 412 L237 458"/>
+      </g>
+      <!-- gear peeking out of the basket -->
+      <rect x="186" y="386" width="22" height="16" rx="3" fill="#D9534F"/>
+      <path d="M214 402 L214 380 q10 -6 16 2 l-4 20 Z" fill="#E8C26A"/>
+      <circle cx="243" cy="393" r="9" fill="#6FBF73"/>
+    </g>
+    <!-- anchor rope + sandbag -->
+    <path d="M258 448 q40 22 78 16" fill="none" stroke="#5C4326" stroke-width="2.6"/>
+    <path d="M330 458 q16 -8 26 4 q6 14 -8 18 q-18 4 -22 -8 Z" fill="#B99A6B"/>
+  </g>
+
+  <!-- ===== PICNIC TARP ===== -->
+  <g>
+    <ellipse cx="630" cy="600" rx="270" ry="34" fill="#C6D6E4" opacity="0.5"/>
+    <g clip-path="url(#tarpClip)">
+      <rect x="360" y="470" width="545" height="150" fill="url(#check)"/>
+      <!-- fabric shading -->
+      <path d="M470 485 L800 485 L890 610 L375 610 Z" fill="#20406A" opacity="0.06"/>
+      <path d="M560 485 Q600 545 540 610" fill="none" stroke="#FFFFFF" stroke-width="6" opacity="0.18"/>
+      <path d="M720 485 Q752 545 806 610" fill="none" stroke="#20406A" stroke-width="5" opacity="0.08"/>
+    </g>
+    <path d="M470 485 L800 485 L890 610 L375 610 Z" fill="none" stroke="#9E2A22" stroke-width="3.5" stroke-linejoin="round"/>
+    <!-- lifted corners -->
+    <path d="M470 485 q-16 -8 -26 4 q14 2 26 -4 Z" fill="#FDF4E7" stroke="#9E2A22" stroke-width="2"/>
+    <path d="M800 485 q18 -8 28 4 q-14 2 -28 -4 Z" fill="#E24B3F" stroke="#9E2A22" stroke-width="2"/>
+  </g>
+
+  <!-- ===== FOOD ON THE TARP ===== -->
+  <!-- picnic hamper -->
+  <g>
+    <path d="M472 556 L470 512 L548 512 L544 556 Z" fill="#C99A55"/>
+    <g stroke="#A57B34" stroke-width="2" opacity="0.9">
+      <path d="M471 524 L547 524"/><path d="M472 536 L546 536"/><path d="M473 548 L545 548"/>
+      <path d="M488 512 L487 556"/><path d="M509 512 L509 556"/><path d="M530 512 L531 556"/>
+    </g>
+    <rect x="466" y="504" width="86" height="12" rx="4" fill="#A57B34"/>
+    <path d="M494 504 q15 -26 30 0" fill="none" stroke="#8A6427" stroke-width="4"/>
+    <!-- baguette + bottle poking out -->
+    <path d="M540 506 q22 -18 34 -30 q8 -8 12 2 q-6 14 -30 32 Z" fill="#D6A354" stroke="#B07E33" stroke-width="1.5"/>
+  </g>
+  <!-- fruit bowl -->
+  <g>
+    <circle cx="596" cy="498" r="10" fill="#E2574C"/>
+    <circle cx="614" cy="500" r="10" fill="#F2A03D"/>
+    <circle cx="605" cy="490" r="9" fill="#7FC24A"/>
+    <path d="M578 500 q28 24 56 0 q-6 20 -28 20 q-22 0 -28 -20 Z" fill="#F6F1E4" stroke="#C9BFAA" stroke-width="2"/>
+  </g>
+  <!-- plate of sandwiches -->
+  <g>
+    <ellipse cx="618" cy="562" rx="46" ry="16" fill="#FFFFFF" stroke="#D3D9DE" stroke-width="2"/>
+    <path d="M586 560 L602 536 L618 560 Z" fill="#F0D79B" stroke="#C9A85E" stroke-width="1.5"/>
+    <path d="M594 556 L604 542 L614 556 Z" fill="#8DC26B"/>
+    <path d="M612 562 L628 538 L644 562 Z" fill="#F0D79B" stroke="#C9A85E" stroke-width="1.5"/>
+    <path d="M620 558 L630 544 L640 558 Z" fill="#E27C6E"/>
+  </g>
+  <!-- watermelon wedges -->
+  <g>
+    <path d="M672 528 a34 34 0 0 1 60 0 Z" fill="#3E8E41"/>
+    <path d="M676 526 a30 30 0 0 1 52 0 Z" fill="#F0F4E0"/>
+    <path d="M680 524 a26 26 0 0 1 44 0 Z" fill="#E85C58"/>
+    <circle cx="694" cy="514" r="2" fill="#3A2A1A"/><circle cx="706" cy="510" r="2" fill="#3A2A1A"/>
+    <circle cx="716" cy="516" r="2" fill="#3A2A1A"/>
+    <path d="M700 546 a26 26 0 0 1 46 0 Z" fill="#3E8E41"/>
+    <path d="M704 544 a22 22 0 0 1 38 0 Z" fill="#E85C58"/>
+  </g>
+  <!-- juice bottle and cups -->
+  <g>
+    <path d="M424 566 l0 -26 q0 -8 5 -12 l0 -8 l10 0 l0 8 q5 4 5 12 l0 26 Z" fill="#F2913D" stroke="#C56F22" stroke-width="1.6"/>
+    <rect x="426" y="546" width="16" height="10" fill="#FFF3D6" opacity="0.7"/>
+    <path d="M450 568 l-4 -18 l18 0 l-4 18 Z" fill="#FFFFFF" stroke="#CBD3D9" stroke-width="1.5"/>
+    <path d="M470 572 l-4 -18 l18 0 l-4 18 Z" fill="#FFFFFF" stroke="#CBD3D9" stroke-width="1.5"/>
+  </g>
+  <!-- pie and cupcakes -->
+  <g>
+    <ellipse cx="742" cy="578" rx="34" ry="13" fill="#E0B26A"/>
+    <ellipse cx="742" cy="574" rx="30" ry="11" fill="#F3D79A"/>
+    <ellipse cx="742" cy="573" rx="20" ry="7" fill="#C8464A"/>
+    <g>
+      <path d="M770 600 l3 -14 l20 0 l3 14 Z" fill="#E8B57C"/>
+      <path d="M770 588 q12 -14 26 0 Z" fill="#F3F0E4"/>
+      <circle cx="783" cy="582" r="3.5" fill="#E2574C"/>
+    </g>
+    <g>
+      <path d="M800 606 l3 -14 l20 0 l3 14 Z" fill="#E8B57C"/>
+      <path d="M800 594 q12 -14 26 0 Z" fill="#F6C7D8"/>
+      <circle cx="813" cy="588" r="3.5" fill="#8E4B9E"/>
+    </g>
+  </g>
+
+  <!-- ===== PEOPLE ===== -->
+  <!-- PARENT 1 : father unloading the basket -->
+  <g id="dad">
+    <ellipse cx="335" cy="470" rx="28" ry="8" fill="#B9CADA" opacity="0.55"/>
+    <ellipse cx="322" cy="464" rx="12" ry="6" fill="#4A3728"/>
+    <ellipse cx="350" cy="464" rx="12" ry="6" fill="#4A3728"/>
+    <rect x="316" y="404" width="15" height="58" rx="7" fill="#39568A"/>
+    <rect x="341" y="404" width="15" height="58" rx="7" fill="#39568A"/>
+    <rect x="329" y="342" width="13" height="14" fill="#EDBB8C"/>
+    <path d="M312 354 Q336 344 360 354 L366 412 L306 412 Z" fill="#2E9E8F"/>
+    <path d="M328 348 L336 360 L344 348 L340 344 L332 344 Z" fill="#25867A"/>
+    <path d="M316 364 Q292 380 266 398" fill="none" stroke="#EDBB8C" stroke-width="11" stroke-linecap="round"/>
+    <path d="M356 364 Q376 382 374 404" fill="none" stroke="#EDBB8C" stroke-width="11" stroke-linecap="round"/>
+    <circle cx="264" cy="400" r="7" fill="#EDBB8C"/>
+    <circle cx="374" cy="406" r="7" fill="#EDBB8C"/>
+    <circle cx="336" cy="330" r="18" fill="#EDBB8C"/>
+    <path d="M318 328 Q319 306 336 305 Q354 306 355 328 Q346 316 336 318 Q326 320 318 328 Z" fill="#4A342A"/>
+    <circle cx="330" cy="331" r="2" fill="#3A2A20"/>
+    <circle cx="343" cy="331" r="2" fill="#3A2A20"/>
+    <path d="M331 339 q5 5 10 0" fill="none" stroke="#8A5A44" stroke-width="1.8" stroke-linecap="round"/>
+    <!-- crate he is carrying -->
+    <g>
+      <rect x="358" y="408" width="38" height="26" rx="3" fill="#C79552" stroke="#9A7133" stroke-width="2"/>
+      <circle cx="368" cy="406" r="7" fill="#E2574C"/>
+      <circle cx="381" cy="404" r="7" fill="#F2A03D"/>
+      <circle cx="392" cy="407" r="6" fill="#7FC24A"/>
+    </g>
+  </g>
+
+  <!-- PARENT 2 : mother spreading the tarp -->
+  <g id="mom">
+    <ellipse cx="480" cy="480" rx="28" ry="8" fill="#B9CADA" opacity="0.5"/>
+    <ellipse cx="468" cy="474" rx="11" ry="5.5" fill="#7A4B2A"/>
+    <ellipse cx="493" cy="474" rx="11" ry="5.5" fill="#7A4B2A"/>
+    <rect x="462" y="440" width="12" height="32" rx="5" fill="#EDBB8C"/>
+    <rect x="487" y="440" width="12" height="32" rx="5" fill="#EDBB8C"/>
+    <path d="M456 398 L505 398 L514 448 L447 448 Z" fill="#E8705E"/>
+    <rect x="474" y="348" width="13" height="14" fill="#EDBB8C"/>
+    <path d="M459 360 Q480 350 502 360 L508 404 L453 404 Z" fill="#F5D06E"/>
+    <path d="M459 372 Q446 420 452 468" fill="none" stroke="#EDBB8C" stroke-width="10" stroke-linecap="round"/>
+    <path d="M502 372 Q516 420 510 468" fill="none" stroke="#EDBB8C" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="452" cy="470" r="6.5" fill="#EDBB8C"/>
+    <circle cx="510" cy="470" r="6.5" fill="#EDBB8C"/>
+    <circle cx="480" cy="336" r="17" fill="#EDBB8C"/>
+    <path d="M462 340 Q457 312 480 309 Q503 312 498 340 Q503 364 494 372 L491 340 Q480 331 469 340 L466 372 Q457 364 462 340 Z" fill="#6B3B24"/>
+    <circle cx="474" cy="337" r="2" fill="#3A2A20"/>
+    <circle cx="487" cy="337" r="2" fill="#3A2A20"/>
+    <path d="M475 344 q5 5 10 0" fill="none" stroke="#8A5A44" stroke-width="1.8" stroke-linecap="round"/>
+  </g>
+
+  <!-- CHILD 1 : boy running with an apple -->
+  <g id="boy">
+    <ellipse cx="690" cy="472" rx="21" ry="6" fill="#B9CADA" opacity="0.5"/>
+    <path d="M683 432 L672 464" fill="none" stroke="#40669B" stroke-width="11" stroke-linecap="round"/>
+    <path d="M695 432 L710 458" fill="none" stroke="#40669B" stroke-width="11" stroke-linecap="round"/>
+    <ellipse cx="669" cy="467" rx="9" ry="4.5" fill="#C0392B"/>
+    <ellipse cx="713" cy="460" rx="9" ry="4.5" fill="#C0392B"/>
+    <path d="M676 400 Q690 394 704 400 L708 436 L672 436 Z" fill="#E2574C"/>
+    <path d="M676 408 Q662 392 659 375" fill="none" stroke="#EDBB8C" stroke-width="9" stroke-linecap="round"/>
+    <path d="M704 408 Q719 418 717 430" fill="none" stroke="#EDBB8C" stroke-width="9" stroke-linecap="round"/>
+    <circle cx="658" cy="373" r="5.5" fill="#EDBB8C"/>
+    <circle cx="718" cy="433" r="5.5" fill="#EDBB8C"/>
+    <circle cx="721" cy="440" r="7" fill="#D94A3D"/>
+    <path d="M721 433 q2 -5 6 -5" fill="none" stroke="#5C8B33" stroke-width="2"/>
+    <rect x="685" y="390" width="10" height="10" fill="#EDBB8C"/>
+    <circle cx="690" cy="380" r="15" fill="#EDBB8C"/>
+    <path d="M675 378 Q676 361 690 360 Q705 361 705 378 Q697 368 690 370 Q682 372 675 378 Z" fill="#3E2C22"/>
+    <circle cx="685" cy="381" r="1.8" fill="#3A2A20"/>
+    <circle cx="695" cy="381" r="1.8" fill="#3A2A20"/>
+    <path d="M685 388 q5 5 10 0" fill="none" stroke="#8A5A44" stroke-width="1.6" stroke-linecap="round"/>
+  </g>
+
+  <!-- CHILD 2 : girl sitting on the tarp -->
+  <g id="girl">
+    <ellipse cx="822" cy="562" rx="42" ry="12" fill="#20406A" opacity="0.12"/>
+    <path d="M808 532 Q826 552 852 552" fill="none" stroke="#EDBB8C" stroke-width="11" stroke-linecap="round"/>
+    <path d="M820 532 Q838 556 858 562" fill="none" stroke="#EDBB8C" stroke-width="11" stroke-linecap="round"/>
+    <ellipse cx="857" cy="551" rx="9" ry="5" fill="#F0C24A"/>
+    <ellipse cx="863" cy="562" rx="9" ry="5" fill="#F0C24A"/>
+    <path d="M796 518 L830 518 L836 542 L792 542 Z" fill="#7E5FC4"/>
+    <path d="M800 498 Q812 492 824 498 L829 522 L795 522 Z" fill="#9B7ADB"/>
+    <path d="M800 506 Q790 528 786 546" fill="none" stroke="#EDBB8C" stroke-width="8.5" stroke-linecap="round"/>
+    <path d="M824 506 Q836 516 834 528" fill="none" stroke="#EDBB8C" stroke-width="8.5" stroke-linecap="round"/>
+    <circle cx="785" cy="548" r="5" fill="#EDBB8C"/>
+    <circle cx="834" cy="530" r="5" fill="#EDBB8C"/>
+    <rect x="808" y="488" width="9" height="10" fill="#EDBB8C"/>
+    <circle cx="812" cy="482" r="15" fill="#EDBB8C"/>
+    <path d="M797 480 Q798 463 812 462 Q827 463 827 480 Q819 470 812 472 Q804 474 797 480 Z" fill="#7A4A2C"/>
+    <circle cx="795" cy="486" r="7" fill="#7A4A2C"/>
+    <circle cx="829" cy="486" r="7" fill="#7A4A2C"/>
+    <circle cx="807" cy="483" r="1.8" fill="#3A2A20"/>
+    <circle cx="817" cy="483" r="1.8" fill="#3A2A20"/>
+    <path d="M807 490 q5 5 10 0" fill="none" stroke="#8A5A44" stroke-width="1.6" stroke-linecap="round"/>
+    <!-- cupcake she is reaching for is already on the tarp -->
+  </g>
+</svg>

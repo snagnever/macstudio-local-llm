@@ -1,0 +1,398 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600">
+  <title>A cow plowing a field</title>
+  <desc>A harnessed black-and-white cow leans into a collar and drags a walking plow to the left; the share opens a furrow whose fresh dark soil spreads behind it while unbroken stubble lies ahead.</desc>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6fbde6"/>
+      <stop offset="0.5" stop-color="#b4dcf0"/>
+      <stop offset="1" stop-color="#f0f6ee"/>
+    </linearGradient>
+    <linearGradient id="stubble" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e0d3a4"/>
+      <stop offset="0.28" stop-color="#d5c084"/>
+      <stop offset="1" stop-color="#bf a" stop-opacity="1"/>
+      <stop offset="1" stop-color="#c0a55d"/>
+    </linearGradient>
+    <linearGradient id="stubbleFg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c6ab63"/>
+      <stop offset="1" stop-color="#a98f4a"/>
+    </linearGradient>
+    <linearGradient id="soil" x1="0.1" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#61472f"/>
+      <stop offset="1" stop-color="#33240f"/>
+    </linearGradient>
+    <radialGradient id="sunglow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff6cf" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#fff6cf" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#d3d9e0"/>
+      <stop offset="0.5" stop-color="#8d959f"/>
+      <stop offset="1" stop-color="#5b626c"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a87c46"/>
+      <stop offset="1" stop-color="#6f4c26"/>
+    </linearGradient>
+    <clipPath id="bodyClip">
+      <path d="M 262,352 C 274,326 300,314 340,312 C 382,308 424,316 448,332 C 470,344 478,378 470,404 C 464,428 442,436 414,434 C 360,438 306,436 280,424 C 262,416 252,378 262,352 Z"/>
+    </clipPath>
+    <clipPath id="headClip">
+      <path d="M 202,336 C 226,336 234,356 230,378 C 226,398 202,406 178,402 C 154,398 138,386 140,370 C 143,350 176,334 202,336 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- ============ SKY ============ -->
+  <rect x="0" y="0" width="900" height="262" fill="url(#sky)"/>
+  <circle cx="770" cy="70" r="88" fill="url(#sunglow)"/>
+  <circle cx="770" cy="70" r="34" fill="#ffe27a"/>
+  <circle cx="770" cy="70" r="27" fill="#fff5c0"/>
+
+  <g fill="#ffffff" opacity="0.92">
+    <ellipse cx="146" cy="66" rx="54" ry="21"/>
+    <ellipse cx="188" cy="56" rx="38" ry="26"/>
+    <ellipse cx="108" cy="74" rx="34" ry="17"/>
+    <ellipse cx="230" cy="72" rx="30" ry="15"/>
+  </g>
+  <g fill="#ffffff" opacity="0.72">
+    <ellipse cx="512" cy="44" rx="44" ry="16"/>
+    <ellipse cx="548" cy="36" rx="30" ry="20"/>
+    <ellipse cx="478" cy="50" rx="26" ry="12"/>
+  </g>
+  <g fill="#ffffff" opacity="0.55">
+    <ellipse cx="352" cy="126" rx="42" ry="12"/>
+    <ellipse cx="386" cy="120" rx="26" ry="14"/>
+  </g>
+
+  <g fill="none" stroke="#455663" stroke-width="2.4" stroke-linecap="round">
+    <path d="M 300,74 q 10,-9 20,0 q 10,-9 20,0"/>
+    <path d="M 352,98 q 8,-7 16,0 q 8,-7 16,0"/>
+    <path d="M 262,112 q 7,-6 14,0 q 7,-6 14,0"/>
+    <path d="M 618,104 q 9,-8 18,0 q 9,-8 18,0"/>
+    <path d="M 668,132 q 7,-6 14,0 q 7,-6 14,0"/>
+  </g>
+
+  <!-- ============ HILLS / HORIZON ============ -->
+  <path d="M 0,248 C 90,220 170,218 240,240 C 310,262 360,232 430,236 C 520,242 560,220 640,228 C 720,236 810,222 900,236 L 900,270 L 0,270 Z" fill="#96b781"/>
+  <path d="M 0,258 C 120,244 210,254 300,250 C 420,244 520,258 620,252 C 730,246 820,256 900,250 L 900,274 L 0,274 Z" fill="#7ea569"/>
+
+  <g>
+    <ellipse cx="58" cy="246" rx="26" ry="17" fill="#4d7843"/>
+    <ellipse cx="94" cy="250" rx="20" ry="12" fill="#5b8a4d"/>
+    <ellipse cx="298" cy="248" rx="24" ry="15" fill="#4d7843"/>
+    <ellipse cx="328" cy="252" rx="18" ry="11" fill="#5b8a4d"/>
+    <ellipse cx="556" cy="248" rx="22" ry="14" fill="#4d7843"/>
+    <ellipse cx="586" cy="253" rx="16" ry="10" fill="#5b8a4d"/>
+    <rect x="854" y="252" width="7" height="20" fill="#5b4632"/>
+    <ellipse cx="858" cy="242" rx="28" ry="18" fill="#4d7843"/>
+  </g>
+
+  <rect x="176" y="222" width="10" height="48" fill="#5b4632"/>
+  <ellipse cx="181" cy="214" rx="35" ry="26" fill="#487040"/>
+  <ellipse cx="162" cy="228" rx="23" ry="16" fill="#548149"/>
+  <ellipse cx="201" cy="228" rx="21" ry="15" fill="#548149"/>
+
+  <g>
+    <rect x="430" y="222" width="66" height="44" fill="#ab4331"/>
+    <path d="M 423,224 L 463,197 L 503,224 Z" fill="#8b3325"/>
+    <rect x="452" y="242" width="21" height="24" fill="#6f2a1f"/>
+    <path d="M 452,242 L 473,266 M 473,242 L 452,266" stroke="#c98d6a" stroke-width="2"/>
+    <rect x="436" y="230" width="10" height="10" fill="#f4e8cc"/>
+    <rect x="480" y="230" width="10" height="10" fill="#f4e8cc"/>
+    <rect x="504" y="236" width="27" height="30" fill="#bb543f"/>
+    <path d="M 499,238 L 517,224 L 536,238 Z" fill="#8b3325"/>
+  </g>
+
+  <g stroke="#8a7150" stroke-width="3" stroke-linecap="round">
+    <path d="M 0,266 L 900,262"/>
+    <path d="M 0,274 L 900,270"/>
+  </g>
+  <g fill="#7a6344">
+    <rect x="24" y="256" width="5" height="24"/>
+    <rect x="124" y="256" width="5" height="24"/>
+    <rect x="224" y="256" width="5" height="24"/>
+    <rect x="384" y="255" width="5" height="24"/>
+    <rect x="544" y="254" width="5" height="24"/>
+    <rect x="704" y="253" width="5" height="24"/>
+    <rect x="824" y="252" width="5" height="24"/>
+  </g>
+
+  <!-- ============ STANDING FIELD (behind the working line) ============ -->
+  <rect x="0" y="270" width="900" height="240" fill="url(#stubble)"/>
+
+  <!-- distant strips already turned, far right -->
+  <path d="M 604,288 C 700,284 800,290 900,286 L 900,296 C 800,300 700,294 604,298 Z" fill="#7d6142" opacity="0.75"/>
+  <path d="M 626,306 C 720,302 810,308 900,304 L 900,316 C 810,320 720,314 626,318 Z" fill="#75593b" opacity="0.75"/>
+
+  <!-- receding furrow rows: dark trough + lit ridge -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M 0,292 C 220,288 420,296 604,290" stroke="#ad9350" stroke-width="1.5"/>
+    <path d="M 0,310 C 230,306 430,314 626,308" stroke="#ab904c" stroke-width="1.8"/>
+    <path d="M 0,330 C 240,325 500,334 900,326" stroke="#a88c47" stroke-width="2.1"/>
+    <path d="M 0,327 C 240,322 500,331 900,323" stroke="#e6d7a6" stroke-width="1.3" opacity="0.7"/>
+    <path d="M 0,356 C 250,350 520,360 900,351" stroke="#a58943" stroke-width="2.5"/>
+    <path d="M 0,352 C 250,346 520,356 900,347" stroke="#e6d7a6" stroke-width="1.5" opacity="0.7"/>
+    <path d="M 0,388 C 250,381 520,392 900,382" stroke="#a2853f" stroke-width="2.9"/>
+    <path d="M 0,383 C 250,376 520,387 900,377" stroke="#e6d7a6" stroke-width="1.7" opacity="0.7"/>
+    <path d="M 0,426 C 250,418 520,430 900,419" stroke="#9e803a" stroke-width="3.3"/>
+    <path d="M 0,420 C 250,412 520,424 900,413" stroke="#e6d7a6" stroke-width="2" opacity="0.65"/>
+    <path d="M 0,472 C 250,462 520,476 900,464" stroke="#9a7c36" stroke-width="3.8"/>
+    <path d="M 0,465 C 250,455 520,469 900,457" stroke="#e6d7a6" stroke-width="2.2" opacity="0.6"/>
+  </g>
+
+  <!-- ============ GROUND SPLIT: stubble ahead (left), turned soil behind (right) ============ -->
+  <!-- unbroken stubble reaching the viewer, left of the share -->
+  <path d="M 0,494 C 180,489 400,500 646,506 L 604,600 L 0,600 Z" fill="url(#stubbleFg)"/>
+  <g stroke="#8f7433" stroke-width="2.4" stroke-linecap="round" opacity="0.9">
+    <path d="M 40,540 l 0,-16 M 49,540 l 6,-13 M 31,540 l -6,-13"/>
+    <path d="M 128,568 l 0,-17 M 138,568 l 7,-14 M 118,568 l -7,-14"/>
+    <path d="M 236,536 l 0,-14 M 245,536 l 6,-12 M 227,536 l -6,-12"/>
+    <path d="M 330,586 l 0,-19 M 341,586 l 8,-15 M 319,586 l -8,-15"/>
+    <path d="M 424,548 l 0,-15 M 434,548 l 6,-12 M 414,548 l -6,-12"/>
+    <path d="M 512,592 l 0,-19 M 523,592 l 8,-15 M 501,592 l -8,-15"/>
+    <path d="M 196,596 l 0,-18 M 207,596 l 8,-14 M 185,596 l -8,-14"/>
+    <path d="M 76,584 l 0,-16 M 86,584 l 7,-13 M 66,584 l -7,-13"/>
+    <path d="M 566,556 l 0,-15 M 576,556 l 7,-12 M 556,556 l -7,-12"/>
+    <path d="M 292,516 l 0,-12 M 300,516 l 5,-10 M 284,516 l -5,-10"/>
+    <path d="M 470,514 l 0,-12 M 478,514 l 5,-10 M 462,514 l -5,-10"/>
+  </g>
+
+  <!-- open furrow wall cut by the share -->
+  <path d="M 646,506 L 604,600 L 638,600 L 676,508 Z" fill="#8a6b3f"/>
+  <path d="M 646,506 L 604,600 L 616,600 L 656,506 Z" fill="#a98a55"/>
+
+  <!-- freshly turned soil behind the plow -->
+  <path d="M 648,504 C 720,494 800,500 900,492 L 900,600 L 630,600 Z" fill="url(#soil)"/>
+  <g fill="none" stroke="#2b1d10" stroke-width="4" stroke-linecap="round" opacity="0.65">
+    <path d="M 660,516 C 730,506 810,512 900,504"/>
+    <path d="M 672,546 C 740,534 820,542 900,532"/>
+    <path d="M 690,582 C 756,568 830,576 900,566"/>
+  </g>
+  <g fill="none" stroke="#8a6a45" stroke-width="2.6" stroke-linecap="round" opacity="0.7">
+    <path d="M 660,510 C 730,500 810,506 900,498"/>
+    <path d="M 672,540 C 740,528 820,536 900,526"/>
+    <path d="M 690,576 C 756,562 830,570 900,560"/>
+  </g>
+  <g fill="#6d5236" opacity="0.95">
+    <ellipse cx="706" cy="524" rx="18" ry="9" transform="rotate(-9 706 524)"/>
+    <ellipse cx="768" cy="512" rx="15" ry="8" transform="rotate(7 768 512)"/>
+    <ellipse cx="836" cy="518" rx="19" ry="9" transform="rotate(-5 836 518)"/>
+    <ellipse cx="716" cy="562" rx="22" ry="11" transform="rotate(6 716 562)"/>
+    <ellipse cx="800" cy="552" rx="17" ry="9" transform="rotate(-8 800 552)"/>
+    <ellipse cx="874" cy="580" rx="24" ry="12" transform="rotate(5 874 580)"/>
+    <ellipse cx="668" cy="592" rx="20" ry="10" transform="rotate(-6 668 592)"/>
+    <ellipse cx="778" cy="594" rx="18" ry="9" transform="rotate(9 778 594)"/>
+  </g>
+
+  <!-- gulls picking the fresh furrow -->
+  <g>
+    <g transform="translate(786,538)">
+      <ellipse cx="0" cy="0" rx="16" ry="8.5" fill="#f6f6f2"/>
+      <circle cx="-14" cy="-8" r="6.4" fill="#f6f6f2"/>
+      <path d="M -19,-8 L -29,-6 L -19,-4 Z" fill="#e8a020"/>
+      <circle cx="-15" cy="-9" r="1.4" fill="#222"/>
+      <path d="M 4,-4 L 17,-11 L 13,0 Z" fill="#c5c8c1"/>
+      <path d="M -4,8 L -5,16 M 4,8 L 5,16" stroke="#e8a020" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(866,568) scale(1.2)">
+      <ellipse cx="0" cy="0" rx="16" ry="8.5" fill="#f6f6f2"/>
+      <circle cx="-14" cy="-8" r="6.4" fill="#f6f6f2"/>
+      <path d="M -19,-8 L -29,-6 L -19,-4 Z" fill="#e8a020"/>
+      <circle cx="-15" cy="-9" r="1.4" fill="#222"/>
+      <path d="M 4,-4 L 17,-11 L 13,0 Z" fill="#c5c8c1"/>
+      <path d="M -4,8 L -5,16 M 4,8 L 5,16" stroke="#e8a020" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(700,594) scale(1.35)">
+      <ellipse cx="0" cy="0" rx="16" ry="8.5" fill="#f6f6f2"/>
+      <circle cx="-14" cy="-8" r="6.4" fill="#f6f6f2"/>
+      <path d="M -19,-8 L -29,-6 L -19,-4 Z" fill="#e8a020"/>
+      <circle cx="-15" cy="-9" r="1.4" fill="#222"/>
+      <path d="M 4,-4 L 17,-11 L 13,0 Z" fill="#c5c8c1"/>
+      <path d="M -4,8 L -5,16 M 4,8 L 5,16" stroke="#e8a020" stroke-width="2" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- ============ SHADOWS ============ -->
+  <ellipse cx="360" cy="506" rx="142" ry="13" fill="#4a3a1e" opacity="0.28"/>
+  <ellipse cx="668" cy="508" rx="58" ry="10" fill="#3a2a14" opacity="0.25"/>
+  <ellipse cx="792" cy="510" rx="42" ry="9" fill="#3a2a14" opacity="0.25"/>
+
+  <!-- ============ COW ============ -->
+  <g id="cow">
+    <!-- far legs (behind body) -->
+    <g stroke="#d3cec3" stroke-width="15" stroke-linecap="round" fill="none">
+      <path d="M 272,404 L 276,452 L 288,502"/>
+      <path d="M 452,400 L 446,450 L 436,502"/>
+    </g>
+    <g fill="#3a332e">
+      <rect x="279" y="496" width="19" height="14" rx="4"/>
+      <rect x="427" y="496" width="19" height="14" rx="4"/>
+    </g>
+
+    <!-- tail -->
+    <path d="M 468,338 C 496,354 504,404 492,448" fill="none" stroke="#efece4" stroke-width="8" stroke-linecap="round"/>
+    <path d="M 492,444 C 502,456 500,474 490,482 C 480,474 480,456 492,444 Z" fill="#2f2b28"/>
+
+    <!-- body -->
+    <path d="M 262,352 C 274,326 300,314 340,312 C 382,308 424,316 448,332 C 470,344 478,378 470,404 C 464,428 442,436 414,434 C 360,438 306,436 280,424 C 262,416 252,378 262,352 Z" fill="#f8f6f0" stroke="#2f2b28" stroke-width="2.4" stroke-linejoin="round"/>
+
+    <g clip-path="url(#bodyClip)">
+      <g fill="#2f2b28">
+        <path d="M 296,314 C 334,304 366,318 360,344 C 354,368 322,376 300,364 C 280,352 276,320 296,314 Z"/>
+        <path d="M 404,320 C 446,314 480,332 482,364 C 484,394 460,410 434,400 C 408,390 398,354 404,320 Z"/>
+        <path d="M 326,398 C 356,388 386,400 386,422 C 386,444 356,452 334,442 C 316,434 310,406 326,398 Z"/>
+        <ellipse cx="258" cy="398" rx="19" ry="25"/>
+      </g>
+      <!-- belly shading -->
+      <path d="M 250,410 C 320,446 420,448 480,420 L 480,450 L 250,450 Z" fill="#ded9cd" opacity="0.55"/>
+      <!-- flank muscle line -->
+      <path d="M 444,336 C 458,356 460,384 452,406" fill="none" stroke="#cfcabc" stroke-width="2.5" opacity="0.8"/>
+    </g>
+
+    <!-- udder -->
+    <ellipse cx="428" cy="436" rx="25" ry="16" fill="#eeb0a8" stroke="#c98f88" stroke-width="1.5"/>
+    <path d="M 417,450 l -1,8 M 438,450 l 1,8" stroke="#c98f88" stroke-width="4.5" stroke-linecap="round"/>
+
+    <!-- near legs (striding) -->
+    <g stroke="#f8f6f0" stroke-width="17" stroke-linecap="round" fill="none">
+      <path d="M 292,406 L 280,452 L 264,502"/>
+      <path d="M 428,404 L 440,452 L 454,502"/>
+    </g>
+    <g fill="none" stroke="#2f2b28" stroke-width="2.2" stroke-linecap="round">
+      <path d="M 284,410 L 272,453 L 256,500"/>
+      <path d="M 301,412 L 289,454 L 273,500"/>
+      <path d="M 420,408 L 432,453 L 446,500"/>
+      <path d="M 437,410 L 449,454 L 463,500"/>
+    </g>
+    <!-- knees / hocks -->
+    <g fill="none" stroke="#cfcabc" stroke-width="2.5">
+      <path d="M 274,450 L 288,452"/>
+      <path d="M 434,452 L 448,452"/>
+    </g>
+    <g fill="#2f2b28" stroke="#211d1a" stroke-width="1.5">
+      <path d="M 253,495 L 277,495 L 279,509 L 251,509 Z"/>
+      <path d="M 443,495 L 467,495 L 469,509 L 441,509 Z"/>
+    </g>
+
+    <!-- neck (level, leaning into the collar) -->
+    <path d="M 272,328 C 244,322 214,328 200,342 L 194,392 C 220,406 252,412 276,406 Z" fill="#f8f6f0" stroke="#2f2b28" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="M 200,344 C 214,360 214,378 202,392" fill="none" stroke="#ddd8ca" stroke-width="2.5"/>
+
+    <!-- head -->
+    <path d="M 202,332 C 228,332 236,354 232,378 C 228,400 202,408 176,404 C 152,400 136,386 139,368 C 143,348 176,330 202,332 Z" fill="#f8f6f0" stroke="#2f2b28" stroke-width="2.4" stroke-linejoin="round"/>
+    <g clip-path="url(#headClip)" fill="#2f2b28">
+      <path d="M 196,326 C 226,326 240,344 238,368 C 224,368 202,360 190,344 C 186,334 188,326 196,326 Z"/>
+      <ellipse cx="212" cy="396" rx="20" ry="14"/>
+    </g>
+    <!-- muzzle -->
+    <ellipse cx="154" cy="384" rx="21" ry="16" transform="rotate(-12 154 384)" fill="#eeb0a8" stroke="#c98f88" stroke-width="2"/>
+    <ellipse cx="148" cy="377" rx="3.6" ry="5" transform="rotate(-12 148 377)" fill="#5d3f3b"/>
+    <ellipse cx="161" cy="390" rx="3.2" ry="4.4" transform="rotate(-12 161 390)" fill="#5d3f3b"/>
+    <path d="M 140,392 C 150,400 164,400 172,394" fill="none" stroke="#c98f88" stroke-width="2" stroke-linecap="round"/>
+    <!-- eye -->
+    <ellipse cx="190" cy="356" rx="7.5" ry="8.5" fill="#ffffff" stroke="#2f2b28" stroke-width="2"/>
+    <ellipse cx="189" cy="357" rx="4.6" ry="5.6" fill="#2b2320"/>
+    <circle cx="191" cy="354" r="1.9" fill="#ffffff"/>
+    <path d="M 180,344 C 186,339 196,339 202,343" fill="none" stroke="#2f2b28" stroke-width="2" stroke-linecap="round"/>
+    <!-- ears -->
+    <path d="M 228,342 C 216,326 196,318 184,322 C 188,338 206,352 224,356 Z" fill="#f0ede5" stroke="#2f2b28" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M 236,352 C 250,340 266,336 274,340 C 268,356 254,366 240,366 Z" fill="#d9d4c8" stroke="#2f2b28" stroke-width="2.2" stroke-linejoin="round"/>
+    <!-- horns -->
+    <path d="M 206,330 C 200,314 188,306 176,308" fill="none" stroke="#ecdfbc" stroke-width="7.5" stroke-linecap="round"/>
+    <path d="M 224,330 C 226,314 218,304 206,302" fill="none" stroke="#d7c8a1" stroke-width="6.5" stroke-linecap="round"/>
+    <!-- bridle -->
+    <g fill="none" stroke="#6d4423" stroke-width="4.5" stroke-linecap="round">
+      <path d="M 143,374 C 160,388 184,390 200,378"/>
+      <path d="M 186,338 C 168,344 152,356 143,372"/>
+      <path d="M 200,344 C 200,360 198,376 200,378"/>
+    </g>
+    <circle cx="200" cy="378" r="4" fill="#8d939b"/>
+  </g>
+
+  <!-- ============ HARNESS ============ -->
+  <g id="harness">
+    <path d="M 244,322 C 226,350 226,382 244,406" fill="none" stroke="#6d4423" stroke-width="14" stroke-linecap="round"/>
+    <path d="M 244,322 C 226,350 226,382 244,406" fill="none" stroke="#996639" stroke-width="6" stroke-linecap="round"/>
+    <path d="M 256,320 C 242,348 242,382 258,406" fill="none" stroke="#4d4f55" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="255" cy="326" r="5.5" fill="#8d939b"/>
+    <circle cx="258" cy="404" r="5.5" fill="#8d939b"/>
+    <!-- girth / belly band -->
+    <path d="M 356,314 C 360,356 358,398 362,438" fill="none" stroke="#6d4423" stroke-width="7"/>
+    <path d="M 356,314 C 360,356 358,398 362,438" fill="none" stroke="#8d5b31" stroke-width="3"/>
+    <!-- back pad -->
+    <path d="M 340,310 C 356,306 376,308 384,314 L 380,322 C 366,317 352,317 342,320 Z" fill="#6d4423"/>
+    <!-- traces from collar to the singletree -->
+    <path d="M 250,338 C 360,362 470,404 574,448" fill="none" stroke="#6d4423" stroke-width="5.5" stroke-linecap="round"/>
+    <path d="M 254,404 C 362,424 470,448 576,466" fill="none" stroke="#6d4423" stroke-width="5.5" stroke-linecap="round"/>
+    <circle cx="574" cy="448" r="4.5" fill="#4d4f55"/>
+    <circle cx="576" cy="466" r="4.5" fill="#4d4f55"/>
+  </g>
+
+  <!-- ============ PLOW ============ -->
+  <g id="plow">
+    <!-- singletree -->
+    <path d="M 574,436 L 578,480" stroke="url(#wood)" stroke-width="9" stroke-linecap="round"/>
+    <!-- beam -->
+    <path d="M 576,458 C 606,462 640,472 666,486" fill="none" stroke="#6f4c26" stroke-width="12" stroke-linecap="round"/>
+    <path d="M 576,455 C 606,459 640,469 664,482" fill="none" stroke="#a87c46" stroke-width="4.5" stroke-linecap="round"/>
+    <!-- land wheel -->
+    <circle cx="600" cy="484" r="15" fill="#e3e6ea" stroke="#5d636c" stroke-width="4"/>
+    <g stroke="#5d636c" stroke-width="2.2">
+      <path d="M 600,470 L 600,498 M 586,484 L 614,484 M 590,474 L 610,494 M 610,474 L 590,494"/>
+    </g>
+    <circle cx="600" cy="484" r="4" fill="#5d636c"/>
+    <!-- standard / frog -->
+    <path d="M 660,476 L 672,478 L 668,504 L 656,502 Z" fill="#4f565f"/>
+    <!-- moldboard (curved plate turning the slice) -->
+    <path d="M 668,494 C 712,490 742,468 740,436 C 736,424 720,420 710,426 C 716,458 698,478 662,482 Z" fill="url(#steel)" stroke="#454c55" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M 676,486 C 706,480 726,462 726,440" fill="none" stroke="#eef1f4" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
+    <!-- share (point cutting into the ground) -->
+    <path d="M 634,512 L 706,498 L 692,476 L 632,494 Z" fill="url(#steel)" stroke="#454c55" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M 634,510 L 700,497" fill="none" stroke="#f2f5f8" stroke-width="3" stroke-linecap="round"/>
+    <!-- handles -->
+    <path d="M 658,494 L 750,384" fill="none" stroke="#6f4c26" stroke-width="10" stroke-linecap="round"/>
+    <path d="M 676,498 L 766,398" fill="none" stroke="#8a6234" stroke-width="10" stroke-linecap="round"/>
+    <path d="M 704,450 L 724,466" fill="none" stroke="#6f4c26" stroke-width="6.5" stroke-linecap="round"/>
+    <path d="M 744,390 L 754,379" fill="none" stroke="#40311f" stroke-width="12" stroke-linecap="round"/>
+    <path d="M 760,404 L 770,393" fill="none" stroke="#40311f" stroke-width="12" stroke-linecap="round"/>
+  </g>
+
+  <!-- soil thrown off the moldboard -->
+  <g fill="#6d5236">
+    <ellipse cx="752" cy="428" rx="9" ry="5.5" transform="rotate(-24 752 428)"/>
+    <ellipse cx="768" cy="448" rx="7" ry="4.4" transform="rotate(16 768 448)"/>
+    <ellipse cx="744" cy="408" rx="6" ry="3.8" transform="rotate(-34 744 408)"/>
+    <ellipse cx="782" cy="470" rx="8" ry="5" transform="rotate(10 782 470)"/>
+    <circle cx="758" cy="414" r="3"/>
+    <circle cx="776" cy="436" r="2.6"/>
+  </g>
+
+  <!-- ============ FARMER ============ -->
+  <g id="farmer">
+    <path d="M 802,428 L 812,468 L 818,502" fill="none" stroke="#35507d" stroke-width="14" stroke-linecap="round"/>
+    <path d="M 806,494 L 834,494 L 836,508 L 804,508 Z" fill="#3b2f22"/>
+    <path d="M 772,370 C 796,372 806,394 804,432 C 790,442 772,440 762,430 C 760,404 760,382 772,370 Z" fill="#46618f" stroke="#2f4568" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M 768,366 C 788,366 798,376 800,392 C 786,387 772,387 762,392 C 760,379 762,370 768,366 Z" fill="#c0503c" stroke="#8f3a2b" stroke-width="2" stroke-linejoin="round"/>
+    <g stroke="#35507d" stroke-width="5" fill="none" stroke-linecap="round">
+      <path d="M 768,371 L 774,394"/>
+      <path d="M 788,373 L 792,396"/>
+    </g>
+    <path d="M 790,430 L 784,466 L 770,498" fill="none" stroke="#4d6a99" stroke-width="15" stroke-linecap="round"/>
+    <path d="M 756,492 L 784,492 L 786,506 L 754,506 Z" fill="#4a3a2c"/>
+    <path d="M 774,382 L 752,381" fill="none" stroke="#c0503c" stroke-width="11" stroke-linecap="round"/>
+    <path d="M 778,394 L 766,398" fill="none" stroke="#a94533" stroke-width="11" stroke-linecap="round"/>
+    <circle cx="750" cy="382" r="7" fill="#dfa274" stroke="#b6805a" stroke-width="1.5"/>
+    <circle cx="766" cy="398" r="7" fill="#cf9670" stroke="#b6805a" stroke-width="1.5"/>
+    <circle cx="774" cy="350" r="15" fill="#e6ac7c" stroke="#c08a5c" stroke-width="2"/>
+    <path d="M 764,356 C 768,362 778,362 784,358" fill="none" stroke="#a8724a" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="767" cy="346" r="2" fill="#3a2a1c"/>
+    <ellipse cx="772" cy="338" rx="31" ry="8" fill="#e3c77e" stroke="#bfa25c" stroke-width="2"/>
+    <path d="M 758,338 C 758,322 790,322 790,338 Z" fill="#eed597" stroke="#bfa25c" stroke-width="2"/>
+    <path d="M 757,336 L 791,336" stroke="#b8863f" stroke-width="4"/>
+  </g>
+
+  <!-- driving lines from the cow's bridle to the plowman's hand -->
+  <path d="M 202,376 C 340,326 560,332 748,378" fill="none" stroke="#5c3a1e" stroke-width="3.4" stroke-linecap="round"/>
+  <path d="M 204,384 C 344,340 566,346 752,386" fill="none" stroke="#6d4423" stroke-width="3.4" stroke-linecap="round"/>
+</svg>

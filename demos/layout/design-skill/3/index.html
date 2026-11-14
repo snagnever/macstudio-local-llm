@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steno — the thought you had in the shower on Tuesday</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..500&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --folio:#E9EBE3; --card:#F4F5EF; --ink:#23262B; --fade:#6E7268;
+    --pencil:#3557C7; --pencil-faint:#B9C4E6; --rule:#D2D5C9;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--folio);color:var(--ink);font:400 19px/1.78 "Literata",Georgia,serif;-webkit-font-smoothing:antialiased}
+  :focus-visible{outline:2px solid var(--pencil);outline-offset:3px}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+  h1,h2{font-weight:700;letter-spacing:-.018em;line-height:1.12}
+  a{color:var(--pencil)}
+
+  header{padding:30px 0 0}
+  .nav{display:flex;align-items:baseline;justify-content:space-between;gap:24px}
+  .wordmark{font-weight:700;font-size:22px;letter-spacing:-.01em;color:var(--ink);text-decoration:none}
+  .wordmark sup{color:var(--pencil);font-size:12px}
+  .nav nav{display:flex;gap:26px;font-size:15px}
+  .nav nav a{color:var(--fade);text-decoration:none}
+  .nav nav a:hover{color:var(--pencil)}
+  .btn{display:inline-block;background:var(--ink);color:var(--folio);font:600 15.5px/1 "Literata",serif;
+    padding:14px 24px;text-decoration:none;border:2px solid var(--ink);cursor:pointer}
+  .btn:hover{background:var(--pencil);border-color:var(--pencil);color:#fff}
+
+  /* annotated grid: text + margin */
+  .annotated{display:grid;grid-template-columns:minmax(0,64ch) minmax(190px,230px);gap:0 56px;justify-content:center;padding:80px 0 40px}
+  .annotated > .body, .annotated > .mnote {grid-row:auto}
+  .annotated .body{grid-column:1}
+  .annotated .mnote{grid-column:2}
+  .mnote{align-self:start;padding-top:.9em;font:italic 400 15.5px/1.55 "Newsreader",serif;color:var(--pencil);border-left:2px solid var(--pencil-faint);padding-left:16px}
+  .mnote .sig{display:block;font-style:normal;font-size:12.5px;letter-spacing:.04em;color:#7d8db8;margin-top:6px}
+  h1{font-size:clamp(40px,5.6vw,72px);margin-bottom:14px}
+  .standfirst{font-size:21px;color:#494C44;max-width:52ch}
+  .annotated h2{font-size:clamp(24px,2.8vw,32px);margin:64px 0 14px}
+  .annotated .body p{margin:0 0 26px;max-width:62ch}
+  del{color:var(--fade);text-decoration-thickness:1.5px;text-decoration-color:var(--pencil)}
+  ins{color:var(--pencil);text-decoration:underline;text-decoration-color:var(--pencil-faint);text-decoration-thickness:2px;text-underline-offset:3px}
+  sup.fn{line-height:0}
+  sup.fn a{font-size:12px;text-decoration:none;border-bottom:0}
+
+  .folio-divider{border-top:1px solid var(--rule);margin:0}
+  .divider-wrap{padding:12px 0;text-align:center;color:var(--fade);font-size:14px;letter-spacing:.08em}
+
+  /* footnotes */
+  .footnotes{max-width:64ch;margin:0 auto;padding:24px 28px 72px;border-top:2px solid var(--ink)}
+  .footnotes h2{font-size:17px;letter-spacing:.01em;margin-bottom:18px}
+  .footnotes ol{margin-left:22px}
+  .footnotes li{font-size:15.5px;line-height:1.65;color:#494C44;margin-bottom:12px}
+  .footnotes .back{text-decoration:none;color:var(--pencil)}
+
+  /* quote + cta */
+  .pull{background:var(--card);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:84px 28px}
+  .pull-inner{max-width:64ch;margin:0 auto;display:grid;grid-template-columns:minmax(0,64ch) minmax(190px,230px);gap:0 56px;justify-content:center}
+  .pull blockquote{grid-column:1;font-weight:500;font-size:clamp(24px,3vw,34px);line-height:1.3;letter-spacing:-.015em}
+  .pull .mnote{grid-column:2}
+  .pull cite{display:block;font:italic 400 16px/1.5 "Newsreader",serif;color:var(--fade);margin-top:20px}
+
+  .cta{padding:88px 28px 110px;text-align:center}
+  .cta h2{font-size:clamp(28px,3.6vw,44px);margin-bottom:12px}
+  .cta p{color:var(--fade);margin-bottom:32px}
+
+  footer{border-top:1px solid var(--rule);padding:28px 0 44px;color:var(--fade);font-size:14.5px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;max-width:1240px;margin:0 auto;padding-left:28px;padding-right:28px}
+  footer a{color:var(--fade)}
+
+  .iter-switch{position:fixed;right:16px;bottom:16px;display:flex;gap:4px;padding:6px 8px;align-items:center;
+    background:#15161a;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.3);z-index:99}
+  .iter-switch span{color:#8a8c93;font:11px/1 ui-monospace,monospace;padding:0 4px}
+  .iter-switch a{display:grid;place-items:center;width:28px;height:28px;border-radius:999px;
+    color:#e9e9e6;text-decoration:none;font:13px/1 ui-monospace,monospace}
+  .iter-switch a:hover{background:rgba(255,255,255,.14)}
+  .iter-switch a[aria-current]{background:#fff;color:#111;font-weight:700}
+
+  @media (max-width:960px){
+    .annotated,.pull-inner{grid-template-columns:1fr;gap:0}
+    .annotated .mnote,.pull .mnote{grid-column:1;margin:6px 0 30px;padding-top:0}
+    .nav nav{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="wordmark" href="../3/">Steno<sup>2nd ed.</sup></a>
+    <nav aria-label="Main">
+      <a href="#text">The text</a>
+      <a href="#notes">Footnotes</a>
+      <a href="#get">Get it</a>
+    </nav>
+    <a class="btn" href="#get">Start writing</a>
+  </div>
+</header>
+
+<main>
+
+  <section class="wrap annotated" id="text">
+    <div class="body">
+      <h1>The thought you had in the shower on Tuesday.</h1>
+      <p class="standfirst">Steno is a second brain — an annotated record of everything worth remembering, kept the way you actually take notes: in fragments, in passing, in the margin.</p>
+    </div>
+    <aside class="mnote">Gone by Thursday, in most brains.<span class="sig">— Ed.</span></aside>
+
+    <div class="body">
+      <h2>Capture, before the thought evaporates</h2>
+      <p>You write the way you think — half‑sentences, quotations, a name you promised to look up. Steno accepts the note in whatever shape it arrives,<sup class="fn"><a href="#fn1" id="fnref1">1</a></sup> timestamps it, and gets out of the way. There is no “new note” ceremony, because ceremony is where fragments go to die.</p>
+    </div>
+    <aside class="mnote">One keystroke, from any window. The bar opens over the browser, the editor, the call you’re pretending to listen to.<span class="sig">— Ed.</span></aside>
+
+    <div class="body">
+      <h2>Filing is the wrong verb</h2>
+      <p>The old note‑taking model asks you to <del>file</del> <ins>link</ins> — to decide where a thought lives before you’re allowed to have it. Steno revises this: it reads your note, proposes the connections it already sees,<sup class="fn"><a href="#fn2" id="fnref2">2</a></sup> and lets the web of your thinking grow the way marginalia grows in a well‑read book — outward, at the edges, where the reader was actually paying attention.</p>
+    </div>
+    <aside class="mnote">The revision <em>is</em> the product.<span class="sig">— Ed.</span></aside>
+
+    <div class="body">
+      <h2>Recall, not search</h2>
+      <p>Three weeks later, you won’t remember the words you used. You’ll remember the shape of the thing: <em>that book, about why dashboards lie</em>. Steno answers the question in your own vocabulary and returns the note together with whatever quoted it, argued with it, or was written because of it.<sup class="fn"><a href="#fn3" id="fnref3">3</a></sup> Memory is context; a second brain that returns facts without context is just a search engine with better manners.</p>
+    </div>
+    <aside class="mnote">Recall ≠ search. Compare the footnote.<span class="sig">— Ed.</span></aside>
+  </section>
+
+  <div class="divider-wrap">§</div>
+
+  <section class="wrap" id="notes">
+    <div class="footnotes">
+      <h2>Notes</h2>
+      <ol>
+        <li id="fn1">The capture bar opens with ⌥Space over any application, on every device you sync. The note inherits its date and the app it was born in. <a class="back" href="#fnref1">↩</a></li>
+        <li id="fn2">Proposed links are suggestions, never rewrites — you approve each one, and Steno learns which suggestions you decline. <a class="back" href="#fnref2">↩</a></li>
+        <li id="fn3">Recall is computed on‑device from your own archive; nothing is indexed on a server you can’t read. <a class="back" href="#fnref3">↩</a></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="pull">
+    <div class="pull-inner">
+      <blockquote>“I read my own notes the way I used to read friends’ books — astonished at who’d been paying attention.”
+        <cite>M. Okafor · beta reader, in the margin of the beta itself</cite>
+      </blockquote>
+      <aside class="mnote">Praise, but accurate. The graph view reads exactly like a annotated library card.<span class="sig">— Ed.</span></aside>
+    </div>
+  </section>
+
+  <section class="cta" id="get">
+    <h2>The manuscript is ready for your handwriting.</h2>
+    <p>Free for personal notes · sync when you’re ready · no formatting required</p>
+    <a class="btn" href="#get">Start your second edition — free</a>
+  </section>
+
+  <footer>
+    <span>Steno © 2026</span>
+    <span>Set in Literata &amp; Newsreader · <a href="#text">The text</a> · <a href="#get">Get it</a></span>
+  </footer>
+
+</main>
+
+<nav class="iter-switch" aria-label="Design directions">
+  <span>dir.</span>
+  <a href="../1/">1</a>
+  <a href="../2/">2</a>
+  <a href="../3/" aria-current="page">3</a>
+  <a href="../4/">4</a>
+  <a href="../5/">5</a>
+</nav>
+
+</body>
+</html>

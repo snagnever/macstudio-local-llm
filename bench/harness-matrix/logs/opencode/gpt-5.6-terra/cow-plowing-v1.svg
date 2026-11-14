@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">A cow plowing a field</title>
+  <desc id="desc">A warm pastoral illustration of a brown cow walking through freshly plowed earth while pulling a wooden plow.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#76c8e9"/>
+      <stop offset="1" stop-color="#e4f0d1"/>
+    </linearGradient>
+    <linearGradient id="field" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#bb8445"/>
+      <stop offset="1" stop-color="#6f351e"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <circle cx="970" cy="117" r="54" fill="#ffe19b"/>
+  <path d="M0 330 C145 255 260 330 391 297 C552 256 676 335 817 286 C975 231 1095 293 1200 253 L1200 470 L0 470Z" fill="#78a35a"/>
+  <path d="M0 382 C173 321 282 390 447 347 C626 301 749 388 930 327 C1053 285 1135 312 1200 296 L1200 465 L0 465Z" fill="#4d7d43"/>
+  <path d="M0 428 C275 380 526 433 764 405 C955 382 1080 397 1200 373 L1200 800 L0 800Z" fill="url(#field)"/>
+
+  <g fill="none" stroke="#8e4928" stroke-width="16" stroke-linecap="round" opacity=".82">
+    <path d="M-50 558 C195 471 343 533 562 490 C810 442 1017 502 1250 434"/>
+    <path d="M-30 651 C188 564 365 627 600 574 C811 527 1046 572 1250 519"/>
+    <path d="M-25 748 C178 667 391 714 624 660 C848 608 1036 652 1235 613"/>
+  </g>
+  <g fill="none" stroke="#d39a56" stroke-width="4" opacity=".8">
+    <path d="M0 528 C170 472 343 503 513 472 C757 426 995 475 1200 420"/>
+    <path d="M0 617 C179 556 374 594 583 544 C812 490 1010 537 1200 490"/>
+    <path d="M0 711 C210 646 383 685 616 625 C807 576 1028 622 1200 579"/>
+  </g>
+
+  <!-- Wooden yoke and traces -->
+  <g fill="none" stroke="#58331f" stroke-linecap="round">
+    <path d="M640 479 C713 501 758 530 816 578" stroke-width="12"/>
+    <path d="M620 502 C704 532 746 564 804 620" stroke-width="8"/>
+  </g>
+  <path d="M582 450 Q620 420 660 456 L650 493 Q618 478 586 487Z" fill="#8b5630" stroke="#4a2b1d" stroke-width="6"/>
+
+  <!-- Cow -->
+  <g stroke="#3d251b" stroke-width="7" stroke-linejoin="round">
+    <path d="M354 420 C366 348 450 308 554 329 C623 343 664 393 645 464 C630 521 574 544 474 532 C389 523 337 488 354 420Z" fill="#a85d35"/>
+    <path d="M378 400 C385 360 425 340 459 346 C444 387 444 443 458 503 C403 492 370 461 378 400Z" fill="#f3dfb6" stroke="none"/>
+    <path d="M548 339 C590 319 640 332 675 365 L696 401 C676 432 638 441 607 418 L579 387Z" fill="#a85d35"/>
+    <path d="M655 366 L693 326 L708 373" fill="#f3dfb6"/>
+    <path d="M672 407 C704 399 735 410 742 430 C747 447 726 468 687 465 C667 461 657 445 672 407Z" fill="#e3b078"/>
+    <circle cx="676" cy="390" r="7" fill="#1c1714"/>
+    <ellipse cx="713" cy="435" rx="5" ry="7" fill="#3d251b" stroke="none"/>
+    <path d="M609 423 Q640 433 661 420" fill="none" stroke-width="4"/>
+    <path d="M370 412 C320 398 300 364 316 330 C332 360 361 363 395 374" fill="#a85d35"/>
+    <path d="M353 420 C319 427 300 453 310 479 C330 450 354 450 380 455" fill="#a85d35"/>
+    <path d="M411 510 L404 609 L442 609 L461 521" fill="#8f4b2c"/>
+    <path d="M526 529 L535 627 L572 627 L575 526" fill="#8f4b2c"/>
+    <path d="M402 608 L444 608 L450 624 L396 624Z" fill="#30201a"/>
+    <path d="M533 625 L575 625 L580 641 L527 641Z" fill="#30201a"/>
+    <path d="M360 443 C326 472 302 506 283 540" fill="none" stroke-width="11"/>
+    <path d="M281 539 Q268 558 249 551" fill="none" stroke-width="7"/>
+    <path d="M576 348 C594 321 607 307 623 298" fill="none" stroke="#ead8a4" stroke-width="12"/>
+  </g>
+  <path d="M482 334 C512 351 526 376 518 397 C500 387 478 391 462 404 C451 378 456 350 482 334Z" fill="#f5e2ba" opacity=".9"/>
+  <path d="M584 459 C603 471 615 488 611 510" fill="none" stroke="#f5e2ba" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- Plow -->
+  <g stroke="#44291d" stroke-linejoin="round">
+    <path d="M805 564 L862 596 L838 701 L811 696 L823 618 L783 600Z" fill="#8c5330" stroke-width="8"/>
+    <path d="M859 594 L929 552 L940 570 L875 623Z" fill="#aa6c3c" stroke-width="8"/>
+    <path d="M838 700 L880 710 L847 745 L807 721Z" fill="#a5a9a1" stroke-width="7"/>
+    <path d="M806 604 L767 659" fill="none" stroke="#734126" stroke-width="11" stroke-linecap="round"/>
+  </g>
+  <g fill="#e5c789" opacity=".9">
+    <circle cx="145" cy="278" r="4"/><circle cx="188" cy="313" r="3"/><circle cx="248" cy="259" r="5"/>
+    <circle cx="827" cy="250" r="4"/><circle cx="863" cy="288" r="3"/><circle cx="1114" cy="275" r="5"/>
+  </g>
+</svg>

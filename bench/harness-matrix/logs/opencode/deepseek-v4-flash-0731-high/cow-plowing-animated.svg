@@ -1,0 +1,279 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="Animated cow plowing a field">
+  <title>Cow plowing a field — animated</title>
+
+  <defs>
+    <linearGradient id="skyAn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#87ceeb"/>
+      <stop offset="60%" stop-color="#bfe6ff"/>
+      <stop offset="100%" stop-color="#ffe9b0"/>
+    </linearGradient>
+    <linearGradient id="fieldAn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8a5a2b"/>
+      <stop offset="100%" stop-color="#5f3a18"/>
+    </linearGradient>
+    <radialGradient id="sunPulse" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#fff3b0"/>
+      <stop offset="70%" stop-color="#ffdd55" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#ffdd55" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="800" height="500" fill="url(#skyAn)"/>
+
+  <!-- Sun with pulsing halo -->
+  <g>
+    <circle cx="660" cy="100" r="70" fill="url(#sunPulse)">
+      <animate attributeName="r" values="66;82;66" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.9;0.5;0.9" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="660" cy="100" r="46" fill="#ffd94f">
+      <animate attributeName="r" values="44;49;44" dur="3.4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="660" cy="100" r="36" fill="#fff2ae"/>
+  </g>
+
+  <!-- Drifting clouds -->
+  <g fill="#ffffff" opacity="0.95">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="-80 0;880 0" dur="55s" repeatCount="indefinite"/>
+      <ellipse cx="0" cy="70" rx="55" ry="20"/>
+      <ellipse cx="48" cy="58" rx="38" ry="16"/>
+      <ellipse cx="-52" cy="62" rx="32" ry="14"/>
+    </g>
+    <g opacity="0.85">
+      <animateTransform attributeName="transform" type="translate" values="80 0;900 0" dur="75s" repeatCount="indefinite"/>
+      <ellipse cx="-30" cy="120" rx="60" ry="18"/>
+      <ellipse cx="30" cy="108" rx="42" ry="15"/>
+    </g>
+  </g>
+
+  <!-- Flocks of birds flying across -->
+  <g>
+    <g fill="none" stroke="#5a6b7a" stroke-width="2.5" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="translate" values="-60 0;860 -30" dur="14s" repeatCount="indefinite"/>
+      <path d="M0 90 q6 -8 12 0 q6 -8 12 0"/>
+      <path d="M40 74 q5 -7 10 0 q5 -7 10 0"/>
+      <path d="M-24 70 q5 -7 10 0 q5 -7 10 0"/>
+    </g>
+  </g>
+
+  <!-- Rolling hills -->
+  <rect y="330" width="800" height="60" fill="#7cb555"/>
+  <ellipse cx="180" cy="320" rx="270" ry="55" fill="#8bc470"/>
+  <ellipse cx="640" cy="320" rx="260" ry="60" fill="#6da848"/>
+
+  <!-- Furrowed field -->
+  <rect y="382" width="800" height="118" fill="url(#fieldAn)"/>
+  <g stroke="#46260f" stroke-width="3.5" opacity="0.9">
+    <line x1="0" y1="398" x2="800" y2="398"/>
+    <line x1="0" y1="418" x2="800" y2="418"/>
+    <line x1="0" y1="438" x2="800" y2="438"/>
+    <line x1="0" y1="458" x2="800" y2="458"/>
+    <line x1="0" y1="478" x2="800" y2="478"/>
+  </g>
+  <g stroke="#a37244" stroke-width="1.5" opacity="0.55">
+    <line x1="0" y1="408" x2="800" y2="408"/>
+    <line x1="0" y1="428" x2="800" y2="428"/>
+    <line x1="0" y1="448" x2="800" y2="448"/>
+    <line x1="0" y1="468" x2="800" y2="468"/>
+    <line x1="0" y1="488" x2="800" y2="488"/>
+  </g>
+
+  <!-- Fresh furrow appearing behind the plow -->
+  <g stroke="#2c1808" stroke-width="5" stroke-linecap="round" fill="none">
+    <path d="M30 412 L170 416">
+      <animate attributeName="d" values="M30 412 L40 412;M30 412 L190 416;M30 412 L40 412" dur="4s" repeatCount="indefinite"/>
+    </path>
+    <path d="M30 434 L170 438">
+      <animate attributeName="d" values="M30 434 L40 434;M30 434 L190 438;M30 434 L40 434" dur="4s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- Fence in the distance -->
+  <g stroke="#6d4c3a" stroke-width="3">
+    <line x1="0" y1="382" x2="800" y2="382"/>
+    <line x1="0" y1="368" x2="800" y2="368"/>
+  </g>
+  <g stroke="#6d4c3a" stroke-width="4">
+    <line x1="50" y1="363" x2="50" y2="385"/>
+    <line x1="150" y1="363" x2="150" y2="385"/>
+    <line x1="250" y1="363" x2="250" y2="385"/>
+    <line x1="350" y1="363" x2="350" y2="385"/>
+    <line x1="450" y1="363" x2="450" y2="385"/>
+    <line x1="550" y1="363" x2="550" y2="385"/>
+    <line x1="650" y1="363" x2="650" y2="385"/>
+    <line x1="750" y1="363" x2="750" y2="385"/>
+  </g>
+
+  <!-- ============ COW ASSEMBLY (wraps rotations of legs, head bob, tail) ============ -->
+  <g>
+    <!-- gentle body bob while walking -->
+    <animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur="0.9s" repeatCount="indefinite"/>
+
+    <!-- ground shadow -->
+    <ellipse cx="330" cy="452" rx="170" ry="14" fill="#2c1a0a" opacity="0.4">
+      <animate attributeName="opacity" values="0.4;0.3;0.4" dur="0.9s" repeatCount="indefinite"/>
+    </ellipse>
+
+    <!-- ===== SWISHING TAIL ===== -->
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="-6 470 330;10 470 330;-6 470 330" dur="1.8s" repeatCount="indefinite"/>
+      <path d="M470 332 Q466 372 452 404" fill="none" stroke="#2e2a26" stroke-width="11" stroke-linecap="round"/>
+      <ellipse cx="450" cy="416" rx="9" ry="17" fill="#2e2a26" transform="rotate(12 450 416)"/>
+    </g>
+
+    <!-- ===== FAR-SIDE (recessed) LEGS ===== -->
+    <!-- far front leg -->
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="18 340 380;-22 340 380;18 340 380" dur="0.9s" repeatCount="indefinite"/>
+      <path d="M340 380 L336 452" stroke="#c9c2ba" stroke-width="26" stroke-linecap="round"/>
+      <rect x="324" y="444" width="26" height="16" rx="7" fill="#3a2a1a"/>
+    </g>
+    <!-- far back leg -->
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="-22 428 380;18 428 380;-22 428 380" dur="0.9s" repeatCount="indefinite"/>
+      <path d="M428 380 L426 452" stroke="#c9c2ba" stroke-width="26" stroke-linecap="round"/>
+      <rect x="412" y="444" width="26" height="16" rx="7" fill="#3a2a1a"/>
+    </g>
+
+    <!-- ===== BODY ===== -->
+    <ellipse cx="395" cy="312" rx="130" ry="80" fill="#f4efe6" stroke="#bdb6ac" stroke-width="2.5"/>
+    <!-- black patches -->
+    <g fill="#2e2a26">
+      <ellipse cx="490" cy="290" rx="46" ry="42" transform="rotate(-10 490 290)"/>
+      <ellipse cx="380" cy="372" rx="24" ry="15"/>
+      <path d="M352 372 Q368 384 380 372 Q362 356 352 372 Z"/>
+      <ellipse cx="450" cy="258" rx="14" ry="12"/>
+    </g>
+    <!-- belly -->
+    <ellipse cx="395" cy="382" rx="90" ry="16" fill="#d9d2c8" opacity="0.7"/>
+
+    <!-- ===== NEAR-SIDE LEGS ===== -->
+    <!-- near back leg -->
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="20 452 382;-18 452 382;20 452 382" dur="0.9s" repeatCount="indefinite"/>
+      <path d="M452 382 L450 454" stroke="#e6e0d6" stroke-width="30" stroke-linecap="round"/>
+      <rect x="435" y="446" width="30" height="17" rx="7" fill="#3a2a1a"/>
+    </g>
+    <!-- near front leg -->
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="-16 320 382;20 320 382;-16 320 382" dur="0.9s" repeatCount="indefinite"/>
+      <path d="M320 382 L316 454" stroke="#f7f2e8" stroke-width="30" stroke-linecap="round"/>
+      <rect x="303" y="446" width="30" height="17" rx="7" fill="#3a2a1a"/>
+    </g>
+
+    <!-- ===== HEAD (gently bobbing) ===== -->
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="3 292 292;-5 292 292;3 292 292" dur="0.9s" repeatCount="indefinite"/>
+      <!-- neck -->
+      <path d="M295 292 Q262 278 258 250 Q292 238 314 260 Z" fill="#f4efe6" stroke="#d0c8bc" stroke-width="2"/>
+      <!-- head -->
+      <ellipse cx="252" cy="252" rx="62" ry="48" fill="#efe9df" stroke="#c8bfb2" stroke-width="2.5"/>
+      <!-- muzzle -->
+      <ellipse cx="204" cy="266" rx="28" ry="24" fill="#dcd3c4" stroke="#bdb4a6" stroke-width="2"/>
+      <!-- nostrils -->
+      <circle cx="192" cy="268" r="5" fill="#4a3a2a"/>
+      <circle cx="218" cy="268" r="5" fill="#4a3a2a"/>
+      <!-- facial patch -->
+      <path d="M236 224 Q258 214 270 230 Q276 262 254 266 Q236 256 236 224 Z" fill="#2e2a26" opacity="0.92"/>
+      <!-- blaze -->
+      <path d="M268 214 Q286 220 288 242 Q284 270 268 272 L262 246 Z" fill="#ffffff"/>
+      <!-- eyes with slow blinking -->
+      <circle cx="240" cy="238" r="5.5" fill="#191612">
+        <animate attributeName="ry" values="5.5;5.5;1;5.5;5.5" keyTimes="0;0.88;0.92;0.97;1" dur="5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="268" cy="243" r="5.5" fill="#191612">
+        <animate attributeName="ry" values="5.5;5.5;1;5.5;5.5" keyTimes="0;0.88;0.92;0.97;1" dur="5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="242" cy="236.5" r="1.7" fill="#ffffff"/>
+      <circle cx="270" cy="241.5" r="1.7" fill="#ffffff"/>
+      <!-- ears -->
+      <ellipse cx="270" cy="222" rx="11" ry="20" fill="#efe9df" stroke="#c8bfb2" stroke-width="2" transform="rotate(-30 270 222)"/>
+      <ellipse cx="292" cy="227" rx="10" ry="18" fill="#d8cbb2" stroke="#c8bfb2" stroke-width="2" transform="rotate(-8 292 227)"/>
+      <!-- horns -->
+      <path d="M266 210 Q276 194 292 192" fill="none" stroke="#c9a86a" stroke-width="7" stroke-linecap="round"/>
+      <path d="M288 214 Q304 198 320 202" fill="none" stroke="#c9a86a" stroke-width="7" stroke-linecap="round"/>
+
+      <!-- ===== YOKE ===== -->
+      <rect x="206" y="206" width="92" height="11" rx="5.5" fill="#9a6a33" stroke="#573c17" stroke-width="2"/>
+      <!-- traces down to plow -->
+      <path d="M226 217 Q232 292 300 392" fill="none" stroke="#5c4632" stroke-width="4" stroke-linecap="round"/>
+      <path d="M286 217 Q294 292 342 398" fill="none" stroke="#5c4632" stroke-width="4" stroke-linecap="round"/>
+    </g>
+
+    <!-- ===== PLOW with rocking motion ===== -->
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="-4 320 452;4 320 452;-4 320 452" dur="0.9s" repeatCount="indefinite"/>
+      <!-- plow beam -->
+      <line x1="300" y1="404" x2="398" y2="448" stroke="#a4633a" stroke-width="12" stroke-linecap="round"/>
+      <!-- coupler -->
+      <rect x="292" y="398" width="22" height="16" rx="4" fill="#51514f"/>
+      <!-- share / moldboard -->
+      <path d="M400 452 L488 446 Q512 456 490 468 L406 470 Z" fill="#b9bec6" stroke="#6d717a" stroke-width="2.5"/>
+      <polygon points="486,445 520,441 510,456 494,464" fill="#8e949c" stroke="#595d64" stroke-width="2.5"/>
+      <!-- share tip -->
+      <polygon points="518,440 554,446 530,454" fill="#6e6e6e"/>
+      <!-- depth wheel -->
+      <circle cx="474" cy="474" r="17" fill="none" stroke="#6b4f2f" stroke-width="6"/>
+      <line x1="474" y1="457" x2="474" y2="491" stroke="#6b4f2f" stroke-width="6"/>
+      <!-- hand grips -->
+      <line x1="392" y1="420" x2="412" y2="452" stroke="#8a5027" stroke-width="9" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- ===== DUST MOTES rising behind the plow ===== -->
+  <g fill="#cfa86a">
+    <g>
+      <circle cx="318" cy="452" r="6">
+        <animate attributeName="cy" values="452;418;386" dur="1.6s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="6;9;2" dur="1.6s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.8;0.45;0" dur="1.6s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+    <g>
+      <circle cx="344" cy="456" r="5">
+        <animate attributeName="cy" values="456;424;392" dur="1.9s" repeatCount="indefinite" begin="0.3s"/>
+        <animate attributeName="r" values="5;8;2" dur="1.9s" repeatCount="indefinite" begin="0.3s"/>
+        <animate attributeName="opacity" values="0.8;0.4;0" dur="1.9s" repeatCount="indefinite" begin="0.3s"/>
+      </circle>
+    </g>
+    <g>
+      <circle cx="296" cy="450" r="4">
+        <animate attributeName="cy" values="450;420;392" dur="1.4s" repeatCount="indefinite" begin="0.6s"/>
+        <animate attributeName="r" values="4;7;2" dur="1.4s" repeatCount="indefinite" begin="0.6s"/>
+        <animate attributeName="opacity" values="0.7;0.35;0" dur="1.4s" repeatCount="indefinite" begin="0.6s"/>
+      </circle>
+    </g>
+    <g>
+      <circle cx="362" cy="458" r="5">
+        <animate attributeName="cy" values="458;428;398" dur="2.1s" repeatCount="indefinite" begin="0.9s"/>
+        <animate attributeName="r" values="5;8;2" dur="2.1s" repeatCount="indefinite" begin="0.9s"/>
+        <animate attributeName="opacity" values="0.7;0.35;0" dur="2.1s" repeatCount="indefinite" begin="0.9s"/>
+      </circle>
+    </g>
+    <g>
+      <circle cx="276" cy="448" r="4">
+        <animate attributeName="cy" values="448;416;388" dur="1.5s" repeatCount="indefinite" begin="1.2s"/>
+        <animate attributeName="r" values="4;7;2" dur="1.5s" repeatCount="indefinite" begin="1.2s"/>
+        <animate attributeName="opacity" values="0.7;0.35;0" dur="1.5s" repeatCount="indefinite" begin="1.2s"/>
+      </circle>
+    </g>
+  </g>
+
+  <!-- swaying grass tufts in the breeze -->
+  <g stroke="#3e8e41" stroke-width="3" stroke-linecap="round" fill="none">
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="-8 80 398;8 80 398;-8 80 398" dur="2.2s" repeatCount="indefinite"/>
+      <path d="M80 398 q4 -12 8 0"/>
+    </g>
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="6 700 396;-6 700 396;6 700 396" dur="2.6s" repeatCount="indefinite"/>
+      <path d="M700 396 q4 -12 8 0"/>
+    </g>
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="-6 640 392;6 640 392;-6 640 392" dur="2.4s" repeatCount="indefinite"/>
+      <path d="M640 392 q4 -12 8 0 M652 392 q4 -12 8 0"/>
+    </g>
+  </g>
+</svg>

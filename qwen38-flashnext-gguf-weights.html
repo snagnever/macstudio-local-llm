@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Flash-Next GGUF weights</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Seven GGUF packs of Qwen3.8-Flash-Next on Splash 1.5.0, Apple M4 Max. The Swift 1.5 IQ4_XS pack stays the best: every other pack spends 1.09–7.75× its median tokens on GPQA and LiveCodeBench, with quality within the pass-to-pass noise.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Qwen3.8-Flash-Next GGUF weights on Splash">
+<meta property="og:description" content="Seven GGUF packs of Qwen3.8-Flash-Next on Splash 1.5.0, Apple M4 Max. The Swift 1.5 IQ4_XS pack stays the best: every other pack spends 1.09–7.75× its median tokens on GPQA and LiveCodeBench, with quality within the pass-to-pass noise.">
+<meta property="og:url" content="https://snagnever.github.io/macstudio-local-llm/qwen38-flashnext-gguf-weights.html">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+
+:root{
+  color-scheme: light;
+  --plane:#f9f9f7; --surface:#fcfcfb; --surface-2:#f3f2ee;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
+  --accent:#2a78d6; --accent-rgb:42,120,214; --warn:#b06a00; --warn-bg:#fbf1dd;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#7c5cd6; --s7:#1597b0; --s8:#7a7f87; --s9:#8a6d3b; --s10:#3f8f3a;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232321;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+    --accent:#3987e5; --accent-rgb:57,135,229; --warn:#e0a63a; --warn-bg:#2a2312;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6; --s7:#1fa9c4; --s8:#9aa0a8; --s9:#b08d57; --s10:#5cb356;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232321;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+  --accent:#3987e5; --accent-rgb:57,135,229; --warn:#e0a63a; --warn-bg:#2a2312;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9277e6; --s7:#1fa9c4; --s8:#9aa0a8; --s9:#b08d57; --s10:#5cb356;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--plane); color:var(--ink); font-family:var(--sans);
+  line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px; margin:0 auto; padding:32px 20px 64px}
+header{display:flex; flex-wrap:wrap; gap:20px 32px; align-items:flex-end; justify-content:space-between}
+h1{font-size:1.7rem; font-weight:700; letter-spacing:-0.02em; margin:0; text-wrap:balance}
+.sub{color:var(--ink-2); max-width:66ch; margin:8px 0 0; font-size:0.98rem}
+.eyebrow{font-family:var(--mono); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin:0 0 6px}
+button.theme{
+  font-family:var(--mono); font-size:0.74rem; color:var(--ink-2); background:var(--surface);
+  border:1px solid var(--border); border-radius:7px; padding:7px 12px; cursor:pointer;
+}
+button.theme:hover{border-color:var(--baseline)}
+button.theme:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+h2.sec{font-size:1.05rem; margin:0 0 4px; letter-spacing:-0.01em}
+.s-note{color:var(--ink-2); font-size:0.88rem; margin:0 0 14px; max-width:82ch}
+.s-note code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+section.block{margin-top:30px}
+
+/* rig strip */
+.rig{display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:10px; margin-top:18px}
+.rig .r-item{background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:10px 13px}
+.rig .r-lab{font-size:0.72rem; color:var(--muted); margin:0 0 3px}
+.rig .r-val{font-family:var(--mono); font-size:0.88rem; color:var(--ink); font-weight:500}
+
+/* tables shared */
+.tbl-scroll{overflow-x:auto; border:1px solid var(--border); border-radius:10px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:0.84rem}
+th,td{padding:8px 11px; text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono)}
+th{font-size:0.72rem; letter-spacing:0.04em; color:var(--muted); font-weight:500; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface)}
+td:first-child,th:first-child{text-align:left}
+tbody tr:hover{background:var(--surface-2)}
+.arm-cell{display:inline-flex; align-items:center; gap:8px}
+.arm-cell .sw{width:10px; height:10px; border-radius:2px; flex:none}
+.arm-cell .code{font-weight:700; color:var(--ink)}
+.na{color:var(--muted)}
+
+#cfgTable{min-width:780px}
+#cfgTable th,#cfgTable td{text-align:left; vertical-align:top; white-space:normal; font-family:var(--sans); font-size:0.83rem; line-height:1.42}
+#cfgTable th{font-family:var(--mono); font-size:0.72rem; letter-spacing:0.04em}
+#cfgTable td:first-child{font-weight:700; color:var(--ink); white-space:nowrap}
+#cfgTable .mono{font-family:var(--mono); font-size:0.9em; color:var(--ink-2)}
+
+/* tech cards */
+.tech{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; margin-top:16px}
+.tcard{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 16px 14px}
+.tcard .t-name{font-size:1.02rem; font-weight:700; letter-spacing:-0.01em; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
+.tcard .t-repo{font-family:var(--mono); font-size:0.72rem; color:var(--muted)}
+.tcard .t-what{font-size:0.86rem; color:var(--ink-2); margin:7px 0 13px; line-height:1.45}
+.tcard dl{margin:0; display:grid; gap:11px}
+.tcard dt{font-family:var(--mono); font-size:0.66rem; letter-spacing:0.09em; text-transform:uppercase; color:var(--accent); margin-bottom:3px}
+.tcard dd{margin:0; font-size:0.83rem; color:var(--ink-2); line-height:1.45}
+.tcard dd b{color:var(--ink); font-weight:600}
+.tcard .t-configs{margin:13px 0 0; padding-top:11px; border-top:1px solid var(--border); font-size:0.8rem; color:var(--ink-2)}
+.tcard .t-configs b{color:var(--ink); font-family:var(--mono); font-weight:600; font-size:0.9em}
+.tech-src{margin-top:12px; font-size:0.78rem; color:var(--muted)}
+.tech-src a{color:var(--accent); text-decoration:none}
+.tech-src a:hover{text-decoration:underline}
+
+/* legend */
+.legend{display:flex; flex-wrap:wrap; gap:8px 18px; margin:22px 0 4px; padding:12px 16px;
+  background:var(--surface); border:1px solid var(--border); border-radius:10px}
+.chip{display:inline-flex; align-items:center; gap:7px; font-size:0.84rem; color:var(--ink-2)}
+.chip .sw{width:22px; height:3px; border-radius:2px; flex:none}
+.chip .code{font-family:var(--mono); font-weight:700; color:var(--ink)}
+
+/* takeaways compact */
+.takeaways{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-top:22px}
+.takeaways h2{font-size:0.95rem; margin:0 0 9px; letter-spacing:-0.01em}
+.takeaways ul{margin:0; padding:0; list-style:none; display:grid; gap:7px}
+.takeaways li{font-size:0.85rem; color:var(--ink-2); padding-left:15px; position:relative; line-height:1.4}
+.takeaways li::before{content:"›"; position:absolute; left:0; color:var(--accent); font-family:var(--mono); font-weight:700}
+.takeaways li b{color:var(--ink)}
+
+/* chart grid */
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:14px; margin-top:14px}
+.panel{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 14px 10px; position:relative}
+.p-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin:0 2px 2px}
+.p-title{font-size:0.98rem; font-weight:700; letter-spacing:-0.01em}
+.p-unit{font-family:var(--mono); font-size:0.72rem; color:var(--muted)}
+.p-dir{font-family:var(--mono); font-size:0.68rem; letter-spacing:0.06em; color:var(--muted)}
+.p-note{font-size:0.76rem; color:var(--warn); background:var(--warn-bg); border-radius:6px;
+  padding:3px 8px; margin:2px 2px 0; display:inline-block}
+.p-interp{font-size:0.8rem; color:var(--ink-2); margin:8px 2px 0; line-height:1.4; border-top:1px solid var(--border); padding-top:8px}
+.p-interp b{color:var(--ink); font-weight:600}
+svg.chart{width:100%; height:auto; display:block; touch-action:none}
+.tick{font-family:var(--mono); font-size:10px; fill:var(--muted)}
+.axis-t{font-family:var(--mono); font-size:10.5px; fill:var(--ink-2)}
+.endlab{font-family:var(--mono); font-size:9.5px; font-weight:700}
+.crosshair{stroke:var(--baseline); stroke-width:1; stroke-dasharray:3 3; opacity:0}
+
+.tip{position:absolute; pointer-events:none; z-index:5; background:var(--surface);
+  border:1px solid var(--baseline); border-radius:8px; padding:8px 10px; font-size:0.78rem;
+  box-shadow:0 6px 20px rgba(0,0,0,0.13); opacity:0; transition:opacity .08s; min-width:158px}
+.tip .t-ctx{font-family:var(--mono); font-weight:700; color:var(--ink); margin-bottom:5px; font-size:0.76rem}
+.tip .t-row{display:flex; align-items:center; gap:7px; justify-content:space-between; margin:2px 0}
+.tip .t-left{display:flex; align-items:center; gap:6px; color:var(--ink-2)}
+.tip .t-left .sw{width:9px; height:9px; border-radius:2px; flex:none}
+.tip .t-left .code{font-family:var(--mono); font-weight:700; color:var(--ink); font-size:0.74rem}
+.tip .t-val{font-family:var(--mono); color:var(--ink); font-variant-numeric:tabular-nums}
+.tip .t-na{color:var(--muted)}
+
+/* hit heatmap */
+#hitTable{min-width:640px}
+#hitTable th{text-align:center}
+#hitTable th:first-child,#hitTable td:first-child{text-align:left}
+#hitTable td.grp{background:var(--surface-2); font-family:var(--sans); font-weight:700; color:var(--ink); font-size:0.8rem}
+.hcell{text-align:center; font-variant-numeric:tabular-nums; border-radius:4px}
+.hcell.na{color:var(--muted); background:transparent!important}
+.hcell.est{box-shadow:inset 0 0 0 1.6px var(--muted); font-style:italic}
+.hcell .star{font-style:normal; font-weight:700; margin-left:1px}
+.est-note{margin:10px 0 0; font-size:0.78rem; color:var(--ink-2)}
+.est-note .star{font-weight:700; font-style:normal}
+.hit-legend{display:flex; align-items:center; gap:10px; margin-top:12px; font-size:0.8rem; color:var(--ink-2); flex-wrap:wrap}
+.hit-legend .bar{height:12px; width:150px; border-radius:3px; border:1px solid var(--border);
+  background:linear-gradient(90deg, var(--surface-2), rgba(var(--accent-rgb),0.88))}
+
+/* values table */
+#table{min-width:720px}
+#table td,#table th{font-family:var(--mono)}
+.grp-row td{background:var(--surface-2); color:var(--ink); font-family:var(--sans); font-weight:700; font-size:0.8rem; letter-spacing:0.02em; text-align:left; padding:6px 11px}
+.tbl-note{color:var(--ink-2); font-size:0.88rem; margin:0 0 14px; max-width:80ch}
+.tbl-note code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+
+footer{margin-top:34px; color:var(--ink-2); font-size:0.82rem; max-width:82ch}
+footer b{color:var(--ink)}
+footer code{font-family:var(--mono); font-size:0.9em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+#cfgTable td.st{white-space:nowrap}
+.stchip{display:inline-block; font-family:var(--mono); font-size:0.7rem; padding:1px 7px; border-radius:999px;
+  border:1px solid var(--border); color:var(--ink-2); background:var(--surface-2)}
+.stchip.pass{color:var(--s3); border-color:var(--s3)}
+.stchip.fail{color:var(--s2); border-color:var(--s2)}
+.hcell.ref{background:var(--warn-bg)!important; color:var(--warn); font-weight:700}
+.reflab{font-family:var(--mono); font-size:9px; fill:var(--warn)}
+.hit-legend{display:flex; align-items:center; gap:8px; margin:10px 0 0; font-family:var(--mono); font-size:0.72rem; color:var(--muted)}
+.hit-legend .bar{width:140px; height:8px; border-radius:4px;
+  background:linear-gradient(90deg, rgba(var(--accent-rgb),0.10), rgba(var(--accent-rgb),0.88))}
+td.stat{color:var(--warn); font-family:var(--sans); text-align:left}
+.notice{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 16px; font-size:0.88rem; color:var(--ink-2)}
+.notice p{margin:0 0 6px} .notice ul{margin:0; padding-left:18px} .notice li{margin:4px 0}
+.notice b{color:var(--ink)} .notice a{color:var(--accent)}
+.notice code{font-family:var(--mono); font-size:0.9em}
+
+.mt{margin-top:12px}
+.u{color:var(--muted); font-size:0.9em; margin-left:2px}
+a{color:var(--accent)}
+code{font-family:var(--mono); font-size:0.9em}
+.hero-lead{font-size:1.08rem; line-height:1.55; max-width:76ch; margin:18px 0 0; color:var(--ink)}
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr)); gap:12px; margin-top:20px}
+.tile{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px}
+.tile .t-lab{font-family:var(--mono); font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin:0}
+.tile .t-big{font-size:2rem; line-height:1.1; font-weight:700; margin:6px 0 4px; color:var(--ink); font-variant-numeric:tabular-nums}
+.tile .t-sub{font-size:0.84rem; color:var(--ink-2); margin:0; line-height:1.4}
+.tag{font-family:var(--mono); font-size:0.7rem; color:var(--muted); border:1px solid var(--border); border-radius:4px; padding:0 4px; margin-left:4px}
+td.nm, th.nm{font-family:var(--sans); text-align:left; color:var(--ink-2); font-size:0.84rem}
+td.nm b{color:var(--ink)}
+td.repo{font-family:var(--mono); font-size:0.76rem; white-space:nowrap}
+td.repo a{text-decoration:none} td.repo a:hover{text-decoration:underline}
+table.packs{min-width:880px} table.acc{min-width:640px} table.cand-t{min-width:720px} table.claims{min-width:640px}
+table.acc th{white-space:normal; min-width:72px; vertical-align:bottom}
+tr.dim td{color:var(--muted)}
+tr.tot td{border-top:1px solid var(--border)}
+td.fail{color:var(--warn); font-weight:700}
+td.best{font-weight:700; color:var(--ink)}
+.fmark{font-size:0.7em; margin-left:3px}
+figure.card-chart{margin:14px 0 0; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 14px}
+.cgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr)); gap:14px; margin-top:14px}
+.cgrid figure.card-chart{margin:0}
+.c-head{margin:0; font-weight:700; font-size:0.92rem}
+.c-note{margin:3px 0 0; font-size:0.8rem; color:var(--ink-2)}
+svg.chart .tick{font-size:12px}
+.rowlab{font-family:var(--sans); font-size:13px; font-weight:600; fill:var(--ink); paint-order:stroke; stroke:var(--surface); stroke-width:4px; stroke-linejoin:round}
+.vlab{font-family:var(--mono); font-size:12px; fill:var(--ink)}
+.gl{stroke:var(--grid); stroke-width:1}
+.band{fill:var(--surface-2); stroke:none}
+.cand{stroke:var(--warn); stroke-width:1.6; stroke-dasharray:5 4}
+.candlab{font-family:var(--mono); font-size:11.5px; fill:var(--warn)}
+.base{stroke:var(--ink); stroke-width:1.6}
+.baselab{font-family:var(--mono); font-size:11.5px; fill:var(--ink-2)}
+.tbar{rx:2}
+.link{stroke:var(--baseline); stroke-width:2}
+.pt.w1{fill:var(--s1); stroke:var(--s1); stroke-width:1.5}
+.pt.w2{fill:var(--surface); stroke:var(--s1); stroke-width:2}
+.dotkey{display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--s1)}
+.dotkey.hollow{background:transparent; border:2px solid var(--s1)}
+.bandkey{display:inline-block; width:14px!important; height:10px!important; background:var(--surface-2); border:1px solid var(--baseline)}
+.candkey{display:inline-block; width:14px; height:0; border-top:2px dashed var(--warn)}
+.legend{margin-top:14px}
+pre.cmd{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; overflow-x:auto;
+  font-family:var(--mono); font-size:0.8rem; line-height:1.6; color:var(--ink); margin:0; white-space:pre}
+.notice ul li{line-height:1.45}
+@media (max-width:520px){.tile .t-big{font-size:1.7rem} .wrap{padding:24px 16px 48px}}
+
+</style>
+<div class="wrap">
+  <header>
+    <div>
+      <p class="eyebrow">Qwen3.8-Flash-Next · GGUF on Splash 1.5.0 · Apple M4 Max 128 GB · November 2026</p>
+      <h1>Flash-Next GGUF weights: the Swift 1.5 IQ4_XS stays the best pack</h1>
+      <p class="sub">Seven GGUF packs of the same model on the same Splash release: Swift 1.5 fine-tunes by UkisAI, Unsloth UD quants, and GSQ-RCO quants by ISTA-DASLab. Speed, a six-suite battery and a tool-call probe for each, and a second battery pass for two of them.</p>
+    </div>
+    <button class="theme" id="themeBtn" type="button">theme: auto</button>
+  </header>
+<section class="hero" id="verdict"><p class="hero-lead"><b>The Swift 1.5 IQ4_XS pack stays the best GGUF for Splash.</b> No other pack meets the candidate rule: a median token count or median time at least 10% below the Swift pack on both GPQA and LiveCodeBench, quality within the per-suite margin, and tool calls no more than one session below. Every other pack spends <b>1.09–7.75×</b> the Swift median tokens on those two suites.</p><div class="tiles"><div class="tile"><p class="t-lab">Best GGUF for Splash</p><p class="t-big">Swift 1.5</p><p class="t-sub">Swift 1.5 IQ4_XS · 110.9 tok/s decode · 12.0 s turn · 293 and 302 of 336 in two passes</p></div><div class="tile"><p class="t-lab">Tokens of the other packs</p><p class="t-big">1.09–7.75×</p><p class="t-sub">the Swift median on GPQA and LiveCodeBench. A candidate needs ≤ 0.90×.</p></div><div class="tile"><p class="t-lab">Quality noise</p><p class="t-big">≤ 10</p><p class="t-sub">questions of 336 move between two passes of the same pack. The first-pass totals span 291–301.</p></div><div class="tile"><p class="t-lab">ThinkingCap</p><p class="t-big">did not load</p><p class="t-sub">Splash 1.5.0 and 1.6.0 refuse its IQ4_XS <code>hc_*_inject</code> tensors.</p></div></div></section>
+<section class="block" id="packs"><h2 class="sec">Seven packs</h2><p class="s-note">Every pack ran on Splash 1.5.0 with a 262,144-token context and <code>reasoning_effort: xhigh</code>. Decode and turn time are medians of the 13-request speed test at 262,144 tokens. The turn time includes thinking, so it measures each pack, not only the engine. Tool calls count the sessions, of 20, where all 5 turns are correct.</p><div class="tbl-scroll"><table class="packs"><thead><tr><th class="nm">Pack</th><th class="nm">Hugging Face repo @ revision</th><th>Size / RAM peak, GB</th><th>Decode, tok/s</th><th>Turn, s</th><th>Battery /336</th><th>Tool calls fp0 / fp1</th></tr></thead><tbody><tr data-arm="k2f"><td class="nm"><b>Swift 1.5 IQ4_XS</b> <span class="tag">k2f</span></td><td class="nm repo"><a href="https://huggingface.co/ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF">ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF</a><span class="u">@0142554</span><span class="u"> · IQ4_XS</span></td><td>97.7 / 116.6</td><td>110.9</td><td>12.0</td><td>293 <span class="u">· 302 2nd pass</span></td><td>20 / 11</td></tr><tr data-arm="k6f"><td class="nm"><b>Unsloth UD-IQ4_XS V3.1</b> <span class="tag">k6f</span></td><td class="nm repo"><a href="https://huggingface.co/unsloth/Qwen3.8-Flash-Next-GGUF">unsloth/Qwen3.8-Flash-Next-GGUF</a><span class="u">@084c631</span><span class="u"> · UD-IQ4_XS</span></td><td>93.7 / 115.0</td><td>105.8</td><td>19.4</td><td>294 <span class="u">· 304 2nd pass</span></td><td>20 / 7</td></tr><tr data-arm="k1f"><td class="nm"><b>Unsloth UD-IQ4_XS base</b> <span class="tag">k1f</span></td><td class="nm repo"><a href="https://huggingface.co/unsloth/Qwen3.8-Flash-Next-GGUF">unsloth/Qwen3.8-Flash-Next-GGUF</a><span class="u">@766911a</span><span class="u"> · UD-IQ4_XS</span></td><td>93.7 / 116.6</td><td>95.5</td><td>31.1</td><td>297</td><td>20 / 13</td></tr><tr data-arm="k5f"><td class="nm"><b>Unsloth UD-IQ3_XXS V3.1</b> <span class="tag">k5f</span></td><td class="nm repo"><a href="https://huggingface.co/unsloth/Qwen3.8-Flash-Next-GGUF">unsloth/Qwen3.8-Flash-Next-GGUF</a><span class="u">@084c631</span><span class="u"> · UD-IQ3_XXS</span></td><td>83.6 / 105.4</td><td>105.3</td><td>25.9</td><td>300</td><td>20 / 8</td></tr><tr data-arm="k8f"><td class="nm"><b>Swift 1.5 GSQ-RCO Q2_0</b> <span class="tag">k8f</span></td><td class="nm repo"><a href="https://huggingface.co/ukisai/Swift-1.5-Qwen3.8-Flash-Next-GSQ-RCO-GGUF">ukisai/Swift-1.5-Qwen3.8-Flash-Next-GSQ-RCO-GGUF</a><span class="u">@99bb8f7</span><span class="u"> · Q2_0</span></td><td>66.6 / 87.5</td><td>123.2</td><td>19.9</td><td>301</td><td>20 / 15</td></tr><tr data-arm="k4f"><td class="nm"><b>ISTA GSQ-RCO Q2_0</b> <span class="tag">k4f</span></td><td class="nm repo"><a href="https://huggingface.co/ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF">ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF</a><span class="u">@ed59f92</span><span class="u"> · Q2_0</span></td><td>66.4 / 87.3</td><td>117.3</td><td>26.2</td><td>294</td><td>18 / 10</td></tr><tr data-arm="k3f"><td class="nm"><b>ISTA GSQ-RCO-Coder IQ1_M</b> <span class="tag">k3f</span></td><td class="nm repo"><a href="https://huggingface.co/ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF">ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF</a><span class="u">@bba8885</span><span class="u"> · IQ1_M</span></td><td>58.4 / 79.7</td><td>108.6</td><td>16.4</td><td>291</td><td>20 / 9</td></tr><tr class="dim"><td class="nm"><b>BottleCap ThinkingCap IQ4_XS</b></td><td class="nm repo"><a href="https://huggingface.co/bottlecapai/ThinkingCap-Qwen3.8-Flash-Next-GGUF">bottlecapai/ThinkingCap-Qwen3.8-Flash-Next-GGUF</a><span class="u">@2a053f7</span><span class="u"> · IQ4_XS</span></td><td>95.5 / –</td><td colspan="4" class="nm">did not load on Splash 1.5.0 or 1.6.0</td></tr></tbody></table></div></section>
+<section class="block" id="tokens"><h2 class="sec">Thinking cost against the Swift pack</h2><p class="s-note">Median completion tokens per question, divided by the Swift 1.5 IQ4_XS median, first pass. Log scale. The bars start at the Swift median (1×). A pack must reach the dashed line on both suites, in tokens or in time, to be a candidate. No pack gets below 1×.</p><div class="legend"><span class="chip"><span class="sw" style="background:var(--s1);height:10px;width:14px"></span>GPQA</span><span class="chip"><span class="sw" style="background:var(--s2);height:10px;width:14px"></span>LiveCodeBench</span><span class="chip"><span class="sw bandkey"></span>Swift pass-to-pass range</span><span class="chip"><span class="candkey"></span>candidate line</span></div><figure class="card-chart"><svg class="chart" viewBox="0 0 520 390" role="img" aria-label="Median tokens per pack, relative to the Swift 1.5 IQ4_XS pack, log scale"><rect class="band" x="103.6" y="24" width="79.1" height="342"><title>Swift median, second pass ÷ first pass: 0.62–1.13×</title></rect><line class="gl" x1="75.3" y1="24" x2="75.3" y2="372"/><text class="tick" x="75.3" y="386" text-anchor="middle">0.5×</text><line class="gl" x1="166.6" y1="24" x2="166.6" y2="372"/><text class="tick" x="166.6" y="386" text-anchor="middle">1×</text><line class="gl" x1="258.0" y1="24" x2="258.0" y2="372"/><text class="tick" x="258.0" y="386" text-anchor="middle">2×</text><line class="gl" x1="378.7" y1="24" x2="378.7" y2="372"/><text class="tick" x="378.7" y="386" text-anchor="middle">5×</text><line class="gl" x1="470.0" y1="24" x2="470.0" y2="372"/><text class="tick" x="470.0" y="386" text-anchor="middle">10×</text><line class="cand" x1="152.7" y1="20" x2="152.7" y2="372"/><text class="candlab" x="148.7" y="16" text-anchor="end">candidate ≤ 0.90</text><line class="base" x1="166.6" y1="20" x2="166.6" y2="372"/><text class="baselab" x="170.6" y="16">Swift = 1</text><text class="rowlab" x="8" y="40">Unsloth UD-IQ4_XS V3.1</text><rect class="tbar gpqa" x="166.6" y="46" width="41.5" height="13" style="fill:var(--s1)"><title>Unsloth UD-IQ4_XS V3.1 · GPQA · 1.37× the Swift median tokens</title></rect><text class="vlab" x="212.1" y="57">1.37</text><rect class="tbar livecodebench" x="166.6" y="62" width="100.9" height="13" style="fill:var(--s2)"><title>Unsloth UD-IQ4_XS V3.1 · LiveCodeBench · 2.15× the Swift median tokens</title></rect><text class="vlab" x="271.5" y="73">2.15</text><text class="rowlab" x="8" y="96">Unsloth UD-IQ4_XS base</text><rect class="tbar gpqa" x="166.6" y="102" width="11.4" height="13" style="fill:var(--s1)"><title>Unsloth UD-IQ4_XS base · GPQA · 1.09× the Swift median tokens</title></rect><text class="vlab" x="182.0" y="113">1.09</text><rect class="tbar livecodebench" x="166.6" y="118" width="79.6" height="13" style="fill:var(--s2)"><title>Unsloth UD-IQ4_XS base · LiveCodeBench · 1.83× the Swift median tokens</title></rect><text class="vlab" x="250.2" y="129">1.83</text><text class="rowlab" x="8" y="152">Unsloth UD-IQ3_XXS V3.1</text><rect class="tbar gpqa" x="166.6" y="158" width="35.6" height="13" style="fill:var(--s1)"><title>Unsloth UD-IQ3_XXS V3.1 · GPQA · 1.31× the Swift median tokens</title></rect><text class="vlab" x="206.2" y="169">1.31</text><rect class="tbar livecodebench" x="166.6" y="174" width="81.8" height="13" style="fill:var(--s2)"><title>Unsloth UD-IQ3_XXS V3.1 · LiveCodeBench · 1.86× the Swift median tokens</title></rect><text class="vlab" x="252.4" y="185">1.86</text><text class="rowlab" x="8" y="208">Swift 1.5 GSQ-RCO Q2_0</text><rect class="tbar gpqa" x="166.6" y="214" width="78.2" height="13" style="fill:var(--s1)"><title>Swift 1.5 GSQ-RCO Q2_0 · GPQA · 1.81× the Swift median tokens</title></rect><text class="vlab" x="248.8" y="225">1.81</text><rect class="tbar livecodebench" x="166.6" y="230" width="85.3" height="13" style="fill:var(--s2)"><title>Swift 1.5 GSQ-RCO Q2_0 · LiveCodeBench · 1.91× the Swift median tokens</title></rect><text class="vlab" x="255.9" y="241">1.91</text><text class="rowlab" x="8" y="264">ISTA GSQ-RCO Q2_0</text><rect class="tbar gpqa" x="166.6" y="270" width="88.7" height="13" style="fill:var(--s1)"><title>ISTA GSQ-RCO Q2_0 · GPQA · 1.96× the Swift median tokens</title></rect><text class="vlab" x="259.3" y="281">1.96</text><rect class="tbar livecodebench" x="166.6" y="286" width="146.9" height="13" style="fill:var(--s2)"><title>ISTA GSQ-RCO Q2_0 · LiveCodeBench · 3.05× the Swift median tokens</title></rect><text class="vlab" x="317.6" y="297">3.05</text><text class="rowlab" x="8" y="320">ISTA GSQ-RCO-Coder IQ1_M</text><rect class="tbar gpqa" x="166.6" y="326" width="269.8" height="13" style="fill:var(--s1)"><title>ISTA GSQ-RCO-Coder IQ1_M · GPQA · 7.75× the Swift median tokens</title></rect><text class="vlab" x="440.4" y="337">7.75</text><rect class="tbar livecodebench" x="166.6" y="342" width="101.5" height="13" style="fill:var(--s2)"><title>ISTA GSQ-RCO-Coder IQ1_M · LiveCodeBench · 2.16× the Swift median tokens</title></rect><text class="vlab" x="272.1" y="353">2.16</text></svg></figure><p class="s-note mt"><b>Candidate rule, pack by pack.</b> Quality: every suite within the margin of the Swift pack (3 questions on HumanEval, GPQA and LiveCodeBench, 2 on jdhodges and instruction following, 1 on Veerman). Tool calls: no more than one session below the Swift pack in each profile. Tokens or time: ≤ 0.90× on both suites. Turn time: ≤ 1.03×. Ratios are pack ÷ Swift.</p><div class="tbl-scroll mt"><table class="cand-t"><thead><tr><th class="nm">Pack</th><th class="nm">Quality vs Swift</th><th>Tool calls ≥ 19 / 10</th><th>Tokens GPQA / LCB</th><th>Time GPQA / LCB</th><th>Turn time</th><th>Candidate</th></tr></thead><tbody><tr data-arm="k6f"><td class="nm">Unsloth UD-IQ4_XS V3.1</td><td class="nm"><span class="stchip pass">within</span></td><td><span class="stchip fail">20 / 7</span></td><td>1.37× / 2.15×</td><td>1.57× / 2.59×</td><td>1.62×</td><td><span class="stchip fail">no</span></td></tr><tr data-arm="k1f"><td class="nm">Unsloth UD-IQ4_XS base</td><td class="nm"><span class="stchip pass">within</span></td><td><span class="stchip pass">20 / 13</span></td><td>1.09× / 1.83×</td><td>1.29× / 2.24×</td><td>2.59×</td><td><span class="stchip fail">no</span></td></tr><tr data-arm="k5f"><td class="nm">Unsloth UD-IQ3_XXS V3.1</td><td class="nm"><span class="stchip pass">within</span></td><td><span class="stchip fail">20 / 8</span></td><td>1.31× / 1.86×</td><td>1.49× / 2.11×</td><td>2.16×</td><td><span class="stchip fail">no</span></td></tr><tr data-arm="k8f"><td class="nm">Swift 1.5 GSQ-RCO Q2_0</td><td class="nm"><span class="stchip fail">outside: GPQA, LiveCodeBench</span></td><td><span class="stchip pass">20 / 15</span></td><td>1.81× / 1.91×</td><td>1.87× / 1.85×</td><td>1.66×</td><td><span class="stchip fail">no</span></td></tr><tr data-arm="k4f"><td class="nm">ISTA GSQ-RCO Q2_0</td><td class="nm"><span class="stchip pass">within</span></td><td><span class="stchip fail">18 / 10</span></td><td>1.96× / 3.05×</td><td>1.86× / 3.07×</td><td>2.18×</td><td><span class="stchip fail">no</span></td></tr><tr data-arm="k3f"><td class="nm">ISTA GSQ-RCO-Coder IQ1_M</td><td class="nm"><span class="stchip fail">outside: GPQA</span></td><td><span class="stchip fail">20 / 9</span></td><td>7.75× / 2.16×</td><td>8.88× / 2.26×</td><td>1.37×</td><td><span class="stchip fail">no</span></td></tr></tbody></table></div></section>
+<section class="block" id="accuracy"><h2 class="sec">Accuracy per suite</h2><p class="s-note">Correct answers, first pass. A truncated answer counts as wrong. ▼ marks a suite outside the margin of the Swift pack. Bold is the best score in the row. The first-pass totals span 10 questions, the same size as the pass-to-pass noise below, so only the GPQA drop of the IQ1_M pack stands out.</p><div class="tbl-scroll"><table class="acc"><thead><tr><th class="nm">Suite</th><th>Swift 1.5 IQ4_XS</th><th>Unsloth UD-IQ4_XS V3.1</th><th>Unsloth UD-IQ4_XS base</th><th>Unsloth UD-IQ3_XXS V3.1</th><th>Swift 1.5 GSQ-RCO Q2_0</th><th>ISTA GSQ-RCO Q2_0</th><th>ISTA GSQ-RCO-Coder IQ1_M</th></tr></thead><tbody><tr data-suite="humaneval"><td class="nm">HumanEval <span class="u">/164 · margin 3</span></td><td class="">144</td><td class="">143</td><td class="">143</td><td class="">147</td><td class="best">156</td><td class="">143</td><td class="">151</td></tr><tr data-suite="gpqa"><td class="nm">GPQA-Diamond <span class="u">/50 · margin 3</span></td><td class="">42</td><td class="">40</td><td class="">43</td><td class="best">44</td><td class="fail">35<span class="fmark" title="outside the margin of the Swift pack">▼</span></td><td class="">39</td><td class="fail">25<span class="fmark" title="outside the margin of the Swift pack">▼</span></td></tr><tr data-suite="livecodebench"><td class="nm">LiveCodeBench v6 <span class="u">/50 · margin 3</span></td><td class="">46</td><td class="best">47</td><td class="best">47</td><td class="">45</td><td class="fail">42<span class="fmark" title="outside the margin of the Swift pack">▼</span></td><td class="best">47</td><td class="best">47</td></tr><tr data-suite="jdhodges"><td class="nm">Tool calling · jdhodges <span class="u">/40 · margin 2</span></td><td class="">35</td><td class="">35</td><td class="">35</td><td class="">36</td><td class="best">38</td><td class="">37</td><td class="best">38</td></tr><tr data-suite="veerman"><td class="nm">Tool calling · Veerman <span class="u">/12 · margin 1</span></td><td class="">7</td><td class="">9</td><td class="">9</td><td class="">8</td><td class="best">10</td><td class="">9</td><td class="best">10</td></tr><tr data-suite="if"><td class="nm">Instruction following <span class="u">/20 · margin 2</span></td><td class="">19</td><td class="best">20</td><td class="best">20</td><td class="best">20</td><td class="best">20</td><td class="">19</td><td class="best">20</td></tr><tr class="tot"><td class="nm"><b>Total</b> <span class="u">/336</span></td><td class=""><b>293</b></td><td class=""><b>294</b></td><td class=""><b>297</b></td><td class=""><b>300</b></td><td class="best"><b>301</b></td><td class=""><b>294</b></td><td class=""><b>291</b></td></tr></tbody></table></div></section>
+<section class="block" id="noise"><h2 class="sec">Pass-to-pass noise</h2><p class="s-note">No pack met the rule, so the second pass repeated the battery on Swift 1.5 IQ4_XS and Unsloth UD-IQ4_XS V3.1, in reverse order of packs and suites. The same pack moves up to <b>10 of 336</b> questions between passes, and up to 6 on one suite. Both packs went up, so part of the change may come from the day or the suite order. The second pass does not separate these effects.</p><div class="legend"><span class="chip"><span class="dotkey"></span> first pass</span><span class="chip"><span class="dotkey hollow"></span> second pass</span></div><figure class="card-chart"><svg class="chart" viewBox="0 0 520 268" role="img" aria-label="Battery total out of 336 per pack, first and second pass"><line class="gl" x1="18.0" y1="8" x2="18.0" y2="250"/><text class="tick" x="18.0" y="264" text-anchor="middle">285</text><line class="gl" x1="114.4" y1="8" x2="114.4" y2="250"/><text class="tick" x="114.4" y="264" text-anchor="middle">290</text><line class="gl" x1="210.8" y1="8" x2="210.8" y2="250"/><text class="tick" x="210.8" y="264" text-anchor="middle">295</text><line class="gl" x1="307.2" y1="8" x2="307.2" y2="250"/><text class="tick" x="307.2" y="264" text-anchor="middle">300</text><line class="gl" x1="403.6" y1="8" x2="403.6" y2="250"/><text class="tick" x="403.6" y="264" text-anchor="middle">305</text><line class="gl" x1="500.0" y1="8" x2="500.0" y2="250"/><text class="tick" x="500.0" y="264" text-anchor="middle">310</text><text class="rowlab" x="18" y="18">Swift 1.5 IQ4_XS</text><line class="link" x1="172.2" y1="31" x2="345.8" y2="31"/><circle class="pt w2" cx="345.8" cy="31" r="5"><title>Swift 1.5 IQ4_XS · second pass · 302/336</title></circle><text class="vlab" x="353.8" y="35">302</text><circle class="pt w1" cx="172.2" cy="31" r="5"><title>Swift 1.5 IQ4_XS · first pass · 293/336</title></circle><text class="vlab" x="164.2" y="35" text-anchor="end">293</text><text class="rowlab" x="18" y="52">Unsloth UD-IQ4_XS V3.1</text><line class="link" x1="191.5" y1="65" x2="384.3" y2="65"/><circle class="pt w2" cx="384.3" cy="65" r="5"><title>Unsloth UD-IQ4_XS V3.1 · second pass · 304/336</title></circle><text class="vlab" x="392.3" y="69">304</text><circle class="pt w1" cx="191.5" cy="65" r="5"><title>Unsloth UD-IQ4_XS V3.1 · first pass · 294/336</title></circle><text class="vlab" x="183.5" y="69" text-anchor="end">294</text><text class="rowlab" x="18" y="86">Unsloth UD-IQ4_XS base</text><circle class="pt w1" cx="249.4" cy="99" r="5"><title>Unsloth UD-IQ4_XS base · first pass · 297/336</title></circle><text class="vlab" x="241.4" y="103" text-anchor="end">297</text><text class="rowlab" x="18" y="120">Unsloth UD-IQ3_XXS V3.1</text><circle class="pt w1" cx="307.2" cy="133" r="5"><title>Unsloth UD-IQ3_XXS V3.1 · first pass · 300/336</title></circle><text class="vlab" x="299.2" y="137" text-anchor="end">300</text><text class="rowlab" x="18" y="154">Swift 1.5 GSQ-RCO Q2_0</text><circle class="pt w1" cx="326.5" cy="167" r="5"><title>Swift 1.5 GSQ-RCO Q2_0 · first pass · 301/336</title></circle><text class="vlab" x="318.5" y="171" text-anchor="end">301</text><text class="rowlab" x="18" y="188">ISTA GSQ-RCO Q2_0</text><circle class="pt w1" cx="191.5" cy="201" r="5"><title>ISTA GSQ-RCO Q2_0 · first pass · 294/336</title></circle><text class="vlab" x="183.5" y="205" text-anchor="end">294</text><text class="rowlab" x="18" y="222">ISTA GSQ-RCO-Coder IQ1_M</text><circle class="pt w1" cx="133.7" cy="235" r="5"><title>ISTA GSQ-RCO-Coder IQ1_M · first pass · 291/336</title></circle><text class="vlab" x="125.7" y="239" text-anchor="end">291</text></svg></figure><div class="cgrid"><figure class="card-chart"><p class="c-head">Correct answers per pass</p><div class="tbl-scroll mt"><table class="acc"><thead><tr><th class="nm">Suite</th><th>Swift 1.5 IQ4_XS 1st</th><th>Swift 1.5 IQ4_XS 2nd</th><th>Unsloth UD-IQ4_XS V3.1 1st</th><th>Unsloth UD-IQ4_XS V3.1 2nd</th></tr></thead><tbody><tr data-suite="humaneval"><td class="nm">HumanEval <span class="u">/164</span></td><td>144</td><td>144</td><td>143</td><td>149</td></tr><tr data-suite="gpqa"><td class="nm">GPQA-Diamond <span class="u">/50</span></td><td>42</td><td>44</td><td>40</td><td>43</td></tr><tr data-suite="livecodebench"><td class="nm">LiveCodeBench v6 <span class="u">/50</span></td><td>46</td><td>47</td><td>47</td><td>47</td></tr><tr data-suite="jdhodges"><td class="nm">Tool calling · jdhodges <span class="u">/40</span></td><td>35</td><td>38</td><td>35</td><td>36</td></tr><tr data-suite="veerman"><td class="nm">Tool calling · Veerman <span class="u">/12</span></td><td>7</td><td>10</td><td>9</td><td>10</td></tr><tr data-suite="if"><td class="nm">Instruction following <span class="u">/20</span></td><td>19</td><td>19</td><td>20</td><td>19</td></tr><tr class="tot"><td class="nm"><b>Total</b> <span class="u">/336</span></td><td><b>293</b></td><td><b>302</b></td><td><b>294</b></td><td><b>304</b></td></tr></tbody></table></div></figure><figure class="card-chart"><p class="c-head">Median tokens per pass</p><div class="tbl-scroll mt"><table class="acc"><thead><tr><th class="nm">Suite</th><th>Swift 1.5 IQ4_XS 1st</th><th>Swift 1.5 IQ4_XS 2nd</th><th>Unsloth UD-IQ4_XS V3.1 1st</th><th>Unsloth UD-IQ4_XS V3.1 2nd</th></tr></thead><tbody><tr><td class="nm">GPQA-Diamond</td><td>2,298</td><td>1,430</td><td>3,147</td><td>2,642</td></tr><tr><td class="nm">LiveCodeBench v6</td><td>1,376</td><td>1,558</td><td>2,960</td><td>2,795</td></tr><tr><td class="nm">HumanEval</td><td>361</td><td>381</td><td>499</td><td>488</td></tr></tbody></table></div><p class="c-note mt">The Swift median moves <b>0.62–1.13×</b> between passes on GPQA and LiveCodeBench. The V3.1 pack still spends 1.85× and 1.79× the Swift median in the second pass. On LiveCodeBench every other pack is at 1.83× or more, above 1/0.62 = 1.61.</p></figure></div></section>
+<section class="block" id="claims"><h2 class="sec">Vendor claims against the measurements</h2><p class="s-note">The claims come from the model cards. The measurements are first-pass medians on Splash 1.5.0. The base pack ran one pass, so the token comparisons are not a verdict, but neither pass of the V3.1 pack shows the reduction.</p><div class="tbl-scroll"><table class="claims"><thead><tr><th class="nm">Vendor</th><th class="nm">Claim</th><th class="nm">Measured</th><th class="nm">Result</th></tr></thead><tbody><tr><td class="nm">Unsloth, V3.1 vs base</td><td class="nm">up to 50% fewer tokens</td><td class="nm">+26% on GPQA, +18% on LiveCodeBench (median tokens)</td><td class="nm"><span class="stchip fail">not confirmed</span></td></tr><tr><td class="nm">Unsloth, V3.1 vs base</td><td class="nm">about 15% more accuracy</td><td class="nm">294 and 304 of 336 in two passes, against 297</td><td class="nm"><span class="stchip fail">not confirmed</span></td></tr><tr><td class="nm">Unsloth, V3.1 vs base</td><td class="nm">up to 7% faster</td><td class="nm">decode +11% (105.8 vs 95.5 tok/s)</td><td class="nm"><span class="stchip pass">confirmed</span></td></tr><tr><td class="nm">UkisAI, Swift 1.5 vs base</td><td class="nm">63.4% less thinking at the median</td><td class="nm">−8% tokens on GPQA, −45% on LiveCodeBench</td><td class="nm"><span class="stchip ">partial</span></td></tr><tr><td class="nm">BottleCap, ThinkingCap</td><td class="nm">38.5% less thinking</td><td class="nm">–</td><td class="nm"><span class="stchip ">not run</span></td></tr></tbody></table></div></section>
+<section class="block notice" id="method"><p><b>Method and limits</b></p><ul><li>One rig: Mac Studio, Apple M4 Max, 128 GB. Every pack ran on Splash 1.5.0 with a 262,144-token context and the default flags. Splash 1.6.0 did not pass the switch rule of the Splash 1.6 campaign. On Splash 1.6.1 the Swift 1.5 IQ4_XS scored 300 of 336 on the same battery, between its two passes here, and my launcher now runs 1.6.1 (<a href="qwen38-flashnext-splash161.html">Splash 1.6.1 page</a>).</li><li>Every request sends <code>reasoning_effort: xhigh</code>, temperature 1.0, top_p 0.95, top_k 20, min_p 0. Questions run one at a time.</li><li>Battery: HumanEval 164, GPQA-Diamond 50, LiveCodeBench v6 50, Tool calling · jdhodges 40, Tool calling · Veerman 12, Instruction following 20, 336 in all. GPQA-Diamond and LiveCodeBench are 50-question samples (seed 42).</li><li>One pass per pack, except the Swift 1.5 IQ4_XS and the Unsloth UD-IQ4_XS V3.1 packs, which ran twice. The differences between the other packs are not a verdict.</li><li>Tool calls: the probe runs 20 sessions per profile. Each session is 4 tool-call turns and a final check. The score counts the sessions where all 5 are correct. <code>fp0</code> sends <code>frequency_penalty</code> 0; <code>fp1</code> sends 1, as the Crush harness does. One run per pack. The ISTA Q2_0 pack ran 97 of 100 turns in <code>fp0</code>.</li><li>Turn time is the end-to-end p50 of the speed test: 13 requests at 262,144 tokens over 3 repetitions. It includes thinking. Decode p50 and the RAM peak come from the same requests. Swap did not grow on any pack.</li><li>Pack size is the Hugging Face size of the variant.</li><li>ThinkingCap (bottlecapai/ThinkingCap-Qwen3.8-Flash-Next-GGUF@2a053f7) failed at load on Splash 1.5.0 and 1.6.0: <code>this GGUF stores tensors Splash cannot load: hc_attn_inject.weight IQ4_XS (48 tensors), hc_ffn_inject.weight IQ4_XS (48 tensors)</code>.</li><li>Agent quality (for example Terminal-Bench) is not measured.</li></ul></section>
+<section class="block" id="commands"><h2 class="sec">Commands</h2><p class="s-note">Download and serve the Swift 1.5 IQ4_XS pack at the revision this page measured. The repository is gated on Hugging Face.</p><pre class="cmd"><code>hf download ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF --revision 0142554c963a8653912c0c8283f05f13f63653f3 --include &quot;IQ4_XS/*&quot;
+splash serve --model ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS --revision 0142554c963a8653912c0c8283f05f13f63653f3 --host 0.0.0.0 --port 8585 --max-context 262144 --idle-release off --no-webui</code></pre><p class="s-note mt">The benchmark runs also passed <code>--language-only --offline --verify-rows auto</code>. Scripts, per-question results and the test plan: <a href="https://github.com/snagnever/macstudio-local-llm/tree/main/bench/flashnext-weights-2026-11">github.com/snagnever/macstudio-local-llm</a>.</p></section>
+  <footer id="foot">Data, scripts and per-question results: <a href="https://github.com/snagnever/macstudio-local-llm/tree/main/bench/flashnext-weights-2026-11">github.com/snagnever/macstudio-local-llm</a>. Generated <code>2026-11-12T20:58:59Z</code>.</footer>
+</div>
+<script>
+const root=document.documentElement;
+const btn=document.getElementById("themeBtn");
+function applyLabel(){ btn.textContent="theme: "+(root.getAttribute("data-theme")||"auto"); }
+btn.addEventListener("click",()=>{
+  const cur=root.getAttribute("data-theme");
+  const next=cur==null?"light":cur==="light"?"dark":null;
+  if(next) root.setAttribute("data-theme",next); else root.removeAttribute("data-theme");
+  try{ next?localStorage.setItem("theme",next):localStorage.removeItem("theme"); }catch(e){}
+  applyLabel();
+});
+try{ const saved=localStorage.getItem("theme"); if(saved) root.setAttribute("data-theme",saved); }catch(e){}
+applyLabel();
+</script>

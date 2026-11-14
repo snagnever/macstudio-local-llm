@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Rubber ducky floating on top of a soapy bathtub</title>
+  <desc id="desc">A large yellow rubber duck floats at the waterline inside a blue, foam-filled, white claw-foot bathtub.</desc>
+  <defs>
+    <linearGradient id="room" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#edfdfb"/>
+      <stop offset="0.62" stop-color="#d2efeb"/>
+      <stop offset="1" stop-color="#b9dcd7"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ddcdb9"/>
+      <stop offset="1" stop-color="#c6b098"/>
+    </linearGradient>
+    <linearGradient id="porcelain" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.48" stop-color="#f6fafb"/>
+      <stop offset="0.78" stop-color="#dce7ea"/>
+      <stop offset="1" stop-color="#aec3ca"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9cecf7"/>
+      <stop offset="0.42" stop-color="#53cfe8"/>
+      <stop offset="1" stop-color="#0d8db8"/>
+    </linearGradient>
+    <radialGradient id="duck" cx="31%" cy="19%" r="88%">
+      <stop offset="0" stop-color="#fffca2"/>
+      <stop offset="0.36" stop-color="#ffe64d"/>
+      <stop offset="0.72" stop-color="#ffc921"/>
+      <stop offset="1" stop-color="#df9700"/>
+    </radialGradient>
+    <linearGradient id="bill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffb247"/>
+      <stop offset="0.58" stop-color="#ff8426"/>
+      <stop offset="1" stop-color="#d94d10"/>
+    </linearGradient>
+    <radialGradient id="bubble" cx="30%" cy="24%" r="75%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.98"/>
+      <stop offset="0.25" stop-color="#ffffff" stop-opacity="0.7"/>
+      <stop offset="0.68" stop-color="#c6eff5" stop-opacity="0.29"/>
+      <stop offset="1" stop-color="#72bed0" stop-opacity="0.14"/>
+    </radialGradient>
+    <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#617982"/>
+      <stop offset="0.28" stop-color="#dce7e9"/>
+      <stop offset="0.52" stop-color="#ffffff"/>
+      <stop offset="0.75" stop-color="#a5b8bd"/>
+      <stop offset="1" stop-color="#526d77"/>
+    </linearGradient>
+    <filter id="drop" x="-30%" y="-30%" width="160%" height="190%">
+      <feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#174653" flood-opacity="0.28"/>
+    </filter>
+    <filter id="blur" x="-20%" y="-100%" width="140%" height="300%">
+      <feGaussianBlur stdDeviation="17"/>
+    </filter>
+    <clipPath id="basin">
+      <path d="M157 412 Q600 354 1043 412 L1001 590 Q600 646 199 590 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- Calm tiled bathroom -->
+  <rect width="1200" height="800" fill="url(#room)"/>
+  <g fill="none" stroke="#b2dad6" stroke-width="4" opacity="0.82">
+    <path d="M0 174 H1200 M0 348 H1200"/>
+    <path d="M200 0 V348 M400 0 V348 M600 0 V348 M800 0 V348 M1000 0 V348"/>
+  </g>
+  <path d="M0 348 H1200" stroke="#7da6a2" stroke-width="9"/>
+  <rect y="650" width="1200" height="150" fill="url(#floor)"/>
+  <g fill="none" stroke="#ad9780" stroke-width="4" opacity="0.65">
+    <path d="M0 704 H1200 M0 758 H1200"/>
+    <path d="M148 650 V800 M446 650 V800 M750 650 V800 M1047 650 V800"/>
+  </g>
+  <ellipse cx="600" cy="710" rx="490" ry="48" fill="#29464d" opacity="0.25" filter="url(#blur)"/>
+
+  <!-- Faucet and controls sit behind the bathtub -->
+  <g stroke="#536f79" stroke-linejoin="round">
+    <path d="M928 397 V276 Q928 205 857 205 H796" fill="none" stroke="url(#chrome)" stroke-width="34" stroke-linecap="round"/>
+    <path d="M770 183 h65 q18 0 18 18 v19 q0 18-18 18 h-65 z" fill="url(#chrome)" stroke-width="6"/>
+    <circle cx="746" cy="335" r="26" fill="url(#chrome)" stroke-width="6"/>
+    <path d="M746 308 v-48 M718 272 h56" fill="none" stroke="url(#chrome)" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="1032" cy="335" r="26" fill="url(#chrome)" stroke-width="6"/>
+    <path d="M1032 308 v-48 M1004 272 h56" fill="none" stroke="url(#chrome)" stroke-width="14" stroke-linecap="round"/>
+  </g>
+
+  <!-- Clearly recognizable freestanding bathtub -->
+  <path d="M123 403 Q130 360 182 356 H1018 Q1070 360 1077 403 L1023 608 Q1011 654 943 667 H257 Q189 654 177 608 Z" fill="url(#porcelain)" stroke="#6d8a94" stroke-width="11" filter="url(#drop)"/>
+  <path d="M160 410 Q600 354 1040 410 L1003 573 Q997 605 945 614 H255 Q203 605 197 573 Z" fill="url(#water)"/>
+  <g clip-path="url(#basin)" fill="none" stroke-linecap="round">
+    <path d="M173 486 Q268 448 374 483 T574 483" stroke="#d0faff" stroke-width="12" opacity="0.76"/>
+    <path d="M671 507 Q775 465 890 501 T1058 495" stroke="#d0faff" stroke-width="11" opacity="0.71"/>
+    <path d="M220 559 Q326 522 452 554" stroke="#0579a0" stroke-width="8" opacity="0.4"/>
+    <path d="M733 571 Q843 532 979 559" stroke="#0579a0" stroke-width="8" opacity="0.4"/>
+  </g>
+
+  <!-- Thick rim shows that the water and duck are inside the bathtub -->
+  <path d="M150 375 Q600 316 1050 375 Q1089 380 1082 415 Q1076 448 1035 442 Q600 389 165 442 Q124 448 118 415 Q111 380 150 375 Z" fill="#ffffff" stroke="#6d8a94" stroke-width="11"/>
+  <path d="M162 395 Q600 342 1038 395" fill="none" stroke="#b7c8cd" stroke-width="6"/>
+  <path d="M173 411 Q600 363 1027 411" fill="none" stroke="#71d6ea" stroke-width="8" opacity="0.85"/>
+
+  <!-- Soap foam hugs both sides of the floating duck -->
+  <g fill="url(#bubble)" stroke="#83c7d7" stroke-width="5">
+    <circle cx="167" cy="418" r="34"/><circle cx="202" cy="392" r="45"/><circle cx="247" cy="413" r="39"/>
+    <circle cx="286" cy="385" r="34"/><circle cx="325" cy="409" r="46"/><circle cx="370" cy="383" r="32"/>
+    <circle cx="407" cy="411" r="41"/><circle cx="445" cy="387" r="30"/><circle cx="473" cy="416" r="34"/>
+    <circle cx="752" cy="407" r="35"/><circle cx="787" cy="382" r="45"/><circle cx="832" cy="405" r="40"/>
+    <circle cx="872" cy="378" r="34"/><circle cx="909" cy="405" r="47"/><circle cx="954" cy="379" r="32"/>
+    <circle cx="991" cy="405" r="43"/><circle cx="1032" cy="384" r="29"/><circle cx="1057" cy="416" r="34"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.92">
+    <path d="M188 375 q14-15 30-8"/><path d="M309 387 q15-16 31-8"/><path d="M394 389 q13-14 27-7"/>
+    <path d="M771 364 q15-16 31-8"/><path d="M895 382 q15-16 31-8"/><path d="M976 383 q13-14 27-7"/>
+  </g>
+
+  <!-- The blue contact shadow and ripples establish flotation -->
+  <ellipse cx="607" cy="558" rx="215" ry="45" fill="#08779e" opacity="0.4"/>
+  <path d="M377 548 Q471 510 565 542 M658 545 Q755 505 844 541" fill="none" stroke="#ddfbff" stroke-width="14" stroke-linecap="round" opacity="0.88"/>
+
+  <!-- Large rubber ducky, centered above the waterline -->
+  <g filter="url(#drop)">
+    <!-- Rounded hollow rubber body -->
+    <path d="M429 493 Q401 452 439 416 Q472 385 516 414 Q550 376 607 371 Q676 364 724 402 Q753 426 759 460 Q819 467 847 511 Q872 551 838 582 Q797 617 681 611 H516 Q412 607 382 563 Q360 529 429 493 Z" fill="url(#duck)" stroke="#bf7f00" stroke-width="10" stroke-linejoin="round"/>
+    <!-- Tail -->
+    <path d="M747 478 Q795 436 841 454 Q814 492 765 507" fill="#ffd527" stroke="#bf7f00" stroke-width="10" stroke-linejoin="round"/>
+    <!-- Neck and head -->
+    <path d="M480 471 Q463 425 474 351 Q484 284 543 245 Q606 203 672 232 Q736 260 750 325 Q763 388 719 431 Q679 471 626 467 Z" fill="url(#duck)" stroke="#bf7f00" stroke-width="10"/>
+    <!-- Rubber highlights -->
+    <path d="M500 297 Q529 254 577 239" fill="none" stroke="#fffbb5" stroke-width="14" stroke-linecap="round" opacity="0.8"/>
+    <path d="M459 433 Q480 409 507 420" fill="none" stroke="#fff58b" stroke-width="10" stroke-linecap="round" opacity="0.56"/>
+    <!-- Eye -->
+    <ellipse cx="623" cy="285" rx="17" ry="21" fill="#14201e"/>
+    <circle cx="617" cy="278" r="5.5" fill="#ffffff"/>
+    <!-- Orange duck bill -->
+    <path d="M708 316 Q774 299 824 337 Q786 388 702 375 Q673 370 670 349 Q672 327 708 316 Z" fill="url(#bill)" stroke="#bd430d" stroke-width="9" stroke-linejoin="round"/>
+    <path d="M680 352 Q748 353 807 342" fill="none" stroke="#bd430d" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="730" cy="330" r="3.5" fill="#c65017"/>
+    <!-- Molded wing -->
+    <path d="M438 500 Q500 445 581 478 Q539 545 449 557 Q412 546 438 500 Z" fill="#f2b90d" stroke="#bf7f00" stroke-width="9"/>
+    <path d="M459 505 Q507 478 551 487" fill="none" stroke="#ffe879" stroke-width="10" stroke-linecap="round"/>
+  </g>
+
+  <!-- Foreground suds cross the duck body at the exact waterline -->
+  <g fill="url(#bubble)" stroke="#83c7d7" stroke-width="5">
+    <circle cx="375" cy="551" r="34"/><circle cx="410" cy="573" r="46"/><circle cx="456" cy="559" r="34"/>
+    <circle cx="491" cy="580" r="29"/><circle cx="526" cy="566" r="24"/>
+    <circle cx="694" cy="578" r="29"/><circle cx="730" cy="559" r="37"/><circle cx="770" cy="578" r="47"/>
+    <circle cx="815" cy="554" r="34"/><circle cx="850" cy="575" r="39"/><circle cx="887" cy="552" r="29"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.93">
+    <path d="M393 550 q13-14 27-7"/><path d="M746 549 q13-15 28-7"/><path d="M797 543 q11-12 24-6"/>
+  </g>
+
+  <!-- Airborne soap bubbles make the bath visibly soapy -->
+  <g fill="url(#bubble)" stroke="#73bbcc" stroke-width="5">
+    <circle cx="211" cy="267" r="46"/><circle cx="311" cy="191" r="28"/><circle cx="401" cy="273" r="23"/>
+    <circle cx="759" cy="177" r="34"/><circle cx="854" cy="119" r="23"/><circle cx="954" cy="190" r="51"/>
+    <circle cx="1071" cy="123" r="32"/><circle cx="1093" cy="279" r="39"/><circle cx="106" cy="158" r="28"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.94">
+    <path d="M187 246 q15-18 33-13"/><path d="M936 166 q17-19 36-12"/><path d="M1058 106 q10-11 22-7"/>
+  </g>
+
+  <!-- Claw feet and drain complete the bathtub silhouette -->
+  <path d="M247 648 q-8 48-54 65 q-30 11-39-12 q-7-21 26-38 l34-30" fill="url(#chrome)" stroke="#587680" stroke-width="8"/>
+  <path d="M953 648 q8 48 54 65 q30 11 39-12 q7-21-26-38 l-34-30" fill="url(#chrome)" stroke="#587680" stroke-width="8"/>
+  <ellipse cx="600" cy="626" rx="41" ry="16" fill="#8199a2" stroke="#526f79" stroke-width="6"/>
+  <path d="M573 626 H627 M585 616 L615 636 M615 616 L585 636" fill="none" stroke="#e4eef0" stroke-width="4"/>
+</svg>

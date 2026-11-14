@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Cow plowing a field</title>
+  <desc id="desc">A muscular brown-and-white cow advances across a farm field. A wooden yoke and two taut traces connect the cow to a steel plow that cuts and turns a dark furrow.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#55aee0"/>
+      <stop offset=".58" stop-color="#b9deda"/>
+      <stop offset="1" stop-color="#f2c98c"/>
+    </linearGradient>
+    <radialGradient id="sunGlow">
+      <stop offset="0" stop-color="#fff3af" stop-opacity=".9"/>
+      <stop offset=".42" stop-color="#ffd76d" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#ffd76d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fieldSoil" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a36e3c"/>
+      <stop offset=".55" stop-color="#724525"/>
+      <stop offset="1" stop-color="#43271a"/>
+    </linearGradient>
+    <linearGradient id="cowHide" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ad6734"/>
+      <stop offset=".48" stop-color="#87491f"/>
+      <stop offset="1" stop-color="#5d3017"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b17a3d"/>
+      <stop offset=".5" stop-color="#805126"/>
+      <stop offset="1" stop-color="#4e2d18"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c3d0d2"/>
+      <stop offset=".38" stop-color="#718186"/>
+      <stop offset="1" stop-color="#354247"/>
+    </linearGradient>
+    <pattern id="soilGrain" width="72" height="52" patternUnits="userSpaceOnUse">
+      <path d="M6 37q15-12 31 0M43 16q11-8 23 2" fill="none" stroke="#352117" stroke-width="3" opacity=".28"/>
+      <circle cx="22" cy="12" r="3" fill="#d8a261" opacity=".35"/>
+      <circle cx="56" cy="43" r="2" fill="#e0af6e" opacity=".25"/>
+    </pattern>
+    <filter id="soft" x="-20%" y="-100%" width="140%" height="300%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <clipPath id="fieldClip">
+      <path d="M0 517Q270 466 563 490Q950 529 1600 453V1000H0Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- Sky and horizon -->
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <circle cx="1328" cy="157" r="145" fill="url(#sunGlow)"/>
+  <circle cx="1328" cy="157" r="67" fill="#ffd36a"/>
+  <g fill="#fff" opacity=".78">
+    <path d="M111 169c23-43 82-47 112-11 35-27 92-7 95 37H66c2-19 18-30 45-26Z"/>
+    <path d="M655 111c18-35 68-37 90-8 29-22 75-5 77 34H619c2-15 14-25 36-26Z"/>
+  </g>
+  <g fill="none" stroke="#4e7381" stroke-width="5" stroke-linecap="round" opacity=".65">
+    <path d="M1044 172q18-18 37 0q18-18 37 0M1132 218q14-14 29 0q14-14 29 0"/>
+  </g>
+  <path d="M0 426Q141 292 316 419Q472 264 657 423Q831 283 1010 418Q1197 262 1600 397V548H0Z" fill="#426f4c"/>
+  <path d="M0 470Q188 352 386 461Q580 359 775 466Q980 343 1180 454Q1364 354 1600 440V552H0Z" fill="#6f9951"/>
+  <path d="M0 499Q291 430 547 489Q845 435 1124 482Q1353 420 1600 454V553H0Z" fill="#9ab65b"/>
+
+  <!-- Barn and distant trees establish farmland -->
+  <g stroke="#62432b" stroke-width="5" stroke-linejoin="round">
+    <path d="M165 462V355H313V462Z" fill="#d7c297"/>
+    <path d="M144 359l95-78 95 78Z" fill="#9c4934"/>
+    <rect x="216" y="402" width="45" height="60" rx="2" fill="#65422a"/>
+    <path d="M231 402v60M216 427h45" fill="none" stroke="#be9160" stroke-width="3"/>
+  </g>
+  <g fill="#2f5b39">
+    <path d="M81 478v-98l-32 54 28-78 4-48 8 48 33 77-31-53v98Z"/>
+    <path d="M1457 464v-109l-36 60 31-87 5-52 9 52 36 85-34-58v109Z"/>
+    <path d="M1532 469v-72l-24 40 21-58 3-35 6 35 24 56-22-38v72Z"/>
+  </g>
+
+  <!-- Cultivated field with converging planted rows -->
+  <path d="M0 517Q270 466 563 490Q950 529 1600 453V1000H0Z" fill="url(#fieldSoil)"/>
+  <rect y="450" width="1600" height="550" fill="url(#soilGrain)" clip-path="url(#fieldClip)"/>
+  <g fill="none" stroke-linecap="round">
+    <path d="M28 1000Q282 727 550 491" stroke="#d4a566" stroke-width="50" opacity=".47"/>
+    <path d="M318 1000Q460 731 638 499" stroke="#352116" stroke-width="56" opacity=".54"/>
+    <path d="M661 1000Q720 733 744 505" stroke="#d4a566" stroke-width="43" opacity=".44"/>
+    <path d="M1022 1000Q933 731 864 505" stroke="#352116" stroke-width="56" opacity=".54"/>
+    <path d="M1349 1000Q1139 708 984 496" stroke="#d4a566" stroke-width="45" opacity=".43"/>
+    <path d="M1598 863Q1321 634 1117 483" stroke="#352116" stroke-width="50" opacity=".46"/>
+  </g>
+  <g stroke="#789633" stroke-width="7" stroke-linecap="round">
+    <path d="M93 860v-51m0 21-21-23m21 12 24-35M186 750v-42m0 17-17-18m17 9 19-28M281 654v-34m0 14-14-15m14 7 15-23M1358 765v-45m0 19-19-20m19 10 21-31M1475 889v-56m0 23-23-24m23 12 25-36"/>
+  </g>
+
+  <!-- Ground shadows -->
+  <ellipse cx="765" cy="792" rx="386" ry="53" fill="#1d130e" opacity=".32" filter="url(#soft)"/>
+  <ellipse cx="1312" cy="825" rx="203" ry="35" fill="#1d130e" opacity=".3" filter="url(#soft)"/>
+
+  <!-- Cow walking left -->
+  <g stroke="#322016" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+    <!-- torso -->
+    <path d="M520 525Q538 430 650 408Q801 377 928 428Q1008 460 1006 548Q1002 632 913 668Q762 707 608 657Q505 624 520 525Z" fill="url(#cowHide)"/>
+    <!-- shoulder and muscle contours -->
+    <path d="M611 452Q570 505 599 575M903 453Q955 511 919 603" fill="none" stroke="#5b3019" stroke-width="6" opacity=".5"/>
+    <!-- white patches -->
+    <path d="M581 457Q644 406 721 410Q756 450 716 502Q662 536 594 505Q565 487 581 457Z" fill="#f3e9d3" stroke="none"/>
+    <path d="M804 401Q890 407 951 452Q954 510 898 527Q831 519 786 472Q778 433 804 401Z" fill="#f3e9d3" stroke="none"/>
+    <path d="M678 644Q752 676 828 649Q810 695 738 691Q692 681 678 644Z" fill="#f3e9d3" stroke="none"/>
+    <path d="M930 576Q980 551 1003 518Q1010 593 958 636Q918 641 930 576Z" fill="#f3e9d3" stroke="none"/>
+
+    <!-- rear legs -->
+    <path d="M878 643L912 791Q902 814 928 821H964Q978 804 956 796L941 618Z" fill="#75401f"/>
+    <path d="M599 627L568 773Q551 793 578 805L614 807Q630 792 608 779L656 636Z" fill="#71401f"/>
+    <!-- foreground walking legs -->
+    <path d="M704 661L679 808Q663 832 694 837H731Q746 820 722 809L759 659Z" fill="#f2e6cf"/>
+    <path d="M961 624L1022 749Q1018 774 1048 773L1080 758Q1088 740 1063 738L1013 592Z" fill="#f2e6cf"/>
+    <!-- hooves -->
+    <path d="M565 793h49M673 825h57M911 809h51M1031 763l47-17" fill="none" stroke="#1c1511" stroke-width="14"/>
+
+    <!-- neck -->
+    <path d="M566 475Q507 434 450 477L396 562L489 633Q554 607 588 547Z" fill="#7a421f"/>
+    <path d="M467 489Q506 466 546 491" fill="none" stroke="#a76432" stroke-width="7"/>
+    <!-- head -->
+    <path d="M452 469Q390 432 331 479Q292 521 317 597Q349 674 443 634Q505 607 495 540Q487 495 452 469Z" fill="#f3e8d1"/>
+    <path d="M467 507Q434 471 399 464Q388 520 430 552Z" fill="#80451f" stroke="none"/>
+    <path d="M387 464Q345 467 320 510Q356 532 390 499Z" fill="#80451f" stroke="none"/>
+    <!-- muzzle -->
+    <path d="M327 586Q383 565 441 586Q439 645 384 657Q333 648 327 586Z" fill="#cc917a"/>
+    <ellipse cx="354" cy="613" rx="8" ry="6" fill="#4b2c27" stroke="none"/>
+    <ellipse cx="414" cy="612" rx="8" ry="6" fill="#4b2c27" stroke="none"/>
+    <path d="M362 635Q385 646 408 632" fill="none" stroke="#74463d" stroke-width="5"/>
+    <!-- eyes -->
+    <ellipse cx="359" cy="534" rx="11" ry="13" fill="#15120f" stroke="none"/>
+    <ellipse cx="430" cy="531" rx="11" ry="13" fill="#15120f" stroke="none"/>
+    <circle cx="355" cy="529" r="3.5" fill="#fff" stroke="none"/>
+    <circle cx="426" cy="526" r="3.5" fill="#fff" stroke="none"/>
+    <!-- ears -->
+    <path d="M340 495Q286 456 264 489Q285 532 337 523Z" fill="#9d5b2d"/>
+    <path d="M448 492Q499 451 520 485Q497 528 454 522Z" fill="#9d5b2d"/>
+    <path d="M326 491Q299 481 281 490" fill="none" stroke="#c97b48" stroke-width="5"/>
+    <path d="M463 489Q488 473 505 487" fill="none" stroke="#c97b48" stroke-width="5"/>
+    <!-- horns -->
+    <path d="M347 470Q307 412 337 392Q365 434 370 465Z" fill="#ead8a9"/>
+    <path d="M431 465Q441 407 476 400Q482 444 458 480Z" fill="#ead8a9"/>
+    <!-- tail -->
+    <path d="M994 466Q1069 486 1075 565Q1077 603 1112 628" fill="none" stroke="#58301a" stroke-width="12"/>
+    <path d="M1107 618q38 10 30 45q-43 14-50-26Z" fill="#342119"/>
+  </g>
+
+  <!-- Wooden yoke and harness around the cow -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M482 466Q545 428 610 455" stroke="#432718" stroke-width="22"/>
+    <path d="M500 438L510 536M587 433L600 523" stroke="url(#wood)" stroke-width="12"/>
+    <path d="M504 516Q553 547 599 508" stroke="#b27d3d" stroke-width="10"/>
+    <circle cx="503" cy="469" r="10" fill="#c49551" stroke="#432718" stroke-width="5"/>
+    <circle cx="598" cy="464" r="10" fill="#c49551" stroke="#432718" stroke-width="5"/>
+  </g>
+
+  <!-- Taut upper and lower traces: unambiguous cow-to-plow connection -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M599 464Q917 532 1216 718" stroke="#3f281b" stroke-width="11"/>
+    <path d="M596 510Q903 587 1170 756" stroke="#3f281b" stroke-width="10"/>
+    <path d="M599 464Q917 532 1216 718M596 510Q903 587 1170 756" stroke="#b98a55" stroke-width="3" opacity=".55"/>
+  </g>
+
+  <!-- Plow: long beam, handles, standard, share, and curved moldboard -->
+  <g stroke="#322017" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M1190 737L1392 555" fill="none" stroke="url(#wood)" stroke-width="26"/>
+    <path d="M1274 661L1434 696" fill="none" stroke="url(#wood)" stroke-width="21"/>
+    <path d="M1386 558L1463 498" fill="none" stroke="#764721" stroke-width="18"/>
+    <path d="M1388 559L1476 562" fill="none" stroke="#764721" stroke-width="17"/>
+    <path d="M1274 661L1234 768" fill="none" stroke="#6e431f" stroke-width="19"/>
+    <circle cx="1274" cy="661" r="14" fill="#c08842" stroke-width="6"/>
+    <path d="M1164 754Q1240 751 1308 813L1251 854Q1177 831 1131 792Z" fill="url(#metal)" stroke-width="9"/>
+    <path d="M1251 854Q1156 895 1047 841Q1135 838 1194 790Z" fill="#435157" stroke-width="8"/>
+    <path d="M1135 794Q1040 780 960 826" fill="none" stroke="#291a13" stroke-width="17"/>
+    <path d="M1184 779Q1234 786 1272 820" fill="none" stroke="#d5e1e1" stroke-width="4" opacity=".65"/>
+  </g>
+
+  <!-- Fresh furrow begins exactly at the plowshare and extends behind it -->
+  <path d="M1064 823Q962 783 851 827Q747 868 617 887Q440 913 285 1000H1295Q1238 911 1141 857Z" fill="#2d1d16"/>
+  <path d="M1080 835Q981 813 886 848Q778 889 655 911Q519 935 420 1000" fill="none" stroke="#5e3923" stroke-width="36" opacity=".72"/>
+  <g fill="#583622" stroke="#2b1b13" stroke-width="3">
+    <path d="M986 826q45-47 94 4q-45 29-94-4Z"/>
+    <path d="M898 855q56-52 109 5q-52 31-109-5Z"/>
+    <path d="M786 895q66-57 132 8q-68 34-132-8Z"/>
+    <path d="M642 929q78-61 154 11q-80 35-154-11Z"/>
+    <path d="M485 970q85-61 167 15q-90 33-167-15Z"/>
+  </g>
+  <!-- Soil thrown upward by the cutting blade -->
+  <g fill="#8b5831">
+    <circle cx="1050" cy="790" r="12"/><circle cx="1016" cy="807" r="8"/><circle cx="982" cy="817" r="13"/>
+    <circle cx="1100" cy="801" r="7"/><path d="M1023 779q14-25 31-3q-10 16-31 3Z"/>
+  </g>
+
+  <!-- Dust at moving hooves -->
+  <g fill="#d6aa70" opacity=".5">
+    <circle cx="573" cy="793" r="18"/><circle cx="607" cy="783" r="11"/>
+    <circle cx="688" cy="824" r="16"/><circle cx="724" cy="810" r="9"/>
+    <circle cx="934" cy="807" r="13"/>
+  </g>
+
+  <!-- Foreground grasses frame the scene -->
+  <g fill="none" stroke="#65792d" stroke-width="8" stroke-linecap="round">
+    <path d="M45 988q6-55 5-105m0 54-32-34m33 14 37-51M138 998q-3-43 15-86m-9 50-28-31M1508 997q-3-61 11-113m-6 58-36-38m40 16 39-55M1570 1000q1-42 15-78"/>
+  </g>
+</svg>

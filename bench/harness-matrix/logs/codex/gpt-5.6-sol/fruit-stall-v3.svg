@@ -1,0 +1,236 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Fruit stall at a busy open-air market</title>
+  <desc id="desc">A detailed striped market stall displays labeled crates and baskets of apples, oranges, pears, bananas, grapes, watermelons, and pineapples. A vendor serves two shoppers among neighboring stalls.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b9e4f6"/>
+      <stop offset=".72" stop-color="#f7ecc9"/>
+      <stop offset="1" stop-color="#f0d7aa"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c17a45"/>
+      <stop offset=".5" stop-color="#94512e"/>
+      <stop offset="1" stop-color="#63321f"/>
+    </linearGradient>
+    <linearGradient id="canopyCream" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff7dc"/>
+      <stop offset="1" stop-color="#ead2a8"/>
+    </linearGradient>
+    <radialGradient id="apple" cx="35%" cy="28%" r="72%">
+      <stop offset="0" stop-color="#ff7660"/>
+      <stop offset="1" stop-color="#bd2e2c"/>
+    </radialGradient>
+    <radialGradient id="orange" cx="35%" cy="30%" r="70%">
+      <stop offset="0" stop-color="#ffc24b"/>
+      <stop offset="1" stop-color="#dd6b1f"/>
+    </radialGradient>
+    <radialGradient id="pear" cx="35%" cy="28%" r="75%">
+      <stop offset="0" stop-color="#c4d968"/>
+      <stop offset="1" stop-color="#6f9638"/>
+    </radialGradient>
+    <pattern id="stones" width="126" height="58" patternUnits="userSpaceOnUse">
+      <rect width="126" height="58" fill="#d8c29d"/>
+      <path d="M0 1h126M0 57h126M63 1v28M0 29h126M28 29v28M98 29v28" fill="none" stroke="#b39a76" stroke-width="2" opacity=".62"/>
+    </pattern>
+    <filter id="stallShadow" x="-20%" y="-20%" width="140%" height="170%">
+      <feDropShadow dx="0" dy="11" stdDeviation="9" flood-color="#39271d" flood-opacity=".3"/>
+    </filter>
+    <filter id="smallShadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#37251c" flood-opacity=".24"/>
+    </filter>
+    <clipPath id="crateA"><path d="M201 503h204l-13 137H214z"/></clipPath>
+    <clipPath id="crateO"><path d="M425 491h270l-11 149H438z"/></clipPath>
+    <clipPath id="crateP"><path d="M715 503h224l-10 137H728z"/></clipPath>
+  </defs>
+
+  <!-- Market square -->
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <circle cx="1055" cy="89" r="48" fill="#ffe392" opacity=".78"/>
+  <g fill="#ffffff" opacity=".57">
+    <path d="M78 91c20-30 64-27 78 5 35-18 72 4 73 36H46c1-22 12-36 32-41z"/>
+    <path d="M722 78c17-25 54-23 68 4 30-15 61 4 62 30H695c2-18 10-29 27-34z"/>
+  </g>
+  <path d="M0 258h1200v246H0z" fill="#dcc09a"/>
+  <path d="M0 504h1200v296H0z" fill="url(#stones)"/>
+  <path d="M0 258h1200" stroke="#9a7657" stroke-width="6"/>
+
+  <!-- Neighboring stalls establish the market -->
+  <g opacity=".82">
+    <path d="M0 303l50-81h142l52 81z" fill="#f4e2be" stroke="#634938" stroke-width="5"/>
+    <path d="M0 303h244v49H0z" fill="#468688"/>
+    <path d="M0 303h49v49H0zm98 0h49v49H98zm98 0h48v49h-48z" fill="#fff0d4"/>
+    <path d="M24 352v156M218 352v156" stroke="#5c4335" stroke-width="10"/>
+    <rect x="27" y="374" width="188" height="95" fill="#92613f" stroke="#65442e" stroke-width="5"/>
+    <g fill="#f0c346"><ellipse cx="56" cy="376" rx="23" ry="13"/><ellipse cx="98" cy="375" rx="23" ry="13"/><ellipse cx="140" cy="376" rx="23" ry="13"/></g>
+
+    <path d="M962 302l51-80h145l42 80z" fill="#f5e2bf" stroke="#634938" stroke-width="5"/>
+    <path d="M962 302h238v49H962z" fill="#be554e"/>
+    <path d="M1009 302h48v49h-48zm96 0h48v49h-48z" fill="#fff0d4"/>
+    <path d="M986 351v157M1173 351v157" stroke="#5c4335" stroke-width="10"/>
+    <rect x="991" y="375" width="178" height="94" fill="#8f603f" stroke="#65442e" stroke-width="5"/>
+    <g fill="#d6ead0"><path d="M1010 376q20-30 40 0zM1055 376q20-30 40 0zM1100 376q20-30 40 0z"/></g>
+  </g>
+  <g fill="#477341">
+    <circle cx="70" cy="205" r="25"/><circle cx="107" cy="193" r="31"/><circle cx="151" cy="205" r="27"/>
+    <circle cx="1027" cy="204" r="25"/><circle cx="1066" cy="191" r="32"/><circle cx="1111" cy="204" r="28"/>
+  </g>
+
+  <!-- Main stall structure -->
+  <g filter="url(#stallShadow)">
+    <rect x="143" y="241" width="18" height="448" rx="5" fill="#453126"/>
+    <rect x="951" y="241" width="18" height="448" rx="5" fill="#453126"/>
+    <path d="M108 240l73-132h744l76 132z" fill="url(#canopyCream)" stroke="#483329" stroke-width="7"/>
+    <path d="M181 108h744l26 45H156z" fill="#fff3d8"/>
+    <path d="M181 108h108l-38 132H108zm214 0h107l-7 132H357zm214 0h107l24 132H602zm213 0h103l76 132H849z" fill="#c93d36"/>
+    <path d="M108 240h893v51c-7 34-54 34-64 1-10 35-60 35-70 0-10 35-60 35-70 0-10 35-60 35-70 0-10 35-60 35-70 0-10 35-60 35-70 0-10 35-60 35-70 0-10 35-60 35-70 0-10 35-60 35-70 0-10 35-60 35-70 0-10 35-60 35-70 0-10 35-60 35-70 0-9 31-54 33-63-2z" fill="#fff1d1" stroke="#483329" stroke-width="6"/>
+    <path d="M108 240h70v51c-9 35-59 35-70 0zm140 0h70v52c-10 35-60 35-70 0zm140 0h70v52c-10 35-60 35-70 0zm140 0h70v52c-10 35-60 35-70 0zm140 0h70v52c-10 35-60 35-70 0zm140 0h70v52c-10 35-60 35-70 0zm140 0h53v51c-6 28-38 33-53 17z" fill="#c93d36"/>
+  </g>
+
+  <!-- Prominent stall sign -->
+  <g filter="url(#smallShadow)">
+    <path d="M469 297v24M638 297v24" stroke="#3d2b22" stroke-width="5"/>
+    <rect x="431" y="318" width="245" height="80" rx="10" fill="#245f3c" stroke="#f2d485" stroke-width="6"/>
+    <text x="553.5" y="351" text-anchor="middle" fill="#fff8df" font-family="Georgia,serif" font-size="27" font-weight="bold">FRUIT STALL</text>
+    <text x="553.5" y="380" text-anchor="middle" fill="#f6cd61" font-family="Arial,sans-serif" font-size="16" font-weight="bold" letter-spacing="2">FRESH • LOCAL • DAILY</text>
+  </g>
+
+  <!-- Rear produce shelf -->
+  <rect x="180" y="402" width="746" height="19" rx="4" fill="#5f3522"/>
+  <rect x="191" y="417" width="724" height="64" fill="#a15d36" stroke="#603620" stroke-width="5"/>
+  <path d="M334 417v64M478 417v64M622 417v64M766 417v64" stroke="#704026" stroke-width="4"/>
+
+  <!-- Bananas -->
+  <g fill="none" stroke="#efc034" stroke-width="13" stroke-linecap="round">
+    <path d="M211 402q22 30 54 5"/><path d="M225 390q19 30 50 13"/><path d="M245 385q17 27 45 14"/><path d="M266 388q15 23 38 11"/>
+  </g>
+  <g fill="#604729"><circle cx="209" cy="401" r="3"/><circle cx="225" cy="389" r="3"/><circle cx="245" cy="384" r="3"/><circle cx="266" cy="387" r="3"/></g>
+
+  <!-- Grapes -->
+  <g fill="#77488f" stroke="#523464" stroke-width="2">
+    <circle cx="363" cy="405" r="12"/><circle cx="387" cy="405" r="12"/><circle cx="411" cy="405" r="12"/><circle cx="435" cy="405" r="12"/>
+    <circle cx="375" cy="385" r="12"/><circle cx="399" cy="385" r="12"/><circle cx="423" cy="385" r="12"/>
+    <circle cx="387" cy="365" r="12"/><circle cx="411" cy="365" r="12"/><circle cx="399" cy="345" r="12"/>
+  </g>
+  <path d="M399 334q5-15 20-17" fill="none" stroke="#3f7739" stroke-width="5"/>
+
+  <!-- Tomatoes and citrus -->
+  <g stroke-width="2">
+    <g fill="url(#apple)" stroke="#992f27"><circle cx="505" cy="405" r="20"/><circle cx="540" cy="405" r="20"/><circle cx="575" cy="405" r="20"/><circle cx="523" cy="378" r="20"/><circle cx="558" cy="378" r="20"/></g>
+    <g fill="url(#orange)" stroke="#b95e1d"><circle cx="649" cy="405" r="20"/><circle cx="684" cy="405" r="20"/><circle cx="719" cy="405" r="20"/><circle cx="667" cy="378" r="20"/><circle cx="702" cy="378" r="20"/></g>
+  </g>
+  <g fill="#39783d"><path d="M519 356l5 13 13-8-5 14 14 3-14 4"/><path d="M554 356l5 13 13-8-5 14 14 3-14 4"/></g>
+
+  <!-- Pineapples -->
+  <g stroke="#8d6621" stroke-width="2">
+    <path d="M791 376q22-15 44 0l-5 40h-34zM847 376q22-15 44 0l-5 40h-34z" fill="#d5a72b"/>
+    <path d="M795 374l-10-31 25 18 3-34 10 33 23-21-11 36M851 374l-10-31 25 18 3-34 10 33 23-21-11 36" fill="#4f823e" stroke="#376332" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M797 385l34 22M830 384l-33 24M853 385l34 22M886 384l-33 24" fill="none"/>
+  </g>
+
+  <!-- Vendor clearly behind the counter -->
+  <g>
+    <path d="M846 469q-7-80 52-108 62 25 61 108z" fill="#397582" stroke="#28525b" stroke-width="5"/>
+    <circle cx="906" cy="365" r="43" fill="#b97550" stroke="#68422e" stroke-width="4"/>
+    <path d="M865 362q0-52 40-57 42 3 45 53-24-20-45-25-15 20-40 29z" fill="#3a2c26"/>
+    <path d="M871 347q33-30 74-4" fill="none" stroke="#f0d29e" stroke-width="10"/>
+    <ellipse cx="892" cy="365" rx="4" ry="5" fill="#2c211c"/><ellipse cx="922" cy="365" rx="4" ry="5" fill="#2c211c"/>
+    <path d="M894 385q12 9 25 0" fill="none" stroke="#743f33" stroke-width="3" stroke-linecap="round"/>
+    <path d="M859 429q-42 7-71 34" fill="none" stroke="#b97550" stroke-width="18" stroke-linecap="round"/>
+    <path d="M792 461l-24 12" fill="none" stroke="#b97550" stroke-width="15" stroke-linecap="round"/>
+    <circle cx="760" cy="476" r="10" fill="url(#pear)" stroke="#587732" stroke-width="2"/>
+  </g>
+
+  <!-- Counter and wood joinery -->
+  <path d="M154 461h820l-25 204H177z" fill="url(#wood)" stroke="#57301e" stroke-width="7"/>
+  <path d="M165 480h797M172 535h783M179 591h769" fill="none" stroke="#d18a51" stroke-width="4" opacity=".58"/>
+  <path d="M288 466l-10 195M416 466l-5 195M545 466v195M675 466l6 195M805 466l11 195M932 466l14 195" stroke="#63351f" stroke-width="5"/>
+
+  <!-- Crate of apples -->
+  <path d="M201 503h204l-13 137H214z" fill="#c1844d" stroke="#58341f" stroke-width="7"/>
+  <g clip-path="url(#crateA)" fill="url(#apple)" stroke="#962d26" stroke-width="2">
+    <circle cx="218" cy="518" r="23"/><circle cx="258" cy="513" r="24"/><circle cx="299" cy="518" r="24"/><circle cx="340" cy="513" r="24"/><circle cx="383" cy="518" r="24"/>
+    <circle cx="236" cy="551" r="24"/><circle cx="279" cy="549" r="24"/><circle cx="322" cy="551" r="24"/><circle cx="365" cy="549" r="24"/>
+  </g>
+  <g fill="#34733a"><path d="M253 490q9-15 23-6-9 13-23 6z"/><path d="M335 490q9-15 23-6-9 13-23 6z"/></g>
+  <path d="M207 558h192M211 604h185" stroke="#744229" stroke-width="9"/>
+
+  <!-- Crate of oranges -->
+  <path d="M425 491h270l-11 149H438z" fill="#ca8b4e" stroke="#58341f" stroke-width="7"/>
+  <g clip-path="url(#crateO)" fill="url(#orange)" stroke="#b85d1c" stroke-width="2">
+    <circle cx="443" cy="511" r="24"/><circle cx="486" cy="506" r="25"/><circle cx="530" cy="511" r="25"/><circle cx="574" cy="506" r="25"/><circle cx="618" cy="511" r="25"/><circle cx="667" cy="507" r="25"/>
+    <circle cx="464" cy="546" r="25"/><circle cx="510" cy="544" r="25"/><circle cx="556" cy="546" r="25"/><circle cx="602" cy="544" r="25"/><circle cx="648" cy="546" r="25"/>
+  </g>
+  <path d="M431 559h258M435 605h252" stroke="#744229" stroke-width="9"/>
+
+  <!-- Crate of pears -->
+  <path d="M715 503h224l-10 137H728z" fill="#c08349" stroke="#58341f" stroke-width="7"/>
+  <g clip-path="url(#crateP)" fill="url(#pear)" stroke="#56762e" stroke-width="2">
+    <path d="M724 541q-2-35 22-40 24 5 22 40zM762 539q-2-35 24-40 24 5 22 40zM803 541q-2-35 25-40 24 5 22 40zM846 539q-2-35 25-40 24 5 22 40zM889 541q-2-35 23-40 24 5 22 40z"/>
+    <path d="M741 575q-2-35 25-40 24 5 22 40zM786 573q-2-35 25-40 24 5 22 40zM831 575q-2-35 25-40 24 5 22 40zM876 573q-2-35 25-40 24 5 22 40z"/>
+  </g>
+  <g stroke="#496830" stroke-width="4"><path d="M746 501v-10M786 499v-10M828 501v-10M871 499v-10M912 501v-10"/></g>
+  <path d="M722 559h212M725 605h207" stroke="#744229" stroke-width="9"/>
+
+  <!-- Readable product and price signs -->
+  <g font-family="Arial,sans-serif" text-anchor="middle" font-weight="bold" filter="url(#smallShadow)">
+    <g transform="rotate(-2 301 481)"><rect x="246" y="449" width="110" height="55" rx="5" fill="#fff6d8" stroke="#4a3629" stroke-width="3"/><text x="301" y="471" font-size="14" fill="#3d2c22">APPLES</text><text x="301" y="494" font-size="19" fill="#c23931">$2 / lb</text></g>
+    <g transform="rotate(1 560 470)"><rect x="497" y="437" width="126" height="56" rx="5" fill="#fff6d8" stroke="#4a3629" stroke-width="3"/><text x="560" y="460" font-size="14" fill="#3d2c22">ORANGES</text><text x="560" y="483" font-size="19" fill="#d46e1f">$3 / lb</text></g>
+    <g transform="rotate(-2 827 481)"><rect x="773" y="449" width="108" height="55" rx="5" fill="#fff6d8" stroke="#4a3629" stroke-width="3"/><text x="827" y="471" font-size="14" fill="#3d2c22">PEARS</text><text x="827" y="494" font-size="19" fill="#648638">$2 / lb</text></g>
+  </g>
+
+  <!-- Watermelon basket on the left -->
+  <g>
+    <path d="M51 629q67-35 134 0l-14 108H66z" fill="#b97840" stroke="#624027" stroke-width="5"/>
+    <path d="M59 655h118M63 689h110M66 718h104" fill="none" stroke="#e1a45e" stroke-width="5"/>
+    <path d="M67 629q10-77 101 0" fill="none" stroke="#624027" stroke-width="10"/>
+    <g fill="#3f8646" stroke="#285f35" stroke-width="3">
+      <ellipse cx="82" cy="648" rx="27" ry="18" transform="rotate(-14 82 648)"/><ellipse cx="122" cy="642" rx="28" ry="19" transform="rotate(8 122 642)"/><ellipse cx="158" cy="652" rx="27" ry="18" transform="rotate(17 158 652)"/><ellipse cx="104" cy="674" rx="27" ry="18" transform="rotate(10 104 674)"/><ellipse cx="145" cy="678" rx="27" ry="18" transform="rotate(-8 145 678)"/>
+    </g>
+    <g fill="none" stroke="#8cc35d" stroke-width="3"><path d="M58 649q24-11 48-2M96 639q27-8 52 4M132 649q25-5 48 10M79 671q25-7 50 6M120 676q25-8 49 2"/></g>
+  </g>
+
+  <!-- Lemon basket on the right -->
+  <g>
+    <path d="M964 635q70-34 140 0l-15 103H980z" fill="#ba7740" stroke="#624027" stroke-width="5"/>
+    <path d="M973 660h122M977 692h114M980 719h107" fill="none" stroke="#e1a45e" stroke-width="5"/>
+    <path d="M981 635q10-77 105 0" fill="none" stroke="#624027" stroke-width="10"/>
+    <g fill="#f3c83e" stroke="#bd8424" stroke-width="2"><ellipse cx="991" cy="649" rx="22" ry="15"/><ellipse cx="1025" cy="644" rx="23" ry="16"/><ellipse cx="1060" cy="649" rx="23" ry="16"/><ellipse cx="1088" cy="650" rx="21" ry="15"/><ellipse cx="1008" cy="672" rx="23" ry="16"/><ellipse cx="1045" cy="672" rx="23" ry="16"/><ellipse cx="1078" cy="674" rx="21" ry="15"/></g>
+  </g>
+
+  <!-- Shopper reaches toward the stall and carries fruit -->
+  <g>
+    <ellipse cx="1083" cy="751" rx="84" ry="15" fill="#735d46" opacity=".24"/>
+    <path d="M1032 493q-43 61-26 148h103q10-99-27-148z" fill="#dda13c" stroke="#80591f" stroke-width="5"/>
+    <circle cx="1062" cy="441" r="43" fill="#8f5b44" stroke="#57392e" stroke-width="4"/>
+    <path d="M1020 442q0-56 42-59 46 0 50 55-21-22-53-28-14 24-39 32z" fill="#292629"/>
+    <ellipse cx="1049" cy="442" rx="4" ry="5" fill="#2c211c"/>
+    <path d="M1037 513q-40 0-74-29" fill="none" stroke="#8f5b44" stroke-width="19" stroke-linecap="round"/>
+    <path d="M965 484l-28-8" fill="none" stroke="#8f5b44" stroke-width="15" stroke-linecap="round"/>
+    <path d="M1024 638l-9 96M1090 638l21 96" stroke="#3b5168" stroke-width="27" stroke-linecap="round"/>
+    <path d="M993 741h47M1090 741h48" stroke="#382e2b" stroke-width="16" stroke-linecap="round"/>
+    <path d="M1104 540h68l9 117h-87z" fill="#f0e3b9" stroke="#72553a" stroke-width="4"/>
+    <path d="M1108 547q17-53 57 0" fill="none" stroke="#72553a" stroke-width="5"/>
+    <circle cx="1121" cy="574" r="15" fill="url(#apple)"/><circle cx="1149" cy="577" r="15" fill="url(#orange)"/><path d="M1121 557q8-12 17-3" fill="none" stroke="#477941" stroke-width="4"/>
+  </g>
+
+  <!-- Second shopper makes the sales relationship explicit -->
+  <g opacity=".95">
+    <ellipse cx="255" cy="754" rx="61" ry="12" fill="#735d46" opacity=".22"/>
+    <circle cx="232" cy="658" r="30" fill="#c9855c" stroke="#6a4431" stroke-width="4"/>
+    <path d="M202 657q3-39 32-41 29 5 31 39-22-17-41-14-7 10-22 16z" fill="#5d4637"/>
+    <path d="M201 692q35-23 69 1l10 51h-91z" fill="#6d5ca5" stroke="#483d73" stroke-width="4"/>
+    <path d="M262 700q29-13 49-39" fill="none" stroke="#c9855c" stroke-width="14" stroke-linecap="round"/>
+    <path d="M309 661l17-14" fill="none" stroke="#c9855c" stroke-width="11" stroke-linecap="round"/>
+    <path d="M206 743l-11 21M263 743l10 21" stroke="#4b433e" stroke-width="17" stroke-linecap="round"/>
+  </g>
+
+  <!-- Market sign and foreground details -->
+  <g filter="url(#smallShadow)">
+    <path d="M42 296v-89M42 208h122" stroke="#574233" stroke-width="7"/>
+    <rect x="54" y="216" width="98" height="53" rx="6" fill="#f6dfaa" stroke="#66503b" stroke-width="4"/>
+    <text x="103" y="238" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#3f3026">OPEN-AIR</text>
+    <text x="103" y="258" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="#a64033">MARKET</text>
+  </g>
+  <path d="M18 760q20-51 35-1-2-58 25-62-2 47-25 71zM916 754q10-45 31-35-3 23-21 43 29-36 42-11-21 19-52 21z" fill="#507d40"/>
+  <g fill="#eedaa2"><ellipse cx="391" cy="737" rx="8" ry="3"/><ellipse cx="460" cy="765" rx="6" ry="3"/><ellipse cx="698" cy="722" rx="9" ry="4"/><ellipse cx="769" cy="768" rx="7" ry="3"/></g>
+</svg>

@@ -1,0 +1,302 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="900" height="900" viewBox="0 0 900 900">
+<title>Half-buried barrel of treasure</title>
+<desc>A wooden barrel with two iron hoops rises from a sand mound. Gold coins, rubies, emeralds, sapphires, a goblet, and white pearls overflow its open top.</desc>
+<defs>
+ <radialGradient id="sky"><stop stop-color="#fff9de"/><stop offset="1" stop-color="#e1ede6"/></radialGradient>
+ <linearGradient id="sand" x2=".3" y2="1"><stop stop-color="#fce6ab"/><stop offset="1" stop-color="#dba45d"/></linearGradient>
+ <linearGradient id="wood"><stop stop-color="#744121"/><stop offset=".25" stop-color="#b9783b"/><stop offset=".5" stop-color="#cf9650"/><stop offset=".8" stop-color="#995929"/><stop offset="1" stop-color="#512c1d"/></linearGradient>
+ <linearGradient id="metal" x2="0" y2="1"><stop stop-color="#b5c2bb"/><stop offset=".22" stop-color="#7d9390"/><stop offset=".6" stop-color="#425959"/><stop offset=".85" stop-color="#637774"/><stop offset="1" stop-color="#293f40"/></linearGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2=".65" y2="1"><stop stop-color="#fff3a1"/><stop offset=".35" stop-color="#ffd355"/><stop offset=".7" stop-color="#e8a522"/><stop offset="1" stop-color="#ad6012"/></linearGradient>
+ <radialGradient id="pearl" cx=".3" cy=".25"><stop stop-color="white"/><stop offset=".5" stop-color="#fffef1"/><stop offset="1" stop-color="#b2bdb5"/></radialGradient>
+ <g id="coin"><ellipse cy="4" rx="18" ry="9" fill="#af6c14" stroke="#875020" stroke-width="1.5"/><ellipse rx="18" ry="9" fill="url(#gold)" stroke="#e5ae35" stroke-width="1.5"/><ellipse rx="13" ry="6" fill="none" stroke="#ffe99b" stroke-width="1.5"/><path d="M-3-4 3-4M0-4 0 4M-4 2 4 2" fill="none" stroke="#b5781a" stroke-width="1.5"/></g>
+ <g id="ruby"><path d="M-19-9-9-20 13-19 24-6 5 21Z" fill="#a91834" stroke="#742e30" stroke-width="2"/><path d="m-19-9 16-3 8 33-16-22Z" fill="#f45465"/><path d="m-3-12 16-7 11 13-19 27Z" fill="#cc244b"/><path d="m-9-20 6 8 16-7Z" fill="#ff9f9d"/><path d="m-3-12 18 5L5 21Z" fill="#f23c5a"/><path d="m-14-11 7-7" stroke="#ffe8d0" stroke-width="3"/></g>
+ <g id="emerald"><path d="M-18-17 13-20 22-10 22 14 13 22-17 17-23 7-23-8Z" fill="#087b5b" stroke="#215a43" stroke-width="2"/><path d="m-18-17 31-3-5 9-21 2Z" fill="#9aefba"/><path d="m-13-9 21-2 5 23-25-2Z" fill="#21c88b"/><path d="m8-11 5-9 9 10v24l-9-2Z" fill="#0e9968"/><path d="m-23-8 10-1 1 19-5 7-6-10Z" fill="#66e5a7"/><path d="m-12-8 17-2" stroke="#d6ffdc" stroke-width="3"/></g>
+ <g id="sapphire"><path d="m-24-5 13-16 25 4 13 17-25 23Z" fill="#153e9f" stroke="#2a456b" stroke-width="2"/><path d="m-24-5 23-2 3 30Z" fill="#3384e4"/><path d="m-11-21 10 14 15-10Z" fill="#9ecbff"/><path d="m-1-7 28 7L2 23Z" fill="#2466cb"/><path d="m-24-5 13-16 10 14Z" fill="#66b8f4"/><path d="m-14-12 5-6" stroke="#e6faff" stroke-width="3"/></g>
+ <g id="glint" fill="#fffdeb"><path d="M0-16 3-3 15 0 3 3 0 16-3 3-15 0-3-3Z"/><circle r="3" fill="white"/></g>
+</defs>
+<rect width="900" height="900" fill="url(#sky)"/>
+<circle cx="460" cy="391" r="285" fill="#fff8de" opacity=".6"/>
+<path d="M0 668Q174 589 348 640T900 622V900H0Z" fill="#e8cf91"/>
+<path d="M0 744Q182 620 351 657Q572 554 900 702V900H0Z" fill="#efd29a"/>
+<ellipse cx="463" cy="739" rx="334" ry="79" fill="#a46d37" opacity=".15"/>
+<!-- Visible upper half of the barrel -->
+<path d="M235 348C218 427 229 550 259 657Q413 729 551 648C581 527 584 419 563 346Z" fill="url(#wood)" stroke="#643b25" stroke-width="5"/>
+<g fill="none" stroke="#754223" stroke-width="4">
+<path d="M266 361Q244 482 279 665M315 376Q299 493 324 681M373 384Q367 509 380 688M433 382Q443 505 434 687M493 369Q519 501 489 676M542 352Q560 487 537 656"/>
+</g>
+<g fill="none" stroke="#e1ad65" stroke-width="2" opacity=".55">
+<path d="M278 399Q262 443 278 523M289 548 298 597M331 395Q315 463 337 542M350 555 352 633M394 403 389 486M402 511Q412 555 399 648M457 404Q470 467 460 509M470 543 465 652M523 412Q541 458 522 514"/>
+</g>
+<g fill="none" stroke="#71421e" stroke-width="2" opacity=".8">
+<path d="M295 442c-21-32-21 53-2 39 11-9 2-51-3-31M409 553c-18-32-22 49-6 51s15-47 6-51M490 435q-13 24 0 53M351 565q-13 28-3 56"/>
+</g>
+<!-- Two horizontal metal hoops -->
+<path d="M231 409Q400 477 573 408L575 447Q403 516 232 450Z" fill="url(#metal)" stroke="#3f514b" stroke-width="4"/>
+<path d="M232 414Q406 479 573 413" fill="none" stroke="#d8dfc5" stroke-width="3"/>
+<path d="M239 553Q414 620 566 551L559 591Q410 655 246 593Z" fill="url(#metal)" stroke="#3f514b" stroke-width="4"/>
+<path d="M241 559Q413 622 563 558" fill="none" stroke="#becac0" stroke-width="3"/>
+<g fill="#c1c9b5" stroke="#384b48" stroke-width="2">
+<circle cx="258" cy="438" r="5"/><circle cx="325" cy="459" r="5"/><circle cx="416" cy="471" r="5"/><circle cx="506" cy="458" r="5"/><circle cx="554" cy="439" r="5"/>
+<circle cx="268" cy="585" r="5"/><circle cx="334" cy="607" r="5"/><circle cx="419" cy="616" r="5"/><circle cx="502" cy="602" r="5"/><circle cx="546" cy="584" r="5"/>
+</g>
+<ellipse cx="398" cy="346" rx="168" ry="64" fill="#c38a46" stroke="#653a22" stroke-width="5"/>
+<ellipse cx="398" cy="341" rx="151" ry="49" fill="#4b3423" stroke="#e7b96a" stroke-width="5"/>
+<!-- Sand masks the lower barrel -->
+<path d="M112 737Q142 672 222 638Q245 617 274 638Q336 658 397 646Q460 655 502 633Q558 610 615 660Q716 673 787 756Q579 823 342 798Q204 791 112 737Z" fill="url(#sand)"/>
+<path d="M173 679Q216 645 258 647M289 660Q373 687 431 672M471 668Q536 631 586 652" fill="none" stroke="#fff0bf" stroke-width="5" stroke-linecap="round"/>
+<!-- Coins fill the open barrel -->
+<use xlink:href="#coin" transform="translate(267.0 343.0) rotate(-19)"/>
+<use xlink:href="#coin" transform="translate(297.0 345.0) rotate(0)"/>
+<use xlink:href="#coin" transform="translate(327.0 339.2) rotate(19)"/>
+<use xlink:href="#coin" transform="translate(357.0 348.1) rotate(-1)"/>
+<use xlink:href="#coin" transform="translate(387.0 337.1) rotate(18)"/>
+<use xlink:href="#coin" transform="translate(417.0 348.9) rotate(-2)"/>
+<use xlink:href="#coin" transform="translate(447.0 337.7) rotate(17)"/>
+<use xlink:href="#coin" transform="translate(477.0 347.1) rotate(-3)"/>
+<use xlink:href="#coin" transform="translate(507.0 340.6) rotate(16)"/>
+<use xlink:href="#coin" transform="translate(280.0 332.0) rotate(-11)"/>
+<use xlink:href="#coin" transform="translate(310.0 323.3) rotate(8)"/>
+<use xlink:href="#coin" transform="translate(340.0 328.9) rotate(-12)"/>
+<use xlink:href="#coin" transform="translate(370.0 327.1) rotate(7)"/>
+<use xlink:href="#coin" transform="translate(400.0 324.9) rotate(-13)"/>
+<use xlink:href="#coin" transform="translate(430.0 330.9) rotate(6)"/>
+<use xlink:href="#coin" transform="translate(460.0 321.8) rotate(-14)"/>
+<use xlink:href="#coin" transform="translate(490.0 332.9) rotate(5)"/>
+<use xlink:href="#coin" transform="translate(293.0 316.5) rotate(-3)"/>
+<use xlink:href="#coin" transform="translate(323.0 305.0) rotate(16)"/>
+<use xlink:href="#coin" transform="translate(353.0 316.8) rotate(-4)"/>
+<use xlink:href="#coin" transform="translate(383.0 306.0) rotate(15)"/>
+<use xlink:href="#coin" transform="translate(413.0 314.6) rotate(-5)"/>
+<use xlink:href="#coin" transform="translate(443.0 309.3) rotate(14)"/>
+<use xlink:href="#coin" transform="translate(473.0 310.7) rotate(-6)"/>
+<use xlink:href="#coin" transform="translate(306.0 295.8) rotate(5)"/>
+<use xlink:href="#coin" transform="translate(336.0 292.2) rotate(-15)"/>
+<use xlink:href="#coin" transform="translate(366.0 299.4) rotate(4)"/>
+<use xlink:href="#coin" transform="translate(396.0 289.5) rotate(-16)"/>
+<use xlink:href="#coin" transform="translate(426.0 301.0) rotate(3)"/>
+<use xlink:href="#coin" transform="translate(456.0 289.2) rotate(-17)"/>
+<use xlink:href="#coin" transform="translate(319.0 274.5) rotate(13)"/>
+<use xlink:href="#coin" transform="translate(349.0 282.0) rotate(-7)"/>
+<use xlink:href="#coin" transform="translate(379.0 278.0) rotate(12)"/>
+<use xlink:href="#coin" transform="translate(409.0 278.0) rotate(-8)"/>
+<use xlink:href="#coin" transform="translate(439.0 281.9) rotate(11)"/>
+<!-- Gold goblet partially embedded in coins -->
+<g transform="translate(416 240) rotate(-13)">
+<path d="M-39-27C-38 12-25 39-5 43V83H-27Q-31 92 0 94T27 83H6V43C29 37 40 9 39-27Z" fill="url(#gold)" stroke="#a36b1b" stroke-width="3"/>
+<ellipse cy="-27" rx="39" ry="13" fill="#c2821b" stroke="#fff0a0" stroke-width="4"/>
+<ellipse cy="-27" rx="29" ry="7" fill="#725021"/>
+<path d="M-28-10Q-27 19-12 29M-3 49V76" fill="none" stroke="#fff5bb" stroke-width="5" stroke-linecap="round"/>
+<path d="M-29 12Q0 30 29 12" fill="none" stroke="#b87a18" stroke-width="3"/>
+<ellipse cy="10" rx="8" ry="10" fill="#21b390" stroke="#ffdf68" stroke-width="3"/>
+</g>
+<use xlink:href="#ruby" transform="translate(324 285) rotate(-16)"/>
+<use xlink:href="#emerald" transform="translate(465 287) rotate(15)"/>
+<use xlink:href="#sapphire" transform="translate(371 320) rotate(-8)"/>
+<use xlink:href="#coin" transform="translate(292 343) rotate(-12)"/>
+<use xlink:href="#coin" transform="translate(326 343) rotate(0)"/>
+<use xlink:href="#coin" transform="translate(360 343) rotate(12)"/>
+<use xlink:href="#coin" transform="translate(394 343) rotate(-12)"/>
+<use xlink:href="#coin" transform="translate(428 343) rotate(0)"/>
+<use xlink:href="#coin" transform="translate(462 343) rotate(12)"/>
+<use xlink:href="#coin" transform="translate(496 343) rotate(-12)"/>
+<use xlink:href="#coin" transform="translate(292 327) rotate(0)"/>
+<use xlink:href="#coin" transform="translate(326 327) rotate(12)"/>
+<use xlink:href="#coin" transform="translate(360 327) rotate(-12)"/>
+<use xlink:href="#coin" transform="translate(394 327) rotate(0)"/>
+<use xlink:href="#coin" transform="translate(428 327) rotate(12)"/>
+<use xlink:href="#coin" transform="translate(462 327) rotate(-12)"/>
+<use xlink:href="#coin" transform="translate(496 327) rotate(0)"/>
+<use xlink:href="#coin" transform="translate(292 311) rotate(12)"/>
+<use xlink:href="#coin" transform="translate(288.0 358.0) rotate(-12)"/>
+<use xlink:href="#coin" transform="translate(319.0 361.0) rotate(-5)"/>
+<use xlink:href="#coin" transform="translate(350.0 357.2) rotate(2)"/>
+<use xlink:href="#coin" transform="translate(381.0 355.2) rotate(9)"/>
+<use xlink:href="#coin" transform="translate(412.0 359.5) rotate(-9)"/>
+<use xlink:href="#coin" transform="translate(443.0 360.4) rotate(-2)"/>
+<use xlink:href="#coin" transform="translate(474.0 355.9) rotate(5)"/>
+<use xlink:href="#coin" transform="translate(505.0 356.1) rotate(12)"/>
+<use xlink:href="#coin" transform="translate(320.0 373.0) rotate(-12)"/>
+<use xlink:href="#coin" transform="translate(351.0 376.0) rotate(-5)"/>
+<use xlink:href="#coin" transform="translate(382.0 372.2) rotate(2)"/>
+<use xlink:href="#coin" transform="translate(413.0 370.2) rotate(9)"/>
+<use xlink:href="#coin" transform="translate(444.0 374.5) rotate(-9)"/>
+<use xlink:href="#coin" transform="translate(475.0 375.4) rotate(-2)"/>
+<use xlink:href="#ruby" transform="translate(439 354) scale(.68) rotate(17)"/>
+<use xlink:href="#emerald" transform="translate(321 351) scale(.57) rotate(-16)"/>
+<!-- Treasure spills down the right side -->
+<use xlink:href="#coin" transform="translate(536.0 351.0) rotate(-40) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(547.3 365.5) rotate(-11) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(557.6 380.1) rotate(18) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(566.4 394.6) rotate(-34) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(572.9 409.2) rotate(-5) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(576.9 423.7) rotate(24) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(578.6 438.3) rotate(-28) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(578.2 452.8) rotate(1) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(576.4 467.4) rotate(30) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(574.0 481.9) rotate(-22) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(572.0 496.5) rotate(7) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(571.1 511.0) rotate(36) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(572.1 525.5) rotate(-16) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(575.5 540.1) rotate(13) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(581.3 554.6) rotate(-39) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(589.5 569.2) rotate(-10) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(599.5 583.7) rotate(19) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(610.6 598.3) rotate(-33) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(621.9 612.8) rotate(-4) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(632.6 627.4) rotate(25) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(641.9 641.9) rotate(-27) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(649.1 656.5) rotate(2) scale(.92)"/>
+<use xlink:href="#coin" transform="translate(653.8 671.0) rotate(31) scale(.92)"/>
+
+<use xlink:href="#coin" transform="translate(508.0 337.0) rotate(-55)"/>
+<use xlink:href="#coin" transform="translate(529.6 348.0) rotate(-8)"/>
+<use xlink:href="#coin" transform="translate(550.9 359.0) rotate(39)"/>
+<use xlink:href="#coin" transform="translate(532.6 370.0) rotate(-24)"/>
+<use xlink:href="#coin" transform="translate(552.4 381.0) rotate(23)"/>
+<use xlink:href="#coin" transform="translate(571.1 392.0) rotate(-40)"/>
+<use xlink:href="#coin" transform="translate(549.6 403.0) rotate(7)"/>
+<use xlink:href="#coin" transform="translate(565.9 414.0) rotate(54)"/>
+<use xlink:href="#coin" transform="translate(580.9 425.0) rotate(-9)"/>
+<use xlink:href="#coin" transform="translate(555.8 436.0) rotate(38)"/>
+<use xlink:href="#coin" transform="translate(568.8 447.0) rotate(-25)"/>
+<use xlink:href="#coin" transform="translate(581.2 458.0) rotate(22)"/>
+<use xlink:href="#coin" transform="translate(554.1 469.0) rotate(-41)"/>
+<use xlink:href="#coin" transform="translate(566.0 480.0) rotate(6)"/>
+<use xlink:href="#coin" transform="translate(578.2 491.0) rotate(53)"/>
+<use xlink:href="#coin" transform="translate(552.0 502.0) rotate(-10)"/>
+<use xlink:href="#coin" transform="translate(565.5 513.0) rotate(37)"/>
+<use xlink:href="#coin" transform="translate(580.2 524.0) rotate(-26)"/>
+<use xlink:href="#coin" transform="translate(557.0 535.0) rotate(21)"/>
+<use xlink:href="#coin" transform="translate(574.1 546.0) rotate(-42)"/>
+<use xlink:href="#coin" transform="translate(592.4 557.0) rotate(5)"/>
+<use xlink:href="#coin" transform="translate(572.8 568.0) rotate(52)"/>
+<use xlink:href="#coin" transform="translate(593.2 579.0) rotate(-11)"/>
+<use xlink:href="#coin" transform="translate(614.3 590.0) rotate(36)"/>
+<use xlink:href="#coin" transform="translate(596.9 601.0) rotate(-27)"/>
+<use xlink:href="#coin" transform="translate(618.5 612.0) rotate(20)"/>
+<use xlink:href="#coin" transform="translate(640.0 623.0) rotate(-43)"/>
+<use xlink:href="#coin" transform="translate(621.9 634.0) rotate(4)"/>
+<use xlink:href="#coin" transform="translate(642.1 645.0) rotate(51)"/>
+<use xlink:href="#coin" transform="translate(661.2 656.0) rotate(-12)"/>
+<use xlink:href="#coin" transform="translate(640.1 667.0) rotate(35)"/>
+<use xlink:href="#coin" transform="translate(656.8 678.0) rotate(-28)"/>
+<use xlink:href="#coin" transform="translate(449.0 735.0) rotate(-24)"/>
+<use xlink:href="#coin" transform="translate(477.0 742.3) rotate(5)"/>
+<use xlink:href="#coin" transform="translate(505.0 728.9) rotate(-14)"/>
+<use xlink:href="#coin" transform="translate(533.0 732.8) rotate(15)"/>
+<use xlink:href="#coin" transform="translate(561.0 742.9) rotate(-4)"/>
+<use xlink:href="#coin" transform="translate(589.0 730.6) rotate(-23)"/>
+<use xlink:href="#coin" transform="translate(617.0 730.7) rotate(6)"/>
+<use xlink:href="#coin" transform="translate(645.0 742.9) rotate(-13)"/>
+<use xlink:href="#coin" transform="translate(673.0 732.7) rotate(16)"/>
+<use xlink:href="#coin" transform="translate(701.0 729.0) rotate(-3)"/>
+<use xlink:href="#coin" transform="translate(729.0 742.3) rotate(-22)"/>
+<use xlink:href="#coin" transform="translate(462.0 724.7) rotate(-17)"/>
+<use xlink:href="#coin" transform="translate(490.0 719.1) rotate(12)"/>
+<use xlink:href="#coin" transform="translate(518.0 710.3) rotate(-7)"/>
+<use xlink:href="#coin" transform="translate(546.0 723.3) rotate(22)"/>
+<use xlink:href="#coin" transform="translate(574.0 721.3) rotate(3)"/>
+<use xlink:href="#coin" transform="translate(602.0 710.0) rotate(-16)"/>
+<use xlink:href="#coin" transform="translate(630.0 721.4) rotate(13)"/>
+<use xlink:href="#coin" transform="translate(658.0 723.2) rotate(-6)"/>
+<use xlink:href="#coin" transform="translate(686.0 710.3) rotate(23)"/>
+<use xlink:href="#coin" transform="translate(714.0 719.2) rotate(4)"/>
+<use xlink:href="#coin" transform="translate(475.0 708.3) rotate(-10)"/>
+<use xlink:href="#coin" transform="translate(503.0 694.9) rotate(19)"/>
+<use xlink:href="#coin" transform="translate(531.0 698.8) rotate(0)"/>
+<use xlink:href="#coin" transform="translate(559.0 708.9) rotate(-19)"/>
+<use xlink:href="#coin" transform="translate(587.0 696.6) rotate(10)"/>
+<use xlink:href="#coin" transform="translate(615.0 696.7) rotate(-9)"/>
+<use xlink:href="#coin" transform="translate(643.0 708.9) rotate(20)"/>
+<use xlink:href="#coin" transform="translate(671.0 698.7) rotate(1)"/>
+<use xlink:href="#coin" transform="translate(699.0 695.0) rotate(-18)"/>
+<use xlink:href="#coin" transform="translate(488.0 685.1) rotate(-3)"/>
+<use xlink:href="#coin" transform="translate(516.0 676.3) rotate(-22)"/>
+<use xlink:href="#coin" transform="translate(544.0 689.3) rotate(7)"/>
+<use xlink:href="#coin" transform="translate(572.0 687.3) rotate(-12)"/>
+<use xlink:href="#coin" transform="translate(600.0 676.0) rotate(17)"/>
+<use xlink:href="#coin" transform="translate(628.0 687.4) rotate(-2)"/>
+<use xlink:href="#coin" transform="translate(656.0 689.2) rotate(-21)"/>
+<use xlink:href="#coin" transform="translate(684.0 676.3) rotate(8)"/>
+<use xlink:href="#coin" transform="translate(501.0 660.9) rotate(4)"/>
+<use xlink:href="#coin" transform="translate(529.0 664.8) rotate(-15)"/>
+<use xlink:href="#coin" transform="translate(557.0 674.9) rotate(14)"/>
+<use xlink:href="#coin" transform="translate(585.0 662.6) rotate(-5)"/>
+<use xlink:href="#coin" transform="translate(613.0 662.7) rotate(-24)"/>
+<use xlink:href="#coin" transform="translate(641.0 674.9) rotate(5)"/>
+<use xlink:href="#coin" transform="translate(669.0 664.7) rotate(-14)"/>
+<use xlink:href="#emerald" transform="translate(578 422) rotate(25) scale(.8)"/>
+<use xlink:href="#ruby" transform="translate(613 557) rotate(-20) scale(.8)"/>
+<use xlink:href="#sapphire" transform="translate(683 682) rotate(18) scale(1.2)"/>
+<use xlink:href="#ruby" transform="translate(543 716) rotate(-20) scale(1.1)"/>
+<use xlink:href="#emerald" transform="translate(627 728) rotate(20) scale(1.05)"/>
+<use xlink:href="#coin" transform="translate(401 744) rotate(-23)"/>
+<use xlink:href="#coin" transform="translate(755 752) rotate(12)"/>
+<use xlink:href="#coin" transform="translate(480 786) rotate(-10)"/>
+<use xlink:href="#ruby" transform="translate(345 739) rotate(27) scale(.65)"/>
+<!-- Pearl string draped over the rim and into the spilled treasure -->
+<path d="M455 318C486 283 532 326 515 374C493 432 482 467 506 501C553 563 537 617 570 657S594 722 632 736" fill="none" stroke="#aca98b" stroke-width="3"/>
+<circle cx="455.0" cy="318.0" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="463.8" cy="310.3" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="472.9" cy="306.2" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="482.1" cy="305.3" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="491.0" cy="307.3" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="499.2" cy="311.8" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="506.5" cy="318.5" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="512.3" cy="327.1" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="516.4" cy="337.3" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="518.5" cy="348.8" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="518.1" cy="361.1" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="515.0" cy="374.0" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="509.7" cy="388.0" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="505.0" cy="401.2" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="500.9" cy="413.5" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="497.6" cy="425.1" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="495.0" cy="436.1" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="493.3" cy="446.5" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="492.5" cy="456.4" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="492.8" cy="465.9" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="494.2" cy="475.0" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="496.8" cy="483.8" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="500.7" cy="492.5" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="506.0" cy="501.0" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="514.6" cy="513.3" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="521.7" cy="525.4" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="527.5" cy="537.2" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="532.3" cy="548.8" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="536.1" cy="560.1" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="539.3" cy="571.2" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="542.0" cy="582.0" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="544.4" cy="592.5" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="546.8" cy="602.7" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="549.2" cy="612.6" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="551.9" cy="622.1" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="555.2" cy="631.4" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="559.1" cy="640.3" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="564.0" cy="648.8" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="570.0" cy="657.0" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="577.2" cy="668.5" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="583.1" cy="679.5" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="588.3" cy="689.9" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="593.2" cy="699.7" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="598.4" cy="708.8" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="604.4" cy="717.1" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="611.6" cy="724.4" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<circle cx="620.7" cy="730.8" r="6.4" fill="url(#pearl)" stroke="#aaa88a" stroke-width=".8"/>
+<g>
+<use xlink:href="#glint" transform="translate(389 213) scale(1.1)"/>
+<use xlink:href="#glint" transform="translate(315 273) scale(.65)"/>
+<use xlink:href="#glint" transform="translate(467 272) scale(.7)"/>
+<use xlink:href="#glint" transform="translate(290 327) scale(.7)"/>
+<use xlink:href="#glint" transform="translate(551 351) scale(.8)"/>
+<use xlink:href="#glint" transform="translate(567 501) scale(.65)"/>
+<use xlink:href="#glint" transform="translate(684 665) scale(.9)"/>
+<use xlink:href="#glint" transform="translate(531 702) scale(.7)"/>
+<use xlink:href="#glint" transform="translate(626 713) scale(.65)"/>
+<use xlink:href="#glint" transform="translate(480 693) scale(.55)"/>
+</g>
+<g fill="#aa783f" opacity=".4">
+<circle cx="216" cy="722" r="2"/><circle cx="235" cy="736" r="2"/><circle cx="252" cy="720" r="1.7"/><circle cx="298" cy="776" r="2"/><circle cx="317" cy="781" r="1.5"/><circle cx="370" cy="791" r="2"/><circle cx="741" cy="703" r="2"/><circle cx="754" cy="713" r="1.6"/><circle cx="714" cy="788" r="2"/><circle cx="697" cy="798" r="1.8"/>
+</g>
+<g fill="none" stroke="#e1b876" stroke-width="2" stroke-linecap="round"><path d="M158 762q23 11 49 5M305 810q38 11 73 3M683 813q47-1 76-21"/></g>
+</svg>
