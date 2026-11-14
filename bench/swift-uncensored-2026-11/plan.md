@@ -1,6 +1,6 @@
 # Swift 1.5 uncensored no Splash 1.6.1 — runbook da campanha (2026-11-13)
 
-> **Status (2026-11-13): Tasks 0 e 1 feitas; Task 2 em curso; Task 3 suspensa.** O usuário suspendeu a Task 3 em 13/11. A campanha [harness-delivery-2026-11](../harness-delivery-2026-11/plan.md) ocupa o lugar dela. `z2h`, `z3h` e `z4h` passam no smoke e na regra "Recusa". O Splash recusa o `z1h` (indexer em `F16`); o braço `z4h` é o `z1` com esses 24 tensores em `BF16`. Resultados: [etapa0-preflight.md](results/etapa0-preflight.md), [etapa0-smoke.md](results/etapa0-smoke.md), [etapa1-recusa.md](results/etapa1-recusa.md). Branch: `bench/swift-uncensored-2026-11`, a partir da `main`.
+> **Status (2026-11-14): Tasks 0, 1 e 2 feitas; Task 3 suspensa.** Na regra "Velocidade" o `z3h` passa; o `z4h` e o `z2h` falham por 0.001 a 128K ([etapa2-um-stream.md](results/etapa2-um-stream.md)). O usuário suspendeu a Task 3 em 13/11. A campanha [harness-delivery-2026-11](../harness-delivery-2026-11/plan.md) ocupa o lugar dela. `z2h`, `z3h` e `z4h` passam no smoke e na regra "Recusa". O Splash recusa o `z1h` (indexer em `F16`); o braço `z4h` é o `z1` com esses 24 tensores em `BF16`. Resultados: [etapa0-preflight.md](results/etapa0-preflight.md), [etapa0-smoke.md](results/etapa0-smoke.md), [etapa1-recusa.md](results/etapa1-recusa.md). Branch: `bench/swift-uncensored-2026-11`, a partir da `main`.
 >
 > **Para agentes:** use superpowers:executing-plans. Execute as tasks em ordem. Marque cada step (`- [ ]` → `- [x]`). Pare só nas condições de "Execução".
 
@@ -193,7 +193,7 @@ As horas de 2 a 4 vêm das Tasks equivalentes da splash161: 15 min por boot do `
 
 ### Task 2: Velocidade e cache de um stream
 
-- [ ] **Step 1: Fila.** `run-queue.sh speed` com os braços `z` que passaram na Task 1. Dois boots por braço e banda, 1 rep cada, com o `k2h` no começo e no fim de cada banda:
+- [x] **Step 1: Fila.** `run-queue.sh speed` com os braços `z` que passaram na Task 1. Dois boots por braço e banda, 1 rep cada, com o `k2h` no começo e no fim de cada banda:
 
   | banda | ordem |
   |---|---|
@@ -201,8 +201,8 @@ As horas de 2 a 4 vêm das Tasks equivalentes da splash161: 15 min por boot do `
   | 131072 | `z3h`, `z2h`, `z4h`, `k2h`, `k2h`, `z4h`, `z2h`, `z3h` |
   | 262144 | `k2h`, `z4h`, `z2h`, `z3h`, `z3h`, `z2h`, `z4h`, `k2h` |
 
-- [ ] **Step 2: Resumo.** `decide.py --base k2h --cand <braço> --ctx 32768,131072,262144 --mode le --threshold 1.05` para cada braço. Gravar `results/etapa2-um-stream.md` com: cold TTFT, warm TTFT, hit, decode, prefill, wired peak, livre mínimo e swap Δ.
-- [ ] **Step 3: Commit.**
+- [x] **Step 2: Resumo.** `decide.py --base k2h --cand <braço> --ctx 32768,131072,262144 --mode le --threshold 1.05` para cada braço. Gravar `results/etapa2-um-stream.md` com: cold TTFT, warm TTFT, hit, decode, prefill, wired peak, livre mínimo e swap Δ.
+- [x] **Step 3: Commit.**
 
 ### Task 3: Qualidade e thinking tokens
 
