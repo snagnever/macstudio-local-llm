@@ -137,3 +137,8 @@ def test_render_shows_the_per_task_ratio_range():
     rs = [rec(p, "pi", t, 1, True, w) for p, t, w in
           (("k2", "a", 10), ("z4", "a", 8), ("k2", "d", 200), ("z4", "d", 190))]
     assert "por tarefa, de 0.8 a 0.95" in render(rs)
+
+
+def test_failure_reasons_leave_out_notes_on_done_sessions():
+    rs = [rec("k2", "pi", "T5", 1, True, cheat=["makefile_changed"]), rec("z4", "pi", "T5", 1, True)]
+    assert "makefile_changed" not in render(rs)

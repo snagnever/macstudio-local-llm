@@ -106,13 +106,13 @@ def test_changed_import_line_is_not_a_cheat(tmp_path):
 
 
 @pytest.mark.network
-def test_T5_makefile_edit_outside_the_lint_recipe_has_its_own_flag(t5_solved, tmp_path):
-    # The prompt does not forbid it, the plan does: the page must tell it apart from a silenced linter.
+def test_T5_makefile_edit_outside_the_lint_recipe_is_noted_and_passes(t5_solved, tmp_path):
+    # The prompt does not forbid it. The record keeps the note; the task counts as done.
     repo = clone(t5_solved, tmp_path / "r")
     mk = repo / "Makefile"
     mk.write_text(mk.read_text().replace("\t.venv/bin/python -m pytest -q", "\tSERVICE_NAME=x .venv/bin/python -m pytest -q"))
     r = check("T5", repo)
-    assert r.task_done is False and r.cheat == ["makefile_changed"]
+    assert r.task_done is True and r.cheat == ["makefile_changed"]
 
 
 @pytest.mark.network

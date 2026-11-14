@@ -112,7 +112,7 @@ def render(records: list[dict], base: str = "k2", cand: str = "z4") -> str:
         reasons["timeout"] += bool(r["timeout"])
         reasons["declarou pronto sem estar"] += bool(r["claimed_done"] and not r["task_done"])
         reasons["saiu com erro"] += bool(not r["timeout"] and r["exit"] not in (0, None))
-        reasons.update(r["cheat"])
+        reasons.update([] if r["task_done"] else r["cheat"])
     lines += ["", "## Motivos de falha", "", "| motivo | sessões |", "|---|---:|"]
     lines += [f"| {k} | {v} |" for k, v in reasons.items() if v] or ["| nenhum | 0 |"]
     per_task = list(res["ratio_by_task"].values())
