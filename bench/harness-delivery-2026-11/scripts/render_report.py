@@ -562,6 +562,50 @@ def render(data: dict, generated: str | None = None) -> str:
     return head + "\n".join(sections) + "\n" + footer + "\n</div>\n</body>\n</html>\n"
 
 
+CHROME = Path("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+
+
+def card_html(data: dict) -> str:
+    """The 1200x630 link preview: the title and the four headline numbers. Fixed light colours."""
+    h, s, ref = _headline(data), data["sessions"], data["refusal"]
+    tiles = [(f"{s['done']}<small> of {s['total']}</small>", "agent sessions done, judged by a hidden script"),
+             (h["harness_range"].replace(" of ", "<small> of </small>"), "per harness: no measurable difference"),
+             (h["pack_counts"].replace(" against ", "<small> vs </small>"), "tasks done, uncensored vs standard pack"),
+             (f"{_pct(ref[('k2h', 'advbench')]['refused'], 100)}%<small> → </small>"
+              f"{_pct(ref[('z4h', 'advbench')]['refused'], 100)}%", "refusals on AdvBench"),
+             ("3", "defects found in my own benchmark")]
+    body = "".join(f'<div class="tile"><span class="t-val">{v}</span><span class="t-lab">{_e(lab)}</span></div>'
+                   for v, lab in tiles)
+    return ('<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><title>Card</title>\n<style>'
+            'html,body{margin:0;width:1200px;height:630px;background:#fbfaf7;color:#15171b;'
+            'font-family:-apple-system,"SF Pro Text",Helvetica,Arial,sans-serif}'
+            '.card{width:1200px;height:630px;padding:54px 60px 60px;box-sizing:border-box;display:flex;flex-direction:column}'
+            '.eyebrow{font-family:"SF Mono",Menlo,monospace;font-size:17px;letter-spacing:.14em;text-transform:uppercase;'
+            'color:#6b7280;margin:0 0 14px}'
+            'h1{font-size:60px;line-height:1.06;letter-spacing:-.03em;margin:0}'
+            '.sub{font-size:24px;color:#444a55;margin:14px 0 0;max-width:980px;line-height:1.3}'
+            '.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:auto}'
+            '.tile{background:#f0eee8;border-radius:14px;padding:26px 18px 24px}'
+            '.t-val{font-size:46px;font-weight:700;letter-spacing:-.02em;display:block;white-space:nowrap}'
+            '.t-val small{font-size:20px;font-weight:600;color:#444a55}'
+            '.t-lab{font-size:17px;color:#444a55;line-height:1.3;display:block;margin-top:8px}'
+            '</style></head><body><div class="card">'
+            '<p class="eyebrow">Local LLM · Mac Studio M4 Max 128 GB · November 2026</p>'
+            f'<h1>{_e(TITLE)}</h1><p class="sub">{_e(SUBTITLE)}</p><div class="tiles">{body}</div>'
+            '</div></body></html>\n')
+
+
+def write_png(page: Path, png: Path) -> bool:
+    """Render the card with headless Chrome. Returns False when Chrome is not installed."""
+    import subprocess
+    if not CHROME.is_file():
+        return False
+    subprocess.run([str(CHROME), "--headless=new", "--hide-scrollbars", "--window-size=1200,630",
+                    "--force-device-scale-factor=1", f"--screenshot={png}", page.resolve().as_uri()],
+                   check=True, capture_output=True, timeout=120)
+    return True
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--out", type=Path, default=OUT)
@@ -573,6 +617,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.card:
         CARD.write_text(card_html(data))
         print(f"wrote {CARD}")
+        print("wrote the PNG" if write_png(CARD, CARD.with_suffix(".png")) else "Chrome is missing: no PNG")
     return 0
 
 

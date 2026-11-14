@@ -129,3 +129,29 @@ def test_page_has_social_tags(page):
     for tag in ('property="og:title"', 'property="og:description"', 'property="og:image"', 'name="twitter:card"'):
         assert tag in page
     assert "assets/qwen38-flashnext-harness-delivery-card.png" in page
+
+
+# ---- Task 4: publication
+
+def test_published_page_is_the_current_render(data):
+    strip = lambda s: re.sub(r'<span id="generated">[^<]*</span>', "", s)  # noqa: E731
+    assert strip(PAGE.read_text()) == strip(rr.render(data))
+
+
+def test_index_has_a_card_for_the_page():
+    index = (REPO / "reports/index.html").read_text()
+    agents = index.split('id="agents"')[1].split('<section class="block"')[0]
+    assert 'href="qwen38-flashnext-harness-delivery.html"' in agents
+
+
+def test_readme_lists_the_page():
+    assert "qwen38-flashnext-harness-delivery.html" in (REPO / "reports/README.md").read_text()
+
+
+def test_card_page_shows_the_headline_numbers(data):
+    card = text_of(rr.card_html(data))
+    assert "Four coding harnesses, one local model" in card and "105" in card and "51" in card and "54" in card
+
+
+def test_card_image_exists(page):
+    assert (REPO / "reports/assets/qwen38-flashnext-harness-delivery-card.png").stat().st_size > 10_000
