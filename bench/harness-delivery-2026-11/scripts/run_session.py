@@ -93,9 +93,14 @@ def _usage(name: str, log: Path) -> dict:
 def _check(task: str, repo: Path, home: Path) -> checks.CheckResult:
     """Run the hidden check in the same sandbox as the session: it executes code the session wrote."""
     spec = tasks.TASKS[task]
-    env = {"HOME": str(home), "PATH": os.environ.get("PATH", "/usr/bin:/bin")}
+    # The session could write to its HOME (pip.conf, user site, .gitconfig), and a process it left behind still can.
+    # So the check gets a fresh HOME beside it, and a Python that ignores the user site and PYTHON* variables.
+    check_home = Path(home).parent / f"{Path(home).name}-check"
+    shutil.rmtree(check_home, ignore_errors=True)
+    check_home.mkdir(parents=True)
+    env = {"HOME": str(check_home), "PATH": os.environ.get("PATH", "/usr/bin:/bin")}
     cmd = harness.sandboxed(
-        harness.Cmd([sys.executable, str(HERE / "scripts" / "checks.py"), task, str(repo)], env, repo),
+        harness.Cmd([sys.executable, "-s", "-E", str(HERE / "scripts" / "checks.py"), task, str(repo)], env, repo),
         read=(HERE / "scripts", spec.repo_src, tasks.CLAUDE_TASKS, Path(sys.prefix), Path(sys.base_prefix)))
     try:
         out = subprocess.run(cmd.argv, cwd=cmd.cwd, env=cmd.env, capture_output=True, text=True, timeout=1800)

@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 
 import pytest
 
@@ -133,3 +134,19 @@ def test_session_copy_goes_to_the_work_root(fake, tmp_path, monkeypatch):
     monkeypatch.setenv("HARNESS_WORK_ROOT", str(tmp_path / "w"))
     r = run("pi", "b", "k2", 1, T, tmp_path / "r", tmp_path / "l")
     assert r["task_done"] is True and (tmp_path / "w/k2-pi-b-r1/.git").is_dir()
+
+
+def test_check_runs_with_its_own_empty_home(tmp_path, monkeypatch):
+    # A session can write to its HOME (pip.conf, user site, .gitconfig). The hidden check must not read any of it.
+    import harness
+    import run_session
+    import tasks
+    repo, home = tasks.fresh_copy("b", tmp_path / "repo"), tmp_path / "home" / "k2-pi-b-r1"
+    home.mkdir(parents=True)
+    (home / "planted.cfg").write_text("x")
+    seen, real = [], harness.sandboxed
+    monkeypatch.setattr(harness, "sandboxed", lambda cmd, **kw: seen.append(cmd) or real(cmd, **kw))
+    r = run_session._check("b", repo, home)
+    check_home = Path(seen[0].env["HOME"])
+    assert r.cheat != ["check_failed"] and check_home != home and home not in check_home.parents
+    assert not (check_home / "planted.cfg").exists() and {"-s", "-E"} <= set(seen[0].argv)

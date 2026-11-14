@@ -39,3 +39,5 @@ As 7 sessões que falham declaram a tarefa pronta: o harness sai com código 0 e
 - O check restaura só os arquivos originais de `tests/`. Um `conftest.py` escrito pela sessão roda junto. Nas 112 cópias, só 4 sessões da T5 escreveram `conftest.py`, e a T5 permite isso.
 - No limite de tempo, o runner mata o grupo de processos do harness. Um processo filho em outro grupo sobrevive. Nenhuma sessão estourou o limite.
 - A regra de sinais do sandbox entrou no commit `04e46d9`, depois da matriz. Os 4 harnesses não rodaram com ela.
+- Na matriz, o check rodou com o `HOME` da sessão, e o diretório temporário do check ficava dentro dele. Uma sessão podia deixar ali um arquivo de configuração, ou um processo vivo que mexesse na cópia dos testes originais. Depois da matriz, o check passou a usar um `HOME` próprio e vazio e um Python que ignora o user site. Não procurei sinal desse tipo de manipulação nas 112 sessões.
+- Ainda vale: o check executa código da sessão, e esse código roda no mesmo sandbox que guarda a cópia dos testes originais.
