@@ -47,6 +47,7 @@ Regra: `T_turno(braço) ≤ 1.05 × T_turno(k2h)` a 32K, 128K e 256K, com todos 
 - A diferença vem do decode. A 128K o `k2h` faz 118.3 e 115.7 tok/s nos 2 boots; o `z4h` faz 109.8 e 110.2; o `z3h` faz 116.3 e 110.5.
 - O cold TTFT fica até 1.2% acima do `k2h`. O warm TTFT fica até 0.1 s acima. O hit do cache é igual.
 - O decode do `z3h` varia 5% entre 2 boots do mesmo contexto. Com 2 boots por braço, a margem de 0.001 fica dentro dessa variação. A campanha não repetiu a fila.
+- Em todos os contextos, o decode varia até 10.3% entre 2 boots do mesmo braço: o `k2h` faz 104.6 e 115.4 tok/s a 256K. A diferença entre os braços fica dentro dessa variação ([report](../../../reports/qwen38-flashnext-uncensored-speed.html)).
 - O `z2h` e o `z3h` usam 13 GB menos de memória que o `k2h`. O `z4h` usa 2 GB mais.
 
 ## Decisão

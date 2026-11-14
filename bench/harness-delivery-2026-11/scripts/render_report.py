@@ -452,9 +452,10 @@ def _q_speed(d: dict) -> str:
             "the Heretic v2 pack at 128K. The difference comes from token generation: "
             f"{z['decode_tps']:.0f} against {sp['k2h'][131072]['decode_tps']:.0f} tokens per second.</p>" + fig
             + f"<p>My rule was “at most 5% slower”. The Heretic v2 pack lands at {z['ratio']:.3f}× at 128K and fails "
-            "that rule by 0.001. Between two boots of one pack, generation speed moved by up to 5% (the SC117 pack; 0.4% "
-            "for Heretic v2, 2% for the standard pack), so I read this margin as noise and kept the pack. A rule with "
-            "a hard threshold needs more than 2 boots per pack.</p>"
+            "that rule by 0.001. Between two boots of one pack, generation speed moved by up to 10% (the standard pack "
+            "at 256K; at 128K, 5% for the SC117 pack and 0.4% for Heretic v2), so I read this margin as noise and kept "
+            "the pack. A rule with a hard threshold needs more than 2 boots per pack. Details: "
+            '<a href="qwen38-flashnext-uncensored-speed.html">Do uncensored weights cost speed?</a></p>'
             f"<p class=\"note\">Memory: the Heretic v2 pack peaks {z['wired_gb'] - sp['k2h'][131072]['wired_gb']:.0f} GB "
             f"above the standard pack. The other two are IQ3_S packs, one quantization step smaller, which is why they peak "
             f"{sp['k2h'][131072]['wired_gb'] - sp['z2h'][131072]['wired_gb']:.0f} GB below it.</p>")
