@@ -1,6 +1,6 @@
 # Preflight
 
-Data: 2026-11-13. MacBook `VitorMBPro2026`; rig Mac Studio M4 Max 128 GB.
+Data: 2026-11-13. MacBook; rig Mac Studio M4 Max 128 GB.
 
 ## Versões (MacBook)
 

@@ -155,3 +155,54 @@ def test_card_page_shows_the_headline_numbers(data):
 
 def test_card_image_exists(page):
     assert (REPO / "reports/assets/qwen38-flashnext-harness-delivery-card.png").stat().st_size > 10_000
+
+
+# ---- final review fixes
+
+def section(page, sid):
+    return text_of(page.split(f'id="{sid}"')[1].split("<section")[0])
+
+
+def test_first_run_constants_match_the_audit():
+    audit = (HERE / "results/audit.md").read_text()
+    f = rr.FIRST_RUN
+    assert f"`k2` {f['strict'][1]}, `z4` {f['strict'][0]}" in audit
+    assert f"{f['false_flags']} registros perderam a marca" in audit
+    assert f"{f['t5_flagged']} das 16 sessões mudaram a configuração do lint" in audit
+    assert f"{f['makefile']} sessões passam `SERVICE_NAME` pelo `Makefile`" in audit
+
+
+def test_sandbox_defect_is_not_credited_with_the_makefile_sessions(page):
+    t = section(page, "bugs")
+    assert "6 of 16" in t and "13 of 16 once defect 3" in t and "16 wrong verdicts and 20 wrong cheat flags" in t
+
+
+def test_pack_verdict_discloses_the_changed_check(page):
+    t = section(page, "pack")
+    assert "47 against 51" in t and "recipe and imatrix differ" in t and "in opposite directions" in t
+
+
+def test_other_uncensored_packs_carry_author_and_quantization(page):
+    t = text_of(page)
+    assert "SC117" in t and "huihui-ai" in t and t.count("IQ3_S") >= 3 and "one quantization step smaller" in t
+
+
+def test_harness_section_reports_the_time_spread_and_the_opencode_cell(data, page):
+    t = section(page, "harness")
+    assert "could not separate" in t and "1 of 4 done" in t and "slowest on" in t
+    assert "does the work" not in t and "overlap on every task" not in page
+
+
+def test_speed_axis_has_round_ticks(page):
+    svg = page.split('id="speed"')[1].split("</svg>")[0]
+    assert ">1×<" in svg and ">1.02×<" in svg and ">1.06×<" in svg and "1.01×" not in svg
+
+
+def test_failures_section_refuses_a_failure_that_did_not_claim_done(data):
+    bad = dict(data, failures=[dict(data["failures"][0], claimed_done=False)] + data["failures"][1:])
+    with pytest.raises(ValueError, match="claimed"):
+        rr.render(bad)
+
+
+def test_published_card_is_the_current_render(data):
+    assert (REPO / "reports/assets/qwen38-flashnext-harness-delivery-card.html").read_text() == rr.card_html(data)

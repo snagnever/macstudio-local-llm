@@ -29,7 +29,7 @@ As 7 sessões que falham declaram a tarefa pronta: o harness sai com código 0 e
 ## Como a matriz rodou
 
 - A matriz rodou no rig em 2026-11-14, de 01:55 a 04:48. As 16 sessões da T5 rodaram de novo de 04:57 a 05:16, depois das outras 96 e não intercaladas com elas.
-- **T5 repetida.** Na primeira rodada, as 16 sessões da T5 falharam por defeito do sandbox: ele esconde o `.git` do repositório que contém a cópia, e o `ruff` falha com `E902`. O commit `4715df3` move as cópias para fora do repositório. Os 16 registros antigos ficam em `logs/t5-invalid/`, fora do git.
+- **T5 repetida.** Na primeira rodada, as 16 sessões da T5 falharam por defeito do sandbox, e 15 das 16 sessões mudaram a configuração do lint para passar: ele esconde o `.git` do repositório que contém a cópia, e o `ruff` falha com `E902`. O commit `4715df3` move as cópias para fora do repositório. Os 16 registros antigos ficam em `logs/t5-invalid/`, fora do git.
 - **Check refeito 3 vezes nas cópias guardadas.** O commit `4715df3` deixa de marcar `tests_modified` por linha de import mudada: 20 registros perderam a marca. O commit `04e46d9` separa `makefile_changed` de `lint_config_changed`: 7 registros trocaram de marca. Até aí nenhum `task_done` mudou. O commit `031f63c` muda o `task_done` desses 7 registros para verdadeiro. Os scripts das duas passagens ficam em `logs/`, fora do git.
 - O OpenCode do rig é o 1.15.10; o do MacBook é o 1.18.31.
 

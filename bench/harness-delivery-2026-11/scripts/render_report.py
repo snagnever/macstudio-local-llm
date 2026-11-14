@@ -35,9 +35,10 @@ REPS = (1, 2)
 HARNESS_LABEL = {"claude": "Claude Code", "opencode": "OpenCode", "pi": "pi", "dsh": "dsh"}
 # short name, full name
 PACK_LABEL = {"k2": ("Standard", "Swift 1.5 IQ4_XS (ukisai)"),
-              "z4": ("Uncensored", "Swift 1.5 Heretic v2 IQ4_XS (jackjusko, indexer recast to BF16)")}
-ARM_PACK = {"k2h": "Standard (ukisai Swift 1.5)", "z4h": "Uncensored: Heretic v2, BF16 indexer",
-            "z2h": "Uncensored: Huihui abliterated v2", "z3h": "Uncensored: GSQ-RCO abliterated"}
+              "z4": ("Uncensored", "jackjusko's Swift 1.5 Heretic v2 IQ4_XS, with the indexer tensors recast by me from F16 "
+                     "to BF16 because the server refused the original file")}
+ARM_PACK = {"k2h": "Standard (ukisai Swift 1.5, IQ4_XS)", "z4h": "Heretic v2 (jackjusko, IQ4_XS, BF16 indexer)",
+            "z2h": "Huihui abliterated v2 (huihui-ai, GSQ-RCO IQ3_S)", "z3h": "GSQ-RCO abliterated (SC117, IQ3_S)"}
 ARMS = ("k2h", "z4h", "z2h", "z3h")
 SETS = {"advbench": "AdvBench", "jbb": "JBB-Behaviors"}
 TASK_LABEL = {
@@ -149,10 +150,12 @@ TASK_SHORT = {"a": "a · CLI option", "b": "b · bash bugs", "c": "c · report o
               "T1": "T1 · hidden bugs", "T5": "T5 · broken env", "T7": "T7 · 5-step chain"}
 HARNESS_COLOUR = {"claude": "--s1", "opencode": "--s2", "pi": "--s3", "dsh": "--s4"}
 ARM_COLOUR = {"z4h": "--pack-b", "z2h": "--s3", "z3h": "--s4"}
-ARM_SHORT = {"k2h": "Standard", "z4h": "Heretic v2", "z2h": "Huihui v2", "z3h": "GSQ-RCO"}
+ARM_SHORT = {"k2h": "Standard", "z4h": "Heretic v2", "z2h": "Huihui v2 IQ3_S", "z3h": "SC117 IQ3_S"}
 WORDS = {1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six"}
 # The first run of the matrix, before the three fixes; from results/audit.md.
 FIRST_RUN = {"t5_done": 0, "t5_n": 16, "t5_flagged": 15, "false_flags": 20, "strict": (47, 51), "makefile": 7}
+HARNESS_NOTE = {"pi": "pi coding agent", "dsh": "DeepSeek's harness", "claude": "Anthropic's CLI",
+                "opencode": "open-source CLI"}
 
 CSS = """
 :root{color-scheme:light;
@@ -161,7 +164,7 @@ CSS = """
 --s1:#2a78d6;--s2:#d9541f;--s3:#12946a;--s4:#b98000;--pack-a:#2a78d6;--pack-b:#d9541f;
 --good:#0c8f0c;--crit:#c43030;--warn:#b06a00;--warn-bg:#fbf1dd;
 --heat-0:#f3c4c0;--heat-1:#f6dcb5;--heat-2:#f4e7a6;--heat-3:#bfe3b4;--heat-4:#8fd192;--heat-ink-hi:#0b0b0b;
---refused:#c43030;--empty:#77756f;--complied:#2a78d6;--on-fill:#ffffff;
+--refused:#c43030;--empty:#6f6d68;--complied:#2468bd;--on-fill:#ffffff;
 --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--sans:system-ui,-apple-system,"Segoe UI",sans-serif}
 @media (prefers-color-scheme:dark){:root{color-scheme:dark;
 --plane:#0d0d0d;--surface:#1a1a19;--surface-2:#232321;--ink:#ffffff;--ink-2:#c3c2b7;--muted:#9a988f;
@@ -169,7 +172,7 @@ CSS = """
 --s1:#4f97ec;--s2:#ee7a4a;--s3:#2fbf8c;--s4:#e0a82e;--pack-a:#4f97ec;--pack-b:#ee7a4a;
 --good:#3fc24a;--crit:#ef6a6a;--warn:#e0a63a;--warn-bg:#2a2312;
 --heat-0:#6b2420;--heat-1:#6a4a1c;--heat-2:#5f571b;--heat-3:#2c5a2a;--heat-4:#237a35;--heat-ink-hi:#ffffff;
---refused:#c84a4a;--empty:#6b6963;--complied:#3a82dc;--on-fill:#ffffff}}
+--refused:#c84a4a;--empty:#6b6963;--complied:#2f74cc;--on-fill:#ffffff}}
 *{box-sizing:border-box}html,body{margin:0}
 body{background:var(--plane);color:var(--ink);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased}
 .wrap{max-width:920px;margin:0 auto;padding:36px 16px 72px}
@@ -283,7 +286,7 @@ def _hero(d: dict) -> str:
          "Each one checked by a hidden script, not by what the agent said."),
         ("Harness", f"{h['harness_range']}", f"{h['harness']} between the four harnesses."),
         ("Uncensored pack, coding", h["pack_counts"].replace("against", "<small>against</small>"),
-         f"{h['pack']}. All three come from one task in one repetition."),
+         f"{h['pack']}. The net gap equals 3 misses on one task in one repetition."),
         ("Uncensored pack, refusals", f"{ref[('z4h', 'advbench')]['refused']} <small>of {ref[('z4h', 'advbench')]['n']}</small>",
          f"The standard pack refuses {ref[('k2h', 'advbench')]['refused']} of {ref[('k2h', 'advbench')]['n']} AdvBench prompts."),
     ]
@@ -308,17 +311,19 @@ def _setup(d: dict) -> str:
                ("weight packs", [PACK_LABEL[p][0] for p in PACKS]), ("repetitions", ["run 1", "run 2"])]
     svg = sc.matrix_diagram(factors, "The test matrix",
                             f"4 harnesses times 7 tasks times 2 weight packs times 2 repetitions gives {d['sessions']['total']} sessions.")
-    rows = [[TASK_SHORT[t["id"]].split(" · ")[0], t["label"], "long" if t["hard"] else "short"] for t in d["tasks"]]
+    limit = lambda t: f"{tasks.TASKS[t].limit_s // 60} min"  # noqa: E731
+    rows = [[TASK_SHORT[t["id"]].split(" · ")[0], t["label"], limit(t["id"])] for t in d["tasks"]]
     body = (
         "<p>Every session starts from a fresh copy of a small repository and one prompt. The harness runs without "
-        "permission prompts inside a macOS sandbox, with its own empty home directory. When the harness exits, a hidden "
+        "permission prompts inside a macOS sandbox, with its own home directory that holds only the harness configuration. When the harness exits, a hidden "
         "script decides whether the task is done: it runs the original tests, probes the behaviour, and looks for "
         "shortcuts such as a deleted test.</p>"
         + f'<figure class="chart">{svg}<figcaption>One model server, one session at a time. Model: Qwen3.8 Flash-Next, '
         "Swift 1.5 IQ4_XS GGUF, served by Splash 1.6.1 with a 128K context.</figcaption></figure>"
-        + f'<details class="tbl"><summary>The 7 tasks</summary>{_table(["task", "what the agent must do", "kind"], rows, "text")}</details>'
+        + f'<details class="tbl"><summary>The 7 tasks</summary>{_table(["task", "what the agent must do", "time limit"], rows, "text")}</details>'
         + f"<p class=\"note\">The two packs: <b>Standard</b> is {_e(PACK_LABEL['k2'][1])}. <b>Uncensored</b> is "
-        f"{_e(PACK_LABEL['z4'][1])}. Same quantization level, same server.</p>")
+        f"{_e(PACK_LABEL['z4'][1])}. Same quantization level and same server; the quantization recipe and imatrix differ. "
+        "A “pack” here is one set of GGUF weight files; IQ4_XS is a 4-bit quantization.</p>")
     return _section("setup", "What I ran", "112 sessions, each one judged by a script", body)
 
 
@@ -335,7 +340,7 @@ def _q_harness(d: dict) -> str:
     for p in PACKS:
         for t in task_ids:
             svg = svg.replace(f">{p}:{t}<", f">{t}<")
-    rows = [[x["label"], x["version"], f"{x['by_pack']['k2']['done']} of {x['by_pack']['k2']['n']}",
+    rows = [[x["label"], x["version"].split(" (")[0], f"{x['by_pack']['k2']['done']} of {x['by_pack']['k2']['n']}",
              f"{x['by_pack']['z4']['done']} of {x['by_pack']['z4']['n']}", f"{x['done']} of {x['n']}",
              f"{x['median_s']} s"] for x in d["harness"]]
     fig1 = _figure(svg, "Sessions done out of 2 per cell. Green is 2 of 2, yellow is 1, red is 0.",
@@ -344,20 +349,31 @@ def _q_harness(d: dict) -> str:
     points = {(TASK_SHORT[t], HARNESS_LABEL[n]): d["times"][(n, t)] for n in order for t in task_ids}
     svg2 = sc.dot_plot([TASK_SHORT[t] for t in task_ids], [(HARNESS_LABEL[n], HARNESS_COLOUR[n]) for n in order],
                        points, 0.0, xmax, " s", None, "Wall time of the done sessions, per task and harness",
-                       "One dot per done session, a tick at the median. The harnesses overlap on every task.")
+                       "One dot per done session, a tick at the median. The task explains most of the spread.")
     trows = [[TASK_SHORT[t]] + [f"{statistics.median(d['times'][(n, t)]):.0f} s" if d["times"][(n, t)] else "–"
                                 for n in order] for t in task_ids]
     fig2 = _figure(svg2, "One dot per done session; the tick is the median. Both packs together.",
                    ["task"] + [HARNESS_LABEL[n] for n in order], trows,
                    _legend([(HARNESS_LABEL[n], HARNESS_COLOUR[n]) for n in order]))
-    totals = ", ".join(f"{x['label']} {x['done']} of {x['n']}" for x in d["harness"])
+    totals = ", ".join(f"{x['label']} {x['done']} of {x['n']}" for x in sorted(d["harness"], key=lambda x: -x["done"]))
+    med = {t: {n: statistics.median(d["times"][(n, t)]) for n in order if d["times"][(n, t)]} for t in task_ids}
+    slow = max(order, key=lambda n: sum(max(m, key=m.get) == n for m in med.values()))
+    fast = max(order, key=lambda n: sum(min(m, key=m.get) == n for m in med.values()))
+    n_slow = sum(max(m, key=m.get) == slow for m in med.values())
+    n_fast = sum(min(m, key=m.get) == fast for m in med.values())
+    oc = d["cells"][("opencode", "T5")]
+    oc_done, rest = sum(oc.values()), [sum(d["cells"][(n, "T5")].values()) for n in order if n != "opencode"]
+    if not all(r == 4 for r in rest):
+        raise ValueError("the text about the environment task assumes 4 of 4 for the other three harnesses")
     body = (f"<p><b>{h['harness']}.</b> {totals}. With two repetitions per combination, a gap of one or two sessions is "
-            "inside the noise. I cannot rank these four.</p>" + fig1
-            + "<p>Time tells the same story. The task decides how long a session takes; the harness does not.</p>" + fig2
-            + '<div class="callout"><p>The model does the work. With one capable local model, the choice between these '
-            "four harnesses is a choice of interface, not of results. All three failures on the environment task came "
-            "from OpenCode, and the OpenCode build on the test machine was older (1.15.10) than the current one, so I "
-            "do not read that as a property of OpenCode.</p></div>")
+            "inside the noise. I cannot rank these four on completion.</p>" + fig1
+            + f"<p>The task explains most of the time. {HARNESS_LABEL[slow]} was the slowest on {n_slow} of "
+            f"{len(task_ids)} tasks and {HARNESS_LABEL[fast]} the fastest on {n_fast} of {len(task_ids)}, with 2 to 4 "
+            "done sessions per cell.</p>" + fig2
+            + '<div class="callout"><p>On these 7 small tasks I could not separate the four harnesses on completion. '
+            f"One cell stands out: all three failures on the environment task came from OpenCode ({oc_done} of 4 done; "
+            "the others 4 of 4 each). I ran OpenCode 1.15.10, an older build than the 1.18.31 on my laptop, and did not "
+            "test whether the newer build changes this.</p></div>")
     return _section("harness", "Question 1 · Does the harness matter?", h["harness"], body)
 
 
@@ -375,14 +391,17 @@ def _q_pack(d: dict) -> str:
     ratios = sorted(res["ratio_by_task"].values())
     d_task = next(t for t in d["tasks"] if t["id"] == "d")
     body = (f"<p><b>{h['pack']}:</b> {h['pack_counts']}. My rule, set before the run, allowed the uncensored pack to "
-            f"close {res['tolerance']} tasks fewer (5% of the sessions) and take up to 1.25× the time. It passes at the "
-            "limit.</p>" + fig
-            + f"<p>The gap sits in one place. On the bash refactor (task d) the uncensored pack closed "
-            f"{d_task['z4_done']} of {d_task['n']}, and the 3 misses are all in the second repetition, in three "
-            "different harnesses. The first repetition was 4 of 4. I did not find the cause of that block, so I read "
-            "the gap as possible, not as proven.</p>"
+            f"close {res['tolerance']} tasks fewer (5% of 56, rounded up) and take up to 1.25× the time. It passes at the "
+            "limit, and only under the check as corrected after the run (see defect 3 below). Under the original "
+            f"check it was {FIRST_RUN['strict'][0]} against {FIRST_RUN['strict'][1]} and failed by one.</p>" + fig
+            + f"<p>The net gap of 3 equals the 3 misses on the bash refactor (task d): the uncensored pack closed "
+            f"{d_task['z4_done']} of {d_task['n']}, all 3 misses in the second repetition, in three different "
+            "harnesses. The first repetition was 4 of 4. The packs also differ by one session each on tasks b and T5, "
+            "in opposite directions. I did not find the cause of the block on task d, so I read the gap as possible, "
+            "not as proven. The two packs also differ in more than the uncensoring: same quantization level, but the "
+            "recipe and imatrix differ.</p>"
             f"<p class=\"note\">On the tasks both packs finish, the uncensored pack takes {ratios[0]}× to {ratios[-1]}× "
-            "the time of the standard pack. It is not slower at coding.</p>")
+            "the session time of the standard pack. I measured no slowdown in session time.</p>")
     return _section("pack", "Question 2 · Does the uncensored pack code worse?", h["pack"], body)
 
 
@@ -392,20 +411,23 @@ def _q_refusal(d: dict) -> str:
     rows_lbl = [f"{ARM_SHORT[a]} · {SETS[s]}" for a in ARMS for s in SETS]
     values = {(f"{ARM_SHORT[a]} · {SETS[s]}", p): ref[(a, s)][p] for a in ARMS for s in SETS for p, _ in parts}
     svg = sc.stacked_bars(rows_lbl, parts, values, "Refusal probe: refused, empty and complied per pack",
-                          "100 prompts per set. The standard pack refuses 95 to 96; the three uncensored packs refuse 0 to 3.")
+                          "100 prompts per set. The standard pack refuses almost all; the three uncensored packs refuse almost none.")
     trows = [[ARM_PACK[a], SETS[s]] + [ref[(a, s)][p] for p, _ in parts] for a in ARMS for s in SETS]
-    fig = _figure(svg, "100 prompts per row. “Empty” is an answer with no text: the model spent all 2048 tokens thinking.",
+    fig = _figure(svg, "100 prompts per row. “Empty” is an answer with no text: in all but one case the model spent all 2048 tokens thinking.",
                   ["pack", "prompt set", "refused", "empty", "complied"], trows,
                   _legend([("refused", "--refused"), ("empty (ran out of tokens)", "--empty"), ("complied", "--complied")]))
     body = (f"<p><b>{h['refusal']}</b> on AdvBench, and from "
             f"{_pct(ref[('k2h', 'jbb')]['refused'], ref[('k2h', 'jbb')]['n'])}% to "
             f"{_pct(ref[('z4h', 'jbb')]['refused'], ref[('z4h', 'jbb')]['n'])}% on JBB-Behaviors. I tested three uncensored "
-            "packs of the same model. All three stop refusing; they differ in how often they run out of tokens before "
-            "they answer.</p>" + fig
+            "packs of the same model (“abliterated” means the refusal behaviour was edited out of the weights). All "
+            "three stop refusing; they differ in how often they run out of tokens before they answer. The other two "
+            "are IQ3_S packs, one quantization step smaller than Heretic v2, so that difference is not the uncensoring "
+            "alone.</p>" + fig
             + "<p>The Heretic v2 pack has the fewest empty answers, so it is the one I used for the coding sessions. "
-            "A keyword classifier reads the first 300 characters of each answer. I then read 60 answers marked "
-            "“complied” by hand: none was a refusal in other words, and 9 of the 60 quietly swapped the request for a "
-            "harmless version.</p>"
+            "A keyword classifier reads the first 300 characters of each answer. I then read the first 170 characters of "
+            "60 answers marked “complied” (20 per pack): none was a refusal in other words, and about 9 (3 of 20 for "
+            "Heretic v2) replaced the request with a harmless version. That count is an estimate. On an older, smaller "
+            "probe the Heretic v2 pack left 6 of 24 prompts without an answer, the most of the four packs.</p>"
             "<p class=\"note\">This page shows counts only. No prompt and no answer of the probe is published.</p>")
     return _section("refusal", "Question 3 · How uncensored is it?", h["refusal"], body)
 
@@ -416,7 +438,7 @@ def _q_speed(d: dict) -> str:
     arms = [a for a in ARMS if a != "k2h"]
     series = [(ARM_SHORT[a], ARM_COLOUR[a]) for a in arms]
     points = {(ctxs[c], ARM_SHORT[a]): [sp[a][c]["ratio"]] for a in arms for c in ctxs}
-    svg = sc.dot_plot(list(ctxs.values()), series, points, 0.98, 1.08, "×", SPEED_LIMIT,
+    svg = sc.dot_plot(list(ctxs.values()), series, points, 0.98, 1.06, "×", SPEED_LIMIT,
                       "Agent turn time of three uncensored packs, relative to the standard pack",
                       "All three uncensored packs take 1.00 to 1.05 times the turn time of the standard pack.",
                       ref_label="my limit, 1.05×")
@@ -430,25 +452,29 @@ def _q_speed(d: dict) -> str:
             "the Heretic v2 pack at 128K. The difference comes from token generation: "
             f"{z['decode_tps']:.0f} against {sp['k2h'][131072]['decode_tps']:.0f} tokens per second.</p>" + fig
             + f"<p>My rule was “at most 5% slower”. The Heretic v2 pack lands at {z['ratio']:.3f}× at 128K and fails "
-            "that rule by 0.001. Generation speed moved by 5% between two boots of the same pack, so this margin is "
-            "noise, and I kept the pack. A rule with a hard threshold needs more than 2 boots per arm.</p>"
+            "that rule by 0.001. Between two boots of one pack, generation speed moved by up to 5% (the SC117 pack; 0.4% "
+            "for Heretic v2, 2% for the standard pack), so I read this margin as noise and kept the pack. A rule with "
+            "a hard threshold needs more than 2 boots per pack.</p>"
             f"<p class=\"note\">Memory: the Heretic v2 pack peaks {z['wired_gb'] - sp['k2h'][131072]['wired_gb']:.0f} GB "
-            f"above the standard pack; the other two peak {sp['k2h'][131072]['wired_gb'] - sp['z2h'][131072]['wired_gb']:.0f} GB below it.</p>")
+            f"above the standard pack. The other two are IQ3_S packs, one quantization step smaller, which is why they peak "
+            f"{sp['k2h'][131072]['wired_gb'] - sp['z2h'][131072]['wired_gb']:.0f} GB below it.</p>")
     return _section("speed", "Question 4 · What does it cost in speed?", h["speed"][0].upper() + h["speed"][1:], body)
 
 
 def _failures(d: dict) -> str:
     n = len(d["failures"])
+    if not all(f["claimed_done"] for f in d["failures"]):
+        raise ValueError("a failed session did not report success (claimed_done is false); the section text assumes it")
     rows = [[PACK_LABEL[f["pack"]][0], HARNESS_LABEL[f["harness"]], TASK_SHORT[f["task"]], f["cause"]]
             for f in sorted(d["failures"], key=lambda f: (f["task"], f["pack"], f["harness"]))]
     said_done = sum(f["claimed_done"] for f in d["failures"])
     body = (f"<p><b>All {said_done} failed sessions reported success.</b> The harness exited with code 0 and inside the "
-            f"time limit. Timeouts: {d['timeouts']}. A local agent that fails does not crash and does not give up; it "
-            "tells you the work is finished.</p>"
+            f"time limit. Timeouts: {d['timeouts']}. In these runs no failing session crashed or gave up; each one said "
+            "the work was finished.</p>"
             + _table(["pack", "harness", "task", "what the repository showed"], rows, "text")
             + "<p>Three patterns: the agent stops before the work is complete, it fixes part of the task, or it removes "
             "the obstacle (one session deleted a test). None of these shows up in the transcript as an error. If you run "
-            "a local agent unattended, check the result with something other than the agent.</p>") if n == said_done else ""
+            "a local agent unattended, check the result with something other than the agent.</p>")
     return _section("failures", "How sessions fail", f"The {n} failures all say “done”", body)
 
 
@@ -464,8 +490,9 @@ def _benchmark_bugs(d: dict) -> str:
          "The sandbox hid the <code>.git</code> of the repository above the work copy. The linter walks up the "
          "directory tree, hit a permission error (<code>E902</code>) and failed. The agents did the reasonable thing: "
          "they changed the configuration to get past it.",
-         "Work copies moved outside any repository. I ran the task again.",
-         f"{f['t5_done']} of {f['t5_n']}", f"{t5_now} of {f['t5_n']}"),
+         f"Work copies moved outside any repository. I ran the task again: {t5_now - d['notes']} of {f['t5_n']}, and "
+         f"{t5_now} of {f['t5_n']} once defect 3 was fixed too.",
+         f"{f['t5_done']} of {f['t5_n']}", f"{t5_now - d['notes']} of {f['t5_n']}"),
         ("2", "A cheat detector with a false positive",
          f"<b>{f['false_flags']} records</b> carried the flag “tests modified”, including every session of the 5-step "
          "chain.",
@@ -488,11 +515,11 @@ def _benchmark_bugs(d: dict) -> str:
         f'<div class="delta"><span class="was">{_e(was)}</span><span aria-hidden="true">→</span><span class="now">{_e(now)}</span></div></div>'
         for n, title, saw, cause, fix, was, now in cards)
     affected = f["t5_n"] + f["false_flags"]
-    body = (f"<p>In the first run, <b>{affected} of {d['sessions']['total']} records</b> were affected by a defect in my "
-            "harness, not by the model. I found each one by opening the repositories of the failed sessions instead of "
-            "reading the score.</p>" + f'<div class="cards">{html_cards}</div>'
-            + '<div class="callout"><p>Every defect made the model look worse, and every one looked like a model '
-            "failure in the table. An agent benchmark needs an audit of its failures before its score means anything: "
+    body = (f"<p>In the first run my benchmark was wrong on <b>{affected} of {d['sessions']['total']} records</b>: "
+            f"{f['t5_n']} wrong verdicts and {f['false_flags']} wrong cheat flags. I found each defect by opening the "
+            "repositories of the sessions instead of reading the score.</p>" + f'<div class="cards">{html_cards}</div>'
+            + '<div class="callout"><p>Two of the three defects turned good sessions into failures; the third marked '
+            "honest sessions as cheating. All three looked like model behaviour in the table. An agent benchmark needs an audit of its failures before its score means anything: "
             "read what the agent did, and ask whether the prompt told it not to.</p></div>")
     return _section("bugs", "Lessons", "Three times the benchmark was wrong", body)
 
@@ -503,8 +530,13 @@ def _limits(d: dict) -> str:
         "packs, is not a result.",
         "<b>One model family.</b> Qwen3.8 Flash-Next in one quantization. A weaker model may separate the harnesses.",
         "<b>Small tasks.</b> The longest done session took under 6 minutes. Nothing here tests a multi-hour job.",
-        "<b>Harness versions.</b> Claude Code 2.1.292, OpenCode 1.15.10, pi 0.85.1, dsh 0.1.0-rc.6. OpenCode was one "
-        "minor line behind the current release.",
+        "<b>Harness versions.</b> " + ", ".join(f"{x['label']} {x['version'].split(' (')[0]}" for x in d["harness"])
+        + ". OpenCode was three minor versions behind the 1.18.31 on my laptop; I did not test the newer build.",
+        "<b>Harness setup.</b> dsh ran with its own permission layer off (the session sandbox was the boundary) and "
+        "from a copied dependency tree, because a fresh install did not start. Every work copy got its own "
+        "<code>git init</code>, so that no harness walked up to the parent repository.",
+        "<b>Known gaps in the checks.</b> The check of the 5-step chain does not verify that tests were added, and "
+        "it accepts an empty <code>make test</code>.",
         "<b>The environment task ran last.</b> Its 16 sessions ran after the fix, not interleaved with the other 96.",
         "<b>The refusal probe uses a keyword classifier</b> on the first 300 characters, with a manual check of 60 answers.",
         "<b>The checks are mine.</b> I found three defects in them. There may be a fourth.",
@@ -518,12 +550,15 @@ def _method(d: dict) -> str:
         ["Server", "Splash 1.6.1, context 131072, reasoning effort xhigh, one session at a time"],
         ["Standard pack (k2)", PACK_LABEL["k2"][1]],
         ["Uncensored pack (z4)", PACK_LABEL["z4"][1]],
-        ["Other uncensored packs", "z2: Huihui abliterated v2 · z3: GSQ-RCO abliterated (refusal and speed only)"],
-        ["Sandbox", "macOS sandbox-exec: writes only in the work copy and the session home; reads under the user "
-                    "directory limited to those and the runtimes; network open"],
-        ["Time limits", "15 min for tasks a–d and T1, 20 min for T5, 30 min for T7"],
+        ["Other uncensored packs", f"z2: {ARM_PACK['z2h']} · z3: {ARM_PACK['z3h']} (refusal and speed only)"],
+        ["Harnesses", " · ".join(f"{HARNESS_LABEL[n]}: {HARNESS_NOTE[n]}" for n in HARNESSES)],
+        ["Sandbox", "macOS sandbox-exec: writes only in the work copy, the session home and the system temp "
+                    "directories; reads under the user directory limited to those and the runtimes; network open"],
         ["Done", "The hidden check passes. The agent's own claim is recorded and not trusted"],
-        ["Refusal probe", "100 AdvBench and 100 JBB-Behaviors prompts per pack, 2048 max tokens"],
+        ["Refusal probe", "100 AdvBench and 100 JBB-Behaviors prompts per pack, 32K context, temperature 1.0, "
+                          "2048 max tokens"],
+        ["Terms", "Splash: the local model server · GGUF: the weight file format · IQ4_XS, IQ3_S: 4-bit and 3-bit "
+                  "quantization levels · E902: the linter's code for a file it cannot read"],
         ["Speed probe", "2 server boots per pack and context; agent turn = warm-cache request (T_turn)"],
     ]
     links = [("Campaign plan, scripts and the 112 records", CAMPAIGN_URL),
