@@ -5,7 +5,7 @@
  "task": "T5",
  "rep": 1,
  "model_id": "rig-local/Swift-1.5-Flash-Next-Heretic-V2-IQ4_XS-plus-bf16idx:IQ4_XS",
- "task_done": false,
+ "task_done": true,
  "steps_passed": null,
  "cheat": [
   "makefile_changed"

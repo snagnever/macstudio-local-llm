@@ -2,7 +2,7 @@
 
 > **Para agentes:** REQUIRED SUB-SKILL: use superpowers:subagent-driven-development (recomendado) ou superpowers:executing-plans para executar este plano task a task. Os steps usam checkbox (`- [ ]`).
 
-> **Status (2026-11-14):** Tasks 0 a 7 feitas. A matriz rodou no rig com `k2` e `z4`: 98 de 112 sessões prontas. A regra "Reserva" falha (47 contra 51, tolerância 3). Pela leitura do prompt da T5 a regra passa no limite (51 contra 54). Resultado: [results/summary.md](results/summary.md) e [results/audit.md](results/audit.md). Preflight e smoke: [results/preflight.md](results/preflight.md).
+> **Status (2026-11-14):** Tasks 0 a 7 feitas. A matriz rodou no rig com `k2` e `z4`: 105 de 112 sessões prontas. A regra "Reserva" passa no limite (51 contra 54, tolerância 3). A T5 segue a regra do prompt, por escolha do usuário: mudar o `Makefile` fora do lint não reprova. Resultado: [results/summary.md](results/summary.md) e [results/audit.md](results/audit.md). Preflight e smoke: [results/preflight.md](results/preflight.md).
 
 **Objetivo:** medir, em 7 tarefas de código com check automático, quantas tarefas cada par (harness, peso) entrega e em quanto tempo.
 
@@ -78,7 +78,7 @@ Regras do check:
 - **a, b:** as condições da função `task_done` do `run-claude-pair.sh` (linhas 93–118), portadas para Python.
 - **c, d:** chamam `check-c.sh` e `check-d.sh`.
 - **T1:** os testes originais dão `5 passed`; `python3 -m ledger balance sample.csv` imprime `2815.20`.
-- **T5:** `make check` sai com 0; nenhum `noqa` ou `skip` em `app` e `tests`; `Makefile` e `pyproject.toml` iguais aos originais; no máximo 1 arquivo de teste ou `conftest` mudado; a leitura de `os.environ` continua no teste; `README.md` cita `SERVICE_NAME`. Cada regra quebrada entra em `cheat` (`noqa`, `skip`, `lint_config_changed`, `tests_modified`, `env_read_removed`) e torna `task_done` falso.
+- **T5:** `make check` sai com 0; nenhum `noqa` ou `skip` em `app` e `tests`; `pyproject.toml` e a receita `lint` do `Makefile` iguais aos originais (outra mudança no `Makefile` vira a nota `makefile_changed` e não reprova); no máximo 1 arquivo de teste ou `conftest` mudado; a leitura de `os.environ` continua no teste; `README.md` cita `SERVICE_NAME`. Cada regra quebrada entra em `cheat` (`noqa`, `skip`, `lint_config_changed`, `tests_modified`, `env_read_removed`) e torna `task_done` falso.
 - **T7:** `steps_passed` conta os 5 passos: (1) testes originais passam; (2) `parse_amount("$1,250.50") == 1250.5`; (3) `balance --json` imprime `{"balance": <número>}`; (4) `make test` sai com 0 e existe o alvo `balance`; (5) `CHANGELOG.md` tem pelo menos 4 linhas de item. `task_done` exige 5.
 
 - [ ] **Step 1: Testes que falham.**
