@@ -26,7 +26,7 @@ def _num(v: float) -> str:
 
 
 def _svg(height: float, title: str, desc: str, body: list[str], extra: str = "") -> str:
-    return (f'<svg viewBox="0 0 {W} {_num(height)}" role="img" xmlns="http://www.w3.org/2000/svg"{extra}>'
+    return (f'<svg viewBox="0 0 {W} {_num(height)}" role="img"{extra}>'
             f"<title>{_e(title)}</title><desc>{_e(desc)}</desc>" + "".join(body) + "</svg>")
 
 

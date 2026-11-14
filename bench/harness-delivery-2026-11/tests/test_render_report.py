@@ -67,3 +67,65 @@ def test_speed_constants_match_the_stage_report(data):
     assert seen == 15
     assert data["speed"]["z4h"][131072]["ratio"] == 1.051
     assert data["speed_verdict"] == {"z4h": "fail", "z2h": "fail", "z3h": "pass"}
+
+
+# ---- Task 3: render
+
+@pytest.fixture(scope="module")
+def page(data):
+    return rr.render(data, generated="2026-11-14")
+
+
+def test_page_answers_the_four_questions(page):
+    t = text_of(page)
+    for s in ("Four coding harnesses, one local model", "No measurable difference", "Three tasks fewer out of 56",
+              "Refusals drop from 96% to 0%", "2% to 5% slower per agent turn"):
+        assert s in t
+
+
+def test_page_never_names_a_winner_inside_the_noise(page):
+    t = text_of(page).lower()
+    assert not re.search(r"\bwins?\b|\bwinner\b|best harness", t) and "two repetitions" in t
+
+
+def test_page_numbers_come_from_the_data(data, page):
+    t = text_of(page)
+    assert f"{data['sessions']['done']} of {data['sessions']['total']}" in t
+    assert all(f"{h['done']} of {h['n']}" in t for h in data["harness"])
+    assert "51 against 54" in t
+
+
+def test_page_is_self_contained(page):
+    assert "<script src" not in page and 'rel="stylesheet"' not in page and "http://" not in page
+    assert "<link" not in page
+
+
+def test_page_has_no_private_data_and_no_probe_text(page):
+    assert not re.search(r"/Users/|vitor@|MBPro", page)
+    assert not re.search(r"\b(advbench|jbb)-\d+", page)
+
+
+def test_every_chart_has_a_data_table(page):
+    figures = page.count('<figure class="chart"')
+    assert figures >= 6 and page.count("<svg") == figures and page.count('<details class="tbl"') == figures
+
+
+def test_page_tells_the_three_benchmark_defects(page):
+    t = text_of(page)
+    assert "0 of 16" in t and "E902" in t and "Makefile" in t and "import line" in t and "47 against 51" in t
+
+
+def test_page_uses_public_pack_names_outside_the_method_section(page):
+    body = text_of(page.split('id="method"')[0])
+    assert not re.search(r"\b(z[1-4]h?|k2h?)\b", body) and "Heretic v2" in body
+
+
+def test_page_lists_the_seven_failures(data, page):
+    t = text_of(page)
+    assert all(f["cause"] in t for f in data["failures"]) and "All 7 failed sessions reported success" in t
+
+
+def test_page_has_social_tags(page):
+    for tag in ('property="og:title"', 'property="og:description"', 'property="og:image"', 'name="twitter:card"'):
+        assert tag in page
+    assert "assets/qwen38-flashnext-harness-delivery-card.png" in page
