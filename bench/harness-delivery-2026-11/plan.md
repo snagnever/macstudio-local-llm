@@ -2,7 +2,7 @@
 
 > **Para agentes:** REQUIRED SUB-SKILL: use superpowers:subagent-driven-development (recomendado) ou superpowers:executing-plans para executar este plano task a task. Os steps usam checkbox (`- [ ]`).
 
-> **Status (2026-11-14):** Tasks 0 a 7 feitas. A matriz rodou no rig com `k2` e `z4`: 98 de 112 sessões prontas. A regra "Reserva" falha (47 contra 51, tolerância 3). Resultado: [results/summary.md](results/summary.md). Preflight e smoke: [results/preflight.md](results/preflight.md).
+> **Status (2026-11-14):** Tasks 0 a 7 feitas. A matriz rodou no rig com `k2` e `z4`: 98 de 112 sessões prontas. A regra "Reserva" falha (47 contra 51, tolerância 3). Pela leitura do prompt da T5 a regra passa no limite (51 contra 54). Resultado: [results/summary.md](results/summary.md) e [results/audit.md](results/audit.md). Preflight e smoke: [results/preflight.md](results/preflight.md).
 
 **Objetivo:** medir, em 7 tarefas de código com check automático, quantas tarefas cada par (harness, peso) entrega e em quanto tempo.
 
