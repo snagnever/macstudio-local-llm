@@ -1,0 +1,18 @@
+{
+ "harness": "opencode",
+ "harness_version": "1.15.10",
+ "pack": "k2",
+ "task": "T1",
+ "rep": 2,
+ "model_id": "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS",
+ "task_done": true,
+ "steps_passed": null,
+ "cheat": [],
+ "wall_s": 32.6,
+ "exit": 0,
+ "timeout": false,
+ "claimed_done": true,
+ "turns": null,
+ "input_tokens": null,
+ "output_tokens": null
+}

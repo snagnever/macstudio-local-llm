@@ -2,7 +2,7 @@
 
 > **Para agentes:** REQUIRED SUB-SKILL: use superpowers:subagent-driven-development (recomendado) ou superpowers:executing-plans para executar este plano task a task. Os steps usam checkbox (`- [ ]`).
 
-> **Status (2026-11-14):** Tasks 0 a 5 feitas; a matriz (Task 6) roda no rig com `k2` e `z4`. Preflight e smoke: [results/preflight.md](results/preflight.md).
+> **Status (2026-11-14):** Tasks 0 a 7 feitas. A matriz rodou no rig com `k2` e `z4`: 98 de 112 sessões prontas. A regra "Reserva" falha (47 contra 51, tolerância 3). Resultado: [results/summary.md](results/summary.md). Preflight e smoke: [results/preflight.md](results/preflight.md).
 
 **Objetivo:** medir, em 7 tarefas de código com check automático, quantas tarefas cada par (harness, peso) entrega e em quanto tempo.
 
@@ -191,7 +191,7 @@ def test_unknown_harness_raises():
 
 O registro tem exatamente estes campos: `harness`, `harness_version`, `pack`, `task`, `rep`, `model_id`, `task_done`, `steps_passed`, `cheat`, `wall_s`, `exit`, `timeout`, `claimed_done`, `turns`, `input_tokens`, `output_tokens`. `claimed_done` é `not timeout and exit == 0`. `turns` e os tokens ficam `null` quando o harness não informa.
 
-O runner inicia o harness em um grupo de processos novo, grava stdout e stderr em `logs/sessions/<nome>.log`, e no limite envia `SIGTERM` ao grupo, espera 10 s e envia `SIGKILL`. A cópia do repositório fica em `logs/work/<nome>/`, e o `HOME` da sessão em `logs/home/<nome>/`. O check roda depois que o grupo terminou.
+O runner inicia o harness em um grupo de processos novo, grava stdout e stderr em `logs/sessions/<nome>.log`, e no limite envia `SIGTERM` ao grupo, espera 10 s e envia `SIGKILL`. A cópia do repositório fica em `logs/work/<nome>/`, ou em `~/.cache/harness-delivery-2026-11/work/<nome>/` quando `logs/` está dentro de um repositório git, e o `HOME` da sessão em `logs/home/<nome>/`. O check roda depois que o grupo terminou.
 
 O `fake_harness.py` é um script de teste que o runner dispara no lugar do harness real (`HARNESS_BIN_<NAME>`): aplica uma solução, dorme, sai com um código, ou deixa um filho vivo, conforme a variável `FAKE_MODE`.
 
@@ -308,17 +308,17 @@ def test_summary_names_the_two_repetition_caveat(tmp_path):
 
 ### Task 6: Rodar a matriz
 
-- [ ] **Step 1:** Sincronizar o rig. Rodar `matrix.py` em segundo plano no MacBook, com `caffeinate -i`. Teto: 33 h.
-- [ ] **Step 2:** Se a fila parar, rodar o mesmo comando; a retomada pula as sessões gravadas.
-- [ ] **Step 3:** No fim: `rig-server.sh stop`, conferir que o servidor do usuário responde em 8585, contar os registros em `results/sessions/`.
-- [ ] **Step 4: Commit** dos registros.
+- [x] **Step 1:** Sincronizar o rig. Rodar `matrix.py` em segundo plano no MacBook, com `caffeinate -i`. Teto: 33 h.
+- [x] **Step 2:** Se a fila parar, rodar o mesmo comando; a retomada pula as sessões gravadas.
+- [x] **Step 3:** No fim: `rig-server.sh stop`, conferir que o servidor do usuário responde em 8585, contar os registros em `results/sessions/`.
+- [x] **Step 4: Commit** dos registros.
 
 ### Task 7: Resultado
 
 **Files:** `results/summary.md`, `bench/harness-matrix/results/<harness>/<modelo>.md` (um por par), `bench/swift-uncensored-2026-11/plan.md`, este `plan.md`.
 
-- [ ] **Step 1:** `summarize.py`. Ler o `summary.md` e conferir 3 células da tabela contra os registros.
-- [ ] **Step 2:** Auditar, nos logs, 5 sessões com `claimed_done` verdadeiro e `task_done` falso. Gravar no `summary.md` a contagem por causa, sem texto de sessão.
-- [ ] **Step 3:** Atualizar o status deste plano e apontar a Task 3 da swift-uncensored para o `summary.md`.
-- [ ] **Step 4:** Rodar a suíte inteira. Expected: PASS.
-- [ ] **Step 5: Commit.** Sem push nem PR sem pedido do usuário.
+- [x] **Step 1:** `summarize.py`. Ler o `summary.md` e conferir 3 células da tabela contra os registros.
+- [x] **Step 2:** Auditar, nos logs, 5 sessões com `claimed_done` verdadeiro e `task_done` falso. Gravar no `summary.md` a contagem por causa, sem texto de sessão.
+- [x] **Step 3:** Atualizar o status deste plano e apontar a Task 3 da swift-uncensored para o `summary.md`.
+- [x] **Step 4:** Rodar a suíte inteira. Expected: PASS.
+- [x] **Step 5: Commit.** Sem push nem PR sem pedido do usuário.
