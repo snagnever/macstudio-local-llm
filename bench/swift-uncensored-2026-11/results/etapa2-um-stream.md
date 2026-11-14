@@ -2,7 +2,7 @@
 
 Data: 2026-11-13 e 14. Rig: Mac Studio M4 Max 128 GB, Splash 1.6.1, `cache_probe`, temperatura 1.0, `reasoning_effort` `xhigh`.
 
-Cada braço tem 2 boots por contexto, com 5 cenários por boot. O `k2h` roda no começo e no fim de cada contexto. A fila durou de 17:08 a 01:25, com 24 boots e nenhum erro. Dados: `results/<braço>-<contexto>-t1.0-s<N>.jsonl`.
+Cada braço tem 2 boots por contexto, com 5 cenários por boot. A ordem é espelhada: o `k2h` roda no começo e no fim a 32K e a 256K, e nas 2 posições do meio a 128K. A fila durou de 17:08 a 01:25, com 24 boots e nenhum erro. Dados: `results/<braço>-<contexto>-t1.0-s<N>.jsonl`.
 
 Comando do veredito, por braço:
 

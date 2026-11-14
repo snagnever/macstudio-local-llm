@@ -444,7 +444,7 @@ def _q_speed(d: dict) -> str:
                       ref_label="my limit, 1.05×")
     trows = [[ARM_PACK[a], ctxs[c].split()[0], f"{sp[a][c]['t_turn_s']} s", f"{sp[a][c]['ratio']:.3f}×",
               f"{sp[a][c]['decode_tps']}", f"{sp[a][c]['wired_gb']} GB"] for a in ARMS for c in ctxs]
-    fig = _figure(svg, "1.00× is the standard pack. Each dot is the median of 2 server boots.",
+    fig = _figure(svg, "1.00× is the standard pack. Each dot is computed from the requests of 2 server boots.",
                   ["pack", "context", "agent turn", "ratio", "decode tok/s", "memory peak"], trows, _legend(series))
     z = sp["z4h"][131072]
     body = (f"<p><b>{h['speed'][0].upper() + h['speed'][1:]}.</b> An agent turn is one request with a warm prompt cache "
@@ -452,8 +452,8 @@ def _q_speed(d: dict) -> str:
             "the Heretic v2 pack at 128K. The difference comes from token generation: "
             f"{z['decode_tps']:.0f} against {sp['k2h'][131072]['decode_tps']:.0f} tokens per second.</p>" + fig
             + f"<p>My rule was “at most 5% slower”. The Heretic v2 pack lands at {z['ratio']:.3f}× at 128K and fails "
-            "that rule by 0.001. Between two boots of one pack, generation speed moved by up to 10% (the standard pack "
-            "at 256K; at 128K, 5% for the SC117 pack and 0.4% for Heretic v2), so I read this margin as noise and kept "
+            "that rule by 0.001; from turn times not rounded to 0.1 s it is 1.049×. Between two boots of one pack, generation speed moved by up to 10% (the standard pack "
+            "at 256K; at 128K, 5% for the SC117 pack and 0.3% for Heretic v2), so I read this margin as noise and kept "
             "the pack. A rule with a hard threshold needs more than 2 boots per pack. Details: "
             '<a href="qwen38-flashnext-uncensored-speed.html">Do uncensored weights cost speed?</a></p>'
             f"<p class=\"note\">Memory: the Heretic v2 pack peaks {z['wired_gb'] - sp['k2h'][131072]['wired_gb']:.0f} GB "

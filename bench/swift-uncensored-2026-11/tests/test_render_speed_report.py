@@ -103,3 +103,39 @@ def test_index_and_readme_list_the_page():
     flash = index.split('id="flashnext"')[1].split('<section class="block"')[0]
     assert 'href="qwen38-flashnext-uncensored-speed.html"' in flash
     assert "qwen38-flashnext-uncensored-speed.html" in (REPO / "reports/README.md").read_text()
+
+
+# ---- review fixes
+
+def section(page, sid):
+    return text_of(page.split(f'id="{sid}"')[1].split("<section")[0])
+
+
+def test_ratio_from_unrounded_times_is_kept_beside_the_rule_ratio(data):
+    z4, z2 = data["pooled"][("z4h", 131072)], data["pooled"][("z2h", 131072)]
+    assert (z4["ratio"], z4["ratio_raw"], z2["ratio_raw"]) == (1.051, 1.049, 1.051)
+
+
+def test_turn_section_says_the_verdict_depends_on_rounding(page):
+    t = section(page, "turn")
+    assert "1.049×" in t and "depends on rounding" in t
+    assert "passs" not in t and "SC117 IQ3_S passes" in t and "Heretic v2 fails" in t
+
+
+def test_decode_section_states_what_the_data_supports(page):
+    t = section(page, "decode")
+    assert "median of 3 requests" in t and "8 of the 12 pairs" in t and "Across the three sizes" in t
+    assert "At a single context size I cannot tell the packs apart" in t
+
+
+def test_hero_tile_agrees_with_the_warm_start_table(data, page):
+    t = text_of(page)
+    assert "1.53 to 1.56 s" in t and "99.6%" in t
+
+
+def test_page_discloses_the_truncated_answer(page):
+    assert "119 of 120" in text_of(page)
+
+
+def test_method_gives_the_real_queue_order(page):
+    assert "two middle slots at 128K" in section(page, "method")
