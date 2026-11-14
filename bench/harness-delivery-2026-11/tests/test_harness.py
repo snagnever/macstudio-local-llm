@@ -66,6 +66,11 @@ def test_dsh_runs_the_headless_profile_in_its_own_home(tmp_path):
     assert c.env["DSH_HOME"] == str(tmp_path / "h/.dsh") and c.env["DSH_TELEMETRY_MODE"] == "DISABLED"
 
 
+def test_dsh_leaves_the_file_boundary_to_the_session_sandbox(tmp_path):
+    # dsh wraps bash in its own sandbox-exec; macOS refuses a sandbox inside the session sandbox.
+    assert command("dsh", "x", tmp_path, tmp_path / "h", T).env["DSH_PERMISSION_MODE"] == "danger-full-access"
+
+
 def test_prepare_writes_only_inside_home(tmp_path):
     for name in HARNESSES:
         prepare(name, tmp_path / "h", T)

@@ -90,7 +90,8 @@ def _opencode(prompt: str, home: Path, target: Target):
 
 
 def _dsh(prompt: str, home: Path, target: Target):
-    env = {"DSH_HOME": str(home / ".dsh"), "RIG_API_KEY": "local", "DSH_TELEMETRY_MODE": "DISABLED"}
+    env = {"DSH_HOME": str(home / ".dsh"), "RIG_API_KEY": "local", "DSH_TELEMETRY_MODE": "DISABLED",
+           "DSH_PERMISSION_MODE": "danger-full-access"}  # the session sandbox is the boundary; no nested one
     return [_bin("dsh"), "--profile", "headless", prompt], env
 
 
