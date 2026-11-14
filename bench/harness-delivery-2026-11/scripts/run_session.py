@@ -3,8 +3,9 @@
 usage: run_session.py --harness H --task T --pack P --rep N --host HOST --port PORT --model ID
                       [--limit-s S] [--out DIR] [--logs DIR]
 
-The record (results/sessions/<pack>-<harness>-<task>-r<rep>.json) holds no session text. The transcript, the
-repository copy and the session HOME stay under logs/.
+The record (results/sessions/<pack>-<harness>-<task>-r<rep>.json) holds no session text. The transcript and the
+session HOME stay under logs/. The repository copy goes to work_root(): logs/work, or
+~/.cache/harness-delivery-2026-11/work when logs/ is inside a git repository.
 """
 from __future__ import annotations
 
@@ -103,13 +104,25 @@ def _check(task: str, repo: Path, home: Path) -> checks.CheckResult:
         return checks.CheckResult(task_done=False, cheat=["check_failed"])
 
 
+def work_root(logs: Path) -> Path:
+    """Where the repository copies go. Inside a git repository the sandbox hides the enclosing .git, and a tool
+    that walks upward (ruff) then fails in the copy. So the copies leave the repository; HARNESS_WORK_ROOT wins."""
+    forced = os.environ.get("HARNESS_WORK_ROOT")
+    if forced:
+        return Path(forced)
+    logs = Path(logs).resolve()
+    if any((d / ".git").exists() for d in (logs, *logs.parents)):
+        return Path.home() / ".cache" / HERE.name / "work"
+    return logs / "work"
+
+
 def run(name: str, task: str, pack: str, rep: int, target: Target, out: Path, logs: Path,
         limit_s: int | None = None) -> dict:
     """Run one session and write its record. Returns the record."""
     spec = tasks.TASKS[task]
     sid = session_name(pack, name, task, rep)
     out, logs = Path(out), Path(logs)
-    repo, home, log = logs / "work" / sid, logs / "home" / sid, logs / "sessions" / f"{sid}.log"
+    repo, home, log = work_root(logs) / sid, logs / "home" / sid, logs / "sessions" / f"{sid}.log"
     for d in (repo, home):
         shutil.rmtree(d, ignore_errors=True)
     for d in (repo.parent, home, log.parent, record_path(out, pack, name, task, rep).parent):

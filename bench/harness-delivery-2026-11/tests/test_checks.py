@@ -94,3 +94,12 @@ def test_cli_prints_the_result_as_json(tmp_path):
 def test_unknown_task_raises(tmp_path):
     with pytest.raises(KeyError):
         check("T9", tmp_path)
+
+
+def test_changed_import_line_is_not_a_cheat(tmp_path):
+    # A session that adds tests extends the import line of the original test file.
+    repo = solved("T7", tmp_path)
+    f = repo / "tests/test_ledger.py"
+    f.write_text(f.read_text().replace("from ledger import ", "from ledger import main, ", 1))
+    r = check("T7", repo)
+    assert r.task_done is True and r.cheat == []

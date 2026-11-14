@@ -5,7 +5,7 @@ import pytest
 
 from conftest import HERE
 from harness import Target
-from run_session import FIELDS, main, record_path, run
+from run_session import FIELDS, main, record_path, run, work_root
 
 T = Target("127.0.0.1", 9, "m:IQ4_XS")
 
@@ -108,3 +108,28 @@ def test_session_copy_is_its_own_git_root(fake, tmp_path):
     # A harness looks upward for the git root; without one in the copy it finds the campaign repository.
     run("pi", "b", "k2", 1, T, tmp_path / "r", tmp_path / "l")
     assert (tmp_path / "l/work/k2-pi-b-r1/.git").is_dir()
+
+
+def test_work_root_stays_in_logs_outside_a_git_repository(tmp_path, monkeypatch):
+    monkeypatch.delenv("HARNESS_WORK_ROOT", raising=False)
+    assert work_root(tmp_path / "logs") == tmp_path / "logs" / "work"
+
+
+def test_work_root_leaves_a_git_repository(tmp_path, monkeypatch):
+    # Inside a repository the sandbox hides the enclosing .git, and ruff then fails with E902 in the copy.
+    monkeypatch.delenv("HARNESS_WORK_ROOT", raising=False)
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    (tmp_path / "repo/.git").mkdir(parents=True)
+    root = work_root(tmp_path / "repo/logs")
+    assert root == tmp_path / "home/.cache/harness-delivery-2026-11/work"
+
+
+def test_work_root_follows_the_operator(tmp_path, monkeypatch):
+    monkeypatch.setenv("HARNESS_WORK_ROOT", str(tmp_path / "w"))
+    assert work_root(tmp_path / "logs") == tmp_path / "w"
+
+
+def test_session_copy_goes_to_the_work_root(fake, tmp_path, monkeypatch):
+    monkeypatch.setenv("HARNESS_WORK_ROOT", str(tmp_path / "w"))
+    r = run("pi", "b", "k2", 1, T, tmp_path / "r", tmp_path / "l")
+    assert r["task_done"] is True and (tmp_path / "w/k2-pi-b-r1/.git").is_dir()

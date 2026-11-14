@@ -60,7 +60,9 @@ def _lost_lines(original: Path, current: Path) -> bool:
     if not current.is_file():
         return True
     have = {line.strip() for line in current.read_text(errors="replace").splitlines()}
-    return any(line.strip() and line.strip() not in have for line in original.read_text().splitlines())
+    # Import lines do not count: a session that adds tests extends them.
+    return any(line.strip() and line.strip() not in have and not line.startswith(("import ", "from "))
+               for line in original.read_text().splitlines())
 
 
 def _tests_modified(task_id: str, repo: Path) -> bool:
