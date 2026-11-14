@@ -122,3 +122,18 @@ def test_read_allowlist_names_runtime_directories_only(area):
 
 def test_harness_credentials_under_dot_local_are_unreadable(area):
     assert run_in(area, ["/bin/ls", str(Path.home() / ".local/share")]).returncode != 0
+
+
+def test_session_cannot_signal_a_process_outside_the_sandbox(area):
+    # A session that runs `pkill python` must not reach the matrix runner or the model server.
+    victim = subprocess.Popen(["/bin/sleep", "30"])
+    try:
+        r = run_in(area, ["/bin/kill", "-TERM", str(victim.pid)])
+        assert r.returncode != 0 and victim.poll() is None
+    finally:
+        victim.kill()
+
+
+def test_session_can_signal_its_own_children(area):
+    r = run_in(area, ["/bin/sh", "-c", "/bin/sleep 30 & kill -TERM $! && wait $!; test $? -eq 143"])
+    assert r.returncode == 0

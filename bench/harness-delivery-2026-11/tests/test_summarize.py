@@ -118,3 +118,22 @@ def test_matrix_verdict_per_pair_without_session_text(tmp_path):
     f = tmp_path / "pi" / "org-k2-Q.md"
     assert f.is_file() and "harness-delivery-2026-11" in f.read_text()
     assert len(list(tmp_path.rglob("*.md"))) == 8
+
+
+def test_rank_orders_three_tied_harnesses_by_time():
+    r = rank(recs_by_harness({"claude": (25, 56.6), "pi": (25, 51.1), "opencode": (25, 60.2), "dsh": (23, 58.2)}))
+    assert [h for h, *_ in r] == ["pi", "claude", "opencode", "dsh"]
+
+
+def test_reserva_reports_the_time_ratio_per_task():
+    # A pooled median moves when the candidate fails the slow task; the per-task ratio does not.
+    rs = [rec("k2", "pi", "a", 1, True, 10), rec("k2", "pi", "d", 1, True, 200),
+          rec("z4", "pi", "a", 1, True, 10), rec("z4", "pi", "d", 1, False, 200)]
+    res = reserva(rs)
+    assert res["ratio"] == round(10 / 105, 3) and res["ratio_by_task"] == {"a": 1.0}
+
+
+def test_render_shows_the_per_task_ratio_range():
+    rs = [rec(p, "pi", t, 1, True, w) for p, t, w in
+          (("k2", "a", 10), ("z4", "a", 8), ("k2", "d", 200), ("z4", "d", 190))]
+    assert "por tarefa, de 0.8 a 0.95" in render(rs)

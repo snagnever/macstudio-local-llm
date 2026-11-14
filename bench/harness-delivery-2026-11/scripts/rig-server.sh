@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Serve one pack on the rig for the harness sessions that run on the MacBook. Runs ON THE RIG.
+# Serve one pack on the rig for the harness sessions. Runs ON THE RIG.
 # usage: rig-server.sh start <k2|z2|z4> [--print]   stop the user's server, boot Splash 1.6.1 (arm rc2, 131072)
 #                                                   with the pack, print BASE_URL= and MODEL_ID=
 #        rig-server.sh stop                         stop the bench server and start the user's server again
@@ -57,10 +57,18 @@ case "$cmd" in
   stop)
     stop_bench
     wait_port_free || stop_listener
-    nohup bash "$USER_SERVER" 256k < /dev/null > "$LOGS/user-server.log" 2>&1 &
-    for i in $(seq 1 200); do
-      curl -fs -m3 "http://127.0.0.1:$PORT/health" >/dev/null && { echo "user server up"; exit 0; }
-      sleep 3
+    # The port frees before the old Splash process exits, and the launcher then refuses to start
+    # ("already serving"). So: watch the launcher, and start it again when it dies before /health answers.
+    for try in 1 2 3 4 5; do
+      nohup bash "$USER_SERVER" 256k < /dev/null > "$LOGS/user-server.log" 2>&1 &
+      upid=$!
+      for i in $(seq 1 200); do
+        curl -fs -m3 "http://127.0.0.1:$PORT/health" >/dev/null && { echo "user server up"; exit 0; }
+        kill -0 "$upid" 2>/dev/null || port_busy || break
+        sleep 3
+      done
+      echo "rig-server: user server start $try failed: $(tail -1 "$LOGS/user-server.log")" >&2
+      sleep 10
     done
     echo "rig-server: USER SERVER DID NOT COME BACK" >&2; exit 1 ;;
   env) [[ -s "$ENVF" ]] && cat "$ENVF" || { echo "rig-server: no bench server" >&2; exit 1; } ;;

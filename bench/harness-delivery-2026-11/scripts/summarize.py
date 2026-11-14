@@ -54,6 +54,12 @@ def reserva(records: list[dict], base: str = "k2", cand: str = "z4") -> dict:
     mb, mc = _median_done(b), _median_done(c)
     out = {"done_base": sum(r["task_done"] for r in b), "done_cand": sum(r["task_done"] for r in c),
            "tolerance": math.ceil(TOLERANCE_SHARE * len(b)), "ratio": round(mc / mb, 3) if mb and mc else None}
+    # The pooled median moves with the mix of done tasks; the ratio per task does not.
+    out["ratio_by_task"] = {}
+    for t in tasks.TASKS:
+        tb, tc = (_median_done([r for r in p if r["task"] == t]) for p in (b, c))
+        if tb and tc:
+            out["ratio_by_task"][t] = round(tc / tb, 2)
     out["pass"] = None if out["ratio"] is None else (
         out["done_cand"] >= out["done_base"] - out["tolerance"] and out["ratio"] <= MAX_RATIO)
     return out
@@ -65,10 +71,11 @@ def rank(records: list[dict]) -> list[tuple[str, int, float | None]]:
         mine = [r for r in records if r["harness"] == h]
         rows.append((h, sum(r["task_done"] for r in mine), _median_done(mine)))
     rows.sort(key=lambda row: -row[1])
-    for i in range(len(rows) - 1):
-        a, b = rows[i], rows[i + 1]
-        if a[1] - b[1] <= 1 and b[2] is not None and (a[2] is None or b[2] < a[2]):
-            rows[i], rows[i + 1] = b, a
+    for _ in rows:                       # bubble passes: a tie of one task goes to the faster harness
+        for i in range(len(rows) - 1):
+            a, b = rows[i], rows[i + 1]
+            if a[1] - b[1] <= 1 and b[2] is not None and (a[2] is None or b[2] < a[2]):
+                rows[i], rows[i + 1] = b, a
     return rows
 
 
@@ -108,17 +115,18 @@ def render(records: list[dict], base: str = "k2", cand: str = "z4") -> str:
         reasons.update(r["cheat"])
     lines += ["", "## Motivos de falha", "", "| motivo | sessões |", "|---|---:|"]
     lines += [f"| {k} | {v} |" for k, v in reasons.items() if v] or ["| nenhum | 0 |"]
+    per_task = list(res["ratio_by_task"].values())
     verdict = {True: "passa", False: "falha", None: "sem veredito"}[res["pass"]]
     lines += ["", "## Regras", "",
               f"- **Reserva** (`{cand}` contra `{base}`): {verdict}. Prontas {res['done_cand']} contra "
               f"{res['done_base']}, tolerância {res['tolerance']}; razão de tempo {_fmt(res['ratio'])} "
-              f"(limite {MAX_RATIO}).",
+              f"(limite {MAX_RATIO})" + (f"; por tarefa, de {min(per_task)} a {max(per_task)}." if per_task else "."),
               "- **Harness**, da melhor para a pior: "
               + "; ".join(f"{h} ({d} prontas, mediana {_fmt(m)} s)" for h, d, m in rank(records)) + ".",
               f"- **Válido**: {'sim' if valido(records, base) else 'não'}. "
               + ("O peso base fecha pelo menos 1 tarefa difícil." if valido(records, base)
                  else "O peso base não fecha nenhuma tarefa difícil; as tarefas difíceis não separam nada."),
-              "", "Com 2 repetições por combinação, uma diferença de 1 tarefa entre dois harnesses não dá veredito.", ""]
+              "", "Com 2 repetições por combinação, uma diferença de 1 tarefa entre dois harnesses ou entre dois pesos não dá veredito. A razão de tempo junta todas as tarefas: o peso que falha uma tarefa lenta fica com a mediana menor.", ""]
     return "\n".join(lines)
 
 
