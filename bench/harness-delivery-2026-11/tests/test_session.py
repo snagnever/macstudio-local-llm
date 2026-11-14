@@ -102,3 +102,9 @@ def test_check_runs_inside_the_sandbox(fake, tmp_path, monkeypatch):
     monkeypatch.setattr(run_session.harness, "sandboxed", lambda cmd, **kw: seen.append(cmd.argv) or real(cmd, **kw))
     run("pi", "b", "k2", 1, T, tmp_path / "r", tmp_path / "l")
     assert len(seen) == 2 and any("checks.py" in a for a in seen[1])
+
+
+def test_session_copy_is_its_own_git_root(fake, tmp_path):
+    # A harness looks upward for the git root; without one in the copy it finds the campaign repository.
+    run("pi", "b", "k2", 1, T, tmp_path / "r", tmp_path / "l")
+    assert (tmp_path / "l/work/k2-pi-b-r1/.git").is_dir()

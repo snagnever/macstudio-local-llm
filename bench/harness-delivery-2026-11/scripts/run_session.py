@@ -115,6 +115,8 @@ def run(name: str, task: str, pack: str, rep: int, target: Target, out: Path, lo
     for d in (repo.parent, home, log.parent, record_path(out, pack, name, task, rep).parent):
         d.mkdir(parents=True, exist_ok=True)
     tasks.fresh_copy(task, repo)
+    # Own git root: a harness that looks upward must stop at the copy, not at the campaign repository.
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
     harness.prepare(name, home, target)
     cmd = harness.sandboxed(harness.command(name, tasks.prompt(task), repo, home, target))
     code, timed_out, wall = _execute(cmd, log, spec.limit_s if limit_s is None else limit_s)
