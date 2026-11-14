@@ -1,0 +1,18 @@
+{
+ "harness": "claude",
+ "harness_version": "2.1.292 (Claude Code)",
+ "pack": "k2",
+ "task": "a",
+ "rep": 2,
+ "model_id": "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS",
+ "task_done": true,
+ "steps_passed": null,
+ "cheat": [],
+ "wall_s": 46.5,
+ "exit": 0,
+ "timeout": false,
+ "claimed_done": true,
+ "turns": 13,
+ "input_tokens": 149464,
+ "output_tokens": 2977
+}

@@ -1,0 +1,18 @@
+{
+ "harness": "pi",
+ "harness_version": "0.85.1",
+ "pack": "k2",
+ "task": "T7",
+ "rep": 2,
+ "model_id": "ukisai/Swift-1.5-Qwen3.8-Flash-Next-GGUF:IQ4_XS",
+ "task_done": true,
+ "steps_passed": 5,
+ "cheat": [],
+ "wall_s": 75.0,
+ "exit": 0,
+ "timeout": false,
+ "claimed_done": true,
+ "turns": null,
+ "input_tokens": null,
+ "output_tokens": null
+}

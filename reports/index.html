@@ -125,6 +125,14 @@ footer a{color:var(--accent)}
         no, 2.4×–4.5× slower per turn.</b> Terminal-Bench 2.1: 57 and 58 of 89 tasks. Stay on Splash 1.5.0.</p>
         <span class="c-meta"><span>2026-11-10</span><span class="path">qwen38-flashnext-concurrency.html</span></span>
       </a>
+      <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-uncensored-speed.html">
+        <span class="c-title">Do uncensored weights cost speed?</span>
+        <p class="c-desc">Public summary for readers outside this repo: three uncensored Flash-Next packs (Heretic v2,
+        Huihui v2, SC117) against the standard Swift 1.5 pack on Splash 1.6.1, at 32K, 128K and 256K, two boots each.
+        <b>Not measurably: 1.00× to 1.05× the agent turn time, and two boots of one pack differ by up to 10%. Cold
+        start and cache reuse are the same.</b> Two of the three packs are also a smaller quantization.</p>
+        <span class="c-meta"><span>2026-11-14</span><span class="path">qwen38-flashnext-uncensored-speed.html</span></span>
+      </a>
       <a class="card" style="--c:var(--s1)" href="qwen38-flashnext-gguf-weights.html">
         <span class="c-title">Flash-Next GGUF weights</span>
         <p class="c-desc">Seven GGUF packs on Splash 1.5.0: Swift 1.5, Unsloth UD (base and Dynamic V3.1) and GSQ-RCO
@@ -248,6 +256,15 @@ footer a{color:var(--accent)}
     <p class="s-note">What local and frontier models produce inside coding harnesses from the same prompt: SVG drawings,
     a game and landing pages. Also field performance from day-to-day opencode use.</p>
     <div class="cards">
+      <a class="card" style="--c:var(--s4)" href="qwen38-flashnext-harness-delivery.html">
+        <span class="c-title">Four coding harnesses, one local model</span>
+        <p class="c-desc">Public summary for readers outside this repo: Claude Code, OpenCode, pi and dsh run the same
+        7 coding tasks on Flash-Next, with a standard and an uncensored pack, 112 sessions judged by a hidden script.
+        <b>105 of 112 done. The four harnesses close 25 to 27 of 28: no measurable difference. The uncensored pack
+        closes 51 against 54 and refuses 0 of 100 AdvBench prompts.</b> Also: three defects found in the benchmark
+        itself.</p>
+        <span class="c-meta"><span>2026-11-14</span><span class="path">qwen38-flashnext-harness-delivery.html</span></span>
+      </a>
       <a class="card" style="--c:var(--s4)" href="harness-matrix-svgbench.html">
         <span class="c-title">SVGBench on the harness matrix</span>
         <p class="c-desc">84 SVGs from 6 harness × model pairs, graded requirement by requirement by a single judge:
